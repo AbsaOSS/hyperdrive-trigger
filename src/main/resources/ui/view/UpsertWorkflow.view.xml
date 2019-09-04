@@ -1,0 +1,88 @@
+<mvc:View controllerName="hyperdriver.controller.UpsertWorkflow"
+		  xmlns="sap.m"
+		  xmlns:core="sap.ui.core"
+		  xmlns:l="sap.ui.layout"
+		  xmlns:mvc="sap.ui.core.mvc"
+		  xmlns:form="sap.ui.layout.form">
+	<Page>
+		<customHeader>
+			<Bar>
+				<contentLeft>
+					<Title text=""/>
+					<Title text="{/title} Workflow"/>
+				</contentLeft>
+				<contentRight>
+					<Button icon="sap-icon://nav-back" type="Transparent" press=".onBackPress">
+					</Button>
+					<Title text=""/>
+				</contentRight>
+			</Bar>
+		</customHeader>
+		<l:BlockLayout background="Dashboard">
+			<l:BlockLayoutRow>
+				<l:BlockLayoutCell title="Workflow">
+					<form:SimpleForm adjustLabelSpan="true" editable="true">
+						<form:content>
+							<Label text="Workflow Name"/>
+							<Input id="workflowName"
+								   type="Text"
+								   placeholder="Workflow name*"
+								   width="100%"
+								   value="{/workflow/name}"/>
+							<Label text="Is Active"/>
+							<CheckBox selected="{/workflow/isActive}"/>
+						</form:content>
+					</form:SimpleForm>
+				</l:BlockLayoutCell>
+				<l:BlockLayoutCell title="Sensor">
+					<form:SimpleForm adjustLabelSpan="true" editable="true">
+						<form:content>
+							<Label text="Event type"/>
+							<Select id="eventTypeSelect"
+									showSecondaryValues="false"
+									items="{/eventTypes}"
+									selectedKey="{/workflow/trigger/eventType/name}"
+									change="onEventTypeSelect">
+								<items>
+									<core:Item key="{name}" text="{name}" />
+								</items>
+							</Select>
+						</form:content>
+					</form:SimpleForm>
+					<form:SimpleForm id="sensorForm">
+						<form:content>
+						</form:content>
+					</form:SimpleForm>
+				</l:BlockLayoutCell>
+				<l:BlockLayoutCell title="Job">
+					<form:SimpleForm adjustLabelSpan="true" editable="true">
+						<form:content>
+							<Label text="Job type"/>
+							<Select id="jobTypeSelect"
+									showSecondaryValues="false"
+									items="{/jobTypes}"
+									selectedKey="{/workflow/job/jobType/name}"
+									change="onJobTypeSelect">
+								<items>
+									<core:Item key="{name}" text="{name}" />
+								</items>
+							</Select>
+						</form:content>
+					</form:SimpleForm>
+					<form:SimpleForm id="jobForm">
+						<form:content>
+						</form:content>
+					</form:SimpleForm>
+				</l:BlockLayoutCell>
+			</l:BlockLayoutRow>
+		</l:BlockLayout>
+		<footer>
+			<Bar>
+				<contentRight>
+					<Button id="onSaveWorkflow" text="Save" icon="sap-icon://accept" press=".onSaveWorkflow"/>
+					<Button id="onCancelWorkflow" text="Cancel" icon="sap-icon://cancel" press=".onCancelWorkflow"/>
+				</contentRight>
+			</Bar>
+		</footer>
+	</Page>
+</mvc:View>
