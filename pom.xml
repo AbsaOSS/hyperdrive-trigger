@@ -23,8 +23,8 @@
 
     <modelVersion>4.0.0</modelVersion>
     <version>0.0.1-SNAPSHOT</version>
-    <groupId>za.co.absa.hyperdrive</groupId>
-    <artifactId>trigger</artifactId>
+    <groupId>za.co.absa</groupId>
+    <artifactId>hyperdrive-trigger</artifactId>
     <packaging>jar</packaging>
 
     <properties>
@@ -150,7 +150,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring.version}</version>
                 <configuration>
-                    <mainClass>core.api.rest.Application</mainClass>
+                    <mainClass>za.co.absa.hyperdrive.core.api.rest.Application</mainClass>
                 </configuration>
                 <executions>
                     <execution>
