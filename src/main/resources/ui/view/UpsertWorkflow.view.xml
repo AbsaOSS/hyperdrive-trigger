@@ -37,12 +37,12 @@
 				<l:BlockLayoutCell title="Sensor">
 					<form:SimpleForm adjustLabelSpan="true" editable="true">
 						<form:content>
-							<Label text="Event type"/>
-							<Select id="eventTypeSelect"
+							<Label text="Sensor type"/>
+							<Select id="sensorTypeSelect"
 									showSecondaryValues="false"
-									items="{/eventTypes}"
-									selectedKey="{/workflow/trigger/eventType/name}"
-									change="onEventTypeSelect">
+									items="{/sensorTypes}"
+									selectedKey="{/workflow/sensor/sensorType/name}"
+									change="onSensorTypeSelect">
 								<items>
 									<core:Item key="{name}" text="{name}" />
 								</items>

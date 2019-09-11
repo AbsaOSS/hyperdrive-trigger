@@ -6,9 +6,9 @@ import com.fasterxml.jackson.databind._
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import za.co.absa.hyperdrive.trigger.api.rest.services._
-import za.co.absa.hyperdrive.trigger.models.enums.EventTypes.EventType
+import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes.SensorType
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.JobStatus
-import za.co.absa.hyperdrive.trigger.models.enums.{EventTypes, JobStatuses, JobTypes}
+import za.co.absa.hyperdrive.trigger.models.enums.{SensorTypes, JobStatuses, JobTypes}
 import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
 import za.co.absa.hyperdrive.trigger.persistance.{JobInstanceRepositoryImpl, WorkflowRepositoryImpl}
 import org.springframework.boot.SpringApplication
@@ -34,7 +34,7 @@ class Application() {
   @Bean
   def objectMapper(): ObjectMapper = {
     val module = new SimpleModule()
-      .addDeserializer(classOf[EventType], new EventTypesDeserializer)
+      .addDeserializer(classOf[SensorType], new SensorTypesDeserializer)
       .addDeserializer(classOf[JobStatus], new JobStatusesDeserializer)
       .addDeserializer(classOf[JobType], new JobTypesDeserializer)
 
@@ -56,11 +56,11 @@ class Application() {
   @Bean
   def getAdminService: AdminService = new AdminServiceImpl()
 
-  class EventTypesDeserializer extends JsonDeserializer[EventType] {
-    override def deserialize(p: JsonParser, ctxt: DeserializationContext): EventType = {
+  class SensorTypesDeserializer extends JsonDeserializer[SensorType] {
+    override def deserialize(p: JsonParser, ctxt: DeserializationContext): SensorType = {
       val node = p.getCodec.readTree[JsonNode](p)
       val value = node.get("name").textValue()
-      EventTypes.eventTypes.find(_.name == value).getOrElse(throw new Exception("Failed to find enum value"))
+      SensorTypes.sensorTypes.find(_.name == value).getOrElse(throw new Exception("Failed to find enum value"))
     }
   }
 

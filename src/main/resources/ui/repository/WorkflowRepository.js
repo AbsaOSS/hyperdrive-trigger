@@ -17,9 +17,9 @@ let WorkflowRepository = new function () {
             "workflow?id="+id,
             function(data) {
                 let res = [];
-                let obj = data.trigger.triggerProperties.matchProperties;
+                let obj = data.sensor.sensorProperties.matchProperties;
                 Object.keys(obj).map(k => res.push({ keyField: k, valueField: obj[k] }));
-                data.trigger.triggerProperties.matchProperties = res;
+                data.sensor.sensorProperties.matchProperties = res;
 
                 model.setProperty("/workflow", data);
             },

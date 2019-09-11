@@ -1,16 +1,16 @@
 package za.co.absa.hyperdrive.trigger.models
 
-import za.co.absa.hyperdrive.trigger.models.enums.EventTypes.EventType
+import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes.SensorType
 
-case class EventTrigger(
+case class Sensor(
   workflowId: Long,
-  eventType: EventType,
-  triggerProperties: TriggerProperties,
+  sensorType: SensorType,
+  sensorProperties: SensorProperties,
   id: Long = 0
 )
 
-case class TriggerProperties(
-  eventTriggerId: Long,
+case class SensorProperties(
+  sensorId: Long,
   properties: Properties,
   matchProperties: Map[String, String]
 )

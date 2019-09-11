@@ -23,7 +23,7 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository) e
 
   def getWorkflow(id: Long)(implicit ec: ExecutionContext): Future[Option[WorkflowJoined]] = {
     workflowRepository.getWorkflow(id).map {
-      case Some((w, e, jd)) =>
+      case Some((w, s, jd)) =>
         Option(
           WorkflowJoined(
             id = w.id,
@@ -31,7 +31,7 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository) e
             isActive = w.isActive,
             created = w.created,
             updated = w.updated,
-            trigger = e,
+            sensor = s,
             job = jd
           )
         )

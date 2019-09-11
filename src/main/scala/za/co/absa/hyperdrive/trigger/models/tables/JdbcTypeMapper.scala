@@ -1,7 +1,7 @@
 package za.co.absa.hyperdrive.trigger.models.tables
 
-import za.co.absa.hyperdrive.trigger.models.enums.{EventTypes, JobStatuses, JobTypes}
-import za.co.absa.hyperdrive.trigger.models.enums.EventTypes.EventType
+import za.co.absa.hyperdrive.trigger.models.enums.{SensorTypes, JobStatuses, JobTypes}
+import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes.SensorType
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.JobStatus
 import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
 import play.api.libs.json.{JsValue, Json}
@@ -11,11 +11,11 @@ import za.co.absa.hyperdrive.trigger.models.tables.JDBCProfile.profile._
 
 object JdbcTypeMapper {
 
-  implicit val eventTypeMapper: JdbcType[EventType] =
-    MappedColumnType.base[EventType, String](
-      eventType => eventType.name,
-      eventTypeName => EventTypes.eventTypes.find(_.name == eventTypeName).getOrElse(
-        throw new Exception(s"Couldn't find EventType: $eventTypeName")
+  implicit val sensorTypeMapper: JdbcType[SensorType] =
+    MappedColumnType.base[SensorType, String](
+      sensorType => sensorType.name,
+      sensorTypeName => SensorTypes.sensorTypes.find(_.name == sensorTypeName).getOrElse(
+        throw new Exception(s"Couldn't find SensorType: $sensorTypeName")
       )
     )
 

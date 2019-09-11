@@ -2,8 +2,8 @@ package za.co.absa.hyperdrive.trigger.scheduler.sensors
 
 import java.util.concurrent.Executors
 
-import za.co.absa.hyperdrive.trigger.models.enums.EventTypes
-import za.co.absa.hyperdrive.trigger.persistance.EventTriggersRepository
+import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes
+import za.co.absa.hyperdrive.trigger.persistance.SensorRepository
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.kafka.KafkaSensor
 import za.co.absa.hyperdrive.trigger.scheduler.utilities.SensorsConfig
 import za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor
@@ -13,7 +13,7 @@ import scala.collection.mutable
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success}
 
-class Sensors(eventProcessor: EventProcessor, eventTriggersRepository: EventTriggersRepository) {
+class Sensors(eventProcessor: EventProcessor, sensorRepository: SensorRepository) {
   private val logger = LoggerFactory.getLogger(this.getClass)
 
   private implicit val executionContext: ExecutionContextExecutor =
@@ -43,7 +43,7 @@ class Sensors(eventProcessor: EventProcessor, eventTriggersRepository: EventTrig
 
   private def removeInactiveSensors(): Future[Unit] = {
     val activeSensors = sensors.keys.toSeq
-    eventTriggersRepository.getInactiveTriggers(activeSensors).map(
+    sensorRepository.getInactiveSensors(activeSensors).map(
       _.foreach{
         id =>
           sensors.get(id).foreach(_.close())
@@ -54,11 +54,11 @@ class Sensors(eventProcessor: EventProcessor, eventTriggersRepository: EventTrig
 
   private def addNewSensors(): Future[Unit] = {
     val activeSensors = sensors.keys.toSeq
-    eventTriggersRepository.getNewActiveTriggers(activeSensors).map {
+    sensorRepository.getNewActiveSensors(activeSensors).map {
       _.foreach {
-        case eventTrigger if eventTrigger.eventType == EventTypes.Kafka || eventTrigger.eventType == EventTypes.AbsaKafka =>
+        case sensor if sensor.sensorType == SensorTypes.Kafka || sensor.sensorType == SensorTypes.AbsaKafka =>
           sensors.put(
-            eventTrigger.id, new KafkaSensor(eventProcessor.eventProcessor, eventTrigger.triggerProperties, executionContext)
+            sensor.id, new KafkaSensor(eventProcessor.eventProcessor, sensor.sensorProperties, executionContext)
           )
         case _ => None
       }
