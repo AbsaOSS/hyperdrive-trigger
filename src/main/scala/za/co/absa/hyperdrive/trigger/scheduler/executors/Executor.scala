@@ -1,6 +1,6 @@
 package za.co.absa.hyperdrive.trigger.scheduler.executors
 
-import za.co.absa.hyperdrive.trigger.models.{JobInstance, TriggerProperties}
+import za.co.absa.hyperdrive.trigger.models.JobInstance
 
 import scala.concurrent.{ExecutionContext, Future}
 

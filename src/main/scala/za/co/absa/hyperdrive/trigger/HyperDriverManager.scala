@@ -1,6 +1,6 @@
 package za.co.absa.hyperdrive.trigger
 
-import za.co.absa.hyperdrive.trigger.persistance.{EventRepositoryImpl, EventTriggersRepositoryImpl, JobDefinitionsRepositoryImpl, JobInstanceRepositoryImpl}
+import za.co.absa.hyperdrive.trigger.persistance.{EventRepositoryImpl, SensorRepositoryImpl, JobDefinitionsRepositoryImpl, JobInstanceRepositoryImpl}
 import za.co.absa.hyperdrive.trigger.scheduler.JobScheduler
 import za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor
 import za.co.absa.hyperdrive.trigger.scheduler.executors.Executors
@@ -32,7 +32,7 @@ object HyperDriverManager {
           new JobDefinitionsRepositoryImpl(),
           new JobInstanceRepositoryImpl()
         ),
-        new EventTriggersRepositoryImpl()
+        new SensorRepositoryImpl()
       ),
       executors = new Executors(new JobInstanceRepositoryImpl()),
       jobInstanceRepository = new JobInstanceRepositoryImpl()

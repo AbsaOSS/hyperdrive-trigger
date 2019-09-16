@@ -13,8 +13,8 @@ sap.ui.define([
 				variables: {},
 				maps: {}
 			};
-			this._emptyTriggerProperties = {
-				properties: {
+			this._emptySensorProperties = {
+				settings: {
 					variables: {},
 					maps: {}
 				},
@@ -28,11 +28,11 @@ sap.ui.define([
 					},
 					jobParameters: { ...this._emptyJobParameters }
 				},
-				trigger: {
-					eventType: {
+				sensor: {
+					sensorType: {
 						name: "Absa-Kafka"
 					},
-					triggerProperties: {...this._emptyTriggerProperties }
+					properties: { ...this._emptySensorProperties }
 				}
 			}
 		},
@@ -46,7 +46,7 @@ sap.ui.define([
 
 				isEdit ? this.initEditDialog() : this.initCreateDialog();
 				this._model.setProperty("/jobTypes", this.jobTypes);
-				this._model.setProperty("/eventTypes", this.eventTypes);
+				this._model.setProperty("/sensorTypes", this.sensorTypes);
 			}
 		},
 
@@ -76,17 +76,17 @@ sap.ui.define([
 		getWorkflowToSave: function () {
 			let workflow = this._model.getProperty("/workflow");
 			let matchProperties = {};
-			workflow.trigger.triggerProperties.matchProperties.map(function(joinCondition) {
+			workflow.sensor.properties.matchProperties.map(function(joinCondition) {
 				matchProperties[joinCondition.keyField] = joinCondition.valueField
 			});
-			workflow.trigger.triggerProperties.matchProperties = matchProperties;
+			workflow.sensor.properties.matchProperties = matchProperties;
 
 			return workflow
 		},
 
 		loadViewFragments: function () {
 			this.onJobTypeSelect(true);
-			this.onEventTypeSelect(true);
+			this.onSensorTypeSelect(true);
 		},
 
         onJobTypeSelect: function (isInitial) {
@@ -96,10 +96,10 @@ sap.ui.define([
             this.showFragmentInView(fragmentName, "hyperdriver.view.job", "jobForm")
         },
 
-        onEventTypeSelect: function (isInitial) {
-			isInitial !== true && this._model.setProperty("/workflow/trigger/triggerProperties", jQuery.extend(true, {}, this._emptyTriggerProperties));
-			let key = this.getView().byId("eventTypeSelect").getSelectedKey();
-            let fragmentName = this.eventTypes.find(function(e) { return e.name === key }).fragment;
+        onSensorTypeSelect: function (isInitial) {
+			isInitial !== true && this._model.setProperty("/workflow/sensor/properties", jQuery.extend(true, {}, this._emptySensorProperties));
+			let key = this.getView().byId("sensorTypeSelect").getSelectedKey();
+            let fragmentName = this.sensorTypes.find(function(e) { return e.name === key }).fragment;
             this.showFragmentInView(fragmentName, "hyperdriver.view.sensor", "sensorForm")
 		},
 
@@ -134,7 +134,7 @@ sap.ui.define([
             {name: "Spark", fragment: "spark"}
 		],
 
-        eventTypes: [
+        sensorTypes: [
             {name: "Absa-Kafka", fragment: "absaKafka"},
             {name: "Kafka", fragment: "kafka"}
         ]

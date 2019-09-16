@@ -4,7 +4,7 @@ import java.util.UUID.randomUUID
 import java.util.Properties
 
 import com.typesafe.config.{Config, ConfigFactory, ConfigObject}
-import za.co.absa.hyperdrive.trigger.scheduler.sensors.kafka.KafkaProperties
+import za.co.absa.hyperdrive.trigger.scheduler.sensors.kafka.KafkaSettings
 
 import scala.collection.JavaConverters._
 import scala.util.Try
@@ -26,9 +26,9 @@ private object Configs {
 }
 
 object KafkaConfig {
-  def getConsumerProperties(kafkaProp: KafkaProperties): Properties = {
+  def getConsumerProperties(kafkaSettings: KafkaSettings): Properties = {
     val properties = new Properties()
-    properties.put("bootstrap.servers", kafkaProp.servers.mkString(","))
+    properties.put("bootstrap.servers", kafkaSettings.servers.mkString(","))
     properties.put("group.id", randomUUID().toString)
     properties.put("key.deserializer", Configs.conf.getString("kafkaSource.key.deserializer"))
     properties.put("value.deserializer", Configs.conf.getString("kafkaSource.value.deserializer"))
