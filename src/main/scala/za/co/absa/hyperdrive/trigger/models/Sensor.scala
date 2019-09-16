@@ -5,17 +5,17 @@ import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes.SensorType
 case class Sensor(
   workflowId: Long,
   sensorType: SensorType,
-  sensorProperties: SensorProperties,
+  properties: Properties,
   id: Long = 0
 )
 
-case class SensorProperties(
+case class Properties(
   sensorId: Long,
-  properties: Properties,
+  settings: Settings,
   matchProperties: Map[String, String]
 )
 
-case class Properties(
+case class Settings(
   variables: Map[String, String],
   maps: Map[String, Set[String]]
 )

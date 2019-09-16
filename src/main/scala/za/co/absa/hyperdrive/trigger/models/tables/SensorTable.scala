@@ -2,7 +2,7 @@ package za.co.absa.hyperdrive.trigger.models.tables
 
 import za.co.absa.hyperdrive.trigger.models.tables.JDBCProfile.profile._
 import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes.SensorType
-import za.co.absa.hyperdrive.trigger.models.{Sensor, Properties, SensorProperties, Workflow}
+import za.co.absa.hyperdrive.trigger.models.{Properties, Sensor, Settings, Workflow}
 import slick.lifted.{ForeignKeyQuery, ProvenShape}
 import za.co.absa.hyperdrive.trigger.models.tables.JdbcTypeMapper._
 
@@ -23,9 +23,9 @@ final class SensorTable(tag: Tag) extends Table[Sensor](tag, _tableName = "senso
       Sensor.apply(
         workflowId = sensorTuple._1,
         sensorType = sensorTuple._2,
-        sensorProperties = SensorProperties.apply(
+        properties = Properties.apply(
           sensorId = sensorTuple._6,
-          properties = Properties.apply(
+          settings = Settings.apply(
             variables = sensorTuple._3,
             maps = sensorTuple._4
           ),
@@ -37,9 +37,9 @@ final class SensorTable(tag: Tag) extends Table[Sensor](tag, _tableName = "senso
       Option(
         sensor.workflowId,
         sensor.sensorType,
-        sensor.sensorProperties.properties.variables,
-        sensor.sensorProperties.properties.maps,
-        sensor.sensorProperties.matchProperties,
+        sensor.properties.settings.variables,
+        sensor.properties.settings.maps,
+        sensor.properties.matchProperties,
         sensor.id
       )
   )

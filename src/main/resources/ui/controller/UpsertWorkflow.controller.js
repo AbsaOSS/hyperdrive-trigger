@@ -14,7 +14,7 @@ sap.ui.define([
 				maps: {}
 			};
 			this._emptySensorProperties = {
-				properties: {
+				settings: {
 					variables: {},
 					maps: {}
 				},
@@ -32,7 +32,7 @@ sap.ui.define([
 					sensorType: {
 						name: "Absa-Kafka"
 					},
-					sensorProperties: { ...this._emptySensorProperties }
+					properties: { ...this._emptySensorProperties }
 				}
 			}
 		},
@@ -76,10 +76,10 @@ sap.ui.define([
 		getWorkflowToSave: function () {
 			let workflow = this._model.getProperty("/workflow");
 			let matchProperties = {};
-			workflow.sensor.sensorProperties.matchProperties.map(function(joinCondition) {
+			workflow.sensor.properties.matchProperties.map(function(joinCondition) {
 				matchProperties[joinCondition.keyField] = joinCondition.valueField
 			});
-			workflow.sensor.sensorProperties.matchProperties = matchProperties;
+			workflow.sensor.properties.matchProperties = matchProperties;
 
 			return workflow
 		},
@@ -97,7 +97,7 @@ sap.ui.define([
         },
 
         onSensorTypeSelect: function (isInitial) {
-			isInitial !== true && this._model.setProperty("/workflow/sensor/sensorProperties", jQuery.extend(true, {}, this._emptySensorProperties));
+			isInitial !== true && this._model.setProperty("/workflow/sensor/properties", jQuery.extend(true, {}, this._emptySensorProperties));
 			let key = this.getView().byId("sensorTypeSelect").getSelectedKey();
             let fragmentName = this.sensorTypes.find(function(e) { return e.name === key }).fragment;
             this.showFragmentInView(fragmentName, "hyperdriver.view.sensor", "sensorForm")

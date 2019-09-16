@@ -17,9 +17,9 @@ let WorkflowRepository = new function () {
             "workflow?id="+id,
             function(data) {
                 let res = [];
-                let obj = data.sensor.sensorProperties.matchProperties;
+                let obj = data.sensor.properties.matchProperties;
                 Object.keys(obj).map(k => res.push({ keyField: k, valueField: obj[k] }));
-                data.sensor.sensorProperties.matchProperties = res;
+                data.sensor.properties.matchProperties = res;
 
                 model.setProperty("/workflow", data);
             },

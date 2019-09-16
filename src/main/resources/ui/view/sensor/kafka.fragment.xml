@@ -1,7 +1,7 @@
 <core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
     <Label text="Kafka servers"/>
     <VBox>
-        <List mode="Delete" items="{/workflow/sensor/sensorProperties/properties/maps/servers}" delete="onDeleteServer" showNoData="false">
+        <List mode="Delete" items="{/workflow/sensor/properties/settings/maps/servers}" delete="onDeleteServer" showNoData="false">
             <CustomListItem>
                 <Input type="Text" value="{}" placeholder="Server"/>
             </CustomListItem>
@@ -10,12 +10,12 @@
     </VBox>
     <Label text="Topic"/>
     <Input type="Text"
-           value="{/workflow/sensor/sensorProperties/properties/variables/topic}"
+           value="{/workflow/sensor/properties/settings/variables/topic}"
            placeholder="Topic name"/>
     <Label text="Match properties"/>
     <VBox>
         <List mode="Delete"
-              items="{/workflow/sensor/sensorProperties/matchProperties}"
+              items="{/workflow/sensor/properties/matchProperties}"
               delete="onDeleteMatchProperty"
               showNoData="false">
             <CustomListItem>

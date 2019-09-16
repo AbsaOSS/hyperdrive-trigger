@@ -58,7 +58,7 @@ class Sensors(eventProcessor: EventProcessor, sensorRepository: SensorRepository
       _.foreach {
         case sensor if sensor.sensorType == SensorTypes.Kafka || sensor.sensorType == SensorTypes.AbsaKafka =>
           sensors.put(
-            sensor.id, new KafkaSensor(eventProcessor.eventProcessor, sensor.sensorProperties, executionContext)
+            sensor.id, new KafkaSensor(eventProcessor.eventProcessor, sensor.properties, executionContext)
           )
         case _ => None
       }
