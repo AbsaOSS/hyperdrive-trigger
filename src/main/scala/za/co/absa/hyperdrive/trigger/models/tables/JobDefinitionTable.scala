@@ -15,6 +15,9 @@ final class JobDefinitionTable(tag: Tag) extends Table[JobDefinition](tag, _tabl
   def maps: Rep[Map[String, Set[String]]] = column[Map[String, Set[String]]]("maps")
   def id: Rep[Long] = column[Long]("id", O.PrimaryKey, O.AutoInc, O.SqlType("BIGSERIAL"))
 
+  def workflow_fk: ForeignKeyQuery[WorkflowTable, Workflow] =
+    foreignKey("job_definition_workflow_fk", workflowId, TableQuery[WorkflowTable])(_.id)
+
   def * : ProvenShape[JobDefinition] = (workflowId, name, jobType, variables, maps, id) <> (
     jobDefinitionTuple =>
       JobDefinition.apply(
@@ -37,8 +40,5 @@ final class JobDefinitionTable(tag: Tag) extends Table[JobDefinition](tag, _tabl
         jobDefinition.id
       )
   )
-
-  def workflow: ForeignKeyQuery[WorkflowTable, Workflow] =
-    foreignKey("workflow_fk", workflowId, TableQuery[WorkflowTable])(_.id)
 
 }

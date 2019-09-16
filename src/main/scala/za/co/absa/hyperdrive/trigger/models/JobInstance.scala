@@ -8,7 +8,7 @@ import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
 case class JobInstance(
   jobName: String,
   jobDefinitionId: Long,
-  eventId: String,
+  sensorEventId: String,
   jobType: JobType,
   jobParameters: JobParameters,
   jobStatus: JobStatus,

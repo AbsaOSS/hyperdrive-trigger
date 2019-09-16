@@ -4,7 +4,7 @@ class absaKafka {
     }
 
     onShow() {
-        let path = "/workflow/trigger/triggerProperties/matchProperties";
+        let path = "/workflow/sensor/properties/matchProperties";
         let matchProperties = this._model.getProperty(path);
         if(!(matchProperties && matchProperties.length === 1 && matchProperties.some(e => e.keyField === 'ingestionToken'))) {
             this._model.setProperty(path, [{"keyField": "ingestionToken", "valueField": this.create_UUID()}])
@@ -12,11 +12,11 @@ class absaKafka {
     }
 
     onAddServer() {
-        UiListMethods.addListItem("/workflow/trigger/triggerProperties/properties/maps/servers", this._model, "")
+        UiListMethods.addListItem("/workflow/sensor/properties/settings/maps/servers", this._model, "")
     }
 
     onDeleteServer(oEv) {
-        UiListMethods.deleteListItem("/workflow/trigger/triggerProperties/properties/maps/servers", this._model, oEv)
+        UiListMethods.deleteListItem("/workflow/sensor/properties/settings/maps/servers", this._model, oEv)
     }
 
     create_UUID(){

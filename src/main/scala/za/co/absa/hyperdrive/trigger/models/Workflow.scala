@@ -7,7 +7,7 @@ case class WorkflowJoined(
   isActive: Boolean,
   created: LocalDateTime,
   updated: Option[LocalDateTime],
-  trigger: EventTrigger,
+  sensor: Sensor,
   job: JobDefinition,
   id: Long = 0
 ){

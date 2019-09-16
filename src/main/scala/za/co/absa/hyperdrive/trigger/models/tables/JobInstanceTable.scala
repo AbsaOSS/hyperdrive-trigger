@@ -4,8 +4,8 @@ import java.time.LocalDateTime
 
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.JobStatus
 import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
-import za.co.absa.hyperdrive.trigger.models.{JobInstance, JobParameters}
-import slick.lifted.ProvenShape
+import za.co.absa.hyperdrive.trigger.models.{Event, JobDefinition, JobInstance, JobParameters}
+import slick.lifted.{ForeignKeyQuery, ProvenShape}
 import za.co.absa.hyperdrive.trigger.models.tables.JdbcTypeMapper._
 import za.co.absa.hyperdrive.trigger.models.tables.JDBCProfile.profile._
 
@@ -13,7 +13,7 @@ final class JobInstanceTable(tag: Tag) extends Table[JobInstance](tag, _tableNam
 
   def jobName: Rep[String] = column[String]("job_name")
   def jobDefinitionId: Rep[Long] = column[Long]("job_definition_id")
-  def eventId: Rep[String] = column[String]("event_id", O.Unique, O.Length(70))
+  def sensorEventId: Rep[String] = column[String]("sensor_event_id", O.Unique, O.Length(70))
   def jobType: Rep[JobType] = column[JobType]("job_type")
   def variables: Rep[Map[String, String]] = column[Map[String, String]]("variables")
   def maps: Rep[Map[String, Set[String]]] = column[Map[String, Set[String]]]("maps")
@@ -23,10 +23,16 @@ final class JobInstanceTable(tag: Tag) extends Table[JobInstance](tag, _tableNam
   def updated: Rep[Option[LocalDateTime]] = column[Option[LocalDateTime]]("updated")
   def id: Rep[Long] = column[Long]("id", O.PrimaryKey, O.AutoInc, O.SqlType("BIGSERIAL"))
 
+  def jobDefinition_fk: ForeignKeyQuery[JobDefinitionTable, JobDefinition] =
+      foreignKey("job_instance_job_definition_fk", jobDefinitionId, TableQuery[JobDefinitionTable])(_.id)
+
+  def sensorEvent_fk: ForeignKeyQuery[EventTable, Event] =
+    foreignKey("job_instance_sensor_event_fk", sensorEventId, TableQuery[EventTable])(_.sensorEventId)
+  
   def * : ProvenShape[JobInstance] = (
     jobName,
     jobDefinitionId,
-    eventId,
+    sensorEventId,
     jobType,
     variables,
     maps,
@@ -40,7 +46,7 @@ final class JobInstanceTable(tag: Tag) extends Table[JobInstance](tag, _tableNam
       JobInstance.apply(
         jobName = jobInstanceTuple._1,
         jobDefinitionId = jobInstanceTuple._2,
-        eventId = jobInstanceTuple._3,
+        sensorEventId = jobInstanceTuple._3,
         jobType = jobInstanceTuple._4,
         jobParameters = JobParameters(
           variables = jobInstanceTuple._5,
@@ -56,7 +62,7 @@ final class JobInstanceTable(tag: Tag) extends Table[JobInstance](tag, _tableNam
       Option(
         jobInstance.jobName,
         jobInstance.jobDefinitionId,
-        jobInstance.eventId,
+        jobInstance.sensorEventId,
         jobInstance.jobType,
         jobInstance.jobParameters.variables,
         jobInstance.jobParameters.maps,

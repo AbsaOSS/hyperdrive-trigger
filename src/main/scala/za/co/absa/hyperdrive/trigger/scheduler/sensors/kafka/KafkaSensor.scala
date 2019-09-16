@@ -5,7 +5,7 @@ import java.util.Collections
 
 import org.apache.kafka.clients.consumer.{ConsumerRecord, KafkaConsumer}
 import play.api.libs.json.Json
-import za.co.absa.hyperdrive.trigger.models.{Event, TriggerProperties}
+import za.co.absa.hyperdrive.trigger.models.{Event, Properties}
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.PollSensor
 import za.co.absa.hyperdrive.trigger.scheduler.utilities.KafkaConfig
 
@@ -16,20 +16,20 @@ import org.slf4j.LoggerFactory
 import scala.util.{Failure, Success, Try}
 
 class KafkaSensor(
-  eventsProcessor: (Seq[Event], TriggerProperties) => Future[Boolean],
-  triggerProperties: TriggerProperties,
+  eventsProcessor: (Seq[Event], Properties) => Future[Boolean],
+  properties: Properties,
   executionContext: ExecutionContext
-) extends PollSensor(eventsProcessor, triggerProperties, executionContext) {
+) extends PollSensor(eventsProcessor, properties, executionContext) {
 
   private val logger = LoggerFactory.getLogger(this.getClass)
-  private val logMsgPrefix = s"Trigger id = ${triggerProperties.eventTriggerId}."
+  private val logMsgPrefix = s"Sensor id = ${properties.sensorId}."
 
-  private val kafkaProp = KafkaProperties(triggerProperties.properties)
+  private val kafkaSettings = KafkaSettings(properties.settings)
 
-  private val consumer = new KafkaConsumer[String, String](KafkaConfig.getConsumerProperties(kafkaProp))
+  private val consumer = new KafkaConsumer[String, String](KafkaConfig.getConsumerProperties(kafkaSettings))
 
   try {
-    consumer.subscribe(Collections.singletonList(kafkaProp.topic))
+    consumer.subscribe(Collections.singletonList(kafkaSettings.topic))
   } catch {
     case e: Exception => logger.debug(s"$logMsgPrefix. Exception during subscribe.", e)
   }
@@ -53,20 +53,20 @@ class KafkaSensor(
   private def processRecords[A](records: Iterable[ConsumerRecord[A, String]]): Future[Unit] = {
     logger.debug(s"$logMsgPrefix. Messages received = ${records.map(_.value())}")
     if(records.nonEmpty)
-      eventsProcessor.apply(records.map(recordToEvent).toSeq, triggerProperties).map(_ => ():Unit)
+      eventsProcessor.apply(records.map(recordToEvent).toSeq, properties).map(_ => ():Unit)
     else
       Future.successful(():Unit)
   }
 
   private def recordToEvent[A](record: ConsumerRecord[A, String]): Event = {
-    val sourceEventId = triggerProperties.eventTriggerId + "kafka" + record.topic() + record.partition() + record.offset()
+    val sourceEventId = properties.sensorId + "kafka" + record.topic() + record.partition() + record.offset()
     val payload = Try(
       Json.parse(record.value())
     ).getOrElse {
       logger.debug(s"$logMsgPrefix. Invalid message.")
       Json.parse(s"""{"errorMessage": "${record.value()}"}""")
     }
-    Event(sourceEventId, payload)
+    Event(sourceEventId, properties.sensorId, payload)
   }
 
   override def close(): Unit = {
