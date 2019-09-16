@@ -74,3 +74,4 @@ alter table "event"
   foreign key("sensor_id")
   references "sensor"("id")
   on update NO ACTION on delete NO ACTION;
+  
