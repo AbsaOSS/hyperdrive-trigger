@@ -8,9 +8,9 @@ import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import za.co.absa.hyperdrive.trigger.api.rest.services._
 import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes.SensorType
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.JobStatus
-import za.co.absa.hyperdrive.trigger.models.enums.{SensorTypes, JobStatuses, JobTypes}
+import za.co.absa.hyperdrive.trigger.models.enums.{JobStatuses, JobTypes, SensorTypes}
 import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
-import za.co.absa.hyperdrive.trigger.persistance.{JobInstanceRepositoryImpl, WorkflowRepositoryImpl}
+import za.co.absa.hyperdrive.trigger.persistance.{JobInstanceRepositoryImpl, RunRepositoryImpl, WorkflowRepositoryImpl}
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.context.annotation.{Bean, Configuration}
@@ -52,6 +52,9 @@ class Application() {
 
   @Bean
   def getWorkflowService: WorkflowService = new WorkflowServiceImpl(new WorkflowRepositoryImpl)
+
+  @Bean
+  def getRunService: RunService = new RunServiceImpl(new RunRepositoryImpl)
 
   @Bean
   def getAdminService: AdminService = new AdminServiceImpl()

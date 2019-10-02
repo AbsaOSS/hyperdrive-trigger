@@ -1,6 +1,7 @@
 package za.co.absa.hyperdrive.trigger.scheduler.executors.spark
 
 import za.co.absa.hyperdrive.trigger.models.JobParameters
+import scala.util.Try
 
 case class SparkParameters(
   jobJar: String,
@@ -15,7 +16,7 @@ object SparkParameters {
       jobJar = jobParameters.variables("jobJar"),
       mainClass = jobParameters.variables("mainClass"),
       deploymentMode = jobParameters.variables("deploymentMode"),
-      appArguments = jobParameters.maps("appArguments")
+      appArguments = Try(jobParameters.maps("appArguments")).getOrElse(Set.empty[String])
     )
   }
 }

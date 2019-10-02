@@ -4,7 +4,7 @@ import java.time.LocalDateTime
 
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.JobStatus
 import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
-import za.co.absa.hyperdrive.trigger.models.{Event, JobDefinition, JobInstance, JobParameters}
+import za.co.absa.hyperdrive.trigger.models._
 import slick.lifted.{ForeignKeyQuery, ProvenShape}
 import za.co.absa.hyperdrive.trigger.models.tables.JdbcTypeMapper._
 import za.co.absa.hyperdrive.trigger.models.tables.JDBCProfile.profile._
@@ -12,8 +12,6 @@ import za.co.absa.hyperdrive.trigger.models.tables.JDBCProfile.profile._
 final class JobInstanceTable(tag: Tag) extends Table[JobInstance](tag, _tableName = "job_instance") {
 
   def jobName: Rep[String] = column[String]("job_name")
-  def jobDefinitionId: Rep[Long] = column[Long]("job_definition_id")
-  def sensorEventId: Rep[String] = column[String]("sensor_event_id", O.Unique, O.Length(70))
   def jobType: Rep[JobType] = column[JobType]("job_type")
   def variables: Rep[Map[String, String]] = column[Map[String, String]]("variables")
   def maps: Rep[Map[String, Set[String]]] = column[Map[String, Set[String]]]("maps")
@@ -21,18 +19,15 @@ final class JobInstanceTable(tag: Tag) extends Table[JobInstance](tag, _tableNam
   def executorJobId: Rep[Option[String]] = column[Option[String]]("executor_job_id")
   def created: Rep[LocalDateTime] = column[LocalDateTime]("created")
   def updated: Rep[Option[LocalDateTime]] = column[Option[LocalDateTime]]("updated")
+  def order: Rep[Int] = column[Int]("order")
+  def dagInstanceId: Rep[Long] = column[Long]("dag_instance_id")
   def id: Rep[Long] = column[Long]("id", O.PrimaryKey, O.AutoInc, O.SqlType("BIGSERIAL"))
 
-  def jobDefinition_fk: ForeignKeyQuery[JobDefinitionTable, JobDefinition] =
-      foreignKey("job_instance_job_definition_fk", jobDefinitionId, TableQuery[JobDefinitionTable])(_.id)
+  def dagInstance_fk: ForeignKeyQuery[DagInstanceTable, DagInstance] =
+      foreignKey("job_instance_dag_instance_fk", dagInstanceId, TableQuery[DagInstanceTable])(_.id)
 
-  def sensorEvent_fk: ForeignKeyQuery[EventTable, Event] =
-    foreignKey("job_instance_sensor_event_fk", sensorEventId, TableQuery[EventTable])(_.sensorEventId)
-  
   def * : ProvenShape[JobInstance] = (
     jobName,
-    jobDefinitionId,
-    sensorEventId,
     jobType,
     variables,
     maps,
@@ -40,29 +35,29 @@ final class JobInstanceTable(tag: Tag) extends Table[JobInstance](tag, _tableNam
     executorJobId,
     created,
     updated,
+    order,
+    dagInstanceId,
     id
   ) <> (
     jobInstanceTuple =>
       JobInstance.apply(
         jobName = jobInstanceTuple._1,
-        jobDefinitionId = jobInstanceTuple._2,
-        sensorEventId = jobInstanceTuple._3,
-        jobType = jobInstanceTuple._4,
+        jobType = jobInstanceTuple._2,
         jobParameters = JobParameters(
-          variables = jobInstanceTuple._5,
-          maps = jobInstanceTuple._6
+          variables = jobInstanceTuple._3,
+          maps = jobInstanceTuple._4
         ),
-        jobStatus = jobInstanceTuple._7,
-        executorJobId = jobInstanceTuple._8,
-        created = jobInstanceTuple._9,
-        updated = jobInstanceTuple._10,
+        jobStatus = jobInstanceTuple._5,
+        executorJobId = jobInstanceTuple._6,
+        created = jobInstanceTuple._7,
+        updated = jobInstanceTuple._8,
+        order = jobInstanceTuple._9,
+        dagInstanceId = jobInstanceTuple._10,
         id = jobInstanceTuple._11
       ),
     (jobInstance: JobInstance) =>
       Option(
         jobInstance.jobName,
-        jobInstance.jobDefinitionId,
-        jobInstance.sensorEventId,
         jobInstance.jobType,
         jobInstance.jobParameters.variables,
         jobInstance.jobParameters.maps,
@@ -70,6 +65,8 @@ final class JobInstanceTable(tag: Tag) extends Table[JobInstance](tag, _tableNam
         jobInstance.executorJobId,
         jobInstance.created,
         jobInstance.updated,
+        jobInstance.order,
+        jobInstance.dagInstanceId,
         jobInstance.id
       )
   )

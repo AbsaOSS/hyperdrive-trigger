@@ -6,5 +6,6 @@ case class Event(
   sensorEventId: String,
   sensorId: Long,
   payload: JsValue,
+  dagInstanceId: Option[Long] = None,
   id: Long = 0
 )
