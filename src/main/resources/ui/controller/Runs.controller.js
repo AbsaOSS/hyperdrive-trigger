@@ -10,21 +10,21 @@ sap.ui.define([
 			this.getRouter().attachRouteMatched(this.onViewDisplay, this);
 		},
 
-		onViewDisplay : function (evt) {
-			evt.getParameter("name") === "runs" && this.loadRuns();
-		},
-
 		loadRuns: function () {
 			RunRepository.getPerWorkflowStatistics(this._model);
 		},
 
-		onRunsRefresh: function () {
+		onViewDisplay : function (evt) {
+			evt.getParameter("name") === "runs" && this.loadRuns();
+		},
+
+		onRefreshPress: function () {
 			this.loadRuns()
 		},
 
 		onRunsPress: function (oEvent) {
-			this.getRouter().navTo("workflowRuns", {
-				jobDefinitionId: oEvent.getSource().getBindingContext().getProperty("jobDefinitionId")
+			this.getRouter().navTo("dagRuns", {
+				workflowId: oEvent.getSource().getBindingContext().getProperty("workflowId")
 			});
 
 		},
