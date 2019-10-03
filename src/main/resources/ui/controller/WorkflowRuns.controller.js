@@ -10,9 +10,8 @@ sap.ui.define([
 			this.getRouter().getRoute("workflowRuns").attachPatternMatched(this._onRunsMatched, this);
 		},
 
-
 		loadRuns: function () {
-			RunRepository.getRuns(this._model.getProperty("/jobDefinitionId"), this._model);
+			RunRepository.getRuns(this._model.getProperty("/dagId"), this._model);
 		},
 
 		onRunsRefresh: function () {
@@ -24,7 +23,7 @@ sap.ui.define([
 		},
 
 		_onRunsMatched: function (oEvent) {
-			this._model.setProperty("/jobDefinitionId", oEvent.getParameter("arguments").jobDefinitionId);
+			this._model.setProperty("/dagId", oEvent.getParameter("arguments").dagId);
 			this.loadRuns();
 		}
 
