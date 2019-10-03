@@ -7,11 +7,11 @@ class SparkController {
     onShow() {}
 
     onDeleteAppArgument(oEv) {
-        UiListMethods.deleteListItem("/newJob/jobParameters/maps/appArguments", this._model, oEv)
+        UiListMethods.deleteListItem("/newJob/job/jobParameters/maps/appArguments", this._model, oEv)
     }
 
     onAddAppArgument() {
-        UiListMethods.addListItem("/newJob/jobParameters/maps/appArguments", this._model, "");
+        UiListMethods.addListItem("/newJob/job/jobParameters/maps/appArguments", this._model, "");
     }
 
 }

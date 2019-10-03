@@ -1,15 +1,15 @@
 <core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
     <Label text="Job Name"/>
-    <Input type="Text" placeholder="Job name*" width="100%" value="{/newJob/name}"/>
+    <Input type="Text" placeholder="Job name*" width="100%" value="{/newJob/job/name}"/>
 
     <Label text="Job jar"/>
-    <Input type="Text" placeholder="Job jar*" width="100%" value="{/newJob/jobParameters/variables/jobJar}"/>
+    <Input type="Text" placeholder="Job jar*" width="100%" value="{/newJob/job/jobParameters/variables/jobJar}"/>
 
     <Label text="Main class"/>
-    <Input type="Text" placeholder="Main class*" width="100%" value="{/newJob/jobParameters/variables/mainClass}"/>
+    <Input type="Text" placeholder="Main class*" width="100%" value="{/newJob/job/jobParameters/variables/mainClass}"/>
 
     <Label text="Deployment mode"/>
-    <Select selectedKey="{/newJob/jobParameters/variables/deploymentMode}">
+    <Select selectedKey="{/newJob/job/jobParameters/variables/deploymentMode}">
         <items>
             <core:Item key="cluster" text="cluster" />
             <core:Item key="client" text="client" />
@@ -19,7 +19,7 @@
     <Label text="App arguments"/>
     <VBox>
         <List mode="Delete"
-              items="{/newJob/jobParameters/maps/appArguments}"
+              items="{/newJob/job/jobParameters/maps/appArguments}"
               delete="onDeleteAppArgument"
               showNoData="false">
             <CustomListItem>
