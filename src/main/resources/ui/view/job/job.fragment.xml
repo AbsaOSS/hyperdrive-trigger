@@ -1,0 +1,28 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core" xmlns:form="sap.ui.layout.form">
+    <Dialog id="jobDialog" title="{/newJob/title} job" resizable="true"
+            draggable="true" class="minW40rem" beforeOpen="onBeforeOpen" afterOpen="onAfterOpen">
+        <content>
+            <form:SimpleForm adjustLabelSpan="true" editable="true">
+                <form:content>
+                    <Label text="Job type"/>
+                    <Select showSecondaryValues="false"
+                            items="{/jobTypes}"
+                            selectedKey="{/newJob/jobType/name}"
+                            change="onJobTypeSelect">
+                        <items>
+                            <core:Item key="{name}" text="{name}" />
+                        </items>
+                    </Select>
+                </form:content>
+            </form:SimpleForm>
+            <form:SimpleForm id="jobForm" adjustLabelSpan="true" editable="true">
+                <form:content>
+                </form:content>
+            </form:SimpleForm>
+        </content>
+        <buttons>
+            <Button text="Save" icon="sap-icon://save" press="onJobSave"/>
+            <Button text="Cancel" icon="sap-icon://cancel" press="onClosePress"/>
+        </buttons>
+    </Dialog>
+</core:FragmentDefinition>

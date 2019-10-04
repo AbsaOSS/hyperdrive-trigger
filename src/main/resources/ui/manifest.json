@@ -91,7 +91,12 @@
 					"target": "runs"
 				},
 				{
-					"pattern": "WorkflowRuns/{jobDefinitionId}",
+					"pattern": "DagRuns/{workflowId}",
+					"name": "dagRuns",
+					"target": "dagRuns"
+				},
+				{
+					"pattern": "WorkflowRuns/{dagId}",
 					"name": "workflowRuns",
 					"target": "workflowRuns"
 				}
@@ -116,6 +121,11 @@
 				"runs": {
 					"viewId": "runs",
 					"viewName": "Runs"
+				},
+				"dagRuns": {
+					"viewId": "dagRuns",
+					"viewName": "DagRuns",
+					"viewLevel": 2
 				},
 				"workflowRuns": {
 					"viewId": "workflowRuns",

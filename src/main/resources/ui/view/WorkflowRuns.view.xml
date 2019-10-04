@@ -13,7 +13,7 @@
 				<contentRight>
 					<Button icon="sap-icon://nav-back" type="Transparent" press=".onBackPress">
 					</Button>
-					<Button icon="sap-icon://refresh" type="Transparent" press=".onRunsRefresh">
+					<Button icon="sap-icon://refresh" type="Transparent" press=".onRefreshPress">
 					</Button>
 					<Title text=""/>
 				</contentRight>

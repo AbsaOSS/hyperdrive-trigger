@@ -1,8 +1,8 @@
 let RunRepository = new function () {
 
-    this.getRuns = function (jobDefinitionId, model) {
+    this.getRuns = function (dagInstanceId, model) {
         WSClient.get(
-            "jobInstances?jobDefinitionId="+jobDefinitionId,
+            "jobInstances?dagInstanceId="+dagInstanceId,
             function(data) {
                 model.setProperty("/runs", data);
             },
@@ -14,7 +14,7 @@ let RunRepository = new function () {
 
     this.getOverallStatistics = function (model) {
         WSClient.get(
-            "jobInstances/overallStatistics",
+            "runs/overallStatistics",
             function(data) {
                 model.setProperty("/overallStatistics", data);
             },
@@ -26,12 +26,24 @@ let RunRepository = new function () {
 
     this.getPerWorkflowStatistics = function (model) {
         WSClient.get(
-            "jobInstances/perWorkflowStatistics",
+            "runs/perWorkflowStatistics",
             function(data) {
                 model.setProperty("/runs", data);
             },
             function() {
                 new sap.m.MessageToast.show("Error while loading runs", {animationDuration: 5000});
+            }
+        );
+    };
+
+    this.getPerDagStatistics = function (workflowId, model) {
+        WSClient.get(
+            "runs/perDagStatistics?workflowId="+workflowId,
+            function(data) {
+                model.setProperty("/perDagStatistics", data);
+            },
+            function() {
+                new sap.m.MessageToast.show("Error while loading per dag statistics", {animationDuration: 5000});
             }
         );
     };

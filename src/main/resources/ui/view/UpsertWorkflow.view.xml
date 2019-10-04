@@ -3,7 +3,9 @@
 		  xmlns:core="sap.ui.core"
 		  xmlns:l="sap.ui.layout"
 		  xmlns:mvc="sap.ui.core.mvc"
-		  xmlns:form="sap.ui.layout.form">
+		  xmlns:form="sap.ui.layout.form"
+		  xmlns:app="http://schemas.sap.com/sapui5/extension/sap.ui.core.CustomData/1"
+		  xmlns:dnd="sap.ui.core.dnd">
 	<Page>
 		<customHeader>
 			<Bar>
@@ -24,8 +26,7 @@
 					<form:SimpleForm adjustLabelSpan="true" editable="true">
 						<form:content>
 							<Label text="Workflow Name"/>
-							<Input id="workflowName"
-								   type="Text"
+							<Input type="Text"
 								   placeholder="Workflow name*"
 								   width="100%"
 								   value="{/workflow/name}"/>
@@ -54,33 +55,52 @@
 						</form:content>
 					</form:SimpleForm>
 				</l:BlockLayoutCell>
-				<l:BlockLayoutCell title="Job">
+				<l:BlockLayoutCell title="Jobs">
 					<form:SimpleForm adjustLabelSpan="true" editable="true">
 						<form:content>
-							<Label text="Job type"/>
-							<Select id="jobTypeSelect"
-									showSecondaryValues="false"
-									items="{/jobTypes}"
-									selectedKey="{/workflow/job/jobType/name}"
-									change="onJobTypeSelect">
-								<items>
-									<core:Item key="{name}" text="{name}" />
-								</items>
-							</Select>
+							<VBox alignItems="Start" wrap="Wrap" alignContent="Start">
+								<Label text="Add job:"/>
+								<Button icon="sap-icon://add" press="onAddJob"/>
+							</VBox>
 						</form:content>
 					</form:SimpleForm>
-					<form:SimpleForm id="jobForm">
-						<form:content>
-						</form:content>
-					</form:SimpleForm>
+					<VBox height="inherit" justifyContent="Center" alignItems="Center" wrap="Wrap" alignContent="Center">
+						<List items="{/workflow/dagDefinitionJoined/jobDefinitions}" showNoData="false" showSeparators="None" width="100%">
+							<dragDropConfig>
+								<dnd:DragDropInfo
+										sourceAggregation="items"
+										targetAggregation="items"
+										dropPosition="Between"
+										dropEffect="Move"
+										dragStart="tableDragStart"
+										dragEnter="tableReorderDragEnter"
+										drop="tableReorderDrop"/>
+							</dragDropConfig>
+							<CustomListItem>
+								<GenericTile class="sapUiTinyMarginBegin sapUiTinyMarginTop tileLayout" header="{name}"
+											 subheader="Job type: {jobType/name}" mode="ContentMode">
+									<TileContent footer="Order: {= ${order} + 1}">
+										<VBox>
+											<FlexBox height="inherit" justifyContent="Center" alignItems="Center" wrap="Wrap" alignContent="Center">
+												<items>
+													<Button icon="sap-icon://edit" class="sapUiSmallMarginEnd" app:order="{order}" press="onEditJob"/>
+													<Button icon="sap-icon://delete" app:order="{order}" press="onDeleteJob" />
+												</items>
+											</FlexBox>
+										</VBox>
+									</TileContent>
+								</GenericTile>
+							</CustomListItem>
+						</List>
+					</VBox>
 				</l:BlockLayoutCell>
 			</l:BlockLayoutRow>
 		</l:BlockLayout>
 		<footer>
 			<Bar>
 				<contentRight>
-					<Button id="onSaveWorkflow" text="Save" icon="sap-icon://accept" press=".onSaveWorkflow"/>
-					<Button id="onCancelWorkflow" text="Cancel" icon="sap-icon://cancel" press=".onCancelWorkflow"/>
+					<Button text="Save" icon="sap-icon://accept" press=".onSaveWorkflow"/>
+					<Button text="Cancel" icon="sap-icon://cancel" press=".onCancelWorkflow"/>
 				</contentRight>
 			</Bar>
 		</footer>

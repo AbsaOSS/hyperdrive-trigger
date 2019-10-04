@@ -1,6 +1,7 @@
 sap.ui.define([
-	'./BaseController'
-], function (BaseController) {
+	'./BaseController',
+	"sap/ui/core/Fragment"
+], function (BaseController, Fragment) {
 	"use strict";
 	return BaseController.extend("hyperdriver.controller.UpsertWorkflow", {
 
@@ -9,10 +10,6 @@ sap.ui.define([
 			this.getView().setModel(new sap.ui.model.json.JSONModel());
 			this._model = this.getView().getModel();
 
-			this._emptyJobParameters = {
-				variables: {},
-				maps: {}
-			};
 			this._emptySensorProperties = {
 				settings: {
 					variables: {},
@@ -22,19 +19,24 @@ sap.ui.define([
 			};
 			this._emptyWorkflow = {
 				isActive: false,
-					job: {
-					jobType: {
-						name: "Spark"
-					},
-					jobParameters: { ...this._emptyJobParameters }
-				},
 				sensor: {
 					sensorType: {
 						name: "Absa-Kafka"
 					},
 					properties: { ...this._emptySensorProperties }
 				}
-			}
+			};
+
+			let cont = new JobController(this);
+			let view = this.getView();
+			this._upsertJobDialog = Fragment.load({
+				id: view.getId(),
+				name: "hyperdriver.view.job.job",
+				controller: cont
+			}).then(function (fragment) {
+				view.addDependent(fragment);
+			});
+			this._upsertJobDialog = this.byId("jobDialog");
 		},
 
 		onViewDisplay : function (evt) {
@@ -45,7 +47,6 @@ sap.ui.define([
 				this._model.setProperty("/isEdit", isEdit);
 
 				isEdit ? this.initEditDialog() : this.initCreateDialog();
-				this._model.setProperty("/jobTypes", this.jobTypes);
 				this._model.setProperty("/sensorTypes", this.sensorTypes);
 			}
 		},
@@ -60,6 +61,28 @@ sap.ui.define([
 			this._model.setProperty("/title", "Create");
 			this._model.setProperty("/workflow", jQuery.extend(true, {}, this._emptyWorkflow));
 			this.loadViewFragments();
+		},
+
+		onDeleteJob: function (oEv) {
+			let order = oEv.getSource().data("order");
+			UiListMethods.deleteListItemByOrder("/workflow/dagDefinitionJoined/jobDefinitions", this._model, order);
+			let jobs = [];
+			this._model.getProperty("/workflow/dagDefinitionJoined/jobDefinitions").forEach(function(e, index) {
+				e.order = index;
+				jobs.push(e);
+			});
+			this._model.setProperty("/workflow/dagDefinitionJoined/jobDefinitions", jobs);
+		},
+
+		onEditJob: function (oEv) {
+			let order = oEv.getSource().data("order");
+			this._model.setProperty("/newJob", {title: "Edit", isEdit: true, order: order});
+			this._upsertJobDialog.open();
+		},
+
+		onAddJob: function () {
+			this._model.setProperty("/newJob", {title: "Add", isEdit: false});
+			this._upsertJobDialog.open();
 		},
 
 		onSaveWorkflow: function () {
@@ -85,40 +108,17 @@ sap.ui.define([
 		},
 
 		loadViewFragments: function () {
-			this.onJobTypeSelect(true);
 			this.onSensorTypeSelect(true);
 		},
 
-        onJobTypeSelect: function (isInitial) {
-			isInitial !== true && this._model.setProperty("/workflow/job/jobParameters", jQuery.extend(true, {}, this._emptyJobParameters));
-			let key = this.getView().byId("jobTypeSelect").getSelectedKey();
-			let fragmentName = this.jobTypes.find(function(e) { return e.name === key }).fragment;
-            this.showFragmentInView(fragmentName, "hyperdriver.view.job", "jobForm")
-        },
-
-        onSensorTypeSelect: function (isInitial) {
+		onSensorTypeSelect: function (isInitial) {
 			isInitial !== true && this._model.setProperty("/workflow/sensor/properties", jQuery.extend(true, {}, this._emptySensorProperties));
 			let key = this.getView().byId("sensorTypeSelect").getSelectedKey();
-            let fragmentName = this.sensorTypes.find(function(e) { return e.name === key }).fragment;
-            this.showFragmentInView(fragmentName, "hyperdriver.view.sensor", "sensorForm")
+			let fragmentName = this.sensorTypes.find(function(e) { return e.name === key }).fragment;
+			let controllerName = this.sensorTypes.find(function(e) { return e.name === key }).controller;
+			let oLayout = this.getView().byId("sensorForm");
+			FragmentMethods.showFragmentIn(controllerName, fragmentName, "hyperdriver.view.sensor", oLayout, this._model);
 		},
-
-        showFragmentInView: function (fragmentName, fragmentLocation, destination) {
-            let oFragmentController = this._fragmentController[fragmentName];
-            if (!oFragmentController) {
-                let oController = eval("new " + fragmentName + "(this._model)");
-                let oFragment = sap.ui.xmlfragment(fragmentName, fragmentLocation + "." + fragmentName, oController);
-				oFragmentController = {fragment: oFragment, controller: oController};
-                this._fragmentController[fragmentName] = oFragmentController;
-            }
-
-            let oLayout = this.getView().byId(destination);
-            oLayout.removeAllContent();
-			oFragmentController.fragment.forEach(oElement =>
-                oLayout.addContent(oElement)
-            );
-			oFragmentController.controller.onShow();
-        },
 
 		onBackPress: function () {
 			this.myNavBack();
@@ -128,16 +128,14 @@ sap.ui.define([
 			this.myNavBack();
 		},
 
-        _fragmentController: {},
+		tableReorderDrop: function(oEvent) {
+			TileMethods.reorderTiles(oEvent, this._model, "/workflow/dagDefinitionJoined/jobDefinitions", this.getView());
+		},
 
-		jobTypes: [
-            {name: "Spark", fragment: "spark"}
-		],
-
-        sensorTypes: [
-            {name: "Absa-Kafka", fragment: "absaKafka"},
-            {name: "Kafka", fragment: "kafka"}
-        ]
+		sensorTypes: [
+			{name: "Absa-Kafka", fragment: "absaKafka", controller: "AbsaKafkaController"},
+			{name: "Kafka", fragment: "kafka", controller: "KafkaController"}
+		]
 
 	});
 });

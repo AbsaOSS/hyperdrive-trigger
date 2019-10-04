@@ -1,0 +1,71 @@
+<mvc:View
+        controllerName="hyperdriver.controller.DagRuns"
+        xmlns="sap.m"
+        xmlns:l="sap.ui.layout"
+        xmlns:mvc="sap.ui.core.mvc">
+    <Page>
+        <customHeader>
+            <Bar>
+                <contentLeft>
+                    <Title text=""/>
+                    <Title text="Dag Runs"/>
+                </contentLeft>
+                <contentRight>
+                    <Button icon="sap-icon://nav-back" type="Transparent" press=".onBackPress">
+                    </Button>
+                    <Button icon="sap-icon://refresh" type="Transparent" press=".onRefreshPress">
+                    </Button>
+                    <Title text=""/>
+                </contentRight>
+            </Bar>
+        </customHeader>
+
+        <l:BlockLayout background="Default">
+            <l:BlockLayoutRow>
+                <l:BlockLayoutCell backgroundColorSet="ColorSet9" backgroundColorShade="ShadeA" width="3">
+                    <Table items="{/perDagStatistics}" fixedLayout="false">
+                        <columns>
+                            <Column>
+                                <Text text="Dag id"/>
+                            </Column>
+                            <Column>
+                                <Text text="Total"/>
+                            </Column>
+                            <Column>
+                                <Text text="Successful / Failed runs"/>
+                            </Column>
+                            <Column>
+                                <Text text="Queued / Running runs"/>
+                            </Column>
+
+                        </columns>
+                        <items>
+                            <ColumnListItem
+                                    vAlign="Middle"
+                                    type="Navigation"
+                                    press=".onDagPress">
+                                <cells>
+                                    <Text text="{dagId}"/>
+                                    <Text text="{total}"/>
+                                    <Text text="{successful} / {failed}"/>
+                                    <Text text="{queued} / {running}"/>
+                                    <ToggleButton
+                                            icon="sap-icon://flag"
+                                            pressed="{path: 'Flagged', type: '.types.flagged'}"
+                                            class="sapUiMediumMarginBeginEnd"/>
+                                </cells>
+                            </ColumnListItem>
+                        </items>
+                    </Table>
+                </l:BlockLayoutCell>
+            </l:BlockLayoutRow>
+        </l:BlockLayout>
+
+        <footer>
+            <Bar>
+                <contentRight>
+                </contentRight>
+            </Bar>
+        </footer>
+    </Page>
+</mvc:View>

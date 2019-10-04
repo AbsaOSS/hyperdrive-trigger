@@ -10,5 +10,7 @@ trait Repository {
   val sensorTable = TableQuery[SensorTable]
   val jobDefinitionTable = TableQuery[JobDefinitionTable]
   val jobInstanceTable = TableQuery[JobInstanceTable]
+  val dagDefinitionTable = TableQuery[DagDefinitionTable]
+  val dagInstanceTable = TableQuery[DagInstanceTable]
   val workflowTable = TableQuery[WorkflowTable]
 }

@@ -1,4 +1,5 @@
-class kafka {
+class KafkaController {
+
     constructor(model) {
         this._model = model;
     }

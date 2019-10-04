@@ -1,11 +1,13 @@
 package za.co.absa.hyperdrive.trigger.models.tables
 
-import za.co.absa.hyperdrive.trigger.models.enums.{SensorTypes, JobStatuses, JobTypes}
+import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobStatuses, JobTypes, SensorTypes}
 import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes.SensorType
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.JobStatus
 import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
 import play.api.libs.json.{JsValue, Json}
 import slick.jdbc.JdbcType
+import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses.DagInstanceStatus
+
 import scala.util.Try
 import za.co.absa.hyperdrive.trigger.models.tables.JDBCProfile.profile._
 
@@ -27,11 +29,19 @@ object JdbcTypeMapper {
       )
     )
 
-  implicit val statusMapper: JdbcType[JobStatus] =
+  implicit val jobStatusMapper: JdbcType[JobStatus] =
     MappedColumnType.base[JobStatus, String](
       jobStatus => jobStatus.name,
       jobStatusName => JobStatuses.statuses.find(_.name == jobStatusName).getOrElse(
         throw new Exception(s"Couldn't find JobStatus: $jobStatusName")
+      )
+    )
+
+  implicit val dagInstanceStatusMapper: JdbcType[DagInstanceStatus] =
+    MappedColumnType.base[DagInstanceStatus, String](
+      status => status.name,
+      statusName => DagInstanceStatuses.statuses.find(_.name == statusName).getOrElse(
+        throw new Exception(s"Couldn't find DagInstanceStatus: $statusName")
       )
     )
 

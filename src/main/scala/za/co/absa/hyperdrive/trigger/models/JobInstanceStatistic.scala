@@ -8,9 +8,18 @@ case class OverallStatistics(
 )
 
 case class PerWorkflowStatistics(
-  jobDefinitionId: Long,
+  workflowId: Long,
   workflowName: String,
   isActive: Boolean,
+  total: Int,
+  successful: Int,
+  failed: Int,
+  queued: Int,
+  running: Int
+)
+
+case class PerDagStatistics(
+  dagId: Long,
   total: Int,
   successful: Int,
   failed: Int,

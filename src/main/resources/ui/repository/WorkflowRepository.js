@@ -20,7 +20,7 @@ let WorkflowRepository = new function () {
                 let obj = data.sensor.properties.matchProperties;
                 Object.keys(obj).map(k => res.push({ keyField: k, valueField: obj[k] }));
                 data.sensor.properties.matchProperties = res;
-
+                data.dagDefinitionJoined.jobDefinitions.sort(function(f, s){return f.order - s.order});
                 model.setProperty("/workflow", data);
             },
             function() {

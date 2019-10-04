@@ -2,13 +2,25 @@ package za.co.absa.hyperdrive.trigger.models
 
 import java.time.LocalDateTime
 
+case class Workflow(
+  name: String,
+  isActive: Boolean,
+  created: LocalDateTime,
+  updated: Option[LocalDateTime],
+  id: Long = 0
+)
+
+case class WorkflowState(
+  isActive: Boolean
+)
+
 case class WorkflowJoined(
   name: String,
   isActive: Boolean,
   created: LocalDateTime,
   updated: Option[LocalDateTime],
   sensor: Sensor,
-  job: JobDefinition,
+  dagDefinitionJoined: DagDefinitionJoined,
   id: Long = 0
 ){
   def toWorkflow: Workflow = {
@@ -21,15 +33,3 @@ case class WorkflowJoined(
     )
   }
 }
-
-case class Workflow(
-  name: String,
-  isActive: Boolean,
-  created: LocalDateTime,
-  updated: Option[LocalDateTime],
-  id: Long
-)
-
-case class WorkflowState(
-  isActive: Boolean
-)
