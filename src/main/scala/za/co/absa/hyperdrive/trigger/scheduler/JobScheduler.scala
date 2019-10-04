@@ -13,7 +13,7 @@ import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success}
 import org.slf4j.LoggerFactory
 
-class JobScheduler(sensors: Sensors, executors: Executors, jobInstanceRepository: JobInstanceRepository) {
+class JobScheduler(sensors: Sensors, executors: Executors, dagInstanceRepository: DagInstanceRepository) {
   private val logger = LoggerFactory.getLogger(this.getClass)
 
   private val HEART_BEAT: Int = SchedulerConfig.getHeartBeat
@@ -26,7 +26,7 @@ class JobScheduler(sensors: Sensors, executors: Executors, jobInstanceRepository
   private var runningScheduler: Future[Unit] = Future.successful((): Unit)
   private var runningSensors = Future.successful((): Unit)
   private var runningEnqueue = Future.successful((): Unit)
-  private val runningJobs = mutable.Map.empty[Long, Future[Unit]]
+  private val runningDags = mutable.Map.empty[Long, Future[Unit]]
 
   def startManager(): Unit = {
     if(!isManagerRunningAtomic.get() && runningScheduler.isCompleted) {
@@ -35,9 +35,9 @@ class JobScheduler(sensors: Sensors, executors: Executors, jobInstanceRepository
         Future {
           while (isManagerRunningAtomic.get()) {
             logger.debug("Running manager heart beat.")
-            removeFinishedJobs()
+            removeFinishedDags()
             processEvents()
-            enqueueJobs()
+            enqueueDags()
             Thread.sleep(HEART_BEAT)
           }
         }
@@ -59,19 +59,19 @@ class JobScheduler(sensors: Sensors, executors: Executors, jobInstanceRepository
     !runningScheduler.isCompleted
   }
 
-  private def enqueueJobs(emptySlotsSize: Int): Future[Unit] = {
-    jobInstanceRepository.getNewActiveJobs(runningJobs.keys.toSeq, emptySlotsSize).map {
-      _.foreach { job =>
-        logger.debug(s"Deploying job = ${job.id}")
-        runningJobs.put(job.id, executors.executeJob(job))
+  private def enqueueDags(emptySlotsSize: Int): Future[Unit] = {
+    dagInstanceRepository.getNewActiveDags(runningDags.keys.toSeq, emptySlotsSize).map {
+      _.foreach { dag =>
+        logger.debug(s"Deploying dag = ${dag.id}")
+        runningDags.put(dag.id, executors.executeDag(dag))
       }
     }
   }
 
-  private def removeFinishedJobs(): Unit = {
+  private def removeFinishedDags(): Unit = {
     if(runningEnqueue.isCompleted){
-      runningJobs.foreach {
-        case (id, fut) if fut.isCompleted => runningJobs.remove(id)
+      runningDags.foreach {
+        case (id, fut) if fut.isCompleted => runningDags.remove(id)
         case _ => ()
       }
     }
@@ -89,9 +89,9 @@ class JobScheduler(sensors: Sensors, executors: Executors, jobInstanceRepository
     }
   }
 
-  private def enqueueJobs(): Unit = {
-    if(runningJobs.size < NUM_OF_PAR_TASKS && runningEnqueue.isCompleted){
-      runningEnqueue = enqueueJobs(Math.max(0, NUM_OF_PAR_TASKS - runningJobs.size))
+  private def enqueueDags(): Unit = {
+    if(runningDags.size < NUM_OF_PAR_TASKS && runningEnqueue.isCompleted){
+      runningEnqueue = enqueueDags(Math.max(0, NUM_OF_PAR_TASKS - runningDags.size))
       runningEnqueue.onComplete {
         case Success(_) =>
           logger.debug("Running enqueue finished successfully.")
