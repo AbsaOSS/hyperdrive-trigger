@@ -12,6 +12,18 @@ let WorkflowRepository = new function () {
         );
     };
 
+    this.getWorkflowsByProjectName = function (projectName, model) {
+        WSClient.get(
+            "workflowsByProjectName?projectName="+projectName,
+            function(data) {
+                model.setProperty("/workflows", data);
+            },
+            function() {
+                new sap.m.MessageToast.show("Error while loading workflows", {animationDuration: 5000});
+            }
+        );
+    };
+
     this.getWorkflow = function (id, model) {
         WSClient.get(
             "workflow?id="+id,
@@ -25,6 +37,30 @@ let WorkflowRepository = new function () {
             },
             function() {
                 new sap.m.MessageToast.show("Error while loading workflow", {animationDuration: 5000});
+            }
+        );
+    };
+
+    this.getProjects = function (model) {
+        WSClient.get(
+            "workflows/projects",
+            function(data) {
+                model.setProperty("/projects", data);
+            },
+            function() {
+                new sap.m.MessageToast.show("Error while loading projects", {animationDuration: 5000});
+            }
+        );
+    };
+
+    this.getProjectsInfo = function (model) {
+        WSClient.get(
+            "workflows/projectsInfo",
+            function(data) {
+                model.setProperty("/projectsInfo", data);
+            },
+            function() {
+                new sap.m.MessageToast.show("Error while loading projects info", {animationDuration: 5000});
             }
         );
     };
@@ -77,6 +113,19 @@ let WorkflowRepository = new function () {
                 new sap.m.MessageToast.show("Error while updating workflow", {animationDuration: 5000});
             },
             workflowState
+        );
+    };
+
+    this.runWorkflow = function (workflowId) {
+        WSClient.put(
+            "workflow/run?workflowId="+workflowId,
+            function() {
+                new sap.m.MessageToast.show("Workflow has been deployed", {animationDuration: 5000});
+            },
+            function() {
+                new sap.m.MessageToast.show("Error while deploying workflow", {animationDuration: 5000});
+            },
+            {}
         );
     }
 

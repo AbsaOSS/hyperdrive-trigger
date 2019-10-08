@@ -7,27 +7,25 @@ sap.ui.define([
 		onInit: function () {
 			this.getView().setModel(new sap.ui.model.json.JSONModel());
 			this._model = this.getView().getModel();
-			this.getRouter().attachRouteMatched(this.onViewDisplay, this);
+			this.getRouter().getRoute("runs").attachPatternMatched(this.onViewDisplay, this);
 		},
 
-		loadRuns: function () {
-			RunRepository.getPerWorkflowStatistics(this._model);
+		loadData: function () {
+			RunRepository.getRuns(this._model.getProperty("/dagId"), this._model);
 		},
 
-		onViewDisplay : function (evt) {
-			evt.getParameter("name") === "runs" && this.loadRuns();
+		onRunsRefresh: function () {
+			this.loadData()
 		},
 
-		onRefreshPress: function () {
-			this.loadRuns()
+		onBackPress: function () {
+			this.myNavBack("runsByDag");
 		},
 
-		onRunsPress: function (oEvent) {
-			this.getRouter().navTo("dagRuns", {
-				workflowId: oEvent.getSource().getBindingContext().getProperty("workflowId")
-			});
-
-		},
+		onViewDisplay: function (oEvent) {
+			this._model.setProperty("/dagId", oEvent.getParameter("arguments").dagId);
+			this.loadData();
+		}
 
 	});
 });

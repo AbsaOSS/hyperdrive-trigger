@@ -5,6 +5,7 @@ import java.time.LocalDateTime
 case class Workflow(
   name: String,
   isActive: Boolean,
+  project: String,
   created: LocalDateTime,
   updated: Option[LocalDateTime],
   id: Long = 0
@@ -17,6 +18,7 @@ case class WorkflowState(
 case class WorkflowJoined(
   name: String,
   isActive: Boolean,
+  project: String,
   created: LocalDateTime,
   updated: Option[LocalDateTime],
   sensor: Sensor,
@@ -27,6 +29,7 @@ case class WorkflowJoined(
     Workflow(
       name = this.name,
       isActive = this.isActive,
+      project = this.project,
       created = this.created,
       updated = this.updated,
       id = this.id
