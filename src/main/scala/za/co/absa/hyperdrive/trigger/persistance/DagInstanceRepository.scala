@@ -10,6 +10,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 trait DagInstanceRepository extends Repository {
   def insertJoinedDagInstances(dagInstancesJoined: Seq[(DagInstanceJoined, Event)], events: Seq[Event])(implicit executionContext: ExecutionContext): Future[Unit]
+  def insertJoinedDagInstance(dagInstanceJoined: DagInstanceJoined)(implicit executionContext: ExecutionContext): Future[Unit]
   def getNewActiveDags(idToFilter: Seq[Long], size: Int): Future[Seq[DagInstance]]
   def update(dagInstance: DagInstance): Future[Unit]
 }
@@ -28,9 +29,16 @@ class DagInstanceRepositoryImpl extends DagInstanceRepository {
     }.andThen(eventTable ++= events).transactionally
   ).map(_ => (): Unit)
 
+  override def insertJoinedDagInstance(dagInstanceJoined: DagInstanceJoined)(implicit executionContext: ExecutionContext): Future[Unit] = db.run(
+    (for {
+      di <- dagInstanceTable returning dagInstanceTable.map(_.id) += dagInstanceJoined.toDagInstance
+      jis <- jobInstanceTable ++= dagInstanceJoined.jobInstances.map(_.copy(dagInstanceId = di))
+    } yield ()).transactionally
+  ).map(_ => (): Unit)
+
   override def getNewActiveDags(idToFilter: Seq[Long], size: Int): Future[Seq[DagInstance]] = db.run(
     dagInstanceTable.filter(ji =>
-        !ji.id.inSet(idToFilter) && ji.status.inSet(DagInstanceStatuses.finalStatuses)
+      !ji.id.inSet(idToFilter) && ji.status.inSet(DagInstanceStatuses.finalStatuses)
     ).take(size).result
   )
 

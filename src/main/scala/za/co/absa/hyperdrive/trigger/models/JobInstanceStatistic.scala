@@ -26,3 +26,12 @@ case class PerDagStatistics(
   queued: Int,
   running: Int
 )
+
+case class PerProjectStatistics(
+  projectName: String,
+  total: Int,
+  successful: Int,
+  failed: Int,
+  queued: Int,
+  running: Int
+)

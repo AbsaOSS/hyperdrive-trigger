@@ -10,7 +10,7 @@ import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes.SensorType
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.JobStatus
 import za.co.absa.hyperdrive.trigger.models.enums.{JobStatuses, JobTypes, SensorTypes}
 import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
-import za.co.absa.hyperdrive.trigger.persistance.{JobInstanceRepositoryImpl, RunRepositoryImpl, WorkflowRepositoryImpl}
+import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepositoryImpl, JobInstanceRepositoryImpl, RunRepositoryImpl, WorkflowRepositoryImpl}
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.context.annotation.{Bean, Configuration}
@@ -51,7 +51,7 @@ class Application() {
   def getJobInstanceService: JobInstanceService = new JobInstanceServiceImpl(new JobInstanceRepositoryImpl)
 
   @Bean
-  def getWorkflowService: WorkflowService = new WorkflowServiceImpl(new WorkflowRepositoryImpl)
+  def getWorkflowService: WorkflowService = new WorkflowServiceImpl(new WorkflowRepositoryImpl, new DagInstanceRepositoryImpl)
 
   @Bean
   def getRunService: RunService = new RunServiceImpl(new RunRepositoryImpl)

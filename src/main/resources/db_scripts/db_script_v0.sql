@@ -1,6 +1,7 @@
 create table "workflow" (
   "name" VARCHAR(45) NOT NULL UNIQUE,
   "is_active" BOOLEAN NOT NULL,
+  "project" VARCHAR NOT NULL,
   "created" TIMESTAMP NOT NULL,
   "updated" TIMESTAMP,
   "id" BIGSERIAL NOT NULL PRIMARY KEY

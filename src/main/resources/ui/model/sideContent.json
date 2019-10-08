@@ -11,14 +11,14 @@
 			"title": "Workflows",
 			"icon": "sap-icon://SAP-icons-TNT/workflow-editor",
 			"expanded": false,
-			"key": "workflows",
+			"key": "workflowsByProject",
 			"items": []
 		},
 		{
-			"title": "Runs",
+			"title": "RunsByProject",
 			"icon": "sap-icon://media-play",
 			"expanded": false,
-			"key": "runs",
+			"key": "runsByProject",
 			"items": []
 		}
 	],

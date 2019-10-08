@@ -32,6 +32,20 @@
 								   value="{/workflow/name}"/>
 							<Label text="Is Active"/>
 							<CheckBox selected="{/workflow/isActive}"/>
+							<Label text="Project Name" labelFor="projectName"/>
+							<Input id="projectInput"
+								   type="Text"
+								   value="{/workflow/project}"
+								   textFormatMode="Value"
+								   placeholder="Project name*"
+								   showSuggestion="true"
+								   showValueHelp="true"
+								   valueHelpRequest="onProjectHelpReq"
+								   suggestionItems="{/projects}">
+								<suggestionItems>
+									<core:ListItem key="{}" text="{}" />
+								</suggestionItems>
+							</Input>
 						</form:content>
 					</form:SimpleForm>
 				</l:BlockLayoutCell>

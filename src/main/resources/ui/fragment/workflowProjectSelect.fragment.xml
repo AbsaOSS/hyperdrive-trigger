@@ -1,0 +1,14 @@
+<core:FragmentDefinition
+        xmlns="sap.m"
+        xmlns:core="sap.ui.core">
+    <SelectDialog
+            title="Projects"
+            class="sapUiPopupWithPadding"
+            items="{/projects}"
+            search="onProjectSearch"
+            liveChange="onProjectSearch"
+            confirm="onProjectSearchClose"
+            cancel="onProjectSearchClose">
+        <StandardListItem title="{}"/>
+    </SelectDialog>
+</core:FragmentDefinition>

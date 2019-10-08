@@ -1,5 +1,5 @@
 <mvc:View
-		controllerName="hyperdriver.controller.Runs"
+		controllerName="hyperdriver.controller.RunsByWorkflow"
 		xmlns="sap.m"
 		xmlns:l="sap.ui.layout"
 		xmlns:mvc="sap.ui.core.mvc">
@@ -8,7 +8,7 @@
 			<Bar>
 				<contentLeft>
 					<Title text=""/>
-					<Title text="Runs"/>
+					<Title text="Workflow runs"/>
 				</contentLeft>
 				<contentRight>
 					<Button icon="sap-icon://nav-back" type="Transparent" press=".onBackPress">
@@ -23,29 +23,40 @@
 		<l:BlockLayout background="Default">
 			<l:BlockLayoutRow>
 				<l:BlockLayoutCell backgroundColorSet="ColorSet9" backgroundColorShade="ShadeA" width="3">
-					<Table items="{/runs}" fixedLayout="false">
+					<Table items="{/perWorkflowStatistics}" fixedLayout="false">
 						<columns>
 							<Column>
-								<Text text="Run id"/>
-							</Column>
-							<Column vAlign="Middle">
-								<Text text="Create date time"/>
-							</Column>
-							<Column vAlign="Middle">
-								<Text text="Update date time"/>
+								<Text text="Workflow name"/>
 							</Column>
 							<Column>
-								<Text text="Status"/>
+								<Text text="Is active"/>
+							</Column>
+							<Column>
+								<Text text="Total"/>
+							</Column>
+							<Column>
+								<Text text="Successful / Failed dags"/>
+							</Column>
+							<Column>
+								<Text text="Queued / Running dags"/>
 							</Column>
 
 						</columns>
 						<items>
-							<ColumnListItem>
+							<ColumnListItem
+									vAlign="Middle"
+									type="Navigation"
+									press=".onWorkflowPress">
 								<cells>
-									<Text text="{id}"/>
-									<Text text="{created}"/>
-									<Text text="{updated}"/>
-									<Text text="{jobStatus/name}"/>
+									<Text text="{workflowName}"/>
+									<Text text="{= ${isActive} ? 'Yes' : 'No' }"/>
+									<Text text="{total}"/>
+									<Text text="{successful} / {failed}"/>
+									<Text text="{queued} / {running}"/>
+									<ToggleButton
+											icon="sap-icon://flag"
+											pressed="{path: 'Flagged', type: '.types.flagged'}"
+											class="sapUiMediumMarginBeginEnd"/>
 								</cells>
 							</ColumnListItem>
 						</items>
@@ -53,7 +64,6 @@
 				</l:BlockLayoutCell>
 			</l:BlockLayoutRow>
 		</l:BlockLayout>
-
 		<footer>
 			<Bar>
 				<contentRight>

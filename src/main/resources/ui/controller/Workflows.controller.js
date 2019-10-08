@@ -9,10 +9,11 @@ sap.ui.define([
 		onInit: function () {
 			this.getView().setModel(new sap.ui.model.json.JSONModel());
 			this._model = this.getView().getModel();
-			this.getRouter().attachRouteMatched(this.onViewDisplay, this);
+			this.getRouter().getRoute("workflows").attachPatternMatched(this._onWorkflowsMatched, this);
 		},
 
-		onViewDisplay : function (evt) {
+		_onWorkflowsMatched : function (evt) {
+			this._model.setProperty("/projectName", evt.getParameter("arguments").projectName);
 			evt.getParameter("name") === "workflows" && this.loadWorkflows();
 		},
 
@@ -21,6 +22,9 @@ sap.ui.define([
 			let sId = oEv.getParameter("item").data("id");
 
 			switch (sAction) {
+				case "run":
+					WorkflowRepository.runWorkflow(parseInt(sId));
+					break;
 				case "updateActiveStatus":
 					WorkflowRepository.updateWorkflowActiveState(
 						sId, {isActive: !oEv.getParameter("item").data("isActive")}
@@ -41,7 +45,8 @@ sap.ui.define([
 		},
 
 		loadWorkflows: function () {
-			WorkflowRepository.getWorkflows(this._model);
+			let projectName = this._model.getProperty("/projectName");
+			WorkflowRepository.getWorkflowsByProjectName(projectName, this._model);
 		},
 
 		createConfirmDeleteWorkflowDialog: function (id) {
@@ -59,6 +64,10 @@ sap.ui.define([
 
 		onWorkflowsRefresh: function () {
 			this.loadWorkflows();
+		},
+
+		onBackPress: function () {
+			this.myNavBack("workflowsByProject");
 		}
 
 	});

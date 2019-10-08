@@ -1,6 +1,6 @@
 package za.co.absa.hyperdrive.trigger.persistance
 
-import za.co.absa.hyperdrive.trigger.models.{OverallStatistics, PerDagStatistics, PerWorkflowStatistics}
+import za.co.absa.hyperdrive.trigger.models.{OverallStatistics, PerDagStatistics, PerProjectStatistics, PerWorkflowStatistics}
 import za.co.absa.hyperdrive.trigger.models.tables.JdbcTypeMapper._
 import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobStatuses}
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.{InQueue, Succeeded}
@@ -10,8 +10,9 @@ import scala.concurrent.{ExecutionContext, Future}
 
 trait RunRepository extends Repository {
   def getOverallStatistics()(implicit ec: ExecutionContext): Future[OverallStatistics]
-  def getPerWorkflowStatistics()(implicit ec: ExecutionContext): Future[Seq[PerWorkflowStatistics]]
   def getPerDagStatistics(workflowId: Long)(implicit ec: ExecutionContext): Future[Seq[PerDagStatistics]]
+  def getPerProjectStatistics()(implicit ec: ExecutionContext): Future[Seq[PerProjectStatistics]]
+  def getPerWorkflowStatistics(projectName: String)(implicit ec: ExecutionContext): Future[Seq[PerWorkflowStatistics]]
 }
 
 class RunRepositoryImpl extends RunRepository {
@@ -23,26 +24,6 @@ class RunRepositoryImpl extends RunRepository {
       jobInstanceTable.filter(_.jobStatus.inSet(JobStatuses.statuses.filter(_.isRunning))).size,
       jobInstanceTable.filter(_.jobStatus.inSet(Seq(InQueue))).size
     ).result.map((OverallStatistics.apply _).tupled(_))
-  }
-
-  override def getPerWorkflowStatistics()(implicit ec: ExecutionContext): Future[Seq[PerWorkflowStatistics]] = {
-    db.run {(
-      for {
-        workflow <- workflowTable
-      } yield {
-        val dagInstances = dagInstanceTable.filter(_.workflowId === workflow.id)
-        (
-          workflow.id,
-          workflow.name,
-          workflow.isActive,
-          dagInstances.size,
-          dagInstances.filter(_.status.inSet(Seq(DagInstanceStatuses.Succeeded))).size,
-          dagInstances.filter(_.status.inSet(DagInstanceStatuses.statuses.filter(_.isFailed))).size,
-          dagInstances.filter(_.status.inSet(Seq(DagInstanceStatuses.InQueue))).size,
-          dagInstances.filter(_.status.inSet(DagInstanceStatuses.statuses.filter(_.isRunning))).size
-        )
-      }).sortBy(_._2).result
-    }.map(_.map((PerWorkflowStatistics.apply _).tupled(_)))
   }
 
   override def getPerDagStatistics(workflowId: Long)(implicit ec: ExecutionContext): Future[Seq[PerDagStatistics]] = {
@@ -63,4 +44,54 @@ class RunRepositoryImpl extends RunRepository {
     }.map(_.map((PerDagStatistics.apply _).tupled(_)))
   }
 
+  override def getPerProjectStatistics()(implicit ec: ExecutionContext): Future[Seq[PerProjectStatistics]] = {
+    db.run {(
+      for {
+        workflow <- workflowTable
+      } yield {
+        val dagInstances = dagInstanceTable.filter(_.workflowId === workflow.id)
+        (
+          workflow.project,
+          dagInstances.size,
+          dagInstances.filter(_.status.inSet(Seq(DagInstanceStatuses.Succeeded))).size,
+          dagInstances.filter(_.status.inSet(DagInstanceStatuses.statuses.filter(_.isFailed))).size,
+          dagInstances.filter(_.status.inSet(Seq(DagInstanceStatuses.InQueue))).size,
+          dagInstances.filter(_.status.inSet(DagInstanceStatuses.statuses.filter(_.isRunning))).size
+        )
+      }).sortBy(_._1).result
+    }.map(_.map((PerProjectStatistics.apply _).tupled(_))).map(_.foldLeft(Seq.empty[PerProjectStatistics]){
+      case (acc, i) if acc.exists(_.projectName == i.projectName) => {
+        val oneProject = acc.filter(_.projectName == i.projectName) :+ i
+        acc.filter(_.projectName != i.projectName) :+ PerProjectStatistics(
+          projectName = i.projectName,
+          total = oneProject.map(_.total).sum,
+          successful = oneProject.map(_.successful).sum,
+          failed = oneProject.map(_.failed).sum,
+          queued = oneProject.map(_.queued).sum,
+          running = oneProject.map(_.running).sum
+        )
+      }
+      case (acc, i) if !acc.exists(_.projectName == i.projectName) => acc :+ i
+    })
+  }
+
+  override def getPerWorkflowStatistics(projectName: String)(implicit ec: ExecutionContext): Future[Seq[PerWorkflowStatistics]] = {
+    db.run {(
+      for {
+        workflow <- workflowTable.filter(_.project === projectName)
+      } yield {
+        val dagInstances = dagInstanceTable.filter(_.workflowId === workflow.id)
+        (
+          workflow.id,
+          workflow.name,
+          workflow.isActive,
+          dagInstances.size,
+          dagInstances.filter(_.status.inSet(Seq(DagInstanceStatuses.Succeeded))).size,
+          dagInstances.filter(_.status.inSet(DagInstanceStatuses.statuses.filter(_.isFailed))).size,
+          dagInstances.filter(_.status.inSet(Seq(DagInstanceStatuses.InQueue))).size,
+          dagInstances.filter(_.status.inSet(DagInstanceStatuses.statuses.filter(_.isRunning))).size
+        )
+      }).sortBy(_._2).result
+    }.map(_.map((PerWorkflowStatistics.apply _).tupled(_)))
+  }
 }
