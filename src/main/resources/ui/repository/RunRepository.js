@@ -1,17 +1,5 @@
 let RunRepository = new function () {
 
-    this.getRuns = function (dagInstanceId, model) {
-        WSClient.get(
-            "jobInstances?dagInstanceId="+dagInstanceId,
-            function(data) {
-                model.setProperty("/runs", data);
-            },
-            function() {
-                new sap.m.MessageToast.show("Error while loading runs", {animationDuration: 5000});
-            }
-        );
-    };
-
     this.getOverallStatistics = function (model) {
         WSClient.get(
             "runs/overallStatistics",
@@ -20,18 +8,6 @@ let RunRepository = new function () {
             },
             function() {
                 new sap.m.MessageToast.show("Error while loading statistics", {animationDuration: 5000});
-            }
-        );
-    };
-
-    this.getPerWorkflowStatistics = function (model) {
-        WSClient.get(
-            "runs/perWorkflowStatistics",
-            function(data) {
-                model.setProperty("/runs", data);
-            },
-            function() {
-                new sap.m.MessageToast.show("Error while loading runs", {animationDuration: 5000});
             }
         );
     };
@@ -47,4 +23,41 @@ let RunRepository = new function () {
             }
         );
     };
+
+    this.getPerProjectStatistics = function (model) {
+        WSClient.get(
+            "runs/perProjectStatistics",
+            function(data) {
+                model.setProperty("/perProjectStatistics", data);
+            },
+            function() {
+                new sap.m.MessageToast.show("Error while loading per project statistics", {animationDuration: 5000});
+            }
+        );
+    };
+
+    this.getPerWorkflowStatistics = function (projectName, model) {
+        WSClient.get(
+            "runs/perWorkflowStatistics?projectName="+projectName,
+            function(data) {
+                model.setProperty("/perWorkflowStatistics", data);
+            },
+            function() {
+                new sap.m.MessageToast.show("Error while loading runs", {animationDuration: 5000});
+            }
+        );
+    };
+
+    this.getRuns = function (dagInstanceId, model) {
+        WSClient.get(
+            "jobInstances?dagInstanceId="+dagInstanceId,
+            function(data) {
+                model.setProperty("/runs", data);
+            },
+            function() {
+                new sap.m.MessageToast.show("Error while loading runs", {animationDuration: 5000});
+            }
+        );
+    };
+
 }();

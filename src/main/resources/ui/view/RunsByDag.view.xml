@@ -1,5 +1,5 @@
 <mvc:View
-        controllerName="hyperdriver.controller.DagRuns"
+        controllerName="hyperdriver.controller.RunsByDag"
         xmlns="sap.m"
         xmlns:l="sap.ui.layout"
         xmlns:mvc="sap.ui.core.mvc">
@@ -32,10 +32,10 @@
                                 <Text text="Total"/>
                             </Column>
                             <Column>
-                                <Text text="Successful / Failed runs"/>
+                                <Text text="Successful / Failed jobs run"/>
                             </Column>
                             <Column>
-                                <Text text="Queued / Running runs"/>
+                                <Text text="Queued / Running jobs run"/>
                             </Column>
 
                         </columns>

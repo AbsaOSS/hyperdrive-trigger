@@ -76,7 +76,12 @@
 					"target": "home"
 				},
 				{
-					"pattern": "Workflows",
+					"pattern": "WorkflowsByProject",
+					"name": "workflowsByProject",
+					"target": "workflowsByProject"
+				},
+				{
+					"pattern": "Workflows/{projectName}",
 					"name": "workflows",
 					"target": "workflows"
 				},
@@ -86,19 +91,24 @@
 					"target": "upsertWorkflow"
 				},
 				{
-					"pattern": "Runs",
+					"pattern": "RunsByProject",
+					"name": "runsByProject",
+					"target": "runsByProject"
+				},
+				{
+					"pattern": "RunsByWorkflow/{projectName}",
+					"name": "runsByWorkflow",
+					"target": "runsByWorkflow"
+				},
+				{
+					"pattern": "RunsByDag/{workflowId}",
+					"name": "runsByDag",
+					"target": "runsByDag"
+				},
+				{
+					"pattern": "Runs/{dagId}",
 					"name": "runs",
 					"target": "runs"
-				},
-				{
-					"pattern": "DagRuns/{workflowId}",
-					"name": "dagRuns",
-					"target": "dagRuns"
-				},
-				{
-					"pattern": "WorkflowRuns/{dagId}",
-					"name": "workflowRuns",
-					"target": "workflowRuns"
 				}
 			],
 			"targets": {
@@ -110,6 +120,10 @@
 					"viewId": "home",
 					"viewName": "Home"
 				},
+				"workflowsByProject": {
+					"viewId": "workflowsByProject",
+					"viewName": "WorkflowsByProject"
+				},
 				"workflows": {
 					"viewId": "workflows",
 					"viewName": "Workflows"
@@ -118,18 +132,22 @@
 					"viewId": "upsertWorkflow",
 					"viewName": "UpsertWorkflow"
 				},
-				"runs": {
-					"viewId": "runs",
-					"viewName": "Runs"
+				"runsByProject": {
+					"viewId": "runsByProject",
+					"viewName": "RunsByProject"
 				},
-				"dagRuns": {
-					"viewId": "dagRuns",
-					"viewName": "DagRuns",
+				"runsByWorkflow": {
+					"viewId": "runsByWorkflow",
+					"viewName": "RunsByWorkflow"
+				},
+				"runsByDag": {
+					"viewId": "runsByDag",
+					"viewName": "RunsByDag",
 					"viewLevel": 2
 				},
-				"workflowRuns": {
-					"viewId": "workflowRuns",
-					"viewName": "WorkflowRuns",
+				"runs": {
+					"viewId": "runs",
+					"viewName": "Runs",
 					"viewLevel": 2
 				}
 			}

@@ -12,6 +12,8 @@
 					<Title text="Workflows"/>
 				</contentLeft>
 				<contentRight>
+					<Button icon="sap-icon://nav-back" type="Transparent" press=".onBackPress">
+					</Button>
 					<Button icon="sap-icon://refresh" type="Transparent" press=".onWorkflowsRefresh">
 					</Button>
 					<Title text=""/>
@@ -52,6 +54,11 @@
 											<Menu itemSelected=".onWorkflowAction">
 												<items>
 													<MenuItem
+															text="Run"
+															icon="sap-icon://instance"
+															cust:action="run"
+															cust:id="{id}"/>
+													<MenuItem
 															text="{= ${isActive} ? 'Deactivate' : 'Activate' }"
 															icon="{= ${isActive} ? 'sap-icon://pause' : 'sap-icon://play' }"
 															cust:action="updateActiveStatus"
@@ -78,7 +85,6 @@
 				</l:BlockLayoutCell>
 			</l:BlockLayoutRow>
 		</l:BlockLayout>
-
 		<footer>
 			<Bar>
 				<contentRight>
