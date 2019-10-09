@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory
 
 import scala.collection.mutable
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
-import scala.util.{Failure, Success}
+import scala.util.{Failure, Success, Try}
 
 class Sensors(eventProcessor: EventProcessor, sensorRepository: SensorRepository) {
   private val logger = LoggerFactory.getLogger(this.getClass)
@@ -72,9 +72,11 @@ class Sensors(eventProcessor: EventProcessor, sensorRepository: SensorRepository
     sensorRepository.getNewActiveSensors(activeSensors).map {
       _.foreach {
         case sensor if sensor.sensorType == SensorTypes.Kafka || sensor.sensorType == SensorTypes.AbsaKafka =>
-          sensors.put(
-            sensor.id, new KafkaSensor(eventProcessor.eventProcessor, sensor.properties, executionContext)
-          )
+
+          Try(new KafkaSensor(eventProcessor.eventProcessor, sensor.properties, executionContext)) match {
+            case Success(s) => sensors.put(sensor.id, s)
+            case Failure(f) => logger.error("Couldn't create Kafka sensor.", f)
+          }
         case _ => None
       }
     }
