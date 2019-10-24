@@ -29,13 +29,14 @@ private object Configs {
 
   def getMapFromConf(propertyName: String): Map[String, String] = {
     Try {
-      val list = Configs.conf.getObjectList(propertyName).asScala
-      (for {
-        item: ConfigObject <- list
-        entry <- item.entrySet().asScala
-        key = entry.getKey
-        value = entry.getValue.unwrapped().toString
-      } yield (key, value)).toMap
+      def getKeys(path: String): Seq[String] = {
+        Try(Configs.conf.getObject(path).keySet().asScala).getOrElse(Set.empty[String]) match {
+          case keys if keys.nonEmpty => keys.flatMap(k => getKeys(s"$path.$k")).toSeq
+          case keys if keys.isEmpty => Seq(path)
+        }
+      }
+      val keys = getKeys(propertyName)
+      keys.map(k => (k.stripPrefix(s"$propertyName."), conf.getString(k))).toMap
     }.getOrElse(Map.empty[String, String])
   }
 }
@@ -89,7 +90,7 @@ object SparkExecutorConfig {
   def getHadoopResourceManagerUrlBase: String =
     Configs.conf.getString("sparkYarnSink.hadoopResourceManagerUrlBase")
   def getFilesToDeploy: Seq[String] =
-    Try(Configs.conf.getStringList("sparkYarnSink.filesToDeploy").asScala).getOrElse(Seq.empty[String])
+    Try(Configs.conf.getString("sparkYarnSink.filesToDeploy").split(",").toSeq).getOrElse(Seq.empty[String])
   def getAdditionalConfs: Map[String, String] =
     Configs.getMapFromConf("sparkYarnSink.additionalConfs")
 }
