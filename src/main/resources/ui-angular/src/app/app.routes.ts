@@ -13,14 +13,9 @@
  * limitations under the License.
  */
 
-import { browser, by, element } from 'protractor';
-
-export class AppPage {
-  navigateTo() {
-    return browser.get(browser.baseUrl) as Promise<any>;
-  }
-
-  getTitleText() {
-    return element(by.css('app-root .content span')).getText() as Promise<string>;
-  }
-}
+export const routeName = {
+  DEFAULT: '',
+  LOGIN: 'signin',
+  ERROR: 'error',
+  DEMO: 'demo',
+};

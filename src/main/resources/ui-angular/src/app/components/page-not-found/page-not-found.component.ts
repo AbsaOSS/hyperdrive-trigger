@@ -13,14 +13,13 @@
  * limitations under the License.
  */
 
-import { browser, by, element } from 'protractor';
+import {Component} from '@angular/core';
+import {routeName} from '../../app.routes';
 
-export class AppPage {
-  navigateTo() {
-    return browser.get(browser.baseUrl) as Promise<any>;
-  }
-
-  getTitleText() {
-    return element(by.css('app-root .content span')).getText() as Promise<string>;
-  }
+@Component({
+  selector: 'app-page-not-found',
+  templateUrl: './page-not-found.component.html',
+})
+export class PageNotFoundComponent {
+  defaultLink: string = `${routeName.DEFAULT}`;
 }

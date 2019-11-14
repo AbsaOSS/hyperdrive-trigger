@@ -13,14 +13,22 @@
  * limitations under the License.
  */
 
-import { browser, by, element } from 'protractor';
+import {Component, OnInit} from '@angular/core';
+import {routeName} from '../../app.routes';
+import {GlobalErrorHandler} from '../../services/global.error.handler';
 
-export class AppPage {
-  navigateTo() {
-    return browser.get(browser.baseUrl) as Promise<any>;
-  }
+@Component({
+  selector: 'app-error',
+  templateUrl: './error.component.html',
+})
+export class ErrorComponent implements OnInit {
+  error: string;
+  defaultLink: string = `/${routeName.DEFAULT}`;
 
-  getTitleText() {
-    return element(by.css('app-root .content span')).getText() as Promise<string>;
+  constructor() {}
+
+  ngOnInit() {
+    this.error = sessionStorage.getItem(GlobalErrorHandler.STORAGE_ID_ERROR);
+    sessionStorage.removeItem(GlobalErrorHandler.STORAGE_ID_ERROR);
   }
 }

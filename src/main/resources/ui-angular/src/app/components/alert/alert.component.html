@@ -12,17 +12,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>HyperDriver - Workflow Manager</title>
-  <base href="/">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
-</head>
-<body>
-  <app-root></app-root>
-</body>
-</html>
+<div *ngFor="let alert of alerts" class="{{cssClass(alert)}}">
+  {{alert.message}}
+  <a class="close" (click)="removeAlert(alert)">&times;</a>
+</div>

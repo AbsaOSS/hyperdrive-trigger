@@ -13,14 +13,10 @@
  * limitations under the License.
  */
 
-import { browser, by, element } from 'protractor';
+import {Component} from '@angular/core';
+import {routeName} from '../../app.routes';
 
-export class AppPage {
-  navigateTo() {
-    return browser.get(browser.baseUrl) as Promise<any>;
-  }
-
-  getTitleText() {
-    return element(by.css('app-root .content span')).getText() as Promise<string>;
-  }
+@Component({ templateUrl: 'home.component.html' })
+export class HomeComponent {
+  demoLink: string = `/${routeName.DEMO}`;
 }

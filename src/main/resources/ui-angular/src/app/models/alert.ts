@@ -13,14 +13,19 @@
  * limitations under the License.
  */
 
-import { browser, by, element } from 'protractor';
+export class Alert {
+  type: AlertType;
+  message: string;
+  clearAll = false;
 
-export class AppPage {
-  navigateTo() {
-    return browser.get(browser.baseUrl) as Promise<any>;
+  constructor(init?: Partial<Alert>) {
+    Object.assign(this, init);
   }
+}
 
-  getTitleText() {
-    return element(by.css('app-root .content span')).getText() as Promise<string>;
-  }
+export enum AlertType {
+  Success,
+  Error,
+  Info,
+  Warning
 }
