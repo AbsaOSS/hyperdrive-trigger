@@ -15,9 +15,9 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest
 
-import za.co.absa.hyperdrive.trigger.api.rest.auth.{HyperdriverAuthentication, InMemoryAuthentication}
+import za.co.absa.hyperdrive.trigger.api.rest.auth.{HyperdriverAuthentication, InMemoryAuthentication, LdapAuthentication}
 import org.springframework.beans.factory.BeanFactory
-import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.{Autowired, Value}
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpStatus
@@ -37,13 +37,18 @@ import org.springframework.security.web.csrf.CsrfToken
 import org.springframework.stereotype.Component
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
+import org.slf4j.LoggerFactory
 import org.springframework.security.authentication.AuthenticationManager
 
 @EnableWebSecurity
 class WebSecurityConfig {
+  private val logger = LoggerFactory.getLogger(this.getClass)
 
   @Autowired
   val beanFactory: BeanFactory = null
+
+  @Value("${auth.mechanism:}")
+  val authMechanism: String = ""
 
   @Bean
   def authenticationFailureHandler(): AuthenticationFailureHandler = {
@@ -102,13 +107,22 @@ class WebSecurityConfig {
         .invalidateHttpSession(true)
     }
 
-
-    override def configure(auth: AuthenticationManagerBuilder) {
-      this.getHyperdriverAuthentication().configure(auth)
+    override def configure(auth: AuthenticationManagerBuilder): Unit = {
+      this.getAuthentication().configure(auth)
     }
 
-    private def getHyperdriverAuthentication(): HyperdriverAuthentication = {
-      beanFactory.getBean(classOf[InMemoryAuthentication])
+    private def getAuthentication(): HyperdriverAuthentication = {
+      authMechanism.toLowerCase match {
+        case "inmemory" => {
+          logger.info(s"Using $authMechanism authentication")
+          beanFactory.getBean(classOf[InMemoryAuthentication])
+        }
+        case "ldap" => {
+          logger.info(s"Using $authMechanism authentication")
+          beanFactory.getBean(classOf[LdapAuthentication])
+        }
+        case _ => throw new IllegalArgumentException("Invalid authentication mechanism - use one of: inmemory, ldap")
+      }
     }
 
     @Bean
