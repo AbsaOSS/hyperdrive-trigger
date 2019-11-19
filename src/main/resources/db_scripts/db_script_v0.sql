@@ -37,7 +37,7 @@ create table "sensor" (
   "variables" VARCHAR NOT NULL,
   "maps" VARCHAR NOT NULL,
   "match_properties" VARCHAR NOT NULL,
-  "id" BIGSERIAL NOT NULL PRIMARY
+  "id" BIGSERIAL NOT NULL PRIMARY KEY
 );
 
 create table "event" (
