@@ -25,10 +25,13 @@ class LdapAuthentication extends HyperdriverAuthentication {
 
   @Value("${auth.ad.domain:}")
   val adDomain: String = ""
+
   @Value("${auth.ad.server:}")
   val adServer: String = ""
+
   @Value("${auth.ldap.search.base:}")
   val ldapSearchBase: String = ""
+
   @Value("${auth.ldap.search.filter:}")
   val ldapSearchFilter: String = ""
 
