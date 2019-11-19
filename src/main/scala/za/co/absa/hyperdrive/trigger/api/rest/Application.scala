@@ -100,5 +100,5 @@ class Application() {
 }
 
 object Application extends App {
-  SpringApplication.run(classOf[Application])
+  SpringApplication.run(classOf[Application], args:_*)
 }
