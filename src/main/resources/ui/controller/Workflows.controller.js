@@ -78,7 +78,7 @@ sap.ui.define([
 		},
 
 		createConfirmRunWorkflowDialog: function (id) {
-			MessageBox.confirm("Are you sure you want to run workflow ?", {
+			MessageBox.confirm("Are you sure you want to run workflow?", {
 				icon: MessageBox.Icon.WARNING,
 				actions: [sap.m.MessageBox.Action.YES, sap.m.MessageBox.Action.NO],
 				onClose: function (oResponse) {
