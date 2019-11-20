@@ -52,6 +52,7 @@
         <maven.ant.plugin.version>1.8</maven.ant.plugin.version>
         <log4j.version>2.11.1</log4j.version>
         <slf4j.log4j2.version>1.7.26</slf4j.log4j2.version>
+        <spring.ldap.version>5.0.3.RELEASE</spring.ldap.version>
     </properties>
 
     <dependencies>
@@ -119,7 +120,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
             <version>${spring-boot-starter-tomcat.version}</version>
-            <scope>provided</scope>
         </dependency>
         <!-- WebJars -->
         <dependency>
@@ -141,6 +141,11 @@
             <groupId>org.webjars</groupId>
             <artifactId>webjars-locator-core</artifactId>
             <version>${webjars.locator.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-ldap</artifactId>
+            <version>${spring.ldap.version}</version>
         </dependency>
     </dependencies>
     <build>
