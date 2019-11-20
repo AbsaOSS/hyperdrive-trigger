@@ -25,8 +25,11 @@ import scala.concurrent.{ExecutionContext, Future}
 
 trait DagInstanceRepository extends Repository {
   def insertJoinedDagInstances(dagInstancesJoined: Seq[(DagInstanceJoined, Event)], events: Seq[Event])(implicit executionContext: ExecutionContext): Future[Unit]
+
   def insertJoinedDagInstance(dagInstanceJoined: DagInstanceJoined)(implicit executionContext: ExecutionContext): Future[Unit]
-  def getNewActiveDags(idToFilter: Seq[Long], size: Int): Future[Seq[DagInstance]]
+
+  def getDagsToRun(idToFilter: Seq[Long], size: Int)(implicit executionContext: ExecutionContext): Future[Seq[DagInstance]]
+
   def update(dagInstance: DagInstance): Future[Unit]
 }
 
@@ -51,11 +54,19 @@ class DagInstanceRepositoryImpl extends DagInstanceRepository {
     } yield ()).transactionally
   ).map(_ => (): Unit)
 
-  override def getNewActiveDags(idToFilter: Seq[Long], size: Int): Future[Seq[DagInstance]] = db.run(
-    dagInstanceTable.filter(ji =>
-      !ji.id.inSet(idToFilter) && ji.status.inSet(DagInstanceStatuses.finalStatuses)
-    ).take(size).result
-  )
+  def getDagsToRun(idToFilter: Seq[Long], size: Int)(implicit executionContext: ExecutionContext): Future[Seq[DagInstance]] = {
+    val prefiltredResult = db.run(
+      dagInstanceTable.filter { di =>
+        di.workflowId.in(
+          dagInstanceTable.filter(_.id.inSet(idToFilter)).map(_.workflowId)
+        ) || di.status.inSet(DagInstanceStatuses.finalStatuses)
+      }.result
+    )
+
+    prefiltredResult.map(di =>
+      di.groupBy(_.workflowId).flatMap(_._2.sortBy(_.id).take(1)).toSeq
+    )
+  }
 
   override def update(dagInstance: DagInstance): Future[Unit] = db.run(
     dagInstanceTable.filter(_.id === dagInstance.id).update(dagInstance).andThen(DBIO.successful((): Unit))
