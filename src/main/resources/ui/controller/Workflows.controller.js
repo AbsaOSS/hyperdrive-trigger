@@ -38,7 +38,7 @@ sap.ui.define([
 
 			switch (sAction) {
 				case "run":
-					WorkflowRepository.runWorkflow(parseInt(sId));
+					this.createConfirmRunWorkflowDialog(parseInt(sId));
 					break;
 				case "updateActiveStatus":
 					WorkflowRepository.updateWorkflowActiveState(
@@ -72,6 +72,18 @@ sap.ui.define([
 					if (oResponse === sap.m.MessageBox.Action.YES) {
 						WorkflowRepository.deleteWorkflow(id);
 						this.loadWorkflows()
+					}
+				}.bind(this)
+			});
+		},
+
+		createConfirmRunWorkflowDialog: function (id) {
+			MessageBox.confirm("Are you sure you want to run workflow?", {
+				icon: MessageBox.Icon.WARNING,
+				actions: [sap.m.MessageBox.Action.YES, sap.m.MessageBox.Action.NO],
+				onClose: function (oResponse) {
+					if (oResponse === sap.m.MessageBox.Action.YES) {
+						WorkflowRepository.runWorkflow(id);
 					}
 				}.bind(this)
 			});

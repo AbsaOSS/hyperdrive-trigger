@@ -29,7 +29,7 @@ sap.ui.define([
 			RunRepository.getRuns(this._model.getProperty("/dagId"), this._model);
 		},
 
-		onRunsRefresh: function () {
+		onRefreshPress: function () {
 			this.loadData()
 		},
 
