@@ -55,7 +55,7 @@ class DagInstanceRepositoryImpl extends DagInstanceRepository {
   ).map(_ => (): Unit)
 
   def getDagsToRun(idToFilter: Seq[Long], size: Int)(implicit executionContext: ExecutionContext): Future[Seq[DagInstance]] = {
-    val prefiltredResult = db.run(
+    val prefilteredResult = db.run(
       dagInstanceTable.filter { di =>
         di.workflowId.in(
           dagInstanceTable.filter(_.id.inSet(idToFilter)).map(_.workflowId)
