@@ -17,6 +17,7 @@ package za.co.absa.hyperdrive.trigger.persistance
 
 import slick.dbio.DBIO
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
+import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.InQueue
 import za.co.absa.hyperdrive.trigger.models.{DagInstance, DagInstanceJoined, Event}
 import za.co.absa.hyperdrive.trigger.models.tables.JDBCProfile.profile._
 import za.co.absa.hyperdrive.trigger.models.tables.JdbcTypeMapper._
@@ -59,11 +60,11 @@ class DagInstanceRepositoryImpl extends DagInstanceRepository {
       dagInstanceTable.filter { di =>
         di.workflowId.in(
           dagInstanceTable.filter(_.id.inSet(idToFilter)).map(_.workflowId)
-        ) || di.status.inSet(DagInstanceStatuses.finalStatuses)
+        ) || di.status.inSet(DagInstanceStatuses.nonFinalStatuses)
       }.result
     )
 
-    prefiltredResult.map(di =>
+    prefilteredResult.map(di =>
       di.groupBy(_.workflowId).flatMap(_._2.sortBy(_.id).take(1)).toSeq
     )
   }
