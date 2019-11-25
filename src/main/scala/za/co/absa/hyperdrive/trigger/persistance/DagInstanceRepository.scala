@@ -17,7 +17,6 @@ package za.co.absa.hyperdrive.trigger.persistance
 
 import slick.dbio.DBIO
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
-import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.InQueue
 import za.co.absa.hyperdrive.trigger.models.{DagInstance, DagInstanceJoined, Event}
 import za.co.absa.hyperdrive.trigger.models.tables.JDBCProfile.profile._
 import za.co.absa.hyperdrive.trigger.models.tables.JdbcTypeMapper._
@@ -29,7 +28,7 @@ trait DagInstanceRepository extends Repository {
 
   def insertJoinedDagInstance(dagInstanceJoined: DagInstanceJoined)(implicit executionContext: ExecutionContext): Future[Unit]
 
-  def getDagsToRun(idToFilter: Seq[Long], size: Int)(implicit executionContext: ExecutionContext): Future[Seq[DagInstance]]
+  def getDagsToRun(runningIds: Seq[Long], size: Int)(implicit executionContext: ExecutionContext): Future[Seq[DagInstance]]
 
   def update(dagInstance: DagInstance): Future[Unit]
 }
@@ -55,11 +54,11 @@ class DagInstanceRepositoryImpl extends DagInstanceRepository {
     } yield ()).transactionally
   ).map(_ => (): Unit)
 
-  def getDagsToRun(idToFilter: Seq[Long], size: Int)(implicit executionContext: ExecutionContext): Future[Seq[DagInstance]] = {
+  def getDagsToRun(runningIds: Seq[Long], size: Int)(implicit executionContext: ExecutionContext): Future[Seq[DagInstance]] = {
     val prefilteredResult = db.run(
       dagInstanceTable.filter { di =>
         !di.workflowId.in(
-          dagInstanceTable.filter(_.id.inSet(idToFilter)).map(_.workflowId)
+          dagInstanceTable.filter(_.id.inSet(runningIds)).map(_.workflowId)
         ) && di.status.inSet(DagInstanceStatuses.nonFinalStatuses)
       }.result
     )
