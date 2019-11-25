@@ -41,7 +41,7 @@ export class GlobalErrorHandler implements ErrorHandler {
         // router.navigate within zone does not work here
         // ngZone.run(() => router.navigate(['/signin'], {queryParams: {returnUrl: router.url}}));
         // See https://stackoverflow.com/questions/47288678/how-to-redirect-correctly-in-a-global-error-handler
-        location.href = `/${routeName.LOGIN}?returnUrl=${router.url}`;
+        location.href = `/#/${routeName.LOGIN}?returnUrl=${router.url}`;
       } else {
         this.ngZone.run(() => notificationService.error('An unexpected error occurred.' +
           `Please try again or report this error: ${error.status} - ${error.message}`));
@@ -49,7 +49,7 @@ export class GlobalErrorHandler implements ErrorHandler {
     } else {
       // Handle Client Errors (Angular Error, ReferenceError...)
       sessionStorage.setItem(GlobalErrorHandler.STORAGE_ID_ERROR, error.toString());
-      location.href = `/${routeName.ERROR}`;
+      location.href = `/#/${routeName.ERROR}`;
     }
     // Log the error anyway
     console.error(error);

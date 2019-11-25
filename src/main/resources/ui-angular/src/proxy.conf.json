@@ -3,6 +3,14 @@
     "target": "http://localhost:7123",
     "secure": false,
     "changeOrigin": true,
-    "logLevel": "debug"
+    "logLevel": "info"
+  },
+  "/login": {
+    "target": "http://localhost:7123",
+    "secure": false
+  },
+  "/logout": {
+    "target": "http://localhost:7123",
+    "secure": false
   }
 }

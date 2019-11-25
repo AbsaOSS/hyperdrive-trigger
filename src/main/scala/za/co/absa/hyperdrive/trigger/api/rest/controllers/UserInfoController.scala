@@ -23,11 +23,10 @@ import org.springframework.web.bind.annotation._
 @RestController 
 class UserInfoController {
 
-  @GetMapping(path = Array("/user/info"))
+  @GetMapping(path = Array("${rest.api.prefix}/user/info"))
   def userInfo(): UserInfo = {
     val auth = SecurityContextHolder.getContext.getAuthentication
     val principal = auth.getPrincipal.asInstanceOf[UserDetails]
     UserInfo(principal.getUsername)
   }
-
 }
