@@ -15,11 +15,8 @@
 
 package za.co.absa.hyperdrive.trigger.persistance
 
-import slick.dbio.DBIO
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
 import za.co.absa.hyperdrive.trigger.models.{DagInstance, DagInstanceJoined, Event}
-import za.co.absa.hyperdrive.trigger.models.tables.JDBCProfile.profile._
-import za.co.absa.hyperdrive.trigger.models.tables.JdbcTypeMapper._
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -34,6 +31,7 @@ trait DagInstanceRepository extends Repository {
 }
 
 class DagInstanceRepositoryImpl extends DagInstanceRepository {
+  import profile.api._
 
   override def insertJoinedDagInstances(dagInstancesJoined: Seq[(DagInstanceJoined, Event)], events: Seq[Event])(implicit executionContext: ExecutionContext): Future[Unit] = db.run(
     DBIO.sequence {
@@ -64,7 +62,7 @@ class DagInstanceRepositoryImpl extends DagInstanceRepository {
     )
 
     prefilteredResult.map(di =>
-      di.groupBy(_.workflowId).flatMap(_._2.sortBy(_.id).take(1)).toSeq
+      di.groupBy(_.workflowId).flatMap(_._2.sortBy(_.id).take(1)).take(size).toSeq
     )
   }
 

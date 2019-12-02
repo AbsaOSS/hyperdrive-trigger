@@ -16,7 +16,6 @@
 package za.co.absa.hyperdrive.trigger.persistance
 
 import za.co.absa.hyperdrive.trigger.models.Sensor
-import za.co.absa.hyperdrive.trigger.models.tables.JDBCProfile.profile._
 import scala.concurrent.{ExecutionContext, Future}
 
 trait SensorRepository extends Repository {
@@ -25,6 +24,7 @@ trait SensorRepository extends Repository {
 }
 
 class SensorRepositoryImpl extends SensorRepository {
+  import profile.api._
 
   override def getNewActiveSensors(idsToFilter: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[Sensor]] = db.run {(
     for {

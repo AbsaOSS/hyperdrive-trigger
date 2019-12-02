@@ -17,18 +17,13 @@ package za.co.absa.hyperdrive.trigger.persistance
 
 import java.time.LocalDateTime
 
-import slick.dbio.{DBIOAction, Effect, NoStream}
 import za.co.absa.hyperdrive.trigger.models.JobInstance
-import slick.dbio.DBIO
-import za.co.absa.hyperdrive.trigger.models.tables.JdbcTypeMapper._
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.JobStatus
-import za.co.absa.hyperdrive.trigger.models.tables.JDBCProfile.profile._
 
 import scala.concurrent.{ExecutionContext, Future}
 
 trait JobInstanceRepository extends Repository {
-  def insertJobInstances(jobs: Seq[JobInstance], transactionDBIO: DBIOAction[Unit, NoStream, Effect.Write])(implicit ec: ExecutionContext): Future[Unit]
   def updateJob(job: JobInstance)(implicit ec: ExecutionContext): Future[Unit]
   def updateJobsStatus(ids: Seq[Long], status: JobStatus)(implicit ec: ExecutionContext): Future[Unit]
   def getNewActiveJobs(jobsIdToFilter: Seq[Long], size: Int)(implicit ec: ExecutionContext): Future[Seq[JobInstance]]
@@ -36,12 +31,7 @@ trait JobInstanceRepository extends Repository {
 }
 
 class JobInstanceRepositoryImpl extends JobInstanceRepository {
-
-  override def insertJobInstances(
-    jobs: Seq[JobInstance], transactionDBIO: DBIOAction[Unit, NoStream, Effect.Write]
-  )(implicit ec: ExecutionContext): Future[Unit] = db.run {
-    transactionDBIO andThen DBIO.seq(jobInstanceTable ++= jobs)
-  }
+  import profile.api._
 
   override def updateJob(job: JobInstance)(implicit ec: ExecutionContext): Future[Unit] = db.run {
     jobInstanceTable.filter(_.id === job.id).update(job.copy(updated = Option(LocalDateTime.now()))).andThen(DBIO.successful((): Unit))
