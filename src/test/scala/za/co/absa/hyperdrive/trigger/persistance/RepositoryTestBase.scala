@@ -16,11 +16,13 @@
 package za.co.absa.hyperdrive.trigger.persistance
 
 import java.time.LocalDateTime
+import java.util.concurrent.TimeUnit
+
 import slick.jdbc.H2Profile
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
 import za.co.absa.hyperdrive.trigger.models.{DagInstance, Workflow}
 
-import scala.concurrent.Await
+import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 
 trait RepositoryTestBase extends Repository {
@@ -38,7 +40,7 @@ trait RepositoryTestBase extends Repository {
       jobInstanceTable.schema.create,
       eventTable.schema.create
     )
-    Await.result(db.run(schema), Duration.Inf)
+    run(schema)
   }
 
   def h2SchemaDrop(): Unit = {
@@ -51,7 +53,7 @@ trait RepositoryTestBase extends Repository {
       dagDefinitionTable.schema.drop,
       workflowTable.schema.drop
     )
-    Await.result(db.run(schema), Duration.Inf)
+    run(schema)
   }
 
   def clearData(): Unit = {
@@ -64,7 +66,7 @@ trait RepositoryTestBase extends Repository {
       dagDefinitionTable.delete,
       workflowTable.delete
     )
-    Await.result(db.run(schema), Duration.Inf)
+    run(schema)
   }
 
   def createTestData(): Unit = {
@@ -73,11 +75,15 @@ trait RepositoryTestBase extends Repository {
   }
 
   def run[R](action: DBIO[R]): Unit = {
-    Await.result(db.run(action), Duration.Inf)
+    Await.result(db.run(action), Duration(120, TimeUnit.SECONDS))
   }
 
   def run[R](seqOfActions: Seq[DBIO[R]]): Unit = {
-    seqOfActions.foreach(action =>  Await.result(db.run(action), Duration.Inf))
+    seqOfActions.foreach(action =>  Await.result(db.run(action), Duration(120, TimeUnit.SECONDS)))
+  }
+
+  def await[T](future: Future[T]): T = {
+    Await.result(future, Duration(120, TimeUnit.SECONDS))
   }
 
   object TestData {

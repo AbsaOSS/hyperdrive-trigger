@@ -19,8 +19,6 @@ import org.scalatest.FlatSpec
 import org.scalatest._
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
 
-import scala.concurrent.duration.Duration
-import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class DagInstanceRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryTestBase {
@@ -42,7 +40,7 @@ class DagInstanceRepositoryTest extends FlatSpec with Matchers with BeforeAndAft
   "dagInstanceRepository.getDagsToRun" should "return zero dag instances when db is empty" in {
     val runningIds = Seq.empty[Long]
     val size = 10
-    val result = Await.result(dagInstanceRepository.getDagsToRun(runningIds, size), Duration.Inf)
+    val result = await(dagInstanceRepository.getDagsToRun(runningIds, size))
     result.isEmpty shouldBe true
   }
 
@@ -50,7 +48,7 @@ class DagInstanceRepositoryTest extends FlatSpec with Matchers with BeforeAndAft
     createTestData()
     val runningIds = Seq.empty[Long]
     val size = 10
-    val result = Await.result(dagInstanceRepository.getDagsToRun(runningIds, size), Duration.Inf)
+    val result = await(dagInstanceRepository.getDagsToRun(runningIds, size))
     result.size shouldBe 2
   }
 
@@ -58,7 +56,7 @@ class DagInstanceRepositoryTest extends FlatSpec with Matchers with BeforeAndAft
     createTestData()
     val runningIds = TestData.dagInstances.map(_.id)
     val size = 10
-    val result = Await.result(dagInstanceRepository.getDagsToRun(runningIds, size), Duration.Inf)
+    val result = await(dagInstanceRepository.getDagsToRun(runningIds, size))
     result.size shouldBe 0
   }
 
@@ -66,7 +64,7 @@ class DagInstanceRepositoryTest extends FlatSpec with Matchers with BeforeAndAft
     createTestData()
     val runningIds = TestData.runningDagInstances.map(_.id)
     val size = 10
-    val result = Await.result(dagInstanceRepository.getDagsToRun(runningIds, size), Duration.Inf)
+    val result = await(dagInstanceRepository.getDagsToRun(runningIds, size))
     result.foreach(_.status shouldBe DagInstanceStatuses.InQueue)
   }
 
@@ -74,7 +72,7 @@ class DagInstanceRepositoryTest extends FlatSpec with Matchers with BeforeAndAft
     createTestData()
     val runningIds = Seq.empty[Long]
     val size = 1
-    val result = Await.result(dagInstanceRepository.getDagsToRun(runningIds, size), Duration.Inf)
+    val result = await(dagInstanceRepository.getDagsToRun(runningIds, size))
     result.size shouldBe 1
   }
 
