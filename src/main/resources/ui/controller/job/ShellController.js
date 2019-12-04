@@ -13,17 +13,12 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models.enums
+class ShellController {
 
-object JobTypes {
+    constructor(model) {
+        this._model = model;
+    }
 
-  sealed abstract class JobType(val name: String) {
-    override def toString: String = name
-  }
-
-  case object Spark extends JobType("Spark")
-  case object Shell extends JobType("Shell")
-
-  val jobTypes: Set[JobType] = Set(Spark, Shell)
+    onShow() {}
 
 }
