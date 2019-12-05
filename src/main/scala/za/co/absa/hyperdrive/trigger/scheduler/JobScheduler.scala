@@ -75,7 +75,7 @@ class JobScheduler(sensors: Sensors, executors: Executors, dagInstanceRepository
   }
 
   private def enqueueDags(emptySlotsSize: Int): Future[Unit] = {
-    dagInstanceRepository.getNewActiveDags(runningDags.keys.toSeq, emptySlotsSize).map {
+    dagInstanceRepository.getDagsToRun(runningDags.keys.toSeq, emptySlotsSize).map {
       _.foreach { dag =>
         logger.debug(s"Deploying dag = ${dag.id}")
         runningDags.put(dag.id, executors.executeDag(dag))

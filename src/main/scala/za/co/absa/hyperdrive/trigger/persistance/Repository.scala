@@ -15,17 +15,19 @@
 
 package za.co.absa.hyperdrive.trigger.persistance
 
+import slick.jdbc.{JdbcProfile, PostgresProfile}
 import za.co.absa.hyperdrive.trigger.models.tables._
-import za.co.absa.hyperdrive.trigger.models.tables.JDBCProfile.profile._
 
-trait Repository {
-  val db = Database.forConfig("db")
+trait Repository
+  extends DagInstanceTable
+    with DagDefinitionTable
+    with EventTable
+    with JobDefinitionTable
+    with JobInstanceTable
+    with SensorTable
+    with WorkflowTable with Profile with JdbcTypeMapper {
 
-  val eventTable = TableQuery[EventTable]
-  val sensorTable = TableQuery[SensorTable]
-  val jobDefinitionTable = TableQuery[JobDefinitionTable]
-  val jobInstanceTable = TableQuery[JobInstanceTable]
-  val dagDefinitionTable = TableQuery[DagDefinitionTable]
-  val dagInstanceTable = TableQuery[DagInstanceTable]
-  val workflowTable = TableQuery[WorkflowTable]
+  val profile: JdbcProfile = PostgresProfile
+  lazy val db: profile.backend.DatabaseDef = profile.api.Database.forConfig("db")
+
 }

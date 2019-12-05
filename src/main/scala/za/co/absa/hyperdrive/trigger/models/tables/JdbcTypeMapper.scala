@@ -24,11 +24,12 @@ import slick.jdbc.JdbcType
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses.DagInstanceStatus
 
 import scala.util.Try
-import za.co.absa.hyperdrive.trigger.models.tables.JDBCProfile.profile._
 
-object JdbcTypeMapper {
+trait JdbcTypeMapper {
+  this: Profile =>
+  import profile.api._
 
-  implicit val sensorTypeMapper: JdbcType[SensorType] =
+  implicit lazy val sensorTypeMapper: JdbcType[SensorType] =
     MappedColumnType.base[SensorType, String](
       sensorType => sensorType.name,
       sensorTypeName => SensorTypes.sensorTypes.find(_.name == sensorTypeName).getOrElse(
@@ -36,7 +37,7 @@ object JdbcTypeMapper {
       )
     )
 
-  implicit val jobTypeMapper: JdbcType[JobType] =
+  implicit lazy val jobTypeMapper: JdbcType[JobType] =
     MappedColumnType.base[JobType, String](
       jobType => jobType.name,
       jobTypeName => JobTypes.jobTypes.find(_.name == jobTypeName).getOrElse(
@@ -44,7 +45,7 @@ object JdbcTypeMapper {
       )
     )
 
-  implicit val jobStatusMapper: JdbcType[JobStatus] =
+  implicit lazy val jobStatusMapper: JdbcType[JobStatus] =
     MappedColumnType.base[JobStatus, String](
       jobStatus => jobStatus.name,
       jobStatusName => JobStatuses.statuses.find(_.name == jobStatusName).getOrElse(
@@ -52,7 +53,7 @@ object JdbcTypeMapper {
       )
     )
 
-  implicit val dagInstanceStatusMapper: JdbcType[DagInstanceStatus] =
+  implicit lazy val dagInstanceStatusMapper: JdbcType[DagInstanceStatus] =
     MappedColumnType.base[DagInstanceStatus, String](
       status => status.name,
       statusName => DagInstanceStatuses.statuses.find(_.name == statusName).getOrElse(
@@ -60,7 +61,7 @@ object JdbcTypeMapper {
       )
     )
 
-  implicit val payloadMapper: JdbcType[JsValue] =
+  implicit lazy val payloadMapper: JdbcType[JsValue] =
     MappedColumnType.base[JsValue, String](
       payload => payload.toString(),
       payloadString => Try(Json.parse(payloadString)).getOrElse(
@@ -69,14 +70,14 @@ object JdbcTypeMapper {
     )
 
   //TEMPORARY MAPPING, SEPARATE TABLE WILL BE CREATED
-  implicit val mapMapper: JdbcType[Map[String, String]] =
+  implicit lazy val mapMapper: JdbcType[Map[String, String]] =
     MappedColumnType.base[Map[String, String], String](
       parameters => Json.toJson(parameters).toString(),
       parametersEncoded => Json.parse(parametersEncoded).as[Map[String, String]]
     )
 
   //TEMPORARY MAPPING, SEPARATE TABLE WILL BE CREATED
-  implicit val mapSetMapper: JdbcType[Map[String, Set[String]]] =
+  implicit lazy val mapSetMapper: JdbcType[Map[String, Set[String]]] =
     MappedColumnType.base[Map[String, Set[String]], String](
       parameters => Json.toJson(parameters).toString(),
       parametersEncoded => Json.parse(parametersEncoded).as[Map[String, Set[String]]]
