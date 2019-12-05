@@ -19,8 +19,8 @@ import java.time.LocalDateTime
 import java.util.concurrent.TimeUnit
 
 import slick.jdbc.H2Profile
-import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
-import za.co.absa.hyperdrive.trigger.models.{DagInstance, Workflow}
+import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, SensorTypes}
+import za.co.absa.hyperdrive.trigger.models.{DagInstance, Properties, Sensor, Settings, Workflow}
 
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
@@ -74,6 +74,13 @@ trait RepositoryTestBase extends Repository {
     run(dagInstanceTable.forceInsertAll(TestData.dagInstances))
   }
 
+  def insertSensors(sensorsAndWorkflows: Seq[(Sensor, Workflow)]): Unit = {
+    val sensors = sensorsAndWorkflows.map{case (sensor, _) => sensor}
+    val workflows = sensorsAndWorkflows.map{case (_, workflow) => workflow}.distinct
+    run(workflowTable.forceInsertAll(workflows))
+    run(sensorTable.forceInsertAll(sensors))
+  }
+
   def run[R](action: DBIO[R]): Unit = {
     Await.result(db.run(action), Duration(120, TimeUnit.SECONDS))
   }
@@ -101,6 +108,18 @@ trait RepositoryTestBase extends Repository {
     val w2di2 = DagInstance(status = DagInstanceStatuses.Running, workflowId = w2.id, id = 206)
     val dagInstances: Seq[DagInstance] = Seq(w1di1, w1di2, w1di3, w1di4, w1di5, w2di1, w2di2)
     val runningDagInstances : Seq[DagInstance] = Seq(w1di3, w2di2)
+  }
+
+  object TestSensors {
+    val activeTimeW100: (Sensor, Workflow) = (Sensor(TestData.w1.id, SensorTypes.Time, Properties(100L, Settings(Map.empty, Map.empty), Map.empty), 100), TestData.w1)
+    val activeAbsaKafka: (Sensor, Workflow) = (Sensor(TestData.w1.id, SensorTypes.AbsaKafka, Properties(101L, Settings(Map.empty, Map.empty), Map.empty), 101), TestData.w1)
+    val activeKafka: (Sensor, Workflow) = (Sensor(TestData.w2.id, SensorTypes.Kafka, Properties(102L, Settings(Map.empty, Map.empty), Map.empty), 102), TestData.w2)
+    val activeTimeW101: (Sensor, Workflow) = (Sensor(TestData.w2.id, SensorTypes.Time, Properties(103L, Settings(Map.empty, Map.empty), Map.empty), 103), TestData.w2)
+    val inactiveTime: (Sensor, Workflow) = (Sensor(TestData.w3.id, SensorTypes.Time, Properties(104L, Settings(Map.empty, Map.empty), Map.empty), 104), TestData.w3)
+    val inactiveAbsaKafka: (Sensor, Workflow) = (Sensor(TestData.w3.id, SensorTypes.AbsaKafka, Properties(105L, Settings(Map.empty, Map.empty), Map.empty), 105), TestData.w3)
+    val inactiveKafka: (Sensor, Workflow) = (Sensor(TestData.w3.id, SensorTypes.Kafka, Properties(106L, Settings(Map.empty, Map.empty), Map.empty), 106), TestData.w3)
+
+    val allSensors: Seq[(Sensor, Workflow)] = Seq(activeTimeW100, activeAbsaKafka, activeKafka, activeTimeW101, inactiveTime, inactiveAbsaKafka, inactiveKafka)
   }
 
 }
