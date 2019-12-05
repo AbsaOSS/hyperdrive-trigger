@@ -16,10 +16,8 @@
 package za.co.absa.hyperdrive.trigger.persistance
 
 import za.co.absa.hyperdrive.trigger.models.{OverallStatistics, PerDagStatistics, PerProjectStatistics, PerWorkflowStatistics}
-import za.co.absa.hyperdrive.trigger.models.tables.JdbcTypeMapper._
 import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobStatuses}
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.{InQueue, Succeeded}
-import za.co.absa.hyperdrive.trigger.models.tables.JDBCProfile.profile._
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -31,6 +29,7 @@ trait RunRepository extends Repository {
 }
 
 class RunRepositoryImpl extends RunRepository {
+  import profile.api._
 
   override def getOverallStatistics()(implicit ec: ExecutionContext): Future[OverallStatistics] = db.run {
     (
@@ -109,4 +108,5 @@ class RunRepositoryImpl extends RunRepository {
       }).sortBy(_._2).result
     }.map(_.map((PerWorkflowStatistics.apply _).tupled(_)))
   }
+
 }

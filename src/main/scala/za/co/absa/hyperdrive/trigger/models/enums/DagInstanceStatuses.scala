@@ -27,6 +27,6 @@ object DagInstanceStatuses {
   case object Failed extends DagInstanceStatus("Failed", true, true, false)
 
   val statuses: Set[DagInstanceStatus] = Set(InQueue,Running,Succeeded,Failed)
-  val finalStatuses: Set[DagInstanceStatus] = statuses.filter(!_.isFinalStatus)
+  val nonFinalStatuses: Set[DagInstanceStatus] = statuses.filter(!_.isFinalStatus)
 
 }
