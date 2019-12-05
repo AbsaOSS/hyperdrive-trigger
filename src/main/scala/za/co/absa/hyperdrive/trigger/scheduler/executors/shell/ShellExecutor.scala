@@ -15,6 +15,7 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.executors.shell
 
+import org.slf4j.LoggerFactory
 import za.co.absa.hyperdrive.trigger.models.JobInstance
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses._
 import za.co.absa.hyperdrive.trigger.scheduler.executors.Executor
@@ -23,19 +24,22 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.sys.process._
 
 object ShellExecutor extends Executor {
+  private val logger = LoggerFactory.getLogger(this.getClass)
 
   override def execute(jobInstance: JobInstance, updateJob: JobInstance => Future[Unit])
                       (implicit executionContext: ExecutionContext): Future[Unit] = {
-    val shellParameters = ShellParameters(jobInstance.jobParameters)
-
-    val result = shellParameters.scriptLocation.!
-
-    result match {
+    Future {
+      logger.info("Start SHELL SCRIPT")
+      val shellParameters = ShellParameters(jobInstance.jobParameters)
+      shellParameters.scriptLocation.!(new ProcessLogger {
+        override def out(s: => String): Unit = logger.info(s)
+        override def err(s: => String): Unit = logger.error(s)
+        override def buffer[T](f: => T): T = {f}
+      })
+    } flatMap {
       case 0 => updateJob(jobInstance.copy(jobStatus = Succeeded))
       case _ => updateJob(jobInstance.copy(jobStatus = Failed))
     }
-
-    Future.successful(Unit)
   }
 
 }
