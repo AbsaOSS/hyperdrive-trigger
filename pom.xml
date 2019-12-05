@@ -28,6 +28,9 @@
     <packaging>jar</packaging>
 
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
         <scala.compat.version>2.11</scala.compat.version>
         <spark.version>2.4.1</spark.version>
         <slick.version>3.3.2</slick.version>
@@ -53,6 +56,8 @@
         <log4j.version>2.11.1</log4j.version>
         <slf4j.log4j2.version>1.7.26</slf4j.log4j2.version>
         <spring.ldap.version>5.0.3.RELEASE</spring.ldap.version>
+        <scalatest.version>3.0.5</scalatest.version>
+        <h2database.version>1.4.200</h2database.version>
     </properties>
 
     <dependencies>
@@ -146,6 +151,19 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-ldap</artifactId>
             <version>${spring.ldap.version}</version>
+        </dependency>
+        <!--TESTS-->
+        <dependency>
+            <groupId>org.scalatest</groupId>
+            <artifactId>scalatest_${scala.compat.version}</artifactId>
+            <version>${scalatest.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>${h2database.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>

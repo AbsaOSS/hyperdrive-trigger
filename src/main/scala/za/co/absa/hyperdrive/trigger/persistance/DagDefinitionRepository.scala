@@ -16,8 +16,6 @@
 package za.co.absa.hyperdrive.trigger.persistance
 
 import za.co.absa.hyperdrive.trigger.models.DagDefinitionJoined
-import za.co.absa.hyperdrive.trigger.models.tables.JDBCProfile.profile._
-
 import scala.concurrent.{ExecutionContext, Future}
 
 trait DagDefinitionRepository extends Repository {
@@ -25,6 +23,7 @@ trait DagDefinitionRepository extends Repository {
 }
 
 class DagDefinitionRepositoryImpl extends DagDefinitionRepository {
+  import profile.api._
 
   def getJoinedDagDefinition(sensorId: Long)(implicit executionContext: ExecutionContext): Future[Option[DagDefinitionJoined]] = {
     db.run((

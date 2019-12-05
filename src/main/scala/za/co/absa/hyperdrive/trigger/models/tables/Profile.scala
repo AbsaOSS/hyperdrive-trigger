@@ -15,8 +15,8 @@
 
 package za.co.absa.hyperdrive.trigger.models.tables
 
-import slick.jdbc.PostgresProfile
+import slick.jdbc.JdbcProfile
 
-object JDBCProfile {
-  val profile = slick.jdbc.PostgresProfile.api
+trait Profile {
+  val profile: JdbcProfile
 }

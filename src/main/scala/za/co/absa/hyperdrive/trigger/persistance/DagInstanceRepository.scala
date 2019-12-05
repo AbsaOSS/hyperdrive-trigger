@@ -15,22 +15,23 @@
 
 package za.co.absa.hyperdrive.trigger.persistance
 
-import slick.dbio.DBIO
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
 import za.co.absa.hyperdrive.trigger.models.{DagInstance, DagInstanceJoined, Event}
-import za.co.absa.hyperdrive.trigger.models.tables.JDBCProfile.profile._
-import za.co.absa.hyperdrive.trigger.models.tables.JdbcTypeMapper._
 
 import scala.concurrent.{ExecutionContext, Future}
 
 trait DagInstanceRepository extends Repository {
   def insertJoinedDagInstances(dagInstancesJoined: Seq[(DagInstanceJoined, Event)], events: Seq[Event])(implicit executionContext: ExecutionContext): Future[Unit]
+
   def insertJoinedDagInstance(dagInstanceJoined: DagInstanceJoined)(implicit executionContext: ExecutionContext): Future[Unit]
-  def getNewActiveDags(idToFilter: Seq[Long], size: Int): Future[Seq[DagInstance]]
+
+  def getDagsToRun(runningIds: Seq[Long], size: Int)(implicit executionContext: ExecutionContext): Future[Seq[DagInstance]]
+
   def update(dagInstance: DagInstance): Future[Unit]
 }
 
 class DagInstanceRepositoryImpl extends DagInstanceRepository {
+  import profile.api._
 
   override def insertJoinedDagInstances(dagInstancesJoined: Seq[(DagInstanceJoined, Event)], events: Seq[Event])(implicit executionContext: ExecutionContext): Future[Unit] = db.run(
     DBIO.sequence {
@@ -51,11 +52,19 @@ class DagInstanceRepositoryImpl extends DagInstanceRepository {
     } yield ()).transactionally
   ).map(_ => (): Unit)
 
-  override def getNewActiveDags(idToFilter: Seq[Long], size: Int): Future[Seq[DagInstance]] = db.run(
-    dagInstanceTable.filter(ji =>
-      !ji.id.inSet(idToFilter) && ji.status.inSet(DagInstanceStatuses.finalStatuses)
-    ).take(size).result
-  )
+  def getDagsToRun(runningIds: Seq[Long], size: Int)(implicit executionContext: ExecutionContext): Future[Seq[DagInstance]] = {
+    val prefilteredResult = db.run(
+      dagInstanceTable.filter { di =>
+        !di.workflowId.in(
+          dagInstanceTable.filter(_.id.inSet(runningIds)).map(_.workflowId)
+        ) && di.status.inSet(DagInstanceStatuses.nonFinalStatuses)
+      }.result
+    )
+
+    prefilteredResult.map(di =>
+      di.groupBy(_.workflowId).flatMap(_._2.sortBy(_.id).take(1)).take(size).toSeq
+    )
+  }
 
   override def update(dagInstance: DagInstance): Future[Unit] = db.run(
     dagInstanceTable.filter(_.id === dagInstance.id).update(dagInstance).andThen(DBIO.successful((): Unit))

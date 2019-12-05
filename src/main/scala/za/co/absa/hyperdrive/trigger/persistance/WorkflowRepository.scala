@@ -16,10 +16,7 @@
 package za.co.absa.hyperdrive.trigger.persistance
 
 import java.time.LocalDateTime
-
 import za.co.absa.hyperdrive.trigger.models.{ProjectInfo, _}
-import za.co.absa.hyperdrive.trigger.models.tables.JDBCProfile.profile._
-
 import scala.concurrent.{ExecutionContext, Future}
 
 trait WorkflowRepository extends Repository {
@@ -35,6 +32,7 @@ trait WorkflowRepository extends Repository {
 }
 
 class WorkflowRepositoryImpl extends WorkflowRepository {
+  import profile.api._
 
   override def insertWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Unit] = db.run(
     (for {
