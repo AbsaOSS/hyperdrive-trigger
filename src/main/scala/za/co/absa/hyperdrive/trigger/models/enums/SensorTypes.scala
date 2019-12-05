@@ -23,7 +23,7 @@ object SensorTypes {
 
   case object Kafka extends SensorType("Kafka")
   case object AbsaKafka extends SensorType("Absa-Kafka")
+  case object Time extends SensorType("Time")
 
-  val sensorTypes: Set[SensorType] = Set(Kafka, AbsaKafka)
-
+  val sensorTypes: Set[SensorType] = Set(Kafka, AbsaKafka, Time)
 }
