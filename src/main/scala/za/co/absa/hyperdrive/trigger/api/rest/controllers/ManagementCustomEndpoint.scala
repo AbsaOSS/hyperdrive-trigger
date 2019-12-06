@@ -15,25 +15,22 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.controllers
 
-import org.springframework.beans.factory.annotation.Autowired
+import java.io.File
+import java.nio.file.{Files, Paths}
+
+import javax.inject.Inject
 import org.springframework.boot.actuate.endpoint.web.annotation.RestControllerEndpoint
 import org.springframework.core.env.Environment
-import org.springframework.http.HttpStatus
+import org.springframework.core.io.ByteArrayResource
+import org.springframework.http.{HttpHeaders, HttpStatus, MediaType, ResponseEntity}
 import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.{GetMapping, RequestParam}
-import org.springframework.core.io.ByteArrayResource
-import org.springframework.http.HttpHeaders
-import org.springframework.http.MediaType
-import org.springframework.http.ResponseEntity
-import java.io.File
-import java.nio.file.Files
-import java.nio.file.Paths
 
 @Component
 @RestControllerEndpoint(id = "logfiles")
 class ManagementCustomEndpoint {
 
-  @Autowired
+  @Inject
   val env: Environment = null
 
   @GetMapping(path = Array("/"))

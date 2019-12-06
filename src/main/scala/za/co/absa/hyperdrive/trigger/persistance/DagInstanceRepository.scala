@@ -15,6 +15,7 @@
 
 package za.co.absa.hyperdrive.trigger.persistance
 
+import org.springframework.stereotype
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
 import za.co.absa.hyperdrive.trigger.models.{DagInstance, DagInstanceJoined, Event}
 
@@ -30,6 +31,7 @@ trait DagInstanceRepository extends Repository {
   def update(dagInstance: DagInstance): Future[Unit]
 }
 
+@stereotype.Repository
 class DagInstanceRepositoryImpl extends DagInstanceRepository {
   import profile.api._
 
