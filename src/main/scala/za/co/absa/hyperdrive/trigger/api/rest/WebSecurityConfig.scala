@@ -15,36 +15,30 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest
 
-import za.co.absa.hyperdrive.trigger.api.rest.auth.{HyperdriverAuthentication, InMemoryAuthentication, LdapAuthentication}
+import javax.inject.Inject
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.BeanFactory
-import org.springframework.beans.factory.annotation.{Autowired, Value}
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.{Bean, Configuration}
 import org.springframework.http.HttpStatus
+import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
-import org.springframework.security.core.Authentication
-import org.springframework.security.core.AuthenticationException
+import org.springframework.security.config.annotation.web.configuration.{EnableWebSecurity, WebSecurityConfigurerAdapter}
+import org.springframework.security.core.{Authentication, AuthenticationException}
 import org.springframework.security.web.AuthenticationEntryPoint
-import org.springframework.security.web.authentication.AuthenticationFailureHandler
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler
-import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler
-import org.springframework.security.web.authentication.logout.LogoutSuccessHandler
+import org.springframework.security.web.authentication.{AuthenticationFailureHandler, SimpleUrlAuthenticationFailureHandler, SimpleUrlAuthenticationSuccessHandler}
+import org.springframework.security.web.authentication.logout.{HttpStatusReturningLogoutSuccessHandler, LogoutSuccessHandler}
 import org.springframework.security.web.csrf.CsrfToken
 import org.springframework.stereotype.Component
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
-import org.slf4j.LoggerFactory
-import org.springframework.security.authentication.AuthenticationManager
+import za.co.absa.hyperdrive.trigger.api.rest.auth.{HyperdriverAuthentication, InMemoryAuthentication, LdapAuthentication}
 
 @EnableWebSecurity
 class WebSecurityConfig {
   private val logger = LoggerFactory.getLogger(this.getClass)
 
-  @Autowired
+  @Inject
   val beanFactory: BeanFactory = null
 
   @Value("${auth.mechanism:}")
@@ -61,7 +55,7 @@ class WebSecurityConfig {
   }
 
   @Configuration
-  class ApiWebSecurityConfigurationAdapter @Autowired() (
+  class ApiWebSecurityConfigurationAdapter @Inject() (
     restAuthenticationEntryPoint: RestAuthenticationEntryPoint,
     authenticationSuccessHandler: AuthSuccessHandler,
     authenticationFailureHandler: AuthenticationFailureHandler,

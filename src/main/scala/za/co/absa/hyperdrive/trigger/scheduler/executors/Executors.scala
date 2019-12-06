@@ -17,6 +17,7 @@ package za.co.absa.hyperdrive.trigger.scheduler.executors
 
 import java.util.concurrent
 
+import javax.inject.Inject
 import za.co.absa.hyperdrive.trigger.models.{DagInstance, JobInstance}
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.InvalidExecutor
 import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobStatuses, JobTypes}
@@ -24,11 +25,13 @@ import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, JobInst
 import za.co.absa.hyperdrive.trigger.scheduler.executors.spark.SparkExecutor
 import za.co.absa.hyperdrive.trigger.scheduler.utilities.ExecutorsConfig
 import org.slf4j.LoggerFactory
+import org.springframework.stereotype.Component
 
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success}
 
-class Executors(dagInstanceRepository: DagInstanceRepository, jobInstanceRepository: JobInstanceRepository) {
+@Component
+class Executors @Inject()(dagInstanceRepository: DagInstanceRepository, jobInstanceRepository: JobInstanceRepository) {
   private val logger = LoggerFactory.getLogger(this.getClass)
 
   private implicit val executionContext: ExecutionContextExecutor =

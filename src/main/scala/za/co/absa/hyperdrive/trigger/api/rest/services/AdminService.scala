@@ -15,6 +15,8 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
+import javax.inject.Inject
+import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.HyperDriverManager
 
 import scala.concurrent.Future
@@ -26,18 +28,19 @@ trait AdminService {
   def stopManager: Future[Boolean]
 }
 
-class AdminServiceImpl() extends AdminService {
+@Service
+class AdminServiceImpl @Inject()(hyperDriverManager: HyperDriverManager) extends AdminService {
 
   override def isManagerRunning: Future[Boolean] = {
-    Future.successful(HyperDriverManager.isManagerRunning)
+    Future.successful(hyperDriverManager.isManagerRunning)
   }
 
   override def startManager: Future[Boolean] = {
-    Future.successful(HyperDriverManager.startManager).map(_=>true)
+    Future.successful(hyperDriverManager.startManager).map(_=>true)
   }
 
   override def stopManager: Future[Boolean] = {
-    HyperDriverManager.stopManager.map(_=>true)
+    hyperDriverManager.stopManager.map(_=>true)
   }
 
 }

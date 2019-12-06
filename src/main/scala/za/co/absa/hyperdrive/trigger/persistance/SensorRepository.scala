@@ -15,6 +15,7 @@
 
 package za.co.absa.hyperdrive.trigger.persistance
 
+import org.springframework.stereotype
 import za.co.absa.hyperdrive.trigger.models.Sensor
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -23,6 +24,7 @@ trait SensorRepository extends Repository {
   def getInactiveSensors(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[Long]]
 }
 
+@stereotype.Repository
 class SensorRepositoryImpl extends SensorRepository {
   import profile.api._
 

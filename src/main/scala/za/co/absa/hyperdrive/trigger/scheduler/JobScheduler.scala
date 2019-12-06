@@ -18,6 +18,7 @@ package za.co.absa.hyperdrive.trigger.scheduler
 import java.util.concurrent
 import java.util.concurrent.atomic.AtomicBoolean
 
+import javax.inject.Inject
 import za.co.absa.hyperdrive.trigger.persistance._
 import za.co.absa.hyperdrive.trigger.scheduler.executors.Executors
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.Sensors
@@ -27,8 +28,10 @@ import scala.collection.mutable
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success}
 import org.slf4j.LoggerFactory
+import org.springframework.stereotype.Component
 
-class JobScheduler(sensors: Sensors, executors: Executors, dagInstanceRepository: DagInstanceRepository) {
+@Component
+class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstanceRepository: DagInstanceRepository) {
   private val logger = LoggerFactory.getLogger(this.getClass)
 
   private val HEART_BEAT: Int = SchedulerConfig.getHeartBeat

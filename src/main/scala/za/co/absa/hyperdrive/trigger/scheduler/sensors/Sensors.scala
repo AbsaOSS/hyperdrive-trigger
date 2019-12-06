@@ -17,18 +17,21 @@ package za.co.absa.hyperdrive.trigger.scheduler.sensors
 
 import java.util.concurrent.Executors
 
+import javax.inject.Inject
 import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes
 import za.co.absa.hyperdrive.trigger.persistance.SensorRepository
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.kafka.KafkaSensor
 import za.co.absa.hyperdrive.trigger.scheduler.utilities.SensorsConfig
 import za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor
 import org.slf4j.LoggerFactory
+import org.springframework.stereotype.Component
 
 import scala.collection.mutable
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success, Try}
 
-class Sensors(eventProcessor: EventProcessor, sensorRepository: SensorRepository) {
+@Component
+class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: SensorRepository) {
   private val logger = LoggerFactory.getLogger(this.getClass)
 
   private implicit val executionContext: ExecutionContextExecutor =
