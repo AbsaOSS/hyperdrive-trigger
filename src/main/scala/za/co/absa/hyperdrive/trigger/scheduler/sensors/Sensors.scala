@@ -25,13 +25,16 @@ import za.co.absa.hyperdrive.trigger.scheduler.utilities.SensorsConfig
 import za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
+import org.quartz.Scheduler
+import za.co.absa.hyperdrive.trigger.scheduler.sensors.time.TimeSensor
 
 import scala.collection.mutable
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success, Try}
 
 @Component
-class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: SensorRepository) {
+class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: SensorRepository,
+                        quartzScheduler: Scheduler) {
   private val logger = LoggerFactory.getLogger(this.getClass)
 
   private implicit val executionContext: ExecutionContextExecutor =
@@ -78,7 +81,12 @@ class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: Sensor
 
           Try(new KafkaSensor(eventProcessor.eventProcessor, sensor.properties, executionContext)) match {
             case Success(s) => sensors.put(sensor.id, s)
-            case Failure(f) => logger.error("Couldn't create Kafka sensor.", f)
+            case Failure(f) => logger.error(s"Couldn't create Kafka sensor for sensor (#${sensor.id}).", f)
+          }
+        case sensor if sensor.sensorType == SensorTypes.Time =>
+          Try(TimeSensor(eventProcessor.eventProcessor, sensor.properties, executionContext, quartzScheduler)) match {
+            case Success(s) => sensors.put(sensor.id, s)
+            case Failure(f) => logger.error(s"Couldn't create Time sensor for sensor (#${sensor.id}).", f)
           }
         case _ => None
       }
