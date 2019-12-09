@@ -19,7 +19,7 @@ import java.time.Duration
 import java.util.Collections
 
 import org.apache.kafka.clients.consumer.{ConsumerRecord, KafkaConsumer}
-import play.api.libs.json.Json
+import play.api.libs.json.{JsError, JsSuccess, Json}
 import za.co.absa.hyperdrive.trigger.models.{Event, Properties}
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.PollSensor
 import za.co.absa.hyperdrive.trigger.scheduler.utilities.KafkaConfig
@@ -67,10 +67,19 @@ class KafkaSensor(
 
   private def processRecords[A](records: Iterable[ConsumerRecord[A, String]]): Future[Unit] = {
     logger.debug(s"$logMsgPrefix. Messages received = ${records.map(_.value())}")
-    if(records.nonEmpty)
-      eventsProcessor.apply(records.map(recordToEvent).toSeq, properties).map(_ => ():Unit)
-    else
-      Future.successful(():Unit)
+    if (records.nonEmpty) {
+      val events = records.map(recordToEvent).toSeq
+      val matchedEvents = events.filter { event =>
+        properties.matchProperties.forall { matchProperty =>
+          (event.payload \ matchProperty._1).validate[String] match {
+            case JsSuccess(value, _) => value == matchProperty._2
+            case _: JsError => false
+          }
+        }
+      }
+      eventsProcessor.apply(matchedEvents, properties).map(_ => (): Unit)
+    } else
+      Future.successful((): Unit)
   }
 
   private def recordToEvent[A](record: ConsumerRecord[A, String]): Event = {
