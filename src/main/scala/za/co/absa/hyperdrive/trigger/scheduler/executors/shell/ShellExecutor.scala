@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory
 import za.co.absa.hyperdrive.trigger.models.JobInstance
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses._
 import za.co.absa.hyperdrive.trigger.scheduler.executors.Executor
-
 import scala.concurrent.{ExecutionContext, Future}
 import scala.sys.process._
 
@@ -28,8 +27,16 @@ object ShellExecutor extends Executor {
 
   override def execute(jobInstance: JobInstance, updateJob: JobInstance => Future[Unit])
                       (implicit executionContext: ExecutionContext): Future[Unit] = {
-    Future {
-      logger.info("Start SHELL SCRIPT")
+    jobInstance.jobStatus match {
+      case status if status == InQueue => executeJob(jobInstance, updateJob)
+      case status if status == Running => updateJobStatus(Failed, jobInstance, updateJob)
+      case _ => updateJobStatus(Lost, jobInstance, updateJob)
+    }
+  }
+
+  private def executeJob(jobInstance: JobInstance, updateJob: JobInstance => Future[Unit])
+                        (implicit executionContext: ExecutionContext): Future[Unit] = {
+    updateJobStatus(Running, jobInstance, updateJob).map { _ =>
       val shellParameters = ShellParameters(jobInstance.jobParameters)
       shellParameters.scriptLocation.!(new ProcessLogger {
         override def out(s: => String): Unit = logger.info(s)
@@ -40,6 +47,11 @@ object ShellExecutor extends Executor {
       case 0 => updateJob(jobInstance.copy(jobStatus = Succeeded))
       case _ => updateJob(jobInstance.copy(jobStatus = Failed))
     }
+  }
+
+  private def updateJobStatus(newStatus: JobStatus, jobInstance: JobInstance, updateJob: JobInstance => Future[Unit])
+                             (implicit executionContext: ExecutionContext): Future[Unit] = {
+    updateJob(jobInstance.copy(jobStatus = newStatus))
   }
 
 }
