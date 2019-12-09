@@ -186,7 +186,8 @@ sap.ui.define([
 
 		sensorTypes: [
 			{name: "Absa-Kafka", fragment: "absaKafka", controller: "AbsaKafkaController"},
-			{name: "Kafka", fragment: "kafka", controller: "KafkaController"}
+			{name: "Kafka", fragment: "kafka", controller: "KafkaController"},
+			{name: "Time", fragment: "time", controller: "TimeController"}
 		]
 
 	});

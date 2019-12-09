@@ -13,26 +13,18 @@
  * limitations under the License.
  */
 
-class AbsaKafkaController {
+class TimeController {
 
     constructor(model) {
         this._model = model;
     }
 
     onShow() {
-        let path = "/workflow/sensor/properties/matchProperties";
-        let matchProperties = this._model.getProperty(path);
-        if(!(matchProperties && matchProperties.length === 1 && matchProperties.some(e => e.keyField === 'ingestionToken'))) {
-            this._model.setProperty(path, [{"keyField": "ingestionToken", "valueField": UUIDGenerator.getUUID()}])
+        let path = "/workflow/sensor/properties/settings/variables/quartzJobId";
+        let quartzJobId = this._model.getProperty(path);
+        if(!quartzJobId) {
+            this._model.setProperty(path, UUIDGenerator.getUUID());
         }
-    }
-
-    onAddServer() {
-        UiListMethods.addListItem("/workflow/sensor/properties/settings/maps/servers", this._model, "")
-    }
-
-    onDeleteServer(oEv) {
-        UiListMethods.deleteListItem("/workflow/sensor/properties/settings/maps/servers", this._model, oEv)
     }
 
 }
