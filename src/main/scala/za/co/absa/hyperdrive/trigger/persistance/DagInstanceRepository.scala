@@ -22,7 +22,7 @@ import za.co.absa.hyperdrive.trigger.models.{DagInstance, DagInstanceJoined, Eve
 import scala.concurrent.{ExecutionContext, Future}
 
 trait DagInstanceRepository extends Repository {
-  def insertJoinedDagInstances(dagInstancesJoined: Seq[(DagInstanceJoined, Event)], events: Seq[Event])(implicit executionContext: ExecutionContext): Future[Unit]
+  def insertJoinedDagInstances(dagInstancesJoined: Seq[(DagInstanceJoined, Event)])(implicit executionContext: ExecutionContext): Future[Unit]
 
   def insertJoinedDagInstance(dagInstanceJoined: DagInstanceJoined)(implicit executionContext: ExecutionContext): Future[Unit]
 
@@ -35,7 +35,7 @@ trait DagInstanceRepository extends Repository {
 class DagInstanceRepositoryImpl extends DagInstanceRepository {
   import profile.api._
 
-  override def insertJoinedDagInstances(dagInstancesJoined: Seq[(DagInstanceJoined, Event)], events: Seq[Event])(implicit executionContext: ExecutionContext): Future[Unit] = db.run(
+  override def insertJoinedDagInstances(dagInstancesJoined: Seq[(DagInstanceJoined, Event)])(implicit executionContext: ExecutionContext): Future[Unit] = db.run(
     DBIO.sequence {
       dagInstancesJoined.map { dagInstanceJoined =>
         for {
@@ -44,7 +44,7 @@ class DagInstanceRepositoryImpl extends DagInstanceRepository {
           jis <- jobInstanceTable ++= dagInstanceJoined._1.jobInstances.map(_.copy(dagInstanceId = di))
         } yield ()
       }
-    }.andThen(eventTable ++= events).transactionally
+    }.transactionally
   ).map(_ => (): Unit)
 
   override def insertJoinedDagInstance(dagInstanceJoined: DagInstanceJoined)(implicit executionContext: ExecutionContext): Future[Unit] = db.run(
