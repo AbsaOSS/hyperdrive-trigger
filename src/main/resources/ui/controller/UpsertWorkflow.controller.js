@@ -104,14 +104,27 @@ sap.ui.define([
 		},
 
 		onSaveWorkflow: function () {
-			let isEdit = this._model.getProperty("/isEdit");
-			let workflow = this.getWorkflowToSave();
-			if(isEdit) {
-				WorkflowRepository.updateWorkflow(workflow);
-			} else {
-				WorkflowRepository.createWorkflow(workflow);
+			if(this._isWorkflowValid(this._model.getProperty("/workflow"))){
+				let isEdit = this._model.getProperty("/isEdit");
+				let workflow = this.getWorkflowToSave();
+				if(isEdit) {
+					WorkflowRepository.updateWorkflow(workflow);
+				} else {
+					WorkflowRepository.createWorkflow(workflow);
+				}
+				this.myNavBack();
 			}
-			this.myNavBack();
+		},
+
+		_isWorkflowValid: function (workflow) {
+			try {
+				cronstrue.toString(workflow.sensor.properties.settings.variables.cronExpression);
+			}
+			catch(err) {
+				new sap.m.MessageToast.show("Invalid CRON expression", {animationDuration: 5000});
+				return false;
+			}
+			return true;
 		},
 
 		getWorkflowToSave: function () {

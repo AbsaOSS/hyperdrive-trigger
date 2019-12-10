@@ -20,10 +20,16 @@ class TimeController {
     }
 
     onShow() {
-        let path = "/workflow/sensor/properties/settings/variables/quartzJobId";
-        let quartzJobId = this._model.getProperty(path);
+        let quartzJobIdPath = "/workflow/sensor/properties/settings/variables/quartzJobId";
+        let quartzJobId = this._model.getProperty(quartzJobIdPath);
         if(!quartzJobId) {
-            this._model.setProperty(path, UUIDGenerator.getUUID());
+            this._model.setProperty(quartzJobIdPath, UUIDGenerator.getUUID());
+        }
+
+        let cronExpressionPath = "/workflow/sensor/properties/settings/variables/cronExpression";
+        let cronExpression = this._model.getProperty(cronExpressionPath);
+        if(!cronExpression) {
+            this._model.setProperty(cronExpressionPath, "0 0 * * * *")
         }
     }
 

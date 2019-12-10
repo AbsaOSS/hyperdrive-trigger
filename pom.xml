@@ -58,6 +58,7 @@
         <spring.ldap.version>5.0.3.RELEASE</spring.ldap.version>
         <scalatest.version>3.0.5</scalatest.version>
         <h2database.version>1.4.200</h2database.version>
+        <cronstrue.version>0.8.0</cronstrue.version>
     </properties>
 
     <dependencies>
@@ -126,6 +127,11 @@
             <artifactId>spring-boot-starter-tomcat</artifactId>
             <version>${spring-boot-starter-tomcat.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-ldap</artifactId>
+            <version>${spring.ldap.version}</version>
+        </dependency>
         <!-- WebJars -->
         <dependency>
             <groupId>org.webjars</groupId>
@@ -148,9 +154,9 @@
             <version>${webjars.locator.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-ldap</artifactId>
-            <version>${spring.ldap.version}</version>
+            <groupId>org.webjars.bower</groupId>
+            <artifactId>cronstrue</artifactId>
+            <version>${cronstrue.version}</version>
         </dependency>
         <!--TESTS-->
         <dependency>
