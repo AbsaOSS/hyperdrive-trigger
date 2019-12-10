@@ -22,9 +22,11 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.autoconfigure.quartz.SchedulerFactoryBeanCustomizer
 import org.springframework.context.annotation.{Bean, ComponentScan, Configuration}
 import org.springframework.scheduling.annotation.EnableAsync
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
+import org.springframework.scheduling.quartz.SchedulerFactoryBean
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.JobStatus
 import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
 import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes.SensorType
@@ -42,6 +44,24 @@ class Application() {
     executor.setQueueCapacity(1024)
     executor.initialize()
     executor
+  }
+
+  /**
+   * Bean that explicitly sets a dedicated TaskExecutor for the QuartzScheduler. The SchedulerFactoryBeanCustomizer
+   * is picked up by [[org.springframework.boot.autoconfigure.quartz.QuartzAutoConfiguration]]
+   */
+  @Bean def quartzSchedulerFactoryBeanCustomizer(): SchedulerFactoryBeanCustomizer = {
+    new SchedulerFactoryBeanCustomizer {
+      override def customize(schedulerFactoryBean: SchedulerFactoryBean): Unit = {
+        val executor = new ThreadPoolTaskExecutor()
+        executor.setCorePoolSize(10)
+        executor.setMaxPoolSize(10)
+        executor.setThreadNamePrefix("quartzTaskExecutor-")
+        executor.setThreadGroupName("quartzTaskExecutorThreadGroup")
+        executor.initialize()
+        schedulerFactoryBean.setTaskExecutor(executor)
+      }
+    }
   }
 
   @Bean
@@ -83,8 +103,9 @@ class Application() {
       JobTypes.jobTypes.find(_.name == value).getOrElse(throw new Exception("Failed to find enum value"))
     }
   }
+
 }
 
 object Application extends App {
-  SpringApplication.run(classOf[Application], args:_*)
+  SpringApplication.run(classOf[Application], args: _*)
 }
