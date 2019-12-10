@@ -20,5 +20,6 @@
     <Label text="Cron Expression"/>
     <Input type="Text"
            value="{/workflow/sensor/properties/settings/variables/cronExpression}"
-           placeholder="* * * * * *"/>
+           placeholder="* * * * * *"
+           valueLiveUpdate="true"/>
 </core:FragmentDefinition>
