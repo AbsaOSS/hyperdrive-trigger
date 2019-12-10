@@ -18,7 +18,7 @@ package za.co.absa.hyperdrive.trigger.scheduler
 
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
-import org.mockito.Mockito.{never, verify, when}
+import org.mockito.Mockito.{never, verify, when, reset}
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, Matchers}
 import play.api.libs.json.JsObject
@@ -30,12 +30,17 @@ import za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor
 import scala.concurrent.{ExecutionContext, Future}
 
 class EventProcessorTest extends AsyncFlatSpec with MockitoSugar with Matchers with BeforeAndAfter {
-
   private val eventRepository = mock[EventRepository]
   private val dagDefinitionRepository = mock[DagDefinitionRepository]
   private val dagInstanceRepository = mock[DagInstanceRepository]
 
-  "EventProcessor.eventProcessor" should "persist dag instances for events" in {
+  before {
+    reset(eventRepository)
+    reset(dagDefinitionRepository)
+    reset(dagInstanceRepository)
+  }
+
+  "EventProcessor.eventProcessor" should "persist a dag instances for each event" in {
     // given
     val sensorId = 1L
     val workflowId = 10L
@@ -73,12 +78,8 @@ class EventProcessorTest extends AsyncFlatSpec with MockitoSugar with Matchers w
     )
   }
 
-  "EventProcessor.eventProcessor" should "not persist anything if event already exists in DB" in {
+  "EventProcessor.eventProcessor" should "not persist a dag instance if the event already exists in DB" in {
     // given
-    val eventRepository = mock[EventRepository]
-    val dagDefinitionRepository = mock[DagDefinitionRepository]
-    val dagInstanceRepository = mock[DagInstanceRepository]
-
     val sensorId = 1L
     val event = createEvent(sensorId)
 
@@ -97,12 +98,8 @@ class EventProcessorTest extends AsyncFlatSpec with MockitoSugar with Matchers w
     )
   }
 
-  "EventProcessor.eventProcessor" should "not persist anything if there is no dag definition for event" in {
+  "EventProcessor.eventProcessor" should "not persist a dag instance if there is no dag definition for event" in {
     // given
-    val eventRepository = mock[EventRepository]
-    val dagDefinitionRepository = mock[DagDefinitionRepository]
-    val dagInstanceRepository = mock[DagInstanceRepository]
-
     val sensorId = 1L
     val event = createEvent(sensorId)
 
