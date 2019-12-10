@@ -16,7 +16,7 @@
 <core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
     <Label text="Will run"/>
     <Text text="{parts: ['/workflow/sensor/properties/settings/variables/cronExpression'],
-                 formatter: 'Formatters.cronScheduleTimingFormatter'}" />
+                 formatter: 'Formatters.cronFormatter'}" />
     <Label text="Cron Expression"/>
     <Input type="Text"
            value="{/workflow/sensor/properties/settings/variables/cronExpression}"
