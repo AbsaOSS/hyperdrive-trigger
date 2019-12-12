@@ -18,10 +18,12 @@ package za.co.absa.hyperdrive.trigger.scheduler.eventProcessor
 import za.co.absa.hyperdrive.trigger.models.{Event, Properties}
 import za.co.absa.hyperdrive.trigger.persistance._
 import org.slf4j.LoggerFactory
+import org.springframework.stereotype.Component
 import play.api.libs.json.{JsError, JsSuccess}
 
 import scala.concurrent.{ExecutionContext, Future}
 
+@Component
 class EventProcessor(eventRepository: EventRepository, dagDefinitionRepository: DagDefinitionRepository, dagInstanceRepository: DagInstanceRepository) {
   private val logger = LoggerFactory.getLogger(this.getClass)
 

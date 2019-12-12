@@ -15,6 +15,7 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
+import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.models.{OverallStatistics, PerDagStatistics, PerProjectStatistics, PerWorkflowStatistics}
 import za.co.absa.hyperdrive.trigger.persistance.RunRepository
 
@@ -28,6 +29,7 @@ trait RunService {
   def getPerWorkflowStatistics(projectName: String)(implicit ec: ExecutionContext): Future[Seq[PerWorkflowStatistics]]
 }
 
+@Service
 class RunServiceImpl(override val runRepository: RunRepository) extends RunService {
 
   override def getOverallStatistics()(implicit ec: ExecutionContext): Future[OverallStatistics] = {
