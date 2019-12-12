@@ -70,6 +70,7 @@ class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstance
 
   def stopManager(): Future[Unit] = {
     isManagerRunningAtomic.set(false)
+    sensors.stopAllSensors()
     runningScheduler
   }
 
