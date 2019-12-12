@@ -17,14 +17,12 @@ package za.co.absa.hyperdrive.trigger.persistance
 
 import org.springframework.stereotype
 import za.co.absa.hyperdrive.trigger.models.Sensor
-import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes
 
 import scala.concurrent.{ExecutionContext, Future}
 
 trait SensorRepository extends Repository {
   def getNewActiveSensors(idsToFilter: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[Sensor]]
   def getInactiveSensors(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[Long]]
-  def getActiveTimeSensors()(implicit ec: ExecutionContext): Future[Seq[Sensor]]
 }
 
 @stereotype.Repository
@@ -46,15 +44,6 @@ class SensorRepositoryImpl extends SensorRepository {
       workflow <- workflowTable if workflow.id === sensor.workflowId && !workflow.isActive
     } yield {
       sensor.id
-    }).result
-  }
-
-  override def getActiveTimeSensors()(implicit ec: ExecutionContext): Future[Seq[Sensor]] = db.run {(
-    for {
-      sensor <- sensorTable if sensor.sensorType === (SensorTypes.Time:SensorTypes.SensorType)
-      workflow <- workflowTable if workflow.id === sensor.workflowId && workflow.isActive
-    } yield {
-      sensor
     }).result
   }
 }
