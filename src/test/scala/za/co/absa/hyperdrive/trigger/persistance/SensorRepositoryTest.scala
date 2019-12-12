@@ -63,16 +63,4 @@ class SensorRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll
     result.size shouldBe 2
     result should contain theSameElementsAs Seq(inactiveTime._1.id, inactiveKafka._1.id)
   }
-
-  "sensorRepository.getActiveTimeSensor" should "return only sensor of type Time with active workflow" in {
-    // prepare
-    insertSensors(allSensors)
-
-    // execute
-    val result = Await.result(sensorRepository.getActiveTimeSensors(), Duration.Inf)
-
-    // verify
-    result.size shouldBe 2
-    result should contain theSameElementsAs Seq(activeTimeW100._1, activeTimeW101._1)
-  }
 }
