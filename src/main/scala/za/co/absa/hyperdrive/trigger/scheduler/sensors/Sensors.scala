@@ -62,6 +62,11 @@ class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: Sensor
     fut
   }
 
+  def stopAllSensors(): Unit = {
+    sensors.values.foreach(_.close())
+    sensors.clear()
+  }
+
   private def removeInactiveSensors(): Future[Unit] = {
     val activeSensors = sensors.keys.toSeq
     sensorRepository.getInactiveSensors(activeSensors).map(
