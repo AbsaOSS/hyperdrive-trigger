@@ -46,24 +46,6 @@ class Application() {
     executor
   }
 
-  /**
-   * Bean that explicitly sets a dedicated TaskExecutor for the QuartzScheduler. The SchedulerFactoryBeanCustomizer
-   * is picked up by [[org.springframework.boot.autoconfigure.quartz.QuartzAutoConfiguration]]
-   */
-  @Bean def quartzSchedulerFactoryBeanCustomizer(): SchedulerFactoryBeanCustomizer = {
-    new SchedulerFactoryBeanCustomizer {
-      override def customize(schedulerFactoryBean: SchedulerFactoryBean): Unit = {
-        val executor = new ThreadPoolTaskExecutor()
-        executor.setCorePoolSize(10)
-        executor.setMaxPoolSize(10)
-        executor.setThreadNamePrefix("quartzTaskExecutor-")
-        executor.setThreadGroupName("quartzTaskExecutorThreadGroup")
-        executor.initialize()
-        schedulerFactoryBean.setTaskExecutor(executor)
-      }
-    }
-  }
-
   @Bean
   def objectMapper(): ObjectMapper = {
     val module = new SimpleModule()
