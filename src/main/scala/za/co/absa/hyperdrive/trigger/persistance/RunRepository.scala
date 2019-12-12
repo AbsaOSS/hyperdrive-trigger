@@ -15,6 +15,7 @@
 
 package za.co.absa.hyperdrive.trigger.persistance
 
+import org.springframework.stereotype
 import za.co.absa.hyperdrive.trigger.models.{OverallStatistics, PerDagStatistics, PerProjectStatistics, PerWorkflowStatistics}
 import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobStatuses}
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.{InQueue, Succeeded}
@@ -28,6 +29,7 @@ trait RunRepository extends Repository {
   def getPerWorkflowStatistics(projectName: String)(implicit ec: ExecutionContext): Future[Seq[PerWorkflowStatistics]]
 }
 
+@stereotype.Repository
 class RunRepositoryImpl extends RunRepository {
   import profile.api._
 

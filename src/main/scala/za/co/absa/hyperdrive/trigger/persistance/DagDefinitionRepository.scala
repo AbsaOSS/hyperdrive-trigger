@@ -15,13 +15,16 @@
 
 package za.co.absa.hyperdrive.trigger.persistance
 
+import org.springframework.stereotype
 import za.co.absa.hyperdrive.trigger.models.DagDefinitionJoined
+
 import scala.concurrent.{ExecutionContext, Future}
 
 trait DagDefinitionRepository extends Repository {
   def getJoinedDagDefinition(sensorId: Long)(implicit executionContext: ExecutionContext): Future[Option[DagDefinitionJoined]]
 }
 
+@stereotype.Repository
 class DagDefinitionRepositoryImpl extends DagDefinitionRepository {
   import profile.api._
 

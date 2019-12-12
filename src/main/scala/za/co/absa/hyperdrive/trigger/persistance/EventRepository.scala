@@ -15,7 +15,9 @@
 
 package za.co.absa.hyperdrive.trigger.persistance
 
+import org.springframework.stereotype
 import za.co.absa.hyperdrive.trigger.models.Event
+
 import scala.concurrent.{ExecutionContext, Future}
 
 trait EventRepository extends Repository {
@@ -24,6 +26,7 @@ trait EventRepository extends Repository {
   def insertEvent(event: Event)(implicit executionContext: ExecutionContext): Future[Int]
 }
 
+@stereotype.Repository
 class EventRepositoryImpl extends EventRepository {
   import profile.api._
 

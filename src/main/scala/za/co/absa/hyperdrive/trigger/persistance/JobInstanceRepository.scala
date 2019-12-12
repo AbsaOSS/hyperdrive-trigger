@@ -17,6 +17,7 @@ package za.co.absa.hyperdrive.trigger.persistance
 
 import java.time.LocalDateTime
 
+import org.springframework.stereotype
 import za.co.absa.hyperdrive.trigger.models.JobInstance
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.JobStatus
@@ -30,6 +31,7 @@ trait JobInstanceRepository extends Repository {
   def getJobInstances(dagInstanceId: Long)(implicit ec: ExecutionContext): Future[Seq[JobInstance]]
 }
 
+@stereotype.Repository
 class JobInstanceRepositoryImpl extends JobInstanceRepository {
   import profile.api._
 
