@@ -29,8 +29,15 @@ class TimeController {
         let cronExpressionPath = "/workflow/sensor/properties/settings/variables/cronExpression";
         let cronExpression = this._model.getProperty(cronExpressionPath);
         if(!cronExpression) {
-            this._model.setProperty(cronExpressionPath, "0 0 * * * *")
+            this._model.setProperty(cronExpressionPath, "0 0 0 ? * * *")
         }
+        this.onCronChange()
+    }
+
+    onCronChange() {
+        let cronExpressionPath = "/workflow/sensor/properties/settings/variables/cronExpression";
+        let cronExpression = this._model.getProperty(cronExpressionPath);
+        UtilRepository.getQuartzDetail(cronExpression, this._model);
     }
 
 }

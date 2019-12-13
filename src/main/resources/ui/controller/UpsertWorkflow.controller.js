@@ -20,7 +20,6 @@ sap.ui.define([
 ], function (BaseController, Fragment, Filter) {
 	"use strict";
 	return BaseController.extend("hyperdriver.controller.UpsertWorkflow", {
-
 		onInit: function () {
 			this.getRouter().attachRouteMatched(this.onViewDisplay, this);
 			this.getView().setModel(new sap.ui.model.json.JSONModel());
@@ -104,7 +103,7 @@ sap.ui.define([
 		},
 
 		onSaveWorkflow: function () {
-			if(this._isWorkflowValid(this._model.getProperty("/workflow"))){
+			if(this._isWorkflowValid()){
 				let isEdit = this._model.getProperty("/isEdit");
 				let workflow = this.getWorkflowToSave();
 				if(isEdit) {
@@ -116,15 +115,14 @@ sap.ui.define([
 			}
 		},
 
-		_isWorkflowValid: function (workflow) {
-			try {
-				cronstrue.toString(workflow.sensor.properties.settings.variables.cronExpression);
-			}
-			catch(err) {
+		_isWorkflowValid: function () {
+			let isValid = this._model.getProperty("/quartzDetail/isValid");
+			if(isValid) {
+				return true
+			} else {
 				new sap.m.MessageToast.show("Invalid CRON expression", {animationDuration: 5000});
 				return false;
 			}
-			return true;
 		},
 
 		getWorkflowToSave: function () {

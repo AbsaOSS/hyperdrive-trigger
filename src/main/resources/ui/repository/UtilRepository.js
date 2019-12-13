@@ -13,17 +13,19 @@
  * limitations under the License.
  */
 
-var Formatters = new function() {
+let UtilRepository = new function () {
 
-    this.cronFormatter = function(cronExpression) {
-        let result;
-        try {
-            result = cronstrue.toString(cronExpression);
-        }
-        catch(err) {
-            result = "Never. CRON expression is invalid!"
-        }
-        return result
+    this.getQuartzDetail = function (expression, model) {
+        WSClient.get(
+            "util/quartzDetail?expression="+expression,
+            function(data) {
+                model.setProperty("/quartzDetail", data);
+            },
+            function() {
+                model.setProperty("/quartzDetail", {isValid: false});
+                new sap.m.MessageToast.show("Error while loading quartz detail", {animationDuration: 5000});
+            }
+        );
     };
 
 }();

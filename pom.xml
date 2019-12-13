@@ -58,7 +58,7 @@
         <spring.ldap.version>5.0.3.RELEASE</spring.ldap.version>
         <scalatest.version>3.0.5</scalatest.version>
         <h2database.version>1.4.200</h2database.version>
-        <cronstrue.version>0.8.0</cronstrue.version>
+        <cronutils.version>9.0.2</cronutils.version>
     </properties>
 
     <dependencies>
@@ -132,6 +132,11 @@
             <artifactId>spring-security-ldap</artifactId>
             <version>${spring.ldap.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.cronutils</groupId>
+            <artifactId>cron-utils</artifactId>
+            <version>${cronutils.version}</version>
+        </dependency>
         <!-- WebJars -->
         <dependency>
             <groupId>org.webjars</groupId>
@@ -152,11 +157,6 @@
             <groupId>org.webjars</groupId>
             <artifactId>webjars-locator-core</artifactId>
             <version>${webjars.locator.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.webjars.bower</groupId>
-            <artifactId>cronstrue</artifactId>
-            <version>${cronstrue.version}</version>
         </dependency>
         <!--TESTS-->
         <dependency>
