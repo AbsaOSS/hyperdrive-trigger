@@ -16,6 +16,8 @@
 package za.co.absa.hyperdrive.trigger.scheduler.executors.shell
 
 import java.time.LocalDateTime
+import java.util.concurrent.TimeUnit
+
 import org.mockito.ArgumentMatchers
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FlatSpec, Matchers}
@@ -24,6 +26,7 @@ import org.mockito.Mockito._
 import org.mockito.ArgumentMatchers._
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.{Failed, InQueue, Running, Succeeded}
 import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.Shell
+
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration.Duration
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -32,7 +35,7 @@ class ShellExecutorTest extends FlatSpec with Matchers with BeforeAndAfterAll wi
 
   private val updateJobStub: JobInstance => Future[Unit] = mock[JobInstance => Future[Unit]]
 
-  private val testScriptLocation = "/Users/abjba4j/Desktop/git/publicRepos/hyperdrive-trigger/src/test/resources/testShellScript.sh"
+  private val testScriptLocation = "src/test/resources/testShellScript.sh"
   private val testJobInstance = JobInstance(
     jobName = "jobName",
     jobType = Shell,
@@ -59,7 +62,7 @@ class ShellExecutorTest extends FlatSpec with Matchers with BeforeAndAfterAll wi
       )
     )
 
-    Await.result(ShellExecutor.execute(testInput, updateJobStub.apply), Duration.Inf)
+    Await.result(ShellExecutor.execute(testInput, updateJobStub.apply), Duration(120, TimeUnit.SECONDS))
 
     verify(updateJobStub, times(2)).apply(ArgumentMatchers.any())
     verify(updateJobStub, times(1)).apply(ArgumentMatchers.eq(testInput.copy(jobStatus = Running)))
@@ -70,7 +73,7 @@ class ShellExecutorTest extends FlatSpec with Matchers with BeforeAndAfterAll wi
     when(updateJobStub.apply(any[JobInstance])).thenReturn(Future.successful((): Unit))
     val testInput = testJobInstance.copy(jobStatus = Running)
 
-    Await.result(ShellExecutor.execute(testInput, updateJobStub.apply), Duration.Inf)
+    Await.result(ShellExecutor.execute(testInput, updateJobStub.apply), Duration(120, TimeUnit.SECONDS))
 
     verify(updateJobStub).apply(ArgumentMatchers.eq(testInput.copy(jobStatus = Failed)))
   }
@@ -83,7 +86,7 @@ class ShellExecutorTest extends FlatSpec with Matchers with BeforeAndAfterAll wi
       )
     )
 
-    Await.result(ShellExecutor.execute(testInput, updateJobStub.apply), Duration.Inf)
+    Await.result(ShellExecutor.execute(testInput, updateJobStub.apply), Duration(120, TimeUnit.SECONDS))
 
     verify(updateJobStub, times(2)).apply(ArgumentMatchers.any())
     verify(updateJobStub, times(1)).apply(ArgumentMatchers.eq(testInput.copy(jobStatus = Running)))

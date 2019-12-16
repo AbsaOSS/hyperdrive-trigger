@@ -44,7 +44,7 @@ object ShellExecutor extends Executor {
         shellParameters.scriptLocation.!(new ProcessLogger {
           override def out(s: => String): Unit = logger.info(s)
           override def err(s: => String): Unit = logger.error(s)
-          override def buffer[T](f: => T): T = {f}
+          override def buffer[T](f: => T): T = f
         })
       }.getOrElse(Int.MaxValue)
     } flatMap {
