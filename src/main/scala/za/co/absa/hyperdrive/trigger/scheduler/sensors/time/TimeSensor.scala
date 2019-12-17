@@ -76,7 +76,8 @@ object TimeSensor {
   val JOB_TRIGGER_GROUP_NAME: String = "time-sensor-job-trigger-group"
 
   def apply(eventsProcessor: (Seq[Event], Properties) => Future[Boolean],
-            properties: Properties, executionContext: ExecutionContext, quartzScheduler: Scheduler): TimeSensor = {
+            properties: Properties, executionContext: ExecutionContext): TimeSensor = {
+    val quartzScheduler = TimeSensorQuartzSchedulerManager.getScheduler
     val timeSensorSettings = TimeSensorSettings(properties.settings)
     val sensor = new TimeSensor(eventsProcessor, properties, executionContext, quartzScheduler, timeSensorSettings.quartzJobId)
 
