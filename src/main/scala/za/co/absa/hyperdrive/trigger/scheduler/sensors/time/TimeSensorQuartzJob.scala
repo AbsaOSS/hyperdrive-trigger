@@ -27,7 +27,6 @@ import za.co.absa.hyperdrive.trigger.models.{Event, Properties}
 
 import scala.concurrent.Future
 
-@Component
 class TimeSensorQuartzJob extends Job {
   private val logger = LoggerFactory.getLogger(this.getClass)
   private val eventDateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss")

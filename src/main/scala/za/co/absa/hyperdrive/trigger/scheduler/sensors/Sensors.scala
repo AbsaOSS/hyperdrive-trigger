@@ -18,23 +18,21 @@ package za.co.absa.hyperdrive.trigger.scheduler.sensors
 import java.util.concurrent.Executors
 
 import javax.inject.Inject
-import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes
-import za.co.absa.hyperdrive.trigger.persistance.SensorRepository
-import za.co.absa.hyperdrive.trigger.scheduler.sensors.kafka.KafkaSensor
-import za.co.absa.hyperdrive.trigger.scheduler.utilities.SensorsConfig
-import za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
-import org.quartz.Scheduler
-import za.co.absa.hyperdrive.trigger.scheduler.sensors.time.TimeSensor
+import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes
+import za.co.absa.hyperdrive.trigger.persistance.SensorRepository
+import za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor
+import za.co.absa.hyperdrive.trigger.scheduler.sensors.kafka.KafkaSensor
+import za.co.absa.hyperdrive.trigger.scheduler.sensors.time.{TimeSensor, TimeSensorQuartzSchedulerManager}
+import za.co.absa.hyperdrive.trigger.scheduler.utilities.SensorsConfig
 
 import scala.collection.mutable
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success, Try}
 
 @Component
-class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: SensorRepository,
-                        quartzScheduler: Scheduler) {
+class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: SensorRepository) {
   private val logger = LoggerFactory.getLogger(this.getClass)
 
   private implicit val executionContext: ExecutionContextExecutor =
@@ -89,7 +87,7 @@ class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: Sensor
             case Failure(f) => logger.error(s"Couldn't create Kafka sensor for sensor (#${sensor.id}).", f)
           }
         case sensor if sensor.sensorType == SensorTypes.Time =>
-          Try(TimeSensor(eventProcessor.eventProcessor, sensor.properties, executionContext, quartzScheduler)) match {
+          Try(TimeSensor(eventProcessor.eventProcessor, sensor.properties, executionContext)) match {
             case Success(s) => sensors.put(sensor.id, s)
             case Failure(f) => logger.error(s"Couldn't create Time sensor for sensor (#${sensor.id}).", f)
           }

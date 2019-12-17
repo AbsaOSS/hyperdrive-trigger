@@ -37,9 +37,6 @@ class EventProcessorTest extends AsyncFlatSpec with MockitoSugar with Matchers w
 
   "EventProcessor.eventProcessor" should "persist dag instances for events" in {
     // given
-
-
-
     val sensorId = 1L
     val workflowId = 10L
     val dagDefinitionId = 100L
