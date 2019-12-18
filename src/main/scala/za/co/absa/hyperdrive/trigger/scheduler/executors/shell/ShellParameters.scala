@@ -13,17 +13,16 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models.enums
+package za.co.absa.hyperdrive.trigger.scheduler.executors.shell
 
-object JobTypes {
+import za.co.absa.hyperdrive.trigger.models.JobParameters
 
-  sealed abstract class JobType(val name: String) {
-    override def toString: String = name
-  }
+case class ShellParameters(
+  scriptLocation: String
+)
 
-  case object Spark extends JobType("Spark")
-  case object Shell extends JobType("Shell")
-
-  val jobTypes: Set[JobType] = Set(Spark, Shell)
-
+object ShellParameters {
+  def apply(jobParameters: JobParameters): ShellParameters = new ShellParameters(
+    scriptLocation = jobParameters.variables("scriptLocation")
+  )
 }
