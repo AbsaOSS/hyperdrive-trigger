@@ -13,18 +13,19 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models.enums
+let UtilRepository = new function () {
 
-object SensorTypes {
+    this.getQuartzDetail = function (expression, model) {
+        WSClient.get(
+            "util/quartzDetail?expression="+expression,
+            function(data) {
+                model.setProperty("/quartzDetail", data);
+            },
+            function() {
+                model.setProperty("/quartzDetail", {isValid: false});
+                new sap.m.MessageToast.show("Error while loading quartz detail", {animationDuration: 5000});
+            }
+        );
+    };
 
-  sealed abstract class SensorType(val name: String) {
-    override def toString: String = name
-  }
-
-  case object Kafka extends SensorType("Kafka")
-  case object AbsaKafka extends SensorType("Absa-Kafka")
-  case object Time extends SensorType("Time")
-
-  val sensorTypes: Set[SensorType] = Set(Kafka, AbsaKafka, Time)
-
-}
+}();
