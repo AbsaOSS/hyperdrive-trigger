@@ -22,7 +22,7 @@
                     <Label text="Job type"/>
                     <Select showSecondaryValues="false"
                             items="{/jobTypes}"
-                            selectedKey="{/newJob/jobType/name}"
+                            selectedKey="{/newJob/job/jobType/name}"
                             change="onJobTypeSelect">
                         <items>
                             <core:Item key="{name}" text="{name}" />

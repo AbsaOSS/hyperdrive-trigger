@@ -25,6 +25,7 @@ import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, JobInst
 import za.co.absa.hyperdrive.trigger.scheduler.executors.spark.SparkExecutor
 import za.co.absa.hyperdrive.trigger.scheduler.utilities.ExecutorsConfig
 import org.slf4j.LoggerFactory
+import za.co.absa.hyperdrive.trigger.scheduler.executors.shell.ShellExecutor
 import org.springframework.stereotype.Component
 
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
@@ -51,6 +52,7 @@ class Executors @Inject()(dagInstanceRepository: DagInstanceRepository, jobInsta
           jobInstance match {
             case Some(ji) => ji.jobType match {
               case JobTypes.Spark => SparkExecutor.execute(ji, updateJob)
+              case JobTypes.Shell => ShellExecutor.execute(ji, updateJob)
               case _ => updateJob(ji.copy(jobStatus = InvalidExecutor))
             }
             case None =>
@@ -60,7 +62,8 @@ class Executors @Inject()(dagInstanceRepository: DagInstanceRepository, jobInsta
         fut.onComplete {
           case Success(_) => logger.info(s"Executing job. Job instance id = ${jobInstance}")
           case Failure(exception) => {
-            logger.info(s"Executing job failed. Job instance id = ${jobInstance}.", exception)}
+            logger.info(s"Executing job failed. Job instance id = ${jobInstance}.", exception)
+          }
         }
         fut
     }

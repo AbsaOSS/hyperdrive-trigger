@@ -13,17 +13,15 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models.enums
+let UUIDGenerator = new function () {
 
-object JobTypes {
+    this.getUUID = function () {
+        let dt = new Date().getTime();
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            var r = (dt + Math.random() * 16) % 16 | 0;
+            dt = Math.floor(dt / 16);
+            return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+        });
+    };
 
-  sealed abstract class JobType(val name: String) {
-    override def toString: String = name
-  }
-
-  case object Spark extends JobType("Spark")
-  case object Shell extends JobType("Shell")
-
-  val jobTypes: Set[JobType] = Set(Spark, Shell)
-
-}
+}();

@@ -13,17 +13,19 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models.enums
+let UtilRepository = new function () {
 
-object JobTypes {
+    this.getQuartzDetail = function (expression, model) {
+        WSClient.get(
+            "util/quartzDetail?expression="+expression,
+            function(data) {
+                model.setProperty("/quartzDetail", data);
+            },
+            function() {
+                model.setProperty("/quartzDetail", {isValid: false});
+                new sap.m.MessageToast.show("Error while loading quartz detail", {animationDuration: 5000});
+            }
+        );
+    };
 
-  sealed abstract class JobType(val name: String) {
-    override def toString: String = name
-  }
-
-  case object Spark extends JobType("Spark")
-  case object Shell extends JobType("Shell")
-
-  val jobTypes: Set[JobType] = Set(Spark, Shell)
-
-}
+}();

@@ -20,7 +20,6 @@ sap.ui.define([
 ], function (BaseController, Fragment, Filter) {
 	"use strict";
 	return BaseController.extend("hyperdriver.controller.UpsertWorkflow", {
-
 		onInit: function () {
 			this.getRouter().attachRouteMatched(this.onViewDisplay, this);
 			this.getView().setModel(new sap.ui.model.json.JSONModel());
@@ -104,14 +103,26 @@ sap.ui.define([
 		},
 
 		onSaveWorkflow: function () {
-			let isEdit = this._model.getProperty("/isEdit");
-			let workflow = this.getWorkflowToSave();
-			if(isEdit) {
-				WorkflowRepository.updateWorkflow(workflow);
-			} else {
-				WorkflowRepository.createWorkflow(workflow);
+			if(this._isWorkflowValid()){
+				let isEdit = this._model.getProperty("/isEdit");
+				let workflow = this.getWorkflowToSave();
+				if(isEdit) {
+					WorkflowRepository.updateWorkflow(workflow);
+				} else {
+					WorkflowRepository.createWorkflow(workflow);
+				}
+				this.myNavBack();
 			}
-			this.myNavBack();
+		},
+
+		_isWorkflowValid: function () {
+			let isValid = this._model.getProperty("/quartzDetail/isValid");
+			if(isValid) {
+				return true
+			} else {
+				new sap.m.MessageToast.show("Invalid CRON expression", {animationDuration: 5000});
+				return false;
+			}
 		},
 
 		getWorkflowToSave: function () {
@@ -186,7 +197,8 @@ sap.ui.define([
 
 		sensorTypes: [
 			{name: "Absa-Kafka", fragment: "absaKafka", controller: "AbsaKafkaController"},
-			{name: "Kafka", fragment: "kafka", controller: "KafkaController"}
+			{name: "Kafka", fragment: "kafka", controller: "KafkaController"},
+			{name: "Time", fragment: "time", controller: "TimeController"}
 		]
 
 	});
