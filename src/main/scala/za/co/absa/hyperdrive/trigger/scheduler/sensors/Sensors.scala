@@ -60,9 +60,15 @@ class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: Sensor
     fut
   }
 
-  def stopAllSensors(): Unit = {
+  def prepareSensors(): Unit = {
+    TimeSensorQuartzSchedulerManager.start()
+  }
+
+  def cleanUpSensors(): Unit = {
     sensors.values.foreach(_.close())
     sensors.clear()
+
+    TimeSensorQuartzSchedulerManager.stop()
   }
 
   private def removeInactiveSensors(): Future[Unit] = {

@@ -19,6 +19,8 @@ import java.util.concurrent
 import java.util.concurrent.atomic.AtomicBoolean
 
 import javax.inject.Inject
+import org.slf4j.LoggerFactory
+import org.springframework.stereotype.Component
 import za.co.absa.hyperdrive.trigger.persistance._
 import za.co.absa.hyperdrive.trigger.scheduler.executors.Executors
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.Sensors
@@ -27,9 +29,6 @@ import za.co.absa.hyperdrive.trigger.scheduler.utilities.{SchedulerConfig, Senso
 import scala.collection.mutable
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success}
-import org.slf4j.LoggerFactory
-import org.springframework.stereotype.Component
-import za.co.absa.hyperdrive.trigger.scheduler.sensors.time.TimeSensorQuartzSchedulerManager
 
 @Component
 class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstanceRepository: DagInstanceRepository) {
@@ -49,7 +48,7 @@ class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstance
 
   def startManager(): Unit = {
     if(!isManagerRunningAtomic.get() && runningScheduler.isCompleted) {
-      TimeSensorQuartzSchedulerManager.start()
+      sensors.prepareSensors()
       isManagerRunningAtomic.set(true)
       runningScheduler =
         Future {
@@ -72,8 +71,7 @@ class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstance
 
   def stopManager(): Future[Unit] = {
     isManagerRunningAtomic.set(false)
-    sensors.stopAllSensors()
-    TimeSensorQuartzSchedulerManager.stop()
+    sensors.cleanUpSensors()
     runningScheduler
   }
 
