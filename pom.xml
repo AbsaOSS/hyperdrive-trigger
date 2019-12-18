@@ -59,7 +59,7 @@
         <spring.ldap.version>5.0.3.RELEASE</spring.ldap.version>
         <scalatest.version>3.0.5</scalatest.version>
         <h2database.version>1.4.200</h2database.version>
-        <mockito-scala.version>1.10.0</mockito-scala.version>
+        <mockito.version>2.25.0</mockito.version>
     </properties>
 
     <dependencies>
@@ -174,14 +174,8 @@
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
-            <artifactId>mockito-scala_${scala.compat.version}</artifactId>
-            <version>${mockito-scala.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-scala-scalatest_${scala.compat.version}</artifactId>
-            <version>${mockito-scala.version}</version>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

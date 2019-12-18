@@ -17,7 +17,7 @@
 package za.co.absa.hyperdrive.trigger.scheduler
 
 import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers.{any, eq => equ}
+import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito.{never, verify, when}
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, Matchers}
@@ -31,9 +31,9 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class EventProcessorTest extends AsyncFlatSpec with MockitoSugar with Matchers with BeforeAndAfter {
 
-  val eventRepository = mock[EventRepository]
-  val dagDefinitionRepository = mock[DagDefinitionRepository]
-  val dagInstanceRepository = mock[DagInstanceRepository]
+  private val eventRepository = mock[EventRepository]
+  private val dagDefinitionRepository = mock[DagDefinitionRepository]
+  private val dagInstanceRepository = mock[DagInstanceRepository]
 
   "EventProcessor.eventProcessor" should "persist dag instances for events" in {
     // given
@@ -45,7 +45,7 @@ class EventProcessorTest extends AsyncFlatSpec with MockitoSugar with Matchers w
     val dagDefinition = createDagDefinition(workflowId, dagDefinitionId, Seq(jobDefinition))
 
     when(eventRepository.getExistEvents(any())(any[ExecutionContext])).thenReturn(Future{Seq()})
-    when(dagDefinitionRepository.getJoinedDagDefinition(equ(sensorId))(any[ExecutionContext])).thenReturn(Future{Some(dagDefinition)})
+    when(dagDefinitionRepository.getJoinedDagDefinition(eqTo(sensorId))(any[ExecutionContext])).thenReturn(Future{Some(dagDefinition)})
     when(dagInstanceRepository.insertJoinedDagInstances(any())(any[ExecutionContext])).thenReturn(Future{(): Unit})
 
     val underTest = new EventProcessor(eventRepository, dagDefinitionRepository, dagInstanceRepository)
@@ -107,7 +107,7 @@ class EventProcessorTest extends AsyncFlatSpec with MockitoSugar with Matchers w
     val event = createEvent(sensorId)
 
     when(eventRepository.getExistEvents(any())(any[ExecutionContext])).thenReturn(Future{Seq()})
-    when(dagDefinitionRepository.getJoinedDagDefinition(equ(sensorId))(any[ExecutionContext])).thenReturn(Future{None})
+    when(dagDefinitionRepository.getJoinedDagDefinition(eqTo(sensorId))(any[ExecutionContext])).thenReturn(Future{None})
 
     val underTest = new EventProcessor(eventRepository, dagDefinitionRepository, dagInstanceRepository)
 
@@ -115,7 +115,7 @@ class EventProcessorTest extends AsyncFlatSpec with MockitoSugar with Matchers w
     underTest.eventProcessor(Seq(event), Properties(sensorId, Settings(Map.empty, Map.empty), Map.empty)).map(
       _ => {
         // then
-        verify(dagDefinitionRepository).getJoinedDagDefinition(equ(sensorId))(any[ExecutionContext])
+        verify(dagDefinitionRepository).getJoinedDagDefinition(eqTo(sensorId))(any[ExecutionContext])
         verify(dagInstanceRepository, never()).insertJoinedDagInstances(any())(any[ExecutionContext])
         1 shouldBe 1
       }
