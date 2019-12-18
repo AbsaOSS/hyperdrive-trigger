@@ -13,17 +13,10 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models.enums
+package za.co.absa.hyperdrive.trigger.models
 
-object JobTypes {
-
-  sealed abstract class JobType(val name: String) {
-    override def toString: String = name
-  }
-
-  case object Spark extends JobType("Spark")
-  case object Shell extends JobType("Shell")
-
-  val jobTypes: Set[JobType] = Set(Spark, Shell)
-
-}
+case class QuartzExpressionDetail(
+  expression: String,
+  isValid: Boolean,
+  explained: String
+)

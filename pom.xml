@@ -48,18 +48,21 @@
         <lodash.version>4.17.10</lodash.version>
         <momentjs.version>2.22.2</momentjs.version>
         <webjars.locator.version>0.35</webjars.locator.version>
-        <scala-maven-plugin.version>3.2.1</scala-maven-plugin.version>
-        <maven-resources-plugin.version>3.1.0</maven-resources-plugin.version>
         <spring.version>2.0.0.RELEASE</spring.version>
         <quartz.version>2.3.2</quartz.version>
         <maven.war.version>2.2</maven.war.version>
-        <maven.ant.plugin.version>1.8</maven.ant.plugin.version>
         <log4j.version>2.11.1</log4j.version>
         <slf4j.log4j2.version>1.7.26</slf4j.log4j2.version>
         <spring.ldap.version>5.0.3.RELEASE</spring.ldap.version>
         <scalatest.version>3.0.5</scalatest.version>
         <h2database.version>1.4.200</h2database.version>
         <mockito.version>2.25.0</mockito.version>
+        <cronutils.version>9.0.2</cronutils.version>
+        <scala-maven-plugin.version>3.2.1</scala-maven-plugin.version>
+        <maven-resources-plugin.version>3.1.0</maven-resources-plugin.version>
+        <maven.ant.plugin.version>1.8</maven.ant.plugin.version>
+        <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
+        <scalatest-maven-plugin.version>2.0.0</scalatest-maven-plugin.version>
     </properties>
 
     <dependencies>
@@ -133,6 +136,16 @@
             <artifactId>spring-boot-starter-tomcat</artifactId>
             <version>${spring-boot-starter-tomcat.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-ldap</artifactId>
+            <version>${spring.ldap.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.cronutils</groupId>
+            <artifactId>cron-utils</artifactId>
+            <version>${cronutils.version}</version>
+        </dependency>
         <!-- WebJars -->
         <dependency>
             <groupId>org.webjars</groupId>
@@ -153,11 +166,6 @@
             <groupId>org.webjars</groupId>
             <artifactId>webjars-locator-core</artifactId>
             <version>${webjars.locator.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-ldap</artifactId>
-            <version>${spring.ldap.version}</version>
         </dependency>
         <!--TESTS-->
         <dependency>
@@ -219,6 +227,33 @@
                 <configuration>
                     <scalaVersion>${scala.compat.version}</scalaVersion>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven-surefire-plugin.version}</version>
+                <configuration>
+                    <skipTests>true</skipTests>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.scalatest</groupId>
+                <artifactId>scalatest-maven-plugin</artifactId>
+                <version>${scalatest-maven-plugin.version}</version>
+                <configuration>
+                    <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
+                    <junitxml>.</junitxml>
+                    <filereports>TestSuite.txt</filereports>
+                    <skipTests>false</skipTests>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>test</id>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

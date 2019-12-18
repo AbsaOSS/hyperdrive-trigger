@@ -26,10 +26,7 @@ class JobController {
         this._dialog = this._controller.byId("jobDialog");
         this._ruleForm = this._controller.byId("jobForm");
 
-        let key = this._model.getProperty("/newJob/job/jobType/name");
-        let fragmentName = this.jobTypes.find(function(e) { return e.name === key }).fragment;
-        let controllerName = this.jobTypes.find(function(e) { return e.name === key }).controller;
-        FragmentMethods.showFragmentIn(controllerName, fragmentName, "hyperdriver.view.job", this._ruleForm, this._model);
+        this.onJobTypeSelect(true)
     }
 
     onJobSave() {
@@ -42,6 +39,19 @@ class JobController {
             this._onCreateSave(jobDefinitionsPath, jobDefinitions);
         }
         this.onClosePress();
+    }
+
+    onJobTypeSelect(isInitial) {
+        isInitial !== true && this._model.setProperty("/newJob/job/jobParameters/", jQuery.extend(true, {}, this._emptyJobParameters));
+        this._showFragment()
+    }
+
+    _showFragment() {
+        let selectedJobType = this._model.getProperty("/newJob/job/jobType/name");
+        let fragmentName = this.jobTypes.find(function(e) { return e.name === selectedJobType }).fragment;
+        let controllerName = this.jobTypes.find(function(e) { return e.name === selectedJobType }).controller;
+        FragmentMethods.showFragmentIn(controllerName, fragmentName, "hyperdriver.view.job", this._ruleForm, this._model);
+        this._dialog.invalidate()
     }
 
     _onEditSave(jobDefinitionsPath, jobDefinitions) {
@@ -64,6 +74,7 @@ class JobController {
                 jobDefinitions: []
             });
         }
+        if(!jobDefinitions) jobDefinitions = [];
         jobDefinitions.forEach((element, index) => element.order = index);
         this._model.getProperty("/newJob/job").order = jobDefinitions.length;
         jobDefinitions.push(this._model.getProperty("/newJob/job"));
@@ -85,8 +96,16 @@ class JobController {
     }
 
     jobTypes = [
-        {name: "Spark", fragment: "spark", controller: "SparkController"}
+        {name: "Spark", fragment: "spark", controller: "SparkController"},
+        {name: "Shell", fragment: "shell", controller: "ShellController"}
     ]
+
+    _emptyJobParameters = {
+        variables: {
+            deploymentMode: "cluster"
+        },
+        maps: {}
+    }
 
     _emptyJob = {
         jobType: {
