@@ -116,8 +116,9 @@ sap.ui.define([
 		},
 
 		_isWorkflowValid: function () {
-			let isValid = this._model.getProperty("/quartzDetail/isValid");
-			if(isValid) {
+			let isCronExpValid = this._model.getProperty("/quartzDetail/isValid");
+			let sensorType = this._model.getProperty("/workflow/sensor/sensorType/name");
+			if(isCronExpValid || sensorType !== "Time") {
 				return true
 			} else {
 				new sap.m.MessageToast.show("Invalid CRON expression", {animationDuration: 5000});
