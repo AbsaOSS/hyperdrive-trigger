@@ -13,17 +13,22 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models.enums
+package za.co.absa.hyperdrive.trigger.scheduler.sensors.time
 
-object SensorTypes {
+import za.co.absa.hyperdrive.trigger.models.Settings
 
-  sealed abstract class SensorType(val name: String) {
-    override def toString: String = name
+case class TimeSensorSettings(
+   cronExpression: String,
+   quartzJobId: String
+)
+
+object TimeSensorSettings {
+  val CRON_EXPRESSION_KEY = "cronExpression"
+  val QUARTZ_JOB_ID_KEY = "quartzJobId"
+  def apply(settings: Settings): TimeSensorSettings = {
+    TimeSensorSettings(
+      cronExpression = settings.variables(CRON_EXPRESSION_KEY),
+      quartzJobId = settings.variables(QUARTZ_JOB_ID_KEY)
+    )
   }
-
-  case object Kafka extends SensorType("Kafka")
-  case object AbsaKafka extends SensorType("Absa-Kafka")
-  case object Time extends SensorType("Time")
-
-  val sensorTypes: Set[SensorType] = Set(Kafka, AbsaKafka, Time)
 }
