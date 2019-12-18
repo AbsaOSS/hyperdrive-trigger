@@ -17,7 +17,6 @@ let FragmentMethods = new function () {
 
     let _fragmentController = {};
 
-
     this.showFragmentIn = function (controllerName, fragmentName, fragmentLocation, destination, model) {
         let oFragmentController = _fragmentController[fragmentName];
         if (!oFragmentController) {
@@ -25,7 +24,6 @@ let FragmentMethods = new function () {
             let oFragment = sap.ui.xmlfragment(fragmentName, fragmentLocation + "." + fragmentName, oController);
             oFragmentController = {fragment: oFragment, controller: oController};
             _fragmentController[fragmentName] = oFragmentController;
-
         }
         destination.removeAllContent();
         oFragmentController.fragment.forEach(oElement =>
