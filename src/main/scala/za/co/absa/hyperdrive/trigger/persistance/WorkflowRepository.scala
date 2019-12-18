@@ -16,7 +16,10 @@
 package za.co.absa.hyperdrive.trigger.persistance
 
 import java.time.LocalDateTime
+
+import org.springframework.stereotype
 import za.co.absa.hyperdrive.trigger.models.{ProjectInfo, _}
+
 import scala.concurrent.{ExecutionContext, Future}
 
 trait WorkflowRepository extends Repository {
@@ -31,6 +34,7 @@ trait WorkflowRepository extends Repository {
   def getProjectsInfo()(implicit ec: ExecutionContext): Future[Seq[ProjectInfo]]
 }
 
+@stereotype.Repository
 class WorkflowRepositoryImpl extends WorkflowRepository {
   import profile.api._
 

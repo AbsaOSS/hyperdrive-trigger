@@ -15,6 +15,7 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
+import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.models.{ProjectInfo, Workflow, WorkflowJoined}
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, WorkflowRepository}
 
@@ -36,6 +37,7 @@ trait WorkflowService {
   def runWorkflow(workflowId: Long)(implicit ec: ExecutionContext): Future[Boolean]
 }
 
+@Service
 class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository, override val dagInstanceRepository: DagInstanceRepository) extends WorkflowService {
 
   def createWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Boolean] = {

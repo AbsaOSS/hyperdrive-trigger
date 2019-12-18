@@ -16,27 +16,25 @@
 package za.co.absa.hyperdrive.trigger.api.rest
 
 import com.fasterxml.jackson.core.JsonParser
-import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.databind._
+import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
-import za.co.absa.hyperdrive.trigger.api.rest.services._
-import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes.SensorType
-import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.JobStatus
-import za.co.absa.hyperdrive.trigger.models.enums.{JobStatuses, JobTypes, SensorTypes}
-import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
-import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepositoryImpl, JobInstanceRepositoryImpl, RunRepositoryImpl, WorkflowRepositoryImpl}
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.context.annotation.{Bean, Configuration}
+import org.springframework.context.annotation.{Bean, ComponentScan, Configuration}
 import org.springframework.scheduling.annotation.EnableAsync
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
+import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.JobStatus
+import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
+import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes.SensorType
+import za.co.absa.hyperdrive.trigger.models.enums.{JobStatuses, JobTypes, SensorTypes}
 
 @SpringBootApplication
 @EnableAsync
 @Configuration
+@ComponentScan(basePackages = Array("za.co.absa.hyperdrive.trigger"))
 class Application() {
-
   @Bean def asyncExecutor(): ThreadPoolTaskExecutor = {
     val executor = new ThreadPoolTaskExecutor()
     executor.setCorePoolSize(12)
@@ -61,18 +59,6 @@ class Application() {
       .configure(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES, false)
       .registerModule(module)
   }
-
-  @Bean
-  def getJobInstanceService: JobInstanceService = new JobInstanceServiceImpl(new JobInstanceRepositoryImpl)
-
-  @Bean
-  def getWorkflowService: WorkflowService = new WorkflowServiceImpl(new WorkflowRepositoryImpl, new DagInstanceRepositoryImpl)
-
-  @Bean
-  def getRunService: RunService = new RunServiceImpl(new RunRepositoryImpl)
-
-  @Bean
-  def getAdminService: AdminService = new AdminServiceImpl()
 
   class SensorTypesDeserializer extends JsonDeserializer[SensorType] {
     override def deserialize(p: JsonParser, ctxt: DeserializationContext): SensorType = {
