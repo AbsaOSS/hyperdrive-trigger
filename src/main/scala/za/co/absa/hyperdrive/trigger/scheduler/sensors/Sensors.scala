@@ -18,13 +18,14 @@ package za.co.absa.hyperdrive.trigger.scheduler.sensors
 import java.util.concurrent.Executors
 
 import javax.inject.Inject
-import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes
-import za.co.absa.hyperdrive.trigger.persistance.SensorRepository
-import za.co.absa.hyperdrive.trigger.scheduler.sensors.kafka.KafkaSensor
-import za.co.absa.hyperdrive.trigger.scheduler.utilities.SensorsConfig
-import za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
+import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes
+import za.co.absa.hyperdrive.trigger.persistance.SensorRepository
+import za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor
+import za.co.absa.hyperdrive.trigger.scheduler.sensors.kafka.KafkaSensor
+import za.co.absa.hyperdrive.trigger.scheduler.sensors.time.{TimeSensor, TimeSensorQuartzSchedulerManager}
+import za.co.absa.hyperdrive.trigger.scheduler.utilities.SensorsConfig
 
 import scala.collection.mutable
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
@@ -59,6 +60,17 @@ class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: Sensor
     fut
   }
 
+  def prepareSensors(): Unit = {
+    TimeSensorQuartzSchedulerManager.start()
+  }
+
+  def cleanUpSensors(): Unit = {
+    sensors.values.foreach(_.close())
+    sensors.clear()
+
+    TimeSensorQuartzSchedulerManager.stop()
+  }
+
   private def removeInactiveSensors(): Future[Unit] = {
     val activeSensors = sensors.keys.toSeq
     sensorRepository.getInactiveSensors(activeSensors).map(
@@ -78,7 +90,12 @@ class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: Sensor
 
           Try(new KafkaSensor(eventProcessor.eventProcessor, sensor.properties, executionContext)) match {
             case Success(s) => sensors.put(sensor.id, s)
-            case Failure(f) => logger.error("Couldn't create Kafka sensor.", f)
+            case Failure(f) => logger.error(s"Couldn't create Kafka sensor for sensor (#${sensor.id}).", f)
+          }
+        case sensor if sensor.sensorType == SensorTypes.Time =>
+          Try(TimeSensor(eventProcessor.eventProcessor, sensor.properties, executionContext)) match {
+            case Success(s) => sensors.put(sensor.id, s)
+            case Failure(f) => logger.error(s"Couldn't create Time sensor for sensor (#${sensor.id}).", f)
           }
         case _ => None
       }

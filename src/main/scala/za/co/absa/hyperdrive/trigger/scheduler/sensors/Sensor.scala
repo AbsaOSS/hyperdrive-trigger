@@ -41,5 +41,5 @@ abstract class PushSensor(
   override val executionContext: ExecutionContext
 ) extends Sensor {
   implicit val ec: ExecutionContext = executionContext
-  def push(events: Seq[Event]): Future[Unit]
+  def push: Seq[Event] => Future[Unit]
 }

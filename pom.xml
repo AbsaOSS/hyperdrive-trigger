@@ -49,6 +49,7 @@
         <momentjs.version>2.22.2</momentjs.version>
         <webjars.locator.version>0.35</webjars.locator.version>
         <spring.version>2.0.0.RELEASE</spring.version>
+        <quartz.version>2.3.2</quartz.version>
         <maven.war.version>2.2</maven.war.version>
         <log4j.version>2.11.1</log4j.version>
         <slf4j.log4j2.version>1.7.26</slf4j.log4j2.version>
@@ -119,6 +120,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
             <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.quartz-scheduler</groupId>
+            <artifactId>quartz</artifactId>
+            <version>${quartz.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>

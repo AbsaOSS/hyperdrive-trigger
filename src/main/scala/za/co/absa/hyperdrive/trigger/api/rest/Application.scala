@@ -83,8 +83,9 @@ class Application() {
       JobTypes.jobTypes.find(_.name == value).getOrElse(throw new Exception("Failed to find enum value"))
     }
   }
+
 }
 
 object Application extends App {
-  SpringApplication.run(classOf[Application], args:_*)
+  SpringApplication.run(classOf[Application], args: _*)
 }

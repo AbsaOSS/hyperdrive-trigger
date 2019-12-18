@@ -17,6 +17,7 @@ package za.co.absa.hyperdrive.trigger.persistance
 
 import org.springframework.stereotype
 import za.co.absa.hyperdrive.trigger.models.Sensor
+
 import scala.concurrent.{ExecutionContext, Future}
 
 trait SensorRepository extends Repository {
@@ -45,5 +46,4 @@ class SensorRepositoryImpl extends SensorRepository {
       sensor.id
     }).result
   }
-
 }
