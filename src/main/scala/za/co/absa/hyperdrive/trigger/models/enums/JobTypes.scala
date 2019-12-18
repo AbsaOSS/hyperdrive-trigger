@@ -22,7 +22,8 @@ object JobTypes {
   }
 
   case object Spark extends JobType("Spark")
+  case object Shell extends JobType("Shell")
 
-  val jobTypes: Set[JobType] = Set(Spark)
+  val jobTypes: Set[JobType] = Set(Spark, Shell)
 
 }

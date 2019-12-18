@@ -13,26 +13,16 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger
+package za.co.absa.hyperdrive.trigger.scheduler.executors.shell
 
-import javax.inject.Inject
-import org.springframework.stereotype.Component
-import za.co.absa.hyperdrive.trigger.scheduler.JobScheduler
+import za.co.absa.hyperdrive.trigger.models.JobParameters
 
-import scala.concurrent.Future
+case class ShellParameters(
+  scriptLocation: String
+)
 
-@Component
-class HyperDriverManager @Inject() (jobScheduler: JobScheduler) {
-  
-  def isManagerRunning: Boolean = {
-    jobScheduler.isManagerRunning
-  }
-
-  def startManager: Unit = {
-    jobScheduler.startManager()
-  }
-
-  def stopManager: Future[Unit] = {
-    jobScheduler.stopManager()
-  }
+object ShellParameters {
+  def apply(jobParameters: JobParameters): ShellParameters = new ShellParameters(
+    scriptLocation = jobParameters.variables("scriptLocation")
+  )
 }

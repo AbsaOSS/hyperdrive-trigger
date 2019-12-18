@@ -13,26 +13,12 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger
+class ShellController {
 
-import javax.inject.Inject
-import org.springframework.stereotype.Component
-import za.co.absa.hyperdrive.trigger.scheduler.JobScheduler
+    constructor(model) {
+        this._model = model;
+    }
 
-import scala.concurrent.Future
+    onShow() {}
 
-@Component
-class HyperDriverManager @Inject() (jobScheduler: JobScheduler) {
-  
-  def isManagerRunning: Boolean = {
-    jobScheduler.isManagerRunning
-  }
-
-  def startManager: Unit = {
-    jobScheduler.startManager()
-  }
-
-  def stopManager: Future[Unit] = {
-    jobScheduler.stopManager()
-  }
 }

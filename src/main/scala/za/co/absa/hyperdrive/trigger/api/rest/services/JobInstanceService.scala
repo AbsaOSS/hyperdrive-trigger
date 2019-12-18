@@ -15,8 +15,10 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
+import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.models.JobInstance
 import za.co.absa.hyperdrive.trigger.persistance.JobInstanceRepository
+
 import scala.concurrent.{ExecutionContext, Future}
 
 trait JobInstanceService {
@@ -24,6 +26,7 @@ trait JobInstanceService {
   def getJobInstances(dagInstanceId: Long)(implicit ec: ExecutionContext): Future[Seq[JobInstance]]
 }
 
+@Service
 class JobInstanceServiceImpl(override val jobInstanceRepository: JobInstanceRepository) extends JobInstanceService {
 
   override def getJobInstances(dagInstanceId: Long)(implicit ec: ExecutionContext): Future[Seq[JobInstance]] = {

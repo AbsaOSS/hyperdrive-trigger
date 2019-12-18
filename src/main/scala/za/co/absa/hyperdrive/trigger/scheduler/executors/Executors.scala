@@ -17,6 +17,7 @@ package za.co.absa.hyperdrive.trigger.scheduler.executors
 
 import java.util.concurrent
 
+import javax.inject.Inject
 import za.co.absa.hyperdrive.trigger.models.{DagInstance, JobInstance}
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.InvalidExecutor
 import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobStatuses, JobTypes}
@@ -24,11 +25,14 @@ import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, JobInst
 import za.co.absa.hyperdrive.trigger.scheduler.executors.spark.SparkExecutor
 import za.co.absa.hyperdrive.trigger.scheduler.utilities.ExecutorsConfig
 import org.slf4j.LoggerFactory
+import za.co.absa.hyperdrive.trigger.scheduler.executors.shell.ShellExecutor
+import org.springframework.stereotype.Component
 
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success}
 
-class Executors(dagInstanceRepository: DagInstanceRepository, jobInstanceRepository: JobInstanceRepository) {
+@Component
+class Executors @Inject()(dagInstanceRepository: DagInstanceRepository, jobInstanceRepository: JobInstanceRepository) {
   private val logger = LoggerFactory.getLogger(this.getClass)
 
   private implicit val executionContext: ExecutionContextExecutor =
@@ -48,6 +52,7 @@ class Executors(dagInstanceRepository: DagInstanceRepository, jobInstanceReposit
           jobInstance match {
             case Some(ji) => ji.jobType match {
               case JobTypes.Spark => SparkExecutor.execute(ji, updateJob)
+              case JobTypes.Shell => ShellExecutor.execute(ji, updateJob)
               case _ => updateJob(ji.copy(jobStatus = InvalidExecutor))
             }
             case None =>
@@ -57,7 +62,8 @@ class Executors(dagInstanceRepository: DagInstanceRepository, jobInstanceReposit
         fut.onComplete {
           case Success(_) => logger.info(s"Executing job. Job instance id = ${jobInstance}")
           case Failure(exception) => {
-            logger.info(s"Executing job failed. Job instance id = ${jobInstance}.", exception)}
+            logger.info(s"Executing job failed. Job instance id = ${jobInstance}.", exception)
+          }
         }
         fut
     }
