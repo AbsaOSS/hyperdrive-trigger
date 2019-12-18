@@ -13,18 +13,10 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models.enums
+package za.co.absa.hyperdrive.trigger.models
 
-object SensorTypes {
-
-  sealed abstract class SensorType(val name: String) {
-    override def toString: String = name
-  }
-
-  case object Kafka extends SensorType("Kafka")
-  case object AbsaKafka extends SensorType("Absa-Kafka")
-  case object Time extends SensorType("Time")
-
-  val sensorTypes: Set[SensorType] = Set(Kafka, AbsaKafka, Time)
-
-}
+case class QuartzExpressionDetail(
+  expression: String,
+  isValid: Boolean,
+  explained: String
+)

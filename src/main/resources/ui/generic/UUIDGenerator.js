@@ -13,18 +13,15 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models.enums
+let UUIDGenerator = new function () {
 
-object SensorTypes {
+    this.getUUID = function () {
+        let dt = new Date().getTime();
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            var r = (dt + Math.random() * 16) % 16 | 0;
+            dt = Math.floor(dt / 16);
+            return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+        });
+    };
 
-  sealed abstract class SensorType(val name: String) {
-    override def toString: String = name
-  }
-
-  case object Kafka extends SensorType("Kafka")
-  case object AbsaKafka extends SensorType("Absa-Kafka")
-  case object Time extends SensorType("Time")
-
-  val sensorTypes: Set[SensorType] = Set(Kafka, AbsaKafka, Time)
-
-}
+}();
