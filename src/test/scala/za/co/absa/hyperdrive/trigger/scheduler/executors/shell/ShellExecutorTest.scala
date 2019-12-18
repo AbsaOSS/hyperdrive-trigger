@@ -24,7 +24,7 @@ import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FlatSpec, Matchers}
 import za.co.absa.hyperdrive.trigger.models.{JobInstance, JobParameters}
 import org.mockito.Mockito._
 import org.mockito.ArgumentMatchers._
-import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.{Failed, InQueue, Running, Succeeded}
+import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.{Failed, InQueue, Lost, Running, Submitting, Succeeded}
 import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.Shell
 
 import scala.concurrent.{Await, Future}
@@ -91,6 +91,15 @@ class ShellExecutorTest extends FlatSpec with Matchers with BeforeAndAfterAll wi
     verify(updateJobStub, times(2)).apply(ArgumentMatchers.any())
     verify(updateJobStub, times(1)).apply(ArgumentMatchers.eq(testInput.copy(jobStatus = Running)))
     verify(updateJobStub, times(1)).apply(ArgumentMatchers.eq(testInput.copy(jobStatus = Failed)))
+  }
+
+  "ShellExecutor.execute" should "fail job when job with incorrect status is executed" in {
+    when(updateJobStub.apply(any[JobInstance])).thenReturn(Future.successful((): Unit))
+    val testInput = testJobInstance.copy(jobStatus = Submitting)
+
+    Await.result(ShellExecutor.execute(testInput, updateJobStub.apply), Duration(120, TimeUnit.SECONDS))
+
+    verify(updateJobStub).apply(ArgumentMatchers.eq(testInput.copy(jobStatus = Lost)))
   }
 
 }
