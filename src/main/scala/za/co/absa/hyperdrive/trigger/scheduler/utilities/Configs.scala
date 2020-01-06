@@ -15,17 +15,22 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.utilities
 
+import java.io.File
 import java.util.UUID.randomUUID
 import java.util.Properties
 
-import com.typesafe.config.{Config, ConfigFactory, ConfigObject}
+import com.typesafe.config.{Config, ConfigFactory}
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.kafka.KafkaSettings
 
 import scala.collection.JavaConverters._
 import scala.util.Try
 
 private object Configs {
-  val conf: Config = ConfigFactory.load()
+  private val configPath: Option[String] = Option(System.getProperty("spring.config.location")).filter(_.trim.nonEmpty)
+  val conf: Config = configPath match {
+    case Some(cp) => ConfigFactory.parseFile(new File(cp))
+    case None => ConfigFactory.load()
+  }
 
   def getMapFromConf(propertyName: String): Map[String, String] = {
     Try {
