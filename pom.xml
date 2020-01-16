@@ -60,6 +60,9 @@
         <maven.ant.plugin.version>1.8</maven.ant.plugin.version>
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
         <scalatest-maven-plugin.version>2.0.0</scalatest-maven-plugin.version>
+        <dockerfile-maven.version>1.4.13</dockerfile-maven.version>
+
+        <skip.docker>true</skip.docker>
     </properties>
 
     <dependencies>
@@ -252,6 +255,38 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>dockerfile-maven-plugin</artifactId>
+                <version>${dockerfile-maven.version}</version>
+                <executions>
+                    <execution>
+                        <id>default</id>
+                        <goals>
+                            <goal>build</goal>
+                            <goal>push</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <skip>${skip.docker}</skip>
+                    <repository>absaoss/hyperdrive-trigger</repository>
+                    <tag>latest</tag>
+                    <buildArgs>
+                        <JAR_FILE>target/${project.build.finalName}.jar</JAR_FILE>
+                    </buildArgs>
+                    <noCache>true</noCache>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>docker</id>
+            <properties>
+                <skip.docker>false</skip.docker>
+            </properties>
+        </profile>
+    </profiles>
 </project>
