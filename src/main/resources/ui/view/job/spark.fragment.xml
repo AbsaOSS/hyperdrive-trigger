@@ -43,4 +43,18 @@
         </List>
         <Button icon="sap-icon://add" press="onAddAppArgument"/>
     </VBox>
+
+    <Label text="Additional jars"/>
+    <VBox>
+        <List mode="Delete"
+              items="{/newJob/job/jobParameters/maps/additionalJars}"
+              delete="onDeleteAdditionalJar"
+              showNoData="false">
+            <CustomListItem>
+                <Input type="Text" value="{}" placeholder="Additional jar"/>
+            </CustomListItem>
+        </List>
+        <Button icon="sap-icon://add" press="onAddAdditionalJar"/>
+    </VBox>
+
 </core:FragmentDefinition>
