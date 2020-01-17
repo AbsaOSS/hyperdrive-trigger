@@ -30,12 +30,10 @@ class SparkController {
     }
 
     onDeleteAdditionalJar(oEv) {
-        console.log("onDeleteAdditionalJar");
         UiListMethods.deleteListItem("/newJob/job/jobParameters/maps/additionalJars", this._model, oEv)
     }
 
     onAddAdditionalJar() {
-        console.log("onAddAdditionalJar");
         UiListMethods.addListItem("/newJob/job/jobParameters/maps/additionalJars", this._model, "");
     }
 
