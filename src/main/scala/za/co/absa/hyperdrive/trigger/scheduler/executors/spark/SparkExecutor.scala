@@ -88,7 +88,7 @@ object SparkExecutor extends Executor {
       .redirectToLog(LoggerFactory.getLogger(s"SparkExecutor.executorJobId=$id").getName)
     SparkExecutorConfig.getFilesToDeploy.foreach(file => sparkLauncher.addFile(file))
     SparkExecutorConfig.getAdditionalConfs.foreach(conf => sparkLauncher.setConf(conf._1, conf._2))
-
+    sparkParameters.additionalJars.foreach(additionalJar => sparkLauncher.addJar(additionalJar))
     sparkLauncher
   }
 
