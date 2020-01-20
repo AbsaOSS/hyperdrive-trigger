@@ -29,4 +29,12 @@ class SparkController {
         UiListMethods.addListItem("/newJob/job/jobParameters/maps/appArguments", this._model, "");
     }
 
+    onDeleteAdditionalJar(oEv) {
+        UiListMethods.deleteListItem("/newJob/job/jobParameters/maps/additionalJars", this._model, oEv)
+    }
+
+    onAddAdditionalJar() {
+        UiListMethods.addListItem("/newJob/job/jobParameters/maps/additionalJars", this._model, "");
+    }
+
 }
