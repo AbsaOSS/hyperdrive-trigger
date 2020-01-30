@@ -56,7 +56,7 @@ class RunRepositoryImpl extends RunRepository {
           jobInstances.filter(_.jobStatus.inSet(Seq(JobStatuses.InQueue))).size,
           jobInstances.filter(_.jobStatus.inSet(JobStatuses.statuses.filter(_.isRunning))).size
         )
-      }).sortBy(_._1).result
+      }).sortBy(_._1.desc).result
     }.map(_.map((PerDagStatistics.apply _).tupled(_)))
   }
 
