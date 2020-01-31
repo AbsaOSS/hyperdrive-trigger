@@ -64,6 +64,6 @@ describe('AuthGuard', () => {
 
     // then
     expect(canActivate).toBe(false);
-    expect(router.navigate).toHaveBeenCalledWith(['/signin'], {returnUrl: 'backurl'});
+    expect(router.navigate).toHaveBeenCalledWith(['signin'], {returnUrl: 'backurl'});
   });
 });

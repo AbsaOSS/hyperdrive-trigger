@@ -45,6 +45,8 @@
         <lodash.version>4.17.10</lodash.version>
         <momentjs.version>2.22.2</momentjs.version>
         <webjars.locator.version>0.35</webjars.locator.version>
+        <node.version>12.14.1</node.version>
+        <npm.version>6.13.4</npm.version>
         <spring.version>2.0.0.RELEASE</spring.version>
         <quartz.version>2.3.2</quartz.version>
         <maven.war.version>2.2</maven.war.version>
@@ -60,6 +62,7 @@
         <maven.ant.plugin.version>1.8</maven.ant.plugin.version>
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
         <scalatest-maven-plugin.version>2.0.0</scalatest-maven-plugin.version>
+        <frontend.maven.plugin.version>1.9.0</frontend.maven.plugin.version>
     </properties>
 
     <dependencies>
@@ -249,6 +252,51 @@
                         <goals>
                             <goal>test</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <version>${frontend.maven.plugin.version}</version>
+                <configuration>
+                    <workingDirectory>src/main/ui-angular</workingDirectory>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>install node and npm</id>
+                        <goals>
+                            <goal>install-node-and-npm</goal>
+                        </goals>
+                        <configuration>
+                            <nodeVersion>v${node.version}</nodeVersion>
+                            <npmVersion>${npm.version}</npmVersion>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm install</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>npm build</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>run build</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm tests</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <phase>test</phase>
+                        <configuration>
+                            <arguments>run testOnce</arguments>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
