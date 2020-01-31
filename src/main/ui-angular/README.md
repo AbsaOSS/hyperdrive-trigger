@@ -7,7 +7,9 @@ From the root directory, run `mvn clean install`. It builds and tests the Angula
 
 To skip downloading node and npm (e.g. if you are offline), use `-Dskip.installnodenpm`.
 
-To skip the entire frontend build,  use `-Dskip.npm -Dskip.installnodenpm`.
+To skip the frontend tests, use `-DskipNpmTests`
+
+To skip the entire frontend build and tests, use `-Dskip.npm -Dskip.installnodenpm`.
 
 To run the backend with the Angular frontend, set the following flags (either in a `.properties` file or as command-line arguments:
 - `rest.api.prefix=/api`

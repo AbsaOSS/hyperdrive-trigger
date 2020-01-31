@@ -63,6 +63,9 @@
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
         <scalatest-maven-plugin.version>2.0.0</scalatest-maven-plugin.version>
         <frontend.maven.plugin.version>1.9.0</frontend.maven.plugin.version>
+
+
+        <skipNpmTests>${skipTests}</skipNpmTests>
     </properties>
 
     <dependencies>
@@ -295,7 +298,8 @@
                         </goals>
                         <phase>test</phase>
                         <configuration>
-                            <arguments>run testOnce</arguments>
+                            <skipTests>${skipNpmTests}</skipTests>
+                            <arguments>run testCi</arguments>
                         </configuration>
                     </execution>
                 </executions>

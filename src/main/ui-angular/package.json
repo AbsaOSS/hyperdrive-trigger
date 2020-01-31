@@ -6,7 +6,7 @@
     "start": "ng serve --aot",
     "build": "ng build --aot --prod",
     "test": "ng test",
-    "testOnce": "ng test --watch=false",
+    "testCi": "ng test --karmaConfig=karma.conf.ci.js",
     "lint": "ng lint",
     "e2e": "ng e2e"
   },
