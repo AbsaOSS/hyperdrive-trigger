@@ -38,7 +38,7 @@
         <l:BlockLayout background="Default">
             <l:BlockLayoutRow>
                 <l:BlockLayoutCell backgroundColorSet="ColorSet9" backgroundColorShade="ShadeA" width="3">
-                    <Table items="{/perDagStatistics}" fixedLayout="false">
+                    <Table items="{/perDagStatistics}" fixedLayout="false" growing="true">
                         <columns>
                             <Column>
                                 <Text text="Dag id"/>
