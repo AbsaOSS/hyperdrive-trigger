@@ -19,8 +19,8 @@
 const puppeteer = require('puppeteer');
 // On Jenkins, Chromium should already be installed, because the bundled Chromium inside puppeteer cannot be run there
 // due to missing shared libraries. (https://github.com/puppeteer/puppeteer/issues/765)
-if (process.env.CHROME_BIN == null) {
-  process.env.CHROME_BIN = puppeteer.executablePath();
+if (process.env.CHROMIUM_BIN == null) {
+  process.env.CHROMIUM_BIN = puppeteer.executablePath();
 }
 
 const baseConfig = require('./karma.conf.js');

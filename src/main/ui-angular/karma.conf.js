@@ -16,9 +16,10 @@
 // Karma configuration file, see link for more information
 // https://karma-runner.github.io/1.0/config/configuration-file.html
 const puppeteer = require('puppeteer');
-if (process.env.CHROME_BIN == null) {
-  process.env.CHROME_BIN = puppeteer.executablePath();
+if (process.env.CHROMIUM_BIN == null) {
+  process.env.CHROMIUM_BIN = puppeteer.executablePath();
 }
+
 
 module.exports = function (config) {
   config.set({
