@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2019 ABSA Group Limited
+ * Copyright 2018 ABSA Group Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,10 @@
 
 // Karma configuration file, see link for more information
 // https://karma-runner.github.io/1.0/config/configuration-file.html
+const puppeteer = require('puppeteer');
+if (process.env.CHROME_BIN == null) {
+  process.env.CHROME_BIN = puppeteer.executablePath();
+}
 
 module.exports = function (config) {
   config.set({
@@ -35,12 +39,13 @@ module.exports = function (config) {
       reports: ['html', 'lcovonly', 'text-summary'],
       fixWebpackSourcePaths: true
     },
+
     reporters: ['progress', 'kjhtml'],
     port: 9876,
     colors: true,
     logLevel: config.LOG_INFO,
     autoWatch: true,
-    browsers: ['Chrome'],
+    browsers: ['Chromium'],
     singleRun: false,
     restartOnFileChange: true
   });

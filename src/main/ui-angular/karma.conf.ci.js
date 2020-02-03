@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2019 ABSA Group Limited
+ * Copyright 2018 ABSA Group Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,18 @@
 // Karma configuration file, see link for more information
 // https://karma-runner.github.io/1.0/config/configuration-file.html
 
+const puppeteer = require('puppeteer');
+// On Jenkins, Chromium should already be installed, because the bundled Chromium inside puppeteer cannot be run there
+// due to missing shared libraries. (https://github.com/puppeteer/puppeteer/issues/765)
+if (process.env.CHROME_BIN == null) {
+  process.env.CHROME_BIN = puppeteer.executablePath();
+}
+
 const baseConfig = require('./karma.conf.js');
 module.exports = function (config) {
   baseConfig(config);
   config.set({
-    reporters: ['progress', 'kjhtml'],
+    colors: false,
     autoWatch: false,
     browsers: ['ChromiumHeadless'],
     singleRun: true,

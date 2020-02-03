@@ -299,7 +299,7 @@
                         <phase>test</phase>
                         <configuration>
                             <skipTests>${skipNpmTests}</skipTests>
-                            <arguments>run testCi</arguments>
+                            <arguments>run test:ci</arguments>
                         </configuration>
                     </execution>
                 </executions>
