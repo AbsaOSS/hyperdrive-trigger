@@ -15,8 +15,6 @@
 
 // Karma configuration file, see link for more information
 // https://karma-runner.github.io/1.0/config/configuration-file.html
-const puppeteer = require('puppeteer');
-process.env.CHROME_BIN = puppeteer.executablePath();
 
 const baseConfig = require('./karma.conf.js');
 module.exports = function (config) {
@@ -24,7 +22,7 @@ module.exports = function (config) {
   config.set({
     reporters: ['progress', 'kjhtml'],
     autoWatch: false,
-    browsers: ['ChromeHeadless'],
+    browsers: ['ChromiumHeadless'],
     singleRun: true,
     restartOnFileChange: false
   });
