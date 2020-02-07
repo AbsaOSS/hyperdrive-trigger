@@ -13,22 +13,20 @@
  * limitations under the License.
  */
 
-import {Component, OnInit} from '@angular/core';
-import {routeName} from '../../app.routes';
-import {GlobalErrorHandler} from '../../services/global.error.handler';
+import { Component, OnInit } from '@angular/core';
+import { routeName } from '../../app.routes';
+import { GlobalErrorHandler } from '../../services/global.error.handler';
 
 @Component({
-  selector: 'app-error',
-  templateUrl: './error.component.html',
+    selector: 'app-error',
+    templateUrl: './error.component.html',
 })
 export class ErrorComponent implements OnInit {
-  error: string;
-  defaultLink: string = `/${routeName.DEFAULT}`;
+    error: string;
+    defaultLink = `/${routeName.DEFAULT}`;
 
-  constructor() {}
-
-  ngOnInit() {
-    this.error = sessionStorage.getItem(GlobalErrorHandler.STORAGE_ID_ERROR);
-    sessionStorage.removeItem(GlobalErrorHandler.STORAGE_ID_ERROR);
-  }
+    ngOnInit(): void {
+        this.error = sessionStorage.getItem(GlobalErrorHandler.STORAGE_ID_ERROR);
+        sessionStorage.removeItem(GlobalErrorHandler.STORAGE_ID_ERROR);
+    }
 }

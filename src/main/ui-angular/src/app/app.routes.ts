@@ -14,8 +14,8 @@
  */
 
 export const routeName = {
-  DEFAULT: '',
-  LOGIN: 'signin',
-  ERROR: 'error',
-  DEMO: 'demo',
+    DEFAULT: '',
+    LOGIN: 'signin',
+    ERROR: 'error',
+    DEMO: 'demo',
 };

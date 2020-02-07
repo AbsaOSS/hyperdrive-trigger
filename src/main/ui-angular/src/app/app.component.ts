@@ -16,10 +16,10 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.sass']
+    selector: 'app-root',
+    templateUrl: './app.component.html',
+    styleUrls: ['./app.component.sass'],
 })
 export class AppComponent {
-  title = 'HyperDriver - Workflow Manager';
+    title = 'HyperDriver - Workflow Manager';
 }

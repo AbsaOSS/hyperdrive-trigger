@@ -13,57 +13,57 @@
  * limitations under the License.
  */
 
-import {TestBed, async, inject} from '@angular/core/testing';
+import { inject, TestBed } from '@angular/core/testing';
 
-import {AuthGuard} from './auth.guard';
-import {Router, RouterStateSnapshot} from '@angular/router';
-import {RouterTestingModule} from '@angular/router/testing';
-import {HttpClientTestingModule} from '@angular/common/http/testing';
-import {AuthService} from './auth.service';
+import { AuthGuard } from './auth.guard';
+import { Router, RouterStateSnapshot } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { AuthService } from './auth.service';
 import createSpy = jasmine.createSpy;
 
 describe('AuthGuard', () => {
-  let underTest: AuthGuard;
-  let mockAuthService: AuthService;
-  let router: Router;
+    let underTest: AuthGuard;
+    let mockAuthService: AuthService;
+    let router: Router;
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      providers: [AuthGuard, AuthService],
-      imports: [RouterTestingModule, HttpClientTestingModule]
+    beforeEach(() => {
+        TestBed.configureTestingModule({
+            providers: [AuthGuard, AuthService],
+            imports: [RouterTestingModule, HttpClientTestingModule],
+        });
+
+        underTest = TestBed.get(AuthGuard);
+        mockAuthService = TestBed.get(AuthService);
+        router = TestBed.get(Router);
     });
 
-    underTest = TestBed.get(AuthGuard);
-    mockAuthService = TestBed.get(AuthService);
-    router = TestBed.get(Router);
-  });
+    it('should create', inject([AuthGuard], (guard: AuthGuard) => {
+        expect(guard).toBeTruthy();
+    }));
 
-  it('should create', inject([AuthGuard], (guard: AuthGuard) => {
-    expect(guard).toBeTruthy();
-  }));
+    it('should return true if logged in', () => {
+        // given
+        mockAuthService.isLoggedIn = createSpy().and.returnValue(true);
 
-  it('should return true if logged in', () => {
-    // given
-    mockAuthService.isLoggedIn = createSpy().and.returnValue(true);
+        // when
+        const canActivate = underTest.canActivate(null, null);
 
-    // when
-    const canActivate = underTest.canActivate(null, null);
+        // then
+        expect(canActivate).toBe(true);
+    });
 
-    // then
-    expect(canActivate).toBe(true);
-  });
+    it('should redirect to the login page and return false if not logged in', () => {
+        // given
+        mockAuthService.isLoggedIn = createSpy().and.returnValue(false);
+        router.navigate = createSpy();
+        const routerStateSnapshot: RouterStateSnapshot = { root: null, url: 'backurl' };
 
-  it('should redirect to the login page and return false if not logged in', () => {
-    // given
-    mockAuthService.isLoggedIn = createSpy().and.returnValue(false);
-    router.navigate = createSpy();
-    const routerStateSnapshot: RouterStateSnapshot = {root: null, url: 'backurl'};
+        // when
+        const canActivate = underTest.canActivate(null, routerStateSnapshot);
 
-    // when
-    const canActivate = underTest.canActivate(null, routerStateSnapshot);
-
-    // then
-    expect(canActivate).toBe(false);
-    expect(router.navigate).toHaveBeenCalledWith(['signin'], {returnUrl: 'backurl'});
-  });
+        // then
+        expect(canActivate).toBe(false);
+        expect(router.navigate).toHaveBeenCalledWith(['signin'], { returnUrl: 'backurl' });
+    });
 });

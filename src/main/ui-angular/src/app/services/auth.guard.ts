@@ -13,36 +13,30 @@
  * limitations under the License.
  */
 
-import {Injectable} from '@angular/core';
-import {ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot} from '@angular/router';
-import {AuthService} from './auth.service';
-import {routeName} from '../app.routes';
-import {LoginComponent} from '../components/login/login.component';
+import { Injectable } from '@angular/core';
+import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot } from '@angular/router';
+import { AuthService } from './auth.service';
+import { routeName } from '../app.routes';
+import { LoginComponent } from '../components/login/login.component';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root',
 })
 export class AuthGuard implements CanActivate {
-  constructor(
-    private router: Router,
-    private authService: AuthService
-  ) {}
+    constructor(private router: Router, private authService: AuthService) {}
 
-  loginLink = `${routeName.LOGIN}`;
+    loginLink = `${routeName.LOGIN}`;
 
-  canActivate(
-    next: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot): boolean {
-    if (this.authService.isLoggedIn()) {
-      // authorised so return true
-      return true;
+    canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
+        if (this.authService.isLoggedIn()) {
+            // authorised so return true
+            return true;
+        }
+
+        // not logged in so redirect to login page with the return url
+        const queryParams = {};
+        queryParams[LoginComponent.PARAM_RETURN_URL] = state.url;
+        this.router.navigate([this.loginLink], queryParams);
+        return false;
     }
-
-    // not logged in so redirect to login page with the return url
-    const queryParams = {};
-    queryParams[LoginComponent.PARAM_RETURN_URL] = state.url;
-    this.router.navigate([this.loginLink], queryParams);
-    return false;
-  }
-
 }

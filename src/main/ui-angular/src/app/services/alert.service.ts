@@ -13,61 +13,59 @@
  * limitations under the License.
  */
 
-import {Injectable, OnDestroy} from '@angular/core';
-import {NavigationStart, Router} from '@angular/router';
-import {Observable, Subject, Subscription} from 'rxjs';
-import {Alert, AlertType} from '../models/alert';
+import { Injectable, OnDestroy } from '@angular/core';
+import { NavigationStart, Router } from '@angular/router';
+import { Observable, Subject, Subscription } from 'rxjs';
+import { Alert, AlertType } from '../models/alert';
 
-
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class AlertService implements OnDestroy {
+    private subject = new Subject<Alert>();
+    private subscription: Subscription;
 
-  private subject = new Subject<Alert>();
-  private subscription: Subscription;
+    constructor(private router: Router) {
+        // clear alert messages on route change
+        this.subscription = this.router.events.subscribe(event => {
+            if (event instanceof NavigationStart) {
+                // clear alert messages
+                this.clear();
+            }
+        });
+    }
 
-  constructor(private router: Router) {
-    // clear alert messages on route change
-    this.subscription = this.router.events.subscribe(event => {
-      if (event instanceof NavigationStart) {
-        // clear alert messages
-        this.clear();
-      }
-    });
-  }
+    ngOnDestroy(): void {
+        this.subscription.unsubscribe();
+    }
 
-  ngOnDestroy(): void {
-    this.subscription.unsubscribe();
-  }
+    // enable subscribing to alerts observable
+    onAlert(): Observable<Alert> {
+        return this.subject.asObservable();
+    }
 
-  // enable subscribing to alerts observable
-  onAlert(): Observable<Alert> {
-    return this.subject.asObservable();
-  }
+    // convenience methods
+    success(message: string): void {
+        this.alert(new Alert({ message, type: AlertType.Success }));
+    }
 
-  // convenience methods
-  success(message: string) {
-    this.alert(new Alert({message, type: AlertType.Success}));
-  }
+    error(message: string): void {
+        this.alert(new Alert({ message, type: AlertType.Error }));
+    }
 
-  error(message: string) {
-    this.alert(new Alert({message, type: AlertType.Error}));
-  }
+    info(message: string): void {
+        this.alert(new Alert({ message, type: AlertType.Info }));
+    }
 
-  info(message: string) {
-    this.alert(new Alert({message, type: AlertType.Info}));
-  }
+    warn(message: string): void {
+        this.alert(new Alert({ message, type: AlertType.Warning }));
+    }
 
-  warn(message: string) {
-    this.alert(new Alert({message, type: AlertType.Warning}));
-  }
+    // main alert method
+    alert(alert: Alert): void {
+        this.subject.next(alert);
+    }
 
-  // main alert method
-  alert(alert: Alert) {
-    this.subject.next(alert);
-  }
-
-  // clear alerts
-  clear() {
-    this.subject.next(new Alert({clearAll: true}));
-  }
+    // clear alerts
+    clear(): void {
+        this.subject.next(new Alert({ clearAll: true }));
+    }
 }

@@ -14,41 +14,42 @@
  */
 
 import { Injectable } from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {map} from 'rxjs/operators';
-import {api} from '../app.api-paths';
+import { HttpClient } from '@angular/common/http';
+import { map } from 'rxjs/operators';
+import { api } from '../app.api-paths';
+import { Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root',
 })
 export class AuthService {
+    static readonly csrfTokenLocalId: string = 'csrf-token';
+    static readonly csrfTokenHeaderId: string = 'X-CSRF-TOKEN';
 
-  static readonly csrfTokenLocalId: string = 'csrf-token';
-  static readonly csrfTokenHeaderId: string = 'X-CSRF-TOKEN';
+    constructor(private http: HttpClient) {}
 
-  constructor(private http: HttpClient) {
+    isLoggedIn(): boolean {
+        return localStorage.getItem(AuthService.csrfTokenLocalId) != null;
+    }
 
-  }
+    login(username: string, password: string): Observable<string> {
+        const body = new FormData();
+        body.append('username', username);
+        body.append('password', password);
+        return this.http.post(api.LOGIN, body, { observe: 'response' }).pipe(
+            map(response => {
+                const token = response.headers.get(AuthService.csrfTokenHeaderId);
+                localStorage.setItem(AuthService.csrfTokenLocalId, token);
+                return token;
+            }),
+        );
+    }
 
-  isLoggedIn() {
-    return localStorage.getItem(AuthService.csrfTokenLocalId) != null;
-  }
-
-  login(username: string, password: string) {
-    const body = new FormData();
-    body.append('username', username);
-    body.append('password', password);
-    return this.http.post(api.LOGIN, body, {observe: 'response'})
-      .pipe(map(response => {
-        const token = response.headers.get(AuthService.csrfTokenHeaderId);
-        localStorage.setItem(AuthService.csrfTokenLocalId, token);
-        return token;
-      }));
-  }
-
-  logout() {
-    return this.http.post(api.LOGOUT, {})
-      .pipe(map(response => {
-        localStorage.removeItem(AuthService.csrfTokenLocalId);
-      }));
-  }}
+    logout(): Observable<void> {
+        return this.http.post(api.LOGOUT, {}).pipe(
+            map(response => {
+                localStorage.removeItem(AuthService.csrfTokenLocalId);
+            }),
+        );
+    }
+}

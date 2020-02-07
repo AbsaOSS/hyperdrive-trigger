@@ -14,18 +14,18 @@
  */
 
 export class Alert {
-  type: AlertType;
-  message: string;
-  clearAll = false;
+    type: AlertType;
+    message: string;
+    clearAll = false;
 
-  constructor(init?: Partial<Alert>) {
-    Object.assign(this, init);
-  }
+    constructor(init?: Partial<Alert>) {
+        Object.assign(this, init);
+    }
 }
 
 export enum AlertType {
-  Success,
-  Error,
-  Info,
-  Warning
+    Success,
+    Error,
+    Info,
+    Warning,
 }

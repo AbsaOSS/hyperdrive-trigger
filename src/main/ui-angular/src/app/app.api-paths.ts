@@ -14,9 +14,7 @@
  */
 
 export const api = {
-  USER_INFO: '/api/user/info',
-  LOGIN: '/login',
-  LOGOUT: '/logout',
+    USER_INFO: '/api/user/info',
+    LOGIN: '/login',
+    LOGOUT: '/logout',
 };
-
-

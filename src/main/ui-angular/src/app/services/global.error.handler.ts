@@ -13,45 +13,45 @@
  * limitations under the License.
  */
 
-import {ErrorHandler, Injectable, Injector, NgZone} from '@angular/core';
-import {HttpErrorResponse} from '@angular/common/http';
-import {AlertService} from './alert.service';
-import {Router} from '@angular/router';
-import {routeName} from '../app.routes';
-
+import { ErrorHandler, Injectable, Injector, NgZone } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { AlertService } from './alert.service';
+import { Router } from '@angular/router';
+import { routeName } from '../app.routes';
 
 @Injectable()
 export class GlobalErrorHandler implements ErrorHandler {
-  static readonly STORAGE_ID_ERROR: string = 'error';
+    static readonly STORAGE_ID_ERROR: string = 'error';
 
-  constructor(
-    private injector: Injector,
-    private ngZone: NgZone,
-  ) { }
-  handleError(error: Error | HttpErrorResponse) {
-    const notificationService = this.injector.get(AlertService);
-    const router = this.injector.get(Router);
-    if (error instanceof HttpErrorResponse) {
-      // Server or connection error happened
-      if (!navigator.onLine) {
-        // Handle offline error
-        this.ngZone.run(() => notificationService.error('Problem connecting. ' +
-          'Please check your internet connection and reload the page.'));
-      } else if (error.status === 401 || error.status === 403) {
-        // router.navigate within zone does not work here
-        // ngZone.run(() => router.navigate(['/signin'], {queryParams: {returnUrl: router.url}}));
-        // See https://stackoverflow.com/questions/47288678/how-to-redirect-correctly-in-a-global-error-handler
-        location.href = `/#/${routeName.LOGIN}?returnUrl=${router.url}`;
-      } else {
-        this.ngZone.run(() => notificationService.error('An unexpected error occurred.' +
-          `Please try again or report this error: ${error.status} - ${error.message}`));
-      }
-    } else {
-      // Handle Client Errors (Angular Error, ReferenceError...)
-      sessionStorage.setItem(GlobalErrorHandler.STORAGE_ID_ERROR, error.toString());
-      location.href = `/#/${routeName.ERROR}`;
+    constructor(private injector: Injector, private ngZone: NgZone) {}
+    handleError(error: Error | HttpErrorResponse): void {
+        const notificationService = this.injector.get(AlertService);
+        const router = this.injector.get(Router);
+        if (error instanceof HttpErrorResponse) {
+            // Server or connection error happened
+            if (!navigator.onLine) {
+                // Handle offline error
+                this.ngZone.run(() =>
+                    notificationService.error('Problem connecting. ' + 'Please check your internet connection and reload the page.'),
+                );
+            } else if (error.status === 401 || error.status === 403) {
+                // router.navigate within zone does not work here
+                // ngZone.run(() => router.navigate(['/signin'], {queryParams: {returnUrl: router.url}}));
+                // See https://stackoverflow.com/questions/47288678/how-to-redirect-correctly-in-a-global-error-handler
+                location.href = `/#/${routeName.LOGIN}?returnUrl=${router.url}`;
+            } else {
+                this.ngZone.run(() =>
+                    notificationService.error(
+                        'An unexpected error occurred.' + `Please try again or report this error: ${error.status} - ${error.message}`,
+                    ),
+                );
+            }
+        } else {
+            // Handle Client Errors (Angular Error, ReferenceError...)
+            sessionStorage.setItem(GlobalErrorHandler.STORAGE_ID_ERROR, error.toString());
+            location.href = `/#/${routeName.ERROR}`;
+        }
+        // Log the error anyway
+        console.error(error);
     }
-    // Log the error anyway
-    console.error(error);
-  }
 }

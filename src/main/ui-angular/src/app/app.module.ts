@@ -14,7 +14,7 @@
  */
 
 import { BrowserModule } from '@angular/platform-browser';
-import {ErrorHandler, NgModule} from '@angular/core';
+import { ErrorHandler, NgModule } from '@angular/core';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -23,32 +23,19 @@ import { HomeComponent } from './components/home/home.component';
 import { LoginComponent } from './components/login/login.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
-import {CsrfInterceptor} from './services/csrf.interceptor';
-import {GlobalErrorHandler} from './services/global.error.handler';
+import { CsrfInterceptor } from './services/csrf.interceptor';
+import { GlobalErrorHandler } from './services/global.error.handler';
 import { ErrorComponent } from './components/error/error.component';
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
 import { DemoComponent } from './components/demo/demo.component';
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    AlertComponent,
-    HomeComponent,
-    LoginComponent,
-    ErrorComponent,
-    PageNotFoundComponent,
-    DemoComponent
-  ],
-  imports: [
-    BrowserModule,
-    ReactiveFormsModule,
-    HttpClientModule,
-    AppRoutingModule
-  ],
-  providers: [
-    { provide: HTTP_INTERCEPTORS, useClass: CsrfInterceptor, multi: true },
-    { provide: ErrorHandler, useClass: GlobalErrorHandler}
-  ],
-  bootstrap: [AppComponent]
+    declarations: [AppComponent, AlertComponent, HomeComponent, LoginComponent, ErrorComponent, PageNotFoundComponent, DemoComponent],
+    imports: [BrowserModule, ReactiveFormsModule, HttpClientModule, AppRoutingModule],
+    providers: [
+        { provide: HTTP_INTERCEPTORS, useClass: CsrfInterceptor, multi: true },
+        { provide: ErrorHandler, useClass: GlobalErrorHandler },
+    ],
+    bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

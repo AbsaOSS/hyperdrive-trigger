@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-import {Component} from '@angular/core';
-import {routeName} from '../../app.routes';
+import { Component } from '@angular/core';
+import { routeName } from '../../app.routes';
 
 @Component({ templateUrl: 'home.component.html' })
 export class HomeComponent {
-  demoLink: string = `/${routeName.DEMO}`;
+    demoLink = `/${routeName.DEMO}`;
 }

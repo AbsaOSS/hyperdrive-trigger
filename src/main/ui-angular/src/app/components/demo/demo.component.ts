@@ -13,55 +13,45 @@
  * limitations under the License.
  */
 
-import {Component} from '@angular/core';
-import {routeName} from '../../app.routes';
-import {User} from '../../models/user';
-import {AlertService} from '../../services/alert.service';
-import {HttpClient} from '@angular/common/http';
-import {AuthService} from '../../services/auth.service';
-import {Router} from '@angular/router';
-import {api} from '../../app.api-paths';
+import { Component } from '@angular/core';
+import { routeName } from '../../app.routes';
+import { User } from '../../models/user';
+import { AlertService } from '../../services/alert.service';
+import { HttpClient } from '@angular/common/http';
+import { AuthService } from '../../services/auth.service';
+import { Router } from '@angular/router';
+import { api } from '../../app.api-paths';
 
 @Component({
-  selector: 'app-demo',
-  templateUrl: './demo.component.html',
+    selector: 'app-demo',
+    templateUrl: './demo.component.html',
 })
 export class DemoComponent {
+    constructor(private alertService: AlertService, private http: HttpClient, private authService: AuthService, private router: Router) {}
 
-  constructor(private alertService: AlertService,
-              private http: HttpClient,
-              private authService: AuthService,
-              private router: Router,
-  ) {
-  }
+    getUserInfo(): void {
+        this.http.get<User>(api.USER_INFO).subscribe(value => this.alertService.success(value.username));
+    }
 
-  getUserInfo() {
-    this.http.get<User>(api.USER_INFO)
-      .subscribe(value => this.alertService.success(value.username));
-  }
+    throwError(): void {
+        throw new Error('Deliberate error thrown');
+    }
 
-  throwError() {
-    throw new Error('Deliberate error thrown');
-  }
+    logout(): void {
+        this.authService.logout().subscribe(data => {
+            this.router.navigate([`/${routeName.DEFAULT}`]);
+        });
+    }
 
-  logout() {
-    this.authService.logout()
-      .subscribe(
-        data => {
-          this.router.navigate([`/${routeName.DEFAULT}`]);
-        }
-      );
-  }
+    info(message: string): void {
+        this.alertService.info(message);
+    }
 
-  info(message: string) {
-    this.alertService.info(message);
-  }
+    warn(message: string): void {
+        this.alertService.warn(message);
+    }
 
-  warn(message: string) {
-    this.alertService.warn(message);
-  }
-
-  clear() {
-    this.alertService.clear();
-  }
+    clear(): void {
+        this.alertService.clear();
+    }
 }

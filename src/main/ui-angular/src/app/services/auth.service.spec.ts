@@ -16,61 +16,61 @@
 import { TestBed } from '@angular/core/testing';
 
 import { AuthService } from './auth.service';
-import {HttpClientTestingModule, HttpTestingController} from '@angular/common/http/testing';
-import {api} from '../app.api-paths';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { api } from '../app.api-paths';
 
 describe('AuthService', () => {
-  let underTest: AuthService;
-  let httpTestingController: HttpTestingController;
+    let underTest: AuthService;
+    let httpTestingController: HttpTestingController;
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      providers: [AuthService],
-      imports: [HttpClientTestingModule]
+    beforeEach(() => {
+        TestBed.configureTestingModule({
+            providers: [AuthService],
+            imports: [HttpClientTestingModule],
+        });
+
+        underTest = TestBed.get(AuthService);
+        httpTestingController = TestBed.get(HttpTestingController);
     });
 
-    underTest = TestBed.get(AuthService);
-    httpTestingController = TestBed.get(HttpTestingController);
-  });
+    afterEach(() => {
+        httpTestingController.verify();
+    });
 
-  afterEach(() => {
-    httpTestingController.verify();
-  });
+    it('should be created', () => {
+        const service: AuthService = TestBed.get(AuthService);
+        expect(service).toBeTruthy();
+    });
 
-  it('should be created', () => {
-    const service: AuthService = TestBed.get(AuthService);
-    expect(service).toBeTruthy();
-  });
+    it('should login', () => {
+        // given
+        const testToken = 'the-test-token';
+        localStorage.removeItem('csrf-token');
+        spyOn(localStorage, 'setItem');
 
-  it('should login', () => {
-    // given
-    const testToken = 'the-test-token';
-    localStorage.removeItem('csrf-token');
-    spyOn(localStorage, 'setItem');
+        // when
+        underTest
+            .login('username', 'password')
 
-    // when
-    underTest.login('username', 'password')
+            // then
+            .subscribe(token => {
+                expect(token).toEqual(token);
+            });
 
-    // then
-      .subscribe(token => {
-        expect(token).toEqual(token);
-      });
+        const req = httpTestingController.expectOne(api.LOGIN);
+        expect(req.request.method).toEqual('POST');
+        req.flush({}, { headers: { 'X-CSRF-TOKEN': testToken } });
 
-    const req = httpTestingController.expectOne(api.LOGIN);
-    expect(req.request.method).toEqual('POST');
-    req.flush({}, { headers: { 'X-CSRF-TOKEN': testToken}});
+        expect(localStorage.setItem).toHaveBeenCalledWith('csrf-token', testToken);
+    });
 
-    expect(localStorage.setItem).toHaveBeenCalledWith('csrf-token', testToken);
-  });
+    it('should logout', () => {
+        // when
+        underTest.logout().subscribe();
 
-  it('should logout', () => {
-    // when
-    underTest.logout().subscribe();
-
-    // then
-    const req = httpTestingController.expectOne(api.LOGOUT);
-    expect(req.request.method).toEqual('POST');
-    req.flush({});
-  });
-
+        // then
+        const req = httpTestingController.expectOne(api.LOGOUT);
+        expect(req.request.method).toEqual('POST');
+        req.flush({});
+    });
 });

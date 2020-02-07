@@ -13,127 +13,123 @@
  * limitations under the License.
  */
 
-import {TestBed} from '@angular/core/testing';
-import {AlertService} from './alert.service';
-import {RouterTestingModule} from '@angular/router/testing';
-import {AlertType} from '../models/alert';
-import {Router} from '@angular/router';
-import {Component} from '@angular/core';
-import {bufferCount} from 'rxjs/operators';
-
+import { TestBed } from '@angular/core/testing';
+import { AlertService } from './alert.service';
+import { RouterTestingModule } from '@angular/router/testing';
+import { AlertType } from '../models/alert';
+import { Router } from '@angular/router';
+import { Component } from '@angular/core';
+import { bufferCount } from 'rxjs/operators';
 
 describe('AlertService', () => {
-  let underTest: AlertService;
-  let router: Router;
+    let underTest: AlertService;
+    let router: Router;
 
-  @Component({template: ''})
-  class TestComponent {
-  }
+    @Component({ template: '' })
+    class TestComponent {}
 
-  beforeEach(() => {
-      TestBed.configureTestingModule({
-        declarations: [TestComponent],
-        providers: [AlertService],
-        imports: [RouterTestingModule.withRoutes([{path: '**', component: TestComponent}])]
-      });
-      underTest = TestBed.get(AlertService);
-      router = TestBed.get(Router);
-    }
-  );
-
-  it('should be created', () => {
-    const service: AlertService = TestBed.get(AlertService);
-    expect(service).toBeTruthy();
-  });
-
-  it('should create an alert message of type success', (done) => {
-    // prepare
-    const message = 'someMessage';
-
-    // prepare assertions
-    underTest.onAlert().subscribe(alert => {
-      expect(alert.type).toBe(AlertType.Success);
-      expect(alert.message).toBe(message);
-      done();
+    beforeEach(() => {
+        TestBed.configureTestingModule({
+            declarations: [TestComponent],
+            providers: [AlertService],
+            imports: [RouterTestingModule.withRoutes([{ path: '**', component: TestComponent }])],
+        });
+        underTest = TestBed.get(AlertService);
+        router = TestBed.get(Router);
     });
 
-    // run
-    underTest.success(message);
-  });
-
-  it('should create an alert message of type info', (done) => {
-    // prepare
-    const message = 'someMessage';
-
-    // prepare assertions
-    underTest.onAlert().subscribe(alert => {
-      expect(alert.type).toBe(AlertType.Info);
-      done();
+    it('should be created', () => {
+        const service: AlertService = TestBed.get(AlertService);
+        expect(service).toBeTruthy();
     });
 
-    // run
-    underTest.info(message);
-  });
+    it('should create an alert message of type success', done => {
+        // prepare
+        const message = 'someMessage';
 
-  it('should create an alert message of type error', (done) => {
-    // prepare
-    const message = 'someMessage';
+        // prepare assertions
+        underTest.onAlert().subscribe(alert => {
+            expect(alert.type).toBe(AlertType.Success);
+            expect(alert.message).toBe(message);
+            done();
+        });
 
-    // prepare assertions
-    underTest.onAlert().subscribe(alert => {
-      expect(alert.type).toBe(AlertType.Error);
-      done();
+        // run
+        underTest.success(message);
     });
 
-    // run
-    underTest.error(message);
-  });
+    it('should create an alert message of type info', done => {
+        // prepare
+        const message = 'someMessage';
 
-  it('should create an empty alert message of type warn', (done) => {
-    // prepare
-    const message = 'someMessage';
+        // prepare assertions
+        underTest.onAlert().subscribe(alert => {
+            expect(alert.type).toBe(AlertType.Info);
+            done();
+        });
 
-    // prepare assertions
-    underTest.onAlert().subscribe(alert => {
-      expect(alert.type).toBe(AlertType.Warning);
-      done();
+        // run
+        underTest.info(message);
     });
 
-    // run
-    underTest.warn(message);
-  });
+    it('should create an alert message of type error', done => {
+        // prepare
+        const message = 'someMessage';
 
-  it('should create an empty message', (done) => {
-    // prepare assertions
-    underTest.onAlert().subscribe(alert => {
-      expect(alert.clearAll).toBe(true);
-      done();
+        // prepare assertions
+        underTest.onAlert().subscribe(alert => {
+            expect(alert.type).toBe(AlertType.Error);
+            done();
+        });
+
+        // run
+        underTest.error(message);
     });
 
-    // run
-    underTest.clear();
-  });
+    it('should create an empty alert message of type warn', done => {
+        // prepare
+        const message = 'someMessage';
 
-  it('should clear alerts on page change', (done) => {
-    // prepare
-    const message0 = 'message 0';
-    const message1 = 'message 1';
+        // prepare assertions
+        underTest.onAlert().subscribe(alert => {
+            expect(alert.type).toBe(AlertType.Warning);
+            done();
+        });
 
+        // run
+        underTest.warn(message);
+    });
 
-    // prepare assertions
-    underTest.onAlert()
-      .pipe(bufferCount(3))
-      .subscribe(alerts => {
-        expect(alerts[0].message).toBe(message0);
-        expect(alerts[1].message).toBe(message1);
-        expect(alerts[2].clearAll).toBe(true);
-        done();
-      });
+    it('should create an empty message', done => {
+        // prepare assertions
+        underTest.onAlert().subscribe(alert => {
+            expect(alert.clearAll).toBe(true);
+            done();
+        });
 
-    // run
-    underTest.success(message0);
-    underTest.success(message1);
-    router.navigate(['/somewhere']);
-  });
+        // run
+        underTest.clear();
+    });
 
+    it('should clear alerts on page change', done => {
+        // prepare
+        const message0 = 'message 0';
+        const message1 = 'message 1';
+
+        // prepare assertions
+        underTest
+            .onAlert()
+            .pipe(bufferCount(3))
+            .subscribe(alerts => {
+                expect(alerts[0].message).toBe(message0);
+                expect(alerts[1].message).toBe(message1);
+                expect(alerts[2].clearAll).toBe(true);
+                done();
+            });
+
+        // run
+        underTest.success(message0);
+        underTest.success(message1);
+        router.navigate(['/somewhere']);
+    });
 });

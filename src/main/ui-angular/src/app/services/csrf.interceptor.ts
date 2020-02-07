@@ -16,23 +16,21 @@
 import { Injectable } from '@angular/core';
 import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import {AuthService} from './auth.service';
-
+import { AuthService } from './auth.service';
 
 @Injectable()
 export class CsrfInterceptor implements HttpInterceptor {
-
-  intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    if (request.method !== 'GET') {
-      const csrfToken = localStorage.getItem(AuthService.csrfTokenLocalId);
-      if (csrfToken) {
-        request = request.clone({
-          setHeaders: {
-            'X-CSRF-TOKEN': csrfToken
-          }
-        });
-      }
+    intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+        if (request.method !== 'GET') {
+            const csrfToken = localStorage.getItem(AuthService.csrfTokenLocalId);
+            if (csrfToken) {
+                request = request.clone({
+                    setHeaders: {
+                        'X-CSRF-TOKEN': csrfToken,
+                    },
+                });
+            }
+        }
+        return next.handle(request);
     }
-    return next.handle(request);
-  }
 }

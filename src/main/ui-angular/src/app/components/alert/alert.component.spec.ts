@@ -13,85 +13,84 @@
  * limitations under the License.
  */
 
-import {async, ComponentFixture, TestBed} from '@angular/core/testing';
+import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import {AlertComponent} from './alert.component';
-import {RouterTestingModule} from '@angular/router/testing';
-import {AlertService} from '../../services/alert.service';
-import {By} from '@angular/platform-browser';
+import { AlertComponent } from './alert.component';
+import { RouterTestingModule } from '@angular/router/testing';
+import { AlertService } from '../../services/alert.service';
+import { By } from '@angular/platform-browser';
 
 describe('AlertComponent', () => {
-  let component: AlertComponent;
-  let fixture: ComponentFixture<AlertComponent>;
-  let alertService: AlertService;
+    let component: AlertComponent;
+    let fixture: ComponentFixture<AlertComponent>;
+    let alertService: AlertService;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [AlertComponent],
-      providers: [AlertService],
-      imports: [RouterTestingModule]
-    })
-      .compileComponents();
-  }));
-
-  beforeEach(() => {
-    fixture = TestBed.createComponent(AlertComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-    alertService = TestBed.get(AlertService);
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
-  const displayAlertParameters = [
-    {type: 'success', class: 'alert-success', alertMethod: (message) => alertService.success(message)},
-    {type: 'info', class: 'alert-info', alertMethod: (message) => alertService.info(message)},
-    {type: 'warning', class: 'alert-warning', alertMethod: (message) => alertService.warn(message)},
-    {type: 'error', class: 'alert-error', alertMethod: (message) => alertService.error(message)},
-  ];
-  displayAlertParameters.forEach((param) => {
-    it(`should display ${param.type} alert`, async(() => {
-      // 1. display message
-      const message = 'message';
-      param.alertMethod(message);
-      fixture.detectChanges();
-
-      // verify
-      const alerts = fixture.debugElement.queryAll(By.css('.alert'));
-      expect(alerts.length).toBe(1);
-      expect(alerts[0].nativeNode.classList).toContain(param.class);
-      expect(alerts[0].childNodes[0].nativeNode.textContent.trim()).toBe(message);
-
-      // 2. close message
-      alerts[0].childNodes[1].nativeNode.click();
-
-      // verify
-      fixture.whenStable().then(() => {
-        expect(component.alerts.length).toBe(0);
-      });
+    beforeEach(async(() => {
+        TestBed.configureTestingModule({
+            declarations: [AlertComponent],
+            providers: [AlertService],
+            imports: [RouterTestingModule],
+        }).compileComponents();
     }));
-  });
 
-  it('should display multiple messages', () => {
-    // 1. display messages
-    alertService.success('success');
-    alertService.error('error');
-    alertService.success('success 2');
-    alertService.warn('warn');
-    alertService.success('success 3');
-    alertService.info('info');
-    fixture.detectChanges();
+    beforeEach(() => {
+        fixture = TestBed.createComponent(AlertComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+        alertService = TestBed.get(AlertService);
+    });
 
-    // verify
-    const alerts = fixture.debugElement.queryAll(By.css('.alert'));
-    expect(alerts.length).toBe(6);
-    expect(alerts[0].childNodes[0].nativeNode.textContent.trim()).toBe('success');
-    expect(alerts[1].childNodes[0].nativeNode.textContent.trim()).toBe('error');
-    expect(alerts[2].childNodes[0].nativeNode.textContent.trim()).toBe('success 2');
-    expect(alerts[3].childNodes[0].nativeNode.textContent.trim()).toBe('warn');
-    expect(alerts[4].childNodes[0].nativeNode.textContent.trim()).toBe('success 3');
-    expect(alerts[5].childNodes[0].nativeNode.textContent.trim()).toBe('info');
-  });
+    it('should create', () => {
+        expect(component).toBeTruthy();
+    });
+
+    const displayAlertParameters = [
+        { type: 'success', class: 'alert-success', alertMethod: (message: string): void => alertService.success(message) },
+        { type: 'info', class: 'alert-info', alertMethod: (message: string): void => alertService.info(message) },
+        { type: 'warning', class: 'alert-warning', alertMethod: (message: string): void => alertService.warn(message) },
+        { type: 'error', class: 'alert-error', alertMethod: (message: string): void => alertService.error(message) },
+    ];
+    displayAlertParameters.forEach(param => {
+        it(`should display ${param.type} alert`, async(() => {
+            // 1. display message
+            const message = 'message';
+            param.alertMethod(message);
+            fixture.detectChanges();
+
+            // verify
+            const alerts = fixture.debugElement.queryAll(By.css('.alert'));
+            expect(alerts.length).toBe(1);
+            expect(alerts[0].nativeNode.classList).toContain(param.class);
+            expect(alerts[0].childNodes[0].nativeNode.textContent.trim()).toBe(message);
+
+            // 2. close message
+            alerts[0].childNodes[1].nativeNode.click();
+
+            // verify
+            fixture.whenStable().then(() => {
+                expect(component.alerts.length).toBe(0);
+            });
+        }));
+    });
+
+    it('should display multiple messages', () => {
+        // 1. display messages
+        alertService.success('success');
+        alertService.error('error');
+        alertService.success('success 2');
+        alertService.warn('warn');
+        alertService.success('success 3');
+        alertService.info('info');
+        fixture.detectChanges();
+
+        // verify
+        const alerts = fixture.debugElement.queryAll(By.css('.alert'));
+        expect(alerts.length).toBe(6);
+        expect(alerts[0].childNodes[0].nativeNode.textContent.trim()).toBe('success');
+        expect(alerts[1].childNodes[0].nativeNode.textContent.trim()).toBe('error');
+        expect(alerts[2].childNodes[0].nativeNode.textContent.trim()).toBe('success 2');
+        expect(alerts[3].childNodes[0].nativeNode.textContent.trim()).toBe('warn');
+        expect(alerts[4].childNodes[0].nativeNode.textContent.trim()).toBe('success 3');
+        expect(alerts[5].childNodes[0].nativeNode.textContent.trim()).toBe('info');
+    });
 });

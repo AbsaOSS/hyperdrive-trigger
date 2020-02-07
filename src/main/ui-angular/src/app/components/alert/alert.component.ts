@@ -13,60 +13,59 @@
  * limitations under the License.
  */
 
-import { Component, OnInit, OnDestroy, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
 
 import { Alert, AlertType } from '../../models/alert';
-import {AlertService} from '../../services/alert.service';
+import { AlertService } from '../../services/alert.service';
 
 @Component({
-  selector: 'app-alert',
-  templateUrl: 'alert.component.html',
+    selector: 'app-alert',
+    templateUrl: 'alert.component.html',
 })
 export class AlertComponent implements OnInit, OnDestroy {
-  alerts: Alert[] = [];
-  subscription: Subscription;
+    alerts: Alert[] = [];
+    subscription: Subscription;
 
-  constructor(private alertService: AlertService) { }
+    constructor(private alertService: AlertService) {}
 
-  ngOnInit() {
-    this.subscription = this.alertService.onAlert()
-      .subscribe(alert => {
-        if (alert.clearAll) {
-          // clear alerts when an empty alert is received
-          this.alerts = [];
-          return;
+    ngOnInit(): void {
+        this.subscription = this.alertService.onAlert().subscribe(alert => {
+            if (alert.clearAll) {
+                // clear alerts when an empty alert is received
+                this.alerts = [];
+                return;
+            }
+
+            // add alert to array
+            this.alerts.push(alert);
+        });
+    }
+
+    ngOnDestroy(): void {
+        this.subscription.unsubscribe();
+    }
+
+    removeAlert(alert: Alert): void {
+        // remove specified alert from array
+        this.alerts = this.alerts.filter(x => x !== alert);
+    }
+
+    cssClass(alert: Alert): string {
+        if (!alert) {
+            return;
         }
 
-        // add alert to array
-        this.alerts.push(alert);
-      });
-  }
-
-  ngOnDestroy() {
-    this.subscription.unsubscribe();
-  }
-
-  removeAlert(alert: Alert) {
-    // remove specified alert from array
-    this.alerts = this.alerts.filter(x => x !== alert);
-  }
-
-  cssClass(alert: Alert) {
-    if (!alert) {
-      return;
+        // return css class based on alert type
+        switch (alert.type) {
+            case AlertType.Success:
+                return 'alert alert-success';
+            case AlertType.Error:
+                return 'alert alert-error';
+            case AlertType.Info:
+                return 'alert alert-info';
+            case AlertType.Warning:
+                return 'alert alert-warning';
+        }
     }
-
-    // return css class based on alert type
-    switch (alert.type) {
-      case AlertType.Success:
-        return 'alert alert-success';
-      case AlertType.Error:
-        return 'alert alert-error';
-      case AlertType.Info:
-        return 'alert alert-info';
-      case AlertType.Warning:
-        return 'alert alert-warning';
-    }
-  }
 }

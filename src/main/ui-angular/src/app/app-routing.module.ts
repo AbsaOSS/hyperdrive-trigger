@@ -15,27 +15,24 @@
 
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import {HomeComponent} from './components/home/home.component';
-import {LoginComponent} from './components/login/login.component';
-import {AuthGuard} from './services/auth.guard';
-import {routeName} from './app.routes';
-import {ErrorComponent} from './components/error/error.component';
-import {PageNotFoundComponent} from './components/page-not-found/page-not-found.component';
-import {DemoComponent} from './components/demo/demo.component';
+import { HomeComponent } from './components/home/home.component';
+import { LoginComponent } from './components/login/login.component';
+import { AuthGuard } from './services/auth.guard';
+import { routeName } from './app.routes';
+import { ErrorComponent } from './components/error/error.component';
+import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
+import { DemoComponent } from './components/demo/demo.component';
 
 const routes: Routes = [
-  { path: routeName.DEFAULT, component: HomeComponent, canActivate: [AuthGuard] },
-  { path: routeName.LOGIN, component: LoginComponent },
-  { path: routeName.ERROR, component: ErrorComponent},
-  { path: routeName.DEMO, component: DemoComponent, canActivate: [AuthGuard]},
-  { path: '**', component: PageNotFoundComponent}
+    { path: routeName.DEFAULT, component: HomeComponent, canActivate: [AuthGuard] },
+    { path: routeName.LOGIN, component: LoginComponent },
+    { path: routeName.ERROR, component: ErrorComponent },
+    { path: routeName.DEMO, component: DemoComponent, canActivate: [AuthGuard] },
+    { path: '**', component: PageNotFoundComponent },
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes, {useHash: true})],
-  exports: [RouterModule]
+    imports: [RouterModule.forRoot(routes, { useHash: true })],
+    exports: [RouterModule],
 })
-export class AppRoutingModule {
-
-}
-
+export class AppRoutingModule {}
