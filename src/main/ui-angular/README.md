@@ -26,7 +26,7 @@ For backend integration, run the backend on `localhost:7123` with the flag `rest
 Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
 
 ### Linting code
-Run `ng lint` to have the code linted.
+Run `npm run lint` to have the code linted. Run `npm run lint:fix` to have the code automatically fixed. Note: `ng lint` is disabled, because the Angular CLI still relies on the deprecated TSLint.
 
 ### Running unit tests
 Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
