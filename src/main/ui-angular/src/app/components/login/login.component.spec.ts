@@ -44,9 +44,9 @@ describe('LoginComponent', () => {
         fixture = TestBed.createComponent(LoginComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
-        authService = TestBed.get(AuthService);
-        alertService = TestBed.get(AlertService);
-        router = TestBed.get(Router);
+        authService = TestBed.inject(AuthService);
+        alertService = TestBed.inject(AlertService);
+        router = TestBed.inject(Router);
     });
 
     it('should create', () => {
