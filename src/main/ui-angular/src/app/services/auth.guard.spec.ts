@@ -33,9 +33,9 @@ describe('AuthGuard', () => {
             imports: [RouterTestingModule, HttpClientTestingModule],
         });
 
-        underTest = TestBed.inject(AuthGuard);
-        mockAuthService = TestBed.inject(AuthService);
-        router = TestBed.inject(Router);
+        underTest = TestBed.get(AuthGuard);
+        mockAuthService = TestBed.get(AuthService);
+        router = TestBed.get(Router);
     });
 
     it('should create', inject([AuthGuard], (guard: AuthGuard) => {

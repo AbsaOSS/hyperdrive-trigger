@@ -29,8 +29,8 @@ describe('AuthService', () => {
             imports: [HttpClientTestingModule],
         });
 
-        underTest = TestBed.inject(AuthService);
-        httpTestingController = TestBed.inject(HttpTestingController);
+        underTest = TestBed.get(AuthService);
+        httpTestingController = TestBed.get(HttpTestingController);
     });
 
     afterEach(() => {
@@ -38,7 +38,7 @@ describe('AuthService', () => {
     });
 
     it('should be created', () => {
-        const service: AuthService = TestBed.inject(AuthService);
+        const service: AuthService = TestBed.get(AuthService);
         expect(service).toBeTruthy();
     });
 

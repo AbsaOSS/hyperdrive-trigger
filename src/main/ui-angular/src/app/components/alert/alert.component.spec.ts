@@ -37,7 +37,7 @@ describe('AlertComponent', () => {
         fixture = TestBed.createComponent(AlertComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
-        alertService = TestBed.inject(AlertService);
+        alertService = TestBed.get(AlertService);
     });
 
     it('should create', () => {

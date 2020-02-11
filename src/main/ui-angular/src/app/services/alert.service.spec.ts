@@ -34,12 +34,12 @@ describe('AlertService', () => {
             providers: [AlertService],
             imports: [RouterTestingModule.withRoutes([{ path: '**', component: TestComponent }])],
         });
-        underTest = TestBed.inject(AlertService);
-        router = TestBed.inject(Router);
+        underTest = TestBed.get(AlertService);
+        router = TestBed.get(Router);
     });
 
     it('should be created', () => {
-        const service: AlertService = TestBed.inject(AlertService);
+        const service: AlertService = TestBed.get(AlertService);
         expect(service).toBeTruthy();
     });
 
