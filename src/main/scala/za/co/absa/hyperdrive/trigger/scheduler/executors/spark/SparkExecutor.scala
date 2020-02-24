@@ -89,6 +89,7 @@ object SparkExecutor extends Executor {
     SparkExecutorConfig.getFilesToDeploy.foreach(file => sparkLauncher.addFile(file))
     SparkExecutorConfig.getAdditionalConfs.foreach(conf => sparkLauncher.setConf(conf._1, conf._2))
     sparkParameters.additionalJars.foreach(additionalJar => sparkLauncher.addJar(additionalJar))
+    sparkParameters.additionalFiles.foreach(additionalFile => sparkLauncher.addFile(additionalFile))
     sparkLauncher
   }
 

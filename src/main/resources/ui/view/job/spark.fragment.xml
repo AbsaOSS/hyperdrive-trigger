@@ -57,4 +57,17 @@
         <Button icon="sap-icon://add" press="onAddAdditionalJar"/>
     </VBox>
 
+    <Label text="Additional files"/>
+    <VBox>
+        <List mode="Delete"
+              items="{/newJob/job/jobParameters/maps/additionalFiles}"
+              delete="onDeleteAdditionalFiles"
+              showNoData="false">
+            <CustomListItem>
+                <Input type="Text" value="{}" placeholder="Additional file"/>
+            </CustomListItem>
+        </List>
+        <Button icon="sap-icon://add" press="onAddAdditionalFiles"/>
+    </VBox>
+
 </core:FragmentDefinition>

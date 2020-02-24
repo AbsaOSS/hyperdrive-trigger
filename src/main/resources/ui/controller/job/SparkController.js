@@ -37,4 +37,12 @@ class SparkController {
         UiListMethods.addListItem("/newJob/job/jobParameters/maps/additionalJars", this._model, "");
     }
 
+    onDeleteAdditionalFiles(oEv) {
+        UiListMethods.deleteListItem("/newJob/job/jobParameters/maps/additionalFiles", this._model, oEv)
+    }
+
+    onAddAdditionalFiles() {
+        UiListMethods.addListItem("/newJob/job/jobParameters/maps/additionalFiles", this._model, "");
+    }
+
 }

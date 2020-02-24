@@ -25,6 +25,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.context.annotation.{Bean, ComponentScan, Configuration}
 import org.springframework.scheduling.annotation.EnableAsync
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
+import za.co.absa.hyperdrive.trigger.HyperDriverManager
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.JobStatus
 import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
 import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes.SensorType
@@ -87,5 +88,6 @@ class Application() {
 }
 
 object Application extends App {
-  SpringApplication.run(classOf[Application], args: _*)
+  val context = SpringApplication.run(classOf[Application], args: _*)
+  context.getBean(classOf[HyperDriverManager]).startManager
 }
