@@ -1,5 +1,28 @@
-<div>
-  Hello
+<div class="main-container">
+  <header class="header-6">
+    <div class="branding">
+      <a href="home" class="nav-link">
+        <clr-icon shape="dashboard"></clr-icon>
+        <span class="title">Hyperdrive</span>
+      </a>
+    </div>
+    <div class="header-nav">
+      <a routerLinkActive="active" routerLink="/home" class="nav-link nav-text">Home</a>
+      <a routerLinkActive="active" routerLink="/workflows" class="nav-link nav-text">Workflows</a>
+      <a routerLinkActive="active" routerLink="/runs" class="nav-link nav-text">Runs</a>
+    </div>
+    <div class="header-actions">
+      <clr-dropdown>
+        <button class="nav-text" clrDropdownTrigger aria-label="open user profile">
+          jozef.bakus@gmail.com
+          <clr-icon shape="caret down"></clr-icon>
+        </button>
+        <clr-dropdown-menu *clrIfOpen clrPosition="bottom-right">
+          <a href="#" clrDropdownItem>Log out</a>
+        </clr-dropdown-menu>
+      </clr-dropdown>
+    </div>
+  </header>
+  <router-outlet></router-outlet>
 </div>
 
-<router-outlet></router-outlet>
