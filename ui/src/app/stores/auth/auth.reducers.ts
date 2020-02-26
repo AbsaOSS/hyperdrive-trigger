@@ -17,12 +17,14 @@ import * as AuthActions from "./auth.actions";
 
 export interface State {
   username: string,
-  isAuthenticated: boolean
+  isAuthenticated: boolean,
+  authenticationFailed: boolean
 }
 
 const initialState: State = {
   username: localStorage.getItem('username'),
-  isAuthenticated: !!localStorage.getItem('csrf-token')
+  isAuthenticated: !!localStorage.getItem('csrf-token'),
+  authenticationFailed: false
 };
 
 export function authReducer(state: State = initialState, action: AuthActions.AuthActions) {
@@ -31,10 +33,12 @@ export function authReducer(state: State = initialState, action: AuthActions.Aut
       return state;
     case (AuthActions.LOGIN_SUCCESS):
       return { ...state, isAuthenticated: true, username: action.payload.username };
+    case (AuthActions.LOGIN_FAILURE):
+      return { ...state, authenticationFailed: true};
     case (AuthActions.LOGOUT):
       return state;
     case (AuthActions.LOGOUT_SUCCESS):
-      return { ...state, isAuthenticated: false, username: null };
+      return { ...state, isAuthenticated: false, username: null, authenticationFailed: false };
     default:
       return state;
   }

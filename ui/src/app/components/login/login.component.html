@@ -1,31 +1,22 @@
-<div class="content-container">
-  <div class="content-area">
-
-    <form (ngSubmit)="onSubmit()" ngNativeValidate>
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input
-          [(ngModel)]="form.username"
-          name="email"
-          type="text"
-          required
-          class="form-control"
-          id="email"
-          placeholder="enter your email">
-      </div>
-      <div class="form-group">
-        <label for="password">Password</label>
-        <input
-          [(ngModel)]="form.password"
-          name="password"
-          type="password"
-          required
-          class="form-control"
-          id="password"
-          placeholder="enter a password">
-      </div>
-      <button type="submit" class="btn btn-primary">Submit</button>
-      <a [routerLink]="['/']" class="btn btn-success">Cancel</a>
-    </form>
-  </div>
+<div class="login-wrapper">
+  <form class="login" clrForm (ngSubmit)="onSubmit()">
+    <section class="title">
+      <h3 class="welcome">Welcome to</h3>
+      Hyperdrive
+    </section>
+    <div class="login-group">
+      <clr-input-container>
+        <label class="clr-sr-only">Username</label>
+        <input type="text" placeholder="Username" name="username" clrInput required [(ngModel)]="logInForm.username"/>
+        <clr-control-error>Username is required!</clr-control-error>
+      </clr-input-container>
+      <clr-password-container>
+        <label class="clr-sr-only">Password</label>
+        <input type="password" placeholder="Password" name="password" clrPassword required [(ngModel)]="logInForm.password"/>
+        <clr-control-error>Password is required!</clr-control-error>
+      </clr-password-container>
+      <div class="error" [ngClass]="{'active': authenticationFailed}">Invalid username or password</div>
+      <button type="submit" class="btn btn-primary">Log in</button>
+    </div>
+  </form>
 </div>

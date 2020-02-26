@@ -1,35 +1,37 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Store} from "@ngrx/store";
-import {AppState, reducers} from "../../stores/app.reducers";
-import {AuthActions, Login} from "../../stores/auth/auth.actions";
-import {Observable} from "rxjs";
+import {AppState} from "../../stores/app.reducers";
+import {Login} from "../../stores/auth/auth.actions";
+import {Observable, Subscription} from "rxjs";
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, OnDestroy {
 
-  getState: Observable<any>;
-  form = {
+  authStateSubscription: Subscription;
+  authenticationFailed: boolean = false;
+  logInForm = {
     username: 'hyperdriver-user',
     password: 'hyperdriver-password'
   };
 
-  constructor(private store: Store<AppState>) {
-    this.getState = this.store.select('auth');
-  }
+  constructor(private store: Store<AppState>) {}
 
   ngOnInit(): void {
+    this.authStateSubscription = this.store.select('auth').subscribe((state) => {
+      this.authenticationFailed = state.authenticationFailed;
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.authStateSubscription.unsubscribe();
   }
 
   onSubmit() {
-    const payload: {username: string, password: string} = {
-      username: this.form.username,
-      password: this.form.password
-    };
-    this.store.dispatch(new Login(payload));
+    this.store.dispatch(new Login(this.logInForm));
   }
 
 }

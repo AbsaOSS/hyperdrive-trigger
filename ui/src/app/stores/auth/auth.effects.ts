@@ -19,7 +19,7 @@ import {AuthService} from "../../services/auth/auth.service";
 import {Router} from "@angular/router";
 import {Observable} from "rxjs";
 import * as AuthActions from './auth.actions';
-import {switchMap, tap, mergeMap} from "rxjs/operators";
+import {switchMap, tap, mergeMap, catchError} from "rxjs/operators";
 
 @Injectable()
 export class AuthEffects {
@@ -28,17 +28,25 @@ export class AuthEffects {
   @Effect({dispatch: true})
   authLogin = this.actions.pipe(
     ofType(AuthActions.LOGIN),
-    switchMap((_: AuthActions.Login) => this.authService.login(_.payload.username, _.payload.password)),
-    mergeMap((token: string) => {
-      return this.authService.getUserInfo().pipe(
-        mergeMap((username: string) => {
+    switchMap((login: AuthActions.Login) => {
+      return this.authService.login(login.payload.username, login.payload.password).pipe(
+        mergeMap((token: string) => {
+          return this.authService.getUserInfo().pipe(
+            mergeMap((username: string) => {
+              return [{
+                type: AuthActions.LOGIN_SUCCESS,
+                payload: {token: token, username: username}
+              }];
+            })
+          )
+        }),
+        catchError(() => {
           return [{
-            type: AuthActions.LOGIN_SUCCESS,
-            payload: {token: token, username: username}
+            type: AuthActions.LOGIN_FAILURE
           }];
         })
-      );
-    }),
+      )
+    })
   );
 
   @Effect({dispatch: false})
