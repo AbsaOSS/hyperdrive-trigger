@@ -52,3 +52,13 @@ docker build --build-arg JAR_FILE=target/hyperdrive-trigger-0.0.1-SNAPSHOT.jar -
 
 If `docker-compose up` fails with this error message, probably the docker image was not present when `docker-compose up` was called. `docker-compose` tries to build the image by itself, which doesn't work.
 
+## Liquibase
+Liquibase is a tool to track and perform database schema changes.
+Pending schema updates are executed automatically when the application is started.
+
+The Liquibase-Maven plugin may be used for additional tasks during development.
+1. Copy `src/main/filters/local.properties.template` to `src/main/filters/local.properties` and update the database 
+configuration in `local.properties`.
+2. Run liquibase with the resources plugin and profile "local", e.g. `mvn resources:resources liquibase:updateSQL -Plocal`
+
+See also: https://www.liquibase.org/documentation/maven/index.html

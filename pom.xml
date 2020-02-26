@@ -55,6 +55,8 @@
         <h2database.version>1.4.200</h2database.version>
         <mockito.version>2.25.0</mockito.version>
         <cronutils.version>9.0.2</cronutils.version>
+        <liquibase-maven-plugin.version>3.8.6</liquibase-maven-plugin.version>
+        <snakeyaml.version>1.25</snakeyaml.version>
         <scala-maven-plugin.version>3.2.1</scala-maven-plugin.version>
         <maven-resources-plugin.version>3.1.0</maven-resources-plugin.version>
         <maven.ant.plugin.version>1.8</maven.ant.plugin.version>
@@ -63,6 +65,9 @@
         <dockerfile-maven.version>1.4.13</dockerfile-maven.version>
 
         <skip.docker>true</skip.docker>
+
+        <liquibase.changelog>db_scripts/liquibase/db.changelog.yml</liquibase.changelog>
+        <database.driver>org.postgresql.Driver</database.driver>
     </properties>
 
     <dependencies>
@@ -146,6 +151,18 @@
             <artifactId>cron-utils</artifactId>
             <version>${cronutils.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-maven-plugin</artifactId>
+            <version>${liquibase-maven-plugin.version}</version>
+        </dependency>
+        <!-- For Liquibase yaml -->
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>${snakeyaml.version}</version>
+        </dependency>
+
         <!-- WebJars -->
         <dependency>
             <groupId>org.webjars</groupId>
@@ -188,6 +205,12 @@
         </dependency>
     </dependencies>
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -277,6 +300,21 @@
                     <noCache>true</noCache>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-maven-plugin</artifactId>
+                <version>${liquibase-maven-plugin.version}</version>
+                <configuration>
+                    <propertyFile>target/classes/liquibase.properties</propertyFile>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.postgresql</groupId>
+                        <artifactId>postgresql</artifactId>
+                        <version>${postgresql}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
         </plugins>
     </build>
 
@@ -286,6 +324,14 @@
             <properties>
                 <skip.docker>false</skip.docker>
             </properties>
+        </profile>
+        <profile>
+            <id>local</id>
+            <build>
+                <filters>
+                    <filter>src/main/filters/local.properties</filter>
+                </filters>
+            </build>
         </profile>
     </profiles>
 </project>

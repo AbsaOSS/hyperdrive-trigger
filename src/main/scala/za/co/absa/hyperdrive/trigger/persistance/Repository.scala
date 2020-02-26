@@ -15,7 +15,8 @@
 
 package za.co.absa.hyperdrive.trigger.persistance
 
-import slick.jdbc.{JdbcProfile, PostgresProfile}
+import slick.jdbc.JdbcProfile
+import za.co.absa.hyperdrive.trigger.configuration.DatabaseConfiguration
 import za.co.absa.hyperdrive.trigger.models.tables._
 
 trait Repository
@@ -27,12 +28,6 @@ trait Repository
     with SensorTable
     with WorkflowTable with Profile with JdbcTypeMapper {
 
-  val profile: JdbcProfile = PostgresDB.profile
-  lazy val db = PostgresDB.db
-
-}
-
-private[persistance] object PostgresDB {
-  val profile: JdbcProfile = PostgresProfile
-  lazy val db: profile.backend.DatabaseDef = profile.api.Database.forConfig("db")
+  val profile: JdbcProfile = DatabaseConfiguration.profile
+  lazy val db = DatabaseConfiguration.db
 }

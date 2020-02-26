@@ -1,0 +1,416 @@
+#
+# Copyright 2018 ABSA Group Limited
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+databaseChangeLog:
+  - changeSet:
+      id: 1582729544399-1
+      author: kevin.wallimann@absa.africa
+      context: default
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                  name: dag_definition_id
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: name
+                  type: VARCHAR
+              - column:
+                  constraints:
+                    nullable: false
+                  name: job_type
+                  type: VARCHAR
+              - column:
+                  constraints:
+                    nullable: false
+                  name: variables
+                  type: VARCHAR
+              - column:
+                  constraints:
+                    nullable: false
+                  name: maps
+                  type: VARCHAR
+              - column:
+                  constraints:
+                    nullable: false
+                  name: order
+                  type: INTEGER
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: job_definition_pkey
+                  name: id
+                  type: BIGSERIAL
+            tableName: job_definition
+  - changeSet:
+      id: 1582729544399-2
+      author: kevin.wallimann@absa.africa
+      context: default
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                  name: workflow_id
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: sensor_type
+                  type: VARCHAR
+              - column:
+                  constraints:
+                    nullable: false
+                  name: variables
+                  type: VARCHAR
+              - column:
+                  constraints:
+                    nullable: false
+                  name: maps
+                  type: VARCHAR
+              - column:
+                  constraints:
+                    nullable: false
+                  name: match_properties
+                  type: VARCHAR
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: sensor_pkey
+                  name: id
+                  type: BIGSERIAL
+            tableName: sensor
+  - changeSet:
+      id: 1582729544399-3
+      author: kevin.wallimann@absa.africa
+      context: default
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                  name: job_name
+                  type: VARCHAR
+              - column:
+                  constraints:
+                    nullable: false
+                  name: job_type
+                  type: VARCHAR
+              - column:
+                  constraints:
+                    nullable: false
+                  name: variables
+                  type: VARCHAR
+              - column:
+                  constraints:
+                    nullable: false
+                  name: maps
+                  type: VARCHAR
+              - column:
+                  constraints:
+                    nullable: false
+                  name: job_status
+                  type: VARCHAR
+              - column:
+                  name: executor_job_id
+                  type: VARCHAR
+              - column:
+                  constraints:
+                    nullable: false
+                  name: created
+                  type: TIMESTAMP
+              - column:
+                  name: updated
+                  type: TIMESTAMP
+              - column:
+                  constraints:
+                    nullable: false
+                  name: order
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: dag_instance_id
+                  type: BIGINT
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: job_instance_pkey
+                  name: id
+                  type: BIGSERIAL
+            tableName: job_instance
+  - changeSet:
+      id: 1582729544399-4
+      author: kevin.wallimann@absa.africa
+      context: default
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                  name: workflow_id
+                  type: BIGINT
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: dag_definition_pkey
+                  name: id
+                  type: BIGSERIAL
+            tableName: dag_definition
+  - changeSet:
+      id: 1582729544399-5
+      author: kevin.wallimann@absa.africa
+      context: default
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                  name: status
+                  type: VARCHAR
+              - column:
+                  constraints:
+                    nullable: false
+                  name: workflow_id
+                  type: BIGINT
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: dag_instance_pkey
+                  name: id
+                  type: BIGSERIAL
+            tableName: dag_instance
+  - changeSet:
+      id: 1582729544399-6
+      author: kevin.wallimann@absa.africa
+      context: default
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                  name: name
+                  type: VARCHAR(45)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: is_active
+                  type: BOOLEAN
+              - column:
+                  constraints:
+                    nullable: false
+                  name: project
+                  type: VARCHAR
+              - column:
+                  constraints:
+                    nullable: false
+                  name: created
+                  type: TIMESTAMP
+              - column:
+                  name: updated
+                  type: TIMESTAMP
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: workflow_pkey
+                  name: id
+                  type: BIGSERIAL
+            tableName: workflow
+  - changeSet:
+      id: 1582729544399-7
+      author: kevin.wallimann@absa.africa
+      context: default
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                  name: sensor_event_id
+                  type: VARCHAR(70)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: sensor_id
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: payload
+                  type: VARCHAR
+              - column:
+                  name: dag_instance_id
+                  type: BIGINT
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: event_pkey
+                  name: id
+                  type: BIGSERIAL
+            tableName: event
+  - changeSet:
+      id: 1582729544399-8
+      author: kevin.wallimann@absa.africa
+      context: default
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: dag_definition_id
+            baseTableName: job_definition
+            constraintName: job_definition_dag_definition_fk
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+            referencedColumnNames: id
+            referencedTableName: dag_definition
+            validate: true
+  - changeSet:
+      id: 1582729544399-9
+      author: kevin.wallimann@absa.africa
+      context: default
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: dag_instance_id
+            baseTableName: event
+            constraintName: event_dag_instance_fk
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+            referencedColumnNames: id
+            referencedTableName: dag_instance
+            validate: true
+  - changeSet:
+      id: 1582729544399-10
+      author: kevin.wallimann@absa.africa
+      context: default
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: dag_instance_id
+            baseTableName: job_instance
+            constraintName: job_instance_dag_instance_fk
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+            referencedColumnNames: id
+            referencedTableName: dag_instance
+            validate: true
+  - changeSet:
+      id: 1582729544399-11
+      author: kevin.wallimann@absa.africa
+      context: default
+      changes:
+        - addUniqueConstraint:
+            columnNames: name
+            constraintName: workflow_name_key
+            tableName: workflow
+  - changeSet:
+      id: 1582729544399-12
+      author: kevin.wallimann@absa.africa
+      context: default
+      changes:
+        - addUniqueConstraint:
+            columnNames: sensor_event_id
+            constraintName: event_sensor_event_id_key
+            tableName: event
+  - changeSet:
+      id: 1582729544399-13
+      author: kevin.wallimann@absa.africa
+      context: default
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: sensor_id
+            baseTableName: event
+            constraintName: event_sensor_fk
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+            referencedColumnNames: id
+            referencedTableName: sensor
+            validate: true
+  - changeSet:
+      id: 1582729544399-14
+      author: kevin.wallimann@absa.africa
+      context: default
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: workflow_id
+            baseTableName: sensor
+            constraintName: sensor_workflow_fk
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+            referencedColumnNames: id
+            referencedTableName: workflow
+            validate: true
+  - changeSet:
+      id: 1582729544399-15
+      author: kevin.wallimann@absa.africa
+      context: default
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: workflow_id
+            baseTableName: dag_definition
+            constraintName: dag_definition_workflow_fk
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+            referencedColumnNames: id
+            referencedTableName: workflow
+            validate: true
+  - changeSet:
+      id: 1582729544399-16
+      author: kevin.wallimann@absa.africa
+      context: default
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: workflow_id
+            baseTableName: dag_instance
+            constraintName: dag_instance_workflow_fk
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+            referencedColumnNames: id
+            referencedTableName: workflow
+            validate: true
+
