@@ -13,28 +13,22 @@
  * limitations under the License.
  */
 
-import * as AuthActions from "./auth.actions";
+import * as RunsActions from "../runs/runs.actions";
+
 
 export interface State {
-  username: string,
-  isAuthenticated: boolean
+
 }
 
 const initialState: State = {
-  username: localStorage.getItem('username'),
-  isAuthenticated: !!localStorage.getItem('csrf-token')
+
 };
 
-export function authReducer(state: State = initialState, action: AuthActions.AuthActions) {
+export function runsReducer(state: State = initialState, action: RunsActions.RunsActions) {
   switch (action.type) {
-    case (AuthActions.LOGIN):
+    case (RunsActions.GET_RUNS):
+      //do something
       return state;
-    case (AuthActions.LOGIN_SUCCESS):
-      return { ...state, isAuthenticated: true, username: action.payload.username };
-    case (AuthActions.LOGOUT):
-      return state;
-    case (AuthActions.LOGOUT_SUCCESS):
-      return { ...state, isAuthenticated: false, username: null };
     default:
       return state;
   }

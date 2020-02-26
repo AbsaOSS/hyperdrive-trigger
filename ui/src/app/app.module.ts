@@ -12,11 +12,18 @@ import { ClarityModule } from '@clr/angular';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
-import { AppEffects } from './app.effects';
 import { StoreRouterConnectingModule } from '@ngrx/router-store';
 import { reducers } from "./stores/app.reducers";
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { environment } from '../environments/environment';
+import {AuthService} from "./services/auth/auth.service";
+import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
+import {FormsModule} from "@angular/forms";
+import {AuthEffects} from "./stores/auth/auth.effects";
+import {CsrfInterceptor} from "./services/interceptors/csrf.interceptor";
+import {UnauthorizedInterceptor} from "./services/interceptors/unauthorized.interceptor";
+import {AuthGuardService} from "./services/guards/authGuard.service";
+import {LogInGuardService} from "./services/guards/logInGuard.service";
 
 @NgModule({
   declarations: [
@@ -30,13 +37,21 @@ import { environment } from '../environments/environment';
     BrowserModule,
     AppRoutingModule,
     ClarityModule,
+    FormsModule,
     BrowserAnimationsModule,
+    HttpClientModule,
     StoreModule.forRoot(reducers),
-    EffectsModule.forRoot([AppEffects]),
+    EffectsModule.forRoot([AuthEffects]),
     StoreRouterConnectingModule.forRoot(),
     !environment.production ? StoreDevtoolsModule.instrument() : []
   ],
-  providers: [],
+  providers: [
+    AuthService,
+    AuthGuardService,
+    LogInGuardService,
+    {provide: HTTP_INTERCEPTORS, useClass: CsrfInterceptor, multi: true},
+    {provide: HTTP_INTERCEPTORS, useClass: UnauthorizedInterceptor, multi: true},
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -1,1 +1,31 @@
-<p>login works!</p>
+<div class="content-container">
+  <div class="content-area">
+
+    <form (ngSubmit)="onSubmit()" ngNativeValidate>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input
+          [(ngModel)]="form.username"
+          name="email"
+          type="text"
+          required
+          class="form-control"
+          id="email"
+          placeholder="enter your email">
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input
+          [(ngModel)]="form.password"
+          name="password"
+          type="password"
+          required
+          class="form-control"
+          id="password"
+          placeholder="enter a password">
+      </div>
+      <button type="submit" class="btn btn-primary">Submit</button>
+      <a [routerLink]="['/']" class="btn btn-success">Cancel</a>
+    </form>
+  </div>
+</div>

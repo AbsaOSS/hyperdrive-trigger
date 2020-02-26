@@ -1,0 +1,16 @@
+{
+  "/api": {
+    "target": "http://localhost:7123",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "info"
+  },
+  "/api/login": {
+    "target": "http://localhost:7123",
+    "secure": false
+  },
+  "/api/logout": {
+    "target": "http://localhost:7123",
+    "secure": false
+  }
+}
