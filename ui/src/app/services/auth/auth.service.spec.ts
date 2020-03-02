@@ -15,11 +15,12 @@
 
 import { TestBed } from '@angular/core/testing';
 
-import { AuthService } from './auth.service';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import {AuthService} from './auth.service';
+import {HttpClientTestingModule, HttpTestingController} from '@angular/common/http/testing';
 
 describe('AuthService', () => {
-  let service: AuthService;
+  let underTest: AuthService;
+  let httpTestingController: HttpTestingController;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -30,10 +31,53 @@ describe('AuthService', () => {
         HttpClientTestingModule
       ]
     });
-    service = TestBed.inject(AuthService);
+    underTest = TestBed.inject(AuthService);
+    httpTestingController = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => {
+    httpTestingController.verify();
   });
 
   it('should be created', () => {
-    expect(service).toBeTruthy();
+    expect(underTest).toBeTruthy();
   });
+
+  it('should return the user name', () => {
+    const username = 'the-username';
+
+    underTest.getUserInfo()
+      .subscribe(
+        data => expect(data).toEqual(username),
+        error => fail(error)
+      );
+
+    const req = httpTestingController.expectOne('/api/user/info');
+    expect(req.request.method).toEqual('GET');
+    req.flush({ username: username } );
+  });
+
+  it('should login', () => {
+    const testToken = 'the-test-token';
+
+    underTest.login('username', 'password')
+      .subscribe(
+        data => expect(data).toEqual(testToken),
+        error => fail(error)
+      );
+
+    const req = httpTestingController.expectOne('/api/login');
+    expect(req.request.method).toEqual('POST');
+    req.flush({}, { headers: { 'X-CSRF-TOKEN': testToken } } );
+  });
+
+  it ('should logout', () => {
+    underTest.logout()
+      .subscribe(
+        data => expect(data).toBeNull(),
+        error => fail(error)
+      );
+    const req = httpTestingController.expectOne('/api/logout');
+    expect(req.request.method).toEqual('POST');
+  })
 });

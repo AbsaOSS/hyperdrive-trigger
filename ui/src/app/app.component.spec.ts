@@ -23,7 +23,7 @@ import * as fromApp from './stores/app.reducers';
 describe('AppComponent', () => {
   let mockStore: MockStore<fromApp.AppState>;
   const initialAuthState = {
-    username: 'test',
+    username: 'test-user',
     isAuthenticated: true,
     authenticationFailed: false
   };
@@ -53,23 +53,28 @@ describe('AppComponent', () => {
   it('should create the app', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
+
     const app = fixture.componentInstance;
     expect(app).toBeTruthy();
   });
 
-  it('should render the title', () => {
+  it('should render the title and the username', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
+
     const compiled = fixture.nativeElement;
     expect(compiled.querySelector('.title').textContent).toBe('Hyperdrive');
+    expect(compiled.querySelector('.header-actions').textContent).toContain('test-user');
   });
 
-  it('should not render the title if user is not authenticated', () => {
+  it('should render neither the title nor the username if the user is not authenticated', () => {
     const fixture = TestBed.createComponent(AppComponent);
     mockStore.overrideSelector('auth', {...initialAuthState, isAuthenticated: false});
     mockStore.refreshState();
     fixture.detectChanges();
+
     const compiled = fixture.nativeElement;
     expect(compiled.querySelector('.title')).toBeFalsy();
+    expect(compiled.querySelector('.header-actions')).toBeFalsy();
   });
 });
