@@ -24,6 +24,8 @@ import {CsrfInterceptor} from "./services/interceptors/csrf.interceptor";
 import {UnauthorizedInterceptor} from "./services/interceptors/unauthorized.interceptor";
 import {AuthGuardService} from "./services/guards/authGuard.service";
 import {LogInGuardService} from "./services/guards/logInGuard.service";
+import {DagRunDetailComponent} from "./components/runs/run-detail/run-detail.component";
+import {RunsEffects} from "./stores/runs/runs.effects";
 
 @NgModule({
   declarations: [
@@ -31,7 +33,8 @@ import {LogInGuardService} from "./services/guards/logInGuard.service";
     HomeComponent,
     LoginComponent,
     WorkflowsComponent,
-    RunsComponent
+    RunsComponent,
+    DagRunDetailComponent
   ],
   imports: [
     BrowserModule,
@@ -41,7 +44,7 @@ import {LogInGuardService} from "./services/guards/logInGuard.service";
     BrowserAnimationsModule,
     HttpClientModule,
     StoreModule.forRoot(reducers),
-    EffectsModule.forRoot([AuthEffects]),
+    EffectsModule.forRoot([AuthEffects, RunsEffects]),
     StoreRouterConnectingModule.forRoot(),
     !environment.production ? StoreDevtoolsModule.instrument() : []
   ],

@@ -15,9 +15,13 @@
 
 package za.co.absa.hyperdrive.trigger.persistance
 
+import java.time.LocalDateTime
+
 import org.springframework.stereotype
+import slick.dbio.Effect
+import slick.sql.FixedSqlStreamingAction
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
-import za.co.absa.hyperdrive.trigger.models.{DagInstance, DagInstanceJoined, Event}
+import za.co.absa.hyperdrive.trigger.models.{DagInstance, DagInstanceForFilter, DagInstanceJoined, DagInstancesFilter, DagInstancesFilterResult, Event, Workflow}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -29,6 +33,8 @@ trait DagInstanceRepository extends Repository {
   def getDagsToRun(runningIds: Seq[Long], size: Int)(implicit executionContext: ExecutionContext): Future[Seq[DagInstance]]
 
   def update(dagInstance: DagInstance): Future[Unit]
+
+  def filterDagInstances(dagInstancesFilter: DagInstancesFilter)(implicit ec: ExecutionContext): Future[DagInstancesFilterResult]
 }
 
 @stereotype.Repository
@@ -71,5 +77,34 @@ class DagInstanceRepositoryImpl extends DagInstanceRepository {
   override def update(dagInstance: DagInstance): Future[Unit] = db.run(
     dagInstanceTable.filter(_.id === dagInstance.id).update(dagInstance).andThen(DBIO.successful((): Unit))
   )
+
+  override def filterDagInstances(dagInstancesFilter: DagInstancesFilter)(implicit ec: ExecutionContext): Future[DagInstancesFilterResult] = {
+    val xxx = (for {
+      di <- dagInstanceTable.sortBy(_.id).drop(dagInstancesFilter.pageFrom).take(dagInstancesFilter.pageSize)
+      w <- workflowTable if w.id === di.workflowId
+    } yield {
+      (di,w,jobInstanceTable.filter(_.dagInstanceId === di.id).length)
+    }).result.map(yyy => yyy)
+    val zzz = dagInstanceTable.length.result.map(yyy=>yyy)
+
+    val eee = db.run(zzz.flatMap{qqq => xxx.map(www => (qqq, www))})
+    val result = eee.map{ rrr =>
+      DagInstancesFilterResult(
+        dagInstances = rrr._2.map { asd =>
+          DagInstanceForFilter(
+            id = asd._1.id,
+            workflowName = asd._2.name,
+            projectName = asd._2.project,
+            jobCount = asd._3,
+            status = asd._1.status.name,
+            started = LocalDateTime.now(),
+            finished = Option(LocalDateTime.now())
+          )
+        },
+        total = rrr._1
+      )
+    }
+    return result
+  }
 
 }
