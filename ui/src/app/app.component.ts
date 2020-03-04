@@ -3,6 +3,7 @@ import {Store} from "@ngrx/store";
 import {Subscription} from "rxjs";
 import * as AuthActions from './stores/auth/auth.actions';
 import * as fromApp from './stores/app.reducers';
+import {absoluteRoutes} from './app.constants';
 
 @Component({
   selector: 'app-root',
@@ -10,7 +11,7 @@ import * as fromApp from './stores/app.reducers';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit, OnDestroy {
-
+  routes = absoluteRoutes;
   authStateSubscription: Subscription;
   isAuthenticated: boolean;
   username: string;

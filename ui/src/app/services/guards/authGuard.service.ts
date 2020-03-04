@@ -19,6 +19,7 @@ import {Store} from "@ngrx/store";
 import {AppState} from "../../stores/app.reducers";
 import {map, take} from "rxjs/operators";
 import {Observable} from "rxjs";
+import {absoluteRoutes} from '../../app.constants';
 
 @Injectable()
 export class AuthGuardService implements CanActivate {
@@ -29,7 +30,7 @@ export class AuthGuardService implements CanActivate {
       take(1),
       map(state => {
         if (!state.isAuthenticated) {
-          this.router.navigateByUrl('/login');
+          this.router.navigateByUrl(absoluteRoutes.LOGIN);
           return false;
         }
         return true;

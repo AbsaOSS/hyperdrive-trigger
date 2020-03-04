@@ -6,14 +6,15 @@ import {WorkflowsComponent} from "./components/workflows/workflows.component";
 import {RunsComponent} from "./components/runs/runs.component";
 import {AuthGuardService} from "./services/guards/authGuard.service";
 import {LogInGuardService} from "./services/guards/logInGuard.service";
+import {routeNames} from './app.constants';
 
 
 const routes: Routes = [
-  {path: '', redirectTo: 'home', pathMatch: 'full', canActivate: [AuthGuardService]},
-  {path: 'login', component: LoginComponent, canActivate: [LogInGuardService]},
-  {path: 'home', component: HomeComponent, canActivate: [AuthGuardService]},
-  {path: 'workflows', component: WorkflowsComponent, canActivate: [AuthGuardService]},
-  {path: 'runs', component: RunsComponent, canActivate: [AuthGuardService]}
+  {path: routeNames.DEFAULT, redirectTo: routeNames.HOME, pathMatch: 'full', canActivate: [AuthGuardService]},
+  {path: routeNames.LOGIN, component: LoginComponent, canActivate: [LogInGuardService]},
+  {path: routeNames.HOME, component: HomeComponent, canActivate: [AuthGuardService]},
+  {path: routeNames.WORKFLOWS, component: WorkflowsComponent, canActivate: [AuthGuardService]},
+  {path: routeNames.RUNS, component: RunsComponent, canActivate: [AuthGuardService]}
 ];
 
 @NgModule({

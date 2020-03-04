@@ -2,7 +2,7 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../stores/app.reducers";
 import {Login} from "../../stores/auth/auth.actions";
-import {Observable, Subscription} from "rxjs";
+import {Subscription} from "rxjs";
 
 @Component({
   selector: 'app-login',

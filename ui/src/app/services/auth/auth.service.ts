@@ -17,6 +17,7 @@ import {Injectable} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {map} from "rxjs/operators";
+import {api} from '../../app.constants';
 
 @Injectable()
 export class AuthService {
@@ -26,7 +27,7 @@ export class AuthService {
   }
 
   getUserInfo(): Observable<string> {
-    return this.httpClient.get<{ username: string }>('/api/user/info', {}).pipe(
+    return this.httpClient.get<{ username: string }>(api.USER_INFO, {}).pipe(
       map(_ => _.username)
     );
   }
@@ -36,7 +37,7 @@ export class AuthService {
     body.append('username', username);
     body.append('password', password);
     return this.httpClient.post(
-      '/api/login',
+      api.LOGIN,
       body,
       {
         observe: 'response'
@@ -47,7 +48,7 @@ export class AuthService {
   }
 
   logout() {
-    return this.httpClient.post('/api/logout', {});
+    return this.httpClient.post(api.LOGOUT, {});
   }
 
 }

@@ -20,6 +20,7 @@ import {Router} from "@angular/router";
 import {Observable} from "rxjs";
 import * as AuthActions from './auth.actions';
 import {switchMap, tap, mergeMap, catchError} from "rxjs/operators";
+import {absoluteRoutes} from '../../app.constants';
 
 @Injectable()
 export class AuthEffects {
@@ -55,7 +56,7 @@ export class AuthEffects {
     tap((action: AuthActions.LoginSuccess) => {
       localStorage.setItem('csrf-token', action.payload.token);
       localStorage.setItem('username', action.payload.username);
-      this.router.navigateByUrl('/');
+      this.router.navigateByUrl(absoluteRoutes.DEFAULT);
     })
   );
 
@@ -70,7 +71,7 @@ export class AuthEffects {
   logOutSuccess: Observable<any> = this.actions.pipe(
     ofType(AuthActions.LOGOUT_SUCCESS),
     tap(_ => {
-      this.router.navigateByUrl('/login');
+      this.router.navigateByUrl(absoluteRoutes.LOGIN);
       localStorage.removeItem('csrf-token');
       localStorage.removeItem('username');
     })
