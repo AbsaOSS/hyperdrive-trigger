@@ -35,3 +35,8 @@ export const api = {
   LOGIN: '/api/login',
   LOGOUT: '/api/logout',
 };
+
+export const localStorageKeys = {
+  CSRF_TOKEN: 'csrf-token',
+  USERNAME: 'username',
+};
