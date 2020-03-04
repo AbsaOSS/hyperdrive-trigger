@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Store} from "@ngrx/store";
-import {AppState} from "../../stores/app.reducers";
+import {AppState, selectAuthState} from "../../stores/app.reducers";
 import {Login} from "../../stores/auth/auth.actions";
 import {Subscription} from "rxjs";
 
@@ -21,7 +21,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   constructor(private store: Store<AppState>) {}
 
   ngOnInit(): void {
-    this.authStateSubscription = this.store.select('auth').subscribe((state) => {
+    this.authStateSubscription = this.store.select(selectAuthState).subscribe((state) => {
       this.authenticationFailed = state.authenticationFailed;
     });
   }
