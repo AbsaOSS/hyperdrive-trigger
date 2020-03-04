@@ -16,9 +16,10 @@
 import { TestBed } from '@angular/core/testing';
 import { provideMockStore, MockStore } from '@ngrx/store/testing';
 import { cold } from 'jasmine-marbles';
-import {AuthGuardService} from './authGuard.service';
 import {RouterTestingModule} from '@angular/router/testing';
 import {LogInGuardService} from './logInGuard.service';
+import {absoluteRoutes} from '../../constants/routes.constants';
+import {selectAuthState} from '../../stores/app.reducers';
 
 describe('LoginGuard Service', () => {
   let underTest: LogInGuardService;
@@ -44,15 +45,15 @@ describe('LoginGuard Service', () => {
   });
 
   it('should redirect and return false if the user is authenticated', () => {
-    store.overrideSelector('auth', {...initialAuthState, isAuthenticated: true});
+    store.overrideSelector(selectAuthState, {...initialAuthState, isAuthenticated: true});
 
     const expected = cold('(a|)', { a: false });
     expect(underTest.canActivate()).toBeObservable(expected);
-    expect(underTest.router.navigateByUrl).toHaveBeenCalledWith('/')
+    expect(underTest.router.navigateByUrl).toHaveBeenCalledWith(absoluteRoutes.DEFAULT)
   });
 
   it('should return true if the user is not authenticated', () => {
-    store.overrideSelector('auth', {...initialAuthState, isAuthenticated: false});
+    store.overrideSelector(selectAuthState, {...initialAuthState, isAuthenticated: false});
 
     const expected = cold('(a|)', { a: true });
     expect(underTest.canActivate()).toBeObservable(expected);

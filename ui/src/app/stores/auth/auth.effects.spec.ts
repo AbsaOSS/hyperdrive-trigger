@@ -8,9 +8,12 @@ import {Actions} from '@ngrx/effects';
 import {AuthService} from '../../services/auth/auth.service';
 import * as AuthActions from "./auth.actions";
 import {Login, LoginSuccess, Logout, LogoutSuccess} from './auth.actions';
-import {cold, hot} from 'jasmine-marbles';
+import {cold} from 'jasmine-marbles';
 import {HttpClientTestingModule} from '@angular/common/http/testing';
 import {RouterTestingModule} from '@angular/router/testing';
+import {absoluteRoutes} from '../../constants/routes.constants';
+import {localStorageKeys} from '../../constants/localStorage.constants';
+import {routeNames} from '../../constants/routes.constants';
 
 describe('AuthEffects', () => {
   let underTest: AuthEffects;
@@ -113,9 +116,9 @@ describe('AuthEffects', () => {
       mockActions = cold('-a', {a: action});
 
       expect(underTest.logInSuccess).toBeObservable(mockActions);
-      expect(router.navigateByUrl).toHaveBeenCalledWith('/');
-      expect(localStorage.setItem).toHaveBeenCalledWith('username', 'test');
-      expect(localStorage.setItem).toHaveBeenCalledWith('csrf-token', '1234');
+      expect(router.navigateByUrl).toHaveBeenCalledWith(absoluteRoutes.DEFAULT);
+      expect(localStorage.setItem).toHaveBeenCalledWith(localStorageKeys.USERNAME, 'test');
+      expect(localStorage.setItem).toHaveBeenCalledWith(localStorageKeys.CSRF_TOKEN, '1234');
     });
   });
 
@@ -152,9 +155,9 @@ describe('AuthEffects', () => {
       mockActions = cold('-a', {a: action});
 
       expect(underTest.logOutSuccess).toBeObservable(mockActions);
-      expect(router.navigateByUrl).toHaveBeenCalledWith('/login');
-      expect(localStorage.removeItem).toHaveBeenCalledWith('username');
-      expect(localStorage.removeItem).toHaveBeenCalledWith('csrf-token');
+      expect(router.navigateByUrl).toHaveBeenCalledWith(absoluteRoutes.LOGIN);
+      expect(localStorage.removeItem).toHaveBeenCalledWith(localStorageKeys.USERNAME);
+      expect(localStorage.removeItem).toHaveBeenCalledWith(localStorageKeys.CSRF_TOKEN);
     });
   });
 

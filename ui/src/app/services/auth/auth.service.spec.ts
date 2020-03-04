@@ -17,6 +17,7 @@ import { TestBed } from '@angular/core/testing';
 
 import {AuthService} from './auth.service';
 import {HttpClientTestingModule, HttpTestingController} from '@angular/common/http/testing';
+import {api} from '../../constants/api.constants';
 
 describe('AuthService', () => {
   let underTest: AuthService;
@@ -52,7 +53,7 @@ describe('AuthService', () => {
         error => fail(error)
       );
 
-    const req = httpTestingController.expectOne('/api/user/info');
+    const req = httpTestingController.expectOne(api.USER_INFO);
     expect(req.request.method).toEqual('GET');
     req.flush({ username: username } );
   });
@@ -66,7 +67,7 @@ describe('AuthService', () => {
         error => fail(error)
       );
 
-    const req = httpTestingController.expectOne('/api/login');
+    const req = httpTestingController.expectOne(api.LOGIN);
     expect(req.request.method).toEqual('POST');
     req.flush({}, { headers: { 'X-CSRF-TOKEN': testToken } } );
   });
@@ -77,7 +78,7 @@ describe('AuthService', () => {
         data => expect(data).toBeNull(),
         error => fail(error)
       );
-    const req = httpTestingController.expectOne('/api/logout');
+    const req = httpTestingController.expectOne(api.LOGOUT);
     expect(req.request.method).toEqual('POST');
   })
 });

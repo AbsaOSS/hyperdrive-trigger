@@ -19,6 +19,7 @@ import { ClarityModule } from '@clr/angular';
 import { provideMockStore, MockStore } from '@ngrx/store/testing';
 import { AppComponent } from './app.component';
 import * as fromApp from './stores/app.reducers';
+import {selectAuthState} from './stores/app.reducers';
 
 describe('AppComponent', () => {
   let mockStore: MockStore<fromApp.AppState>;
@@ -69,7 +70,7 @@ describe('AppComponent', () => {
 
   it('should render neither the title nor the username if the user is not authenticated', () => {
     const fixture = TestBed.createComponent(AppComponent);
-    mockStore.overrideSelector('auth', {...initialAuthState, isAuthenticated: false});
+    mockStore.overrideSelector(selectAuthState, {...initialAuthState, isAuthenticated: false});
     mockStore.refreshState();
     fixture.detectChanges();
 
