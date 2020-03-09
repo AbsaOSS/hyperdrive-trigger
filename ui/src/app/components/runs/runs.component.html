@@ -1,68 +1,61 @@
-<div class="content-container">
-  <div class="content-area">
+<clr-datagrid (clrDgRefresh)="refresh($event)" [clrDgLoading]="loading">
 
-    <clr-datagrid (clrDgRefresh)="refresh($event)" [clrDgLoading]="loading" >
+  <clr-dg-action-bar>
+    <div class="btn-group">
+      <button type="button" class="btn btn-sm btn-secondary" (click)="clear()"><clr-icon shape="trash"></clr-icon> Clear filters and sorts </button>
+      <button type="button" class="btn btn-sm btn-secondary" (click)="refreshRefresh()"><clr-icon shape="refresh"></clr-icon> Refresh </button>
+    </div>
+  </clr-dg-action-bar>
 
-      <clr-dg-action-bar>
-        <div class="btn-group">
-          <button type="button" class="btn btn-sm btn-secondary"><clr-icon shape="trash"></clr-icon> Clear sort </button>
-          <button type="button" class="btn btn-sm btn-secondary"><clr-icon shape="trash"></clr-icon> Clear filter </button>
-          <button type="button" class="btn btn-sm btn-secondary"><clr-icon shape="refresh"></clr-icon> Refresh </button>
-        </div>
-      </clr-dg-action-bar>
+  <clr-dg-column [clrDgField]="'workflowName'" [clrDgSortOrder]="sortOrder('workflowName')" [clrFilterValue]="filterOrder('workflowName')">
+    <ng-container *clrDgHideableColumn="{hidden: false}">Workflow name</ng-container>
+  </clr-dg-column>
+  <clr-dg-column [clrDgField]="'projectName'" [clrDgSortOrder]="sortOrder('projectName')" [clrFilterValue]="filterOrder('projectName')">
+    <ng-container *clrDgHideableColumn="{hidden: false}">Project name</ng-container>
+  </clr-dg-column>
+  <clr-dg-column [clrDgField]="'jobCount'" [clrDgSortOrder]="sortOrder('jobCount')" [clrFilterValue]="filterOrder('jobCount')">
+    <ng-container *clrDgHideableColumn="{hidden: false}">Job count</ng-container>
+  </clr-dg-column>
+  <clr-dg-column [clrDgField]="'started'" [clrDgSortOrder]="sortOrder('started')" [clrFilterValue]="filterOrder('started')">
+    <ng-container *clrDgHideableColumn="{hidden: false}">Started</ng-container>
+  </clr-dg-column>
+  <clr-dg-column [clrDgField]="'finished'" [clrDgSortOrder]="sortOrder('finished')" [clrFilterValue]="filterOrder('finished')">
+    <ng-container *clrDgHideableColumn="{hidden: false}">Finished</ng-container>
+  </clr-dg-column>
+  <clr-dg-column [clrDgField]="'status'" [clrDgSortOrder]="sortOrder('status')" [clrFilterValue]="filterOrder('status')">
+    <ng-container *clrDgHideableColumn="{hidden: false}">Status</ng-container>
+  </clr-dg-column>
+  <clr-dg-placeholder>We couldn't find any dag runs!</clr-dg-placeholder>
 
-      <clr-dg-column [clrDgField]="'workflowName'">
-        <ng-container *clrDgHideableColumn="{hidden: false}">Workflow name</ng-container>
-      </clr-dg-column>
-      <clr-dg-column [clrDgField]="'projectName'">
-        <ng-container *clrDgHideableColumn="{hidden: false}">Project name</ng-container>
-      </clr-dg-column>
-      <clr-dg-column [clrDgField]="'jobCount'">
-        <ng-container *clrDgHideableColumn="{hidden: false}">Job count</ng-container>
-      </clr-dg-column>
-      <clr-dg-column [clrDgField]="'started'">
-        <ng-container *clrDgHideableColumn="{hidden: false}">Started</ng-container>
-      </clr-dg-column>
-      <clr-dg-column [clrDgField]="'finished'">
-        <ng-container *clrDgHideableColumn="{hidden: false}">Finished</ng-container>
-      </clr-dg-column>
-      <clr-dg-column [clrDgField]="'status'">
-        <ng-container *clrDgHideableColumn="{hidden: false}">Status</ng-container>
-      </clr-dg-column>
-      <clr-dg-placeholder>We couldn't find any dag runs!</clr-dg-placeholder>
+  <clr-dg-row *ngFor="let dagRun of dagRuns" [clrDgItem]="dagRun">
+    <clr-dg-cell>{{dagRun.workflowName}}</clr-dg-cell>
+    <clr-dg-cell>{{dagRun.projectName}}</clr-dg-cell>
+    <clr-dg-cell>{{dagRun.jobCount}}</clr-dg-cell>
+    <clr-dg-cell>{{dagRun.started | date:'medium'}}</clr-dg-cell>
+    <clr-dg-cell>{{dagRun.finished | date:'medium'}}</clr-dg-cell>
+    <clr-dg-cell [ngSwitch]="dagRun.status">
+      <clr-icon *ngSwitchCase="'InQueue'" shape="clock" class="is-solid" style="color: grey"></clr-icon>
+      <clr-icon *ngSwitchCase="'Running'" shape="play" class="is-solid" style="color: blue"></clr-icon>
+      <clr-icon *ngSwitchCase="'Succeeded'" shape="success-standard" class="is-solid"
+                style="color: green"></clr-icon>
+      <clr-icon *ngSwitchCase="'Failed'" shape="error-standard" class="is-solid" style="color: red"></clr-icon>
+      <clr-icon *ngSwitchDefault shape="help" class="is-solid" style="color: darkgoldenrod"></clr-icon>
+      {{dagRun.status}}
+    </clr-dg-cell>
+  </clr-dg-row>
 
-      <clr-dg-row *ngFor="let dagRun of dagRuns" [clrDgItem]="dagRun">
-        <clr-dg-cell>{{dagRun.workflowName}}</clr-dg-cell>
-        <clr-dg-cell>{{dagRun.projectName}}</clr-dg-cell>
-        <clr-dg-cell>{{dagRun.jobCount}}</clr-dg-cell>
-        <clr-dg-cell>{{dagRun.started | date:'medium'}}</clr-dg-cell>
-        <clr-dg-cell>{{dagRun.finished | date:'medium'}}</clr-dg-cell>
-        <clr-dg-cell [ngSwitch]="dagRun.status">
-          <clr-icon *ngSwitchCase="'InQueue'" shape="clock" class="is-solid" style="color: grey"></clr-icon>
-          <clr-icon *ngSwitchCase="'Running'" shape="play" class="is-solid" style="color: blue"></clr-icon>
-          <clr-icon *ngSwitchCase="'Succeeded'" shape="success-standard" class="is-solid"
-                    style="color: green"></clr-icon>
-          <clr-icon *ngSwitchCase="'Failed'" shape="error-standard" class="is-solid" style="color: red"></clr-icon>
-          <clr-icon *ngSwitchDefault shape="help" class="is-solid" style="color: darkgoldenrod"></clr-icon>
-          {{dagRun.status}}
-        </clr-dg-cell>
-      </clr-dg-row>
+  <clr-dg-detail *clrIfDetail="let detail">
+    <clr-dg-detail-header>{{detail.workflowName}} ({{detail.projectName}}) - {{detail.started | date:'medium'}} - {{detail.finished | date:'medium'}}</clr-dg-detail-header>
+    <clr-dg-detail-body>
+      <app-run-detail [dagRunId]="detail.id"></app-run-detail>
+    </clr-dg-detail-body>
+  </clr-dg-detail>
 
-      <clr-dg-detail *clrIfDetail="let detail">
-        <clr-dg-detail-header>{{detail.workflowName}} ({{detail.projectName}}) - {{detail.started | date:'medium'}} - {{detail.finished | date:'medium'}}</clr-dg-detail-header>
-        <clr-dg-detail-body>
-          <app-run-detail [dagRunId]="detail.id"></app-run-detail>
-        </clr-dg-detail-body>
-      </clr-dg-detail>
-
-      <clr-dg-footer>
-        <clr-dg-pagination #pagination [clrDgPageSize]="10" [(clrDgPage)]="page"
-                           [clrDgTotalItems]="total"></clr-dg-pagination>
-        <clr-dg-page-size [clrPageSizeOptions]="[10,20,50,100]">Dag runs per page</clr-dg-page-size>
-        {{pagination.firstItem + 1}} - {{pagination.lastItem + 1}}
-        of {{total}} dag runs
-      </clr-dg-footer>
-    </clr-datagrid>
-
-  </div>
-</div>
+  <clr-dg-footer>
+    <clr-dg-pagination #pagination [clrDgPageSize]="50" [(clrDgPage)]="page"
+                       [clrDgTotalItems]="total"></clr-dg-pagination>
+    <clr-dg-page-size [clrPageSizeOptions]="[50,100,150,200,250]">Dag runs per page</clr-dg-page-size>
+    {{pagination.firstItem + 1}} - {{pagination.lastItem + 1}}
+    of {{total}} dag runs
+  </clr-dg-footer>
+</clr-datagrid>

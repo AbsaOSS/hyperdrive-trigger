@@ -13,27 +13,9 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models
-
-import java.time.LocalDateTime
-
-
-case class DagInstancesFilter(
-  pageFrom: Int,
-  pageSize: Int
-)
-
-case class DagInstanceForFilter(
-  workflowName: String,
-  projectName: String,
-  jobCount: Int,
-  status: String,
-  started: LocalDateTime,
-  finished: Option[LocalDateTime],
-  id: Long
-)
-
-case class DagInstancesFilterResult(
-  dagInstances: Seq[DagInstanceForFilter],
-  total: Int
-)
+enum RunStatusesEnum {
+  InQueue,
+  Running,
+  Succeeded,
+  Failed,
+}

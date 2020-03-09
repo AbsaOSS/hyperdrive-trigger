@@ -19,6 +19,7 @@ import {map} from "rxjs/operators";
 import {HttpClient, HttpParams} from "@angular/common/http";
 import {DagRunFilterResultModel, DagRunModel} from "../../models/dagRun.model";
 import {JobRunModel} from "../../models/dagRunDetail.model";
+import {Filter, Sort} from "../../components/runs/runs.component";
 
 @Injectable({
   providedIn: 'root'
@@ -27,20 +28,20 @@ export class DagRunService {
 
   constructor(private httpClient: HttpClient) { }
 
-  filterDagRuns(pageFrom: number, pageSize: number): Observable<DagRunFilterResultModel> {
+  filterDagRuns(pageFrom: number, pageSize: number, sort: Sort, filters: Filter[]): Observable<DagRunFilterResultModel> {
     const body = {
-      pageFrom: pageFrom,
-      pageSize: pageSize
+      from: pageFrom,
+      size: pageSize,
+      sort: sort
     };
     return this.httpClient.post<DagRunFilterResultModel>(
-      '/api/dagInstances/filter',
+      '/api/runs/search',
       body,
       {
         observe: 'response'
       }
     ).pipe(
       map( _ => {
-        console.log(_.body);
         return _.body
       })
     );
@@ -57,7 +58,6 @@ export class DagRunService {
       }
     ).pipe(
       map( _ => {
-        console.log(_.body);
         return _.body
       })
     ).toPromise();

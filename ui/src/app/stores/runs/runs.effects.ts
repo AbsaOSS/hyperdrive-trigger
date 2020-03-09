@@ -36,7 +36,9 @@ export class RunsEffects {
       console.log(action.payload.filters);
       console.log('Sorts:');
       console.log(action.payload.sort);
-      return this.dagRunService.filterDagRuns(action.payload.pageFrom, action.payload.pageSize).pipe(
+      return this.dagRunService.filterDagRuns(
+        action.payload.pageFrom, action.payload.pageSize, action.payload.sort, action.payload.filters
+      ).pipe(
         mergeMap((dagRunFilterResult: DagRunFilterResultModel) => {
           return [{
             type: RunActions.GET_DAG_RUNS_SUCCESS,

@@ -16,7 +16,7 @@
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
 import org.springframework.stereotype.Service
-import za.co.absa.hyperdrive.trigger.models.{OverallStatistics, PerDagStatistics, PerProjectStatistics, PerWorkflowStatistics}
+import za.co.absa.hyperdrive.trigger.models.{OverallStatistics, PerDagStatistics, PerProjectStatistics, PerWorkflowStatistics, RunSearchResult, RunsSearchRequest}
 import za.co.absa.hyperdrive.trigger.persistance.RunRepository
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -27,6 +27,7 @@ trait RunService {
   def getPerDagStatistics(workflowId: Long)(implicit ec: ExecutionContext): Future[Seq[PerDagStatistics]]
   def getPerProjectStatistics()(implicit ec: ExecutionContext): Future[Seq[PerProjectStatistics]]
   def getPerWorkflowStatistics(projectName: String)(implicit ec: ExecutionContext): Future[Seq[PerWorkflowStatistics]]
+  def searchRuns(runsSearchRequest: RunsSearchRequest)(implicit ec: ExecutionContext): Future[RunSearchResult]
 }
 
 @Service
@@ -46,6 +47,10 @@ class RunServiceImpl(override val runRepository: RunRepository) extends RunServi
 
   override def getPerWorkflowStatistics(projectName: String)(implicit ec: ExecutionContext): Future[Seq[PerWorkflowStatistics]] = {
     runRepository.getPerWorkflowStatistics(projectName)
+  }
+
+  override  def searchRuns(runsSearchRequest: RunsSearchRequest)(implicit ec: ExecutionContext): Future[RunSearchResult] = {
+    runRepository.searchRuns(runsSearchRequest)
   }
 
 }

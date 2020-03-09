@@ -23,7 +23,9 @@ export interface State {
   page: number
   loading: boolean
   sort: Sort
-  filters: Filter[]
+  filters: Filter[],
+  pageFrom: number,
+  pageSize: number
 }
 
 const initialState: State = {
@@ -32,15 +34,17 @@ const initialState: State = {
   page: 1,
   loading: true,
   sort: null,
-  filters: []
+  filters: [],
+  pageFrom: 0,
+  pageSize: 0
 };
 
 export function runsReducer(state: State = initialState, action: RunsActions.RunsActions) {
   switch (action.type) {
     case (RunsActions.GET_DAG_RUNS):
-      return {...state, loading: true, sort: action.payload.sort, filters: action.payload.filters};
+      return {...state, loading: true, pageFrom: action.payload.pageFrom, pageSize: action.payload.pageSize, sort: action.payload.sort, filters: action.payload.filters};
     case (RunsActions.GET_DAG_RUNS_SUCCESS):
-      return {...state, loading: false, total: action.payload.dagRuns.total, dagRuns: action.payload.dagRuns.dagInstances};
+      return {...state, loading: false, total: action.payload.dagRuns.total, dagRuns: action.payload.dagRuns.runs};
     case (RunsActions.GET_DAG_RUNS_FAILURE):
       return initialState;
     default:

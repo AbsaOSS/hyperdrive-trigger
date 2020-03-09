@@ -16,7 +16,8 @@
 package za.co.absa.hyperdrive.trigger.persistance
 
 import org.springframework.stereotype
-import za.co.absa.hyperdrive.trigger.models.{OverallStatistics, PerDagStatistics, PerProjectStatistics, PerWorkflowStatistics}
+import slick.lifted.{CanBeQueryCondition, ColumnOrdered}
+import za.co.absa.hyperdrive.trigger.models.{Filters, OverallStatistics, PerDagStatistics, PerProjectStatistics, PerWorkflowStatistics, RangeFilters, RunSearchResult, RunsSearchRequest}
 import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobStatuses}
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.{InQueue, Succeeded}
 
@@ -27,6 +28,7 @@ trait RunRepository extends Repository {
   def getPerDagStatistics(workflowId: Long)(implicit ec: ExecutionContext): Future[Seq[PerDagStatistics]]
   def getPerProjectStatistics()(implicit ec: ExecutionContext): Future[Seq[PerProjectStatistics]]
   def getPerWorkflowStatistics(projectName: String)(implicit ec: ExecutionContext): Future[Seq[PerWorkflowStatistics]]
+  def searchRuns(runsSearchRequest: RunsSearchRequest)(implicit ec: ExecutionContext): Future[RunSearchResult]
 }
 
 @stereotype.Repository
@@ -39,7 +41,7 @@ class RunRepositoryImpl extends RunRepository {
       jobInstanceTable.filter(_.jobStatus.inSet(JobStatuses.statuses.filter(_.isFailed))).size,
       jobInstanceTable.filter(_.jobStatus.inSet(JobStatuses.statuses.filter(_.isRunning))).size,
       jobInstanceTable.filter(_.jobStatus.inSet(Seq(InQueue))).size
-    ).result.map((OverallStatistics.apply _).tupled(_))
+      ).result.map((OverallStatistics.apply _).tupled(_))
   }
 
   override def getPerDagStatistics(workflowId: Long)(implicit ec: ExecutionContext): Future[Seq[PerDagStatistics]] = {
@@ -109,6 +111,39 @@ class RunRepositoryImpl extends RunRepository {
         )
       }).sortBy(_._2).result
     }.map(_.map((PerWorkflowStatistics.apply _).tupled(_)))
+  }
+
+  override def searchRuns(runsSearchRequest: RunsSearchRequest)(implicit ec: ExecutionContext): Future[RunSearchResult] = {
+    val definedFilters = runsSearchRequest.filters.getOrElse(Filters(None, None, None))
+    val definedRangeFilters = runsSearchRequest.rangeFilters.getOrElse(RangeFilters(None, None, None))
+    val filteredQuery = runTable
+      .filterOpt(definedFilters.byWorkflowName)((table, value) =>
+        table.workflowName like s"%${value}%")
+      .filterOpt(definedFilters.byProjectName)((table, value) =>
+        table.projectName like s"%${value}%")
+      .filterOpt(definedFilters.byStatus)((table, value) =>
+        table.status === value)
+      .filterOpt(definedRangeFilters.byJobCount)((table, value) =>
+        table.jobCount >= value.start && table.jobCount <= value.end)
+      .filterOpt(definedRangeFilters.byStartedDate)((table, value) =>
+        table.started >= value.start && table.started <= value.end)
+      .filterOpt(definedRangeFilters.byFinishedDate)((table, value) =>
+        table.finished >= value.start && table.finished <= value.end)
+
+    val length = filteredQuery.length.result
+    val result = filteredQuery
+      .sortBy(_.sortFields(runsSearchRequest.sort))
+      .drop(runsSearchRequest.from)
+      .take(runsSearchRequest.size).result
+
+    db.run {(
+      for {
+        l <- length
+        r <- result
+      } yield {
+        RunSearchResult(runs = r, total = l)
+      }
+    )}
   }
 
 }

@@ -19,28 +19,52 @@ import java.time.LocalDateTime
 
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses.DagInstanceStatus
 
-case class DagInstance(
-  status: DagInstanceStatus,
-  workflowId: Long,
+case class Run(
+  workflowName: String,
+  projectName: String,
+  jobCount: Int,
   started: LocalDateTime,
   finished: Option[LocalDateTime],
+  status: String,
   id: Long = 0
 )
 
-case class DagInstanceJoined(
-  status: DagInstanceStatus,
-  workflowId: Long,
-  jobInstances: Seq[JobInstance],
-  started: LocalDateTime,
-  finished: Option[LocalDateTime],
-  id: Long = 0
-){
-  def toDagInstance(): DagInstance = {
-    DagInstance(
-      status = this.status,
-      workflowId = this.workflowId,
-      started = this.started,
-      finished = this.finished
-    )
-  }
-}
+case class RunSearchResult(
+  runs: Seq[Run],
+  total: Int
+)
+
+case class RunsSearchRequest(
+  filters: Option[Filters],
+  rangeFilters: Option[RangeFilters],
+  sort: Option[Sort],
+  from: Int,
+  size: Int
+)
+
+case class Sort(
+  by: String,
+  order: Int
+)
+
+case class RangeFilters(
+  byJobCount: Option[IntRange],
+  byStartedDate: Option[DateTimeRange],
+  byFinishedDate: Option[DateTimeRange]
+)
+
+case class IntRange(
+  start: Int,
+  end: Int
+)
+
+case class DateTimeRange(
+  start: LocalDateTime,
+  end: LocalDateTime
+)
+
+case class Filters(
+  byWorkflowName: Option[String],
+  byProjectName: Option[String],
+  byStatus: Option[String]
+)

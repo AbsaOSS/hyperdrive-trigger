@@ -14,7 +14,7 @@
  */
 
 export class DagRunFilterResultModel {
-  dagInstances: DagRunModel[];
+  runs: DagRunModel[];
   total: number
 }
 
