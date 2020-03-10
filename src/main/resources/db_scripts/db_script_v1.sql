@@ -118,21 +118,21 @@ alter table "dag_instance"
   references "workflow"("id")
   on update NO ACTION on delete NO ACTION;
 
-CREATE VIEW run_view AS
-SELECT
-    dagInstance.id as id,
-    w.name as workflow_name,
-    w.project as project_name,
-    COALESCE(jobInstanceCount.count, 0) as job_count,
-    dagInstance.started as started,
-    dagInstance.finished as finished,
-    dagInstance.status as status
-FROM dag_instance as dagInstance
-         LEFT JOIN (
-            SELECT job_instance.dag_instance_id, count(1) as count
-            FROM job_instance
-            GROUP BY dag_instance_id
-        ) as jobInstanceCount
-        ON jobInstanceCount.dag_instance_id = dagInstance.id
-        LEFT JOIN workflow as w
-        ON w.id = dagInstance.workflow_id;
+create view "dag_run_view" AS
+select
+    dag_instance.id as "id",
+    workflow.name as "workflow_name",
+    workflow.project as "project_name",
+    COALESCE(jobInstanceCount.count, 0) as "job_count",
+    dag_instance.started as "started",
+    dag_instance.finished as "finished",
+    dag_instance.status as "status"
+from dag_instance
+left join (
+    select job_instance.dag_instance_id, count(1) as "count"
+    from job_instance
+    group by dag_instance_id
+) as jobInstanceCount
+    on jobInstanceCount.dag_instance_id = dag_instance.id
+left join workflow
+    on workflow.id = dag_instance.workflow_id;

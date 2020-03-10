@@ -13,40 +13,16 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models
+package za.co.absa.hyperdrive.trigger.models.dagRuns
 
-case class OverallStatistics(
-  successful: Int,
-  failed: Int,
-  running: Int,
-  queued: Int
-)
+import java.time.LocalDateTime
 
-case class PerWorkflowStatistics(
-  workflowId: Long,
+case class DagRun(
   workflowName: String,
-  isActive: Boolean,
-  total: Int,
-  successful: Int,
-  failed: Int,
-  queued: Int,
-  running: Int
-)
-
-case class PerDagStatistics(
-  dagId: Long,
-  total: Int,
-  successful: Int,
-  failed: Int,
-  queued: Int,
-  running: Int
-)
-
-case class PerProjectStatistics(
   projectName: String,
-  total: Int,
-  successful: Int,
-  failed: Int,
-  queued: Int,
-  running: Int
+  jobCount: Int,
+  started: LocalDateTime,
+  finished: Option[LocalDateTime],
+  status: String,
+  id: Long = 0
 )

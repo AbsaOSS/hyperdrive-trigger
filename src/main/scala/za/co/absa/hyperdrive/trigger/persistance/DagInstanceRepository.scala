@@ -15,13 +15,9 @@
 
 package za.co.absa.hyperdrive.trigger.persistance
 
-import java.time.LocalDateTime
-
 import org.springframework.stereotype
-import slick.dbio.Effect
-import slick.sql.FixedSqlStreamingAction
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
-import za.co.absa.hyperdrive.trigger.models.{DagInstance, DagInstanceJoined, Event, Workflow}
+import za.co.absa.hyperdrive.trigger.models.{DagInstance, DagInstanceJoined, Event}
 
 import scala.concurrent.{ExecutionContext, Future}
 

@@ -99,15 +99,15 @@ trait RepositoryTestBase extends Repository {
     val w3 = Workflow(name = "workflow3", isActive = false, project = "project2", created = LocalDateTime.now(), updated = None, id = 102)
     val workflows: Seq[Workflow] = Seq(w1, w2, w3)
 
-//    val w1di1 = DagInstance(status = DagInstanceStatuses.InQueue, workflowId = w1.id, id = 200)
-//    val w1di2 = DagInstance(status = DagInstanceStatuses.InQueue, workflowId = w1.id, id = 201)
-//    val w1di3 = DagInstance(status = DagInstanceStatuses.Running, workflowId = w1.id, id = 202)
-//    val w1di4 = DagInstance(status = DagInstanceStatuses.Succeeded, workflowId = w1.id, id = 203)
-//    val w1di5 = DagInstance(status = DagInstanceStatuses.Failed, workflowId = w1.id, id = 204)
-//    val w2di1 = DagInstance(status = DagInstanceStatuses.InQueue, workflowId = w2.id, id = 205)
-//    val w2di2 = DagInstance(status = DagInstanceStatuses.Running, workflowId = w2.id, id = 206)
-    val dagInstances: Seq[DagInstance] = Seq()
-    val runningDagInstances : Seq[DagInstance] = Seq()
+    val w1di1 = DagInstance(status = DagInstanceStatuses.InQueue, started = LocalDateTime.now(), finished = None, workflowId = w1.id, id = 200)
+    val w1di2 = DagInstance(status = DagInstanceStatuses.InQueue, started = LocalDateTime.now(), finished = None, workflowId = w1.id, id = 201)
+    val w1di3 = DagInstance(status = DagInstanceStatuses.Running, started = LocalDateTime.now(), finished = None, workflowId = w1.id, id = 202)
+    val w1di4 = DagInstance(status = DagInstanceStatuses.Succeeded, started = LocalDateTime.now(), finished = Some(LocalDateTime.now()), workflowId = w1.id, id = 203)
+    val w1di5 = DagInstance(status = DagInstanceStatuses.Failed, started = LocalDateTime.now(), finished = Some(LocalDateTime.now()), workflowId = w1.id, id = 204)
+    val w2di1 = DagInstance(status = DagInstanceStatuses.InQueue, started = LocalDateTime.now(), finished = None, workflowId = w2.id, id = 205)
+    val w2di2 = DagInstance(status = DagInstanceStatuses.Running, started = LocalDateTime.now(), finished = None, workflowId = w2.id, id = 206)
+    val dagInstances: Seq[DagInstance] = Seq(w1di1, w1di2, w1di3, w1di4, w1di5, w2di1, w2di2)
+    val runningDagInstances : Seq[DagInstance] = Seq(w1di3, w2di2)
   }
 
   object TestSensors {

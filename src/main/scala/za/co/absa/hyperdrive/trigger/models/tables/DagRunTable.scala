@@ -18,14 +18,13 @@ package za.co.absa.hyperdrive.trigger.models.tables
 import java.time.LocalDateTime
 
 import slick.lifted.{ColumnOrdered, ProvenShape}
-import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses.DagInstanceStatus
-import za.co.absa.hyperdrive.trigger.models.{Run, Sort}
+import za.co.absa.hyperdrive.trigger.models.dagRuns.{DagRun, Sort}
 
-trait RunTable {
+trait DagRunTable {
   this: Profile with JdbcTypeMapper =>
   import profile.api._
 
-  final class RunTable(tag: Tag) extends Table[Run](tag, _tableName = "run_view") {
+  final class DagRunTable(tag: Tag) extends Table[DagRun](tag, _tableName = "dag_run_view") {
     def workflowName: Rep[String] = column[String]("workflow_name")
     def projectName: Rep[String] = column[String]("project_name")
     def jobCount: Rep[Int] = column[Int]("job_count")
@@ -33,7 +32,7 @@ trait RunTable {
     def finished: Rep[Option[LocalDateTime]] = column[Option[LocalDateTime]]("finished")
     def status: Rep[String] = column[String]("status")
     def id: Rep[Long] = column[Long]("id", O.PrimaryKey, O.AutoInc, O.SqlType("BIGSERIAL"))
-    override def * : ProvenShape[Run] = (workflowName, projectName, jobCount, started, finished, status, id).mapTo[Run]
+    override def * : ProvenShape[DagRun] = (workflowName, projectName, jobCount, started, finished, status, id).mapTo[DagRun]
 
     private val sortFields = Map(
       "workflowName" -> this.workflowName,
@@ -53,5 +52,5 @@ trait RunTable {
 
   }
 
-  lazy val runTable = TableQuery[RunTable]
+  lazy val dagRunTable: TableQuery[DagRunTable] = TableQuery[DagRunTable]
 }

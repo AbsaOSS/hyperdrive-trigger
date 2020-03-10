@@ -13,28 +13,11 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models
+package za.co.absa.hyperdrive.trigger.models.dagRuns
 
 import java.time.LocalDateTime
 
-import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses.DagInstanceStatus
-
-case class Run(
-  workflowName: String,
-  projectName: String,
-  jobCount: Int,
-  started: LocalDateTime,
-  finished: Option[LocalDateTime],
-  status: String,
-  id: Long = 0
-)
-
-case class RunSearchResult(
-  runs: Seq[Run],
-  total: Int
-)
-
-case class RunsSearchRequest(
+case class DagRunsSearchRequest(
   filters: Option[Filters],
   rangeFilters: Option[RangeFilters],
   sort: Option[Sort],
@@ -68,3 +51,4 @@ case class Filters(
   byProjectName: Option[String],
   byStatus: Option[String]
 )
+

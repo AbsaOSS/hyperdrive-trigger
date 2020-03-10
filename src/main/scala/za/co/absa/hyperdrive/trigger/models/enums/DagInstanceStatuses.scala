@@ -19,17 +19,6 @@ object DagInstanceStatuses {
 
   sealed abstract class DagInstanceStatus(val name: String, val isFinalStatus: Boolean, val isFailed: Boolean, val isRunning: Boolean) {
     override def toString: String = name
-
-    final def apply(statusName: String): DagInstanceStatus = {
-      statuses.find(_.name == name).getOrElse(
-        throw new Exception(s"Couldn't find DagInstanceStatus: $name")
-      )
-    }
-
-    def unapply(arg: DagInstanceStatus): String = {
-      arg.name
-    }
-
   }
 
   case object InQueue extends DagInstanceStatus("InQueue", false, false, false)
@@ -41,12 +30,3 @@ object DagInstanceStatuses {
   val nonFinalStatuses: Set[DagInstanceStatus] = statuses.filter(!_.isFinalStatus)
 
 }
-
-//object Donut extends Enumeration {
-//  type Donut = Value
-//
-//  val Glazed      = Value("Glazed")
-//  val Strawberry  = Value("Strawberry")
-//  val Plain       = Value("Plain")
-//  val Vanilla     = Value("Vanilla")
-//}
