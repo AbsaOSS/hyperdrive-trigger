@@ -26,7 +26,6 @@ import {AuthGuardService} from "./services/guards/authGuard.service";
 import {LogInGuardService} from "./services/guards/logInGuard.service";
 import {DagRunDetailComponent} from "./components/runs/run-detail/run-detail.component";
 import {RunsEffects} from "./stores/runs/runs.effects";
-import { StatusFilterComponent } from './components/runs/filtes/status-filter/status-filter.component';
 
 @NgModule({
   declarations: [
@@ -35,8 +34,7 @@ import { StatusFilterComponent } from './components/runs/filtes/status-filter/st
     LoginComponent,
     WorkflowsComponent,
     RunsComponent,
-    DagRunDetailComponent,
-    StatusFilterComponent
+    DagRunDetailComponent
   ],
   imports: [
     BrowserModule,

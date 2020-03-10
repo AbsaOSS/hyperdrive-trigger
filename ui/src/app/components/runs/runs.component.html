@@ -2,27 +2,27 @@
 
   <clr-dg-action-bar>
     <div class="btn-group">
-      <button type="button" class="btn btn-sm btn-secondary" (click)="clear()"><clr-icon shape="trash"></clr-icon> Clear filters and sorts </button>
+      <button type="button" class="btn btn-sm btn-secondary" (click)="clearFiltersAndSort()"><clr-icon shape="trash"></clr-icon> Clear filters and sorts </button>
       <button type="button" class="btn btn-sm btn-secondary" (click)="refreshRefresh()"><clr-icon shape="refresh"></clr-icon> Refresh </button>
     </div>
   </clr-dg-action-bar>
 
-  <clr-dg-column [clrDgField]="'workflowName'" [clrDgSortOrder]="sortOrder('workflowName')" [clrFilterValue]="filterOrder('workflowName')">
+  <clr-dg-column [clrDgField]="'workflowName'">
     <ng-container *clrDgHideableColumn="{hidden: false}">Workflow name</ng-container>
   </clr-dg-column>
-  <clr-dg-column [clrDgField]="'projectName'" [clrDgSortOrder]="sortOrder('projectName')" [clrFilterValue]="filterOrder('projectName')">
+  <clr-dg-column [clrDgField]="'projectName'">
     <ng-container *clrDgHideableColumn="{hidden: false}">Project name</ng-container>
   </clr-dg-column>
-  <clr-dg-column [clrDgField]="'jobCount'" [clrDgSortOrder]="sortOrder('jobCount')" [clrFilterValue]="filterOrder('jobCount')">
+  <clr-dg-column [clrDgField]="'jobCount'">
     <ng-container *clrDgHideableColumn="{hidden: false}">Job count</ng-container>
   </clr-dg-column>
-  <clr-dg-column [clrDgField]="'started'" [clrDgSortOrder]="sortOrder('started')" [clrFilterValue]="filterOrder('started')">
+  <clr-dg-column [clrDgField]="'started'">
     <ng-container *clrDgHideableColumn="{hidden: false}">Started</ng-container>
   </clr-dg-column>
-  <clr-dg-column [clrDgField]="'finished'" [clrDgSortOrder]="sortOrder('finished')" [clrFilterValue]="filterOrder('finished')">
+  <clr-dg-column [clrDgField]="'finished'">
     <ng-container *clrDgHideableColumn="{hidden: false}">Finished</ng-container>
   </clr-dg-column>
-  <clr-dg-column [clrDgField]="'status'" [clrDgSortOrder]="sortOrder('status')" [clrFilterValue]="filterOrder('status')">
+  <clr-dg-column [clrDgField]="'status'">
     <ng-container *clrDgHideableColumn="{hidden: false}">Status</ng-container>
   </clr-dg-column>
   <clr-dg-placeholder>We couldn't find any dag runs!</clr-dg-placeholder>

@@ -1,10 +1,25 @@
-import {AfterViewInit, Component, Input, OnDestroy, QueryList, ViewChild, ViewChildren} from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  QueryList,
+  ViewChild,
+  ViewChildren
+} from '@angular/core';
 import {DagRunModel} from "../../models/dagRun.model";
-import {ClrDatagrid, ClrDatagridColumn, ClrDatagridSortOrder, ClrDatagridStateInterface} from "@clr/angular";
+import {
+  ClrDatagrid,
+  ClrDatagridColumn,
+  ClrDatagridFilterInterface,
+  ClrDatagridSortOrder,
+  ClrDatagridStateInterface
+} from "@clr/angular";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../stores/app.reducers";
 import {GetDagRuns} from "../../stores/runs/runs.actions";
-import {Subscription} from "rxjs";
+import {Subject, Subscription} from "rxjs";
 import {skip} from "rxjs/operators";
 
 @Component({
@@ -82,13 +97,13 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
   }
 
   filterOrder(name: string): string {
-    // console.log('filterOrder = ' + name);
     let filter  = !!this.filters ? this.filters.find(element => element.property == name) : null;
-    return !!filter ? filter.value : null;
+    // console.log('filterOrder = ' + name + '  - ' + filter);
+    return !!filter ? filter.value : "";
   }
 
   clearFiltersAndSort(): void {
-    console.log('clearFiltersAndSort');
+    // console.log('clearFiltersAndSort');
     this.store.dispatch(new GetDagRuns({
       pageFrom: this.pageFrom,
       pageSize: this.pageSize,
@@ -113,4 +128,3 @@ export class Filter {
   property: string;
   value: string;
 }
-
