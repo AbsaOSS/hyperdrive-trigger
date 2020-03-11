@@ -14,6 +14,7 @@
  */
 
 import * as AuthActions from "./auth.actions";
+import {localStorageKeys} from '../../constants/localStorage.constants';
 
 export interface State {
   username: string,
@@ -22,8 +23,8 @@ export interface State {
 }
 
 const initialState: State = {
-  username: localStorage.getItem('username'),
-  isAuthenticated: !!localStorage.getItem('csrf-token'),
+  username: localStorage.getItem(localStorageKeys.USERNAME),
+  isAuthenticated: !!localStorage.getItem(localStorageKeys.CSRF_TOKEN),
   authenticationFailed: false
 };
 

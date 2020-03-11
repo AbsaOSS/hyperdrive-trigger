@@ -8,7 +8,7 @@ import {DagRunService} from "../../../services/dagRun/dag-run.service";
   templateUrl: './run-detail.component.html',
   styleUrls: ['./run-detail.component.scss']
 })
-export class DagRunDetailComponent implements OnInit {
+export class RunDetailComponent implements OnInit {
   @Input('dagRunId') dagRunId: string;
   jobsRun: JobRunModel[];
   loading: boolean = true;
