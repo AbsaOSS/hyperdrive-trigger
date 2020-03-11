@@ -15,36 +15,67 @@
 
 import { TestBed, async } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
+import { ClarityModule } from '@clr/angular';
+import { provideMockStore, MockStore } from '@ngrx/store/testing';
 import { AppComponent } from './app.component';
+import * as fromApp from './stores/app.reducers';
+import {selectAuthState} from './stores/app.reducers';
 
 describe('AppComponent', () => {
+  let mockStore: MockStore<fromApp.AppState>;
+  const initialAuthState = {
+    username: 'test-user',
+    isAuthenticated: true,
+    authenticationFailed: false
+  };
+
+  const initialAppState = {
+    auth: initialAuthState,
+    runs: {}
+  };
+
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       imports: [
-        RouterTestingModule
+        RouterTestingModule,
+        ClarityModule
+      ],
+      providers: [
+        provideMockStore({ initialState: initialAppState })
       ],
       declarations: [
         AppComponent
       ],
     }).compileComponents();
+
+    mockStore = TestBed.inject(MockStore);
   }));
 
   it('should create the app', () => {
     const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+
     const app = fixture.componentInstance;
     expect(app).toBeTruthy();
   });
 
-  it(`should have as title 'ui'`, () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app.title).toEqual('ui');
-  });
-
-  it('should render title', () => {
+  it('should render the title and the username', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
+
     const compiled = fixture.nativeElement;
-    expect(compiled.querySelector('.content span').textContent).toContain('ui app is running!');
+    expect(compiled.querySelector('.title').textContent).toBe('Hyperdrive');
+    expect(compiled.querySelector('.header-actions').textContent).toContain('test-user');
+  });
+
+  it('should render neither the title nor the username if the user is not authenticated', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    mockStore.overrideSelector(selectAuthState, {...initialAuthState, isAuthenticated: false});
+    mockStore.refreshState();
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement;
+    expect(compiled.querySelector('.title')).toBeFalsy();
+    expect(compiled.querySelector('.header-actions')).toBeFalsy();
   });
 });

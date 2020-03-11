@@ -14,18 +14,41 @@
  */
 
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { provideMockStore, MockStore } from '@ngrx/store/testing';
+import { ClarityModule } from '@clr/angular';
+import { FormsModule } from '@angular/forms';
 import { LoginComponent } from './login.component';
+import * as fromApp from '../../stores/app.reducers';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
   let fixture: ComponentFixture<LoginComponent>;
+  let mockStore: MockStore<fromApp.AppState>;
+  const initialAuthState = {
+    username: 'test',
+    isAuthenticated: false,
+    authenticationFailed: false
+  };
+
+  const initialAppState = {
+    auth: initialAuthState,
+    runs: {}
+  };
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ LoginComponent ]
+      providers: [
+        provideMockStore({ initialState: initialAppState })
+      ],
+      declarations: [ LoginComponent ],
+      imports: [
+        ClarityModule,
+        FormsModule
+      ]
     })
     .compileComponents();
+
+    mockStore = TestBed.inject(MockStore);
   }));
 
   beforeEach(() => {
