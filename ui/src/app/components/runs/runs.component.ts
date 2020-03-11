@@ -1,26 +1,16 @@
 import {
   AfterViewInit,
-  Component, ElementRef,
-  EventEmitter,
-  Input,
-  OnDestroy,
-  QueryList,
-  ViewChild,
-  ViewChildren
+  Component,
+  OnDestroy
 } from '@angular/core';
 import {DagRunModel} from "../../models/dagRun.model";
-import {
-  ClrDatagrid,
-  ClrDatagridColumn,
-  ClrDatagridFilterInterface,
-  ClrDatagridSortOrder,
-  ClrDatagridStateInterface
-} from "@clr/angular";
+import {ClrDatagridStateInterface} from "@clr/angular";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../stores/app.reducers";
 import {GetDagRuns} from "../../stores/runs/runs.actions";
-import {Subject, Subscription} from "rxjs";
+import {Subscription} from "rxjs";
 import {skip} from "rxjs/operators";
+import {Filter, Sort} from "../../models/dagRunSearch.model";
 
 @Component({
   selector: 'app-runs',
@@ -66,19 +56,4 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
     }));
   }
 
-}
-
-export class Sort {
-  by: string;
-  order: number;
-
-  constructor(by: string, order: number) {
-    this.by = by;
-    this.order = order;
-  }
-}
-
-export class Filter {
-  property: string;
-  value: string;
 }
