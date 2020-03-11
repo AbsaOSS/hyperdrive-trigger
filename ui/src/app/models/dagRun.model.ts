@@ -27,18 +27,3 @@ export class DagRunModel {
   finished: Date;
   id: number;
 }
-
-
-// case class DagInstanceForFilter(
-//   workflowName: String,
-//   projectName: String,
-//   jobCount: Int,
-//   status: String,
-//   started: LocalDateTime,
-//   finished: Option[LocalDateTime]
-// )
-//
-// case class DagInstancesFilterResult(
-//   dagInstances: Seq[DagInstanceForFilter],
-//   total: Int
-// )

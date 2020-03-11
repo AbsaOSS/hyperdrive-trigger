@@ -1,6 +1,6 @@
 import {
   AfterViewInit,
-  Component,
+  Component, ElementRef,
   EventEmitter,
   Input,
   OnDestroy,
@@ -34,30 +34,16 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
   total: number = 0;
   loading: boolean = true;
   page: number = 1;
-  sort: Sort = null;
-  filters: Filter[] = [];
-  pageFrom: number;
-  pageSize: number;
+
+  state: ClrDatagridStateInterface;
 
   constructor(private store: Store<AppState>) {}
-
-  @ViewChildren(ClrDatagridColumn) columns: QueryList<ClrDatagridColumn>;
-
-  clear() {
-    this.columns.forEach(column => console.log(column.field));
-    this.columns.forEach(column => column.filterValue = "");
-    this.columns.forEach(column => column.sortOrder = 0);
-  }
 
   ngAfterViewInit(): void {
     this.runsSubscription = this.store.select('runs').pipe(skip(1)).subscribe((state) => {
       this.dagRuns = state.dagRuns;
       this.total = state.total;
       this.loading = state.loading;
-      this.sort = state.sort;
-      this.filters = state.filters;
-      this.pageFrom = state.pageFrom;
-      this.pageSize = state.pageSize;
     });
   }
 
@@ -65,13 +51,10 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
     this.runsSubscription.unsubscribe();
   }
 
-  refresh(state: ClrDatagridStateInterface) {
+  onClarityDgRefresh(state: ClrDatagridStateInterface) {
     let sort: Sort = state.sort ? new Sort(<string>state.sort.by, state.sort.reverse ? -1 : 1) : null;
-    if(this.sort && this.sort.by == sort.by && this.sort.order == -1 && sort.order == 1) {
-      sort = null
-    }
-
     let filters: Filter[] = state.filters ? state.filters.map(filter => <Filter> filter) : [];
+
     let pageFrom = state.page.from < 0 ? 0 : state.page.from;
     let pageSize = state.page.size;
 
@@ -80,35 +63,6 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
       pageSize: pageSize,
       sort: sort,
       filters: filters,
-    }));
-  }
-
-  refreshRefresh() {
-    this.store.dispatch(new GetDagRuns({
-      pageFrom: this.pageFrom,
-      pageSize: this.pageSize,
-      sort: this.sort,
-      filters: this.filters
-    }));
-  }
-
-  sortOrder(name: string): number {
-    return !!this.sort && this.sort.by == name ? this.sort.order : 0;
-  }
-
-  filterOrder(name: string): string {
-    let filter  = !!this.filters ? this.filters.find(element => element.property == name) : null;
-    // console.log('filterOrder = ' + name + '  - ' + filter);
-    return !!filter ? filter.value : "";
-  }
-
-  clearFiltersAndSort(): void {
-    // console.log('clearFiltersAndSort');
-    this.store.dispatch(new GetDagRuns({
-      pageFrom: this.pageFrom,
-      pageSize: this.pageSize,
-      sort: null,
-      filters: []
     }));
   }
 

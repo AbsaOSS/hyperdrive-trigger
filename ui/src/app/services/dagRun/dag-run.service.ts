@@ -35,7 +35,7 @@ export class DagRunService {
       sort: sort
     };
     return this.httpClient.post<DagRunFilterResultModel>(
-      '/api/runs/search',
+      '/api/dagRuns/search',
       body,
       {
         observe: 'response'

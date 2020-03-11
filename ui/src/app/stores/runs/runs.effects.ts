@@ -13,29 +13,21 @@
  * limitations under the License.
  */
 
-import {Action} from "@ngrx/store";
-import {DagRunFilterResultModel, DagRunModel} from "../../models/dagRun.model";
+import {DagRunFilterResultModel} from "../../models/dagRun.model";
 import {Injectable} from "@angular/core";
 import {Actions, Effect, ofType} from "@ngrx/effects";
-import {AuthService} from "../../services/auth/auth.service";
-import {Router} from "@angular/router";
 import * as RunActions from "../runs/runs.actions";
-import {catchError, map, mergeMap, switchMap, tap} from "rxjs/operators";
-import {Observable} from "rxjs";
+import {catchError, mergeMap, switchMap} from "rxjs/operators";
 import {DagRunService} from "../../services/dagRun/dag-run.service";
 
 @Injectable()
 export class RunsEffects {
-  constructor(private actions: Actions, private dagRunService: DagRunService, private router: Router) {}
+  constructor(private actions: Actions, private dagRunService: DagRunService) {}
 
   @Effect({dispatch: true})
   runsGet = this.actions.pipe(
     ofType(RunActions.GET_DAG_RUNS),
     switchMap((action: RunActions.GetDagRuns) => {
-      console.log('Filters:');
-      console.log(action.payload.filters);
-      console.log('Sorts:');
-      console.log(action.payload.sort);
       return this.dagRunService.filterDagRuns(
         action.payload.pageFrom, action.payload.pageSize, action.payload.sort, action.payload.filters
       ).pipe(

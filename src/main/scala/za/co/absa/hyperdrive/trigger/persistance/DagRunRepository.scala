@@ -16,10 +16,9 @@
 package za.co.absa.hyperdrive.trigger.persistance
 
 import org.springframework.stereotype
-import slick.lifted.{CanBeQueryCondition, ColumnOrdered}
-import za.co.absa.hyperdrive.trigger.models.dagRuns.{DagRunsSearchRequest, DagRunsSearchResponse, Filters, RangeFilters}
-import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobStatuses}
-import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.{InQueue, Succeeded}
+import slick.dbio.Effect
+import slick.sql.{FixedSqlAction, FixedSqlStreamingAction}
+import za.co.absa.hyperdrive.trigger.models.dagRuns.{DagRun, DagRunsSearchRequest, DagRunsSearchResponse, Filters, RangeFilters}
 
 import scala.concurrent.{ExecutionContext, Future}
 

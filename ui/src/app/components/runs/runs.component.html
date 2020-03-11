@@ -1,13 +1,14 @@
-<clr-datagrid (clrDgRefresh)="refresh($event)" [clrDgLoading]="loading">
+<clr-datagrid (clrDgRefresh)="onClarityDgRefresh($event)" [clrDgLoading]="loading">
 
   <clr-dg-action-bar>
     <div class="btn-group">
-      <button type="button" class="btn btn-sm btn-secondary" (click)="clearFiltersAndSort()"><clr-icon shape="trash"></clr-icon> Clear filters and sorts </button>
-      <button type="button" class="btn btn-sm btn-secondary" (click)="refreshRefresh()"><clr-icon shape="refresh"></clr-icon> Refresh </button>
+      <button type="button" class="btn btn-sm btn-secondary"><clr-icon shape="trash"></clr-icon> Clear filters </button>
+      <button type="button" class="btn btn-sm btn-secondary"><clr-icon shape="trash"></clr-icon> Clear sort </button>
+      <button type="button" class="btn btn-sm btn-secondary"><clr-icon shape="refresh"></clr-icon> Refresh </button>
     </div>
   </clr-dg-action-bar>
 
-  <clr-dg-column [clrDgField]="'workflowName'">
+  <clr-dg-column [clrDgField]="'workflowName'" [clrFilterValue]>
     <ng-container *clrDgHideableColumn="{hidden: false}">Workflow name</ng-container>
   </clr-dg-column>
   <clr-dg-column [clrDgField]="'projectName'">
@@ -36,8 +37,7 @@
     <clr-dg-cell [ngSwitch]="dagRun.status">
       <clr-icon *ngSwitchCase="'InQueue'" shape="clock" class="is-solid" style="color: grey"></clr-icon>
       <clr-icon *ngSwitchCase="'Running'" shape="play" class="is-solid" style="color: blue"></clr-icon>
-      <clr-icon *ngSwitchCase="'Succeeded'" shape="success-standard" class="is-solid"
-                style="color: green"></clr-icon>
+      <clr-icon *ngSwitchCase="'Succeeded'" shape="success-standard" class="is-solid" style="color: green"></clr-icon>
       <clr-icon *ngSwitchCase="'Failed'" shape="error-standard" class="is-solid" style="color: red"></clr-icon>
       <clr-icon *ngSwitchDefault shape="help" class="is-solid" style="color: darkgoldenrod"></clr-icon>
       {{dagRun.status}}
