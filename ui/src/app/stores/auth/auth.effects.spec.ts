@@ -135,15 +135,13 @@ describe('AuthEffects', () => {
       expect(underTest.logOut).toBeObservable(expected);
     });
 
-    it ('should not fail if authService.logout returns a failure', () => {
+    it ('should return a failure if authService.logout returns a failure', () => {
       const action = new Logout();
       mockActions = cold('-a', { a: action });
       const errorResponse = cold('-#|', { });
       spyOn(authService, 'logout').and.returnValue(errorResponse);
 
-      const expected = cold('--a', { a: {
-          type: AuthActions.LOGOUT_SUCCESS
-        }});
+      const expected = cold('--#', {});
       expect(underTest.logOut).toBeObservable(expected);
     });
   });
