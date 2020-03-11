@@ -18,7 +18,7 @@ import {Store} from "@ngrx/store";
 import {Subscription} from "rxjs";
 import * as AuthActions from './stores/auth/auth.actions';
 import * as fromApp from './stores/app.reducers';
-import {absoluteRoutes} from './app.constants';
+import {absoluteRoutes} from './constants/routes.constants';
 import {selectAuthState} from './stores/app.reducers';
 
 @Component({

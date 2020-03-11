@@ -14,7 +14,7 @@
  */
 
 import * as AuthActions from "./auth.actions";
-import {localStorageKeys} from '../../app.constants';
+import {localStorageKeys} from '../../constants/localStorage.constants';
 
 export interface State {
   username: string,

@@ -21,7 +21,7 @@ import {WorkflowsComponent} from "./components/workflows/workflows.component";
 import {RunsComponent} from "./components/runs/runs.component";
 import {AuthGuardService} from "./services/guards/authGuard.service";
 import {LogInGuardService} from "./services/guards/logInGuard.service";
-import {routeNames} from './app.constants';
+import {routeNames} from './constants/routes.constants';
 
 
 const routes: Routes = [

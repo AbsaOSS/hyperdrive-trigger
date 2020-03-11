@@ -17,7 +17,7 @@ import {Injectable} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {map} from "rxjs/operators";
-import {api} from '../../app.constants';
+import {api} from '../../constants/api.constants';
 
 @Injectable()
 export class AuthService {

@@ -20,7 +20,8 @@ import {Router} from "@angular/router";
 import {Observable} from "rxjs";
 import * as AuthActions from './auth.actions';
 import {switchMap, tap, mergeMap, catchError} from "rxjs/operators";
-import {absoluteRoutes, localStorageKeys} from '../../app.constants';
+import {absoluteRoutes} from '../../constants/routes.constants';
+import {localStorageKeys} from '../../constants/localStorage.constants';
 
 @Injectable()
 export class AuthEffects {

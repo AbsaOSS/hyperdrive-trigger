@@ -14,28 +14,6 @@
  * limitations under the License.
  */
 
-export const routeNames = {
-  DEFAULT: '',
-  LOGIN: 'login',
-  HOME: 'home',
-  WORKFLOWS: 'workflows',
-  RUNS: 'runs',
-};
-
-export const absoluteRoutes = {
-  DEFAULT: `/${routeNames.DEFAULT}`,
-  LOGIN: `/${routeNames.LOGIN}`,
-  HOME: `/${routeNames.HOME}`,
-  WORKFLOWS: `/${routeNames.WORKFLOWS}`,
-  RUNS: `/${routeNames.RUNS}`,
-};
-
-export const api = {
-  USER_INFO: '/api/user/info',
-  LOGIN: '/api/login',
-  LOGOUT: '/api/logout',
-};
-
 export const localStorageKeys = {
   CSRF_TOKEN: 'csrf-token',
   USERNAME: 'username',

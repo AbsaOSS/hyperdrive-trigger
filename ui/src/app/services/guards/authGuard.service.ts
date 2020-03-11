@@ -19,7 +19,7 @@ import {Store} from "@ngrx/store";
 import {AppState, selectAuthState} from "../../stores/app.reducers";
 import {map, take} from "rxjs/operators";
 import {Observable} from "rxjs";
-import {absoluteRoutes} from '../../app.constants';
+import {absoluteRoutes} from '../../constants/routes.constants';
 
 @Injectable()
 export class AuthGuardService implements CanActivate {
