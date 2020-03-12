@@ -20,6 +20,7 @@ import {HttpClient, HttpParams} from "@angular/common/http";
 import {DagRunFilterResultModel} from "../../models/dagRun.model";
 import {JobRunModel} from "../../models/dagRunDetail.model";
 import {Filter, Sort} from "../../models/dagRunSearch.model";
+import {api} from '../../constants/api.constants';
 
 @Injectable({
   providedIn: 'root'
@@ -35,7 +36,7 @@ export class DagRunService {
       sort: sort
     };
     return this.httpClient.post<DagRunFilterResultModel>(
-      '/api/dagRuns/search',
+      api.DAG_RUN_SEARCH,
       body,
       {
         observe: 'response'
@@ -51,7 +52,7 @@ export class DagRunService {
     let params = new HttpParams().set('dagInstanceId', dagRunId);
 
     return this.httpClient.get<JobRunModel[]>(
-      '/api/jobInstances',
+      api.JOB_INSTANCES,
       {
         params: params,
         observe: 'response'
