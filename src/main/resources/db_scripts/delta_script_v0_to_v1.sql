@@ -17,7 +17,7 @@ alter table "dag_instance"
 add "started" TIMESTAMP NOT NULL DEFAULT NOW();
 
 alter table "dag_instance"
-add "finished" TIMESTAMP DEFAULT NOW();
+add "finished" TIMESTAMP;
 
 update dag_instance
 set "finished" = (
