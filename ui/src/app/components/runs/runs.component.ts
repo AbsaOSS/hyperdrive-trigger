@@ -21,7 +21,7 @@ import {
 import {DagRunModel} from "../../models/dagRun.model";
 import {ClrDatagridStateInterface} from "@clr/angular";
 import {Store} from "@ngrx/store";
-import {AppState} from "../../stores/app.reducers";
+import {AppState, selectRunState} from "../../stores/app.reducers";
 import {GetDagRuns} from "../../stores/runs/runs.actions";
 import {Subscription} from "rxjs";
 import {skip} from "rxjs/operators";
@@ -45,7 +45,7 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
   constructor(private store: Store<AppState>) {}
 
   ngAfterViewInit(): void {
-    this.runsSubscription = this.store.select('runs').pipe(skip(1)).subscribe((state) => {
+    this.runsSubscription = this.store.select(selectRunState).pipe(skip(1)).subscribe((state) => {
       this.dagRuns = state.dagRuns;
       this.total = state.total;
       this.loading = state.loading;

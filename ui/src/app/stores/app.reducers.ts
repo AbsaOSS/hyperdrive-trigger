@@ -33,3 +33,4 @@ export const reducers: ActionReducerMap<AppState> = {
 };
 
 export const selectAuthState = createFeatureSelector<AppState, fromAuth.State>(authKey);
+export const selectRunState = createFeatureSelector<AppState, fromRuns.State>(runsKey);
