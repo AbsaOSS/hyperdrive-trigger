@@ -23,22 +23,22 @@
     </div>
   </clr-dg-action-bar>
 
-  <clr-dg-column [clrDgField]="'workflowName'" [clrFilterValue]>
+  <clr-dg-column [clrDgField]="dagRunColumns.WORKFLOW_NAME" [clrFilterValue]>
     <ng-container *clrDgHideableColumn="{hidden: false}">Workflow name</ng-container>
   </clr-dg-column>
-  <clr-dg-column [clrDgField]="'projectName'">
+  <clr-dg-column [clrDgField]="dagRunColumns.PROJECT_NAME">
     <ng-container *clrDgHideableColumn="{hidden: false}">Project name</ng-container>
   </clr-dg-column>
-  <clr-dg-column [clrDgField]="'jobCount'">
+  <clr-dg-column [clrDgField]="dagRunColumns.JOB_COUNT">
     <ng-container *clrDgHideableColumn="{hidden: false}">Job count</ng-container>
   </clr-dg-column>
-  <clr-dg-column [clrDgField]="'started'">
+  <clr-dg-column [clrDgField]="dagRunColumns.STARTED">
     <ng-container *clrDgHideableColumn="{hidden: false}">Started</ng-container>
   </clr-dg-column>
-  <clr-dg-column [clrDgField]="'finished'">
+  <clr-dg-column [clrDgField]="dagRunColumns.FINISHED">
     <ng-container *clrDgHideableColumn="{hidden: false}">Finished</ng-container>
   </clr-dg-column>
-  <clr-dg-column [clrDgField]="'status'">
+  <clr-dg-column [clrDgField]="dagRunColumns.STATUS">
     <ng-container *clrDgHideableColumn="{hidden: false}">Status</ng-container>
   </clr-dg-column>
   <clr-dg-placeholder>We couldn't find any dag runs!</clr-dg-placeholder>

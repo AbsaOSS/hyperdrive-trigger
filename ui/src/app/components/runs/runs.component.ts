@@ -26,6 +26,7 @@ import {GetDagRuns} from "../../stores/runs/runs.actions";
 import {Subscription} from "rxjs";
 import {skip} from "rxjs/operators";
 import {Filter, Sort} from "../../models/dagRunSearch.model";
+import {dagRunColumns} from "../../constants/dagRunColumns.constants";
 
 @Component({
   selector: 'app-runs',
@@ -34,13 +35,12 @@ import {Filter, Sort} from "../../models/dagRunSearch.model";
 })
 export class RunsComponent implements OnDestroy, AfterViewInit {
   runsSubscription: Subscription = null;
-
   dagRuns: DagRunModel[] = [];
   total: number = 0;
   loading: boolean = true;
   page: number = 1;
 
-  state: ClrDatagridStateInterface;
+  dagRunColumns = dagRunColumns;
 
   constructor(private store: Store<AppState>) {}
 
