@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 
-import {DagRunFilterResultModel} from "../../models/dagRun.model";
 import {Injectable} from "@angular/core";
 import {Actions, Effect, ofType} from "@ngrx/effects";
 import * as RunActions from "../runs/runs.actions";
 import {catchError, mergeMap, switchMap} from "rxjs/operators";
 import {DagRunService} from "../../services/dagRun/dag-run.service";
+import {DagRunFilterResultModel} from "../../models/dagRunSearchResponse.model";
 
 @Injectable()
 export class RunsEffects {

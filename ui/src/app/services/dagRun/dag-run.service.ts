@@ -17,10 +17,10 @@ import { Injectable } from '@angular/core';
 import {Observable} from "rxjs";
 import {map} from "rxjs/operators";
 import {HttpClient, HttpParams} from "@angular/common/http";
-import {DagRunFilterResultModel} from "../../models/dagRun.model";
 import {JobRunModel} from "../../models/dagRunDetail.model";
 import {Filter, Sort} from "../../models/dagRunSearch.model";
 import {api} from '../../constants/api.constants';
+import {DagRunFilterResultModel} from "../../models/dagRunSearchResponse.model";
 
 @Injectable({
   providedIn: 'root'

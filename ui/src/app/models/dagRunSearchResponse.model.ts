@@ -13,12 +13,9 @@
  * limitations under the License.
  */
 
-export class DagRunModel {
-  workflowName: string;
-  projectName: string;
-  jobCount: number;
-  status: string;
-  started: Date;
-  finished: Date;
-  id: number;
+import {DagRunModel} from "./dagRun.model";
+
+export class DagRunFilterResultModel {
+  runs: DagRunModel[];
+  total: number
 }
