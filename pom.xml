@@ -67,6 +67,7 @@
 
 
         <skip.docker>true</skip.docker>
+        <skipNpmTests>${skipTests}</skipNpmTests>
     </properties>
 
     <dependencies>
@@ -312,6 +313,17 @@
                         </goals>
                         <configuration>
                             <arguments>run build</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm tests</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <phase>test</phase>
+                        <configuration>
+                            <skipTests>${skipNpmTests}</skipTests>
+                            <arguments>run test:ci</arguments>
                         </configuration>
                     </execution>
                 </executions>
