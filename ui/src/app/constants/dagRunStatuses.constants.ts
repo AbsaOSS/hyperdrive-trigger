@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-enum RunStatusesEnum {
-  InQueue,
-  Running,
-  Succeeded,
-  Failed,
-}
+export const dagRunStatuses = {
+  IN_QUEUE: 'InQueue',
+  RUNNING: 'Running',
+  SUCCEEDED: 'Succeeded',
+  FAILED: 'Failed',
+};

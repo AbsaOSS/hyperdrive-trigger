@@ -27,6 +27,7 @@ import {Subscription} from "rxjs";
 import {skip} from "rxjs/operators";
 import {Filter, Sort} from "../../models/dagRunSearch.model";
 import {dagRunColumns} from "../../constants/dagRunColumns.constants";
+import {dagRunStatuses} from "../../constants/dagRunStatuses.constants";
 
 @Component({
   selector: 'app-runs',
@@ -41,6 +42,7 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
   page: number = 1;
 
   dagRunColumns = dagRunColumns;
+  dagRunStatuses = dagRunStatuses;
 
   constructor(private store: Store<AppState>) {}
 

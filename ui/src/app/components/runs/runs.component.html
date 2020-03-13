@@ -50,10 +50,10 @@
     <clr-dg-cell>{{dagRun.started | date:'medium'}}</clr-dg-cell>
     <clr-dg-cell>{{dagRun.finished | date:'medium'}}</clr-dg-cell>
     <clr-dg-cell [ngSwitch]="dagRun.status">
-      <clr-icon *ngSwitchCase="'InQueue'" shape="clock" class="is-solid" style="color: grey"></clr-icon>
-      <clr-icon *ngSwitchCase="'Running'" shape="play" class="is-solid" style="color: blue"></clr-icon>
-      <clr-icon *ngSwitchCase="'Succeeded'" shape="success-standard" class="is-solid" style="color: green"></clr-icon>
-      <clr-icon *ngSwitchCase="'Failed'" shape="error-standard" class="is-solid" style="color: red"></clr-icon>
+      <clr-icon *ngSwitchCase="dagRunStatuses.IN_QUEUE" shape="clock" class="is-solid" style="color: grey"></clr-icon>
+      <clr-icon *ngSwitchCase="dagRunStatuses.RUNNING" shape="play" class="is-solid" style="color: blue"></clr-icon>
+      <clr-icon *ngSwitchCase="dagRunStatuses.SUCCEEDED" shape="success-standard" class="is-solid" style="color: green"></clr-icon>
+      <clr-icon *ngSwitchCase="dagRunStatuses.FAILED" shape="error-standard" class="is-solid" style="color: red"></clr-icon>
       <clr-icon *ngSwitchDefault shape="help" class="is-solid" style="color: darkgoldenrod"></clr-icon>
       {{dagRun.status}}
     </clr-dg-cell>
