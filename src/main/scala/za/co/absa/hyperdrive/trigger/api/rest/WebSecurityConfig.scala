@@ -28,8 +28,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.{EnableWebSecurity, WebSecurityConfigurerAdapter}
 import org.springframework.security.core.{Authentication, AuthenticationException}
 import org.springframework.security.web.AuthenticationEntryPoint
-import org.springframework.security.web.authentication.{AuthenticationFailureHandler, SimpleUrlAuthenticationFailureHandler, SimpleUrlAuthenticationSuccessHandler}
 import org.springframework.security.web.authentication.logout.{HttpStatusReturningLogoutSuccessHandler, LogoutSuccessHandler}
+import org.springframework.security.web.authentication.{AuthenticationFailureHandler, SimpleUrlAuthenticationFailureHandler, SimpleUrlAuthenticationSuccessHandler}
 import org.springframework.security.web.csrf.CsrfToken
 import org.springframework.stereotype.Component
 import za.co.absa.hyperdrive.trigger.api.rest.auth.{HyperdriverAuthentication, InMemoryAuthentication, LdapAuthentication}
@@ -75,17 +75,14 @@ class WebSecurityConfig {
         .authorizeRequests()
         .antMatchers(
           "/", "/index.html",
-          "/main-es5.*.js",
-          "/main-es2015.*.js",
-          "/polyfills-es5.*.js",
-          "/polyfills-es2015.*.js",
-          "/runtime-es5.*.js",
-          "/runtime-es2015.*.js",
-          "/scripts.*.js",
-          "/styles-es5.*.js",
-          "/styles-es2015.*.js",
-          "/vendor-es5.*.js",
-          "/vendor-es2015.*.js",
+          "/main-es5*.js",
+          "/main-es2015*.js",
+          "/polyfills-es5*.js",
+          "/polyfills-es2015*.js",
+          "/runtime-es5*.js",
+          "/runtime-es2015*.js",
+          "/scripts*.js",
+          "/styles*.css",
           "/favicon.ico"
         )
         .permitAll()
