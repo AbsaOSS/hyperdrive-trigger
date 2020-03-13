@@ -17,5 +17,10 @@ import {DagRunModel} from "./dagRun.model";
 
 export class DagRunFilterResultModel {
   runs: DagRunModel[];
-  total: number
+  total: number;
+
+  constructor(runs: DagRunModel[], total: number) {
+    this.runs = runs;
+    this.total = total;
+  }
 }

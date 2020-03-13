@@ -29,7 +29,7 @@ export class DagRunService {
 
   constructor(private httpClient: HttpClient) { }
 
-  filterDagRuns(pageFrom: number, pageSize: number, sort: Sort, filters: Filter[]): Observable<DagRunFilterResultModel> {
+  searchDagRuns(pageFrom: number, pageSize: number, sort: Sort, filters: Filter[]): Observable<DagRunFilterResultModel> {
     const body = {
       from: pageFrom,
       size: pageSize,

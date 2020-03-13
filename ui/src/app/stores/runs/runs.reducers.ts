@@ -37,7 +37,7 @@ export function runsReducer(state: State = initialState, action: RunsActions.Run
     case (RunsActions.GET_DAG_RUNS_SUCCESS):
       return {...state, loading: false, total: action.payload.dagRuns.total, dagRuns: action.payload.dagRuns.runs};
     case (RunsActions.GET_DAG_RUNS_FAILURE):
-      return initialState;
+      return {...initialState, loading: false};
     default:
       return state;
   }
