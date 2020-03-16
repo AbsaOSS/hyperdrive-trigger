@@ -1,5 +1,20 @@
+<!--
+  ~ Copyright 2018 ABSA Group Limited
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
 <div class="main-container">
-  <header class="header-6">
+  <header class="header-6" *ngIf="isAuthenticated">
     <div class="branding">
       <a href="home" class="nav-link">
         <clr-icon shape="dashboard"></clr-icon>
@@ -7,22 +22,28 @@
       </a>
     </div>
     <div class="header-nav">
-      <a routerLinkActive="active" routerLink="/home" class="nav-link nav-text">Home</a>
-      <a routerLinkActive="active" routerLink="/workflows" class="nav-link nav-text">Workflows</a>
-      <a routerLinkActive="active" routerLink="/runs" class="nav-link nav-text">Runs</a>
+      <a routerLinkActive="active" routerLink="{{routes.HOME}}" class="nav-link nav-text">Home</a>
+      <a routerLinkActive="active" routerLink="{{routes.WORKFLOWS}}" class="nav-link nav-text">Workflows</a>
+      <a routerLinkActive="active" routerLink="{{routes.RUNS}}" class="nav-link nav-text">Runs</a>
     </div>
     <div class="header-actions">
       <clr-dropdown>
         <button class="nav-text" clrDropdownTrigger aria-label="open user profile">
-          jozef.bakus@gmail.com
+          {{username}}
           <clr-icon shape="caret down"></clr-icon>
         </button>
         <clr-dropdown-menu *clrIfOpen clrPosition="bottom-right">
-          <a href="#" clrDropdownItem>Log out</a>
+          <a clrDropdownItem (click)="onLogOut()">Log out</a>
         </clr-dropdown-menu>
       </clr-dropdown>
     </div>
   </header>
-  <router-outlet></router-outlet>
+
+  <div class="content-container">
+    <div class="content-area">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+
 </div>
 

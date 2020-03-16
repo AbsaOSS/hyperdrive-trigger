@@ -13,40 +13,16 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models
+export class DagRunModel {
 
-case class OverallStatistics(
-  successful: Int,
-  failed: Int,
-  running: Int,
-  queued: Int
-)
+  constructor(
+    public workflowName: string,
+    public projectName: string,
+    public jobCount: number,
+    public status: string,
+    public started: Date,
+    public finished: Date,
+    public id: number
+  ) {}
 
-case class PerWorkflowStatistics(
-  workflowId: Long,
-  workflowName: String,
-  isActive: Boolean,
-  total: Int,
-  successful: Int,
-  failed: Int,
-  queued: Int,
-  running: Int
-)
-
-case class PerDagStatistics(
-  dagId: Long,
-  total: Int,
-  successful: Int,
-  failed: Int,
-  queued: Int,
-  running: Int
-)
-
-case class PerProjectStatistics(
-  projectName: String,
-  total: Int,
-  successful: Int,
-  failed: Int,
-  queued: Int,
-  running: Int
-)
+}

@@ -15,6 +15,8 @@
 
 package za.co.absa.hyperdrive.trigger.models.tables
 
+import java.time.LocalDateTime
+
 import slick.lifted.{ForeignKeyQuery, ProvenShape}
 import za.co.absa.hyperdrive.trigger.models.{DagInstance, Workflow}
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses.DagInstanceStatus
@@ -27,17 +29,21 @@ trait DagInstanceTable {
 
     def status: Rep[DagInstanceStatus] = column[DagInstanceStatus]("status")
     def workflowId: Rep[Long] = column[Long]("workflow_id")
+    def started: Rep[LocalDateTime] = column[LocalDateTime]("started")
+    def finished: Rep[Option[LocalDateTime]] = column[Option[LocalDateTime]]("finished")
     def id: Rep[Long] = column[Long]("id", O.PrimaryKey, O.AutoInc, O.SqlType("BIGSERIAL"))
 
     def workflow_fk: ForeignKeyQuery[WorkflowTable, Workflow] =
       foreignKey("dag_instance_workflow_fk", workflowId, TableQuery[WorkflowTable])(_.id)
 
-    def * : ProvenShape[DagInstance] = (status, workflowId, id) <> (
+    def * : ProvenShape[DagInstance] = (status, workflowId, started, finished, id) <> (
       dagInstanceTuple =>
         DagInstance.apply(
           status = dagInstanceTuple._1,
           workflowId = dagInstanceTuple._2,
-          id = dagInstanceTuple._3
+          started = dagInstanceTuple._3,
+          finished = dagInstanceTuple._4,
+          id = dagInstanceTuple._5
         ),
       DagInstance.unapply
     )
