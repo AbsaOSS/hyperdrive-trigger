@@ -15,6 +15,8 @@
 
 package za.co.absa.hyperdrive.trigger.models
 
+import java.time.LocalDateTime
+
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
 
 case class DagDefinition(
@@ -31,7 +33,9 @@ case class DagDefinitionJoined(
     DagInstanceJoined(
       status = DagInstanceStatuses.InQueue,
       workflowId = this.workflowId,
-      jobInstances = jobDefinitions.map(_.toJobInstance())
+      jobInstances = jobDefinitions.map(_.toJobInstance()),
+      started = LocalDateTime.now(),
+      finished = None
     )
   }
 

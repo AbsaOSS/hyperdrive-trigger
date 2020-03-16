@@ -1,0 +1,44 @@
+<!--
+  ~ Copyright 2018 ABSA Group Limited
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="content-area">
+  <clr-datagrid (clrDgRefresh)="refresh($event)" [clrDgLoading]="loading">
+    <clr-dg-column>ID</clr-dg-column>
+    <clr-dg-column>Name</clr-dg-column>
+    <clr-dg-column>Type</clr-dg-column>
+    <clr-dg-column>Started</clr-dg-column>
+    <clr-dg-column>Finished</clr-dg-column>
+    <clr-dg-column>Status</clr-dg-column>
+
+    <clr-dg-placeholder>We couldn't find any jobs run!</clr-dg-placeholder>
+
+    <clr-dg-row *ngFor="let jobInstance of jobInstances">
+      <clr-dg-cell>{{jobInstance.id}}</clr-dg-cell>
+      <clr-dg-cell>{{jobInstance.jobName}}</clr-dg-cell>
+      <clr-dg-cell>{{jobInstance.jobType.name}}</clr-dg-cell>
+      <clr-dg-cell>{{jobInstance.created | date:'medium'}}</clr-dg-cell>
+      <clr-dg-cell>{{jobInstance.updated | date:'medium'}}</clr-dg-cell>
+      <clr-dg-cell [ngSwitch]="jobInstance.jobStatus.name">
+        <clr-icon *ngSwitchCase="jobStatuses.IN_QUEUE" shape="clock" class="is-solid" style="color: grey"></clr-icon>
+        <clr-icon *ngSwitchCase="jobStatuses.RUNNING" shape="play" class="is-solid" style="color: blue"></clr-icon>
+        <clr-icon *ngSwitchCase="jobStatuses.SUCCEEDED" shape="success-standard" class="is-solid"
+                  style="color: green"></clr-icon>
+        <clr-icon *ngSwitchCase="jobStatuses.FAILED" shape="error-standard" class="is-solid" style="color: red"></clr-icon>
+        <clr-icon *ngSwitchDefault shape="help" class="is-solid" style="color: darkgoldenrod"></clr-icon>
+        {{jobInstance.jobStatus.name}}
+      </clr-dg-cell>
+    </clr-dg-row>
+  </clr-datagrid>
+</div>

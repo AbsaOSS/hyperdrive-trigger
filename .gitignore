@@ -50,3 +50,6 @@ dependency-reduced-pom.xml
 _testOutput
 output
 /keystore/
+
+#UI
+/ui/node
