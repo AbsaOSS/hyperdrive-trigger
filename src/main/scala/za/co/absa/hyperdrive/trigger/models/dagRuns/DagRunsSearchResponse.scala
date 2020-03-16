@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright 2018 ABSA Group Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +13,9 @@
  * limitations under the License.
  */
 
-clr-datagrid {
-  height: 100%;
-}
+package za.co.absa.hyperdrive.trigger.models.dagRuns
+
+case class DagRunsSearchResponse(
+  runs: Seq[DagRun],
+  total: Int
+)

@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright 2018 ABSA Group Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +13,16 @@
  * limitations under the License.
  */
 
-clr-datagrid {
-  height: 100%;
-}
+package za.co.absa.hyperdrive.trigger.models.dagRuns
+
+import java.time.LocalDateTime
+
+case class DagRun(
+  workflowName: String,
+  projectName: String,
+  jobCount: Int,
+  started: LocalDateTime,
+  finished: Option[LocalDateTime],
+  status: String,
+  id: Long = 0
+)

@@ -14,21 +14,30 @@
  */
 
 import * as RunsActions from "../runs/runs.actions";
-
+import {DagRunModel} from "../../models/dagRuns/dagRun.model";
 
 export interface State {
-
+  dagRuns: DagRunModel[]
+  total: number
+  page: number
+  loading: boolean
 }
 
 const initialState: State = {
-
+  dagRuns: [],
+  total: 0,
+  page: 1,
+  loading: true
 };
 
 export function runsReducer(state: State = initialState, action: RunsActions.RunsActions) {
   switch (action.type) {
-    case (RunsActions.GET_RUNS):
-      //do something
-      return state;
+    case (RunsActions.GET_DAG_RUNS):
+      return {...state, loading: true};
+    case (RunsActions.GET_DAG_RUNS_SUCCESS):
+      return {...state, loading: false, total: action.payload.dagRuns.total, dagRuns: action.payload.dagRuns.runs};
+    case (RunsActions.GET_DAG_RUNS_FAILURE):
+      return {...initialState, loading: false};
     default:
       return state;
   }

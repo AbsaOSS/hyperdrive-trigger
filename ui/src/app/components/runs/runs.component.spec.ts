@@ -16,13 +16,24 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { RunsComponent } from './runs.component';
+import {MockStore, provideMockStore} from "@ngrx/store/testing";
+import * as fromApp from "../../stores/app.reducers";
 
 describe('RunsComponent', () => {
   let component: RunsComponent;
   let fixture: ComponentFixture<RunsComponent>;
+  let mockStore: MockStore<fromApp.AppState>;
+
+  const initialAppState = {
+    auth: {},
+    runs: {}
+  };
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
+      providers: [
+        provideMockStore({ initialState: initialAppState })
+      ],
       declarations: [ RunsComponent ]
     })
     .compileComponents();

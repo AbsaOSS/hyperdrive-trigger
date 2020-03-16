@@ -13,18 +13,67 @@
  * limitations under the License.
  */
 
-import { Component, OnInit } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  OnDestroy
+} from '@angular/core';
+import {DagRunModel} from "../../models/dagRuns/dagRun.model";
+import {ClrDatagridStateInterface} from "@clr/angular";
+import {Store} from "@ngrx/store";
+import {AppState, selectRunState} from "../../stores/app.reducers";
+import {GetDagRuns} from "../../stores/runs/runs.actions";
+import {Subscription} from "rxjs";
+import {skip} from "rxjs/operators";
+import {dagRunColumns} from "../../constants/dagRunColumns.constants";
+import {dagInstanceStatuses} from "../../models/enums/dagInstanceStatuses.constants";
+import {
+  DagRunsSearchRequestModel,
+  SortModel
+} from "../../models/dagRuns/dagRunsSearchRequest.model";
 
 @Component({
   selector: 'app-runs',
   templateUrl: './runs.component.html',
   styleUrls: ['./runs.component.scss']
 })
-export class RunsComponent implements OnInit {
+export class RunsComponent implements OnDestroy, AfterViewInit {
+  runsSubscription: Subscription = null;
+  dagRuns: DagRunModel[] = [];
+  total: number = 0;
+  loading: boolean = true;
+  page: number = 1;
 
-  constructor() { }
+  dagRunColumns = dagRunColumns;
+  dagInstanceStatuses = dagInstanceStatuses;
 
-  ngOnInit(): void {
+  constructor(private store: Store<AppState>) {}
+
+  ngAfterViewInit(): void {
+    this.runsSubscription = this.store.select(selectRunState).pipe(skip(1)).subscribe((state) => {
+      this.dagRuns = state.dagRuns;
+      this.total = state.total;
+      this.loading = state.loading;
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.runsSubscription.unsubscribe();
+  }
+
+  onClarityDgRefresh(state: ClrDatagridStateInterface) {
+    let sort: SortModel = state.sort ? new SortModel(<string>state.sort.by, state.sort.reverse ? -1 : 1) : undefined;
+
+    let pageFrom = state.page.from < 0 ? 0 : state.page.from;
+    let pageSize = state.page.size;
+
+    let searchRequestModel: DagRunsSearchRequestModel = {
+      from: pageFrom,
+      size: pageSize,
+      sort: sort
+    };
+
+    this.store.dispatch(new GetDagRuns(searchRequestModel));
   }
 
 }

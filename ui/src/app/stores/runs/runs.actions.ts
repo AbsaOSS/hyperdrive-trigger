@@ -14,11 +14,26 @@
  */
 
 import {Action} from "@ngrx/store";
+import {DagRunsSearchResponseModel} from "../../models/dagRuns/dagRunsSearchResponse.model";
+import {DagRunsSearchRequestModel} from "../../models/dagRuns/dagRunsSearchRequest.model";
 
-export const GET_RUNS = 'GET_RUNS';
+export const GET_DAG_RUNS = 'GET_DAG_RUNS';
+export const GET_DAG_RUNS_SUCCESS = 'GET_DAG_RUNS_SUCCESS';
+export const GET_DAG_RUNS_FAILURE = 'GET_DAG_RUNS_FAILURE';
 
-export class GetRuns implements Action {
-  readonly type = GET_RUNS;
+
+export class GetDagRuns implements Action {
+  readonly type = GET_DAG_RUNS;
+  constructor(public payload: DagRunsSearchRequestModel) {}
 }
 
-export type RunsActions = GetRuns;
+export class GetDagRunsSuccess implements Action {
+  readonly type = GET_DAG_RUNS_SUCCESS;
+  constructor(public payload: {dagRuns: DagRunsSearchResponseModel}) {}
+}
+
+export class GetDagRunsFailure implements Action {
+  readonly type = GET_DAG_RUNS_FAILURE;
+}
+
+export type RunsActions = GetDagRuns | GetDagRunsSuccess | GetDagRunsFailure;

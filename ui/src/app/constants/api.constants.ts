@@ -18,4 +18,7 @@ export const api = {
   USER_INFO: '/user/info',
   LOGIN: '/login',
   LOGOUT: '/logout',
+
+  DAG_RUN_SEARCH: '/dagRuns/search',
+  JOB_INSTANCES: '/jobInstances'
 };

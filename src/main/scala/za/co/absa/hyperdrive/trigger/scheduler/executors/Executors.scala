@@ -15,6 +15,7 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.executors
 
+import java.time.LocalDateTime
 import java.util.concurrent
 
 import javax.inject.Inject
@@ -42,10 +43,10 @@ class Executors @Inject()(dagInstanceRepository: DagInstanceRepository, jobInsta
     jobInstanceRepository.getJobInstances(dagInstance.id).flatMap {
       case jobInstances if jobInstances.exists(_.jobStatus.isFailed) =>
         jobInstanceRepository.updateJobsStatus(jobInstances.filter(!_.jobStatus.isFinalStatus).map(_.id), JobStatuses.FailedPreviousJob).flatMap(_=>
-          dagInstanceRepository.update(dagInstance.copy(status = DagInstanceStatuses.Failed))
+          dagInstanceRepository.update(dagInstance.copy(status = DagInstanceStatuses.Failed, finished = Option(LocalDateTime.now())))
         )
       case jobInstances if jobInstances.forall(ji => ji.jobStatus.isFinalStatus && !ji.jobStatus.isFailed) =>
-        dagInstanceRepository.update(dagInstance.copy(status = DagInstanceStatuses.Succeeded))
+        dagInstanceRepository.update(dagInstance.copy(status = DagInstanceStatuses.Succeeded, finished = Option(LocalDateTime.now())))
       case jobInstances =>
         val jobInstance = jobInstances.filter(!_.jobStatus.isFinalStatus).sortBy(_.order).headOption
         val fut = dagInstanceRepository.update(dagInstance.copy(status = DagInstanceStatuses.Running)).flatMap { _ =>
