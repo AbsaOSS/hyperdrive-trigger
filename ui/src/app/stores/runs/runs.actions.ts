@@ -14,8 +14,8 @@
  */
 
 import {Action} from "@ngrx/store";
-import {DagRunFilterResultModel} from "../../models/dagRunSearchResponse.model";
-import {DagRunSearchRequestModel} from "../../models/dagRunSearchRequest.model";
+import {DagRunFilterResultModel} from "../../models/dagRuns/dagRunSearchResponse.model";
+import {DagRunSearchRequestModel} from "../../models/dagRuns/dagRunSearchRequest.model";
 
 export const GET_DAG_RUNS = 'GET_DAG_RUNS';
 export const GET_DAG_RUNS_SUCCESS = 'GET_DAG_RUNS_SUCCESS';

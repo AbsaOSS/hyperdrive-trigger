@@ -15,9 +15,9 @@
 
 import {runsReducer, State} from './runs.reducers';
 import {GetDagRuns, GetDagRunsFailure, GetDagRunsSuccess} from "./runs.actions";
-import {DagRunFilterResultModel} from "../../models/dagRunSearchResponse.model";
-import {DagRunModel} from "../../models/dagRun.model";
-import {SortModel} from "../../models/dagRunSearchRequest.model";
+import {DagRunFilterResultModel} from "../../models/dagRuns/dagRunSearchResponse.model";
+import {DagRunModel} from "../../models/dagRuns/dagRun.model";
+import {SortModel} from "../../models/dagRuns/dagRunSearchRequest.model";
 
 describe('RunsReducers', () => {
 

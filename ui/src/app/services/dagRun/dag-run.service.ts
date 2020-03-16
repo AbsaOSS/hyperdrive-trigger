@@ -17,10 +17,10 @@ import { Injectable } from '@angular/core';
 import {Observable} from "rxjs";
 import {map} from "rxjs/operators";
 import {HttpClient, HttpParams} from "@angular/common/http";
-import {JobRunModel} from "../../models/dagRunDetail.model";
 import {api} from '../../constants/api.constants';
-import {DagRunFilterResultModel} from "../../models/dagRunSearchResponse.model";
-import {DagRunSearchRequestModel} from "../../models/dagRunSearchRequest.model";
+import {DagRunFilterResultModel} from "../../models/dagRuns/dagRunSearchResponse.model";
+import {DagRunSearchRequestModel} from "../../models/dagRuns/dagRunSearchRequest.model";
+import {JobInstanceModel} from "../../models/jobInstance.model";
 
 @Injectable({
   providedIn: 'root'
@@ -46,7 +46,7 @@ export class DagRunService {
   getDagRunDetails(dagRunId: string) {
     let params = new HttpParams().set('dagInstanceId', dagRunId);
 
-    return this.httpClient.get<JobRunModel[]>(
+    return this.httpClient.get<JobInstanceModel[]>(
       api.JOB_INSTANCES,
       {
         params: params,

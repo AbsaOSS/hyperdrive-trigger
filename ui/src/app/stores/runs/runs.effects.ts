@@ -18,7 +18,7 @@ import {Actions, Effect, ofType} from "@ngrx/effects";
 import * as RunActions from "../runs/runs.actions";
 import {catchError, mergeMap, switchMap} from "rxjs/operators";
 import {DagRunService} from "../../services/dagRun/dag-run.service";
-import {DagRunFilterResultModel} from "../../models/dagRunSearchResponse.model";
+import {DagRunFilterResultModel} from "../../models/dagRuns/dagRunSearchResponse.model";
 
 @Injectable()
 export class RunsEffects {

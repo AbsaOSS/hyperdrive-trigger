@@ -18,7 +18,7 @@ import {
   Component,
   OnDestroy
 } from '@angular/core';
-import {DagRunModel} from "../../models/dagRun.model";
+import {DagRunModel} from "../../models/dagRuns/dagRun.model";
 import {ClrDatagridStateInterface} from "@clr/angular";
 import {Store} from "@ngrx/store";
 import {AppState, selectRunState} from "../../stores/app.reducers";
@@ -30,7 +30,7 @@ import {dagInstanceStatuses} from "../../models/enums/dagInstanceStatuses.consta
 import {
   DagRunSearchRequestModel,
   SortModel
-} from "../../models/dagRunSearchRequest.model";
+} from "../../models/dagRuns/dagRunSearchRequest.model";
 
 @Component({
   selector: 'app-runs',

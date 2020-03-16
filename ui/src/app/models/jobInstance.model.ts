@@ -13,11 +13,7 @@
  * limitations under the License.
  */
 
-export class DagRunDetailModel {
-  jobRuns: JobRunModel[]
-}
-
-export class JobRunModel {
+export class JobInstanceModel {
   id: number;
   jobName: string;
   jobType: JobType;

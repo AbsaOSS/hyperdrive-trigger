@@ -14,7 +14,7 @@
  */
 
 import * as RunsActions from "../runs/runs.actions";
-import {DagRunModel} from "../../models/dagRun.model";
+import {DagRunModel} from "../../models/dagRuns/dagRun.model";
 
 export interface State {
   dagRuns: DagRunModel[]

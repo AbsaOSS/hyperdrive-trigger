@@ -24,9 +24,9 @@ import {cold} from 'jasmine-marbles';
 import {GetDagRuns} from "./runs.actions";
 import * as RunsActions from "./runs.actions";
 
-import {DagRunModel} from "../../models/dagRun.model";
-import {DagRunFilterResultModel} from "../../models/dagRunSearchResponse.model";
-import {SortModel} from "../../models/dagRunSearchRequest.model";
+import {DagRunModel} from "../../models/dagRuns/dagRun.model";
+import {DagRunFilterResultModel} from "../../models/dagRuns/dagRunSearchResponse.model";
+import {SortModel} from "../../models/dagRuns/dagRunSearchRequest.model";
 
 describe('RunsEffects', () => {
   let underTest: RunsEffects;

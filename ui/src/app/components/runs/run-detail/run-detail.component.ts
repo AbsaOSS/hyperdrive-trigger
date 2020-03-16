@@ -1,8 +1,8 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {JobRunModel} from "../../../models/dagRunDetail.model";
 import {ClrDatagridStateInterface} from "@clr/angular";
 import {DagRunService} from "../../../services/dagRun/dag-run.service";
 import {jobStatuses} from"../../../models/enums/jobStatuses.constants";
+import {JobInstanceModel} from "../../../models/jobInstance.model";
 
 @Component({
   selector: 'app-run-detail',
@@ -11,7 +11,7 @@ import {jobStatuses} from"../../../models/enums/jobStatuses.constants";
 })
 export class RunDetailComponent implements OnInit {
   @Input('dagRunId') dagRunId: string;
-  jobsRun: JobRunModel[];
+  jobInstances: JobInstanceModel[];
   loading: boolean = true;
 
   jobStatuses = jobStatuses;
@@ -27,7 +27,7 @@ export class RunDetailComponent implements OnInit {
     this.loading = true;
     this.dagRunService.getDagRunDetails(this.dagRunId).then(
       (result) => {
-        this.jobsRun = result;
+        this.jobInstances = result;
         this.loading = false;
       }
     );
