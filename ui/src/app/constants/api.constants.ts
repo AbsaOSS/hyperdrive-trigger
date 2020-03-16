@@ -15,10 +15,10 @@
  */
 
 export const api = {
-  USER_INFO: '/api/user/info',
-  LOGIN: '/api/login',
-  LOGOUT: '/api/logout',
+  USER_INFO: '/user/info',
+  LOGIN: '/login',
+  LOGOUT: '/logout',
 
-  DAG_RUN_SEARCH: '/api/dagRuns/search',
-  JOB_INSTANCES: '/api/jobInstances'
+  DAG_RUN_SEARCH: '/dagRuns/search',
+  JOB_INSTANCES: '/jobInstances'
 };
