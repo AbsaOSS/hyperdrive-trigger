@@ -31,11 +31,11 @@
       <clr-dg-cell>{{jobRun.created | date:'medium'}}</clr-dg-cell>
       <clr-dg-cell>{{jobRun.updated | date:'medium'}}</clr-dg-cell>
       <clr-dg-cell [ngSwitch]="jobRun.jobStatus.name">
-        <clr-icon *ngSwitchCase="jobRunStatuses.IN_QUEUE" shape="clock" class="is-solid" style="color: grey"></clr-icon>
-        <clr-icon *ngSwitchCase="jobRunStatuses.RUNNING" shape="play" class="is-solid" style="color: blue"></clr-icon>
-        <clr-icon *ngSwitchCase="jobRunStatuses.SUCCEEDED" shape="success-standard" class="is-solid"
+        <clr-icon *ngSwitchCase="jobStatuses.IN_QUEUE" shape="clock" class="is-solid" style="color: grey"></clr-icon>
+        <clr-icon *ngSwitchCase="jobStatuses.RUNNING" shape="play" class="is-solid" style="color: blue"></clr-icon>
+        <clr-icon *ngSwitchCase="jobStatuses.SUCCEEDED" shape="success-standard" class="is-solid"
                   style="color: green"></clr-icon>
-        <clr-icon *ngSwitchCase="jobRunStatuses.FAILED" shape="error-standard" class="is-solid" style="color: red"></clr-icon>
+        <clr-icon *ngSwitchCase="jobStatuses.FAILED" shape="error-standard" class="is-solid" style="color: red"></clr-icon>
         <clr-icon *ngSwitchDefault shape="help" class="is-solid" style="color: darkgoldenrod"></clr-icon>
         {{jobRun.jobStatus.name}}
       </clr-dg-cell>

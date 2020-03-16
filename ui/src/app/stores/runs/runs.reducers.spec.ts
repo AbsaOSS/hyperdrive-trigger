@@ -15,9 +15,9 @@
 
 import {runsReducer, State} from './runs.reducers';
 import {GetDagRuns, GetDagRunsFailure, GetDagRunsSuccess} from "./runs.actions";
-import {Sort} from "../../models/dagRunSearch.model";
 import {DagRunFilterResultModel} from "../../models/dagRunSearchResponse.model";
 import {DagRunModel} from "../../models/dagRun.model";
+import {SortModel} from "../../models/dagRunSearchRequest.model";
 
 describe('RunsReducers', () => {
 
@@ -30,7 +30,7 @@ describe('RunsReducers', () => {
 
   it('should set loading to true on get dag runs', () => {
     const runsAction = new GetDagRuns(
-      {pageFrom: 0, pageSize: 0, sort: new Sort('', 0), filters: []}
+      {from: 0, size: 0, sort: new SortModel('', 0)}
     );
 
     const actual = runsReducer(initialState, runsAction);

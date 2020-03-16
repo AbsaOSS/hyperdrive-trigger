@@ -18,9 +18,9 @@ import {Observable} from "rxjs";
 import {map} from "rxjs/operators";
 import {HttpClient, HttpParams} from "@angular/common/http";
 import {JobRunModel} from "../../models/dagRunDetail.model";
-import {Filter, Sort} from "../../models/dagRunSearch.model";
 import {api} from '../../constants/api.constants';
 import {DagRunFilterResultModel} from "../../models/dagRunSearchResponse.model";
+import {DagRunSearchRequestModel} from "../../models/dagRunSearchRequest.model";
 
 @Injectable({
   providedIn: 'root'
@@ -29,15 +29,10 @@ export class DagRunService {
 
   constructor(private httpClient: HttpClient) { }
 
-  searchDagRuns(pageFrom: number, pageSize: number, sort: Sort, filters: Filter[]): Observable<DagRunFilterResultModel> {
-    const body = {
-      from: pageFrom,
-      size: pageSize,
-      sort: sort
-    };
+  searchDagRuns(dagRunSearchRequestModel: DagRunSearchRequestModel): Observable<DagRunFilterResultModel> {
     return this.httpClient.post<DagRunFilterResultModel>(
       api.DAG_RUN_SEARCH,
-      body,
+      dagRunSearchRequestModel,
       {
         observe: 'response'
       }

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-export const dagRunStatuses = {
+export const dagInstanceStatuses = {
   IN_QUEUE: 'InQueue',
   RUNNING: 'Running',
   SUCCEEDED: 'Succeeded',

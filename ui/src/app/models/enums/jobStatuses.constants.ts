@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-export const jobRunStatuses = {
+export const jobStatuses = {
   IN_QUEUE: 'InQueue',
   RUNNING: 'Running',
   SUCCEEDED: 'Succeeded',

@@ -14,30 +14,15 @@
  */
 
 export class DagRunModel {
-  workflowName: string;
-  projectName: string;
-  jobCount: number;
-  status: string;
-  started: Date;
-  finished: Date;
-  id: number;
 
   constructor(
-    workflowName: string,
-    projectName: string,
-    jobCount: number,
-    status: string,
-    started: Date,
-    finished: Date,
-    id: number
-  ) {
-    this.workflowName = workflowName;
-    this.projectName = projectName;
-    this.jobCount = jobCount;
-    this.status = status;
-    this.started = started;
-    this.finished = finished;
-    this.id = id;
-  }
+    public workflowName: string,
+    public projectName: string,
+    public jobCount: number,
+    public status: string,
+    public started: Date,
+    public finished: Date,
+    public id: number
+  ) {}
 
 }

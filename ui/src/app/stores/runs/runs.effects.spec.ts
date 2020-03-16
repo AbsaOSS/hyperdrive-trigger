@@ -24,9 +24,9 @@ import {cold} from 'jasmine-marbles';
 import {GetDagRuns} from "./runs.actions";
 import * as RunsActions from "./runs.actions";
 
-import {Sort} from "../../models/dagRunSearch.model";
 import {DagRunModel} from "../../models/dagRun.model";
 import {DagRunFilterResultModel} from "../../models/dagRunSearchResponse.model";
+import {SortModel} from "../../models/dagRunSearchRequest.model";
 
 describe('RunsEffects', () => {
   let underTest: RunsEffects;
@@ -56,7 +56,7 @@ describe('RunsEffects', () => {
       );
       const dagRunFilterResultModel = new DagRunFilterResultModel([dagRunModel], 1);
 
-      const action = new GetDagRuns({pageFrom: 0, pageSize: 0, sort: new Sort('', 0), filters: []});
+      const action = new GetDagRuns({from: 0, size: 0, sort: new SortModel('', 0)});
       mockActions = cold('-a', { a: action });
       const searchDagRunsResponse = cold('-a|', { a: dagRunFilterResultModel });
       const expected = cold('--a', { a: {
@@ -70,7 +70,7 @@ describe('RunsEffects', () => {
     });
 
     it ('should return get dag runs failure if dagRunService.searchDagRuns responds with an error', () => {
-      const action = new GetDagRuns({pageFrom: 0, pageSize: 0, sort: new Sort('', 0), filters: []});
+      const action = new GetDagRuns({from: 0, size: 0, sort: new SortModel('', 0)});
       mockActions = cold('-a', { a: action });
       const errorResponse = cold('-#|');
       spyOn(dagRunService, 'searchDagRuns').and.returnValue(errorResponse);

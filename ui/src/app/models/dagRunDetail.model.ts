@@ -20,12 +20,16 @@ export class DagRunDetailModel {
 export class JobRunModel {
   id: number;
   jobName: string;
-  jobType: Something;
+  jobType: JobType;
   created: Date;
   updated: Date;
-  jobStatus: Something;
+  jobStatus: JobStatus;
 }
 
-export class Something {
+export class JobStatus {
+  name: string
+}
+
+export class JobType {
   name: string
 }

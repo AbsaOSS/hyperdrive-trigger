@@ -29,7 +29,7 @@ export class RunsEffects {
     ofType(RunActions.GET_DAG_RUNS),
     switchMap((action: RunActions.GetDagRuns) => {
       return this.dagRunService.searchDagRuns(
-        action.payload.pageFrom, action.payload.pageSize, action.payload.sort, action.payload.filters
+        action.payload
       ).pipe(
         mergeMap((dagRunFilterResult: DagRunFilterResultModel) => {
           return [{

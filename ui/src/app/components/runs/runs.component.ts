@@ -25,9 +25,12 @@ import {AppState, selectRunState} from "../../stores/app.reducers";
 import {GetDagRuns} from "../../stores/runs/runs.actions";
 import {Subscription} from "rxjs";
 import {skip} from "rxjs/operators";
-import {Filter, Sort} from "../../models/dagRunSearch.model";
 import {dagRunColumns} from "../../constants/dagRunColumns.constants";
-import {dagRunStatuses} from "../../constants/dagRunStatuses.constants";
+import {dagInstanceStatuses} from "../../models/enums/dagInstanceStatuses.constants";
+import {
+  DagRunSearchRequestModel,
+  SortModel
+} from "../../models/dagRunSearchRequest.model";
 
 @Component({
   selector: 'app-runs',
@@ -42,7 +45,7 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
   page: number = 1;
 
   dagRunColumns = dagRunColumns;
-  dagRunStatuses = dagRunStatuses;
+  dagInstanceStatuses = dagInstanceStatuses;
 
   constructor(private store: Store<AppState>) {}
 
@@ -59,18 +62,18 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
   }
 
   onClarityDgRefresh(state: ClrDatagridStateInterface) {
-    let sort: Sort = state.sort ? new Sort(<string>state.sort.by, state.sort.reverse ? -1 : 1) : null;
-    let filters: Filter[] = state.filters ? state.filters.map(filter => <Filter> filter) : [];
+    let sort: SortModel = state.sort ? new SortModel(<string>state.sort.by, state.sort.reverse ? -1 : 1) : undefined;
 
     let pageFrom = state.page.from < 0 ? 0 : state.page.from;
     let pageSize = state.page.size;
 
-    this.store.dispatch(new GetDagRuns({
-      pageFrom: pageFrom,
-      pageSize: pageSize,
-      sort: sort,
-      filters: filters,
-    }));
+    let searchRequestModel: DagRunSearchRequestModel = {
+      from: pageFrom,
+      size: pageSize,
+      sort: sort
+    };
+
+    this.store.dispatch(new GetDagRuns(searchRequestModel));
   }
 
 }
