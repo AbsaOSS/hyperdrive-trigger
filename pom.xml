@@ -55,12 +55,16 @@
         <h2database.version>1.4.200</h2database.version>
         <mockito.version>2.25.0</mockito.version>
         <cronutils.version>9.0.2</cronutils.version>
+        <node.version>12.14.1</node.version>
+        <npm.version>6.13.4</npm.version>
         <scala-maven-plugin.version>3.2.1</scala-maven-plugin.version>
         <maven-resources-plugin.version>3.1.0</maven-resources-plugin.version>
         <maven.ant.plugin.version>1.8</maven.ant.plugin.version>
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
         <scalatest-maven-plugin.version>2.0.0</scalatest-maven-plugin.version>
         <dockerfile-maven.version>1.4.13</dockerfile-maven.version>
+        <frontend.maven.plugin.version>1.9.0</frontend.maven.plugin.version>
+
 
         <skip.docker>true</skip.docker>
     </properties>
@@ -277,7 +281,43 @@
                     <noCache>true</noCache>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <version>${frontend.maven.plugin.version}</version>
+                <configuration>
+                    <workingDirectory>ui</workingDirectory>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>install node and npm</id>
+                        <goals>
+                            <goal>install-node-and-npm</goal>
+                        </goals>
+                        <configuration>
+                            <nodeVersion>v${node.version}</nodeVersion>
+                            <npmVersion>${npm.version}</npmVersion>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm install</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>npm build</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>run build</arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
+
     </build>
 
     <profiles>

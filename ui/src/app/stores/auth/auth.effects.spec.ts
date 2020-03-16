@@ -13,7 +13,6 @@ import {HttpClientTestingModule} from '@angular/common/http/testing';
 import {RouterTestingModule} from '@angular/router/testing';
 import {absoluteRoutes} from '../../constants/routes.constants';
 import {localStorageKeys} from '../../constants/localStorage.constants';
-import {routeNames} from '../../constants/routes.constants';
 
 describe('AuthEffects', () => {
   let underTest: AuthEffects;
