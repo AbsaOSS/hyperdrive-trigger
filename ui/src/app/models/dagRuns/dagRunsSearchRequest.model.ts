@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-export class DagRunSearchRequestModel {
+export class DagRunsSearchRequestModel {
   constructor(
     public from: number,
     public size: number,

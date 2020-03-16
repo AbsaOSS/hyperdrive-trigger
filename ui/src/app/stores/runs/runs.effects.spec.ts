@@ -25,8 +25,8 @@ import {GetDagRuns} from "./runs.actions";
 import * as RunsActions from "./runs.actions";
 
 import {DagRunModel} from "../../models/dagRuns/dagRun.model";
-import {DagRunFilterResultModel} from "../../models/dagRuns/dagRunSearchResponse.model";
-import {SortModel} from "../../models/dagRuns/dagRunSearchRequest.model";
+import {DagRunsSearchResponseModel} from "../../models/dagRuns/dagRunsSearchResponse.model";
+import {SortModel} from "../../models/dagRuns/dagRunsSearchRequest.model";
 
 describe('RunsEffects', () => {
   let underTest: RunsEffects;
@@ -54,14 +54,14 @@ describe('RunsEffects', () => {
       let dagRunModel = new DagRunModel(
         'workflowName', 'projectName', 2, 'Status', new Date(Date.now()), new Date(Date.now()), 0
       );
-      const dagRunFilterResultModel = new DagRunFilterResultModel([dagRunModel], 1);
+      const dagRunsSearchResponseModel = new DagRunsSearchResponseModel([dagRunModel], 1);
 
       const action = new GetDagRuns({from: 0, size: 0, sort: new SortModel('', 0)});
       mockActions = cold('-a', { a: action });
-      const searchDagRunsResponse = cold('-a|', { a: dagRunFilterResultModel });
+      const searchDagRunsResponse = cold('-a|', { a: dagRunsSearchResponseModel });
       const expected = cold('--a', { a: {
           type: RunsActions.GET_DAG_RUNS_SUCCESS,
-          payload: { dagRuns: dagRunFilterResultModel }
+          payload: { dagRuns: dagRunsSearchResponseModel }
         }});
 
       spyOn(dagRunService, 'searchDagRuns').and.returnValue(searchDagRunsResponse);

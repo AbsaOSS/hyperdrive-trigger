@@ -15,7 +15,7 @@
 
 import {DagRunModel} from "./dagRun.model";
 
-export class DagRunFilterResultModel {
+export class DagRunsSearchResponseModel {
   runs: DagRunModel[];
   total: number;
 

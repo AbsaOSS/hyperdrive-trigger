@@ -28,9 +28,9 @@ import {skip} from "rxjs/operators";
 import {dagRunColumns} from "../../constants/dagRunColumns.constants";
 import {dagInstanceStatuses} from "../../models/enums/dagInstanceStatuses.constants";
 import {
-  DagRunSearchRequestModel,
+  DagRunsSearchRequestModel,
   SortModel
-} from "../../models/dagRuns/dagRunSearchRequest.model";
+} from "../../models/dagRuns/dagRunsSearchRequest.model";
 
 @Component({
   selector: 'app-runs',
@@ -67,7 +67,7 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
     let pageFrom = state.page.from < 0 ? 0 : state.page.from;
     let pageSize = state.page.size;
 
-    let searchRequestModel: DagRunSearchRequestModel = {
+    let searchRequestModel: DagRunsSearchRequestModel = {
       from: pageFrom,
       size: pageSize,
       sort: sort

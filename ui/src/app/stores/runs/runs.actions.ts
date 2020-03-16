@@ -14,8 +14,8 @@
  */
 
 import {Action} from "@ngrx/store";
-import {DagRunFilterResultModel} from "../../models/dagRuns/dagRunSearchResponse.model";
-import {DagRunSearchRequestModel} from "../../models/dagRuns/dagRunSearchRequest.model";
+import {DagRunsSearchResponseModel} from "../../models/dagRuns/dagRunsSearchResponse.model";
+import {DagRunsSearchRequestModel} from "../../models/dagRuns/dagRunsSearchRequest.model";
 
 export const GET_DAG_RUNS = 'GET_DAG_RUNS';
 export const GET_DAG_RUNS_SUCCESS = 'GET_DAG_RUNS_SUCCESS';
@@ -24,12 +24,12 @@ export const GET_DAG_RUNS_FAILURE = 'GET_DAG_RUNS_FAILURE';
 
 export class GetDagRuns implements Action {
   readonly type = GET_DAG_RUNS;
-  constructor(public payload: DagRunSearchRequestModel) {}
+  constructor(public payload: DagRunsSearchRequestModel) {}
 }
 
 export class GetDagRunsSuccess implements Action {
   readonly type = GET_DAG_RUNS_SUCCESS;
-  constructor(public payload: {dagRuns: DagRunFilterResultModel}) {}
+  constructor(public payload: {dagRuns: DagRunsSearchResponseModel}) {}
 }
 
 export class GetDagRunsFailure implements Action {

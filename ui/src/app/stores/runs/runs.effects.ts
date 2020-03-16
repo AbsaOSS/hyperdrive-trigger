@@ -18,7 +18,7 @@ import {Actions, Effect, ofType} from "@ngrx/effects";
 import * as RunActions from "../runs/runs.actions";
 import {catchError, mergeMap, switchMap} from "rxjs/operators";
 import {DagRunService} from "../../services/dagRun/dag-run.service";
-import {DagRunFilterResultModel} from "../../models/dagRuns/dagRunSearchResponse.model";
+import {DagRunsSearchResponseModel} from "../../models/dagRuns/dagRunsSearchResponse.model";
 
 @Injectable()
 export class RunsEffects {
@@ -31,7 +31,7 @@ export class RunsEffects {
       return this.dagRunService.searchDagRuns(
         action.payload
       ).pipe(
-        mergeMap((dagRunFilterResult: DagRunFilterResultModel) => {
+        mergeMap((dagRunFilterResult: DagRunsSearchResponseModel) => {
           return [{
             type: RunActions.GET_DAG_RUNS_SUCCESS,
             payload: {dagRuns: dagRunFilterResult}

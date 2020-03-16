@@ -15,9 +15,9 @@
 
 import {runsReducer, State} from './runs.reducers';
 import {GetDagRuns, GetDagRunsFailure, GetDagRunsSuccess} from "./runs.actions";
-import {DagRunFilterResultModel} from "../../models/dagRuns/dagRunSearchResponse.model";
+import {DagRunsSearchResponseModel} from "../../models/dagRuns/dagRunsSearchResponse.model";
 import {DagRunModel} from "../../models/dagRuns/dagRun.model";
-import {SortModel} from "../../models/dagRuns/dagRunSearchRequest.model";
+import {SortModel} from "../../models/dagRuns/dagRunsSearchRequest.model";
 
 describe('RunsReducers', () => {
 
@@ -42,7 +42,7 @@ describe('RunsReducers', () => {
     let dagRunModel = new DagRunModel(
       'workflowName', 'projectName', 2, 'Status', new Date(Date.now()), new Date(Date.now()), 0
     );
-    const dagRunFilterResultModel = new DagRunFilterResultModel([dagRunModel], 1);
+    const dagRunFilterResultModel = new DagRunsSearchResponseModel([dagRunModel], 1);
     const runsAction = new GetDagRunsSuccess({dagRuns: dagRunFilterResultModel});
 
     const actual = runsReducer(initialState, runsAction);
