@@ -13,6 +13,11 @@
  * limitations under the License.
  */
 
-clr-datagrid {
+:host, .content-container {
   height: 100%;
+  width: 100%;
+}
+
+:host {
+  display: flex;
 }
