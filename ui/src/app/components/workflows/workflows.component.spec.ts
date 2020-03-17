@@ -16,13 +16,21 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { WorkflowsComponent } from './workflows.component';
+import {provideMockStore} from "@ngrx/store/testing";
 
 describe('WorkflowsComponent', () => {
   let component: WorkflowsComponent;
   let fixture: ComponentFixture<WorkflowsComponent>;
 
+  const initialAppState = {
+    workflows: {}
+  };
+
   beforeEach(async(() => {
     TestBed.configureTestingModule({
+      providers: [
+        provideMockStore({ initialState: initialAppState })
+      ],
       declarations: [ WorkflowsComponent ]
     })
     .compileComponents();

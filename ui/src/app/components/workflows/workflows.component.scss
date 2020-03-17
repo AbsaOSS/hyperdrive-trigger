@@ -13,3 +13,12 @@
  * limitations under the License.
  */
 
+:host {
+  display: flex;
+}
+
+.loading {
+  position: fixed;
+  top: 50%;
+  right: 50%;
+}
