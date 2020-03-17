@@ -16,21 +16,27 @@
 import {ActionReducerMap, createFeatureSelector} from '@ngrx/store';
 import * as fromAuth from "./auth/auth.reducers";
 import * as fromRuns from "./runs/runs.reducers";
+import * as fromWorkflows from "./workflows/workflows.reducers";
 import {authReducer} from "./auth/auth.reducers";
 import {runsReducer} from "./runs/runs.reducers";
+import {workflowsReducer} from "./workflows/workflows.reducers";
 
 export const authKey = 'auth';
 export const runsKey = 'runs';
+export const workflowsKey = 'workflows';
 
 export interface AppState {
   [authKey]: fromAuth.State;
   [runsKey]: fromRuns.State;
+  [workflowsKey]: fromWorkflows.State
 }
 
 export const reducers: ActionReducerMap<AppState> = {
   [authKey]: authReducer,
-  [runsKey]: runsReducer
+  [runsKey]: runsReducer,
+  [workflowsKey]: workflowsReducer
 };
 
 export const selectAuthState = createFeatureSelector<AppState, fromAuth.State>(authKey);
 export const selectRunState = createFeatureSelector<AppState, fromRuns.State>(runsKey);
+export const selectWorkflowState = createFeatureSelector<AppState, fromWorkflows.State>(workflowsKey);
