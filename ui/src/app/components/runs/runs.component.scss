@@ -13,11 +13,16 @@
  * limitations under the License.
  */
 
-:host, .content-container {
+:host, .content-area {
   height: 100%;
   width: 100%;
 }
 
 :host {
   display: flex;
+}
+
+clr-datagrid {
+  height: 100%;
+  width: 100%;
 }
