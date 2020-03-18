@@ -14,10 +14,17 @@
  */
 
 import {runsReducer, State} from './runs.reducers';
-import {GetDagRuns, GetDagRunsFailure, GetDagRunsSuccess} from "./runs.actions";
+import {
+  GetDagRunDetail,
+  GetDagRunDetailFailure, GetDagRunDetailSuccess,
+  GetDagRuns,
+  GetDagRunsFailure,
+  GetDagRunsSuccess
+} from "./runs.actions";
 import {DagRunsSearchResponseModel} from "../../models/dagRuns/dagRunsSearchResponse.model";
 import {DagRunModel} from "../../models/dagRuns/dagRun.model";
 import {SortModel} from "../../models/dagRuns/dagRunsSearchRequest.model";
+import {JobInstanceModel} from "../../models/jobInstance.model";
 
 describe('RunsReducers', () => {
 
@@ -25,7 +32,11 @@ describe('RunsReducers', () => {
     dagRuns: [],
     total: 0,
     page: 1,
-    loading: false
+    loading: false,
+    detail: {
+      loading: false,
+      jobInstances: []
+    }
   } as State;
 
   it('should set loading to true on get dag runs', () => {
@@ -49,7 +60,7 @@ describe('RunsReducers', () => {
 
     expect(actual).toEqual(
       {...initialState, loading: false, total: dagRunFilterResultModel.total, dagRuns: dagRunFilterResultModel.runs}
-      );
+    );
   });
 
   it ('should set initial state with loading to false on get dag runs failure', () => {
@@ -58,6 +69,45 @@ describe('RunsReducers', () => {
     const actual = runsReducer(initialState, runsAction);
 
     expect(actual).toEqual({...initialState, loading: false});
+  });
+
+  it('should set loading to true on get dag run detail', () => {
+    const id = 0;
+    const runsAction = new GetDagRunDetail(id);
+
+    const actual = runsReducer(initialState, runsAction);
+
+    expect(actual).toEqual({...initialState, detail: {loading: true, jobInstances: []}});
+  });
+
+  it('should set detail and loading to false on get dag run detail success', () => {
+    let jobInstances: JobInstanceModel[] = [
+      new JobInstanceModel(
+        0,
+        "jobName0",
+        "JobType",
+        new Date(Date.now()),
+        new Date(Date.now()),
+        'Status'
+      )
+    ];
+    const runsAction = new GetDagRunDetailSuccess(jobInstances);
+
+    const actual = runsReducer(initialState, runsAction);
+
+    expect(actual).toEqual(
+      {...initialState, detail: {
+          loading: false, jobInstances: jobInstances
+        }}
+    );
+  });
+
+  it ('should set initial state with loading to false on get dag run detail failure', () => {
+    const runsAction = new GetDagRunDetailFailure();
+
+    const actual = runsReducer(initialState, runsAction);
+
+    expect(actual).toEqual({...initialState, detail: {loading: false, jobInstances: []}});
   });
 
 });
