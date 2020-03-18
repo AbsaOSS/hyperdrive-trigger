@@ -21,12 +21,13 @@ import {provideMockActions} from "@ngrx/effects/testing";
 import {HttpClientTestingModule} from "@angular/common/http/testing";
 import {Actions} from "@ngrx/effects";
 import {cold} from 'jasmine-marbles';
-import {GetDagRuns} from "./runs.actions";
+import {GetDagRunDetail, GetDagRuns} from "./runs.actions";
 import * as RunsActions from "./runs.actions";
 
 import {DagRunModel} from "../../models/dagRuns/dagRun.model";
 import {DagRunsSearchResponseModel} from "../../models/dagRuns/dagRunsSearchResponse.model";
 import {SortModel} from "../../models/dagRuns/dagRunsSearchRequest.model";
+import {JobInstanceModel} from "../../models/jobInstance.model";
 
 describe('RunsEffects', () => {
   let underTest: RunsEffects;
@@ -79,6 +80,47 @@ describe('RunsEffects', () => {
           type: RunsActions.GET_DAG_RUNS_FAILURE
         }});
       expect(underTest.runsGet).toBeObservable(expected);
+    });
+  });
+
+  describe('runDetailGet', () => {
+    it ('should return dag run detail', () => {
+      const id = 0;
+      const jobInstances: JobInstanceModel[] = [
+        new JobInstanceModel(
+          id,
+          "jobName0",
+          "JobType",
+          new Date(Date.now()),
+          new Date(Date.now()),
+          'Status'
+        )
+      ];
+
+      const action = new GetDagRunDetail(id);
+      mockActions = cold('-a', { a: action });
+      const dagRunDetailResponse = cold('-a|', { a: jobInstances });
+      const expected = cold('--a', { a: {
+          type: RunsActions.GET_DAG_RUN_DETAIL_SUCCESS,
+          payload: jobInstances
+        }});
+
+      spyOn(dagRunService, 'getDagRunDetails').and.returnValue(dagRunDetailResponse);
+
+      expect(underTest.runDetailGet).toBeObservable(expected);
+    });
+
+    it ('should return get dag run detail failure if dagRunService.getDagRunDetails responds with an error', () => {
+      const id = 0;
+      const action = new GetDagRunDetail(id);
+      mockActions = cold('-a', { a: action });
+      const errorResponse = cold('-#|');
+      spyOn(dagRunService, 'getDagRunDetails').and.returnValue(errorResponse);
+
+      const expected = cold('--a', { a: {
+          type: RunsActions.GET_DAG_RUN_DETAIL_FAILURE
+        }});
+      expect(underTest.runDetailGet).toBeObservable(expected);
     });
   });
 
