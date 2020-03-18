@@ -16,11 +16,15 @@
 import {Action} from "@ngrx/store";
 import {DagRunsSearchResponseModel} from "../../models/dagRuns/dagRunsSearchResponse.model";
 import {DagRunsSearchRequestModel} from "../../models/dagRuns/dagRunsSearchRequest.model";
+import {JobInstanceModel} from "../../models/jobInstance.model";
 
 export const GET_DAG_RUNS = 'GET_DAG_RUNS';
 export const GET_DAG_RUNS_SUCCESS = 'GET_DAG_RUNS_SUCCESS';
 export const GET_DAG_RUNS_FAILURE = 'GET_DAG_RUNS_FAILURE';
 
+export const GET_DAG_RUN_DETAIL = 'GET_DAG_RUN_DETAIL';
+export const GET_DAG_RUN_DETAIL_SUCCESS = 'GET_DAG_RUN_DETAIL_SUCCESS';
+export const GET_DAG_RUN_DETAIL_FAILURE = 'GET_DAG_RUN_DETAIL_FAILURE';
 
 export class GetDagRuns implements Action {
   readonly type = GET_DAG_RUNS;
@@ -36,4 +40,20 @@ export class GetDagRunsFailure implements Action {
   readonly type = GET_DAG_RUNS_FAILURE;
 }
 
-export type RunsActions = GetDagRuns | GetDagRunsSuccess | GetDagRunsFailure;
+export class GetDagRunDetail implements Action {
+  readonly type = GET_DAG_RUN_DETAIL;
+  constructor(public payload: number) {}
+}
+
+export class GetDagRunDetailSuccess implements Action {
+  readonly type = GET_DAG_RUN_DETAIL_SUCCESS;
+  constructor(public payload: JobInstanceModel[]) {}
+}
+
+export class GetDagRunDetailFailure implements Action {
+  readonly type = GET_DAG_RUN_DETAIL_FAILURE;
+}
+
+export type RunsActions =
+  GetDagRuns | GetDagRunsSuccess | GetDagRunsFailure |
+  GetDagRunDetail | GetDagRunDetailSuccess | GetDagRunDetailFailure;
