@@ -12,7 +12,7 @@ import {Store} from "@ngrx/store";
 })
 export class WorkflowsHomeComponent implements OnInit, OnDestroy {
   workflowsSubscription: Subscription = null;
-  workflows = [];
+  workflows: WorkflowModel[] = [];
 
   constructor(private store: Store<AppState>) {}
 
