@@ -60,7 +60,13 @@
   </clr-dg-row>
 
   <clr-dg-detail *clrIfDetail="let detail">
-    <clr-dg-detail-header>{{detail.workflowName}} ({{detail.projectName}}) - {{detail.started | date:'medium'}} - {{detail.finished | date:'medium'}}</clr-dg-detail-header>
+    <clr-dg-detail-header>
+      <b>Workflow name: </b>{{detail.workflowName}}<br/>
+      <b>Project name: </b>{{detail.projectName}}<br/>
+      <b>Started: </b>{{detail.started | date:'medium'}}<br/>
+      <b>Finished: </b>{{detail.finished | date:'medium'}}<br/>
+      <b>Status: </b>{{detail.status}}
+    </clr-dg-detail-header>
     <clr-dg-detail-body>
       <app-run-detail [dagRunId]="detail.id"></app-run-detail>
     </clr-dg-detail-body>
