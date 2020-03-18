@@ -17,9 +17,17 @@ export class JobInstanceModel {
   constructor(
     public id: number,
     public jobName: string,
-    public jobType: string,
+    public jobType: JobType,
     public created: Date,
     public updated: Date,
-    public jobStatus: string
+    public jobStatus: JobStatus
   ) {}
+}
+
+export class JobStatus {
+  constructor(public name: string){}
+}
+
+export class JobType {
+  constructor(public name: string){}
 }

@@ -24,7 +24,7 @@ import {
 import {DagRunsSearchResponseModel} from "../../models/dagRuns/dagRunsSearchResponse.model";
 import {DagRunModel} from "../../models/dagRuns/dagRun.model";
 import {SortModel} from "../../models/dagRuns/dagRunsSearchRequest.model";
-import {JobInstanceModel} from "../../models/jobInstance.model";
+import {JobInstanceModel, JobStatus, JobType} from "../../models/jobInstance.model";
 
 describe('RunsReducers', () => {
 
@@ -84,11 +84,11 @@ describe('RunsReducers', () => {
     let jobInstances: JobInstanceModel[] = [
       new JobInstanceModel(
         0,
-        "jobName0",
-        "JobType",
+        'jobName0',
+        new JobType('JobType'),
         new Date(Date.now()),
         new Date(Date.now()),
-        'Status'
+        new JobStatus('Status')
       )
     ];
     const runsAction = new GetDagRunDetailSuccess(jobInstances);

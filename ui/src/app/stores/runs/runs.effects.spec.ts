@@ -27,7 +27,7 @@ import * as RunsActions from "./runs.actions";
 import {DagRunModel} from "../../models/dagRuns/dagRun.model";
 import {DagRunsSearchResponseModel} from "../../models/dagRuns/dagRunsSearchResponse.model";
 import {SortModel} from "../../models/dagRuns/dagRunsSearchRequest.model";
-import {JobInstanceModel} from "../../models/jobInstance.model";
+import {JobInstanceModel, JobStatus, JobType} from "../../models/jobInstance.model";
 
 describe('RunsEffects', () => {
   let underTest: RunsEffects;
@@ -89,11 +89,11 @@ describe('RunsEffects', () => {
       const jobInstances: JobInstanceModel[] = [
         new JobInstanceModel(
           id,
-          "jobName0",
-          "JobType",
+          'jobName0',
+          new JobType("JobType"),
           new Date(Date.now()),
           new Date(Date.now()),
-          'Status'
+          new JobStatus('Status')
         )
       ];
 
