@@ -19,7 +19,6 @@ import {ProjectModel} from "../../models/project.model";
 import {Store} from "@ngrx/store";
 import {AppState, selectWorkflowState} from "../../stores/app.reducers";
 import {Subscription} from "rxjs";
-import {skip} from "rxjs/operators";
 import {InitializeWorkflows} from "../../stores/workflows/workflows.actions";
 
 @Component({
@@ -39,7 +38,7 @@ export class WorkflowsComponent implements AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    this.workflowsSubscription = this.store.select(selectWorkflowState).pipe(skip(1)).subscribe((state) => {
+    this.workflowsSubscription = this.store.select(selectWorkflowState).subscribe((state) => {
       this.loading = state.loading;
       this.projects = state.projects;
       this.workflows = state.workflows;

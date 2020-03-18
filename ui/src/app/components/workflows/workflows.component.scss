@@ -13,12 +13,21 @@
  * limitations under the License.
  */
 
-:host {
-  display: flex;
-}
-
 .loading {
   position: fixed;
   top: 50%;
   right: 50%;
+}
+
+:host {
+  display: flex;
+}
+
+:host, .content-area {
+  height: 100%;
+  width: 100%;
+}
+
+.sidenav {
+  width: min-content;
 }

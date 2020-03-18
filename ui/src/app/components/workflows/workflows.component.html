@@ -13,27 +13,27 @@
   ~ limitations under the License.
   -->
 
-<div class="loading" *ngIf="loading">
+  <div class="loading" *ngIf="loading">
     <span class="spinner spinner-inverse">
         Loading...
     </span>
-</div>
+  </div>
 
-<div class="content-area" *ngIf="!loading">
-  <router-outlet></router-outlet>
-</div>
-
-<nav class="sidenav" *ngIf="!loading">
-  <section class="sidenav-content">
-    <a class="nav-link">
-      All workflows
-    </a>
-    <section class="nav-group collapsible" *ngFor="let project of projects; let id = index;">
-      <input [id]="id" type="checkbox" checked>
-      <label [for]="id">{{project.name}}</label>
-      <ul class="nav-list" *ngFor="let workflow of project.workflows">
-        <li><a routerLinkActive="active" class="nav-link">{{workflow.name}}</a></li>
-      </ul>
+  <nav class="sidenav" *ngIf="!loading">
+    <section class="sidenav-content">
+      <a class="nav-link">
+        All workflows
+      </a>
+      <section class="nav-group collapsible" *ngFor="let project of projects; let id = index;">
+        <input [id]="id" type="checkbox" checked>
+        <label [for]="id">{{project.name}}</label>
+        <ul class="nav-list" *ngFor="let workflow of project.workflows">
+          <li><a routerLinkActive="active" class="nav-link">{{workflow.name}}</a></li>
+        </ul>
+      </section>
     </section>
-  </section>
-</nav>
+  </nav>
+
+  <div class="content-area" *ngIf="!loading">
+    <router-outlet *ngIf="!loading"></router-outlet>
+  </div>

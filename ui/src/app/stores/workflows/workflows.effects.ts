@@ -33,7 +33,7 @@ export class WorkflowsEffects {
         mergeMap((projects: ProjectModel[]) => {
           return [{
             type: WorkflowActions.INITIALIZE_WORKFLOWS_SUCCESS,
-            payload: {projects: projects, workflows: [].concat(projects.map((project) => project.workflows))}
+            payload: {projects: projects, workflows: [].concat(...projects.map((project) => project.workflows))}
           }];
         }),
         catchError(() => {
