@@ -13,9 +13,7 @@
   ~ limitations under the License.
   -->
 
-<div class="content-area">
-  <clr-datagrid (clrDgRefresh)="refresh($event)" [clrDgLoading]="loading">
-    <clr-dg-column>ID</clr-dg-column>
+  <clr-datagrid [clrDgLoading]="loading">
     <clr-dg-column>Name</clr-dg-column>
     <clr-dg-column>Type</clr-dg-column>
     <clr-dg-column>Started</clr-dg-column>
@@ -25,7 +23,6 @@
     <clr-dg-placeholder>We couldn't find any jobs run!</clr-dg-placeholder>
 
     <clr-dg-row *ngFor="let jobInstance of jobInstances">
-      <clr-dg-cell>{{jobInstance.id}}</clr-dg-cell>
       <clr-dg-cell>{{jobInstance.jobName}}</clr-dg-cell>
       <clr-dg-cell>{{jobInstance.jobType.name}}</clr-dg-cell>
       <clr-dg-cell>{{jobInstance.created | date:'medium'}}</clr-dg-cell>
@@ -33,12 +30,10 @@
       <clr-dg-cell [ngSwitch]="jobInstance.jobStatus.name">
         <clr-icon *ngSwitchCase="jobStatuses.IN_QUEUE" shape="clock" class="is-solid" style="color: grey"></clr-icon>
         <clr-icon *ngSwitchCase="jobStatuses.RUNNING" shape="play" class="is-solid" style="color: blue"></clr-icon>
-        <clr-icon *ngSwitchCase="jobStatuses.SUCCEEDED" shape="success-standard" class="is-solid"
-                  style="color: green"></clr-icon>
+        <clr-icon *ngSwitchCase="jobStatuses.SUCCEEDED" shape="success-standard" class="is-solid" style="color: green"></clr-icon>
         <clr-icon *ngSwitchCase="jobStatuses.FAILED" shape="error-standard" class="is-solid" style="color: red"></clr-icon>
         <clr-icon *ngSwitchDefault shape="help" class="is-solid" style="color: darkgoldenrod"></clr-icon>
         {{jobInstance.jobStatus.name}}
       </clr-dg-cell>
     </clr-dg-row>
   </clr-datagrid>
-</div>
