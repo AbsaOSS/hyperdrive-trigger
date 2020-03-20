@@ -19,6 +19,7 @@ import * as RunActions from "../runs/runs.actions";
 import {catchError, mergeMap, switchMap} from "rxjs/operators";
 import {DagRunService} from "../../services/dagRun/dag-run.service";
 import {DagRunsSearchResponseModel} from "../../models/dagRuns/dagRunsSearchResponse.model";
+import {JobInstanceModel} from "../../models/jobInstance.model";
 
 @Injectable()
 export class RunsEffects {
@@ -40,6 +41,27 @@ export class RunsEffects {
         catchError(() => {
           return [{
             type: RunActions.GET_DAG_RUNS_FAILURE
+          }];
+        })
+      )})
+  );
+
+  @Effect({dispatch: true})
+  runDetailGet = this.actions.pipe(
+    ofType(RunActions.GET_DAG_RUN_DETAIL),
+    switchMap((action: RunActions.GetDagRunDetail) => {
+      return this.dagRunService.getDagRunDetails(
+        action.payload
+      ).pipe(
+        mergeMap((jobInstance: JobInstanceModel[]) => {
+          return [{
+            type: RunActions.GET_DAG_RUN_DETAIL_SUCCESS,
+            payload: jobInstance
+          }];
+        }),
+        catchError(() => {
+          return [{
+            type: RunActions.GET_DAG_RUN_DETAIL_FAILURE
           }];
         })
       )})

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import {Observable} from "rxjs";
 import {map} from "rxjs/operators";
 import {HttpClient, HttpParams} from "@angular/common/http";
@@ -37,14 +37,14 @@ export class DagRunService {
         observe: 'response'
       }
     ).pipe(
-      map( _ => {
+      map(_ => {
         return _.body
       })
     );
   }
 
-  getDagRunDetails(dagRunId: string) {
-    let params = new HttpParams().set('dagInstanceId', dagRunId);
+  getDagRunDetails(dagRunId: number): Observable<JobInstanceModel[]> {
+    let params = new HttpParams().set('dagInstanceId', dagRunId.toString());
 
     return this.httpClient.get<JobInstanceModel[]>(
       api.JOB_INSTANCES,
@@ -53,10 +53,10 @@ export class DagRunService {
         observe: 'response'
       }
     ).pipe(
-      map( _ => {
+      map(_ => {
         return _.body
       })
-    ).toPromise();
+    );
   }
 
 }
