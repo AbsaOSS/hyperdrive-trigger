@@ -14,18 +14,20 @@
  */
 
 export class JobInstanceModel {
-  id: number;
-  jobName: string;
-  jobType: JobType;
-  created: Date;
-  updated: Date;
-  jobStatus: JobStatus;
+  constructor(
+    public id: number,
+    public jobName: string,
+    public jobType: JobType,
+    public created: Date,
+    public updated: Date,
+    public jobStatus: JobStatus
+  ) {}
 }
 
 export class JobStatus {
-  name: string
+  constructor(public name: string){}
 }
 
 export class JobType {
-  name: string
+  constructor(public name: string){}
 }

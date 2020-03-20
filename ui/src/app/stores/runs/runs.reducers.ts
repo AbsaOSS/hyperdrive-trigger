@@ -15,19 +15,28 @@
 
 import * as RunsActions from "../runs/runs.actions";
 import {DagRunModel} from "../../models/dagRuns/dagRun.model";
+import {JobInstanceModel} from "../../models/jobInstance.model";
 
 export interface State {
   dagRuns: DagRunModel[]
   total: number
   page: number
   loading: boolean
+  detail: {
+    loading: boolean,
+    jobInstances: JobInstanceModel[]
+  }
 }
 
 const initialState: State = {
   dagRuns: [],
   total: 0,
   page: 1,
-  loading: true
+  loading: false,
+  detail: {
+    loading: false,
+    jobInstances: []
+  }
 };
 
 export function runsReducer(state: State = initialState, action: RunsActions.RunsActions) {
@@ -38,6 +47,18 @@ export function runsReducer(state: State = initialState, action: RunsActions.Run
       return {...state, loading: false, total: action.payload.dagRuns.total, dagRuns: action.payload.dagRuns.runs};
     case (RunsActions.GET_DAG_RUNS_FAILURE):
       return {...initialState, loading: false};
+    case (RunsActions.GET_DAG_RUN_DETAIL):
+      return {...state, detail: {
+          loading: true, jobInstances: []
+        }};
+    case (RunsActions.GET_DAG_RUN_DETAIL_SUCCESS):
+      return {...state, detail: {
+          loading: false, jobInstances: action.payload
+        }};
+    case (RunsActions.GET_DAG_RUN_DETAIL_FAILURE):
+      return {...state, detail: {
+          loading: false, jobInstances: []
+        }};
     default:
       return state;
   }
