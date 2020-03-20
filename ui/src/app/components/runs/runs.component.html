@@ -13,11 +13,11 @@
   ~ limitations under the License.
   -->
 <div class="content-area">
-  <clr-datagrid (clrDgRefresh)="onClarityDgRefresh($event)" [clrDgLoading]="loading">
+  <clr-datagrid #asdasd (clrDgRefresh)="onClarityDgRefresh($event)" [clrDgLoading]="loading">
 
     <clr-dg-action-bar>
       <div class="btn-group">
-        <button type="button" class="btn btn-sm btn-secondary">
+        <button type="button" class="btn btn-sm btn-secondary" (click)="clear()">
           <clr-icon shape="trash"></clr-icon>
           Clear filters
         </button>
@@ -25,7 +25,7 @@
           <clr-icon shape="trash"></clr-icon>
           Clear sort
         </button>
-        <button type="button" class="btn btn-sm btn-secondary">
+        <button type="button" class="btn btn-sm btn-secondary" (click)="refresh()">
           <clr-icon shape="refresh"></clr-icon>
           Refresh
         </button>
@@ -34,9 +34,17 @@
 
     <clr-dg-column [clrDgField]="dagRunColumns.WORKFLOW_NAME" [clrFilterValue]>
       <ng-container *clrDgHideableColumn="{hidden: false}">Workflow name</ng-container>
+      <clr-dg-filter [clrDgFilter]="workflowNameFilter">
+        <app-string-filter #workflowNameFilter [property]="dagRunColumns.WORKFLOW_NAME">
+        </app-string-filter>
+      </clr-dg-filter>
     </clr-dg-column>
     <clr-dg-column [clrDgField]="dagRunColumns.PROJECT_NAME">
       <ng-container *clrDgHideableColumn="{hidden: false}">Project name</ng-container>
+      <clr-dg-filter [clrDgFilter]="projectNameFilter">
+        <app-string-filter #projectNameFilter [property]="dagRunColumns.PROJECT_NAME">
+        </app-string-filter>
+      </clr-dg-filter>
     </clr-dg-column>
     <clr-dg-column [clrDgField]="dagRunColumns.JOB_COUNT">
       <ng-container *clrDgHideableColumn="{hidden: false}">Job count</ng-container>

@@ -16,13 +16,13 @@
 import {
   AfterViewInit,
   Component,
-  OnDestroy
+  OnDestroy, QueryList, ViewChild, ViewChildren
 } from '@angular/core';
 import {DagRunModel} from "../../models/dagRuns/dagRun.model";
-import {ClrDatagridStateInterface} from "@clr/angular";
+import {ClrDatagridColumn, ClrDatagridStateInterface} from "@clr/angular";
 import {Store} from "@ngrx/store";
 import {AppState, selectRunState} from "../../stores/app.reducers";
-import {GetDagRuns} from "../../stores/runs/runs.actions";
+import {GetDagRuns, RemoveFilters} from "../../stores/runs/runs.actions";
 import {Subscription} from "rxjs";
 import {skip} from "rxjs/operators";
 import {dagRunColumns} from "../../constants/dagRunColumns.constants";
@@ -39,10 +39,18 @@ import {
 })
 export class RunsComponent implements OnDestroy, AfterViewInit {
   runsSubscription: Subscription = null;
+  page: number = 1;
+  pageFrom: number = 0;
+  pageSize: number = 0;
+  sort: SortModel = null;
+
   dagRuns: DagRunModel[] = [];
   total: number = 0;
   loading: boolean = true;
-  page: number = 1;
+  filters: any = {};
+
+
+
 
   dagRunColumns = dagRunColumns;
   dagInstanceStatuses = dagInstanceStatuses;
@@ -54,6 +62,7 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
       this.dagRuns = state.dagRuns;
       this.total = state.total;
       this.loading = state.loading;
+      this.filters = state.filters;
     });
   }
 
@@ -62,18 +71,26 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
   }
 
   onClarityDgRefresh(state: ClrDatagridStateInterface) {
-    let sort: SortModel = state.sort ? new SortModel(<string>state.sort.by, state.sort.reverse ? -1 : 1) : undefined;
+    this.sort = state.sort ? new SortModel(<string>state.sort.by, state.sort.reverse ? -1 : 1) : undefined;
+    this.pageFrom = state.page.from < 0 ? 0 : state.page.from;
+    this.pageSize = state.page.size;
+    this.refresh();
+  }
 
-    let pageFrom = state.page.from < 0 ? 0 : state.page.from;
-    let pageSize = state.page.size;
-
+  refresh() {
     let searchRequestModel: DagRunsSearchRequestModel = {
-      from: pageFrom,
-      size: pageSize,
-      sort: sort
+      from: this.pageFrom,
+      size: this.pageSize,
+      sort: this.sort
     };
 
     this.store.dispatch(new GetDagRuns(searchRequestModel));
+  }
+
+
+  clear() {
+    console.log('remove filters');
+    this.store.dispatch(new RemoveFilters());
   }
 
 }

@@ -1,0 +1,10 @@
+<div class="clr-row">
+  <div class="clr-col">
+    <input #yourElement clrInput type="text" name="example" [(ngModel)]="value" (ngModelChange)='changed($event)'/>
+  </div>
+  <div class="clr-col">
+    <button type="button" class="btn btn-link btn-icon" (click)="onRemove()" [disabled]="!isActive()">
+      <clr-icon shape="trash"></clr-icon>
+    </button>
+  </div>
+</div>

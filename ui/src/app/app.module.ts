@@ -43,6 +43,7 @@ import {RunDetailComponent} from "./components/runs/run-detail/run-detail.compon
 import {RunsEffects} from "./stores/runs/runs.effects";
 import {WorkflowsEffects} from "./stores/workflows/workflows.effects";
 import { WorkflowsHomeComponent } from './components/workflows/workflows-home/workflows-home.component';
+import { StringFilterComponent } from './components/runs/filters/string-filter/string-filter.component';
 
 @NgModule({
   declarations: [
@@ -52,7 +53,8 @@ import { WorkflowsHomeComponent } from './components/workflows/workflows-home/wo
     WorkflowsComponent,
     RunsComponent,
     RunDetailComponent,
-    WorkflowsHomeComponent
+    WorkflowsHomeComponent,
+    StringFilterComponent
   ],
   imports: [
     BrowserModule,
