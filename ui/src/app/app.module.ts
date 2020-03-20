@@ -13,24 +13,24 @@
  * limitations under the License.
  */
 
-import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import {BrowserModule} from '@angular/platform-browser';
+import {NgModule} from '@angular/core';
 
-import { AppComponent } from './app.component';
-import { HomeComponent } from './components/home/home.component';
-import { LoginComponent } from "./components/login/login.component";
-import { WorkflowsComponent } from './components/workflows/workflows.component';
-import { RunsComponent } from './components/runs/runs.component';
+import {AppComponent} from './app.component';
+import {HomeComponent} from './components/home/home.component';
+import {LoginComponent} from "./components/login/login.component";
+import {WorkflowsComponent} from './components/workflows/workflows.component';
+import {RunsComponent} from './components/runs/runs.component';
 
-import { AppRoutingModule } from './app-routing.module';
-import { ClarityModule } from '@clr/angular';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { StoreModule } from '@ngrx/store';
-import { EffectsModule } from '@ngrx/effects';
-import { StoreRouterConnectingModule } from '@ngrx/router-store';
-import { reducers } from "./stores/app.reducers";
-import { StoreDevtoolsModule } from '@ngrx/store-devtools';
-import { environment } from '../environments/environment';
+import {AppRoutingModule} from './app-routing.module';
+import {ClarityModule} from '@clr/angular';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import {StoreModule} from '@ngrx/store';
+import {EffectsModule} from '@ngrx/effects';
+import {StoreRouterConnectingModule} from '@ngrx/router-store';
+import {reducers} from "./stores/app.reducers";
+import {StoreDevtoolsModule} from '@ngrx/store-devtools';
+import {environment} from '../environments/environment';
 import {AuthService} from "./services/auth/auth.service";
 import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
 import {FormsModule} from "@angular/forms";
@@ -41,6 +41,8 @@ import {AuthGuardService} from "./services/guards/authGuard.service";
 import {LogInGuardService} from "./services/guards/logInGuard.service";
 import {RunDetailComponent} from "./components/runs/run-detail/run-detail.component";
 import {RunsEffects} from "./stores/runs/runs.effects";
+import {WorkflowsEffects} from "./stores/workflows/workflows.effects";
+import { WorkflowsHomeComponent } from './components/workflows/workflows-home/workflows-home.component';
 
 @NgModule({
   declarations: [
@@ -49,7 +51,8 @@ import {RunsEffects} from "./stores/runs/runs.effects";
     LoginComponent,
     WorkflowsComponent,
     RunsComponent,
-    RunDetailComponent
+    RunDetailComponent,
+    WorkflowsHomeComponent
   ],
   imports: [
     BrowserModule,
@@ -59,7 +62,7 @@ import {RunsEffects} from "./stores/runs/runs.effects";
     BrowserAnimationsModule,
     HttpClientModule,
     StoreModule.forRoot(reducers),
-    EffectsModule.forRoot([AuthEffects, RunsEffects]),
+    EffectsModule.forRoot([AuthEffects, RunsEffects, WorkflowsEffects]),
     StoreRouterConnectingModule.forRoot(),
     !environment.production ? StoreDevtoolsModule.instrument() : []
   ],
@@ -72,4 +75,5 @@ import {RunsEffects} from "./stores/runs/runs.effects";
   ],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {
+}
