@@ -16,7 +16,7 @@
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
 import org.springframework.stereotype.Service
-import za.co.absa.hyperdrive.trigger.models.{ProjectInfo, Workflow, WorkflowJoined}
+import za.co.absa.hyperdrive.trigger.models.{Project, ProjectInfo, Workflow, WorkflowJoined}
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, WorkflowRepository}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -32,7 +32,8 @@ trait WorkflowService {
   def deleteWorkflow(id: Long)(implicit ec: ExecutionContext): Future[Boolean]
   def updateWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Boolean]
   def updateWorkflowActiveState(id: Long, isActive: Boolean)(implicit ec: ExecutionContext): Future[Boolean]
-  def getProjects()(implicit ec: ExecutionContext): Future[Set[String]]
+  def getProjectNames()(implicit ec: ExecutionContext): Future[Set[String]]
+  def getProjects()(implicit ec: ExecutionContext): Future[Seq[Project]]
   def getProjectsInfo()(implicit ec: ExecutionContext): Future[Seq[ProjectInfo]]
   def runWorkflow(workflowId: Long)(implicit ec: ExecutionContext): Future[Boolean]
 }
@@ -68,8 +69,16 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository, o
     workflowRepository.updateWorkflowActiveState(id, isActive: Boolean).map(_ => true)
   }
 
-  override def getProjects()(implicit ec: ExecutionContext): Future[Set[String]] = {
+  override def getProjectNames()(implicit ec: ExecutionContext): Future[Set[String]] = {
     workflowRepository.getProjects().map(_.toSet)
+  }
+
+  override def getProjects()(implicit ec: ExecutionContext): Future[Seq[Project]] = {
+    workflowRepository.getWorkflows().map { workflows =>
+      workflows.groupBy(_.project).map{
+        case (projectName, workflows) => Project(projectName, workflows)
+      }.toSeq
+    }
   }
 
   override def getProjectsInfo()(implicit ec: ExecutionContext): Future[Seq[ProjectInfo]] = {

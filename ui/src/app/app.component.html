@@ -16,7 +16,7 @@
 <div class="main-container">
   <header class="header-6" *ngIf="isAuthenticated">
     <div class="branding">
-      <a href="home" class="nav-link">
+      <a routerLink="{{routes.HOME}}" class="nav-link">
         <clr-icon shape="dashboard"></clr-icon>
         <span class="title">Hyperdrive</span>
       </a>
@@ -40,9 +40,7 @@
   </header>
 
   <div class="content-container">
-    <div class="content-area">
-      <router-outlet></router-outlet>
-    </div>
+    <router-outlet></router-outlet>
   </div>
 
 </div>

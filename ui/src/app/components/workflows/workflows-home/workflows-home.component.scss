@@ -1,5 +1,4 @@
-
-/*
+/*!
  * Copyright 2018 ABSA Group Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,19 +13,7 @@
  * limitations under the License.
  */
 
-export const routeNames = {
-  DEFAULT: '',
-  LOGIN: 'login',
-  HOME: 'home',
-  WORKFLOWS: 'workflows',
-  WORKFLOWS_HOME: '',
-  RUNS: 'runs',
-};
-
-export const absoluteRoutes = {
-  DEFAULT: `/${routeNames.DEFAULT}`,
-  LOGIN: `/${routeNames.LOGIN}`,
-  HOME: `/${routeNames.HOME}`,
-  WORKFLOWS: `/${routeNames.WORKFLOWS}`,
-  RUNS: `/${routeNames.RUNS}`,
-};
+clr-datagrid {
+  height: 100%;
+  width: 100%;
+}

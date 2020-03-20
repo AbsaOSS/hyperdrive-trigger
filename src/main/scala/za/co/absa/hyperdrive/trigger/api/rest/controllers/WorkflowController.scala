@@ -18,7 +18,7 @@ package za.co.absa.hyperdrive.trigger.api.rest.controllers
 import java.util.concurrent.CompletableFuture
 
 import za.co.absa.hyperdrive.trigger.api.rest.services.WorkflowService
-import za.co.absa.hyperdrive.trigger.models.{ProjectInfo, Workflow, WorkflowJoined, WorkflowState}
+import za.co.absa.hyperdrive.trigger.models.{Project, ProjectInfo, Workflow, WorkflowJoined, WorkflowState}
 import javax.inject.Inject
 import org.springframework.web.bind.annotation._
 
@@ -63,8 +63,13 @@ class WorkflowController @Inject()(workflowService: WorkflowService) {
     workflowService.updateWorkflowActiveState(id, workflowState.isActive).toJava.toCompletableFuture
   }
 
+  @GetMapping(path = Array("/workflows/projectNames"))
+  def getProjectNames(): CompletableFuture[Set[String]] = {
+    workflowService.getProjectNames.toJava.toCompletableFuture
+  }
+
   @GetMapping(path = Array("/workflows/projects"))
-  def getProjects(): CompletableFuture[Set[String]] = {
+  def getProjects(): CompletableFuture[Seq[Project]] = {
     workflowService.getProjects.toJava.toCompletableFuture
   }
 

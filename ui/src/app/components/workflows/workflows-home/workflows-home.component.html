@@ -1,0 +1,31 @@
+<clr-datagrid>
+
+  <clr-dg-action-bar>
+    <div class="btn-group">
+      <button type="button" class="btn btn-sm btn-secondary"><clr-icon shape="plus"></clr-icon> Create new workflow </button>
+    </div>
+  </clr-dg-action-bar>
+
+  <clr-dg-column>Workflow name</clr-dg-column>
+  <clr-dg-column>Project name</clr-dg-column>
+  <clr-dg-column>Is active</clr-dg-column>
+
+  <clr-dg-row *clrDgItems="let workflow of workflows" [clrDgItem]="workflow">
+    <clr-dg-action-overflow>
+      <button type="button" class="action-item"><clr-icon shape="eye"></clr-icon> Show </button>
+      <button type="button" class="action-item"><clr-icon shape="power"></clr-icon> Activate/Deactivate </button>
+      <button type="button" class="action-item"><clr-icon shape="copy"></clr-icon> Copy </button>
+      <button type="button" class="action-item"><clr-icon shape="pencil"></clr-icon> Edit </button>
+      <button type="button" class="action-item"><clr-icon shape="close" ></clr-icon> Delete </button>
+    </clr-dg-action-overflow>
+
+    <clr-dg-cell>{{workflow.name}}</clr-dg-cell>
+    <clr-dg-cell>{{workflow.project}}</clr-dg-cell>
+    <clr-dg-cell [ngSwitch]="workflow.isActive">
+      <clr-icon *ngSwitchCase="true" shape="circle" class="is-solid" style="color: green"></clr-icon>
+      <clr-icon *ngSwitchCase="false" shape="circle" class="is-solid" style="color: red"></clr-icon>
+      {{workflow.isActive ? 'Yes' : 'No'}}
+    </clr-dg-cell>
+  </clr-dg-row>
+</clr-datagrid>
+

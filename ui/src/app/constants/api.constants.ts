@@ -20,5 +20,7 @@ export const api = {
   LOGOUT: '/logout',
 
   DAG_RUN_SEARCH: '/dagRuns/search',
-  JOB_INSTANCES: '/jobInstances'
+  JOB_INSTANCES: '/jobInstances',
+
+  GET_PROJECTS: '/workflows/projects'
 };
