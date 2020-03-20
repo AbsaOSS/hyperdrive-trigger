@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -14,19 +13,9 @@
  * limitations under the License.
  */
 
-export const routeNames = {
-  DEFAULT: '',
-  LOGIN: 'login',
-  HOME: 'home',
-  WORKFLOWS: 'workflows',
-  WORKFLOWS_HOME: '',
-  RUNS: 'runs',
-};
+package za.co.absa.hyperdrive.trigger.models
 
-export const absoluteRoutes = {
-  DEFAULT: `/${routeNames.DEFAULT}`,
-  LOGIN: `/${routeNames.LOGIN}`,
-  HOME: `/${routeNames.HOME}`,
-  WORKFLOWS: `/${routeNames.WORKFLOWS}`,
-  RUNS: `/${routeNames.RUNS}`,
-};
+case class Project(
+  name: String,
+  workflows: Seq[Workflow]
+)

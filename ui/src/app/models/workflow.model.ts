@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -14,19 +13,15 @@
  * limitations under the License.
  */
 
-export const routeNames = {
-  DEFAULT: '',
-  LOGIN: 'login',
-  HOME: 'home',
-  WORKFLOWS: 'workflows',
-  WORKFLOWS_HOME: '',
-  RUNS: 'runs',
-};
+export class WorkflowModel {
 
-export const absoluteRoutes = {
-  DEFAULT: `/${routeNames.DEFAULT}`,
-  LOGIN: `/${routeNames.LOGIN}`,
-  HOME: `/${routeNames.HOME}`,
-  WORKFLOWS: `/${routeNames.WORKFLOWS}`,
-  RUNS: `/${routeNames.RUNS}`,
-};
+  constructor(
+    public name: string,
+    public isActive: boolean,
+    public project: string,
+    public created: Date,
+    public updated: Date,
+    public id: number
+  ) {}
+
+}

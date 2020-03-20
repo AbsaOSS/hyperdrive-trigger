@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -14,19 +13,24 @@
  * limitations under the License.
  */
 
-export const routeNames = {
-  DEFAULT: '',
-  LOGIN: 'login',
-  HOME: 'home',
-  WORKFLOWS: 'workflows',
-  WORKFLOWS_HOME: '',
-  RUNS: 'runs',
-};
+import {Injectable} from '@angular/core';
+import {HttpClient} from "@angular/common/http";
+import {api} from "../../constants/api.constants";
+import {map} from "rxjs/operators";
+import {ProjectModel} from "../../models/project.model";
+import {Observable} from "rxjs";
 
-export const absoluteRoutes = {
-  DEFAULT: `/${routeNames.DEFAULT}`,
-  LOGIN: `/${routeNames.LOGIN}`,
-  HOME: `/${routeNames.HOME}`,
-  WORKFLOWS: `/${routeNames.WORKFLOWS}`,
-  RUNS: `/${routeNames.RUNS}`,
-};
+@Injectable({
+  providedIn: 'root'
+})
+export class WorkflowService {
+
+  constructor(private httpClient: HttpClient) {}
+
+  getProjects(): Observable<ProjectModel[]> {
+    return this.httpClient.get<ProjectModel[]>(api.GET_PROJECTS, {observe: 'response'}).pipe(
+      map(_ => _.body)
+    );
+  }
+
+}
