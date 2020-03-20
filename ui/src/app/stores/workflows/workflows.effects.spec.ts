@@ -70,7 +70,7 @@ describe('WorkflowsEffects', () => {
       const getProjectsResponse = cold('-a|', { a: projects });
       const expected = cold('--a', { a: {
           type: WorkflowsActions.INITIALIZE_WORKFLOWS_SUCCESS,
-          payload: {projects: projects, workflows: [].concat(projects.map((project) => project.workflows))}
+          payload: {projects: projects, workflows: [].concat(...projects.map((project) => project.workflows))}
         }});
 
       spyOn(workflowService, 'getProjects').and.returnValue(getProjectsResponse);

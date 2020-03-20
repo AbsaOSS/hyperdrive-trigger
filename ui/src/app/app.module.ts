@@ -42,6 +42,7 @@ import {LogInGuardService} from "./services/guards/logInGuard.service";
 import {RunDetailComponent} from "./components/runs/run-detail/run-detail.component";
 import {RunsEffects} from "./stores/runs/runs.effects";
 import {WorkflowsEffects} from "./stores/workflows/workflows.effects";
+import { WorkflowsHomeComponent } from './components/workflows/workflows-home/workflows-home.component';
 
 @NgModule({
   declarations: [
@@ -50,7 +51,8 @@ import {WorkflowsEffects} from "./stores/workflows/workflows.effects";
     LoginComponent,
     WorkflowsComponent,
     RunsComponent,
-    RunDetailComponent
+    RunDetailComponent,
+    WorkflowsHomeComponent
   ],
   imports: [
     BrowserModule,
