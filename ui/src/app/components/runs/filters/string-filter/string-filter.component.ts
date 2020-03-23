@@ -28,7 +28,7 @@ import {SetFilter} from "../../../../stores/runs/runs.actions";
   styleUrls: ['./string-filter.component.scss']
 })
 export class StringFilterComponent implements ClrDatagridFilterInterface<DagRunModel>, AfterViewInit, OnDestroy {
-  @Input() removeFiltersSubject:Subject<any>;
+  @Input() removeFiltersSubject: Subject<any>;
   @Input() property: string;
   value: string = undefined;
 

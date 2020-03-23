@@ -13,24 +13,32 @@
  * limitations under the License.
  */
 
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import {async, ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { StringFilterComponent } from './string-filter.component';
+import {StringFilterComponent} from './string-filter.component';
+import {MockStore, provideMockStore} from "@ngrx/store/testing";
+import * as fromApp from "../../../../stores/app.reducers";
+import {Subject} from "rxjs";
 
 describe('StringFilterComponent', () => {
   let component: StringFilterComponent;
   let fixture: ComponentFixture<StringFilterComponent>;
 
+  const initialAppState = {};
+
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ StringFilterComponent ]
-    })
-    .compileComponents();
+      providers: [
+        provideMockStore({initialState: initialAppState})
+      ],
+      declarations: [StringFilterComponent]
+    }).compileComponents();
   }));
 
   beforeEach(() => {
     fixture = TestBed.createComponent(StringFilterComponent);
     component = fixture.componentInstance;
+    component.removeFiltersSubject = new Subject<any>();
     fixture.detectChanges();
   });
 
