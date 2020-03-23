@@ -28,7 +28,7 @@ import {skip} from "rxjs/operators";
 import {dagRunColumns} from "../../constants/dagRunColumns.constants";
 import {dagInstanceStatuses} from "../../models/enums/dagInstanceStatuses.constants";
 import {
-  DagRunsSearchRequestModel,
+  DagRunsSearchRequestModel, FiltersModel,
   SortModel
 } from "../../models/dagRuns/dagRunsSearchRequest.model";
 
@@ -47,10 +47,7 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
   dagRuns: DagRunModel[] = [];
   total: number = 0;
   loading: boolean = true;
-  filters: any = {};
-
-
-
+  filters: {[prop:string]: any[]} = {};
 
   dagRunColumns = dagRunColumns;
   dagInstanceStatuses = dagInstanceStatuses;
@@ -74,14 +71,35 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
     this.sort = state.sort ? new SortModel(<string>state.sort.by, state.sort.reverse ? -1 : 1) : undefined;
     this.pageFrom = state.page.from < 0 ? 0 : state.page.from;
     this.pageSize = state.page.size;
+
+    let filters:{[prop:string]: any[]} = {};
+    if (state.filters) {
+      for (let filter of state.filters) {
+        let {property, value} = <{property: string, value: string}>filter;
+        filters[property] = [value];
+      }
+    }
+    this.filters = filters;
     this.refresh();
   }
 
   refresh() {
+    let filters: FiltersModel = new FiltersModel();
+
+    let byWorkflowOption = this.filters[dagRunColumns.WORKFLOW_NAME];
+    let byWorkflow = byWorkflowOption ? byWorkflowOption[0] : undefined;
+
+    let byProjectOption = this.filters[dagRunColumns.PROJECT_NAME];
+    let byProject = byProjectOption ? byProjectOption[0] : undefined;
+    filters.byWorkflowName = byWorkflow;
+    filters.byProjectName = byProject;
+
+
     let searchRequestModel: DagRunsSearchRequestModel = {
       from: this.pageFrom,
       size: this.pageSize,
-      sort: this.sort
+      sort: this.sort,
+      filters: filters
     };
 
     this.store.dispatch(new GetDagRuns(searchRequestModel));

@@ -16,10 +16,11 @@ export class StringFilterComponent implements ClrDatagridFilterInterface<DagRunM
   @Input() property: string;
   value: string = undefined;
 
+  //clarity interface
   changes = new Subject<any>();
-
+  //angular
   modelChanged: Subject<string> = new Subject<string>();
-
+  //ngrx
   subscription: Subscription;
 
   constructor(private store: Store<AppState>) {
@@ -27,6 +28,7 @@ export class StringFilterComponent implements ClrDatagridFilterInterface<DagRunM
       debounceTime(500),
       distinctUntilChanged()
     ).subscribe(model => {
+      console.log('model changed');
       this.value = model;
       this.store.dispatch(new SetFilter({property: this.property, value: this.value}));
       this.changes.next();
@@ -37,7 +39,8 @@ export class StringFilterComponent implements ClrDatagridFilterInterface<DagRunM
     this.subscription = this.store.select(selectRunState).pipe(skip(1)).subscribe((state) => {
       let newValue = state.filters[this.property];
       if(newValue != this.value) {
-        this.modelChanged.next(newValue);
+        this.value = newValue;
+        this.changes.next();
       }
     });
   }
