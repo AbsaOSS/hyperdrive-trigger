@@ -19,7 +19,7 @@ import {
   GetDagRunDetailFailure, GetDagRunDetailSuccess,
   GetDagRuns,
   GetDagRunsFailure,
-  GetDagRunsSuccess, RemoveFilters, SetFilter
+  GetDagRunsSuccess
 } from "./runs.actions";
 import {DagRunsSearchResponseModel} from "../../models/dagRuns/dagRunsSearchResponse.model";
 import {DagRunModel} from "../../models/dagRuns/dagRun.model";
@@ -36,8 +36,7 @@ describe('RunsReducers', () => {
     detail: {
       loading: false,
       jobInstances: []
-    },
-    filters: {}
+    }
   } as State;
 
   it('should set loading to true on get dag runs', () => {
@@ -109,27 +108,6 @@ describe('RunsReducers', () => {
     const actual = runsReducer(initialState, runsAction);
 
     expect(actual).toEqual({...initialState, detail: {loading: false, jobInstances: []}});
-  });
-
-  it('should set filter on set filters', () => {
-    const filter = {property: 'property', value: 'value'};
-    const runsAction = new SetFilter({property: 'property', value: 'value'});
-
-    const actual = runsReducer(initialState, runsAction);
-
-    expect(actual).toEqual({...initialState, filters: {[filter.property]: filter.value}});
-  });
-
-  it('should remove filters on remove filters', () => {
-    const filter = {property: 'property', value: 'value'};
-    const runsActionSetFiler = new SetFilter({property: 'property', value: 'value'});
-    const actualSetFiler = runsReducer(initialState, runsActionSetFiler);
-
-    expect(actualSetFiler).toEqual({...initialState, filters: {[filter.property]: filter.value}});
-
-    const runsActionRemoveFilters = new RemoveFilters();
-    const actualRemoveFilters = runsReducer(actualSetFiler, runsActionRemoveFilters);
-    expect(actualRemoveFilters).toEqual(initialState);
   });
 
 });

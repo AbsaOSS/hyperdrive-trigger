@@ -17,10 +17,7 @@ import {AfterViewInit, Component, Input, OnDestroy} from '@angular/core';
 import {ClrDatagridFilterInterface} from "@clr/angular";
 import {Subject, Subscription} from "rxjs";
 import {DagRunModel} from "../../../../models/dagRuns/dagRun.model";
-import {Store} from "@ngrx/store";
-import {AppState, selectRunState} from "../../../../stores/app.reducers";
-import {debounceTime, distinctUntilChanged, skip} from "rxjs/operators";
-import {SetFilter} from "../../../../stores/runs/runs.actions";
+import {debounceTime, distinctUntilChanged} from "rxjs/operators";
 
 @Component({
   selector: 'app-string-filter',
@@ -38,13 +35,12 @@ export class StringFilterComponent implements ClrDatagridFilterInterface<DagRunM
   modelChanges: Subject<string> = new Subject<string>();
   modelSubscription: Subscription;
 
-  constructor(private store: Store<AppState>) {
+  constructor() {
 
     this.modelSubscription = this.modelChanges.pipe(
       debounceTime(500),
       distinctUntilChanged()
     ).subscribe(newValue => {
-      this.store.dispatch(new SetFilter({property: this.property, value: newValue}));
       this.changes.next();
     });
   }

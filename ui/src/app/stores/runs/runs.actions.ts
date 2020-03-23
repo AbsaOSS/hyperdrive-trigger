@@ -26,9 +26,6 @@ export const GET_DAG_RUN_DETAIL = 'GET_DAG_RUN_DETAIL';
 export const GET_DAG_RUN_DETAIL_SUCCESS = 'GET_DAG_RUN_DETAIL_SUCCESS';
 export const GET_DAG_RUN_DETAIL_FAILURE = 'GET_DAG_RUN_DETAIL_FAILURE';
 
-export const SET_FILTER = 'SET_FILTER';
-export const REMOVE_FILTERS = 'REMOVE_FILTERS';
-
 export class GetDagRuns implements Action {
   readonly type = GET_DAG_RUNS;
   constructor(public payload: DagRunsSearchRequestModel) {}
@@ -57,17 +54,6 @@ export class GetDagRunDetailFailure implements Action {
   readonly type = GET_DAG_RUN_DETAIL_FAILURE;
 }
 
-export class SetFilter implements Action {
-  readonly type = SET_FILTER;
-  constructor(public payload: {property: string, value: any}) {}
-}
-
-export class RemoveFilters implements Action {
-  readonly type = REMOVE_FILTERS;
-}
-
-
 export type RunsActions =
   GetDagRuns | GetDagRunsSuccess | GetDagRunsFailure |
-  GetDagRunDetail | GetDagRunDetailSuccess | GetDagRunDetailFailure |
-  SetFilter | RemoveFilters;
+  GetDagRunDetail | GetDagRunDetailSuccess | GetDagRunDetailFailure;

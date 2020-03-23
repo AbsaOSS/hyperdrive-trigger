@@ -16,13 +16,13 @@
 import {
   AfterViewInit,
   Component,
-  OnDestroy, QueryList, ViewChild, ViewChildren
+  OnDestroy
 } from '@angular/core';
 import {DagRunModel} from "../../models/dagRuns/dagRun.model";
-import {ClrDatagridColumn, ClrDatagridStateInterface} from "@clr/angular";
+import {ClrDatagridStateInterface} from "@clr/angular";
 import {Store} from "@ngrx/store";
 import {AppState, selectRunState} from "../../stores/app.reducers";
-import {GetDagRuns, RemoveFilters} from "../../stores/runs/runs.actions";
+import {GetDagRuns} from "../../stores/runs/runs.actions";
 import {Subject, Subscription} from "rxjs";
 import {skip} from "rxjs/operators";
 import {dagRunColumns} from "../../constants/dagRunColumns.constants";
@@ -61,7 +61,6 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
       this.dagRuns = state.dagRuns;
       this.total = state.total;
       this.loading = state.loading;
-      this.filters = state.filters;
     });
   }
 
@@ -73,6 +72,15 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
     this.sort = state.sort ? new SortModel(<string>state.sort.by, state.sort.reverse ? -1 : 1) : undefined;
     this.pageFrom = state.page.from < 0 ? 0 : state.page.from;
     this.pageSize = state.page.size;
+
+    let filters:{[prop:string]: any} = {};
+    if (state.filters) {
+      for (let filter of state.filters) {
+        let {property, value} = <{property: string, value: any}>filter;
+        filters[property] = value;
+      }
+    }
+    this.filters = filters;
 
     this.refresh();
   }
@@ -107,7 +115,6 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
 
   clearFilters() {
     this.removeFiltersSubject.next();
-    this.store.dispatch(new RemoveFilters());
   }
 
 }

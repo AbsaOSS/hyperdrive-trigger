@@ -25,8 +25,7 @@ export interface State {
   detail: {
     loading: boolean,
     jobInstances: JobInstanceModel[]
-  },
-  filters: {[prop:string]: any}
+  }
 }
 
 const initialState: State = {
@@ -37,8 +36,7 @@ const initialState: State = {
   detail: {
     loading: false,
     jobInstances: []
-  },
-  filters: {}
+  }
 };
 
 export function runsReducer(state: State = initialState, action: RunsActions.RunsActions) {
@@ -61,10 +59,6 @@ export function runsReducer(state: State = initialState, action: RunsActions.Run
       return {...state, detail: {
           loading: false, jobInstances: []
         }};
-    case (RunsActions.SET_FILTER):
-      return {...state, filters: {...state.filters, [action.payload.property]: action.payload.value}};
-    case (RunsActions.REMOVE_FILTERS):
-      return {...state, filters: {...initialState.filters}};
     default:
       return state;
   }

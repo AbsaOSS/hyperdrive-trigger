@@ -24,13 +24,9 @@ describe('StringFilterComponent', () => {
   let component: StringFilterComponent;
   let fixture: ComponentFixture<StringFilterComponent>;
 
-  const initialAppState = {};
-
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      providers: [
-        provideMockStore({initialState: initialAppState})
-      ],
+      providers: [],
       declarations: [StringFilterComponent]
     }).compileComponents();
   }));
