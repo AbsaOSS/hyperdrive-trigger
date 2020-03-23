@@ -23,7 +23,7 @@ import {ClrDatagridColumn, ClrDatagridStateInterface} from "@clr/angular";
 import {Store} from "@ngrx/store";
 import {AppState, selectRunState} from "../../stores/app.reducers";
 import {GetDagRuns, RemoveFilters} from "../../stores/runs/runs.actions";
-import {Subscription} from "rxjs";
+import {Subject, Subscription} from "rxjs";
 import {skip} from "rxjs/operators";
 import {dagRunColumns} from "../../constants/dagRunColumns.constants";
 import {dagInstanceStatuses} from "../../models/enums/dagInstanceStatuses.constants";
@@ -47,10 +47,12 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
   dagRuns: DagRunModel[] = [];
   total: number = 0;
   loading: boolean = true;
-  filters: {[prop:string]: any[]} = {};
+  filters: {[prop:string]: any} = {};
 
   dagRunColumns = dagRunColumns;
   dagInstanceStatuses = dagInstanceStatuses;
+
+  removeFiltersSubject:Subject<any> = new Subject();
 
   constructor(private store: Store<AppState>) {}
 
@@ -72,28 +74,11 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
     this.pageFrom = state.page.from < 0 ? 0 : state.page.from;
     this.pageSize = state.page.size;
 
-    let filters:{[prop:string]: any[]} = {};
-    if (state.filters) {
-      for (let filter of state.filters) {
-        let {property, value} = <{property: string, value: string}>filter;
-        filters[property] = [value];
-      }
-    }
-    this.filters = filters;
     this.refresh();
   }
 
   refresh() {
-    let filters: FiltersModel = new FiltersModel();
-
-    let byWorkflowOption = this.filters[dagRunColumns.WORKFLOW_NAME];
-    let byWorkflow = byWorkflowOption ? byWorkflowOption[0] : undefined;
-
-    let byProjectOption = this.filters[dagRunColumns.PROJECT_NAME];
-    let byProject = byProjectOption ? byProjectOption[0] : undefined;
-    filters.byWorkflowName = byWorkflow;
-    filters.byProjectName = byProject;
-
+    let filters: FiltersModel = this.createFiltersModel(this.filters);
 
     let searchRequestModel: DagRunsSearchRequestModel = {
       from: this.pageFrom,
@@ -105,9 +90,23 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
     this.store.dispatch(new GetDagRuns(searchRequestModel));
   }
 
+  createFiltersModel(filters: {[prop:string]: any}): FiltersModel {
+    let filtersModel = new FiltersModel();
 
-  clear() {
-    console.log('remove filters');
+    let byWorkflowNameOption = this.filters[dagRunColumns.WORKFLOW_NAME];
+    let byWorkflowName = byWorkflowNameOption ? byWorkflowNameOption : undefined;
+
+    let byProjectNameOption = this.filters[dagRunColumns.PROJECT_NAME];
+    let byProjectName = byProjectNameOption ? byProjectNameOption : undefined;
+
+    filters.byWorkflowName = byWorkflowName;
+    filters.byProjectName = byProjectName;
+
+    return filtersModel;
+}
+
+  clearFilters() {
+    this.removeFiltersSubject.next();
     this.store.dispatch(new RemoveFilters());
   }
 

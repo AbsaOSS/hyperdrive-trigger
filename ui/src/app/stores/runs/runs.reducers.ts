@@ -26,7 +26,7 @@ export interface State {
     loading: boolean,
     jobInstances: JobInstanceModel[]
   },
-  filters: {}
+  filters: {[prop:string]: any}
 }
 
 const initialState: State = {
