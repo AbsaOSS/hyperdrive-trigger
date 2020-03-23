@@ -91,16 +91,16 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
   }
 
   createFiltersModel(filters: {[prop:string]: any}): FiltersModel {
-    let filtersModel = new FiltersModel();
-
     let byWorkflowNameOption = this.filters[dagRunColumns.WORKFLOW_NAME];
     let byWorkflowName = byWorkflowNameOption ? byWorkflowNameOption : undefined;
 
     let byProjectNameOption = this.filters[dagRunColumns.PROJECT_NAME];
     let byProjectName = byProjectNameOption ? byProjectNameOption : undefined;
 
-    filters.byWorkflowName = byWorkflowName;
-    filters.byProjectName = byProjectName;
+    let filtersModel: FiltersModel = new FiltersModel(
+      byWorkflowName,
+      byProjectName
+    );
 
     return filtersModel;
 }
