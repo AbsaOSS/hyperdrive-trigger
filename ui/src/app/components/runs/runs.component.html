@@ -35,14 +35,14 @@
     <clr-dg-column [clrDgField]="dagRunColumns.WORKFLOW_NAME" [clrFilterValue]>
       <ng-container *clrDgHideableColumn="{hidden: false}">Workflow name</ng-container>
       <clr-dg-filter [clrDgFilter]="workflowNameFilter">
-        <app-string-filter #workflowNameFilter [removeFiltersSubject]="removeFiltersSubject">
+        <app-string-filter #workflowNameFilter [property]="dagRunColumns.WORKFLOW_NAME" [removeFiltersSubject]="removeFiltersSubject">
         </app-string-filter>
       </clr-dg-filter>
     </clr-dg-column>
     <clr-dg-column [clrDgField]="dagRunColumns.PROJECT_NAME">
       <ng-container *clrDgHideableColumn="{hidden: false}">Project name</ng-container>
       <clr-dg-filter [clrDgFilter]="projectNameFilter">
-        <app-string-filter #projectNameFilter [removeFiltersSubject]="removeFiltersSubject">
+        <app-string-filter #projectNameFilter [property]="dagRunColumns.PROJECT_NAME" [removeFiltersSubject]="removeFiltersSubject">
         </app-string-filter>
       </clr-dg-filter>
     </clr-dg-column>

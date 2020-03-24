@@ -16,8 +16,6 @@
 import {async, ComponentFixture, TestBed} from '@angular/core/testing';
 
 import {StringFilterComponent} from './string-filter.component';
-import {MockStore, provideMockStore} from "@ngrx/store/testing";
-import * as fromApp from "../../../../stores/app.reducers";
 import {Subject} from "rxjs";
 
 describe('StringFilterComponent', () => {
