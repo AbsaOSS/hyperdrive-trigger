@@ -16,12 +16,10 @@
 import {async, ComponentFixture, TestBed} from '@angular/core/testing';
 
 import {StringFilterComponent} from './string-filter.component';
-import {Subject} from "rxjs";
 import {DagRunModel} from "../../../../models/dagRuns/dagRun.model";
 
 describe('StringFilterComponent', () => {
   let fixture: ComponentFixture<StringFilterComponent>;
-  let mockSubject: Subject<any>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
@@ -32,9 +30,6 @@ describe('StringFilterComponent', () => {
 
   beforeEach(() => {
     fixture = TestBed.createComponent(StringFilterComponent);
-    mockSubject = new Subject<any>();
-    fixture.componentInstance.removeFiltersSubject = mockSubject;
-    // fixture.detectChanges();
   });
 
   it('should create', () => {
@@ -85,13 +80,6 @@ describe('StringFilterComponent', () => {
       );
 
       expect(() => underTest.accepts(dagRun)).toThrowError(TypeError);
-    });
-  });
-
-
-  describe('toBeDone', () => {
-    it('toBeDone', () => {
-
     });
   });
 

@@ -32,20 +32,18 @@ export class StringFilterComponent implements ClrDatagridFilterInterface<DagRunM
   //clarity interface
   changes = new Subject<any>();
   //angular
-  modelChanges: Subject<string> = new Subject<string>();
+  modelChanges: Subject<any> = new Subject<any>();
   modelSubscription: Subscription;
 
-  constructor() {
+  constructor() { }
 
+  ngAfterViewInit(): void {
     this.modelSubscription = this.modelChanges.pipe(
       debounceTime(500),
       distinctUntilChanged()
     ).subscribe(newValue => {
       this.changes.next();
     });
-  }
-
-  ngAfterViewInit(): void {
     this.removeFiltersSubject.subscribe(_ => this.onRemoveFilter());
   }
 
@@ -69,7 +67,7 @@ export class StringFilterComponent implements ClrDatagridFilterInterface<DagRunM
 
   onRemoveFilter() {
     this.value = undefined;
-    this.modelChanges.next(undefined)
+    this.modelChanges.next(this.value)
   }
 
 }
