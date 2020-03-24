@@ -15,7 +15,7 @@
 
 <div class="clr-row">
   <div class="clr-col">
-    <input clrInput type="text" [name]='property' [(ngModel)]="value" (ngModelChange)='modelChanged($event)'/>
+    <input clrInput type="text" [(ngModel)]="value" (ngModelChange)='modelChanged($event)'/>
   </div>
   <div class="clr-col">
     <button type="button" class="btn btn-link btn-icon" (click)="onRemoveFilter()" [disabled]="!isActive()">

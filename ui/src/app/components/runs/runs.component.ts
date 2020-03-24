@@ -13,11 +13,7 @@
  * limitations under the License.
  */
 
-import {
-  AfterViewInit,
-  Component,
-  OnDestroy
-} from '@angular/core';
+import {AfterViewInit, Component, OnDestroy} from '@angular/core';
 import {DagRunModel} from "../../models/dagRuns/dagRun.model";
 import {ClrDatagridStateInterface} from "@clr/angular";
 import {Store} from "@ngrx/store";
@@ -27,10 +23,7 @@ import {Subject, Subscription} from "rxjs";
 import {skip} from "rxjs/operators";
 import {dagRunColumns} from "../../constants/dagRunColumns.constants";
 import {dagInstanceStatuses} from "../../models/enums/dagInstanceStatuses.constants";
-import {
-  DagRunsSearchRequestModel, FiltersModel,
-  SortModel
-} from "../../models/dagRuns/dagRunsSearchRequest.model";
+import {DagRunsSearchRequestModel, FiltersModel, SortModel} from "../../models/dagRuns/dagRunsSearchRequest.model";
 
 @Component({
   selector: 'app-runs',
@@ -86,7 +79,7 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
   }
 
   refresh() {
-    let filters: FiltersModel = this.createFiltersModel(this.filters);
+    const filters: FiltersModel = this.createFiltersModel(this.filters);
 
     let searchRequestModel: DagRunsSearchRequestModel = {
       from: this.pageFrom,
@@ -98,20 +91,18 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
     this.store.dispatch(new GetDagRuns(searchRequestModel));
   }
 
-  createFiltersModel(filters: {[prop:string]: any}): FiltersModel {
-    let byWorkflowNameOption = this.filters[dagRunColumns.WORKFLOW_NAME];
-    let byWorkflowName = byWorkflowNameOption ? byWorkflowNameOption : undefined;
+  private createFiltersModel(filters: {[prop:string]: any}): FiltersModel {
+    const byWorkflowNameOption = filters[dagRunColumns.WORKFLOW_NAME];
+    const byWorkflowName = byWorkflowNameOption ? byWorkflowNameOption : undefined;
 
-    let byProjectNameOption = this.filters[dagRunColumns.PROJECT_NAME];
-    let byProjectName = byProjectNameOption ? byProjectNameOption : undefined;
+    const byProjectNameOption = filters[dagRunColumns.PROJECT_NAME];
+    const byProjectName = byProjectNameOption ? byProjectNameOption : undefined;
 
-    let filtersModel: FiltersModel = new FiltersModel(
+    return new FiltersModel(
       byWorkflowName,
       byProjectName
     );
-
-    return filtersModel;
-}
+  }
 
   clearFilters() {
     this.removeFiltersSubject.next();

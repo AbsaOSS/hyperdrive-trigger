@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-import {AfterViewInit, Component, Input, OnDestroy} from '@angular/core';
-import {ClrDatagridFilterInterface} from "@clr/angular";
+import {AfterViewInit, Component, Host, Input, OnDestroy} from '@angular/core';
+import {ClrDatagridColumn, ClrDatagridFilterInterface} from "@clr/angular";
 import {Subject, Subscription} from "rxjs";
 import {DagRunModel} from "../../../../models/dagRuns/dagRun.model";
 import {debounceTime, distinctUntilChanged} from "rxjs/operators";
@@ -26,21 +26,24 @@ import {debounceTime, distinctUntilChanged} from "rxjs/operators";
 })
 export class StringFilterComponent implements ClrDatagridFilterInterface<DagRunModel>, AfterViewInit, OnDestroy {
   @Input() removeFiltersSubject: Subject<any>;
-  @Input() property: string;
   value: string = undefined;
 
   //clarity interface
   changes = new Subject<any>();
+  readonly state?: {property: string, value: string} = {property: undefined, value: undefined};
   //angular
   modelChanges: Subject<string> = new Subject<string>();
   modelSubscription: Subscription;
 
-  constructor() {
 
+
+  constructor(@Host() private column: ClrDatagridColumn) {
     this.modelSubscription = this.modelChanges.pipe(
       debounceTime(500),
       distinctUntilChanged()
     ).subscribe(newValue => {
+      this.state.value = this.value;
+      this.state.property = this.column.field;
       this.changes.next();
     });
   }
@@ -59,7 +62,7 @@ export class StringFilterComponent implements ClrDatagridFilterInterface<DagRunM
   }
 
   accepts(value: DagRunModel): boolean {
-    const state: string = value[this.property];
+    const state: string = value[this.column.field];
     return (!state && !value) || state.includes(this.value);
   }
 
