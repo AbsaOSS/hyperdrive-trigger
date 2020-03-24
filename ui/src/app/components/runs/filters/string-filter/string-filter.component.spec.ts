@@ -17,10 +17,11 @@ import {async, ComponentFixture, TestBed} from '@angular/core/testing';
 
 import {StringFilterComponent} from './string-filter.component';
 import {Subject} from "rxjs";
+import {DagRunModel} from "../../../../models/dagRuns/dagRun.model";
 
 describe('StringFilterComponent', () => {
-  let component: StringFilterComponent;
   let fixture: ComponentFixture<StringFilterComponent>;
+  let mockSubject: Subject<any>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
@@ -31,12 +32,67 @@ describe('StringFilterComponent', () => {
 
   beforeEach(() => {
     fixture = TestBed.createComponent(StringFilterComponent);
-    component = fixture.componentInstance;
-    component.removeFiltersSubject = new Subject<any>();
-    fixture.detectChanges();
+    mockSubject = new Subject<any>();
+    fixture.componentInstance.removeFiltersSubject = mockSubject;
+    // fixture.detectChanges();
   });
 
   it('should create', () => {
-    expect(component).toBeTruthy();
+    const underTest = fixture.componentInstance;
+    expect(underTest).toBeTruthy();
   });
+
+  describe('accepts', () => {
+    it('should accept on exact match', () => {
+      const underTest = fixture.componentInstance;
+      underTest.value = 'value';
+      underTest.property = 'workflowName';
+      const dagRun = new DagRunModel(
+        'value', 'projectName', 2, 'Status', new Date(Date.now()), new Date(Date.now()), 0
+      );
+
+      expect(underTest.accepts(dagRun)).toBeTrue();
+    });
+
+    it('should accept on partial match', () => {
+      const underTest = fixture.componentInstance;
+      underTest.value = 'lue';
+      underTest.property = 'workflowName';
+      const dagRun = new DagRunModel(
+        'value', 'projectName', 2, 'Status', new Date(Date.now()), new Date(Date.now()), 0
+      );
+
+      expect(underTest.accepts(dagRun)).toBeTrue();
+    });
+
+    it('should not accept on no match', () => {
+      const underTest = fixture.componentInstance;
+      underTest.value = 'differentValue';
+      underTest.property = 'workflowName';
+      const dagRun = new DagRunModel(
+        'value', 'projectName', 2, 'Status', new Date(Date.now()), new Date(Date.now()), 0
+      );
+
+      expect(underTest.accepts(dagRun)).toBeFalse();
+    });
+
+    it('should throw error on wrong type', () => {
+      const underTest = fixture.componentInstance;
+      underTest.value = 'differentValue';
+      underTest.property = 'jobCount';
+      const dagRun = new DagRunModel(
+        'value', 'projectName', 2, 'Status', new Date(Date.now()), new Date(Date.now()), 0
+      );
+
+      expect(() => underTest.accepts(dagRun)).toThrowError(TypeError);
+    });
+  });
+
+
+  describe('toBeDone', () => {
+    it('toBeDone', () => {
+
+    });
+  });
+
 });
