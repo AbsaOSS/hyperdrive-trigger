@@ -28,9 +28,11 @@ export class SortModel {
 }
 
 export class FiltersModel {
-  byWorkflowName?: string;
-  byProjectName?: string;
-  byStatus?: string;
+  constructor(
+    public byWorkflowName?: string,
+    public byProjectName?: string,
+    public byStatus?: string
+  ) {}
 }
 
 export class RangeFiltersModel {
