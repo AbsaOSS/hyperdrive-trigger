@@ -13,11 +13,13 @@
  * limitations under the License.
  */
 
+import {ContainsFilterAttributes} from '../filters/containsFilterAttributes.model';
+
 export class DagRunsSearchRequestModel {
   constructor(
     public from: number,
     public size: number,
-    public filters?: FiltersModel,
+    public containsFilterAttributes?: ContainsFilterAttributes[],
     public rangeFilters?: RangeFiltersModel,
     public sort?: SortModel
   ) {}
@@ -25,14 +27,6 @@ export class DagRunsSearchRequestModel {
 
 export class SortModel {
   constructor(public by: String, public order: number) {}
-}
-
-export class FiltersModel {
-  constructor(
-    public byWorkflowName?: string,
-    public byProjectName?: string,
-    public byStatus?: string
-  ) {}
 }
 
 export class RangeFiltersModel {
