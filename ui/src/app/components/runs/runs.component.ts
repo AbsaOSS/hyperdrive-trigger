@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-import {AfterViewInit, Component, OnDestroy} from '@angular/core';
+import {AfterViewInit, Component, OnDestroy, QueryList, ViewChildren} from '@angular/core';
 import {DagRunModel} from "../../models/dagRuns/dagRun.model";
-import {ClrDatagridStateInterface} from "@clr/angular";
+import {ClrDatagridColumn, ClrDatagridStateInterface} from "@clr/angular";
 import {Store} from "@ngrx/store";
 import {AppState, selectRunState} from "../../stores/app.reducers";
 import {GetDagRuns} from "../../stores/runs/runs.actions";
@@ -31,6 +31,8 @@ import {DagRunsSearchRequestModel, FiltersModel, SortModel} from "../../models/d
   styleUrls: ['./runs.component.scss']
 })
 export class RunsComponent implements OnDestroy, AfterViewInit {
+  @ViewChildren(ClrDatagridColumn) columns: QueryList<ClrDatagridColumn>;
+
   runsSubscription: Subscription = null;
   page: number = 1;
   pageFrom: number = 0;
@@ -106,6 +108,10 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
 
   clearFilters() {
     this.removeFiltersSubject.next();
+  }
+
+  clearSort() {
+    !!this.sort ? this.columns.find(_ => _.field == this.sort.by).sortOrder = 0 : undefined;
   }
 
 }

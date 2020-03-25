@@ -12,6 +12,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+
 <div class="content-area">
   <clr-datagrid (clrDgRefresh)="onClarityDgRefresh($event)" [clrDgLoading]="loading">
 
@@ -21,7 +22,7 @@
           <clr-icon shape="trash"></clr-icon>
           Clear filters
         </button>
-        <button type="button" class="btn btn-sm btn-secondary">
+        <button type="button" class="btn btn-sm btn-secondary" (click)="clearSort()">
           <clr-icon shape="trash"></clr-icon>
           Clear sort
         </button>
