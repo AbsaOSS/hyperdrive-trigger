@@ -17,8 +17,13 @@
 package za.co.absa.hyperdrive.trigger.models.filters
 
 trait FilterSearchRequest {
-  val stringEqualsFilters: Seq[StringEqualsFilterAttributes]
-  val containsFilters: Seq[ContainsFilterAttributes]
-  val intRangeFilters: Seq[IntRangeFilterAttributes]
-  val dateTimeRangeFilters: Seq[DateTimeRangeFilterAttributes]
+  val stringEqualsFilterAttributes: Option[Seq[StringEqualsFilterAttributes]]
+  val containsFilterAttributes: Option[Seq[ContainsFilterAttributes]]
+  val intRangeFilterAttributes: Option[Seq[IntRangeFilterAttributes]]
+  val dateTimeRangeFilterAttributes: Option[Seq[DateTimeRangeFilterAttributes]]
+
+  def getStringEqualsFilterAttributes: Seq[StringEqualsFilterAttributes] = stringEqualsFilterAttributes.getOrElse(Seq())
+  def getContainsFilterAttributes: Seq[ContainsFilterAttributes] = containsFilterAttributes.getOrElse(Seq())
+  def getIntRangeFilterAttributes: Seq[IntRangeFilterAttributes] = intRangeFilterAttributes.getOrElse(Seq())
+  def getDateTimeRangeFilterAttributes: Seq[DateTimeRangeFilterAttributes] = dateTimeRangeFilterAttributes.getOrElse(Seq())
 }

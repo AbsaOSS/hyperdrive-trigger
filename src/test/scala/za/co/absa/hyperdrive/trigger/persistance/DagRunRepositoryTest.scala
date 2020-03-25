@@ -119,15 +119,15 @@ class DagRunRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll
 
   "dagRunRepository.searchDagRuns" should "apply filters" in {
     createTestData()
-    val stringEqualsFilterSeq = Seq(
+    val stringEqualsFilterSeq = Option(Seq(
       StringEqualsFilterAttributes(field = "projectName", value = "projectName1")
-    )
-    val intRangeFilterSeq = Seq(
+    ))
+    val intRangeFilterSeq = Option(Seq(
       IntRangeFilterAttributes(field = "jobCount", start = 0, end = 5)
-    )
+    ))
     val dagRunsSearchRequest: DagRunsSearchRequest = DagRunsSearchRequest(
-      stringEqualsFilters = stringEqualsFilterSeq,
-      intRangeFilters = intRangeFilterSeq,
+      stringEqualsFilterAttributes = stringEqualsFilterSeq,
+      intRangeFilterAttributes = intRangeFilterSeq,
       sort = None,
       from = 0,
       size = Integer.MAX_VALUE

@@ -21,14 +21,14 @@ import slick.lifted.{AbstractTable, Query, TableQuery}
 object FilterHelper {
   def addFiltersToQuery[T <: AbstractTable[_] with FilteredTable](tableQuery: TableQuery[T], request: FilterSearchRequest): Query[T, T#TableElementType, Seq] = {
     val initQuery: Query[T, T#TableElementType, Seq] = tableQuery
-    val withStringEquals = request.stringEqualsFilters.foldLeft(initQuery)((query, attributes) =>
+    val withStringEquals = request.getStringEqualsFilterAttributes.foldLeft(initQuery)((query, attributes) =>
       query.filter(table => table.applyStringEqualsFilter(attributes)))
-    val withContains = request.containsFilters.foldLeft(withStringEquals)((query, attributes) =>
+    val withContains = request.getContainsFilterAttributes.foldLeft(withStringEquals)((query, attributes) =>
       query.filter(table => table.applyContainsFilter(attributes)))
-    val withIntRange = request.intRangeFilters.foldLeft(withContains)((query, filterParams) =>
-      query.filter(table => table.applyIntRangeFilter(filterParams)))
-    val withDateTimeRange = request.dateTimeRangeFilters.foldLeft(withIntRange)((query, filterParams) =>
-      query.filter(table => table.applyDateTimeRangeFilter(filterParams)))
+    val withIntRange = request.getIntRangeFilterAttributes.foldLeft(withContains)((query, attributes) =>
+      query.filter(table => table.applyIntRangeFilter(attributes)))
+    val withDateTimeRange = request.getDateTimeRangeFilterAttributes.foldLeft(withIntRange)((query, attributes) =>
+      query.filter(table => table.applyDateTimeRangeFilter(attributes)))
 
     withDateTimeRange
   }

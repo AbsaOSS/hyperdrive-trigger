@@ -18,10 +18,10 @@ package za.co.absa.hyperdrive.trigger.models.dagRuns
 import za.co.absa.hyperdrive.trigger.models.filters.{ContainsFilterAttributes, DateTimeRangeFilterAttributes, FilterSearchRequest, IntRangeFilterAttributes, StringEqualsFilterAttributes}
 
 case class DagRunsSearchRequest(
-  override val stringEqualsFilters: Seq[StringEqualsFilterAttributes] = Seq(),
-  override val containsFilters: Seq[ContainsFilterAttributes] = Seq(),
-  override val intRangeFilters: Seq[IntRangeFilterAttributes] = Seq(),
-  override val dateTimeRangeFilters: Seq[DateTimeRangeFilterAttributes] = Seq(),
+  override val stringEqualsFilterAttributes: Option[Seq[StringEqualsFilterAttributes]] = None,
+  override val containsFilterAttributes: Option[Seq[ContainsFilterAttributes]] = None,
+  override val intRangeFilterAttributes: Option[Seq[IntRangeFilterAttributes]] = None,
+  override val dateTimeRangeFilterAttributes: Option[Seq[DateTimeRangeFilterAttributes]] = None,
   sort: Option[Sort],
   from: Int,
   size: Int

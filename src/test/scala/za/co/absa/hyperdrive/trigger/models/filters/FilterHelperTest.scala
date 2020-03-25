@@ -38,22 +38,22 @@ class FilterHelperTest extends FlatSpec with Matchers with BeforeAndAfterAll wit
   it should "add all filters to the query" in {
     createFilterTestData()
     import FilterTestTableFieldNames._
-    val stringEqualsFilterSeq = Seq(StringEqualsFilterAttributes(field = stringField3, value = "bar"))
-    val containsFilterSeq = Seq(
+    val stringEqualsFilterSeq = Option(Seq(StringEqualsFilterAttributes(field = stringField3, value = "bar")))
+    val containsFilterSeq = Option(Seq(
       ContainsFilterAttributes(field = stringField, value = "value"),
       ContainsFilterAttributes(field = stringField2, value = "str")
-    )
-    val intRangeFilterSeq = Seq(IntRangeFilterAttributes(field = longField, start = 0, end = 1))
-    val dateTimeRangeFilterSeq = Seq(DateTimeRangeFilterAttributes(field = localDateTimeField,
+    ))
+    val intRangeFilterSeq = Option(Seq(IntRangeFilterAttributes(field = longField, start = 0, end = 1)))
+    val dateTimeRangeFilterSeq = Option(Seq(DateTimeRangeFilterAttributes(field = localDateTimeField,
       start = LocalDateTime.of(2019, 1, 1, 1, 1, 1),
-      end = LocalDateTime.of(2021, 1, 1, 1, 1, 1)))
+      end = LocalDateTime.of(2021, 1, 1, 1, 1, 1))))
 
 
     val filterSearchRequest = new FilterSearchRequest {
-      override val stringEqualsFilters: Seq[StringEqualsFilterAttributes] = stringEqualsFilterSeq
-      override val containsFilters: Seq[ContainsFilterAttributes] = containsFilterSeq
-      override val intRangeFilters: Seq[IntRangeFilterAttributes] = intRangeFilterSeq
-      override val dateTimeRangeFilters: Seq[DateTimeRangeFilterAttributes] = dateTimeRangeFilterSeq
+      override val stringEqualsFilterAttributes = stringEqualsFilterSeq
+      override val containsFilterAttributes = containsFilterSeq
+      override val intRangeFilterAttributes = intRangeFilterSeq
+      override val dateTimeRangeFilterAttributes = dateTimeRangeFilterSeq
     }
 
     val query = FilterHelper.addFiltersToQuery(filterTestTable, filterSearchRequest)
