@@ -49,6 +49,10 @@
     </clr-dg-column>
     <clr-dg-column [clrDgField]="dagRunColumns.JOB_COUNT">
       <ng-container *clrDgHideableColumn="{hidden: false}">Job count</ng-container>
+      <clr-dg-filter [clrDgFilter]="jobCountFilter">
+        <app-number-range-filter #jobCountFilter [property]="dagRunColumns.JOB_COUNT" [removeFiltersSubject]="removeFiltersSubject">
+        </app-number-range-filter>
+      </clr-dg-filter>
     </clr-dg-column>
     <clr-dg-column [clrDgField]="dagRunColumns.STARTED">
       <ng-container *clrDgHideableColumn="{hidden: false}">Started</ng-container>
