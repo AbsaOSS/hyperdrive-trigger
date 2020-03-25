@@ -17,14 +17,16 @@ package za.co.absa.hyperdrive.trigger.models.tables
 
 import java.time.LocalDateTime
 
+import slick.jdbc.JdbcProfile
 import slick.lifted.{ColumnOrdered, ProvenShape}
 import za.co.absa.hyperdrive.trigger.models.dagRuns.{DagRun, Sort}
+import za.co.absa.hyperdrive.trigger.models.filters.FilteredTable
 
 trait DagRunTable {
   this: Profile with JdbcTypeMapper =>
   import profile.api._
 
-  final class DagRunTable(tag: Tag) extends Table[DagRun](tag, _tableName = "dag_run_view") {
+  final class DagRunTable(tag: Tag) extends Table[DagRun](tag, _tableName = "dag_run_view") with FilteredTable {
     def workflowName: Rep[String] = column[String]("workflow_name")
     def projectName: Rep[String] = column[String]("project_name")
     def jobCount: Rep[Int] = column[Int]("job_count")
@@ -50,6 +52,9 @@ trait DagRunTable {
       ColumnOrdered(this.sortFields(definedSort.by), slick.ast.Ordering(ordering))
     }
 
+    override def jdbcProfile: JdbcProfile = profile
+
+    override def fieldMapping: Map[String, Rep[_]] = sortFields
   }
 
   lazy val dagRunTable: TableQuery[DagRunTable] = TableQuery[DagRunTable]

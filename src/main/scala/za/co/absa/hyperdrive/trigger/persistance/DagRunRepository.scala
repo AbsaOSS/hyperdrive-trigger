@@ -16,9 +16,8 @@
 package za.co.absa.hyperdrive.trigger.persistance
 
 import org.springframework.stereotype
-import slick.dbio.Effect
-import slick.sql.{FixedSqlAction, FixedSqlStreamingAction}
-import za.co.absa.hyperdrive.trigger.models.dagRuns.{DagRun, DagRunsSearchRequest, DagRunsSearchResponse, Filters, RangeFilters}
+import za.co.absa.hyperdrive.trigger.models.filters.FilterHelper
+import za.co.absa.hyperdrive.trigger.models.dagRuns.{DagRunsSearchRequest, DagRunsSearchResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -31,22 +30,7 @@ class DagRunRepositoryImpl extends DagRunRepository {
   import profile.api._
 
   override def searchDagRuns(dagRunsSearchRequest: DagRunsSearchRequest)(implicit ec: ExecutionContext): Future[DagRunsSearchResponse] = {
-    val definedFilters = dagRunsSearchRequest.filters.getOrElse(Filters(None, None, None))
-    val definedRangeFilters = dagRunsSearchRequest.rangeFilters.getOrElse(RangeFilters(None, None, None))
-    val filteredQuery = dagRunTable
-      .filterOpt(definedFilters.byWorkflowName)((table, value) =>
-        table.workflowName like s"%${value}%")
-      .filterOpt(definedFilters.byProjectName)((table, value) =>
-        table.projectName like s"%${value}%")
-      .filterOpt(definedFilters.byStatus)((table, value) =>
-        table.status === value)
-      .filterOpt(definedRangeFilters.byJobCount)((table, value) =>
-        table.jobCount >= value.start && table.jobCount <= value.end)
-      .filterOpt(definedRangeFilters.byStartedDate)((table, value) =>
-        table.started >= value.start && table.started <= value.end)
-      .filterOpt(definedRangeFilters.byFinishedDate)((table, value) =>
-        table.finished >= value.start && table.finished <= value.end)
-
+    val filteredQuery = FilterHelper.addFiltersToQuery(dagRunTable, dagRunsSearchRequest)
     val length = filteredQuery.length.result
     val result = filteredQuery
       .sortBy(_.sortFields(dagRunsSearchRequest.sort))

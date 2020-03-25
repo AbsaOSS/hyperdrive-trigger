@@ -17,6 +17,7 @@ package za.co.absa.hyperdrive.trigger.persistance
 
 import org.scalatest.{FlatSpec, _}
 import za.co.absa.hyperdrive.trigger.models.dagRuns.{DagRun, DagRunsSearchRequest, DagRunsSearchResponse, Sort}
+import za.co.absa.hyperdrive.trigger.models.filters.{IntRangeFilterAttributes, StringEqualsFilterAttributes}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -38,8 +39,6 @@ class DagRunRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll
 
   "dagRunRepository.searchDagRuns" should "return zero dag runs when db is empty" in {
     val dagRunsSearchRequest: DagRunsSearchRequest = DagRunsSearchRequest(
-      filters = None,
-      rangeFilters = None,
       sort = None,
       from = 0,
       size = Integer.MAX_VALUE
@@ -53,8 +52,6 @@ class DagRunRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll
   "dagRunRepository.searchDagRuns" should "return all dag runs with no search query" in {
     createTestData()
     val dagRunsSearchRequest: DagRunsSearchRequest = DagRunsSearchRequest(
-      filters = None,
-      rangeFilters = None,
       sort = None,
       from = 0,
       size = Integer.MAX_VALUE
@@ -68,8 +65,6 @@ class DagRunRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll
   "dagRunRepository.searchDagRuns" should "using from and size should return paginated dag runs" in {
     createTestData()
     val dagRunsSearchRequest: DagRunsSearchRequest = DagRunsSearchRequest(
-      filters = None,
-      rangeFilters = None,
       sort = None,
       from = 2,
       size = 2
@@ -83,8 +78,6 @@ class DagRunRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll
   "dagRunRepository.searchDagRuns" should "using sort by workflow name (asc order) should return sorted dag runs" in {
     createTestData()
     val dagRunsSearchRequest: DagRunsSearchRequest = DagRunsSearchRequest(
-      filters = None,
-      rangeFilters = None,
       sort = Option(Sort(by = "workflowName", order = 1)),
       from = 0,
       size = Integer.MAX_VALUE
@@ -99,8 +92,6 @@ class DagRunRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll
   "dagRunRepository.searchDagRuns" should "using sort by job count (desc order) should return sorted dag runs" in {
     createTestData()
     val dagRunsSearchRequest: DagRunsSearchRequest = DagRunsSearchRequest(
-      filters = None,
-      rangeFilters = None,
       sort = Option(Sort(by = "jobCount", order = -1)),
       from = 0,
       size = Integer.MAX_VALUE
@@ -115,8 +106,6 @@ class DagRunRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll
   "dagRunRepository.searchDagRuns" should "using sort by started (desc order) should return sorted dag runs" in {
     createTestData()
     val dagRunsSearchRequest: DagRunsSearchRequest = DagRunsSearchRequest(
-      filters = None,
-      rangeFilters = None,
       sort = Option(Sort(by = "started", order = -1)),
       from = 0,
       size = Integer.MAX_VALUE
@@ -128,4 +117,27 @@ class DagRunRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll
     result.runs shouldBe TestData.dagRuns.sortWith((first, second) => first.started.isAfter(second.started))
   }
 
+  "dagRunRepository.searchDagRuns" should "apply filters" in {
+    createTestData()
+    val stringEqualsFilterSeq = Seq(
+      StringEqualsFilterAttributes(field = "projectName", value = "projectName1")
+    )
+    val intRangeFilterSeq = Seq(
+      IntRangeFilterAttributes(field = "jobCount", start = 0, end = 5)
+    )
+    val dagRunsSearchRequest: DagRunsSearchRequest = DagRunsSearchRequest(
+      stringEqualsFilters = stringEqualsFilterSeq,
+      intRangeFilters = intRangeFilterSeq,
+      sort = None,
+      from = 0,
+      size = Integer.MAX_VALUE
+    )
+
+    val result = await(dagRunRepository.searchDagRuns(dagRunsSearchRequest))
+
+    val expected = TestData.dagRuns.filter(dagRun => dagRun.projectName == "projectName1" && dagRun.jobCount <= 5)
+    result.total should be > 0
+    result.total shouldBe expected.size
+    result.runs should contain theSameElementsAs expected
+  }
 }

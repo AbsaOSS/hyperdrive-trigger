@@ -15,40 +15,19 @@
 
 package za.co.absa.hyperdrive.trigger.models.dagRuns
 
-import java.time.LocalDateTime
+import za.co.absa.hyperdrive.trigger.models.filters.{ContainsFilterAttributes, DateTimeRangeFilterAttributes, FilterSearchRequest, IntRangeFilterAttributes, StringEqualsFilterAttributes}
 
 case class DagRunsSearchRequest(
-  filters: Option[Filters],
-  rangeFilters: Option[RangeFilters],
+  override val stringEqualsFilters: Seq[StringEqualsFilterAttributes] = Seq(),
+  override val containsFilters: Seq[ContainsFilterAttributes] = Seq(),
+  override val intRangeFilters: Seq[IntRangeFilterAttributes] = Seq(),
+  override val dateTimeRangeFilters: Seq[DateTimeRangeFilterAttributes] = Seq(),
   sort: Option[Sort],
   from: Int,
   size: Int
-)
+) extends FilterSearchRequest
 
 case class Sort(
   by: String,
   order: Int
 )
-
-case class RangeFilters(
-  byJobCount: Option[IntRange],
-  byStartedDate: Option[DateTimeRange],
-  byFinishedDate: Option[DateTimeRange]
-)
-
-case class IntRange(
-  start: Int,
-  end: Int
-)
-
-case class DateTimeRange(
-  start: LocalDateTime,
-  end: LocalDateTime
-)
-
-case class Filters(
-  byWorkflowName: Option[String],
-  byProjectName: Option[String],
-  byStatus: Option[String]
-)
-
