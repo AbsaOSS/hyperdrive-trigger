@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.filter
+package za.co.absa.hyperdrive.trigger.models.filters
 
 import java.time.LocalDateTime
 
 import slick.lifted.ProvenShape
-import za.co.absa.hyperdrive.trigger.models.filters.FilteredTable
 import za.co.absa.hyperdrive.trigger.persistance.RepositoryTestBase
 
 trait FilterTestBase extends RepositoryTestBase {
@@ -73,7 +72,7 @@ trait FilterTestBase extends RepositoryTestBase {
 
   def dropTable(): Unit = run(filterTestTable.delete)
 
-  def createFilterTestData() = {
+  def createFilterTestData(): Unit = {
     run(filterTestTable.forceInsertAll(FilterTestData.filterTestEntities))
   }
 

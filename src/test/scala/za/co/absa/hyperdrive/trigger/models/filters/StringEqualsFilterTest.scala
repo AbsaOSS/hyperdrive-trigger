@@ -13,15 +13,14 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.filter
+package za.co.absa.hyperdrive.trigger.models.filters
 
 import org.scalatest.{FlatSpec, _}
-import za.co.absa.hyperdrive.trigger.models.filters.{ContainsFilter, ContainsFilterAttributes}
 
-class ContainsFilterTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with FilterTestBase {
+class StringEqualsFilterTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with FilterTestBase {
   import h2Profile.api._
 
-  behavior of ContainsFilter.getClass.getName
+  behavior of StringEqualsFilter.getClass.getName
 
   override def beforeAll: Unit = {
     createSchema()
@@ -35,22 +34,22 @@ class ContainsFilterTest extends FlatSpec with Matchers with BeforeAndAfterAll w
     dropTable()
   }
 
-  it should "find values that contain the search string" in {
+  it should "find values exactly equal to the search string" in {
     createFilterTestData()
-    val filter = ContainsFilterAttributes(field = FilterTestTableFieldNames.stringField, value = "value")
+    val filter = StringEqualsFilterAttributes(field = FilterTestTableFieldNames.stringField, value = "value2")
 
-    val query = filterTestTable.filter(table => table.applyContainsFilter(filter))
+    val query = filterTestTable.filter(table => table.applyStringEqualsFilter(filter))
 
     val result = await(db.run(query.result))
     result should not be empty
-    result should contain theSameElementsAs FilterTestData.filterTestEntities.filter(_.stringValue.contains("value"))
+    result should contain theSameElementsAs FilterTestData.filterTestEntities.filter(_.stringValue == "value2")
   }
 
-  it should "not find values that do not contain the search string" in {
+  it should "not find values different to the search string" in {
     createFilterTestData()
-    val filter = ContainsFilterAttributes(field = FilterTestTableFieldNames.stringField, value = "not-matching-string")
+    val filter = StringEqualsFilterAttributes(field = FilterTestTableFieldNames.stringField, value = "val")
 
-    val query = filterTestTable.filter(table => table.applyContainsFilter(filter))
+    val query = filterTestTable.filter(table => table.applyStringEqualsFilter(filter))
 
     val result = await(db.run(query.result))
     result shouldBe empty

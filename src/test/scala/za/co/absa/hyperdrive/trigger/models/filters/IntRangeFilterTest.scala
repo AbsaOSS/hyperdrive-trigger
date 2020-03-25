@@ -13,10 +13,9 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.filter
+package za.co.absa.hyperdrive.trigger.models.filters
 
 import org.scalatest.{FlatSpec, _}
-import za.co.absa.hyperdrive.trigger.models.filters.{ContainsFilter, ContainsFilterAttributes, IntRangeFilterAttributes}
 
 class IntRangeFilterTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with FilterTestBase {
   import h2Profile.api._
