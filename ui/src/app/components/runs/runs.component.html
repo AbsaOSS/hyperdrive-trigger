@@ -52,9 +52,17 @@
     </clr-dg-column>
     <clr-dg-column [clrDgField]="dagRunColumns.STARTED">
       <ng-container *clrDgHideableColumn="{hidden: false}">Started</ng-container>
+      <clr-dg-filter [clrDgFilter]="startedFilter">
+        <app-datetime-range-filter #startedFilter [property]="dagRunColumns.STARTED" [removeFiltersSubject]="removeFiltersSubject">
+        </app-datetime-range-filter>
+      </clr-dg-filter>
     </clr-dg-column>
     <clr-dg-column [clrDgField]="dagRunColumns.FINISHED">
       <ng-container *clrDgHideableColumn="{hidden: false}">Finished</ng-container>
+      <clr-dg-filter [clrDgFilter]="finishedFilter">
+        <app-datetime-range-filter #finishedFilter [property]="dagRunColumns.FINISHED" [removeFiltersSubject]="removeFiltersSubject">
+        </app-datetime-range-filter>
+      </clr-dg-filter>
     </clr-dg-column>
     <clr-dg-column [clrDgField]="dagRunColumns.STATUS">
       <ng-container *clrDgHideableColumn="{hidden: false}">Status</ng-container>
