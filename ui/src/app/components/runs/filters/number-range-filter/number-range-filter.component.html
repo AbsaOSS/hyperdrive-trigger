@@ -15,10 +15,10 @@
 
 <div class="clr-row">
   <div class="clr-col">
-    <input clrInput type="number" name="example" placeholder="from" [(ngModel)]="value.from" (ngModelChange)='modelChanged($event)'/>
+    <input clrInput type="number" name="from" placeholder="from" [(ngModel)]="value.from" (ngModelChange)='modelChanged($event)'/>
   </div>
   <div class="clr-col">
-    <input clrInput type="number" name="example" placeholder="to" [(ngModel)]="value.to" (ngModelChange)='modelChanged($event)'/>
+    <input clrInput type="number" name="to" placeholder="to" [(ngModel)]="value.to" (ngModelChange)='modelChanged($event)'/>
   </div>
   <div class="clr-col">
     <button type="button" class="btn btn-link btn-icon" (click)="onRemoveFilter()" [disabled]="!isActive()">
