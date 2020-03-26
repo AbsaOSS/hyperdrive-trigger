@@ -13,24 +13,24 @@
  * limitations under the License.
  */
 
-import {AfterViewInit, Component, Input, OnDestroy} from '@angular/core';
+import {AfterViewInit, Component, Input, OnInit} from '@angular/core';
 import {ClrDatagridFilterInterface} from "@clr/angular";
-import {Subject, Subscription} from "rxjs";
 import {DagRunModel} from "../../../../models/dagRuns/dagRun.model";
+import {Subject, Subscription} from "rxjs";
 import {debounceTime, distinctUntilChanged} from "rxjs/operators";
 
 @Component({
-  selector: 'app-string-filter',
-  templateUrl: './string-filter.component.html',
-  styleUrls: ['./string-filter.component.scss']
+  selector: 'app-number-range-filter',
+  templateUrl: './number-range-filter.component.html',
+  styleUrls: ['./number-range-filter.component.scss']
 })
-export class StringFilterComponent implements ClrDatagridFilterInterface<DagRunModel>, AfterViewInit, OnDestroy {
+export class NumberRangeFilterComponent implements ClrDatagridFilterInterface<DagRunModel>, AfterViewInit {
   @Input() removeFiltersSubject: Subject<any>;
   @Input() property: string;
-  value: string = undefined;
+  value: {from: number, to: number} = {from: undefined, to: undefined};
 
   //clarity interface
-  changes = new Subject<any>();
+  changes: Subject<any> = new Subject<any>();
 
   modelChanges: Subject<any> = new Subject<any>();
   modelSubscription: Subscription;
@@ -44,21 +44,21 @@ export class StringFilterComponent implements ClrDatagridFilterInterface<DagRunM
     ).subscribe(newValue => {
       this.changes.next();
     });
+
     this.removeFiltersSubject.subscribe(_ => this.onRemoveFilter());
   }
 
-  ngOnDestroy(): void {
-    this.removeFiltersSubject.unsubscribe();
-    this.modelSubscription.unsubscribe();
+  accepts(item: DagRunModel): boolean {
+    const state: number = item[this.property];
+
+    const left: boolean = !!this.value.from ? this.value.from <= state : true;
+    const right: boolean = !!this.value.to ? this.value.to >= state : true;
+
+    return left && right;
   }
 
   isActive(): boolean {
-    return !!this.value
-  }
-
-  accepts(item: DagRunModel): boolean {
-    const state: string = item[this.property];
-    return (!state && !item) || state.includes(this.value);
+    return !!this.value.from || !!this.value.to
   }
 
   modelChanged(value: string) {
@@ -66,7 +66,7 @@ export class StringFilterComponent implements ClrDatagridFilterInterface<DagRunM
   }
 
   onRemoveFilter() {
-    this.value = undefined;
+    this.value = {from: undefined, to: undefined};
     this.modelChanges.next(this.value)
   }
 

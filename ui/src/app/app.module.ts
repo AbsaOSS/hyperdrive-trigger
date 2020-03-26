@@ -42,8 +42,9 @@ import {LogInGuardService} from "./services/guards/logInGuard.service";
 import {RunDetailComponent} from "./components/runs/run-detail/run-detail.component";
 import {RunsEffects} from "./stores/runs/runs.effects";
 import {WorkflowsEffects} from "./stores/workflows/workflows.effects";
-import { WorkflowsHomeComponent } from './components/workflows/workflows-home/workflows-home.component';
-import { StringFilterComponent } from './components/runs/filters/string-filter/string-filter.component';
+import {WorkflowsHomeComponent} from './components/workflows/workflows-home/workflows-home.component';
+import {StringFilterComponent} from './components/runs/filters/string-filter/string-filter.component';
+import {NumberRangeFilterComponent} from './components/runs/filters/number-range-filter/number-range-filter.component';
 
 @NgModule({
   declarations: [
@@ -54,7 +55,8 @@ import { StringFilterComponent } from './components/runs/filters/string-filter/s
     RunsComponent,
     RunDetailComponent,
     WorkflowsHomeComponent,
-    StringFilterComponent
+    StringFilterComponent,
+    NumberRangeFilterComponent
   ],
   imports: [
     BrowserModule,
