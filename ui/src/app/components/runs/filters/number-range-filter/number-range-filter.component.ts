@@ -31,7 +31,7 @@ export class NumberRangeFilterComponent implements ClrDatagridFilterInterface<Da
 
   //clarity interface
   changes: Subject<any> = new Subject<any>();
-  //angular
+
   modelChanges: Subject<any> = new Subject<any>();
   modelSubscription: Subscription;
 

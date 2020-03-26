@@ -31,7 +31,7 @@ export class StringFilterComponent implements ClrDatagridFilterInterface<DagRunM
 
   //clarity interface
   changes = new Subject<any>();
-  //angular
+
   modelChanges: Subject<any> = new Subject<any>();
   modelSubscription: Subscription;
 
