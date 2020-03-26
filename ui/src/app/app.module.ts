@@ -44,6 +44,7 @@ import {RunsEffects} from "./stores/runs/runs.effects";
 import {WorkflowsEffects} from "./stores/workflows/workflows.effects";
 import { WorkflowsHomeComponent } from './components/workflows/workflows-home/workflows-home.component';
 import { StringFilterComponent } from './components/runs/filters/string-filter/string-filter.component';
+import { StatusFilterComponent } from './components/runs/filters/status-filter/status-filter.component';
 
 @NgModule({
   declarations: [
@@ -54,7 +55,8 @@ import { StringFilterComponent } from './components/runs/filters/string-filter/s
     RunsComponent,
     RunDetailComponent,
     WorkflowsHomeComponent,
-    StringFilterComponent
+    StringFilterComponent,
+    StatusFilterComponent
   ],
   imports: [
     BrowserModule,

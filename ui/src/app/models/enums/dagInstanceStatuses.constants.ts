@@ -14,8 +14,13 @@
  */
 
 export const dagInstanceStatuses = {
-  IN_QUEUE: 'InQueue',
-  RUNNING: 'Running',
-  SUCCEEDED: 'Succeeded',
-  FAILED: 'Failed',
+  IN_QUEUE: {name: 'InQueue', color: 'grey', shape: 'clock'},
+  RUNNING: {name: 'Running', color: 'blue', shape: 'play'},
+  SUCCEEDED: {name: 'Succeeded', color: 'green', shape: 'success-standard'},
+  FAILED: {name: 'Failed', color: 'red', shape: 'error-standard'},
+
+ getStatuses(): {name: string, color: string, shape: string}[] {
+    return [this.IN_QUEUE, this.RUNNING, this.SUCCEEDED, this.FAILED]
+ }
+
 };
