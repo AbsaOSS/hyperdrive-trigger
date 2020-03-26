@@ -15,32 +15,15 @@
 
 import {ContainsFilterAttributes} from '../filters/containsFilterAttributes.model';
 
-export class DagRunsSearchRequestModel {
+export class TableSearchRequestModel {
   constructor(
     public from: number,
     public size: number,
     public containsFilterAttributes?: ContainsFilterAttributes[],
-    public rangeFilters?: RangeFiltersModel,
     public sort?: SortModel
   ) {}
 }
 
 export class SortModel {
   constructor(public by: String, public order: number) {}
-}
-
-export class RangeFiltersModel {
-  byJobCount?: IntRangeModel;
-  byStartedDate?: DateTimeRangeModel;
-  byFinishedDate?: DateTimeRangeModel;
-}
-
-export class IntRangeModel {
-  start: number;
-  end: number;
-}
-
-export class DateTimeRangeModel {
-  start: Date;
-  end: Date;
 }

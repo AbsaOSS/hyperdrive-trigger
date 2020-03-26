@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models.dagRuns
+package za.co.absa.hyperdrive.trigger.models.search
 
-case class DagRunsSearchResponse(
-  runs: Seq[DagRun],
+case class TableSearchResponse[T](
+  items: Seq[T],
   total: Int
 )

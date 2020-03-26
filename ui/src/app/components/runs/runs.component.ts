@@ -23,8 +23,8 @@ import {Subject, Subscription} from "rxjs";
 import {skip} from "rxjs/operators";
 import {dagRunColumns} from "../../constants/dagRunColumns.constants";
 import {dagInstanceStatuses} from "../../models/enums/dagInstanceStatuses.constants";
-import {DagRunsSearchRequestModel, SortModel} from "../../models/dagRuns/dagRunsSearchRequest.model";
 import {ContainsFilterAttributes} from '../../models/filters/containsFilterAttributes.model';
+import {SortModel, TableSearchRequestModel} from '../../models/search/tableSearchRequest.model';
 
 @Component({
   selector: 'app-runs',
@@ -74,7 +74,7 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
   }
 
   refresh() {
-    let searchRequestModel: DagRunsSearchRequestModel = {
+    let searchRequestModel: TableSearchRequestModel = {
       from: this.pageFrom,
       size: this.pageSize,
       sort: this.sort,

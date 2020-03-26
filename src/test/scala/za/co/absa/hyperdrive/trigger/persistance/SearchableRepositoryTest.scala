@@ -13,13 +13,19 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models.filters
+package za.co.absa.hyperdrive.trigger.persistance
 
 import java.time.LocalDateTime
-import org.scalatest.{FlatSpec, _}
 
-class FilterHelperTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with FilterTestBase {
-  import h2Profile.api._
+import org.scalatest.{FlatSpec, _}
+import za.co.absa.hyperdrive.trigger.models.filters._
+import za.co.absa.hyperdrive.trigger.models.search.TableSearchRequest
+import scala.concurrent.ExecutionContext.Implicits.global
+
+class SearchableRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with FilterTestBase {
+
+  class TestEntityRepository extends SearchableRepository
+  private val underTest = new TestEntityRepository
 
   behavior of ContainsFilter.getClass.getName
 
@@ -49,17 +55,19 @@ class FilterHelperTest extends FlatSpec with Matchers with BeforeAndAfterAll wit
       end = LocalDateTime.of(2021, 1, 1, 1, 1, 1))))
 
 
-    val filterSearchRequest = new FilterSearchRequest {
-      override val stringEqualsFilterAttributes = stringEqualsFilterSeq
-      override val containsFilterAttributes = containsFilterSeq
-      override val intRangeFilterAttributes = intRangeFilterSeq
-      override val dateTimeRangeFilterAttributes = dateTimeRangeFilterSeq
-    }
+    val searchRequest = TableSearchRequest (
+      stringEqualsFilterAttributes = stringEqualsFilterSeq,
+      containsFilterAttributes = containsFilterSeq,
+      intRangeFilterAttributes = intRangeFilterSeq,
+      dateTimeRangeFilterAttributes = dateTimeRangeFilterSeq,
+      sort = None,
+      from = 0,
+      size = 50
+    )
 
-    val query = FilterHelper.addFiltersToQuery(filterTestTable, filterSearchRequest)
-    val result = await(db.run(query.result))
+    val result = await(underTest.search(filterTestTable, searchRequest))
 
-    result should not be empty
-    result should contain theSameElementsAs Seq(FilterTestData.t1)
+    result.total shouldBe 1
+    result.items should contain theSameElementsAs Seq(FilterTestData.t1)
   }
 }

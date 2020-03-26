@@ -19,6 +19,7 @@ package za.co.absa.hyperdrive.trigger.models.filters
 import java.time.LocalDateTime
 
 import slick.lifted.ProvenShape
+import za.co.absa.hyperdrive.trigger.models.tables.SearchableTable
 import za.co.absa.hyperdrive.trigger.persistance.RepositoryTestBase
 
 trait FilterTestBase extends RepositoryTestBase {
@@ -40,7 +41,7 @@ trait FilterTestBase extends RepositoryTestBase {
     val localDateTimeField = "localDateTimeField"
   }
 
-  final class FilterTestTable(tag: Tag) extends Table[FilterTestEntity](tag, _tableName = "test_entity") with FilteredTable {
+  final class FilterTestTable(tag: Tag) extends Table[FilterTestEntity](tag, _tableName = "test_entity") with SearchableTable {
     def longField: Rep[Long] = column[Long]("long_field")
 
     def stringField: Rep[String] = column[String]("string_field")
@@ -62,6 +63,8 @@ trait FilterTestBase extends RepositoryTestBase {
       FilterTestTableFieldNames.stringField3 -> stringField3,
       FilterTestTableFieldNames.localDateTimeField -> localDateTimeField
     )
+
+    override def defaultSortColumn: Rep[_] = longField
   }
 
   lazy val filterTestTable = TableQuery[FilterTestTable]

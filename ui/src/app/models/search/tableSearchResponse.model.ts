@@ -13,14 +13,6 @@
  * limitations under the License.
  */
 
-import {DagRunModel} from "./dagRun.model";
-
-export class DagRunsSearchResponseModel {
-  runs: DagRunModel[];
-  total: number;
-
-  constructor(runs: DagRunModel[], total: number) {
-    this.runs = runs;
-    this.total = total;
-  }
+export class TableSearchResponseModel<T> {
+  constructor(public items: T[], public total: number) { }
 }

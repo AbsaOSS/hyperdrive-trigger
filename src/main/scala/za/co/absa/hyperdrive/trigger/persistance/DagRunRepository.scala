@@ -16,35 +16,18 @@
 package za.co.absa.hyperdrive.trigger.persistance
 
 import org.springframework.stereotype
-import za.co.absa.hyperdrive.trigger.models.filters.FilterHelper
-import za.co.absa.hyperdrive.trigger.models.dagRuns.{DagRunsSearchRequest, DagRunsSearchResponse}
+import za.co.absa.hyperdrive.trigger.models.dagRuns.DagRun
+import za.co.absa.hyperdrive.trigger.models.search.{TableSearchRequest, TableSearchResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 trait DagRunRepository extends Repository {
-  def searchDagRuns(dagRunsSearchRequest: DagRunsSearchRequest)(implicit ec: ExecutionContext): Future[DagRunsSearchResponse]
+  def searchDagRuns(searchRequest: TableSearchRequest)(implicit ec: ExecutionContext): Future[TableSearchResponse[DagRun]]
 }
 
 @stereotype.Repository
-class DagRunRepositoryImpl extends DagRunRepository {
-  import profile.api._
-
-  override def searchDagRuns(dagRunsSearchRequest: DagRunsSearchRequest)(implicit ec: ExecutionContext): Future[DagRunsSearchResponse] = {
-    val filteredQuery = FilterHelper.addFiltersToQuery(dagRunTable, dagRunsSearchRequest)
-    val length = filteredQuery.length.result
-    val result = filteredQuery
-      .sortBy(_.sortFields(dagRunsSearchRequest.sort))
-      .drop(dagRunsSearchRequest.from)
-      .take(dagRunsSearchRequest.size).result
-
-    db.run {(
-      for {
-        l <- length
-        r <- result
-      } yield {
-        DagRunsSearchResponse(runs = r, total = l)
-      }
-    )}
+class DagRunRepositoryImpl extends DagRunRepository with SearchableRepository {
+  override def searchDagRuns(searchRequest: TableSearchRequest)(implicit ec: ExecutionContext): Future[TableSearchResponse[DagRun]] = {
+    search(dagRunTable, searchRequest)
   }
-
 }

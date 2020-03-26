@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models.filters
+package za.co.absa.hyperdrive.trigger.models.tables
 
 import slick.jdbc.JdbcProfile
-import slick.lifted.Rep
+import slick.lifted.{ColumnOrdered, Rep}
+import za.co.absa.hyperdrive.trigger.models.filters._
+import za.co.absa.hyperdrive.trigger.models.search.Sort
 
-trait FilteredTable {
+trait SearchableTable {
   def jdbcProfile: JdbcProfile
   def fieldMapping: Map[String, Rep[_]]
+  def defaultSortColumn: Rep[_]
   def applyContainsFilter(attributes: ContainsFilterAttributes): Rep[Boolean] =
     ContainsFilter(attributes, fieldMapping, jdbcProfile)
   def applyStringEqualsFilter(attributes: StringEqualsFilterAttributes): Rep[Boolean] =
@@ -30,4 +33,15 @@ trait FilteredTable {
     IntRangeFilter(attributes, fieldMapping, jdbcProfile)
   def applyDateTimeRangeFilter(attributes: DateTimeRangeFilterAttributes): Rep[Boolean] =
     DateTimeRangeFilter(attributes, fieldMapping, jdbcProfile)
+
+  def sortFields(sortOpt: Option[Sort]): ColumnOrdered[_] = {
+    val sortParameters = sortOpt match {
+      case Some(sort) => (fieldMapping(sort.by), sort.order)
+      case None => (defaultSortColumn, 1)
+    }
+
+    val ordering: slick.ast.Ordering.Direction = if (sortParameters._2 == -1) slick.ast.Ordering.Desc else slick.ast.Ordering.Asc
+    ColumnOrdered(sortParameters._1, slick.ast.Ordering(ordering))
+  }
+
 }

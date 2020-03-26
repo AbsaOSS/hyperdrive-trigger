@@ -14,12 +14,17 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models.filters
+package za.co.absa.hyperdrive.trigger.persistance
 
 import slick.lifted.{AbstractTable, Query, TableQuery}
+import za.co.absa.hyperdrive.trigger.models.search.{TableSearchRequest, TableSearchResponse}
+import za.co.absa.hyperdrive.trigger.models.tables.SearchableTable
 
-object FilterHelper {
-  def addFiltersToQuery[T <: AbstractTable[_] with FilteredTable](tableQuery: TableQuery[T], request: FilterSearchRequest): Query[T, T#TableElementType, Seq] = {
+import scala.concurrent.{ExecutionContext, Future}
+
+trait SearchableRepository extends Repository {
+  def search[T <: AbstractTable[_] with SearchableTable](tableQuery: TableQuery[T], request: TableSearchRequest)
+                                                        (implicit ec: ExecutionContext): Future[TableSearchResponse[T#TableElementType]] = {
     val initQuery: Query[T, T#TableElementType, Seq] = tableQuery
     val withStringEquals = request.getStringEqualsFilterAttributes.foldLeft(initQuery)((query, attributes) =>
       query.filter(table => table.applyStringEqualsFilter(attributes)))
@@ -27,9 +32,24 @@ object FilterHelper {
       query.filter(table => table.applyContainsFilter(attributes)))
     val withIntRange = request.getIntRangeFilterAttributes.foldLeft(withContains)((query, attributes) =>
       query.filter(table => table.applyIntRangeFilter(attributes)))
-    val withDateTimeRange = request.getDateTimeRangeFilterAttributes.foldLeft(withIntRange)((query, attributes) =>
+    val filteredQuery = request.getDateTimeRangeFilterAttributes.foldLeft(withIntRange)((query, attributes) =>
       query.filter(table => table.applyDateTimeRangeFilter(attributes)))
 
-    withDateTimeRange
+    import profile.api._
+    val length = filteredQuery.length.result
+    val result = filteredQuery
+      .sortBy(_.sortFields(request.sort))
+      .drop(request.from)
+      .take(request.size).result
+
+    db.run {
+        for {
+          l <- length
+          r <- result
+        } yield {
+          TableSearchResponse[T#TableElementType](items = r, total = l)
+        }
+    }
   }
+
 }
