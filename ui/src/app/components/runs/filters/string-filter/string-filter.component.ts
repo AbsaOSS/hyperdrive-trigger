@@ -56,9 +56,9 @@ export class StringFilterComponent implements ClrDatagridFilterInterface<DagRunM
     return !!this.value
   }
 
-  accepts(value: DagRunModel): boolean {
-    const state: string = value[this.property];
-    return (!state && !value) || state.includes(this.value);
+  accepts(item: DagRunModel): boolean {
+    const state: string = item[this.property];
+    return (!state && !item) || state.includes(this.value);
   }
 
   modelChanged(value: string) {

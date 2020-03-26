@@ -48,8 +48,8 @@ export class NumberRangeFilterComponent implements ClrDatagridFilterInterface<Da
     this.removeFiltersSubject.subscribe(_ => this.onRemoveFilter());
   }
 
-  accepts(value: DagRunModel): boolean {
-    const state: number = value[this.property];
+  accepts(item: DagRunModel): boolean {
+    const state: number = item[this.property];
 
     const left: boolean = !!this.value.from ? this.value.from >= state : true;
     const right: boolean = !!this.value.from ? this.value.from <= state : true;
