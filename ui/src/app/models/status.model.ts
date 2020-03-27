@@ -13,16 +13,10 @@
  * limitations under the License.
  */
 
-import {StatusModel} from "../status.model";
-
-export const dagInstanceStatuses = {
-  IN_QUEUE: new StatusModel('InQueue', 'grey', 'clock'),
-  RUNNING: new StatusModel('Running', 'blue', 'play'),
-  SUCCEEDED: new StatusModel('Succeeded', 'green', 'success-standard'),
-  FAILED: new StatusModel('Failed', 'red', 'error-standard'),
-
- getStatuses(): StatusModel[] {
-    return [this.IN_QUEUE, this.RUNNING, this.SUCCEEDED, this.FAILED]
- }
-
-};
+export class StatusModel {
+  constructor(
+    public name: string,
+    public color: string,
+    public shape: string
+  ) {}
+}
