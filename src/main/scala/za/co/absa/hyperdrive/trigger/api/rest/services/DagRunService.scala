@@ -16,21 +16,22 @@
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
 import org.springframework.stereotype.Service
-import za.co.absa.hyperdrive.trigger.models.dagRuns.{DagRunsSearchRequest, DagRunsSearchResponse}
+import za.co.absa.hyperdrive.trigger.models.dagRuns.DagRun
+import za.co.absa.hyperdrive.trigger.models.search.{TableSearchRequest, TableSearchResponse}
 import za.co.absa.hyperdrive.trigger.persistance.DagRunRepository
 
 import scala.concurrent.{ExecutionContext, Future}
 
 trait DagRunService {
   val dagRunRepository: DagRunRepository
-  def searchDagRuns(dagRunsSearchRequest: DagRunsSearchRequest)(implicit ec: ExecutionContext): Future[DagRunsSearchResponse]
+  def searchDagRuns(searchRequest: TableSearchRequest)(implicit ec: ExecutionContext): Future[TableSearchResponse[DagRun]]
 }
 
 @Service
 class DagRunServiceImpl(override val dagRunRepository: DagRunRepository) extends DagRunService {
 
-  override def searchDagRuns(dagRunsSearchRequest: DagRunsSearchRequest)(implicit ec: ExecutionContext): Future[DagRunsSearchResponse] = {
-    dagRunRepository.searchDagRuns(dagRunsSearchRequest)
+  override def searchDagRuns(searchRequest: TableSearchRequest)(implicit ec: ExecutionContext): Future[TableSearchResponse[DagRun]] = {
+    dagRunRepository.searchDagRuns(searchRequest)
   }
 
 }

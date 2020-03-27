@@ -20,7 +20,8 @@ import java.util.concurrent.CompletableFuture
 import javax.inject.Inject
 import org.springframework.web.bind.annotation._
 import za.co.absa.hyperdrive.trigger.api.rest.services.DagRunService
-import za.co.absa.hyperdrive.trigger.models.dagRuns.{DagRunsSearchResponse, DagRunsSearchRequest}
+import za.co.absa.hyperdrive.trigger.models.dagRuns.DagRun
+import za.co.absa.hyperdrive.trigger.models.search.{TableSearchRequest, TableSearchResponse}
 
 import scala.compat.java8.FutureConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -29,8 +30,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class DagRunController @Inject()(dagRunService: DagRunService) {
 
   @PostMapping(path = Array("/dagRuns/search"))
-  def searchDagRuns(@RequestBody dagRunsSearchRequest: DagRunsSearchRequest): CompletableFuture[DagRunsSearchResponse] = {
-    dagRunService.searchDagRuns(dagRunsSearchRequest).toJava.toCompletableFuture
+  def searchDagRuns(@RequestBody searchRequest: TableSearchRequest): CompletableFuture[TableSearchResponse[DagRun]] = {
+    dagRunService.searchDagRuns(searchRequest).toJava.toCompletableFuture
   }
 
 }

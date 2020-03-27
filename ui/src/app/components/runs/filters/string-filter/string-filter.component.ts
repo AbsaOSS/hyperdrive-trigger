@@ -18,6 +18,7 @@ import {ClrDatagridFilterInterface} from "@clr/angular";
 import {Subject, Subscription} from "rxjs";
 import {DagRunModel} from "../../../../models/dagRuns/dagRun.model";
 import {debounceTime, distinctUntilChanged} from "rxjs/operators";
+import {ContainsFilterAttributes} from '../../../../models/filters/containsFilterAttributes.model';
 
 @Component({
   selector: 'app-string-filter',
@@ -59,6 +60,10 @@ export class StringFilterComponent implements ClrDatagridFilterInterface<DagRunM
   accepts(item: DagRunModel): boolean {
     const state: string = item[this.property];
     return (!state && !item) || state.includes(this.value);
+  }
+
+  get state() {
+    return new ContainsFilterAttributes(this.property, this.value)
   }
 
   modelChanged(value: string) {
