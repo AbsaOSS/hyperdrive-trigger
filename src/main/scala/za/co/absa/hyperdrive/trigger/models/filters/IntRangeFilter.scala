@@ -16,18 +16,8 @@
 
 package za.co.absa.hyperdrive.trigger.models.filters
 
-import slick.jdbc.JdbcProfile
-import slick.lifted.Rep
-
 case class IntRangeFilterAttributes( override val field: String,
                                      start: Int,
                                      end: Int
                                    ) extends FilterAttributes
 
-object IntRangeFilter {
-  def apply(attributes: IntRangeFilterAttributes, fields: Map[String, Rep[_]], profile: JdbcProfile): Rep[Boolean] = {
-    val tableField = fields(attributes.field).asInstanceOf[Rep[Int]]
-    import profile.api._
-    tableField >= attributes.start && tableField <= attributes.end
-  }
-}

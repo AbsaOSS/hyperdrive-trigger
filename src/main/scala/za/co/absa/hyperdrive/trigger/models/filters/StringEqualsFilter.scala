@@ -16,17 +16,7 @@
 
 package za.co.absa.hyperdrive.trigger.models.filters
 
-import slick.jdbc.JdbcProfile
-import slick.lifted.Rep
-
 case class StringEqualsFilterAttributes(override val field: String,
                                         value: String
                                        ) extends FilterAttributes
 
-object StringEqualsFilter {
-  def apply(attributes: StringEqualsFilterAttributes, fields: Map[String, Rep[_]], profile: JdbcProfile): Rep[Boolean] = {
-    val tableField = fields(attributes.field).asInstanceOf[Rep[String]]
-    import profile.api._
-    tableField === attributes.value
-  }
-}
