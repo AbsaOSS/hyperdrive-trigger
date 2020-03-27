@@ -23,7 +23,7 @@ import {Subject, Subscription} from "rxjs";
 import {skip} from "rxjs/operators";
 import {dagRunColumns} from "../../constants/dagRunColumns.constants";
 import {dagInstanceStatuses} from "../../models/enums/dagInstanceStatuses.constants";
-import {ContainsFilterAttributes} from '../../models/filters/containsFilterAttributes.model';
+import {ContainsFilterAttributes} from '../../models/search/containsFilterAttributes.model';
 import {SortModel, TableSearchRequestModel} from '../../models/search/tableSearchRequest.model';
 
 @Component({

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import {ContainsFilterAttributes} from '../filters/containsFilterAttributes.model';
+import {ContainsFilterAttributes} from './containsFilterAttributes.model';
 
 export class TableSearchRequestModel {
   constructor(
