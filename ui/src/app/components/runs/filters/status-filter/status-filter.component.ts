@@ -3,6 +3,7 @@ import {Subject} from "rxjs";
 import {ClrDatagridFilterInterface} from "@clr/angular";
 import {DagRunModel} from "../../../../models/dagRuns/dagRun.model";
 import {StatusModel} from "../../../../models/status.model";
+import {StringEqualsFilterAttributes} from '../../../../models/search/stringEqualsFilterAttributes.model';
 
 @Component({
   selector: 'app-status-filter',
@@ -33,6 +34,10 @@ import {StatusModel} from "../../../../models/status.model";
 
   accepts(item: DagRunModel): boolean {
     return !!this.value ? item[this.property] == this.value : true;
+  }
+
+  get state() {
+    return new StringEqualsFilterAttributes(this.property, this.value)
   }
 
   isActive(): boolean {
