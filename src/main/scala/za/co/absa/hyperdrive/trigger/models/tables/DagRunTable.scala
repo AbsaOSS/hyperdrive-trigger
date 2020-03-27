@@ -21,7 +21,7 @@ import slick.jdbc.JdbcProfile
 import slick.lifted.ProvenShape
 import za.co.absa.hyperdrive.trigger.models.dagRuns.DagRun
 
-trait DagRunTable {
+trait DagRunTable extends Searchable {
   this: Profile with JdbcTypeMapper =>
   import profile.api._
 
@@ -35,8 +35,6 @@ trait DagRunTable {
     def id: Rep[Long] = column[Long]("id", O.PrimaryKey, O.AutoInc, O.SqlType("BIGSERIAL"))
     override def * : ProvenShape[DagRun] = (workflowName, projectName, jobCount, started, finished, status, id).mapTo[DagRun]
 
-    override def jdbcProfile: JdbcProfile = profile
-
     override def fieldMapping: Map[String, Rep[_]] = Map(
       "workflowName" -> this.workflowName,
       "projectName" -> this.projectName,
@@ -48,6 +46,7 @@ trait DagRunTable {
     )
 
     override def defaultSortColumn: Rep[_] = id
+
   }
 
   lazy val dagRunTable: TableQuery[DagRunTable] = TableQuery[DagRunTable]

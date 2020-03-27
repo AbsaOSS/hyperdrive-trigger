@@ -26,8 +26,8 @@ trait DagRunRepository extends Repository {
 }
 
 @stereotype.Repository
-class DagRunRepositoryImpl extends DagRunRepository with SearchableRepository {
+class DagRunRepositoryImpl extends DagRunRepository {
   override def searchDagRuns(searchRequest: TableSearchRequest)(implicit ec: ExecutionContext): Future[TableSearchResponse[DagRun]] = {
-    search(dagRunTable, searchRequest)
+    db.run(dagRunTable.search(searchRequest))
   }
 }

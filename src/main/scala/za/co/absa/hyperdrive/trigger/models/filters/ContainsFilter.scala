@@ -16,17 +16,6 @@
 
 package za.co.absa.hyperdrive.trigger.models.filters
 
-import slick.jdbc.JdbcProfile
-import slick.lifted.Rep
-
 case class ContainsFilterAttributes( override val field: String,
                                      value: String
                                    ) extends FilterAttributes
-
-object ContainsFilter {
-  def apply(attributes: ContainsFilterAttributes, fields: Map[String, Rep[_]], profile: JdbcProfile): Rep[Boolean] = {
-    val tableField = fields(attributes.field).asInstanceOf[Rep[String]]
-    import profile.api._
-    tableField like s"%${attributes.value}%"
-  }
-}

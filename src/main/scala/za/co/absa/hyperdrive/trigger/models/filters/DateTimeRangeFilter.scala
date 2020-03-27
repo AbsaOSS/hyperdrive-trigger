@@ -18,18 +18,8 @@ package za.co.absa.hyperdrive.trigger.models.filters
 
 import java.time.LocalDateTime
 
-import slick.jdbc.JdbcProfile
-import slick.lifted.Rep
-
 case class DateTimeRangeFilterAttributes(override val field: String,
                                          start: LocalDateTime,
                                          end: LocalDateTime
                                         ) extends FilterAttributes
 
-object DateTimeRangeFilter {
-  def apply(attributes: DateTimeRangeFilterAttributes, fields: Map[String, Rep[_]], profile: JdbcProfile): Rep[Boolean] = {
-    val tableField = fields(attributes.field).asInstanceOf[Rep[LocalDateTime]]
-    import profile.api._
-    tableField >= attributes.start && tableField <= attributes.end
-  }
-}
