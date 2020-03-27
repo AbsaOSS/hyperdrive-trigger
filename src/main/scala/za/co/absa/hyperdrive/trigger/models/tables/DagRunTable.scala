@@ -21,7 +21,7 @@ import slick.jdbc.JdbcProfile
 import slick.lifted.ProvenShape
 import za.co.absa.hyperdrive.trigger.models.dagRuns.DagRun
 
-trait DagRunTable extends Searchable {
+trait DagRunTable extends SearchableTableQuery {
   this: Profile with JdbcTypeMapper =>
   import profile.api._
 

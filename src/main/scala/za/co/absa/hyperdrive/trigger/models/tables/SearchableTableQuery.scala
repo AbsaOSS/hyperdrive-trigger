@@ -18,12 +18,11 @@ package za.co.absa.hyperdrive.trigger.models.tables
 import java.time.LocalDateTime
 
 import slick.lifted.{AbstractTable, ColumnOrdered}
-import za.co.absa.hyperdrive.trigger.models.filters.{ContainsFilterAttributes, DateTimeRangeFilterAttributes, IntRangeFilterAttributes, StringEqualsFilterAttributes}
-import za.co.absa.hyperdrive.trigger.models.search.{Sort, TableSearchRequest, TableSearchResponse}
+import za.co.absa.hyperdrive.trigger.models.search.{ContainsFilterAttributes, DateTimeRangeFilterAttributes, IntRangeFilterAttributes, SortAttributes, StringEqualsFilterAttributes, TableSearchRequest, TableSearchResponse}
 
 import scala.concurrent.ExecutionContext
 
-trait Searchable {
+trait SearchableTableQuery {
   this: Profile with JdbcTypeMapper =>
 
   import profile.api._
@@ -77,7 +76,7 @@ trait Searchable {
       tableField >= attributes.start && tableField <= attributes.end
     }
 
-    private def sortFields(sortOpt: Option[Sort], fieldMapping: Map[String, Rep[_]], defaultSortColumn: Rep[_]): ColumnOrdered[_] = {
+    private def sortFields(sortOpt: Option[SortAttributes], fieldMapping: Map[String, Rep[_]], defaultSortColumn: Rep[_]): ColumnOrdered[_] = {
       val sortParameters = sortOpt match {
         case Some(sort) => (fieldMapping(sort.by), sort.order)
         case None => (defaultSortColumn, 1)

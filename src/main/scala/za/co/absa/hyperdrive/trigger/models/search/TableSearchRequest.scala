@@ -15,14 +15,12 @@
 
 package za.co.absa.hyperdrive.trigger.models.search
 
-import za.co.absa.hyperdrive.trigger.models.filters._
-
 case class TableSearchRequest(
   stringEqualsFilterAttributes: Option[Seq[StringEqualsFilterAttributes]] = None,
   containsFilterAttributes: Option[Seq[ContainsFilterAttributes]] = None,
   intRangeFilterAttributes: Option[Seq[IntRangeFilterAttributes]] = None,
   dateTimeRangeFilterAttributes: Option[Seq[DateTimeRangeFilterAttributes]] = None,
-  sort: Option[Sort],
+  sort: Option[SortAttributes],
   from: Int,
   size: Int
 ) {
@@ -31,8 +29,3 @@ case class TableSearchRequest(
   def getIntRangeFilterAttributes: Seq[IntRangeFilterAttributes] = intRangeFilterAttributes.getOrElse(Seq())
   def getDateTimeRangeFilterAttributes: Seq[DateTimeRangeFilterAttributes] = dateTimeRangeFilterAttributes.getOrElse(Seq())
 }
-
-case class Sort(
-  by: String,
-  order: Int
-)

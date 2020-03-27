@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models.filters
+package za.co.absa.hyperdrive.trigger.models.search
 
-case class StringEqualsFilterAttributes(override val field: String,
-                                        value: String
-                                       ) extends FilterAttributes
+import java.time.LocalDateTime
 
+case class DateTimeRangeFilterAttributes(override val field: String,
+                                         start: LocalDateTime,
+                                         end: LocalDateTime
+                                        ) extends FilterAttributes

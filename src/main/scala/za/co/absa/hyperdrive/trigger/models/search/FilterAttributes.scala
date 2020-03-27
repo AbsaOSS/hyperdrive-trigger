@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models.filters
+package za.co.absa.hyperdrive.trigger.models.search
 
 trait FilterAttributes {
   val field: String

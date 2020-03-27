@@ -14,13 +14,8 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models.tables
+package za.co.absa.hyperdrive.trigger.models.search
 
-import slick.lifted.Rep
-
-trait SearchableTable {
-
-  def fieldMapping: Map[String, Rep[_]]
-  def defaultSortColumn: Rep[_]
-
-}
+case class StringEqualsFilterAttributes(override val field: String,
+                                        value: String
+                                       ) extends FilterAttributes

@@ -18,6 +18,8 @@ package za.co.absa.hyperdrive.trigger.models.filters
 import java.time.LocalDateTime
 
 import org.scalatest.{FlatSpec, _}
+import za.co.absa.hyperdrive.trigger.models.search
+import za.co.absa.hyperdrive.trigger.models.search.DateTimeRangeFilterAttributes
 
 class DateTimeRangeFilterTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with FilterTestBase {
   import h2Profile.api._
@@ -54,7 +56,7 @@ class DateTimeRangeFilterTest extends FlatSpec with Matchers with BeforeAndAfter
     createFilterTestData()
     val startDate = LocalDateTime.of(2030, 1, 1, 0, 0, 0)
     val endDate = LocalDateTime.of(2020, 3, 1, 0, 0, 0)
-    val filter = DateTimeRangeFilterAttributes(field = FilterTestTableFieldNames.localDateTimeField, start = startDate, end = endDate)
+    val filter = search.DateTimeRangeFilterAttributes(field = FilterTestTableFieldNames.localDateTimeField, start = startDate, end = endDate)
 
     val query = filterTestTable.filter(table => table.applyDateTimeRangeFilter(filter))
 

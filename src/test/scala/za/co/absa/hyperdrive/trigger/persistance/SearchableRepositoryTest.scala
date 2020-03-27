@@ -19,7 +19,8 @@ import java.time.LocalDateTime
 
 import org.scalatest.{FlatSpec, _}
 import za.co.absa.hyperdrive.trigger.models.filters._
-import za.co.absa.hyperdrive.trigger.models.search.TableSearchRequest
+import za.co.absa.hyperdrive.trigger.models.search.{ContainsFilterAttributes, DateTimeRangeFilterAttributes, IntRangeFilterAttributes, StringEqualsFilterAttributes, TableSearchRequest}
+
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class SearchableRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with FilterTestBase {

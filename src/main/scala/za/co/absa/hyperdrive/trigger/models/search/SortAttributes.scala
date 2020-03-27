@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models.filters
+package za.co.absa.hyperdrive.trigger.models.search
 
-case class ContainsFilterAttributes( override val field: String,
-                                     value: String
-                                   ) extends FilterAttributes
+case class SortAttributes(by: String,
+                          order: Int
+                         )

@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models.filters
+package za.co.absa.hyperdrive.trigger.models.search
 
-case class IntRangeFilterAttributes( override val field: String,
-                                     start: Int,
-                                     end: Int
+case class ContainsFilterAttributes( override val field: String,
+                                     value: String
                                    ) extends FilterAttributes
-

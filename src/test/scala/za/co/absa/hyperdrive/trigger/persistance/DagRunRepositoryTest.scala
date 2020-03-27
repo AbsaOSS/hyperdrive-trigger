@@ -17,8 +17,8 @@ package za.co.absa.hyperdrive.trigger.persistance
 
 import org.scalatest.{FlatSpec, _}
 import za.co.absa.hyperdrive.trigger.models.dagRuns.DagRun
-import za.co.absa.hyperdrive.trigger.models.filters.{IntRangeFilterAttributes, StringEqualsFilterAttributes}
-import za.co.absa.hyperdrive.trigger.models.search.{TableSearchRequest, TableSearchResponse, Sort}
+import za.co.absa.hyperdrive.trigger.models.filters.StringEqualsFilterAttributes
+import za.co.absa.hyperdrive.trigger.models.search.{IntRangeFilterAttributes, Sort, StringEqualsFilterAttributes, TableSearchRequest, TableSearchResponse}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
