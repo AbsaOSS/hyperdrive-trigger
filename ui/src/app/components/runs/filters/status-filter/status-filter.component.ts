@@ -2,6 +2,7 @@ import {AfterViewInit, Component, Input, OnDestroy} from '@angular/core';
 import {Subject} from "rxjs";
 import {ClrDatagridFilterInterface} from "@clr/angular";
 import {DagRunModel} from "../../../../models/dagRuns/dagRun.model";
+import {StatusModel} from "../../../../models/status.model";
 
 @Component({
   selector: 'app-status-filter',
@@ -10,7 +11,7 @@ import {DagRunModel} from "../../../../models/dagRuns/dagRun.model";
 }) export class StatusFilterComponent implements ClrDatagridFilterInterface<DagRunModel>, AfterViewInit, OnDestroy {
   @Input() removeFiltersSubject: Subject<any>;
   @Input() property: string;
-  @Input() statuses: {name: string, color: string, shape: string}[];
+  @Input() statuses: StatusModel[];
   value: string = undefined;
 
   changes = new Subject<any>();
