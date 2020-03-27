@@ -42,7 +42,7 @@ trait TestSearchableRepositoryTestBase extends RepositoryTestBase with TestSearc
       localDateTimeValue = LocalDateTime.of(2005, 3, 1, 12, 30, 5))
     val t3 = TestSearchableEntity(longValue = 3, stringValue = "value3", stringValue2 = "str3", stringValue3 = "foo",
       localDateTimeValue = LocalDateTime.of(2025, 3, 1, 12, 30, 5))
-    val testSearchableEntities: Seq[TestSearchableEntity] = Seq(t1, t2, t3)
+    val testSearchableEntities: Seq[TestSearchableEntity] = Seq(t3, t2, t1)
   }
 
 }
