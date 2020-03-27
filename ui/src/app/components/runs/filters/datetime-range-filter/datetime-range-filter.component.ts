@@ -18,6 +18,8 @@ import {ClrDatagridFilterInterface} from "@clr/angular";
 import {DagRunModel} from "../../../../models/dagRuns/dagRun.model";
 import {Subject, Subscription} from "rxjs";
 import {debounceTime, distinctUntilChanged} from "rxjs/operators";
+import {IntRangeFilterAttributes} from '../../../../models/search/intRangeFilterAttributes.model';
+import {DateTimeRangeFilterAttributes} from '../../../../models/search/dateTimeRangeFilterAttributes.model';
 
 @Component({
   selector: 'app-datetime-range-filter',
@@ -59,6 +61,10 @@ export class DatetimeRangeFilterComponent implements ClrDatagridFilterInterface<
 
   isActive(): boolean {
     return !!this.value.from || !!this.value.to
+  }
+
+  get state() {
+    return new DateTimeRangeFilterAttributes(this.property, this.value.from, this.value.to)
   }
 
   modelChanged(value: Date) {

@@ -18,6 +18,7 @@ import {ClrDatagridFilterInterface} from "@clr/angular";
 import {DagRunModel} from "../../../../models/dagRuns/dagRun.model";
 import {Subject, Subscription} from "rxjs";
 import {debounceTime, distinctUntilChanged} from "rxjs/operators";
+import {IntRangeFilterAttributes} from '../../../../models/search/intRangeFilterAttributes.model';
 
 @Component({
   selector: 'app-number-range-filter',
@@ -59,6 +60,10 @@ export class NumberRangeFilterComponent implements ClrDatagridFilterInterface<Da
 
   isActive(): boolean {
     return !!this.value.from || !!this.value.to
+  }
+
+  get state() {
+    return new IntRangeFilterAttributes(this.property, this.value.from, this.value.to)
   }
 
   modelChanged(value: string) {

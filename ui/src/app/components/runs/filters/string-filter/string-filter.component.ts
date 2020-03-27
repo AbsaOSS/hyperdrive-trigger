@@ -18,7 +18,7 @@ import {ClrDatagridFilterInterface} from "@clr/angular";
 import {Subject, Subscription} from "rxjs";
 import {DagRunModel} from "../../../../models/dagRuns/dagRun.model";
 import {debounceTime, distinctUntilChanged} from "rxjs/operators";
-import {ContainsFilterAttributes} from '../../../../models/filters/containsFilterAttributes.model';
+import {ContainsFilterAttributes} from '../../../../models/search/containsFilterAttributes.model';
 
 @Component({
   selector: 'app-string-filter',
