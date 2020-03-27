@@ -123,7 +123,7 @@ class DagRunRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll
       StringEqualsFilterAttributes(field = "projectName", value = "projectName1")
     ))
     val intRangeFilterSeq = Option(Seq(
-      IntRangeFilterAttributes(field = "jobCount", start = 0, end = 5)
+      IntRangeFilterAttributes(field = "jobCount", start = Option(0), end = Option(5))
     ))
     val searchRequest: TableSearchRequest = TableSearchRequest(
       stringEqualsFilterAttributes = stringEqualsFilterSeq,
