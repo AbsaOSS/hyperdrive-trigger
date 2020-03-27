@@ -17,8 +17,7 @@ package za.co.absa.hyperdrive.trigger.persistance
 
 import org.scalatest.{FlatSpec, _}
 import za.co.absa.hyperdrive.trigger.models.dagRuns.DagRun
-import za.co.absa.hyperdrive.trigger.models.filters.StringEqualsFilterAttributes
-import za.co.absa.hyperdrive.trigger.models.search.{IntRangeFilterAttributes, Sort, StringEqualsFilterAttributes, TableSearchRequest, TableSearchResponse}
+import za.co.absa.hyperdrive.trigger.models.search.{IntRangeFilterAttributes, SortAttributes, StringEqualsFilterAttributes, TableSearchRequest, TableSearchResponse}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -79,7 +78,7 @@ class DagRunRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll
   "dagRunRepository.searchDagRuns" should "using sort by workflow name (asc order) should return sorted dag runs" in {
     createTestData()
     val searchRequest: TableSearchRequest = TableSearchRequest(
-      sort = Option(Sort(by = "workflowName", order = 1)),
+      sort = Option(SortAttributes(by = "workflowName", order = 1)),
       from = 0,
       size = Integer.MAX_VALUE
     )
@@ -93,7 +92,7 @@ class DagRunRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll
   "dagRunRepository.searchDagRuns" should "using sort by job count (desc order) should return sorted dag runs" in {
     createTestData()
     val searchRequest: TableSearchRequest = TableSearchRequest(
-      sort = Option(Sort(by = "jobCount", order = -1)),
+      sort = Option(SortAttributes(by = "jobCount", order = -1)),
       from = 0,
       size = Integer.MAX_VALUE
     )
@@ -107,7 +106,7 @@ class DagRunRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll
   "dagRunRepository.searchDagRuns" should "using sort by started (desc order) should return sorted dag runs" in {
     createTestData()
     val searchRequest: TableSearchRequest = TableSearchRequest(
-      sort = Option(Sort(by = "started", order = -1)),
+      sort = Option(SortAttributes(by = "started", order = -1)),
       from = 0,
       size = Integer.MAX_VALUE
     )
