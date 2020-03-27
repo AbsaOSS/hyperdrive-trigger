@@ -70,6 +70,13 @@
     </clr-dg-column>
     <clr-dg-column [clrDgField]="dagRunColumns.STATUS">
       <ng-container *clrDgHideableColumn="{hidden: false}">Status</ng-container>
+      <clr-dg-filter [clrDgFilter]="statusFilter">
+        <app-status-filter #statusFilter
+                           [property]="dagRunColumns.STATUS"
+                           [removeFiltersSubject]="removeFiltersSubject"
+                           [statuses]="dagInstanceStatuses.getStatuses()">
+        </app-status-filter>
+      </clr-dg-filter>
     </clr-dg-column>
     <clr-dg-placeholder>We couldn't find any dag runs!</clr-dg-placeholder>
 
@@ -80,15 +87,31 @@
       <clr-dg-cell>{{dagRun.started | date:'medium'}}</clr-dg-cell>
       <clr-dg-cell>{{dagRun.finished | date:'medium'}}</clr-dg-cell>
       <clr-dg-cell [ngSwitch]="dagRun.status">
-        <clr-icon *ngSwitchCase="dagInstanceStatuses.IN_QUEUE" shape="clock" class="is-solid"
-                  style="color: grey"></clr-icon>
-        <clr-icon *ngSwitchCase="dagInstanceStatuses.RUNNING" shape="play" class="is-solid"
-                  style="color: blue"></clr-icon>
-        <clr-icon *ngSwitchCase="dagInstanceStatuses.SUCCEEDED" shape="success-standard" class="is-solid"
-                  style="color: green"></clr-icon>
-        <clr-icon *ngSwitchCase="dagInstanceStatuses.FAILED" shape="error-standard" class="is-solid"
-                  style="color: red"></clr-icon>
-        <clr-icon *ngSwitchDefault shape="help" class="is-solid" style="color: darkgoldenrod"></clr-icon>
+        <clr-icon *ngSwitchCase="dagInstanceStatuses.IN_QUEUE.name"
+                  [attr.shape]="dagInstanceStatuses.IN_QUEUE.shape"
+                  [style.color]="dagInstanceStatuses.IN_QUEUE.color"
+                  class="is-solid">
+        </clr-icon>
+        <clr-icon *ngSwitchCase="dagInstanceStatuses.RUNNING.name"
+                  [attr.shape]="dagInstanceStatuses.RUNNING.shape"
+                  [style.color]="dagInstanceStatuses.RUNNING.color"
+                  class="is-solid">
+        </clr-icon>
+        <clr-icon *ngSwitchCase="dagInstanceStatuses.SUCCEEDED.name"
+                  [attr.shape]="dagInstanceStatuses.SUCCEEDED.shape"
+                  [style.color]="dagInstanceStatuses.SUCCEEDED.color"
+                  class="is-solid">
+        </clr-icon>
+        <clr-icon *ngSwitchCase="dagInstanceStatuses.FAILED.name"
+                  [attr.shape]="dagInstanceStatuses.FAILED.shape"
+                  [style.color]="dagInstanceStatuses.FAILED.color"
+                  class="is-solid">
+        </clr-icon>
+        <clr-icon *ngSwitchDefault
+                  shape="help"
+                  style="color: darkgoldenrod"
+                  class="is-solid">
+        </clr-icon>
         {{dagRun.status}}
       </clr-dg-cell>
     </clr-dg-row>
