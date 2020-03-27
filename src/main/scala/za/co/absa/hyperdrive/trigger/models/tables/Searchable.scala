@@ -30,7 +30,6 @@ trait Searchable {
 
   implicit class TableQueryExtension[T <: SearchableTable with AbstractTable[_]](tableQuery: TableQuery[T]) {
 
-
     def search(request: TableSearchRequest)(implicit ec: ExecutionContext): DBIOAction[TableSearchResponse[T#TableElementType], NoStream, Effect.Read] = {
       val initQuery: Query[T, T#TableElementType, Seq] = tableQuery
 
@@ -58,27 +57,27 @@ trait Searchable {
       }
     }
 
-    def applyContainsFilter(attributes: ContainsFilterAttributes, fieldMapping: Map[String, Rep[_]]): Rep[Boolean] = {
+    private def applyContainsFilter(attributes: ContainsFilterAttributes, fieldMapping: Map[String, Rep[_]]): Rep[Boolean] = {
       val tableField = fieldMapping(attributes.field).asInstanceOf[Rep[String]]
       tableField like s"%${attributes.value}%"
     }
 
-    def applyStringEqualsFilter(attributes: StringEqualsFilterAttributes, fieldMapping: Map[String, Rep[_]]): Rep[Boolean] = {
+    private def applyStringEqualsFilter(attributes: StringEqualsFilterAttributes, fieldMapping: Map[String, Rep[_]]): Rep[Boolean] = {
       val tableField = fieldMapping(attributes.field).asInstanceOf[Rep[String]]
       tableField === attributes.value
     }
 
-    def applyIntRangeFilter(attributes: IntRangeFilterAttributes, fieldMapping: Map[String, Rep[_]]): Rep[Boolean] = {
+    private def applyIntRangeFilter(attributes: IntRangeFilterAttributes, fieldMapping: Map[String, Rep[_]]): Rep[Boolean] = {
       val tableField = fieldMapping(attributes.field).asInstanceOf[Rep[Int]]
       tableField >= attributes.start && tableField <= attributes.end
     }
 
-    def applyDateTimeRangeFilter(attributes: DateTimeRangeFilterAttributes, fieldMapping: Map[String, Rep[_]]): Rep[Boolean] = {
+    private def applyDateTimeRangeFilter(attributes: DateTimeRangeFilterAttributes, fieldMapping: Map[String, Rep[_]]): Rep[Boolean] = {
       val tableField = fieldMapping(attributes.field).asInstanceOf[Rep[LocalDateTime]]
       tableField >= attributes.start && tableField <= attributes.end
     }
 
-    def sortFields(sortOpt: Option[Sort], fieldMapping: Map[String, Rep[_]], defaultSortColumn: Rep[_]): ColumnOrdered[_] = {
+    private def sortFields(sortOpt: Option[Sort], fieldMapping: Map[String, Rep[_]], defaultSortColumn: Rep[_]): ColumnOrdered[_] = {
       val sortParameters = sortOpt match {
         case Some(sort) => (fieldMapping(sort.by), sort.order)
         case None => (defaultSortColumn, 1)
@@ -87,7 +86,6 @@ trait Searchable {
       val ordering: slick.ast.Ordering.Direction = if (sortParameters._2 == -1) slick.ast.Ordering.Desc else slick.ast.Ordering.Asc
       ColumnOrdered(sortParameters._1, slick.ast.Ordering(ordering))
     }
-
 
   }
 
