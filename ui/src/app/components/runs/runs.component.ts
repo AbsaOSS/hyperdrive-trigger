@@ -23,7 +23,8 @@ import {Subject, Subscription} from "rxjs";
 import {skip} from "rxjs/operators";
 import {dagRunColumns} from "../../constants/dagRunColumns.constants";
 import {dagInstanceStatuses} from "../../models/enums/dagInstanceStatuses.constants";
-import {DagRunsSearchRequestModel, FiltersModel, SortModel} from "../../models/dagRuns/dagRunsSearchRequest.model";
+import {ContainsFilterAttributes} from '../../models/filters/containsFilterAttributes.model';
+import {SortModel, TableSearchRequestModel} from '../../models/search/tableSearchRequest.model';
 
 @Component({
   selector: 'app-runs',
@@ -42,7 +43,7 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
   dagRuns: DagRunModel[] = [];
   total: number = 0;
   loading: boolean = true;
-  filters: {[prop:string]: any} = {};
+  filters: any[] = [];
 
   dagRunColumns = dagRunColumns;
   dagInstanceStatuses = dagInstanceStatuses;
@@ -67,43 +68,20 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
     this.sort = state.sort ? new SortModel(<string>state.sort.by, state.sort.reverse ? -1 : 1) : undefined;
     this.pageFrom = state.page.from < 0 ? 0 : state.page.from;
     this.pageSize = state.page.size;
-
-    let filters:{[prop:string]: any} = {};
-    if (state.filters) {
-      for (let filter of state.filters) {
-        let {property, value} = <{property: string, value: any}>filter;
-        filters[property] = value;
-      }
-    }
-    this.filters = filters;
+    this.filters = state.filters ? state.filters : [];
 
     this.refresh();
   }
 
   refresh() {
-    const filters: FiltersModel = this.createFiltersModel(this.filters);
-
-    let searchRequestModel: DagRunsSearchRequestModel = {
+    let searchRequestModel: TableSearchRequestModel = {
       from: this.pageFrom,
       size: this.pageSize,
       sort: this.sort,
-      filters: filters
+      containsFilterAttributes: this.filters.filter(f => f instanceof ContainsFilterAttributes)
     };
 
     this.store.dispatch(new GetDagRuns(searchRequestModel));
-  }
-
-  private createFiltersModel(filters: {[prop:string]: any}): FiltersModel {
-    const byWorkflowNameOption = filters[dagRunColumns.WORKFLOW_NAME];
-    const byWorkflowName = byWorkflowNameOption ? byWorkflowNameOption : undefined;
-
-    const byProjectNameOption = filters[dagRunColumns.PROJECT_NAME];
-    const byProjectName = byProjectNameOption ? byProjectNameOption : undefined;
-
-    return new FiltersModel(
-      byWorkflowName,
-      byProjectName
-    );
   }
 
   clearFilters() {

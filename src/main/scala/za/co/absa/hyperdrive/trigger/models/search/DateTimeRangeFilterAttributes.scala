@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -13,42 +14,11 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models.dagRuns
+package za.co.absa.hyperdrive.trigger.models.search
 
 import java.time.LocalDateTime
 
-case class DagRunsSearchRequest(
-  filters: Option[Filters],
-  rangeFilters: Option[RangeFilters],
-  sort: Option[Sort],
-  from: Int,
-  size: Int
-)
-
-case class Sort(
-  by: String,
-  order: Int
-)
-
-case class RangeFilters(
-  byJobCount: Option[IntRange],
-  byStartedDate: Option[DateTimeRange],
-  byFinishedDate: Option[DateTimeRange]
-)
-
-case class IntRange(
-  start: Int,
-  end: Int
-)
-
-case class DateTimeRange(
-  start: LocalDateTime,
-  end: LocalDateTime
-)
-
-case class Filters(
-  byWorkflowName: Option[String],
-  byProjectName: Option[String],
-  byStatus: Option[String]
-)
-
+case class DateTimeRangeFilterAttributes(override val field: String,
+                                         start: LocalDateTime,
+                                         end: LocalDateTime
+                                        ) extends FilterAttributes

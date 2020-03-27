@@ -21,10 +21,10 @@ import {
   GetDagRunsFailure,
   GetDagRunsSuccess
 } from "./runs.actions";
-import {DagRunsSearchResponseModel} from "../../models/dagRuns/dagRunsSearchResponse.model";
 import {DagRunModel} from "../../models/dagRuns/dagRun.model";
-import {SortModel} from "../../models/dagRuns/dagRunsSearchRequest.model";
+import {SortModel} from "../../models/search/tableSearchRequest.model";
 import {JobInstanceModel, JobStatus, JobType} from "../../models/jobInstance.model";
+import {TableSearchResponseModel} from '../../models/search/tableSearchResponse.model';
 
 describe('RunsReducers', () => {
 
@@ -53,13 +53,13 @@ describe('RunsReducers', () => {
     let dagRunModel = new DagRunModel(
       'workflowName', 'projectName', 2, 'Status', new Date(Date.now()), new Date(Date.now()), 0
     );
-    const dagRunFilterResultModel = new DagRunsSearchResponseModel([dagRunModel], 1);
+    const dagRunFilterResultModel = new TableSearchResponseModel<DagRunModel>([dagRunModel], 1);
     const runsAction = new GetDagRunsSuccess({dagRuns: dagRunFilterResultModel});
 
     const actual = runsReducer(initialState, runsAction);
 
     expect(actual).toEqual(
-      {...initialState, loading: false, total: dagRunFilterResultModel.total, dagRuns: dagRunFilterResultModel.runs}
+      {...initialState, loading: false, total: dagRunFilterResultModel.total, dagRuns: dagRunFilterResultModel.items}
     );
   });
 

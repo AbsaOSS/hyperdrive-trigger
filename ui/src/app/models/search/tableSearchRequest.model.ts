@@ -13,40 +13,17 @@
  * limitations under the License.
  */
 
-export class DagRunsSearchRequestModel {
+import {ContainsFilterAttributes} from '../filters/containsFilterAttributes.model';
+
+export class TableSearchRequestModel {
   constructor(
     public from: number,
     public size: number,
-    public filters?: FiltersModel,
-    public rangeFilters?: RangeFiltersModel,
+    public containsFilterAttributes?: ContainsFilterAttributes[],
     public sort?: SortModel
   ) {}
 }
 
 export class SortModel {
   constructor(public by: String, public order: number) {}
-}
-
-export class FiltersModel {
-  constructor(
-    public byWorkflowName?: string,
-    public byProjectName?: string,
-    public byStatus?: string
-  ) {}
-}
-
-export class RangeFiltersModel {
-  byJobCount?: IntRangeModel;
-  byStartedDate?: DateTimeRangeModel;
-  byFinishedDate?: DateTimeRangeModel;
-}
-
-export class IntRangeModel {
-  start: number;
-  end: number;
-}
-
-export class DateTimeRangeModel {
-  start: Date;
-  end: Date;
 }

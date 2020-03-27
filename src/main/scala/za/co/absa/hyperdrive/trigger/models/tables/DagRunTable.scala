@@ -17,14 +17,15 @@ package za.co.absa.hyperdrive.trigger.models.tables
 
 import java.time.LocalDateTime
 
-import slick.lifted.{ColumnOrdered, ProvenShape}
-import za.co.absa.hyperdrive.trigger.models.dagRuns.{DagRun, Sort}
+import slick.jdbc.JdbcProfile
+import slick.lifted.ProvenShape
+import za.co.absa.hyperdrive.trigger.models.dagRuns.DagRun
 
-trait DagRunTable {
+trait DagRunTable extends SearchableTableQuery {
   this: Profile with JdbcTypeMapper =>
   import profile.api._
 
-  final class DagRunTable(tag: Tag) extends Table[DagRun](tag, _tableName = "dag_run_view") {
+  final class DagRunTable(tag: Tag) extends Table[DagRun](tag, _tableName = "dag_run_view") with SearchableTable {
     def workflowName: Rep[String] = column[String]("workflow_name")
     def projectName: Rep[String] = column[String]("project_name")
     def jobCount: Rep[Int] = column[Int]("job_count")
@@ -34,7 +35,7 @@ trait DagRunTable {
     def id: Rep[Long] = column[Long]("id", O.PrimaryKey, O.AutoInc, O.SqlType("BIGSERIAL"))
     override def * : ProvenShape[DagRun] = (workflowName, projectName, jobCount, started, finished, status, id).mapTo[DagRun]
 
-    private val sortFields = Map(
+    override def fieldMapping: Map[String, Rep[_]] = Map(
       "workflowName" -> this.workflowName,
       "projectName" -> this.projectName,
       "jobCount" -> this.jobCount,
@@ -44,11 +45,7 @@ trait DagRunTable {
       "id" -> this.id
     )
 
-    def sortFields(sort: Option[Sort]): ColumnOrdered[_] = {
-      val definedSort = sort.getOrElse(Sort("id", 1))
-      val ordering: slick.ast.Ordering.Direction = if (definedSort.order == -1) slick.ast.Ordering.Desc else slick.ast.Ordering.Asc
-      ColumnOrdered(this.sortFields(definedSort.by), slick.ast.Ordering(ordering))
-    }
+    override def defaultSortColumn: Rep[_] = id
 
   }
 

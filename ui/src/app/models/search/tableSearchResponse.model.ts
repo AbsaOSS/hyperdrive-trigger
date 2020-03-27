@@ -13,9 +13,6 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models.dagRuns
-
-case class DagRunsSearchResponse(
-  runs: Seq[DagRun],
-  total: Int
-)
+export class TableSearchResponseModel<T> {
+  constructor(public items: T[], public total: number) { }
+}
