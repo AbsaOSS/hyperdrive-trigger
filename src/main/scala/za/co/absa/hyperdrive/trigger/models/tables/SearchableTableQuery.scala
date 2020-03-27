@@ -17,6 +17,7 @@ package za.co.absa.hyperdrive.trigger.models.tables
 
 import java.time.LocalDateTime
 
+import slick.ast.BaseTypedType
 import slick.lifted.{AbstractTable, ColumnOrdered}
 import za.co.absa.hyperdrive.trigger.models.search.{ContainsFilterAttributes, DateTimeRangeFilterAttributes, IntRangeFilterAttributes, SortAttributes, StringEqualsFilterAttributes, TableSearchRequest, TableSearchResponse}
 
@@ -68,12 +69,17 @@ trait SearchableTableQuery {
 
     private def applyIntRangeFilter(attributes: IntRangeFilterAttributes, fieldMapping: Map[String, Rep[_]]): Rep[Boolean] = {
       val tableField = fieldMapping(attributes.field).asInstanceOf[Rep[Int]]
-      tableField >= attributes.start && tableField <= attributes.end
+      applyRangeFilter(tableField, attributes.start, attributes.end)
     }
 
     private def applyDateTimeRangeFilter(attributes: DateTimeRangeFilterAttributes, fieldMapping: Map[String, Rep[_]]): Rep[Boolean] = {
       val tableField = fieldMapping(attributes.field).asInstanceOf[Rep[LocalDateTime]]
-      tableField >= attributes.start && tableField <= attributes.end
+      applyRangeFilter(tableField, attributes.start, attributes.end)
+    }
+
+    private def applyRangeFilter[B: BaseTypedType](tableField: Rep[B], start: Option[B], end: Option[B]): Rep[Boolean] = {
+      start.map(date => tableField >= date).getOrElse(LiteralColumn(true)) &&
+        end.map(date => tableField <= date).getOrElse(LiteralColumn(true))
     }
 
     private def sortFields(sortOpt: Option[SortAttributes], fieldMapping: Map[String, Rep[_]], defaultSortColumn: Rep[_]): ColumnOrdered[_] = {

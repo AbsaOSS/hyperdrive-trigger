@@ -19,6 +19,6 @@ package za.co.absa.hyperdrive.trigger.models.search
 import java.time.LocalDateTime
 
 case class DateTimeRangeFilterAttributes(override val field: String,
-                                         start: LocalDateTime,
-                                         end: LocalDateTime
+                                         start: Option[LocalDateTime],
+                                         end: Option[LocalDateTime]
                                         ) extends FilterAttributes
