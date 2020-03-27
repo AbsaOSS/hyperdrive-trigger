@@ -52,10 +52,10 @@ class SearchableTableQueryTest extends FlatSpec with Matchers with BeforeAndAfte
       ContainsFilterAttributes(field = stringField, value = "value"),
       ContainsFilterAttributes(field = stringField2, value = "str")
     ))
-    val intRangeFilterSeq = Some(Seq(IntRangeFilterAttributes(field = longField, start = 0, end = 1)))
+    val intRangeFilterSeq = Some(Seq(IntRangeFilterAttributes(field = longField, start = Option(0), end = Option(1))))
     val dateTimeRangeFilterSeq = Some(Seq(DateTimeRangeFilterAttributes(field = localDateTimeField,
-      start = LocalDateTime.of(2019, 1, 1, 1, 1, 1),
-      end = LocalDateTime.of(2021, 1, 1, 1, 1, 1))))
+      start = Option(LocalDateTime.of(2019, 1, 1, 1, 1, 1)),
+      end = Option(LocalDateTime.of(2021, 1, 1, 1, 1, 1)))))
 
 
     val searchRequest = TableSearchRequest(
@@ -139,8 +139,28 @@ class SearchableTableQueryTest extends FlatSpec with Matchers with BeforeAndAfte
 
 
   "the date-time-range filter" should "find values within the inclusive range" in {
-    val startDate = LocalDateTime.of(2020, 3, 1, 0, 0, 0)
-    val endDate = LocalDateTime.of(2030, 1, 1, 0, 0, 0)
+    val startDate = Option(LocalDateTime.of(2020, 3, 1, 0, 0, 0))
+    val endDate = Option(LocalDateTime.of(2030, 1, 1, 0, 0, 0))
+    val filter = DateTimeRangeFilterAttributes(field = TestSearchableTableFieldNames.localDateTimeField,
+      start = startDate, end = endDate)
+    val searchRequest = TableSearchRequest(
+      dateTimeRangeFilterAttributes = Some(Seq(filter)),
+      sort = None,
+      from = 0,
+      size = 50
+    )
+
+    val result = await(db.run(underTest.search(searchRequest)))
+
+    val expected = Seq(TestSearchableData.t1, TestSearchableData.t3)
+    result.total should be > 0
+    result.total shouldBe expected.size
+    result.items should contain theSameElementsAs expected
+  }
+
+  "the date-time-range filter" should "find values greater or equal to the left bound" in {
+    val startDate = Option(LocalDateTime.of(2020, 3, 1, 0, 0, 0))
+    val endDate = None
     val filter = DateTimeRangeFilterAttributes(field = TestSearchableTableFieldNames.localDateTimeField,
       start = startDate, end = endDate)
     val searchRequest = TableSearchRequest(
@@ -161,7 +181,7 @@ class SearchableTableQueryTest extends FlatSpec with Matchers with BeforeAndAfte
   it should "return an empty list if start is higher than end" in {
     val startDate = LocalDateTime.of(2030, 1, 1, 0, 0, 0)
     val endDate = LocalDateTime.of(2020, 3, 1, 0, 0, 0)
-    val filter = search.DateTimeRangeFilterAttributes(field = TestSearchableTableFieldNames.localDateTimeField, start = startDate, end = endDate)
+    val filter = search.DateTimeRangeFilterAttributes(field = TestSearchableTableFieldNames.localDateTimeField, start = Option(startDate), end = Option(endDate))
     val searchRequest = TableSearchRequest(
       dateTimeRangeFilterAttributes = Some(Seq(filter)),
       sort = None,
@@ -176,7 +196,24 @@ class SearchableTableQueryTest extends FlatSpec with Matchers with BeforeAndAfte
 
 
   "the int-range filter" should "find values within the inclusive range" in {
-    val filter = IntRangeFilterAttributes(field = TestSearchableTableFieldNames.longField, start = 0, end = 2)
+    val filter = IntRangeFilterAttributes(field = TestSearchableTableFieldNames.longField, start = Option(0), end = Option(2))
+    val searchRequest = TableSearchRequest(
+      intRangeFilterAttributes = Some(Seq(filter)),
+      sort = None,
+      from = 0,
+      size = 50
+    )
+
+    val result = await(db.run(underTest.search(searchRequest)))
+
+    val expected = TestSearchableData.testSearchableEntities.filter(e => e.longValue >= 0 && e.longValue <= 2)
+    result.total should be > 0
+    result.total shouldBe expected.size
+    result.items should contain theSameElementsAs expected
+  }
+
+  "the int-range filter" should "find values less or equal to the right bound" in {
+    val filter = IntRangeFilterAttributes(field = TestSearchableTableFieldNames.longField, start = None, end = Option(2))
     val searchRequest = TableSearchRequest(
       intRangeFilterAttributes = Some(Seq(filter)),
       sort = None,
@@ -193,7 +230,7 @@ class SearchableTableQueryTest extends FlatSpec with Matchers with BeforeAndAfte
   }
 
   it should "return an empty list if start is higher than end" in {
-    val filter = IntRangeFilterAttributes(field = TestSearchableTableFieldNames.longField, start = 10, end = 0)
+    val filter = IntRangeFilterAttributes(field = TestSearchableTableFieldNames.longField, start = Option(10), end = Option(0))
     val searchRequest = TableSearchRequest(
       intRangeFilterAttributes = Some(Seq(filter)),
       sort = None,

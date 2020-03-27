@@ -68,12 +68,14 @@ trait SearchableTableQuery {
 
     private def applyIntRangeFilter(attributes: IntRangeFilterAttributes, fieldMapping: Map[String, Rep[_]]): Rep[Boolean] = {
       val tableField = fieldMapping(attributes.field).asInstanceOf[Rep[Int]]
-      tableField >= attributes.start && tableField <= attributes.end
+      attributes.start.map(date => tableField >= date).getOrElse(LiteralColumn(true)) &&
+        attributes.end.map(date => tableField <= date).getOrElse(LiteralColumn(true))
     }
 
     private def applyDateTimeRangeFilter(attributes: DateTimeRangeFilterAttributes, fieldMapping: Map[String, Rep[_]]): Rep[Boolean] = {
       val tableField = fieldMapping(attributes.field).asInstanceOf[Rep[LocalDateTime]]
-      tableField >= attributes.start && tableField <= attributes.end
+      attributes.start.map(date => tableField >= date).getOrElse(LiteralColumn(true)) &&
+        attributes.end.map(date => tableField <= date).getOrElse(LiteralColumn(true))
     }
 
     private def sortFields(sortOpt: Option[SortAttributes], fieldMapping: Map[String, Rep[_]], defaultSortColumn: Rep[_]): ColumnOrdered[_] = {
