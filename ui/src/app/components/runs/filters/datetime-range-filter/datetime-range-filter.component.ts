@@ -18,7 +18,6 @@ import {ClrDatagridFilterInterface} from "@clr/angular";
 import {DagRunModel} from "../../../../models/dagRuns/dagRun.model";
 import {Subject, Subscription} from "rxjs";
 import {debounceTime, distinctUntilChanged} from "rxjs/operators";
-import {IntRangeFilterAttributes} from '../../../../models/search/intRangeFilterAttributes.model';
 import {DateTimeRangeFilterAttributes} from '../../../../models/search/dateTimeRangeFilterAttributes.model';
 
 @Component({
