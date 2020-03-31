@@ -1,7 +1,7 @@
 import {async, ComponentFixture, TestBed} from '@angular/core/testing';
 
 import {StatusFilterComponent} from './status-filter.component';
-import {DagRunModel} from "../../../../models/dagRuns/dagRun.model";
+import {DagRunModel} from '../../../../models/dagRuns/dagRun.model';
 
 describe('StatusFilterComponent', () => {
   let fixture: ComponentFixture<StatusFilterComponent>;

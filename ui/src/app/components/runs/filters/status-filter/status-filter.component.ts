@@ -1,8 +1,8 @@
 import {AfterViewInit, Component, Input, OnDestroy} from '@angular/core';
-import {Subject} from "rxjs";
-import {ClrDatagridFilterInterface} from "@clr/angular";
-import {DagRunModel} from "../../../../models/dagRuns/dagRun.model";
-import {StatusModel} from "../../../../models/status.model";
+import {Subject} from 'rxjs';
+import {ClrDatagridFilterInterface} from '@clr/angular';
+import {DagRunModel} from '../../../../models/dagRuns/dagRun.model';
+import {StatusModel} from '../../../../models/status.model';
 import {StringEqualsFilterAttributes} from '../../../../models/search/stringEqualsFilterAttributes.model';
 
 @Component({
@@ -37,7 +37,7 @@ import {StringEqualsFilterAttributes} from '../../../../models/search/stringEqua
   }
 
   get state() {
-    return new StringEqualsFilterAttributes(this.property, this.value)
+    return new StringEqualsFilterAttributes(this.property, this.value);
   }
 
   isActive(): boolean {
