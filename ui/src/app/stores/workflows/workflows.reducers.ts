@@ -16,17 +16,31 @@
 import * as WorkflowsActions from "../workflows/workflows.actions";
 import {ProjectModel} from "../../models/project.model";
 import {WorkflowModel} from "../../models/workflow.model";
+import {workflowModes} from "../../models/enums/workflowModes.constants";
+import {WorkflowJoinedModel} from "../../models/workflowJoined.model";
 
 export interface State {
   projects: ProjectModel[],
-  workflows: WorkflowModel[]
-  loading: boolean
+  workflows: WorkflowModel[],
+  loading: boolean,
+  selectedWorkflow: {
+    id: number,
+    mode: string,
+    loading: boolean,
+    workflow: WorkflowJoinedModel
+  }
 }
 
 const initialState: State = {
   projects: [],
   workflows: [],
-  loading: true
+  loading: true,
+  selectedWorkflow: {
+    id: undefined,
+    mode: workflowModes.CREATE,
+    loading: true,
+    workflow: undefined
+  }
 };
 
 export function workflowsReducer(state: State = initialState, action: WorkflowsActions.WorkflowsActions) {
@@ -37,6 +51,26 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
       return {...state, loading: false, projects: action.payload.projects, workflows: action.payload.workflows};
     case (WorkflowsActions.INITIALIZE_WORKFLOWS_FAILURE):
       return {...initialState, loading: false};
+    case (WorkflowsActions.STAR_WORKFLOW_INITIALIZATION):
+      return {...state, selectedWorkflow: {
+          ...initialState.selectedWorkflow, id: action.payload.id, mode: action.payload.mode, loading: true
+        }};
+    case (WorkflowsActions.SET_EMPTY_WORKFLOW):
+      return {...state, selectedWorkflow: {
+          ...state.selectedWorkflow, workflow: action.payload, loading: false
+        }};
+    case (WorkflowsActions.LOAD_WORKFLOW_SUCCESS):
+      return {...state, selectedWorkflow: {
+          ...state.selectedWorkflow, workflow: action.payload, loading: false
+        }};
+    case (WorkflowsActions.LOAD_WORKFLOW_FAILURE):
+      return {...state, selectedWorkflow: {
+          ...initialState.selectedWorkflow, loading: false
+        }};
+    case (WorkflowsActions.LOAD_WORKFLOW_FAILURE_INCORRECT_ID):
+      return {...state, selectedWorkflow: {
+          ...state.selectedWorkflow, loading: false
+        }};
     default:
       return state;
   }

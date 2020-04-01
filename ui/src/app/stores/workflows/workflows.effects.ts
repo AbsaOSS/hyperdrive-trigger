@@ -20,6 +20,8 @@ import * as WorkflowActions from "../workflows/workflows.actions";
 import {catchError, mergeMap, switchMap} from "rxjs/operators";
 import {WorkflowService} from "../../services/workflow/workflow.service";
 import {ProjectModel} from "../../models/project.model";
+import {WorkflowJoinedModel} from "../../models/workflowJoined.model";
+import {workflowModes} from "../../models/enums/workflowModes.constants";
 
 @Injectable()
 export class WorkflowsEffects {
@@ -41,7 +43,41 @@ export class WorkflowsEffects {
             type: WorkflowActions.INITIALIZE_WORKFLOWS_FAILURE
           }];
         })
-      )})
+      )
+    })
+  );
+
+  @Effect({dispatch: true})
+  workflowInitializationStart = this.actions.pipe(
+    ofType(WorkflowActions.STAR_WORKFLOW_INITIALIZATION),
+    switchMap((action: WorkflowActions.StartWorkflowInitialization) => {
+      if(action.payload.mode === workflowModes.CREATE) {
+        return [{
+          type: WorkflowActions.SET_EMPTY_WORKFLOW,
+          payload: undefined
+        }];
+      } else {
+        if(!action.payload.id) {
+          return [{
+            type: WorkflowActions.LOAD_WORKFLOW_FAILURE_INCORRECT_ID
+          }];
+        } else {
+          return this.workflowService.getWorkflow(action.payload.id).pipe(
+            mergeMap((worfklow: WorkflowJoinedModel) => {
+              return [{
+                type: WorkflowActions.LOAD_WORKFLOW_SUCCESS,
+                payload: worfklow
+              }];
+            }),
+            catchError(() => {
+              return [{
+                type: WorkflowActions.LOAD_WORKFLOW_FAILURE
+              }];
+            })
+          )
+        }
+      }
+    })
   );
 
 }

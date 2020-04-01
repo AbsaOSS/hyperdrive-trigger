@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -14,14 +13,31 @@
  * limitations under the License.
  */
 
-export const api = {
-  USER_INFO: '/user/info',
-  LOGIN: '/login',
-  LOGOUT: '/logout',
+export class SensorModel {
 
-  DAG_RUN_SEARCH: '/dagRuns/search',
-  JOB_INSTANCES: '/jobInstances',
+  constructor(
+    // public workflowId: number,
+    public sensorType: boolean,
+    public properties: PropertiesModel
+    // public id: number
+  ) {}
 
-  GET_PROJECTS: '/workflows/projects',
-  GET_WORKFLOW: '/workflow'
-};
+}
+
+export class PropertiesModel {
+
+  constructor(
+    public settings: SettingsModel,
+    public matchProperties: Map<String, String>
+  ) {}
+
+}
+
+export class SettingsModel {
+
+  constructor(
+    public variables: Map<String, String>,
+    public maps: Map<String, Set<String>>
+  ) {}
+
+}

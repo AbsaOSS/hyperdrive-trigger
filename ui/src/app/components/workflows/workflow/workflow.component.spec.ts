@@ -15,29 +15,21 @@
 
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { WorkflowsHomeComponent } from './workflows-home.component';
-import {provideMockStore} from "@ngrx/store/testing";
+import { WorkflowComponent } from './workflow.component';
 
-describe('WorkflowsHomeComponent', () => {
-  let component: WorkflowsHomeComponent;
-  let fixture: ComponentFixture<WorkflowsHomeComponent>;
-
-  const initialAppState = {
-    workflows: {}
-  };
+describe('WorkflowComponent', () => {
+  let component: WorkflowComponent;
+  let fixture: ComponentFixture<WorkflowComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      providers: [
-        provideMockStore({ initialState: initialAppState })
-      ],
-      declarations: [ WorkflowsHomeComponent ]
+      declarations: [ WorkflowComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(WorkflowsHomeComponent);
+    fixture = TestBed.createComponent(WorkflowComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

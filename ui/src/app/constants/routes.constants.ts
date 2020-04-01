@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -20,7 +19,9 @@ export const routeNames = {
   HOME: 'home',
   WORKFLOWS: 'workflows',
   WORKFLOWS_HOME: '',
-  RUNS: 'runs',
+  WORKFLOW: ':mode',
+  WORKFLOW_WITH_ID: ':mode/:id',
+  RUNS: 'runs'
 };
 
 export const absoluteRoutes = {

@@ -1,5 +1,4 @@
-
-/*
+/*!
  * Copyright 2018 ABSA Group Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,14 +13,17 @@
  * limitations under the License.
  */
 
-export const api = {
-  USER_INFO: '/user/info',
-  LOGIN: '/login',
-  LOGOUT: '/logout',
+:host {
+  display: flex;
+}
 
-  DAG_RUN_SEARCH: '/dagRuns/search',
-  JOB_INSTANCES: '/jobInstances',
+:host, .content-area {
+  height: 100%;
+  width: 100%;
+}
 
-  GET_PROJECTS: '/workflows/projects',
-  GET_WORKFLOW: '/workflow'
-};
+.loading {
+  position: fixed;
+  top: 50%;
+  right: 50%;
+}

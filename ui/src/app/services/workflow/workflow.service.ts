@@ -14,11 +14,12 @@
  */
 
 import {Injectable} from '@angular/core';
-import {HttpClient} from "@angular/common/http";
+import {HttpClient, HttpParams} from "@angular/common/http";
 import {api} from "../../constants/api.constants";
 import {map} from "rxjs/operators";
 import {ProjectModel} from "../../models/project.model";
 import {Observable} from "rxjs";
+import {WorkflowJoinedModel} from "../../models/workflowJoined.model";
 
 @Injectable({
   providedIn: 'root'
@@ -29,6 +30,14 @@ export class WorkflowService {
 
   getProjects(): Observable<ProjectModel[]> {
     return this.httpClient.get<ProjectModel[]>(api.GET_PROJECTS, {observe: 'response'}).pipe(
+      map(_ => _.body)
+    );
+  }
+
+  getWorkflow(id: number): Observable<WorkflowJoinedModel> {
+    let params = new HttpParams().set('id', id.toString());
+
+    return this.httpClient.get<WorkflowJoinedModel>(api.GET_WORKFLOW, {params: params, observe: 'response'}).pipe(
       map(_ => _.body)
     );
   }
