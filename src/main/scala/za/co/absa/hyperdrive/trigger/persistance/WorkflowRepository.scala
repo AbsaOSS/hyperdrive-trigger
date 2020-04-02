@@ -17,13 +17,17 @@ package za.co.absa.hyperdrive.trigger.persistance
 
 import java.time.LocalDateTime
 
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype
+import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, DatabaseError}
 import za.co.absa.hyperdrive.trigger.models.{ProjectInfo, _}
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success}
 
 trait WorkflowRepository extends Repository {
-  def insertWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Unit]
+  def insertWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Option[ApiError]]
+  def existsWorkflow(name: String)(implicit ec: ExecutionContext): Future[Boolean]
   def getWorkflow(id: Long)(implicit ec: ExecutionContext): Future[Option[WorkflowJoined]]
   def getWorkflows()(implicit ec: ExecutionContext): Future[Seq[Workflow]]
   def getWorkflowsByProjectName(projectName: String)(implicit ec: ExecutionContext): Future[Seq[Workflow]]
@@ -37,14 +41,24 @@ trait WorkflowRepository extends Repository {
 @stereotype.Repository
 class WorkflowRepositoryImpl extends WorkflowRepository {
   import profile.api._
+  private val logger = LoggerFactory.getLogger(this.getClass)
 
-  override def insertWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Unit] = db.run(
+  override def insertWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Option[ApiError]] = db.run(
     (for {
       workflowId <- workflowTable returning workflowTable.map(_.id) += workflow.toWorkflow.copy(created = LocalDateTime.now())
       sensorId <- sensorTable += workflow.sensor.copy(workflowId = workflowId)
       dagId <- dagDefinitionTable returning dagDefinitionTable.map(_.id) += workflow.dagDefinitionJoined.toDag().copy(workflowId = workflowId)
       jobId <- jobDefinitionTable ++= workflow.dagDefinitionJoined.jobDefinitions.map(_.copy(dagDefinitionId = dagId))
-    } yield ()).transactionally
+    } yield ()).transactionally.asTry
+  ).map {
+    case Success(_) => None
+    case Failure(ex) =>
+      logger.error(s"Unexpected error occurred when inserting workflow $workflow", ex)
+      Some(DatabaseError("Unexpected error occurred"))
+  }
+
+  override def existsWorkflow(name: String)(implicit ec: ExecutionContext): Future[Boolean] = db.run(
+    workflowTable.filter(_.name === name).exists.result
   )
 
   override def getWorkflow(id: Long)(implicit ec: ExecutionContext): Future[Option[WorkflowJoined]] = {
