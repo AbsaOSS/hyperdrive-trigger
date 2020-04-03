@@ -32,7 +32,7 @@ trait WorkflowService {
   def getWorkflows()(implicit ec: ExecutionContext): Future[Seq[Workflow]]
   def getWorkflowsByProjectName(projectName: String)(implicit ec: ExecutionContext): Future[Seq[Workflow]]
   def deleteWorkflow(id: Long)(implicit ec: ExecutionContext): Future[Boolean]
-  def updateWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Boolean]
+  def updateWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[Set[ApiError], Boolean]]
   def updateWorkflowActiveState(id: Long, isActive: Boolean)(implicit ec: ExecutionContext): Future[Boolean]
   def getProjectNames()(implicit ec: ExecutionContext): Future[Set[String]]
   def getProjects()(implicit ec: ExecutionContext): Future[Seq[Project]]
@@ -47,7 +47,7 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
 
   def createWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[Set[ApiError], Boolean]] = {
     for {
-      validationErrors <- workflowValidationService.validate(workflow)
+      validationErrors <- workflowValidationService.validateOnInsert(workflow)
       dbError <- doIf(validationErrors.isEmpty, () => workflowRepository.insertWorkflow(workflow), None)
     } yield { toEither(Set(validationErrors, dbError.map(error => Set(error)))) }
   }
@@ -83,8 +83,11 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
     workflowRepository.deleteWorkflow(id).map(_ => true)
   }
 
-  override def updateWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Boolean] = {
-    workflowRepository.updateWorkflow(workflow).map(_ => true)
+  override def updateWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[Set[ApiError], Boolean]] = {
+    for {
+      validationErrors <- workflowValidationService.validateOnUpdate(workflow)
+      dbError <- doIf(validationErrors.isEmpty, () => workflowRepository.updateWorkflow(workflow), None)
+    } yield { toEither(Set(validationErrors, dbError.map(error => Set(error)))) }
   }
 
   override def updateWorkflowActiveState(id: Long, isActive: Boolean)(implicit ec: ExecutionContext): Future[Boolean] = {

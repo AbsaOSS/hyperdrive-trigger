@@ -32,3 +32,5 @@ case class DatabaseError(
   override val message: String,
   override val errorType: ApiErrorType = DatabaseErrorType
 ) extends ApiError
+
+object GenericDatabaseError extends DatabaseError("Unexpected error occurred")

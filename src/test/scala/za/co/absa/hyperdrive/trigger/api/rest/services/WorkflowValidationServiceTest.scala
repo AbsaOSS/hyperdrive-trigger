@@ -35,14 +35,14 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
     reset(workflowRepository)
   }
 
-  "WorkflowValidationService.validate" should "return None if entity is valid" in {
+  "validateOnInsert" should "return None if entity is valid" in {
     // given
     val underTest = new WorkflowValidationServiceImpl(workflowRepository)
     val workflowJoined = WorkflowFixture.createWorkflowJoined()
     when(workflowRepository.existsWorkflow(eqTo(workflowJoined.name))(any[ExecutionContext])).thenReturn(Future{false})
 
     // when
-    val result = Await.result(underTest.validate(workflowJoined), Duration(120, TimeUnit.SECONDS))
+    val result = Await.result(underTest.validateOnInsert(workflowJoined), Duration(120, TimeUnit.SECONDS))
 
     // then
     result shouldBe None
@@ -55,7 +55,7 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
     when(workflowRepository.existsWorkflow(eqTo(workflow.name))(any[ExecutionContext])).thenReturn(Future{true})
 
     // when
-    val result = Await.result(underTest.validate(workflow), Duration(120, TimeUnit.SECONDS))
+    val result = Await.result(underTest.validateOnInsert(workflow), Duration(120, TimeUnit.SECONDS))
 
     // then
     result.isDefined shouldBe true
@@ -70,7 +70,7 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
     when(workflowRepository.existsWorkflow(eqTo(invalidWorkflow.name))(any[ExecutionContext])).thenReturn(Future{false})
 
     // when
-    val result = Await.result(underTest.validate(invalidWorkflow), Duration(120, TimeUnit.SECONDS))
+    val result = Await.result(underTest.validateOnInsert(invalidWorkflow), Duration(120, TimeUnit.SECONDS))
 
     // then
     result.isDefined shouldBe true
@@ -85,11 +85,53 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
     when(workflowRepository.existsWorkflow(eqTo(invalidWorkflow.name))(any[ExecutionContext])).thenReturn(Future{false})
 
     // when
-    val result = Await.result(underTest.validate(invalidWorkflow), Duration(120, TimeUnit.SECONDS))
+    val result = Await.result(underTest.validateOnInsert(invalidWorkflow), Duration(120, TimeUnit.SECONDS))
 
     // then
     result.isDefined shouldBe true
     result.get should contain theSameElementsAs Set(ValidationError("Project must be set"))
+  }
+
+  "validateOnUpdate" should "return None if entity is valid" in {
+    // given
+    val underTest = new WorkflowValidationServiceImpl(workflowRepository)
+    val workflow = WorkflowFixture.createWorkflowJoined()
+    when(workflowRepository.existsOtherWorkflow(eqTo(workflow.name), eqTo(workflow.id))(any[ExecutionContext])).thenReturn(Future{false})
+
+    // when
+    val result = Await.result(underTest.validateOnUpdate(workflow), Duration(120, TimeUnit.SECONDS))
+
+    // then
+    result shouldBe None
+  }
+
+  it should "fail if the workflow name already exists in another entity" in {
+    // given
+    val underTest = new WorkflowValidationServiceImpl(workflowRepository)
+    val workflow = WorkflowFixture.createWorkflowJoined()
+    when(workflowRepository.existsOtherWorkflow(eqTo(workflow.name), eqTo(workflow.id))(any[ExecutionContext])).thenReturn(Future{true})
+
+    // when
+    val result = Await.result(underTest.validateOnUpdate(workflow), Duration(120, TimeUnit.SECONDS))
+
+    // then
+    result.isDefined shouldBe true
+    result.get should contain theSameElementsAs Set(ValidationError("Workflow name already exists"))
+  }
+
+  it should "fail if the project name is empty" in {
+    // given
+    val underTest = new WorkflowValidationServiceImpl(workflowRepository)
+    val workflow = WorkflowFixture.createWorkflowJoined()
+    val invalidWorkflow = workflow.copy(project = "")
+    when(workflowRepository.existsOtherWorkflow(eqTo(invalidWorkflow.name), eqTo(invalidWorkflow.id))(any[ExecutionContext])).thenReturn(Future{false})
+
+    // when
+    val result = Await.result(underTest.validateOnUpdate(invalidWorkflow), Duration(120, TimeUnit.SECONDS))
+
+    // then
+    result.isDefined shouldBe true
+    result.get should contain theSameElementsAs Set(ValidationError("Project must not be empty"))
   }
 
 }

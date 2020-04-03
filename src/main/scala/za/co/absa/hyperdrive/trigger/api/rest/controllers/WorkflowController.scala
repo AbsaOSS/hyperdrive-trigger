@@ -63,7 +63,7 @@ class WorkflowController @Inject()(workflowService: WorkflowService) {
 
   @PostMapping(path = Array("/workflows"))
   def updateWorkflow(@RequestBody workflow: WorkflowJoined): CompletableFuture[Boolean] = {
-    workflowService.updateWorkflow(workflow).toJava.toCompletableFuture
+    workflowService.updateWorkflow(workflow)
   }
 
   @PostMapping(path = Array("/workflows/{id}/setActiveState"))
