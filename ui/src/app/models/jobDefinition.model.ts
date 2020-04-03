@@ -13,9 +13,15 @@
  * limitations under the License.
  */
 
-export const workflowModes = {
-  SHOW: 'show',
-  CREATE: 'create',
-  EDIT: 'edit',
-  COPY: 'copy'
-};
+import {SensorModel} from "./sensor.model";
+
+export class JobDefinitionModel {
+
+  constructor(
+    public dagDefinitionId: number,
+    public name: String,
+    public jobType: {name: string},
+    public  order: number
+  ) {}
+
+}

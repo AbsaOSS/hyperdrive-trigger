@@ -1,0 +1,12 @@
+.notSelectable {
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+
+.accordion-content {
+  padding-left: 0.75rem;
+}

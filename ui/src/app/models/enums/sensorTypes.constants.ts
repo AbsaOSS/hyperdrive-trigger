@@ -13,9 +13,16 @@
  * limitations under the License.
  */
 
-export const workflowModes = {
-  SHOW: 'show',
-  CREATE: 'create',
-  EDIT: 'edit',
-  COPY: 'copy'
+import {StatusModel} from "../status.model";
+
+
+export const sensorTypes = {
+  KAFKA: 'Kafka',
+  TIME: 'Time',
+  ABSA_KAFKA: 'Absa-Kafka',
+
+ getSensorTypes(): string[] {
+    return [this.KAFKA, this.TIME, this.ABSA_KAFKA]
+ }
+
 };

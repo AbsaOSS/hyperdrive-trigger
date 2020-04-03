@@ -14,6 +14,7 @@
  */
 
 import {SensorModel} from "./sensor.model";
+import {DagDefinitionJoinedModel} from "./dagDefinitionJoined.model";
 
 export class WorkflowJoinedModel {
 
@@ -24,7 +25,7 @@ export class WorkflowJoinedModel {
     // public created: Date,
     // public updated: Date,
     public sensor: SensorModel,
-    // public dagDefinitionJoined: DagDefinitionJoinedModel,
+    public dagDefinitionJoined: DagDefinitionJoinedModel,
     public id: number
   ) {}
 

@@ -20,8 +20,86 @@
 </div>
 
 <div *ngIf="!loading">
-  <p>workflow works!</p>
-  <p>{{loading}}</p>
-  <p>{{mode}}</p>
-  <p>{{workflow}}</p>
+
+  <!--  BUTTONS  -->
+  <div class="btn-group" *ngIf="mode != workflowModes.SHOW">
+    <button type="button" class="btn btn-sm btn-secondary" *ngIf="mode != workflowModes.EDIT">
+      <clr-icon shape="check"></clr-icon>
+      Create new workflow
+    </button>
+    <button type="button" class="btn btn-sm btn-secondary" *ngIf="mode == workflowModes.EDIT">
+      <clr-icon shape="check"></clr-icon>
+      Update workflow
+    </button>
+    <button type="button" class="btn btn-sm btn-secondary">
+      <clr-icon shape="times"></clr-icon>
+      Cancle
+    </button>
+  </div>
+
+  <div class="btn-group" *ngIf="mode == workflowModes.SHOW">
+    <button type="button" class="btn btn-sm btn-secondary">
+      <clr-icon shape="power"></clr-icon>
+      Activate/Deactivate
+    </button>
+    <button type="button" class="btn btn-sm btn-secondary">
+      <clr-icon shape="copy"></clr-icon>
+      Copy
+    </button>
+    <button type="button" class="btn btn-sm btn-secondary">
+      <clr-icon shape="pencil"></clr-icon>
+      Edit
+    </button>
+    <button type="button" class="btn btn-sm btn-secondary">
+      <clr-icon shape="close"></clr-icon>
+      Delete
+    </button>
+  </div>
+
+  <!--  ACCORDIONS  -->
+  <form clrForm>
+
+    <div class="clr-row">
+      <div class="clr-col">
+        <div class="card">
+          <div class="card-block">
+            <div class="card-title notSelectable" (click)="hideDetails()">
+              <clr-icon shape="angle" dir="{{areDetailsHidden?'right':'down'}}"></clr-icon>
+              Workflow details
+            </div>
+            <div *ngIf="!areDetailsHidden" class="accordion-content">
+              <app-workflow-details [mode]="mode" [workflow]="workflow"></app-workflow-details>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-block">
+            <div class="card-title notSelectable" (click)="hideSensor()">
+              <clr-icon shape="angle" dir="{{isSensorHidden?'right':'down'}}"></clr-icon>
+              Sensor
+            </div>
+            <div *ngIf="!isSensorHidden" class="accordion-content">
+              <app-sensor [mode]="mode" [workflow]="workflow"></app-sensor>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-block">
+            <div class="card-title notSelectable" (click)="hideJobs()">
+              <clr-icon shape="angle" dir="{{areJobsHidden?'right':'down'}}"></clr-icon>
+              Jobs
+            </div>
+            <div *ngIf="!areJobsHidden" >
+              <app-jobs [mode]="mode" [workflow]="workflow"></app-jobs>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </form>
+
+
 </div>

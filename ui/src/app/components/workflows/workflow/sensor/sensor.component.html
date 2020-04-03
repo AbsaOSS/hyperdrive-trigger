@@ -1,0 +1,21 @@
+<div *ngIf="mode != workflowModes.SHOW">
+  <clr-select-container>
+    <label>Sensor type</label>
+    <select clrSelect [(ngModel)]="workflow.sensor.sensorType.name">
+      <option *ngFor="let sensor of sensorTypes.getSensorTypes()" [value]="sensor">{{sensor}}</option>
+    </select>
+  </clr-select-container>
+</div>
+
+<div *ngIf="mode == workflowModes.SHOW">
+    <div class="clr-form-control clr-row">
+      <label class="clr-control-label">Sensor type</label>
+      <span>{{workflow.sensor.sensorType.name}}</span>
+    </div>
+</div>
+
+
+
+<app-kafka *ngIf="sensorTypes.KAFKA == workflow.sensor.sensorType.name" [mode]="mode" [workflow]="workflow"></app-kafka>
+<app-time *ngIf="sensorTypes.TIME == workflow.sensor.sensorType.name" [mode]="mode" [workflow]="workflow"></app-time>
+<app-absa-kafka *ngIf="sensorTypes.ABSA_KAFKA == workflow.sensor.sensorType.name" [mode]="mode" [workflow]="workflow"></app-absa-kafka>

@@ -13,9 +13,12 @@
  * limitations under the License.
  */
 
-export const workflowModes = {
-  SHOW: 'show',
-  CREATE: 'create',
-  EDIT: 'edit',
-  COPY: 'copy'
+export const jobTypes = {
+  SPARK: 'Spark',
+  SHELL: 'Shell',
+
+ getJobTypes(): string[] {
+    return [this.SPARK, this.SHELL]
+ }
+
 };

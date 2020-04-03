@@ -48,6 +48,14 @@ import {DatetimeRangeFilterComponent} from "./components/runs/filters/datetime-r
 import {StatusFilterComponent} from "./components/runs/filters/status-filter/status-filter.component";
 import {NumberRangeFilterComponent} from "./components/runs/filters/number-range-filter/number-range-filter.component";
 import {WorkflowComponent} from './components/workflows/workflow/workflow.component';
+import {WorkflowDetailsComponent} from './components/workflows/workflow/workflow-details/workflow-details.component';
+import {SensorComponent} from './components/workflows/workflow/sensor/sensor.component';
+import { KafkaComponent } from './components/workflows/workflow/sensor/kafka/kafka.component';
+import { TimeComponent } from './components/workflows/workflow/sensor/time/time.component';
+import { AbsaKafkaComponent } from './components/workflows/workflow/sensor/absa-kafka/absa-kafka.component';
+import { JobsComponent } from './components/workflows/workflow/jobs/jobs.component';
+import { SparkComponent } from './components/workflows/workflow/jobs/spark/spark.component';
+import { ShellComponent } from './components/workflows/workflow/jobs/shell/shell.component';
 
 @NgModule({
   declarations: [
@@ -62,7 +70,15 @@ import {WorkflowComponent} from './components/workflows/workflow/workflow.compon
     DatetimeRangeFilterComponent,
     StatusFilterComponent,
     NumberRangeFilterComponent,
-    WorkflowComponent
+    WorkflowComponent,
+    WorkflowDetailsComponent,
+    SensorComponent,
+    KafkaComponent,
+    TimeComponent,
+    AbsaKafkaComponent,
+    JobsComponent,
+    SparkComponent,
+    ShellComponent
   ],
   imports: [
     BrowserModule,

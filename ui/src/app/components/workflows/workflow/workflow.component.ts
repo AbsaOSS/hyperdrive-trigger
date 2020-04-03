@@ -20,6 +20,7 @@ import {Subscription} from "rxjs";
 import {Store} from "@ngrx/store";
 import {WorkflowJoinedModel} from "../../../models/workflowJoined.model";
 import {StartWorkflowInitialization} from "../../../stores/workflows/workflows.actions";
+import {workflowModes} from "../../../models/enums/workflowModes.constants";
 
 @Component({
   selector: 'app-workflow',
@@ -33,6 +34,11 @@ export class WorkflowComponent implements OnInit, OnDestroy {
   loading: boolean = true;
   mode: string;
   workflow: WorkflowJoinedModel;
+
+  workflowModes = workflowModes;
+  areDetailsHidden = false;
+  isSensorHidden = false;
+  areJobsHidden = false;
 
   constructor(private store: Store<AppState>, route: ActivatedRoute) {
     this.paramsSubscription = route.params.subscribe(parameters => {
@@ -53,6 +59,18 @@ export class WorkflowComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.workflowSubscription.unsubscribe();
     this.paramsSubscription.unsubscribe();
+  }
+
+  hideDetails() {
+    this.areDetailsHidden = !this.areDetailsHidden;
+  }
+
+  hideSensor() {
+    this.isSensorHidden = !this.isSensorHidden;
+  }
+
+  hideJobs() {
+    this.areJobsHidden = !this.areJobsHidden;
   }
 
 }

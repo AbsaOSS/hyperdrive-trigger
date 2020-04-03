@@ -1,0 +1,47 @@
+<button type="button" class="btn btn-sm btn-secondary">
+  <clr-icon shape="plus"></clr-icon>
+  Add job
+</button>
+
+<div class="card" *ngFor="let job of this.workflow.dagDefinitionJoined.jobDefinitions; let i = index;">
+  <div class="card-block">
+    <div class="card-title notSelectable" (click)="hideJob(job.order)">
+      <clr-icon shape="angle" dir="{{isHidden(job.order)?'right':'down'}}"></clr-icon>
+      {{job.name}}
+    </div>
+    <div class="accordion-content" *ngIf="!isHidden(job.order)">
+
+      <div *ngIf="mode != workflowModes.SHOW">
+        <clr-input-container>
+          <label>Job Name</label>
+          <input clrInput type="text" name="workflowName" size="40" [(ngModel)]="job.name"/>
+        </clr-input-container>
+        <clr-select-container>
+          <label>Job type</label>
+          <select clrSelect [(ngModel)]="job.jobType.name">
+            <option *ngFor="let job of jobTypes.getJobTypes()" [value]="job">{{job}}</option>
+          </select>
+        </clr-select-container>
+
+      </div>
+
+      <div *ngIf="mode == workflowModes.SHOW">
+        <div class="clr-form-control clr-row">
+          <label class="clr-control-label">Job Name</label>
+          <span>{{job.name}}</span>
+        </div>
+        <div class="clr-form-control clr-row">
+          <label class="clr-control-label">Job type</label>
+          <span>{{job.jobType.name}}</span>
+        </div>
+      </div>
+
+
+
+      <app-spark *ngIf="jobTypes.SPARK == job.jobType.name" [mode]="mode" [workflow]="workflow"></app-spark>
+      <app-shell *ngIf="jobTypes.SHELL == job.jobType.name" [mode]="mode" [workflow]="workflow"></app-shell>
+
+    </div>
+  </div>
+</div>
+

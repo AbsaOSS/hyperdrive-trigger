@@ -17,7 +17,7 @@ export class SensorModel {
 
   constructor(
     // public workflowId: number,
-    public sensorType: boolean,
+    public sensorType: {name: string},
     public properties: PropertiesModel
     // public id: number
   ) {}

@@ -1,0 +1,35 @@
+<div *ngIf="mode != workflowModes.SHOW">
+  <clr-input-container>
+    <label>Workflow Name</label>
+    <input clrInput type="text" name="workflowName" [size]="40" [(ngModel)]="workflow.name"/>
+  </clr-input-container>
+  <clr-input-container>
+    <label>Project Name</label>
+    <input clrInput type="text" name="projectName" size="40" [(ngModel)]="workflow.project"/>
+  </clr-input-container>
+  <clr-checkbox-container>
+    <label for="isActive">Is active</label>
+    <clr-checkbox-wrapper>
+      <input id="isActive" clrToggle type="checkbox" name="isActive" [(ngModel)]="workflow.isActive">
+    </clr-checkbox-wrapper>
+  </clr-checkbox-container>
+</div>
+
+<div *ngIf="mode == workflowModes.SHOW">
+  <div class="clr-form-control clr-row">
+    <label class="clr-control-label">Workflow Name</label>
+    <span>{{workflow.name}}</span>
+  </div>
+  <div class="clr-form-control clr-row">
+    <label class="clr-control-label">Project Name</label>
+    <span>{{workflow.project}}</span>
+  </div>
+  <div class="clr-form-control clr-row">
+    <label class="clr-control-label">Is active</label>
+    <span [ngSwitch]="workflow.isActive">
+        {{workflow.isActive ? 'Yes' : 'No'}}
+        <clr-icon *ngSwitchCase="true" shape="circle" class="is-solid" style="color: green"></clr-icon>
+        <clr-icon *ngSwitchCase="false" shape="circle" class="is-solid" style="color: red"></clr-icon>
+      </span>
+  </div>
+</div>
