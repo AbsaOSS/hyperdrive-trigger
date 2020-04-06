@@ -60,7 +60,7 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
     // given
     val underTest = new WorkflowServiceImpl(workflowRepository, dagInstanceRepository, workflowValidationService)
     val workflowJoined = WorkflowFixture.createWorkflowJoined()
-    val errors: Set[ApiError] = Set(ValidationError("error"))
+    val errors: Seq[ApiError] = Seq(ValidationError("error"))
     when(workflowValidationService.validateOnInsert(eqTo(workflowJoined))(any[ExecutionContext]))
       .thenReturn(Future{Some(errors)})
 
@@ -86,14 +86,14 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
 
     // then
     verify(workflowRepository).insertWorkflow(eqTo(workflowJoined))(any[ExecutionContext])
-    result shouldBe Left(Set(error))
+    result shouldBe Left(Seq(error))
   }
 
   "WorkflowService.updateWorkflow" should "should update a workflow" in {
     // given
     val underTest = new WorkflowServiceImpl(workflowRepository, dagInstanceRepository, workflowValidationService)
     val workflowJoined = WorkflowFixture.createWorkflowJoined()
-    when(workflowValidationService.validateOnInsert(eqTo(workflowJoined))(any[ExecutionContext])).thenReturn(Future{None})
+    when(workflowValidationService.validateOnUpdate(eqTo(workflowJoined))(any[ExecutionContext])).thenReturn(Future{None})
     when(workflowRepository.updateWorkflow(eqTo(workflowJoined))(any[ExecutionContext])).thenReturn(Future{None})
 
     // when
@@ -108,8 +108,8 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
     // given
     val underTest = new WorkflowServiceImpl(workflowRepository, dagInstanceRepository, workflowValidationService)
     val workflowJoined = WorkflowFixture.createWorkflowJoined()
-    val errors: Set[ApiError] = Set(ValidationError("error"))
-    when(workflowValidationService.validateOnInsert(eqTo(workflowJoined))(any[ExecutionContext]))
+    val errors: Seq[ApiError] = Seq(ValidationError("error"))
+    when(workflowValidationService.validateOnUpdate(eqTo(workflowJoined))(any[ExecutionContext]))
       .thenReturn(Future{Some(errors)})
 
     // when
@@ -125,7 +125,7 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
     val underTest = new WorkflowServiceImpl(workflowRepository, dagInstanceRepository, workflowValidationService)
     val workflowJoined = WorkflowFixture.createWorkflowJoined()
     val error = DatabaseError("error")
-    when(workflowValidationService.validateOnInsert(eqTo(workflowJoined))(any[ExecutionContext])).thenReturn(Future{None})
+    when(workflowValidationService.validateOnUpdate(eqTo(workflowJoined))(any[ExecutionContext])).thenReturn(Future{None})
     when(workflowRepository.updateWorkflow(eqTo(workflowJoined))(any[ExecutionContext]))
       .thenReturn(Future{Some(error)})
 
@@ -134,7 +134,7 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
 
     // then
     verify(workflowRepository).updateWorkflow(eqTo(workflowJoined))(any[ExecutionContext])
-    result shouldBe Left(Set(error))
+    result shouldBe Left(Seq(error))
   }
 
   "WorkflowService.getProjects" should "should return no project on no workflows" in {

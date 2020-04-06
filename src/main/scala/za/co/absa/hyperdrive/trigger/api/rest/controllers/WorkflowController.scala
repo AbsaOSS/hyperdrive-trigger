@@ -30,7 +30,7 @@ import scala.concurrent.Future
 @RestController
 class WorkflowController @Inject()(workflowService: WorkflowService) {
 
-  implicit def eitherToCompletableFutureOrException[T](response: Future[Either[Set[ApiError], T]]): CompletableFuture[T] =
+  implicit def eitherToCompletableFutureOrException[T](response: Future[Either[Seq[ApiError], T]]): CompletableFuture[T] =
     response.map {
       case Left(apiErrors) => throw new ApiException(apiErrors)
       case Right(result) => result

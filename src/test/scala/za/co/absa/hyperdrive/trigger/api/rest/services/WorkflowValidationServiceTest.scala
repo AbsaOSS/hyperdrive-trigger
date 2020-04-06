@@ -59,7 +59,7 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
 
     // then
     result.isDefined shouldBe true
-    result.get should contain theSameElementsAs Set(ValidationError("Workflow name already exists"))
+    result.get should contain theSameElementsInOrderAs Seq(ValidationError("Workflow name already exists"))
   }
 
   it should "fail if the project name is empty" in {
@@ -74,7 +74,7 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
 
     // then
     result.isDefined shouldBe true
-    result.get should contain theSameElementsAs Set(ValidationError("Project must not be empty"))
+    result.get should contain theSameElementsInOrderAs Seq(ValidationError("Project must not be empty"))
   }
 
   it should "fail if the project name is not defined" in {
@@ -89,7 +89,7 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
 
     // then
     result.isDefined shouldBe true
-    result.get should contain theSameElementsAs Set(ValidationError("Project must be set"))
+    result.get should contain theSameElementsInOrderAs Seq(ValidationError("Project must be set"))
   }
 
   "validateOnUpdate" should "return None if entity is valid" in {
@@ -116,7 +116,7 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
 
     // then
     result.isDefined shouldBe true
-    result.get should contain theSameElementsAs Set(ValidationError("Workflow name already exists"))
+    result.get should contain theSameElementsInOrderAs Seq(ValidationError("Workflow name already exists"))
   }
 
   it should "fail if the project name is empty" in {
@@ -131,7 +131,7 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
 
     // then
     result.isDefined shouldBe true
-    result.get should contain theSameElementsAs Set(ValidationError("Project must not be empty"))
+    result.get should contain theSameElementsInOrderAs Seq(ValidationError("Project must not be empty"))
   }
 
 }

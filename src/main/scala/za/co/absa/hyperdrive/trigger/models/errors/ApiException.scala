@@ -16,8 +16,8 @@
 
 package za.co.absa.hyperdrive.trigger.models.errors
 
-class ApiException(val apiErrors: Set[ApiError]) extends RuntimeException {
+class ApiException(val apiErrors: Seq[ApiError]) extends RuntimeException {
   def this() {
-    this(Set())
+    this(Seq())
   }
 }

@@ -27,59 +27,59 @@ import scala.concurrent.{ExecutionContext, Future}
 trait WorkflowValidationService {
   val workflowRepository: WorkflowRepository
 
-  def validateOnInsert(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Option[Set[ApiError]]]
+  def validateOnInsert(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Option[Seq[ApiError]]]
 
-  def validateOnUpdate(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Option[Set[ApiError]]]
+  def validateOnUpdate(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Option[Seq[ApiError]]]
 }
 
 @Service
 class WorkflowValidationServiceImpl @Inject()(override val workflowRepository: WorkflowRepository)
   extends WorkflowValidationService {
-  override def validateOnInsert(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Option[Set[ApiError]]] = {
-    val validators = Set(
+  override def validateOnInsert(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Option[Seq[ApiError]]] = {
+    val validators = Seq(
       validateWorkflowNotExists(workflow),
       validateProjectIsNotEmpty(workflow)
     )
     combine(validators)
   }
 
-  override def validateOnUpdate(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Option[Set[ApiError]]] = {
-    val validators = Set(
+  override def validateOnUpdate(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Option[Seq[ApiError]]] = {
+    val validators = Seq(
       validateWorkflowIsUnique(workflow),
       validateProjectIsNotEmpty(workflow)
     )
     combine(validators)
   }
 
-  private def combine(validators: Set[Future[Set[ApiError]]])(implicit ec: ExecutionContext) = {
-    val combinedValidators = Future.fold(validators)(Set.empty[ApiError])(_ ++ _)
+  private def combine(validators: Seq[Future[Seq[ApiError]]])(implicit ec: ExecutionContext) = {
+    val combinedValidators = Future.fold(validators)(Seq.empty[ApiError])(_ ++ _)
     combinedValidators.map(errors => if (errors.isEmpty) None else Some(errors))
   }
 
-  private def validateWorkflowNotExists(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Set[ApiError]] = {
+  private def validateWorkflowNotExists(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Seq[ApiError]] = {
     workflowRepository.existsWorkflow(workflow.name)
       .map(exists => if (exists) {
-        Set(ValidationError("Workflow name already exists"))
+        Seq(ValidationError("Workflow name already exists"))
       } else {
-        Set()
+        Seq()
       })
   }
 
-  private def validateWorkflowIsUnique(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Set[ApiError]] = {
+  private def validateWorkflowIsUnique(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Seq[ApiError]] = {
     workflowRepository.existsOtherWorkflow(workflow.name, workflow.id)
       .map(exists => if (exists) {
-        Set(ValidationError("Workflow name already exists"))
+        Seq(ValidationError("Workflow name already exists"))
       } else {
-        Set()
+        Seq()
       })
   }
 
-  private def validateProjectIsNotEmpty(workflow: WorkflowJoined): Future[Set[ApiError]] = {
+  private def validateProjectIsNotEmpty(workflow: WorkflowJoined): Future[Seq[ApiError]] = {
     val projectValidation = Option(workflow.project) match {
       case Some(v) if v.isEmpty => Some(ValidationError("Project must not be empty"))
       case Some(_) => None
       case None => Some(ValidationError("Project must be set"))
     }
-    Future.successful(projectValidation.toSet)
+    Future.successful(projectValidation.toSeq)
   }
 }
