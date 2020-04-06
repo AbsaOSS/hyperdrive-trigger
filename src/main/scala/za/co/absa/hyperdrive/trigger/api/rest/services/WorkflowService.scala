@@ -52,21 +52,6 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
     } yield { toEither(Seq(validationErrors, dbError.map(error => Seq(error)))) }
   }
 
-  private def doIf[T](condition: Boolean, future: () => Future[T], defaultValue: T) = {
-    if (condition) future.apply() else Future.successful(defaultValue)
-  }
-
-  private def toEither(errorsOpts: Seq[Option[Seq[ApiError]]]): Either[Seq[ApiError], Boolean] = {
-    val errors = errorsOpts
-      .filter(_.isDefined)
-      .flatMap(_.get)
-    if (errors.isEmpty) {
-      Right(true)
-    } else {
-      Left(errors)
-    }
-  }
-
   def getWorkflow(id: Long)(implicit ec: ExecutionContext): Future[Option[WorkflowJoined]] = {
     workflowRepository.getWorkflow(id)
   }
@@ -116,4 +101,18 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
     }).map(_ => true)
   }
 
+  private def doIf[T](condition: Boolean, future: () => Future[T], defaultValue: T) = {
+    if (condition) future.apply() else Future.successful(defaultValue)
+  }
+
+  private def toEither(errorsOpts: Seq[Option[Seq[ApiError]]]): Either[Seq[ApiError], Boolean] = {
+    val errors = errorsOpts
+      .filter(_.isDefined)
+      .flatMap(_.get)
+    if (errors.isEmpty) {
+      Right(true)
+    } else {
+      Left(errors)
+    }
+  }
 }
