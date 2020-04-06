@@ -16,6 +16,7 @@
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
 import org.springframework.stereotype.Service
+import za.co.absa.hyperdrive.trigger.models.errors.ApiError
 import za.co.absa.hyperdrive.trigger.models.{Project, ProjectInfo, Workflow, WorkflowJoined}
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, WorkflowRepository}
 
@@ -24,13 +25,14 @@ import scala.concurrent.{ExecutionContext, Future}
 trait WorkflowService {
   val workflowRepository: WorkflowRepository
   val dagInstanceRepository: DagInstanceRepository
+  val workflowValidationService: WorkflowValidationService
 
-  def createWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Boolean]
+  def createWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], Boolean]]
   def getWorkflow(id: Long)(implicit ec: ExecutionContext): Future[Option[WorkflowJoined]]
   def getWorkflows()(implicit ec: ExecutionContext): Future[Seq[Workflow]]
   def getWorkflowsByProjectName(projectName: String)(implicit ec: ExecutionContext): Future[Seq[Workflow]]
   def deleteWorkflow(id: Long)(implicit ec: ExecutionContext): Future[Boolean]
-  def updateWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Boolean]
+  def updateWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], Boolean]]
   def updateWorkflowActiveState(id: Long, isActive: Boolean)(implicit ec: ExecutionContext): Future[Boolean]
   def getProjectNames()(implicit ec: ExecutionContext): Future[Set[String]]
   def getProjects()(implicit ec: ExecutionContext): Future[Seq[Project]]
@@ -39,10 +41,15 @@ trait WorkflowService {
 }
 
 @Service
-class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository, override val dagInstanceRepository: DagInstanceRepository) extends WorkflowService {
+class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
+                          override val dagInstanceRepository: DagInstanceRepository,
+                          override val workflowValidationService: WorkflowValidationService) extends WorkflowService {
 
-  def createWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Boolean] = {
-    workflowRepository.insertWorkflow(workflow).map(_ => true)
+  def createWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], Boolean]] = {
+    for {
+      validationErrors <- workflowValidationService.validateOnInsert(workflow)
+      dbError <- doIf(validationErrors.isEmpty, () => workflowRepository.insertWorkflow(workflow), None)
+    } yield { toEither(Seq(validationErrors, dbError.map(error => Seq(error)))) }
   }
 
   def getWorkflow(id: Long)(implicit ec: ExecutionContext): Future[Option[WorkflowJoined]] = {
@@ -61,8 +68,11 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository, o
     workflowRepository.deleteWorkflow(id).map(_ => true)
   }
 
-  override def updateWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Boolean] = {
-    workflowRepository.updateWorkflow(workflow).map(_ => true)
+  override def updateWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], Boolean]] = {
+    for {
+      validationErrors <- workflowValidationService.validateOnUpdate(workflow)
+      dbError <- doIf(validationErrors.isEmpty, () => workflowRepository.updateWorkflow(workflow), None)
+    } yield { toEither(Seq(validationErrors, dbError.map(error => Seq(error)))) }
   }
 
   override def updateWorkflowActiveState(id: Long, isActive: Boolean)(implicit ec: ExecutionContext): Future[Boolean] = {
@@ -75,7 +85,7 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository, o
 
   override def getProjects()(implicit ec: ExecutionContext): Future[Seq[Project]] = {
     workflowRepository.getWorkflows().map { workflows =>
-      workflows.groupBy(_.project).map{
+      workflows.groupBy(_.project).map {
         case (projectName, workflows) => Project(projectName, workflows)
       }.toSeq
     }
@@ -91,4 +101,18 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository, o
     }).map(_ => true)
   }
 
+  private def doIf[T](condition: Boolean, future: () => Future[T], defaultValue: T) = {
+    if (condition) future.apply() else Future.successful(defaultValue)
+  }
+
+  private def toEither(errorsOpts: Seq[Option[Seq[ApiError]]]): Either[Seq[ApiError], Boolean] = {
+    val errors = errorsOpts
+      .filter(_.isDefined)
+      .flatMap(_.get)
+    if (errors.isEmpty) {
+      Right(true)
+    } else {
+      Left(errors)
+    }
+  }
 }
