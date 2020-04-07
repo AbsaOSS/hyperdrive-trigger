@@ -14,12 +14,12 @@
  */
 
 import {AfterViewInit, Component, OnDestroy} from '@angular/core';
-import {WorkflowModel} from "../../models/workflow.model";
-import {ProjectModel} from "../../models/project.model";
-import {Store} from "@ngrx/store";
-import {AppState, selectWorkflowState} from "../../stores/app.reducers";
-import {Subscription} from "rxjs";
-import {InitializeWorkflows} from "../../stores/workflows/workflows.actions";
+import {WorkflowModel} from '../../models/workflow.model';
+import {ProjectModel} from '../../models/project.model';
+import {Store} from '@ngrx/store';
+import {AppState, selectWorkflowState} from '../../stores/app.reducers';
+import {Subscription} from 'rxjs';
+import {InitializeWorkflows} from '../../stores/workflows/workflows.actions';
 
 @Component({
   selector: 'app-workflows',

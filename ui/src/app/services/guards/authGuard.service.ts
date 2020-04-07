@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 
-import {Injectable} from "@angular/core";
-import {CanActivate, Router} from "@angular/router";
-import {Store} from "@ngrx/store";
-import {AppState, selectAuthState} from "../../stores/app.reducers";
-import {map, take} from "rxjs/operators";
-import {Observable} from "rxjs";
+import {Injectable} from '@angular/core';
+import {CanActivate, Router} from '@angular/router';
+import {Store} from '@ngrx/store';
+import {AppState, selectAuthState} from '../../stores/app.reducers';
+import {map, take} from 'rxjs/operators';
+import {Observable} from 'rxjs';
 import {absoluteRoutes} from '../../constants/routes.constants';
 
 @Injectable()

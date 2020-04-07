@@ -16,9 +16,9 @@
 import {TestBed} from '@angular/core/testing';
 
 import {DagRunService} from './dag-run.service';
-import {HttpClientTestingModule, HttpTestingController} from "@angular/common/http/testing";
-import {JobInstanceModel} from "../../models/jobInstance.model";
-import {api} from "../../constants/api.constants";
+import {HttpClientTestingModule, HttpTestingController} from '@angular/common/http/testing';
+import {JobInstanceModel} from '../../models/jobInstance.model';
+import {api} from '../../constants/api.constants';
 
 describe('DagRunService', () => {
   let underTest: DagRunService;

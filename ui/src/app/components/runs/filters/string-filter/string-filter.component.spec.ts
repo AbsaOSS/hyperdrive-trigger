@@ -16,7 +16,7 @@
 import {async, ComponentFixture, TestBed} from '@angular/core/testing';
 
 import {StringFilterComponent} from './string-filter.component';
-import {DagRunModel} from "../../../../models/dagRuns/dagRun.model";
+import {DagRunModel} from '../../../../models/dagRuns/dagRun.model';
 
 describe('StringFilterComponent', () => {
   let fixture: ComponentFixture<StringFilterComponent>;

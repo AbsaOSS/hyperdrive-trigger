@@ -14,20 +14,21 @@
  */
 
 import {AfterViewInit, Component, OnDestroy, QueryList, ViewChildren} from '@angular/core';
-import {DagRunModel} from "../../models/dagRuns/dagRun.model";
-import {ClrDatagridColumn, ClrDatagridStateInterface} from "@clr/angular";
-import {Store} from "@ngrx/store";
-import {AppState, selectRunState} from "../../stores/app.reducers";
-import {GetDagRuns} from "../../stores/runs/runs.actions";
-import {Subject, Subscription} from "rxjs";
-import {skip} from "rxjs/operators";
-import {dagRunColumns} from "../../constants/dagRunColumns.constants";
-import {dagInstanceStatuses} from "../../models/enums/dagInstanceStatuses.constants";
+import {DagRunModel} from '../../models/dagRuns/dagRun.model';
+import {ClrDatagridColumn, ClrDatagridStateInterface} from '@clr/angular';
+import {Store} from '@ngrx/store';
+import {AppState, selectRunState} from '../../stores/app.reducers';
+import {GetDagRuns} from '../../stores/runs/runs.actions';
+import {Subject, Subscription} from 'rxjs';
+import {skip} from 'rxjs/operators';
+import {dagRunColumns} from '../../constants/dagRunColumns.constants';
+import {dagInstanceStatuses} from '../../models/enums/dagInstanceStatuses.constants';
 import {ContainsFilterAttributes} from '../../models/search/containsFilterAttributes.model';
 import {SortModel, TableSearchRequestModel} from '../../models/search/tableSearchRequest.model';
 import {StringEqualsFilterAttributes} from '../../models/search/stringEqualsFilterAttributes.model';
 import {IntRangeFilterAttributes} from '../../models/search/intRangeFilterAttributes.model';
 import {DateTimeRangeFilterAttributes} from '../../models/search/dateTimeRangeFilterAttributes.model';
+import {ContainsMultipleFilterAttributes} from '../../models/search/containsMultipleFilterAttributes.model';
 
 @Component({
   selector: 'app-runs',
@@ -51,7 +52,7 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
   dagRunColumns = dagRunColumns;
   dagInstanceStatuses = dagInstanceStatuses;
 
-  removeFiltersSubject:Subject<any> = new Subject();
+  removeFiltersSubject: Subject<any> = new Subject();
 
   constructor(private store: Store<AppState>) {}
 
@@ -84,7 +85,8 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
       stringEqualsFilterAttributes: this.filters.filter(f => f instanceof StringEqualsFilterAttributes),
       containsFilterAttributes: this.filters.filter(f => f instanceof ContainsFilterAttributes),
       intRangeFilterAttributes: this.filters.filter(f => f instanceof IntRangeFilterAttributes),
-      dateTimeRangeFilterAttributes: this.filters.filter(f => f instanceof DateTimeRangeFilterAttributes)
+      dateTimeRangeFilterAttributes: this.filters.filter(f => f instanceof DateTimeRangeFilterAttributes),
+      containsMultipleFilterAttributes: this.filters.filter(f => f instanceof ContainsMultipleFilterAttributes)
     };
 
     this.store.dispatch(new GetDagRuns(searchRequestModel));
@@ -95,7 +97,7 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
   }
 
   clearSort() {
-    !!this.sort ? this.columns.find(_ => _.field == this.sort.by).sortOrder = 0 : undefined;
+    !!this.sort ? this.columns.find(_ => _.field === this.sort.by).sortOrder = 0 : undefined;
   }
 
 }

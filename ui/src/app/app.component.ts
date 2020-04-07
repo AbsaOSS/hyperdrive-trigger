@@ -14,8 +14,8 @@
  */
 
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {Store} from "@ngrx/store";
-import {Subscription} from "rxjs";
+import {Store} from '@ngrx/store';
+import {Subscription} from 'rxjs';
 import * as AuthActions from './stores/auth/auth.actions';
 import * as fromApp from './stores/app.reducers';
 import {absoluteRoutes} from './constants/routes.constants';
@@ -45,8 +45,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.authStateSubscription.unsubscribe();
   }
 
-  onLogOut(){
+  onLogOut() {
     this.store.dispatch(new AuthActions.Logout());
   }
-
 }

@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
-import * as AuthActions from "./auth.actions";
+import * as AuthActions from './auth.actions';
 import {localStorageKeys} from '../../constants/localStorage.constants';
 
 export interface State {
-  username: string,
-  isAuthenticated: boolean,
-  authenticationFailed: boolean
+  username: string;
+  isAuthenticated: boolean;
+  authenticationFailed: boolean;
 }
 
 const initialState: State = {

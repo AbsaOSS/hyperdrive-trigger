@@ -80,5 +80,5 @@ describe('AuthService', () => {
       );
     const req = httpTestingController.expectOne(api.LOGOUT);
     expect(req.request.method).toEqual('POST');
-  })
+  });
 });

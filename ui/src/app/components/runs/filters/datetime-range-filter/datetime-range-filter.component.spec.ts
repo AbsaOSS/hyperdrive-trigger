@@ -16,7 +16,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { DatetimeRangeFilterComponent } from './datetime-range-filter.component';
-import {DagRunModel} from "../../../../models/dagRuns/dagRun.model";
+import {DagRunModel} from '../../../../models/dagRuns/dagRun.model';
 
 describe('DatetimeRangeFilterComponent', () => {
   let fixture: ComponentFixture<DatetimeRangeFilterComponent>;
@@ -40,7 +40,7 @@ describe('DatetimeRangeFilterComponent', () => {
   describe('accepts', () => {
     it('should accept when it is in the range', () => {
       const underTest = fixture.componentInstance;
-      const timeOffset = 24*60*60*1000;
+      const timeOffset = 24 * 60 * 60 * 1000;
       const today = new Date();
       const past = new Date(today.getTime() - 5*timeOffset);
       const future = new Date(today.getTime() + 5*timeOffset);
@@ -56,7 +56,7 @@ describe('DatetimeRangeFilterComponent', () => {
 
     it('should accept when it is on edge of the range', () => {
       const underTest = fixture.componentInstance;
-      const timeOffset = 24*60*60*1000;
+      const timeOffset = 24 * 60 * 60 * 1000;
       const today = new Date();
       const past = new Date(today.getTime() - 5*timeOffset);
       const future = new Date(today.getTime() + 5*timeOffset);
@@ -72,7 +72,7 @@ describe('DatetimeRangeFilterComponent', () => {
 
     it('should not accept when it is not in the range', () => {
       const underTest = fixture.componentInstance;
-      const timeOffset = 24*60*60*1000;
+      const timeOffset = 24 * 60 * 60 * 1000;
       const today = new Date();
       const past = new Date(today.getTime() - 5*timeOffset);
       const future = new Date(today.getTime() + 5*timeOffset);

@@ -14,10 +14,10 @@
  */
 
 import {AfterViewInit, Component, Input, OnDestroy} from '@angular/core';
-import {ClrDatagridFilterInterface} from "@clr/angular";
-import {Subject, Subscription} from "rxjs";
-import {DagRunModel} from "../../../../models/dagRuns/dagRun.model";
-import {debounceTime, distinctUntilChanged} from "rxjs/operators";
+import {ClrDatagridFilterInterface} from '@clr/angular';
+import {Subject, Subscription} from 'rxjs';
+import {DagRunModel} from '../../../../models/dagRuns/dagRun.model';
+import {debounceTime, distinctUntilChanged} from 'rxjs/operators';
 import {ContainsFilterAttributes} from '../../../../models/search/containsFilterAttributes.model';
 
 @Component({
@@ -30,7 +30,7 @@ export class StringFilterComponent implements ClrDatagridFilterInterface<DagRunM
   @Input() property: string;
   value: string = undefined;
 
-  //clarity interface
+  // clarity interface
   changes = new Subject<any>();
 
   modelChanges: Subject<any> = new Subject<any>();
@@ -54,7 +54,7 @@ export class StringFilterComponent implements ClrDatagridFilterInterface<DagRunM
   }
 
   isActive(): boolean {
-    return !!this.value
+    return !!this.value;
   }
 
   accepts(item: DagRunModel): boolean {
@@ -63,7 +63,7 @@ export class StringFilterComponent implements ClrDatagridFilterInterface<DagRunM
   }
 
   get state() {
-    return new ContainsFilterAttributes(this.property, this.value)
+    return new ContainsFilterAttributes(this.property, this.value);
   }
 
   modelChanged(value: string) {
@@ -72,7 +72,7 @@ export class StringFilterComponent implements ClrDatagridFilterInterface<DagRunM
 
   onRemoveFilter() {
     this.value = undefined;
-    this.modelChanges.next(this.value)
+    this.modelChanges.next(this.value);
   }
 
 }

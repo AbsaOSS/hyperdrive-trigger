@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 
-import {Injectable} from "@angular/core";
-import {Actions, Effect, ofType} from "@ngrx/effects";
-import * as RunActions from "../runs/runs.actions";
-import {catchError, mergeMap, switchMap} from "rxjs/operators";
-import {DagRunService} from "../../services/dagRun/dag-run.service";
-import {JobInstanceModel} from "../../models/jobInstance.model";
+import {Injectable} from '@angular/core';
+import {Actions, Effect, ofType} from '@ngrx/effects';
+import * as RunActions from '../runs/runs.actions';
+import {catchError, mergeMap, switchMap} from 'rxjs/operators';
+import {DagRunService} from '../../services/dagRun/dag-run.service';
+import {JobInstanceModel} from '../../models/jobInstance.model';
 import {DagRunModel} from '../../models/dagRuns/dagRun.model';
 import {TableSearchResponseModel} from '../../models/search/tableSearchResponse.model';
 
@@ -44,7 +44,8 @@ export class RunsEffects {
             type: RunActions.GET_DAG_RUNS_FAILURE
           }];
         })
-      )})
+      );
+    })
   );
 
   @Effect({dispatch: true})
@@ -65,7 +66,7 @@ export class RunsEffects {
             type: RunActions.GET_DAG_RUN_DETAIL_FAILURE
           }];
         })
-      )})
+      );
+    })
   );
-
 }

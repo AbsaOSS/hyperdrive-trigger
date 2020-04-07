@@ -14,9 +14,9 @@
  */
 
 import {workflowsReducer, State} from './workflows.reducers';
-import {InitializeWorkflows, InitializeWorkflowsSuccess, InitializeWorkflowsFailure} from "./workflows.actions";
-import {ProjectModel} from "../../models/project.model";
-import {WorkflowModel} from "../../models/workflow.model";
+import {InitializeWorkflows, InitializeWorkflowsSuccess, InitializeWorkflowsFailure} from './workflows.actions';
+import {ProjectModel} from '../../models/project.model';
+import {WorkflowModel} from '../../models/workflow.model';
 
 describe('WorkflowsReducers', () => {
 

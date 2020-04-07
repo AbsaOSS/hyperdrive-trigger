@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-import {Action} from "@ngrx/store";
-import {TableSearchRequestModel} from "../../models/search/tableSearchRequest.model";
-import {JobInstanceModel} from "../../models/jobInstance.model";
+import {Action} from '@ngrx/store';
+import {TableSearchRequestModel} from '../../models/search/tableSearchRequest.model';
+import {JobInstanceModel} from '../../models/jobInstance.model';
 import {DagRunModel} from '../../models/dagRuns/dagRun.model';
 import {TableSearchResponseModel} from '../../models/search/tableSearchResponse.model';
 

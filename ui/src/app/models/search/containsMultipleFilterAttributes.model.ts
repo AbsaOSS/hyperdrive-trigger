@@ -13,16 +13,9 @@
  * limitations under the License.
  */
 
-import {StatusModel} from '../status.model';
+import {FilterAttributes} from './filterAttributes.model';
 
-export const dagInstanceStatuses = {
-  IN_QUEUE: new StatusModel('InQueue', 'grey', 'clock', false),
-  RUNNING: new StatusModel('Running', 'blue', 'play', false),
-  SUCCEEDED: new StatusModel('Succeeded', 'green', 'success-standard', false),
-  FAILED: new StatusModel('Failed', 'red', 'error-standard', false),
-
- getStatuses(): StatusModel[] {
-    return [this.IN_QUEUE, this.RUNNING, this.SUCCEEDED, this.FAILED];
- }
-
-};
+export class ContainsMultipleFilterAttributes implements FilterAttributes {
+  constructor(public field: string,
+              public values: string[]) {}
+}

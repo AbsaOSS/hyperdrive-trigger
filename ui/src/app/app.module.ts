@@ -18,7 +18,7 @@ import {NgModule} from '@angular/core';
 
 import {AppComponent} from './app.component';
 import {HomeComponent} from './components/home/home.component';
-import {LoginComponent} from "./components/login/login.component";
+import {LoginComponent} from './components/login/login.component';
 import {WorkflowsComponent} from './components/workflows/workflows.component';
 import {RunsComponent} from './components/runs/runs.component';
 
@@ -28,25 +28,26 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {StoreModule} from '@ngrx/store';
 import {EffectsModule} from '@ngrx/effects';
 import {StoreRouterConnectingModule} from '@ngrx/router-store';
-import {reducers} from "./stores/app.reducers";
+import {reducers} from './stores/app.reducers';
 import {StoreDevtoolsModule} from '@ngrx/store-devtools';
 import {environment} from '../environments/environment';
-import {AuthService} from "./services/auth/auth.service";
-import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
-import {FormsModule} from "@angular/forms";
-import {AuthEffects} from "./stores/auth/auth.effects";
-import {CsrfInterceptor} from "./services/interceptors/csrf.interceptor";
-import {UnauthorizedInterceptor} from "./services/interceptors/unauthorized.interceptor";
-import {AuthGuardService} from "./services/guards/authGuard.service";
-import {LogInGuardService} from "./services/guards/logInGuard.service";
-import {RunDetailComponent} from "./components/runs/run-detail/run-detail.component";
-import {RunsEffects} from "./stores/runs/runs.effects";
-import {WorkflowsEffects} from "./stores/workflows/workflows.effects";
+import {AuthService} from './services/auth/auth.service';
+import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {AuthEffects} from './stores/auth/auth.effects';
+import {CsrfInterceptor} from './services/interceptors/csrf.interceptor';
+import {UnauthorizedInterceptor} from './services/interceptors/unauthorized.interceptor';
+import {AuthGuardService} from './services/guards/authGuard.service';
+import {LogInGuardService} from './services/guards/logInGuard.service';
+import {RunDetailComponent} from './components/runs/run-detail/run-detail.component';
+import {RunsEffects} from './stores/runs/runs.effects';
+import {WorkflowsEffects} from './stores/workflows/workflows.effects';
 import {WorkflowsHomeComponent} from './components/workflows/workflows-home/workflows-home.component';
 import {StringFilterComponent} from './components/runs/filters/string-filter/string-filter.component';
-import {DatetimeRangeFilterComponent} from "./components/runs/filters/datetime-range-filter/datetime-range-filter.component";
-import {StatusFilterComponent} from "./components/runs/filters/status-filter/status-filter.component";
-import {NumberRangeFilterComponent} from "./components/runs/filters/number-range-filter/number-range-filter.component";
+import {DatetimeRangeFilterComponent} from './components/runs/filters/datetime-range-filter/datetime-range-filter.component';
+import {StatusFilterComponent} from './components/runs/filters/status-filter/status-filter.component';
+import {NumberRangeFilterComponent} from './components/runs/filters/number-range-filter/number-range-filter.component';
+import {MultipleStatusFilterComponent} from './components/runs/filters/multiple-status-filter/multiple-status-filter.component';
 
 @NgModule({
   declarations: [
@@ -60,13 +61,15 @@ import {NumberRangeFilterComponent} from "./components/runs/filters/number-range
     StringFilterComponent,
     DatetimeRangeFilterComponent,
     StatusFilterComponent,
-    NumberRangeFilterComponent
+    NumberRangeFilterComponent,
+    MultipleStatusFilterComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     ClarityModule,
     FormsModule,
+    ReactiveFormsModule,
     BrowserAnimationsModule,
     HttpClientModule,
     StoreModule.forRoot(reducers),

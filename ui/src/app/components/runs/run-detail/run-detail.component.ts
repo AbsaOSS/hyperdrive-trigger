@@ -14,12 +14,12 @@
  */
 
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
-import {jobStatuses} from"../../../models/enums/jobStatuses.constants";
-import {JobInstanceModel} from "../../../models/jobInstance.model";
-import {Store} from "@ngrx/store";
-import {AppState, selectRunState} from "../../../stores/app.reducers";
-import {GetDagRunDetail} from "../../../stores/runs/runs.actions";
-import {Subscription} from "rxjs";
+import {jobStatuses} from '../../../models/enums/jobStatuses.constants';
+import {JobInstanceModel} from '../../../models/jobInstance.model';
+import {Store} from '@ngrx/store';
+import {AppState, selectRunState} from '../../../stores/app.reducers';
+import {GetDagRunDetail} from '../../../stores/runs/runs.actions';
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-run-detail',
@@ -47,7 +47,7 @@ export class RunDetailComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.runDetailSubscription.unsubscribe()
+    this.runDetailSubscription.unsubscribe();
   }
 
 }

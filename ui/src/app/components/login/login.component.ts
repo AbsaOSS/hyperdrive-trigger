@@ -14,10 +14,10 @@
  */
 
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {Store} from "@ngrx/store";
-import {AppState, selectAuthState} from "../../stores/app.reducers";
-import {Login} from "../../stores/auth/auth.actions";
-import {Subscription} from "rxjs";
+import {Store} from '@ngrx/store';
+import {AppState, selectAuthState} from '../../stores/app.reducers';
+import {Login} from '../../stores/auth/auth.actions';
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -48,5 +48,4 @@ export class LoginComponent implements OnInit, OnDestroy {
   onSubmit() {
     this.store.dispatch(new Login(this.logInForm));
   }
-
 }

@@ -20,10 +20,10 @@ import {
   GetDagRuns,
   GetDagRunsFailure,
   GetDagRunsSuccess
-} from "./runs.actions";
-import {DagRunModel} from "../../models/dagRuns/dagRun.model";
-import {SortModel} from "../../models/search/tableSearchRequest.model";
-import {JobInstanceModel, JobStatus, JobType} from "../../models/jobInstance.model";
+} from './runs.actions';
+import {DagRunModel} from '../../models/dagRuns/dagRun.model';
+import {SortModel} from '../../models/search/tableSearchRequest.model';
+import {JobInstanceModel, JobStatus, JobType} from '../../models/jobInstance.model';
 import {TableSearchResponseModel} from '../../models/search/tableSearchResponse.model';
 
 describe('RunsReducers', () => {

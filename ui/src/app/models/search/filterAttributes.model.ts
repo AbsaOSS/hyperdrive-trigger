@@ -14,5 +14,5 @@
  */
 
 export interface FilterAttributes {
-  field: string
+  field: string;
 }

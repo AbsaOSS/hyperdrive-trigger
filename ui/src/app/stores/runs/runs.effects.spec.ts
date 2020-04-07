@@ -14,19 +14,19 @@
  */
 
 import {TestBed} from '@angular/core/testing';
-import {RunsEffects} from "./runs.effects";
-import {DagRunService} from "../../services/dagRun/dag-run.service";
-import {Observable} from "rxjs";
-import {provideMockActions} from "@ngrx/effects/testing";
-import {HttpClientTestingModule} from "@angular/common/http/testing";
-import {Actions} from "@ngrx/effects";
+import {RunsEffects} from './runs.effects';
+import {DagRunService} from '../../services/dagRun/dag-run.service';
+import {Observable} from 'rxjs';
+import {provideMockActions} from '@ngrx/effects/testing';
+import {HttpClientTestingModule} from '@angular/common/http/testing';
+import {Actions} from '@ngrx/effects';
 import {cold} from 'jasmine-marbles';
-import {GetDagRunDetail, GetDagRuns} from "./runs.actions";
-import * as RunsActions from "./runs.actions";
+import {GetDagRunDetail, GetDagRuns} from './runs.actions';
+import * as RunsActions from './runs.actions';
 
-import {DagRunModel} from "../../models/dagRuns/dagRun.model";
-import {SortModel} from "../../models/search/tableSearchRequest.model";
-import {JobInstanceModel, JobStatus, JobType} from "../../models/jobInstance.model";
+import {DagRunModel} from '../../models/dagRuns/dagRun.model';
+import {SortModel} from '../../models/search/tableSearchRequest.model';
+import {JobInstanceModel, JobStatus, JobType} from '../../models/jobInstance.model';
 import {TableSearchResponseModel} from '../../models/search/tableSearchResponse.model';
 
 describe('RunsEffects', () => {
@@ -90,7 +90,7 @@ describe('RunsEffects', () => {
         new JobInstanceModel(
           id,
           'jobName0',
-          new JobType("JobType"),
+          new JobType('JobType'),
           new Date(Date.now()),
           new Date(Date.now()),
           new JobStatus('Status')

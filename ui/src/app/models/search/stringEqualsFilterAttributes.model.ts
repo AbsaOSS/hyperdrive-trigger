@@ -17,5 +17,6 @@ import {FilterAttributes} from './filterAttributes.model';
 
 export class StringEqualsFilterAttributes implements FilterAttributes {
   constructor(public field: string,
+              public ahhe: number,
               public value: string) {}
 }

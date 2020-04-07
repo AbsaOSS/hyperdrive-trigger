@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
-import {Injectable} from "@angular/core";
-import {Actions, Effect, ofType} from "@ngrx/effects";
-import * as WorkflowActions from "../workflows/workflows.actions";
+import {Injectable} from '@angular/core';
+import {Actions, Effect, ofType} from '@ngrx/effects';
+import * as WorkflowActions from '../workflows/workflows.actions';
 
-import {catchError, mergeMap, switchMap} from "rxjs/operators";
-import {WorkflowService} from "../../services/workflow/workflow.service";
-import {ProjectModel} from "../../models/project.model";
+import {catchError, mergeMap, switchMap} from 'rxjs/operators';
+import {WorkflowService} from '../../services/workflow/workflow.service';
+import {ProjectModel} from '../../models/project.model';
 
 @Injectable()
 export class WorkflowsEffects {
@@ -41,7 +41,8 @@ export class WorkflowsEffects {
             type: WorkflowActions.INITIALIZE_WORKFLOWS_FAILURE
           }];
         })
-      )})
+      );
+    })
   );
 
 }

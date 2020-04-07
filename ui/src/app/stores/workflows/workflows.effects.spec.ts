@@ -14,18 +14,18 @@
  */
 
 import {TestBed} from '@angular/core/testing';
-import {Observable} from "rxjs";
-import {provideMockActions} from "@ngrx/effects/testing";
-import {HttpClientTestingModule} from "@angular/common/http/testing";
-import {Actions} from "@ngrx/effects";
+import {Observable} from 'rxjs';
+import {provideMockActions} from '@ngrx/effects/testing';
+import {HttpClientTestingModule} from '@angular/common/http/testing';
+import {Actions} from '@ngrx/effects';
 import {cold} from 'jasmine-marbles';
-import {InitializeWorkflows} from "./workflows.actions";
-import * as WorkflowsActions from "./workflows.actions";
+import {InitializeWorkflows} from './workflows.actions';
+import * as WorkflowsActions from './workflows.actions';
 
-import {WorkflowsEffects} from "./workflows.effects";
-import {WorkflowService} from "../../services/workflow/workflow.service";
-import {ProjectModel} from "../../models/project.model";
-import {WorkflowModel} from "../../models/workflow.model";
+import {WorkflowsEffects} from './workflows.effects';
+import {WorkflowService} from '../../services/workflow/workflow.service';
+import {ProjectModel} from '../../models/project.model';
+import {WorkflowModel} from '../../models/workflow.model';
 
 describe('WorkflowsEffects', () => {
   let underTest: WorkflowsEffects;

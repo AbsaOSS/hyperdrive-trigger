@@ -17,9 +17,9 @@ import {TestBed} from '@angular/core/testing';
 
 import {HttpClientTestingModule, HttpTestingController} from '@angular/common/http/testing';
 import {api} from '../../constants/api.constants';
-import {WorkflowService} from "./workflow.service";
-import {ProjectModel} from "../../models/project.model";
-import {WorkflowModel} from "../../models/workflow.model";
+import {WorkflowService} from './workflow.service';
+import {ProjectModel} from '../../models/project.model';
+import {WorkflowModel} from '../../models/workflow.model';
 
 describe('WorkflowService', () => {
   let underTest: WorkflowService;

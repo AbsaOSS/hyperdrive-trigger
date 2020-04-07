@@ -15,14 +15,14 @@
 
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import {HomeComponent} from "./components/home/home.component";
-import {LoginComponent} from "./components/login/login.component";
-import {WorkflowsComponent} from "./components/workflows/workflows.component";
-import {RunsComponent} from "./components/runs/runs.component";
-import {AuthGuardService} from "./services/guards/authGuard.service";
-import {LogInGuardService} from "./services/guards/logInGuard.service";
+import {HomeComponent} from './components/home/home.component';
+import {LoginComponent} from './components/login/login.component';
+import {WorkflowsComponent} from './components/workflows/workflows.component';
+import {RunsComponent} from './components/runs/runs.component';
+import {AuthGuardService} from './services/guards/authGuard.service';
+import {LogInGuardService} from './services/guards/logInGuard.service';
 import {routeNames} from './constants/routes.constants';
-import {WorkflowsHomeComponent} from "./components/workflows/workflows-home/workflows-home.component";
+import {WorkflowsHomeComponent} from './components/workflows/workflows-home/workflows-home.component';
 
 const routes: Routes = [
   {path: routeNames.DEFAULT, redirectTo: routeNames.HOME, pathMatch: 'full', canActivate: [AuthGuardService]},

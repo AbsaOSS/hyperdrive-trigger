@@ -14,10 +14,10 @@
  */
 
 import {AfterViewInit, Component, Input, OnInit} from '@angular/core';
-import {ClrDatagridFilterInterface} from "@clr/angular";
-import {DagRunModel} from "../../../../models/dagRuns/dagRun.model";
-import {Subject, Subscription} from "rxjs";
-import {debounceTime, distinctUntilChanged} from "rxjs/operators";
+import {ClrDatagridFilterInterface} from '@clr/angular';
+import {DagRunModel} from '../../../../models/dagRuns/dagRun.model';
+import {Subject, Subscription} from 'rxjs';
+import {debounceTime, distinctUntilChanged} from 'rxjs/operators';
 import {IntRangeFilterAttributes} from '../../../../models/search/intRangeFilterAttributes.model';
 
 @Component({
@@ -30,7 +30,7 @@ export class NumberRangeFilterComponent implements ClrDatagridFilterInterface<Da
   @Input() property: string;
   value: {from: number, to: number} = {from: undefined, to: undefined};
 
-  //clarity interface
+  // clarity interface
   changes: Subject<any> = new Subject<any>();
 
   modelChanges: Subject<any> = new Subject<any>();
@@ -59,7 +59,7 @@ export class NumberRangeFilterComponent implements ClrDatagridFilterInterface<Da
   }
 
   isActive(): boolean {
-    return !!this.value.from || !!this.value.to
+    return !!this.value.from || !!this.value.to;
   }
 
   get state() {
@@ -72,7 +72,7 @@ export class NumberRangeFilterComponent implements ClrDatagridFilterInterface<Da
 
   onRemoveFilter() {
     this.value = {from: undefined, to: undefined};
-    this.modelChanges.next(this.value)
+    this.modelChanges.next(this.value);
   }
 
 }

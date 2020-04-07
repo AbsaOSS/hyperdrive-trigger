@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-import {Action} from "@ngrx/store";
-import {ProjectModel} from "../../models/project.model";
-import {WorkflowModel} from "../../models/workflow.model";
+import {Action} from '@ngrx/store';
+import {ProjectModel} from '../../models/project.model';
+import {WorkflowModel} from '../../models/workflow.model';
 
 export const INITIALIZE_WORKFLOWS = 'INITIALIZE_WORKFLOWS';
 export const INITIALIZE_WORKFLOWS_SUCCESS = 'INITIALIZE_WORKFLOWS_SUCCESS';

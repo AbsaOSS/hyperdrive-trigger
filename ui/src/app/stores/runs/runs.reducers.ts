@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-import * as RunsActions from "../runs/runs.actions";
-import {DagRunModel} from "../../models/dagRuns/dagRun.model";
-import {JobInstanceModel} from "../../models/jobInstance.model";
+import * as RunsActions from '../runs/runs.actions';
+import {DagRunModel} from '../../models/dagRuns/dagRun.model';
+import {JobInstanceModel} from '../../models/jobInstance.model';
 
 export interface State {
   dagRuns: DagRunModel[]

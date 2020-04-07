@@ -25,9 +25,9 @@ export class JobInstanceModel {
 }
 
 export class JobStatus {
-  constructor(public name: string){}
+  constructor(public name: string) {}
 }
 
 export class JobType {
-  constructor(public name: string){}
+  constructor(public name: string) {}
 }

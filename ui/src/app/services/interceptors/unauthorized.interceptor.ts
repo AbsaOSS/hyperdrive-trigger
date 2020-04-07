@@ -14,10 +14,10 @@
  */
 
 import {Injectable} from '@angular/core';
-import {HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest} from "@angular/common/http";
-import {Observable, throwError} from "rxjs";
-import {catchError} from "rxjs/operators";
-import {Store} from "@ngrx/store";
+import {HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest} from '@angular/common/http';
+import {Observable, throwError} from 'rxjs';
+import {catchError} from 'rxjs/operators';
+import {Store} from '@ngrx/store';
 import * as AuthActions from '../../stores/auth/auth.actions';
 import * as fromApp from '../../stores/app.reducers';
 

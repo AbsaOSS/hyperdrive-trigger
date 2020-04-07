@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
-import {Injectable} from "@angular/core";
-import {Actions, Effect, ofType} from "@ngrx/effects";
-import {AuthService} from "../../services/auth/auth.service";
-import {Router} from "@angular/router";
-import {Observable} from "rxjs";
+import {Injectable} from '@angular/core';
+import {Actions, Effect, ofType} from '@ngrx/effects';
+import {AuthService} from '../../services/auth/auth.service';
+import {Router} from '@angular/router';
+import {Observable} from 'rxjs';
 import * as AuthActions from './auth.actions';
-import {switchMap, tap, mergeMap, catchError} from "rxjs/operators";
+import {switchMap, tap, mergeMap, catchError} from 'rxjs/operators';
 import {absoluteRoutes} from '../../constants/routes.constants';
 import {localStorageKeys} from '../../constants/localStorage.constants';
 
@@ -40,14 +40,14 @@ export class AuthEffects {
                 payload: {token: token, username: username}
               }];
             })
-          )
+          );
         }),
         catchError(() => {
           return [{
             type: AuthActions.LOGIN_FAILURE
           }];
         })
-      )
+      );
     })
   );
 

@@ -17,6 +17,7 @@ export class StatusModel {
   constructor(
     public name: string,
     public color: string,
-    public shape: string
+    public shape: string,
+    public checked: boolean
   ) {}
 }

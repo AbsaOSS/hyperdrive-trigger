@@ -61,6 +61,7 @@
         </app-datetime-range-filter>
       </clr-dg-filter>
     </clr-dg-column>
+    
     <clr-dg-column [clrDgField]="dagRunColumns.FINISHED">
       <ng-container *clrDgHideableColumn="{hidden: false}">Finished</ng-container>
       <clr-dg-filter [clrDgFilter]="finishedFilter">
@@ -68,15 +69,26 @@
         </app-datetime-range-filter>
       </clr-dg-filter>
     </clr-dg-column>
+    
     <clr-dg-column [clrDgField]="dagRunColumns.STATUS">
       <ng-container *clrDgHideableColumn="{hidden: false}">Status</ng-container>
-      <clr-dg-filter [clrDgFilter]="statusFilter">
+
+         <clr-dg-filter [clrDgFilter]="multiStatusFilter">
+        <app-multiple-status-filter #multiStatusFilter
+                                    [property]="dagRunColumns.STATUS"
+                                    [removeFiltersSubject]="removeFiltersSubject"
+                                    [statuses]="dagInstanceStatuses.getStatuses()">
+        </app-multiple-status-filter>
+      </clr-dg-filter>
+
+      <!-- <clr-dg-filter [clrDgFilter]="statusFilter">
         <app-status-filter #statusFilter
                            [property]="dagRunColumns.STATUS"
                            [removeFiltersSubject]="removeFiltersSubject"
                            [statuses]="dagInstanceStatuses.getStatuses()">
-        </app-status-filter>
-      </clr-dg-filter>
+        </app-status-filter> 
+      </clr-dg-filter> -->
+
     </clr-dg-column>
     <clr-dg-placeholder>We couldn't find any dag runs!</clr-dg-placeholder>
 

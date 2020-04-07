@@ -17,6 +17,7 @@ import {ContainsFilterAttributes} from './containsFilterAttributes.model';
 import {StringEqualsFilterAttributes} from './stringEqualsFilterAttributes.model';
 import {IntRangeFilterAttributes} from './intRangeFilterAttributes.model';
 import {DateTimeRangeFilterAttributes} from './dateTimeRangeFilterAttributes.model';
+import {ContainsMultipleFilterAttributes} from './containsMultipleFilterAttributes.model';
 
 export class TableSearchRequestModel {
   constructor(
@@ -26,10 +27,11 @@ export class TableSearchRequestModel {
     public containsFilterAttributes?: ContainsFilterAttributes[],
     public intRangeFilterAttributes?: IntRangeFilterAttributes[],
     public dateTimeRangeFilterAttributes?: DateTimeRangeFilterAttributes[],
+    public containsMultipleFilterAttributes?: ContainsMultipleFilterAttributes[],
     public sort?: SortModel
   ) {}
 }
 
 export class SortModel {
-  constructor(public by: String, public order: number) {}
+  constructor(public by: string, public order: number) {}
 }
