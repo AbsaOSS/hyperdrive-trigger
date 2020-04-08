@@ -25,9 +25,9 @@ import {GetDagRunDetail, GetDagRuns} from './runs.actions';
 import * as RunsActions from './runs.actions';
 
 import {DagRunModel} from '../../models/dagRuns/dagRun.model';
-import {SortModel} from '../../models/search/tableSearchRequest.model';
 import {JobInstanceModel, JobStatus, JobType} from '../../models/jobInstance.model';
 import {TableSearchResponseModel} from '../../models/search/tableSearchResponse.model';
+import {SortAttributesModel} from '../../models/search/sortAttributes.model';
 
 describe('RunsEffects', () => {
   let underTest: RunsEffects;
@@ -57,7 +57,7 @@ describe('RunsEffects', () => {
       );
       const searchResponseModel = new TableSearchResponseModel<DagRunModel>([dagRunModel], 1);
 
-      const action = new GetDagRuns({from: 0, size: 0, sort: new SortModel('', 0)});
+      const action = new GetDagRuns({from: 0, size: 0, sort: new SortAttributesModel('', 0)});
       mockActions = cold('-a', { a: action });
       const searchDagRunsResponse = cold('-a|', { a: searchResponseModel });
       const expected = cold('--a', { a: {
@@ -71,7 +71,7 @@ describe('RunsEffects', () => {
     });
 
     it ('should return get dag runs failure if dagRunService.searchDagRuns responds with an error', () => {
-      const action = new GetDagRuns({from: 0, size: 0, sort: new SortModel('', 0)});
+      const action = new GetDagRuns({from: 0, size: 0, sort: new SortAttributesModel('', 0)});
       mockActions = cold('-a', { a: action });
       const errorResponse = cold('-#|');
       spyOn(dagRunService, 'searchDagRuns').and.returnValue(errorResponse);

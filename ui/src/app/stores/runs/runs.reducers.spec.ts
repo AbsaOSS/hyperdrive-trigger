@@ -1,7 +1,7 @@
 /*
  * Copyright 2018 ABSA Group Limited
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the 'License');
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -22,9 +22,9 @@ import {
   GetDagRunsSuccess
 } from './runs.actions';
 import {DagRunModel} from '../../models/dagRuns/dagRun.model';
-import {SortModel} from '../../models/search/tableSearchRequest.model';
 import {JobInstanceModel, JobStatus, JobType} from '../../models/jobInstance.model';
 import {TableSearchResponseModel} from '../../models/search/tableSearchResponse.model';
+import {SortAttributesModel} from '../../models/search/sortAttributes.model';
 
 describe('RunsReducers', () => {
 
@@ -41,7 +41,7 @@ describe('RunsReducers', () => {
 
   it('should set loading to true on get dag runs', () => {
     const runsAction = new GetDagRuns(
-      {from: 0, size: 0, sort: new SortModel('', 0)}
+      {from: 0, size: 0, sort: new SortAttributesModel('', 0)}
     );
 
     const actual = runsReducer(initialState, runsAction);

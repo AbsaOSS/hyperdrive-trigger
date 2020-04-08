@@ -24,11 +24,12 @@ import {skip} from 'rxjs/operators';
 import {dagRunColumns} from '../../constants/dagRunColumns.constants';
 import {dagInstanceStatuses} from '../../models/enums/dagInstanceStatuses.constants';
 import {ContainsFilterAttributes} from '../../models/search/containsFilterAttributes.model';
-import {SortModel, TableSearchRequestModel} from '../../models/search/tableSearchRequest.model';
+import {TableSearchRequestModel} from '../../models/search/tableSearchRequest.model';
 import {StringEqualsFilterAttributes} from '../../models/search/stringEqualsFilterAttributes.model';
 import {IntRangeFilterAttributes} from '../../models/search/intRangeFilterAttributes.model';
 import {DateTimeRangeFilterAttributes} from '../../models/search/dateTimeRangeFilterAttributes.model';
 import {ContainsMultipleFilterAttributes} from '../../models/search/containsMultipleFilterAttributes.model';
+import {SortAttributesModel} from '../../models/search/sortAttributes.model';
 
 @Component({
   selector: 'app-runs',
@@ -42,7 +43,7 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
   page: number = 1;
   pageFrom: number = 0;
   pageSize: number = 0;
-  sort: SortModel = null;
+  sort: SortAttributesModel = null;
 
   dagRuns: DagRunModel[] = [];
   total: number = 0;
@@ -69,7 +70,7 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
   }
 
   onClarityDgRefresh(state: ClrDatagridStateInterface) {
-    this.sort = state.sort ? new SortModel(<string>state.sort.by, state.sort.reverse ? -1 : 1) : undefined;
+    this.sort = state.sort ? new SortAttributesModel(<string>state.sort.by, state.sort.reverse ? -1 : 1) : undefined;
     this.pageFrom = state.page.from < 0 ? 0 : state.page.from;
     this.pageSize = state.page.size;
     this.filters = state.filters ? state.filters : [];
