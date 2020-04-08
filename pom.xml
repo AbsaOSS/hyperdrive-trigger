@@ -67,6 +67,7 @@
 
 
         <skip.docker>true</skip.docker>
+        <skipTests>true</skipTests>
         <skipNpmTests>${skipTests}</skipNpmTests>
     </properties>
 
@@ -238,7 +239,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven-surefire-plugin.version}</version>
                 <configuration>
-                    <skipTests>true</skipTests>
+                    <skipTests>${skipTests}</skipTests>
                 </configuration>
             </plugin>
             <plugin>
@@ -322,7 +323,7 @@
                         </goals>
                         <phase>test</phase>
                         <configuration>
-                            <skipTests>${skipNpmTests}</skipTests>
+                            <skipTests>${skipTests}</skipTests>
                             <arguments>run test:ci</arguments>
                         </configuration>
                     </execution>

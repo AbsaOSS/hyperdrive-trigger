@@ -56,6 +56,7 @@ class SearchableTableQueryTest extends FlatSpec with Matchers with BeforeAndAfte
     val dateTimeRangeFilterSeq = Some(Seq(DateTimeRangeFilterAttributes(field = localDateTimeField,
       start = Option(LocalDateTime.of(2019, 1, 1, 1, 1, 1)),
       end = Option(LocalDateTime.of(2021, 1, 1, 1, 1, 1)))))
+    val containsMultipleFilterSeq = Some(Seq(ContainsMultipleFilterAttributes(field = stringField3, values = List("bar", "value", "str"))))
 
 
     val searchRequest = TableSearchRequest(
@@ -63,6 +64,7 @@ class SearchableTableQueryTest extends FlatSpec with Matchers with BeforeAndAfte
       containsFilterAttributes = containsFilterSeq,
       intRangeFilterAttributes = intRangeFilterSeq,
       dateTimeRangeFilterAttributes = dateTimeRangeFilterSeq,
+      containsMultipleFilterAttributes = containsMultipleFilterSeq,
       sort = None,
       from = 0,
       size = 50
@@ -86,6 +88,7 @@ class SearchableTableQueryTest extends FlatSpec with Matchers with BeforeAndAfte
     val result = await(db.run(underTest.search(searchRequest)))
 
     val expected = TestSearchableData.testSearchableEntities.filter(_.stringValue.contains("value"))
+
     result.total should be > 0
     result.total shouldBe expected.size
     result.items should contain theSameElementsAs expected
@@ -118,6 +121,7 @@ class SearchableTableQueryTest extends FlatSpec with Matchers with BeforeAndAfte
     val result = await(db.run(underTest.search(searchRequest)))
 
     val expected = TestSearchableData.testSearchableEntities.filter(_.stringValue == "value2")
+
     result.total should be > 0
     result.total shouldBe expected.size
     result.items should contain theSameElementsAs expected
@@ -233,6 +237,38 @@ class SearchableTableQueryTest extends FlatSpec with Matchers with BeforeAndAfte
     val filter = IntRangeFilterAttributes(field = TestSearchableTableFieldNames.longField, start = Option(10), end = Option(0))
     val searchRequest = TableSearchRequest(
       intRangeFilterAttributes = Some(Seq(filter)),
+      sort = None,
+      from = 0,
+      size = 50
+    )
+
+    val result = await(db.run(underTest.search(searchRequest)))
+
+    result.total shouldBe 0
+  }
+
+  "the multiple-attributes filter" should "find values exactly equal to the List of strings" in {
+    val filter = ContainsMultipleFilterAttributes(field = TestSearchableTableFieldNames.stringField3, values = List("foo", "bar"))
+    val searchRequest = TableSearchRequest(
+      containsMultipleFilterAttributes = Some(Seq(filter)),
+      sort = None,
+      from = 0,
+      size = 50
+    )
+
+    val result = await(db.run(underTest.search(searchRequest)))
+
+    val expected = TestSearchableData.testSearchableEntities.filter(data => data.stringValue3.contains("foo") || data.stringValue3.contains("bar"))
+
+    result.total should be > 0
+    result.total shouldBe expected.size
+    result.items should contain theSameElementsAs expected
+  }
+
+  it should "not find values that do not contain the search string" in {
+    val filter = ContainsMultipleFilterAttributes(field = TestSearchableTableFieldNames.stringField3, values = List("not-matching-string", "not-matching-string2"))
+    val searchRequest = TableSearchRequest(
+      containsMultipleFilterAttributes = Some(Seq(filter)),
       sort = None,
       from = 0,
       size = 50
