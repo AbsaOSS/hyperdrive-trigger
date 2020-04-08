@@ -17,6 +17,7 @@ import {Action} from "@ngrx/store";
 import {ProjectModel} from "../../models/project.model";
 import {WorkflowModel} from "../../models/workflow.model";
 import {WorkflowJoinedModel} from "../../models/workflowJoined.model";
+import {SensorTypesModel} from "../../models/sensorTypes.model";
 
 export const INITIALIZE_WORKFLOWS = 'INITIALIZE_WORKFLOWS';
 export const INITIALIZE_WORKFLOWS_SUCCESS = 'INITIALIZE_WORKFLOWS_SUCCESS';
@@ -28,13 +29,15 @@ export const LOAD_WORKFLOW_SUCCESS = 'LOAD_WORKFLOW_SUCCESS';
 export const LOAD_WORKFLOW_FAILURE_INCORRECT_ID = 'LOAD_WORKFLOW_FAILURE_INCORRECT_ID';
 export const LOAD_WORKFLOW_FAILURE = 'LOAD_WORKFLOW_FAILURE';
 
+export const WORKFLOW_ACTION_CHANGED = 'WORKFLOW_ACTION_CHANGED';
+
 export class InitializeWorkflows implements Action {
   readonly type = INITIALIZE_WORKFLOWS;
 }
 
 export class InitializeWorkflowsSuccess implements Action {
   readonly type = INITIALIZE_WORKFLOWS_SUCCESS;
-  constructor(public payload: {projects: ProjectModel[], workflows: WorkflowModel[]}) {}
+  constructor(public payload: {projects: ProjectModel[], workflows: WorkflowModel[], sensorTypes: SensorTypesModel}) {}
 }
 
 export class InitializeWorkflowsFailure implements Action {
@@ -64,6 +67,12 @@ export class LoadWorkflowFailureIncorrectId implements Action {
   readonly type = LOAD_WORKFLOW_FAILURE_INCORRECT_ID;
 }
 
+export class WorkflowActionChanged implements Action {
+  readonly type = WORKFLOW_ACTION_CHANGED;
+  constructor(public payload: WorkflowJoinedModel) {}
+}
+
 export type WorkflowsActions =
   InitializeWorkflows | InitializeWorkflowsSuccess | InitializeWorkflowsFailure |
-  StartWorkflowInitialization | SetEmptyWorkflow | LoadWorkflowSuccess | LoadWorkflowFailure | LoadWorkflowFailureIncorrectId;
+  StartWorkflowInitialization | SetEmptyWorkflow | LoadWorkflowSuccess | LoadWorkflowFailure | LoadWorkflowFailureIncorrectId |
+  WorkflowActionChanged;

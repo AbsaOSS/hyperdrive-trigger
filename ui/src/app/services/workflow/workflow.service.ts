@@ -18,15 +18,17 @@ import {HttpClient, HttpParams} from "@angular/common/http";
 import {api} from "../../constants/api.constants";
 import {map} from "rxjs/operators";
 import {ProjectModel} from "../../models/project.model";
-import {Observable} from "rxjs";
+import {Observable, of} from "rxjs";
 import {WorkflowJoinedModel} from "../../models/workflowJoined.model";
+import {Property, SensorTypeModel, SensorTypesModel} from "../../models/sensorTypes.model";
 
 @Injectable({
   providedIn: 'root'
 })
 export class WorkflowService {
 
-  constructor(private httpClient: HttpClient) {}
+  constructor(private httpClient: HttpClient) {
+  }
 
   getProjects(): Observable<ProjectModel[]> {
     return this.httpClient.get<ProjectModel[]>(api.GET_PROJECTS, {observe: 'response'}).pipe(
@@ -38,8 +40,49 @@ export class WorkflowService {
     let params = new HttpParams().set('id', id.toString());
 
     return this.httpClient.get<WorkflowJoinedModel>(api.GET_WORKFLOW, {params: params, observe: 'response'}).pipe(
-      map(_ => _.body)
+      map(response => {
+        const mp = new Map;
+        Object.keys(
+          response.body.sensor.properties.matchProperties).forEach(k => {
+          mp.set(k, response.body.sensor.properties.matchProperties[k])
+        });
+        response.body.sensor.properties.matchProperties = mp;
+        return response.body;
+      })
     );
+  }
+
+  getSensorTypes(): Observable<SensorTypesModel> {
+    return of(new SensorTypesModel(
+      [
+        new SensorTypeModel(
+          'Kafka', [
+            new Property('string-field', 'Topic'),
+            new Property('set-field', 'Kafka servers'),
+            new Property('key-value-field', 'Match properties')
+            // new Property('array-of-strings', 'Kafka servers'),
+            // new Property('array-of-key-value', 'Match properties')
+          ]
+        ),
+        new SensorTypeModel(
+          'Absa-Kafka', [
+            new Property('string-field', 'Another-topic'),
+            new Property('set-field', 'Kafka servers'),
+            new Property('key-value-field', 'Match properties')
+            // new Property('array-of-strings', 'Kafka servers'),
+            // new Property('array-of-key-value', 'Match properties')
+          ]
+        ),
+        new SensorTypeModel(
+          'Time', [
+            // new Property('string-field', 'Another-topic'),
+            // new Property('set-field', 'Kafka servers'),
+            // new Property('array-of-strings', 'Kafka servers'),
+            // new Property('array-of-key-value', 'Match properties')
+          ]
+        )
+      ]
+    ));
   }
 
 }

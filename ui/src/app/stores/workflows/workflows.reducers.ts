@@ -18,28 +18,53 @@ import {ProjectModel} from "../../models/project.model";
 import {WorkflowModel} from "../../models/workflow.model";
 import {workflowModes} from "../../models/enums/workflowModes.constants";
 import {WorkflowJoinedModel} from "../../models/workflowJoined.model";
+import {PropertiesModel, SensorModel} from "../../models/sensor.model";
+import {DagDefinitionJoinedModel} from "../../models/dagDefinitionJoined.model";
+import {SensorTypeModel, SensorTypesModel} from "../../models/sensorTypes.model";
+import {JobTypesModel} from "../../models/jobTypes.model";
+import {WORKFLOW_ACTION_CHANGED} from "../workflows/workflows.actions";
 
 export interface State {
   projects: ProjectModel[],
   workflows: WorkflowModel[],
   loading: boolean,
-  selectedWorkflow: {
+  workflowAction: {
     id: number,
     mode: string,
     loading: boolean,
-    workflow: WorkflowJoinedModel
-  }
+    originalWorkflow: WorkflowJoinedModel,
+    actionWorkflow: WorkflowJoinedModel
+  },
+  sensorTypes: SensorTypesModel,
+  jobTypes: JobTypesModel
 }
+
+const emptyWorkflow = {
+  name: '',
+  isActive: false,
+  project: '',
+  sensor: {
+    sensorType: {name: ''},
+    properties: undefined
+  },
+  dagDefinitionJoined: null,
+  id: undefined
+};
+
+
 
 const initialState: State = {
   projects: [],
   workflows: [],
   loading: true,
-  selectedWorkflow: {
+  sensorTypes: undefined,
+  jobTypes: undefined,
+  workflowAction: {
     id: undefined,
     mode: workflowModes.CREATE,
     loading: true,
-    workflow: undefined
+    originalWorkflow: {...emptyWorkflow},
+    actionWorkflow: {...emptyWorkflow}
   }
 };
 
@@ -48,28 +73,32 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
     case (WorkflowsActions.INITIALIZE_WORKFLOWS):
       return {...state, loading: true};
     case (WorkflowsActions.INITIALIZE_WORKFLOWS_SUCCESS):
-      return {...state, loading: false, projects: action.payload.projects, workflows: action.payload.workflows};
+      return {...state, loading: false, projects: action.payload.projects, workflows: action.payload.workflows, sensorTypes: action.payload.sensorTypes};
     case (WorkflowsActions.INITIALIZE_WORKFLOWS_FAILURE):
       return {...initialState, loading: false};
     case (WorkflowsActions.STAR_WORKFLOW_INITIALIZATION):
-      return {...state, selectedWorkflow: {
-          ...initialState.selectedWorkflow, id: action.payload.id, mode: action.payload.mode, loading: true
+      return {...state, workflowAction: {
+          ...initialState.workflowAction, id: action.payload.id, mode: action.payload.mode, loading: true
         }};
     case (WorkflowsActions.SET_EMPTY_WORKFLOW):
-      return {...state, selectedWorkflow: {
-          ...state.selectedWorkflow, workflow: action.payload, loading: false
+      return {...state, workflowAction: {
+          ...state.workflowAction, actionWorkflow: emptyWorkflow, originalWorkflow: emptyWorkflow, loading: false
         }};
     case (WorkflowsActions.LOAD_WORKFLOW_SUCCESS):
-      return {...state, selectedWorkflow: {
-          ...state.selectedWorkflow, workflow: action.payload, loading: false
+      return {...state, workflowAction: {
+          ...state.workflowAction, actionWorkflow: action.payload, originalWorkflow: action.payload, loading: false
         }};
     case (WorkflowsActions.LOAD_WORKFLOW_FAILURE):
-      return {...state, selectedWorkflow: {
-          ...initialState.selectedWorkflow, loading: false
+      return {...state, workflowAction: {
+          ...initialState.workflowAction, loading: false
         }};
     case (WorkflowsActions.LOAD_WORKFLOW_FAILURE_INCORRECT_ID):
-      return {...state, selectedWorkflow: {
-          ...state.selectedWorkflow, loading: false
+      return {...state, workflowAction: {
+          ...initialState.workflowAction, loading: false
+        }};
+    case (WorkflowsActions.WORKFLOW_ACTION_CHANGED):
+      return {...state, workflowAction: {
+          ...state.workflowAction, actionWorkflow: action.payload
         }};
     default:
       return state;

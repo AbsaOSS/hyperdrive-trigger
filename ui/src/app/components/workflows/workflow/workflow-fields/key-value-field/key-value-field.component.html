@@ -1,0 +1,28 @@
+<div *ngIf="!isShow">
+  <clr-control-container *ngFor="let val of value | keyvalue; let i = index; trackBy: trackByFn;">
+    <label *ngIf="i == 0">{{fieldName}}</label>
+
+    <input clrControl type="text" [size]="20" [ngModel]="val.key"/>
+    -
+    <input clrControl type="text" [size]="40" [ngModel]="val.value"/>
+
+    <button type="button" class="btn btn-link" (click)="onDeleteServer(val.key)">
+      <clr-icon shape="trash"></clr-icon>
+    </button>
+
+    <button type="button" class="btn btn-link" *ngIf="value.size - 1 === i" (click)="onServerAdd()">
+      <clr-icon shape="plus"></clr-icon>
+    </button>
+
+  </clr-control-container>
+</div>
+
+<div *ngIf="isShow">
+  <div class="clr-form-control clr-row" *ngFor="let val of value | keyvalue; let i = index;">
+    <label *ngIf="i == 0" class="clr-control-label">{{fieldName}}</label>
+    <label *ngIf="i != 0" class="clr-control-label"></label>
+    <span>{{val.key}}</span>=<span>{{val.value}}</span>
+  </div>
+</div>
+
+

@@ -56,6 +56,11 @@ import { AbsaKafkaComponent } from './components/workflows/workflow/sensor/absa-
 import { JobsComponent } from './components/workflows/workflow/jobs/jobs.component';
 import { SparkComponent } from './components/workflows/workflow/jobs/spark/spark.component';
 import { ShellComponent } from './components/workflows/workflow/jobs/shell/shell.component';
+import { StringFieldComponent } from './components/workflows/workflow/workflow-fields/string-field/string-field.component';
+import { BooleanFieldComponent } from './components/workflows/workflow/workflow-fields/boolean-field/boolean-field.component';
+import { SelectFieldComponent } from './components/workflows/workflow/workflow-fields/select-field/select-field.component';
+import { SetFieldComponent } from './components/workflows/workflow/workflow-fields/set-field/set-field.component';
+import { KeyValueFieldComponent } from './components/workflows/workflow/workflow-fields/key-value-field/key-value-field.component';
 
 @NgModule({
   declarations: [
@@ -78,7 +83,12 @@ import { ShellComponent } from './components/workflows/workflow/jobs/shell/shell
     AbsaKafkaComponent,
     JobsComponent,
     SparkComponent,
-    ShellComponent
+    ShellComponent,
+    StringFieldComponent,
+    BooleanFieldComponent,
+    SelectFieldComponent,
+    SetFieldComponent,
+    KeyValueFieldComponent
   ],
   imports: [
     BrowserModule,

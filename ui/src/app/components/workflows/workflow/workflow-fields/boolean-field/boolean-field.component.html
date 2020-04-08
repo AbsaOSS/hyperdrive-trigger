@@ -1,0 +1,19 @@
+<div *ngIf="!isShow">
+  <clr-checkbox-container>
+    <label for="isActive">{{fieldName}}</label>
+    <clr-checkbox-wrapper>
+      <input id="isActive" clrToggle type="checkbox" name="isActive" [(ngModel)]="value" (ngModelChange)="modelChanged($event)">
+    </clr-checkbox-wrapper>
+  </clr-checkbox-container>
+</div>
+
+<div *ngIf="isShow">
+  <div class="clr-form-control clr-row">
+    <label class="clr-control-label">{{fieldName}}</label>
+    <span [ngSwitch]="value">
+        {{value ? 'Yes' : 'No'}}
+      <clr-icon *ngSwitchCase="true" shape="circle" class="is-solid" style="color: green"></clr-icon>
+        <clr-icon *ngSwitchCase="false" shape="circle" class="is-solid" style="color: red"></clr-icon>
+      </span>
+  </div>
+</div>

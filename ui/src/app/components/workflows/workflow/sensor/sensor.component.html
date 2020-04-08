@@ -1,21 +1,40 @@
-<div *ngIf="mode != workflowModes.SHOW">
-  <clr-select-container>
-    <label>Sensor type</label>
-    <select clrSelect [(ngModel)]="workflow.sensor.sensorType.name">
-      <option *ngFor="let sensor of sensorTypes.getSensorTypes()" [value]="sensor">{{sensor}}</option>
-    </select>
-  </clr-select-container>
-</div>
+<app-select-field
+  [isShow]="mode == workflowModes.SHOW"
+  [fieldName]="'Sensor type'"
+  [value]="workflow.sensor.sensorType.name"
+  [options]="options"
+  [modelChanges]="modelChanges"
+  [property]="'sensor.sensorType.name'">
 
-<div *ngIf="mode == workflowModes.SHOW">
-    <div class="clr-form-control clr-row">
-      <label class="clr-control-label">Sensor type</label>
-      <span>{{workflow.sensor.sensorType.name}}</span>
-    </div>
-</div>
+</app-select-field>
 
+  <div *ngFor="let property of selectedSensor.properties">
+      <div [ngSwitch]="property.type">
+        <app-string-field
+          *ngSwitchCase="'string-field'"
+          [isShow]="mode == workflowModes.SHOW"
+          [fieldName]="property.name"
+          [value]="workflow.sensor.properties.settings.variables['topic']"
+          [modelChanges]="modelChanges"
+          [property]="'sensor.properties.settings.variables.topic'">
+        </app-string-field>
+        <app-set-field
+          *ngSwitchCase="'set-field'"
+          [isShow]="mode == workflowModes.SHOW"
+          [fieldName]="property.name"
+          [value]="workflow.sensor.properties.settings.maps['servers']"
+          [modelChanges]="modelChanges"
+          [property]="'sensor.properties.settings.maps.servers'">
+        </app-set-field>
+        <app-key-value-field
+          *ngSwitchCase="'key-value-field'"
+          [isShow]="mode == workflowModes.SHOW"
+          [fieldName]="property.name"
+          [value]="workflow.sensor.properties['matchProperties']"
+          [modelChanges]="modelChanges"
+          [property]="'sensor.properties.matchProperties'">
+        </app-key-value-field>
 
+      </div>
+  </div>
 
-<app-kafka *ngIf="sensorTypes.KAFKA == workflow.sensor.sensorType.name" [mode]="mode" [workflow]="workflow"></app-kafka>
-<app-time *ngIf="sensorTypes.TIME == workflow.sensor.sensorType.name" [mode]="mode" [workflow]="workflow"></app-time>
-<app-absa-kafka *ngIf="sensorTypes.ABSA_KAFKA == workflow.sensor.sensorType.name" [mode]="mode" [workflow]="workflow"></app-absa-kafka>

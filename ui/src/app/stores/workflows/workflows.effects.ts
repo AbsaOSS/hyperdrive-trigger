@@ -22,6 +22,7 @@ import {WorkflowService} from "../../services/workflow/workflow.service";
 import {ProjectModel} from "../../models/project.model";
 import {WorkflowJoinedModel} from "../../models/workflowJoined.model";
 import {workflowModes} from "../../models/enums/workflowModes.constants";
+import {SensorTypesModel} from "../../models/sensorTypes.model";
 
 @Injectable()
 export class WorkflowsEffects {
@@ -33,15 +34,19 @@ export class WorkflowsEffects {
     switchMap((action: WorkflowActions.InitializeWorkflows) => {
       return this.workflowService.getProjects().pipe(
         mergeMap((projects: ProjectModel[]) => {
-          return [{
-            type: WorkflowActions.INITIALIZE_WORKFLOWS_SUCCESS,
-            payload: {projects: projects, workflows: [].concat(...projects.map((project) => project.workflows))}
-          }];
-        }),
-        catchError(() => {
-          return [{
-            type: WorkflowActions.INITIALIZE_WORKFLOWS_FAILURE
-          }];
+          return this.workflowService.getSensorTypes().pipe(
+            mergeMap((sensorTypes: SensorTypesModel) => {
+                return [{
+                  type: WorkflowActions.INITIALIZE_WORKFLOWS_SUCCESS,
+                  payload: {projects: projects, workflows: [].concat(...projects.map((project) => project.workflows)), sensorTypes: sensorTypes}
+                }];
+              }),
+              catchError(() => {
+                return [{
+                  type: WorkflowActions.INITIALIZE_WORKFLOWS_FAILURE
+                }];
+            })
+          )
         })
       )
     })

@@ -13,21 +13,22 @@
  * limitations under the License.
  */
 
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {AfterViewInit, Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {AppState, selectWorkflowState} from "../../../stores/app.reducers";
-import {Subscription} from "rxjs";
+import {Subject, Subscription} from "rxjs";
 import {Store} from "@ngrx/store";
 import {WorkflowJoinedModel} from "../../../models/workflowJoined.model";
-import {StartWorkflowInitialization} from "../../../stores/workflows/workflows.actions";
+import {StartWorkflowInitialization, WorkflowActionChanged} from "../../../stores/workflows/workflows.actions";
 import {workflowModes} from "../../../models/enums/workflowModes.constants";
+import {distinctUntilChanged} from "rxjs/operators";
 
 @Component({
   selector: 'app-workflow',
   templateUrl: './workflow.component.html',
   styleUrls: ['./workflow.component.scss']
 })
-export class WorkflowComponent implements OnInit, OnDestroy {
+export class WorkflowComponent implements OnInit, AfterViewInit, OnDestroy {
   paramsSubscription: Subscription;
 
   workflowSubscription: Subscription;
@@ -36,9 +37,13 @@ export class WorkflowComponent implements OnInit, OnDestroy {
   workflow: WorkflowJoinedModel;
 
   workflowModes = workflowModes;
-  areDetailsHidden = false;
-  isSensorHidden = false;
-  areJobsHidden = false;
+
+  isDetailsAccordionHidden = false;
+  isSensorAccordionHidden = false;
+  isJobsAccordionHidden = false;
+
+  modelChanges: Subject<{property: string, value: any}> = new Subject<{property: string, value: any}>();
+  modelSubscription: Subscription;
 
   constructor(private store: Store<AppState>, route: ActivatedRoute) {
     this.paramsSubscription = route.params.subscribe(parameters => {
@@ -50,10 +55,39 @@ export class WorkflowComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.workflowSubscription = this.store.select(selectWorkflowState).subscribe((state) => {
-      this.loading = state.selectedWorkflow.loading;
-      this.mode = state.selectedWorkflow.mode;
-      this.workflow = state.selectedWorkflow.workflow;
+      this.loading = state.workflowAction.loading;
+      this.mode = state.workflowAction.mode;
+      this.workflow = (JSON.parse(JSON.stringify(state.workflowAction.actionWorkflow)));
     });
+  }
+
+  ngAfterViewInit(): void {
+    this.modelSubscription = this.modelChanges.pipe(
+      distinctUntilChanged()
+    ).subscribe(newValue => {
+      console.log('1111111');
+      console.log(newValue.value);
+      console.log(newValue.property);
+      // this.workflow[newValue.property] = newValue.value;
+      let w = (JSON.parse(JSON.stringify(this.workflow)));
+      this.set(w, newValue.property, newValue.value);
+      console.log(w);
+      console.log('2222222');
+
+
+      this.store.dispatch(new WorkflowActionChanged(w));
+      console.log(this.workflow);
+      console.log('modelChanged');
+    });
+  }
+
+  set(obj, path, val) {
+    const keys = path.split('.');
+    const lastKey = keys.pop();
+    const lastObj = keys.reduce((obj, key) =>
+        obj[key] = obj[key] || {},
+      obj);
+    lastObj[lastKey] = val;
   }
 
   ngOnDestroy(): void {
@@ -61,16 +95,16 @@ export class WorkflowComponent implements OnInit, OnDestroy {
     this.paramsSubscription.unsubscribe();
   }
 
-  hideDetails() {
-    this.areDetailsHidden = !this.areDetailsHidden;
+  toggleDetailsAccordion() {
+    this.isDetailsAccordionHidden = !this.isDetailsAccordionHidden;
   }
 
-  hideSensor() {
-    this.isSensorHidden = !this.isSensorHidden;
+  toggleSensorAccordion() {
+    this.isSensorAccordionHidden = !this.isSensorAccordionHidden;
   }
 
-  hideJobs() {
-    this.areJobsHidden = !this.areJobsHidden;
+  toggleJobsAccordion() {
+    this.isJobsAccordionHidden = !this.isJobsAccordionHidden;
   }
 
 }

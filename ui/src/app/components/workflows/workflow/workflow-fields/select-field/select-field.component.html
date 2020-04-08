@@ -1,0 +1,15 @@
+<div *ngIf="!isShow">
+    <clr-select-container>
+      <label>{{fieldName}}</label>
+      <select clrSelect [(ngModel)]="value" (ngModelChange)="modelChanged($event)">
+        <option *ngFor="let option of options" [value]="option">{{option}}</option>
+      </select>
+    </clr-select-container>
+</div>
+
+<div *ngIf="isShow">
+      <div class="clr-form-control clr-row">
+        <label class="clr-control-label">{{fieldName}}</label>
+        <span>{{value}}</span>
+      </div>
+</div>
