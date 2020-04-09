@@ -1,0 +1,58 @@
+<div *ngIf="!isShow">
+  <clr-control-container>
+    <label>{{fieldName}}</label>
+
+    <span>Every</span>
+
+    <div class="clr-select-wrapper">
+      <select class="clr-select" clrControl [(ngModel)]="base">
+        <option *ngFor="let option of frequencies" [value]="option.value">{{option.label}}</option>
+      </select>
+    </div>
+
+    <span *ngIf="base == 4">on</span>
+
+    <div class="clr-select-wrapper" *ngIf="base == 4">
+      <select class="clr-select" clrControl [(ngModel)]="dayValue">
+        <option *ngFor="let option of dayValues" [value]="option.value">{{option.label}}</option>
+      </select>
+    </div>
+
+    <span *ngIf="base >= 5">on the</span>
+
+    <div class="clr-select-wrapper" *ngIf="base >= 5">
+      <select class="clr-select" clrControl [(ngModel)]="dayOfMonthValue">
+        <option *ngFor="let option of dayOfMonthValues" [value]="option">{{option}}</option>
+      </select>
+    </div>
+
+    <span *ngIf="base == 6">of</span>
+
+    <div class="clr-select-wrapper" *ngIf="base == 6">
+      <select class="clr-select" clrControl [(ngModel)]="monthValue">
+        <option *ngFor="let option of monthValues" [value]="option.value">{{option.label}}</option>
+      </select>
+    </div>
+
+    <span *ngIf="base >= 2">at</span>
+
+    <div class="clr-select-wrapper" *ngIf="base >= 3">
+      <select class="clr-select" clrControl [(ngModel)]="hourValue">
+        <option *ngFor="let option of hourValues" [value]="option">{{option}}</option>
+      </select>
+    </div>
+
+    <span *ngIf="base >= 3">:</span>
+
+    <div class="clr-select-wrapper" *ngIf="base >= 2">
+      <select class="clr-select" clrControl [(ngModel)]="minuteValue">
+        <option *ngFor="let option of minuteValues" [value]="option">{{option}}</option>
+      </select>
+    </div>
+
+    <span *ngIf="base == 2"> past the hour</span>
+  </clr-control-container>
+</div>
+
+<div *ngIf="isShow">
+</div>

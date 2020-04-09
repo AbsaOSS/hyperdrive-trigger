@@ -5,7 +5,6 @@
   [options]="options"
   [modelChanges]="modelChanges"
   [property]="'sensor.sensorType.name'">
-
 </app-select-field>
 
   <div *ngFor="let property of selectedSensor.properties">
@@ -34,7 +33,22 @@
           [modelChanges]="modelChanges"
           [property]="'sensor.properties.matchProperties'">
         </app-key-value-field>
-
+        <app-guid-field
+          *ngSwitchCase="'guid-field'"
+          [isShow]="mode == workflowModes.SHOW"
+          [fieldName]="property.name"
+          [value]="workflow.sensor.properties.matchProperties[0][1]"
+          [modelChanges]="modelChanges"
+          [property]="'sensor.properties.matchProperties[0][1]'">
+        </app-guid-field>
+        <app-cron-quartz-field
+          *ngSwitchCase="'cron-quartz-field'"
+          [isShow]="mode == workflowModes.SHOW"
+          [fieldName]="property.name"
+          [value]="workflow.sensor.properties.settings.variables['cronExpression']"
+          [modelChanges]="modelChanges"
+          [property]="'sensor.properties.settings.variables.cronExpression'">
+        </app-cron-quartz-field>
       </div>
   </div>
 

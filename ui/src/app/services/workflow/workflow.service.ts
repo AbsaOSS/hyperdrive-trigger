@@ -41,10 +41,17 @@ export class WorkflowService {
 
     return this.httpClient.get<WorkflowJoinedModel>(api.GET_WORKFLOW, {params: params, observe: 'response'}).pipe(
       map(response => {
-        const mp = new Map;
+        // let mp = new Map;
+        // Object.keys(
+        //   response.body.sensor.properties.matchProperties).forEach(k => {
+        //   mp.set(k, response.body.sensor.properties.matchProperties[k])
+        // });
+        // response.body.sensor.properties.matchProperties = mp;
+        let mp: [String, String][] = [];
         Object.keys(
           response.body.sensor.properties.matchProperties).forEach(k => {
-          mp.set(k, response.body.sensor.properties.matchProperties[k])
+            mp.push([k, response.body.sensor.properties.matchProperties[k]]);
+          // mp.set(k, response.body.sensor.properties.matchProperties[k])
         });
         response.body.sensor.properties.matchProperties = mp;
         return response.body;
@@ -60,25 +67,18 @@ export class WorkflowService {
             new Property('string-field', 'Topic'),
             new Property('set-field', 'Kafka servers'),
             new Property('key-value-field', 'Match properties')
-            // new Property('array-of-strings', 'Kafka servers'),
-            // new Property('array-of-key-value', 'Match properties')
           ]
         ),
         new SensorTypeModel(
           'Absa-Kafka', [
-            new Property('string-field', 'Another-topic'),
+            new Property('string-field', 'Topic'),
             new Property('set-field', 'Kafka servers'),
-            new Property('key-value-field', 'Match properties')
-            // new Property('array-of-strings', 'Kafka servers'),
-            // new Property('array-of-key-value', 'Match properties')
+            new Property('guid-field', 'Ingestion token')
           ]
         ),
         new SensorTypeModel(
           'Time', [
-            // new Property('string-field', 'Another-topic'),
-            // new Property('set-field', 'Kafka servers'),
-            // new Property('array-of-strings', 'Kafka servers'),
-            // new Property('array-of-key-value', 'Match properties')
+            new Property('cron-quartz-field', 'Run at')
           ]
         )
       ]

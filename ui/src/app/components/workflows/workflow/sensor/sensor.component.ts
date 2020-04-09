@@ -6,6 +6,7 @@ import {Store} from "@ngrx/store";
 import {AppState, selectWorkflowState} from "../../../../stores/app.reducers";
 import {Subject, Subscription} from "rxjs";
 import {SensorTypeModel, SensorTypesModel} from "../../../../models/sensorTypes.model";
+import cloneDeep from 'lodash/cloneDeep';
 
 @Component({
   selector: 'app-sensor',
@@ -29,16 +30,13 @@ export class SensorComponent implements OnInit {
   ngOnInit(): void {
     this.workflowSubscription = this.store.select(selectWorkflowState).subscribe((state) => {
       this.mode = state.workflowAction.mode;
-      this.workflow = Object.assign({}, state.workflowAction.actionWorkflow);
+      this.workflow = cloneDeep(state.workflowAction.actionWorkflow);//Object.assign({}, state.workflowAction.actionWorkflow);
       this.sensorTypes = state.sensorTypes;
       this.options = state.sensorTypes.sensorTypes.map(asd => {return asd.name});
       this.selectedSensor = state.sensorTypes.sensorTypes.find(asd => {return asd.name == this.workflow.sensor.sensorType.name})
+
     });
 
-  }
-
-  select() {
-    console.log('select');
   }
 
 }

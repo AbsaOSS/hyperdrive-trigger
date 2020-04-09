@@ -22,6 +22,9 @@ import {WorkflowJoinedModel} from "../../../models/workflowJoined.model";
 import {StartWorkflowInitialization, WorkflowActionChanged} from "../../../stores/workflows/workflows.actions";
 import {workflowModes} from "../../../models/enums/workflowModes.constants";
 import {distinctUntilChanged} from "rxjs/operators";
+import cloneDeep from 'lodash/cloneDeep';
+import set from 'lodash/set';
+import update from 'lodash/update';
 
 @Component({
   selector: 'app-workflow',
@@ -65,30 +68,30 @@ export class WorkflowComponent implements OnInit, AfterViewInit, OnDestroy {
     this.modelSubscription = this.modelChanges.pipe(
       distinctUntilChanged()
     ).subscribe(newValue => {
-      console.log('1111111');
-      console.log(newValue.value);
-      console.log(newValue.property);
-      // this.workflow[newValue.property] = newValue.value;
-      let w = (JSON.parse(JSON.stringify(this.workflow)));
-      this.set(w, newValue.property, newValue.value);
-      console.log(w);
-      console.log('2222222');
+      let w = cloneDeep(this.workflow);
+      let valueCopy = cloneDeep(newValue.value);
 
+      set(w, newValue.property, valueCopy);
 
       this.store.dispatch(new WorkflowActionChanged(w));
-      console.log(this.workflow);
       console.log('modelChanged');
     });
   }
 
-  set(obj, path, val) {
-    const keys = path.split('.');
-    const lastKey = keys.pop();
-    const lastObj = keys.reduce((obj, key) =>
-        obj[key] = obj[key] || {},
-      obj);
-    lastObj[lastKey] = val;
-  }
+  // set(obj, path, val) {
+  //   console.log('ooooooooooo');
+  //   console.log(path);
+  //   console.log(val);
+  //   const keys = path.split('.');
+  //   const lastKey = keys.pop();
+  //   const lastObj = keys.reduce((obj, key) =>
+  //       obj[key] = obj[key] || {},
+  //     obj);
+  //   console.log(lastObj);
+  //   console.log(val);
+  //   console.log('ppppppppppp');
+  //   lastObj[lastKey] = val;
+  // }
 
   ngOnDestroy(): void {
     this.workflowSubscription.unsubscribe();

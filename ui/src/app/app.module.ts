@@ -61,6 +61,8 @@ import { BooleanFieldComponent } from './components/workflows/workflow/workflow-
 import { SelectFieldComponent } from './components/workflows/workflow/workflow-fields/select-field/select-field.component';
 import { SetFieldComponent } from './components/workflows/workflow/workflow-fields/set-field/set-field.component';
 import { KeyValueFieldComponent } from './components/workflows/workflow/workflow-fields/key-value-field/key-value-field.component';
+import { GuidFieldComponent } from './components/workflows/workflow/workflow-fields/guid-field/guid-field.component';
+import { CronQuartzFieldComponent } from './components/workflows/workflow/workflow-fields/cron-quartz-field/cron-quartz-field.component';
 
 @NgModule({
   declarations: [
@@ -88,7 +90,9 @@ import { KeyValueFieldComponent } from './components/workflows/workflow/workflow
     BooleanFieldComponent,
     SelectFieldComponent,
     SetFieldComponent,
-    KeyValueFieldComponent
+    KeyValueFieldComponent,
+    GuidFieldComponent,
+    CronQuartzFieldComponent
   ],
   imports: [
     BrowserModule,

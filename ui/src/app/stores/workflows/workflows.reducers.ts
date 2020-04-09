@@ -18,7 +18,7 @@ import {ProjectModel} from "../../models/project.model";
 import {WorkflowModel} from "../../models/workflow.model";
 import {workflowModes} from "../../models/enums/workflowModes.constants";
 import {WorkflowJoinedModel} from "../../models/workflowJoined.model";
-import {PropertiesModel, SensorModel} from "../../models/sensor.model";
+import {PropertiesModel, SensorModel, SettingsModel} from "../../models/sensor.model";
 import {DagDefinitionJoinedModel} from "../../models/dagDefinitionJoined.model";
 import {SensorTypeModel, SensorTypesModel} from "../../models/sensorTypes.model";
 import {JobTypesModel} from "../../models/jobTypes.model";
