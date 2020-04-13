@@ -18,21 +18,19 @@ export class CronQuartzFieldComponent implements OnInit, AfterViewChecked {
   dayValue;
   dayOfMonthValue;
   monthValue;
-  hourValue;
   minuteValue;
+  everyHourEvery;
+  // hourValue;
+  everyHourAt;
 
   frequencies = [
     {
-      value : 0,
-      label : 'Minutes'
-    },
-    {
       value : 1,
-      label : 'Minute'
+      label : 'Hour every'
     },
     {
       value : 2,
-      label : 'Hour'
+      label : 'Hour at'
     },
     {
       value : 3,
@@ -134,7 +132,7 @@ export class CronQuartzFieldComponent implements OnInit, AfterViewChecked {
   ];
   hourValues = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
   minuteValues = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
-
+  minutesValues = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
 
   constructor() { }
 
@@ -148,7 +146,6 @@ export class CronQuartzFieldComponent implements OnInit, AfterViewChecked {
   }
 
   setCron(n): string {
-    //  console.log('set cron called: ', n);
     var cron = ['0', '*', '*',  '*',  '*', '?'];
 
     if(n && n.base && n.base >= 2) {
@@ -178,9 +175,11 @@ export class CronQuartzFieldComponent implements OnInit, AfterViewChecked {
   fromCron(value: string) {
     console.log('set cron fired!');
     console.log(value);
-    var cron = value.replace(/\s+/g, ' ').split(' ');
+    let cron: string[] = value.replace(/\s+/g, ' ').split(' ');
     // var frequency = {base: '1'}; // default: every minute
-    if(cron[1] === '*' && cron[2] === '*' && cron[3] === '*'  && cron[4] === '*' && cron[5] === '?') {
+    console.log(cron);
+
+    if(cron[1] === '*' && cron[2] === '*' && cron[3] === '*' && cron[4] === '*' && cron[5] === '?') {
       console.log('A');
       this.base = 1; // every minute
     } else if(cron[2] === '*' && cron[3] === '*'  && cron[4] === '*' && cron[5] === '?') {
@@ -201,24 +200,24 @@ export class CronQuartzFieldComponent implements OnInit, AfterViewChecked {
     }
 
     // console.log('frequency should be 5: ', frequency, cron);
-    if (cron[1] !== '*') {
-      this.minuteValue = parseInt(cron[1]);
-    }
-    if (cron[2] !== '*') {
-      this.hourValue = parseInt(cron[2]);
-    }
-    if (cron[3] !== '*' && cron[3] !== '?') {
-      this.dayOfMonthValue = parseInt(cron[3]);
-    }
-    if (cron[4] !== '*') {
-      this.monthValue = parseInt(cron[4]);
-    }
-    if (cron[5] !== '*' && cron[5] !== '?') {
-      this.dayValue = parseInt(cron[5]);
-    }
-
-    //frequency.base += ''; // 'cast' to string in order to set proper value on "every" modal
-
+    // if (cron[1] !== '*') {
+    //   this.minuteValue = parseInt(cron[1]);
+    // }
+    // if (cron[2] !== '*') {
+    //   this.hourValue = parseInt(cron[2]);
+    // }
+    // if (cron[3] !== '*' && cron[3] !== '?') {
+    //   this.dayOfMonthValue = parseInt(cron[3]);
+    // }
+    // if (cron[4] !== '*') {
+    //   this.monthValue = parseInt(cron[4]);
+    // }
+    // if (cron[5] !== '*' && cron[5] !== '?') {
+    //   this.dayValue = parseInt(cron[5]);
+    // }
+    // //
+    // frequency.base += ''; // 'cast' to string in order to set proper value on "every" modal
+    // //
     // console.log('freq ', frequency);
     // return frequency;
   };

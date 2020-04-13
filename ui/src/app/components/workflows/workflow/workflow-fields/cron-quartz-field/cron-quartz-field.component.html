@@ -34,10 +34,10 @@
       </select>
     </div>
 
-    <span *ngIf="base >= 2">at</span>
+    <span *ngIf="base >= 3">at</span>
 
     <div class="clr-select-wrapper" *ngIf="base >= 3">
-      <select class="clr-select" clrControl [(ngModel)]="hourValue">
+      <select class="clr-select" clrControl [(ngModel)]="everyHourAt">
         <option *ngFor="let option of hourValues" [value]="option">{{option}}</option>
       </select>
     </div>
@@ -50,7 +50,17 @@
       </select>
     </div>
 
+    <div class="clr-select-wrapper" *ngIf="base == 1">
+      <select class="clr-select" clrControl [(ngModel)]="minuteValue">
+        <option *ngFor="let option of minutesValues" [value]="option">{{option}}</option>
+      </select>
+    </div>
+
     <span *ngIf="base == 2"> past the hour</span>
+
+    <span *ngIf="base == 1"> minutes</span>
+
+
   </clr-control-container>
 </div>
 
