@@ -20,7 +20,7 @@ import {map} from "rxjs/operators";
 import {ProjectModel} from "../../models/project.model";
 import {Observable, of} from "rxjs";
 import {WorkflowJoinedModel} from "../../models/workflowJoined.model";
-import {Property, SensorTypeModel, SensorTypesModel} from "../../models/sensorTypes.model";
+import {ComponentModel, Property, WorkflowComponentsModel} from "../../models/workflowComponents.model";
 
 @Injectable({
   providedIn: 'root'
@@ -59,24 +59,26 @@ export class WorkflowService {
     );
   }
 
-  getSensorTypes(): Observable<SensorTypesModel> {
-    return of(new SensorTypesModel(
+  getWorkflowComponents(): Observable<WorkflowComponentsModel> {
+    return of(new WorkflowComponentsModel(
+      [],
+
       [
-        new SensorTypeModel(
+        new ComponentModel(
           'Kafka', [
             new Property('string-field', 'Topic'),
             new Property('set-field', 'Kafka servers'),
             new Property('key-value-field', 'Match properties')
           ]
         ),
-        new SensorTypeModel(
+        new ComponentModel(
           'Absa-Kafka', [
             new Property('string-field', 'Topic'),
             new Property('set-field', 'Kafka servers'),
             new Property('guid-field', 'Ingestion token')
           ]
         ),
-        new SensorTypeModel(
+        new ComponentModel(
           'Time', [
             new Property('cron-quartz-field', 'Run at')
           ]

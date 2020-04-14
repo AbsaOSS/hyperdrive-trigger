@@ -17,7 +17,7 @@ import {Action} from "@ngrx/store";
 import {ProjectModel} from "../../models/project.model";
 import {WorkflowModel} from "../../models/workflow.model";
 import {WorkflowJoinedModel} from "../../models/workflowJoined.model";
-import {SensorTypesModel} from "../../models/sensorTypes.model";
+import {WorkflowComponentsModel} from "../../models/workflowComponents.model";
 
 export const INITIALIZE_WORKFLOWS = 'INITIALIZE_WORKFLOWS';
 export const INITIALIZE_WORKFLOWS_SUCCESS = 'INITIALIZE_WORKFLOWS_SUCCESS';
@@ -37,7 +37,7 @@ export class InitializeWorkflows implements Action {
 
 export class InitializeWorkflowsSuccess implements Action {
   readonly type = INITIALIZE_WORKFLOWS_SUCCESS;
-  constructor(public payload: {projects: ProjectModel[], workflows: WorkflowModel[], sensorTypes: SensorTypesModel}) {}
+  constructor(public payload: {projects: ProjectModel[], workflows: WorkflowModel[], workflowComponents: WorkflowComponentsModel}) {}
 }
 
 export class InitializeWorkflowsFailure implements Action {

@@ -14,24 +14,30 @@
  */
 
 
-export class SensorTypesModel {
 
+export class WorkflowComponentsModel {
   constructor(
-    public sensorTypes: SensorTypeModel[]
+    public jobComponents: ComponentModel[],
+    public sensorComponents: ComponentModel[]
   ) {}
-
 }
 
-export class SensorTypeModel {
+export class ComponentModel {
   constructor(
     public name: string,
     public properties: Property[]
-  ) {}
+  ){}
 }
 
 export class Property {
   constructor(
     public type: string,
-    public name: string
+    public name: string//,
+    // public property: string
   ) {}
 }
+
+// ah yes I noticed that. From my point of view "variables" is one key -> one value. and "maps" is one key -> array of values. So far so good. How to encode that in a metadata object. E.g.
+// Map("deploymentMode" -> Metadata("Deployment Mode", required = true, allowedValues = List("cluster", "client"), maxElements=Some(1)),
+//   "appArguments" -> Metadata("App Arguments", required = false, maxElements=None)
+

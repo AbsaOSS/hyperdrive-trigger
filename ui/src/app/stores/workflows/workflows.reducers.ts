@@ -20,9 +20,8 @@ import {workflowModes} from "../../models/enums/workflowModes.constants";
 import {WorkflowJoinedModel} from "../../models/workflowJoined.model";
 import {PropertiesModel, SensorModel, SettingsModel} from "../../models/sensor.model";
 import {DagDefinitionJoinedModel} from "../../models/dagDefinitionJoined.model";
-import {SensorTypeModel, SensorTypesModel} from "../../models/sensorTypes.model";
-import {JobTypesModel} from "../../models/jobTypes.model";
 import {WORKFLOW_ACTION_CHANGED} from "../workflows/workflows.actions";
+import {WorkflowComponentsModel} from "../../models/workflowComponents.model";
 
 export interface State {
   projects: ProjectModel[],
@@ -35,8 +34,7 @@ export interface State {
     originalWorkflow: WorkflowJoinedModel,
     actionWorkflow: WorkflowJoinedModel
   },
-  sensorTypes: SensorTypesModel,
-  jobTypes: JobTypesModel
+  workflowComponents: WorkflowComponentsModel
 }
 
 const emptyWorkflow = {
@@ -57,15 +55,14 @@ const initialState: State = {
   projects: [],
   workflows: [],
   loading: true,
-  sensorTypes: undefined,
-  jobTypes: undefined,
   workflowAction: {
     id: undefined,
     mode: workflowModes.CREATE,
     loading: true,
     originalWorkflow: {...emptyWorkflow},
     actionWorkflow: {...emptyWorkflow}
-  }
+  },
+  workflowComponents: undefined
 };
 
 export function workflowsReducer(state: State = initialState, action: WorkflowsActions.WorkflowsActions) {
@@ -73,7 +70,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
     case (WorkflowsActions.INITIALIZE_WORKFLOWS):
       return {...state, loading: true};
     case (WorkflowsActions.INITIALIZE_WORKFLOWS_SUCCESS):
-      return {...state, loading: false, projects: action.payload.projects, workflows: action.payload.workflows, sensorTypes: action.payload.sensorTypes};
+      return {...state, loading: false, projects: action.payload.projects, workflows: action.payload.workflows, workflowComponents: action.payload.workflowComponents};
     case (WorkflowsActions.INITIALIZE_WORKFLOWS_FAILURE):
       return {...initialState, loading: false};
     case (WorkflowsActions.STAR_WORKFLOW_INITIALIZATION):
