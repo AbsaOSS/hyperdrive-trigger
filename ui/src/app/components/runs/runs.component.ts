@@ -28,7 +28,7 @@ import {TableSearchRequestModel} from '../../models/search/tableSearchRequest.mo
 import {StringEqualsFilterAttributes} from '../../models/search/stringEqualsFilterAttributes.model';
 import {IntRangeFilterAttributes} from '../../models/search/intRangeFilterAttributes.model';
 import {DateTimeRangeFilterAttributes} from '../../models/search/dateTimeRangeFilterAttributes.model';
-import {ContainsMultipleFilterAttributes} from '../../models/search/containsMultipleFilterAttributes.model';
+import {EqualsMultipleFilterAttributes} from '../../models/search/equalsMultipleFilterAttributes.model';
 import {SortAttributesModel} from '../../models/search/sortAttributes.model';
 
 @Component({
@@ -87,7 +87,7 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
       containsFilterAttributes: this.filters.filter(f => f instanceof ContainsFilterAttributes),
       intRangeFilterAttributes: this.filters.filter(f => f instanceof IntRangeFilterAttributes),
       dateTimeRangeFilterAttributes: this.filters.filter(f => f instanceof DateTimeRangeFilterAttributes),
-      containsMultipleFilterAttributes: this.filters.filter(f => f instanceof ContainsMultipleFilterAttributes)
+      equalsMultipleFilterAttributes: this.filters.filter(f => f instanceof EqualsMultipleFilterAttributes)
     };
 
     this.store.dispatch(new GetDagRuns(searchRequestModel));

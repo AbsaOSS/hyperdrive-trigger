@@ -33,7 +33,7 @@ import {StoreDevtoolsModule} from '@ngrx/store-devtools';
 import {environment} from '../environments/environment';
 import {AuthService} from './services/auth/auth.service';
 import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {FormsModule} from '@angular/forms';
 import {AuthEffects} from './stores/auth/auth.effects';
 import {CsrfInterceptor} from './services/interceptors/csrf.interceptor';
 import {UnauthorizedInterceptor} from './services/interceptors/unauthorized.interceptor';
@@ -69,7 +69,6 @@ import {MultipleStatusFilterComponent} from './components/runs/filters/multiple-
     AppRoutingModule,
     ClarityModule,
     FormsModule,
-    ReactiveFormsModule,
     BrowserAnimationsModule,
     HttpClientModule,
     StoreModule.forRoot(reducers),

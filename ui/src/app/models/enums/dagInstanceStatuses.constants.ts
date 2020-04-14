@@ -16,10 +16,10 @@
 import {StatusModel} from '../status.model';
 
 export const dagInstanceStatuses = {
-  IN_QUEUE: new StatusModel('InQueue', 'grey', 'clock', false),
-  RUNNING: new StatusModel('Running', 'blue', 'play', false),
-  SUCCEEDED: new StatusModel('Succeeded', 'green', 'success-standard', false),
-  FAILED: new StatusModel('Failed', 'red', 'error-standard', false),
+  IN_QUEUE: new StatusModel('InQueue', 'grey', 'clock'),
+  RUNNING: new StatusModel('Running', 'blue', 'play'),
+  SUCCEEDED: new StatusModel('Succeeded', 'green', 'success-standard'),
+  FAILED: new StatusModel('Failed', 'red', 'error-standard'),
 
  getStatuses(): StatusModel[] {
     return [this.IN_QUEUE, this.RUNNING, this.SUCCEEDED, this.FAILED];

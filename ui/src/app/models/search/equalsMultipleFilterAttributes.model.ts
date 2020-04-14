@@ -15,7 +15,7 @@
 
 import {FilterAttributes} from './filterAttributes.model';
 
-export class ContainsMultipleFilterAttributes implements FilterAttributes {
+export class EqualsMultipleFilterAttributes implements FilterAttributes {
   constructor(public field: string,
               public values: string[]) {}
 }

@@ -17,7 +17,7 @@ import {ContainsFilterAttributes} from './containsFilterAttributes.model';
 import {StringEqualsFilterAttributes} from './stringEqualsFilterAttributes.model';
 import {IntRangeFilterAttributes} from './intRangeFilterAttributes.model';
 import {DateTimeRangeFilterAttributes} from './dateTimeRangeFilterAttributes.model';
-import {ContainsMultipleFilterAttributes} from './containsMultipleFilterAttributes.model';
+import {EqualsMultipleFilterAttributes} from './equalsMultipleFilterAttributes.model';
 import {SortAttributesModel} from './sortAttributes.model';
 
 export class TableSearchRequestModel {
@@ -28,7 +28,7 @@ export class TableSearchRequestModel {
     public containsFilterAttributes?: ContainsFilterAttributes[],
     public intRangeFilterAttributes?: IntRangeFilterAttributes[],
     public dateTimeRangeFilterAttributes?: DateTimeRangeFilterAttributes[],
-    public containsMultipleFilterAttributes?: ContainsMultipleFilterAttributes[],
+    public equalsMultipleFilterAttributes?: EqualsMultipleFilterAttributes[],
     public sort?: SortAttributesModel
   ) {}
 }

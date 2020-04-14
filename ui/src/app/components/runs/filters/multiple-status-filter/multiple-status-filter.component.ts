@@ -18,7 +18,7 @@ import {Subject} from 'rxjs';
 import {ClrDatagridFilterInterface} from '@clr/angular';
 import {DagRunModel} from '../../../../models/dagRuns/dagRun.model';
 import {StatusModel} from '../../../../models/status.model';
-import {ContainsMultipleFilterAttributes} from '../../../../models/search/containsMultipleFilterAttributes.model';
+import {EqualsMultipleFilterAttributes} from '../../../../models/search/equalsMultipleFilterAttributes.model';
 
 @Component({
   selector: 'app-multiple-status-filter',
@@ -39,24 +39,36 @@ export class MultipleStatusFilterComponent implements ClrDatagridFilterInterface
     this.removeFiltersSubject.subscribe(_ => this.onRemoveFilter());
   }
 
-  toggleStatuses(statusModel) {
-    if (!statusModel.checked) {
-      statusModel.checked = true;
-      this.selectedValues = this.selectedValues.concat(statusModel.name);
-    } else {
-      statusModel.checked = false;
-      const index: number = this.selectedValues.indexOf(statusModel.name);
-      if (index >= 0) {
-        this.selectedValues = this.selectedValues.filter(status => status !== statusModel.name);
-      }
-    }
+//   toggleStatuses(statusModel) {
+//     if (!statusModel.checked) {
+//       statusModel.checked = true;
+//       this.selectedValues = this.selectedValues.concat(statusModel.name);
+//     } else {
+//       statusModel.checked = false;
+//       const index: number = this.selectedValues.indexOf(statusModel.name);
+//       if (index >= 0) {
+//         this.selectedValues = this.selectedValues.filter(status => status !== statusModel.name);
+//       }
+//     }
 
-    this.changes.next(true);
- }
+//     this.changes.next(true);
+//  }
+
+toggleStatuses(statusModel) {
+  if (this.selectedValues.indexOf(statusModel.name) < 0) {
+    this.selectedValues = this.selectedValues.concat(statusModel.name);
+  } else {
+    if (this.selectedValues.indexOf(statusModel.name) >= 0) {
+      this.selectedValues = this.selectedValues.filter(status => status !== statusModel.name);
+    }
+  }
+
+  this.changes.next(true);
+}
 
  accepts(item: DagRunModel): boolean {
     for (const currentItem of this.statuses) {
-      if (currentItem.checked && currentItem.name === item[this.property]) {
+      if (currentItem.name === item[this.property]) {
         return true;
       }
     }
@@ -64,11 +76,11 @@ export class MultipleStatusFilterComponent implements ClrDatagridFilterInterface
  }
 
  get state() {
-   return new ContainsMultipleFilterAttributes(this.property, this.selectedValues);
+   return new EqualsMultipleFilterAttributes(this.property, this.selectedValues);
  }
 
  isActive(): boolean {
-   return this.selectedValues != null && this.selectedValues.length > 0;
+   return this.selectedValues !== null && this.selectedValues.length > 0;
  }
 
   onRemoveFilter() {
