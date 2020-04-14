@@ -19,7 +19,7 @@ import java.time.LocalDateTime
 
 import slick.ast.BaseTypedType
 import slick.lifted.{AbstractTable, ColumnOrdered}
-import za.co.absa.hyperdrive.trigger.models.search.{ContainsFilterAttributes, DateTimeRangeFilterAttributes, IntRangeFilterAttributes, SortAttributes, StringEqualsFilterAttributes, ContainsMultipleFilterAttributes, TableSearchRequest, TableSearchResponse}
+import za.co.absa.hyperdrive.trigger.models.search.{ContainsFilterAttributes, DateTimeRangeFilterAttributes, IntRangeFilterAttributes, SortAttributes, StringEqualsFilterAttributes, EqualsMultipleFilterAttributes, TableSearchRequest, TableSearchResponse}
 
 import scala.concurrent.ExecutionContext
 
@@ -44,14 +44,8 @@ trait SearchableTableQuery {
       val withMultiContains = request.getContainsMultipleFilterAttributes.foldLeft(filteredQuery)((query, attributes) =>
         query.filter((table => applyContainsMultipleFilter(attributes, table.fieldMapping))))
 
-//      val length = filteredQuery.length.result
       val length = withMultiContains.length.result
 
-/*     val result = filteredQuery
-        .sortBy(table => sortFields(request.sort, table.fieldMapping, table.defaultSortColumn))
-        .drop(request.from)
-        .take(request.size).result
-*/
 
       val result = withMultiContains
         .sortBy(table => sortFields(request.sort, table.fieldMapping, table.defaultSortColumn))
@@ -87,7 +81,7 @@ trait SearchableTableQuery {
       applyRangeFilter(tableField, attributes.start, attributes.end)
     }
 
-    private def applyContainsMultipleFilter(attributes: ContainsMultipleFilterAttributes, fieldMapping: Map[String, Rep[_]]): Rep[Boolean] = {
+    private def applyContainsMultipleFilter(attributes: EqualsMultipleFilterAttributes, fieldMapping: Map[String, Rep[_]]): Rep[Boolean] = {
       val tableField = fieldMapping(attributes.field).asInstanceOf[Rep[String]]
       tableField inSetBind attributes.values
     }

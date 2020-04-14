@@ -15,7 +15,7 @@
 
 package za.co.absa.hyperdrive.trigger.models.search
 
-case class ContainsMultipleFilterAttributes (override val field: String,
-                                             values: List[String]
+case class EqualsMultipleFilterAttributes(override val field: String,
+                                          values: List[String]
                                             ) extends FilterAttributes {
 }
