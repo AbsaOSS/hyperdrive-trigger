@@ -50,12 +50,7 @@ import {NumberRangeFilterComponent} from "./components/runs/filters/number-range
 import {WorkflowComponent} from './components/workflows/workflow/workflow.component';
 import {WorkflowDetailsComponent} from './components/workflows/workflow/workflow-details/workflow-details.component';
 import {SensorComponent} from './components/workflows/workflow/sensor/sensor.component';
-import { KafkaComponent } from './components/workflows/workflow/sensor/kafka/kafka.component';
-import { TimeComponent } from './components/workflows/workflow/sensor/time/time.component';
-import { AbsaKafkaComponent } from './components/workflows/workflow/sensor/absa-kafka/absa-kafka.component';
 import { JobsComponent } from './components/workflows/workflow/jobs/jobs.component';
-import { SparkComponent } from './components/workflows/workflow/jobs/spark/spark.component';
-import { ShellComponent } from './components/workflows/workflow/jobs/shell/shell.component';
 import { StringFieldComponent } from './components/workflows/workflow/workflow-fields/string-field/string-field.component';
 import { BooleanFieldComponent } from './components/workflows/workflow/workflow-fields/boolean-field/boolean-field.component';
 import { SelectFieldComponent } from './components/workflows/workflow/workflow-fields/select-field/select-field.component';
@@ -63,6 +58,8 @@ import { SetFieldComponent } from './components/workflows/workflow/workflow-fiel
 import { KeyValueFieldComponent } from './components/workflows/workflow/workflow-fields/key-value-field/key-value-field.component';
 import { GuidFieldComponent } from './components/workflows/workflow/workflow-fields/guid-field/guid-field.component';
 import { CronQuartzFieldComponent } from './components/workflows/workflow/workflow-fields/cron-quartz-field/cron-quartz-field.component';
+import { JobComponent } from './components/workflows/workflow/jobs/job/job.component';
+import {WorkflowFieldsComponent} from "./components/workflows/workflow/workflow-fields/workflow-fields.component";
 
 @NgModule({
   declarations: [
@@ -80,19 +77,16 @@ import { CronQuartzFieldComponent } from './components/workflows/workflow/workfl
     WorkflowComponent,
     WorkflowDetailsComponent,
     SensorComponent,
-    KafkaComponent,
-    TimeComponent,
-    AbsaKafkaComponent,
     JobsComponent,
-    SparkComponent,
-    ShellComponent,
+    JobComponent,
     StringFieldComponent,
     BooleanFieldComponent,
     SelectFieldComponent,
     SetFieldComponent,
     KeyValueFieldComponent,
     GuidFieldComponent,
-    CronQuartzFieldComponent
+    CronQuartzFieldComponent,
+    WorkflowFieldsComponent
   ],
   imports: [
     BrowserModule,

@@ -18,6 +18,7 @@ export class SelectFieldComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
+    console.log(this.options);
   }
 
   modelChanged(value: boolean) {

@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ShellComponent } from './shell.component';
+import { WorkflowFieldsComponent } from './workflow-fields.component';
 
-describe('ShellComponent', () => {
-  let component: ShellComponent;
-  let fixture: ComponentFixture<ShellComponent>;
+describe('WorkflowFieldsComponent', () => {
+  let component: WorkflowFieldsComponent;
+  let fixture: ComponentFixture<WorkflowFieldsComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ ShellComponent ]
+      declarations: [ WorkflowFieldsComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(ShellComponent);
+    fixture = TestBed.createComponent(WorkflowFieldsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

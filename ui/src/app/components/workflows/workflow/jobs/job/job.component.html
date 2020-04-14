@@ -1,0 +1,24 @@
+<app-string-field
+  [isShow]="mode == workflowModes.SHOW"
+  [fieldName]="'Job Name'"
+  [modelChanges]="modelChanges2"
+  [value]="jobDefintion.name"
+  [property]="'name'">
+</app-string-field>
+
+<app-select-field
+  [isShow]="mode == workflowModes.SHOW"
+  [fieldName]="'Job type'"
+  [value]="jobDefintion.jobType.name"
+  [options]="options"
+  [modelChanges]="modelChanges2"
+  [property]="'jobType.name'">
+</app-select-field>
+
+<app-workflow-fields
+  [mode]="mode"
+  [isShow]="mode == workflowModes.SHOW"
+  [workflowComponent]="selectedJob"
+  [modelChanges]="modelChanges2"
+  [workflow]="jobDefintion">
+</app-workflow-fields>

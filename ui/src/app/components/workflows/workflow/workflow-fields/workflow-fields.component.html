@@ -1,0 +1,44 @@
+<div *ngFor="let property of workflowComponent.properties">
+  <div [ngSwitch]="property.type">
+    <app-string-field
+      *ngSwitchCase="'string-field'"
+      [isShow]="mode == workflowModes.SHOW"
+      [fieldName]="property.name"
+      [modelChanges]="modelChanges"
+      [value]="getValue(property.property)"
+      [property]="property.property">
+    </app-string-field>
+    <app-set-field
+      *ngSwitchCase="'set-field'"
+      [isShow]="mode == workflowModes.SHOW"
+      [fieldName]="property.name"
+      [modelChanges]="modelChanges"
+      [value]="getValue(property.property)"
+      [property]="property.property">
+    </app-set-field>
+    <app-key-value-field
+      *ngSwitchCase="'key-value-field'"
+      [isShow]="mode == workflowModes.SHOW"
+      [fieldName]="property.name"
+      [modelChanges]="modelChanges"
+      [value]="getValue(property.property)"
+      [property]="property.property">
+    </app-key-value-field>
+    <app-guid-field
+      *ngSwitchCase="'guid-field'"
+      [isShow]="mode == workflowModes.SHOW"
+      [fieldName]="property.name"
+      [modelChanges]="modelChanges"
+      [value]="getValue(property.property)"
+      [property]="property.property">
+    </app-guid-field>
+    <app-cron-quartz-field
+      *ngSwitchCase="'cron-quartz-field'"
+      [isShow]="mode == workflowModes.SHOW"
+      [fieldName]="property.name"
+      [modelChanges]="modelChanges"
+      [value]="getValue(property.property)"
+      [property]="property.property">
+    </app-cron-quartz-field>
+  </div>
+</div>

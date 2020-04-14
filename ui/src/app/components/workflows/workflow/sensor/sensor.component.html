@@ -7,48 +7,10 @@
   [property]="'sensor.sensorType.name'">
 </app-select-field>
 
-  <div *ngFor="let property of selectedSensor.properties">
-      <div [ngSwitch]="property.type">
-        <app-string-field
-          *ngSwitchCase="'string-field'"
-          [isShow]="mode == workflowModes.SHOW"
-          [fieldName]="property.name"
-          [value]="workflow.sensor.properties.settings.variables['topic']"
-          [modelChanges]="modelChanges"
-          [property]="'sensor.properties.settings.variables.topic'">
-        </app-string-field>
-        <app-set-field
-          *ngSwitchCase="'set-field'"
-          [isShow]="mode == workflowModes.SHOW"
-          [fieldName]="property.name"
-          [value]="workflow.sensor.properties.settings.maps['servers']"
-          [modelChanges]="modelChanges"
-          [property]="'sensor.properties.settings.maps.servers'">
-        </app-set-field>
-        <app-key-value-field
-          *ngSwitchCase="'key-value-field'"
-          [isShow]="mode == workflowModes.SHOW"
-          [fieldName]="property.name"
-          [value]="workflow.sensor.properties['matchProperties']"
-          [modelChanges]="modelChanges"
-          [property]="'sensor.properties.matchProperties'">
-        </app-key-value-field>
-        <app-guid-field
-          *ngSwitchCase="'guid-field'"
-          [isShow]="mode == workflowModes.SHOW"
-          [fieldName]="property.name"
-          [value]="workflow.sensor.properties.matchProperties[0][1]"
-          [modelChanges]="modelChanges"
-          [property]="'sensor.properties.matchProperties[0][1]'">
-        </app-guid-field>
-        <app-cron-quartz-field
-          *ngSwitchCase="'cron-quartz-field'"
-          [isShow]="mode == workflowModes.SHOW"
-          [fieldName]="property.name"
-          [value]="workflow.sensor.properties.settings.variables['cronExpression']"
-          [modelChanges]="modelChanges"
-          [property]="'sensor.properties.settings.variables.cronExpression'">
-        </app-cron-quartz-field>
-      </div>
-  </div>
-
+<app-workflow-fields
+  [mode]="mode"
+  [isShow]="mode == workflowModes.SHOW"
+  [workflowComponent]="selectedSensor"
+  [modelChanges]="modelChanges"
+  [workflow]="workflow.sensor">
+</app-workflow-fields>

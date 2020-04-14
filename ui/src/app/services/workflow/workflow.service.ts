@@ -50,7 +50,7 @@ export class WorkflowService {
         let mp: [String, String][] = [];
         Object.keys(
           response.body.sensor.properties.matchProperties).forEach(k => {
-            mp.push([k, response.body.sensor.properties.matchProperties[k]]);
+          mp.push([k, response.body.sensor.properties.matchProperties[k]]);
           // mp.set(k, response.body.sensor.properties.matchProperties[k])
         });
         response.body.sensor.properties.matchProperties = mp;
@@ -61,26 +61,37 @@ export class WorkflowService {
 
   getWorkflowComponents(): Observable<WorkflowComponentsModel> {
     return of(new WorkflowComponentsModel(
-      [],
-
+      [
+        new ComponentModel(
+          'Spark', [
+            new Property('string-field', 'Job jar', 'jobParameters.variables.jobJar'),
+            new Property('string-field', 'Main class', 'jobParameters.variables.mainClass')
+          ]
+        ),
+        new ComponentModel(
+          'Shell', [
+            new Property('string-field', 'Script location', 'jobParameters.variables.scriptLocation')
+          ]
+        )
+      ],
       [
         new ComponentModel(
           'Kafka', [
-            new Property('string-field', 'Topic'),
-            new Property('set-field', 'Kafka servers'),
-            new Property('key-value-field', 'Match properties')
+            new Property('string-field', 'Topic', 'properties.settings.variables.topic'),
+            new Property('set-field', 'Kafka servers', 'properties.settings.maps.servers'),
+            new Property('key-value-field', 'Match properties', 'properties.matchProperties')
           ]
         ),
         new ComponentModel(
           'Absa-Kafka', [
-            new Property('string-field', 'Topic'),
-            new Property('set-field', 'Kafka servers'),
-            new Property('guid-field', 'Ingestion token')
+            new Property('string-field', 'Topic', 'properties.settings.variables.topic'),
+            new Property('set-field', 'Kafka servers', 'properties.settings.maps.servers'),
+            new Property('guid-field', 'Ingestion token', 'properties.matchProperties[0][1]')
           ]
         ),
         new ComponentModel(
           'Time', [
-            new Property('cron-quartz-field', 'Run at')
+            new Property('cron-quartz-field', 'Run at', 'properties.settings.variables.cronExpression')
           ]
         )
       ]

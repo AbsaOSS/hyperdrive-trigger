@@ -29,11 +29,10 @@ export class SensorComponent implements OnInit {
   ngOnInit(): void {
     this.workflowSubscription = this.store.select(selectWorkflowState).subscribe((state) => {
       this.mode = state.workflowAction.mode;
-      this.workflow = cloneDeep(state.workflowAction.actionWorkflow);//Object.assign({}, state.workflowAction.actionWorkflow);
+      this.workflow = cloneDeep(state.workflowAction.actionWorkflow);
       this.sensorComponents = state.workflowComponents.sensorComponents;
       this.options = state.workflowComponents.sensorComponents.map(asd => {return asd.name});
       this.selectedSensor = state.workflowComponents.sensorComponents.find(asd => {return asd.name == this.workflow.sensor.sensorType.name})
-
     });
 
   }
