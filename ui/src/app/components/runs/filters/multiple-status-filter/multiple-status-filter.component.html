@@ -15,13 +15,13 @@
  -->
 
 <div
-*ngFor="let status of statuses"
+*ngFor="let status of statuses; let i = index"
 class="status-selectable"
 (change)="toggleStatuses(status)"
 [class.status-selected]="status.name">
 <clr-checkbox-container>
   <clr-checkbox-wrapper>
-    <input type="checkbox" clrCheckbox value="status.name"/>
+    <input type="checkbox" clrCheckbox [(ngModel)]="isSelected[i]" (ngModelChange)="onChange(i)"/>
     <label>
       <clr-icon
       class="is-solid"

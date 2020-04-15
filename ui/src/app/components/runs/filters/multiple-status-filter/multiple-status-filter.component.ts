@@ -30,6 +30,7 @@ export class MultipleStatusFilterComponent implements ClrDatagridFilterInterface
   @Input() property: string;
   @Input() statuses: StatusModel[];
   selectedValues: string[] = [];
+  isSelected: any = [];
 
   changes = new Subject<any>();
 
@@ -55,6 +56,10 @@ toggleStatuses(statusModel) {
   this.changes.next(true);
 }
 
+onChange(i: number) {
+     this.isSelected[i] = this.isSelected[i];
+   }
+
  accepts(item: DagRunModel): boolean {
     for (const currentItem of this.statuses) {
       if (currentItem.name === item[this.property]) {
@@ -74,6 +79,7 @@ toggleStatuses(statusModel) {
 
   onRemoveFilter() {
     this.selectedValues = [];
+    this.isSelected = [];
     this.changes.next();
   }
 }
