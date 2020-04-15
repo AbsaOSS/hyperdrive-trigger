@@ -39,20 +39,9 @@ export class MultipleStatusFilterComponent implements ClrDatagridFilterInterface
     this.removeFiltersSubject.subscribe(_ => this.onRemoveFilter());
   }
 
-//   toggleStatuses(statusModel) {
-//     if (!statusModel.checked) {
-//       statusModel.checked = true;
-//       this.selectedValues = this.selectedValues.concat(statusModel.name);
-//     } else {
-//       statusModel.checked = false;
-//       const index: number = this.selectedValues.indexOf(statusModel.name);
-//       if (index >= 0) {
-//         this.selectedValues = this.selectedValues.filter(status => status !== statusModel.name);
-//       }
-//     }
-
-//     this.changes.next(true);
-//  }
+  ngOnDestroy(): void {
+    this.removeFiltersSubject.unsubscribe();
+  }
 
 toggleStatuses(statusModel) {
   if (this.selectedValues.indexOf(statusModel.name) < 0) {
@@ -86,9 +75,5 @@ toggleStatuses(statusModel) {
   onRemoveFilter() {
     this.selectedValues = [];
     this.changes.next();
-  }
-
-  ngOnDestroy(): void {
-    this.removeFiltersSubject.unsubscribe();
   }
 }
