@@ -17,7 +17,7 @@ package za.co.absa.hyperdrive.trigger.persistance
 
 import org.scalatest.{FlatSpec, _}
 import za.co.absa.hyperdrive.trigger.models.dagRuns.DagRun
-import za.co.absa.hyperdrive.trigger.models.search.{IntRangeFilterAttributes, SortAttributes, StringEqualsFilterAttributes, TableSearchRequest, TableSearchResponse}
+import za.co.absa.hyperdrive.trigger.models.search.{IntRangeFilterAttributes, SortAttributes, TableSearchRequest, TableSearchResponse}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -119,14 +119,11 @@ class DagRunRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll
 
   "dagRunRepository.searchDagRuns" should "apply filters" in {
     createTestData()
-    val stringEqualsFilterSeq = Option(Seq(
-      StringEqualsFilterAttributes(field = "projectName", value = "projectName1")
-    ))
+
     val intRangeFilterSeq = Option(Seq(
       IntRangeFilterAttributes(field = "jobCount", start = Option(0), end = Option(5))
     ))
     val searchRequest: TableSearchRequest = TableSearchRequest(
-      stringEqualsFilterAttributes = stringEqualsFilterSeq,
       intRangeFilterAttributes = intRangeFilterSeq,
       sort = None,
       from = 0,
@@ -135,7 +132,7 @@ class DagRunRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll
 
     val result = await(dagRunRepository.searchDagRuns(searchRequest))
 
-    val expected = TestData.dagRuns.filter(dagRun => dagRun.projectName == "projectName1" && dagRun.jobCount <= 5)
+    val expected = TestData.dagRuns.filter(dagRun => dagRun.jobCount <= 5)
     result.total should be > 0
     result.total shouldBe expected.size
     result.items should contain theSameElementsAs expected

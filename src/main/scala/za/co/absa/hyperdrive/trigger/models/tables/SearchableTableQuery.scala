@@ -19,7 +19,7 @@ import java.time.LocalDateTime
 
 import slick.ast.BaseTypedType
 import slick.lifted.{AbstractTable, ColumnOrdered}
-import za.co.absa.hyperdrive.trigger.models.search.{ContainsFilterAttributes, DateTimeRangeFilterAttributes, IntRangeFilterAttributes, SortAttributes, StringEqualsFilterAttributes, EqualsMultipleFilterAttributes, TableSearchRequest, TableSearchResponse}
+import za.co.absa.hyperdrive.trigger.models.search.{ContainsFilterAttributes, DateTimeRangeFilterAttributes, IntRangeFilterAttributes, SortAttributes, EqualsMultipleFilterAttributes, TableSearchRequest, TableSearchResponse}
 
 import scala.concurrent.ExecutionContext
 
@@ -33,21 +33,19 @@ trait SearchableTableQuery {
     def search(request: TableSearchRequest)(implicit ec: ExecutionContext): DBIOAction[TableSearchResponse[T#TableElementType], NoStream, Effect.Read] = {
       val initQuery: Query[T, T#TableElementType, Seq] = tableQuery
 
-      val withStringEquals = request.getStringEqualsFilterAttributes.foldLeft(initQuery)((query, attributes) =>
-        query.filter(table => applyStringEqualsFilter(attributes, table.fieldMapping)))
-      val withContains = request.getContainsFilterAttributes.foldLeft(withStringEquals)((query, attributes) =>
+      val withContains = request.getContainsFilterAttributes.foldLeft(initQuery)((query, attributes) =>
         query.filter(table => applyContainsFilter(attributes, table.fieldMapping)))
       val withIntRange = request.getIntRangeFilterAttributes.foldLeft(withContains)((query, attributes) =>
         query.filter(table => applyIntRangeFilter(attributes, table.fieldMapping)))
       val filteredQuery = request.getDateTimeRangeFilterAttributes.foldLeft(withIntRange)((query, attributes) =>
         query.filter(table => applyDateTimeRangeFilter(attributes, table.fieldMapping)))
-      val withMultiContains = request.getContainsMultipleFilterAttributes.foldLeft(filteredQuery)((query, attributes) =>
-        query.filter((table => applyContainsMultipleFilter(attributes, table.fieldMapping))))
+      val withMultiEquals = request.getEqualsMultipleFilterAttributes.foldLeft(filteredQuery)((query, attributes) =>
+        query.filter(table => applyEqualsMultipleFilter(attributes, table.fieldMapping)))
 
-      val length = withMultiContains.length.result
+      val length = withMultiEquals.length.result
 
 
-      val result = withMultiContains
+      val result = withMultiEquals
         .sortBy(table => sortFields(request.sort, table.fieldMapping, table.defaultSortColumn))
         .drop(request.from)
         .take(request.size)
@@ -66,11 +64,6 @@ trait SearchableTableQuery {
       tableField like s"%${attributes.value}%"
     }
 
-    private def applyStringEqualsFilter(attributes: StringEqualsFilterAttributes, fieldMapping: Map[String, Rep[_]]): Rep[Boolean] = {
-      val tableField = fieldMapping(attributes.field).asInstanceOf[Rep[String]]
-      tableField === attributes.value
-    }
-
     private def applyIntRangeFilter(attributes: IntRangeFilterAttributes, fieldMapping: Map[String, Rep[_]]): Rep[Boolean] = {
       val tableField = fieldMapping(attributes.field).asInstanceOf[Rep[Int]]
       applyRangeFilter(tableField, attributes.start, attributes.end)
@@ -81,7 +74,7 @@ trait SearchableTableQuery {
       applyRangeFilter(tableField, attributes.start, attributes.end)
     }
 
-    private def applyContainsMultipleFilter(attributes: EqualsMultipleFilterAttributes, fieldMapping: Map[String, Rep[_]]): Rep[Boolean] = {
+    private def applyEqualsMultipleFilter(attributes: EqualsMultipleFilterAttributes, fieldMapping: Map[String, Rep[_]]): Rep[Boolean] = {
       val tableField = fieldMapping(attributes.field).asInstanceOf[Rep[String]]
       tableField inSetBind attributes.values
     }

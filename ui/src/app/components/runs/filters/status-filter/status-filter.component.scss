@@ -1,9 +1,0 @@
-.status-selectable {
-  cursor: pointer;
-  opacity: 0.5;
-
-  &:hover,
-  &.status-selected {
-    opacity: 1;
-  }
-}

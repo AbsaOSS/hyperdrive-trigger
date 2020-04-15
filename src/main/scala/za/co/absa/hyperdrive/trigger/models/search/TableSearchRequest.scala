@@ -16,18 +16,16 @@
 package za.co.absa.hyperdrive.trigger.models.search
 
 case class TableSearchRequest(
-                               stringEqualsFilterAttributes: Option[Seq[StringEqualsFilterAttributes]] = None,
                                containsFilterAttributes: Option[Seq[ContainsFilterAttributes]] = None,
                                intRangeFilterAttributes: Option[Seq[IntRangeFilterAttributes]] = None,
                                dateTimeRangeFilterAttributes: Option[Seq[DateTimeRangeFilterAttributes]] = None,
-                               containsMultipleFilterAttributes: Option[Seq[EqualsMultipleFilterAttributes]] = None,
+                               equalsMultipleFilterAttributes: Option[Seq[EqualsMultipleFilterAttributes]] = None,
                                sort: Option[SortAttributes],
                                from: Int,
                                size: Int
 ) {
-  def getStringEqualsFilterAttributes: Seq[StringEqualsFilterAttributes] = stringEqualsFilterAttributes.getOrElse(Seq())
   def getContainsFilterAttributes: Seq[ContainsFilterAttributes] = containsFilterAttributes.getOrElse(Seq())
   def getIntRangeFilterAttributes: Seq[IntRangeFilterAttributes] = intRangeFilterAttributes.getOrElse(Seq())
   def getDateTimeRangeFilterAttributes: Seq[DateTimeRangeFilterAttributes] = dateTimeRangeFilterAttributes.getOrElse(Seq())
-  def getContainsMultipleFilterAttributes: Seq[EqualsMultipleFilterAttributes]= containsMultipleFilterAttributes.getOrElse(Seq())
+  def getEqualsMultipleFilterAttributes: Seq[EqualsMultipleFilterAttributes]= equalsMultipleFilterAttributes.getOrElse(Seq())
 }
