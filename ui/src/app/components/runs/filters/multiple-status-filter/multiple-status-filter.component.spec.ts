@@ -23,9 +23,9 @@ describe('MultipleStatusFilterComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ MultipleStatusFilterComponent ]
+      declarations: [MultipleStatusFilterComponent]
     })
-    .compileComponents();
+      .compileComponents();
   }));
 
   beforeEach(() => {
@@ -58,7 +58,7 @@ describe('MultipleStatusFilterComponent', () => {
       );
 
       expect(underTest.accepts(dagRun)).toBeFalse();
-  });
+    });
 
     it('should not accept on no match', () => {
       const underTest = fixture.componentInstance;
