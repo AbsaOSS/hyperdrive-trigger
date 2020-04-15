@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 
-import {AfterViewInit, Component, Input, OnDestroy} from '@angular/core';
-import {Subject} from 'rxjs';
-import {ClrDatagridFilterInterface} from '@clr/angular';
-import {DagRunModel} from '../../../../models/dagRuns/dagRun.model';
-import {StatusModel} from '../../../../models/status.model';
-import {EqualsMultipleFilterAttributes} from '../../../../models/search/equalsMultipleFilterAttributes.model';
+import { AfterViewInit, Component, Input, OnDestroy } from '@angular/core';
+import { Subject } from 'rxjs';
+import { ClrDatagridFilterInterface } from '@clr/angular';
+import { DagRunModel } from '../../../../models/dagRuns/dagRun.model';
+import { StatusModel } from '../../../../models/status.model';
+import { EqualsMultipleFilterAttributes } from '../../../../models/search/equalsMultipleFilterAttributes.model';
 
 @Component({
   selector: 'app-multiple-status-filter',
@@ -34,7 +34,7 @@ export class MultipleStatusFilterComponent implements ClrDatagridFilterInterface
 
   changes = new Subject<any>();
 
-  constructor() {}
+  constructor() { }
 
   ngAfterViewInit(): void {
     this.removeFiltersSubject.subscribe(_ => this.onRemoveFilter());
@@ -44,38 +44,36 @@ export class MultipleStatusFilterComponent implements ClrDatagridFilterInterface
     this.removeFiltersSubject.unsubscribe();
   }
 
-toggleStatuses(statusModel) {
-  if (this.selectedValues.indexOf(statusModel.name) < 0) {
-    this.selectedValues = this.selectedValues.concat(statusModel.name);
-  } else {
-    if (this.selectedValues.indexOf(statusModel.name) >= 0) {
+  toggleStatuses(statusModel) {
+    if (this.selectedValues.indexOf(statusModel.name) < 0) {
+      this.selectedValues = this.selectedValues.concat(statusModel.name);
+    } else {
       this.selectedValues = this.selectedValues.filter(status => status !== statusModel.name);
     }
+
+    this.changes.next(true);
   }
 
-  this.changes.next(true);
-}
+  onChange(i: number) {
+    this.isSelected[i] = this.isSelected[i];
+  }
 
-onChange(i: number) {
-     this.isSelected[i] = this.isSelected[i];
-   }
-
- accepts(item: DagRunModel): boolean {
+  accepts(item: DagRunModel): boolean {
     for (const currentItem of this.statuses) {
       if (currentItem.name === item[this.property]) {
         return true;
       }
     }
     return false;
- }
+  }
 
- get state() {
-   return new EqualsMultipleFilterAttributes(this.property, this.selectedValues);
- }
+  get state() {
+    return new EqualsMultipleFilterAttributes(this.property, this.selectedValues);
+  }
 
- isActive(): boolean {
-   return this.selectedValues !== null && this.selectedValues.length > 0;
- }
+  isActive(): boolean {
+    return this.selectedValues !== null && this.selectedValues.length > 0;
+  }
 
   onRemoveFilter() {
     this.selectedValues = [];

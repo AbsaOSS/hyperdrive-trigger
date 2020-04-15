@@ -14,23 +14,16 @@
  */
  -->
 
-<div
-*ngFor="let status of statuses; let i = index"
-class="status-selectable"
-(change)="toggleStatuses(status)"
-[class.status-selected]="status.name">
-<clr-checkbox-container>
-  <clr-checkbox-wrapper>
-    <input type="checkbox" clrCheckbox [(ngModel)]="isSelected[i]" (ngModelChange)="onChange(i)"/>
-    <label>
-      <clr-icon
-      class="is-solid"
-      [attr.shape]="status.shape"
-      [style.color]="status.color"
-      [textContent]="status.name">
-    </clr-icon>
-    {{status.name}}
-    </label>
-  </clr-checkbox-wrapper>
-</clr-checkbox-container>
+<div *ngFor="let status of statuses; let i = index" class="status-selectable" (change)="toggleStatuses(status)"
+  [class.status-selected]="status.name">
+  <clr-checkbox-container>
+    <clr-checkbox-wrapper>
+      <input type="checkbox" clrCheckbox [(ngModel)]="isSelected[i]" (ngModelChange)="onChange(i)" />
+      <label>
+        <clr-icon class="is-solid" [attr.shape]="status.shape" [style.color]="status.color" [textContent]="status.name">
+        </clr-icon>
+        {{status.name}}
+      </label>
+    </clr-checkbox-wrapper>
+  </clr-checkbox-container>
 </div>
