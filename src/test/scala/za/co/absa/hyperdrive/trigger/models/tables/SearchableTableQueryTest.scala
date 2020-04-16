@@ -56,6 +56,7 @@ class SearchableTableQueryTest extends FlatSpec with Matchers with BeforeAndAfte
     val dateTimeRangeFilterSeq = Some(Seq(DateTimeRangeFilterAttributes(field = localDateTimeField,
       start = Option(LocalDateTime.of(2019, 1, 1, 1, 1, 1)),
       end = Option(LocalDateTime.of(2021, 1, 1, 1, 1, 1)))))
+    val equalsMultipleFilterSeq = Some(Seq(EqualsMultipleFilterAttributes(field = stringField3, values = List("bar", "value", "str"))))
 
 
     val searchRequest = TableSearchRequest(
@@ -63,6 +64,7 @@ class SearchableTableQueryTest extends FlatSpec with Matchers with BeforeAndAfte
       containsFilterAttributes = containsFilterSeq,
       intRangeFilterAttributes = intRangeFilterSeq,
       dateTimeRangeFilterAttributes = dateTimeRangeFilterSeq,
+      equalsMultipleFilterAttributes = equalsMultipleFilterSeq,
       sort = None,
       from = 0,
       size = 50
@@ -210,6 +212,38 @@ class SearchableTableQueryTest extends FlatSpec with Matchers with BeforeAndAfte
     result.total should be > 0
     result.total shouldBe expected.size
     result.items should contain theSameElementsAs expected
+  }
+
+  "the multiple-attributes filter" should "find values exactly equal to the list of strings" in {
+    val filter = EqualsMultipleFilterAttributes(field = TestSearchableTableFieldNames.stringField3, values = List("foo", "bar"))
+    val searchRequest = TableSearchRequest(
+      equalsMultipleFilterAttributes = Some(Seq(filter)),
+      sort = None,
+      from = 0,
+      size = 50
+    )
+
+    val result = await(db.run(underTest.search(searchRequest)))
+
+    val expected = TestSearchableData.testSearchableEntities.filter(data => data.stringValue3 == "foo" || data.stringValue3 == "bar" )
+
+    result.total should be > 0
+    result.total shouldBe expected.size
+    result.items should contain theSameElementsAs expected
+  }
+
+  it should "not find values that do not contain the search string" in {
+    val filter = EqualsMultipleFilterAttributes(field = TestSearchableTableFieldNames.stringField3, values = List("fo", "ba"))
+    val searchRequest = TableSearchRequest(
+      equalsMultipleFilterAttributes = Some(Seq(filter)),
+      sort = None,
+      from = 0,
+      size = 50
+    )
+
+    val result = await(db.run(underTest.search(searchRequest)))
+
+    result.total shouldBe 0
   }
 
   "the int-range filter" should "find values less or equal to the right bound" in {
