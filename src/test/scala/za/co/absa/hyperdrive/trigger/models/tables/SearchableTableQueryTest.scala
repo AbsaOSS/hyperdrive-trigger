@@ -47,7 +47,6 @@ class SearchableTableQueryTest extends FlatSpec with Matchers with BeforeAndAfte
 
   it should "add all filters to the query" in {
     import TestSearchableTableFieldNames._
-    val stringEqualsFilterSeq = Some(Seq(StringEqualsFilterAttributes(field = stringField3, value = "bar")))
     val containsFilterSeq = Some(Seq(
       ContainsFilterAttributes(field = stringField, value = "value"),
       ContainsFilterAttributes(field = stringField2, value = "str")
@@ -60,7 +59,6 @@ class SearchableTableQueryTest extends FlatSpec with Matchers with BeforeAndAfte
 
 
     val searchRequest = TableSearchRequest(
-      stringEqualsFilterAttributes = stringEqualsFilterSeq,
       containsFilterAttributes = containsFilterSeq,
       intRangeFilterAttributes = intRangeFilterSeq,
       dateTimeRangeFilterAttributes = dateTimeRangeFilterSeq,
@@ -106,39 +104,6 @@ class SearchableTableQueryTest extends FlatSpec with Matchers with BeforeAndAfte
 
     result.total shouldBe 0
   }
-
-
-  "The string-equals filter" should "find values exactly equal to the search string" in {
-    val filter = StringEqualsFilterAttributes(field = TestSearchableTableFieldNames.stringField, value = "value2")
-    val searchRequest = TableSearchRequest(
-      stringEqualsFilterAttributes = Some(Seq(filter)),
-      sort = None,
-      from = 0,
-      size = 50
-    )
-
-    val result = await(db.run(underTest.search(searchRequest)))
-
-    val expected = TestSearchableData.testSearchableEntities.filter(_.stringValue == "value2")
-    result.total should be > 0
-    result.total shouldBe expected.size
-    result.items should contain theSameElementsAs expected
-  }
-
-  it should "not find values different to the search string" in {
-    val filter = StringEqualsFilterAttributes(field = TestSearchableTableFieldNames.stringField, value = "val")
-    val searchRequest = TableSearchRequest(
-      stringEqualsFilterAttributes = Some(Seq(filter)),
-      sort = None,
-      from = 0,
-      size = 50
-    )
-
-    val result = await(db.run(underTest.search(searchRequest)))
-
-    result.total shouldBe 0
-  }
-
 
   "the date-time-range filter" should "find values within the inclusive range" in {
     val startDate = Option(LocalDateTime.of(2020, 3, 1, 0, 0, 0))
@@ -195,7 +160,6 @@ class SearchableTableQueryTest extends FlatSpec with Matchers with BeforeAndAfte
 
     result.total shouldBe 0
   }
-
 
   "the int-range filter" should "find values within the inclusive range" in {
     val filter = IntRangeFilterAttributes(field = TestSearchableTableFieldNames.longField, start = Option(0), end = Option(2))

@@ -19,7 +19,7 @@ import java.time.LocalDateTime
 
 import slick.ast.BaseTypedType
 import slick.lifted.{AbstractTable, ColumnOrdered}
-import za.co.absa.hyperdrive.trigger.models.search.{ContainsFilterAttributes, DateTimeRangeFilterAttributes, EqualsMultipleFilterAttributes, IntRangeFilterAttributes, SortAttributes, StringEqualsFilterAttributes, TableSearchRequest, TableSearchResponse}
+import za.co.absa.hyperdrive.trigger.models.search.{ContainsFilterAttributes, DateTimeRangeFilterAttributes, EqualsMultipleFilterAttributes, IntRangeFilterAttributes, SortAttributes, TableSearchRequest, TableSearchResponse}
 
 import scala.concurrent.ExecutionContext
 
@@ -33,9 +33,7 @@ trait SearchableTableQuery {
     def search(request: TableSearchRequest)(implicit ec: ExecutionContext): DBIOAction[TableSearchResponse[T#TableElementType], NoStream, Effect.Read] = {
       val initQuery: Query[T, T#TableElementType, Seq] = tableQuery
 
-      val withStringEquals = request.getStringEqualsFilterAttributes.foldLeft(initQuery)((query, attributes) =>
-        query.filter(table => applyStringEqualsFilter(attributes, table.fieldMapping)))
-      val withContains = request.getContainsFilterAttributes.foldLeft(withStringEquals)((query, attributes) =>
+      val withContains = request.getContainsFilterAttributes.foldLeft(initQuery)((query, attributes) =>
         query.filter(table => applyContainsFilter(attributes, table.fieldMapping)))
       val withIntRange = request.getIntRangeFilterAttributes.foldLeft(withContains)((query, attributes) =>
         query.filter(table => applyIntRangeFilter(attributes, table.fieldMapping)))
@@ -64,11 +62,6 @@ trait SearchableTableQuery {
     private def applyContainsFilter(attributes: ContainsFilterAttributes, fieldMapping: Map[String, Rep[_]]): Rep[Boolean] = {
       val tableField = fieldMapping(attributes.field).asInstanceOf[Rep[String]]
       tableField like s"%${attributes.value}%"
-    }
-
-    private def applyStringEqualsFilter(attributes: StringEqualsFilterAttributes, fieldMapping: Map[String, Rep[_]]): Rep[Boolean] = {
-      val tableField = fieldMapping(attributes.field).asInstanceOf[Rep[String]]
-      tableField === attributes.value
     }
 
     private def applyIntRangeFilter(attributes: IntRangeFilterAttributes, fieldMapping: Map[String, Rep[_]]): Rep[Boolean] = {
