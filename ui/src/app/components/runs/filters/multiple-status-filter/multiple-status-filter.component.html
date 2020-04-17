@@ -18,7 +18,7 @@
  [class.status-selected]="status.name">
  <clr-checkbox-container>
    <clr-checkbox-wrapper>
-     <input type="checkbox" clrCheckbox [(ngModel)]="isSelected[i]" (ngModelChange)="onChange(i)" />
+     <input type="checkbox" clrCheckbox [(ngModel)]="isSelected[i]"/>
      <label>
        <clr-icon class="is-solid" [attr.shape]="status.shape" [style.color]="status.color" [textContent]="status.name">
        </clr-icon>
