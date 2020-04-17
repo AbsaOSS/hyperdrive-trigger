@@ -12,7 +12,7 @@ export class CronQuartzFieldComponent implements OnInit, AfterViewChecked {
   @Input() fieldName: string;
   @Input() value: string;
   @Input() property: string;
-  @Input() modelChanges: Subject<{property: string, value: any}>;
+  @Input() valueChanges: Subject<{property: string, value: any}>;
 
   base;
   dayValue;
@@ -141,8 +141,6 @@ export class CronQuartzFieldComponent implements OnInit, AfterViewChecked {
   }
 
   ngAfterViewChecked(): void {
-    // console.log(this.base);
-    // console.log(this.dayValue);
   }
 
   setCron(n): string {
@@ -168,38 +166,27 @@ export class CronQuartzFieldComponent implements OnInit, AfterViewChecked {
     if(n && n.base && n.base === 6) {
       cron[4] = typeof n.monthValue !== undefined ? n.monthValue : '*';
     }
-    //  console.log('cron after setCron ', cron.join(' '));
     return cron.join(' ');
   };
 
   fromCron(value: string) {
-    console.log('set cron fired!');
-    console.log(value);
     let cron: string[] = value.replace(/\s+/g, ' ').split(' ');
     // var frequency = {base: '1'}; // default: every minute
-    console.log(cron);
 
     if(cron[1] === '*' && cron[2] === '*' && cron[3] === '*' && cron[4] === '*' && cron[5] === '?') {
-      console.log('A');
       this.base = 1; // every minute
     } else if(cron[2] === '*' && cron[3] === '*'  && cron[4] === '*' && cron[5] === '?') {
-      console.log('B');
       this.base = 2; // every hour
     } else if(cron[3] === '*'  && cron[4] === '*' && cron[5] === '?') {
-      console.log('C');
       this.base = 3; // every day
     } else if(cron[3] === '?') {
-      console.log('D');
       this.base = 4; // every week
     } else if(cron[4] === '*' && cron[5] === '?') {
-      console.log('E');
       this.base = 5; // every month
     } else if(cron[5] === '?') {
-      console.log('F');
       this.base = 6; // every year
     }
 
-    // console.log('frequency should be 5: ', frequency, cron);
     // if (cron[1] !== '*') {
     //   this.minuteValue = parseInt(cron[1]);
     // }
@@ -218,7 +205,6 @@ export class CronQuartzFieldComponent implements OnInit, AfterViewChecked {
     // //
     // frequency.base += ''; // 'cast' to string in order to set proper value on "every" modal
     // //
-    // console.log('freq ', frequency);
     // return frequency;
   };
 

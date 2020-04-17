@@ -23,7 +23,7 @@ export class WorkflowJoinedModel {
     public isActive: boolean,
     public project: string,
     // public created: Date,
-    // public updated: Date,
+    // public updated?: Date,
     public sensor: SensorModel,
     public dagDefinitionJoined: DagDefinitionJoinedModel,
     public id: number

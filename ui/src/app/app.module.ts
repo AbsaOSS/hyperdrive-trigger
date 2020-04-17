@@ -50,15 +50,15 @@ import {NumberRangeFilterComponent} from "./components/runs/filters/number-range
 import {WorkflowComponent} from './components/workflows/workflow/workflow.component';
 import {WorkflowDetailsComponent} from './components/workflows/workflow/workflow-details/workflow-details.component';
 import {SensorComponent} from './components/workflows/workflow/sensor/sensor.component';
-import { JobsComponent } from './components/workflows/workflow/jobs/jobs.component';
-import { StringFieldComponent } from './components/workflows/workflow/workflow-fields/string-field/string-field.component';
-import { BooleanFieldComponent } from './components/workflows/workflow/workflow-fields/boolean-field/boolean-field.component';
-import { SelectFieldComponent } from './components/workflows/workflow/workflow-fields/select-field/select-field.component';
-import { SetFieldComponent } from './components/workflows/workflow/workflow-fields/set-field/set-field.component';
-import { KeyValueFieldComponent } from './components/workflows/workflow/workflow-fields/key-value-field/key-value-field.component';
-import { GuidFieldComponent } from './components/workflows/workflow/workflow-fields/guid-field/guid-field.component';
-import { CronQuartzFieldComponent } from './components/workflows/workflow/workflow-fields/cron-quartz-field/cron-quartz-field.component';
-import { JobComponent } from './components/workflows/workflow/jobs/job/job.component';
+import {JobsComponent} from './components/workflows/workflow/jobs/jobs.component';
+import {StringFieldComponent} from './components/workflows/workflow/workflow-fields/string-field/string-field.component';
+import {BooleanFieldComponent} from './components/workflows/workflow/workflow-fields/boolean-field/boolean-field.component';
+import {SelectFieldComponent} from './components/workflows/workflow/workflow-fields/select-field/select-field.component';
+import {SetFieldComponent} from './components/workflows/workflow/workflow-fields/set-field/set-field.component';
+import {KeyValueFieldComponent} from './components/workflows/workflow/workflow-fields/key-value-field/key-value-field.component';
+import {GuidFieldComponent} from './components/workflows/workflow/workflow-fields/guid-field/guid-field.component';
+import {CronQuartzFieldComponent} from './components/workflows/workflow/workflow-fields/cron-quartz-field/cron-quartz-field.component';
+import {JobComponent} from './components/workflows/workflow/jobs/job/job.component';
 import {WorkflowFieldsComponent} from "./components/workflows/workflow/workflow-fields/workflow-fields.component";
 
 @NgModule({

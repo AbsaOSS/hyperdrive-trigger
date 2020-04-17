@@ -11,14 +11,14 @@ export class BooleanFieldComponent implements OnInit {
   @Input() fieldName: string;
   @Input() value: boolean;
   @Input() property: string;
-  @Input() modelChanges: Subject<{property: string, value: any}>;
+  @Input() valueChanges: Subject<{property: string, value: any}>;
 
   constructor() { }
 
   ngOnInit(): void {}
 
   modelChanged(value: boolean) {
-    this.modelChanges.next({property: this.property, value: this.value});
+    this.valueChanges.next({property: this.property, value: this.value});
   }
 
 }

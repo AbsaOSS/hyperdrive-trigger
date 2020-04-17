@@ -16,17 +16,17 @@
 export class SensorModel {
 
   constructor(
-    // public workflowId: number,
+    public workflowId: number = 0,
     public sensorType: {name: string},
-    public properties: PropertiesModel
-    // public id: number
+    public properties: PropertiesModel,
+    public id: number
   ) {}
-
 }
 
 export class PropertiesModel {
 
   constructor(
+    public sensorId: number = 0,
     public settings: SettingsModel,
     public matchProperties: [String, String][]
   ) {}

@@ -51,7 +51,6 @@ export class StartWorkflowInitialization implements Action {
 
 export class SetEmptyWorkflow implements Action {
   readonly type = SET_EMPTY_WORKFLOW;
-  constructor(public payload: WorkflowJoinedModel) {}
 }
 
 export class LoadWorkflowSuccess implements Action {

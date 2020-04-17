@@ -58,8 +58,7 @@ export class WorkflowsEffects {
     switchMap((action: WorkflowActions.StartWorkflowInitialization) => {
       if(action.payload.mode === workflowModes.CREATE) {
         return [{
-          type: WorkflowActions.SET_EMPTY_WORKFLOW,
-          payload: undefined
+          type: WorkflowActions.SET_EMPTY_WORKFLOW
         }];
       } else {
         if(!action.payload.id) {

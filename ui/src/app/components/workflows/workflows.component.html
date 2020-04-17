@@ -24,16 +24,14 @@
     <a class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" [routerLink]="['./']">
       All workflows
     </a>
-    <section class="nav-group collapsible" *ngFor="let project of projects; let id = index;">
-      <input [id]="id" type="checkbox" checked>
-      <label [for]="id">{{project.name}}</label>
+    <section class="nav-group collapsible" *ngFor="let project of projects; let index = index;">
+      <input [id]="index" type="checkbox" checked>
+      <label [for]="index">{{project.name}}</label>
       <ul class="nav-list" *ngFor="let workflow of project.workflows">
         <li>
-          <a
-            routerLinkActive="active"
-            [routerLink]="['./show', workflow.id]"
-            class="nav-link"
-          >{{workflow.name}}</a>
+          <a routerLinkActive="active"
+             [routerLink]="['./show', workflow.id]"
+             class="nav-link">{{workflow.name}}</a>
         </li>
       </ul>
     </section>

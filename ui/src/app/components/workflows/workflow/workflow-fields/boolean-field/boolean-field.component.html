@@ -8,12 +8,9 @@
 </div>
 
 <div *ngIf="isShow">
-  <div class="clr-form-control clr-row">
-    <label class="clr-control-label">{{fieldName}}</label>
-    <span [ngSwitch]="value">
-        {{value ? 'Yes' : 'No'}}
-      <clr-icon *ngSwitchCase="true" shape="circle" class="is-solid" style="color: green"></clr-icon>
-        <clr-icon *ngSwitchCase="false" shape="circle" class="is-solid" style="color: red"></clr-icon>
-      </span>
-  </div>
+
+  <clr-input-container>
+    <label>{{fieldName}}</label>
+    <input [readOnly]="true" clrInput type="text" [size]="60" value="{{value ? 'Yes' : 'No'}}" />
+  </clr-input-container>
 </div>

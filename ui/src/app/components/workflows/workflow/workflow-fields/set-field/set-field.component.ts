@@ -1,4 +1,4 @@
-import {AfterViewChecked, Component, Input, OnChanges, OnInit} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {Subject} from "rxjs";
 
 @Component({
@@ -12,11 +12,14 @@ export class SetFieldComponent implements OnInit {
   @Input() fieldName: string;
   @Input() value: string[];
   @Input() property: string;
-  @Input() modelChanges: Subject<{property: string, value: any}>;
+  @Input() valueChanges: Subject<{property: string, value: any}>;
 
   constructor() { }
 
-  ngOnInit(): void { }
+  ngOnInit(): void {
+    if(!this.value)
+      this.modelChanged([''])
+  }
 
   trackByFn(index, item) {
     return index;
@@ -42,7 +45,7 @@ export class SetFieldComponent implements OnInit {
 
   modelChanged(value: string[]) {
     this.value = value;
-    this.modelChanges.next({property: this.property, value: this.value});
+    this.valueChanges.next({property: this.property, value: this.value});
   }
 
 }

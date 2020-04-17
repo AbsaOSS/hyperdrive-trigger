@@ -18,9 +18,9 @@ import {JobDefinitionModel} from "./jobDefinition.model";
 export class DagDefinitionJoinedModel {
 
   constructor(
-    // public workflowId: number,
-    public jobDefinitions: JobDefinitionModel[]
-    // public id: number
+    public workflowId: number = 0,
+    public jobDefinitions: JobDefinitionModel[],
+    public id: number
   ) {}
 
 }

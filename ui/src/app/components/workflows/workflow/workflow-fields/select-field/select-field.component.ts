@@ -13,16 +13,21 @@ export class SelectFieldComponent implements OnInit {
   @Input() value: string;
   @Input() options: string[];
   @Input() property: string;
-  @Input() modelChanges: Subject<{property: string, value: any}>;
+  @Input() valueChanges: Subject<{property: string, value: any}>;
 
   constructor() { }
 
   ngOnInit(): void {
-    console.log(this.options);
+    console.log('SelectFieldComponent');
+    console.log(this.value);
+    if(!this.value || this.value == '') {
+      console.log('empty');
+      this.value = this.options[0];
+      this.modelChanged(this.value)}
   }
 
-  modelChanged(value: boolean) {
-    this.modelChanges.next({property: this.property, value: this.value});
+  modelChanged(value: any) {
+    this.valueChanges.next({property: this.property, value: this.value});
   }
 
 }

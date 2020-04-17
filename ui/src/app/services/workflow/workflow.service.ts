@@ -27,8 +27,7 @@ import {ComponentModel, Property, WorkflowComponentsModel} from "../../models/wo
 })
 export class WorkflowService {
 
-  constructor(private httpClient: HttpClient) {
-  }
+  constructor(private httpClient: HttpClient) {}
 
   getProjects(): Observable<ProjectModel[]> {
     return this.httpClient.get<ProjectModel[]>(api.GET_PROJECTS, {observe: 'response'}).pipe(
@@ -41,19 +40,12 @@ export class WorkflowService {
 
     return this.httpClient.get<WorkflowJoinedModel>(api.GET_WORKFLOW, {params: params, observe: 'response'}).pipe(
       map(response => {
-        // let mp = new Map;
-        // Object.keys(
-        //   response.body.sensor.properties.matchProperties).forEach(k => {
-        //   mp.set(k, response.body.sensor.properties.matchProperties[k])
-        // });
-        // response.body.sensor.properties.matchProperties = mp;
-        let mp: [String, String][] = [];
+        let map: [String, String][] = [];
         Object.keys(
           response.body.sensor.properties.matchProperties).forEach(k => {
-          mp.push([k, response.body.sensor.properties.matchProperties[k]]);
-          // mp.set(k, response.body.sensor.properties.matchProperties[k])
+          map.push([k, response.body.sensor.properties.matchProperties[k]]);
         });
-        response.body.sensor.properties.matchProperties = mp;
+        response.body.sensor.properties.matchProperties = map;
         return response.body;
       })
     );
@@ -65,7 +57,9 @@ export class WorkflowService {
         new ComponentModel(
           'Spark', [
             new Property('string-field', 'Job jar', 'jobParameters.variables.jobJar'),
-            new Property('string-field', 'Main class', 'jobParameters.variables.mainClass')
+            new Property('string-field', 'Main class', 'jobParameters.variables.mainClass'),
+            new Property('select-field', 'Deployment mode', 'jobParameters.variables.deploymentMode', ['cluster', 'client']),
+            new Property('set-field', 'App arguments', 'jobParameters.maps.appArguments')
           ]
         ),
         new ComponentModel(

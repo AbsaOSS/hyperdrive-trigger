@@ -18,10 +18,10 @@ import {ProjectModel} from "../../models/project.model";
 import {WorkflowModel} from "../../models/workflow.model";
 import {workflowModes} from "../../models/enums/workflowModes.constants";
 import {WorkflowJoinedModel} from "../../models/workflowJoined.model";
+import {WorkflowComponentsModel} from "../../models/workflowComponents.model";
 import {PropertiesModel, SensorModel, SettingsModel} from "../../models/sensor.model";
 import {DagDefinitionJoinedModel} from "../../models/dagDefinitionJoined.model";
-import {WORKFLOW_ACTION_CHANGED} from "../workflows/workflows.actions";
-import {WorkflowComponentsModel} from "../../models/workflowComponents.model";
+import {JobDefinitionModel, JobParametersModel} from "../../models/jobDefinition.model";
 
 export interface State {
   projects: ProjectModel[],
@@ -34,19 +34,51 @@ export interface State {
     originalWorkflow: WorkflowJoinedModel,
     actionWorkflow: WorkflowJoinedModel
   },
+  // workflowChanges: {
+  //   details: [String, String],
+  //   sensor: [String, String],
+  //   jobs: [String, String][]
+  // }
   workflowComponents: WorkflowComponentsModel
 }
+
+const emptySensor = {
+  workflowId: 0,
+  sensorType: {name: ''},
+  properties: {
+    sensorId: 0,
+    settings: {
+      variables: new Map<String, String>(),
+      maps: new Map<String, Set<String>>()
+    },
+    matchProperties: []
+  },
+  id: 0
+};
+
+const emptyJob = {
+  dagDefinitionId: 0,
+  name: '',
+  jobType: {name: ''},
+  jobParameters: {
+    variables: new Map<String, String>(),
+    maps: new Map<String, Set<String>>()
+  },
+  order: 0,
+  id: 0
+};
 
 const emptyWorkflow = {
   name: '',
   isActive: false,
   project: '',
-  sensor: {
-    sensorType: {name: ''},
-    properties: undefined
+  sensor: {...emptySensor},
+  dagDefinitionJoined: {
+    workflowId: 0,
+    jobDefinitions: [{...emptyJob}],
+    id: 0
   },
-  dagDefinitionJoined: null,
-  id: undefined
+  id: 0
 };
 
 
@@ -59,8 +91,8 @@ const initialState: State = {
     id: undefined,
     mode: workflowModes.CREATE,
     loading: true,
-    originalWorkflow: {...emptyWorkflow},
-    actionWorkflow: {...emptyWorkflow}
+    originalWorkflow: undefined,//{...emptyWorkflow},
+    actionWorkflow: undefined //{...emptyWorkflow}
   },
   workflowComponents: undefined
 };
@@ -79,6 +111,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         }};
     case (WorkflowsActions.SET_EMPTY_WORKFLOW):
       return {...state, workflowAction: {
+          // ...state.workflowAction, actionWorkflow: undefined, originalWorkflow: undefined, loading: false
           ...state.workflowAction, actionWorkflow: emptyWorkflow, originalWorkflow: emptyWorkflow, loading: false
         }};
     case (WorkflowsActions.LOAD_WORKFLOW_SUCCESS):

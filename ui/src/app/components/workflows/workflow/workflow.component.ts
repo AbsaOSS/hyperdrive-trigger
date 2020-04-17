@@ -23,8 +23,7 @@ import {StartWorkflowInitialization, WorkflowActionChanged} from "../../../store
 import {workflowModes} from "../../../models/enums/workflowModes.constants";
 import {distinctUntilChanged} from "rxjs/operators";
 import cloneDeep from 'lodash/cloneDeep';
-import set from 'lodash/set';
-import update from 'lodash/update';
+import {WorkflowComponentsModel} from "../../../models/workflowComponents.model";
 
 @Component({
   selector: 'app-workflow',
@@ -32,21 +31,21 @@ import update from 'lodash/update';
   styleUrls: ['./workflow.component.scss']
 })
 export class WorkflowComponent implements OnInit, AfterViewInit, OnDestroy {
-  paramsSubscription: Subscription;
-
-  workflowSubscription: Subscription;
-  loading: boolean = true;
-  mode: string;
-  workflow: WorkflowJoinedModel;
-
   workflowModes = workflowModes;
 
   isDetailsAccordionHidden = false;
   isSensorAccordionHidden = false;
   isJobsAccordionHidden = false;
 
-  modelChanges: Subject<{property: string, value: any}> = new Subject<{property: string, value: any}>();
-  modelSubscription: Subscription;
+  loading: boolean = true;
+  mode: string;
+  workflow: WorkflowJoinedModel;
+  workflowComponents: WorkflowComponentsModel;
+
+  workflowUpdates: Subject<WorkflowJoinedModel> = new Subject<WorkflowJoinedModel>();
+  workflowUpdatesSubscription: Subscription;
+  paramsSubscription: Subscription;
+  workflowSubscription: Subscription;
 
   constructor(private store: Store<AppState>, route: ActivatedRoute) {
     this.paramsSubscription = route.params.subscribe(parameters => {
@@ -60,40 +59,21 @@ export class WorkflowComponent implements OnInit, AfterViewInit, OnDestroy {
     this.workflowSubscription = this.store.select(selectWorkflowState).subscribe((state) => {
       this.loading = state.workflowAction.loading;
       this.mode = state.workflowAction.mode;
-      this.workflow = (JSON.parse(JSON.stringify(state.workflowAction.actionWorkflow)));
+      this.workflow = cloneDeep(state.workflowAction.actionWorkflow);
+      this.workflowComponents = state.workflowComponents
     });
   }
 
   ngAfterViewInit(): void {
-    this.modelSubscription = this.modelChanges.pipe(
+    this.workflowUpdatesSubscription = this.workflowUpdates.pipe(
       distinctUntilChanged()
-    ).subscribe(newValue => {
-      let w = cloneDeep(this.workflow);
-      let valueCopy = cloneDeep(newValue.value);
-
-      set(w, newValue.property, valueCopy);
-
-      this.store.dispatch(new WorkflowActionChanged(w));
-      console.log('modelChanged');
+    ).subscribe(newWorkflow => {
+      this.store.dispatch(new WorkflowActionChanged(newWorkflow));
     });
   }
 
-  // set(obj, path, val) {
-  //   console.log('ooooooooooo');
-  //   console.log(path);
-  //   console.log(val);
-  //   const keys = path.split('.');
-  //   const lastKey = keys.pop();
-  //   const lastObj = keys.reduce((obj, key) =>
-  //       obj[key] = obj[key] || {},
-  //     obj);
-  //   console.log(lastObj);
-  //   console.log(val);
-  //   console.log('ppppppppppp');
-  //   lastObj[lastKey] = val;
-  // }
-
   ngOnDestroy(): void {
+    this.workflowUpdatesSubscription.unsubscribe();
     this.workflowSubscription.unsubscribe();
     this.paramsSubscription.unsubscribe();
   }

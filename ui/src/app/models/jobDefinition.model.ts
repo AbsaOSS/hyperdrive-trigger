@@ -13,15 +13,22 @@
  * limitations under the License.
  */
 
-import {SensorModel} from "./sensor.model";
-
 export class JobDefinitionModel {
 
   constructor(
-    public dagDefinitionId: number,
+    public dagDefinitionId: number = 0,
     public name: String,
     public jobType: {name: string},
-    public  order: number
+    public jobParameters: JobParametersModel,
+    public order: number,
+    public id: number
+  ) {}
+}
+export class JobParametersModel {
+
+  constructor(
+    public variables: Map<String, String>,
+    public maps: Map<String, Set<String>>
   ) {}
 
 }

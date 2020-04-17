@@ -12,11 +12,14 @@ export class GuidFieldComponent implements OnInit {
   @Input() fieldName: string;
   @Input() value: string;
   @Input() property: string;
-  @Input() modelChanges: Subject<{property: string, value: any}>;
+  @Input() valueChanges: Subject<{property: string, value: any}>;
 
   constructor() { }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    if(!this.value)
+     this.refreshGuid();
+  }
 
   refreshGuid() {
     let newUUID: string = this.getUUID();
@@ -25,7 +28,7 @@ export class GuidFieldComponent implements OnInit {
 
   modelChanged(value: string) {
     this.value = value;
-    this.modelChanges.next({property: this.property, value: this.value});
+    this.valueChanges.next({property: this.property, value: this.value});
   }
 
   getUUID(): string {

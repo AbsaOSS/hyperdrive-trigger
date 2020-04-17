@@ -42,11 +42,11 @@
       <clr-icon shape="power"></clr-icon>
       Activate/Deactivate
     </button>
-    <button type="button" class="btn btn-sm btn-secondary">
+    <button type="button" class="btn btn-sm btn-secondary" [routerLink]="['/workflows/copy', workflow.id]">
       <clr-icon shape="copy"></clr-icon>
       Copy
     </button>
-    <button type="button" class="btn btn-sm btn-secondary">
+    <button type="button" class="btn btn-sm btn-secondary" [routerLink]="['/workflows/edit', workflow.id]">
       <clr-icon shape="pencil"></clr-icon>
       Edit
     </button>
@@ -64,11 +64,15 @@
         <div class="card">
           <div class="card-block">
             <div class="card-title notSelectable" (click)="toggleDetailsAccordion()">
-              <clr-icon shape="angle" dir="{{isDetailsAccordionHidden?'right':'down'}}"></clr-icon>
+              <clr-icon shape="angle" [dir]="isDetailsAccordionHidden?'right':'down'"></clr-icon>
               Workflow details
             </div>
             <div *ngIf="!isDetailsAccordionHidden" class="accordion-content">
-              <app-workflow-details [modelChanges]="modelChanges"></app-workflow-details>
+              <app-workflow-details
+                [mode]="mode"
+                [workflow]="workflow"
+                [workflowUpdates]="workflowUpdates">
+              </app-workflow-details>
             </div>
           </div>
         </div>
@@ -76,11 +80,16 @@
         <div class="card">
           <div class="card-block">
             <div class="card-title notSelectable" (click)="toggleSensorAccordion()">
-              <clr-icon shape="angle" dir="{{isSensorAccordionHidden?'right':'down'}}"></clr-icon>
+              <clr-icon shape="angle" [dir]="isSensorAccordionHidden?'right':'down'"></clr-icon>
               Sensor
             </div>
             <div *ngIf="!isSensorAccordionHidden" class="accordion-content">
-              <app-sensor [mode]="mode" [workflow]="workflow" [modelChanges]="modelChanges"></app-sensor>
+              <app-sensor
+                [mode]="mode"
+                [workflow]="workflow"
+                [workflowUpdates]="workflowUpdates"
+                [sensorComponents]="workflowComponents.sensorComponents">
+              </app-sensor>
             </div>
           </div>
         </div>
@@ -88,11 +97,16 @@
         <div class="card">
           <div class="card-block">
             <div class="card-title notSelectable" (click)="toggleJobsAccordion()">
-              <clr-icon shape="angle" dir="{{isJobsAccordionHidden?'right':'down'}}"></clr-icon>
+              <clr-icon shape="angle" [dir]="isJobsAccordionHidden?'right':'down'"></clr-icon>
               Jobs
             </div>
-            <div *ngIf="!isJobsAccordionHidden" >
-              <app-jobs [mode]="mode" [workflow]="workflow"></app-jobs>
+            <div *ngIf="!isJobsAccordionHidden">
+              <app-jobs
+                [mode]="mode"
+                [workflow]="workflow"
+                [workflowUpdates]="workflowUpdates"
+                [jobComponents]="workflowComponents.jobComponents">
+              </app-jobs>
             </div>
           </div>
 
@@ -100,6 +114,5 @@
       </div>
     </div>
   </form>
-
 
 </div>
