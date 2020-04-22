@@ -22,7 +22,7 @@
   <div class="card-block">
     <div class="card-title notSelectable" (click)="toggleJob(job.order)">
       <clr-icon shape="angle" [dir]="isJobHidden(job.order)?'right':'down'"></clr-icon>
-      {{job.order}}
+      {{getJobName(job.order)}}
       <button type="button" class="btn btn-link" *ngIf="mode != workflowModes.SHOW">
         <clr-icon shape="drag-handle"></clr-icon>
       </button>
@@ -32,7 +32,7 @@
     </div>
     <div class="accordion-content" *ngIf="!isJobHidden(job.order)">
       <app-job
-        [jobIndex]="index">
+        [jobIndex]="job.order">
       </app-job>
     </div>
   </div>

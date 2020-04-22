@@ -21,7 +21,7 @@
 
 <nav class="sidenav" *ngIf="!loading">
   <section class="sidenav-content">
-    <a class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" [routerLink]="['./']">
+    <a class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" [routerLink]="[absoluteRoutes.WORKFLOWS_HOME]">
       All workflows
     </a>
     <section class="nav-group collapsible" *ngFor="let project of projects; let index = index;">
@@ -30,7 +30,7 @@
       <ul class="nav-list" *ngFor="let workflow of project.workflows">
         <li>
           <a routerLinkActive="active"
-             [routerLink]="['./show', workflow.id]"
+             [routerLink]="[absoluteRoutes.SHOW_WORKFLOW, workflow.id]"
              class="nav-link">{{workflow.name}}</a>
         </li>
       </ul>

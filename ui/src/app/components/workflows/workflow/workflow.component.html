@@ -42,11 +42,11 @@
       <clr-icon shape="power"></clr-icon>
       Activate/Deactivate
     </button>
-    <button type="button" class="btn btn-sm btn-secondary" [routerLink]="['/workflows/copy', id]">
+    <button type="button" class="btn btn-sm btn-secondary" [routerLink]="[absoluteRoutes.COPY_WORKFLOW, id]">
       <clr-icon shape="copy"></clr-icon>
       Copy
     </button>
-    <button type="button" class="btn btn-sm btn-secondary" [routerLink]="['/workflows/edit', id]">
+    <button type="button" class="btn btn-sm btn-secondary" [routerLink]="[absoluteRoutes.EDIT_WORKFLOW, id]">
       <clr-icon shape="pencil"></clr-icon>
       Edit
     </button>

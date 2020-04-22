@@ -1,18 +1,19 @@
-import {AfterViewChecked, AfterViewInit, Component, Input, OnInit} from '@angular/core';
+import {AfterViewInit, Component, Input, OnInit} from '@angular/core';
 import {Subject} from "rxjs";
+import {WorkflowEntryModel} from "../../../../../models/workflowEntry.model";
 
 @Component({
-  selector: 'app-cron-quartz-field',
-  templateUrl: './cron-quartz-field.component.html',
-  styleUrls: ['./cron-quartz-field.component.scss']
+  selector: 'app-cron-quartz-part',
+  templateUrl: './cron-quartz-part.component.html',
+  styleUrls: ['./cron-quartz-part.component.scss']
 })
-export class CronQuartzFieldComponent implements OnInit, AfterViewInit {
+export class CronQuartzPartComponent implements OnInit, AfterViewInit {
 
   @Input() isShow: boolean;
-  @Input() fieldName: string;
+  @Input() name: string;
   @Input() value: string;
   @Input() property: string;
-  @Input() valueChanges: Subject<{property: string, value: any}>;
+  @Input() valueChanges: Subject<WorkflowEntryModel>;
 
   base;
   dayValue;

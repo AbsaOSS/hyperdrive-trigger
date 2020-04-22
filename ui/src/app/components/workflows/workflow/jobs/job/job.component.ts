@@ -42,6 +42,7 @@ export class JobComponent implements OnInit {
 
   mode: string;
   jobData: {property: string, value: any}[];
+
   jobDynamicParts: DynamicFormPart[];
   dynamicSwitchJobPart: FormPart;
   staticJobPart: FormPart;
@@ -62,7 +63,8 @@ export class JobComponent implements OnInit {
       this.dynamicSwitchJobPart = state.workflowFormParts.dynamicSwitchJobPart;
       this.staticJobPart = state.workflowFormParts.staticJobPart;
 
-      this.jobData = state.workflowAction.workflowData.jobs.find(xxx => xxx.order == this.jobIndex).job;
+      let jobDataOption = state.workflowAction.workflowData.jobs.find(xxx => xxx.order == this.jobIndex);
+      this.jobData = !!jobDataOption ? jobDataOption.job : [];
 
       let selected = this.jobData.find(xxx => xxx.property == this.dynamicSwitchJobPart.property);
       this.selectedJob = !!selected ? selected.value : undefined;

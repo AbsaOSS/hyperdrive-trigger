@@ -56,8 +56,8 @@ import {BooleanPartComponent} from './components/workflows/workflow/dynamic-part
 import {SelectPartComponent} from './components/workflows/workflow/dynamic-parts/select-part/select-part.component';
 import {StringSequencePartComponent} from './components/workflows/workflow/dynamic-parts/string-sequence-part/string-sequence-part.component';
 import {KeyStringValuePartComponent} from './components/workflows/workflow/dynamic-parts/key-string-value-part/key-string-value-part.component';
-import {GuidFieldComponent} from './components/workflows/workflow/dynamic-parts/guid-field/guid-field.component';
-import {CronQuartzFieldComponent} from './components/workflows/workflow/dynamic-parts/cron-quartz-field/cron-quartz-field.component';
+import {GuidPartComponent} from './components/workflows/workflow/dynamic-parts/guid-part/guid-part.component';
+import {CronQuartzPartComponent} from './components/workflows/workflow/dynamic-parts/cron-quartz-part/cron-quartz-part.component';
 import {JobComponent} from './components/workflows/workflow/jobs/job/job.component';
 import {DynamicPartsComponent} from "./components/workflows/workflow/dynamic-parts/dynamic-parts.component";
 
@@ -84,8 +84,8 @@ import {DynamicPartsComponent} from "./components/workflows/workflow/dynamic-par
     SelectPartComponent,
     StringSequencePartComponent,
     KeyStringValuePartComponent,
-    GuidFieldComponent,
-    CronQuartzFieldComponent,
+    GuidPartComponent,
+    CronQuartzPartComponent,
     DynamicPartsComponent
   ],
   imports: [

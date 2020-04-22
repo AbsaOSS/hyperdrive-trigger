@@ -1,17 +1,8 @@
-<!--<div *ngIf="!isShow">-->
   <clr-control-container>
-    <label>{{fieldName}}</label>
+    <label>{{name}}</label>
     <input clrControl type="text" [readOnly]="true"  name="workflowName" [size]="40" [(ngModel)]="value" (ngModelChange)="modelChanged($event)"/>
     <button *ngIf="!isShow" type="button" class="btn btn-link" (click)="refreshGuid()">
       <clr-icon shape="refresh"></clr-icon>
     </button>
 
   </clr-control-container>
-<!--</div>-->
-
-<!--<div *ngIf="isShow">-->
-<!--  <div class="clr-form-control clr-row">-->
-<!--    <label class="clr-control-label">{{fieldName}}</label>-->
-<!--    <span>{{value}}</span>-->
-<!--  </div>-->
-<!--</div>&lt;!&ndash;&ndash;&gt;-->

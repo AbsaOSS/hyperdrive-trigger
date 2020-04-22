@@ -17,7 +17,7 @@
 
   <clr-dg-action-bar>
     <div class="btn-group">
-      <button type="button" class="btn btn-sm btn-secondary" [routerLink]="['./create']">
+      <button type="button" class="btn btn-sm btn-secondary" [routerLink]="[absoluteRoutes.CREATE_WORKFLOW]">
         <clr-icon shape="plus"></clr-icon>
         Create new workflow
       </button>
@@ -30,16 +30,19 @@
 
   <clr-dg-row *clrDgItems="let workflow of workflows" [clrDgItem]="workflow">
     <clr-dg-action-overflow>
-      <button type="button" class="action-item" [routerLink]="['./show', workflow.id]">
+      <button type="button" class="action-item" [routerLink]="[absoluteRoutes.SHOW_WORKFLOW, workflow.id]">
         <clr-icon shape="eye"></clr-icon>
         Show
       </button>
-      <button type="button" class="action-item"><clr-icon shape="power"></clr-icon> Activate/Deactivate </button>
-      <button type="button" class="action-item" [routerLink]="['./copy', workflow.id]">
+      <button type="button" class="action-item">
+        <clr-icon shape="power"></clr-icon>
+        Activate/Deactivate
+      </button>
+      <button type="button" class="action-item" [routerLink]="[absoluteRoutes.COPY_WORKFLOW, workflow.id]">
         <clr-icon shape="copy"></clr-icon>
         Copy
       </button>
-      <button type="button" class="action-item" [routerLink]="['./edit', workflow.id]">
+      <button type="button" class="action-item" [routerLink]="[absoluteRoutes.EDIT_WORKFLOW, workflow.id]">
         <clr-icon shape="pencil"></clr-icon>
         Edit
       </button>

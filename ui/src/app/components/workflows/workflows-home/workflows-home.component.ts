@@ -18,6 +18,7 @@ import {Subscription} from "rxjs";
 import {AppState, selectWorkflowState} from "../../../stores/app.reducers";
 import {WorkflowModel} from "../../../models/workflow.model";
 import {Store} from "@ngrx/store";
+import {absoluteRoutes, routeNames} from "../../../constants/routes.constants";
 
 @Component({
   selector: 'app-workflows-home',
@@ -27,6 +28,8 @@ import {Store} from "@ngrx/store";
 export class WorkflowsHomeComponent implements OnInit, OnDestroy {
   workflowsSubscription: Subscription = null;
   workflows: WorkflowModel[] = [];
+  routeNames = routeNames;
+  absoluteRoutes = absoluteRoutes;
 
   constructor(private store: Store<AppState>) {}
 

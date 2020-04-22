@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { CronQuartzFieldComponent } from './cron-quartz-field.component';
+import { GuidPartComponent } from './guid-part.component';
 
-describe('CronQuartzFieldComponent', () => {
-  let component: CronQuartzFieldComponent;
-  let fixture: ComponentFixture<CronQuartzFieldComponent>;
+describe('GuidPartComponent', () => {
+  let component: GuidPartComponent;
+  let fixture: ComponentFixture<GuidPartComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ CronQuartzFieldComponent ]
+      declarations: [ GuidPartComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(CronQuartzFieldComponent);
+    fixture = TestBed.createComponent(GuidPartComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

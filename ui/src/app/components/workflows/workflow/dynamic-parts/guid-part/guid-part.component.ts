@@ -1,29 +1,25 @@
-import {AfterViewInit, Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {Subject} from "rxjs";
+import {WorkflowEntryModel} from "../../../../../models/workflowEntry.model";
 
 @Component({
-  selector: 'app-guid-field',
-  templateUrl: './guid-field.component.html',
-  styleUrls: ['./guid-field.component.scss']
+  selector: 'app-guid-part',
+  templateUrl: './guid-part.component.html',
+  styleUrls: ['./guid-part.component.scss']
 })
-export class GuidFieldComponent implements OnInit, AfterViewInit {
+export class GuidPartComponent implements OnInit {
 
   @Input() isShow: boolean;
-  @Input() fieldName: string;
+  @Input() name: string;
   @Input() value: string;
   @Input() property: string;
-  @Input() valueChanges: Subject<{property: string, value: any}>;
+  @Input() valueChanges: Subject<WorkflowEntryModel>;
 
   constructor() { }
 
   ngOnInit(): void {
     if(!this.value)
      this.refreshGuid();
-  }
-
-  ngAfterViewInit(): void {
-    // if(!this.value)
-    //   this.refreshGuid();
   }
 
   refreshGuid() {
@@ -33,7 +29,7 @@ export class GuidFieldComponent implements OnInit, AfterViewInit {
 
   modelChanged(value: string) {
     this.value = value;
-    this.valueChanges.next({property: this.property, value: this.value});
+    this.valueChanges.next(new WorkflowEntryModel(this.property, this.value));
   }
 
   getUUID(): string {

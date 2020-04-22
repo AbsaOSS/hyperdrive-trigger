@@ -31,8 +31,8 @@ const routes: Routes = [
   {path: routeNames.HOME, component: HomeComponent, canActivate: [AuthGuardService]},
   {path: routeNames.WORKFLOWS, component: WorkflowsComponent, canActivate: [AuthGuardService], children: [
       {path: routeNames.WORKFLOWS_HOME, component: WorkflowsHomeComponent, pathMatch: 'full'},
-      {path: routeNames.WORKFLOW, component: WorkflowComponent},
-      {path: routeNames.WORKFLOW_WITH_ID, component: WorkflowComponent}
+      {path: routeNames.WORKFLOW_ACTION, component: WorkflowComponent},
+      {path: routeNames.WORKFLOW_ACTION_WITH_ID, component: WorkflowComponent}
     ]},
   {path: routeNames.RUNS, component: RunsComponent, canActivate: [AuthGuardService]}
 ];

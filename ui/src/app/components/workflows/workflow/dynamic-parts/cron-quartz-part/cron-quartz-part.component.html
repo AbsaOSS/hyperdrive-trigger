@@ -1,6 +1,6 @@
 <div *ngIf="!isShow">
   <clr-control-container>
-    <label>{{fieldName}}</label>
+    <label>{{name}}</label>
 
     <span>Every</span>
 
@@ -66,7 +66,7 @@
 
 <div *ngIf="isShow">
   <clr-control-container>
-    <label>{{fieldName}}</label>
+    <label>{{name}}</label>
     <input clrControl type="text" [readOnly]="true"  name="workflowName" [size]="40" value="Every day at 12:00" />
   </clr-control-container>
 </div>

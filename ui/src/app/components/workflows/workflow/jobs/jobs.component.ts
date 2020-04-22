@@ -43,11 +43,15 @@ export class JobsComponent implements OnInit, OnDestroy {
 
   workflowModes = workflowModes;
   hiddenJobs: {order: number, isHidden: boolean}[] = [];
+  staticJobPart: FormPart;
 
   constructor(private store: Store<AppState>) {
     this.workflowSubscription = this.store.select(selectWorkflowState).subscribe((state) => {
+      this.mode = state.workflowAction.mode;
+      this.jobData = cloneDeep(state.workflowAction.workflowData.jobs).sort((first, second) => first.order - second.order);
 
-      this.jobData = state.workflowAction.workflowData.jobs;
+      this.staticJobPart = state.workflowFormParts.staticJobPart;
+
       if(this.jobData.length == 0) {
           this.store.dispatch(new WorkflowAddEmptyJob(0));
       }
@@ -72,6 +76,14 @@ export class JobsComponent implements OnInit, OnDestroy {
 
   addJob() {
     this.store.dispatch(new WorkflowAddEmptyJob(this.jobData.length));
+  }
+
+  getJobName(index: number) {
+    let jobDataOption = this.jobData.find(job => job.order === index);
+    let jobData = !!jobDataOption ? jobDataOption.job : [];
+
+    let nameOption = jobData.find(value => value.property === this.staticJobPart.property);
+    return !!nameOption ? nameOption.value : '';
   }
 
   ngOnDestroy(): void {

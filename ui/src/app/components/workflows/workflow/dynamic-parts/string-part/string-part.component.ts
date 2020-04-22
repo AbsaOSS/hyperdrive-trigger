@@ -18,6 +18,7 @@ export class StringPartComponent implements OnInit {
 
   ngOnInit(): void {
     if (!this.value) {
+      this.value = '';
       this.modelChanged("");
     }
   }

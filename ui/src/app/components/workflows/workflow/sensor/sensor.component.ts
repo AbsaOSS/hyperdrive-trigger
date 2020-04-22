@@ -70,10 +70,8 @@ export class SensorComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.sensorChangesSubscription = this.sensorChanges.pipe(
-      // distinctUntilChanged()
     ).subscribe(sensorChange => {
       if(sensorChange.property == this.dynamicSwitchSensorPart.property){
-        // this.selectedSensor = sensorChange.value;
         this.store.dispatch(new WorkflowSensorCleaned({property: sensorChange.property, value: sensorChange.value}));
       } else {
         this.store.dispatch(new WorkflowSensorChanged({property: sensorChange.property, value: sensorChange.value}));

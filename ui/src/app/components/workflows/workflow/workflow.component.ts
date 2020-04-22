@@ -20,6 +20,8 @@ import {Subscription} from "rxjs";
 import {Store} from "@ngrx/store";
 import {StartWorkflowInitialization} from "../../../stores/workflows/workflows.actions";
 import {workflowModes} from "../../../models/enums/workflowModes.constants";
+import {combineLatest} from 'rxjs';
+import {absoluteRoutes, routeNames} from "../../../constants/routes.constants";
 
 @Component({
   selector: 'app-workflow',
@@ -32,6 +34,7 @@ export class WorkflowComponent implements OnInit, OnDestroy {
   id: number;
 
   workflowModes = workflowModes;
+  absoluteRoutes = absoluteRoutes;
 
   isDetailsAccordionHidden = false;
   isSensorAccordionHidden = false;

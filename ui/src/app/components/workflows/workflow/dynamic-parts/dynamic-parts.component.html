@@ -39,22 +39,22 @@
       [value]="getValue(formPart.property)"
       [property]="formPart.property">
     </app-key-string-value-part>
-    <app-guid-field
+    <app-guid-part
       *ngSwitchCase="'guid-field'"
       [isShow]="isShow"
-      [fieldName]="formPart.name"
+      [name]="formPart.name"
       [valueChanges]="valueChanges"
       [value]="getValue(formPart.property)"
       [property]="formPart.property">
-    </app-guid-field>
-    <app-cron-quartz-field
+    </app-guid-part>
+    <app-cron-quartz-part
       *ngSwitchCase="'cron-quartz-field'"
       [isShow]="isShow"
-      [fieldName]="formPart.name"
+      [name]="formPart.name"
       [valueChanges]="valueChanges"
       [value]="getValue(formPart.property)"
       [property]="formPart.property">
-    </app-cron-quartz-field>
+    </app-cron-quartz-part>
     <app-select-part
       *ngSwitchCase="'select-field'"
       [isShow]="isShow"
