@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import {AfterViewInit, Component, Input} from '@angular/core';
+import {AfterViewInit, Component, Input, OnInit} from '@angular/core';
 import {WorkflowJoinedModel} from "../../../../models/workflowJoined.model";
 import {workflowModes} from "../../../../models/enums/workflowModes.constants";
 import {Subject, Subscription} from "rxjs";
@@ -21,37 +21,41 @@ import {JobDefinitionModel} from "../../../../models/jobDefinition.model";
 import {ComponentModel} from "../../../../models/workflowComponents.model";
 import {distinctUntilChanged} from "rxjs/operators";
 import cloneDeep from 'lodash/cloneDeep';
+import {AppState, selectWorkflowState} from "../../../../stores/app.reducers";
+import {Store} from "@ngrx/store";
+import {DynamicFormPart, FormPart} from "../../../../models/workflowFormParts.model";
+import {
+  WorkflowAddEmptyJob,
+  WorkflowSensorChanged,
+  WorkflowSensorCleaned
+} from "../../../../stores/workflows/workflows.actions";
 
 @Component({
   selector: 'app-jobs',
   templateUrl: './jobs.component.html',
   styleUrls: ['./jobs.component.scss']
 })
-export class JobsComponent implements AfterViewInit {
-  @Input() workflowUpdates: Subject<WorkflowJoinedModel>;
-  @Input() mode: string;
-  @Input() workflow: WorkflowJoinedModel;
-  @Input() jobComponents: ComponentModel[];
+export class JobsComponent implements OnInit {
+
+  workflowSubscription: Subscription;
+
+  mode: string;
+  jobData: {order: number, job: {property: string, value: any}[]}[];
 
   workflowModes = workflowModes;
   hiddenJobs: {order: number, isHidden: boolean}[] = [];
 
-  jobsChanges: Subject<{job: JobDefinitionModel, id: number}> = new Subject<{job: JobDefinitionModel, id: number}>();
-  jobsChangesSubscription: Subscription;
+  constructor(private store: Store<AppState>) {
+    this.workflowSubscription = this.store.select(selectWorkflowState).subscribe((state) => {
 
-  constructor() { }
-
-  ngAfterViewInit(): void {
-    this.jobsChangesSubscription = this.jobsChanges.pipe(
-      distinctUntilChanged()
-    ).subscribe(jobChange => {
-      let copiedWorkflow: WorkflowJoinedModel = cloneDeep(this.workflow);
-      let copiedValue = cloneDeep(jobChange.job);
-
-      copiedWorkflow.dagDefinitionJoined.jobDefinitions[jobChange.id] = copiedValue;
-      this.workflowUpdates.next(copiedWorkflow);
+      this.jobData = state.workflowAction.workflowChanges.jobs;
+      if(this.jobData.length == 0) {
+          this.store.dispatch(new WorkflowAddEmptyJob(0));
+      }
     });
   }
+
+  ngOnInit(): void {}
 
   trackByFn(index, item) {
     return index;
@@ -65,5 +69,9 @@ export class JobsComponent implements AfterViewInit {
   isJobHidden(order: number): boolean {
     let job = this.hiddenJobs.find(job => job.order === order);
     return !(job ? job.isHidden : true);
+  }
+
+  addJob() {
+    this.store.dispatch(new WorkflowAddEmptyJob(this.jobData.length));
   }
 }

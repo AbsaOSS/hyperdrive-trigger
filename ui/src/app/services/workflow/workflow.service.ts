@@ -21,6 +21,7 @@ import {ProjectModel} from "../../models/project.model";
 import {Observable, of} from "rxjs";
 import {WorkflowJoinedModel} from "../../models/workflowJoined.model";
 import {ComponentModel, Property, WorkflowComponentsModel} from "../../models/workflowComponents.model";
+import {DynamicFormPart, DynamicFormParts, FormPart} from "../../models/workflowFormParts.model";
 
 @Injectable({
   providedIn: 'root'
@@ -40,52 +41,56 @@ export class WorkflowService {
 
     return this.httpClient.get<WorkflowJoinedModel>(api.GET_WORKFLOW, {params: params, observe: 'response'}).pipe(
       map(response => {
-        let map: [String, String][] = [];
-        Object.keys(
-          response.body.sensor.properties.matchProperties).forEach(k => {
-          map.push([k, response.body.sensor.properties.matchProperties[k]]);
-        });
-        response.body.sensor.properties.matchProperties = map;
+        // let map: [String, String][] = [];
+        // Object.keys(
+        //   response.body.sensor.properties.matchProperties).forEach(k => {
+        //   map.push([k, response.body.sensor.properties.matchProperties[k]]);
+        // });
+        // response.body.sensor.properties.matchProperties = map;
         return response.body;
       })
     );
   }
-
-  getWorkflowComponents(): Observable<WorkflowComponentsModel> {
-    return of(new WorkflowComponentsModel(
+  // public name: string,
+  // public property: string,
+  // public isRequired: boolean,
+  // public type: string,
+  // public options?: string[]
+  getWorkflowComponents(): Observable<DynamicFormParts> {
+    return of(new DynamicFormParts(
       [
-        new ComponentModel(
-          'Spark', [
-            new Property('string-field', 'Job jar', 'jobParameters.variables.jobJar'),
-            new Property('string-field', 'Main class', 'jobParameters.variables.mainClass'),
-            new Property('select-field', 'Deployment mode', 'jobParameters.variables.deploymentMode', ['cluster', 'client']),
-            new Property('set-field', 'App arguments', 'jobParameters.maps.appArguments')
+        new DynamicFormPart(
+          'Kafka', [
+            new FormPart('Topic', 'properties.settings.variables.topic', true, 'string-field'),
+            new FormPart('Kafka servers', 'properties.settings.maps.servers', true, 'set-field'),
+            new FormPart('Match properties', 'properties.matchProperties', false, 'key-value-field')
           ]
         ),
-        new ComponentModel(
-          'Shell', [
-            new Property('string-field', 'Script location', 'jobParameters.variables.scriptLocation')
+        new DynamicFormPart(
+          'Absa-Kafka', [
+            new FormPart('Topic', 'properties.settings.variables.topic', true, 'string-field'),
+            new FormPart('Kafka servers', 'properties.settings.maps.servers', true, 'set-field'),
+            new FormPart('Ingestion token', 'properties.matchProperties.ingestionToken', true, 'guid-field')
+          ]
+        ),
+        new DynamicFormPart(
+          'Time', [
+            new FormPart('Run at', 'properties.settings.variables.cronExpression', true, 'cron-quartz-field')
           ]
         )
       ],
       [
-        new ComponentModel(
-          'Kafka', [
-            new Property('string-field', 'Topic', 'properties.settings.variables.topic'),
-            new Property('set-field', 'Kafka servers', 'properties.settings.maps.servers'),
-            new Property('key-value-field', 'Match properties', 'properties.matchProperties')
+        new DynamicFormPart(
+          'Spark', [
+            new FormPart('Job jar', 'jobParameters.variables.jobJar', true, 'string-field'),
+            new FormPart('Main class', 'jobParameters.variables.mainClass', true, 'string-field'),
+            new FormPart('Deployment mode', 'jobParameters.variables.deploymentMode',true, 'select-field', ['cluster', 'client']),
+            new FormPart('App arguments', 'jobParameters.maps.appArguments', false,'set-field')
           ]
         ),
-        new ComponentModel(
-          'Absa-Kafka', [
-            new Property('string-field', 'Topic', 'properties.settings.variables.topic'),
-            new Property('set-field', 'Kafka servers', 'properties.settings.maps.servers'),
-            new Property('guid-field', 'Ingestion token', 'properties.matchProperties[0][1]')
-          ]
-        ),
-        new ComponentModel(
-          'Time', [
-            new Property('cron-quartz-field', 'Run at', 'properties.settings.variables.cronExpression')
+        new DynamicFormPart(
+          'Shell', [
+            new FormPart('Script location', 'jobParameters.variables.scriptLocation', true, 'string-field')
           ]
         )
       ]

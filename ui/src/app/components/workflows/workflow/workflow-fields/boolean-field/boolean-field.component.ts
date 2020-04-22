@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {AfterViewInit, Component, Input, OnInit} from '@angular/core';
 import {Subject} from "rxjs";
 
 @Component({
@@ -6,7 +6,7 @@ import {Subject} from "rxjs";
   templateUrl: './boolean-field.component.html',
   styleUrls: ['./boolean-field.component.scss']
 })
-export class BooleanFieldComponent implements OnInit {
+export class BooleanFieldComponent implements OnInit, AfterViewInit {
   @Input() isShow: boolean;
   @Input() fieldName: string;
   @Input() value: boolean;
@@ -15,9 +15,20 @@ export class BooleanFieldComponent implements OnInit {
 
   constructor() { }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    if(!this.value){
+      this.modelChanged(false);
+    }
+  }
+
+  ngAfterViewInit(): void {
+    // if(!this.value){
+    //   this.modelChanged(false);
+    // }
+  }
 
   modelChanged(value: boolean) {
+    this.value = value;
     this.valueChanges.next({property: this.property, value: this.value});
   }
 

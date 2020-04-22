@@ -15,11 +15,11 @@
 
 <app-select-field
   [isShow]="mode == workflowModes.SHOW"
-  [fieldName]="'Sensor type'"
-  [value]="workflow.sensor.sensorType.name"
+  [fieldName]="dynamicSwitchSensorPart.name"
+  [value]="getValue(dynamicSwitchSensorPart.property)"
   [options]="getSensorTypes()"
   [valueChanges]="sensorChanges"
-  [property]="'sensorType.name'">
+  [property]="dynamicSwitchSensorPart.property">
 </app-select-field>
 
 <app-workflow-fields
@@ -27,5 +27,5 @@
   [isShow]="mode == workflowModes.SHOW"
   [workflowComponent]="getSelectedSensorComponent()"
   [modelChanges]="sensorChanges"
-  [value]="workflow.sensor">
+  [value]="sensorData">
 </app-workflow-fields>

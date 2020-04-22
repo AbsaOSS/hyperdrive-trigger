@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {AfterViewInit, Component, Input, OnInit} from '@angular/core';
 import {Subject} from "rxjs";
 
 @Component({
@@ -6,7 +6,7 @@ import {Subject} from "rxjs";
   templateUrl: './guid-field.component.html',
   styleUrls: ['./guid-field.component.scss']
 })
-export class GuidFieldComponent implements OnInit {
+export class GuidFieldComponent implements OnInit, AfterViewInit {
 
   @Input() isShow: boolean;
   @Input() fieldName: string;
@@ -19,6 +19,11 @@ export class GuidFieldComponent implements OnInit {
   ngOnInit(): void {
     if(!this.value)
      this.refreshGuid();
+  }
+
+  ngAfterViewInit(): void {
+    // if(!this.value)
+    //   this.refreshGuid();
   }
 
   refreshGuid() {

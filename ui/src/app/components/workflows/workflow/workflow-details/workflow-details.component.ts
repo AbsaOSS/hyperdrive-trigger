@@ -13,38 +13,60 @@
  * limitations under the License.
  */
 
-import {AfterViewInit, Component, Input} from '@angular/core';
+import {AfterViewInit, ChangeDetectionStrategy, Component, Input, OnInit} from '@angular/core';
 import {WorkflowJoinedModel} from "../../../../models/workflowJoined.model";
 import {workflowModes} from "../../../../models/enums/workflowModes.constants";
-import {Subject, Subscription} from "rxjs";
+import {pipe, Subject, Subscription} from "rxjs";
 import {distinctUntilChanged} from "rxjs/operators";
 import cloneDeep from 'lodash/cloneDeep';
+import {Store} from "@ngrx/store";
+import {AppState, selectWorkflowState} from "../../../../stores/app.reducers";
+import { WorkflowDetailsChanged} from "../../../../stores/workflows/workflows.actions";
+import {FormPart} from "../../../../models/workflowFormParts.model";
 
 @Component({
   selector: 'app-workflow-details',
   templateUrl: './workflow-details.component.html',
-  styleUrls: ['./workflow-details.component.scss']
+  styleUrls: ['./workflow-details.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class WorkflowDetailsComponent implements AfterViewInit {
-  @Input() workflowUpdates: Subject<WorkflowJoinedModel>;
-  @Input() mode: string;
-  @Input() workflow: WorkflowJoinedModel;
+export class WorkflowDetailsComponent implements AfterViewInit, OnInit {
+  mode: string;
+
+  workflowSubscription: Subscription;
 
   workflowModes = workflowModes;
 
   detailsChanges: Subject<{property: string, value: any}> = new Subject<{property: string, value: any}>();
   detailsChangesSubscription: Subscription;
+  parts: FormPart[];
 
-  constructor() {}
+  data: {property: string, value: any}[];
 
-  ngAfterViewInit(): void {
+  constructor(private store: Store<AppState>) {
+    this.workflowSubscription = this.store.select(selectWorkflowState).subscribe((state) => {
+      this.mode = state.workflowAction.mode;
+      this.data = state.workflowAction.workflowChanges.details;
+      this.parts = state.workflowFormParts.detailsParts;
+    });
+  }
+
+  ngOnInit(): void {
     this.detailsChangesSubscription = this.detailsChanges.pipe(
       distinctUntilChanged()
     ).subscribe(newValue => {
-      let copiedWorkflow = cloneDeep(this.workflow);
-      copiedWorkflow[newValue.property] = newValue.value;
-      this.workflowUpdates.next(copiedWorkflow)
+      this.store.dispatch(new WorkflowDetailsChanged({property: newValue.property, value: newValue.value}));
     });
+  }
+
+  ngAfterViewInit(): void {
+  }
+
+  getValue(prop: string) {
+    let val = this.data.find(xxx => {
+      return xxx.property == prop;
+    });
+    return !!val ? val.value : undefined;
   }
 
 }

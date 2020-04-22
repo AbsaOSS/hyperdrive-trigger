@@ -28,7 +28,7 @@ export class PropertiesModel {
   constructor(
     public sensorId: number = 0,
     public settings: SettingsModel,
-    public matchProperties: [String, String][]
+    public matchProperties: Map<String, String>
   ) {}
 
 }

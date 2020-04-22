@@ -22,6 +22,9 @@ import {WorkflowComponentsModel} from "../../models/workflowComponents.model";
 import {PropertiesModel, SensorModel, SettingsModel} from "../../models/sensor.model";
 import {DagDefinitionJoinedModel} from "../../models/dagDefinitionJoined.model";
 import {JobDefinitionModel, JobParametersModel} from "../../models/jobDefinition.model";
+import {WORKFLOW_SENSOR_CLEANED} from "../workflows/workflows.actions";
+import {act} from "@ngrx/effects";
+import {WorkflowFormPartsModel} from "../../models/workflowFormParts.model";
 
 export interface State {
   projects: ProjectModel[],
@@ -31,57 +34,15 @@ export interface State {
     id: number,
     mode: string,
     loading: boolean,
-    originalWorkflow: WorkflowJoinedModel,
-    actionWorkflow: WorkflowJoinedModel
+    workflow: WorkflowJoinedModel,
+    workflowChanges: {
+      details: {property: string, value: any}[],
+      sensor: {property: string, value: any}[],
+      jobs: {order: number, job: {property: string, value: any}[]}[]
+    }
   },
-  // workflowChanges: {
-  //   details: [String, String],
-  //   sensor: [String, String],
-  //   jobs: [String, String][]
-  // }
-  workflowComponents: WorkflowComponentsModel
+  workflowFormParts: WorkflowFormPartsModel
 }
-
-const emptySensor = {
-  workflowId: 0,
-  sensorType: {name: ''},
-  properties: {
-    sensorId: 0,
-    settings: {
-      variables: new Map<String, String>(),
-      maps: new Map<String, Set<String>>()
-    },
-    matchProperties: []
-  },
-  id: 0
-};
-
-const emptyJob = {
-  dagDefinitionId: 0,
-  name: '',
-  jobType: {name: ''},
-  jobParameters: {
-    variables: new Map<String, String>(),
-    maps: new Map<String, Set<String>>()
-  },
-  order: 0,
-  id: 0
-};
-
-const emptyWorkflow = {
-  name: '',
-  isActive: false,
-  project: '',
-  sensor: {...emptySensor},
-  dagDefinitionJoined: {
-    workflowId: 0,
-    jobDefinitions: [{...emptyJob}],
-    id: 0
-  },
-  id: 0
-};
-
-
 
 const initialState: State = {
   projects: [],
@@ -89,12 +50,16 @@ const initialState: State = {
   loading: true,
   workflowAction: {
     id: undefined,
-    mode: workflowModes.CREATE,
+    mode: undefined,
     loading: true,
-    originalWorkflow: undefined,//{...emptyWorkflow},
-    actionWorkflow: undefined //{...emptyWorkflow}
+    workflow: undefined,
+    workflowChanges: {
+      details: [],
+      sensor: [],
+      jobs: []
+    }
   },
-  workflowComponents: undefined
+  workflowFormParts: undefined
 };
 
 export function workflowsReducer(state: State = initialState, action: WorkflowsActions.WorkflowsActions) {
@@ -102,21 +67,23 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
     case (WorkflowsActions.INITIALIZE_WORKFLOWS):
       return {...state, loading: true};
     case (WorkflowsActions.INITIALIZE_WORKFLOWS_SUCCESS):
-      return {...state, loading: false, projects: action.payload.projects, workflows: action.payload.workflows, workflowComponents: action.payload.workflowComponents};
+      return {...state, loading: false, projects: action.payload.projects, workflows: action.payload.workflows, workflowFormParts: action.payload.workflowFormParts};
     case (WorkflowsActions.INITIALIZE_WORKFLOWS_FAILURE):
       return {...initialState, loading: false};
+
     case (WorkflowsActions.STAR_WORKFLOW_INITIALIZATION):
       return {...state, workflowAction: {
           ...initialState.workflowAction, id: action.payload.id, mode: action.payload.mode, loading: true
         }};
     case (WorkflowsActions.SET_EMPTY_WORKFLOW):
       return {...state, workflowAction: {
-          // ...state.workflowAction, actionWorkflow: undefined, originalWorkflow: undefined, loading: false
-          ...state.workflowAction, actionWorkflow: emptyWorkflow, originalWorkflow: emptyWorkflow, loading: false
+          ...initialState.workflowAction, loading: false
         }};
     case (WorkflowsActions.LOAD_WORKFLOW_SUCCESS):
       return {...state, workflowAction: {
-          ...state.workflowAction, actionWorkflow: action.payload, originalWorkflow: action.payload, loading: false
+          ...state.workflowAction, workflow: action.payload.workflow, loading: false,
+          workflowChanges: {...state.workflowAction.workflowChanges,
+            details: action.payload.detailsData, sensor: action.payload.sensorData, jobs: action.payload.jobsData}
         }};
     case (WorkflowsActions.LOAD_WORKFLOW_FAILURE):
       return {...state, workflowAction: {
@@ -126,9 +93,55 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
       return {...state, workflowAction: {
           ...initialState.workflowAction, loading: false
         }};
-    case (WorkflowsActions.WORKFLOW_ACTION_CHANGED):
+    case (WorkflowsActions.WORKFLOW_DETAILS_CHANGED):
+      const details = [...state.workflowAction.workflowChanges.details.filter(item => item.property !== action.payload.property), action.payload];
       return {...state, workflowAction: {
-          ...state.workflowAction, actionWorkflow: action.payload
+          ...state.workflowAction, workflowChanges: {
+            ...state.workflowAction.workflowChanges, details: [...details]
+          }
+        }};
+    case (WorkflowsActions.WORKFLOW_SENSOR_CHANGED):
+      const sensor = [...state.workflowAction.workflowChanges.sensor.filter(item => item.property !== action.payload.property), action.payload];
+      return {...state, workflowAction: {
+          ...state.workflowAction, workflowChanges: {
+            ...state.workflowAction.workflowChanges, sensor: [...sensor]
+          }
+        }};
+    case (WorkflowsActions.WORKFLOW_SENSOR_CLEANED):
+      return {...state, workflowAction: {
+          ...state.workflowAction, workflowChanges: {
+            ...state.workflowAction.workflowChanges, sensor: [...initialState.workflowAction.workflowChanges.sensor, action.payload]
+          }
+        }};
+    case (WorkflowsActions.WORKFLOW_ADD_EMPTY_JOB):
+      const emptyJob = {order: action.payload, job: []};
+      const jobs = [...state.workflowAction.workflowChanges.jobs, emptyJob];
+      return {...state, workflowAction: {
+          ...state.workflowAction, workflowChanges: {
+            ...state.workflowAction.workflowChanges, jobs: [...jobs]
+          }
+        }};
+    case (WorkflowsActions.WORKFLOW_JOB_CHANGED):
+      const old = state.workflowAction.workflowChanges.jobs.find(xx => xx.order == action.payload.order);
+      const oldData: {property: string, value: any}[] = !!old ? old.job : [];
+      const filtered = oldData.filter(item => item.property !== action.payload.property);
+
+      const newDa = [...filtered, {property: action.payload.property, value: action.payload.value}];
+
+      const jobsss = [...state.workflowAction.workflowChanges.jobs.filter(item => item.order !== action.payload.order), {order: action.payload.order, job: newDa}];
+      return {...state, workflowAction: {
+          ...state.workflowAction, workflowChanges: {
+            ...state.workflowAction.workflowChanges, jobs: [...initialState.workflowAction.workflowChanges.jobs, ...jobsss]
+          }
+        }};
+    case (WorkflowsActions.WORKFLOW_JOB_CLEANED):
+      const newData = {order: action.payload.order, job:[{property: action.payload.property, value: action.payload.value}]};
+      const jobss = [...state.workflowAction.workflowChanges.jobs.filter(item => item.order !== action.payload.order), newData];
+
+      return {...state, workflowAction: {
+          ...state.workflowAction, workflowChanges: {
+            ...state.workflowAction.workflowChanges, jobs: [...initialState.workflowAction.workflowChanges.jobs, ...jobss]
+          }
         }};
     default:
       return state;

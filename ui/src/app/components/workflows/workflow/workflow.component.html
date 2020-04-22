@@ -42,11 +42,11 @@
       <clr-icon shape="power"></clr-icon>
       Activate/Deactivate
     </button>
-    <button type="button" class="btn btn-sm btn-secondary" [routerLink]="['/workflows/copy', workflow.id]">
+    <button type="button" class="btn btn-sm btn-secondary" [routerLink]="['/workflows/copy', id]">
       <clr-icon shape="copy"></clr-icon>
       Copy
     </button>
-    <button type="button" class="btn btn-sm btn-secondary" [routerLink]="['/workflows/edit', workflow.id]">
+    <button type="button" class="btn btn-sm btn-secondary" [routerLink]="['/workflows/edit', id]">
       <clr-icon shape="pencil"></clr-icon>
       Edit
     </button>
@@ -68,11 +68,7 @@
               Workflow details
             </div>
             <div *ngIf="!isDetailsAccordionHidden" class="accordion-content">
-              <app-workflow-details
-                [mode]="mode"
-                [workflow]="workflow"
-                [workflowUpdates]="workflowUpdates">
-              </app-workflow-details>
+              <app-workflow-details></app-workflow-details>
             </div>
           </div>
         </div>
@@ -84,12 +80,7 @@
               Sensor
             </div>
             <div *ngIf="!isSensorAccordionHidden" class="accordion-content">
-              <app-sensor
-                [mode]="mode"
-                [workflow]="workflow"
-                [workflowUpdates]="workflowUpdates"
-                [sensorComponents]="workflowComponents.sensorComponents">
-              </app-sensor>
+              <app-sensor></app-sensor>
             </div>
           </div>
         </div>
@@ -101,12 +92,7 @@
               Jobs
             </div>
             <div *ngIf="!isJobsAccordionHidden">
-              <app-jobs
-                [mode]="mode"
-                [workflow]="workflow"
-                [workflowUpdates]="workflowUpdates"
-                [jobComponents]="workflowComponents.jobComponents">
-              </app-jobs>
+              <app-jobs></app-jobs>
             </div>
           </div>
 

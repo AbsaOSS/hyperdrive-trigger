@@ -38,7 +38,12 @@ export class WorkflowComponent implements OnInit, AfterViewInit, OnDestroy {
   isJobsAccordionHidden = false;
 
   loading: boolean = true;
+  // workflowChanges;
+  // details;
+
   mode: string;
+  id: number;
+
   workflow: WorkflowJoinedModel;
   workflowComponents: WorkflowComponentsModel;
 
@@ -47,11 +52,12 @@ export class WorkflowComponent implements OnInit, AfterViewInit, OnDestroy {
   paramsSubscription: Subscription;
   workflowSubscription: Subscription;
 
+
   constructor(private store: Store<AppState>, route: ActivatedRoute) {
     this.paramsSubscription = route.params.subscribe(parameters => {
-      const id: number = parameters.id;
-      const mode: string = parameters.mode;
-      this.store.dispatch(new StartWorkflowInitialization({id: id, mode: mode}));
+      this.id = parameters.id;
+      this.mode = parameters.mode;
+      this.store.dispatch(new StartWorkflowInitialization({id: parameters.id, mode: parameters.mode}));
     });
   }
 
@@ -59,21 +65,39 @@ export class WorkflowComponent implements OnInit, AfterViewInit, OnDestroy {
     this.workflowSubscription = this.store.select(selectWorkflowState).subscribe((state) => {
       this.loading = state.workflowAction.loading;
       this.mode = state.workflowAction.mode;
-      this.workflow = cloneDeep(state.workflowAction.actionWorkflow);
-      this.workflowComponents = state.workflowComponents
+      // this.workflow = cloneDeep(state.workflowAction.actionWorkflow);
+      // this.workflowChanges = state.workflowAction.workflowChanges;
+      // this.details = state.workflowAction.workflowChanges.details;
+      // this.workflowComponents = state.workflowComponents
     });
+    // this.workflowSubscription = this.store.select(selectWorkflowState).subscribe((state) => {
+    //   this.loading = state.workflowAction.loading;
+    //   // this.mode = state.workflowAction.mode;
+    //   // this.workflow = cloneDeep(state.workflowAction.actionWorkflow);
+    //   this.workflowChanges = state.workflowAction.workflowChanges;
+    //   this.details = state.workflowAction.workflowChanges.details;
+    //   this.workflowComponents = state.workflowComponents
+    // });
   }
 
   ngAfterViewInit(): void {
-    this.workflowUpdatesSubscription = this.workflowUpdates.pipe(
-      distinctUntilChanged()
-    ).subscribe(newWorkflow => {
-      this.store.dispatch(new WorkflowActionChanged(newWorkflow));
-    });
+    // this.workflowSubscription = this.store.select(selectWorkflowState).subscribe((state) => {
+    //   this.loading = state.workflowAction.loading;
+    //   this.mode = state.workflowAction.mode;
+    //   // this.workflow = cloneDeep(state.workflowAction.actionWorkflow);
+    //   // this.workflowChanges = state.workflowAction.workflowChanges;
+    //   // this.details = state.workflowAction.workflowChanges.details;
+    //   // this.workflowComponents = state.workflowComponents
+    // });
+    // this.workflowUpdatesSubscription = this.workflowUpdates.pipe(
+    //   distinctUntilChanged()
+    // ).subscribe(newWorkflow => {
+    //   this.store.dispatch(new WorkflowActionChanged(newWorkflow));
+    // });
   }
 
   ngOnDestroy(): void {
-    this.workflowUpdatesSubscription.unsubscribe();
+    // this.workflowUpdatesSubscription.unsubscribe();
     this.workflowSubscription.unsubscribe();
     this.paramsSubscription.unsubscribe();
   }

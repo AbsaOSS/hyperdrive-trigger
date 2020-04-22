@@ -18,6 +18,7 @@ import {ProjectModel} from "../../models/project.model";
 import {WorkflowModel} from "../../models/workflow.model";
 import {WorkflowJoinedModel} from "../../models/workflowJoined.model";
 import {WorkflowComponentsModel} from "../../models/workflowComponents.model";
+import {WorkflowFormPartsModel} from "../../models/workflowFormParts.model";
 
 export const INITIALIZE_WORKFLOWS = 'INITIALIZE_WORKFLOWS';
 export const INITIALIZE_WORKFLOWS_SUCCESS = 'INITIALIZE_WORKFLOWS_SUCCESS';
@@ -30,6 +31,12 @@ export const LOAD_WORKFLOW_FAILURE_INCORRECT_ID = 'LOAD_WORKFLOW_FAILURE_INCORRE
 export const LOAD_WORKFLOW_FAILURE = 'LOAD_WORKFLOW_FAILURE';
 
 export const WORKFLOW_ACTION_CHANGED = 'WORKFLOW_ACTION_CHANGED';
+export const WORKFLOW_DETAILS_CHANGED = 'WORKFLOW_DETAILS_CHANGED';
+export const WORKFLOW_SENSOR_CHANGED = 'WORKFLOW_SENSOR_CHANGED';
+export const WORKFLOW_SENSOR_CLEANED = 'WORKFLOW_SENSOR_CLEANED';
+export const WORKFLOW_ADD_EMPTY_JOB = 'WORKFLOW_ADD_EMPTY_JOB';
+export const WORKFLOW_JOB_CHANGED = 'WORKFLOW_JOB_CHANGED';
+export const WORKFLOW_JOB_CLEANED = 'WORKFLOW_JOB_CLEANED';
 
 export class InitializeWorkflows implements Action {
   readonly type = INITIALIZE_WORKFLOWS;
@@ -37,7 +44,7 @@ export class InitializeWorkflows implements Action {
 
 export class InitializeWorkflowsSuccess implements Action {
   readonly type = INITIALIZE_WORKFLOWS_SUCCESS;
-  constructor(public payload: {projects: ProjectModel[], workflows: WorkflowModel[], workflowComponents: WorkflowComponentsModel}) {}
+  constructor(public payload: {projects: ProjectModel[], workflows: WorkflowModel[], workflowFormParts: WorkflowFormPartsModel}) {}
 }
 
 export class InitializeWorkflowsFailure implements Action {
@@ -55,7 +62,10 @@ export class SetEmptyWorkflow implements Action {
 
 export class LoadWorkflowSuccess implements Action {
   readonly type = LOAD_WORKFLOW_SUCCESS;
-  constructor(public payload: WorkflowJoinedModel) {}
+  constructor(public payload: {workflow: WorkflowJoinedModel,
+    detailsData: {property: string, value: any}[],
+    sensorData: {property: string, value: any}[],
+    jobsData: {order: number, job: {property: string, value: any}[]}[]}) {}
 }
 
 export class LoadWorkflowFailure implements Action {
@@ -71,7 +81,38 @@ export class WorkflowActionChanged implements Action {
   constructor(public payload: WorkflowJoinedModel) {}
 }
 
+export class WorkflowDetailsChanged implements Action {
+  readonly type = WORKFLOW_DETAILS_CHANGED;
+  constructor(public payload: {property: string, value: any}) {}
+}
+
+export class WorkflowSensorChanged implements Action {
+  readonly type = WORKFLOW_SENSOR_CHANGED;
+  constructor(public payload: {property: string, value: any}) {}
+}
+
+export class WorkflowSensorCleaned implements Action {
+  readonly type = WORKFLOW_SENSOR_CLEANED;
+  constructor(public payload: {property: string, value: any}) {}
+}
+
+export class WorkflowAddEmptyJob implements Action {
+  readonly type = WORKFLOW_ADD_EMPTY_JOB;
+  constructor(public payload: number) {}
+}
+
+export class WorkflowJobChanged implements Action {
+  readonly type = WORKFLOW_JOB_CHANGED;
+  constructor(public payload: {order: number, property: string, value: any}) {}
+}
+
+export class WorkflowJobCleaned implements Action {
+  readonly type = WORKFLOW_JOB_CLEANED;
+  constructor(public payload: {order: number, property: string, value: any}) {}
+}
+
 export type WorkflowsActions =
   InitializeWorkflows | InitializeWorkflowsSuccess | InitializeWorkflowsFailure |
   StartWorkflowInitialization | SetEmptyWorkflow | LoadWorkflowSuccess | LoadWorkflowFailure | LoadWorkflowFailureIncorrectId |
-  WorkflowActionChanged;
+  WorkflowActionChanged | WorkflowDetailsChanged | WorkflowSensorChanged | WorkflowSensorCleaned |
+  WorkflowAddEmptyJob | WorkflowJobChanged | WorkflowJobCleaned;

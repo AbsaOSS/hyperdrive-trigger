@@ -13,35 +13,41 @@
  * limitations under the License.
  */
 
-import {Component, Input, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input, OnInit} from '@angular/core';
 import {ComponentModel} from "../../../../models/workflowComponents.model";
 import {workflowModes} from "../../../../models/enums/workflowModes.constants";
 import {Subject} from "rxjs";
 import get from 'lodash/get';
+import {FormPart} from "../../../../models/workflowFormParts.model";
 
 @Component({
   selector: 'app-workflow-fields',
   templateUrl: './workflow-fields.component.html',
   styleUrls: ['./workflow-fields.component.scss']
+  // changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class WorkflowFieldsComponent implements OnInit {
 
   @Input() isShow: boolean;
   @Input() mode: string;
-  @Input() workflowComponent: ComponentModel;
+  @Input() workflowComponent: FormPart[];
   @Input() modelChanges: Subject<{property: string, value: any}>;
-  @Input() value: any;
+  @Input() value;
 
   workflowModes = workflowModes;
 
   constructor() { }
 
   ngOnInit(): void {
-    console.log('MutherFucking ngOnInit');
   }
 
   getValue(path: string): any {
-    return get(this.value, path);
+    let val = this.value.find(xxx => {
+      return xxx.property == path;
+    });
+    return !!val ? val.value : undefined;
+
+    // return get(this.value, path);
   }
 
 }

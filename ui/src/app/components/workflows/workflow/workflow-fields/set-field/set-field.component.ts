@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {AfterViewInit, Component, Input, OnInit} from '@angular/core';
 import {Subject} from "rxjs";
 
 @Component({
@@ -6,19 +6,25 @@ import {Subject} from "rxjs";
   templateUrl: './set-field.component.html',
   styleUrls: ['./set-field.component.scss']
 })
-export class SetFieldComponent implements OnInit {
+export class SetFieldComponent implements OnInit, AfterViewInit {
 
   @Input() isShow: boolean;
   @Input() fieldName: string;
   @Input() value: string[];
   @Input() property: string;
-  @Input() valueChanges: Subject<{property: string, value: any}>;
+  @Input() valueChanges: Subject<{ property: string, value: any }>;
 
-  constructor() { }
+  constructor() {
+  }
 
   ngOnInit(): void {
-    if(!this.value)
+    if (!this.value)
       this.modelChanged([''])
+  }
+
+  ngAfterViewInit(): void {
+    // if (!this.value)
+    //   this.modelChanged([''])
   }
 
   trackByFn(index, item) {

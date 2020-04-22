@@ -1,4 +1,4 @@
-import {AfterViewChecked, Component, Input, OnChanges, OnInit} from '@angular/core';
+import {AfterViewChecked, AfterViewInit, Component, Input, OnChanges, OnInit} from '@angular/core';
 import {Subject} from "rxjs";
 import cloneDeep from 'lodash/cloneDeep';
 
@@ -7,7 +7,7 @@ import cloneDeep from 'lodash/cloneDeep';
   templateUrl: './key-value-field.component.html',
   styleUrls: ['./key-value-field.component.scss']
 })
-export class KeyValueFieldComponent implements OnInit, AfterViewChecked, OnChanges {
+export class KeyValueFieldComponent implements OnInit, AfterViewChecked, OnChanges, AfterViewInit {
 
   @Input() isShow: boolean;
   @Input() fieldName: string;
@@ -16,7 +16,6 @@ export class KeyValueFieldComponent implements OnInit, AfterViewChecked, OnChang
   @Input() valueChanges: Subject<{property: string, value: any}>;
 
   ngOnChanges(changes: import("@angular/core").SimpleChanges): void {
-    // console.log('Changed', this.value);
     // if(!this.value || this.value.length == 0)
     //   this.modelChanged([['', '']]);
   }
@@ -25,12 +24,16 @@ export class KeyValueFieldComponent implements OnInit, AfterViewChecked, OnChang
   }
 
   ngOnInit(): void {
-    console.log('ngOnInit');
     if(!this.value || this.value.length == 0)
       this.modelChanged([['', '']]);
   }
 
-  trackByFn(index, item) {
+  ngAfterViewInit(): void {
+    // if(!this.value || this.value.length == 0)
+    //   this.modelChanged([['', '']]);
+  }
+
+    trackByFn(index, item) {
     return index;
   }
 
@@ -60,7 +63,6 @@ export class KeyValueFieldComponent implements OnInit, AfterViewChecked, OnChang
 
 
   modelChanged(value: [String, String][]) {
-    console.log('modelChanged');
     this.value = value;
     this.valueChanges.next({property: this.property, value: value});
   }

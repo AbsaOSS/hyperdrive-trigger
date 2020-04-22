@@ -1,4 +1,4 @@
-import {AfterViewChecked, Component, Input, OnInit} from '@angular/core';
+import {AfterViewChecked, AfterViewInit, Component, Input, OnInit} from '@angular/core';
 import {Subject} from "rxjs";
 
 @Component({
@@ -6,7 +6,7 @@ import {Subject} from "rxjs";
   templateUrl: './cron-quartz-field.component.html',
   styleUrls: ['./cron-quartz-field.component.scss']
 })
-export class CronQuartzFieldComponent implements OnInit, AfterViewChecked {
+export class CronQuartzFieldComponent implements OnInit, AfterViewInit {
 
   @Input() isShow: boolean;
   @Input() fieldName: string;
@@ -140,7 +140,8 @@ export class CronQuartzFieldComponent implements OnInit, AfterViewChecked {
     this.fromCron(this.value)
   }
 
-  ngAfterViewChecked(): void {
+  ngAfterViewInit(): void {
+    // this.fromCron(this.value)
   }
 
   setCron(n): string {

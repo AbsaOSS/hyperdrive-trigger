@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import {AfterViewInit, Component, Input, OnInit} from '@angular/core';
+import {AfterViewInit, ChangeDetectionStrategy, Component, Input, OnInit} from '@angular/core';
 import {WorkflowJoinedModel} from "../../../../models/workflowJoined.model";
 import {workflowModes} from "../../../../models/enums/workflowModes.constants";
 import {Subject, Subscription} from "rxjs";
@@ -21,39 +21,66 @@ import cloneDeep from 'lodash/cloneDeep';
 import set from 'lodash/set';
 import {ComponentModel} from "../../../../models/workflowComponents.model";
 import {distinctUntilChanged} from "rxjs/operators";
+import {Store} from "@ngrx/store";
+import {AppState, selectWorkflowState} from "../../../../stores/app.reducers";
+import {
+  WorkflowDetailsChanged,
+  WorkflowSensorChanged,
+  WorkflowSensorCleaned
+} from "../../../../stores/workflows/workflows.actions";
+import {log} from "util";
+import {DynamicFormPart, DynamicFormParts, FormPart} from "../../../../models/workflowFormParts.model";
+import {Form} from "@angular/forms";
 
 @Component({
   selector: 'app-sensor',
   templateUrl: './sensor.component.html',
-  styleUrls: ['./sensor.component.scss']
+  styleUrls: ['./sensor.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SensorComponent implements OnInit, AfterViewInit {
-  @Input() workflowUpdates: Subject<WorkflowJoinedModel>;
-  @Input() mode: string;
-  @Input() workflow: WorkflowJoinedModel;
-  @Input() sensorComponents: ComponentModel[];
+  mode: string;
+
+  sensorDynamicParts: DynamicFormPart[];
+  dynamicSwitchSensorPart: FormPart;
+
+  sensorData: {property: string, value: any}[];
+
+
 
   workflowModes = workflowModes;
+  selectedSensor: string;
+
+  workflowSubscription: Subscription;
 
   sensorChanges: Subject<{property: string, value: any}> = new Subject<{property: string, value: any}>();
   sensorChangesSubscription: Subscription;
 
-  constructor() { }
+  constructor(private store: Store<AppState>) {
+    this.workflowSubscription = this.store.select(selectWorkflowState).subscribe((state) => {
+      this.mode = state.workflowAction.mode;
+
+      this.sensorDynamicParts = state.workflowFormParts.dynamicParts.sensorDynamicParts;
+      this.dynamicSwitchSensorPart = state.workflowFormParts.dynamicSwitchSensorPart;
+      this.sensorData = state.workflowAction.workflowChanges.sensor;
+
+      let selected = this.sensorData.find(xxx => xxx.property == this.dynamicSwitchSensorPart.property);
+      this.selectedSensor = !!selected ? selected.value : undefined;
+    });
+  }
 
   ngOnInit(): void {
     this.sensorChangesSubscription = this.sensorChanges.pipe(
-      distinctUntilChanged()
+      // distinctUntilChanged()
     ).subscribe(sensorChange => {
-      console.log('changing start');
-      console.log(sensorChange.property);
-      console.log(sensorChange.value);
-      let copiedWorkflow: WorkflowJoinedModel = cloneDeep(this.workflow);
-      let copiedValue = cloneDeep(sensorChange.value);
-      set(copiedWorkflow.sensor, sensorChange.property, copiedValue);
-      console.log(copiedWorkflow);
-      console.log('changing end');
-      this.workflowUpdates.next(copiedWorkflow);
+      if(sensorChange.property == this.dynamicSwitchSensorPart.property){
+        // this.selectedSensor = sensorChange.value;
+        this.store.dispatch(new WorkflowSensorCleaned({property: sensorChange.property, value: sensorChange.value}));
+      } else {
+        this.store.dispatch(new WorkflowSensorChanged({property: sensorChange.property, value: sensorChange.value}));
+      }
     });
+
   }
 
   ngAfterViewInit(): void {
@@ -61,12 +88,19 @@ export class SensorComponent implements OnInit, AfterViewInit {
   }
 
   getSensorTypes(): string[] {
-    return this.sensorComponents.map(component => component.name)
+    return this.sensorDynamicParts.map(component => component.name)
   }
 
-  getSelectedSensorComponent(): ComponentModel {
-    let sensorComponent = this.sensorComponents.find(sc => sc.name == this.workflow.sensor.sensorType.name);
-    return sensorComponent ? sensorComponent : this.sensorComponents[0];
+  getSelectedSensorComponent(): FormPart[] {
+    let sensorComponent = this.sensorDynamicParts.find(sc => sc.name == this.selectedSensor);
+    return sensorComponent ? sensorComponent.parts : this.sensorDynamicParts[0].parts;
+  }
+
+  getValue(prop: string) {
+    let val = this.sensorData.find(xxx => {
+      return xxx.property == prop;
+    });
+    return !!val ? val.value : undefined;
   }
 
 }

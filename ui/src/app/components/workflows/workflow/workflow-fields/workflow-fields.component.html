@@ -13,56 +13,64 @@
   ~ limitations under the License.
   -->
 
-<div *ngFor="let property of workflowComponent.properties">
+<div *ngFor="let property of workflowComponent">
   <div [ngSwitch]="property.type">
     <app-string-field
       *ngSwitchCase="'string-field'"
       [isShow]="mode == workflowModes.SHOW"
       [fieldName]="property.name"
       [valueChanges]="modelChanges"
-      [value]="getValue(property.path)"
-      [property]="property.path">
+      [value]="getValue(property.property)"
+      [property]="property.property">
     </app-string-field>
     <app-set-field
       *ngSwitchCase="'set-field'"
       [isShow]="mode == workflowModes.SHOW"
       [fieldName]="property.name"
       [valueChanges]="modelChanges"
-      [value]="getValue(property.path)"
-      [property]="property.path">
+      [value]="getValue(property.property)"
+      [property]="property.property">
     </app-set-field>
     <app-key-value-field
       *ngSwitchCase="'key-value-field'"
       [isShow]="mode == workflowModes.SHOW"
       [fieldName]="property.name"
       [valueChanges]="modelChanges"
-      [value]="getValue(property.path)"
-      [property]="property.path">
+      [value]="getValue(property.property)"
+      [property]="property.property">
     </app-key-value-field>
     <app-guid-field
       *ngSwitchCase="'guid-field'"
       [isShow]="mode == workflowModes.SHOW"
       [fieldName]="property.name"
       [valueChanges]="modelChanges"
-      [value]="getValue(property.path)"
-      [property]="property.path">
+      [value]="getValue(property.property)"
+      [property]="property.property">
     </app-guid-field>
     <app-cron-quartz-field
       *ngSwitchCase="'cron-quartz-field'"
       [isShow]="mode == workflowModes.SHOW"
       [fieldName]="property.name"
       [valueChanges]="modelChanges"
-      [value]="getValue(property.path)"
-      [property]="property.path">
+      [value]="getValue(property.property)"
+      [property]="property.property">
     </app-cron-quartz-field>
     <app-select-field
       *ngSwitchCase="'select-field'"
       [isShow]="mode == workflowModes.SHOW"
       [fieldName]="property.name"
       [valueChanges]="modelChanges"
-      [value]="getValue(property.path)"
-      [property]="property.path"
+      [value]="getValue(property.property)"
+      [property]="property.property"
       [options]="property.options">
     </app-select-field>
+    <app-boolean-field
+      *ngSwitchCase="'boolean-field'"
+      [isShow]="mode == workflowModes.SHOW"
+      [fieldName]="property.name"
+      [valueChanges]="modelChanges"
+      [value]="getValue(property.property)"
+      [property]="property.property">
+    </app-boolean-field>
   </div>
 </div>
