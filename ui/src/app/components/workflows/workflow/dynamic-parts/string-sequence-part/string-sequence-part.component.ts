@@ -1,18 +1,19 @@
-import {AfterViewInit, Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {Subject} from "rxjs";
+import {WorkflowEntryModel} from "../../../../../models/workflowEntry.model";
 
 @Component({
-  selector: 'app-set-field',
-  templateUrl: './set-field.component.html',
-  styleUrls: ['./set-field.component.scss']
+  selector: 'app-string-sequence-part',
+  templateUrl: './string-sequence-part.component.html',
+  styleUrls: ['./string-sequence-part.component.scss']
 })
-export class SetFieldComponent implements OnInit, AfterViewInit {
+export class StringSequencePartComponent implements OnInit {
 
   @Input() isShow: boolean;
-  @Input() fieldName: string;
+  @Input() name: string;
   @Input() value: string[];
   @Input() property: string;
-  @Input() valueChanges: Subject<{ property: string, value: any }>;
+  @Input() valueChanges: Subject<WorkflowEntryModel>;
 
   constructor() {
   }
@@ -22,10 +23,6 @@ export class SetFieldComponent implements OnInit, AfterViewInit {
       this.modelChanged([''])
   }
 
-  ngAfterViewInit(): void {
-    // if (!this.value)
-    //   this.modelChanged([''])
-  }
 
   trackByFn(index, item) {
     return index;
@@ -51,7 +48,7 @@ export class SetFieldComponent implements OnInit, AfterViewInit {
 
   modelChanged(value: string[]) {
     this.value = value;
-    this.valueChanges.next({property: this.property, value: this.value});
+    this.valueChanges.next(new WorkflowEntryModel(this.property, this.value));
   }
 
 }

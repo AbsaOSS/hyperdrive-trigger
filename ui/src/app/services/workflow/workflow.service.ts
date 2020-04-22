@@ -20,7 +20,6 @@ import {map} from "rxjs/operators";
 import {ProjectModel} from "../../models/project.model";
 import {Observable, of} from "rxjs";
 import {WorkflowJoinedModel} from "../../models/workflowJoined.model";
-import {ComponentModel, Property, WorkflowComponentsModel} from "../../models/workflowComponents.model";
 import {DynamicFormPart, DynamicFormParts, FormPart} from "../../models/workflowFormParts.model";
 
 @Injectable({
@@ -40,22 +39,10 @@ export class WorkflowService {
     let params = new HttpParams().set('id', id.toString());
 
     return this.httpClient.get<WorkflowJoinedModel>(api.GET_WORKFLOW, {params: params, observe: 'response'}).pipe(
-      map(response => {
-        // let map: [String, String][] = [];
-        // Object.keys(
-        //   response.body.sensor.properties.matchProperties).forEach(k => {
-        //   map.push([k, response.body.sensor.properties.matchProperties[k]]);
-        // });
-        // response.body.sensor.properties.matchProperties = map;
-        return response.body;
-      })
+      map(response => response.body)
     );
   }
-  // public name: string,
-  // public property: string,
-  // public isRequired: boolean,
-  // public type: string,
-  // public options?: string[]
+
   getWorkflowComponents(): Observable<DynamicFormParts> {
     return of(new DynamicFormParts(
       [

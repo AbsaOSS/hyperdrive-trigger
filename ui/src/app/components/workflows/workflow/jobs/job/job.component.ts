@@ -20,7 +20,6 @@ import {distinctUntilChanged} from "rxjs/operators";
 import cloneDeep from 'lodash/cloneDeep';
 import set from 'lodash/set';
 import {workflowModes} from "../../../../../models/enums/workflowModes.constants";
-import {ComponentModel} from "../../../../../models/workflowComponents.model";
 import {DynamicFormPart, FormPart} from "../../../../../models/workflowFormParts.model";
 import {Store} from "@ngrx/store";
 import {AppState, selectWorkflowState} from "../../../../../stores/app.reducers";
@@ -28,6 +27,7 @@ import {
   WorkflowJobChanged,
   WorkflowJobCleaned
 } from "../../../../../stores/workflows/workflows.actions";
+import {WorkflowEntryModel} from "../../../../../models/workflowEntry.model";
 
 @Component({
   selector: 'app-job',
@@ -62,7 +62,7 @@ export class JobComponent implements OnInit {
       this.dynamicSwitchJobPart = state.workflowFormParts.dynamicSwitchJobPart;
       this.staticJobPart = state.workflowFormParts.staticJobPart;
 
-      this.jobData = state.workflowAction.workflowChanges.jobs.find(xxx => xxx.order == this.jobIndex).job;
+      this.jobData = state.workflowAction.workflowData.jobs.find(xxx => xxx.order == this.jobIndex).job;
 
       let selected = this.jobData.find(xxx => xxx.property == this.dynamicSwitchJobPart.property);
       this.selectedJob = !!selected ? selected.value : undefined;
@@ -72,9 +72,14 @@ export class JobComponent implements OnInit {
     ).subscribe(jobChange => {
 
       if(jobChange.property == this.dynamicSwitchJobPart.property){
-        this.store.dispatch(new WorkflowJobCleaned({order: this.jobIndex, property: jobChange.property, value: jobChange.value}));
+
+        this.store.dispatch(new WorkflowJobCleaned(
+          {order: this.jobIndex, jobEntry: new WorkflowEntryModel(jobChange.property, jobChange.value)}
+        ));
       } else {
-        this.store.dispatch(new WorkflowJobChanged({order: this.jobIndex, property: jobChange.property, value: jobChange.value}));
+        this.store.dispatch(new WorkflowJobChanged(
+          {order: this.jobIndex, jobEntry: new WorkflowEntryModel(jobChange.property, jobChange.value)}
+          ));
       }
     });
   }

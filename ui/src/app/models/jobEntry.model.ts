@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright 2018 ABSA Group Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,21 +13,11 @@
  * limitations under the License.
  */
 
-.loading {
-  position: fixed;
-  top: 50%;
-  right: 50%;
-}
+import {WorkflowEntryModel} from "./workflowEntry.model";
 
-.notSelectable {
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -o-user-select: none;
-  user-select: none;
-}
-
-.accordion-content {
-  padding-left: 0.75rem;
+export class JobEntryModel {
+  constructor(
+    public order: number,
+    public job: WorkflowEntryModel[]
+  ) {}
 }

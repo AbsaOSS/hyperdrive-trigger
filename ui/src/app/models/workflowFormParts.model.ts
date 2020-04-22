@@ -13,8 +13,6 @@
  * limitations under the License.
  */
 
-import {workflowFormParts} from "../constants/workflowFromParts.constants";
-
 export class WorkflowFormPartsModel {
   constructor(
     public detailsParts: FormPart[],

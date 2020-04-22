@@ -1,6 +1,6 @@
 <div *ngIf="!isShow">
   <clr-checkbox-container>
-    <label for="isActive">{{fieldName}}</label>
+    <label for="isActive">{{name}}</label>
     <clr-checkbox-wrapper>
       <input id="isActive" clrToggle type="checkbox" name="isActive" [(ngModel)]="value" (ngModelChange)="modelChanged($event)">
     </clr-checkbox-wrapper>
@@ -8,9 +8,8 @@
 </div>
 
 <div *ngIf="isShow">
-
   <clr-input-container>
-    <label>{{fieldName}}</label>
+    <label>{{name}}</label>
     <input [readOnly]="true" clrInput type="text" [size]="60" value="{{value ? 'Yes' : 'No'}}" />
   </clr-input-container>
 </div>

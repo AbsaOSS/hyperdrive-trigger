@@ -13,50 +13,35 @@
  * limitations under the License.
  */
 
-import {AfterViewInit, Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {AppState, selectWorkflowState} from "../../../stores/app.reducers";
-import {Subject, Subscription} from "rxjs";
+import {Subscription} from "rxjs";
 import {Store} from "@ngrx/store";
-import {WorkflowJoinedModel} from "../../../models/workflowJoined.model";
-import {StartWorkflowInitialization, WorkflowActionChanged} from "../../../stores/workflows/workflows.actions";
+import {StartWorkflowInitialization} from "../../../stores/workflows/workflows.actions";
 import {workflowModes} from "../../../models/enums/workflowModes.constants";
-import {distinctUntilChanged} from "rxjs/operators";
-import cloneDeep from 'lodash/cloneDeep';
-import {WorkflowComponentsModel} from "../../../models/workflowComponents.model";
 
 @Component({
   selector: 'app-workflow',
   templateUrl: './workflow.component.html',
   styleUrls: ['./workflow.component.scss']
 })
-export class WorkflowComponent implements OnInit, AfterViewInit, OnDestroy {
+export class WorkflowComponent implements OnInit, OnDestroy {
+  loading: boolean = true;
+  mode: string;
+  id: number;
+
   workflowModes = workflowModes;
 
   isDetailsAccordionHidden = false;
   isSensorAccordionHidden = false;
   isJobsAccordionHidden = false;
 
-  loading: boolean = true;
-  // workflowChanges;
-  // details;
-
-  mode: string;
-  id: number;
-
-  workflow: WorkflowJoinedModel;
-  workflowComponents: WorkflowComponentsModel;
-
-  workflowUpdates: Subject<WorkflowJoinedModel> = new Subject<WorkflowJoinedModel>();
-  workflowUpdatesSubscription: Subscription;
   paramsSubscription: Subscription;
   workflowSubscription: Subscription;
 
-
   constructor(private store: Store<AppState>, route: ActivatedRoute) {
     this.paramsSubscription = route.params.subscribe(parameters => {
-      this.id = parameters.id;
-      this.mode = parameters.mode;
       this.store.dispatch(new StartWorkflowInitialization({id: parameters.id, mode: parameters.mode}));
     });
   }
@@ -65,41 +50,8 @@ export class WorkflowComponent implements OnInit, AfterViewInit, OnDestroy {
     this.workflowSubscription = this.store.select(selectWorkflowState).subscribe((state) => {
       this.loading = state.workflowAction.loading;
       this.mode = state.workflowAction.mode;
-      // this.workflow = cloneDeep(state.workflowAction.actionWorkflow);
-      // this.workflowChanges = state.workflowAction.workflowChanges;
-      // this.details = state.workflowAction.workflowChanges.details;
-      // this.workflowComponents = state.workflowComponents
+      this.id = state.workflowAction.id;
     });
-    // this.workflowSubscription = this.store.select(selectWorkflowState).subscribe((state) => {
-    //   this.loading = state.workflowAction.loading;
-    //   // this.mode = state.workflowAction.mode;
-    //   // this.workflow = cloneDeep(state.workflowAction.actionWorkflow);
-    //   this.workflowChanges = state.workflowAction.workflowChanges;
-    //   this.details = state.workflowAction.workflowChanges.details;
-    //   this.workflowComponents = state.workflowComponents
-    // });
-  }
-
-  ngAfterViewInit(): void {
-    // this.workflowSubscription = this.store.select(selectWorkflowState).subscribe((state) => {
-    //   this.loading = state.workflowAction.loading;
-    //   this.mode = state.workflowAction.mode;
-    //   // this.workflow = cloneDeep(state.workflowAction.actionWorkflow);
-    //   // this.workflowChanges = state.workflowAction.workflowChanges;
-    //   // this.details = state.workflowAction.workflowChanges.details;
-    //   // this.workflowComponents = state.workflowComponents
-    // });
-    // this.workflowUpdatesSubscription = this.workflowUpdates.pipe(
-    //   distinctUntilChanged()
-    // ).subscribe(newWorkflow => {
-    //   this.store.dispatch(new WorkflowActionChanged(newWorkflow));
-    // });
-  }
-
-  ngOnDestroy(): void {
-    // this.workflowUpdatesSubscription.unsubscribe();
-    this.workflowSubscription.unsubscribe();
-    this.paramsSubscription.unsubscribe();
   }
 
   toggleDetailsAccordion() {
@@ -112,6 +64,11 @@ export class WorkflowComponent implements OnInit, AfterViewInit, OnDestroy {
 
   toggleJobsAccordion() {
     this.isJobsAccordionHidden = !this.isJobsAccordionHidden;
+  }
+
+  ngOnDestroy(): void {
+    this.workflowSubscription.unsubscribe();
+    this.paramsSubscription.unsubscribe();
   }
 
 }

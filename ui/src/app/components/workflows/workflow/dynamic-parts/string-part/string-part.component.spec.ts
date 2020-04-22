@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { KeyValueFieldComponent } from './key-value-field.component';
+import { StringPartComponent } from './string-part.component';
 
-describe('KeyValueFieldComponent', () => {
-  let component: KeyValueFieldComponent;
-  let fixture: ComponentFixture<KeyValueFieldComponent>;
+describe('StringPartComponent', () => {
+  let component: StringPartComponent;
+  let fixture: ComponentFixture<StringPartComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ KeyValueFieldComponent ]
+      declarations: [ StringPartComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(KeyValueFieldComponent);
+    fixture = TestBed.createComponent(StringPartComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

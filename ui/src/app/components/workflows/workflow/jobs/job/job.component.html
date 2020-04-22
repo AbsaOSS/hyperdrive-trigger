@@ -13,27 +13,25 @@
   ~ limitations under the License.
   -->
 
-<app-workflow-fields
-  [mode]="mode"
+<app-dynamic-parts
   [isShow]="mode == workflowModes.SHOW"
-  [workflowComponent]="[staticJobPart]"
-  [modelChanges]="jobChanges"
-  [value]="jobData">
-</app-workflow-fields>
+  [formParts]="[staticJobPart]"
+  [valueChanges]="jobChanges"
+  [values]="jobData">
+</app-dynamic-parts>
 
-<app-select-field
+<app-select-part
   [isShow]="mode == workflowModes.SHOW"
-  [fieldName]="dynamicSwitchJobPart.name"
+  [name]="dynamicSwitchJobPart.name"
   [value]="getValue(dynamicSwitchJobPart.property)"
   [options]="getJobTypes()"
   [valueChanges]="jobChanges"
   [property]="dynamicSwitchJobPart.property">
-</app-select-field>
+</app-select-part>
 
-<app-workflow-fields
-  [mode]="mode"
+<app-dynamic-parts
   [isShow]="mode == workflowModes.SHOW"
-  [workflowComponent]="getSelectedJobComponent()"
-  [modelChanges]="jobChanges"
-  [value]="jobData">
-</app-workflow-fields>
+  [formParts]="getSelectedJobComponent()"
+  [valueChanges]="jobChanges"
+  [values]="jobData">
+</app-dynamic-parts>

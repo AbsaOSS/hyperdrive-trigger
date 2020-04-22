@@ -1,0 +1,4 @@
+<clr-input-container>
+  <label>{{name}}</label>
+  <input [readOnly]="isShow" clrInput type="text" [size]="60" [(ngModel)]="value" (ngModelChange)="modelChanged($event)"/>
+</clr-input-container>

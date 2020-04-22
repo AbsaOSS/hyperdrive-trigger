@@ -1,39 +1,27 @@
-import {AfterViewChecked, AfterViewInit, Component, Input, OnChanges, OnInit} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {Subject} from "rxjs";
 import cloneDeep from 'lodash/cloneDeep';
+import {WorkflowEntryModel} from "../../../../../models/workflowEntry.model";
 
 @Component({
-  selector: 'app-key-value-field',
-  templateUrl: './key-value-field.component.html',
-  styleUrls: ['./key-value-field.component.scss']
+  selector: 'app-key-string-value-part',
+  templateUrl: './key-string-value-part.component.html',
+  styleUrls: ['./key-string-value-part.component.scss']
 })
-export class KeyValueFieldComponent implements OnInit, AfterViewChecked, OnChanges, AfterViewInit {
+export class KeyStringValuePartComponent implements OnInit {
 
   @Input() isShow: boolean;
-  @Input() fieldName: string;
+  @Input() name: string;
   @Input() value: [String, String][];
   @Input() property: string;
-  @Input() valueChanges: Subject<{property: string, value: any}>;
-
-  ngOnChanges(changes: import("@angular/core").SimpleChanges): void {
-    // if(!this.value || this.value.length == 0)
-    //   this.modelChanged([['', '']]);
-  }
-
-  ngAfterViewChecked(): void {
-  }
+  @Input() valueChanges: Subject<WorkflowEntryModel>;
 
   ngOnInit(): void {
     if(!this.value || this.value.length == 0)
       this.modelChanged([['', '']]);
   }
 
-  ngAfterViewInit(): void {
-    // if(!this.value || this.value.length == 0)
-    //   this.modelChanged([['', '']]);
-  }
-
-    trackByFn(index, item) {
+  trackByFn(index, item) {
     return index;
   }
 
@@ -64,7 +52,7 @@ export class KeyValueFieldComponent implements OnInit, AfterViewChecked, OnChang
 
   modelChanged(value: [String, String][]) {
     this.value = value;
-    this.valueChanges.next({property: this.property, value: value});
+    this.valueChanges.next(new WorkflowEntryModel(this.property, value));
   }
 
 }

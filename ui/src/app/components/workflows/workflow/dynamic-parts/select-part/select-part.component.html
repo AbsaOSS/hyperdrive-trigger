@@ -1,6 +1,6 @@
 <div *ngIf="!isShow">
   <clr-select-container>
-    <label>{{fieldName}}</label>
+    <label>{{name}}</label>
     <select clrSelect [(ngModel)]="value" (ngModelChange)="modelChanged($event)">
       <option *ngFor="let option of options" [value]="option">{{option}}</option>
     </select>
@@ -9,7 +9,7 @@
 
 <div *ngIf="isShow">
   <clr-input-container>
-    <label class="clr-control-label">{{fieldName}}</label>
+    <label class="clr-control-label">{{name}}</label>
     <input clrInput type="text" [(ngModel)]="value" [readOnly]="true"/>
   </clr-input-container>
 </div>

@@ -13,25 +13,11 @@
  * limitations under the License.
  */
 
-export class WorkflowComponentsModel {
-  constructor(
-    public jobComponents: ComponentModel[],
-    public sensorComponents: ComponentModel[]
-  ) {}
-}
+import {WorkflowModel} from "./workflow.model";
 
-export class ComponentModel {
+export class WorkflowEntryModel {
   constructor(
-    public name: string,
-    public properties: Property[]
-  ) {}
-}
-
-export class Property {
-  constructor(
-    public type: string,
-    public name: string,
-    public path: string,
-    public options?: string[]
+    public property: string,
+    public value: any
   ) {}
 }

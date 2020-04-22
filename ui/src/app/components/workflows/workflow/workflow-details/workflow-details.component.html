@@ -13,33 +13,9 @@
   ~ limitations under the License.
   -->
 
-<app-workflow-fields
-  [mode]="mode"
+<app-dynamic-parts
   [isShow]="mode == workflowModes.SHOW"
-  [workflowComponent]="parts"
-  [modelChanges]="detailsChanges"
-  [value]="data">
-</app-workflow-fields>
-
-
-<!--<app-string-field-->
-<!--  [isShow]="mode == workflowModes.SHOW"-->
-<!--  [fieldName]="'Workflow name'"-->
-<!--  [value]="getValue('name')"-->
-<!--  [valueChanges]="detailsChanges"-->
-<!--  [property]="'name'">-->
-<!--</app-string-field>-->
-<!--<app-string-field-->
-<!--  [isShow]="mode == workflowModes.SHOW"-->
-<!--  [fieldName]="'Project name'"-->
-<!--  [value]="getValue('project')"-->
-<!--  [valueChanges]="detailsChanges"-->
-<!--  [property]="'project'">-->
-<!--</app-string-field>-->
-<!--<app-boolean-field-->
-<!--  [isShow]="mode == workflowModes.SHOW"-->
-<!--  [fieldName]="'Is active'"-->
-<!--  [value]="getValue('isActive')"-->
-<!--  [valueChanges]="detailsChanges"-->
-<!--  [property]="'isActive'">-->
-<!--</app-boolean-field>-->
+  [formParts]="parts"
+  [valueChanges]="detailsChanges"
+  [values]="data">
+</app-dynamic-parts>

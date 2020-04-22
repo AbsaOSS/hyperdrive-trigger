@@ -13,16 +13,15 @@
  * limitations under the License.
  */
 
-import {AfterViewInit, ChangeDetectionStrategy, Component, Input, OnInit} from '@angular/core';
-import {WorkflowJoinedModel} from "../../../../models/workflowJoined.model";
+import {AfterViewInit, ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
 import {workflowModes} from "../../../../models/enums/workflowModes.constants";
-import {pipe, Subject, Subscription} from "rxjs";
+import {Subject, Subscription} from "rxjs";
 import {distinctUntilChanged} from "rxjs/operators";
-import cloneDeep from 'lodash/cloneDeep';
 import {Store} from "@ngrx/store";
 import {AppState, selectWorkflowState} from "../../../../stores/app.reducers";
-import { WorkflowDetailsChanged} from "../../../../stores/workflows/workflows.actions";
+import {WorkflowDetailsChanged} from "../../../../stores/workflows/workflows.actions";
 import {FormPart} from "../../../../models/workflowFormParts.model";
+import {WorkflowEntryModel} from "../../../../models/workflowEntry.model";
 
 @Component({
   selector: 'app-workflow-details',
@@ -37,16 +36,16 @@ export class WorkflowDetailsComponent implements AfterViewInit, OnInit {
 
   workflowModes = workflowModes;
 
-  detailsChanges: Subject<{property: string, value: any}> = new Subject<{property: string, value: any}>();
+  detailsChanges: Subject<WorkflowEntryModel> = new Subject<WorkflowEntryModel>();
   detailsChangesSubscription: Subscription;
   parts: FormPart[];
 
-  data: {property: string, value: any}[];
+  data: { property: string, value: any }[];
 
   constructor(private store: Store<AppState>) {
     this.workflowSubscription = this.store.select(selectWorkflowState).subscribe((state) => {
       this.mode = state.workflowAction.mode;
-      this.data = state.workflowAction.workflowChanges.details;
+      this.data = state.workflowAction.workflowData.details;
       this.parts = state.workflowFormParts.detailsParts;
     });
   }

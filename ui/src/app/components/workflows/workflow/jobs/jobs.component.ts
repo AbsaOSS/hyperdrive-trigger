@@ -13,12 +13,11 @@
  * limitations under the License.
  */
 
-import {AfterViewInit, Component, Input, OnInit} from '@angular/core';
+import {AfterViewInit, Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {WorkflowJoinedModel} from "../../../../models/workflowJoined.model";
 import {workflowModes} from "../../../../models/enums/workflowModes.constants";
 import {Subject, Subscription} from "rxjs";
 import {JobDefinitionModel} from "../../../../models/jobDefinition.model";
-import {ComponentModel} from "../../../../models/workflowComponents.model";
 import {distinctUntilChanged} from "rxjs/operators";
 import cloneDeep from 'lodash/cloneDeep';
 import {AppState, selectWorkflowState} from "../../../../stores/app.reducers";
@@ -35,7 +34,7 @@ import {
   templateUrl: './jobs.component.html',
   styleUrls: ['./jobs.component.scss']
 })
-export class JobsComponent implements OnInit {
+export class JobsComponent implements OnInit, OnDestroy {
 
   workflowSubscription: Subscription;
 
@@ -48,7 +47,7 @@ export class JobsComponent implements OnInit {
   constructor(private store: Store<AppState>) {
     this.workflowSubscription = this.store.select(selectWorkflowState).subscribe((state) => {
 
-      this.jobData = state.workflowAction.workflowChanges.jobs;
+      this.jobData = state.workflowAction.workflowData.jobs;
       if(this.jobData.length == 0) {
           this.store.dispatch(new WorkflowAddEmptyJob(0));
       }
@@ -73,5 +72,9 @@ export class JobsComponent implements OnInit {
 
   addJob() {
     this.store.dispatch(new WorkflowAddEmptyJob(this.jobData.length));
+  }
+
+  ngOnDestroy(): void {
+    this.workflowSubscription.unsubscribe();
   }
 }

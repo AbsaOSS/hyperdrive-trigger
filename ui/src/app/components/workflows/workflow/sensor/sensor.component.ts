@@ -19,7 +19,6 @@ import {workflowModes} from "../../../../models/enums/workflowModes.constants";
 import {Subject, Subscription} from "rxjs";
 import cloneDeep from 'lodash/cloneDeep';
 import set from 'lodash/set';
-import {ComponentModel} from "../../../../models/workflowComponents.model";
 import {distinctUntilChanged} from "rxjs/operators";
 import {Store} from "@ngrx/store";
 import {AppState, selectWorkflowState} from "../../../../stores/app.reducers";
@@ -62,7 +61,7 @@ export class SensorComponent implements OnInit, AfterViewInit {
 
       this.sensorDynamicParts = state.workflowFormParts.dynamicParts.sensorDynamicParts;
       this.dynamicSwitchSensorPart = state.workflowFormParts.dynamicSwitchSensorPart;
-      this.sensorData = state.workflowAction.workflowChanges.sensor;
+      this.sensorData = state.workflowAction.workflowData.sensor;
 
       let selected = this.sensorData.find(xxx => xxx.property == this.dynamicSwitchSensorPart.property);
       this.selectedSensor = !!selected ? selected.value : undefined;

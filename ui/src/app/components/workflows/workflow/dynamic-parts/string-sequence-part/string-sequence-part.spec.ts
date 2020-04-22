@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { BooleanFieldComponent } from './boolean-field.component';
+import { StringSequencePartComponent } from './string-sequence-part.component';
 
-describe('BooleanFieldComponent', () => {
-  let component: BooleanFieldComponent;
-  let fixture: ComponentFixture<BooleanFieldComponent>;
+describe('StringSequencePartComponent', () => {
+  let component: StringSequencePartComponent;
+  let fixture: ComponentFixture<StringSequencePartComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ BooleanFieldComponent ]
+      declarations: [ StringSequencePartComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(BooleanFieldComponent);
+    fixture = TestBed.createComponent(StringSequencePartComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

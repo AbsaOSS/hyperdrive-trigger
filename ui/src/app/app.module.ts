@@ -51,15 +51,15 @@ import {WorkflowComponent} from './components/workflows/workflow/workflow.compon
 import {WorkflowDetailsComponent} from './components/workflows/workflow/workflow-details/workflow-details.component';
 import {SensorComponent} from './components/workflows/workflow/sensor/sensor.component';
 import {JobsComponent} from './components/workflows/workflow/jobs/jobs.component';
-import {StringFieldComponent} from './components/workflows/workflow/workflow-fields/string-field/string-field.component';
-import {BooleanFieldComponent} from './components/workflows/workflow/workflow-fields/boolean-field/boolean-field.component';
-import {SelectFieldComponent} from './components/workflows/workflow/workflow-fields/select-field/select-field.component';
-import {SetFieldComponent} from './components/workflows/workflow/workflow-fields/set-field/set-field.component';
-import {KeyValueFieldComponent} from './components/workflows/workflow/workflow-fields/key-value-field/key-value-field.component';
-import {GuidFieldComponent} from './components/workflows/workflow/workflow-fields/guid-field/guid-field.component';
-import {CronQuartzFieldComponent} from './components/workflows/workflow/workflow-fields/cron-quartz-field/cron-quartz-field.component';
+import {StringPartComponent} from './components/workflows/workflow/dynamic-parts/string-part/string-part.component';
+import {BooleanPartComponent} from './components/workflows/workflow/dynamic-parts/boolean-part/boolean-part.component';
+import {SelectPartComponent} from './components/workflows/workflow/dynamic-parts/select-part/select-part.component';
+import {StringSequencePartComponent} from './components/workflows/workflow/dynamic-parts/string-sequence-part/string-sequence-part.component';
+import {KeyStringValuePartComponent} from './components/workflows/workflow/dynamic-parts/key-string-value-part/key-string-value-part.component';
+import {GuidFieldComponent} from './components/workflows/workflow/dynamic-parts/guid-field/guid-field.component';
+import {CronQuartzFieldComponent} from './components/workflows/workflow/dynamic-parts/cron-quartz-field/cron-quartz-field.component';
 import {JobComponent} from './components/workflows/workflow/jobs/job/job.component';
-import {WorkflowFieldsComponent} from "./components/workflows/workflow/workflow-fields/workflow-fields.component";
+import {DynamicPartsComponent} from "./components/workflows/workflow/dynamic-parts/dynamic-parts.component";
 
 @NgModule({
   declarations: [
@@ -79,14 +79,14 @@ import {WorkflowFieldsComponent} from "./components/workflows/workflow/workflow-
     SensorComponent,
     JobsComponent,
     JobComponent,
-    StringFieldComponent,
-    BooleanFieldComponent,
-    SelectFieldComponent,
-    SetFieldComponent,
-    KeyValueFieldComponent,
+    StringPartComponent,
+    BooleanPartComponent,
+    SelectPartComponent,
+    StringSequencePartComponent,
+    KeyStringValuePartComponent,
     GuidFieldComponent,
     CronQuartzFieldComponent,
-    WorkflowFieldsComponent
+    DynamicPartsComponent
   ],
   imports: [
     BrowserModule,

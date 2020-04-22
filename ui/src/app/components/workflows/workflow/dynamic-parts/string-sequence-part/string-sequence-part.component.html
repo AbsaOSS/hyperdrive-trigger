@@ -1,0 +1,14 @@
+<clr-control-container *ngFor="let val of value; let i = index; trackBy: trackByFn;">
+  <label *ngIf="i == 0">{{name}}</label>
+  <input clrControl [readOnly]="isShow" type="text" [size]="70" [ngModel]="val" (ngModelChange)="ngModelChanged($event, i)"/>
+
+  <button *ngIf="!isShow" type="button" class="btn btn-link" (click)="onDeleteServer(i)">
+    <clr-icon shape="trash"></clr-icon>
+  </button>
+
+  <button type="button" class="btn btn-link" *ngIf="!isShow && value.length - 1 === i" (click)="onServerAdd()">
+    <clr-icon shape="plus"></clr-icon>
+  </button>
+
+</clr-control-container>
+
