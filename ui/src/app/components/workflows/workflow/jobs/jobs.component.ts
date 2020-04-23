@@ -13,37 +13,29 @@
  * limitations under the License.
  */
 
-import {AfterViewInit, Component, Input, OnDestroy, OnInit} from '@angular/core';
-import {WorkflowJoinedModel} from "../../../../models/workflowJoined.model";
+import {Component, OnDestroy} from '@angular/core';
 import {workflowModes} from "../../../../models/enums/workflowModes.constants";
-import {Subject, Subscription} from "rxjs";
-import {JobDefinitionModel} from "../../../../models/jobDefinition.model";
-import {distinctUntilChanged} from "rxjs/operators";
+import {Subscription} from "rxjs";
 import cloneDeep from 'lodash/cloneDeep';
 import {AppState, selectWorkflowState} from "../../../../stores/app.reducers";
 import {Store} from "@ngrx/store";
-import {DynamicFormPart, FormPart} from "../../../../models/workflowFormParts.model";
-import {
-  WorkflowAddEmptyJob,
-  WorkflowSensorChanged,
-  WorkflowSensorCleaned
-} from "../../../../stores/workflows/workflows.actions";
+import {FormPart} from "../../../../models/workflowFormParts.model";
+import {WorkflowAddEmptyJob} from "../../../../stores/workflows/workflows.actions";
+import {JobEntryModel} from "../../../../models/jobEntry.model";
 
 @Component({
   selector: 'app-jobs',
   templateUrl: './jobs.component.html',
   styleUrls: ['./jobs.component.scss']
 })
-export class JobsComponent implements OnInit, OnDestroy {
-
-  workflowSubscription: Subscription;
-
-  mode: string;
-  jobData: {order: number, job: {property: string, value: any}[]}[];
-
+export class JobsComponent implements OnDestroy {
   workflowModes = workflowModes;
+  mode: string;
+  jobData: JobEntryModel[];
   hiddenJobs: {order: number, isHidden: boolean}[] = [];
   staticJobPart: FormPart;
+
+  workflowSubscription: Subscription;
 
   constructor(private store: Store<AppState>) {
     this.workflowSubscription = this.store.select(selectWorkflowState).subscribe((state) => {
@@ -57,8 +49,6 @@ export class JobsComponent implements OnInit, OnDestroy {
       }
     });
   }
-
-  ngOnInit(): void {}
 
   trackByFn(index, item) {
     return index;

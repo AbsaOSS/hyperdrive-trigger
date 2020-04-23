@@ -1,3 +1,18 @@
+/*
+ * Copyright 2018 ABSA Group Limited
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import {Component, Input, OnInit} from '@angular/core';
 import {Subject} from "rxjs";
 import {WorkflowEntryModel} from "../../../../../models/workflowEntry.model";
@@ -28,13 +43,13 @@ export class StringSequencePartComponent implements OnInit {
     return index;
   }
 
-  onDeleteServer(index: number) {
+  onDeleteValue(index: number) {
     const clonedValue  = Object.assign([], this.value);
     this.value.length === 1 ? clonedValue[0] = '' : clonedValue.splice(index, 1);
     this.modelChanged(clonedValue);
   }
 
-  onServerAdd() {
+  onAddValue() {
     const clonedValue  = Object.assign([], this.value);
     clonedValue.push('');
     this.modelChanged(clonedValue);

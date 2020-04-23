@@ -13,20 +13,13 @@
  * limitations under the License.
  */
 
-import {AfterViewInit, ChangeDetectionStrategy, Component, Input, OnInit} from '@angular/core';
-import {JobDefinitionModel} from "../../../../../models/jobDefinition.model";
+import {ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {Subject, Subscription} from "rxjs";
-import {distinctUntilChanged} from "rxjs/operators";
-import cloneDeep from 'lodash/cloneDeep';
-import set from 'lodash/set';
 import {workflowModes} from "../../../../../models/enums/workflowModes.constants";
 import {DynamicFormPart, FormPart} from "../../../../../models/workflowFormParts.model";
 import {Store} from "@ngrx/store";
 import {AppState, selectWorkflowState} from "../../../../../stores/app.reducers";
-import {
-  WorkflowJobChanged,
-  WorkflowJobCleaned
-} from "../../../../../stores/workflows/workflows.actions";
+import {WorkflowJobChanged, WorkflowJobCleaned} from "../../../../../stores/workflows/workflows.actions";
 import {WorkflowEntryModel} from "../../../../../models/workflowEntry.model";
 
 @Component({
@@ -35,23 +28,19 @@ import {WorkflowEntryModel} from "../../../../../models/workflowEntry.model";
   styleUrls: ['./job.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class JobComponent implements OnInit {
+export class JobComponent implements OnInit, OnDestroy {
   @Input() jobIndex: number;
-
-  workflowSubscription: Subscription;
-
+  workflowModes = workflowModes;
+  selectedJob: string;
   mode: string;
-  jobData: {property: string, value: any}[];
-
+  jobData: WorkflowEntryModel[];
   jobDynamicParts: DynamicFormPart[];
   dynamicSwitchJobPart: FormPart;
   staticJobPart: FormPart;
 
-  jobChanges: Subject<{property: string, value: any}> = new Subject<{property: string, value: any}>();
+  jobChanges: Subject<WorkflowEntryModel> = new Subject<WorkflowEntryModel>();
   jobChangesSubscription: Subscription;
-
-  workflowModes = workflowModes;
-  selectedJob: string;
+  workflowSubscription: Subscription;
 
   constructor(private store: Store<AppState>) {}
 
@@ -63,42 +52,43 @@ export class JobComponent implements OnInit {
       this.dynamicSwitchJobPart = state.workflowFormParts.dynamicSwitchJobPart;
       this.staticJobPart = state.workflowFormParts.staticJobPart;
 
-      let jobDataOption = state.workflowAction.workflowData.jobs.find(xxx => xxx.order == this.jobIndex);
+      let jobDataOption = state.workflowAction.workflowData.jobs.find(job => job.order == this.jobIndex);
       this.jobData = !!jobDataOption ? jobDataOption.job : [];
 
-      let selected = this.jobData.find(xxx => xxx.property == this.dynamicSwitchJobPart.property);
+      let selected = this.jobData.find(value => value.property == this.dynamicSwitchJobPart.property);
       this.selectedJob = !!selected ? selected.value : undefined;
     });
 
-    this.jobChangesSubscription = this.jobChanges.pipe(
-    ).subscribe(jobChange => {
-
+    this.jobChangesSubscription = this.jobChanges.subscribe(jobChange => {
       if(jobChange.property == this.dynamicSwitchJobPart.property){
-
         this.store.dispatch(new WorkflowJobCleaned(
           {order: this.jobIndex, jobEntry: new WorkflowEntryModel(jobChange.property, jobChange.value)}
         ));
       } else {
         this.store.dispatch(new WorkflowJobChanged(
           {order: this.jobIndex, jobEntry: new WorkflowEntryModel(jobChange.property, jobChange.value)}
-          ));
+        ));
       }
     });
   }
+
   getJobTypes(): string[] {
-    return this.jobDynamicParts.map(component => component.name)
+    return this.jobDynamicParts.map(part => part.name)
   }
 
   getSelectedJobComponent(): FormPart[] {
-    let sensorComponent = this.jobDynamicParts.find(sc => sc.name == this.selectedJob);
-    return sensorComponent ? sensorComponent.parts : this.jobDynamicParts[0].parts;
+    let jobDynamicPart = this.jobDynamicParts.find(jdp => jdp.name == this.selectedJob);
+    return jobDynamicPart ? jobDynamicPart.parts : this.jobDynamicParts[0].parts;
   }
 
   getValue(prop: string) {
-    let val = this.jobData.find(xxx => {
-      return xxx.property == prop;
-    });
+    let val = this.jobData.find(value => value.property == prop);
     return !!val ? val.value : undefined;
+  }
+
+  ngOnDestroy(): void {
+    this.jobChangesSubscription.unsubscribe();
+    this.workflowSubscription.unsubscribe();
   }
 
 }

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import {AfterViewInit, ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, OnDestroy, OnInit} from '@angular/core';
 import {workflowModes} from "../../../../models/enums/workflowModes.constants";
 import {Subject, Subscription} from "rxjs";
 import {distinctUntilChanged} from "rxjs/operators";
@@ -29,18 +29,15 @@ import {WorkflowEntryModel} from "../../../../models/workflowEntry.model";
   styleUrls: ['./workflow-details.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class WorkflowDetailsComponent implements AfterViewInit, OnInit {
-  mode: string;
-
-  workflowSubscription: Subscription;
-
+export class WorkflowDetailsComponent implements OnInit, OnDestroy {
   workflowModes = workflowModes;
+  mode: string;
+  parts: FormPart[];
+  data: WorkflowEntryModel[];
 
   detailsChanges: Subject<WorkflowEntryModel> = new Subject<WorkflowEntryModel>();
   detailsChangesSubscription: Subscription;
-  parts: FormPart[];
-
-  data: { property: string, value: any }[];
+  workflowSubscription: Subscription;
 
   constructor(private store: Store<AppState>) {
     this.workflowSubscription = this.store.select(selectWorkflowState).subscribe((state) => {
@@ -54,18 +51,18 @@ export class WorkflowDetailsComponent implements AfterViewInit, OnInit {
     this.detailsChangesSubscription = this.detailsChanges.pipe(
       distinctUntilChanged()
     ).subscribe(newValue => {
-      this.store.dispatch(new WorkflowDetailsChanged({property: newValue.property, value: newValue.value}));
+      this.store.dispatch(new WorkflowDetailsChanged(new WorkflowEntryModel(newValue.property, newValue.value)));
     });
-  }
-
-  ngAfterViewInit(): void {
   }
 
   getValue(prop: string) {
-    let val = this.data.find(xxx => {
-      return xxx.property == prop;
-    });
+    let val = this.data.find(value =>  value.property == prop);
     return !!val ? val.value : undefined;
+  }
+
+  ngOnDestroy(): void {
+    this.detailsChangesSubscription.unsubscribe();
+    this.workflowSubscription.unsubscribe();
   }
 
 }

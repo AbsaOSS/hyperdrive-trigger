@@ -25,7 +25,7 @@ import {workflowModes} from "../../models/enums/workflowModes.constants";
 import {DynamicFormParts, WorkflowFormPartsModel} from "../../models/workflowFormParts.model";
 import {workflowFromPartsSequences, workflowFormParts as workflowFormPartsConsts} from "../../constants/workflowFromParts.constants";
 import get from 'lodash/get';
-import {AppState, selectWorkflowState} from "../../stores/app.reducers";
+import {AppState, selectWorkflowState} from "../app.reducers";
 import {Store} from "@ngrx/store";
 import * as fromWorkflows from "./workflows.reducers";
 import {WorkflowEntryModel} from "../../models/workflowEntry.model";
