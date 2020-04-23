@@ -53,6 +53,7 @@ export class MultipleStatusFilterComponent implements ClrDatagridFilterInterface
 
   ngOnDestroy(): void {
     this.removeFiltersSubject.unsubscribe();
+    this.modelSubscription.unsubscribe();
   }
 
   toggleStatuses(statusModel) {
@@ -66,8 +67,8 @@ export class MultipleStatusFilterComponent implements ClrDatagridFilterInterface
   }
 
   accepts(item: DagRunModel): boolean {
-    for (const currentItem of this.statuses) {
-      if (currentItem.name === item[this.property]) {
+    for (const selectedStatus of this.selectedValues) {
+      if (this.selectedValues.length === 0 || selectedStatus === item[this.property]) {
         return true;
       }
     }
