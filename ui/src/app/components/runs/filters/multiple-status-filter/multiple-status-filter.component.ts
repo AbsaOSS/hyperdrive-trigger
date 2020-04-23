@@ -67,8 +67,11 @@ export class MultipleStatusFilterComponent implements ClrDatagridFilterInterface
   }
 
   accepts(item: DagRunModel): boolean {
+    if (this.selectedValues.length === 0) {
+      return true;
+    }
     for (const selectedStatus of this.selectedValues) {
-      if (this.selectedValues.length === 0 || selectedStatus === item[this.property]) {
+      if (selectedStatus === item[this.property]) {
         return true;
       }
     }
