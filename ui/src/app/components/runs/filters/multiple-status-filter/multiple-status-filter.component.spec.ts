@@ -18,7 +18,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { MultipleStatusFilterComponent } from './multiple-status-filter.component';
 import { DagRunModel } from '../../../../models/dagRuns/dagRun.model';
 
-fdescribe('MultipleStatusFilterComponent', () => {
+describe('MultipleStatusFilterComponent', () => {
   let fixture: ComponentFixture<MultipleStatusFilterComponent>;
 
   beforeEach(async(() => {
