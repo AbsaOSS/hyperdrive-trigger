@@ -45,8 +45,8 @@ import {WorkflowsEffects} from "./stores/workflows/workflows.effects";
 import {WorkflowsHomeComponent} from './components/workflows/workflows-home/workflows-home.component';
 import {StringFilterComponent} from './components/runs/filters/string-filter/string-filter.component';
 import {DatetimeRangeFilterComponent} from "./components/runs/filters/datetime-range-filter/datetime-range-filter.component";
-import {StatusFilterComponent} from "./components/runs/filters/status-filter/status-filter.component";
 import {NumberRangeFilterComponent} from "./components/runs/filters/number-range-filter/number-range-filter.component";
+import {MultipleStatusFilterComponent} from './components/runs/filters/multiple-status-filter/multiple-status-filter.component';
 
 @NgModule({
   declarations: [
@@ -59,8 +59,8 @@ import {NumberRangeFilterComponent} from "./components/runs/filters/number-range
     WorkflowsHomeComponent,
     StringFilterComponent,
     DatetimeRangeFilterComponent,
-    StatusFilterComponent,
-    NumberRangeFilterComponent
+    NumberRangeFilterComponent,
+    MultipleStatusFilterComponent
   ],
   imports: [
     BrowserModule,
