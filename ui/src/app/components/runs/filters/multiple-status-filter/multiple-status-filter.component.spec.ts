@@ -17,9 +17,8 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { MultipleStatusFilterComponent } from './multiple-status-filter.component';
 import { DagRunModel } from '../../../../models/dagRuns/dagRun.model';
-import {dagInstanceStatuses} from '../../../../models/enums/dagInstanceStatuses.constants';
 
-describe('MultipleStatusFilterComponent', () => {
+fdescribe('MultipleStatusFilterComponent', () => {
   let fixture: ComponentFixture<MultipleStatusFilterComponent>;
 
   beforeEach(async(() => {
@@ -41,7 +40,7 @@ describe('MultipleStatusFilterComponent', () => {
   describe('accepts', () => {
     it('should accept on exact matches', () => {
       const underTest = fixture.componentInstance;
-      underTest.statuses = dagInstanceStatuses.getStatuses();
+      underTest.selectedValues = ['Failed', 'Running'];
       underTest.property = 'status';
       const dagRun = new DagRunModel(
         'workflowName', 'projectName', 8, 'Failed', new Date(Date.now()), new Date(Date.now()), 0
@@ -52,7 +51,7 @@ describe('MultipleStatusFilterComponent', () => {
 
     it('should not accept on partial match', () => {
       const underTest = fixture.componentInstance;
-      underTest.statuses = dagInstanceStatuses.getStatuses();
+      underTest.selectedValues = ['Failed', 'Running'];
       underTest.property = 'status';
       const dagRun = new DagRunModel(
         'workflowName', 'projectName', 8, 'Fail', new Date(Date.now()), new Date(Date.now()), 0
@@ -63,7 +62,7 @@ describe('MultipleStatusFilterComponent', () => {
 
     it('should not accept on no match', () => {
       const underTest = fixture.componentInstance;
-      underTest.statuses = dagInstanceStatuses.getStatuses();
+      underTest.selectedValues = ['Failed', 'Running'];
       underTest.property = 'status';
       const dagRun = new DagRunModel(
         'workflowName', 'projectName', 8, 'differentStatus', new Date(Date.now()), new Date(Date.now()), 0
@@ -72,9 +71,9 @@ describe('MultipleStatusFilterComponent', () => {
       expect(underTest.accepts(dagRun)).toBeFalse();
     });
 
-    it('should not accept on empty filter status value', () => {
+    it('should not accept on empty selected status', () => {
       const underTest = fixture.componentInstance;
-      underTest.statuses = [];
+      underTest.selectedValues = [];
       underTest.property = 'status';
       const dagRun = new DagRunModel(
         'workflowName', 'projectName', 8, 'Failed', new Date(Date.now()), new Date(Date.now()), 0
