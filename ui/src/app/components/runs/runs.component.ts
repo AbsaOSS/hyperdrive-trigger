@@ -25,10 +25,10 @@ import {dagRunColumns} from "../../constants/dagRunColumns.constants";
 import {dagInstanceStatuses} from "../../models/enums/dagInstanceStatuses.constants";
 import {ContainsFilterAttributes} from '../../models/search/containsFilterAttributes.model';
 import {TableSearchRequestModel} from '../../models/search/tableSearchRequest.model';
-import {StringEqualsFilterAttributes} from '../../models/search/stringEqualsFilterAttributes.model';
 import {IntRangeFilterAttributes} from '../../models/search/intRangeFilterAttributes.model';
 import {DateTimeRangeFilterAttributes} from '../../models/search/dateTimeRangeFilterAttributes.model';
 import {SortAttributesModel} from '../../models/search/sortAttributes.model';
+import {EqualsMultipleFilterAttributes} from '../../models/search/equalsMultipleFilterAttributes.model';
 
 @Component({
   selector: 'app-runs',
@@ -82,10 +82,10 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
       from: this.pageFrom,
       size: this.pageSize,
       sort: this.sort,
-      stringEqualsFilterAttributes: this.filters.filter(f => f instanceof StringEqualsFilterAttributes),
       containsFilterAttributes: this.filters.filter(f => f instanceof ContainsFilterAttributes),
       intRangeFilterAttributes: this.filters.filter(f => f instanceof IntRangeFilterAttributes),
-      dateTimeRangeFilterAttributes: this.filters.filter(f => f instanceof DateTimeRangeFilterAttributes)
+      dateTimeRangeFilterAttributes: this.filters.filter(f => f instanceof DateTimeRangeFilterAttributes),
+      equalsMultipleFilterAttributes: this.filters.filter(f => f instanceof EqualsMultipleFilterAttributes)
     };
 
     this.store.dispatch(new GetDagRuns(searchRequestModel));
