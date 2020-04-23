@@ -71,7 +71,7 @@ describe('MultipleStatusFilterComponent', () => {
       expect(underTest.accepts(dagRun)).toBeFalse();
     });
 
-    it('should not accept on empty selected status', () => {
+    it('should accept on empty selected status', () => {
       const underTest = fixture.componentInstance;
       underTest.selectedValues = [];
       underTest.property = 'status';
@@ -79,7 +79,7 @@ describe('MultipleStatusFilterComponent', () => {
         'workflowName', 'projectName', 8, 'Failed', new Date(Date.now()), new Date(Date.now()), 0
       );
 
-      expect(underTest.accepts(dagRun)).toBeFalse();
+      expect(underTest.accepts(dagRun)).toBeTrue();
     });
   });
 });
