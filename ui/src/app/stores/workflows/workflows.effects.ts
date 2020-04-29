@@ -24,12 +24,10 @@ import {WorkflowJoinedModel} from "../../models/workflowJoined.model";
 import {workflowModes} from "../../models/enums/workflowModes.constants";
 import {DynamicFormParts, WorkflowFormPartsModel} from "../../models/workflowFormParts.model";
 import {workflowFormPartsSequences, workflowFormParts as workflowFormPartsConsts} from "../../constants/workflowFromParts.constants";
-import get from 'lodash/get';
 import {AppState, selectWorkflowState} from "../app.reducers";
 import {Store} from "@ngrx/store";
 import * as fromWorkflows from "./workflows.reducers";
-import {WorkflowEntryModel} from "../../models/workflowEntry.model";
-import {JobEntryModel} from "../../models/jobEntry.model";
+import {WorkflowDataModel} from "../../models/workflowData.model";
 
 @Injectable()
 export class WorkflowsEffects {
@@ -88,44 +86,16 @@ export class WorkflowsEffects {
           return this.workflowService.getWorkflow(action.payload.id).pipe(
 
             mergeMap((worfklow: WorkflowJoinedModel) => {
-              let workflowDetailsData = workflowFormPartsSequences.allDetails.map(detail => {
-                let value = get(worfklow, detail.property);
-                if(value != undefined) {
-                  return new WorkflowEntryModel(detail.property, value);
-                }
-              });
-
-              let sensorType = workflowFormPartsConsts.SENSOR.SENSOR_TYPE;
-              let sensorTypeValue = get(worfklow.sensor, sensorType.property);
-              let sensorDynamicParts = state.workflowFormParts.dynamicParts.sensorDynamicParts.find(
-                part => part.name == sensorTypeValue
-              ).parts;
-              let sensorData = sensorDynamicParts.concat(sensorType).map(part => {
-                let value = get(worfklow.sensor, part.property);
-                if(value != undefined) {
-                  return new WorkflowEntryModel(part.property, value);
-                }
-              });
-
-              let jobsData = worfklow.dagDefinitionJoined.jobDefinitions.map( job => {
-                let jobStaticPart = workflowFormPartsConsts.JOB.JOB_NAME;
-                let jobDynamicPart = workflowFormPartsConsts.JOB.JOB_TYPE;
-                let jobDynamicPartValue = get(job, jobDynamicPart.property);
-                let jobDynamicParts = state.workflowFormParts.dynamicParts.jobDynamicParts.find(
-                  part => part.name == jobDynamicPartValue
-                ).parts;
-                let jobData = jobDynamicParts.concat(jobDynamicPart, jobStaticPart).map(part => {
-                  let value = get(job, part.property);
-                  if(value != undefined) {
-                    return new WorkflowEntryModel(part.property, value);
-                  }
-                });
-                return new JobEntryModel(job.order, jobData);
-              });
+              let workflowData = new WorkflowDataModel(worfklow, state.workflowFormParts.dynamicParts);
 
               return [{
                 type: WorkflowActions.LOAD_WORKFLOW_SUCCESS,
-                payload: {workflow: worfklow, detailsData: workflowDetailsData, sensorData: sensorData, jobsData: jobsData}
+                payload: {
+                  workflow: worfklow,
+                  detailsData: workflowData.getDetailsData(),
+                  sensorData: workflowData.getSensorData(),
+                  jobsData: workflowData.getJobsData()
+                }
               }];
             }),
             catchError(() => {
