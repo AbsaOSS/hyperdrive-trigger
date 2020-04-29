@@ -65,7 +65,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
     case (WorkflowsActions.INITIALIZE_WORKFLOWS_FAILURE):
       return {...initialState, loading: false};
 
-    case (WorkflowsActions.STAR_WORKFLOW_INITIALIZATION):
+    case (WorkflowsActions.START_WORKFLOW_INITIALIZATION):
       return {...state, workflowAction: {
           ...initialState.workflowAction, id: action.payload.id, mode: action.payload.mode, loading: true
         }};

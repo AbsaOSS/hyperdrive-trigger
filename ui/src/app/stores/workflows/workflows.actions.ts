@@ -25,7 +25,7 @@ export const INITIALIZE_WORKFLOWS = 'INITIALIZE_WORKFLOWS';
 export const INITIALIZE_WORKFLOWS_SUCCESS = 'INITIALIZE_WORKFLOWS_SUCCESS';
 export const INITIALIZE_WORKFLOWS_FAILURE = 'INITIALIZE_WORKFLOWS_FAILURE';
 
-export const STAR_WORKFLOW_INITIALIZATION = 'STAR_WORKFLOW_INITIALIZATION';
+export const START_WORKFLOW_INITIALIZATION = 'START_WORKFLOW_INITIALIZATION';
 export const SET_EMPTY_WORKFLOW = 'SET_EMPTY_WORKFLOW';
 export const LOAD_WORKFLOW_SUCCESS = 'LOAD_WORKFLOW_SUCCESS';
 export const LOAD_WORKFLOW_FAILURE_INCORRECT_ID = 'LOAD_WORKFLOW_FAILURE_INCORRECT_ID';
@@ -53,7 +53,7 @@ export class InitializeWorkflowsFailure implements Action {
 }
 
 export class StartWorkflowInitialization implements Action {
-  readonly type = STAR_WORKFLOW_INITIALIZATION;
+  readonly type = START_WORKFLOW_INITIALIZATION;
   constructor(public payload: {id?: number, mode: string}) {}
 }
 

@@ -71,7 +71,7 @@ export class WorkflowsEffects {
 
   @Effect({dispatch: true})
   workflowInitializationStart = this.actions.pipe(
-    ofType(WorkflowActions.STAR_WORKFLOW_INITIALIZATION),
+    ofType(WorkflowActions.START_WORKFLOW_INITIALIZATION),
     withLatestFrom(
       this.store.select(selectWorkflowState)
     ),
