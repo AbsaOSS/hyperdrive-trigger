@@ -14,14 +14,12 @@
  */
 
 export class WorkflowModel {
-
   constructor(
     public name: string,
     public isActive: boolean,
     public project: string,
     public created: Date,
     public updated: Date,
-    public id: number
+    public id: number,
   ) {}
-
 }

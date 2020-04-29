@@ -14,5 +14,5 @@
  */
 
 export class TableSearchResponseModel<T> {
-  constructor(public items: T[], public total: number) { }
+  constructor(public items: T[], public total: number) {}
 }

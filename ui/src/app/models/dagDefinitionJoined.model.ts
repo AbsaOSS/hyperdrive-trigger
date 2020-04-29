@@ -13,14 +13,8 @@
  * limitations under the License.
  */
 
-import {JobDefinitionModel} from "./jobDefinition.model";
+import { JobDefinitionModel } from './jobDefinition.model';
 
 export class DagDefinitionJoinedModel {
-
-  constructor(
-    public workflowId: number = 0,
-    public jobDefinitions: JobDefinitionModel[],
-    public id: number
-  ) {}
-
+  constructor(public workflowId: number = 0, public jobDefinitions: JobDefinitionModel[], public id: number) {}
 }

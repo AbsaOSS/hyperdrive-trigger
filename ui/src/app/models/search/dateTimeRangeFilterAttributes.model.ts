@@ -13,10 +13,8 @@
  * limitations under the License.
  */
 
-import {FilterAttributes} from './filterAttributes.model';
+import { FilterAttributes } from './filterAttributes.model';
 
 export class DateTimeRangeFilterAttributes implements FilterAttributes {
-  constructor(public field: string,
-              public start: Date,
-              public end: Date) {}
+  constructor(public field: string, public start: Date, public end: Date) {}
 }

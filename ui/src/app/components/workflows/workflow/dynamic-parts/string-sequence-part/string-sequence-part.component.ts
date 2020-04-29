@@ -13,17 +13,16 @@
  * limitations under the License.
  */
 
-import {Component, Input, OnInit} from '@angular/core';
-import {Subject} from "rxjs";
-import {WorkflowEntryModel} from "../../../../../models/workflowEntry.model";
+import { Component, Input, OnInit } from '@angular/core';
+import { Subject } from 'rxjs';
+import { WorkflowEntryModel } from '../../../../../models/workflowEntry.model';
 
 @Component({
   selector: 'app-string-sequence-part',
   templateUrl: './string-sequence-part.component.html',
-  styleUrls: ['./string-sequence-part.component.scss']
+  styleUrls: ['./string-sequence-part.component.scss'],
 })
 export class StringSequencePartComponent implements OnInit {
-
   @Input() isShow: boolean;
   @Input() name: string;
   @Input() value: string[];
@@ -31,32 +30,31 @@ export class StringSequencePartComponent implements OnInit {
   @Input() valueChanges: Subject<WorkflowEntryModel>;
 
   constructor() {
+    // do nothing
   }
 
   ngOnInit(): void {
-    if (!this.value)
-      this.modelChanged([''])
+    if (!this.value) this.modelChanged(['']);
   }
-
 
   trackByFn(index, item) {
     return index;
   }
 
   onDeleteValue(index: number) {
-    const clonedValue  = Object.assign([], this.value);
-    this.value.length === 1 ? clonedValue[0] = '' : clonedValue.splice(index, 1);
+    const clonedValue = Object.assign([], this.value);
+    this.value.length === 1 ? (clonedValue[0] = '') : clonedValue.splice(index, 1);
     this.modelChanged(clonedValue);
   }
 
   onAddValue() {
-    const clonedValue  = Object.assign([], this.value);
+    const clonedValue = Object.assign([], this.value);
     clonedValue.push('');
     this.modelChanged(clonedValue);
   }
 
   ngModelChanged(value: string, id: number) {
-    const clonedValue  = Object.assign([], this.value);
+    const clonedValue = Object.assign([], this.value);
     clonedValue[id] = value;
     this.modelChanged(clonedValue);
   }
@@ -65,5 +63,4 @@ export class StringSequencePartComponent implements OnInit {
     this.value = value;
     this.valueChanges.next(new WorkflowEntryModel(this.property, this.value));
   }
-
 }

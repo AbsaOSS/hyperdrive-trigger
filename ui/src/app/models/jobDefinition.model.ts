@@ -14,21 +14,15 @@
  */
 
 export class JobDefinitionModel {
-
   constructor(
     public dagDefinitionId: number = 0,
-    public name: String,
-    public jobType: {name: string},
+    public name: string,
+    public jobType: { name: string },
     public jobParameters: JobParametersModel,
     public order: number,
-    public id: number
+    public id: number,
   ) {}
 }
 export class JobParametersModel {
-
-  constructor(
-    public variables: Map<String, String>,
-    public maps: Map<String, Set<String>>
-  ) {}
-
+  constructor(public variables: Map<string, string>, public maps: Map<string, Set<string>>) {}
 }

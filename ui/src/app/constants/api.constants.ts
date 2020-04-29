@@ -22,5 +22,5 @@ export const api = {
   JOB_INSTANCES: '/jobInstances',
 
   GET_PROJECTS: '/workflows/projects',
-  GET_WORKFLOW: '/workflow'
+  GET_WORKFLOW: '/workflow',
 };

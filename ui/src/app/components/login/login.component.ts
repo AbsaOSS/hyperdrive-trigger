@@ -13,24 +13,23 @@
  * limitations under the License.
  */
 
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {Store} from "@ngrx/store";
-import {AppState, selectAuthState} from "../../stores/app.reducers";
-import {Login} from "../../stores/auth/auth.actions";
-import {Subscription} from "rxjs";
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Store } from '@ngrx/store';
+import { AppState, selectAuthState } from '../../stores/app.reducers';
+import { Login } from '../../stores/auth/auth.actions';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss']
+  styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent implements OnInit, OnDestroy {
-
   authStateSubscription: Subscription;
-  authenticationFailed: boolean = false;
+  authenticationFailed = false;
   logInForm = {
     username: 'hyperdriver-user',
-    password: 'hyperdriver-password'
+    password: 'hyperdriver-password',
   };
 
   constructor(private store: Store<AppState>) {}
@@ -48,5 +47,4 @@ export class LoginComponent implements OnInit, OnDestroy {
   onSubmit() {
     this.store.dispatch(new Login(this.logInForm));
   }
-
 }

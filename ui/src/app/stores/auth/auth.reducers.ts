@@ -13,32 +13,32 @@
  * limitations under the License.
  */
 
-import * as AuthActions from "./auth.actions";
-import {localStorageKeys} from '../../constants/localStorage.constants';
+import * as AuthActions from './auth.actions';
+import { localStorageKeys } from '../../constants/localStorage.constants';
 
 export interface State {
-  username: string,
-  isAuthenticated: boolean,
-  authenticationFailed: boolean
+  username: string;
+  isAuthenticated: boolean;
+  authenticationFailed: boolean;
 }
 
 const initialState: State = {
   username: localStorage.getItem(localStorageKeys.USERNAME),
   isAuthenticated: !!localStorage.getItem(localStorageKeys.CSRF_TOKEN),
-  authenticationFailed: false
+  authenticationFailed: false,
 };
 
 export function authReducer(state: State = initialState, action: AuthActions.AuthActions) {
   switch (action.type) {
-    case (AuthActions.LOGIN):
+    case AuthActions.LOGIN:
       return state;
-    case (AuthActions.LOGIN_SUCCESS):
+    case AuthActions.LOGIN_SUCCESS:
       return { ...state, isAuthenticated: true, username: action.payload.username };
-    case (AuthActions.LOGIN_FAILURE):
-      return { ...state, authenticationFailed: true};
-    case (AuthActions.LOGOUT):
+    case AuthActions.LOGIN_FAILURE:
+      return { ...state, authenticationFailed: true };
+    case AuthActions.LOGOUT:
       return state;
-    case (AuthActions.LOGOUT_SUCCESS):
+    case AuthActions.LOGOUT_SUCCESS:
       return { ...state, isAuthenticated: false, username: null, authenticationFailed: false };
     default:
       return state;

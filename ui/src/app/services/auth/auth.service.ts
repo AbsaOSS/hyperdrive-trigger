@@ -13,42 +13,34 @@
  * limitations under the License.
  */
 
-import {Injectable} from '@angular/core';
-import {HttpClient} from "@angular/common/http";
-import {Observable} from "rxjs";
-import {map} from "rxjs/operators";
-import {api} from '../../constants/api.constants';
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { api } from '../../constants/api.constants';
 
 @Injectable()
 export class AuthService {
   static readonly csrfTokenHeaderId: string = 'X-CSRF-TOKEN';
 
-  constructor(private httpClient: HttpClient) {
-  }
+  constructor(private httpClient: HttpClient) {}
 
   getUserInfo(): Observable<string> {
-    return this.httpClient.get<{ username: string }>(api.USER_INFO, {}).pipe(
-      map(_ => _.username)
-    );
+    return this.httpClient.get<{ username: string }>(api.USER_INFO, {}).pipe(map((_) => _.username));
   }
 
   login(username: string, password: string): Observable<string> {
     const body = new FormData();
     body.append('username', username);
     body.append('password', password);
-    return this.httpClient.post(
-      api.LOGIN,
-      body,
-      {
-        observe: 'response'
-      }
-    ).pipe(
-      map(_ =>  _.headers.get(AuthService.csrfTokenHeaderId))
-    );
+    return this.httpClient
+      .post(api.LOGIN, body, {
+        observe: 'response',
+      })
+      .pipe(map((_) => _.headers.get(AuthService.csrfTokenHeaderId)));
   }
 
   logout() {
     return this.httpClient.post(api.LOGOUT, {});
   }
-
 }

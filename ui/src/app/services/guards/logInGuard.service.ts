@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
-import {Injectable} from "@angular/core";
-import {CanActivate, Router} from "@angular/router";
-import {Store} from "@ngrx/store";
-import {AppState, selectAuthState} from "../../stores/app.reducers";
-import {map, take} from "rxjs/operators";
-import {Observable} from "rxjs";
-import {absoluteRoutes} from '../../constants/routes.constants';
+import { Injectable } from '@angular/core';
+import { CanActivate, Router } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { AppState, selectAuthState } from '../../stores/app.reducers';
+import { map, take } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { absoluteRoutes } from '../../constants/routes.constants';
 
 @Injectable()
 export class LogInGuardService implements CanActivate {
@@ -28,14 +28,13 @@ export class LogInGuardService implements CanActivate {
   canActivate(): Observable<boolean> {
     return this.store.select(selectAuthState).pipe(
       take(1),
-      map(state => {
+      map((state) => {
         if (state.isAuthenticated) {
           this.router.navigateByUrl(absoluteRoutes.DEFAULT);
           return false;
         }
         return true;
-      })
+      }),
     );
   }
-
 }

@@ -13,14 +13,14 @@
  * limitations under the License.
  */
 
-import {Component, Input, OnInit} from '@angular/core';
-import {Subject} from "rxjs";
-import {WorkflowEntryModel} from "../../../../../models/workflowEntry.model";
+import { Component, Input, OnInit } from '@angular/core';
+import { Subject } from 'rxjs';
+import { WorkflowEntryModel } from '../../../../../models/workflowEntry.model';
 
 @Component({
   selector: 'app-string-part',
   templateUrl: './string-part.component.html',
-  styleUrls: ['./string-part.component.scss']
+  styleUrls: ['./string-part.component.scss'],
 })
 export class StringPartComponent implements OnInit {
   @Input() isShow: boolean;
@@ -29,17 +29,18 @@ export class StringPartComponent implements OnInit {
   @Input() property: string;
   @Input() valueChanges: Subject<WorkflowEntryModel>;
 
-  constructor() {}
+  constructor() {
+    // do nothing
+  }
 
   ngOnInit(): void {
     if (!this.value) {
       this.value = '';
-      this.modelChanged("");
+      this.modelChanged('');
     }
   }
 
   modelChanged(value: string) {
-    this.valueChanges.next(new WorkflowEntryModel(this.property ,this.value));
+    this.valueChanges.next(new WorkflowEntryModel(this.property, this.value));
   }
-
 }

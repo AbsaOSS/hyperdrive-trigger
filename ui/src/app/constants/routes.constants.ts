@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import {workflowModes} from "../models/enums/workflowModes.constants";
+import { workflowModes } from '../models/enums/workflowModes.constants';
 
 export const routeNames = {
   DEFAULT: '',
@@ -23,7 +23,7 @@ export const routeNames = {
   WORKFLOWS_HOME: '',
   WORKFLOW_ACTION: ':mode',
   WORKFLOW_ACTION_WITH_ID: ':mode/:id',
-  RUNS: 'runs'
+  RUNS: 'runs',
 };
 
 export const absoluteRoutes = {

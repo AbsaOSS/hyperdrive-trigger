@@ -13,21 +13,21 @@
  * limitations under the License.
  */
 
-import {ChangeDetectionStrategy, Component, OnDestroy, OnInit} from '@angular/core';
-import {workflowModes} from "../../../../models/enums/workflowModes.constants";
-import {Subject, Subscription} from "rxjs";
-import {distinctUntilChanged} from "rxjs/operators";
-import {Store} from "@ngrx/store";
-import {AppState, selectWorkflowState} from "../../../../stores/app.reducers";
-import {WorkflowDetailsChanged} from "../../../../stores/workflows/workflows.actions";
-import {FormPart} from "../../../../models/workflowFormParts.model";
-import {WorkflowEntryModel} from "../../../../models/workflowEntry.model";
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
+import { workflowModes } from '../../../../models/enums/workflowModes.constants';
+import { Subject, Subscription } from 'rxjs';
+import { distinctUntilChanged } from 'rxjs/operators';
+import { Store } from '@ngrx/store';
+import { AppState, selectWorkflowState } from '../../../../stores/app.reducers';
+import { WorkflowDetailsChanged } from '../../../../stores/workflows/workflows.actions';
+import { FormPart } from '../../../../models/workflowFormParts.model';
+import { WorkflowEntryModel } from '../../../../models/workflowEntry.model';
 
 @Component({
   selector: 'app-workflow-details',
   templateUrl: './workflow-details.component.html',
   styleUrls: ['./workflow-details.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WorkflowDetailsComponent implements OnInit, OnDestroy {
   workflowModes = workflowModes;
@@ -48,15 +48,13 @@ export class WorkflowDetailsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.detailsChangesSubscription = this.detailsChanges.pipe(
-      distinctUntilChanged()
-    ).subscribe(newValue => {
+    this.detailsChangesSubscription = this.detailsChanges.pipe(distinctUntilChanged()).subscribe((newValue) => {
       this.store.dispatch(new WorkflowDetailsChanged(new WorkflowEntryModel(newValue.property, newValue.value)));
     });
   }
 
   getValue(prop: string) {
-    let val = this.data.find(value =>  value.property == prop);
+    const val = this.data.find((value) => value.property == prop);
     return !!val ? val.value : undefined;
   }
 
@@ -64,5 +62,4 @@ export class WorkflowDetailsComponent implements OnInit, OnDestroy {
     this.detailsChangesSubscription.unsubscribe();
     this.workflowSubscription.unsubscribe();
   }
-
 }

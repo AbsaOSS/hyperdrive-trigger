@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-import {async, ComponentFixture, TestBed} from '@angular/core/testing';
+import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import {RunDetailComponent} from './run-detail.component';
-import {provideMockStore} from "@ngrx/store/testing";
-import {HttpClientTestingModule} from "@angular/common/http/testing";
+import { RunDetailComponent } from './run-detail.component';
+import { provideMockStore } from '@ngrx/store/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 describe('RunDetailComponent', () => {
   // let component: RunDetailComponent;

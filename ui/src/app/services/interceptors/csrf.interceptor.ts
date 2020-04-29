@@ -13,22 +13,22 @@
  * limitations under the License.
  */
 
-import {Injectable} from '@angular/core';
-import {HttpEvent, HttpHandler, HttpInterceptor, HttpRequest} from "@angular/common/http";
-import {Observable} from "rxjs";
-import {localStorageKeys} from '../../constants/localStorage.constants';
+import { Injectable } from '@angular/core';
+import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { localStorageKeys } from '../../constants/localStorage.constants';
 
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class CsrfInterceptor implements HttpInterceptor {
-
-  constructor() {}
+  constructor() {
+    // do nothing
+  }
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    const csrfToken =  localStorage.getItem(localStorageKeys.CSRF_TOKEN);
+    const csrfToken = localStorage.getItem(localStorageKeys.CSRF_TOKEN);
     if (request.method !== 'GET' && csrfToken) {
-      request = request.clone({setHeaders: {'X-CSRF-TOKEN': csrfToken}});
+      request = request.clone({ setHeaders: { 'X-CSRF-TOKEN': csrfToken } });
     }
     return next.handle(request);
   }
-
 }
