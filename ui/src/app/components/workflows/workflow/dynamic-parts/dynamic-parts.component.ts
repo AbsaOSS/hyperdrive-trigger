@@ -29,7 +29,9 @@ export class DynamicPartsComponent {
   @Input() values: WorkflowEntryModel[];
   @Input() valueChanges: Subject<WorkflowEntryModel>;
 
-  constructor() {}
+  constructor() {
+    // do nothing
+  }
 
   getValue(path: string): any {
     const valueOption = this.values.find((value) => {

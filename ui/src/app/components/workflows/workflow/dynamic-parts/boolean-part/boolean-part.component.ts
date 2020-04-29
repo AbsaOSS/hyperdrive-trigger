@@ -29,7 +29,9 @@ export class BooleanPartComponent implements OnInit {
   @Input() property: string;
   @Input() valueChanges: Subject<WorkflowEntryModel>;
 
-  constructor() {}
+  constructor() {
+    // do nothing
+  }
 
   ngOnInit(): void {
     if (!this.value) {

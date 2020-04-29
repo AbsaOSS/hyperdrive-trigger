@@ -30,7 +30,9 @@ export class SelectPartComponent implements OnInit {
   @Input() options: string[];
   @Input() valueChanges: Subject<WorkflowEntryModel>;
 
-  constructor() {}
+  constructor() {
+    // do nothing
+  }
 
   ngOnInit(): void {
     if (!this.value || this.value == '') {

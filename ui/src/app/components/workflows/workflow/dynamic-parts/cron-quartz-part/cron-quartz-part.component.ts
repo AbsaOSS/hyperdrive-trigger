@@ -134,7 +134,9 @@ export class CronQuartzPartComponent implements OnInit, AfterViewInit {
   minuteValues = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
   minutesValues = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
 
-  constructor() {}
+  constructor() {
+    // do nothing
+  }
 
   ngOnInit(): void {
     this.fromCron(this.value);

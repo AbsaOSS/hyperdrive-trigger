@@ -20,7 +20,9 @@ import { localStorageKeys } from '../../constants/localStorage.constants';
 
 @Injectable({ providedIn: 'root' })
 export class CsrfInterceptor implements HttpInterceptor {
-  constructor() {}
+  constructor() {
+    // do nothing
+  }
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const csrfToken = localStorage.getItem(localStorageKeys.CSRF_TOKEN);

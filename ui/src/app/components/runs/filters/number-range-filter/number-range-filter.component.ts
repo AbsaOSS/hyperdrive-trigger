@@ -36,7 +36,9 @@ export class NumberRangeFilterComponent implements ClrDatagridFilterInterface<Da
   modelChanges: Subject<any> = new Subject<any>();
   modelSubscription: Subscription;
 
-  constructor() {}
+  constructor() {
+    // do nothing
+  }
 
   ngAfterViewInit(): void {
     this.modelSubscription = this.modelChanges.pipe(debounceTime(500), distinctUntilChanged()).subscribe((newValue) => {

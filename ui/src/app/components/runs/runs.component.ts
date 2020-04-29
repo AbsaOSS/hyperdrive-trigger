@@ -54,7 +54,9 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
 
   removeFiltersSubject: Subject<any> = new Subject();
 
-  constructor(private store: Store<AppState>) {}
+  constructor(private store: Store<AppState>) {
+    // do nothing
+  }
 
   ngAfterViewInit(): void {
     this.runsSubscription = this.store
@@ -72,7 +74,7 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
   }
 
   onClarityDgRefresh(state: ClrDatagridStateInterface) {
-    this.sort = state.sort ? new SortAttributesModel(<string>state.sort.by, state.sort.reverse ? -1 : 1) : undefined;
+    this.sort = state.sort ? new SortAttributesModel(state.sort.by as string, state.sort.reverse ? -1 : 1) : undefined;
     this.pageFrom = state.page.from < 0 ? 0 : state.page.from;
     this.pageSize = state.page.size;
     this.filters = state.filters ? state.filters : [];

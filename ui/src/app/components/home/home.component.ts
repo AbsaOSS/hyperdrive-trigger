@@ -21,9 +21,15 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
   styleUrls: ['./home.component.scss'],
 })
 export class HomeComponent implements OnInit, OnDestroy {
-  constructor() {}
+  constructor() {
+    // do nothing
+  }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    // do nothing
+  }
 
-  ngOnDestroy(): void {}
+  ngOnDestroy(): void {
+    // do nothing
+  }
 }
