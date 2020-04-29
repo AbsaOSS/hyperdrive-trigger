@@ -97,12 +97,12 @@ export class WorkflowsEffects {
                 }
               });
 
-              let sensorDynamicPart = workflowFormPartsConsts.SENSOR.SENSOR_TYPE;
-              let sensorDynamicPartValue = get(worfklow.sensor, sensorDynamicPart.property);
+              let sensorType = workflowFormPartsConsts.SENSOR.SENSOR_TYPE;
+              let sensorTypeValue = get(worfklow.sensor, sensorType.property);
               let sensorDynamicParts = state.workflowFormParts.dynamicParts.sensorDynamicParts.find(
-                part => part.name == sensorDynamicPartValue
+                part => part.name == sensorTypeValue
               ).parts;
-              let sensorData = sensorDynamicParts.concat(sensorDynamicPart).map(part => {
+              let sensorData = sensorDynamicParts.concat(sensorType).map(part => {
                 let value = get(worfklow.sensor, part.property);
                 if(value != undefined) {
                   return new WorkflowEntryModel(part.property, value);
