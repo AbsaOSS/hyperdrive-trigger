@@ -18,6 +18,7 @@ import {ProjectModel} from "../../models/project.model";
 import {WorkflowModel} from "../../models/workflow.model";
 import {WorkflowJoinedModel} from "../../models/workflowJoined.model";
 import {WorkflowFormPartsModel} from "../../models/workflowFormParts.model";
+import {WorkflowEntryModel} from "../../models/workflowEntry.model";
 
 export interface State {
   projects: ProjectModel[],
@@ -126,7 +127,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         }};
     case (WorkflowsActions.WORKFLOW_JOB_CHANGED):
       const oldJobDataOption = state.workflowAction.workflowData.jobs.find(job => job.order == action.payload.order);
-      const oldJobData: {property: string, value: any}[] = !!oldJobDataOption ? oldJobDataOption.job : [];
+      const oldJobData: WorkflowEntryModel[] = !!oldJobDataOption ? oldJobDataOption.job : [];
       const filteredOldJobData = oldJobData.filter(jobEntry => jobEntry.property !== action.payload.jobEntry.property);
       const updatedJobData = [
         ...filteredOldJobData,
