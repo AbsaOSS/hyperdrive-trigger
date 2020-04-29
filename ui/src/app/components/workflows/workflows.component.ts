@@ -20,6 +20,7 @@ import {Store} from "@ngrx/store";
 import {AppState, selectWorkflowState} from "../../stores/app.reducers";
 import {Subscription} from "rxjs";
 import {InitializeWorkflows} from "../../stores/workflows/workflows.actions";
+import {absoluteRoutes} from "../../constants/routes.constants";
 
 @Component({
   selector: 'app-workflows',
@@ -33,6 +34,8 @@ export class WorkflowsComponent implements AfterViewInit, OnDestroy {
   projects: ProjectModel[] = [];
   workflows: WorkflowModel[] = [];
 
+  absoluteRoutes = absoluteRoutes;
+
   constructor(private store: Store<AppState>) {
     this.store.dispatch(new InitializeWorkflows());
   }
@@ -41,7 +44,7 @@ export class WorkflowsComponent implements AfterViewInit, OnDestroy {
     this.workflowsSubscription = this.store.select(selectWorkflowState).subscribe((state) => {
       this.loading = state.loading;
       this.projects = state.projects;
-      this.workflows = state.workflows;
+      this.workflows = [].concat(...state.projects.map((project) => project.workflows));
     });
   }
 
