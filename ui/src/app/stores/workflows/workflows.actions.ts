@@ -34,10 +34,10 @@ export const LOAD_WORKFLOW_FAILURE = 'LOAD_WORKFLOW_FAILURE';
 export const WORKFLOW_ACTION_CHANGED = 'WORKFLOW_ACTION_CHANGED';
 export const WORKFLOW_DETAILS_CHANGED = 'WORKFLOW_DETAILS_CHANGED';
 export const WORKFLOW_SENSOR_CHANGED = 'WORKFLOW_SENSOR_CHANGED';
-export const WORKFLOW_SENSOR_CLEANED = 'WORKFLOW_SENSOR_CLEANED';
+export const WORKFLOW_SENSOR_TYPE_SWITCHED = 'WORKFLOW_SENSOR_TYPE_SWITCHED';
 export const WORKFLOW_ADD_EMPTY_JOB = 'WORKFLOW_ADD_EMPTY_JOB';
 export const WORKFLOW_JOB_CHANGED = 'WORKFLOW_JOB_CHANGED';
-export const WORKFLOW_JOB_CLEANED = 'WORKFLOW_JOB_CLEANED';
+export const WORKFLOW_JOB_TYPE_SWITCHED = 'WORKFLOW_JOB_TYPE_SWITCHED';
 
 export class InitializeWorkflows implements Action {
   readonly type = INITIALIZE_WORKFLOWS;
@@ -94,8 +94,8 @@ export class WorkflowSensorChanged implements Action {
   constructor(public payload: WorkflowEntryModel) {}
 }
 
-export class WorkflowSensorCleaned implements Action {
-  readonly type = WORKFLOW_SENSOR_CLEANED;
+export class WorkflowSensorTypeSwitched implements Action {
+  readonly type = WORKFLOW_SENSOR_TYPE_SWITCHED;
   constructor(public payload: WorkflowEntryModel) {}
 }
 
@@ -109,13 +109,13 @@ export class WorkflowJobChanged implements Action {
   constructor(public payload: {order: number, jobEntry: WorkflowEntryModel}) {}
 }
 
-export class WorkflowJobCleaned implements Action {
-  readonly type = WORKFLOW_JOB_CLEANED;
+export class WorkflowJobTypeSwitched implements Action {
+  readonly type = WORKFLOW_JOB_TYPE_SWITCHED;
   constructor(public payload: {order: number, jobEntry: WorkflowEntryModel}) {}
 }
 
 export type WorkflowsActions =
     InitializeWorkflows | InitializeWorkflowsSuccess | InitializeWorkflowsFailure |
     StartWorkflowInitialization | SetEmptyWorkflow | LoadWorkflowSuccess | LoadWorkflowFailure | LoadWorkflowFailureIncorrectId |
-    WorkflowActionChanged | WorkflowDetailsChanged | WorkflowSensorChanged | WorkflowSensorCleaned |
-    WorkflowAddEmptyJob | WorkflowJobChanged | WorkflowJobCleaned;
+    WorkflowActionChanged | WorkflowDetailsChanged | WorkflowSensorChanged | WorkflowSensorTypeSwitched |
+    WorkflowAddEmptyJob | WorkflowJobChanged | WorkflowJobTypeSwitched;

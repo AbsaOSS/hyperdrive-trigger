@@ -19,7 +19,7 @@ import {workflowModes} from "../../../../../models/enums/workflowModes.constants
 import {DynamicFormPart, FormPart} from "../../../../../models/workflowFormParts.model";
 import {Store} from "@ngrx/store";
 import {AppState, selectWorkflowState} from "../../../../../stores/app.reducers";
-import {WorkflowJobChanged, WorkflowJobCleaned} from "../../../../../stores/workflows/workflows.actions";
+import {WorkflowJobChanged, WorkflowJobTypeSwitched} from "../../../../../stores/workflows/workflows.actions";
 import {WorkflowEntryModel} from "../../../../../models/workflowEntry.model";
 
 @Component({
@@ -61,7 +61,7 @@ export class JobComponent implements OnInit, OnDestroy {
 
     this.jobChangesSubscription = this.jobChanges.subscribe(jobChange => {
       if(jobChange.property == this.dynamicSwitchJobPart.property){
-        this.store.dispatch(new WorkflowJobCleaned(
+        this.store.dispatch(new WorkflowJobTypeSwitched(
           {order: this.jobIndex, jobEntry: new WorkflowEntryModel(jobChange.property, jobChange.value)}
         ));
       } else {

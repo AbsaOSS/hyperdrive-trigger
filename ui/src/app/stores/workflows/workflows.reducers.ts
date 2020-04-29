@@ -106,7 +106,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
             ...state.workflowAction.workflowData, sensor: [...sensorData]
           }
         }};
-    case (WorkflowsActions.WORKFLOW_SENSOR_CLEANED):
+    case (WorkflowsActions.WORKFLOW_SENSOR_TYPE_SWITCHED):
       return {...state, workflowAction: {
           ...state.workflowAction, workflowData: {
             ...state.workflowAction.workflowData,
@@ -141,7 +141,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
             ...state.workflowAction.workflowData, jobs: [...initialState.workflowAction.workflowData.jobs, ...updatedJobsData]
           }
         }};
-    case (WorkflowsActions.WORKFLOW_JOB_CLEANED):
+    case (WorkflowsActions.WORKFLOW_JOB_TYPE_SWITCHED):
       const cleanedJobData = {order: action.payload.order, job:[
           {property: action.payload.jobEntry.property, value: action.payload.jobEntry.value}
         ]};

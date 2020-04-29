@@ -18,7 +18,7 @@ import {workflowModes} from "../../../../models/enums/workflowModes.constants";
 import {Subject, Subscription} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState, selectWorkflowState} from "../../../../stores/app.reducers";
-import {WorkflowSensorChanged, WorkflowSensorCleaned} from "../../../../stores/workflows/workflows.actions";
+import {WorkflowSensorChanged, WorkflowSensorTypeSwitched} from "../../../../stores/workflows/workflows.actions";
 import {DynamicFormPart, FormPart} from "../../../../models/workflowFormParts.model";
 import {WorkflowEntryModel} from "../../../../models/workflowEntry.model";
 
@@ -57,7 +57,7 @@ export class SensorComponent implements OnInit, OnDestroy {
     this.sensorChangesSubscription = this.sensorChanges.pipe(
     ).subscribe(sensorChange => {
       if(sensorChange.property == this.dynamicSwitchSensorPart.property){
-        this.store.dispatch(new WorkflowSensorCleaned(new WorkflowEntryModel(sensorChange.property, sensorChange.value)));
+        this.store.dispatch(new WorkflowSensorTypeSwitched(new WorkflowEntryModel(sensorChange.property, sensorChange.value)));
       } else {
         this.store.dispatch(new WorkflowSensorChanged(new WorkflowEntryModel(sensorChange.property, sensorChange.value)));
       }
