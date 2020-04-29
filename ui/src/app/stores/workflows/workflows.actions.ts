@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 
-import {Action} from "@ngrx/store";
-import {ProjectModel} from "../../models/project.model";
-import {WorkflowJoinedModel} from "../../models/workflowJoined.model";
-import {WorkflowFormPartsModel} from "../../models/workflowFormParts.model";
-import {WorkflowEntryModel} from "../../models/workflowEntry.model";
-import {JobEntryModel} from "../../models/jobEntry.model";
+import { Action } from '@ngrx/store';
+import { ProjectModel } from '../../models/project.model';
+import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
+import { WorkflowFormPartsModel } from '../../models/workflowFormParts.model';
+import { WorkflowEntryModel } from '../../models/workflowEntry.model';
+import { JobEntryModel } from '../../models/jobEntry.model';
 
 export const INITIALIZE_WORKFLOWS = 'INITIALIZE_WORKFLOWS';
 export const INITIALIZE_WORKFLOWS_SUCCESS = 'INITIALIZE_WORKFLOWS_SUCCESS';
@@ -44,7 +44,7 @@ export class InitializeWorkflows implements Action {
 
 export class InitializeWorkflowsSuccess implements Action {
   readonly type = INITIALIZE_WORKFLOWS_SUCCESS;
-  constructor(public payload: {projects: ProjectModel[], workflowFormParts: WorkflowFormPartsModel}) {}
+  constructor(public payload: { projects: ProjectModel[]; workflowFormParts: WorkflowFormPartsModel }) {}
 }
 
 export class InitializeWorkflowsFailure implements Action {
@@ -53,7 +53,7 @@ export class InitializeWorkflowsFailure implements Action {
 
 export class StartWorkflowInitialization implements Action {
   readonly type = START_WORKFLOW_INITIALIZATION;
-  constructor(public payload: {id?: number, mode: string}) {}
+  constructor(public payload: { id?: number; mode: string }) {}
 }
 
 export class SetEmptyWorkflow implements Action {
@@ -62,12 +62,14 @@ export class SetEmptyWorkflow implements Action {
 
 export class LoadWorkflowSuccess implements Action {
   readonly type = LOAD_WORKFLOW_SUCCESS;
-  constructor(public payload: {
-    workflow: WorkflowJoinedModel,
-    detailsData: WorkflowEntryModel[],
-    sensorData: WorkflowEntryModel[],
-    jobsData: JobEntryModel[]
-  }) {}
+  constructor(
+    public payload: {
+      workflow: WorkflowJoinedModel;
+      detailsData: WorkflowEntryModel[];
+      sensorData: WorkflowEntryModel[];
+      jobsData: JobEntryModel[];
+    },
+  ) {}
 }
 
 export class LoadWorkflowFailure implements Action {
@@ -105,16 +107,27 @@ export class WorkflowAddEmptyJob implements Action {
 
 export class WorkflowJobChanged implements Action {
   readonly type = WORKFLOW_JOB_CHANGED;
-  constructor(public payload: {order: number, jobEntry: WorkflowEntryModel}) {}
+  constructor(public payload: { order: number; jobEntry: WorkflowEntryModel }) {}
 }
 
 export class WorkflowJobTypeSwitched implements Action {
   readonly type = WORKFLOW_JOB_TYPE_SWITCHED;
-  constructor(public payload: {order: number, jobEntry: WorkflowEntryModel}) {}
+  constructor(public payload: { order: number; jobEntry: WorkflowEntryModel }) {}
 }
 
 export type WorkflowsActions =
-    InitializeWorkflows | InitializeWorkflowsSuccess | InitializeWorkflowsFailure |
-    StartWorkflowInitialization | SetEmptyWorkflow | LoadWorkflowSuccess | LoadWorkflowFailure | LoadWorkflowFailureIncorrectId |
-    WorkflowActionChanged | WorkflowDetailsChanged | WorkflowSensorChanged | WorkflowSensorTypeSwitched |
-    WorkflowAddEmptyJob | WorkflowJobChanged | WorkflowJobTypeSwitched;
+  | InitializeWorkflows
+  | InitializeWorkflowsSuccess
+  | InitializeWorkflowsFailure
+  | StartWorkflowInitialization
+  | SetEmptyWorkflow
+  | LoadWorkflowSuccess
+  | LoadWorkflowFailure
+  | LoadWorkflowFailureIncorrectId
+  | WorkflowActionChanged
+  | WorkflowDetailsChanged
+  | WorkflowSensorChanged
+  | WorkflowSensorTypeSwitched
+  | WorkflowAddEmptyJob
+  | WorkflowJobChanged
+  | WorkflowJobTypeSwitched;

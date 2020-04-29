@@ -13,17 +13,17 @@
  * limitations under the License.
  */
 
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {Subscription} from "rxjs";
-import {AppState, selectWorkflowState} from "../../../stores/app.reducers";
-import {WorkflowModel} from "../../../models/workflow.model";
-import {Store} from "@ngrx/store";
-import {absoluteRoutes} from "../../../constants/routes.constants";
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { AppState, selectWorkflowState } from '../../../stores/app.reducers';
+import { WorkflowModel } from '../../../models/workflow.model';
+import { Store } from '@ngrx/store';
+import { absoluteRoutes } from '../../../constants/routes.constants';
 
 @Component({
   selector: 'app-workflows-home',
   templateUrl: './workflows-home.component.html',
-  styleUrls: ['./workflows-home.component.scss']
+  styleUrls: ['./workflows-home.component.scss'],
 })
 export class WorkflowsHomeComponent implements OnInit, OnDestroy {
   workflowsSubscription: Subscription = null;
@@ -41,5 +41,4 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.workflowsSubscription.unsubscribe();
   }
-
 }

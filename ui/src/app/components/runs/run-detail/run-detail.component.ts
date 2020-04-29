@@ -13,25 +13,25 @@
  * limitations under the License.
  */
 
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
-import {jobStatuses} from"../../../models/enums/jobStatuses.constants";
-import {JobInstanceModel} from "../../../models/jobInstance.model";
-import {Store} from "@ngrx/store";
-import {AppState, selectRunState} from "../../../stores/app.reducers";
-import {GetDagRunDetail} from "../../../stores/runs/runs.actions";
-import {Subscription} from "rxjs";
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { jobStatuses } from '../../../models/enums/jobStatuses.constants';
+import { JobInstanceModel } from '../../../models/jobInstance.model';
+import { Store } from '@ngrx/store';
+import { AppState, selectRunState } from '../../../stores/app.reducers';
+import { GetDagRunDetail } from '../../../stores/runs/runs.actions';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-run-detail',
   templateUrl: './run-detail.component.html',
-  styleUrls: ['./run-detail.component.scss']
+  styleUrls: ['./run-detail.component.scss'],
 })
 export class RunDetailComponent implements OnInit, OnDestroy {
   @Input('dagRunId') dagRunId: number;
   runDetailSubscription: Subscription;
 
   jobInstances: JobInstanceModel[];
-  loading: boolean = true;
+  loading = true;
 
   jobStatuses = jobStatuses;
 
@@ -47,8 +47,6 @@ export class RunDetailComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.runDetailSubscription.unsubscribe()
+    this.runDetailSubscription.unsubscribe();
   }
-
 }
-

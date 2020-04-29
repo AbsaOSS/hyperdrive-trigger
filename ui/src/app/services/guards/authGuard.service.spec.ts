@@ -16,10 +16,10 @@
 import { TestBed } from '@angular/core/testing';
 import { provideMockStore, MockStore } from '@ngrx/store/testing';
 import { cold } from 'jasmine-marbles';
-import {AuthGuardService} from './authGuard.service';
-import {RouterTestingModule} from '@angular/router/testing';
-import {absoluteRoutes} from '../../constants/routes.constants';
-import {selectAuthState} from '../../stores/app.reducers';
+import { AuthGuardService } from './authGuard.service';
+import { RouterTestingModule } from '@angular/router/testing';
+import { absoluteRoutes } from '../../constants/routes.constants';
+import { selectAuthState } from '../../stores/app.reducers';
 
 describe('AuthGuard Service', () => {
   let underTest: AuthGuardService;
@@ -27,36 +27,32 @@ describe('AuthGuard Service', () => {
   const initialAuthState = {
     username: 'test',
     isAuthenticated: true,
-    authenticationFailed: false
+    authenticationFailed: false,
   };
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [AuthGuardService, provideMockStore()],
-      imports: [
-        RouterTestingModule
-      ],
+      imports: [RouterTestingModule],
     });
 
     store = TestBed.inject(MockStore);
     underTest = TestBed.inject(AuthGuardService);
     spyOn(underTest.router, 'navigateByUrl').and.returnValue(Promise.resolve(true));
-
   });
 
   it('should return true if the user is authenticated', () => {
-    store.overrideSelector(selectAuthState, {...initialAuthState, isAuthenticated: true});
+    store.overrideSelector(selectAuthState, { ...initialAuthState, isAuthenticated: true });
 
     const expected = cold('(a|)', { a: true });
     expect(underTest.canActivate()).toBeObservable(expected);
   });
 
   it('should redirect and return false if the user is not authenticated', () => {
-    store.overrideSelector(selectAuthState, {...initialAuthState, isAuthenticated: false});
+    store.overrideSelector(selectAuthState, { ...initialAuthState, isAuthenticated: false });
 
     const expected = cold('(a|)', { a: false });
     expect(underTest.canActivate()).toBeObservable(expected);
-    expect(underTest.router.navigateByUrl).toHaveBeenCalledWith(absoluteRoutes.LOGIN)
+    expect(underTest.router.navigateByUrl).toHaveBeenCalledWith(absoluteRoutes.LOGIN);
   });
-
 });

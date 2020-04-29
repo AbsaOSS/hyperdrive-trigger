@@ -19,32 +19,18 @@ export class WorkflowFormPartsModel {
     public sensorSwitchPart: FormPart,
     public staticJobPart: FormPart,
     public jobSwitchPart: FormPart,
-    public dynamicParts: DynamicFormParts
+    public dynamicParts: DynamicFormParts,
   ) {}
 }
 
 export class DynamicFormParts {
-  constructor(
-    public sensorDynamicParts: DynamicFormPart[],
-    public jobDynamicParts: DynamicFormPart[]
-  ) {}
+  constructor(public sensorDynamicParts: DynamicFormPart[], public jobDynamicParts: DynamicFormPart[]) {}
 }
 
 export class DynamicFormPart {
-  constructor(
-    public name: string,
-    public parts: FormPart[]
-  ) {}
+  constructor(public name: string, public parts: FormPart[]) {}
 }
 
 export class FormPart {
-  constructor(
-    public name: string,
-    public property: string,
-    public isRequired: boolean,
-    public type: string,
-    public options?: string[]
-  ) {}
+  constructor(public name: string, public property: string, public isRequired: boolean, public type: string, public options?: string[]) {}
 }
-
-

@@ -13,21 +13,21 @@
  * limitations under the License.
  */
 
-import {Injectable} from "@angular/core";
-import {Actions, Effect, ofType} from "@ngrx/effects";
-import {AuthService} from "../../services/auth/auth.service";
-import {Router} from "@angular/router";
-import {Observable} from "rxjs";
+import { Injectable } from '@angular/core';
+import { Actions, Effect, ofType } from '@ngrx/effects';
+import { AuthService } from '../../services/auth/auth.service';
+import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
 import * as AuthActions from './auth.actions';
-import {switchMap, tap, mergeMap, catchError} from "rxjs/operators";
-import {absoluteRoutes} from '../../constants/routes.constants';
-import {localStorageKeys} from '../../constants/localStorage.constants';
+import { switchMap, tap, mergeMap, catchError } from 'rxjs/operators';
+import { absoluteRoutes } from '../../constants/routes.constants';
+import { localStorageKeys } from '../../constants/localStorage.constants';
 
 @Injectable()
 export class AuthEffects {
   constructor(private actions: Actions, private authService: AuthService, private router: Router) {}
 
-  @Effect({dispatch: true})
+  @Effect({ dispatch: true })
   authLogin = this.actions.pipe(
     ofType(AuthActions.LOGIN),
     switchMap((login: AuthActions.Login) => {
@@ -35,47 +35,50 @@ export class AuthEffects {
         mergeMap((token: string) => {
           return this.authService.getUserInfo().pipe(
             mergeMap((username: string) => {
-              return [{
-                type: AuthActions.LOGIN_SUCCESS,
-                payload: {token: token, username: username}
-              }];
-            })
-          )
+              return [
+                {
+                  type: AuthActions.LOGIN_SUCCESS,
+                  payload: { token: token, username: username },
+                },
+              ];
+            }),
+          );
         }),
         catchError(() => {
-          return [{
-            type: AuthActions.LOGIN_FAILURE
-          }];
-        })
-      )
-    })
+          return [
+            {
+              type: AuthActions.LOGIN_FAILURE,
+            },
+          ];
+        }),
+      );
+    }),
   );
 
-  @Effect({dispatch: false})
+  @Effect({ dispatch: false })
   logInSuccess: Observable<any> = this.actions.pipe(
     ofType(AuthActions.LOGIN_SUCCESS),
     tap((action: AuthActions.LoginSuccess) => {
       localStorage.setItem(localStorageKeys.CSRF_TOKEN, action.payload.token);
       localStorage.setItem(localStorageKeys.USERNAME, action.payload.username);
       this.router.navigateByUrl(absoluteRoutes.DEFAULT);
-    })
+    }),
   );
 
-  @Effect({dispatch: true})
+  @Effect({ dispatch: true })
   logOut: Observable<any> = this.actions.pipe(
     ofType(AuthActions.LOGOUT),
-    switchMap(_ => this.authService.logout()),
-    mergeMap(_ => [{type: AuthActions.LOGOUT_SUCCESS}])
+    switchMap((_) => this.authService.logout()),
+    mergeMap((_) => [{ type: AuthActions.LOGOUT_SUCCESS }]),
   );
 
-  @Effect({dispatch: false})
+  @Effect({ dispatch: false })
   logOutSuccess: Observable<any> = this.actions.pipe(
     ofType(AuthActions.LOGOUT_SUCCESS),
-    tap(_ => {
+    tap((_) => {
       this.router.navigateByUrl(absoluteRoutes.LOGIN);
       localStorage.removeItem(localStorageKeys.CSRF_TOKEN);
       localStorage.removeItem(localStorageKeys.USERNAME);
-    })
+    }),
   );
-
 }

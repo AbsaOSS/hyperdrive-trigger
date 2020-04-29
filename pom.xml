@@ -316,6 +316,15 @@
                         </configuration>
                     </execution>
                     <execution>
+                        <id>npm lint</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>run lint:ci</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>npm tests</id>
                         <goals>
                             <goal>npm</goal>

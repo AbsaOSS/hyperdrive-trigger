@@ -13,59 +13,64 @@
  * limitations under the License.
  */
 
-import {Injectable} from "@angular/core";
-import {Actions, Effect, ofType} from "@ngrx/effects";
-import * as RunActions from "../runs/runs.actions";
-import {catchError, mergeMap, switchMap} from "rxjs/operators";
-import {DagRunService} from "../../services/dagRun/dag-run.service";
-import {JobInstanceModel} from "../../models/jobInstance.model";
-import {DagRunModel} from '../../models/dagRuns/dagRun.model';
-import {TableSearchResponseModel} from '../../models/search/tableSearchResponse.model';
+import { Injectable } from '@angular/core';
+import { Actions, Effect, ofType } from '@ngrx/effects';
+import * as RunActions from '../runs/runs.actions';
+import { catchError, mergeMap, switchMap } from 'rxjs/operators';
+import { DagRunService } from '../../services/dagRun/dag-run.service';
+import { JobInstanceModel } from '../../models/jobInstance.model';
+import { DagRunModel } from '../../models/dagRuns/dagRun.model';
+import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
 
 @Injectable()
 export class RunsEffects {
   constructor(private actions: Actions, private dagRunService: DagRunService) {}
 
-  @Effect({dispatch: true})
+  @Effect({ dispatch: true })
   runsGet = this.actions.pipe(
     ofType(RunActions.GET_DAG_RUNS),
     switchMap((action: RunActions.GetDagRuns) => {
-      return this.dagRunService.searchDagRuns(
-        action.payload
-      ).pipe(
+      return this.dagRunService.searchDagRuns(action.payload).pipe(
         mergeMap((searchResult: TableSearchResponseModel<DagRunModel>) => {
-          return [{
-            type: RunActions.GET_DAG_RUNS_SUCCESS,
-            payload: {dagRuns: searchResult}
-          }];
+          return [
+            {
+              type: RunActions.GET_DAG_RUNS_SUCCESS,
+              payload: { dagRuns: searchResult },
+            },
+          ];
         }),
         catchError(() => {
-          return [{
-            type: RunActions.GET_DAG_RUNS_FAILURE
-          }];
-        })
-      )})
+          return [
+            {
+              type: RunActions.GET_DAG_RUNS_FAILURE,
+            },
+          ];
+        }),
+      );
+    }),
   );
 
-  @Effect({dispatch: true})
+  @Effect({ dispatch: true })
   runDetailGet = this.actions.pipe(
     ofType(RunActions.GET_DAG_RUN_DETAIL),
     switchMap((action: RunActions.GetDagRunDetail) => {
-      return this.dagRunService.getDagRunDetails(
-        action.payload
-      ).pipe(
+      return this.dagRunService.getDagRunDetails(action.payload).pipe(
         mergeMap((jobInstance: JobInstanceModel[]) => {
-          return [{
-            type: RunActions.GET_DAG_RUN_DETAIL_SUCCESS,
-            payload: jobInstance
-          }];
+          return [
+            {
+              type: RunActions.GET_DAG_RUN_DETAIL_SUCCESS,
+              payload: jobInstance,
+            },
+          ];
         }),
         catchError(() => {
-          return [{
-            type: RunActions.GET_DAG_RUN_DETAIL_FAILURE
-          }];
-        })
-      )})
+          return [
+            {
+              type: RunActions.GET_DAG_RUN_DETAIL_FAILURE,
+            },
+          ];
+        }),
+      );
+    }),
   );
-
 }

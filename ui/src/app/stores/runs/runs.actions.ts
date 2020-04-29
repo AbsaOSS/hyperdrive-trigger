@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-import {Action} from "@ngrx/store";
-import {TableSearchRequestModel} from "../../models/search/tableSearchRequest.model";
-import {JobInstanceModel} from "../../models/jobInstance.model";
-import {DagRunModel} from '../../models/dagRuns/dagRun.model';
-import {TableSearchResponseModel} from '../../models/search/tableSearchResponse.model';
+import { Action } from '@ngrx/store';
+import { TableSearchRequestModel } from '../../models/search/tableSearchRequest.model';
+import { JobInstanceModel } from '../../models/jobInstance.model';
+import { DagRunModel } from '../../models/dagRuns/dagRun.model';
+import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
 
 export const GET_DAG_RUNS = 'GET_DAG_RUNS';
 export const GET_DAG_RUNS_SUCCESS = 'GET_DAG_RUNS_SUCCESS';
@@ -34,7 +34,7 @@ export class GetDagRuns implements Action {
 
 export class GetDagRunsSuccess implements Action {
   readonly type = GET_DAG_RUNS_SUCCESS;
-  constructor(public payload: {dagRuns: TableSearchResponseModel<DagRunModel>}) {}
+  constructor(public payload: { dagRuns: TableSearchResponseModel<DagRunModel> }) {}
 }
 
 export class GetDagRunsFailure implements Action {
@@ -56,5 +56,9 @@ export class GetDagRunDetailFailure implements Action {
 }
 
 export type RunsActions =
-  GetDagRuns | GetDagRunsSuccess | GetDagRunsFailure |
-  GetDagRunDetail | GetDagRunDetailSuccess | GetDagRunDetailFailure;
+  | GetDagRuns
+  | GetDagRunsSuccess
+  | GetDagRunsFailure
+  | GetDagRunDetail
+  | GetDagRunDetailSuccess
+  | GetDagRunDetailFailure;

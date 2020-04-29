@@ -13,51 +13,46 @@
  * limitations under the License.
  */
 
-import {Injectable} from '@angular/core';
-import {Observable} from "rxjs";
-import {map} from "rxjs/operators";
-import {HttpClient, HttpParams} from "@angular/common/http";
-import {api} from '../../constants/api.constants';
-import {TableSearchRequestModel} from "../../models/search/tableSearchRequest.model";
-import {JobInstanceModel} from "../../models/jobInstance.model";
-import {TableSearchResponseModel} from '../../models/search/tableSearchResponse.model';
-import {DagRunModel} from '../../models/dagRuns/dagRun.model';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { api } from '../../constants/api.constants';
+import { TableSearchRequestModel } from '../../models/search/tableSearchRequest.model';
+import { JobInstanceModel } from '../../models/jobInstance.model';
+import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
+import { DagRunModel } from '../../models/dagRuns/dagRun.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class DagRunService {
-
-  constructor(private httpClient: HttpClient) { }
+  constructor(private httpClient: HttpClient) {}
 
   searchDagRuns(searchRequestModel: TableSearchRequestModel): Observable<TableSearchResponseModel<DagRunModel>> {
-    return this.httpClient.post<TableSearchResponseModel<DagRunModel>>(
-      api.DAG_RUN_SEARCH,
-      searchRequestModel,
-      {
-        observe: 'response'
-      }
-    ).pipe(
-      map(_ => {
-        return _.body
+    return this.httpClient
+      .post<TableSearchResponseModel<DagRunModel>>(api.DAG_RUN_SEARCH, searchRequestModel, {
+        observe: 'response',
       })
-    );
+      .pipe(
+        map((_) => {
+          return _.body;
+        }),
+      );
   }
 
   getDagRunDetails(dagRunId: number): Observable<JobInstanceModel[]> {
-    let params = new HttpParams().set('dagInstanceId', dagRunId.toString());
+    const params = new HttpParams().set('dagInstanceId', dagRunId.toString());
 
-    return this.httpClient.get<JobInstanceModel[]>(
-      api.JOB_INSTANCES,
-      {
+    return this.httpClient
+      .get<JobInstanceModel[]>(api.JOB_INSTANCES, {
         params: params,
-        observe: 'response'
-      }
-    ).pipe(
-      map(_ => {
-        return _.body
+        observe: 'response',
       })
-    );
+      .pipe(
+        map((_) => {
+          return _.body;
+        }),
+      );
   }
-
 }

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import {FormPart} from "../models/workflowFormParts.model";
+import { FormPart } from '../models/workflowFormParts.model';
 
 export const workflowFormParts = {
   DETAILS: {
@@ -26,12 +26,12 @@ export const workflowFormParts = {
   },
   JOB: {
     JOB_NAME: new FormPart('Job name', 'name', true, 'string-field'),
-    JOB_TYPE: new FormPart('Job type', 'jobType.name', true, 'select-field')
-  }
+    JOB_TYPE: new FormPart('Job type', 'jobType.name', true, 'select-field'),
+  },
 };
 
 export const workflowFormPartsSequences = {
   allDetails: [workflowFormParts.DETAILS.WORKFLOW_NAME, workflowFormParts.DETAILS.PROJECT_NAME, workflowFormParts.DETAILS.IS_ACTIVE],
   allSensors: [workflowFormParts.SENSOR.SENSOR_TYPE],
-  allJobs: [workflowFormParts.JOB.JOB_NAME, workflowFormParts.JOB.JOB_TYPE]
+  allJobs: [workflowFormParts.JOB.JOB_NAME, workflowFormParts.JOB.JOB_TYPE],
 };

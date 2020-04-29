@@ -13,10 +13,8 @@
  * limitations under the License.
  */
 
-import {FilterAttributes} from './filterAttributes.model';
+import { FilterAttributes } from './filterAttributes.model';
 
 export class IntRangeFilterAttributes implements FilterAttributes {
-  constructor(public field: string,
-              public start: number,
-              public end: number) {}
+  constructor(public field: string, public start: number, public end: number) {}
 }

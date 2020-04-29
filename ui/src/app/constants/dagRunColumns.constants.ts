@@ -19,5 +19,5 @@ export const dagRunColumns = {
   JOB_COUNT: 'jobCount',
   STARTED: 'started',
   FINISHED: 'finished',
-  STATUS: 'status'
+  STATUS: 'status',
 };

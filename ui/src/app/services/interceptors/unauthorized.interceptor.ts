@@ -13,21 +13,19 @@
  * limitations under the License.
  */
 
-import {Injectable} from '@angular/core';
-import {HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest} from "@angular/common/http";
-import {Observable, throwError} from "rxjs";
-import {catchError} from "rxjs/operators";
-import {Store} from "@ngrx/store";
+import { Injectable } from '@angular/core';
+import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { Store } from '@ngrx/store';
 import * as AuthActions from '../../stores/auth/auth.actions';
 import * as fromApp from '../../stores/app.reducers';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UnauthorizedInterceptor implements HttpInterceptor {
-
-  constructor(private store: Store<fromApp.AppState>) {
-  }
+  constructor(private store: Store<fromApp.AppState>) {}
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return next.handle(request).pipe(
@@ -36,8 +34,7 @@ export class UnauthorizedInterceptor implements HttpInterceptor {
           this.store.dispatch(new AuthActions.LogoutSuccess());
         }
         return throwError(response);
-      })
+      }),
     );
   }
-
 }

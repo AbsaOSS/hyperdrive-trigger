@@ -13,55 +13,60 @@
  * limitations under the License.
  */
 
-import {AfterViewInit, Component, OnDestroy, QueryList, ViewChildren} from '@angular/core';
-import {DagRunModel} from "../../models/dagRuns/dagRun.model";
-import {ClrDatagridColumn, ClrDatagridStateInterface} from "@clr/angular";
-import {Store} from "@ngrx/store";
-import {AppState, selectRunState} from "../../stores/app.reducers";
-import {GetDagRuns} from "../../stores/runs/runs.actions";
-import {Subject, Subscription} from "rxjs";
-import {skip} from "rxjs/operators";
-import {dagRunColumns} from "../../constants/dagRunColumns.constants";
-import {dagInstanceStatuses} from "../../models/enums/dagInstanceStatuses.constants";
-import {ContainsFilterAttributes} from '../../models/search/containsFilterAttributes.model';
-import {TableSearchRequestModel} from '../../models/search/tableSearchRequest.model';
-import {IntRangeFilterAttributes} from '../../models/search/intRangeFilterAttributes.model';
-import {DateTimeRangeFilterAttributes} from '../../models/search/dateTimeRangeFilterAttributes.model';
-import {SortAttributesModel} from '../../models/search/sortAttributes.model';
-import {EqualsMultipleFilterAttributes} from '../../models/search/equalsMultipleFilterAttributes.model';
+import { AfterViewInit, Component, OnDestroy, QueryList, ViewChildren } from '@angular/core';
+import { DagRunModel } from '../../models/dagRuns/dagRun.model';
+import { ClrDatagridColumn, ClrDatagridStateInterface } from '@clr/angular';
+import { Store } from '@ngrx/store';
+import { AppState, selectRunState } from '../../stores/app.reducers';
+import { GetDagRuns } from '../../stores/runs/runs.actions';
+import { Subject, Subscription } from 'rxjs';
+import { skip } from 'rxjs/operators';
+import { dagRunColumns } from '../../constants/dagRunColumns.constants';
+import { dagInstanceStatuses } from '../../models/enums/dagInstanceStatuses.constants';
+import { ContainsFilterAttributes } from '../../models/search/containsFilterAttributes.model';
+import { TableSearchRequestModel } from '../../models/search/tableSearchRequest.model';
+import { IntRangeFilterAttributes } from '../../models/search/intRangeFilterAttributes.model';
+import { DateTimeRangeFilterAttributes } from '../../models/search/dateTimeRangeFilterAttributes.model';
+import { SortAttributesModel } from '../../models/search/sortAttributes.model';
+import { EqualsMultipleFilterAttributes } from '../../models/search/equalsMultipleFilterAttributes.model';
 
 @Component({
   selector: 'app-runs',
   templateUrl: './runs.component.html',
-  styleUrls: ['./runs.component.scss']
+  styleUrls: ['./runs.component.scss'],
 })
 export class RunsComponent implements OnDestroy, AfterViewInit {
   @ViewChildren(ClrDatagridColumn) columns: QueryList<ClrDatagridColumn>;
 
   runsSubscription: Subscription = null;
-  page: number = 1;
-  pageFrom: number = 0;
-  pageSize: number = 0;
+  page = 1;
+  pageFrom = 0;
+  pageSize = 0;
   sort: SortAttributesModel = null;
 
   dagRuns: DagRunModel[] = [];
-  total: number = 0;
-  loading: boolean = true;
+  total = 0;
+  loading = true;
   filters: any[] = [];
 
   dagRunColumns = dagRunColumns;
   dagInstanceStatuses = dagInstanceStatuses;
 
-  removeFiltersSubject:Subject<any> = new Subject();
+  removeFiltersSubject: Subject<any> = new Subject();
 
-  constructor(private store: Store<AppState>) {}
+  constructor(private store: Store<AppState>) {
+    // do nothing
+  }
 
   ngAfterViewInit(): void {
-    this.runsSubscription = this.store.select(selectRunState).pipe(skip(1)).subscribe((state) => {
-      this.dagRuns = state.dagRuns;
-      this.total = state.total;
-      this.loading = state.loading;
-    });
+    this.runsSubscription = this.store
+      .select(selectRunState)
+      .pipe(skip(1))
+      .subscribe((state) => {
+        this.dagRuns = state.dagRuns;
+        this.total = state.total;
+        this.loading = state.loading;
+      });
   }
 
   ngOnDestroy(): void {
@@ -69,7 +74,7 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
   }
 
   onClarityDgRefresh(state: ClrDatagridStateInterface) {
-    this.sort = state.sort ? new SortAttributesModel(<string>state.sort.by, state.sort.reverse ? -1 : 1) : undefined;
+    this.sort = state.sort ? new SortAttributesModel(state.sort.by as string, state.sort.reverse ? -1 : 1) : undefined;
     this.pageFrom = state.page.from < 0 ? 0 : state.page.from;
     this.pageSize = state.page.size;
     this.filters = state.filters ? state.filters : [];
@@ -78,14 +83,14 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
   }
 
   refresh() {
-    let searchRequestModel: TableSearchRequestModel = {
+    const searchRequestModel: TableSearchRequestModel = {
       from: this.pageFrom,
       size: this.pageSize,
       sort: this.sort,
-      containsFilterAttributes: this.filters.filter(f => f instanceof ContainsFilterAttributes),
-      intRangeFilterAttributes: this.filters.filter(f => f instanceof IntRangeFilterAttributes),
-      dateTimeRangeFilterAttributes: this.filters.filter(f => f instanceof DateTimeRangeFilterAttributes),
-      equalsMultipleFilterAttributes: this.filters.filter(f => f instanceof EqualsMultipleFilterAttributes)
+      containsFilterAttributes: this.filters.filter((f) => f instanceof ContainsFilterAttributes),
+      intRangeFilterAttributes: this.filters.filter((f) => f instanceof IntRangeFilterAttributes),
+      dateTimeRangeFilterAttributes: this.filters.filter((f) => f instanceof DateTimeRangeFilterAttributes),
+      equalsMultipleFilterAttributes: this.filters.filter((f) => f instanceof EqualsMultipleFilterAttributes),
     };
 
     this.store.dispatch(new GetDagRuns(searchRequestModel));
@@ -96,7 +101,6 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
   }
 
   clearSort() {
-    !!this.sort ? this.columns.find(_ => _.field == this.sort.by).sortOrder = 0 : undefined;
+    !!this.sort ? (this.columns.find((_) => _.field == this.sort.by).sortOrder = 0) : undefined;
   }
-
 }

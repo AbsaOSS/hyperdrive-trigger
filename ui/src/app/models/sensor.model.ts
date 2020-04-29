@@ -14,30 +14,13 @@
  */
 
 export class SensorModel {
-
-  constructor(
-    public workflowId: number = 0,
-    public sensorType: {name: string},
-    public properties: PropertiesModel,
-    public id: number
-  ) {}
+  constructor(public workflowId: number = 0, public sensorType: { name: string }, public properties: PropertiesModel, public id: number) {}
 }
 
 export class PropertiesModel {
-
-  constructor(
-    public sensorId: number = 0,
-    public settings: SettingsModel,
-    public matchProperties: Map<String, String>
-  ) {}
-
+  constructor(public sensorId: number = 0, public settings: SettingsModel, public matchProperties: Map<string, string>) {}
 }
 
 export class SettingsModel {
-
-  constructor(
-    public variables: Map<String, String>,
-    public maps: Map<String, Set<String>>
-  ) {}
-
+  constructor(public variables: Map<string, string>, public maps: Map<string, Set<string>>) {}
 }

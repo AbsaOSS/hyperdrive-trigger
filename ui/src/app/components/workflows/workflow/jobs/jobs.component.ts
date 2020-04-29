@@ -13,26 +13,26 @@
  * limitations under the License.
  */
 
-import {Component, OnDestroy} from '@angular/core';
-import {workflowModes} from "../../../../models/enums/workflowModes.constants";
-import {Subscription} from "rxjs";
+import { Component, OnDestroy } from '@angular/core';
+import { workflowModes } from '../../../../models/enums/workflowModes.constants';
+import { Subscription } from 'rxjs';
 import cloneDeep from 'lodash/cloneDeep';
-import {AppState, selectWorkflowState} from "../../../../stores/app.reducers";
-import {Store} from "@ngrx/store";
-import {FormPart} from "../../../../models/workflowFormParts.model";
-import {WorkflowAddEmptyJob} from "../../../../stores/workflows/workflows.actions";
-import {JobEntryModel} from "../../../../models/jobEntry.model";
+import { AppState, selectWorkflowState } from '../../../../stores/app.reducers';
+import { Store } from '@ngrx/store';
+import { FormPart } from '../../../../models/workflowFormParts.model';
+import { WorkflowAddEmptyJob } from '../../../../stores/workflows/workflows.actions';
+import { JobEntryModel } from '../../../../models/jobEntry.model';
 
 @Component({
   selector: 'app-jobs',
   templateUrl: './jobs.component.html',
-  styleUrls: ['./jobs.component.scss']
+  styleUrls: ['./jobs.component.scss'],
 })
 export class JobsComponent implements OnDestroy {
   workflowModes = workflowModes;
   mode: string;
   jobData: JobEntryModel[];
-  hiddenJobs: {order: number, isHidden: boolean}[] = [];
+  hiddenJobs: { order: number; isHidden: boolean }[] = [];
   staticJobPart: FormPart;
 
   workflowSubscription: Subscription;
@@ -44,8 +44,8 @@ export class JobsComponent implements OnDestroy {
 
       this.staticJobPart = state.workflowFormParts.staticJobPart;
 
-      if(this.jobData.length == 0) {
-          this.store.dispatch(new WorkflowAddEmptyJob(0));
+      if (this.jobData.length == 0) {
+        this.store.dispatch(new WorkflowAddEmptyJob(0));
       }
     });
   }
@@ -55,12 +55,12 @@ export class JobsComponent implements OnDestroy {
   }
 
   toggleJob(order: number) {
-    let job = this.hiddenJobs.find(job => job.order === order);
-    job ? job.isHidden = !job.isHidden : this.hiddenJobs.push({order: order, isHidden: false});
+    const job = this.hiddenJobs.find((job) => job.order === order);
+    job ? (job.isHidden = !job.isHidden) : this.hiddenJobs.push({ order: order, isHidden: false });
   }
 
   isJobHidden(order: number): boolean {
-    let job = this.hiddenJobs.find(job => job.order === order);
+    const job = this.hiddenJobs.find((job) => job.order === order);
     return !(job ? job.isHidden : true);
   }
 
@@ -69,10 +69,10 @@ export class JobsComponent implements OnDestroy {
   }
 
   getJobName(index: number) {
-    let jobDataOption = this.jobData.find(job => job.order === index);
-    let jobData = !!jobDataOption ? jobDataOption.job : [];
+    const jobDataOption = this.jobData.find((job) => job.order === index);
+    const jobData = !!jobDataOption ? jobDataOption.job : [];
 
-    let nameOption = jobData.find(value => value.property === this.staticJobPart.property);
+    const nameOption = jobData.find((value) => value.property === this.staticJobPart.property);
     return !!nameOption ? nameOption.value : '';
   }
 

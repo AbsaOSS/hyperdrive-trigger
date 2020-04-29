@@ -13,6 +13,10 @@
  * limitations under the License.
  */
 
-export const environment = {
-  production: true,
+module.exports = {
+  semi: true,
+  trailingComma: "all",
+  singleQuote: true,
+  printWidth: 140,
+  tabWidth: 2
 };

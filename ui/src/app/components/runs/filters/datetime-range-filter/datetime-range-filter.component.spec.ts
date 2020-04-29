@@ -16,16 +16,15 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { DatetimeRangeFilterComponent } from './datetime-range-filter.component';
-import {DagRunModel} from "../../../../models/dagRuns/dagRun.model";
+import { DagRunModel } from '../../../../models/dagRuns/dagRun.model';
 
 describe('DatetimeRangeFilterComponent', () => {
   let fixture: ComponentFixture<DatetimeRangeFilterComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ DatetimeRangeFilterComponent ]
-    })
-    .compileComponents();
+      declarations: [DatetimeRangeFilterComponent],
+    }).compileComponents();
   }));
 
   beforeEach(() => {
@@ -40,48 +39,42 @@ describe('DatetimeRangeFilterComponent', () => {
   describe('accepts', () => {
     it('should accept when it is in the range', () => {
       const underTest = fixture.componentInstance;
-      const timeOffset = 24*60*60*1000;
+      const timeOffset = 24 * 60 * 60 * 1000;
       const today = new Date();
-      const past = new Date(today.getTime() - 5*timeOffset);
-      const future = new Date(today.getTime() + 5*timeOffset);
+      const past = new Date(today.getTime() - 5 * timeOffset);
+      const future = new Date(today.getTime() + 5 * timeOffset);
 
-      underTest.value = {from: past, to: future};
+      underTest.value = { from: past, to: future };
       underTest.property = 'started';
-      const dagRun = new DagRunModel(
-        'value', 'projectName', 2, 'Status', today, today, 0
-      );
+      const dagRun = new DagRunModel('value', 'projectName', 2, 'Status', today, today, 0);
 
       expect(underTest.accepts(dagRun)).toBeTrue();
     });
 
     it('should accept when it is on edge of the range', () => {
       const underTest = fixture.componentInstance;
-      const timeOffset = 24*60*60*1000;
+      const timeOffset = 24 * 60 * 60 * 1000;
       const today = new Date();
-      const past = new Date(today.getTime() - 5*timeOffset);
-      const future = new Date(today.getTime() + 5*timeOffset);
+      const past = new Date(today.getTime() - 5 * timeOffset);
+      const future = new Date(today.getTime() + 5 * timeOffset);
 
-      underTest.value = {from: past, to: future};
+      underTest.value = { from: past, to: future };
       underTest.property = 'started';
-      const dagRun = new DagRunModel(
-        'value', 'projectName', 2, 'Status', future, today, 0
-      );
+      const dagRun = new DagRunModel('value', 'projectName', 2, 'Status', future, today, 0);
 
       expect(underTest.accepts(dagRun)).toBeTrue();
     });
 
     it('should not accept when it is not in the range', () => {
       const underTest = fixture.componentInstance;
-      const timeOffset = 24*60*60*1000;
+      const timeOffset = 24 * 60 * 60 * 1000;
       const today = new Date();
-      const past = new Date(today.getTime() - 5*timeOffset);
-      const future = new Date(today.getTime() + 5*timeOffset);
+      const past = new Date(today.getTime() - 5 * timeOffset);
+      const future = new Date(today.getTime() + 5 * timeOffset);
 
-      underTest.value = {from: past, to: past};
+      underTest.value = { from: past, to: past };
       underTest.property = 'started';
-      const dagRun = new DagRunModel(
-        'value', 'projectName', 2, 'Status', future, today, 0
-      );
+      const dagRun = new DagRunModel('value', 'projectName', 2, 'Status', future, today, 0);
 
       expect(underTest.accepts(dagRun)).toBeFalse();
     });

@@ -13,15 +13,15 @@
  * limitations under the License.
  */
 
-import {Component, Input} from '@angular/core';
-import {Subject} from "rxjs";
-import {FormPart} from "../../../../models/workflowFormParts.model";
-import {WorkflowEntryModel} from "../../../../models/workflowEntry.model";
+import { Component, Input } from '@angular/core';
+import { Subject } from 'rxjs';
+import { FormPart } from '../../../../models/workflowFormParts.model';
+import { WorkflowEntryModel } from '../../../../models/workflowEntry.model';
 
 @Component({
   selector: 'app-dynamic-parts',
   templateUrl: './dynamic-parts.component.html',
-  styleUrls: ['./dynamic-parts.component.scss']
+  styleUrls: ['./dynamic-parts.component.scss'],
 })
 export class DynamicPartsComponent {
   @Input() isShow: boolean;
@@ -29,13 +29,14 @@ export class DynamicPartsComponent {
   @Input() values: WorkflowEntryModel[];
   @Input() valueChanges: Subject<WorkflowEntryModel>;
 
-  constructor() { }
+  constructor() {
+    // do nothing
+  }
 
   getValue(path: string): any {
-    let valueOption = this.values.find(value => {
+    const valueOption = this.values.find((value) => {
       return value.property == path;
     });
     return !!valueOption ? valueOption.value : undefined;
   }
-
 }

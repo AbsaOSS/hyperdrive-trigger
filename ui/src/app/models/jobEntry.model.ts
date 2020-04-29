@@ -13,11 +13,8 @@
  * limitations under the License.
  */
 
-import {WorkflowEntryModel} from "./workflowEntry.model";
+import { WorkflowEntryModel } from './workflowEntry.model';
 
 export class JobEntryModel {
-  constructor(
-    public order: number,
-    public job: WorkflowEntryModel[]
-  ) {}
+  constructor(public order: number, public job: WorkflowEntryModel[]) {}
 }

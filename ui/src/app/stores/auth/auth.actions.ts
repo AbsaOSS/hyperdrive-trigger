@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import {Action} from "@ngrx/store";
+import { Action } from '@ngrx/store';
 
 export const LOGIN = 'LOGIN';
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
@@ -23,12 +23,12 @@ export const LOGOUT_SUCCESS = 'LOGOUT_SUCCESS';
 
 export class Login implements Action {
   readonly type = LOGIN;
-  constructor(public payload: {username: string, password: string}) {}
+  constructor(public payload: { username: string; password: string }) {}
 }
 
 export class LoginSuccess implements Action {
   readonly type = LOGIN_SUCCESS;
-  constructor(public payload: {token: string, username: string}) {}
+  constructor(public payload: { token: string; username: string }) {}
 }
 
 export class LoginFailure implements Action {

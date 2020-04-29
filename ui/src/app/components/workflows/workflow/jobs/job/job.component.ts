@@ -13,20 +13,20 @@
  * limitations under the License.
  */
 
-import {ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit} from '@angular/core';
-import {Subject, Subscription} from "rxjs";
-import {workflowModes} from "../../../../../models/enums/workflowModes.constants";
-import {DynamicFormPart, FormPart} from "../../../../../models/workflowFormParts.model";
-import {Store} from "@ngrx/store";
-import {AppState, selectWorkflowState} from "../../../../../stores/app.reducers";
-import {WorkflowJobChanged, WorkflowJobTypeSwitched} from "../../../../../stores/workflows/workflows.actions";
-import {WorkflowEntryModel} from "../../../../../models/workflowEntry.model";
+import { ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Subject, Subscription } from 'rxjs';
+import { workflowModes } from '../../../../../models/enums/workflowModes.constants';
+import { DynamicFormPart, FormPart } from '../../../../../models/workflowFormParts.model';
+import { Store } from '@ngrx/store';
+import { AppState, selectWorkflowState } from '../../../../../stores/app.reducers';
+import { WorkflowJobChanged, WorkflowJobTypeSwitched } from '../../../../../stores/workflows/workflows.actions';
+import { WorkflowEntryModel } from '../../../../../models/workflowEntry.model';
 
 @Component({
   selector: 'app-job',
   templateUrl: './job.component.html',
   styleUrls: ['./job.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class JobComponent implements OnInit, OnDestroy {
   @Input() jobIndex: number;
@@ -52,37 +52,37 @@ export class JobComponent implements OnInit, OnDestroy {
       this.jobSwitchPart = state.workflowFormParts.jobSwitchPart;
       this.staticJobPart = state.workflowFormParts.staticJobPart;
 
-      let jobDataOption = state.workflowAction.workflowData.jobs.find(job => job.order == this.jobIndex);
+      const jobDataOption = state.workflowAction.workflowData.jobs.find((job) => job.order == this.jobIndex);
       this.jobData = !!jobDataOption ? jobDataOption.job : [];
 
-      let selected = this.jobData.find(value => value.property == this.jobSwitchPart.property);
+      const selected = this.jobData.find((value) => value.property == this.jobSwitchPart.property);
       this.selectedJob = !!selected ? selected.value : undefined;
     });
 
-    this.jobChangesSubscription = this.jobChanges.subscribe(jobChange => {
-      if(jobChange.property == this.jobSwitchPart.property){
-        this.store.dispatch(new WorkflowJobTypeSwitched(
-          {order: this.jobIndex, jobEntry: new WorkflowEntryModel(jobChange.property, jobChange.value)}
-        ));
+    this.jobChangesSubscription = this.jobChanges.subscribe((jobChange) => {
+      if (jobChange.property == this.jobSwitchPart.property) {
+        this.store.dispatch(
+          new WorkflowJobTypeSwitched({ order: this.jobIndex, jobEntry: new WorkflowEntryModel(jobChange.property, jobChange.value) }),
+        );
       } else {
-        this.store.dispatch(new WorkflowJobChanged(
-          {order: this.jobIndex, jobEntry: new WorkflowEntryModel(jobChange.property, jobChange.value)}
-        ));
+        this.store.dispatch(
+          new WorkflowJobChanged({ order: this.jobIndex, jobEntry: new WorkflowEntryModel(jobChange.property, jobChange.value) }),
+        );
       }
     });
   }
 
   getJobTypes(): string[] {
-    return this.jobDynamicParts.map(part => part.name)
+    return this.jobDynamicParts.map((part) => part.name);
   }
 
   getSelectedJobComponent(): FormPart[] {
-    let jobDynamicPart = this.jobDynamicParts.find(jdp => jdp.name == this.selectedJob);
+    const jobDynamicPart = this.jobDynamicParts.find((jdp) => jdp.name == this.selectedJob);
     return jobDynamicPart ? jobDynamicPart.parts : this.jobDynamicParts[0].parts;
   }
 
   getValue(prop: string) {
-    let val = this.jobData.find(value => value.property == prop);
+    const val = this.jobData.find((value) => value.property == prop);
     return !!val ? val.value : undefined;
   }
 
@@ -90,5 +90,4 @@ export class JobComponent implements OnInit, OnDestroy {
     this.jobChangesSubscription.unsubscribe();
     this.workflowSubscription.unsubscribe();
   }
-
 }

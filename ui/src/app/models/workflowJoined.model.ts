@@ -13,11 +13,10 @@
  * limitations under the License.
  */
 
-import {SensorModel} from "./sensor.model";
-import {DagDefinitionJoinedModel} from "./dagDefinitionJoined.model";
+import { SensorModel } from './sensor.model';
+import { DagDefinitionJoinedModel } from './dagDefinitionJoined.model';
 
 export class WorkflowJoinedModel {
-
   constructor(
     public name: string,
     public isActive: boolean,
@@ -25,7 +24,6 @@ export class WorkflowJoinedModel {
     public created: Date,
     public sensor: SensorModel,
     public dagDefinitionJoined: DagDefinitionJoinedModel,
-    public id: number
+    public id: number,
   ) {}
-
 }

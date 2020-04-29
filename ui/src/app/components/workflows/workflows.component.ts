@@ -13,24 +13,24 @@
  * limitations under the License.
  */
 
-import {AfterViewInit, Component, OnDestroy} from '@angular/core';
-import {WorkflowModel} from "../../models/workflow.model";
-import {ProjectModel} from "../../models/project.model";
-import {Store} from "@ngrx/store";
-import {AppState, selectWorkflowState} from "../../stores/app.reducers";
-import {Subscription} from "rxjs";
-import {InitializeWorkflows} from "../../stores/workflows/workflows.actions";
-import {absoluteRoutes} from "../../constants/routes.constants";
+import { AfterViewInit, Component, OnDestroy } from '@angular/core';
+import { WorkflowModel } from '../../models/workflow.model';
+import { ProjectModel } from '../../models/project.model';
+import { Store } from '@ngrx/store';
+import { AppState, selectWorkflowState } from '../../stores/app.reducers';
+import { Subscription } from 'rxjs';
+import { InitializeWorkflows } from '../../stores/workflows/workflows.actions';
+import { absoluteRoutes } from '../../constants/routes.constants';
 
 @Component({
   selector: 'app-workflows',
   templateUrl: './workflows.component.html',
-  styleUrls: ['./workflows.component.scss']
+  styleUrls: ['./workflows.component.scss'],
 })
 export class WorkflowsComponent implements AfterViewInit, OnDestroy {
   workflowsSubscription: Subscription = null;
 
-  loading: boolean = true;
+  loading = true;
   projects: ProjectModel[] = [];
   workflows: WorkflowModel[] = [];
 
@@ -51,5 +51,4 @@ export class WorkflowsComponent implements AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     this.workflowsSubscription.unsubscribe();
   }
-
 }

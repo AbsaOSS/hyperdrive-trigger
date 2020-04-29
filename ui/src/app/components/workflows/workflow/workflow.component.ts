@@ -13,22 +13,22 @@
  * limitations under the License.
  */
 
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {ActivatedRoute} from "@angular/router";
-import {AppState, selectWorkflowState} from "../../../stores/app.reducers";
-import {Subscription} from "rxjs";
-import {Store} from "@ngrx/store";
-import {StartWorkflowInitialization} from "../../../stores/workflows/workflows.actions";
-import {workflowModes} from "../../../models/enums/workflowModes.constants";
-import {absoluteRoutes} from "../../../constants/routes.constants";
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { AppState, selectWorkflowState } from '../../../stores/app.reducers';
+import { Subscription } from 'rxjs';
+import { Store } from '@ngrx/store';
+import { StartWorkflowInitialization } from '../../../stores/workflows/workflows.actions';
+import { workflowModes } from '../../../models/enums/workflowModes.constants';
+import { absoluteRoutes } from '../../../constants/routes.constants';
 
 @Component({
   selector: 'app-workflow',
   templateUrl: './workflow.component.html',
-  styleUrls: ['./workflow.component.scss']
+  styleUrls: ['./workflow.component.scss'],
 })
 export class WorkflowComponent implements OnInit, OnDestroy {
-  loading: boolean = true;
+  loading = true;
   mode: string;
   id: number;
 
@@ -43,8 +43,8 @@ export class WorkflowComponent implements OnInit, OnDestroy {
   workflowSubscription: Subscription;
 
   constructor(private store: Store<AppState>, route: ActivatedRoute) {
-    this.paramsSubscription = route.params.subscribe(parameters => {
-      this.store.dispatch(new StartWorkflowInitialization({id: parameters.id, mode: parameters.mode}));
+    this.paramsSubscription = route.params.subscribe((parameters) => {
+      this.store.dispatch(new StartWorkflowInitialization({ id: parameters.id, mode: parameters.mode }));
     });
   }
 
@@ -72,5 +72,4 @@ export class WorkflowComponent implements OnInit, OnDestroy {
     this.workflowSubscription.unsubscribe();
     this.paramsSubscription.unsubscribe();
   }
-
 }

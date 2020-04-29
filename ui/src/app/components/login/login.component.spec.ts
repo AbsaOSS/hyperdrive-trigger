@@ -27,26 +27,20 @@ describe('LoginComponent', () => {
   const initialAuthState = {
     username: 'test',
     isAuthenticated: false,
-    authenticationFailed: false
+    authenticationFailed: false,
   };
 
   const initialAppState = {
     auth: initialAuthState,
-    runs: {}
+    runs: {},
   };
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      providers: [
-        provideMockStore({ initialState: initialAppState })
-      ],
-      declarations: [ LoginComponent ],
-      imports: [
-        ClarityModule,
-        FormsModule
-      ]
-    })
-    .compileComponents();
+      providers: [provideMockStore({ initialState: initialAppState })],
+      declarations: [LoginComponent],
+      imports: [ClarityModule, FormsModule],
+    }).compileComponents();
 
     mockStore = TestBed.inject(MockStore);
   }));

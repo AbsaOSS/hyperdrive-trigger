@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-import {ContainsFilterAttributes} from './containsFilterAttributes.model';
-import {IntRangeFilterAttributes} from './intRangeFilterAttributes.model';
-import {DateTimeRangeFilterAttributes} from './dateTimeRangeFilterAttributes.model';
-import {SortAttributesModel} from './sortAttributes.model';
-import {EqualsMultipleFilterAttributes} from './equalsMultipleFilterAttributes.model';
+import { ContainsFilterAttributes } from './containsFilterAttributes.model';
+import { IntRangeFilterAttributes } from './intRangeFilterAttributes.model';
+import { DateTimeRangeFilterAttributes } from './dateTimeRangeFilterAttributes.model';
+import { SortAttributesModel } from './sortAttributes.model';
+import { EqualsMultipleFilterAttributes } from './equalsMultipleFilterAttributes.model';
 
 export class TableSearchRequestModel {
   constructor(
@@ -27,6 +27,6 @@ export class TableSearchRequestModel {
     public intRangeFilterAttributes?: IntRangeFilterAttributes[],
     public dateTimeRangeFilterAttributes?: DateTimeRangeFilterAttributes[],
     public equalsMultipleFilterAttributes?: EqualsMultipleFilterAttributes[],
-    public sort?: SortAttributesModel
+    public sort?: SortAttributesModel,
   ) {}
 }

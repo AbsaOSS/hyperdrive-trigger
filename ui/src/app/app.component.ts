@@ -13,18 +13,18 @@
  * limitations under the License.
  */
 
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {Store} from "@ngrx/store";
-import {Subscription} from "rxjs";
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Store } from '@ngrx/store';
+import { Subscription } from 'rxjs';
 import * as AuthActions from './stores/auth/auth.actions';
 import * as fromApp from './stores/app.reducers';
-import {absoluteRoutes} from './constants/routes.constants';
-import {selectAuthState} from './stores/app.reducers';
+import { absoluteRoutes } from './constants/routes.constants';
+import { selectAuthState } from './stores/app.reducers';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit, OnDestroy {
   routes = absoluteRoutes;
@@ -45,8 +45,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.authStateSubscription.unsubscribe();
   }
 
-  onLogOut(){
+  onLogOut() {
     this.store.dispatch(new AuthActions.Logout());
   }
-
 }

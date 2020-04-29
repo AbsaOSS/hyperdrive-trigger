@@ -19,33 +19,26 @@ import { ClarityModule } from '@clr/angular';
 import { provideMockStore, MockStore } from '@ngrx/store/testing';
 import { AppComponent } from './app.component';
 import * as fromApp from './stores/app.reducers';
-import {selectAuthState} from './stores/app.reducers';
+import { selectAuthState } from './stores/app.reducers';
 
 describe('AppComponent', () => {
   let mockStore: MockStore<fromApp.AppState>;
   const initialAuthState = {
     username: 'test-user',
     isAuthenticated: true,
-    authenticationFailed: false
+    authenticationFailed: false,
   };
 
   const initialAppState = {
     auth: initialAuthState,
-    runs: {}
+    runs: {},
   };
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      imports: [
-        RouterTestingModule,
-        ClarityModule
-      ],
-      providers: [
-        provideMockStore({ initialState: initialAppState })
-      ],
-      declarations: [
-        AppComponent
-      ],
+      imports: [RouterTestingModule, ClarityModule],
+      providers: [provideMockStore({ initialState: initialAppState })],
+      declarations: [AppComponent],
     }).compileComponents();
 
     mockStore = TestBed.inject(MockStore);
@@ -70,7 +63,7 @@ describe('AppComponent', () => {
 
   it('should render neither the title nor the username if the user is not authenticated', () => {
     const fixture = TestBed.createComponent(AppComponent);
-    mockStore.overrideSelector(selectAuthState, {...initialAuthState, isAuthenticated: false});
+    mockStore.overrideSelector(selectAuthState, { ...initialAuthState, isAuthenticated: false });
     mockStore.refreshState();
     fixture.detectChanges();
 

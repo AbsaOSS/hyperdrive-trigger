@@ -14,7 +14,6 @@
  */
 
 export class DagRunModel {
-
   constructor(
     public workflowName: string,
     public projectName: string,
@@ -22,7 +21,6 @@ export class DagRunModel {
     public status: string,
     public started: Date,
     public finished: Date,
-    public id: number
+    public id: number,
   ) {}
-
 }
