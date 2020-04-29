@@ -43,7 +43,7 @@ export class WorkflowService {
     );
   }
 
-  getWorkflowComponents(): Observable<DynamicFormParts> {
+  getWorkflowDynamicFormParts(): Observable<DynamicFormParts> {
     return of(new DynamicFormParts(
       [
         new DynamicFormPart(

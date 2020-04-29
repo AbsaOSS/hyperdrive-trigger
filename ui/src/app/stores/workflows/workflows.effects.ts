@@ -41,7 +41,7 @@ export class WorkflowsEffects {
     switchMap((action: WorkflowActions.InitializeWorkflows) => {
       return this.workflowService.getProjects().pipe(
         mergeMap((projects: ProjectModel[]) => {
-          return this.workflowService.getWorkflowComponents().pipe(
+          return this.workflowService.getWorkflowDynamicFormParts().pipe(
             mergeMap((workflowComponents: DynamicFormParts) => {
               let workflowFormParts = new WorkflowFormPartsModel(
                 workflowFormPartsSequences.allDetails,
