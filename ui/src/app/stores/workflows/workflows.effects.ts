@@ -23,7 +23,7 @@ import {ProjectModel} from "../../models/project.model";
 import {WorkflowJoinedModel} from "../../models/workflowJoined.model";
 import {workflowModes} from "../../models/enums/workflowModes.constants";
 import {DynamicFormParts, WorkflowFormPartsModel} from "../../models/workflowFormParts.model";
-import {workflowFromPartsSequences, workflowFormParts as workflowFormPartsConsts} from "../../constants/workflowFromParts.constants";
+import {workflowFormPartsSequences, workflowFormParts as workflowFormPartsConsts} from "../../constants/workflowFromParts.constants";
 import get from 'lodash/get';
 import {AppState, selectWorkflowState} from "../app.reducers";
 import {Store} from "@ngrx/store";
@@ -44,7 +44,7 @@ export class WorkflowsEffects {
           return this.workflowService.getWorkflowComponents().pipe(
             mergeMap((workflowComponents: DynamicFormParts) => {
               let workflowFormParts = new WorkflowFormPartsModel(
-                workflowFromPartsSequences.allDetails,
+                workflowFormPartsSequences.allDetails,
                 workflowFormPartsConsts.SENSOR.SENSOR_TYPE,
                 workflowFormPartsConsts.JOB.JOB_NAME,
                 workflowFormPartsConsts.JOB.JOB_TYPE,
@@ -90,7 +90,7 @@ export class WorkflowsEffects {
           return this.workflowService.getWorkflow(action.payload.id).pipe(
 
             mergeMap((worfklow: WorkflowJoinedModel) => {
-              let workflowDetailsData = workflowFromPartsSequences.allDetails.map(detail => {
+              let workflowDetailsData = workflowFormPartsSequences.allDetails.map(detail => {
                 let value = get(worfklow, detail.property);
                 if(value != undefined) {
                   return new WorkflowEntryModel(detail.property, value);

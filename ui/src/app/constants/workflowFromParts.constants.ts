@@ -30,7 +30,7 @@ export const workflowFormParts = {
   }
 };
 
-export const workflowFromPartsSequences = {
+export const workflowFormPartsSequences = {
   allDetails: [workflowFormParts.DETAILS.WORKFLOW_NAME, workflowFormParts.DETAILS.PROJECT_NAME, workflowFormParts.DETAILS.IS_ACTIVE],
   allSensors: [workflowFormParts.SENSOR.SENSOR_TYPE],
   allJobs: [workflowFormParts.JOB.JOB_NAME, workflowFormParts.JOB.JOB_TYPE]
