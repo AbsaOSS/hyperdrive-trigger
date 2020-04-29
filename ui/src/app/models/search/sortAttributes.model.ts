@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -15,5 +14,5 @@
  */
 
 export class SortAttributesModel {
-  constructor(public by: String, public order: number) {}
+  constructor(public by: string, public order: number) {}
 }

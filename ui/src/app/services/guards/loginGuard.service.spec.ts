@@ -16,10 +16,10 @@
 import { TestBed } from '@angular/core/testing';
 import { provideMockStore, MockStore } from '@ngrx/store/testing';
 import { cold } from 'jasmine-marbles';
-import {RouterTestingModule} from '@angular/router/testing';
-import {LogInGuardService} from './logInGuard.service';
-import {absoluteRoutes} from '../../constants/routes.constants';
-import {selectAuthState} from '../../stores/app.reducers';
+import { RouterTestingModule } from '@angular/router/testing';
+import { LogInGuardService } from './logInGuard.service';
+import { absoluteRoutes } from '../../constants/routes.constants';
+import { selectAuthState } from '../../stores/app.reducers';
 
 describe('LoginGuard Service', () => {
   let underTest: LogInGuardService;
@@ -27,36 +27,32 @@ describe('LoginGuard Service', () => {
   const initialAuthState = {
     username: 'test',
     isAuthenticated: true,
-    authenticationFailed: false
+    authenticationFailed: false,
   };
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [LogInGuardService, provideMockStore()],
-      imports: [
-        RouterTestingModule
-      ],
+      imports: [RouterTestingModule],
     });
 
     store = TestBed.inject(MockStore);
     underTest = TestBed.inject(LogInGuardService);
     spyOn(underTest.router, 'navigateByUrl').and.returnValue(Promise.resolve(true));
-
   });
 
   it('should redirect and return false if the user is authenticated', () => {
-    store.overrideSelector(selectAuthState, {...initialAuthState, isAuthenticated: true});
+    store.overrideSelector(selectAuthState, { ...initialAuthState, isAuthenticated: true });
 
     const expected = cold('(a|)', { a: false });
     expect(underTest.canActivate()).toBeObservable(expected);
-    expect(underTest.router.navigateByUrl).toHaveBeenCalledWith(absoluteRoutes.DEFAULT)
+    expect(underTest.router.navigateByUrl).toHaveBeenCalledWith(absoluteRoutes.DEFAULT);
   });
 
   it('should return true if the user is not authenticated', () => {
-    store.overrideSelector(selectAuthState, {...initialAuthState, isAuthenticated: false});
+    store.overrideSelector(selectAuthState, { ...initialAuthState, isAuthenticated: false });
 
     const expected = cold('(a|)', { a: true });
     expect(underTest.canActivate()).toBeObservable(expected);
   });
-
 });

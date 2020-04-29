@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 
-import {TestBed} from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 
-import {DagRunService} from './dag-run.service';
-import {HttpClientTestingModule, HttpTestingController} from "@angular/common/http/testing";
-import {JobInstanceModel} from "../../models/jobInstance.model";
-import {api} from "../../constants/api.constants";
+import { DagRunService } from './dag-run.service';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { JobInstanceModel } from '../../models/jobInstance.model';
+import { api } from '../../constants/api.constants';
 
 describe('DagRunService', () => {
   let underTest: DagRunService;
@@ -26,12 +26,8 @@ describe('DagRunService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [
-        DagRunService,
-      ],
-      imports: [
-        HttpClientTestingModule
-      ]
+      providers: [DagRunService],
+      imports: [HttpClientTestingModule],
     });
     underTest = TestBed.inject(DagRunService);
     httpTestingController = TestBed.inject(HttpTestingController);
@@ -46,18 +42,16 @@ describe('DagRunService', () => {
   });
 
   it('should return dag run details', () => {
-    let id = 0;
-    let jobInstances: JobInstanceModel[] = [];
+    const id = 0;
+    const jobInstances: JobInstanceModel[] = [];
 
-    underTest.getDagRunDetails(id)
-      .subscribe(
-        data => expect(data).toEqual(jobInstances),
-        error => fail(error)
-      );
+    underTest.getDagRunDetails(id).subscribe(
+      (data) => expect(data).toEqual(jobInstances),
+      (error) => fail(error),
+    );
 
     const req = httpTestingController.expectOne(api.JOB_INSTANCES + '?dagInstanceId=' + id);
     expect(req.request.method).toEqual('GET');
     req.flush([...jobInstances]);
   });
-
 });

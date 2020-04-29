@@ -13,22 +13,22 @@
  * limitations under the License.
  */
 
-import {AfterViewInit, Component, Input} from '@angular/core';
-import {ClrDatagridFilterInterface} from "@clr/angular";
-import {DagRunModel} from "../../../../models/dagRuns/dagRun.model";
-import {Subject, Subscription} from "rxjs";
-import {debounceTime, distinctUntilChanged} from "rxjs/operators";
-import {DateTimeRangeFilterAttributes} from '../../../../models/search/dateTimeRangeFilterAttributes.model';
+import { AfterViewInit, Component, Input } from '@angular/core';
+import { ClrDatagridFilterInterface } from '@clr/angular';
+import { DagRunModel } from '../../../../models/dagRuns/dagRun.model';
+import { Subject, Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { DateTimeRangeFilterAttributes } from '../../../../models/search/dateTimeRangeFilterAttributes.model';
 
 @Component({
   selector: 'app-datetime-range-filter',
   templateUrl: './datetime-range-filter.component.html',
-  styleUrls: ['./datetime-range-filter.component.scss']
+  styleUrls: ['./datetime-range-filter.component.scss'],
 })
 export class DatetimeRangeFilterComponent implements ClrDatagridFilterInterface<DagRunModel>, AfterViewInit {
   @Input() removeFiltersSubject: Subject<any>;
   @Input() property: string;
-  value: {from: Date, to: Date} = {from: undefined, to: undefined};
+  value: { from: Date; to: Date } = { from: undefined, to: undefined };
 
   //clarity interface
   changes: Subject<any> = new Subject<any>();
@@ -36,17 +36,14 @@ export class DatetimeRangeFilterComponent implements ClrDatagridFilterInterface<
   modelChanges: Subject<any> = new Subject<any>();
   modelSubscription: Subscription;
 
-  constructor() { }
+  constructor() {}
 
   ngAfterViewInit(): void {
-    this.modelSubscription = this.modelChanges.pipe(
-      debounceTime(500),
-      distinctUntilChanged()
-    ).subscribe(newValue => {
+    this.modelSubscription = this.modelChanges.pipe(debounceTime(500), distinctUntilChanged()).subscribe((newValue) => {
       this.changes.next();
     });
 
-    this.removeFiltersSubject.subscribe(_ => this.onRemoveFilter());
+    this.removeFiltersSubject.subscribe((_) => this.onRemoveFilter());
   }
 
   accepts(item: DagRunModel): boolean {
@@ -59,11 +56,11 @@ export class DatetimeRangeFilterComponent implements ClrDatagridFilterInterface<
   }
 
   isActive(): boolean {
-    return !!this.value.from || !!this.value.to
+    return !!this.value.from || !!this.value.to;
   }
 
   get state() {
-    return new DateTimeRangeFilterAttributes(this.property, this.value.from, this.value.to)
+    return new DateTimeRangeFilterAttributes(this.property, this.value.from, this.value.to);
   }
 
   modelChanged(value: Date) {
@@ -73,8 +70,7 @@ export class DatetimeRangeFilterComponent implements ClrDatagridFilterInterface<
   }
 
   onRemoveFilter() {
-    this.value = {from: undefined, to: undefined};
-    this.modelChanges.next(this.value)
+    this.value = { from: undefined, to: undefined };
+    this.modelChanges.next(this.value);
   }
-
 }

@@ -24,7 +24,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 @Component({
   selector: 'app-multiple-status-filter',
   templateUrl: './multiple-status-filter.component.html',
-  styleUrls: ['./multiple-status-filter.component.scss']
+  styleUrls: ['./multiple-status-filter.component.scss'],
 })
 export class MultipleStatusFilterComponent implements ClrDatagridFilterInterface<DagRunModel>, AfterViewInit, OnDestroy {
   @Input() removeFiltersSubject: Subject<any>;
@@ -38,17 +38,14 @@ export class MultipleStatusFilterComponent implements ClrDatagridFilterInterface
   modelChanges: Subject<any> = new Subject<any>();
   modelSubscription: Subscription;
 
-  constructor() { }
+  constructor() {}
 
   ngAfterViewInit(): void {
-    this.modelSubscription = this.modelChanges.pipe(
-      debounceTime(500),
-      distinctUntilChanged()
-    ).subscribe(newValue => {
+    this.modelSubscription = this.modelChanges.pipe(debounceTime(500), distinctUntilChanged()).subscribe((newValue) => {
       this.changes.next();
     });
 
-    this.removeFiltersSubject.subscribe(_ => this.onRemoveFilter());
+    this.removeFiltersSubject.subscribe((_) => this.onRemoveFilter());
   }
 
   ngOnDestroy(): void {
@@ -60,7 +57,7 @@ export class MultipleStatusFilterComponent implements ClrDatagridFilterInterface
     if (this.selectedValues.indexOf(statusModel.name) < 0) {
       this.selectedValues = this.selectedValues.concat(statusModel.name);
     } else {
-      this.selectedValues = this.selectedValues.filter(status => status !== statusModel.name);
+      this.selectedValues = this.selectedValues.filter((status) => status !== statusModel.name);
     }
 
     this.changes.next(true);

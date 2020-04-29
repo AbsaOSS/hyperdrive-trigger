@@ -13,22 +13,22 @@
  * limitations under the License.
  */
 
-import {AfterViewInit, Component, Input, OnInit} from '@angular/core';
-import {ClrDatagridFilterInterface} from "@clr/angular";
-import {DagRunModel} from "../../../../models/dagRuns/dagRun.model";
-import {Subject, Subscription} from "rxjs";
-import {debounceTime, distinctUntilChanged} from "rxjs/operators";
-import {IntRangeFilterAttributes} from '../../../../models/search/intRangeFilterAttributes.model';
+import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
+import { ClrDatagridFilterInterface } from '@clr/angular';
+import { DagRunModel } from '../../../../models/dagRuns/dagRun.model';
+import { Subject, Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { IntRangeFilterAttributes } from '../../../../models/search/intRangeFilterAttributes.model';
 
 @Component({
   selector: 'app-number-range-filter',
   templateUrl: './number-range-filter.component.html',
-  styleUrls: ['./number-range-filter.component.scss']
+  styleUrls: ['./number-range-filter.component.scss'],
 })
 export class NumberRangeFilterComponent implements ClrDatagridFilterInterface<DagRunModel>, AfterViewInit {
   @Input() removeFiltersSubject: Subject<any>;
   @Input() property: string;
-  value: {from: number, to: number} = {from: undefined, to: undefined};
+  value: { from: number; to: number } = { from: undefined, to: undefined };
 
   //clarity interface
   changes: Subject<any> = new Subject<any>();
@@ -36,17 +36,14 @@ export class NumberRangeFilterComponent implements ClrDatagridFilterInterface<Da
   modelChanges: Subject<any> = new Subject<any>();
   modelSubscription: Subscription;
 
-  constructor() { }
+  constructor() {}
 
   ngAfterViewInit(): void {
-    this.modelSubscription = this.modelChanges.pipe(
-      debounceTime(500),
-      distinctUntilChanged()
-    ).subscribe(newValue => {
+    this.modelSubscription = this.modelChanges.pipe(debounceTime(500), distinctUntilChanged()).subscribe((newValue) => {
       this.changes.next();
     });
 
-    this.removeFiltersSubject.subscribe(_ => this.onRemoveFilter());
+    this.removeFiltersSubject.subscribe((_) => this.onRemoveFilter());
   }
 
   accepts(item: DagRunModel): boolean {
@@ -59,11 +56,11 @@ export class NumberRangeFilterComponent implements ClrDatagridFilterInterface<Da
   }
 
   isActive(): boolean {
-    return !!this.value.from || !!this.value.to
+    return !!this.value.from || !!this.value.to;
   }
 
   get state() {
-    return new IntRangeFilterAttributes(this.property, this.value.from, this.value.to)
+    return new IntRangeFilterAttributes(this.property, this.value.from, this.value.to);
   }
 
   modelChanged(value: string) {
@@ -71,8 +68,7 @@ export class NumberRangeFilterComponent implements ClrDatagridFilterInterface<Da
   }
 
   onRemoveFilter() {
-    this.value = {from: undefined, to: undefined};
-    this.modelChanges.next(this.value)
+    this.value = { from: undefined, to: undefined };
+    this.modelChanges.next(this.value);
   }
-
 }

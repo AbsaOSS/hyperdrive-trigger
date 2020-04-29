@@ -13,10 +13,6 @@
  * limitations under the License.
  */
 
-
 export class WorkflowEntryModel {
-  constructor(
-    public property: string,
-    public value: any
-  ) {}
+  constructor(public property: string, public value: any) {}
 }

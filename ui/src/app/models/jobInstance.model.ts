@@ -20,14 +20,14 @@ export class JobInstanceModel {
     public jobType: JobType,
     public created: Date,
     public updated: Date,
-    public jobStatus: JobStatus
+    public jobStatus: JobStatus,
   ) {}
 }
 
 export class JobStatus {
-  constructor(public name: string){}
+  constructor(public name: string) {}
 }
 
 export class JobType {
-  constructor(public name: string){}
+  constructor(public name: string) {}
 }

@@ -13,13 +13,8 @@
  * limitations under the License.
  */
 
-import {WorkflowModel} from "./workflow.model";
+import { WorkflowModel } from './workflow.model';
 
 export class ProjectModel {
-
-  constructor(
-    public name: string,
-    public workflows: WorkflowModel[]
-  ) {}
-
+  constructor(public name: string, public workflows: WorkflowModel[]) {}
 }
