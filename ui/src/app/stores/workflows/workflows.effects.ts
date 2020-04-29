@@ -23,7 +23,7 @@ import {ProjectModel} from "../../models/project.model";
 import {WorkflowJoinedModel} from "../../models/workflowJoined.model";
 import {workflowModes} from "../../models/enums/workflowModes.constants";
 import {DynamicFormParts, WorkflowFormPartsModel} from "../../models/workflowFormParts.model";
-import {workflowFormPartsSequences, workflowFormParts as workflowFormPartsConsts} from "../../constants/workflowFromParts.constants";
+import {workflowFormPartsSequences, workflowFormParts as workflowFormPartsConsts} from "../../constants/workflowFormParts.constants";
 import {AppState, selectWorkflowState} from "../app.reducers";
 import {Store} from "@ngrx/store";
 import * as fromWorkflows from "./workflows.reducers";

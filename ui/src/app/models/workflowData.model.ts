@@ -18,7 +18,7 @@ import {WorkflowJoinedModel} from "./workflowJoined.model";
 import {
   workflowFormParts as workflowFormPartsConsts,
   workflowFormPartsSequences
-} from "../constants/workflowFromParts.constants";
+} from "../constants/workflowFormParts.constants";
 import get from 'lodash/get';
 import {JobEntryModel} from "./jobEntry.model";
 import {DynamicFormParts} from "./workflowFormParts.model";
