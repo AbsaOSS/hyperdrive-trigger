@@ -44,7 +44,7 @@ export class WorkflowsComponent implements AfterViewInit, OnDestroy {
     this.workflowsSubscription = this.store.select(selectWorkflowState).subscribe((state) => {
       this.loading = state.loading;
       this.projects = state.projects;
-      this.workflows = state.workflows;
+      this.workflows = [].concat(...state.projects.map((project) => project.workflows));
     });
   }
 

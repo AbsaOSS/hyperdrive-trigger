@@ -34,7 +34,7 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.workflowsSubscription = this.store.select(selectWorkflowState).subscribe((state) => {
-      this.workflows = state.workflows
+      this.workflows = [].concat(...state.projects.map((project) => project.workflows));
     });
   }
 

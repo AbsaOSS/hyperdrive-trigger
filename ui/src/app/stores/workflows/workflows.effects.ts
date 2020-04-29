@@ -55,7 +55,6 @@ export class WorkflowsEffects {
             type: WorkflowActions.INITIALIZE_WORKFLOWS_SUCCESS,
             payload: {
               projects: projects,
-              workflows: [].concat(...projects.map((project) => project.workflows)),
               workflowFormParts: workflowFormParts
             }
           }];

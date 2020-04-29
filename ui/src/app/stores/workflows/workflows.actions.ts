@@ -15,7 +15,6 @@
 
 import {Action} from "@ngrx/store";
 import {ProjectModel} from "../../models/project.model";
-import {WorkflowModel} from "../../models/workflow.model";
 import {WorkflowJoinedModel} from "../../models/workflowJoined.model";
 import {WorkflowFormPartsModel} from "../../models/workflowFormParts.model";
 import {WorkflowEntryModel} from "../../models/workflowEntry.model";
@@ -45,7 +44,7 @@ export class InitializeWorkflows implements Action {
 
 export class InitializeWorkflowsSuccess implements Action {
   readonly type = INITIALIZE_WORKFLOWS_SUCCESS;
-  constructor(public payload: {projects: ProjectModel[], workflows: WorkflowModel[], workflowFormParts: WorkflowFormPartsModel}) {}
+  constructor(public payload: {projects: ProjectModel[], workflowFormParts: WorkflowFormPartsModel}) {}
 }
 
 export class InitializeWorkflowsFailure implements Action {

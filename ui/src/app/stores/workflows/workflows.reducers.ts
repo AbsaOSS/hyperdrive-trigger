@@ -15,14 +15,12 @@
 
 import * as WorkflowsActions from "../workflows/workflows.actions";
 import {ProjectModel} from "../../models/project.model";
-import {WorkflowModel} from "../../models/workflow.model";
 import {WorkflowJoinedModel} from "../../models/workflowJoined.model";
 import {WorkflowFormPartsModel} from "../../models/workflowFormParts.model";
 import {WorkflowEntryModel} from "../../models/workflowEntry.model";
 
 export interface State {
   projects: ProjectModel[],
-  workflows: WorkflowModel[],
   loading: boolean,
   workflowAction: {
     id: number,
@@ -40,7 +38,6 @@ export interface State {
 
 const initialState: State = {
   projects: [],
-  workflows: [],
   loading: true,
   workflowAction: {
     id: undefined,
@@ -61,7 +58,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
     case (WorkflowsActions.INITIALIZE_WORKFLOWS):
       return {...state, loading: true};
     case (WorkflowsActions.INITIALIZE_WORKFLOWS_SUCCESS):
-      return {...state, loading: false, projects: action.payload.projects, workflows: action.payload.workflows, workflowFormParts: action.payload.workflowFormParts};
+      return {...state, loading: false, projects: action.payload.projects, workflowFormParts: action.payload.workflowFormParts};
     case (WorkflowsActions.INITIALIZE_WORKFLOWS_FAILURE):
       return {...initialState, loading: false};
 
