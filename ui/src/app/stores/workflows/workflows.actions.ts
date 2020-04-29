@@ -15,12 +15,28 @@
 
 import {Action} from "@ngrx/store";
 import {ProjectModel} from "../../models/project.model";
-import {WorkflowModel} from "../../models/workflow.model";
+import {WorkflowJoinedModel} from "../../models/workflowJoined.model";
+import {WorkflowFormPartsModel} from "../../models/workflowFormParts.model";
+import {WorkflowEntryModel} from "../../models/workflowEntry.model";
+import {JobEntryModel} from "../../models/jobEntry.model";
 
 export const INITIALIZE_WORKFLOWS = 'INITIALIZE_WORKFLOWS';
 export const INITIALIZE_WORKFLOWS_SUCCESS = 'INITIALIZE_WORKFLOWS_SUCCESS';
 export const INITIALIZE_WORKFLOWS_FAILURE = 'INITIALIZE_WORKFLOWS_FAILURE';
 
+export const START_WORKFLOW_INITIALIZATION = 'START_WORKFLOW_INITIALIZATION';
+export const SET_EMPTY_WORKFLOW = 'SET_EMPTY_WORKFLOW';
+export const LOAD_WORKFLOW_SUCCESS = 'LOAD_WORKFLOW_SUCCESS';
+export const LOAD_WORKFLOW_FAILURE_INCORRECT_ID = 'LOAD_WORKFLOW_FAILURE_INCORRECT_ID';
+export const LOAD_WORKFLOW_FAILURE = 'LOAD_WORKFLOW_FAILURE';
+
+export const WORKFLOW_ACTION_CHANGED = 'WORKFLOW_ACTION_CHANGED';
+export const WORKFLOW_DETAILS_CHANGED = 'WORKFLOW_DETAILS_CHANGED';
+export const WORKFLOW_SENSOR_CHANGED = 'WORKFLOW_SENSOR_CHANGED';
+export const WORKFLOW_SENSOR_TYPE_SWITCHED = 'WORKFLOW_SENSOR_TYPE_SWITCHED';
+export const WORKFLOW_ADD_EMPTY_JOB = 'WORKFLOW_ADD_EMPTY_JOB';
+export const WORKFLOW_JOB_CHANGED = 'WORKFLOW_JOB_CHANGED';
+export const WORKFLOW_JOB_TYPE_SWITCHED = 'WORKFLOW_JOB_TYPE_SWITCHED';
 
 export class InitializeWorkflows implements Action {
   readonly type = INITIALIZE_WORKFLOWS;
@@ -28,11 +44,77 @@ export class InitializeWorkflows implements Action {
 
 export class InitializeWorkflowsSuccess implements Action {
   readonly type = INITIALIZE_WORKFLOWS_SUCCESS;
-  constructor(public payload: {projects: ProjectModel[], workflows: WorkflowModel[]}) {}
+  constructor(public payload: {projects: ProjectModel[], workflowFormParts: WorkflowFormPartsModel}) {}
 }
 
 export class InitializeWorkflowsFailure implements Action {
   readonly type = INITIALIZE_WORKFLOWS_FAILURE;
 }
 
-export type WorkflowsActions = InitializeWorkflows | InitializeWorkflowsSuccess | InitializeWorkflowsFailure;
+export class StartWorkflowInitialization implements Action {
+  readonly type = START_WORKFLOW_INITIALIZATION;
+  constructor(public payload: {id?: number, mode: string}) {}
+}
+
+export class SetEmptyWorkflow implements Action {
+  readonly type = SET_EMPTY_WORKFLOW;
+}
+
+export class LoadWorkflowSuccess implements Action {
+  readonly type = LOAD_WORKFLOW_SUCCESS;
+  constructor(public payload: {
+    workflow: WorkflowJoinedModel,
+    detailsData: WorkflowEntryModel[],
+    sensorData: WorkflowEntryModel[],
+    jobsData: JobEntryModel[]
+  }) {}
+}
+
+export class LoadWorkflowFailure implements Action {
+  readonly type = LOAD_WORKFLOW_FAILURE;
+}
+
+export class LoadWorkflowFailureIncorrectId implements Action {
+  readonly type = LOAD_WORKFLOW_FAILURE_INCORRECT_ID;
+}
+
+export class WorkflowActionChanged implements Action {
+  readonly type = WORKFLOW_ACTION_CHANGED;
+  constructor(public payload: WorkflowJoinedModel) {}
+}
+
+export class WorkflowDetailsChanged implements Action {
+  readonly type = WORKFLOW_DETAILS_CHANGED;
+  constructor(public payload: WorkflowEntryModel) {}
+}
+
+export class WorkflowSensorChanged implements Action {
+  readonly type = WORKFLOW_SENSOR_CHANGED;
+  constructor(public payload: WorkflowEntryModel) {}
+}
+
+export class WorkflowSensorTypeSwitched implements Action {
+  readonly type = WORKFLOW_SENSOR_TYPE_SWITCHED;
+  constructor(public payload: WorkflowEntryModel) {}
+}
+
+export class WorkflowAddEmptyJob implements Action {
+  readonly type = WORKFLOW_ADD_EMPTY_JOB;
+  constructor(public payload: number) {}
+}
+
+export class WorkflowJobChanged implements Action {
+  readonly type = WORKFLOW_JOB_CHANGED;
+  constructor(public payload: {order: number, jobEntry: WorkflowEntryModel}) {}
+}
+
+export class WorkflowJobTypeSwitched implements Action {
+  readonly type = WORKFLOW_JOB_TYPE_SWITCHED;
+  constructor(public payload: {order: number, jobEntry: WorkflowEntryModel}) {}
+}
+
+export type WorkflowsActions =
+    InitializeWorkflows | InitializeWorkflowsSuccess | InitializeWorkflowsFailure |
+    StartWorkflowInitialization | SetEmptyWorkflow | LoadWorkflowSuccess | LoadWorkflowFailure | LoadWorkflowFailureIncorrectId |
+    WorkflowActionChanged | WorkflowDetailsChanged | WorkflowSensorChanged | WorkflowSensorTypeSwitched |
+    WorkflowAddEmptyJob | WorkflowJobChanged | WorkflowJobTypeSwitched;

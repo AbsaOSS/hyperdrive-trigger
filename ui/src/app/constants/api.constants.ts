@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -22,5 +21,6 @@ export const api = {
   DAG_RUN_SEARCH: '/dagRuns/search',
   JOB_INSTANCES: '/jobInstances',
 
-  GET_PROJECTS: '/workflows/projects'
+  GET_PROJECTS: '/workflows/projects',
+  GET_WORKFLOW: '/workflow'
 };

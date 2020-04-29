@@ -45,8 +45,21 @@ import {WorkflowsEffects} from "./stores/workflows/workflows.effects";
 import {WorkflowsHomeComponent} from './components/workflows/workflows-home/workflows-home.component';
 import {StringFilterComponent} from './components/runs/filters/string-filter/string-filter.component';
 import {DatetimeRangeFilterComponent} from "./components/runs/filters/datetime-range-filter/datetime-range-filter.component";
-import {NumberRangeFilterComponent} from "./components/runs/filters/number-range-filter/number-range-filter.component";
 import {MultipleStatusFilterComponent} from './components/runs/filters/multiple-status-filter/multiple-status-filter.component';
+import {NumberRangeFilterComponent} from "./components/runs/filters/number-range-filter/number-range-filter.component";
+import {WorkflowComponent} from './components/workflows/workflow/workflow.component';
+import {WorkflowDetailsComponent} from './components/workflows/workflow/workflow-details/workflow-details.component';
+import {SensorComponent} from './components/workflows/workflow/sensor/sensor.component';
+import {JobsComponent} from './components/workflows/workflow/jobs/jobs.component';
+import {StringPartComponent} from './components/workflows/workflow/dynamic-parts/string-part/string-part.component';
+import {BooleanPartComponent} from './components/workflows/workflow/dynamic-parts/boolean-part/boolean-part.component';
+import {SelectPartComponent} from './components/workflows/workflow/dynamic-parts/select-part/select-part.component';
+import {StringSequencePartComponent} from './components/workflows/workflow/dynamic-parts/string-sequence-part/string-sequence-part.component';
+import {KeyStringValuePartComponent} from './components/workflows/workflow/dynamic-parts/key-string-value-part/key-string-value-part.component';
+import {GuidPartComponent} from './components/workflows/workflow/dynamic-parts/guid-part/guid-part.component';
+import {CronQuartzPartComponent} from './components/workflows/workflow/dynamic-parts/cron-quartz-part/cron-quartz-part.component';
+import {JobComponent} from './components/workflows/workflow/jobs/job/job.component';
+import {DynamicPartsComponent} from "./components/workflows/workflow/dynamic-parts/dynamic-parts.component";
 
 @NgModule({
   declarations: [
@@ -59,8 +72,21 @@ import {MultipleStatusFilterComponent} from './components/runs/filters/multiple-
     WorkflowsHomeComponent,
     StringFilterComponent,
     DatetimeRangeFilterComponent,
+    MultipleStatusFilterComponent,
     NumberRangeFilterComponent,
-    MultipleStatusFilterComponent
+    WorkflowComponent,
+    WorkflowDetailsComponent,
+    SensorComponent,
+    JobsComponent,
+    JobComponent,
+    StringPartComponent,
+    BooleanPartComponent,
+    SelectPartComponent,
+    StringSequencePartComponent,
+    KeyStringValuePartComponent,
+    GuidPartComponent,
+    CronQuartzPartComponent,
+    DynamicPartsComponent
   ],
   imports: [
     BrowserModule,

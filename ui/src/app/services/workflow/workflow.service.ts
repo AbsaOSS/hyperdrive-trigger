@@ -14,11 +14,13 @@
  */
 
 import {Injectable} from '@angular/core';
-import {HttpClient} from "@angular/common/http";
+import {HttpClient, HttpParams} from "@angular/common/http";
 import {api} from "../../constants/api.constants";
 import {map} from "rxjs/operators";
 import {ProjectModel} from "../../models/project.model";
-import {Observable} from "rxjs";
+import {Observable, of} from "rxjs";
+import {WorkflowJoinedModel} from "../../models/workflowJoined.model";
+import {DynamicFormPart, DynamicFormParts, FormPart} from "../../models/workflowFormParts.model";
 
 @Injectable({
   providedIn: 'root'
@@ -31,6 +33,55 @@ export class WorkflowService {
     return this.httpClient.get<ProjectModel[]>(api.GET_PROJECTS, {observe: 'response'}).pipe(
       map(_ => _.body)
     );
+  }
+
+  getWorkflow(id: number): Observable<WorkflowJoinedModel> {
+    let params = new HttpParams().set('id', id.toString());
+
+    return this.httpClient.get<WorkflowJoinedModel>(api.GET_WORKFLOW, {params: params, observe: 'response'}).pipe(
+      map(response => response.body)
+    );
+  }
+
+  getWorkflowDynamicFormParts(): Observable<DynamicFormParts> {
+    return of(new DynamicFormParts(
+      [
+        new DynamicFormPart(
+          'Kafka', [
+            new FormPart('Topic', 'properties.settings.variables.topic', true, 'string-field'),
+            new FormPart('Kafka servers', 'properties.settings.maps.servers', true, 'set-field'),
+            new FormPart('Match properties', 'properties.matchProperties', false, 'key-value-field')
+          ]
+        ),
+        new DynamicFormPart(
+          'Absa-Kafka', [
+            new FormPart('Topic', 'properties.settings.variables.topic', true, 'string-field'),
+            new FormPart('Kafka servers', 'properties.settings.maps.servers', true, 'set-field'),
+            new FormPart('Ingestion token', 'properties.matchProperties.ingestionToken', true, 'guid-field')
+          ]
+        ),
+        new DynamicFormPart(
+          'Time', [
+            new FormPart('Run at', 'properties.settings.variables.cronExpression', true, 'cron-quartz-field')
+          ]
+        )
+      ],
+      [
+        new DynamicFormPart(
+          'Spark', [
+            new FormPart('Job jar', 'jobParameters.variables.jobJar', true, 'string-field'),
+            new FormPart('Main class', 'jobParameters.variables.mainClass', true, 'string-field'),
+            new FormPart('Deployment mode', 'jobParameters.variables.deploymentMode',true, 'select-field', ['cluster', 'client']),
+            new FormPart('App arguments', 'jobParameters.maps.appArguments', false,'set-field')
+          ]
+        ),
+        new DynamicFormPart(
+          'Shell', [
+            new FormPart('Script location', 'jobParameters.variables.scriptLocation', true, 'string-field')
+          ]
+        )
+      ]
+    ));
   }
 
 }

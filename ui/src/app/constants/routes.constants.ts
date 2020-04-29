@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -14,13 +13,17 @@
  * limitations under the License.
  */
 
+import {workflowModes} from "../models/enums/workflowModes.constants";
+
 export const routeNames = {
   DEFAULT: '',
   LOGIN: 'login',
   HOME: 'home',
   WORKFLOWS: 'workflows',
   WORKFLOWS_HOME: '',
-  RUNS: 'runs',
+  WORKFLOW_ACTION: ':mode',
+  WORKFLOW_ACTION_WITH_ID: ':mode/:id',
+  RUNS: 'runs'
 };
 
 export const absoluteRoutes = {
@@ -28,5 +31,10 @@ export const absoluteRoutes = {
   LOGIN: `/${routeNames.LOGIN}`,
   HOME: `/${routeNames.HOME}`,
   WORKFLOWS: `/${routeNames.WORKFLOWS}`,
+  WORKFLOWS_HOME: `/${routeNames.WORKFLOWS}`,
+  SHOW_WORKFLOW: `/${routeNames.WORKFLOWS}/${workflowModes.SHOW}`,
+  CREATE_WORKFLOW: `/${routeNames.WORKFLOWS}/${workflowModes.CREATE}`,
+  EDIT_WORKFLOW: `/${routeNames.WORKFLOWS}/${workflowModes.EDIT}`,
+  COPY_WORKFLOW: `/${routeNames.WORKFLOWS}/${workflowModes.COPY}`,
   RUNS: `/${routeNames.RUNS}`,
 };

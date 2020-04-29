@@ -17,23 +17,44 @@ import {Injectable} from "@angular/core";
 import {Actions, Effect, ofType} from "@ngrx/effects";
 import * as WorkflowActions from "../workflows/workflows.actions";
 
-import {catchError, mergeMap, switchMap} from "rxjs/operators";
+import {catchError, mergeMap, switchMap, withLatestFrom} from "rxjs/operators";
 import {WorkflowService} from "../../services/workflow/workflow.service";
 import {ProjectModel} from "../../models/project.model";
+import {WorkflowJoinedModel} from "../../models/workflowJoined.model";
+import {workflowModes} from "../../models/enums/workflowModes.constants";
+import {DynamicFormParts, WorkflowFormPartsModel} from "../../models/workflowFormParts.model";
+import {workflowFormPartsSequences, workflowFormParts as workflowFormPartsConsts} from "../../constants/workflowFormParts.constants";
+import {AppState, selectWorkflowState} from "../app.reducers";
+import {Store} from "@ngrx/store";
+import * as fromWorkflows from "./workflows.reducers";
+import {WorkflowDataModel} from "../../models/workflowData.model";
 
 @Injectable()
 export class WorkflowsEffects {
-  constructor(private actions: Actions, private workflowService: WorkflowService) {}
+  constructor(private actions: Actions, private workflowService: WorkflowService, private store: Store<AppState>) {}
 
   @Effect({dispatch: true})
   workflowsInitialize = this.actions.pipe(
     ofType(WorkflowActions.INITIALIZE_WORKFLOWS),
     switchMap((action: WorkflowActions.InitializeWorkflows) => {
-      return this.workflowService.getProjects().pipe(
-        mergeMap((projects: ProjectModel[]) => {
+      return this.workflowService.getProjects()
+    }),
+    mergeMap((projects: ProjectModel[]) => {
+      return this.workflowService.getWorkflowDynamicFormParts().pipe(
+        mergeMap((workflowComponents: DynamicFormParts) => {
+          let workflowFormParts = new WorkflowFormPartsModel(
+            workflowFormPartsSequences.allDetails,
+            workflowFormPartsConsts.SENSOR.SENSOR_TYPE,
+            workflowFormPartsConsts.JOB.JOB_NAME,
+            workflowFormPartsConsts.JOB.JOB_TYPE,
+            workflowComponents
+          );
           return [{
             type: WorkflowActions.INITIALIZE_WORKFLOWS_SUCCESS,
-            payload: {projects: projects, workflows: [].concat(...projects.map((project) => project.workflows))}
+            payload: {
+              projects: projects,
+              workflowFormParts: workflowFormParts
+            }
           }];
         }),
         catchError(() => {
@@ -41,7 +62,51 @@ export class WorkflowsEffects {
             type: WorkflowActions.INITIALIZE_WORKFLOWS_FAILURE
           }];
         })
-      )})
+      )
+    })
+  );
+
+  @Effect({dispatch: true})
+  workflowInitializationStart = this.actions.pipe(
+    ofType(WorkflowActions.START_WORKFLOW_INITIALIZATION),
+    withLatestFrom(
+      this.store.select(selectWorkflowState)
+    ),
+    switchMap(([action, state]: [WorkflowActions.StartWorkflowInitialization,  fromWorkflows.State]) => {
+      if(action.payload.mode === workflowModes.CREATE) {
+        return [{
+          type: WorkflowActions.SET_EMPTY_WORKFLOW
+        }];
+      } else {
+        if(!action.payload.id) {
+          return [{
+            type: WorkflowActions.LOAD_WORKFLOW_FAILURE_INCORRECT_ID
+          }];
+        } else {
+          return this.workflowService.getWorkflow(action.payload.id).pipe(
+
+            mergeMap((worfklow: WorkflowJoinedModel) => {
+              let workflowData = new WorkflowDataModel(worfklow, state.workflowFormParts.dynamicParts);
+
+              return [{
+                type: WorkflowActions.LOAD_WORKFLOW_SUCCESS,
+                payload: {
+                  workflow: worfklow,
+                  detailsData: workflowData.getDetailsData(),
+                  sensorData: workflowData.getSensorData(),
+                  jobsData: workflowData.getJobsData()
+                }
+              }];
+            }),
+            catchError(() => {
+              return [{
+                type: WorkflowActions.LOAD_WORKFLOW_FAILURE
+              }];
+            })
+          )
+        }
+      }
+    })
   );
 
 }
