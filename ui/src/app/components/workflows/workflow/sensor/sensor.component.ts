@@ -34,7 +34,7 @@ export class SensorComponent implements OnInit, OnDestroy {
   mode: string;
   sensorData: WorkflowEntryModel[];
   sensorDynamicParts: DynamicFormPart[];
-  dynamicSwitchSensorPart: FormPart;
+  sensorSwitchPart: FormPart;
 
   sensorChanges: Subject<WorkflowEntryModel> = new Subject<WorkflowEntryModel>();
   sensorChangesSubscription: Subscription;
@@ -45,10 +45,10 @@ export class SensorComponent implements OnInit, OnDestroy {
       this.mode = state.workflowAction.mode;
 
       this.sensorDynamicParts = state.workflowFormParts.dynamicParts.sensorDynamicParts;
-      this.dynamicSwitchSensorPart = state.workflowFormParts.dynamicSwitchSensorPart;
+      this.sensorSwitchPart = state.workflowFormParts.sensorSwitchPart;
       this.sensorData = state.workflowAction.workflowData.sensor;
 
-      let selected = this.sensorData.find(value => value.property == this.dynamicSwitchSensorPart.property);
+      let selected = this.sensorData.find(value => value.property == this.sensorSwitchPart.property);
       this.selectedSensor = !!selected ? selected.value : undefined;
     });
   }
@@ -56,7 +56,7 @@ export class SensorComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.sensorChangesSubscription = this.sensorChanges.pipe(
     ).subscribe(sensorChange => {
-      if(sensorChange.property == this.dynamicSwitchSensorPart.property){
+      if(sensorChange.property == this.sensorSwitchPart.property){
         this.store.dispatch(new WorkflowSensorTypeSwitched(new WorkflowEntryModel(sensorChange.property, sensorChange.value)));
       } else {
         this.store.dispatch(new WorkflowSensorChanged(new WorkflowEntryModel(sensorChange.property, sensorChange.value)));

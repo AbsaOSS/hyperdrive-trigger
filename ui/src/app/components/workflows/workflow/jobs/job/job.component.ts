@@ -35,7 +35,7 @@ export class JobComponent implements OnInit, OnDestroy {
   mode: string;
   jobData: WorkflowEntryModel[];
   jobDynamicParts: DynamicFormPart[];
-  dynamicSwitchJobPart: FormPart;
+  jobSwitchPart: FormPart;
   staticJobPart: FormPart;
 
   jobChanges: Subject<WorkflowEntryModel> = new Subject<WorkflowEntryModel>();
@@ -49,18 +49,18 @@ export class JobComponent implements OnInit, OnDestroy {
       this.mode = state.workflowAction.mode;
 
       this.jobDynamicParts = state.workflowFormParts.dynamicParts.jobDynamicParts;
-      this.dynamicSwitchJobPart = state.workflowFormParts.dynamicSwitchJobPart;
+      this.jobSwitchPart = state.workflowFormParts.jobSwitchPart;
       this.staticJobPart = state.workflowFormParts.staticJobPart;
 
       let jobDataOption = state.workflowAction.workflowData.jobs.find(job => job.order == this.jobIndex);
       this.jobData = !!jobDataOption ? jobDataOption.job : [];
 
-      let selected = this.jobData.find(value => value.property == this.dynamicSwitchJobPart.property);
+      let selected = this.jobData.find(value => value.property == this.jobSwitchPart.property);
       this.selectedJob = !!selected ? selected.value : undefined;
     });
 
     this.jobChangesSubscription = this.jobChanges.subscribe(jobChange => {
-      if(jobChange.property == this.dynamicSwitchJobPart.property){
+      if(jobChange.property == this.jobSwitchPart.property){
         this.store.dispatch(new WorkflowJobTypeSwitched(
           {order: this.jobIndex, jobEntry: new WorkflowEntryModel(jobChange.property, jobChange.value)}
         ));

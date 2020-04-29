@@ -16,9 +16,9 @@
 export class WorkflowFormPartsModel {
   constructor(
     public detailsParts: FormPart[],
-    public dynamicSwitchSensorPart: FormPart,
+    public sensorSwitchPart: FormPart,
     public staticJobPart: FormPart,
-    public dynamicSwitchJobPart: FormPart,
+    public jobSwitchPart: FormPart,
     public dynamicParts: DynamicFormParts
   ) {}
 }

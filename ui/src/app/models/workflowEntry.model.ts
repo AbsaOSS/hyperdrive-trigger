@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-import {WorkflowModel} from "./workflow.model";
 
 export class WorkflowEntryModel {
   constructor(

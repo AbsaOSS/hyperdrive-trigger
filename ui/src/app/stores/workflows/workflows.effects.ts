@@ -39,32 +39,31 @@ export class WorkflowsEffects {
   workflowsInitialize = this.actions.pipe(
     ofType(WorkflowActions.INITIALIZE_WORKFLOWS),
     switchMap((action: WorkflowActions.InitializeWorkflows) => {
-      return this.workflowService.getProjects().pipe(
-        mergeMap((projects: ProjectModel[]) => {
-          return this.workflowService.getWorkflowDynamicFormParts().pipe(
-            mergeMap((workflowComponents: DynamicFormParts) => {
-              let workflowFormParts = new WorkflowFormPartsModel(
-                workflowFormPartsSequences.allDetails,
-                workflowFormPartsConsts.SENSOR.SENSOR_TYPE,
-                workflowFormPartsConsts.JOB.JOB_NAME,
-                workflowFormPartsConsts.JOB.JOB_TYPE,
-                workflowComponents
-              );
-              return [{
-                type: WorkflowActions.INITIALIZE_WORKFLOWS_SUCCESS,
-                payload: {
-                  projects: projects,
-                  workflows: [].concat(...projects.map((project) => project.workflows)),
-                  workflowFormParts: workflowFormParts
-                }
-              }];
-            }),
-            catchError(() => {
-              return [{
-                type: WorkflowActions.INITIALIZE_WORKFLOWS_FAILURE
-              }];
-            })
-          )
+      return this.workflowService.getProjects()
+    }),
+    mergeMap((projects: ProjectModel[]) => {
+      return this.workflowService.getWorkflowDynamicFormParts().pipe(
+        mergeMap((workflowComponents: DynamicFormParts) => {
+          let workflowFormParts = new WorkflowFormPartsModel(
+            workflowFormPartsSequences.allDetails,
+            workflowFormPartsConsts.SENSOR.SENSOR_TYPE,
+            workflowFormPartsConsts.JOB.JOB_NAME,
+            workflowFormPartsConsts.JOB.JOB_TYPE,
+            workflowComponents
+          );
+          return [{
+            type: WorkflowActions.INITIALIZE_WORKFLOWS_SUCCESS,
+            payload: {
+              projects: projects,
+              workflows: [].concat(...projects.map((project) => project.workflows)),
+              workflowFormParts: workflowFormParts
+            }
+          }];
+        }),
+        catchError(() => {
+          return [{
+            type: WorkflowActions.INITIALIZE_WORKFLOWS_FAILURE
+          }];
         })
       )
     })

@@ -15,11 +15,11 @@
 
 <app-select-part
   [isShow]="mode == workflowModes.SHOW"
-  [name]="dynamicSwitchSensorPart.name"
-  [value]="getValue(dynamicSwitchSensorPart.property)"
+  [name]="sensorSwitchPart.name"
+  [value]="getValue(sensorSwitchPart.property)"
   [options]="getSensorTypes()"
   [valueChanges]="sensorChanges"
-  [property]="dynamicSwitchSensorPart.property">
+  [property]="sensorSwitchPart.property">
 </app-select-part>
 
 <app-dynamic-parts
