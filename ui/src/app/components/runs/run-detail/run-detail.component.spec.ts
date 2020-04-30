@@ -25,17 +25,15 @@ describe('RunDetailComponent', () => {
 
   const initialAppState = {
     runs: {
-      detail: {}
-    }
+      detail: {},
+    },
   };
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      providers: [
-        provideMockStore({initialState: initialAppState})
-      ],
+      providers: [provideMockStore({ initialState: initialAppState })],
       declarations: [RunDetailComponent],
-      imports: [HttpClientTestingModule]
+      imports: [HttpClientTestingModule],
     }).compileComponents();
   }));
 
