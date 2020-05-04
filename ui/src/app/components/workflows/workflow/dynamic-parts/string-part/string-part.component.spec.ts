@@ -16,25 +16,106 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { StringPartComponent } from './string-part.component';
+import { Subject } from 'rxjs';
+import { WorkflowEntryModel } from '../../../../../models/workflowEntry.model';
+import { By } from '@angular/platform-browser';
+import { DebugElement, Predicate } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 
 describe('StringPartComponent', () => {
-  // let component: StringPartComponent;
-  // let fixture: ComponentFixture<StringPartComponent>;
-  //
-  // beforeEach(async(() => {
-  //   TestBed.configureTestingModule({
-  //     declarations: [ StringPartComponent ]
-  //   })
-  //   .compileComponents();
-  // }));
-  //
-  // beforeEach(() => {
-  //   fixture = TestBed.createComponent(StringPartComponent);
-  //   component = fixture.componentInstance;
-  //   fixture.detectChanges();
-  // });
-  //
-  // it('should create', () => {
-  //   expect(component).toBeTruthy();
-  // });
+  let component: StringPartComponent;
+  let fixture: ComponentFixture<StringPartComponent>;
+  let underTest: StringPartComponent;
+
+  const inputSelector: Predicate<DebugElement> = By.css('input[type="text"]');
+
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      declarations: [StringPartComponent],
+      imports: [FormsModule],
+    }).compileComponents();
+  }));
+
+  beforeEach(() => {
+    fixture = TestBed.createComponent(StringPartComponent);
+    underTest = fixture.componentInstance;
+  });
+
+  it('should create', () => {
+    expect(underTest).toBeTruthy();
+  });
+
+  it('should set empty string on init when value is undefined', () => {
+    const oldValue = undefined;
+    const newValue = '';
+    const propertyName = 'property';
+    const testedSubject = new Subject<WorkflowEntryModel>();
+    const subjectSpy = spyOn(testedSubject, 'next');
+
+    underTest.isShow = false;
+    underTest.name = 'name';
+    underTest.value = oldValue;
+    underTest.property = propertyName;
+    underTest.valueChanges = testedSubject;
+    fixture.detectChanges();
+
+    fixture.whenStable().then(() => {
+      const result = fixture.debugElement.query(inputSelector).nativeElement.value;
+      expect(result).toBe(newValue);
+      expect(subjectSpy).toHaveBeenCalledTimes(1);
+      expect(subjectSpy).toHaveBeenCalledWith(new WorkflowEntryModel(propertyName, newValue));
+    });
+  });
+
+  it('should set empty string on init when value is null', () => {
+    const oldValue = null;
+    const newValue = '';
+    const propertyName = 'property';
+    const testedSubject = new Subject<WorkflowEntryModel>();
+    const subjectSpy = spyOn(testedSubject, 'next');
+
+    underTest.isShow = false;
+    underTest.name = 'name';
+    underTest.value = oldValue;
+    underTest.property = propertyName;
+    underTest.valueChanges = testedSubject;
+    fixture.detectChanges();
+
+    fixture.whenStable().then(() => {
+      const result = fixture.debugElement.query(inputSelector).nativeElement.value;
+      expect(result).toBe(newValue);
+      expect(subjectSpy).toHaveBeenCalledTimes(1);
+      expect(subjectSpy).toHaveBeenCalledWith(new WorkflowEntryModel(propertyName, newValue));
+    });
+  });
+
+  it('should change value and publish change on user input', async(() => {
+    const oldValue = 'oldValue';
+    const newValue = 'newValue';
+    const propertyName = 'property';
+    const testedSubject = new Subject<WorkflowEntryModel>();
+    const subjectSpy = spyOn(testedSubject, 'next');
+
+    underTest.isShow = false;
+    underTest.name = 'name';
+    underTest.value = oldValue;
+    underTest.property = propertyName;
+    underTest.valueChanges = testedSubject;
+
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      const inputElement = fixture.debugElement.query(inputSelector).nativeElement;
+
+      inputElement.value = newValue;
+      inputElement.dispatchEvent(new Event('input'));
+
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        const testedValue = fixture.debugElement.query(inputSelector).nativeElement.value;
+        expect(testedValue).toBe(newValue);
+        expect(subjectSpy).toHaveBeenCalled();
+        expect(subjectSpy).toHaveBeenCalledWith(new WorkflowEntryModel(propertyName, newValue));
+      });
+    });
+  }));
 });
