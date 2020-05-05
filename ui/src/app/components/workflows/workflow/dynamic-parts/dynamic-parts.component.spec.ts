@@ -16,7 +16,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { DynamicPartsComponent } from './dynamic-parts.component';
-import {Subject} from "rxjs";
+import { Subject } from "rxjs";
 import { WorkflowEntryModel } from "../../../../models/workflowEntry.model";
 
 describe('DynamicPartsComponent', () => {

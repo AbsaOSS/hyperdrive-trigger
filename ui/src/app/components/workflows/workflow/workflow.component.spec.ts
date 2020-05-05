@@ -16,25 +16,59 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { WorkflowComponent } from './workflow.component';
+import { provideMockStore } from "@ngrx/store/testing";
+import { RouterTestingModule } from "@angular/router/testing";
 
 describe('WorkflowComponent', () => {
-  // let component: WorkflowComponent;
-  // let fixture: ComponentFixture<WorkflowComponent>;
-  //
-  // beforeEach(async(() => {
-  //   TestBed.configureTestingModule({
-  //     declarations: [ WorkflowComponent ]
-  //   })
-  //   .compileComponents();
-  // }));
-  //
-  // beforeEach(() => {
-  //   fixture = TestBed.createComponent(WorkflowComponent);
-  //   component = fixture.componentInstance;
-  //   fixture.detectChanges();
-  // });
-  //
-  // it('should create', () => {
-  //   expect(component).toBeTruthy();
-  // });
+  let underTest: WorkflowComponent;
+  let fixture: ComponentFixture<WorkflowComponent>;
+
+  const initialAppState = {
+    workflows: {
+      loading: true,
+      mode: 'mode',
+      id: 0
+    }
+  };
+
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideMockStore({ initialState: initialAppState })
+      ],
+      declarations: [ WorkflowComponent ],
+      imports: [
+        RouterTestingModule.withRoutes([])
+      ],
+    })
+    .compileComponents();
+  }));
+
+  beforeEach(() => {
+    fixture = TestBed.createComponent(WorkflowComponent);
+    underTest = fixture.componentInstance;
+  });
+
+  it('should create', () => {
+    expect(underTest).toBeTruthy();
+  });
+
+  it('toggleDetailsAccordion() should toggle detail accordion', async(() => {
+    expect(underTest.isDetailsAccordionHidden).toBeFalse();
+    underTest.toggleDetailsAccordion();
+    expect(underTest.isDetailsAccordionHidden).toBeTrue();
+  }));
+
+  it('toggleSensorAccordion() should toggle sensor accordion', async(() => {
+    expect(underTest.isSensorAccordionHidden).toBeFalse();
+    underTest.toggleSensorAccordion();
+    expect(underTest.isSensorAccordionHidden).toBeTrue();
+  }));
+
+  it('toggleJobsAccordion() should toggle jobs accordion', async(() => {
+    expect(underTest.isJobsAccordionHidden).toBeFalse();
+    underTest.toggleJobsAccordion();
+    expect(underTest.isJobsAccordionHidden).toBeTrue();
+  }));
+
 });

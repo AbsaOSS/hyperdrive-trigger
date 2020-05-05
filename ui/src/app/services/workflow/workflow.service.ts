@@ -67,7 +67,7 @@ export class WorkflowService {
           ]),
           new DynamicFormPart('Shell', [new FormPart('Script location', 'jobParameters.variables.scriptLocation', true, 'string-field')]),
         ],
-      ),
+      )
     );
   }
 }

@@ -16,25 +16,127 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { JobComponent } from './job.component';
+import {provideMockStore} from "@ngrx/store/testing";
+import {
+  DynamicFormPart,
+  DynamicFormParts,
+  FormPart,
+  WorkflowFormPartsModel
+} from "../../../../../models/workflowFormParts.model";
 
 describe('JobComponent', () => {
-  // let component: JobComponent;
-  // let fixture: ComponentFixture<JobComponent>;
-  //
-  // beforeEach(async(() => {
-  //   TestBed.configureTestingModule({
-  //     declarations: [ JobComponent ]
-  //   })
-  //   .compileComponents();
-  // }));
-  //
-  // beforeEach(() => {
-  //   fixture = TestBed.createComponent(JobComponent);
-  //   component = fixture.componentInstance;
-  //   fixture.detectChanges();
-  // });
-  //
-  // it('should create', () => {
-  //   expect(component).toBeTruthy();
-  // });
+  let fixture: ComponentFixture<JobComponent>;
+  let underTest: JobComponent;
+
+  const initialAppState = {
+    workflows: {
+      workflowFormParts: new WorkflowFormPartsModel(
+        [],
+        undefined,
+        new FormPart('jobStaticPart', 'jobStaticPart', true, 'jobStaticPart'),
+        new FormPart('switchPartName', 'switchPartProp', true, 'switchPartType', ['optionOne', 'optionTwo']),
+        new DynamicFormParts(
+          [],
+          [
+            new DynamicFormPart('optionOne', [
+              new FormPart('partOne', 'partOne', true, 'partOne')
+            ]),
+            new DynamicFormPart('optionTwo', [
+              new FormPart('partTwo', 'partTwo', true, 'partTwo')
+            ])
+          ]
+        )
+      ),
+      workflowAction: {
+        mode: 'mode',
+        workflowData: {
+          jobs: [{
+            order: 0, job: [
+              {property: 'jobStaticPart', value: 'value'}
+            ]
+          }]
+        }
+      }
+    }
+  };
+
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideMockStore({ initialState: initialAppState })
+      ],
+      declarations: [ JobComponent ]
+    })
+    .compileComponents();
+  }));
+
+  beforeEach(() => {
+    fixture = TestBed.createComponent(JobComponent);
+    underTest = fixture.componentInstance;
+  });
+
+  it('should create', () => {
+    expect(underTest).toBeTruthy();
+  });
+
+  it('should after view init set component properties', async(() => {
+    underTest.jobIndex = initialAppState.workflows.workflowAction.workflowData.jobs[0].order;
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(underTest.mode).toBe(initialAppState.workflows.workflowAction.mode);
+
+      expect(underTest.jobDynamicParts).toEqual(initialAppState.workflows.workflowFormParts.dynamicParts.jobDynamicParts);
+      expect(underTest.jobSwitchPart).toEqual(initialAppState.workflows.workflowFormParts.jobSwitchPart);
+      expect(underTest.staticJobPart).toEqual(initialAppState.workflows.workflowFormParts.staticJobPart);
+    });
+  }));
+
+  it('getJobTypes() should return job types', async(() => {
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      const result = underTest.getJobTypes();
+      expect(result).toEqual(initialAppState.workflows.workflowFormParts.jobSwitchPart.options);
+    });
+  }));
+
+  it('getSelectedJobComponent() should return first dynamic parts when no job is selected', async(() => {
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      const resultLeft = underTest.getSelectedJobComponent();
+      const resultRight = initialAppState.workflows.workflowFormParts.dynamicParts.jobDynamicParts[0].parts;
+
+      expect(resultLeft).toEqual(resultRight);
+    });
+  }));
+
+  it('getSelectedJobComponent() should return dynamic parts when sensor is selected', async(() => {
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      underTest.selectedJob = initialAppState.workflows.workflowFormParts.dynamicParts.jobDynamicParts[1].name;
+      const resultLeft = underTest.getSelectedJobComponent();
+      const resultRight = initialAppState.workflows.workflowFormParts.dynamicParts.jobDynamicParts[1].parts;
+
+      expect(resultLeft).toEqual(resultRight);
+    });
+  }));
+
+  it('getValue() should return value when property exists', async(() => {
+    underTest.jobIndex = initialAppState.workflows.workflowAction.workflowData.jobs[0].order;
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      const queriedDetail = initialAppState.workflows.workflowAction.workflowData.jobs[0].job[0];
+      expect(underTest.getValue(queriedDetail.property)).toBe(queriedDetail.value);
+    });
+  }));
+
+  it('getValue() should return undefined when property doesnt exists', async(() => {
+    underTest.jobIndex = initialAppState.workflows.workflowAction.workflowData.jobs[0].order;
+    const undefinedProperty = 'undefinedProperty';
+
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(underTest.getValue(undefinedProperty)).toBe(undefined);
+    });
+  }));
+
 });

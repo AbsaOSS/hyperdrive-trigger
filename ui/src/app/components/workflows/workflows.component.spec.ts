@@ -34,7 +34,7 @@ describe('WorkflowsComponent', () => {
           new ProjectModel('projectTwo', [
             new WorkflowModel('workflowTwo', undefined, undefined, undefined, undefined, undefined)
           ])
-        ],
+        ]
       }
   };
 
@@ -64,7 +64,6 @@ describe('WorkflowsComponent', () => {
       expect(underTest.projects).toBe(initialAppState.workflows.projects);
       expect(underTest.workflows).toEqual([].concat(...initialAppState.workflows.projects.map((project) => project.workflows)));
     });
-
   }));
 
 });

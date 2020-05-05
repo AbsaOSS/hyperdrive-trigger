@@ -20,6 +20,10 @@ import { api } from '../../constants/api.constants';
 import { WorkflowService } from './workflow.service';
 import { ProjectModel } from '../../models/project.model';
 import { WorkflowModel } from '../../models/workflow.model';
+import {WorkflowJoinedModel} from "../../models/workflowJoined.model";
+import {SensorModel} from "../../models/sensor.model";
+import {DagDefinitionJoinedModel} from "../../models/dagDefinitionJoined.model";
+import {HttpParams} from "@angular/common/http";
 
 describe('WorkflowService', () => {
   let underTest: WorkflowService;
@@ -42,7 +46,7 @@ describe('WorkflowService', () => {
     expect(underTest).toBeTruthy();
   });
 
-  it('should return projects', () => {
+  it('getProjects() should return projects', () => {
     const projects = [
       new ProjectModel('projectName1', [
         new WorkflowModel('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 0),
@@ -58,4 +62,26 @@ describe('WorkflowService', () => {
     expect(req.request.method).toEqual('GET');
     req.flush([...projects]);
   });
+
+  it('getWorkflow() should return projects', () => {
+    const workflow = new WorkflowJoinedModel(
+      'name',
+      true,
+      'project',
+      undefined,
+      undefined,
+      undefined,
+      0
+    );
+
+    underTest.getWorkflow(workflow.id).subscribe(
+      (data) => expect(data).toEqual(workflow),
+      (error) => fail(error),
+    );
+
+    const req = httpTestingController.expectOne(api.GET_WORKFLOW+'?id='+workflow.id);
+    expect(req.request.method).toEqual('GET');
+    req.flush(workflow);
+  });
+
 });
