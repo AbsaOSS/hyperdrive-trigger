@@ -16,7 +16,7 @@
 <div *ngIf="!isShow">
   <clr-select-container>
     <label>{{name}}</label>
-    <select clrSelect [(ngModel)]="value" (ngModelChange)="modelChanged($event)">
+    <select clrSelect [ngModel]="value" (ngModelChange)="modelChanged($event)">
       <option *ngFor="let option of options" [value]="option">{{option}}</option>
     </select>
   </clr-select-container>

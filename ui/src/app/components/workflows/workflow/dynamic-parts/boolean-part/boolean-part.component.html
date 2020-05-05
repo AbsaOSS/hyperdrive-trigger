@@ -13,18 +13,10 @@
   ~ limitations under the License.
   -->
 
-<div *ngIf="!isShow">
-  <clr-checkbox-container>
-    <label for="isActive">{{name}}</label>
-    <clr-checkbox-wrapper>
-      <input id="isActive" clrToggle type="checkbox" name="isActive" [(ngModel)]="value" (ngModelChange)="modelChanged($event)">
-    </clr-checkbox-wrapper>
-  </clr-checkbox-container>
-</div>
-
-<div *ngIf="isShow">
-  <clr-input-container>
-    <label>{{name}}</label>
-    <input [readOnly]="true" clrInput type="text" [size]="60" value="{{value ? 'Yes' : 'No'}}" />
-  </clr-input-container>
-</div>
+<clr-checkbox-container>
+  <label for="isActive">{{name}}</label>
+  <clr-checkbox-wrapper>
+    <input id="isActive" [disabled]="isShow" clrToggle type="checkbox" name="isActive" [ngModel]="value" (ngModelChange)="modelChanged($event)">
+    <label>{{value ? 'Yes' : 'No'}}</label>
+  </clr-checkbox-wrapper>
+</clr-checkbox-container>

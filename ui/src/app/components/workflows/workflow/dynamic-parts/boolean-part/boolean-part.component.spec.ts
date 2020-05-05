@@ -16,25 +16,106 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { BooleanPartComponent } from './boolean-part.component';
+import { DebugElement, Predicate } from '@angular/core';
+import { Subject } from 'rxjs';
+import { WorkflowEntryModel } from '../../../../../models/workflowEntry.model';
+import { By } from '@angular/platform-browser';
+import { FormsModule } from "@angular/forms";
 
 describe('BooleanPartComponent', () => {
-  // let component: BooleanPartComponent;
-  // let fixture: ComponentFixture<BooleanPartComponent>;
-  //
-  // beforeEach(async(() => {
-  //   TestBed.configureTestingModule({
-  //     declarations: [ BooleanPartComponent ]
-  //   })
-  //   .compileComponents();
-  // }));
-  //
-  // beforeEach(() => {
-  //   fixture = TestBed.createComponent(BooleanPartComponent);
-  //   component = fixture.componentInstance;
-  //   fixture.detectChanges();
-  // });
-  //
-  // it('should create', () => {
-  //   expect(component).toBeTruthy();
-  // });
+  let component: BooleanPartComponent;
+  let fixture: ComponentFixture<BooleanPartComponent>;
+  let underTest: BooleanPartComponent;
+
+  const inputSelector: Predicate<DebugElement> = By.css('input[type="checkbox"]');
+
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      declarations: [BooleanPartComponent],
+      imports: [FormsModule]
+    }).compileComponents();
+  }));
+
+  beforeEach(() => {
+    fixture = TestBed.createComponent(BooleanPartComponent);
+    underTest = fixture.componentInstance;
+  });
+
+  it('should create', () => {
+    expect(underTest).toBeTruthy();
+  });
+
+  it('should set false on init when value is undefined', async (() => {
+    const oldValue = undefined;
+    const newValue = false;
+    const propertyName = 'property';
+    const testedSubject = new Subject<WorkflowEntryModel>();
+    const subjectSpy = spyOn(testedSubject, 'next');
+
+    underTest.isShow = false;
+    underTest.name = 'name';
+    underTest.value = oldValue;
+    underTest.property = propertyName;
+    underTest.valueChanges = testedSubject;
+    fixture.detectChanges();
+
+    fixture.whenStable().then(() => {
+      const result = fixture.debugElement.query(inputSelector).nativeElement.checked;
+      expect(result).toBe(newValue);
+      expect(subjectSpy).toHaveBeenCalledTimes(1);
+      expect(subjectSpy).toHaveBeenCalledWith(new WorkflowEntryModel(propertyName, newValue));
+    });
+  }));
+
+  it('should set false on init when value is null', async(() => {
+    const oldValue = null;
+    const newValue = false;
+    const propertyName = 'property';
+    const testedSubject = new Subject<WorkflowEntryModel>();
+    const subjectSpy = spyOn(testedSubject, 'next');
+
+    underTest.isShow = false;
+    underTest.name = 'name';
+    underTest.value = oldValue;
+    underTest.property = propertyName;
+    underTest.valueChanges = testedSubject;
+    fixture.detectChanges();
+
+    fixture.whenStable().then(() => {
+      const result = fixture.debugElement.query(inputSelector).nativeElement.checked;
+      expect(result).toBe(newValue);
+      expect(subjectSpy).toHaveBeenCalledTimes(1);
+      expect(subjectSpy).toHaveBeenCalledWith(new WorkflowEntryModel(propertyName, newValue));
+    });
+  }));
+
+  it('should change value and publish change on user input', async(() => {
+    const oldValue = false;
+    const newValue = true;
+    const propertyName = 'property';
+    const testedSubject = new Subject<WorkflowEntryModel>();
+    const subjectSpy = spyOn(testedSubject, 'next');
+
+    underTest.isShow = false;
+    underTest.name = 'name';
+    underTest.value = oldValue;
+    underTest.property = propertyName;
+    underTest.valueChanges = testedSubject;
+
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      const inputElement = fixture.debugElement.query(inputSelector).nativeElement;
+
+      inputElement.click();
+
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        const testedValue = fixture.debugElement.query(inputSelector).nativeElement.checked;
+        expect(testedValue).toBe(newValue);
+        expect(subjectSpy).toHaveBeenCalled();
+        expect(subjectSpy).toHaveBeenCalledWith(new WorkflowEntryModel(propertyName, newValue));
+      });
+    });
+  }));
+
 });

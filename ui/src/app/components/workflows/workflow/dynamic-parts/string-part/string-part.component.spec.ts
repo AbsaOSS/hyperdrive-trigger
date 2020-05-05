@@ -32,7 +32,7 @@ describe('StringPartComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [StringPartComponent],
-      imports: [FormsModule],
+      imports: [FormsModule]
     }).compileComponents();
   }));
 
@@ -45,7 +45,7 @@ describe('StringPartComponent', () => {
     expect(underTest).toBeTruthy();
   });
 
-  it('should set empty string on init when value is undefined', () => {
+  it('should set empty string on init when value is undefined', async(() => {
     const oldValue = undefined;
     const newValue = '';
     const propertyName = 'property';
@@ -65,9 +65,9 @@ describe('StringPartComponent', () => {
       expect(subjectSpy).toHaveBeenCalledTimes(1);
       expect(subjectSpy).toHaveBeenCalledWith(new WorkflowEntryModel(propertyName, newValue));
     });
-  });
+  }));
 
-  it('should set empty string on init when value is null', () => {
+  it('should set empty string on init when value is null', async(() => {
     const oldValue = null;
     const newValue = '';
     const propertyName = 'property';
@@ -87,7 +87,7 @@ describe('StringPartComponent', () => {
       expect(subjectSpy).toHaveBeenCalledTimes(1);
       expect(subjectSpy).toHaveBeenCalledWith(new WorkflowEntryModel(propertyName, newValue));
     });
-  });
+  }));
 
   it('should change value and publish change on user input', async(() => {
     const oldValue = 'oldValue';
