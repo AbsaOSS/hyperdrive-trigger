@@ -16,36 +16,55 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { WorkflowsComponent } from './workflows.component';
-import { MockStore, provideMockStore } from '@ngrx/store/testing';
-import * as fromApp from '../../stores/app.reducers';
+import { provideMockStore } from '@ngrx/store/testing';
+import { ProjectModel } from "../../models/project.model";
+import { WorkflowModel } from "../../models/workflow.model";
 
 describe('WorkflowsComponent', () => {
-  // let component: WorkflowsComponent;
-  // let fixture: ComponentFixture<WorkflowsComponent>;
-  //
-  // const initialAppState = {
-  //   workflows: {
-  //     loading: true
-  //   }
-  // };
-  //
-  // beforeEach(async(() => {
-  //   TestBed.configureTestingModule({
-  //     providers: [
-  //       provideMockStore({ initialState: initialAppState })
-  //     ],
-  //     declarations: [ WorkflowsComponent ]
-  //   })
-  //   .compileComponents();
-  // }));
-  //
-  // beforeEach(() => {
-  //   fixture = TestBed.createComponent(WorkflowsComponent);
-  //   component = fixture.componentInstance;
-  //   fixture.detectChanges();
-  // });
-  //
-  // it('should create', () => {
-  //   expect(component).toBeTruthy();
-  // });
+  let fixture: ComponentFixture<WorkflowsComponent>;
+  let underTest: WorkflowsComponent;
+
+  const initialAppState = {
+      workflows: {
+        loading: true,
+        projects: [
+          new ProjectModel('projectOne', [
+            new WorkflowModel('workflowOne', undefined, undefined, undefined, undefined, undefined)
+          ]),
+          new ProjectModel('projectTwo', [
+            new WorkflowModel('workflowTwo', undefined, undefined, undefined, undefined, undefined)
+          ])
+        ],
+      }
+  };
+
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideMockStore({ initialState: initialAppState })
+      ],
+      declarations: [ WorkflowsComponent ]
+    })
+      .compileComponents();
+  }));
+
+  beforeEach(() => {
+    fixture = TestBed.createComponent(WorkflowsComponent);
+    underTest = fixture.componentInstance;
+  });
+
+  it('should create', () => {
+    expect(underTest).toBeTruthy();
+  });
+
+  it('should after view init set component properties', async(() => {
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(underTest.loading).toBe(initialAppState.workflows.loading);
+      expect(underTest.projects).toBe(initialAppState.workflows.projects);
+      expect(underTest.workflows).toEqual([].concat(...initialAppState.workflows.projects.map((project) => project.workflows)));
+    });
+
+  }));
+
 });

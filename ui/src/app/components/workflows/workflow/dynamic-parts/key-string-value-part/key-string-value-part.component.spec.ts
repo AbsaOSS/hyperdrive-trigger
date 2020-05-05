@@ -16,12 +16,11 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { KeyStringValuePartComponent } from './key-string-value-part.component';
-import {StringSequencePartComponent} from "../string-sequence-part/string-sequence-part.component";
-import {DebugElement, Predicate} from "@angular/core";
-import {By} from "@angular/platform-browser";
-import {FormsModule} from "@angular/forms";
-import {Subject} from "rxjs";
-import {WorkflowEntryModel} from "../../../../../models/workflowEntry.model";
+import { DebugElement, Predicate } from "@angular/core";
+import { By } from "@angular/platform-browser";
+import { FormsModule } from "@angular/forms";
+import { Subject } from "rxjs";
+import { WorkflowEntryModel } from "../../../../../models/workflowEntry.model";
 
 describe('KeyStringValuePartComponent', () => {
   let component: KeyStringValuePartComponent;

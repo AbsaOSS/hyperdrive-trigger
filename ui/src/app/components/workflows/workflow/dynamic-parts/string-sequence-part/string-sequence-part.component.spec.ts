@@ -13,15 +13,14 @@
  * limitations under the License.
  */
 
-import {async, ComponentFixture, TestBed} from '@angular/core/testing';
+import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import {StringSequencePartComponent} from './string-sequence-part.component';
-import {StringPartComponent} from "../string-part/string-part.component";
-import {DebugElement, Input, Predicate} from "@angular/core";
-import {By} from "@angular/platform-browser";
-import {FormsModule} from "@angular/forms";
-import {Subject} from "rxjs";
-import {WorkflowEntryModel} from "../../../../../models/workflowEntry.model";
+import { StringSequencePartComponent } from './string-sequence-part.component';
+import { DebugElement, Predicate } from "@angular/core";
+import { By } from "@angular/platform-browser";
+import { FormsModule } from "@angular/forms";
+import { Subject } from "rxjs";
+import { WorkflowEntryModel } from "../../../../../models/workflowEntry.model";
 
 describe('StringSequencePartComponent', () => {
   let component: StringSequencePartComponent;
