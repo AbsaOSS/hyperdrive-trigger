@@ -32,7 +32,7 @@ describe('StringPartComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [StringPartComponent],
-      imports: [FormsModule]
+      imports: [FormsModule],
     }).compileComponents();
   }));
 

@@ -20,10 +20,7 @@ import { api } from '../../constants/api.constants';
 import { WorkflowService } from './workflow.service';
 import { ProjectModel } from '../../models/project.model';
 import { WorkflowModel } from '../../models/workflow.model';
-import {WorkflowJoinedModel} from "../../models/workflowJoined.model";
-import {SensorModel} from "../../models/sensor.model";
-import {DagDefinitionJoinedModel} from "../../models/dagDefinitionJoined.model";
-import {HttpParams} from "@angular/common/http";
+import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
 
 describe('WorkflowService', () => {
   let underTest: WorkflowService;
@@ -64,24 +61,15 @@ describe('WorkflowService', () => {
   });
 
   it('getWorkflow() should return projects', () => {
-    const workflow = new WorkflowJoinedModel(
-      'name',
-      true,
-      'project',
-      undefined,
-      undefined,
-      undefined,
-      0
-    );
+    const workflow = new WorkflowJoinedModel('name', true, 'project', undefined, undefined, undefined, 0);
 
     underTest.getWorkflow(workflow.id).subscribe(
       (data) => expect(data).toEqual(workflow),
       (error) => fail(error),
     );
 
-    const req = httpTestingController.expectOne(api.GET_WORKFLOW+'?id='+workflow.id);
+    const req = httpTestingController.expectOne(api.GET_WORKFLOW + '?id=' + workflow.id);
     expect(req.request.method).toEqual('GET');
     req.flush(workflow);
   });
-
 });

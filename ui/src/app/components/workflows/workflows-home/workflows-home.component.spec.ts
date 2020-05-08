@@ -17,8 +17,8 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { WorkflowsHomeComponent } from './workflows-home.component';
 import { provideMockStore } from '@ngrx/store/testing';
-import { ProjectModel } from "../../../models/project.model";
-import { WorkflowModel } from "../../../models/workflow.model";
+import { ProjectModel } from '../../../models/project.model';
+import { WorkflowModel } from '../../../models/workflow.model';
 
 describe('WorkflowsHomeComponent', () => {
   let fixture: ComponentFixture<WorkflowsHomeComponent>;
@@ -27,24 +27,17 @@ describe('WorkflowsHomeComponent', () => {
   const initialAppState = {
     workflows: {
       projects: [
-        new ProjectModel('projectOne', [
-          new WorkflowModel('workflowOne', undefined, undefined, undefined, undefined, undefined)
-        ]),
-        new ProjectModel('projectTwo', [
-          new WorkflowModel('workflowTwo', undefined, undefined, undefined, undefined, undefined)
-        ])
-      ]
-    }
+        new ProjectModel('projectOne', [new WorkflowModel('workflowOne', undefined, undefined, undefined, undefined, undefined)]),
+        new ProjectModel('projectTwo', [new WorkflowModel('workflowTwo', undefined, undefined, undefined, undefined, undefined)]),
+      ],
+    },
   };
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      providers: [
-        provideMockStore({ initialState: initialAppState })
-      ],
-      declarations: [ WorkflowsHomeComponent ]
-    })
-      .compileComponents();
+      providers: [provideMockStore({ initialState: initialAppState })],
+      declarations: [WorkflowsHomeComponent],
+    }).compileComponents();
   }));
 
   beforeEach(() => {
@@ -62,5 +55,4 @@ describe('WorkflowsHomeComponent', () => {
       expect(underTest.workflows).toEqual([].concat(...initialAppState.workflows.projects.map((project) => project.workflows)));
     });
   }));
-
 });

@@ -16,11 +16,11 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { GuidPartComponent } from './guid-part.component';
-import { DebugElement, Predicate } from "@angular/core";
-import { By } from "@angular/platform-browser";
-import { FormsModule } from "@angular/forms";
-import { Subject } from "rxjs";
-import { WorkflowEntryModel } from "../../../../../models/workflowEntry.model";
+import { DebugElement, Predicate } from '@angular/core';
+import { By } from '@angular/platform-browser';
+import { FormsModule } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { WorkflowEntryModel } from '../../../../../models/workflowEntry.model';
 
 describe('GuidPartComponent', () => {
   let component: GuidPartComponent;
@@ -33,9 +33,8 @@ describe('GuidPartComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [GuidPartComponent],
-      imports: [FormsModule]
-    })
-      .compileComponents();
+      imports: [FormsModule],
+    }).compileComponents();
   }));
 
   beforeEach(() => {
@@ -124,19 +123,17 @@ describe('GuidPartComponent', () => {
   }));
 
   it('getUUID() should generate unique uuid', () => {
-    let uuids: string[] = [];
+    const uuids: string[] = [];
 
     for (let i = 0; i < 100; i++) {
-      let uuid = underTest.getUUID();
+      const uuid = underTest.getUUID();
       uuids.push(uuid);
     }
 
-    expect((new Set(uuids)).size == uuids.length).toBeTrue();
+    expect(new Set(uuids).size == uuids.length).toBeTrue();
 
     uuids.forEach(function (uuid: string) {
       expect(uuid.length).toBe(36);
     });
-
   });
-
 });

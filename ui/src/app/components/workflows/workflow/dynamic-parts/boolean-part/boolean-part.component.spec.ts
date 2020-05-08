@@ -20,7 +20,7 @@ import { DebugElement, Predicate } from '@angular/core';
 import { Subject } from 'rxjs';
 import { WorkflowEntryModel } from '../../../../../models/workflowEntry.model';
 import { By } from '@angular/platform-browser';
-import { FormsModule } from "@angular/forms";
+import { FormsModule } from '@angular/forms';
 
 describe('BooleanPartComponent', () => {
   let component: BooleanPartComponent;
@@ -32,7 +32,7 @@ describe('BooleanPartComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [BooleanPartComponent],
-      imports: [FormsModule]
+      imports: [FormsModule],
     }).compileComponents();
   }));
 
@@ -45,7 +45,7 @@ describe('BooleanPartComponent', () => {
     expect(underTest).toBeTruthy();
   });
 
-  it('should set false on init when value is undefined', async (() => {
+  it('should set false on init when value is undefined', async(() => {
     const oldValue = undefined;
     const newValue = false;
     const propertyName = 'property';
@@ -117,5 +117,4 @@ describe('BooleanPartComponent', () => {
       });
     });
   }));
-
 });

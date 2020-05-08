@@ -16,8 +16,8 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { WorkflowComponent } from './workflow.component';
-import { provideMockStore } from "@ngrx/store/testing";
-import { RouterTestingModule } from "@angular/router/testing";
+import { provideMockStore } from '@ngrx/store/testing';
+import { RouterTestingModule } from '@angular/router/testing';
 
 describe('WorkflowComponent', () => {
   let underTest: WorkflowComponent;
@@ -27,21 +27,16 @@ describe('WorkflowComponent', () => {
     workflows: {
       loading: true,
       mode: 'mode',
-      id: 0
-    }
+      id: 0,
+    },
   };
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      providers: [
-        provideMockStore({ initialState: initialAppState })
-      ],
-      declarations: [ WorkflowComponent ],
-      imports: [
-        RouterTestingModule.withRoutes([])
-      ],
-    })
-    .compileComponents();
+      providers: [provideMockStore({ initialState: initialAppState })],
+      declarations: [WorkflowComponent],
+      imports: [RouterTestingModule.withRoutes([])],
+    }).compileComponents();
   }));
 
   beforeEach(() => {
@@ -70,5 +65,4 @@ describe('WorkflowComponent', () => {
     underTest.toggleJobsAccordion();
     expect(underTest.isJobsAccordionHidden).toBeTrue();
   }));
-
 });

@@ -16,11 +16,11 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { SelectPartComponent } from './select-part.component';
-import { DebugElement, Predicate } from "@angular/core";
-import { By } from "@angular/platform-browser";
-import { FormsModule } from "@angular/forms";
-import { Subject } from "rxjs";
-import { WorkflowEntryModel } from "../../../../../models/workflowEntry.model";
+import { DebugElement, Predicate } from '@angular/core';
+import { By } from '@angular/platform-browser';
+import { FormsModule } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { WorkflowEntryModel } from '../../../../../models/workflowEntry.model';
 
 describe('SelectPartComponent', () => {
   let component: SelectPartComponent;
@@ -31,10 +31,9 @@ describe('SelectPartComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ SelectPartComponent ],
-      imports: [ FormsModule ]
-    })
-    .compileComponents();
+      declarations: [SelectPartComponent],
+      imports: [FormsModule],
+    }).compileComponents();
   }));
 
   beforeEach(() => {
@@ -124,5 +123,4 @@ describe('SelectPartComponent', () => {
       });
     });
   }));
-
 });

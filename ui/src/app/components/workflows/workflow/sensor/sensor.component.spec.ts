@@ -16,13 +16,8 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { SensorComponent } from './sensor.component';
-import { provideMockStore } from "@ngrx/store/testing";
-import {
-  DynamicFormPart,
-  DynamicFormParts,
-  FormPart,
-  WorkflowFormPartsModel
-} from "../../../../models/workflowFormParts.model";
+import { provideMockStore } from '@ngrx/store/testing';
+import { DynamicFormPart, DynamicFormParts, FormPart, WorkflowFormPartsModel } from '../../../../models/workflowFormParts.model';
 
 describe('SensorComponent', () => {
   let fixture: ComponentFixture<SensorComponent>;
@@ -37,15 +32,11 @@ describe('SensorComponent', () => {
         undefined,
         new DynamicFormParts(
           [
-            new DynamicFormPart('optionOne', [
-              new FormPart('partOne', 'partOne', true, 'partOne')
-            ]),
-            new DynamicFormPart('optionTwo', [
-              new FormPart('partTwo', 'partTwo', true, 'partTwo')
-            ])
+            new DynamicFormPart('optionOne', [new FormPart('partOne', 'partOne', true, 'partOne')]),
+            new DynamicFormPart('optionTwo', [new FormPart('partTwo', 'partTwo', true, 'partTwo')]),
           ],
-          []
-        )
+          [],
+        ),
       ),
       workflowAction: {
         mode: 'mode',
@@ -54,20 +45,17 @@ describe('SensorComponent', () => {
             { property: 'propertyOne', value: 'valueOne' },
             { property: 'propertyTwo', value: 'valueTwo' },
             { property: 'switchPartProp', value: 'optionOne' },
-          ]
-        }
-      }
-    }
+          ],
+        },
+      },
+    },
   };
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      providers: [
-        provideMockStore({ initialState: initialAppState })
-      ],
-      declarations: [ SensorComponent ]
-    })
-    .compileComponents();
+      providers: [provideMockStore({ initialState: initialAppState })],
+      declarations: [SensorComponent],
+    }).compileComponents();
   }));
 
   beforeEach(() => {
@@ -124,5 +112,4 @@ describe('SensorComponent', () => {
       expect(resultLeft).toEqual(resultRight);
     });
   }));
-
 });

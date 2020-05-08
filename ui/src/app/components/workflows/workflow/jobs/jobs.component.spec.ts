@@ -16,10 +16,10 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { JobsComponent } from './jobs.component';
-import { FormPart, WorkflowFormPartsModel } from "../../../../models/workflowFormParts.model";
-import { provideMockStore } from "@ngrx/store/testing";
-import { Store } from "@ngrx/store";
-import { WorkflowAddEmptyJob } from "../../../../stores/workflows/workflows.actions";
+import { FormPart, WorkflowFormPartsModel } from '../../../../models/workflowFormParts.model';
+import { provideMockStore } from '@ngrx/store/testing';
+import { Store } from '@ngrx/store';
+import { WorkflowAddEmptyJob } from '../../../../stores/workflows/workflows.actions';
 
 describe('JobsComponent', () => {
   let fixture: ComponentFixture<JobsComponent>;
@@ -32,29 +32,27 @@ describe('JobsComponent', () => {
         undefined,
         new FormPart('jobStaticPart', 'jobStaticPart', true, 'jobStaticPart'),
         undefined,
-        undefined
+        undefined,
       ),
       workflowAction: {
         mode: 'mode',
         workflowData: {
-          jobs: [{
-            order: 0, job: [
-              {property: 'jobStaticPart', value: 'value'}
-            ]
-          }]
-        }
-      }
-    }
+          jobs: [
+            {
+              order: 0,
+              job: [{ property: 'jobStaticPart', value: 'value' }],
+            },
+          ],
+        },
+      },
+    },
   };
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      providers: [
-        provideMockStore({initialState: initialAppState})
-      ],
-      declarations: [JobsComponent]
-    })
-      .compileComponents();
+      providers: [provideMockStore({ initialState: initialAppState })],
+      declarations: [JobsComponent],
+    }).compileComponents();
   }));
 
   beforeEach(() => {
@@ -81,23 +79,23 @@ describe('JobsComponent', () => {
     expect(hiddenJobsInitial).toEqual([]);
     underTest.toggleJob(0);
     const hiddenJobsUpdated = underTest.hiddenJobs;
-    expect(hiddenJobsUpdated).toEqual([{order: 0, isHidden: false}]);
+    expect(hiddenJobsUpdated).toEqual([{ order: 0, isHidden: false }]);
   }));
 
   it('toggleJob() should toggle a job', async(() => {
     expect(underTest.hiddenJobs).toEqual([]);
     underTest.toggleJob(0);
-    expect(underTest.hiddenJobs).toEqual([{order: 0, isHidden: false}]);
+    expect(underTest.hiddenJobs).toEqual([{ order: 0, isHidden: false }]);
     underTest.toggleJob(0);
-    expect(underTest.hiddenJobs).toEqual([{order: 0, isHidden: true}]);
+    expect(underTest.hiddenJobs).toEqual([{ order: 0, isHidden: true }]);
     underTest.toggleJob(0);
-    expect(underTest.hiddenJobs).toEqual([{order: 0, isHidden: false}]);
+    expect(underTest.hiddenJobs).toEqual([{ order: 0, isHidden: false }]);
   }));
 
   it('isJobHidden() should return whether is job hidden', async(() => {
     underTest.hiddenJobs = [
-      {order: 0, isHidden: false},
-      {order: 1, isHidden: true}
+      { order: 0, isHidden: false },
+      { order: 1, isHidden: true },
     ];
 
     expect(underTest.isJobHidden(0)).toBeTrue();
@@ -134,5 +132,4 @@ describe('JobsComponent', () => {
       expect(storeSpy).toHaveBeenCalledWith(new WorkflowAddEmptyJob(initialAppState.workflows.workflowAction.workflowData.jobs.length));
     });
   }));
-
 });

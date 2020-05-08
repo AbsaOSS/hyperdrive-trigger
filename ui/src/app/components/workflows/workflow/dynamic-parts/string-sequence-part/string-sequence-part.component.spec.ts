@@ -16,11 +16,11 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { StringSequencePartComponent } from './string-sequence-part.component';
-import { DebugElement, Predicate } from "@angular/core";
-import { By } from "@angular/platform-browser";
-import { FormsModule } from "@angular/forms";
-import { Subject } from "rxjs";
-import { WorkflowEntryModel } from "../../../../../models/workflowEntry.model";
+import { DebugElement, Predicate } from '@angular/core';
+import { By } from '@angular/platform-browser';
+import { FormsModule } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { WorkflowEntryModel } from '../../../../../models/workflowEntry.model';
 
 describe('StringSequencePartComponent', () => {
   let component: StringSequencePartComponent;
@@ -32,9 +32,8 @@ describe('StringSequencePartComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [StringSequencePartComponent],
-      imports: [ FormsModule ]
-    })
-      .compileComponents();
+      imports: [FormsModule],
+    }).compileComponents();
   }));
 
   beforeEach(() => {
@@ -61,7 +60,7 @@ describe('StringSequencePartComponent', () => {
     fixture.detectChanges();
 
     fixture.whenStable().then(() => {
-      let results = fixture.debugElement.queryAll(inputSelector);
+      const results = fixture.debugElement.queryAll(inputSelector);
       expect(results.length == 1).toBeTrue();
       expect(results[0].nativeElement.value).toBe(newValue[0]);
       expect(subjectSpy).toHaveBeenCalledTimes(1);
@@ -84,7 +83,7 @@ describe('StringSequencePartComponent', () => {
     fixture.detectChanges();
 
     fixture.whenStable().then(() => {
-      let results = fixture.debugElement.queryAll(inputSelector);
+      const results = fixture.debugElement.queryAll(inputSelector);
       expect(results.length == 1).toBeTrue();
       expect(results[0].nativeElement.value).toBe(newValue[0]);
       expect(subjectSpy).toHaveBeenCalledTimes(1);
@@ -144,7 +143,7 @@ describe('StringSequencePartComponent', () => {
       fixture.detectChanges();
       fixture.whenStable().then(() => {
         const testedValue = fixture.debugElement.queryAll(inputSelector);
-        const result = testedValue.map(element => element.nativeElement.value);
+        const result = testedValue.map((element) => element.nativeElement.value);
         expect(result).toEqual(newValue);
         expect(subjectSpy).toHaveBeenCalled();
         expect(subjectSpy).toHaveBeenCalledWith(new WorkflowEntryModel(propertyName, newValue));
@@ -172,12 +171,11 @@ describe('StringSequencePartComponent', () => {
       fixture.detectChanges();
       fixture.whenStable().then(() => {
         const testedValue = fixture.debugElement.queryAll(inputSelector);
-        const result = testedValue.map(element => element.nativeElement.value);
+        const result = testedValue.map((element) => element.nativeElement.value);
         expect(result).toEqual(newValue);
         expect(subjectSpy).toHaveBeenCalled();
         expect(subjectSpy).toHaveBeenCalledWith(new WorkflowEntryModel(propertyName, newValue));
       });
     });
   }));
-
 });

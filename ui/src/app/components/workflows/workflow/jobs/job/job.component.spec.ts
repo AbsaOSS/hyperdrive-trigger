@@ -16,13 +16,8 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { JobComponent } from './job.component';
-import {provideMockStore} from "@ngrx/store/testing";
-import {
-  DynamicFormPart,
-  DynamicFormParts,
-  FormPart,
-  WorkflowFormPartsModel
-} from "../../../../../models/workflowFormParts.model";
+import { provideMockStore } from '@ngrx/store/testing';
+import { DynamicFormPart, DynamicFormParts, FormPart, WorkflowFormPartsModel } from '../../../../../models/workflowFormParts.model';
 
 describe('JobComponent', () => {
   let fixture: ComponentFixture<JobComponent>;
@@ -38,36 +33,30 @@ describe('JobComponent', () => {
         new DynamicFormParts(
           [],
           [
-            new DynamicFormPart('optionOne', [
-              new FormPart('partOne', 'partOne', true, 'partOne')
-            ]),
-            new DynamicFormPart('optionTwo', [
-              new FormPart('partTwo', 'partTwo', true, 'partTwo')
-            ])
-          ]
-        )
+            new DynamicFormPart('optionOne', [new FormPart('partOne', 'partOne', true, 'partOne')]),
+            new DynamicFormPart('optionTwo', [new FormPart('partTwo', 'partTwo', true, 'partTwo')]),
+          ],
+        ),
       ),
       workflowAction: {
         mode: 'mode',
         workflowData: {
-          jobs: [{
-            order: 0, job: [
-              {property: 'jobStaticPart', value: 'value'}
-            ]
-          }]
-        }
-      }
-    }
+          jobs: [
+            {
+              order: 0,
+              job: [{ property: 'jobStaticPart', value: 'value' }],
+            },
+          ],
+        },
+      },
+    },
   };
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      providers: [
-        provideMockStore({ initialState: initialAppState })
-      ],
-      declarations: [ JobComponent ]
-    })
-    .compileComponents();
+      providers: [provideMockStore({ initialState: initialAppState })],
+      declarations: [JobComponent],
+    }).compileComponents();
   }));
 
   beforeEach(() => {
@@ -138,5 +127,4 @@ describe('JobComponent', () => {
       expect(underTest.getValue(undefinedProperty)).toBe(undefined);
     });
   }));
-
 });

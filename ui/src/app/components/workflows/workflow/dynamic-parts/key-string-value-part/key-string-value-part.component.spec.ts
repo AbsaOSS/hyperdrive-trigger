@@ -16,11 +16,11 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { KeyStringValuePartComponent } from './key-string-value-part.component';
-import { DebugElement, Predicate } from "@angular/core";
-import { By } from "@angular/platform-browser";
-import { FormsModule } from "@angular/forms";
-import { Subject } from "rxjs";
-import { WorkflowEntryModel } from "../../../../../models/workflowEntry.model";
+import { DebugElement, Predicate } from '@angular/core';
+import { By } from '@angular/platform-browser';
+import { FormsModule } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { WorkflowEntryModel } from '../../../../../models/workflowEntry.model';
 
 describe('KeyStringValuePartComponent', () => {
   let component: KeyStringValuePartComponent;
@@ -31,10 +31,9 @@ describe('KeyStringValuePartComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ KeyStringValuePartComponent ],
-      imports: [ FormsModule ]
-    })
-    .compileComponents();
+      declarations: [KeyStringValuePartComponent],
+      imports: [FormsModule],
+    }).compileComponents();
   }));
 
   beforeEach(() => {
@@ -61,7 +60,7 @@ describe('KeyStringValuePartComponent', () => {
     fixture.detectChanges();
 
     fixture.whenStable().then(() => {
-      let results = fixture.debugElement.queryAll(inputSelector);
+      const results = fixture.debugElement.queryAll(inputSelector);
       expect(results.length == 2).toBeTrue();
       expect(results[0].nativeElement.value).toBe(newValue[0][0]);
       expect(results[1].nativeElement.value).toBe(newValue[0][1]);
@@ -85,7 +84,7 @@ describe('KeyStringValuePartComponent', () => {
     fixture.detectChanges();
 
     fixture.whenStable().then(() => {
-      let results = fixture.debugElement.queryAll(inputSelector);
+      const results = fixture.debugElement.queryAll(inputSelector);
       expect(results.length == 2).toBeTrue();
       expect(results[0].nativeElement.value).toBe(newValue[0][0]);
       expect(results[1].nativeElement.value).toBe(newValue[0][1]);
@@ -98,8 +97,16 @@ describe('KeyStringValuePartComponent', () => {
     const oldItemKey = 'oldKey';
     const oldItemValue = 'oldValue';
     const newItemKey = 'newKey';
-    const oldValue: [string, string][] = [['keyOne', 'valueOne'], [oldItemKey, oldItemValue], ['keyThree', 'valueThree']];
-    const newValue: [string, string][] = [['keyOne', 'valueOne'], [newItemKey, oldItemValue], ['keyThree', 'valueThree']];
+    const oldValue: [string, string][] = [
+      ['keyOne', 'valueOne'],
+      [oldItemKey, oldItemValue],
+      ['keyThree', 'valueThree'],
+    ];
+    const newValue: [string, string][] = [
+      ['keyOne', 'valueOne'],
+      [newItemKey, oldItemValue],
+      ['keyThree', 'valueThree'],
+    ];
 
     const propertyName = 'property';
     const testedSubject = new Subject<WorkflowEntryModel>();
@@ -132,8 +139,16 @@ describe('KeyStringValuePartComponent', () => {
     const oldItemKey = 'oldKey';
     const oldItemValue = 'oldValue';
     const newItemValue = 'newValue';
-    const oldValue: [string, string][] = [['keyOne', 'valueOne'], [oldItemKey, oldItemValue], ['keyThree', 'valueThree']];
-    const newValue: [string, string][] = [['keyOne', 'valueOne'], [oldItemKey, newItemValue], ['keyThree', 'valueThree']];
+    const oldValue: [string, string][] = [
+      ['keyOne', 'valueOne'],
+      [oldItemKey, oldItemValue],
+      ['keyThree', 'valueThree'],
+    ];
+    const newValue: [string, string][] = [
+      ['keyOne', 'valueOne'],
+      [oldItemKey, newItemValue],
+      ['keyThree', 'valueThree'],
+    ];
 
     const propertyName = 'property';
     const testedSubject = new Subject<WorkflowEntryModel>();
@@ -163,8 +178,15 @@ describe('KeyStringValuePartComponent', () => {
   }));
 
   it('onDelete() should remove element from value and publish change', async(() => {
-    const oldValue: [string, string][] = [['keyOne', 'valueOne'], ['keyTwo', 'valueTwo'], ['keyThree', 'valueThree']];
-    const newValue: [string, string][] = [['keyOne', 'valueOne'], ['keyThree', 'valueThree']];
+    const oldValue: [string, string][] = [
+      ['keyOne', 'valueOne'],
+      ['keyTwo', 'valueTwo'],
+      ['keyThree', 'valueThree'],
+    ];
+    const newValue: [string, string][] = [
+      ['keyOne', 'valueOne'],
+      ['keyThree', 'valueThree'],
+    ];
     const propertyName = 'property';
     const testedSubject = new Subject<WorkflowEntryModel>();
     const subjectSpy = spyOn(testedSubject, 'next');
@@ -188,8 +210,15 @@ describe('KeyStringValuePartComponent', () => {
   }));
 
   it('onAdd() should add empty string key value element to value and publish change', async(() => {
-    const oldValue: [string, string][] = [['keyOne', 'valueOne'], ['keyTwo', 'valueTwo']];
-    const newValue: [string, string][] = [['keyOne', 'valueOne'], ['keyTwo', 'valueTwo'], ['', '']];
+    const oldValue: [string, string][] = [
+      ['keyOne', 'valueOne'],
+      ['keyTwo', 'valueTwo'],
+    ];
+    const newValue: [string, string][] = [
+      ['keyOne', 'valueOne'],
+      ['keyTwo', 'valueTwo'],
+      ['', ''],
+    ];
     const propertyName = 'property';
     const testedSubject = new Subject<WorkflowEntryModel>();
     const subjectSpy = spyOn(testedSubject, 'next');
@@ -211,5 +240,4 @@ describe('KeyStringValuePartComponent', () => {
       });
     });
   }));
-
 });

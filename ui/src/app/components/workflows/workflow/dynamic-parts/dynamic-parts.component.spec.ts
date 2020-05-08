@@ -16,8 +16,8 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { DynamicPartsComponent } from './dynamic-parts.component';
-import { Subject } from "rxjs";
-import { WorkflowEntryModel } from "../../../../models/workflowEntry.model";
+import { Subject } from 'rxjs';
+import { WorkflowEntryModel } from '../../../../models/workflowEntry.model';
 
 describe('DynamicPartsComponent', () => {
   let component: DynamicPartsComponent;
@@ -75,5 +75,4 @@ describe('DynamicPartsComponent', () => {
       expect(result).toBe(undefined);
     });
   }));
-
 });
