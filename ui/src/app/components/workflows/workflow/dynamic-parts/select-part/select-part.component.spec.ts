@@ -23,7 +23,6 @@ import { Subject } from 'rxjs';
 import { WorkflowEntryModel } from '../../../../../models/workflowEntry.model';
 
 describe('SelectPartComponent', () => {
-  let component: SelectPartComponent;
   let fixture: ComponentFixture<SelectPartComponent>;
   let underTest: SelectPartComponent;
 

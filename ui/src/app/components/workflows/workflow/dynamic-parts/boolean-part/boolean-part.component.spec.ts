@@ -23,7 +23,6 @@ import { By } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 
 describe('BooleanPartComponent', () => {
-  let component: BooleanPartComponent;
   let fixture: ComponentFixture<BooleanPartComponent>;
   let underTest: BooleanPartComponent;
 

@@ -23,7 +23,6 @@ import { DebugElement, Predicate } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 describe('StringPartComponent', () => {
-  let component: StringPartComponent;
   let fixture: ComponentFixture<StringPartComponent>;
   let underTest: StringPartComponent;
 

@@ -23,7 +23,6 @@ import { Subject } from 'rxjs';
 import { WorkflowEntryModel } from '../../../../../models/workflowEntry.model';
 
 describe('GuidPartComponent', () => {
-  let component: GuidPartComponent;
   let fixture: ComponentFixture<GuidPartComponent>;
   let underTest: GuidPartComponent;
 

@@ -23,7 +23,6 @@ import { Subject } from 'rxjs';
 import { WorkflowEntryModel } from '../../../../../models/workflowEntry.model';
 
 describe('KeyStringValuePartComponent', () => {
-  let component: KeyStringValuePartComponent;
   let fixture: ComponentFixture<KeyStringValuePartComponent>;
   let underTest: KeyStringValuePartComponent;
 

@@ -14,9 +14,9 @@
   -->
 
 <clr-checkbox-container>
-  <label for="isActive">{{name}}</label>
+  <label>{{name}}</label>
   <clr-checkbox-wrapper>
-    <input id="isActive" [disabled]="isShow" clrToggle type="checkbox" name="isActive" [ngModel]="value" (ngModelChange)="modelChanged($event)">
+    <input [disabled]="isShow" clrToggle type="checkbox" name="isActive" [ngModel]="value" (ngModelChange)="modelChanged($event)">
     <label>{{value ? 'Yes' : 'No'}}</label>
   </clr-checkbox-wrapper>
 </clr-checkbox-container>

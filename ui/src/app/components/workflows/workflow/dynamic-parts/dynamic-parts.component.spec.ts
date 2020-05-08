@@ -20,7 +20,6 @@ import { Subject } from 'rxjs';
 import { WorkflowEntryModel } from '../../../../models/workflowEntry.model';
 
 describe('DynamicPartsComponent', () => {
-  let component: DynamicPartsComponent;
   let fixture: ComponentFixture<DynamicPartsComponent>;
   let underTest: DynamicPartsComponent;
 
