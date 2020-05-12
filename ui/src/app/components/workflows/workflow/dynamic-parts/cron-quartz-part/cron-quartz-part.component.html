@@ -10,48 +10,22 @@
       </select>
     </div>
 
-    <span *ngIf="base == 4">on</span>
+    <span *ngIf="base == 3">at</span>
 
-    <div class="clr-select-wrapper" *ngIf="base == 4">
-      <select class="clr-select" clrControl [(ngModel)]="dayValue">
-        <option *ngFor="let option of dayValues" [value]="option.value">{{option.label}}</option>
-      </select>
-    </div>
-
-    <span *ngIf="base >= 5">on the</span>
-
-    <div class="clr-select-wrapper" *ngIf="base >= 5">
-      <select class="clr-select" clrControl [(ngModel)]="dayOfMonthValue">
-        <option *ngFor="let option of dayOfMonthValues" [value]="option">{{option}}</option>
-      </select>
-    </div>
-
-    <span *ngIf="base == 6">of</span>
-
-    <div class="clr-select-wrapper" *ngIf="base == 6">
-      <select class="clr-select" clrControl [(ngModel)]="monthValue">
-        <option *ngFor="let option of monthValues" [value]="option.value">{{option.label}}</option>
-      </select>
-    </div>
-
-    <span *ngIf="base >= 3">at</span>
-
-    <div class="clr-select-wrapper" *ngIf="base >= 3">
-      <select class="clr-select" clrControl [(ngModel)]="everyHourAt">
+    <div class="clr-select-wrapper" *ngIf="base == 3">
+      <select class="clr-select" clrControl [(ngModel)]="dayValue" (change)="onDaySelect($event.target.value)">
         <option *ngFor="let option of hourValues" [value]="option">{{option}}</option>
       </select>
     </div>
 
-    <span *ngIf="base >= 3">:</span>
-
-    <div class="clr-select-wrapper" *ngIf="base >= 2">
-      <select class="clr-select" clrControl [(ngModel)]="minuteValue">
+    <div class="clr-select-wrapper" *ngIf="base == 2">
+      <select class="clr-select" clrControl [(ngModel)]="hourValue" (change)="onHourSelect($event.target.value)">
         <option *ngFor="let option of minuteValues" [value]="option">{{option}}</option>
       </select>
     </div>
 
     <div class="clr-select-wrapper" *ngIf="base == 1">
-      <select class="clr-select" clrControl [(ngModel)]="minuteValue">
+      <select class="clr-select" clrControl [(ngModel)]="minuteValue" (change)="onMinuteSelect($event.target.value)">
         <option *ngFor="let option of minutesValues" [value]="option">{{option}}</option>
       </select>
     </div>
@@ -67,6 +41,6 @@
 <div *ngIf="isShow">
   <clr-control-container>
     <label>{{name}}</label>
-    <input clrControl type="text" [readOnly]="true"  name="workflowName" [size]="40" value="Every day at 12:00" />
+    <input clrControl type="text" [readOnly]="true" name="workflowName" [size]="40" value="Every day at 12:00" />
   </clr-control-container>
 </div>
