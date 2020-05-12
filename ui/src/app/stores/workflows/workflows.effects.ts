@@ -117,4 +117,21 @@ export class WorkflowsEffects {
       }
     }),
   );
+
+  @Effect({ dispatch: true })
+  workflowDelete = this.actions.pipe(
+    ofType(WorkflowActions.DELETE_WORKFLOW),
+    switchMap((action: WorkflowActions.DeleteWorkflow) => {
+      return this.workflowService.deleteWorkflow(action.payload).pipe(
+        mergeMap((result: boolean) => {
+          return [
+            {
+              type: WorkflowActions.DELETE_WORKFLOW_SUCCESS,
+              payload: action.payload
+            },
+          ];
+        }),
+      );
+    }),
+  );
 }

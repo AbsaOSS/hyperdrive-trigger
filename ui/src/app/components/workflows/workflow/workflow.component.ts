@@ -68,6 +68,10 @@ export class WorkflowComponent implements OnInit, OnDestroy {
     this.isJobsAccordionHidden = !this.isJobsAccordionHidden;
   }
 
+  deleteWorkflow(id: number) {
+    this.store.dispatch(new DeleteWorkflow(id));
+  }
+
   ngOnDestroy(): void {
     this.workflowSubscription.unsubscribe();
     this.paramsSubscription.unsubscribe();

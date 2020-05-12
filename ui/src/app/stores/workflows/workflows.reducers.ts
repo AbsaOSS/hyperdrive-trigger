@@ -206,6 +206,11 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
           },
         },
       };
+    case WorkflowsActions.DELETE_WORKFLOW_SUCCESS:
+      const newProjects = state.projects.map(project => {
+        return {name: project.name, workflows: project.workflows.filter(workflow => workflow.id != action.payload)}
+      });
+      return {...state, projects: [...newProjects]};
     default:
       return state;
   }
