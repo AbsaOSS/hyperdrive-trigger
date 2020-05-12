@@ -13,15 +13,19 @@
  * limitations under the License.
  */
 
-export const api = {
-  USER_INFO: '/user/info',
-  LOGIN: '/login',
-  LOGOUT: '/logout',
+import { TestBed } from '@angular/core/testing';
 
-  DAG_RUN_SEARCH: '/dagRuns/search',
-  JOB_INSTANCES: '/jobInstances',
+import { ConfirmationDialogService } from './confirmation-dialog.service';
 
-  GET_PROJECTS: '/workflows/projects',
-  GET_WORKFLOW: '/workflow',
-  DELETE_WORKFLOW: '/workflows',
-};
+describe('ConfirmationDialogService', () => {
+  let service: ConfirmationDialogService;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+    service = TestBed.inject(ConfirmationDialogService);
+  });
+
+  it('should be created', () => {
+    expect(service).toBeTruthy();
+  });
+});

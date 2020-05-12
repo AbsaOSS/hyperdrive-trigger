@@ -13,15 +13,9 @@
  * limitations under the License.
  */
 
-export const api = {
-  USER_INFO: '/user/info',
-  LOGIN: '/login',
-  LOGOUT: '/logout',
-
-  DAG_RUN_SEARCH: '/dagRuns/search',
-  JOB_INSTANCES: '/jobInstances',
-
-  GET_PROJECTS: '/workflows/projects',
-  GET_WORKFLOW: '/workflow',
-  DELETE_WORKFLOW: '/workflows',
+export const strings = {
+  DELETE_WORKFLOW_CONFIRMATION_TITLE: 'Delete workflow',
+  DELETE_WORKFLOW_CONFIRMATION_CONTENT: 'Are you sure you want to delete this workflow? The operation cannot be reverted.',
+  DELETE_WORKFLOW_SUCCESS_NOTIFICATION: 'Workflow has been deleted.',
+  DELETE_WORKFLOW_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
 };

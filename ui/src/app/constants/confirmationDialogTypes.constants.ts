@@ -13,15 +13,7 @@
  * limitations under the License.
  */
 
-export const api = {
-  USER_INFO: '/user/info',
-  LOGIN: '/login',
-  LOGOUT: '/logout',
-
-  DAG_RUN_SEARCH: '/dagRuns/search',
-  JOB_INSTANCES: '/jobInstances',
-
-  GET_PROJECTS: '/workflows/projects',
-  GET_WORKFLOW: '/workflow',
-  DELETE_WORKFLOW: '/workflows',
-};
+export enum ConfirmationDialogTypes {
+  Delete = 'delete',
+  YesOrNo = 'yes_or_no',
+}

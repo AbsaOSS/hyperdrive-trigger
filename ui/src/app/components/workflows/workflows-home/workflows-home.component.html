@@ -46,7 +46,10 @@
         <clr-icon shape="pencil"></clr-icon>
         Edit
       </button>
-      <button type="button" class="action-item"><clr-icon shape="close" ></clr-icon> Delete </button>
+      <button type="button" class="action-item" (click)="deleteWorkflow(workflow.id)">
+        <clr-icon shape="close" ></clr-icon>
+        Delete
+      </button>
     </clr-dg-action-overflow>
 
     <clr-dg-cell>{{workflow.name}}</clr-dg-cell>

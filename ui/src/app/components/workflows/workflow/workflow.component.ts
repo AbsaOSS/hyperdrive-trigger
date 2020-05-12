@@ -18,9 +18,12 @@ import { ActivatedRoute } from '@angular/router';
 import { AppState, selectWorkflowState } from '../../../stores/app.reducers';
 import { Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
-import { StartWorkflowInitialization } from '../../../stores/workflows/workflows.actions';
+import { DeleteWorkflow, StartWorkflowInitialization } from '../../../stores/workflows/workflows.actions';
 import { workflowModes } from '../../../models/enums/workflowModes.constants';
 import { absoluteRoutes } from '../../../constants/routes.constants';
+import { ConfirmationDialogService } from '../../../services/confirmation-dialog/confirmation-dialog.service';
+import { ConfirmationDialogTypes } from '../../../constants/confirmationDialogTypes.constants';
+import { strings } from '../../../constants/string.constants';
 
 @Component({
   selector: 'app-workflow',
@@ -41,8 +44,9 @@ export class WorkflowComponent implements OnInit, OnDestroy {
 
   paramsSubscription: Subscription;
   workflowSubscription: Subscription;
+  confirmationDialogServiceSubscription: Subscription = null;
 
-  constructor(private store: Store<AppState>, route: ActivatedRoute) {
+  constructor(private store: Store<AppState>, route: ActivatedRoute, private confirmationDialogService: ConfirmationDialogService) {
     this.paramsSubscription = route.params.subscribe((parameters) => {
       this.store.dispatch(new StartWorkflowInitialization({ id: parameters.id, mode: parameters.mode }));
     });
@@ -69,11 +73,16 @@ export class WorkflowComponent implements OnInit, OnDestroy {
   }
 
   deleteWorkflow(id: number) {
-    this.store.dispatch(new DeleteWorkflow(id));
+    this.confirmationDialogServiceSubscription = this.confirmationDialogService
+      .confirm(ConfirmationDialogTypes.Delete, strings.DELETE_WORKFLOW_CONFIRMATION_TITLE, strings.DELETE_WORKFLOW_CONFIRMATION_CONTENT)
+      .subscribe((confirmed) => {
+        if (confirmed) this.store.dispatch(new DeleteWorkflow(id));
+      });
   }
 
   ngOnDestroy(): void {
     this.workflowSubscription.unsubscribe();
     this.paramsSubscription.unsubscribe();
+    !!this.confirmationDialogServiceSubscription ? this.confirmationDialogServiceSubscription.unsubscribe() : '';
   }
 }

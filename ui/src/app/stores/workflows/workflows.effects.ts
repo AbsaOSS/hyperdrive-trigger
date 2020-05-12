@@ -28,10 +28,20 @@ import { AppState, selectWorkflowState } from '../app.reducers';
 import { Store } from '@ngrx/store';
 import * as fromWorkflows from './workflows.reducers';
 import { WorkflowDataModel } from '../../models/workflowData.model';
+import { Router } from '@angular/router';
+import { absoluteRoutes } from '../../constants/routes.constants';
+import { ToastrService } from 'ngx-toastr';
+import { strings } from '../../constants/string.constants';
 
 @Injectable()
 export class WorkflowsEffects {
-  constructor(private actions: Actions, private workflowService: WorkflowService, private store: Store<AppState>) {}
+  constructor(
+    private actions: Actions,
+    private workflowService: WorkflowService,
+    private store: Store<AppState>,
+    private router: Router,
+    private toastrService: ToastrService,
+  ) {}
 
   @Effect({ dispatch: true })
   workflowsInitialize = this.actions.pipe(
@@ -124,10 +134,29 @@ export class WorkflowsEffects {
     switchMap((action: WorkflowActions.DeleteWorkflow) => {
       return this.workflowService.deleteWorkflow(action.payload).pipe(
         mergeMap((result: boolean) => {
+          if (result) {
+            this.router.navigateByUrl(absoluteRoutes.WORKFLOWS_HOME);
+            this.toastrService.success(strings.DELETE_WORKFLOW_SUCCESS_NOTIFICATION);
+            return [
+              {
+                type: WorkflowActions.DELETE_WORKFLOW_SUCCESS,
+                payload: action.payload,
+              },
+            ];
+          } else {
+            this.toastrService.error(strings.DELETE_WORKFLOW_FAILURE_NOTIFICATION);
+            return [
+              {
+                type: WorkflowActions.DELETE_WORKFLOW_FAILURE,
+              },
+            ];
+          }
+        }),
+        catchError(() => {
+          this.toastrService.error(strings.DELETE_WORKFLOW_FAILURE_NOTIFICATION);
           return [
             {
-              type: WorkflowActions.DELETE_WORKFLOW_SUCCESS,
-              payload: action.payload
+              type: WorkflowActions.DELETE_WORKFLOW_FAILURE,
             },
           ];
         }),

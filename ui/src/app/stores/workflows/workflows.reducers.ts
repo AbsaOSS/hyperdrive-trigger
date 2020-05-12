@@ -206,11 +206,34 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
           },
         },
       };
+    case WorkflowsActions.DELETE_WORKFLOW:
+      return {
+        ...state,
+        workflowAction: {
+          ...state.workflowAction,
+        },
+        loading: true,
+      };
     case WorkflowsActions.DELETE_WORKFLOW_SUCCESS:
-      const newProjects = state.projects.map(project => {
-        return {name: project.name, workflows: project.workflows.filter(workflow => workflow.id != action.payload)}
+      const newProjects = state.projects.map((project) => {
+        return { name: project.name, workflows: project.workflows.filter((workflow) => workflow.id != action.payload) };
       });
-      return {...state, projects: [...newProjects]};
+      return {
+        ...state,
+        projects: [...newProjects],
+        workflowAction: {
+          ...initialState.workflowAction,
+        },
+        loading: false,
+      };
+    case WorkflowsActions.DELETE_WORKFLOW_FAILURE:
+      return {
+        ...state,
+        workflowAction: {
+          ...state.workflowAction,
+        },
+        loading: false,
+      };
     default:
       return state;
   }

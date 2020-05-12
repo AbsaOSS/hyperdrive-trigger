@@ -130,8 +130,7 @@ export class DeleteWorkflowSuccess implements Action {
 }
 
 export class DeleteWorkflowFailure implements Action {
-  readonly type = DELETE_WORKFLOW_SUCCESS;
-  constructor(public payload: number) {}
+  readonly type = DELETE_WORKFLOW_FAILURE;
 }
 
 export type WorkflowsActions =
