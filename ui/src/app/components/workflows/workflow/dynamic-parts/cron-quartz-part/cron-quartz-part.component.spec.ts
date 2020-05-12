@@ -20,7 +20,7 @@ import { CronQuartzPartComponent } from './cron-quartz-part.component';
 import { cronExpressionOptions } from '../../../../../constants/cronExpressionOptions.constants';
 import { WorkflowEntryModel } from '../../../../../models/workflowEntry.model';
 
-fdescribe('CronQuartzPartComponent', () => {
+describe('CronQuartzPartComponent', () => {
   let component: CronQuartzPartComponent;
   let fixture: ComponentFixture<CronQuartzPartComponent>;
   const frequencies = cronExpressionOptions.FREQUENCIES;
