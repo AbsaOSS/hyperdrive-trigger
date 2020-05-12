@@ -27,9 +27,8 @@ describe('CronQuartzPartComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [CronQuartzPartComponent]
-    })
-      .compileComponents();
+      declarations: [CronQuartzPartComponent],
+    }).compileComponents();
   }));
 
   beforeEach(() => {
@@ -49,7 +48,7 @@ describe('CronQuartzPartComponent', () => {
     const expectedMinuteCron = ['0', '0/10', '0', '?', '*', '*', '*'];
     underTest.setCron(minuteValue, frequencies[0].label);
 
-    expect((underTest.cron).join(' ')).toEqual(expectedMinuteCron.join(' '));
+    expect(underTest.cron.join(' ')).toEqual(expectedMinuteCron.join(' '));
   });
 
   it('should set cron for every hour', () => {
@@ -59,7 +58,7 @@ describe('CronQuartzPartComponent', () => {
     const expectedHourCron = ['0', '20', '0', '?', '*', '*', '*'];
     underTest.setCron(hourValue, frequencies[1].label);
 
-    expect((underTest.cron).join(' ')).toEqual(expectedHourCron.join(' '));
+    expect(underTest.cron.join(' ')).toEqual(expectedHourCron.join(' '));
   });
 
   it('should set cron for every day', () => {
@@ -69,7 +68,7 @@ describe('CronQuartzPartComponent', () => {
     const expectedDayCron = ['0', '0', '30', '?', '*', '*', '*'];
     underTest.setCron(dayValue, frequencies[2].label);
 
-    expect((underTest.cron).join(' ')).toEqual(expectedDayCron.join(' '));
+    expect(underTest.cron.join(' ')).toEqual(expectedDayCron.join(' '));
   });
 
   it('should set cron for to default midnight', () => {
@@ -79,7 +78,6 @@ describe('CronQuartzPartComponent', () => {
     const expectedDefaultCron = ['0', '0', '0', '?', '*', '*', '*'];
     underTest.setCron(anyValue, 'default');
 
-    expect((underTest.cron).join(' ')).toEqual(expectedDefaultCron.join(' '));
+    expect(underTest.cron.join(' ')).toEqual(expectedDefaultCron.join(' '));
   });
-
 });

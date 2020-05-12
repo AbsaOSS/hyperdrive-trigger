@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
 import { WorkflowEntryModel } from '../../../../../models/workflowEntry.model';
 import { cronExpressionOptions } from '../../../../../constants/cronExpressionOptions.constants';
@@ -23,7 +23,7 @@ import { cronExpressionOptions } from '../../../../../constants/cronExpressionOp
   templateUrl: './cron-quartz-part.component.html',
   styleUrls: ['./cron-quartz-part.component.scss'],
 })
-export class CronQuartzPartComponent implements OnInit, AfterViewInit {
+export class CronQuartzPartComponent implements OnInit {
   @Input() isShow: boolean;
   @Input() name: string;
   @Input() value: string;
@@ -35,7 +35,6 @@ export class CronQuartzPartComponent implements OnInit, AfterViewInit {
   minuteValue;
   hourValue;
 
-
   hourValues = cronExpressionOptions.HOUR_VALUES;
   frequencies = cronExpressionOptions.FREQUENCIES;
   minuteValues = cronExpressionOptions.MINUTE_VALUES;
@@ -43,12 +42,11 @@ export class CronQuartzPartComponent implements OnInit, AfterViewInit {
   cron: string[] = [];
 
   constructor() {
+    // do nothing
   }
 
   ngOnInit(): void {
-  }
-
-  ngAfterViewInit(): void {
+    // do nothing
   }
 
   setCron(value, label) {
