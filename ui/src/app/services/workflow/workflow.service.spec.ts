@@ -98,4 +98,16 @@ describe('WorkflowService', () => {
     expect(req.request.method).toEqual('POST');
     req.flush(new Boolean(true));
   });
+
+  it('should run a workflow', () => {
+    const response = true;
+    underTest.runWorkflow(42).subscribe(
+      (data) => expect(data).toEqual(response),
+      (error) => fail(error),
+    );
+
+    const req = httpTestingController.expectOne(`${api.RUN_WORKFLOW}?workflowId=42`);
+    expect(req.request.method).toEqual('PUT');
+    req.flush(new Boolean(true));
+  });
 });
