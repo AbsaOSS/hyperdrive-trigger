@@ -60,7 +60,7 @@ describe('WorkflowService', () => {
     req.flush([...projects]);
   });
 
-  it('getWorkflow() should return projects', () => {
+  it('getWorkflow() should return workflow data', () => {
     const workflow = new WorkflowJoinedModel('name', true, 'project', undefined, undefined, undefined, 0);
 
     underTest.getWorkflow(workflow.id).subscribe(
