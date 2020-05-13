@@ -46,7 +46,9 @@
       </select>
     </div>
 
-    <span *ngIf="base == 2"> past the hour</span>
+    <span *ngIf="base == 3"> : 00</span>
+
+    <span *ngIf="base == 2"> minutes past the hour</span>
 
     <span *ngIf="base == 1"> minutes</span>
 
@@ -57,6 +59,6 @@
 <div *ngIf="isShow">
   <clr-control-container>
     <label>{{name}}</label>
-    <input clrControl type="text" [readOnly]="true" name="workflowName" [size]="40" value="Every day at 12:00" />
+    <input clrControl type="text" [readOnly]="true" [size]="40" [(ngModel)]="value" />
   </clr-control-container>
 </div>

@@ -16,7 +16,10 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
 import { WorkflowEntryModel } from '../../../../../models/workflowEntry.model';
-import { cronExpressionOptions } from '../../../../../constants/cronExpressionOptions.constants';
+import { sensorFrequency } from '../../../../../constants/cronExpressionOptions.constants';
+import { EveryMinute } from '../../../../../constants/cronExpressionOptions.constants';
+import { EveryHour } from '../../../../../constants/cronExpressionOptions.constants';
+import { Base } from '../../../../../constants/cronExpressionOptions.constants';
 
 @Component({
   selector: 'app-cron-quartz-part',
@@ -30,15 +33,56 @@ export class CronQuartzPartComponent implements OnInit {
   @Input() property: string;
   @Input() valueChanges: Subject<WorkflowEntryModel>;
 
-  base;
-  dayValue;
-  minuteValue;
-  hourValue;
+  base: number;
+  dayValue: number;
+  minuteValue: number;
+  hourValue: number;
 
-  hourValues = cronExpressionOptions.HOUR_VALUES;
-  frequencies = cronExpressionOptions.FREQUENCIES;
-  minuteValues = cronExpressionOptions.MINUTE_VALUES;
-  minutesValues = cronExpressionOptions.MINUTES_VALUES;
+  hourValues = [
+    EveryHour.Zero,
+    EveryHour.One,
+    EveryHour.Two,
+    EveryHour.Three,
+    EveryHour.Four,
+    EveryHour.Five,
+    EveryHour.Six,
+    EveryHour.Seven,
+    EveryHour.Eight,
+    EveryHour.Nine,
+    EveryHour.Ten,
+    EveryHour.Eleven,
+    EveryHour.Twelve,
+    EveryHour.Thirteen,
+    EveryHour.Fourteen,
+    EveryHour.Fifteen,
+    EveryHour.Sixtenn,
+    EveryHour.Seventeen,
+    EveryHour.Eighteen,
+    EveryHour.Nineteen,
+    EveryHour.Twenty,
+    EveryHour.TwentyOne,
+    EveryHour.TwentyTwo,
+    EveryHour.TwentyThree,
+  ];
+
+  minuteValues = [
+    EveryHour.Zero,
+    EveryHour.Five,
+    EveryHour.Ten,
+    EveryHour.Fifteen,
+    EveryHour.Twenty,
+    EveryMinute.TwentyFive,
+    EveryMinute.Thirty,
+    EveryMinute.ThirtyFive,
+    EveryMinute.Forty,
+    EveryMinute.FortyFive,
+    EveryMinute.Fifty,
+    EveryMinute.FiftyFive,
+  ];
+
+  minutesValues = [EveryHour.Five, EveryHour.Ten, EveryHour.Fifteen, EveryHour.Twenty, EveryMinute.TwentyFive, EveryMinute.Thirty];
+
+  frequencies = sensorFrequency.FREQUENCIES;
   cron: string[] = [];
 
   constructor() {
@@ -49,53 +93,38 @@ export class CronQuartzPartComponent implements OnInit {
     // do nothing
   }
 
-  setCron(value, label) {
-    this.cron = ['0', '0', '0', '?', '*', '*', '*'];
-    switch (label) {
-      case 'Hour every':
-        this.cron[1] = `0/${value}`;
-        break;
-      case 'Hour at':
-        this.cron[1] = value;
-        break;
-      case 'Day':
-        this.cron[2] = value;
-        break;
-      default:
-        this.cron = ['0', '0', '0', '?', '*', '*', '*'];
-        break;
-    }
-    this.modelChanged();
-  }
-
   fromCron(value: string) {
     const cron: string[] = value.replace(/\s+/g, ' ').split(' ');
 
     if (cron[1] === '*' && cron[2] === '*' && cron[3] === '*' && cron[4] === '*' && cron[5] === '?') {
-      this.base = 1; // every minute
+      this.base = Base.One; // every minute
     } else if (cron[2] === '*' && cron[3] === '*' && cron[4] === '*' && cron[5] === '?') {
-      this.base = 2; // every hour
+      this.base = Base.Two; // every hour
     } else if (cron[3] === '*' && cron[4] === '*' && cron[5] === '?') {
-      this.base = 3; // every day
+      this.base = Base.Three; // every day
     }
   }
 
-  onMinuteSelect(option) {
+  onMinuteSelect(option): void {
     this.minuteValue = option;
-    this.setCron(this.minuteValue, this.frequencies[0].label);
+    const cronMinute = `0/${this.minuteValue}`;
+    this.cron = ['0', cronMinute, '0', '?', '*', '*', '*'];
+    this.modelChanged();
   }
 
-  onHourSelect(option) {
+  onHourSelect(option): void {
     this.hourValue = option;
-    this.setCron(this.hourValue, this.frequencies[1].label);
+    this.cron = ['0', `${this.hourValue}`, '0', '?', '*', '*', '*'];
+    this.modelChanged();
   }
 
-  onDaySelect(option) {
+  onDaySelect(option): void {
     this.dayValue = option;
-    this.setCron(this.dayValue, this.frequencies[2].label);
+    this.cron = ['0', '0', `${this.dayValue}`, '?', '*', '*', '*'];
+    this.modelChanged();
   }
 
-  modelChanged() {
+  modelChanged(): void {
     this.value = this.cron.join(' ');
     this.valueChanges.next(new WorkflowEntryModel(this.property, this.value));
   }
