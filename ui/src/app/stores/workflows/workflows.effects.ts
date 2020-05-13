@@ -31,7 +31,7 @@ import { WorkflowDataModel } from '../../models/workflowData.model';
 import { Router } from '@angular/router';
 import { absoluteRoutes } from '../../constants/routes.constants';
 import { ToastrService } from 'ngx-toastr';
-import { strings } from '../../constants/string.constants';
+import { texts } from '../../constants/texts.constants';
 
 @Injectable()
 export class WorkflowsEffects {
@@ -136,7 +136,7 @@ export class WorkflowsEffects {
         mergeMap((result: boolean) => {
           if (result) {
             this.router.navigateByUrl(absoluteRoutes.WORKFLOWS_HOME);
-            this.toastrService.success(strings.DELETE_WORKFLOW_SUCCESS_NOTIFICATION);
+            this.toastrService.success(texts.DELETE_WORKFLOW_SUCCESS_NOTIFICATION);
             return [
               {
                 type: WorkflowActions.DELETE_WORKFLOW_SUCCESS,
@@ -144,7 +144,7 @@ export class WorkflowsEffects {
               },
             ];
           } else {
-            this.toastrService.error(strings.DELETE_WORKFLOW_FAILURE_NOTIFICATION);
+            this.toastrService.error(texts.DELETE_WORKFLOW_FAILURE_NOTIFICATION);
             return [
               {
                 type: WorkflowActions.DELETE_WORKFLOW_FAILURE,
@@ -153,7 +153,7 @@ export class WorkflowsEffects {
           }
         }),
         catchError(() => {
-          this.toastrService.error(strings.DELETE_WORKFLOW_FAILURE_NOTIFICATION);
+          this.toastrService.error(texts.DELETE_WORKFLOW_FAILURE_NOTIFICATION);
           return [
             {
               type: WorkflowActions.DELETE_WORKFLOW_FAILURE,

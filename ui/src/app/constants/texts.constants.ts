@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-export const strings = {
+export const texts = {
   DELETE_WORKFLOW_CONFIRMATION_TITLE: 'Delete workflow',
   DELETE_WORKFLOW_CONFIRMATION_CONTENT: 'Are you sure you want to delete this workflow? The operation cannot be reverted.',
   DELETE_WORKFLOW_SUCCESS_NOTIFICATION: 'Workflow has been deleted.',
