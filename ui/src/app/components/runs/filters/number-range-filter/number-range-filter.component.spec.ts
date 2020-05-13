@@ -46,7 +46,16 @@ describe('NumberRangeFilterComponent', () => {
       expect(underTest.accepts(dagRun)).toBeTrue();
     });
 
-    it('should accept when it is on edge of the range', () => {
+    it('should accept when it is on left edge of the range', () => {
+      const underTest = fixture.componentInstance;
+      underTest.value = { from: 1, to: 2 };
+      underTest.property = 'jobCount';
+      const dagRun = new DagRunModel('value', 'projectName', 1, 'Status', new Date(Date.now()), new Date(Date.now()), 0);
+
+      expect(underTest.accepts(dagRun)).toBeTrue();
+    });
+
+    it('should accept when it is on right edge of the range', () => {
       const underTest = fixture.componentInstance;
       underTest.value = { from: 1, to: 2 };
       underTest.property = 'jobCount';
