@@ -14,13 +14,15 @@
  */
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AppState, selectWorkflowState } from '../../../stores/app.reducers';
 import { Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { StartWorkflowInitialization } from '../../../stores/workflows/workflows.actions';
 import { workflowModes } from '../../../models/enums/workflowModes.constants';
 import { absoluteRoutes } from '../../../constants/routes.constants';
+import { Location } from '@angular/common';
+import { PreviousRouteService } from '../../../services/previousRoute/previous-route.service';
 
 @Component({
   selector: 'app-workflow',
@@ -42,7 +44,13 @@ export class WorkflowComponent implements OnInit, OnDestroy {
   paramsSubscription: Subscription;
   workflowSubscription: Subscription;
 
-  constructor(private store: Store<AppState>, route: ActivatedRoute) {
+  constructor(
+    private store: Store<AppState>,
+    private location: Location,
+    private previousRouteService: PreviousRouteService,
+    private router: Router,
+    route: ActivatedRoute,
+  ) {
     this.paramsSubscription = route.params.subscribe((parameters) => {
       this.store.dispatch(new StartWorkflowInitialization({ id: parameters.id, mode: parameters.mode }));
     });
@@ -66,6 +74,10 @@ export class WorkflowComponent implements OnInit, OnDestroy {
 
   toggleJobsAccordion() {
     this.isJobsAccordionHidden = !this.isJobsAccordionHidden;
+  }
+
+  cancelWorkflow() {
+    !!this.previousRouteService.getPreviousUrl() ? this.location.back() : this.router.navigateByUrl(absoluteRoutes.WORKFLOWS_HOME);
   }
 
   ngOnDestroy(): void {

@@ -60,6 +60,7 @@ import { GuidPartComponent } from './components/workflows/workflow/dynamic-parts
 import { CronQuartzPartComponent } from './components/workflows/workflow/dynamic-parts/cron-quartz-part/cron-quartz-part.component';
 import { JobComponent } from './components/workflows/workflow/jobs/job/job.component';
 import { DynamicPartsComponent } from './components/workflows/workflow/dynamic-parts/dynamic-parts.component';
+import { PreviousRouteService } from './services/previousRoute/previous-route.service';
 
 @NgModule({
   declarations: [
@@ -104,6 +105,7 @@ import { DynamicPartsComponent } from './components/workflows/workflow/dynamic-p
     AuthService,
     AuthGuardService,
     LogInGuardService,
+    PreviousRouteService,
     { provide: HTTP_INTERCEPTORS, useClass: CsrfInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: UnauthorizedInterceptor, multi: true },
   ],
