@@ -45,47 +45,35 @@ describe('GuidPartComponent', () => {
     expect(underTest).toBeTruthy();
   });
 
-  it('should set new guid on init when value is undefined', async(() => {
-    const oldValue = undefined;
-    const propertyName = 'property';
-    const testedSubject = new Subject<WorkflowEntryModel>();
-    const subjectSpy = spyOn(testedSubject, 'next');
+  describe('should set new guid on init when value is undefined or null', () => {
+    const parameters = [null, undefined];
 
-    underTest.isShow = false;
-    underTest.name = 'name';
-    underTest.value = oldValue;
-    underTest.property = propertyName;
-    underTest.valueChanges = testedSubject;
-    fixture.detectChanges();
+    parameters.forEach((parameter) => {
+      it(
+        'should pass with ' + parameter + ' value',
+        async(() => {
+          const oldValue = parameter;
+          const propertyName = 'property';
+          const testedSubject = new Subject<WorkflowEntryModel>();
+          const subjectSpy = spyOn(testedSubject, 'next');
 
-    fixture.whenStable().then(() => {
-      const result = fixture.debugElement.query(inputSelector).nativeElement.value;
-      expect(result.length).toBe(36);
-      expect(subjectSpy).toHaveBeenCalledTimes(1);
-      expect(subjectSpy).toHaveBeenCalledWith(new WorkflowEntryModel(propertyName, result));
+          underTest.isShow = false;
+          underTest.name = 'name';
+          underTest.value = oldValue;
+          underTest.property = propertyName;
+          underTest.valueChanges = testedSubject;
+          fixture.detectChanges();
+
+          fixture.whenStable().then(() => {
+            const result = fixture.debugElement.query(inputSelector).nativeElement.value;
+            expect(result.length).toBe(36);
+            expect(subjectSpy).toHaveBeenCalledTimes(1);
+            expect(subjectSpy).toHaveBeenCalledWith(new WorkflowEntryModel(propertyName, result));
+          });
+        }),
+      );
     });
-  }));
-
-  it('should set new guid on init when value is null', async(() => {
-    const oldValue = null;
-    const propertyName = 'property';
-    const testedSubject = new Subject<WorkflowEntryModel>();
-    const subjectSpy = spyOn(testedSubject, 'next');
-
-    underTest.isShow = false;
-    underTest.name = 'name';
-    underTest.value = oldValue;
-    underTest.property = propertyName;
-    underTest.valueChanges = testedSubject;
-    fixture.detectChanges();
-
-    fixture.whenStable().then(() => {
-      const result = fixture.debugElement.query(inputSelector).nativeElement.value;
-      expect(result.length).toBe(36);
-      expect(subjectSpy).toHaveBeenCalledTimes(1);
-      expect(subjectSpy).toHaveBeenCalledWith(new WorkflowEntryModel(propertyName, result));
-    });
-  }));
+  });
 
   it('should change value and publish change on user input', async(() => {
     const propertyName = 'property';
