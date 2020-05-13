@@ -35,11 +35,11 @@ export class SelectPartComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    if (!this.value || this.value == '') {
-      this.modelChanged(this.options[0]);
-    }
     if (!this.options) {
       this.options = [];
+    }
+    if (!this.value || this.value == '') {
+      this.modelChanged(this.options.length != 0 ? this.options[0] : '');
     }
   }
 
