@@ -48,6 +48,7 @@ export class GuidPartComponent implements OnInit {
   }
 
   getUUID(): string {
+    //Implementation from: https://www.w3resource.com/javascript-exercises/javascript-math-exercise-23.php
     let dt = new Date().getTime();
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
       const r = (dt + Math.random() * 16) % 16 | 0;
