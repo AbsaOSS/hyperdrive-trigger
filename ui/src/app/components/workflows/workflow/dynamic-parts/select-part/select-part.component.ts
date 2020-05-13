@@ -38,6 +38,9 @@ export class SelectPartComponent implements OnInit {
     if (!this.value || this.value == '') {
       this.modelChanged(this.options[0]);
     }
+    if (!this.options) {
+      this.options = [];
+    }
   }
 
   modelChanged(value: string) {
