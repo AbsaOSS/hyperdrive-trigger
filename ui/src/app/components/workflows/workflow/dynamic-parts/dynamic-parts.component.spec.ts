@@ -56,7 +56,7 @@ describe('DynamicPartsComponent', () => {
     });
   }));
 
-  it('getValue() should return undefined when property does not exists', async(() => {
+  it('getValue() should return undefined when property does not exist', async(() => {
     const workflowEntryOne = new WorkflowEntryModel('propertyOne', 'valueOne');
     const workflowEntryTwo = new WorkflowEntryModel('propertyTwo', 'valueTwo');
     const undefinedProperty = 'undefinedProperty';

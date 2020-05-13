@@ -75,7 +75,7 @@ describe('SensorComponent', () => {
     });
   }));
 
-  it('getValue() should return undefined when property does not exists', async(() => {
+  it('getValue() should return undefined when property does not exist', async(() => {
     const undefinedProperty = 'undefinedProperty';
 
     fixture.detectChanges();
