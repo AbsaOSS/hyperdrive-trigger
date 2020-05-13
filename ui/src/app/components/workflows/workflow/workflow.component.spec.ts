@@ -18,6 +18,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { WorkflowComponent } from './workflow.component';
 import { provideMockStore } from '@ngrx/store/testing';
 import { RouterTestingModule } from '@angular/router/testing';
+import { WorkflowEntryModel } from '../../../models/workflowEntry.model';
 
 describe('WorkflowComponent', () => {
   let underTest: WorkflowComponent;
@@ -46,6 +47,15 @@ describe('WorkflowComponent', () => {
 
   it('should create', () => {
     expect(underTest).toBeTruthy();
+  });
+
+  it('should set properties during on init', () => {
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(underTest.loading).toBe(initialAppState.workflows.loading);
+      expect(underTest.mode).toBe(initialAppState.workflows.mode);
+      expect(underTest.id).toBe(initialAppState.workflows.id);
+    });
   });
 
   it('toggleDetailsAccordion() should toggle detail accordion', async(() => {

@@ -16,12 +16,16 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { SensorComponent } from './sensor.component';
-import { provideMockStore } from '@ngrx/store/testing';
+import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import { DynamicFormPart, DynamicFormParts, FormPart, WorkflowFormPartsModel } from '../../../../models/workflowFormParts.model';
+import { WorkflowSensorChanged, WorkflowSensorTypeSwitched } from '../../../../stores/workflows/workflows.actions';
+import * as fromApp from '../../../../stores/app.reducers';
+import { WorkflowEntryModel } from '../../../../models/workflowEntry.model';
 
 describe('SensorComponent', () => {
   let fixture: ComponentFixture<SensorComponent>;
   let underTest: SensorComponent;
+  let mockStore: MockStore<fromApp.AppState>;
 
   const initialAppState = {
     workflows: {
@@ -56,6 +60,8 @@ describe('SensorComponent', () => {
       providers: [provideMockStore({ initialState: initialAppState })],
       declarations: [SensorComponent],
     }).compileComponents();
+
+    mockStore = TestBed.inject(MockStore);
   }));
 
   beforeEach(() => {
@@ -66,6 +72,44 @@ describe('SensorComponent', () => {
   it('should create', () => {
     expect(underTest).toBeTruthy();
   });
+
+  it('should set properties during on init', () => {
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(underTest.sensorChangesSubscription).toBeDefined();
+    });
+  });
+
+  it('should dispatch workflow sensor change when value is received', async(() => {
+    const usedWorkflowEntry = new WorkflowEntryModel('property', 'value');
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      const storeSpy = spyOn(mockStore, 'dispatch');
+      underTest.sensorChanges.next(usedWorkflowEntry);
+      fixture.detectChanges();
+
+      fixture.whenStable().then(() => {
+        expect(storeSpy).toHaveBeenCalledTimes(1);
+        expect(storeSpy).toHaveBeenCalledWith(new WorkflowSensorChanged(usedWorkflowEntry));
+      });
+    });
+  }));
+
+  it('should dispatch workflow sensor type switch when value for switch is received', async(() => {
+    const usedWorkflowEntry = new WorkflowEntryModel(initialAppState.workflows.workflowFormParts.sensorSwitchPart.property, 'value');
+
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      const storeSpy = spyOn(mockStore, 'dispatch');
+      underTest.sensorChanges.next(usedWorkflowEntry);
+      fixture.detectChanges();
+
+      fixture.whenStable().then(() => {
+        expect(storeSpy).toHaveBeenCalledTimes(1);
+        expect(storeSpy).toHaveBeenCalledWith(new WorkflowSensorTypeSwitched(usedWorkflowEntry));
+      });
+    });
+  }));
 
   it('getValue() should return value when property exists', async(() => {
     fixture.detectChanges();
