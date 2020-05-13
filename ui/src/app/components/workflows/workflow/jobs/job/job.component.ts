@@ -87,7 +87,7 @@ export class JobComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.jobChangesSubscription.unsubscribe();
-    this.workflowSubscription.unsubscribe();
+    !!this.jobChangesSubscription && this.jobChangesSubscription.unsubscribe();
+    !!this.workflowSubscription && this.workflowSubscription.unsubscribe();
   }
 }

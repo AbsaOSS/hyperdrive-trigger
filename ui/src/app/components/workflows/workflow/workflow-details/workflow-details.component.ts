@@ -59,7 +59,7 @@ export class WorkflowDetailsComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.detailsChangesSubscription.unsubscribe();
-    this.workflowSubscription.unsubscribe();
+    !!this.detailsChangesSubscription && this.detailsChangesSubscription.unsubscribe();
+    !!this.workflowSubscription && this.workflowSubscription.unsubscribe();
   }
 }

@@ -81,8 +81,8 @@ export class WorkflowComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.workflowSubscription.unsubscribe();
-    this.paramsSubscription.unsubscribe();
-    !!this.confirmationDialogServiceSubscription ? this.confirmationDialogServiceSubscription.unsubscribe() : '';
+    !!this.workflowSubscription && this.workflowSubscription.unsubscribe();
+    !!this.paramsSubscription && this.paramsSubscription.unsubscribe();
+    !!this.confirmationDialogServiceSubscription && this.confirmationDialogServiceSubscription.unsubscribe();
   }
 }
