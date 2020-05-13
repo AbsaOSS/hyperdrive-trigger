@@ -118,7 +118,7 @@ describe('JobComponent', () => {
     });
   }));
 
-  it('getValue() should return undefined when property doesnt exists', async(() => {
+  it('getValue() should return undefined when property does not exists', async(() => {
     underTest.jobIndex = initialAppState.workflows.workflowAction.workflowData.jobs[0].order;
     const undefinedProperty = 'undefinedProperty';
 
