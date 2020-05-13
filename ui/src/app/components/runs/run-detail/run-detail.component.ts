@@ -47,6 +47,6 @@ export class RunDetailComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.runDetailSubscription.unsubscribe();
+    !!this.runDetailSubscription && this.runDetailSubscription.unsubscribe();
   }
 }

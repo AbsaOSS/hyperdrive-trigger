@@ -16,25 +16,75 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { WorkflowComponent } from './workflow.component';
+import { provideMockStore } from '@ngrx/store/testing';
+import { ActivatedRoute } from '@angular/router';
+import { of } from 'rxjs';
 
 describe('WorkflowComponent', () => {
-  // let component: WorkflowComponent;
-  // let fixture: ComponentFixture<WorkflowComponent>;
-  //
-  // beforeEach(async(() => {
-  //   TestBed.configureTestingModule({
-  //     declarations: [ WorkflowComponent ]
-  //   })
-  //   .compileComponents();
-  // }));
-  //
-  // beforeEach(() => {
-  //   fixture = TestBed.createComponent(WorkflowComponent);
-  //   component = fixture.componentInstance;
-  //   fixture.detectChanges();
-  // });
-  //
-  // it('should create', () => {
-  //   expect(component).toBeTruthy();
-  // });
+  let underTest: WorkflowComponent;
+  let fixture: ComponentFixture<WorkflowComponent>;
+
+  const initialAppState = {
+    workflows: {
+      workflowAction: {
+        loading: true,
+        mode: 'mode',
+        id: 0,
+      },
+    },
+  };
+
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideMockStore({ initialState: initialAppState }),
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            params: of({
+              id: 0,
+              mode: 'mode',
+            }),
+          },
+        },
+      ],
+      declarations: [WorkflowComponent],
+    }).compileComponents();
+  }));
+
+  beforeEach(() => {
+    fixture = TestBed.createComponent(WorkflowComponent);
+    underTest = fixture.componentInstance;
+  });
+
+  it('should create', () => {
+    expect(underTest).toBeTruthy();
+  });
+
+  it('should set properties during on init', async(() => {
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(underTest.loading).toBe(initialAppState.workflows.workflowAction.loading);
+      expect(underTest.mode).toBe(initialAppState.workflows.workflowAction.mode);
+      expect(underTest.id).toBe(initialAppState.workflows.workflowAction.id);
+    });
+  }));
+
+  it('toggleDetailsAccordion() should toggle detail accordion', () => {
+    expect(underTest.isDetailsAccordionHidden).toBeFalse();
+    underTest.toggleDetailsAccordion();
+    expect(underTest.isDetailsAccordionHidden).toBeTrue();
+  });
+
+  it('toggleSensorAccordion() should toggle sensor accordion', () => {
+    expect(underTest.isSensorAccordionHidden).toBeFalse();
+    underTest.toggleSensorAccordion();
+    expect(underTest.isSensorAccordionHidden).toBeTrue();
+  });
+
+  it('toggleJobsAccordion() should toggle jobs accordion', () => {
+    expect(underTest.isJobsAccordionHidden).toBeFalse();
+    underTest.toggleJobsAccordion();
+    expect(underTest.isJobsAccordionHidden).toBeTrue();
+  });
 });

@@ -16,25 +16,67 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { WorkflowDetailsComponent } from './workflow-details.component';
+import { provideMockStore } from '@ngrx/store/testing';
+import { WorkflowFormPartsModel } from '../../../../models/workflowFormParts.model';
 
 describe('WorkflowDetailsComponent', () => {
-  // let component: WorkflowDetailsComponent;
-  // let fixture: ComponentFixture<WorkflowDetailsComponent>;
-  //
-  // beforeEach(async(() => {
-  //   TestBed.configureTestingModule({
-  //     declarations: [ WorkflowDetailsComponent ]
-  //   })
-  //     .compileComponents();
-  // }));
-  //
-  // beforeEach(() => {
-  //   fixture = TestBed.createComponent(WorkflowDetailsComponent);
-  //   component = fixture.componentInstance;
-  //   fixture.detectChanges();
-  // });
-  //
-  // it('should create', () => {
-  //   expect(component).toBeTruthy();
-  // });
+  let fixture: ComponentFixture<WorkflowDetailsComponent>;
+  let underTest: WorkflowDetailsComponent;
+
+  const initialAppState = {
+    workflows: {
+      workflowFormParts: new WorkflowFormPartsModel([], undefined, undefined, undefined, undefined),
+      workflowAction: {
+        mode: 'mode',
+        workflowData: {
+          details: [
+            { property: 'propertyOne', value: 'valueOne' },
+            { property: 'propertyTwo', value: 'valueTwo' },
+          ],
+        },
+      },
+    },
+  };
+
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      providers: [provideMockStore({ initialState: initialAppState })],
+      declarations: [WorkflowDetailsComponent],
+    }).compileComponents();
+  }));
+
+  beforeEach(() => {
+    fixture = TestBed.createComponent(WorkflowDetailsComponent);
+    underTest = fixture.componentInstance;
+  });
+
+  it('should create', () => {
+    expect(underTest).toBeTruthy();
+  });
+
+  it('should after view init set component properties', async(() => {
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(underTest.mode).toBe(initialAppState.workflows.workflowAction.mode);
+      expect(underTest.data).toBe(initialAppState.workflows.workflowAction.workflowData.details);
+      expect(underTest.parts).toBe(initialAppState.workflows.workflowFormParts.detailsParts);
+    });
+  }));
+
+  it('getValue() should return value when property exists', async(() => {
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      const queriedDetail = initialAppState.workflows.workflowAction.workflowData.details[0];
+      expect(underTest.getValue(queriedDetail.property)).toBe(queriedDetail.value);
+    });
+  }));
+
+  it('getValue() should return undefined when property does not exist', async(() => {
+    const undefinedProperty = 'undefinedProperty';
+
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(underTest.getValue(undefinedProperty)).toBe(undefined);
+    });
+  }));
 });

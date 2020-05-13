@@ -16,10 +16,12 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { DynamicPartsComponent } from './dynamic-parts.component';
+import { Subject } from 'rxjs';
+import { WorkflowEntryModel } from '../../../../models/workflowEntry.model';
 
 describe('DynamicPartsComponent', () => {
-  let component: DynamicPartsComponent;
   let fixture: ComponentFixture<DynamicPartsComponent>;
+  let underTest: DynamicPartsComponent;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
@@ -29,11 +31,47 @@ describe('DynamicPartsComponent', () => {
 
   beforeEach(() => {
     fixture = TestBed.createComponent(DynamicPartsComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
+    underTest = fixture.componentInstance;
   });
 
   it('should create', () => {
-    expect(component).toBeTruthy();
+    expect(underTest).toBeTruthy();
   });
+
+  it('getValue() should return value when property exists', async(() => {
+    const workflowEntryOne = new WorkflowEntryModel('propertyOne', 'valueOne');
+    const workflowEntryTwo = new WorkflowEntryModel('propertyTwo', 'valueTwo');
+    const testedSubject = new Subject<WorkflowEntryModel>();
+
+    underTest.isShow = false;
+    underTest.formParts = [];
+    underTest.values = [workflowEntryOne, workflowEntryTwo];
+    underTest.valueChanges = testedSubject;
+
+    fixture.detectChanges();
+
+    fixture.whenStable().then(() => {
+      const result = underTest.getValue(workflowEntryOne.property);
+      expect(result).toBe(workflowEntryOne.value);
+    });
+  }));
+
+  it('getValue() should return undefined when property does not exist', async(() => {
+    const workflowEntryOne = new WorkflowEntryModel('propertyOne', 'valueOne');
+    const workflowEntryTwo = new WorkflowEntryModel('propertyTwo', 'valueTwo');
+    const undefinedProperty = 'undefinedProperty';
+    const testedSubject = new Subject<WorkflowEntryModel>();
+
+    underTest.isShow = false;
+    underTest.formParts = [];
+    underTest.values = [workflowEntryOne, workflowEntryTwo];
+    underTest.valueChanges = testedSubject;
+
+    fixture.detectChanges();
+
+    fixture.whenStable().then(() => {
+      const result = underTest.getValue(undefinedProperty);
+      expect(result).toBe(undefined);
+    });
+  }));
 });

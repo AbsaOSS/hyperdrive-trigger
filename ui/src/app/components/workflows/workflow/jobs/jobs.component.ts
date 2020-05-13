@@ -77,6 +77,6 @@ export class JobsComponent implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.workflowSubscription.unsubscribe();
+    !!this.workflowSubscription && this.workflowSubscription.unsubscribe();
   }
 }

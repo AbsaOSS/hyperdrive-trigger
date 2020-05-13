@@ -35,13 +35,16 @@ export class SelectPartComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    if (!this.options) {
+      this.options = [];
+    }
     if (!this.value || this.value == '') {
-      this.value = this.options[0];
-      this.modelChanged(this.value);
+      this.modelChanged(this.options.length != 0 ? this.options[0] : '');
     }
   }
 
-  modelChanged(value: any) {
+  modelChanged(value: string) {
+    this.value = value;
     this.valueChanges.next(new WorkflowEntryModel(this.property, this.value));
   }
 }

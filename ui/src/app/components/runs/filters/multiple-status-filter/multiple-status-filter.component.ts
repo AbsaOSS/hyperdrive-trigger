@@ -51,8 +51,8 @@ export class MultipleStatusFilterComponent implements ClrDatagridFilterInterface
   }
 
   ngOnDestroy(): void {
-    this.removeFiltersSubject.unsubscribe();
-    this.modelSubscription.unsubscribe();
+    !!this.removeFiltersSubject && this.removeFiltersSubject.unsubscribe();
+    !!this.modelSubscription && this.modelSubscription.unsubscribe();
   }
 
   toggleStatuses(statusModel) {

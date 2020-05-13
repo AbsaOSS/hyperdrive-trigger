@@ -20,32 +20,30 @@ import { provideMockStore } from '@ngrx/store/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 describe('RunDetailComponent', () => {
-  // let component: RunDetailComponent;
-  // let fixture: ComponentFixture<RunDetailComponent>;
-  //
-  // const initialAppState = {
-  //   runs: {
-  //     detail: {}
-  //   }
-  // };
-  //
-  // beforeEach(async(() => {
-  //   TestBed.configureTestingModule({
-  //     providers: [
-  //       provideMockStore({initialState: initialAppState})
-  //     ],
-  //     declarations: [RunDetailComponent],
-  //     imports: [HttpClientTestingModule]
-  //   }).compileComponents();
-  // }));
-  //
-  // beforeEach(() => {
-  //   fixture = TestBed.createComponent(RunDetailComponent);
-  //   component = fixture.componentInstance;
-  //   fixture.detectChanges();
-  // });
-  //
-  // it('should create', () => {
-  //   expect(component).toBeTruthy();
-  // });
+  let component: RunDetailComponent;
+  let fixture: ComponentFixture<RunDetailComponent>;
+
+  const initialAppState = {
+    runs: {
+      detail: {},
+    },
+  };
+
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      providers: [provideMockStore({ initialState: initialAppState })],
+      declarations: [RunDetailComponent],
+      imports: [HttpClientTestingModule],
+    }).compileComponents();
+  }));
+
+  beforeEach(() => {
+    fixture = TestBed.createComponent(RunDetailComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
 });

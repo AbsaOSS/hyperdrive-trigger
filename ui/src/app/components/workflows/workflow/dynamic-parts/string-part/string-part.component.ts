@@ -35,12 +35,12 @@ export class StringPartComponent implements OnInit {
 
   ngOnInit(): void {
     if (!this.value) {
-      this.value = '';
       this.modelChanged('');
     }
   }
 
   modelChanged(value: string) {
+    this.value = value;
     this.valueChanges.next(new WorkflowEntryModel(this.property, this.value));
   }
 }

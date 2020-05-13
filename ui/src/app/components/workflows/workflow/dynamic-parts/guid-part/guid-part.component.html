@@ -15,9 +15,8 @@
 
 <clr-control-container>
   <label>{{name}}</label>
-  <input clrControl type="text" [readOnly]="true"  name="workflowName" [size]="40" [(ngModel)]="value" (ngModelChange)="modelChanged($event)"/>
+  <input clrControl type="text" [readOnly]="true"  name="workflowName" [size]="40" [ngModel]="value" (ngModelChange)="modelChanged($event)"/>
   <button *ngIf="!isShow" type="button" class="btn btn-link" (click)="refreshGuid()">
     <clr-icon shape="refresh"></clr-icon>
   </button>
-
 </clr-control-container>
