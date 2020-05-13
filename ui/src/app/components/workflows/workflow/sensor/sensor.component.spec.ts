@@ -73,12 +73,12 @@ describe('SensorComponent', () => {
     expect(underTest).toBeTruthy();
   });
 
-  it('should set properties during on init', () => {
+  it('should set properties during on init', async(() => {
     fixture.detectChanges();
     fixture.whenStable().then(() => {
       expect(underTest.sensorChangesSubscription).toBeDefined();
     });
-  });
+  }));
 
   it('should dispatch workflow sensor change when value is received', async(() => {
     const usedWorkflowEntry = new WorkflowEntryModel('property', 'value');
