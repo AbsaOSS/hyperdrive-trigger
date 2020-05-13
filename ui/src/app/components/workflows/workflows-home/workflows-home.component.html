@@ -34,9 +34,9 @@
         <clr-icon shape="eye"></clr-icon>
         Show
       </button>
-      <button type="button" class="action-item">
+      <button type="button" class="action-item" (click)="switchWorkflowActiveState(workflow.id)">
         <clr-icon shape="power"></clr-icon>
-        Activate/Deactivate
+        {{workflow.isActive ? 'Deactivate' : 'Activate'}}
       </button>
       <button type="button" class="action-item" [routerLink]="[absoluteRoutes.COPY_WORKFLOW, workflow.id]">
         <clr-icon shape="copy"></clr-icon>

@@ -34,7 +34,7 @@ trait WorkflowRepository extends Repository {
   def getWorkflowsByProjectName(projectName: String)(implicit ec: ExecutionContext): Future[Seq[Workflow]]
   def deleteWorkflow(id: Long)(implicit ec: ExecutionContext): Future[Unit]
   def updateWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Option[ApiError]]
-  def updateWorkflowActiveState(id: Long, isActive: Boolean)(implicit ec: ExecutionContext): Future[Unit]
+  def switchWorkflowActiveState(id: Long)(implicit ec: ExecutionContext): Future[Unit]
   def getProjects()(implicit ec: ExecutionContext): Future[Seq[String]]
   def getProjectsInfo()(implicit ec: ExecutionContext): Future[Seq[ProjectInfo]]
 }
@@ -144,18 +144,28 @@ class WorkflowRepositoryImpl extends WorkflowRepository {
       }
   }
 
-  override def updateWorkflowActiveState(id: Long, isActive: Boolean)(implicit ec: ExecutionContext): Future[Unit] = db.run(
-    for {
-      w <- workflowTable.filter(_.id === id)
-        .map(workflow => (workflow.isActive, workflow.updated)).update((isActive, Option(LocalDateTime.now())))
+  override def switchWorkflowActiveState(id: Long)(implicit ec: ExecutionContext): Future[Unit] = {
+    val targetWorkflow = workflowTable.filter(_.id === id).map(workflow => (workflow.isActive, workflow.updated))
+    val resultAction = for {
+      workflowToUpdateOption <- targetWorkflow.result.headOption
+      workflowUpdatedActionOpt = workflowToUpdateOption.map(
+        workflowValue =>
+          targetWorkflow.update((!workflowValue._1), Option(LocalDateTime.now()))
+      )
+      affected <- workflowUpdatedActionOpt.getOrElse(DBIO.successful(0))
     } yield {
-      if(w == 1) {
-        DBIO.successful((): Unit)
-      } else {
-        DBIO.failed(new Exception("Update workflow exception"))
-      }
-    }.transactionally
-  )
+      affected
+    }
+    db.run(
+      resultAction.flatMap(result => {
+        if (result == 1) {
+          DBIO.successful((): Unit)
+        } else {
+          DBIO.failed(new Exception("Update workflow exception"))
+        }
+      }).transactionally
+    )
+  }
 
   override def getProjects()(implicit ec: ExecutionContext): Future[Seq[String]] = db.run(
     workflowTable.map(_.project).distinct.sortBy(_.value).result

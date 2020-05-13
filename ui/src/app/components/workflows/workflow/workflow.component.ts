@@ -18,7 +18,7 @@ import { ActivatedRoute } from '@angular/router';
 import { AppState, selectWorkflowState } from '../../../stores/app.reducers';
 import { Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
-import { DeleteWorkflow, StartWorkflowInitialization } from '../../../stores/workflows/workflows.actions';
+import { DeleteWorkflow, StartWorkflowInitialization, SwitchWorkflowActiveState } from '../../../stores/workflows/workflows.actions';
 import { workflowModes } from '../../../models/enums/workflowModes.constants';
 import { absoluteRoutes } from '../../../constants/routes.constants';
 import { ConfirmationDialogService } from '../../../services/confirmation-dialog/confirmation-dialog.service';
@@ -34,6 +34,7 @@ export class WorkflowComponent implements OnInit, OnDestroy {
   loading = true;
   mode: string;
   id: number;
+  isWorkflowActive: boolean;
 
   workflowModes = workflowModes;
   absoluteRoutes = absoluteRoutes;
@@ -57,6 +58,7 @@ export class WorkflowComponent implements OnInit, OnDestroy {
       this.loading = state.workflowAction.loading;
       this.mode = state.workflowAction.mode;
       this.id = state.workflowAction.id;
+      this.isWorkflowActive = !!state.workflowAction.workflow ? state.workflowAction.workflow.isActive : false;
     });
   }
 
@@ -77,6 +79,14 @@ export class WorkflowComponent implements OnInit, OnDestroy {
       .confirm(ConfirmationDialogTypes.Delete, strings.DELETE_WORKFLOW_CONFIRMATION_TITLE, strings.DELETE_WORKFLOW_CONFIRMATION_CONTENT)
       .subscribe((confirmed) => {
         if (confirmed) this.store.dispatch(new DeleteWorkflow(id));
+      });
+  }
+
+  switchWorkflowActiveState(id: number) {
+    this.confirmationDialogServiceSubscription = this.confirmationDialogService
+      .confirm(ConfirmationDialogTypes.YesOrNo, strings.SWITCH_WORKFLOW_ACTIVE_STATE_TITLE, strings.SWITCH_WORKFLOW_ACTIVE_STATE_CONTENT)
+      .subscribe((confirmed) => {
+        if (confirmed) this.store.dispatch(new SwitchWorkflowActiveState(id));
       });
   }
 

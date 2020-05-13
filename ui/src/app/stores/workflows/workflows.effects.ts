@@ -163,4 +163,39 @@ export class WorkflowsEffects {
       );
     }),
   );
+
+  @Effect({ dispatch: true })
+  workflowActiveStateSwitch = this.actions.pipe(
+    ofType(WorkflowActions.SWITCH_WORKFLOW_ACTIVE_STATE),
+    switchMap((action: WorkflowActions.SwitchWorkflowActiveState) => {
+      return this.workflowService.switchWorkflowActiveState(action.payload).pipe(
+        mergeMap((result: boolean) => {
+          if (result) {
+            this.toastrService.success(strings.SWITCH_WORKFLOW_ACTIVE_STATE_SUCCESS_NOTIFICATION);
+            return [
+              {
+                type: WorkflowActions.SWITCH_WORKFLOW_ACTIVE_STATE_SUCCESS,
+                payload: action.payload,
+              },
+            ];
+          } else {
+            this.toastrService.error(strings.SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE_NOTIFICATION);
+            return [
+              {
+                type: WorkflowActions.SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE,
+              },
+            ];
+          }
+        }),
+        catchError(() => {
+          this.toastrService.error(strings.SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE_NOTIFICATION);
+          return [
+            {
+              type: WorkflowActions.SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE,
+            },
+          ];
+        }),
+      );
+    }),
+  );
 }
