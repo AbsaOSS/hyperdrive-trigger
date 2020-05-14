@@ -68,7 +68,7 @@ describe('WorkflowService', () => {
       (error) => fail(error),
     );
 
-    const req = httpTestingController.expectOne(api.GET_WORKFLOW + '?id=' + workflow.id);
+    const req = httpTestingController.expectOne(api.GET_WORKFLOW + `?id=${workflow.id}`);
     expect(req.request.method).toEqual('GET');
     req.flush(workflow);
   });
@@ -81,7 +81,7 @@ describe('WorkflowService', () => {
       (error) => fail(error),
     );
 
-    const req = httpTestingController.expectOne(api.DELETE_WORKFLOW + '?id=' + id);
+    const req = httpTestingController.expectOne(api.DELETE_WORKFLOW + `?id=${id}`);
     expect(req.request.method).toEqual('DELETE');
     req.flush(new Boolean(true));
   });
