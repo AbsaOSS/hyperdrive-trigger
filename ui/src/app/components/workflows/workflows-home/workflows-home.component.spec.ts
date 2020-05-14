@@ -17,32 +17,84 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { WorkflowsHomeComponent } from './workflows-home.component';
 import { provideMockStore } from '@ngrx/store/testing';
+import { ProjectModel } from '../../../models/project.model';
+import { WorkflowModel } from '../../../models/workflow.model';
+import { ConfirmationDialogService } from '../../../services/confirmation-dialog/confirmation-dialog.service';
+import { Store } from '@ngrx/store';
+import { AppState } from '../../../stores/app.reducers';
+import { Subject } from 'rxjs';
+import { DeleteWorkflow } from '../../../stores/workflows/workflows.actions';
 
 describe('WorkflowsHomeComponent', () => {
-  // let component: WorkflowsHomeComponent;
-  // let fixture: ComponentFixture<WorkflowsHomeComponent>;
-  //
-  // const initialAppState = {
-  //   workflows: {}
-  // };
-  //
-  // beforeEach(async(() => {
-  //   TestBed.configureTestingModule({
-  //     providers: [
-  //       provideMockStore({ initialState: initialAppState })
-  //     ],
-  //     declarations: [ WorkflowsHomeComponent ]
-  //   })
-  //   .compileComponents();
-  // }));
-  //
-  // beforeEach(() => {
-  //   fixture = TestBed.createComponent(WorkflowsHomeComponent);
-  //   component = fixture.componentInstance;
-  //   fixture.detectChanges();
-  // });
-  //
-  // it('should create', () => {
-  //   expect(component).toBeTruthy();
-  // });
+  let fixture: ComponentFixture<WorkflowsHomeComponent>;
+  let underTest: WorkflowsHomeComponent;
+  let confirmationDialogService: ConfirmationDialogService;
+  let store: Store<AppState>;
+
+  const initialAppState = {
+    workflows: {
+      projects: [
+        new ProjectModel('projectOne', [new WorkflowModel('workflowOne', undefined, undefined, undefined, undefined, undefined)]),
+        new ProjectModel('projectTwo', [new WorkflowModel('workflowTwo', undefined, undefined, undefined, undefined, undefined)]),
+      ],
+    },
+  };
+
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      providers: [ConfirmationDialogService, provideMockStore({ initialState: initialAppState })],
+      declarations: [WorkflowsHomeComponent],
+    }).compileComponents();
+    confirmationDialogService = TestBed.inject(ConfirmationDialogService);
+    store = TestBed.inject(Store);
+  }));
+
+  beforeEach(() => {
+    fixture = TestBed.createComponent(WorkflowsHomeComponent);
+    underTest = fixture.componentInstance;
+  });
+
+  it('should create', () => {
+    expect(underTest).toBeTruthy();
+  });
+
+  it('should after view init set component properties', async(() => {
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(underTest.workflows).toEqual([].concat(...initialAppState.workflows.projects.map((project) => project.workflows)));
+    });
+  }));
+
+  it('deleteWorkflow() should dispatch delete workflow action with id when dialog is confirmed', async(() => {
+    const id = 1;
+    const subject = new Subject<boolean>();
+    const storeSpy = spyOn(store, 'dispatch');
+
+    spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
+
+    underTest.deleteWorkflow(id);
+    subject.next(true);
+
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(storeSpy).toHaveBeenCalled();
+      expect(storeSpy).toHaveBeenCalledWith(new DeleteWorkflow(id));
+    });
+  }));
+
+  it('deleteWorkflow() should not dispatch delete workflow action when dialog is not confirmed', async(() => {
+    const id = 1;
+    const subject = new Subject<boolean>();
+    const storeSpy = spyOn(store, 'dispatch');
+
+    spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
+
+    underTest.deleteWorkflow(id);
+    subject.next(false);
+
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(storeSpy).toHaveBeenCalledTimes(0);
+    });
+  }));
 });

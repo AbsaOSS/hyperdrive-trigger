@@ -23,7 +23,7 @@ import { workflowModes } from '../../../models/enums/workflowModes.constants';
 import { absoluteRoutes } from '../../../constants/routes.constants';
 import { ConfirmationDialogService } from '../../../services/confirmation-dialog/confirmation-dialog.service';
 import { ConfirmationDialogTypes } from '../../../constants/confirmationDialogTypes.constants';
-import { strings } from '../../../constants/string.constants';
+import { texts } from '../../../constants/texts.constants';
 
 @Component({
   selector: 'app-workflow',
@@ -76,7 +76,7 @@ export class WorkflowComponent implements OnInit, OnDestroy {
 
   deleteWorkflow(id: number) {
     this.confirmationDialogServiceSubscription = this.confirmationDialogService
-      .confirm(ConfirmationDialogTypes.Delete, strings.DELETE_WORKFLOW_CONFIRMATION_TITLE, strings.DELETE_WORKFLOW_CONFIRMATION_CONTENT)
+      .confirm(ConfirmationDialogTypes.Delete, texts.DELETE_WORKFLOW_CONFIRMATION_TITLE, texts.DELETE_WORKFLOW_CONFIRMATION_CONTENT)
       .subscribe((confirmed) => {
         if (confirmed) this.store.dispatch(new DeleteWorkflow(id));
       });
@@ -91,8 +91,8 @@ export class WorkflowComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.workflowSubscription.unsubscribe();
-    this.paramsSubscription.unsubscribe();
-    !!this.confirmationDialogServiceSubscription ? this.confirmationDialogServiceSubscription.unsubscribe() : '';
+    !!this.workflowSubscription && this.workflowSubscription.unsubscribe();
+    !!this.paramsSubscription && this.paramsSubscription.unsubscribe();
+    !!this.confirmationDialogServiceSubscription && this.confirmationDialogServiceSubscription.unsubscribe();
   }
 }

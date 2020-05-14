@@ -20,6 +20,7 @@ import { api } from '../../constants/api.constants';
 import { WorkflowService } from './workflow.service';
 import { ProjectModel } from '../../models/project.model';
 import { WorkflowModel } from '../../models/workflow.model';
+import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
 
 describe('WorkflowService', () => {
   let underTest: WorkflowService;
@@ -42,7 +43,7 @@ describe('WorkflowService', () => {
     expect(underTest).toBeTruthy();
   });
 
-  it('should return projects', () => {
+  it('getProjects() should return projects', () => {
     const projects = [
       new ProjectModel('projectName1', [
         new WorkflowModel('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 0),
@@ -57,5 +58,31 @@ describe('WorkflowService', () => {
     const req = httpTestingController.expectOne(api.GET_PROJECTS);
     expect(req.request.method).toEqual('GET');
     req.flush([...projects]);
+  });
+
+  it('getWorkflow() should return workflow data', () => {
+    const workflow = new WorkflowJoinedModel('name', true, 'project', undefined, undefined, undefined, 0);
+
+    underTest.getWorkflow(workflow.id).subscribe(
+      (data) => expect(data).toEqual(workflow),
+      (error) => fail(error),
+    );
+
+    const req = httpTestingController.expectOne(api.GET_WORKFLOW + '?id=' + workflow.id);
+    expect(req.request.method).toEqual('GET');
+    req.flush(workflow);
+  });
+
+  it('deleteWorkflow() should delete workflow', () => {
+    const id = 1;
+    const response = true;
+    underTest.deleteWorkflow(id).subscribe(
+      (data) => expect(data).toEqual(response),
+      (error) => fail(error),
+    );
+
+    const req = httpTestingController.expectOne(api.DELETE_WORKFLOW + '?id=' + id);
+    expect(req.request.method).toEqual('DELETE');
+    req.flush(new Boolean(true));
   });
 });

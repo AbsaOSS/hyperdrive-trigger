@@ -16,24 +16,45 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ConfirmationDialogComponent } from './confirmation-dialog.component';
+import { ConfirmationDialogService } from '../../../services/confirmation-dialog/confirmation-dialog.service';
 
 describe('ConfirmationDialogComponent', () => {
-  let component: ConfirmationDialogComponent;
+  let underTest: ConfirmationDialogComponent;
   let fixture: ComponentFixture<ConfirmationDialogComponent>;
+  let confirmationDialogService: ConfirmationDialogService;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
+      providers: [ConfirmationDialogService],
       declarations: [ConfirmationDialogComponent],
     }).compileComponents();
+    confirmationDialogService = TestBed.inject(ConfirmationDialogService);
   }));
 
   beforeEach(() => {
     fixture = TestBed.createComponent(ConfirmationDialogComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
+    underTest = fixture.componentInstance;
   });
 
   it('should create', () => {
-    expect(component).toBeTruthy();
+    expect(underTest).toBeTruthy();
+  });
+
+  it('constructor should set component properties', () => {
+    expect(underTest.confirmationDialogData).toBeDefined();
+  });
+
+  describe('close()', () => {
+    const parameters = [true, false];
+
+    parameters.forEach((parameter) => {
+      it('should call confirmation dialog service with ' + parameter + ' when called with ' + parameter, () => {
+        const result = parameter;
+        const subjectSpy = spyOn(confirmationDialogService, 'close');
+        underTest.close(result);
+        expect(subjectSpy).toHaveBeenCalled();
+        expect(subjectSpy).toHaveBeenCalledWith(result);
+      });
+    });
   });
 });

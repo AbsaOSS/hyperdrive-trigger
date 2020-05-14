@@ -78,7 +78,7 @@ export class SensorComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.sensorChangesSubscription.unsubscribe();
-    this.workflowSubscription.unsubscribe();
+    !!this.sensorChangesSubscription && this.sensorChangesSubscription.unsubscribe();
+    !!this.workflowSubscription && this.workflowSubscription.unsubscribe();
   }
 }
