@@ -61,6 +61,8 @@ import { CronQuartzPartComponent } from './components/workflows/workflow/dynamic
 import { JobComponent } from './components/workflows/workflow/jobs/job/job.component';
 import { DynamicPartsComponent } from './components/workflows/workflow/dynamic-parts/dynamic-parts.component';
 import { PreviousRouteService } from './services/previousRoute/previous-route.service';
+import { ToastrModule } from 'ngx-toastr';
+import { ConfirmationDialogComponent } from './components/common/confirmation-dialog/confirmation-dialog.component';
 
 @NgModule({
   declarations: [
@@ -88,6 +90,7 @@ import { PreviousRouteService } from './services/previousRoute/previous-route.se
     GuidPartComponent,
     CronQuartzPartComponent,
     DynamicPartsComponent,
+    ConfirmationDialogComponent,
   ],
   imports: [
     BrowserModule,
@@ -96,6 +99,9 @@ import { PreviousRouteService } from './services/previousRoute/previous-route.se
     FormsModule,
     BrowserAnimationsModule,
     HttpClientModule,
+    ToastrModule.forRoot({
+      timeOut: 5000,
+    }),
     StoreModule.forRoot(reducers),
     EffectsModule.forRoot([AuthEffects, RunsEffects, WorkflowsEffects]),
     StoreRouterConnectingModule.forRoot(),

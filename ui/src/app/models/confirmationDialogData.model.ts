@@ -13,16 +13,11 @@
  * limitations under the License.
  */
 
-export const api = {
-  USER_INFO: '/user/info',
-  LOGIN: '/login',
-  LOGOUT: '/logout',
+import { ConfirmationDialogTypes } from '../constants/confirmationDialogTypes.constants';
 
-  DAG_RUN_SEARCH: '/dagRuns/search',
-  JOB_INSTANCES: '/jobInstances',
-
-  GET_PROJECTS: '/workflows/projects',
-  GET_WORKFLOW: '/workflow',
-  DELETE_WORKFLOW: '/workflows',
-  SWITCH_WORKFLOW_ACTIVE_STATE: '/workflows/{id}/switchActiveState',
-};
+export interface ConfirmationDialogDataModel {
+  isOpen?: boolean;
+  type?: ConfirmationDialogTypes;
+  title?: string;
+  content?: string;
+}
