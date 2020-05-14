@@ -416,14 +416,13 @@ describe('WorkflowsEffects', () => {
       mockActions = cold('-a', { a: action });
 
       const runWorkflowResponse = cold('-a|', { a: response });
+      spyOn(workflowService, 'runWorkflow').and.returnValue(runWorkflowResponse);
+
       const expected = cold('--a', {
         a: {
           type: WorkflowsActions.RUN_WORKFLOW_FAILURE,
         },
       });
-
-      spyOn(workflowService, 'runWorkflow').and.returnValue(runWorkflowResponse);
-
       expect(underTest.workflowRun).toBeObservable(expected);
       expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
       expect(toastrServiceSpy).toHaveBeenCalledWith(texts.RUN_WORKFLOW_FAILURE_NOTIFICATION);
@@ -432,20 +431,17 @@ describe('WorkflowsEffects', () => {
     it('should display failure when service throws an exception while running workflow', () => {
       const toastrServiceSpy = spyOn(toastrService, 'error');
       const payload = 42;
-      const response = false;
-
       const action = new RunWorkflow(payload);
       mockActions = cold('-a', { a: action });
 
-      const runWorkflowResponse = cold('-#|', { a: response });
-      const expected = cold('--a', {
+      const runWorkflowResponse = cold('-#|');
+      spyOn(workflowService, 'runWorkflow').and.returnValue(runWorkflowResponse);
+
+      const expected = cold('--(a|)', {
         a: {
           type: WorkflowsActions.RUN_WORKFLOW_FAILURE,
         },
       });
-
-      spyOn(workflowService, 'runWorkflow').and.returnValue(runWorkflowResponse);
-
       expect(underTest.workflowRun).toBeObservable(expected);
       expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
       expect(toastrServiceSpy).toHaveBeenCalledWith(texts.RUN_WORKFLOW_FAILURE_NOTIFICATION);
