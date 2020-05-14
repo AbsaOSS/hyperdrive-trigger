@@ -22,7 +22,7 @@ import { of, Subject } from 'rxjs';
 import { ConfirmationDialogService } from '../../../services/confirmation-dialog/confirmation-dialog.service';
 import { Store } from '@ngrx/store';
 import { AppState } from '../../../stores/app.reducers';
-import { DeleteWorkflow } from '../../../stores/workflows/workflows.actions';
+import { DeleteWorkflow, SwitchWorkflowActiveState } from '../../../stores/workflows/workflows.actions';
 
 describe('WorkflowComponent', () => {
   let underTest: WorkflowComponent;
@@ -36,6 +36,9 @@ describe('WorkflowComponent', () => {
         loading: true,
         mode: 'mode',
         id: 0,
+        workflow: {
+          isActive: true,
+        },
       },
     },
   };
@@ -122,6 +125,42 @@ describe('WorkflowComponent', () => {
     spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
 
     underTest.deleteWorkflow(id);
+    subject.next(false);
+
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(storeSpy).toHaveBeenCalledTimes(0);
+    });
+  }));
+
+  it('switchWorkflowActiveState() should dispatch switch workflow active state with id and old value when dialog is confirmed', async(() => {
+    const id = 1;
+    const subject = new Subject<boolean>();
+    const storeSpy = spyOn(store, 'dispatch');
+
+    spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
+
+    underTest.switchWorkflowActiveState(id);
+    underTest.ngOnInit();
+    subject.next(true);
+
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(storeSpy).toHaveBeenCalled();
+      expect(storeSpy).toHaveBeenCalledWith(
+        new SwitchWorkflowActiveState({ id: id, currentActiveState: initialAppState.workflows.workflowAction.workflow.isActive }),
+      );
+    });
+  }));
+
+  it('switchWorkflowActiveState() should not dispatch switch workflow active state when dialog is not confirmed', async(() => {
+    const id = 1;
+    const subject = new Subject<boolean>();
+    const storeSpy = spyOn(store, 'dispatch');
+
+    spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
+
+    underTest.switchWorkflowActiveState(id);
     subject.next(false);
 
     fixture.detectChanges();

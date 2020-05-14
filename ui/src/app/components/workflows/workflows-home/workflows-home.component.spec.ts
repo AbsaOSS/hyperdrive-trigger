@@ -23,7 +23,7 @@ import { ConfirmationDialogService } from '../../../services/confirmation-dialog
 import { Store } from '@ngrx/store';
 import { AppState } from '../../../stores/app.reducers';
 import { Subject } from 'rxjs';
-import { DeleteWorkflow } from '../../../stores/workflows/workflows.actions';
+import { DeleteWorkflow, SwitchWorkflowActiveState } from '../../../stores/workflows/workflows.actions';
 
 describe('WorkflowsHomeComponent', () => {
   let fixture: ComponentFixture<WorkflowsHomeComponent>;
@@ -90,6 +90,41 @@ describe('WorkflowsHomeComponent', () => {
     spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
 
     underTest.deleteWorkflow(id);
+    subject.next(false);
+
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(storeSpy).toHaveBeenCalledTimes(0);
+    });
+  }));
+
+  it('switchWorkflowActiveState() should dispatch switch workflow active state with id and old value when dialog is confirmed', async(() => {
+    const id = 1;
+    const currentActiveState = true;
+    const subject = new Subject<boolean>();
+    const storeSpy = spyOn(store, 'dispatch');
+
+    spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
+
+    underTest.switchWorkflowActiveState(id, currentActiveState);
+    subject.next(true);
+
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(storeSpy).toHaveBeenCalled();
+      expect(storeSpy).toHaveBeenCalledWith(new SwitchWorkflowActiveState({ id: id, currentActiveState: currentActiveState }));
+    });
+  }));
+
+  it('switchWorkflowActiveState() should not dispatch switch workflow active state when dialog is not confirmed', async(() => {
+    const id = 1;
+    const currentActiveState = false;
+    const subject = new Subject<boolean>();
+    const storeSpy = spyOn(store, 'dispatch');
+
+    spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
+
+    underTest.switchWorkflowActiveState(id, currentActiveState);
     subject.next(false);
 
     fixture.detectChanges();
