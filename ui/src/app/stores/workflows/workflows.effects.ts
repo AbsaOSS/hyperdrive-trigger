@@ -171,7 +171,7 @@ export class WorkflowsEffects {
       return this.workflowService.switchWorkflowActiveState(action.payload).pipe(
         mergeMap((result: boolean) => {
           if (result) {
-            this.toastrService.success(strings.SWITCH_WORKFLOW_ACTIVE_STATE_SUCCESS_NOTIFICATION);
+            this.toastrService.success(texts.SWITCH_WORKFLOW_ACTIVE_STATE_SUCCESS_NOTIFICATION);
             return [
               {
                 type: WorkflowActions.SWITCH_WORKFLOW_ACTIVE_STATE_SUCCESS,
@@ -179,7 +179,7 @@ export class WorkflowsEffects {
               },
             ];
           } else {
-            this.toastrService.error(strings.SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE_NOTIFICATION);
+            this.toastrService.error(texts.SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE_NOTIFICATION);
             return [
               {
                 type: WorkflowActions.SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE,
@@ -188,7 +188,7 @@ export class WorkflowsEffects {
           }
         }),
         catchError(() => {
-          this.toastrService.error(strings.SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE_NOTIFICATION);
+          this.toastrService.error(texts.SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE_NOTIFICATION);
           return [
             {
               type: WorkflowActions.SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE,
