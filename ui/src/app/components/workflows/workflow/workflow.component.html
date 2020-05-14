@@ -38,9 +38,9 @@
   </div>
 
   <div class="btn-group" *ngIf="mode == workflowModes.SHOW">
-    <button type="button" class="btn btn-sm btn-secondary">
+    <button type="button" class="btn btn-sm btn-secondary"  (click)="switchWorkflowActiveState(id)">
       <clr-icon shape="power"></clr-icon>
-      Activate/Deactivate
+      {{isWorkflowActive ? 'Deactivate' : 'Activate'}}
     </button>
     <button type="button" class="btn btn-sm btn-secondary" [routerLink]="[absoluteRoutes.COPY_WORKFLOW, id]">
       <clr-icon shape="copy"></clr-icon>
@@ -50,7 +50,7 @@
       <clr-icon shape="pencil"></clr-icon>
       Edit
     </button>
-    <button type="button" class="btn btn-sm btn-secondary">
+    <button type="button" class="btn btn-sm btn-secondary" (click)="deleteWorkflow(id)">
       <clr-icon shape="close"></clr-icon>
       Delete
     </button>

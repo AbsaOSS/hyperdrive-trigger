@@ -28,10 +28,20 @@ import { AppState, selectWorkflowState } from '../app.reducers';
 import { Store } from '@ngrx/store';
 import * as fromWorkflows from './workflows.reducers';
 import { WorkflowDataModel } from '../../models/workflowData.model';
+import { Router } from '@angular/router';
+import { absoluteRoutes } from '../../constants/routes.constants';
+import { ToastrService } from 'ngx-toastr';
+import { texts } from '../../constants/texts.constants';
 
 @Injectable()
 export class WorkflowsEffects {
-  constructor(private actions: Actions, private workflowService: WorkflowService, private store: Store<AppState>) {}
+  constructor(
+    private actions: Actions,
+    private workflowService: WorkflowService,
+    private store: Store<AppState>,
+    private router: Router,
+    private toastrService: ToastrService,
+  ) {}
 
   @Effect({ dispatch: true })
   workflowsInitialize = this.actions.pipe(
@@ -115,6 +125,77 @@ export class WorkflowsEffects {
           );
         }
       }
+    }),
+  );
+
+  @Effect({ dispatch: true })
+  workflowDelete = this.actions.pipe(
+    ofType(WorkflowActions.DELETE_WORKFLOW),
+    switchMap((action: WorkflowActions.DeleteWorkflow) => {
+      return this.workflowService.deleteWorkflow(action.payload).pipe(
+        mergeMap((result: boolean) => {
+          if (result) {
+            this.router.navigateByUrl(absoluteRoutes.WORKFLOWS_HOME);
+            this.toastrService.success(texts.DELETE_WORKFLOW_SUCCESS_NOTIFICATION);
+            return [
+              {
+                type: WorkflowActions.DELETE_WORKFLOW_SUCCESS,
+                payload: action.payload,
+              },
+            ];
+          } else {
+            this.toastrService.error(texts.DELETE_WORKFLOW_FAILURE_NOTIFICATION);
+            return [
+              {
+                type: WorkflowActions.DELETE_WORKFLOW_FAILURE,
+              },
+            ];
+          }
+        }),
+        catchError(() => {
+          this.toastrService.error(texts.DELETE_WORKFLOW_FAILURE_NOTIFICATION);
+          return [
+            {
+              type: WorkflowActions.DELETE_WORKFLOW_FAILURE,
+            },
+          ];
+        }),
+      );
+    }),
+  );
+
+  @Effect({ dispatch: true })
+  workflowActiveStateSwitch = this.actions.pipe(
+    ofType(WorkflowActions.SWITCH_WORKFLOW_ACTIVE_STATE),
+    switchMap((action: WorkflowActions.SwitchWorkflowActiveState) => {
+      return this.workflowService.switchWorkflowActiveState(action.payload.id).pipe(
+        mergeMap((result: boolean) => {
+          if (result) {
+            this.toastrService.success(texts.SWITCH_WORKFLOW_ACTIVE_STATE_SUCCESS_NOTIFICATION(action.payload.currentActiveState));
+            return [
+              {
+                type: WorkflowActions.SWITCH_WORKFLOW_ACTIVE_STATE_SUCCESS,
+                payload: action.payload.id,
+              },
+            ];
+          } else {
+            this.toastrService.error(texts.SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE_NOTIFICATION);
+            return [
+              {
+                type: WorkflowActions.SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE,
+              },
+            ];
+          }
+        }),
+        catchError(() => {
+          this.toastrService.error(texts.SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE_NOTIFICATION);
+          return [
+            {
+              type: WorkflowActions.SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE,
+            },
+          ];
+        }),
+      );
     }),
   );
 }
