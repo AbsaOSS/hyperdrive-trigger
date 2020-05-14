@@ -21,7 +21,6 @@ import { Store } from '@ngrx/store';
 import { StartWorkflowInitialization } from '../../../stores/workflows/workflows.actions';
 import { workflowModes } from '../../../models/enums/workflowModes.constants';
 import { absoluteRoutes } from '../../../constants/routes.constants';
-import { Location } from '@angular/common';
 import { PreviousRouteService } from '../../../services/previousRoute/previous-route.service';
 
 @Component({
@@ -46,7 +45,6 @@ export class WorkflowComponent implements OnInit, OnDestroy {
 
   constructor(
     private store: Store<AppState>,
-    private location: Location,
     private previousRouteService: PreviousRouteService,
     private router: Router,
     route: ActivatedRoute,
@@ -77,7 +75,9 @@ export class WorkflowComponent implements OnInit, OnDestroy {
   }
 
   cancelWorkflow() {
-    !!this.previousRouteService.getPreviousUrl() ? this.location.back() : this.router.navigateByUrl(absoluteRoutes.WORKFLOWS_HOME);
+    !!this.previousRouteService.getPreviousUrl()
+      ? this.router.navigateByUrl(this.previousRouteService.getPreviousUrl())
+      : this.router.navigateByUrl(absoluteRoutes.WORKFLOWS_HOME);
   }
 
   ngOnDestroy(): void {

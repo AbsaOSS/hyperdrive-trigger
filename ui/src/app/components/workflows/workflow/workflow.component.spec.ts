@@ -19,18 +19,15 @@ import { WorkflowComponent } from './workflow.component';
 import { provideMockStore } from '@ngrx/store/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
-import { SpyLocation } from '@angular/common/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { PreviousRouteService } from '../../../services/previousRoute/previous-route.service';
 import { absoluteRoutes } from '../../../constants/routes.constants';
-import { Location } from '@angular/common';
 
 describe('WorkflowComponent', () => {
   let underTest: WorkflowComponent;
   let fixture: ComponentFixture<WorkflowComponent>;
   let previousRouteService: PreviousRouteService;
   let router;
-  let location;
 
   const initialAppState = {
     workflows: {
@@ -55,7 +52,6 @@ describe('WorkflowComponent', () => {
             }),
           },
         },
-        { provide: Location, useClass: SpyLocation },
         PreviousRouteService,
       ],
       imports: [RouterTestingModule.withRoutes([])],
@@ -63,7 +59,6 @@ describe('WorkflowComponent', () => {
     }).compileComponents();
     previousRouteService = TestBed.inject(PreviousRouteService);
     router = TestBed.inject(Router);
-    location = TestBed.inject(Location);
   }));
 
   beforeEach(() => {
@@ -105,9 +100,11 @@ describe('WorkflowComponent', () => {
   it('cancelWorkflow() should navigate back when history is not empty', () => {
     const testUrl = 'test/url';
     spyOn(previousRouteService, 'getPreviousUrl').and.returnValue(testUrl);
-    const locationSpy = spyOn(location, 'back');
+    const routerSpy = spyOn(router, 'navigateByUrl');
+
     underTest.cancelWorkflow();
-    expect(locationSpy).toHaveBeenCalledTimes(1);
+    expect(routerSpy).toHaveBeenCalledTimes(1);
+    expect(routerSpy).toHaveBeenCalledWith(testUrl);
   });
 
   it('cancelWorkflow() should navigate to workflows home when history is empty', () => {
