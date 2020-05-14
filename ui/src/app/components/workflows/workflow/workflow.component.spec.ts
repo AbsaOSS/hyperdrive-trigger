@@ -17,8 +17,11 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { WorkflowComponent } from './workflow.component';
 import { provideMockStore } from '@ngrx/store/testing';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { of, Subject } from 'rxjs';
+import { RouterTestingModule } from '@angular/router/testing';
+import { PreviousRouteService } from '../../../services/previousRoute/previous-route.service';
+import { absoluteRoutes } from '../../../constants/routes.constants';
 import { ConfirmationDialogService } from '../../../services/confirmation-dialog/confirmation-dialog.service';
 import { Store } from '@ngrx/store';
 import { AppState } from '../../../stores/app.reducers';
@@ -27,6 +30,8 @@ import { DeleteWorkflow, SwitchWorkflowActiveState } from '../../../stores/workf
 describe('WorkflowComponent', () => {
   let underTest: WorkflowComponent;
   let fixture: ComponentFixture<WorkflowComponent>;
+  let previousRouteService: PreviousRouteService;
+  let router;
   let confirmationDialogService: ConfirmationDialogService;
   let store: Store<AppState>;
 
@@ -57,9 +62,13 @@ describe('WorkflowComponent', () => {
             }),
           },
         },
+        PreviousRouteService,
       ],
+      imports: [RouterTestingModule.withRoutes([])],
       declarations: [WorkflowComponent],
     }).compileComponents();
+    previousRouteService = TestBed.inject(PreviousRouteService);
+    router = TestBed.inject(Router);
     confirmationDialogService = TestBed.inject(ConfirmationDialogService);
     store = TestBed.inject(Store);
   }));
@@ -168,4 +177,22 @@ describe('WorkflowComponent', () => {
       expect(storeSpy).toHaveBeenCalledTimes(0);
     });
   }));
+
+  it('cancelWorkflow() should navigate back when history is not empty', () => {
+    const testUrl = 'test/url';
+    spyOn(previousRouteService, 'getPreviousUrl').and.returnValue(testUrl);
+    const routerSpy = spyOn(router, 'navigateByUrl');
+
+    underTest.cancelWorkflow();
+    expect(routerSpy).toHaveBeenCalledTimes(1);
+    expect(routerSpy).toHaveBeenCalledWith(testUrl);
+  });
+
+  it('cancelWorkflow() should navigate to workflows home when history is empty', () => {
+    spyOn(previousRouteService, 'getPreviousUrl').and.returnValue(undefined);
+    const routerSpy = spyOn(router, 'navigateByUrl');
+    underTest.cancelWorkflow();
+    expect(routerSpy).toHaveBeenCalledTimes(1);
+    expect(routerSpy).toHaveBeenCalledWith(absoluteRoutes.WORKFLOWS_HOME);
+  });
 });

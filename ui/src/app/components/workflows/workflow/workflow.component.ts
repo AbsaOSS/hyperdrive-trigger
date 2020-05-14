@@ -14,13 +14,14 @@
  */
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AppState, selectWorkflowState } from '../../../stores/app.reducers';
 import { Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { DeleteWorkflow, StartWorkflowInitialization, SwitchWorkflowActiveState } from '../../../stores/workflows/workflows.actions';
 import { workflowModes } from '../../../models/enums/workflowModes.constants';
 import { absoluteRoutes } from '../../../constants/routes.constants';
+import { PreviousRouteService } from '../../../services/previousRoute/previous-route.service';
 import { ConfirmationDialogService } from '../../../services/confirmation-dialog/confirmation-dialog.service';
 import { ConfirmationDialogTypes } from '../../../constants/confirmationDialogTypes.constants';
 import { texts } from '../../../constants/texts.constants';
@@ -47,7 +48,13 @@ export class WorkflowComponent implements OnInit, OnDestroy {
   workflowSubscription: Subscription;
   confirmationDialogServiceSubscription: Subscription = null;
 
-  constructor(private store: Store<AppState>, route: ActivatedRoute, private confirmationDialogService: ConfirmationDialogService) {
+  constructor(
+    private store: Store<AppState>,
+    private confirmationDialogService: ConfirmationDialogService,
+    private previousRouteService: PreviousRouteService,
+    private router: Router,
+    route: ActivatedRoute,
+  ) {
     this.paramsSubscription = route.params.subscribe((parameters) => {
       this.store.dispatch(new StartWorkflowInitialization({ id: parameters.id, mode: parameters.mode }));
     });
@@ -72,6 +79,12 @@ export class WorkflowComponent implements OnInit, OnDestroy {
 
   toggleJobsAccordion() {
     this.isJobsAccordionHidden = !this.isJobsAccordionHidden;
+  }
+
+  cancelWorkflow() {
+    !!this.previousRouteService.getPreviousUrl()
+      ? this.router.navigateByUrl(this.previousRouteService.getPreviousUrl())
+      : this.router.navigateByUrl(absoluteRoutes.WORKFLOWS_HOME);
   }
 
   deleteWorkflow(id: number) {
