@@ -18,7 +18,7 @@ import { ActivatedRoute } from '@angular/router';
 import { AppState, selectWorkflowState } from '../../../stores/app.reducers';
 import { Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
-import { StartWorkflowInitialization } from '../../../stores/workflows/workflows.actions';
+import {CreateWorkflow, StartWorkflowInitialization, UpdateWorkflow} from '../../../stores/workflows/workflows.actions';
 import { workflowModes } from '../../../models/enums/workflowModes.constants';
 import { absoluteRoutes } from '../../../constants/routes.constants';
 
@@ -66,6 +66,16 @@ export class WorkflowComponent implements OnInit, OnDestroy {
 
   toggleJobsAccordion() {
     this.isJobsAccordionHidden = !this.isJobsAccordionHidden;
+  }
+
+  createWorkflow() {
+    console.log('onCreateWorkflowClick');
+    this.store.dispatch(new CreateWorkflow());
+  }
+
+  updateWorkflow() {
+    console.log('onUpdateWorkflowClick');
+    this.store.dispatch(new UpdateWorkflow());
   }
 
   ngOnDestroy(): void {

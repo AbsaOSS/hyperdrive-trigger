@@ -23,11 +23,11 @@
 
   <!--  BUTTONS  -->
   <div class="btn-group" *ngIf="mode != workflowModes.SHOW">
-    <button type="button" class="btn btn-sm btn-secondary" *ngIf="mode != workflowModes.EDIT">
+    <button type="button" class="btn btn-sm btn-secondary" *ngIf="mode != workflowModes.EDIT" (click)="createWorkflow()">
       <clr-icon shape="check"></clr-icon>
       Create new workflow
     </button>
-    <button type="button" class="btn btn-sm btn-secondary" *ngIf="mode == workflowModes.EDIT">
+    <button type="button" class="btn btn-sm btn-secondary" *ngIf="mode == workflowModes.EDIT" (click)="updateWorkflow()">
       <clr-icon shape="check"></clr-icon>
       Update workflow
     </button>

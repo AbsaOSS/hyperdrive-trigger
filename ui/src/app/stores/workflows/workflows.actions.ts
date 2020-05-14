@@ -38,6 +38,12 @@ export const WORKFLOW_ADD_EMPTY_JOB = 'WORKFLOW_ADD_EMPTY_JOB';
 export const WORKFLOW_JOB_CHANGED = 'WORKFLOW_JOB_CHANGED';
 export const WORKFLOW_JOB_TYPE_SWITCHED = 'WORKFLOW_JOB_TYPE_SWITCHED';
 
+export const CREATE_WORKFLOW = 'CREATE_WORKFLOW';
+export const CREATE_WORKFLOW_SUCCESS = 'CREATE_WORKFLOW_SUCCESS';
+
+export const UPDATE_WORKFLOW = 'UPDATE_WORKFLOW';
+export const UPDATE_WORKFLOW_SUCCESS = 'UPDATE_WORKFLOW_SUCCESS';
+
 export class InitializeWorkflows implements Action {
   readonly type = INITIALIZE_WORKFLOWS;
 }
@@ -115,6 +121,22 @@ export class WorkflowJobTypeSwitched implements Action {
   constructor(public payload: { order: number; jobEntry: WorkflowEntryModel }) {}
 }
 
+export class CreateWorkflow implements Action {
+  readonly type = CREATE_WORKFLOW;
+}
+
+export class CreateWorkflowSuccess implements Action {
+  readonly type = CREATE_WORKFLOW_SUCCESS;
+}
+
+export class UpdateWorkflow implements Action {
+  readonly type = UPDATE_WORKFLOW;
+}
+
+export class UpdateWorkflowSuccess implements Action {
+  readonly type = UPDATE_WORKFLOW_SUCCESS;
+}
+
 export type WorkflowsActions =
   | InitializeWorkflows
   | InitializeWorkflowsSuccess
@@ -130,4 +152,8 @@ export type WorkflowsActions =
   | WorkflowSensorTypeSwitched
   | WorkflowAddEmptyJob
   | WorkflowJobChanged
-  | WorkflowJobTypeSwitched;
+  | WorkflowJobTypeSwitched
+  | CreateWorkflow
+  | CreateWorkflowSuccess
+  | UpdateWorkflow
+  | UpdateWorkflowSuccess;

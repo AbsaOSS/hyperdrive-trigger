@@ -21,6 +21,7 @@ import { ProjectModel } from '../../models/project.model';
 import { Observable, of } from 'rxjs';
 import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
 import { DynamicFormPart, DynamicFormParts, FormPart } from '../../models/workflowFormParts.model';
+import { WorkflowModel } from '../../models/workflow.model';
 
 @Injectable({
   providedIn: 'root',
@@ -34,12 +35,40 @@ export class WorkflowService {
       .pipe(map((_) => _.body));
   }
 
+  getWorkflows(): Observable<WorkflowModel[]> {
+    return this.httpClient
+      .get<WorkflowModel[]>('/workflows', { observe: 'response' })
+      .pipe(map((_) => _.body));
+  }
+
   getWorkflow(id: number): Observable<WorkflowJoinedModel> {
     const params = new HttpParams().set('id', id.toString());
 
     return this.httpClient
       .get<WorkflowJoinedModel>(api.GET_WORKFLOW, { params: params, observe: 'response' })
       .pipe(map((response) => response.body));
+  }
+
+  createWorkflow(workflowObject): Observable<boolean> {
+    console.log('fuck off', workflowObject);
+    return this.httpClient
+      .put<boolean>('/workflow', workflowObject, { observe: 'response' })
+      .pipe(
+        map((_) => {
+          return _.body;
+        }),
+      );
+  }
+
+  updateWorkflow(workflowObject): Observable<boolean> {
+    console.log('fuck off', workflowObject);
+    return this.httpClient
+      .post<boolean>('/workflows', workflowObject, { observe: 'response' })
+      .pipe(
+        map((_) => {
+          return _.body;
+        }),
+      );
   }
 
   getWorkflowDynamicFormParts(): Observable<DynamicFormParts> {

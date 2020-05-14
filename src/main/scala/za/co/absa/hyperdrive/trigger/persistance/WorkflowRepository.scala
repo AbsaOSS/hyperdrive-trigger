@@ -131,7 +131,7 @@ class WorkflowRepositoryImpl extends WorkflowRepository {
   override def updateWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Option[ApiError]] = {
     db.run((for {
       w <- workflowTable.filter(_.id === workflow.id).update(workflow.toWorkflow.copy(updated = Option(LocalDateTime.now())))
-      s <- sensorTable.filter(_.id === workflow.sensor.id).update(workflow.sensor)
+      s <- sensorTable.filter(_.workflowId === workflow.id).update(workflow.sensor)
       dd <- dagDefinitionTable.filter(_.workflowId === workflow.id).update(workflow.dagDefinitionJoined.toDag())
       deleteJds <- jobDefinitionTable.filter(_.dagDefinitionId === workflow.dagDefinitionJoined.id).delete
       insertJds <- jobDefinitionTable ++= workflow.dagDefinitionJoined.jobDefinitions.map(_.copy(dagDefinitionId = workflow.dagDefinitionJoined.id))

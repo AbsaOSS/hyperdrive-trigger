@@ -38,6 +38,7 @@ class WorkflowController @Inject()(workflowService: WorkflowService) {
 
   @PutMapping(path = Array("/workflow"))
   def createWorkflow(@RequestBody workflow: WorkflowJoined): CompletableFuture[Boolean] = {
+    println(workflow)
     workflowService.createWorkflow(workflow)
   }
 
