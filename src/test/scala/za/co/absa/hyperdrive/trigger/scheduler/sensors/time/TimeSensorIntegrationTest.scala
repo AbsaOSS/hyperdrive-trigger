@@ -98,7 +98,7 @@ class TimeSensorIntegrationTest extends FlatSpec with Matchers with BeforeAndAft
 
     // Check that inactive sensor is removed from quartz
     val workflow = await(workflowRepository.getWorkflows()).head
-    await(workflowRepository.updateWorkflowActiveState(workflow.id, isActive = false))
+    await(workflowRepository.switchWorkflowActiveState(workflow.id))
     await(sensors.processEvents().map(
       _ => {
         val scheduler = TimeSensorQuartzSchedulerManager.getScheduler

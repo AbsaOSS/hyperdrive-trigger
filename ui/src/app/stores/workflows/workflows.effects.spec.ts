@@ -19,7 +19,7 @@ import { provideMockActions } from '@ngrx/effects/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Actions } from '@ngrx/effects';
 import { cold } from 'jasmine-marbles';
-import { InitializeWorkflows, StartWorkflowInitialization } from './workflows.actions';
+import { DeleteWorkflow, InitializeWorkflows, StartWorkflowInitialization, SwitchWorkflowActiveState } from './workflows.actions';
 import * as WorkflowsActions from './workflows.actions';
 
 import { WorkflowsEffects } from './workflows.effects';
@@ -38,13 +38,20 @@ import { SensorModel } from '../../models/sensor.model';
 import { DagDefinitionJoinedModel } from '../../models/dagDefinitionJoined.model';
 import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
 import { WorkflowEntryModel } from '../../models/workflowEntry.model';
-import { JobDefinitionModel, JobParametersModel } from '../../models/jobDefinition.model';
+import { JobDefinitionModel } from '../../models/jobDefinition.model';
 import { JobEntryModel } from '../../models/jobEntry.model';
+import { RouterTestingModule } from '@angular/router/testing';
+import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { texts } from '../../constants/texts.constants';
+import { Router } from '@angular/router';
+import { absoluteRoutes } from '../../constants/routes.constants';
 
 describe('WorkflowsEffects', () => {
   let underTest: WorkflowsEffects;
   let workflowService: WorkflowService;
   let mockActions: Observable<any>;
+  let toastrService: ToastrService;
+  let router: Router;
 
   const initialAppState = {
     workflows: {
@@ -68,12 +75,15 @@ describe('WorkflowsEffects', () => {
         WorkflowService,
         provideMockActions(() => mockActions),
         provideMockStore({ initialState: initialAppState }),
+        ToastrService,
       ],
-      imports: [HttpClientTestingModule],
+      imports: [HttpClientTestingModule, RouterTestingModule.withRoutes([]), ToastrModule.forRoot()],
     });
     underTest = TestBed.inject(WorkflowsEffects);
     workflowService = TestBed.inject(WorkflowService);
     mockActions = TestBed.inject(Actions);
+    toastrService = TestBed.inject(ToastrService);
+    router = TestBed.inject(Router);
   });
 
   describe('workflowsInitialize', () => {
@@ -230,6 +240,141 @@ describe('WorkflowsEffects', () => {
       spyOn(workflowService, 'getWorkflow').and.returnValue(getWorkflowResponse);
 
       expect(underTest.workflowInitializationStart).toBeObservable(expected);
+    });
+  });
+
+  describe('workflowDelete', () => {
+    it('should return delete workflow success when service returns success deletion', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'success');
+      const routerSpy = spyOn(router, 'navigateByUrl');
+      const payload = 10;
+      const response = true;
+
+      const action = new DeleteWorkflow(payload);
+      mockActions = cold('-a', { a: action });
+
+      const deleteWorkflowResponse = cold('-a|', { a: response });
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowsActions.DELETE_WORKFLOW_SUCCESS,
+          payload: payload,
+        },
+      });
+
+      spyOn(workflowService, 'deleteWorkflow').and.returnValue(deleteWorkflowResponse);
+
+      expect(underTest.workflowDelete).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.DELETE_WORKFLOW_SUCCESS_NOTIFICATION);
+      expect(routerSpy).toHaveBeenCalledTimes(1);
+      expect(routerSpy).toHaveBeenCalledWith(absoluteRoutes.WORKFLOWS_HOME);
+    });
+
+    it('should return delete workflow failure when service fails to delete workflow', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'error');
+      const payload = 10;
+      const response = false;
+
+      const action = new DeleteWorkflow(payload);
+      mockActions = cold('-a', { a: action });
+
+      const deleteWorkflowResponse = cold('-a|', { a: response });
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowsActions.DELETE_WORKFLOW_FAILURE,
+        },
+      });
+
+      spyOn(workflowService, 'deleteWorkflow').and.returnValue(deleteWorkflowResponse);
+
+      expect(underTest.workflowDelete).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.DELETE_WORKFLOW_FAILURE_NOTIFICATION);
+    });
+
+    it('should return delete workflow failure when service throws exception while deleting workflow', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'error');
+      const payload = 10;
+      const action = new DeleteWorkflow(payload);
+      mockActions = cold('-a', { a: action });
+
+      const errorResponse = cold('-#|');
+      spyOn(workflowService, 'deleteWorkflow').and.returnValue(errorResponse);
+
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowsActions.DELETE_WORKFLOW_FAILURE,
+        },
+      });
+      expect(underTest.workflowDelete).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.DELETE_WORKFLOW_FAILURE_NOTIFICATION);
+    });
+  });
+
+  describe('workflowActiveStateSwitch', () => {
+    it('should switch workflow active state when service successfully switches state', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'success');
+      const payload = { id: 10, currentActiveState: true };
+      const response = true;
+
+      const action = new SwitchWorkflowActiveState(payload);
+      mockActions = cold('-a', { a: action });
+
+      const switchWorkflowActiveStateResponse = cold('-a|', { a: response });
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowsActions.SWITCH_WORKFLOW_ACTIVE_STATE_SUCCESS,
+          payload: payload.id,
+        },
+      });
+
+      spyOn(workflowService, 'switchWorkflowActiveState').and.returnValue(switchWorkflowActiveStateResponse);
+
+      expect(underTest.workflowActiveStateSwitch).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.SWITCH_WORKFLOW_ACTIVE_STATE_SUCCESS_NOTIFICATION(payload.currentActiveState));
+    });
+
+    it('should not switch workflow active state when service fails to switches state', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'error');
+      const payload = { id: 10, currentActiveState: true };
+      const response = false;
+
+      const action = new SwitchWorkflowActiveState(payload);
+      mockActions = cold('-a', { a: action });
+
+      const switchWorkflowActiveStateResponse = cold('-a|', { a: response });
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowsActions.SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE,
+        },
+      });
+
+      spyOn(workflowService, 'switchWorkflowActiveState').and.returnValue(switchWorkflowActiveStateResponse);
+
+      expect(underTest.workflowActiveStateSwitch).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE_NOTIFICATION);
+    });
+
+    it('should not switch workflow active state when service throws exception while switching active state', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'error');
+      const payload = { id: 10, currentActiveState: true };
+      const action = new SwitchWorkflowActiveState(payload);
+      mockActions = cold('-a', { a: action });
+
+      const errorResponse = cold('-#|');
+      spyOn(workflowService, 'switchWorkflowActiveState').and.returnValue(errorResponse);
+
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowsActions.SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE,
+        },
+      });
+      expect(underTest.workflowActiveStateSwitch).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.DELETE_WORKFLOW_FAILURE_NOTIFICATION);
     });
   });
 });
