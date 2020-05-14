@@ -34,7 +34,7 @@
         <clr-icon shape="eye"></clr-icon>
         Show
       </button>
-      <button type="button" class="action-item" (click)="switchWorkflowActiveState(workflow.id)">
+      <button type="button" class="action-item" (click)="switchWorkflowActiveState(workflow.id, workflow.isActive)">
         <clr-icon shape="power"></clr-icon>
         {{workflow.isActive ? 'Deactivate' : 'Activate'}}
       </button>

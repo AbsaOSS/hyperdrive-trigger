@@ -20,7 +20,11 @@ export const texts = {
   DELETE_WORKFLOW_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
 
   SWITCH_WORKFLOW_ACTIVE_STATE_TITLE: 'Switch workflow active state',
-  SWITCH_WORKFLOW_ACTIVE_STATE_CONTENT: 'Are you sure you want to switch this workflow active state? The operation cannot be reverted.',
-  SWITCH_WORKFLOW_ACTIVE_STATE_SUCCESS_NOTIFICATION: 'Workflow active state has been changed.',
+  SWITCH_WORKFLOW_ACTIVE_STATE_CONTENT(currentActiveState: boolean): string {
+    return 'Are you sure you want to ' + (!currentActiveState ? 'activate' : 'deactivate') + ' this workflow?';
+  },
+  SWITCH_WORKFLOW_ACTIVE_STATE_SUCCESS_NOTIFICATION(currentActiveState: boolean): string {
+    return 'Workflow has been ' + (!currentActiveState ? 'activated' : 'deactivated');
+  },
   SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
 };

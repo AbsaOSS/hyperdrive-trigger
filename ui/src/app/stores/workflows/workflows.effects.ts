@@ -168,14 +168,14 @@ export class WorkflowsEffects {
   workflowActiveStateSwitch = this.actions.pipe(
     ofType(WorkflowActions.SWITCH_WORKFLOW_ACTIVE_STATE),
     switchMap((action: WorkflowActions.SwitchWorkflowActiveState) => {
-      return this.workflowService.switchWorkflowActiveState(action.payload).pipe(
+      return this.workflowService.switchWorkflowActiveState(action.payload.id).pipe(
         mergeMap((result: boolean) => {
           if (result) {
-            this.toastrService.success(texts.SWITCH_WORKFLOW_ACTIVE_STATE_SUCCESS_NOTIFICATION);
+            this.toastrService.success(texts.SWITCH_WORKFLOW_ACTIVE_STATE_SUCCESS_NOTIFICATION(action.payload.currentActiveState));
             return [
               {
                 type: WorkflowActions.SWITCH_WORKFLOW_ACTIVE_STATE_SUCCESS,
-                payload: action.payload,
+                payload: action.payload.id,
               },
             ];
           } else {

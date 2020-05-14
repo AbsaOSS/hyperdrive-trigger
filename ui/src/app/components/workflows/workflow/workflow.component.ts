@@ -84,9 +84,13 @@ export class WorkflowComponent implements OnInit, OnDestroy {
 
   switchWorkflowActiveState(id: number) {
     this.confirmationDialogServiceSubscription = this.confirmationDialogService
-      .confirm(ConfirmationDialogTypes.YesOrNo, texts.SWITCH_WORKFLOW_ACTIVE_STATE_TITLE, texts.SWITCH_WORKFLOW_ACTIVE_STATE_CONTENT)
+      .confirm(
+        ConfirmationDialogTypes.YesOrNo,
+        texts.SWITCH_WORKFLOW_ACTIVE_STATE_TITLE,
+        texts.SWITCH_WORKFLOW_ACTIVE_STATE_CONTENT(this.isWorkflowActive),
+      )
       .subscribe((confirmed) => {
-        if (confirmed) this.store.dispatch(new SwitchWorkflowActiveState(id));
+        if (confirmed) this.store.dispatch(new SwitchWorkflowActiveState({ id: id, currentActiveState: this.isWorkflowActive }));
       });
   }
 

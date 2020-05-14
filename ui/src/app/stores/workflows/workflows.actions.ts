@@ -139,7 +139,7 @@ export class DeleteWorkflowFailure implements Action {
 
 export class SwitchWorkflowActiveState implements Action {
   readonly type = SWITCH_WORKFLOW_ACTIVE_STATE;
-  constructor(public payload: number) {}
+  constructor(public payload: { id: number; currentActiveState: boolean }) {}
 }
 
 export class SwitchWorkflowActiveStateSuccess implements Action {

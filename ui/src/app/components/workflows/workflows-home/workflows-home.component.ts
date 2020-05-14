@@ -51,11 +51,15 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
       });
   }
 
-  switchWorkflowActiveState(id: number) {
+  switchWorkflowActiveState(id: number, currentActiveState: boolean) {
     this.confirmationDialogServiceSubscription = this.confirmationDialogService
-      .confirm(ConfirmationDialogTypes.YesOrNo, texts.SWITCH_WORKFLOW_ACTIVE_STATE_TITLE, texts.SWITCH_WORKFLOW_ACTIVE_STATE_CONTENT)
+      .confirm(
+        ConfirmationDialogTypes.YesOrNo,
+        texts.SWITCH_WORKFLOW_ACTIVE_STATE_TITLE,
+        texts.SWITCH_WORKFLOW_ACTIVE_STATE_CONTENT(currentActiveState),
+      )
       .subscribe((confirmed) => {
-        if (confirmed) this.store.dispatch(new SwitchWorkflowActiveState(id));
+        if (confirmed) this.store.dispatch(new SwitchWorkflowActiveState({ id: id, currentActiveState: currentActiveState }));
       });
   }
 
