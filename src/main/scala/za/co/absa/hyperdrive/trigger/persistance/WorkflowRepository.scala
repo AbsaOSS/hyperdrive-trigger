@@ -145,12 +145,12 @@ class WorkflowRepositoryImpl extends WorkflowRepository {
   }
 
   override def switchWorkflowActiveState(id: Long)(implicit ec: ExecutionContext): Future[Unit] = {
-    val targetWorkflow = workflowTable.filter(_.id === id).map(workflow => (workflow.isActive, workflow.updated))
+    val workflowQuery = workflowTable.filter(_.id === id).map(workflow => (workflow.isActive, workflow.updated))
     val resultAction = for {
-      workflowToUpdateOption <- targetWorkflow.result.headOption
-      workflowUpdatedActionOpt = workflowToUpdateOption.map(
+      workflowOpt <- workflowQuery.result.headOption
+      workflowUpdatedActionOpt = workflowOpt.map(
         workflowValue =>
-          targetWorkflow.update((!workflowValue._1), Option(LocalDateTime.now()))
+          workflowQuery.update((!workflowValue._1), Option(LocalDateTime.now()))
       )
       affected <- workflowUpdatedActionOpt.getOrElse(DBIO.successful(0))
     } yield {
