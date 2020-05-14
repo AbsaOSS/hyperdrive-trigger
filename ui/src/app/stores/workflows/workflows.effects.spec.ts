@@ -19,7 +19,7 @@ import { provideMockActions } from '@ngrx/effects/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Actions } from '@ngrx/effects';
 import { cold } from 'jasmine-marbles';
-import { DeleteWorkflow, InitializeWorkflows, StartWorkflowInitialization } from './workflows.actions';
+import { DeleteWorkflow, InitializeWorkflows, StartWorkflowInitialization, SwitchWorkflowActiveState } from './workflows.actions';
 import * as WorkflowsActions from './workflows.actions';
 
 import { WorkflowsEffects } from './workflows.effects';
@@ -307,6 +307,72 @@ describe('WorkflowsEffects', () => {
         },
       });
       expect(underTest.workflowDelete).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.DELETE_WORKFLOW_FAILURE_NOTIFICATION);
+    });
+  });
+
+  describe('workflowActiveStateSwitch', () => {
+    it('should switch workflow active state when service successfully switches state', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'success');
+      const payload = { id: 10, currentActiveState: true };
+      const response = true;
+
+      const action = new SwitchWorkflowActiveState(payload);
+      mockActions = cold('-a', { a: action });
+
+      const switchWorkflowActiveStateResponse = cold('-a|', { a: response });
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowsActions.SWITCH_WORKFLOW_ACTIVE_STATE_SUCCESS,
+          payload: payload.id,
+        },
+      });
+
+      spyOn(workflowService, 'switchWorkflowActiveState').and.returnValue(switchWorkflowActiveStateResponse);
+
+      expect(underTest.workflowActiveStateSwitch).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.SWITCH_WORKFLOW_ACTIVE_STATE_SUCCESS_NOTIFICATION(payload.currentActiveState));
+    });
+
+    it('should not switch workflow active state when service fails to switches state', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'error');
+      const payload = { id: 10, currentActiveState: true };
+      const response = false;
+
+      const action = new SwitchWorkflowActiveState(payload);
+      mockActions = cold('-a', { a: action });
+
+      const switchWorkflowActiveStateResponse = cold('-a|', { a: response });
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowsActions.SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE,
+        },
+      });
+
+      spyOn(workflowService, 'switchWorkflowActiveState').and.returnValue(switchWorkflowActiveStateResponse);
+
+      expect(underTest.workflowActiveStateSwitch).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE_NOTIFICATION);
+    });
+
+    it('should not switch workflow active state when service throws exception while switching active state', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'error');
+      const payload = { id: 10, currentActiveState: true };
+      const action = new SwitchWorkflowActiveState(payload);
+      mockActions = cold('-a', { a: action });
+
+      const errorResponse = cold('-#|');
+      spyOn(workflowService, 'switchWorkflowActiveState').and.returnValue(errorResponse);
+
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowsActions.SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE,
+        },
+      });
+      expect(underTest.workflowActiveStateSwitch).toBeObservable(expected);
       expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
       expect(toastrServiceSpy).toHaveBeenCalledWith(texts.DELETE_WORKFLOW_FAILURE_NOTIFICATION);
     });

@@ -18,4 +18,13 @@ export const texts = {
   DELETE_WORKFLOW_CONFIRMATION_CONTENT: 'Are you sure you want to delete this workflow? The operation cannot be reverted.',
   DELETE_WORKFLOW_SUCCESS_NOTIFICATION: 'Workflow has been deleted.',
   DELETE_WORKFLOW_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
+
+  SWITCH_WORKFLOW_ACTIVE_STATE_TITLE: 'Switch workflow active state',
+  SWITCH_WORKFLOW_ACTIVE_STATE_CONTENT(currentActiveState: boolean): string {
+    return 'Are you sure you want to ' + (!currentActiveState ? 'activate' : 'deactivate') + ' this workflow?';
+  },
+  SWITCH_WORKFLOW_ACTIVE_STATE_SUCCESS_NOTIFICATION(currentActiveState: boolean): string {
+    return 'Workflow has been ' + (!currentActiveState ? 'activated' : 'deactivated');
+  },
+  SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
 };

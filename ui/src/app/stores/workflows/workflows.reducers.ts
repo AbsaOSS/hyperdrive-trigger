@@ -234,6 +234,39 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         },
         loading: false,
       };
+    case WorkflowsActions.SWITCH_WORKFLOW_ACTIVE_STATE:
+      return {
+        ...state,
+        workflowAction: {
+          ...state.workflowAction,
+        },
+        loading: true,
+      };
+    case WorkflowsActions.SWITCH_WORKFLOW_ACTIVE_STATE_SUCCESS:
+      const updatedProjects = state.projects.map((project) => {
+        return {
+          name: project.name,
+          workflows: project.workflows.map((workflow) => {
+            return workflow.id == action.payload ? { ...workflow, isActive: !workflow.isActive } : workflow;
+          }),
+        };
+      });
+      return {
+        ...state,
+        projects: [...updatedProjects],
+        workflowAction: {
+          ...state.workflowAction,
+        },
+        loading: false,
+      };
+    case WorkflowsActions.SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE:
+      return {
+        ...state,
+        workflowAction: {
+          ...state.workflowAction,
+        },
+        loading: false,
+      };
     default:
       return state;
   }

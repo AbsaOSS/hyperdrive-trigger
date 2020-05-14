@@ -85,4 +85,17 @@ describe('WorkflowService', () => {
     expect(req.request.method).toEqual('DELETE');
     req.flush(new Boolean(true));
   });
+
+  it('switchWorkflowActiveState() should switch workflow active state', () => {
+    const id = 1;
+    const response = true;
+    underTest.switchWorkflowActiveState(id).subscribe(
+      (data) => expect(data).toEqual(response),
+      (error) => fail(error),
+    );
+
+    const req = httpTestingController.expectOne(api.SWITCH_WORKFLOW_ACTIVE_STATE.replace('{id}', id.toString()));
+    expect(req.request.method).toEqual('POST');
+    req.flush(new Boolean(true));
+  });
 });

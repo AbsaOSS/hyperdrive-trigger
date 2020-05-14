@@ -50,6 +50,10 @@ export class WorkflowService {
       .pipe(map((_) => _.body));
   }
 
+  switchWorkflowActiveState(id: number): Observable<boolean> {
+    return this.httpClient.post<boolean>(api.SWITCH_WORKFLOW_ACTIVE_STATE.replace('{id}', id.toString()), { observe: 'response' });
+  }
+
   getWorkflowDynamicFormParts(): Observable<DynamicFormParts> {
     return of(
       new DynamicFormParts(
