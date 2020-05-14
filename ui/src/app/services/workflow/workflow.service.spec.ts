@@ -72,4 +72,17 @@ describe('WorkflowService', () => {
     expect(req.request.method).toEqual('GET');
     req.flush(workflow);
   });
+
+  it('deleteWorkflow() should delete workflow', () => {
+    const id = 1;
+    const response = true;
+    underTest.deleteWorkflow(id).subscribe(
+      (data) => expect(data).toEqual(response),
+      (error) => fail(error),
+    );
+
+    const req = httpTestingController.expectOne(api.DELETE_WORKFLOW + '?id=' + id);
+    expect(req.request.method).toEqual('DELETE');
+    req.flush(new Boolean(true));
+  });
 });

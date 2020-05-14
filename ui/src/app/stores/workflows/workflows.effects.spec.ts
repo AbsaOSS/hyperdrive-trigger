@@ -19,7 +19,7 @@ import { provideMockActions } from '@ngrx/effects/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Actions } from '@ngrx/effects';
 import { cold } from 'jasmine-marbles';
-import { InitializeWorkflows, StartWorkflowInitialization } from './workflows.actions';
+import { DeleteWorkflow, InitializeWorkflows, StartWorkflowInitialization } from './workflows.actions';
 import * as WorkflowsActions from './workflows.actions';
 
 import { WorkflowsEffects } from './workflows.effects';
@@ -42,11 +42,16 @@ import { JobDefinitionModel } from '../../models/jobDefinition.model';
 import { JobEntryModel } from '../../models/jobEntry.model';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { texts } from '../../constants/texts.constants';
+import { Router } from '@angular/router';
+import { absoluteRoutes } from '../../constants/routes.constants';
 
 describe('WorkflowsEffects', () => {
   let underTest: WorkflowsEffects;
   let workflowService: WorkflowService;
   let mockActions: Observable<any>;
+  let toastrService: ToastrService;
+  let router: Router;
 
   const initialAppState = {
     workflows: {
@@ -77,6 +82,8 @@ describe('WorkflowsEffects', () => {
     underTest = TestBed.inject(WorkflowsEffects);
     workflowService = TestBed.inject(WorkflowService);
     mockActions = TestBed.inject(Actions);
+    toastrService = TestBed.inject(ToastrService);
+    router = TestBed.inject(Router);
   });
 
   describe('workflowsInitialize', () => {
@@ -233,6 +240,75 @@ describe('WorkflowsEffects', () => {
       spyOn(workflowService, 'getWorkflow').and.returnValue(getWorkflowResponse);
 
       expect(underTest.workflowInitializationStart).toBeObservable(expected);
+    });
+  });
+
+  describe('workflowDelete', () => {
+    it('should return delete workflow success when service returns success deletion', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'success');
+      const routerSpy = spyOn(router, 'navigateByUrl');
+      const payload = 10;
+      const response = true;
+
+      const action = new DeleteWorkflow(payload);
+      mockActions = cold('-a', { a: action });
+
+      const deleteWorkflowResponse = cold('-a|', { a: response });
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowsActions.DELETE_WORKFLOW_SUCCESS,
+          payload: payload,
+        },
+      });
+
+      spyOn(workflowService, 'deleteWorkflow').and.returnValue(deleteWorkflowResponse);
+
+      expect(underTest.workflowDelete).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.DELETE_WORKFLOW_SUCCESS_NOTIFICATION);
+      expect(routerSpy).toHaveBeenCalledTimes(1);
+      expect(routerSpy).toHaveBeenCalledWith(absoluteRoutes.WORKFLOWS_HOME);
+    });
+
+    it('should return delete workflow failure when service fails to delete workflow', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'error');
+      const payload = 10;
+      const response = false;
+
+      const action = new DeleteWorkflow(payload);
+      mockActions = cold('-a', { a: action });
+
+      const deleteWorkflowResponse = cold('-a|', { a: response });
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowsActions.DELETE_WORKFLOW_FAILURE,
+        },
+      });
+
+      spyOn(workflowService, 'deleteWorkflow').and.returnValue(deleteWorkflowResponse);
+
+      expect(underTest.workflowDelete).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.DELETE_WORKFLOW_FAILURE_NOTIFICATION);
+    });
+
+    it('should return delete workflow failure when service throws exception while deleting workflow', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'error');
+      const payload = 10;
+      const action = new DeleteWorkflow(payload);
+      mockActions = cold('-a', { a: action });
+
+      const errorResponse = cold('-#|');
+      spyOn(workflowService, 'deleteWorkflow').and.returnValue(errorResponse);
+
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowsActions.DELETE_WORKFLOW_FAILURE,
+        },
+      });
+      expect(underTest.workflowDelete).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.DELETE_WORKFLOW_FAILURE_NOTIFICATION);
     });
   });
 });
