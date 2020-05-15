@@ -38,6 +38,14 @@ export const WORKFLOW_ADD_EMPTY_JOB = 'WORKFLOW_ADD_EMPTY_JOB';
 export const WORKFLOW_JOB_CHANGED = 'WORKFLOW_JOB_CHANGED';
 export const WORKFLOW_JOB_TYPE_SWITCHED = 'WORKFLOW_JOB_TYPE_SWITCHED';
 
+export const DELETE_WORKFLOW = 'DELETE_WORKFLOW';
+export const DELETE_WORKFLOW_SUCCESS = 'DELETE_WORKFLOW_SUCCESS';
+export const DELETE_WORKFLOW_FAILURE = 'DELETE_WORKFLOW_FAILURE';
+
+export const SWITCH_WORKFLOW_ACTIVE_STATE = 'SWITCH_WORKFLOW_ACTIVE_STATE';
+export const SWITCH_WORKFLOW_ACTIVE_STATE_SUCCESS = 'SWITCH_WORKFLOW_ACTIVE_STATE_SUCCESS';
+export const SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE = 'SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE';
+
 export const CREATE_WORKFLOW = 'CREATE_WORKFLOW';
 export const CREATE_WORKFLOW_SUCCESS = 'CREATE_WORKFLOW_SUCCESS';
 
@@ -121,6 +129,34 @@ export class WorkflowJobTypeSwitched implements Action {
   constructor(public payload: { order: number; jobEntry: WorkflowEntryModel }) {}
 }
 
+export class DeleteWorkflow implements Action {
+  readonly type = DELETE_WORKFLOW;
+  constructor(public payload: number) {}
+}
+
+export class DeleteWorkflowSuccess implements Action {
+  readonly type = DELETE_WORKFLOW_SUCCESS;
+  constructor(public payload: number) {}
+}
+
+export class DeleteWorkflowFailure implements Action {
+  readonly type = DELETE_WORKFLOW_FAILURE;
+}
+
+export class SwitchWorkflowActiveState implements Action {
+  readonly type = SWITCH_WORKFLOW_ACTIVE_STATE;
+  constructor(public payload: { id: number; currentActiveState: boolean }) {}
+}
+
+export class SwitchWorkflowActiveStateSuccess implements Action {
+  readonly type = SWITCH_WORKFLOW_ACTIVE_STATE_SUCCESS;
+  constructor(public payload: number) {}
+}
+
+export class SwitchWorkflowActiveStateFailure implements Action {
+  readonly type = SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE;
+}
+
 export class CreateWorkflow implements Action {
   readonly type = CREATE_WORKFLOW;
 }
@@ -152,6 +188,13 @@ export type WorkflowsActions =
   | WorkflowSensorTypeSwitched
   | WorkflowAddEmptyJob
   | WorkflowJobChanged
+  | WorkflowJobTypeSwitched
+  | DeleteWorkflow
+  | DeleteWorkflowSuccess
+  | DeleteWorkflowFailure
+  | SwitchWorkflowActiveState
+  | SwitchWorkflowActiveStateSuccess
+  | SwitchWorkflowActiveStateFailure
   | WorkflowJobTypeSwitched
   | CreateWorkflow
   | CreateWorkflowSuccess

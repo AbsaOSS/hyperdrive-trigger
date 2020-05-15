@@ -13,16 +13,25 @@
  * limitations under the License.
  */
 
-export const api = {
-  USER_INFO: '/user/info',
-  LOGIN: '/login',
-  LOGOUT: '/logout',
+import { Injectable } from '@angular/core';
+import { Router, NavigationEnd } from '@angular/router';
 
-  DAG_RUN_SEARCH: '/dagRuns/search',
-  JOB_INSTANCES: '/jobInstances',
+@Injectable()
+export class PreviousRouteService {
+  private previousUrl: string;
+  private currentUrl: string;
 
-  GET_PROJECTS: '/workflows/projects',
-  GET_WORKFLOW: '/workflow',
-  DELETE_WORKFLOW: '/workflows',
-  SWITCH_WORKFLOW_ACTIVE_STATE: '/workflows/{id}/switchActiveState',
-};
+  constructor(private router: Router) {
+    this.currentUrl = this.router.url;
+    router.events.subscribe((event) => {
+      if (event instanceof NavigationEnd) {
+        this.previousUrl = this.currentUrl;
+        this.currentUrl = event.url;
+      }
+    });
+  }
+
+  public getPreviousUrl() {
+    return this.previousUrl;
+  }
+}

@@ -49,6 +49,18 @@ export class WorkflowService {
       .pipe(map((response) => response.body));
   }
 
+  deleteWorkflow(id: number): Observable<boolean> {
+    const params = new HttpParams().set('id', id.toString());
+
+    return this.httpClient
+      .delete<boolean>(api.DELETE_WORKFLOW, { params: params, observe: 'response' })
+      .pipe(map((_) => _.body));
+  }
+
+  switchWorkflowActiveState(id: number): Observable<boolean> {
+    return this.httpClient.post<boolean>(api.SWITCH_WORKFLOW_ACTIVE_STATE.replace('{id}', id.toString()), { observe: 'response' });
+  }
+
   createWorkflow(workflowObject): Observable<boolean> {
     console.log('fuck off', workflowObject);
     return this.httpClient

@@ -14,13 +14,23 @@
  */
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AppState, selectWorkflowState } from '../../../stores/app.reducers';
 import { Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
-import {CreateWorkflow, StartWorkflowInitialization, UpdateWorkflow} from '../../../stores/workflows/workflows.actions';
+import {
+  DeleteWorkflow,
+  CreateWorkflow,
+  StartWorkflowInitialization,
+  UpdateWorkflow,
+  SwitchWorkflowActiveState,
+} from '../../../stores/workflows/workflows.actions';
 import { workflowModes } from '../../../models/enums/workflowModes.constants';
 import { absoluteRoutes } from '../../../constants/routes.constants';
+import { PreviousRouteService } from '../../../services/previousRoute/previous-route.service';
+import { ConfirmationDialogService } from '../../../services/confirmation-dialog/confirmation-dialog.service';
+import { ConfirmationDialogTypes } from '../../../constants/confirmationDialogTypes.constants';
+import { texts } from '../../../constants/texts.constants';
 
 @Component({
   selector: 'app-workflow',
@@ -31,6 +41,7 @@ export class WorkflowComponent implements OnInit, OnDestroy {
   loading = true;
   mode: string;
   id: number;
+  isWorkflowActive: boolean;
 
   workflowModes = workflowModes;
   absoluteRoutes = absoluteRoutes;
@@ -41,8 +52,15 @@ export class WorkflowComponent implements OnInit, OnDestroy {
 
   paramsSubscription: Subscription;
   workflowSubscription: Subscription;
+  confirmationDialogServiceSubscription: Subscription = null;
 
-  constructor(private store: Store<AppState>, route: ActivatedRoute) {
+  constructor(
+    private store: Store<AppState>,
+    private confirmationDialogService: ConfirmationDialogService,
+    private previousRouteService: PreviousRouteService,
+    private router: Router,
+    route: ActivatedRoute,
+  ) {
     this.paramsSubscription = route.params.subscribe((parameters) => {
       this.store.dispatch(new StartWorkflowInitialization({ id: parameters.id, mode: parameters.mode }));
     });
@@ -53,6 +71,7 @@ export class WorkflowComponent implements OnInit, OnDestroy {
       this.loading = state.workflowAction.loading;
       this.mode = state.workflowAction.mode;
       this.id = state.workflowAction.id;
+      this.isWorkflowActive = !!state.workflowAction.workflow ? state.workflowAction.workflow.isActive : false;
     });
   }
 
@@ -68,6 +87,32 @@ export class WorkflowComponent implements OnInit, OnDestroy {
     this.isJobsAccordionHidden = !this.isJobsAccordionHidden;
   }
 
+  cancelWorkflow() {
+    !!this.previousRouteService.getPreviousUrl()
+      ? this.router.navigateByUrl(this.previousRouteService.getPreviousUrl())
+      : this.router.navigateByUrl(absoluteRoutes.WORKFLOWS_HOME);
+  }
+
+  deleteWorkflow(id: number) {
+    this.confirmationDialogServiceSubscription = this.confirmationDialogService
+      .confirm(ConfirmationDialogTypes.Delete, texts.DELETE_WORKFLOW_CONFIRMATION_TITLE, texts.DELETE_WORKFLOW_CONFIRMATION_CONTENT)
+      .subscribe((confirmed) => {
+        if (confirmed) this.store.dispatch(new DeleteWorkflow(id));
+      });
+  }
+
+  switchWorkflowActiveState(id: number) {
+    this.confirmationDialogServiceSubscription = this.confirmationDialogService
+      .confirm(
+        ConfirmationDialogTypes.YesOrNo,
+        texts.SWITCH_WORKFLOW_ACTIVE_STATE_TITLE,
+        texts.SWITCH_WORKFLOW_ACTIVE_STATE_CONTENT(this.isWorkflowActive),
+      )
+      .subscribe((confirmed) => {
+        if (confirmed) this.store.dispatch(new SwitchWorkflowActiveState({ id: id, currentActiveState: this.isWorkflowActive }));
+      });
+  }
+
   createWorkflow() {
     console.log('onCreateWorkflowClick');
     this.store.dispatch(new CreateWorkflow());
@@ -81,5 +126,6 @@ export class WorkflowComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     !!this.workflowSubscription && this.workflowSubscription.unsubscribe();
     !!this.paramsSubscription && this.paramsSubscription.unsubscribe();
+    !!this.confirmationDialogServiceSubscription && this.confirmationDialogServiceSubscription.unsubscribe();
   }
 }
