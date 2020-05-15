@@ -20,7 +20,7 @@ export class JobEntryModel {
   private constructor(public readonly jobId: string, public order: number, public job: WorkflowEntryModel[]) {}
 
   static createNew(order: number, job: WorkflowEntryModel[]): JobEntryModel {
-    return new JobEntryModel(UuidUtil.getUUID(), order, job);
+    return new JobEntryModel(UuidUtil.createUUID(), order, job);
   }
 
   static createAsObject(jobId: string, order: number, job: WorkflowEntryModel[]): JobEntryModelObject {

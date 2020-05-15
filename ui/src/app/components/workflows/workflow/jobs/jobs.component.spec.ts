@@ -19,7 +19,7 @@ import { JobsComponent } from './jobs.component';
 import { FormPart, WorkflowFormPartsModel } from '../../../../models/workflowFormParts.model';
 import { provideMockStore } from '@ngrx/store/testing';
 import { Store } from '@ngrx/store';
-import { WorkflowAddEmptyJob } from '../../../../stores/workflows/workflows.actions';
+import {WorkflowAddEmptyJob, WorkflowRemoveJob} from '../../../../stores/workflows/workflows.actions';
 import { JobEntryModel } from '../../../../models/jobEntry.model';
 import { WorkflowEntryModel } from '../../../../models/workflowEntry.model';
 
@@ -76,7 +76,7 @@ describe('JobsComponent', () => {
     expect(underTest.hiddenJobs.size).toEqual(0);
     underTest.toggleJob('abcd');
     expect(underTest.hiddenJobs.size).toEqual(1);
-    expect(underTest.hiddenJobs.values()[0]).toEqual('abcd');
+    expect(underTest.hiddenJobs).toContain('abcd');
     underTest.toggleJob('abcd');
     expect(underTest.hiddenJobs.size).toEqual(0);
   }));
@@ -102,7 +102,7 @@ describe('JobsComponent', () => {
     });
   }));
 
-  it('addJob() add job actions should be dispatch', async(() => {
+  it('addJob() add job actions should be dispatched', async(() => {
     fixture.detectChanges();
     fixture.whenStable().then(() => {
       const mockStore = fixture.debugElement.injector.get(Store);
@@ -112,6 +112,19 @@ describe('JobsComponent', () => {
 
       expect(storeSpy).toHaveBeenCalledTimes(1);
       expect(storeSpy).toHaveBeenCalledWith(new WorkflowAddEmptyJob(initialAppState.workflows.workflowAction.workflowData.jobs.length));
+    });
+  }));
+
+  it('removeJob() remove job actions should be dispatched', async(() => {
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      const mockStore = fixture.debugElement.injector.get(Store);
+      const storeSpy = spyOn(mockStore, 'dispatch');
+
+      underTest.removeJob('abcdef');
+
+      expect(storeSpy).toHaveBeenCalledTimes(1);
+      expect(storeSpy).toHaveBeenCalledWith(new WorkflowRemoveJob('abcdef'));
     });
   }));
 });

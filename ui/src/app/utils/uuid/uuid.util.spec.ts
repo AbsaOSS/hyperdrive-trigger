@@ -20,7 +20,7 @@ describe('UuidUtil', () => {
     const uuids: string[] = [];
 
     for (let i = 0; i < 100; i++) {
-      const uuid = UuidUtil.getUUID();
+      const uuid = UuidUtil.createUUID();
       uuids.push(uuid);
     }
 

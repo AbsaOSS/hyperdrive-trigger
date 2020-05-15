@@ -39,7 +39,7 @@ export class GuidPartComponent implements OnInit {
   }
 
   refreshGuid() {
-    const newUUID: string = UuidUtil.getUUID();
+    const newUUID: string = UuidUtil.createUUID();
     this.modelChanged(newUUID);
   }
 

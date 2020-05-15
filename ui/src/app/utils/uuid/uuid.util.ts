@@ -14,7 +14,7 @@
  */
 
 export class UuidUtil {
-  static getUUID(): string {
+  static createUUID(): string {
     //Implementation from: https://www.w3resource.com/javascript-exercises/javascript-math-exercise-23.php
     let dt = new Date().getTime();
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
