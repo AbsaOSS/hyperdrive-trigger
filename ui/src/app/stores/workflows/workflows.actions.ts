@@ -119,12 +119,12 @@ export class WorkflowAddEmptyJob implements Action {
 
 export class WorkflowJobChanged implements Action {
   readonly type = WORKFLOW_JOB_CHANGED;
-  constructor(public payload: { order: number; jobEntry: WorkflowEntryModel }) {}
+  constructor(public payload: { jobId: string; jobEntry: WorkflowEntryModel }) {}
 }
 
 export class WorkflowJobTypeSwitched implements Action {
   readonly type = WORKFLOW_JOB_TYPE_SWITCHED;
-  constructor(public payload: { order: number; jobEntry: WorkflowEntryModel }) {}
+  constructor(public payload: { jobId: string; jobEntry: WorkflowEntryModel }) {}
 }
 
 export class DeleteWorkflow implements Action {

@@ -231,7 +231,7 @@ describe('WorkflowsEffects', () => {
             ],
             sensorData: [new WorkflowEntryModel(workflowFormParts.SENSOR.SENSOR_TYPE.property, workflow.sensor.sensorType.name)],
             jobsData: [
-              new JobEntryModel(0, [
+              JobEntryModel.createNew(0, [
                 new WorkflowEntryModel(
                   workflowFormParts.JOB.JOB_TYPE.property,
                   workflow.dagDefinitionJoined.jobDefinitions[0].jobType.name,

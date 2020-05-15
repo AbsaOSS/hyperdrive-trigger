@@ -14,7 +14,18 @@
  */
 
 import { WorkflowEntryModel } from './workflowEntry.model';
+import { UuidUtil } from '../utils/uuid/uuid.util';
 
 export class JobEntryModel {
-  constructor(public order: number, public job: WorkflowEntryModel[]) {}
+  private constructor(public readonly jobId: string, public order: number, public job: WorkflowEntryModel[]) {}
+
+  static createNew(order: number, job: WorkflowEntryModel[]): JobEntryModel {
+    return new JobEntryModel(UuidUtil.getUUID(), order, job);
+  }
+
+  static createAsObject(jobId: string, order: number, job: WorkflowEntryModel[]): JobEntryModelObject {
+    return new JobEntryModel(jobId, order, job);
+  }
 }
+
+export type JobEntryModelObject = { jobId: string; order: number; job: { property: string; value: any }[] };

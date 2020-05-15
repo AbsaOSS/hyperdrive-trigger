@@ -29,7 +29,7 @@ import { WorkflowEntryModel } from '../../../../../models/workflowEntry.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class JobComponent implements OnInit, OnDestroy {
-  @Input() jobIndex: number;
+  @Input() jobId: string;
   workflowModes = workflowModes;
   selectedJob: string;
   mode: string;
@@ -52,7 +52,7 @@ export class JobComponent implements OnInit, OnDestroy {
       this.jobSwitchPart = state.workflowFormParts.jobSwitchPart;
       this.staticJobPart = state.workflowFormParts.staticJobPart;
 
-      const jobDataOption = state.workflowAction.workflowData.jobs.find((job) => job.order == this.jobIndex);
+      const jobDataOption = state.workflowAction.workflowData.jobs.find((job) => job.jobId == this.jobId);
       this.jobData = !!jobDataOption ? jobDataOption.job : [];
 
       const selected = this.jobData.find((value) => value.property == this.jobSwitchPart.property);
@@ -62,11 +62,11 @@ export class JobComponent implements OnInit, OnDestroy {
     this.jobChangesSubscription = this.jobChanges.subscribe((jobChange) => {
       if (jobChange.property == this.jobSwitchPart.property) {
         this.store.dispatch(
-          new WorkflowJobTypeSwitched({ order: this.jobIndex, jobEntry: new WorkflowEntryModel(jobChange.property, jobChange.value) }),
+          new WorkflowJobTypeSwitched({ jobId: this.jobId, jobEntry: new WorkflowEntryModel(jobChange.property, jobChange.value) }),
         );
       } else {
         this.store.dispatch(
-          new WorkflowJobChanged({ order: this.jobIndex, jobEntry: new WorkflowEntryModel(jobChange.property, jobChange.value) }),
+          new WorkflowJobChanged({ jobId: this.jobId, jobEntry: new WorkflowEntryModel(jobChange.property, jobChange.value) }),
         );
       }
     });

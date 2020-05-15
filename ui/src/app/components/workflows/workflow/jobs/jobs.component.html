@@ -20,9 +20,9 @@
 
 <div class="card" *ngFor="let job of this.jobData; let index = index; trackBy: trackByFn;">
   <div class="card-block">
-    <div class="card-title notSelectable" (click)="toggleJob(job.order)">
-      <clr-icon shape="angle" [dir]="isJobHidden(job.order)?'right':'down'"></clr-icon>
-      {{getJobName(job.order)}}
+    <div class="card-title notSelectable" (click)="toggleJob(job.jobId)">
+      <clr-icon shape="angle" [dir]="isJobHidden(job.jobId)?'right':'down'"></clr-icon>
+      {{getJobName(job.jobId)}}
       <button type="button" class="btn btn-link" *ngIf="mode != workflowModes.SHOW">
         <clr-icon shape="drag-handle"></clr-icon>
       </button>
@@ -30,9 +30,9 @@
         <clr-icon shape="trash" class="is-error"></clr-icon>
       </button>
     </div>
-    <div class="accordion-content" *ngIf="!isJobHidden(job.order)">
+    <div class="accordion-content" *ngIf="!isJobHidden(job.jobId)">
       <app-job
-        [jobIndex]="job.order">
+        [jobId]="job.jobId">
       </app-job>
     </div>
   </div>

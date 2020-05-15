@@ -16,6 +16,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
 import { WorkflowEntryModel } from '../../../../../models/workflowEntry.model';
+import { UuidUtil } from '../../../../../utils/uuid/uuid.util';
 
 @Component({
   selector: 'app-guid-part',
@@ -38,22 +39,12 @@ export class GuidPartComponent implements OnInit {
   }
 
   refreshGuid() {
-    const newUUID: string = this.getUUID();
+    const newUUID: string = UuidUtil.getUUID();
     this.modelChanged(newUUID);
   }
 
   modelChanged(value: string) {
     this.value = value;
     this.valueChanges.next(new WorkflowEntryModel(this.property, this.value));
-  }
-
-  getUUID(): string {
-    //Implementation from: https://www.w3resource.com/javascript-exercises/javascript-math-exercise-23.php
-    let dt = new Date().getTime();
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-      const r = (dt + Math.random() * 16) % 16 | 0;
-      dt = Math.floor(dt / 16);
-      return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
-    });
   }
 }

@@ -18,6 +18,8 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { JobComponent } from './job.component';
 import { provideMockStore } from '@ngrx/store/testing';
 import { DynamicFormPart, DynamicFormParts, FormPart, WorkflowFormPartsModel } from '../../../../../models/workflowFormParts.model';
+import { JobEntryModel } from '../../../../../models/jobEntry.model';
+import { WorkflowEntryModel } from '../../../../../models/workflowEntry.model';
 
 describe('JobComponent', () => {
   let fixture: ComponentFixture<JobComponent>;
@@ -41,12 +43,7 @@ describe('JobComponent', () => {
       workflowAction: {
         mode: 'mode',
         workflowData: {
-          jobs: [
-            {
-              order: 0,
-              job: [{ property: 'jobStaticPart', value: 'value' }],
-            },
-          ],
+          jobs: [JobEntryModel.createNew(0, [new WorkflowEntryModel('jobStaticPart', 'value')])],
         },
       },
     },
@@ -69,7 +66,7 @@ describe('JobComponent', () => {
   });
 
   it('should after view init set component properties', async(() => {
-    underTest.jobIndex = initialAppState.workflows.workflowAction.workflowData.jobs[0].order;
+    underTest.jobId = initialAppState.workflows.workflowAction.workflowData.jobs[0].jobId;
     fixture.detectChanges();
     fixture.whenStable().then(() => {
       expect(underTest.mode).toBe(initialAppState.workflows.workflowAction.mode);
@@ -110,7 +107,7 @@ describe('JobComponent', () => {
   }));
 
   it('getValue() should return value when property exists', async(() => {
-    underTest.jobIndex = initialAppState.workflows.workflowAction.workflowData.jobs[0].order;
+    underTest.jobId = initialAppState.workflows.workflowAction.workflowData.jobs[0].jobId;
     fixture.detectChanges();
     fixture.whenStable().then(() => {
       const queriedDetail = initialAppState.workflows.workflowAction.workflowData.jobs[0].job[0];
@@ -119,7 +116,7 @@ describe('JobComponent', () => {
   }));
 
   it('getValue() should return undefined when property does not exist', async(() => {
-    underTest.jobIndex = initialAppState.workflows.workflowAction.workflowData.jobs[0].order;
+    underTest.jobId = initialAppState.workflows.workflowAction.workflowData.jobs[0].jobId;
     const undefinedProperty = 'undefinedProperty';
 
     fixture.detectChanges();
