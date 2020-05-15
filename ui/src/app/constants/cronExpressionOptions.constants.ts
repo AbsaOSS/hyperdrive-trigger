@@ -65,8 +65,3 @@ export enum EveryMinute {
   Fifty = 50,
   FiftyFive = 55,
 }
-export enum Base {
-  One = 1,
-  Two,
-  Three,
-}

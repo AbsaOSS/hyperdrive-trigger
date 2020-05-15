@@ -19,7 +19,6 @@ import { WorkflowEntryModel } from '../../../../../models/workflowEntry.model';
 import { sensorFrequency } from '../../../../../constants/cronExpressionOptions.constants';
 import { EveryMinute } from '../../../../../constants/cronExpressionOptions.constants';
 import { EveryHour } from '../../../../../constants/cronExpressionOptions.constants';
-import { Base } from '../../../../../constants/cronExpressionOptions.constants';
 
 @Component({
   selector: 'app-cron-quartz-part',
@@ -37,6 +36,9 @@ export class CronQuartzPartComponent implements OnInit {
   dayValue: number;
   minuteValue: number;
   hourValue: number;
+  showFrequency: string;
+  cronValue: number;
+  showGuard: number;
 
   hourValues = [
     EveryHour.Zero,
@@ -90,18 +92,30 @@ export class CronQuartzPartComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // do nothing
+    if (!this.value) {
+      this.cron = ['*', '*', '0', '?', '*', '*', '*'];
+      this.modelChanged();
+    }
+    if (this.value) {
+      this.fromCron(this.value);
+    }
   }
 
   fromCron(value: string) {
-    const cron: string[] = value.replace(/\s+/g, ' ').split(' ');
+    const showCron: string[] = value.replace(/\s+/g, ' ').split(' ');
 
-    if (cron[1] === '*' && cron[2] === '*' && cron[3] === '*' && cron[4] === '*' && cron[5] === '?') {
-      this.base = Base.One; // every minute
-    } else if (cron[2] === '*' && cron[3] === '*' && cron[4] === '*' && cron[5] === '?') {
-      this.base = Base.Two; // every hour
-    } else if (cron[3] === '*' && cron[4] === '*' && cron[5] === '?') {
-      this.base = Base.Three; // every day
+    if (showCron[1] !== '*' && isNaN(+showCron[1])) {
+      this.showGuard = this.frequencies[0].value;
+      this.cronValue = +showCron[1].replace('0/', ' ');
+      this.showFrequency = this.frequencies[0].label;
+    } else if (showCron[1] !== '*' && !isNaN(+showCron[1])) {
+      this.showGuard = this.frequencies[1].value;
+      this.cronValue = +showCron[1];
+      this.showFrequency = this.frequencies[1].label;
+    } else if (showCron[2] !== '*' && !isNaN(+showCron[2])) {
+      this.showGuard = this.frequencies[2].value;
+      this.cronValue = +showCron[2];
+      this.showFrequency = this.frequencies[2].label;
     }
   }
 

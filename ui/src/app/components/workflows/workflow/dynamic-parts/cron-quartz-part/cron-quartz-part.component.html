@@ -59,6 +59,15 @@
 <div *ngIf="isShow">
   <clr-control-container>
     <label>{{name}}</label>
-    <input clrControl type="text" [readOnly]="true" [size]="40" [(ngModel)]="value" />
+
+    <span>Every </span>
+
+    <input *ngIf="showGuard == 1" [readOnly]="true" clrControl placeholder="{{ showFrequency }} {{ cronValue }} minutes"
+      [size]="40" />
+    <input *ngIf="showGuard == 2" [readOnly]="true" clrControl
+      placeholder="{{ showFrequency }} {{ cronValue }} minutes past the hour" [size]="40" />
+    <input *ngIf="showGuard == 3" [readOnly]="true" clrControl placeholder="{{ showFrequency }} at {{ cronValue }}:00"
+      [size]="40" />
+
   </clr-control-container>
 </div>

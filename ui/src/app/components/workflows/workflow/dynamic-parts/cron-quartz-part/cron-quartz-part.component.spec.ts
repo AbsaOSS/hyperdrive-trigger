@@ -18,10 +18,11 @@ import { Subject } from 'rxjs';
 
 import { CronQuartzPartComponent } from './cron-quartz-part.component';
 import { WorkflowEntryModel } from '../../../../../models/workflowEntry.model';
+import { sensorFrequency } from '../../../../../constants/cronExpressionOptions.constants';
 
 describe('CronQuartzPartComponent', () => {
-  let component: CronQuartzPartComponent;
   let fixture: ComponentFixture<CronQuartzPartComponent>;
+  let component: CronQuartzPartComponent;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
@@ -32,16 +33,63 @@ describe('CronQuartzPartComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(CronQuartzPartComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
+  it('should set default cron expression on init when value is undefined', () => {
+    const underTest = fixture.componentInstance;
+    underTest.valueChanges = new Subject<WorkflowEntryModel>();
+    underTest.value = undefined;
+    const expectedMinuteCron = ['*', '*', '0', '?', '*', '*', '*'];
+    underTest.ngOnInit();
+
+    expect(underTest.cron.join('')).toEqual(expectedMinuteCron.join(''));
+  });
+
+  describe('fromCron', () => {
+    it('should set correct show gaurd, cron value and show frequency for Hour every', () => {
+      const underTest = fixture.componentInstance;
+      underTest.valueChanges = new Subject<WorkflowEntryModel>();
+      underTest.value = '* 0/10 * ? * * *';
+      underTest.ngOnInit();
+      console.log(underTest.cronValue);
+
+      expect(underTest.showFrequency).toEqual(sensorFrequency.FREQUENCIES[0].label);
+      expect(underTest.showGuard).toEqual(sensorFrequency.FREQUENCIES[0].value);
+      expect(underTest.cronValue).toEqual(10);
+    });
+
+    it('should set correct show gaurd, cron value and show frequency on Hour at cron expression', () => {
+      const underTest = fixture.componentInstance;
+      underTest.valueChanges = new Subject<WorkflowEntryModel>();
+      underTest.value = '* 15 0 ? * * *';
+      underTest.ngOnInit();
+      underTest.fromCron(underTest.value);
+
+      expect(underTest.showFrequency).toEqual(sensorFrequency.FREQUENCIES[1].label);
+      expect(underTest.showGuard).toEqual(sensorFrequency.FREQUENCIES[1].value);
+      expect(underTest.cronValue).toEqual(15);
+    });
+
+    it('should set correct show gaurd, cron value and show frequency on Day cron expression', () => {
+      const underTest = fixture.componentInstance;
+      underTest.valueChanges = new Subject<WorkflowEntryModel>();
+      underTest.value = '* * 18 ? * * *';
+      underTest.ngOnInit();
+
+      expect(underTest.showFrequency).toEqual(sensorFrequency.FREQUENCIES[2].label);
+      expect(underTest.showGuard).toEqual(sensorFrequency.FREQUENCIES[2].value);
+      expect(underTest.cronValue).toEqual(18);
+    });
+  });
+
   it('should set cron for every minutes', () => {
     const underTest = fixture.componentInstance;
     underTest.valueChanges = new Subject<WorkflowEntryModel>();
+    underTest.value = '0, 0, 0, ?, *, *, *';
     const minuteValue = 10;
     const expectedMinuteCron = ['0', '0/10', '0', '?', '*', '*', '*'];
     underTest.onMinuteSelect(minuteValue);
@@ -52,6 +100,7 @@ describe('CronQuartzPartComponent', () => {
   it('should set cron for every hour', () => {
     const underTest = fixture.componentInstance;
     underTest.valueChanges = new Subject<WorkflowEntryModel>();
+    underTest.value = '0, 0, 0, ?, *, *, *';
     const hourValue = 20;
     const expectedHourCron = ['0', '20', '0', '?', '*', '*', '*'];
     underTest.onHourSelect(hourValue);
@@ -62,6 +111,7 @@ describe('CronQuartzPartComponent', () => {
   it('should set cron for every day', () => {
     const underTest = fixture.componentInstance;
     underTest.valueChanges = new Subject<WorkflowEntryModel>();
+    underTest.value = '0, 0, 0, ?, *, *, *';
     const dayValue = 30;
     const expectedDayCron = ['0', '0', '30', '?', '*', '*', '*'];
     underTest.onDaySelect(dayValue);
