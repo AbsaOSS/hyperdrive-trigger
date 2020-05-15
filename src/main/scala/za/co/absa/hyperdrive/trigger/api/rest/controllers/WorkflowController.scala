@@ -25,7 +25,7 @@ import za.co.absa.hyperdrive.trigger.models._
 
 import scala.compat.java8.FutureConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{Await, Future}
 
 @RestController
 class WorkflowController @Inject()(workflowService: WorkflowService) {
@@ -36,9 +36,15 @@ class WorkflowController @Inject()(workflowService: WorkflowService) {
       case Right(result) => result
     }.toJava.toCompletableFuture
 
+  implicit def eitherToCompletableFutureOrExceptiona[T](response: Future[Either[ApiError, T]]): CompletableFuture[T] =
+    response.map {
+      case Left(apiError) => throw new ApiException(Seq(apiError))
+      case Right(result) => result
+    }.toJava.toCompletableFuture
+
+
   @PutMapping(path = Array("/workflow"))
-  def createWorkflow(@RequestBody workflow: WorkflowJoined): CompletableFuture[Boolean] = {
-    println(workflow)
+  def createWorkflow(@RequestBody workflow: WorkflowJoined): CompletableFuture[WorkflowJoined] = {
     workflowService.createWorkflow(workflow)
   }
 

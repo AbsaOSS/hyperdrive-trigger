@@ -115,11 +115,7 @@ export class WorkflowComponent implements OnInit, OnDestroy {
 
   createWorkflow() {
     this.confirmationDialogServiceSubscription = this.confirmationDialogService
-      .confirm(
-        ConfirmationDialogTypes.YesOrNo,
-        texts.CREATE_WORKFLOW_CONFIRMATION_TITLE,
-        texts.CREATE_WORKFLOW_CONFIRMATION_CONTENT,
-      )
+      .confirm(ConfirmationDialogTypes.YesOrNo, texts.CREATE_WORKFLOW_CONFIRMATION_TITLE, texts.CREATE_WORKFLOW_CONFIRMATION_CONTENT)
       .subscribe((confirmed) => {
         if (confirmed) this.store.dispatch(new CreateWorkflow());
       });
@@ -127,11 +123,7 @@ export class WorkflowComponent implements OnInit, OnDestroy {
 
   updateWorkflow() {
     this.confirmationDialogServiceSubscription = this.confirmationDialogService
-      .confirm(
-        ConfirmationDialogTypes.YesOrNo,
-        texts.UPDATE_WORKFLOW_CONFIRMATION_TITLE,
-        texts.UPDATE_WORKFLOW_CONFIRMATION_CONTENT,
-      )
+      .confirm(ConfirmationDialogTypes.YesOrNo, texts.UPDATE_WORKFLOW_CONFIRMATION_TITLE, texts.UPDATE_WORKFLOW_CONFIRMATION_CONTENT)
       .subscribe((confirmed) => {
         if (confirmed) this.store.dispatch(new UpdateWorkflow());
       });

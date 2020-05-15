@@ -19,6 +19,7 @@ import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
 import { WorkflowFormPartsModel } from '../../models/workflowFormParts.model';
 import { WorkflowEntryModel } from '../../models/workflowEntry.model';
 import { JobEntryModel } from '../../models/jobEntry.model';
+import { WorkflowModel } from '../../models/workflow.model';
 
 export const INITIALIZE_WORKFLOWS = 'INITIALIZE_WORKFLOWS';
 export const INITIALIZE_WORKFLOWS_SUCCESS = 'INITIALIZE_WORKFLOWS_SUCCESS';
@@ -165,6 +166,7 @@ export class CreateWorkflow implements Action {
 
 export class CreateWorkflowSuccess implements Action {
   readonly type = CREATE_WORKFLOW_SUCCESS;
+  constructor(public payload: WorkflowModel) {}
 }
 
 export class CreateWorkflowFailure implements Action {

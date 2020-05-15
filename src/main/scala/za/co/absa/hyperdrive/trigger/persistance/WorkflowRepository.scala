@@ -26,7 +26,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
 trait WorkflowRepository extends Repository {
-  def insertWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Option[ApiError]]
+  def insertWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[ApiError, Long]]
   def existsWorkflow(name: String)(implicit ec: ExecutionContext): Future[Boolean]
   def existsOtherWorkflow(name: String, id: Long)(implicit ec: ExecutionContext): Future[Boolean]
   def getWorkflow(id: Long)(implicit ec: ExecutionContext): Future[WorkflowJoined]
@@ -44,7 +44,7 @@ class WorkflowRepositoryImpl extends WorkflowRepository {
   import profile.api._
   private val logger = LoggerFactory.getLogger(this.getClass)
 
-  override def insertWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Option[ApiError]] = db.run(
+  override def insertWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[ApiError, Long]] = db.run(
     (for {
       workflowId <- workflowTable returning workflowTable.map(_.id) += workflow.toWorkflow.copy(created = LocalDateTime.now())
       sensorId <- sensorTable += workflow.sensor.copy(workflowId = workflowId)
@@ -52,10 +52,10 @@ class WorkflowRepositoryImpl extends WorkflowRepository {
       jobId <- jobDefinitionTable ++= workflow.dagDefinitionJoined.jobDefinitions.map(_.copy(dagDefinitionId = dagId))
     } yield (workflowId)).transactionally.asTry
   ).map {
-    case Success(_) => None
+    case Success(workflowId) => Right(workflowId)
     case Failure(ex) =>
       logger.error(s"Unexpected error occurred when inserting workflow $workflow", ex)
-      Some(GenericDatabaseError)
+      Left(GenericDatabaseError)
   }
 
   override def existsWorkflow(name: String)(implicit ec: ExecutionContext): Future[Boolean] = db.run(

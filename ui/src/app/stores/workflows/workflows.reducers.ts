@@ -273,8 +273,15 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         loading: true,
       };
     case WorkflowsActions.CREATE_WORKFLOW_SUCCESS:
+      let projects;
+      if(state.projects.some(project => project.name == action.payload.project)) {
+        projects = state.projects.map((project) => project.name == action.payload.project ? {...project, workflows: [...project.workflows, action.payload]} : project)
+      } else {
+        projects = [...state.projects, new ProjectModel(action.payload.project, [action.payload])]
+      }
       return {
         ...state,
+        projects: [...projects],
         loading: false,
       };
     case WorkflowsActions.CREATE_WORKFLOW_FAILURE:

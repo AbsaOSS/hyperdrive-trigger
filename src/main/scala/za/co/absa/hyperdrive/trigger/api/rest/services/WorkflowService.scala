@@ -29,7 +29,7 @@ trait WorkflowService {
   val dagInstanceRepository: DagInstanceRepository
   val workflowValidationService: WorkflowValidationService
 
-  def createWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], Boolean]]
+  def createWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[ApiError, WorkflowJoined]]
   def getWorkflow(id: Long)(implicit ec: ExecutionContext): Future[WorkflowJoined]
   def getWorkflows()(implicit ec: ExecutionContext): Future[Seq[Workflow]]
   def getWorkflowsByProjectName(projectName: String)(implicit ec: ExecutionContext): Future[Seq[Workflow]]
@@ -47,11 +47,11 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
                           override val dagInstanceRepository: DagInstanceRepository,
                           override val workflowValidationService: WorkflowValidationService) extends WorkflowService {
 
-  def createWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], Boolean]] = {
-    for {
-      validationErrors <- workflowValidationService.validateOnInsert(workflow)
-      dbError <- doIf(validationErrors.isEmpty, () => workflowRepository.insertWorkflow(workflow), None)
-    } yield { toEither(Seq(validationErrors, dbError.map(error => Seq(error)))) }
+  def createWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[ApiError, WorkflowJoined]] = {
+    workflowRepository.insertWorkflow(workflow).flatMap {
+      case Left(a) => Future.successful(Left(a))
+      case Right(b) => getWorkflow(b).map(Right(_))
+    }
   }
 
   def getWorkflow(id: Long)(implicit ec: ExecutionContext): Future[WorkflowJoined] = {

@@ -33,6 +33,7 @@ import { Router } from '@angular/router';
 import { absoluteRoutes } from '../../constants/routes.constants';
 import { ToastrService } from 'ngx-toastr';
 import { texts } from '../../constants/texts.constants';
+import { WorkflowModel } from '../../models/workflow.model';
 
 @Injectable()
 export class WorkflowsEffects {
@@ -200,38 +201,58 @@ export class WorkflowsEffects {
     }),
   );
 
-  // @Effect({ dispatch: true })
-  // workflowCreate = this.actions.pipe(
-  //   ofType(WorkflowActions.CREATE_WORKFLOW),
-  //   withLatestFrom(this.store.select(selectWorkflowState)),
-  //   switchMap(([action, state]: [WorkflowActions.CreateWorkflow, fromWorkflows.State]) => {
-  //     const workflow = {};
-  //     state.workflowAction.workflowData.details.forEach((detail) => {
-  //       set(workflow, detail.property, detail.value);
-  //     });
-  //
-  //     state.workflowAction.workflowData.sensor.forEach((sensor) => {
-  //       set(workflow, 'sensor.' + sensor.property, sensor.value);
-  //     });
-  //
-  //     state.workflowAction.workflowData.jobs.forEach((jobDef) => {
-  //       set(workflow, 'dagDefinitionJoined.jobDefinitions[' + jobDef.order + '].order', jobDef.order);
-  //       jobDef.job.forEach((jobProp) => {
-  //         set(workflow, 'dagDefinitionJoined.jobDefinitions[' + jobDef.order + '].' + jobProp.property, jobProp.value);
-  //       });
-  //     });
-  //
-  //     return this.workflowService.createWorkflow(workflow).pipe(
-  //       mergeMap((result: boolean) => {
-  //         return [
-  //           {
-  //             type: WorkflowActions.CREATE_WORKFLOW_SUCCESS,
-  //           },
-  //         ];
-  //       }),
-  //     );
-  //   }),
-  // );
+  @Effect({ dispatch: true })
+  workflowCreate = this.actions.pipe(
+    ofType(WorkflowActions.CREATE_WORKFLOW),
+    withLatestFrom(this.store.select(selectWorkflowState)),
+    switchMap(([action, state]: [WorkflowActions.CreateWorkflow, fromWorkflows.State]) => {
+      const workflow = {};
+      state.workflowAction.workflowData.details.forEach((detail) => {
+        set(workflow, detail.property, detail.value);
+      });
+
+      state.workflowAction.workflowData.sensor.forEach((sensor) => {
+        set(workflow, 'sensor.' + sensor.property, sensor.value);
+      });
+
+      state.workflowAction.workflowData.jobs.forEach((jobDef) => {
+        set(workflow, 'dagDefinitionJoined.jobDefinitions[' + jobDef.order + '].order', jobDef.order);
+        jobDef.job.forEach((jobProp) => {
+          set(workflow, 'dagDefinitionJoined.jobDefinitions[' + jobDef.order + '].' + jobProp.property, jobProp.value);
+        });
+      });
+
+      return this.workflowService.createWorkflow(workflow).pipe(
+        mergeMap((result: WorkflowJoinedModel) => {
+          const workflow: WorkflowModel = new WorkflowModel(
+            result.name,
+            result.isActive,
+            result.project,
+            result.created,
+            result.updated,
+            result.id,
+          );
+          this.toastrService.success(texts.CREATE_WORKFLOW_SUCCESS_NOTIFICATION);
+          this.router.navigateByUrl(absoluteRoutes.SHOW_WORKFLOW+'/'+workflow.id);
+
+          return [
+            {
+              type: WorkflowActions.CREATE_WORKFLOW_SUCCESS,
+              payload: workflow,
+            },
+          ];
+        }),
+        catchError(() => {
+          this.toastrService.error(texts.CREATE_WORKFLOW_FAILURE_NOTIFICATION);
+          return [
+            {
+              type: WorkflowActions.CREATE_WORKFLOW_FAILURE,
+            },
+          ];
+        }),
+      );
+    }),
+  );
   //
   // @Effect({ dispatch: true })
   // workflowUpdate = this.actions.pipe(

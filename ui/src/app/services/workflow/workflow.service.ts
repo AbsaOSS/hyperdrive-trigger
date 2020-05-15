@@ -61,10 +61,9 @@ export class WorkflowService {
     return this.httpClient.post<boolean>(api.SWITCH_WORKFLOW_ACTIVE_STATE.replace('{id}', id.toString()), { observe: 'response' });
   }
 
-  createWorkflow(workflowObject): Observable<boolean> {
-    console.log('fuck off', workflowObject);
+  createWorkflow(workflowObject): Observable<WorkflowJoinedModel> {
     return this.httpClient
-      .put<boolean>('/workflow', workflowObject, { observe: 'response' })
+      .put<WorkflowJoinedModel>('/workflow', workflowObject, { observe: 'response' })
       .pipe(
         map((_) => {
           return _.body;
