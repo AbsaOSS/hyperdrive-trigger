@@ -20,7 +20,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import { AppState, selectWorkflowState } from '../../../../stores/app.reducers';
 import { Store } from '@ngrx/store';
 import { FormPart } from '../../../../models/workflowFormParts.model';
-import { WorkflowAddEmptyJob } from '../../../../stores/workflows/workflows.actions';
+import { WorkflowAddEmptyJob, WorkflowRemoveJob } from '../../../../stores/workflows/workflows.actions';
 import { JobEntryModel } from '../../../../models/jobEntry.model';
 
 @Component({
@@ -51,8 +51,8 @@ export class JobsComponent implements OnDestroy {
     });
   }
 
-  trackByFn(index, item) {
-    return index;
+  trackByFn(index, item: JobEntryModel) {
+    return item.jobId;
   }
 
   toggleJob(jobId: string): void {
@@ -69,6 +69,10 @@ export class JobsComponent implements OnDestroy {
 
   addJob() {
     this.store.dispatch(new WorkflowAddEmptyJob(this.jobData.length));
+  }
+
+  removeJob(jobId: string): void {
+    this.store.dispatch(new WorkflowRemoveJob(jobId));
   }
 
   getJobName(jobId: string) {

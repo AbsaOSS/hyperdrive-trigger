@@ -54,6 +54,22 @@ const initialState: State = {
   workflowFormParts: undefined,
 };
 
+function removeJob(jobId: string, jobsOriginal: JobEntryModelObject[]): JobEntryModelObject[] {
+  const jobs = [...jobsOriginal];
+  const removeIndex = jobs.findIndex((job) => job.jobId === jobId);
+  const removeOrder = jobs[removeIndex].order;
+  jobs.splice(removeIndex, 1);
+  return jobs.map((jobOrig) => {
+    if (jobOrig.order > removeOrder) {
+      const job = { ...jobOrig };
+      job.order -= 1;
+      return job;
+    } else {
+      return jobOrig;
+    }
+  });
+}
+
 export function workflowsReducer(state: State = initialState, action: WorkflowsActions.WorkflowsActions) {
   switch (action.type) {
     case WorkflowsActions.INITIALIZE_WORKFLOWS:
@@ -169,14 +185,33 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
           },
         },
       };
-    case WorkflowsActions.WORKFLOW_JOB_CHANGED:
-      const oldJobOption = state.workflowAction.workflowData.jobs.find((job) => job.jobId === action.payload.jobId);
-      const oldJobData: WorkflowEntryModel[] = !!oldJobOption ? oldJobOption.job : [];
-      const filteredOldJobData = oldJobData.filter((jobEntry) => jobEntry.property !== action.payload.jobEntry.property);
-      const updatedJobData = [...filteredOldJobData, { property: action.payload.jobEntry.property, value: action.payload.jobEntry.value }];
+    case WorkflowsActions.WORKFLOW_REMOVE_JOB: {
+      const jobId: string = action.payload;
+      const jobsAfterRemoval = removeJob(jobId, state.workflowAction.workflowData.jobs);
+      return {
+        ...state,
+        workflowAction: {
+          ...state.workflowAction,
+          workflowData: {
+            ...state.workflowAction.workflowData,
+            jobs: [...jobsAfterRemoval],
+          },
+        },
+      };
+    }
+    case WorkflowsActions.WORKFLOW_JOB_CHANGED: {
+      const oldJob = state.workflowAction.workflowData.jobs.find((job) => job.jobId === action.payload.jobId);
+      const filteredOldJobData = oldJob.job.filter((jobEntry) => jobEntry.property !== action.payload.jobEntry.property);
+      const updatedJobData = [
+        ...filteredOldJobData,
+        {
+          property: action.payload.jobEntry.property,
+          value: action.payload.jobEntry.value,
+        },
+      ];
       const updatedJobsData = [
         ...state.workflowAction.workflowData.jobs.filter((jobEntry) => jobEntry.jobId !== action.payload.jobId),
-        JobEntryModel.createAsObject(oldJobOption.jobId, oldJobOption.order, updatedJobData),
+        JobEntryModel.createAsObject(oldJob.jobId, oldJob.order, updatedJobData),
       ];
       return {
         ...state,
@@ -188,9 +223,9 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
           },
         },
       };
+    }
     case WorkflowsActions.WORKFLOW_JOB_TYPE_SWITCHED:
       const oldJob = state.workflowAction.workflowData.jobs.find((job) => job.jobId === action.payload.jobId);
-
       const cleanedJobData = JobEntryModel.createAsObject(oldJob.jobId, oldJob.order, [
         new WorkflowEntryModel(action.payload.jobEntry.property, action.payload.jobEntry.value),
       ]);

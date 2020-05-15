@@ -26,7 +26,8 @@
       <button type="button" class="btn btn-link" *ngIf="mode != workflowModes.SHOW">
         <clr-icon shape="drag-handle"></clr-icon>
       </button>
-      <button type="button" style="float: right;" class="btn btn-link" *ngIf="mode != workflowModes.SHOW">
+      <button type="button" style="float: right;" class="btn btn-link" *ngIf="mode != workflowModes.SHOW"
+              (click)="removeJob(job.jobId)">
         <clr-icon shape="trash" class="is-error"></clr-icon>
       </button>
     </div>

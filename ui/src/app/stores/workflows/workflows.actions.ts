@@ -35,6 +35,7 @@ export const WORKFLOW_DETAILS_CHANGED = 'WORKFLOW_DETAILS_CHANGED';
 export const WORKFLOW_SENSOR_CHANGED = 'WORKFLOW_SENSOR_CHANGED';
 export const WORKFLOW_SENSOR_TYPE_SWITCHED = 'WORKFLOW_SENSOR_TYPE_SWITCHED';
 export const WORKFLOW_ADD_EMPTY_JOB = 'WORKFLOW_ADD_EMPTY_JOB';
+export const WORKFLOW_REMOVE_JOB = 'WORKFLOW_REMOVE_JOB';
 export const WORKFLOW_JOB_CHANGED = 'WORKFLOW_JOB_CHANGED';
 export const WORKFLOW_JOB_TYPE_SWITCHED = 'WORKFLOW_JOB_TYPE_SWITCHED';
 
@@ -117,6 +118,11 @@ export class WorkflowAddEmptyJob implements Action {
   constructor(public payload: number) {}
 }
 
+export class WorkflowRemoveJob implements Action {
+  readonly type = WORKFLOW_REMOVE_JOB;
+  constructor(public payload: string) {}
+}
+
 export class WorkflowJobChanged implements Action {
   readonly type = WORKFLOW_JOB_CHANGED;
   constructor(public payload: { jobId: string; jobEntry: WorkflowEntryModel }) {}
@@ -182,6 +188,7 @@ export type WorkflowsActions =
   | WorkflowSensorChanged
   | WorkflowSensorTypeSwitched
   | WorkflowAddEmptyJob
+  | WorkflowRemoveJob
   | WorkflowJobChanged
   | WorkflowJobTypeSwitched
   | DeleteWorkflow
