@@ -201,7 +201,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
     }
     case WorkflowsActions.WORKFLOW_JOB_CHANGED: {
       const oldJob = state.workflowAction.workflowData.jobs.find((job) => job.jobId === action.payload.jobId);
-      const filteredOldJobData = oldJob.job.filter((jobEntry) => jobEntry.property !== action.payload.jobEntry.property);
+      const filteredOldJobData = oldJob.entries.filter((jobEntry) => jobEntry.property !== action.payload.jobEntry.property);
       const updatedJobData = [
         ...filteredOldJobData,
         {

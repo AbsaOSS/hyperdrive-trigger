@@ -110,7 +110,7 @@ describe('JobComponent', () => {
     underTest.jobId = initialAppState.workflows.workflowAction.workflowData.jobs[0].jobId;
     fixture.detectChanges();
     fixture.whenStable().then(() => {
-      const queriedDetail = initialAppState.workflows.workflowAction.workflowData.jobs[0].job[0];
+      const queriedDetail = initialAppState.workflows.workflowAction.workflowData.jobs[0].entries[0];
       expect(underTest.getValue(queriedDetail.property)).toBe(queriedDetail.value);
     });
   }));

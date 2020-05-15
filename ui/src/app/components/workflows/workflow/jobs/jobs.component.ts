@@ -77,7 +77,7 @@ export class JobsComponent implements OnDestroy {
 
   getJobName(jobId: string) {
     const jobDataOption = this.jobData.find((job) => job.jobId === jobId);
-    const jobData = !!jobDataOption ? jobDataOption.job : [];
+    const jobData = !!jobDataOption ? jobDataOption.entries : [];
 
     const nameOption = jobData.find((value) => value.property === this.staticJobPart.property);
     return !!nameOption ? nameOption.value : '';

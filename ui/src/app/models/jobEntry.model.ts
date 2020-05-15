@@ -17,15 +17,15 @@ import { WorkflowEntryModel } from './workflowEntry.model';
 import { UuidUtil } from '../utils/uuid/uuid.util';
 
 export class JobEntryModel {
-  private constructor(public readonly jobId: string, public order: number, public job: WorkflowEntryModel[]) {}
+  private constructor(public readonly jobId: string, public order: number, public entries: WorkflowEntryModel[]) {}
 
-  static createNew(order: number, job: WorkflowEntryModel[]): JobEntryModel {
-    return new JobEntryModel(UuidUtil.createUUID(), order, job);
+  static createNew(order: number, entries: WorkflowEntryModel[]): JobEntryModel {
+    return new JobEntryModel(UuidUtil.createUUID(), order, entries);
   }
 
-  static createAsObject(jobId: string, order: number, job: WorkflowEntryModel[]): JobEntryModelObject {
-    return new JobEntryModel(jobId, order, job);
+  static createAsObject(jobId: string, order: number, entries: WorkflowEntryModel[]): JobEntryModelObject {
+    return new JobEntryModel(jobId, order, entries);
   }
 }
 
-export type JobEntryModelObject = { jobId: string; order: number; job: { property: string; value: any }[] };
+export type JobEntryModelObject = { jobId: string; order: number; entries: { property: string; value: any }[] };

@@ -53,7 +53,7 @@ export class JobComponent implements OnInit, OnDestroy {
       this.staticJobPart = state.workflowFormParts.staticJobPart;
 
       const jobDataOption = state.workflowAction.workflowData.jobs.find((job) => job.jobId == this.jobId);
-      this.jobData = !!jobDataOption ? jobDataOption.job : [];
+      this.jobData = !!jobDataOption ? jobDataOption.entries : [];
 
       const selected = this.jobData.find((value) => value.property == this.jobSwitchPart.property);
       this.selectedJob = !!selected ? selected.value : undefined;

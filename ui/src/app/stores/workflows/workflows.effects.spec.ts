@@ -233,7 +233,7 @@ describe('WorkflowsEffects', () => {
             jobsData: [
               jasmine.objectContaining({
                 order: 0,
-                job: [
+                entries: [
                   new WorkflowEntryModel(
                     workflowFormParts.JOB.JOB_TYPE.property,
                     workflow.dagDefinitionJoined.jobDefinitions[0].jobType.name,
