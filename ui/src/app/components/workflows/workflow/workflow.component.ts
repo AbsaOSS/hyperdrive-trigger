@@ -125,6 +125,6 @@ export class WorkflowComponent implements OnInit, OnDestroy {
     !!this.workflowSubscription && this.workflowSubscription.unsubscribe();
     !!this.paramsSubscription && this.paramsSubscription.unsubscribe();
     !!this.confirmationDialogServiceSubscription && this.confirmationDialogServiceSubscription.unsubscribe();
-    !!this.runWorkflowDialogSubscription ? this.runWorkflowDialogSubscription.unsubscribe() : '';
+    !!this.runWorkflowDialogSubscription && this.runWorkflowDialogSubscription.unsubscribe();
   }
 }

@@ -76,6 +76,6 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     !!this.workflowsSubscription && this.workflowsSubscription.unsubscribe();
     !!this.confirmationDialogServiceSubscription && this.confirmationDialogServiceSubscription.unsubscribe();
-    !!this.runWorkflowDialogSubscription ? this.runWorkflowDialogSubscription.unsubscribe() : '';
+    !!this.runWorkflowDialogSubscription && this.runWorkflowDialogSubscription.unsubscribe();
   }
 }

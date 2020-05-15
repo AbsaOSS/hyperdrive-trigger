@@ -267,31 +267,22 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         },
         loading: false,
       };
-    default:
-      return state;
     case WorkflowsActions.RUN_WORKFLOW:
       return {
         ...state,
-        workflowAction: {
-          ...state.workflowAction,
-        },
         loading: true,
       };
     case WorkflowsActions.RUN_WORKFLOW_SUCCESS:
       return {
         ...state,
-        workflowAction: {
-          ...state.workflowAction,
-        },
         loading: false,
       };
     case WorkflowsActions.RUN_WORKFLOW_FAILURE:
       return {
         ...state,
-        workflowAction: {
-          ...state.workflowAction,
-        },
         loading: false,
       };
+    default:
+      return state;
   }
 }

@@ -203,20 +203,21 @@ export class WorkflowsEffects {
   workflowRun = this.actions.pipe(
     ofType(WorkflowActions.RUN_WORKFLOW),
     switchMap((action: WorkflowActions.RunWorkflow) => {
-      return this.workflowService.runWorkflow(action.payload);
-    }),
-    mergeMap((runWorkflowSuccess) => {
-      if (runWorkflowSuccess) {
-        this.toastrService.success(texts.RUN_WORKFLOW_SUCCESS_NOTIFICATION);
-        return [{ type: WorkflowActions.RUN_WORKFLOW_SUCCESS }];
-      } else {
-        this.toastrService.error(texts.RUN_WORKFLOW_FAILURE_NOTIFICATION);
-        return [{ type: WorkflowActions.RUN_WORKFLOW_FAILURE }];
-      }
-    }),
-    catchError(() => {
-      this.toastrService.error(texts.RUN_WORKFLOW_FAILURE_NOTIFICATION);
-      return [{ type: WorkflowActions.RUN_WORKFLOW_FAILURE }];
+      return this.workflowService.runWorkflow(action.payload).pipe(
+        mergeMap((runWorkflowSuccess) => {
+          if (runWorkflowSuccess) {
+            this.toastrService.success(texts.RUN_WORKFLOW_SUCCESS_NOTIFICATION);
+            return [{ type: WorkflowActions.RUN_WORKFLOW_SUCCESS }];
+          } else {
+            this.toastrService.error(texts.RUN_WORKFLOW_FAILURE_NOTIFICATION);
+            return [{ type: WorkflowActions.RUN_WORKFLOW_FAILURE }];
+          }
+        }),
+        catchError(() => {
+          this.toastrService.error(texts.RUN_WORKFLOW_FAILURE_NOTIFICATION);
+          return [{ type: WorkflowActions.RUN_WORKFLOW_FAILURE }];
+        }),
+      );
     }),
   );
 }

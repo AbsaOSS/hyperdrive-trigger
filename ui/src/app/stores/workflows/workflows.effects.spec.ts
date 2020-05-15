@@ -437,7 +437,7 @@ describe('WorkflowsEffects', () => {
       const runWorkflowResponse = cold('-#|');
       spyOn(workflowService, 'runWorkflow').and.returnValue(runWorkflowResponse);
 
-      const expected = cold('--(a|)', {
+      const expected = cold('--a', {
         a: {
           type: WorkflowsActions.RUN_WORKFLOW_FAILURE,
         },
