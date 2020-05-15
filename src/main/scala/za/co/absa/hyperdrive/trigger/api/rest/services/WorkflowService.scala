@@ -15,6 +15,8 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
+import java.time.LocalDateTime
+
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.models.errors.ApiError
 import za.co.absa.hyperdrive.trigger.models.{Project, ProjectInfo, Workflow, WorkflowJoined}
@@ -28,7 +30,7 @@ trait WorkflowService {
   val workflowValidationService: WorkflowValidationService
 
   def createWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], Boolean]]
-  def getWorkflow(id: Long)(implicit ec: ExecutionContext): Future[Option[WorkflowJoined]]
+  def getWorkflow(id: Long)(implicit ec: ExecutionContext): Future[WorkflowJoined]
   def getWorkflows()(implicit ec: ExecutionContext): Future[Seq[Workflow]]
   def getWorkflowsByProjectName(projectName: String)(implicit ec: ExecutionContext): Future[Seq[Workflow]]
   def deleteWorkflow(id: Long)(implicit ec: ExecutionContext): Future[Boolean]
@@ -52,7 +54,7 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
     } yield { toEither(Seq(validationErrors, dbError.map(error => Seq(error)))) }
   }
 
-  def getWorkflow(id: Long)(implicit ec: ExecutionContext): Future[Option[WorkflowJoined]] = {
+  def getWorkflow(id: Long)(implicit ec: ExecutionContext): Future[WorkflowJoined] = {
     workflowRepository.getWorkflow(id)
   }
 
@@ -71,7 +73,32 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
   override def updateWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], Boolean]] = {
     for {
       validationErrors <- workflowValidationService.validateOnUpdate(workflow)
-      dbError <- doIf(validationErrors.isEmpty, () => workflowRepository.updateWorkflow(workflow), None)
+      dbError <- doIf(validationErrors.isEmpty, () => {
+        workflowRepository.getWorkflow(workflow.id).flatMap { originalWorkflow =>
+          val updatedWorkflow = workflow.copy(
+            id = originalWorkflow.id,
+            created = originalWorkflow.created,
+            updated = Option(LocalDateTime.now()),
+            sensor = workflow.sensor.copy(
+              id = originalWorkflow.sensor.id,
+              workflowId = originalWorkflow.id,
+              properties = workflow.sensor.properties.copy(
+                sensorId = originalWorkflow.sensor.properties.sensorId
+              )
+            ),
+            dagDefinitionJoined = workflow.dagDefinitionJoined.copy(
+              id = originalWorkflow.dagDefinitionJoined.id,
+              workflowId = originalWorkflow.id
+              //workflow.dagDefinitionJoined.jobDefinitions.map( originalJob =>
+//                originalJob.copy(
+//                  dagDefinitionId = originalWorkflow.dagDefinitionJoined.id
+//                )
+//              )
+            )
+          );
+          workflowRepository.updateWorkflow(updatedWorkflow)
+        }
+      }, None)
     } yield { toEither(Seq(validationErrors, dbError.map(error => Seq(error)))) }
   }
 
@@ -96,9 +123,9 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
   }
 
   override def runWorkflow(workflowId: Long)(implicit ec: ExecutionContext): Future[Boolean] = {
-    workflowRepository.getWorkflow(workflowId).map(_.map { joinedWorkflow =>
+    workflowRepository.getWorkflow(workflowId).map( joinedWorkflow =>
       dagInstanceRepository.insertJoinedDagInstance(joinedWorkflow.dagDefinitionJoined.toDagInstanceJoined())
-    }).map(_ => true)
+    ).map(_ => true)
   }
 
   private def doIf[T](condition: Boolean, future: () => Future[T], defaultValue: T) = {

@@ -43,7 +43,7 @@ class WorkflowController @Inject()(workflowService: WorkflowService) {
   }
 
   @GetMapping(path = Array("/workflow"))
-  def getWorkflow(@RequestParam id: Long): CompletableFuture[Option[WorkflowJoined]] = {
+  def getWorkflow(@RequestParam id: Long): CompletableFuture[WorkflowJoined] = {
     workflowService.getWorkflow(id).toJava.toCompletableFuture
   }
 

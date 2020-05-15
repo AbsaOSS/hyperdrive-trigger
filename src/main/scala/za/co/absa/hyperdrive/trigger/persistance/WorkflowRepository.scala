@@ -29,7 +29,7 @@ trait WorkflowRepository extends Repository {
   def insertWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Option[ApiError]]
   def existsWorkflow(name: String)(implicit ec: ExecutionContext): Future[Boolean]
   def existsOtherWorkflow(name: String, id: Long)(implicit ec: ExecutionContext): Future[Boolean]
-  def getWorkflow(id: Long)(implicit ec: ExecutionContext): Future[Option[WorkflowJoined]]
+  def getWorkflow(id: Long)(implicit ec: ExecutionContext): Future[WorkflowJoined]
   def getWorkflows()(implicit ec: ExecutionContext): Future[Seq[Workflow]]
   def getWorkflowsByProjectName(projectName: String)(implicit ec: ExecutionContext): Future[Seq[Workflow]]
   def deleteWorkflow(id: Long)(implicit ec: ExecutionContext): Future[Unit]
@@ -69,7 +69,7 @@ class WorkflowRepositoryImpl extends WorkflowRepository {
       .result
   )
 
-  override def getWorkflow(id: Long)(implicit ec: ExecutionContext): Future[Option[WorkflowJoined]] = {
+  override def getWorkflow(id: Long)(implicit ec: ExecutionContext): Future[WorkflowJoined] = {
     db.run(
       (for {
       w <- workflowTable if w.id === id
@@ -80,7 +80,7 @@ class WorkflowRepositoryImpl extends WorkflowRepository {
       (w, s, dd, jd)
     }).result
     ).map { wsddjd =>
-      wsddjd.headOption map {
+      val workflowOption = wsddjd.headOption map {
         case (w,s,dd,_) =>
           WorkflowJoined(
             name = w.name,
@@ -97,6 +97,7 @@ class WorkflowRepositoryImpl extends WorkflowRepository {
             id = w.id
           )
       }
+      workflowOption.getOrElse(throw new Exception(s"Workflow with ${id} does not exist."));
     }
   }
 
@@ -130,7 +131,7 @@ class WorkflowRepositoryImpl extends WorkflowRepository {
 
   override def updateWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Option[ApiError]] = {
     db.run((for {
-      w <- workflowTable.filter(_.id === workflow.id).update(workflow.toWorkflow.copy(updated = Option(LocalDateTime.now())))
+      w <- workflowTable.filter(_.id === workflow.id).update(workflow.toWorkflow)
       s <- sensorTable.filter(_.workflowId === workflow.id).update(workflow.sensor)
       dd <- dagDefinitionTable.filter(_.workflowId === workflow.id).update(workflow.dagDefinitionJoined.toDag())
       deleteJds <- jobDefinitionTable.filter(_.dagDefinitionId === workflow.dagDefinitionJoined.id).delete
