@@ -27,4 +27,9 @@ export const texts = {
     return 'Workflow has been ' + (!currentActiveState ? 'activated' : 'deactivated');
   },
   SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
+
+  RUN_WORKFLOW_CONFIRMATION_TITLE: 'Run workflow',
+  RUN_WORKFLOW_CONFIRMATION_CONTENT: 'Do you really want to run the workflow now?',
+  RUN_WORKFLOW_SUCCESS_NOTIFICATION: 'The workflow has been dispatched.',
+  RUN_WORKFLOW_FAILURE_NOTIFICATION: "Sorry, the workflow couldn't be dispatched. Please try again.",
 };

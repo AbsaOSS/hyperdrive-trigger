@@ -23,7 +23,7 @@ import { ConfirmationDialogService } from '../../../services/confirmation-dialog
 import { Store } from '@ngrx/store';
 import { AppState } from '../../../stores/app.reducers';
 import { Subject } from 'rxjs';
-import { DeleteWorkflow, SwitchWorkflowActiveState } from '../../../stores/workflows/workflows.actions';
+import { DeleteWorkflow, RunWorkflow, SwitchWorkflowActiveState } from '../../../stores/workflows/workflows.actions';
 
 describe('WorkflowsHomeComponent', () => {
   let fixture: ComponentFixture<WorkflowsHomeComponent>;
@@ -125,6 +125,40 @@ describe('WorkflowsHomeComponent', () => {
     spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
 
     underTest.switchWorkflowActiveState(id, currentActiveState);
+    subject.next(false);
+
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(storeSpy).toHaveBeenCalledTimes(0);
+    });
+  }));
+
+  it('runWorkflow() should dispatch switch run workflow', async(() => {
+    const id = 42;
+    const subject = new Subject<boolean>();
+    const storeSpy = spyOn(store, 'dispatch');
+
+    spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
+
+    underTest.runWorkflow(id);
+    underTest.ngOnInit();
+    subject.next(true);
+
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(storeSpy).toHaveBeenCalled();
+      expect(storeSpy).toHaveBeenCalledWith(new RunWorkflow(id));
+    });
+  }));
+
+  it('runWorkflow() should not dispatch run workflow when dialog is not confirmed', async(() => {
+    const id = 42;
+    const subject = new Subject<boolean>();
+    const storeSpy = spyOn(store, 'dispatch');
+
+    spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
+
+    underTest.runWorkflow(id);
     subject.next(false);
 
     fixture.detectChanges();

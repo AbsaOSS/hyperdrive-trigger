@@ -46,6 +46,10 @@ export const SWITCH_WORKFLOW_ACTIVE_STATE = 'SWITCH_WORKFLOW_ACTIVE_STATE';
 export const SWITCH_WORKFLOW_ACTIVE_STATE_SUCCESS = 'SWITCH_WORKFLOW_ACTIVE_STATE_SUCCESS';
 export const SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE = 'SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE';
 
+export const RUN_WORKFLOW = 'RUN_WORKFLOW';
+export const RUN_WORKFLOW_SUCCESS = 'RUN_WORKFLOW_SUCCESS';
+export const RUN_WORKFLOW_FAILURE = 'RUN_WORKFLOW_FAILURE';
+
 export class InitializeWorkflows implements Action {
   readonly type = INITIALIZE_WORKFLOWS;
 }
@@ -151,6 +155,19 @@ export class SwitchWorkflowActiveStateFailure implements Action {
   readonly type = SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE;
 }
 
+export class RunWorkflow implements Action {
+  readonly type = RUN_WORKFLOW;
+  constructor(public payload: number) {}
+}
+
+export class RunWorkflowSuccess implements Action {
+  readonly type = RUN_WORKFLOW_SUCCESS;
+}
+
+export class RunWorkflowFailure implements Action {
+  readonly type = RUN_WORKFLOW_FAILURE;
+}
+
 export type WorkflowsActions =
   | InitializeWorkflows
   | InitializeWorkflowsSuccess
@@ -172,4 +189,7 @@ export type WorkflowsActions =
   | DeleteWorkflowFailure
   | SwitchWorkflowActiveState
   | SwitchWorkflowActiveStateSuccess
-  | SwitchWorkflowActiveStateFailure;
+  | SwitchWorkflowActiveStateFailure
+  | RunWorkflow
+  | RunWorkflowSuccess
+  | RunWorkflowFailure;

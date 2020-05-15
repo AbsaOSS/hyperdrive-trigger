@@ -18,7 +18,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AppState, selectWorkflowState } from '../../../stores/app.reducers';
 import { Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
-import { DeleteWorkflow, StartWorkflowInitialization, SwitchWorkflowActiveState } from '../../../stores/workflows/workflows.actions';
+import {
+  DeleteWorkflow,
+  RunWorkflow,
+  StartWorkflowInitialization,
+  SwitchWorkflowActiveState,
+} from '../../../stores/workflows/workflows.actions';
 import { workflowModes } from '../../../models/enums/workflowModes.constants';
 import { absoluteRoutes } from '../../../constants/routes.constants';
 import { PreviousRouteService } from '../../../services/previousRoute/previous-route.service';
@@ -47,6 +52,7 @@ export class WorkflowComponent implements OnInit, OnDestroy {
   paramsSubscription: Subscription;
   workflowSubscription: Subscription;
   confirmationDialogServiceSubscription: Subscription = null;
+  runWorkflowDialogSubscription: Subscription = null;
 
   constructor(
     private store: Store<AppState>,
@@ -107,9 +113,18 @@ export class WorkflowComponent implements OnInit, OnDestroy {
       });
   }
 
+  runWorkflow(id: number) {
+    this.runWorkflowDialogSubscription = this.confirmationDialogService
+      .confirm(ConfirmationDialogTypes.YesOrNo, texts.RUN_WORKFLOW_CONFIRMATION_TITLE, texts.RUN_WORKFLOW_CONFIRMATION_CONTENT)
+      .subscribe((confirmed) => {
+        if (confirmed) this.store.dispatch(new RunWorkflow(id));
+      });
+  }
+
   ngOnDestroy(): void {
     !!this.workflowSubscription && this.workflowSubscription.unsubscribe();
     !!this.paramsSubscription && this.paramsSubscription.unsubscribe();
     !!this.confirmationDialogServiceSubscription && this.confirmationDialogServiceSubscription.unsubscribe();
+    !!this.runWorkflowDialogSubscription && this.runWorkflowDialogSubscription.unsubscribe();
   }
 }
