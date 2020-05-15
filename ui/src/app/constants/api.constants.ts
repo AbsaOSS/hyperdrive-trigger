@@ -25,4 +25,5 @@ export const api = {
   GET_WORKFLOW: '/workflow',
   DELETE_WORKFLOW: '/workflows',
   SWITCH_WORKFLOW_ACTIVE_STATE: '/workflows/{id}/switchActiveState',
+  RUN_WORKFLOW: '/workflow/run',
 };

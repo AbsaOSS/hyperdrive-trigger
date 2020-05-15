@@ -82,4 +82,11 @@ export class WorkflowService {
       ),
     );
   }
+
+  runWorkflow(id: number): Observable<boolean> {
+    const params = new HttpParams().set('workflowId', id.toString());
+    return this.httpClient
+      .put<boolean>(api.RUN_WORKFLOW, null, { params: params, observe: 'response' })
+      .pipe(map((_) => _.body));
+  }
 }
