@@ -50,7 +50,7 @@ class WorkflowRepositoryImpl extends WorkflowRepository {
       sensorId <- sensorTable += workflow.sensor.copy(workflowId = workflowId)
       dagId <- dagDefinitionTable returning dagDefinitionTable.map(_.id) += workflow.dagDefinitionJoined.toDag().copy(workflowId = workflowId)
       jobId <- jobDefinitionTable ++= workflow.dagDefinitionJoined.jobDefinitions.map(_.copy(dagDefinitionId = dagId))
-    } yield ()).transactionally.asTry
+    } yield (workflowId)).transactionally.asTry
   ).map {
     case Success(_) => None
     case Failure(ex) =>

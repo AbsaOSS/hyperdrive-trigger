@@ -27,4 +27,11 @@ export const texts = {
     return 'Workflow has been ' + (!currentActiveState ? 'activated' : 'deactivated');
   },
   SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
+
+  CREATE_WORKFLOW_CONFIRMATION_TITLE: 'Create workflow',
+  CREATE_WORKFLOW_CONFIRMATION_CONTENT: 'Are you sure you want to create new workflow?',
+
+  UPDATE_WORKFLOW_CONFIRMATION_TITLE: 'Update workflow',
+  UPDATE_WORKFLOW_CONFIRMATION_CONTENT: 'Are you sure you want to update the workflow?',
+
 };

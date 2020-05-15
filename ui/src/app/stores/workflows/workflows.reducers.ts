@@ -267,6 +267,36 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         },
         loading: false,
       };
+    case WorkflowsActions.CREATE_WORKFLOW:
+      return {
+        ...state,
+        loading: true,
+      };
+    case WorkflowsActions.CREATE_WORKFLOW_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+      };
+    case WorkflowsActions.CREATE_WORKFLOW_FAILURE:
+      return {
+        ...state,
+        loading: false,
+      };
+    case WorkflowsActions.UPDATE_WORKFLOW:
+      return {
+        ...state,
+        loading: true,
+      };
+    case WorkflowsActions.UPDATE_WORKFLOW_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+      };
+    case WorkflowsActions.UPDATE_WORKFLOW_FAILURE:
+      return {
+        ...state,
+        loading: false,
+      };
     default:
       return state;
   }

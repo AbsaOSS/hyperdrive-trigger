@@ -114,13 +114,27 @@ export class WorkflowComponent implements OnInit, OnDestroy {
   }
 
   createWorkflow() {
-    console.log('onCreateWorkflowClick');
-    this.store.dispatch(new CreateWorkflow());
+    this.confirmationDialogServiceSubscription = this.confirmationDialogService
+      .confirm(
+        ConfirmationDialogTypes.YesOrNo,
+        texts.CREATE_WORKFLOW_CONFIRMATION_TITLE,
+        texts.CREATE_WORKFLOW_CONFIRMATION_CONTENT,
+      )
+      .subscribe((confirmed) => {
+        if (confirmed) this.store.dispatch(new CreateWorkflow());
+      });
   }
 
   updateWorkflow() {
-    console.log('onUpdateWorkflowClick');
-    this.store.dispatch(new UpdateWorkflow());
+    this.confirmationDialogServiceSubscription = this.confirmationDialogService
+      .confirm(
+        ConfirmationDialogTypes.YesOrNo,
+        texts.UPDATE_WORKFLOW_CONFIRMATION_TITLE,
+        texts.UPDATE_WORKFLOW_CONFIRMATION_CONTENT,
+      )
+      .subscribe((confirmed) => {
+        if (confirmed) this.store.dispatch(new UpdateWorkflow());
+      });
   }
 
   ngOnDestroy(): void {
