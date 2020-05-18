@@ -19,7 +19,7 @@ import { JobsComponent } from './jobs.component';
 import { FormPart, WorkflowFormPartsModel } from '../../../../models/workflowFormParts.model';
 import { provideMockStore } from '@ngrx/store/testing';
 import { Store } from '@ngrx/store';
-import {WorkflowAddEmptyJob, WorkflowRemoveJob} from '../../../../stores/workflows/workflows.actions';
+import { WorkflowAddEmptyJob, WorkflowRemoveJob } from '../../../../stores/workflows/workflows.actions';
 import { JobEntryModel } from '../../../../models/jobEntry.model';
 import { WorkflowEntryModel } from '../../../../models/workflowEntry.model';
 
