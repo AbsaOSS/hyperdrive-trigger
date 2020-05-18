@@ -71,10 +71,10 @@ export class WorkflowService {
       );
   }
 
-  updateWorkflow(workflowObject): Observable<boolean> {
+  updateWorkflow(workflowObject): Observable<WorkflowJoinedModel> {
     console.log('fuck off', workflowObject);
     return this.httpClient
-      .post<boolean>('/workflows', workflowObject, { observe: 'response' })
+      .post<WorkflowJoinedModel>('/workflows', workflowObject, { observe: 'response' })
       .pipe(
         map((_) => {
           return _.body;

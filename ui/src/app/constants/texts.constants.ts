@@ -35,4 +35,6 @@ export const texts = {
 
   UPDATE_WORKFLOW_CONFIRMATION_TITLE: 'Update workflow',
   UPDATE_WORKFLOW_CONFIRMATION_CONTENT: 'Are you sure you want to update the workflow?',
+  UPDATE_WORKFLOW_SUCCESS_NOTIFICATION: 'Workflow has been updated.',
+  UPDATE_WORKFLOW_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
 };

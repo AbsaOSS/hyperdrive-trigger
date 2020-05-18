@@ -22,6 +22,7 @@ import za.co.absa.hyperdrive.trigger.models.errors.ApiError
 import za.co.absa.hyperdrive.trigger.models.{Project, ProjectInfo, Workflow, WorkflowJoined}
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, WorkflowRepository}
 
+import scala.None
 import scala.concurrent.{ExecutionContext, Future}
 
 trait WorkflowService {
@@ -34,7 +35,7 @@ trait WorkflowService {
   def getWorkflows()(implicit ec: ExecutionContext): Future[Seq[Workflow]]
   def getWorkflowsByProjectName(projectName: String)(implicit ec: ExecutionContext): Future[Seq[Workflow]]
   def deleteWorkflow(id: Long)(implicit ec: ExecutionContext): Future[Boolean]
-  def updateWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], Boolean]]
+  def updateWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[ApiError, WorkflowJoined]]
   def switchWorkflowActiveState(id: Long)(implicit ec: ExecutionContext): Future[Boolean]
   def getProjectNames()(implicit ec: ExecutionContext): Future[Set[String]]
   def getProjects()(implicit ec: ExecutionContext): Future[Seq[Project]]
@@ -70,36 +71,36 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
     workflowRepository.deleteWorkflow(id).map(_ => true)
   }
 
-  override def updateWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], Boolean]] = {
-    for {
-      validationErrors <- workflowValidationService.validateOnUpdate(workflow)
-      dbError <- doIf(validationErrors.isEmpty, () => {
-        workflowRepository.getWorkflow(workflow.id).flatMap { originalWorkflow =>
-          val updatedWorkflow = workflow.copy(
-            id = originalWorkflow.id,
-            created = originalWorkflow.created,
-            updated = Option(LocalDateTime.now()),
-            sensor = workflow.sensor.copy(
-              id = originalWorkflow.sensor.id,
-              workflowId = originalWorkflow.id,
-              properties = workflow.sensor.properties.copy(
-                sensorId = originalWorkflow.sensor.properties.sensorId
-              )
-            ),
-            dagDefinitionJoined = workflow.dagDefinitionJoined.copy(
-              id = originalWorkflow.dagDefinitionJoined.id,
-              workflowId = originalWorkflow.id
-              //workflow.dagDefinitionJoined.jobDefinitions.map( originalJob =>
-//                originalJob.copy(
-//                  dagDefinitionId = originalWorkflow.dagDefinitionJoined.id
-//                )
-//              )
-            )
-          );
-          workflowRepository.updateWorkflow(updatedWorkflow)
-        }
-      }, None)
-    } yield { toEither(Seq(validationErrors, dbError.map(error => Seq(error)))) }
+  override def updateWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[ApiError, WorkflowJoined]] = {
+    getWorkflow(workflow.id).flatMap { originalWorkflow =>
+      val updatedWorkflow = workflow.copy(
+        id = originalWorkflow.id,
+        created = originalWorkflow.created,
+        updated = Option(LocalDateTime.now()),
+        sensor = workflow.sensor.copy(
+          id = originalWorkflow.sensor.id,
+          workflowId = originalWorkflow.id,
+          properties = workflow.sensor.properties.copy(
+            sensorId = originalWorkflow.sensor.properties.sensorId
+          )
+        ),
+        dagDefinitionJoined = workflow.dagDefinitionJoined.copy(
+          id = originalWorkflow.dagDefinitionJoined.id,
+          workflowId = originalWorkflow.id
+          //workflow.dagDefinitionJoined.jobDefinitions.map( originalJob =>
+          //                originalJob.copy(
+          //                  dagDefinitionId = originalWorkflow.dagDefinitionJoined.id
+          //                )
+          //              )
+        )
+      );
+
+      workflowRepository.updateWorkflow(updatedWorkflow).flatMap {
+        case Some(a) => Future.successful(Left(a))
+        case None => getWorkflow(workflow.id).map(Right(_))
+      }
+
+    }
   }
 
   override def switchWorkflowActiveState(id: Long)(implicit ec: ExecutionContext): Future[Boolean] = {
