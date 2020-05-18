@@ -179,6 +179,7 @@ export class UpdateWorkflow implements Action {
 
 export class UpdateWorkflowSuccess implements Action {
   readonly type = UPDATE_WORKFLOW_SUCCESS;
+  constructor(public payload: WorkflowModel) {}
 }
 
 export class UpdateWorkflowFailure implements Action {

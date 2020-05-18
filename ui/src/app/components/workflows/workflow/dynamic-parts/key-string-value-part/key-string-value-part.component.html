@@ -17,9 +17,11 @@
   <clr-control-container *ngFor="let val of mapOfValues; let i = index; trackBy: trackByFn;">
     <label *ngIf="i == 0">{{name}}</label>
 
-    <input clrControl [id]="name+i+0" type="text" placeholder="key" [size]="20" [ngModel]="val[0]" (ngModelChange)="ngModelChanged($event, i,0)"/>
+    <input clrControl [id]="name+i+0" type="text" placeholder="key" [size]="20" [ngModel]="val[0]"
+           (ngModelChange)="ngModelChanged($event, i,0)"/>
     -
-    <input clrControl [id]="name+i+1" type="text" placeholder="value" [size]="40" [ngModel]="val[1]" (ngModelChange)="ngModelChanged($event, i,1)"/>
+    <input clrControl [id]="name+i+1" type="text" placeholder="value" [size]="40" [ngModel]="val[1]"
+           (ngModelChange)="ngModelChanged($event, i,1)"/>
 
     <button type="button" class="btn btn-link" (click)="onDelete(i)">
       <clr-icon shape="trash"></clr-icon>
@@ -33,11 +35,11 @@
 </div>
 
 <div *ngIf="isShow">
-  <div class="clr-form-control clr-row" *ngFor="let val of mapOfValues let i = index;">
+  <clr-control-container *ngFor="let val of mapOfValues let i = index;">
     <label *ngIf="i == 0" class="clr-control-label">{{name}}</label>
     <label *ngIf="i != 0" class="clr-control-label"></label>
-    <span>{{val[0]}}</span>=<span>{{val[1]}}</span>
-  </div>
+    <input [readOnly]="true" clrControl value="{{val[0]}} = {{val[1]}}" [size]="60"/>
+  </clr-control-container>
 </div>
 
 
