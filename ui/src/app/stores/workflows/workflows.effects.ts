@@ -202,6 +202,28 @@ export class WorkflowsEffects {
   );
 
   @Effect({ dispatch: true })
+  workflowRun = this.actions.pipe(
+    ofType(WorkflowActions.RUN_WORKFLOW),
+    switchMap((action: WorkflowActions.RunWorkflow) => {
+      return this.workflowService.runWorkflow(action.payload).pipe(
+        mergeMap((runWorkflowSuccess) => {
+          if (runWorkflowSuccess) {
+            this.toastrService.success(texts.RUN_WORKFLOW_SUCCESS_NOTIFICATION);
+            return [{ type: WorkflowActions.RUN_WORKFLOW_SUCCESS }];
+          } else {
+            this.toastrService.error(texts.RUN_WORKFLOW_FAILURE_NOTIFICATION);
+            return [{ type: WorkflowActions.RUN_WORKFLOW_FAILURE }];
+          }
+        }),
+        catchError(() => {
+          this.toastrService.error(texts.RUN_WORKFLOW_FAILURE_NOTIFICATION);
+          return [{ type: WorkflowActions.RUN_WORKFLOW_FAILURE }];
+        }),
+      );
+    }),
+  );
+
+  @Effect({ dispatch: true })
   workflowCreate = this.actions.pipe(
     ofType(WorkflowActions.CREATE_WORKFLOW),
     withLatestFrom(this.store.select(selectWorkflowState)),
@@ -217,7 +239,7 @@ export class WorkflowsEffects {
 
       state.workflowAction.workflowData.jobs.forEach((jobDef) => {
         set(workflow, 'dagDefinitionJoined.jobDefinitions[' + jobDef.order + '].order', jobDef.order);
-        jobDef.job.forEach((jobProp) => {
+        jobDef.entries.forEach((jobProp) => {
           set(workflow, 'dagDefinitionJoined.jobDefinitions[' + jobDef.order + '].' + jobProp.property, jobProp.value);
         });
       });
@@ -270,7 +292,7 @@ export class WorkflowsEffects {
 
       state.workflowAction.workflowData.jobs.forEach((jobDef) => {
         set(workflow, 'dagDefinitionJoined.jobDefinitions[' + jobDef.order + '].order', jobDef.order);
-        jobDef.job.forEach((jobProp) => {
+        jobDef.entries.forEach((jobProp) => {
           set(workflow, 'dagDefinitionJoined.jobDefinitions[' + jobDef.order + '].' + jobProp.property, jobProp.value);
         });
       });

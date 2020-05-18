@@ -28,6 +28,11 @@ export const texts = {
   },
   SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
 
+  RUN_WORKFLOW_CONFIRMATION_TITLE: 'Run workflow',
+  RUN_WORKFLOW_CONFIRMATION_CONTENT: 'Do you really want to run the workflow now?',
+  RUN_WORKFLOW_SUCCESS_NOTIFICATION: 'The workflow has been dispatched.',
+  RUN_WORKFLOW_FAILURE_NOTIFICATION: "Sorry, the workflow couldn't be dispatched. Please try again.",
+
   CREATE_WORKFLOW_CONFIRMATION_TITLE: 'Create workflow',
   CREATE_WORKFLOW_CONFIRMATION_CONTENT: 'Are you sure you want to create new workflow?',
   CREATE_WORKFLOW_SUCCESS_NOTIFICATION: 'Workflow has been created.',

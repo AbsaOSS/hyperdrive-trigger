@@ -13,17 +13,21 @@
  * limitations under the License.
  */
 
-export const api = {
-  USER_INFO: '/user/info',
-  LOGIN: '/login',
-  LOGOUT: '/logout',
+import { UuidUtil } from './uuid.util';
 
-  DAG_RUN_SEARCH: '/dagRuns/search',
-  JOB_INSTANCES: '/jobInstances',
+describe('UuidUtil', () => {
+  it('getUUID() should generate unique uuid', () => {
+    const uuids: string[] = [];
 
-  GET_PROJECTS: '/workflows/projects',
-  GET_WORKFLOW: '/workflow',
-  DELETE_WORKFLOW: '/workflows',
-  SWITCH_WORKFLOW_ACTIVE_STATE: '/workflows/{id}/switchActiveState',
-  RUN_WORKFLOW: '/workflow/run',
-};
+    for (let i = 0; i < 100; i++) {
+      const uuid = UuidUtil.createUUID();
+      uuids.push(uuid);
+    }
+
+    expect(new Set(uuids).size == uuids.length).toBeTrue();
+
+    uuids.forEach(function (uuid: string) {
+      expect(uuid.length).toBe(36);
+    });
+  });
+});

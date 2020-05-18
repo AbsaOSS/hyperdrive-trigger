@@ -23,6 +23,7 @@ import {
   CreateWorkflow,
   StartWorkflowInitialization,
   UpdateWorkflow,
+  RunWorkflow,
   SwitchWorkflowActiveState,
 } from '../../../stores/workflows/workflows.actions';
 import { workflowModes } from '../../../models/enums/workflowModes.constants';
@@ -53,6 +54,7 @@ export class WorkflowComponent implements OnInit, OnDestroy {
   paramsSubscription: Subscription;
   workflowSubscription: Subscription;
   confirmationDialogServiceSubscription: Subscription = null;
+  runWorkflowDialogSubscription: Subscription = null;
 
   constructor(
     private store: Store<AppState>,
@@ -113,6 +115,14 @@ export class WorkflowComponent implements OnInit, OnDestroy {
       });
   }
 
+  runWorkflow(id: number) {
+    this.runWorkflowDialogSubscription = this.confirmationDialogService
+      .confirm(ConfirmationDialogTypes.YesOrNo, texts.RUN_WORKFLOW_CONFIRMATION_TITLE, texts.RUN_WORKFLOW_CONFIRMATION_CONTENT)
+      .subscribe((confirmed) => {
+        if (confirmed) this.store.dispatch(new RunWorkflow(id));
+      });
+  }
+
   createWorkflow() {
     this.confirmationDialogServiceSubscription = this.confirmationDialogService
       .confirm(ConfirmationDialogTypes.YesOrNo, texts.CREATE_WORKFLOW_CONFIRMATION_TITLE, texts.CREATE_WORKFLOW_CONFIRMATION_CONTENT)
@@ -133,5 +143,6 @@ export class WorkflowComponent implements OnInit, OnDestroy {
     !!this.workflowSubscription && this.workflowSubscription.unsubscribe();
     !!this.paramsSubscription && this.paramsSubscription.unsubscribe();
     !!this.confirmationDialogServiceSubscription && this.confirmationDialogServiceSubscription.unsubscribe();
+    !!this.runWorkflowDialogSubscription && this.runWorkflowDialogSubscription.unsubscribe();
   }
 }
