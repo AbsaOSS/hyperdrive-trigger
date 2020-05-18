@@ -329,36 +329,5 @@ export class WorkflowsEffects {
         }),
       );
     }),
-    // ofType(WorkflowActions.UPDATE_WORKFLOW),
-    // withLatestFrom(this.store.select(selectWorkflowState)),
-    // switchMap(([action, state]: [WorkflowActions.UpdateWorkflow, fromWorkflows.State]) => {
-    //   const workflow = {};
-    //   state.workflowAction.workflowData.details.forEach((detail) => {
-    //     set(workflow, detail.property, detail.value);
-    //   });
-    //
-    //   state.workflowAction.workflowData.sensor.forEach((sensor) => {
-    //     set(workflow, 'sensor.' + sensor.property, sensor.value);
-    //   });
-    //
-    //   state.workflowAction.workflowData.jobs.forEach((jobDef) => {
-    //     set(workflow, 'dagDefinitionJoined.jobDefinitions[' + jobDef.order + '].order', jobDef.order);
-    //     jobDef.job.forEach((jobProp) => {
-    //       set(workflow, 'dagDefinitionJoined.jobDefinitions[' + jobDef.order + '].' + jobProp.property, jobProp.value);
-    //     });
-    //   });
-    //
-    //   set(workflow, 'id', state.workflowAction.id);
-    //
-    //   return this.workflowService.updateWorkflow(workflow).pipe(
-    //     mergeMap((result: boolean) => {
-    //       return [
-    //         {
-    //           type: WorkflowActions.UPDATE_WORKFLOW_SUCCESS,
-    //         },
-    //       ];
-    //     }),
-    //   );
-    // }),
   );
 }

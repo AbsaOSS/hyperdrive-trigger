@@ -63,7 +63,7 @@ export class WorkflowService {
 
   createWorkflow(workflowObject): Observable<WorkflowJoinedModel> {
     return this.httpClient
-      .put<WorkflowJoinedModel>('/workflow', workflowObject, { observe: 'response' })
+      .put<WorkflowJoinedModel>(api.CREATE_WORKFLOW, workflowObject, { observe: 'response' })
       .pipe(
         map((_) => {
           return _.body;
@@ -72,9 +72,8 @@ export class WorkflowService {
   }
 
   updateWorkflow(workflowObject): Observable<WorkflowJoinedModel> {
-    console.log('fuck off', workflowObject);
     return this.httpClient
-      .post<WorkflowJoinedModel>('/workflows', workflowObject, { observe: 'response' })
+      .post<WorkflowJoinedModel>(api.UPDATE_WORKFLOW, workflowObject, { observe: 'response' })
       .pipe(
         map((_) => {
           return _.body;

@@ -37,7 +37,6 @@ export class KeyStringValuePartComponent implements OnInit {
     for (const prop in this.value) {
       this.mapOfValues.push([prop, this.value[prop]]);
     }
-    console.log('motherfucker123', this.mapOfValues);
     if (!this.mapOfValues || this.mapOfValues.length == 0) this.modelChanged([['', '']]);
   }
 
@@ -75,7 +74,6 @@ export class KeyStringValuePartComponent implements OnInit {
     });
     this.value = valueInObject;
     this.mapOfValues = value;
-    console.log('fuck off', valueInObject);
     this.valueChanges.next(new WorkflowEntryModel(this.property, valueInObject));
   }
 }
