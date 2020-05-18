@@ -27,5 +27,5 @@ export const api = {
   SWITCH_WORKFLOW_ACTIVE_STATE: '/workflows/{id}/switchActiveState',
   RUN_WORKFLOW: '/workflow/run',
   CREATE_WORKFLOW: '/workflow',
-  UPDATE_WORKFLOW: '/workflows'
+  UPDATE_WORKFLOW: '/workflows',
 };

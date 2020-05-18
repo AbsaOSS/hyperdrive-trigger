@@ -85,7 +85,7 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
           val updatedWorkflow = workflow.copy(
             id = originalWorkflow.id,
             created = originalWorkflow.created,
-            updated = Option(LocalDateTime.now()),
+            updated = originalWorkflow.updated,
             sensor = workflow.sensor.copy(
               id = originalWorkflow.sensor.id,
               workflowId = originalWorkflow.id,

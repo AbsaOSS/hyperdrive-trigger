@@ -25,6 +25,7 @@ object WorkflowFixture {
 
   def createWorkflowJoined() = {
     WorkflowJoined(
+      id = 10,
       name = "testWorkflow",
       isActive = true,
       created = LocalDateTime.of(2020, 2, 29, 10, 59, 34),
