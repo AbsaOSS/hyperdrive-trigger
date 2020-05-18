@@ -34,6 +34,7 @@ import { absoluteRoutes } from '../../constants/routes.constants';
 import { ToastrService } from 'ngx-toastr';
 import { texts } from '../../constants/texts.constants';
 import { WorkflowModel } from '../../models/workflow.model';
+import { WorkflowRequestModel } from '../../models/workflowRequest.model';
 
 @Injectable()
 export class WorkflowsEffects {
@@ -228,23 +229,13 @@ export class WorkflowsEffects {
     ofType(WorkflowActions.CREATE_WORKFLOW),
     withLatestFrom(this.store.select(selectWorkflowState)),
     switchMap(([action, state]: [WorkflowActions.CreateWorkflow, fromWorkflows.State]) => {
-      const workflow = {};
-      state.workflowAction.workflowData.details.forEach((detail) => {
-        set(workflow, detail.property, detail.value);
-      });
+      const workflowCreateRequest = new WorkflowRequestModel(
+        state.workflowAction.workflowData.details,
+        state.workflowAction.workflowData.sensor,
+        state.workflowAction.workflowData.jobs,
+      ).getCreateWorkflowRequestObject();
 
-      state.workflowAction.workflowData.sensor.forEach((sensor) => {
-        set(workflow, 'sensor.' + sensor.property, sensor.value);
-      });
-
-      state.workflowAction.workflowData.jobs.forEach((jobDef) => {
-        set(workflow, 'dagDefinitionJoined.jobDefinitions[' + jobDef.order + '].order', jobDef.order);
-        jobDef.entries.forEach((jobProp) => {
-          set(workflow, 'dagDefinitionJoined.jobDefinitions[' + jobDef.order + '].' + jobProp.property, jobProp.value);
-        });
-      });
-
-      return this.workflowService.createWorkflow(workflow).pipe(
+      return this.workflowService.createWorkflow(workflowCreateRequest).pipe(
         mergeMap((result: WorkflowJoinedModel) => {
           const workflow: WorkflowModel = new WorkflowModel(
             result.name,
@@ -281,25 +272,13 @@ export class WorkflowsEffects {
     ofType(WorkflowActions.UPDATE_WORKFLOW),
     withLatestFrom(this.store.select(selectWorkflowState)),
     switchMap(([action, state]: [WorkflowActions.CreateWorkflow, fromWorkflows.State]) => {
-      const workflow = {};
-      state.workflowAction.workflowData.details.forEach((detail) => {
-        set(workflow, detail.property, detail.value);
-      });
+      const workflowUpdateRequest = new WorkflowRequestModel(
+        state.workflowAction.workflowData.details,
+        state.workflowAction.workflowData.sensor,
+        state.workflowAction.workflowData.jobs,
+      ).getUpdateWorkflowRequestObject(state.workflowAction.id);
 
-      state.workflowAction.workflowData.sensor.forEach((sensor) => {
-        set(workflow, 'sensor.' + sensor.property, sensor.value);
-      });
-
-      state.workflowAction.workflowData.jobs.forEach((jobDef) => {
-        set(workflow, 'dagDefinitionJoined.jobDefinitions[' + jobDef.order + '].order', jobDef.order);
-        jobDef.entries.forEach((jobProp) => {
-          set(workflow, 'dagDefinitionJoined.jobDefinitions[' + jobDef.order + '].' + jobProp.property, jobProp.value);
-        });
-      });
-
-      set(workflow, 'id', state.workflowAction.id);
-
-      return this.workflowService.updateWorkflow(workflow).pipe(
+      return this.workflowService.updateWorkflow(workflowUpdateRequest).pipe(
         mergeMap((result: WorkflowJoinedModel) => {
           const workflow: WorkflowModel = new WorkflowModel(
             result.name,
