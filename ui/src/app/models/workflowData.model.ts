@@ -58,7 +58,7 @@ export class WorkflowDataModel {
           return new WorkflowEntryModel(part.property, value);
         }
       });
-      return new JobEntryModel(job.order, jobData);
+      return JobEntryModel.createNew(job.order, jobData);
     });
     return jobsData;
   }

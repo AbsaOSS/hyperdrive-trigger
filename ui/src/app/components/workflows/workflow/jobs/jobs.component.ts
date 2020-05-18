@@ -20,7 +20,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import { AppState, selectWorkflowState } from '../../../../stores/app.reducers';
 import { Store } from '@ngrx/store';
 import { FormPart } from '../../../../models/workflowFormParts.model';
-import { WorkflowAddEmptyJob } from '../../../../stores/workflows/workflows.actions';
+import { WorkflowAddEmptyJob, WorkflowRemoveJob } from '../../../../stores/workflows/workflows.actions';
 import { JobEntryModel } from '../../../../models/jobEntry.model';
 
 @Component({
@@ -32,12 +32,13 @@ export class JobsComponent implements OnDestroy {
   workflowModes = workflowModes;
   mode: string;
   jobData: JobEntryModel[];
-  hiddenJobs: { order: number; isHidden: boolean }[] = [];
+  hiddenJobs: Set<string>;
   staticJobPart: FormPart;
 
   workflowSubscription: Subscription;
 
   constructor(private store: Store<AppState>) {
+    this.hiddenJobs = new Set();
     this.workflowSubscription = this.store.select(selectWorkflowState).subscribe((state) => {
       this.mode = state.workflowAction.mode;
       this.jobData = cloneDeep(state.workflowAction.workflowData.jobs).sort((first, second) => first.order - second.order);
@@ -50,27 +51,33 @@ export class JobsComponent implements OnDestroy {
     });
   }
 
-  trackByFn(index, item) {
-    return index;
+  trackByFn(index, item: JobEntryModel) {
+    return item.jobId;
   }
 
-  toggleJob(order: number) {
-    const job = this.hiddenJobs.find((job) => job.order === order);
-    job ? (job.isHidden = !job.isHidden) : this.hiddenJobs.push({ order: order, isHidden: false });
+  toggleJob(jobId: string): void {
+    if (this.hiddenJobs.has(jobId)) {
+      this.hiddenJobs.delete(jobId);
+    } else {
+      this.hiddenJobs.add(jobId);
+    }
   }
 
-  isJobHidden(order: number): boolean {
-    const job = this.hiddenJobs.find((job) => job.order === order);
-    return !(job ? job.isHidden : true);
+  isJobHidden(jobId: string): boolean {
+    return this.hiddenJobs.has(jobId);
   }
 
   addJob() {
     this.store.dispatch(new WorkflowAddEmptyJob(this.jobData.length));
   }
 
-  getJobName(index: number) {
-    const jobDataOption = this.jobData.find((job) => job.order === index);
-    const jobData = !!jobDataOption ? jobDataOption.job : [];
+  removeJob(jobId: string): void {
+    this.store.dispatch(new WorkflowRemoveJob(jobId));
+  }
+
+  getJobName(jobId: string) {
+    const jobDataOption = this.jobData.find((job) => job.jobId === jobId);
+    const jobData = !!jobDataOption ? jobDataOption.entries : [];
 
     const nameOption = jobData.find((value) => value.property === this.staticJobPart.property);
     return !!nameOption ? nameOption.value : '';
