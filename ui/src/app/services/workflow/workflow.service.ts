@@ -21,7 +21,6 @@ import { ProjectModel } from '../../models/project.model';
 import { Observable, of } from 'rxjs';
 import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
 import { DynamicFormPart, DynamicFormParts, FormPart } from '../../models/workflowFormParts.model';
-import { WorkflowModel } from '../../models/workflow.model';
 
 @Injectable({
   providedIn: 'root',
@@ -32,12 +31,6 @@ export class WorkflowService {
   getProjects(): Observable<ProjectModel[]> {
     return this.httpClient
       .get<ProjectModel[]>(api.GET_PROJECTS, { observe: 'response' })
-      .pipe(map((_) => _.body));
-  }
-
-  getWorkflows(): Observable<WorkflowModel[]> {
-    return this.httpClient
-      .get<WorkflowModel[]>('/workflows', { observe: 'response' })
       .pipe(map((_) => _.body));
   }
 

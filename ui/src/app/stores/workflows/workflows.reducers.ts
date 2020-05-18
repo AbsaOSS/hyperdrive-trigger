@@ -355,7 +355,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
       });
       let updatedProjects;
       if (state.projects.some((project) => project.name == action.payload.project)) {
-        updatedProjects = state.projects.map((project) =>
+        updatedProjects = projectsWithoutWorkflow.map((project) =>
           project.name == action.payload.project ? { ...project, workflows: [...project.workflows, action.payload] } : project,
         );
       } else {

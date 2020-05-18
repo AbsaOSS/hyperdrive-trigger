@@ -100,8 +100,8 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
           )
 
           workflowRepository.updateWorkflow(updatedWorkflow).flatMap {
-            case Left(a) => Future.successful(Left(a))
-            case Right(b) => getWorkflow(workflow.id).map(Right(_))
+            case Left(error) => Future.successful(Left(error))
+            case Right(_) => getWorkflow(workflow.id).map(Right(_))
           }
         }
       })
