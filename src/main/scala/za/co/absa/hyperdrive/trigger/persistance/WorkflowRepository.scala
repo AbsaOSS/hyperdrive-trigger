@@ -33,7 +33,7 @@ trait WorkflowRepository extends Repository {
   def getWorkflows()(implicit ec: ExecutionContext): Future[Seq[Workflow]]
   def getWorkflowsByProjectName(projectName: String)(implicit ec: ExecutionContext): Future[Seq[Workflow]]
   def deleteWorkflow(id: Long)(implicit ec: ExecutionContext): Future[Unit]
-  def updateWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Option[ApiError]]
+  def updateWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[ApiError, Unit]]
   def switchWorkflowActiveState(id: Long)(implicit ec: ExecutionContext): Future[Unit]
   def getProjects()(implicit ec: ExecutionContext): Future[Seq[String]]
   def getProjectsInfo()(implicit ec: ExecutionContext): Future[Seq[ProjectInfo]]
@@ -129,7 +129,7 @@ class WorkflowRepositoryImpl extends WorkflowRepository {
     )
   }
 
-  override def updateWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Option[ApiError]] = {
+  override def updateWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[ApiError, Unit]] = {
     db.run((for {
       w <- workflowTable.filter(_.id === workflow.id).update(workflow.toWorkflow)
       s <- sensorTable.filter(_.workflowId === workflow.id).update(workflow.sensor)
@@ -138,10 +138,10 @@ class WorkflowRepositoryImpl extends WorkflowRepository {
       insertJds <- jobDefinitionTable ++= workflow.dagDefinitionJoined.jobDefinitions.map(_.copy(dagDefinitionId = workflow.dagDefinitionJoined.id))
     } yield {}).transactionally.asTry
     ).map {
-        case Success(_) => None
+        case Success(_) => Right((): Unit)
         case Failure(ex) =>
           logger.error(s"Unexpected error occurred when updating workflow $workflow", ex)
-          Some(GenericDatabaseError)
+          Left(GenericDatabaseError)
       }
   }
 
