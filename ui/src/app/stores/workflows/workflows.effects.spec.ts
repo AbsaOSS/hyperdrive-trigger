@@ -231,13 +231,16 @@ describe('WorkflowsEffects', () => {
             ],
             sensorData: [new WorkflowEntryModel(workflowFormParts.SENSOR.SENSOR_TYPE.property, workflow.sensor.sensorType.name)],
             jobsData: [
-              new JobEntryModel(0, [
-                new WorkflowEntryModel(
-                  workflowFormParts.JOB.JOB_TYPE.property,
-                  workflow.dagDefinitionJoined.jobDefinitions[0].jobType.name,
-                ),
-                new WorkflowEntryModel(workflowFormParts.JOB.JOB_NAME.property, workflow.dagDefinitionJoined.jobDefinitions[0].name),
-              ]),
+              jasmine.objectContaining({
+                order: 0,
+                entries: [
+                  new WorkflowEntryModel(
+                    workflowFormParts.JOB.JOB_TYPE.property,
+                    workflow.dagDefinitionJoined.jobDefinitions[0].jobType.name,
+                  ),
+                  new WorkflowEntryModel(workflowFormParts.JOB.JOB_NAME.property, workflow.dagDefinitionJoined.jobDefinitions[0].name),
+                ],
+              }),
             ],
           },
         },

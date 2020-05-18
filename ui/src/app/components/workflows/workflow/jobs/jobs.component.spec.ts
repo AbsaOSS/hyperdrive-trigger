@@ -19,12 +19,15 @@ import { JobsComponent } from './jobs.component';
 import { FormPart, WorkflowFormPartsModel } from '../../../../models/workflowFormParts.model';
 import { provideMockStore } from '@ngrx/store/testing';
 import { Store } from '@ngrx/store';
-import { WorkflowAddEmptyJob } from '../../../../stores/workflows/workflows.actions';
+import { WorkflowAddEmptyJob, WorkflowRemoveJob } from '../../../../stores/workflows/workflows.actions';
+import { JobEntryModel } from '../../../../models/jobEntry.model';
+import { WorkflowEntryModel } from '../../../../models/workflowEntry.model';
 
 describe('JobsComponent', () => {
   let fixture: ComponentFixture<JobsComponent>;
   let underTest: JobsComponent;
 
+  const uuid = '7a03f745-6b41-4161-9b57-765ac8f58574';
   const initialAppState = {
     workflows: {
       workflowFormParts: new WorkflowFormPartsModel(
@@ -37,12 +40,7 @@ describe('JobsComponent', () => {
       workflowAction: {
         mode: 'mode',
         workflowData: {
-          jobs: [
-            {
-              order: 0,
-              job: [{ property: 'jobStaticPart', value: 'value' }],
-            },
-          ],
+          jobs: [JobEntryModel.createAsObject(uuid, 0, [new WorkflowEntryModel('jobStaticPart', 'value')])],
         },
       },
     },
@@ -68,59 +66,43 @@ describe('JobsComponent', () => {
     fixture.detectChanges();
     fixture.whenStable().then(() => {
       expect(underTest.mode).toBe(initialAppState.workflows.workflowAction.mode);
-      expect(underTest.hiddenJobs).toEqual([]);
+      expect(underTest.hiddenJobs.size).toEqual(0);
       expect(underTest.staticJobPart).toEqual(initialAppState.workflows.workflowFormParts.staticJobPart);
       expect(underTest.jobData).toEqual(initialAppState.workflows.workflowAction.workflowData.jobs);
     });
   }));
 
-  it('toggleJob() should push job into hiddenJobs when it is not included with false value', async(() => {
-    const hiddenJobsInitial = underTest.hiddenJobs;
-    expect(hiddenJobsInitial).toEqual([]);
-    underTest.toggleJob(0);
-    const hiddenJobsUpdated = underTest.hiddenJobs;
-    expect(hiddenJobsUpdated).toEqual([{ order: 0, isHidden: false }]);
-  }));
-
   it('toggleJob() should toggle a job', async(() => {
-    expect(underTest.hiddenJobs).toEqual([]);
-    underTest.toggleJob(0);
-    expect(underTest.hiddenJobs).toEqual([{ order: 0, isHidden: false }]);
-    underTest.toggleJob(0);
-    expect(underTest.hiddenJobs).toEqual([{ order: 0, isHidden: true }]);
-    underTest.toggleJob(0);
-    expect(underTest.hiddenJobs).toEqual([{ order: 0, isHidden: false }]);
+    expect(underTest.hiddenJobs.size).toEqual(0);
+    underTest.toggleJob('abcd');
+    expect(underTest.hiddenJobs.size).toEqual(1);
+    expect(underTest.hiddenJobs).toContain('abcd');
+    underTest.toggleJob('abcd');
+    expect(underTest.hiddenJobs.size).toEqual(0);
   }));
 
   it('isJobHidden() should return whether is job hidden', async(() => {
-    underTest.hiddenJobs = [
-      { order: 0, isHidden: false },
-      { order: 1, isHidden: true },
-    ];
+    underTest.hiddenJobs = new Set<string>().add('abcd');
 
-    expect(underTest.isJobHidden(0)).toBeTrue();
-    expect(underTest.isJobHidden(1)).toBeFalse();
-  }));
-
-  it('isJobHidden() should return false when job is not included', async(() => {
-    expect(underTest.isJobHidden(9999)).toBeFalse();
+    expect(underTest.isJobHidden('abcd')).toBeTrue();
+    expect(underTest.isJobHidden('9999')).toBeFalse();
   }));
 
   it('getJobName() should return job name', async(() => {
     fixture.detectChanges();
     fixture.whenStable().then(() => {
-      expect(underTest.getJobName(0)).toBe('value');
+      expect(underTest.getJobName(uuid)).toBe('value');
     });
   }));
 
   it('getJobName() should return empty string when job is not found', async(() => {
     fixture.detectChanges();
     fixture.whenStable().then(() => {
-      expect(underTest.getJobName(9999)).toBe('');
+      expect(underTest.getJobName('9999')).toBe('');
     });
   }));
 
-  it('addJob() add job actions should be dispatch', async(() => {
+  it('addJob() add job actions should be dispatched', async(() => {
     fixture.detectChanges();
     fixture.whenStable().then(() => {
       const mockStore = fixture.debugElement.injector.get(Store);
@@ -130,6 +112,19 @@ describe('JobsComponent', () => {
 
       expect(storeSpy).toHaveBeenCalledTimes(1);
       expect(storeSpy).toHaveBeenCalledWith(new WorkflowAddEmptyJob(initialAppState.workflows.workflowAction.workflowData.jobs.length));
+    });
+  }));
+
+  it('removeJob() remove job actions should be dispatched', async(() => {
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      const mockStore = fixture.debugElement.injector.get(Store);
+      const storeSpy = spyOn(mockStore, 'dispatch');
+
+      underTest.removeJob('abcdef');
+
+      expect(storeSpy).toHaveBeenCalledTimes(1);
+      expect(storeSpy).toHaveBeenCalledWith(new WorkflowRemoveJob('abcdef'));
     });
   }));
 });

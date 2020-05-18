@@ -108,19 +108,4 @@ describe('GuidPartComponent', () => {
       });
     });
   }));
-
-  it('getUUID() should generate unique uuid', () => {
-    const uuids: string[] = [];
-
-    for (let i = 0; i < 100; i++) {
-      const uuid = underTest.getUUID();
-      uuids.push(uuid);
-    }
-
-    expect(new Set(uuids).size == uuids.length).toBeTrue();
-
-    uuids.forEach(function (uuid: string) {
-      expect(uuid.length).toBe(36);
-    });
-  });
 });
