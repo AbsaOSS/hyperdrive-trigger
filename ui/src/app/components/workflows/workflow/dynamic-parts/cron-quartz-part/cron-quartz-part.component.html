@@ -29,22 +29,41 @@
     <span *ngIf="base == 3">at</span>
 
     <div class="clr-select-wrapper" *ngIf="base == 3">
-      <select class="clr-select" clrControl [(ngModel)]="dayValue" (change)="onDaySelect($event.target.value)">
+      <select class="clr-select" clrControl (change)="onDaySelect($event.target.value)">
         <option *ngFor="let option of hourValues" [value]="option">{{option}}</option>
       </select>
     </div>
 
     <div class="clr-select-wrapper" *ngIf="base == 2">
-      <select class="clr-select" clrControl [(ngModel)]="hourValue" (change)="onHourSelect($event.target.value)">
+      <select class="clr-select" clrControl (change)="onHourSelect($event.target.value)">
         <option *ngFor="let option of minuteValues" [value]="option">{{option}}</option>
       </select>
     </div>
 
     <div class="clr-select-wrapper" *ngIf="base == 1">
-      <select class="clr-select" clrControl [(ngModel)]="minuteValue" (change)="onMinuteSelect($event.target.value)">
+      <select class="clr-select" clrControl (change)="onMinuteSelect($event.target.value)">
         <option *ngFor="let option of minutesValues" [value]="option">{{option}}</option>
       </select>
     </div>
+
+    <!-- <div class="col-sm-10" (countriesFetched)="populateCountriesList($event)" appGetCountriesList>
+      <select id="countrySelector" class="form-control" [(ngModel)]='coutryOption' (ngModelChange)='countrySelected($event)' required>
+          <option *ngFor="let country of countriesList;"  [ngValue]=country [selected]="country.name === countryToDisplay? selected:null">{{country.name}}</option>
+      </select>
+  </div> -->
+
+    <!-- <select id="countrySelector" class="form-control" [(ngModel)]='coutryOption' (ngModelChange)='countrySelected($event)' required>
+      <ng-container *ngFor="let country of countriesList;">
+          <ng-container *ngIf="country.name === countryToDisplay">
+              <option [ngValue]=country selected>{{country.name}}
+              </option>
+          </ng-container>
+          <ng-container *ngIf="country.name !== countryToDisplay">
+              <option [ngValue]=country>{{country.name}}
+              </option>
+          </ng-container>
+      </ng-container>
+  </select> -->
 
     <span *ngIf="base == 3"> : 00</span>
 
@@ -60,14 +79,27 @@
   <clr-control-container>
     <label>{{name}}</label>
 
-    <span>Every </span>
-
-    <input *ngIf="showGuard == 1" [readOnly]="true" clrControl placeholder="{{ showFrequency }} {{ cronValue }} minutes"
-      [size]="40" />
-    <input *ngIf="showGuard == 2" [readOnly]="true" clrControl
-      placeholder="{{ showFrequency }} {{ cronValue }} minutes past the hour" [size]="40" />
-    <input *ngIf="showGuard == 3" [readOnly]="true" clrControl placeholder="{{ showFrequency }} at {{ cronValue }}:00"
-      [size]="40" />
+    <input *ngIf="base == 1" [readOnly]="true" clrControl value="Every Hour every {{ minuteValue }} minutes"
+    [size]="40" />
+    <input *ngIf="base == 2" [readOnly]="true" clrControl value="Every Hour at {{ hourValue }} minutes past the hour"
+    [size]="40" />
+    <input *ngIf="base == 3" [readOnly]="true" clrControl value="Every Day at {{ dayValue }}:00"
+    [size]="40" />
 
   </clr-control-container>
 </div>
+
+<!-- 
+<div *ngIf="mode == workflowModes.EDIT">
+  <clr-control-container>
+    <label>{{name}}</label>
+
+    <input *ngIf="showGuard == 1" [readOnly]="true" clrControl value="Every {{ showFrequency }} {{ cronValue }} minutes"
+    [size]="40" />
+    <input *ngIf="showGuard == 2" [readOnly]="true" clrControl value="Every {{ showFrequency }} {{ cronValue }} minutes past the hour"
+    [size]="40" />
+    <input *ngIf="showGuard == 3" [readOnly]="true" clrControl value="Every {{ showFrequency }} at {{ cronValue }}:00"
+    [size]="40" />
+
+  </clr-control-container>
+</div> -->

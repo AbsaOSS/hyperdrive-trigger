@@ -36,9 +36,6 @@ export class CronQuartzPartComponent implements OnInit {
   dayValue: number;
   minuteValue: number;
   hourValue: number;
-  showFrequency: string;
-  cronValue: number;
-  showGuard: number;
 
   hourValues = [
     EveryHour.Zero,
@@ -105,41 +102,41 @@ export class CronQuartzPartComponent implements OnInit {
     const showCron: string[] = value.replace(/\s+/g, ' ').split(' ');
 
     if (showCron[1] !== '*' && isNaN(+showCron[1])) {
-      this.showGuard = this.frequencies[0].value;
-      this.cronValue = +showCron[1].replace('0/', ' ');
-      this.showFrequency = this.frequencies[0].label;
+      this.base = this.frequencies[0].value;
+      this.minuteValue = +showCron[1].replace('0/', ' ');
     } else if (showCron[1] !== '*' && !isNaN(+showCron[1])) {
-      this.showGuard = this.frequencies[1].value;
-      this.cronValue = +showCron[1];
-      this.showFrequency = this.frequencies[1].label;
+      this.base = this.frequencies[1].value;
+      this.hourValue = +showCron[1];
     } else if (showCron[2] !== '*' && !isNaN(+showCron[2])) {
-      this.showGuard = this.frequencies[2].value;
-      this.cronValue = +showCron[2];
-      this.showFrequency = this.frequencies[2].label;
+      this.base = this.frequencies[2].value;
+      this.dayValue = +showCron[2];
     }
   }
 
+  validCron(value: string): void {
+  }
   onMinuteSelect(option): void {
     this.minuteValue = option;
     const cronMinute = `0/${this.minuteValue}`;
-    this.cron = ['0', cronMinute, '0', '?', '*', '*', '*'];
+    this.cron = ['*', cronMinute, '*', '?', '*', '*', '*'];
     this.modelChanged();
   }
 
   onHourSelect(option): void {
     this.hourValue = option;
-    this.cron = ['0', `${this.hourValue}`, '0', '?', '*', '*', '*'];
+    this.cron = ['*', `${this.hourValue}`, '*', '?', '*', '*', '*'];
     this.modelChanged();
   }
 
   onDaySelect(option): void {
     this.dayValue = option;
-    this.cron = ['0', '0', `${this.dayValue}`, '?', '*', '*', '*'];
+    this.cron = ['*', '*', `${this.dayValue}`, '?', '*', '*', '*'];
     this.modelChanged();
   }
 
   modelChanged(): void {
     this.value = this.cron.join(' ');
+    console.log('sending this cron ' + this.value);
     this.valueChanges.next(new WorkflowEntryModel(this.property, this.value));
   }
 }
