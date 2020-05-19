@@ -19,6 +19,11 @@ import { AppState, selectWorkflowState } from '../../../stores/app.reducers';
 import { WorkflowModel } from '../../../models/workflow.model';
 import { Store } from '@ngrx/store';
 import { absoluteRoutes } from '../../../constants/routes.constants';
+import { RunWorkflow } from '../../../stores/workflows/workflows.actions';
+import { ConfirmationDialogTypes } from '../../../constants/confirmationDialogTypes.constants';
+import { DeleteWorkflow, SwitchWorkflowActiveState } from '../../../stores/workflows/workflows.actions';
+import { ConfirmationDialogService } from '../../../services/confirmation-dialog/confirmation-dialog.service';
+import { texts } from '../../../constants/texts.constants';
 
 @Component({
   selector: 'app-workflows-home',
@@ -26,11 +31,13 @@ import { absoluteRoutes } from '../../../constants/routes.constants';
   styleUrls: ['./workflows-home.component.scss'],
 })
 export class WorkflowsHomeComponent implements OnInit, OnDestroy {
+  confirmationDialogServiceSubscription: Subscription = null;
+  runWorkflowDialogSubscription: Subscription = null;
   workflowsSubscription: Subscription = null;
   workflows: WorkflowModel[] = [];
   absoluteRoutes = absoluteRoutes;
 
-  constructor(private store: Store<AppState>) {}
+  constructor(private store: Store<AppState>, private confirmationDialogService: ConfirmationDialogService) {}
 
   ngOnInit(): void {
     this.workflowsSubscription = this.store.select(selectWorkflowState).subscribe((state) => {
@@ -38,7 +45,37 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
     });
   }
 
+  deleteWorkflow(id: number) {
+    this.confirmationDialogServiceSubscription = this.confirmationDialogService
+      .confirm(ConfirmationDialogTypes.Delete, texts.DELETE_WORKFLOW_CONFIRMATION_TITLE, texts.DELETE_WORKFLOW_CONFIRMATION_CONTENT)
+      .subscribe((confirmed) => {
+        if (confirmed) this.store.dispatch(new DeleteWorkflow(id));
+      });
+  }
+
+  switchWorkflowActiveState(id: number, currentActiveState: boolean) {
+    this.confirmationDialogServiceSubscription = this.confirmationDialogService
+      .confirm(
+        ConfirmationDialogTypes.YesOrNo,
+        texts.SWITCH_WORKFLOW_ACTIVE_STATE_TITLE,
+        texts.SWITCH_WORKFLOW_ACTIVE_STATE_CONTENT(currentActiveState),
+      )
+      .subscribe((confirmed) => {
+        if (confirmed) this.store.dispatch(new SwitchWorkflowActiveState({ id: id, currentActiveState: currentActiveState }));
+      });
+  }
+
+  runWorkflow(id: number) {
+    this.runWorkflowDialogSubscription = this.confirmationDialogService
+      .confirm(ConfirmationDialogTypes.YesOrNo, texts.RUN_WORKFLOW_CONFIRMATION_TITLE, texts.RUN_WORKFLOW_CONFIRMATION_CONTENT)
+      .subscribe((confirmed) => {
+        if (confirmed) this.store.dispatch(new RunWorkflow(id));
+      });
+  }
+
   ngOnDestroy(): void {
-    this.workflowsSubscription.unsubscribe();
+    !!this.workflowsSubscription && this.workflowsSubscription.unsubscribe();
+    !!this.confirmationDialogServiceSubscription && this.confirmationDialogServiceSubscription.unsubscribe();
+    !!this.runWorkflowDialogSubscription && this.runWorkflowDialogSubscription.unsubscribe();
   }
 }

@@ -48,8 +48,8 @@ export class StringFilterComponent implements ClrDatagridFilterInterface<DagRunM
   }
 
   ngOnDestroy(): void {
-    this.removeFiltersSubject.unsubscribe();
-    this.modelSubscription.unsubscribe();
+    !!this.removeFiltersSubject && this.removeFiltersSubject.unsubscribe();
+    !!this.modelSubscription && this.modelSubscription.unsubscribe();
   }
 
   isActive(): boolean {

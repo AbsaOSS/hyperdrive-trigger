@@ -70,7 +70,7 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
   }
 
   ngOnDestroy(): void {
-    this.runsSubscription.unsubscribe();
+    !!this.runsSubscription && this.runsSubscription.unsubscribe();
   }
 
   onClarityDgRefresh(state: ClrDatagridStateInterface) {

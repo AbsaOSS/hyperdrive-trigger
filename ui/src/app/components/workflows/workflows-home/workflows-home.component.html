@@ -34,9 +34,13 @@
         <clr-icon shape="eye"></clr-icon>
         Show
       </button>
-      <button type="button" class="action-item">
+      <button type="button" class="action-item" (click)="switchWorkflowActiveState(workflow.id, workflow.isActive)">
         <clr-icon shape="power"></clr-icon>
-        Activate/Deactivate
+        {{workflow.isActive ? 'Deactivate' : 'Activate'}}
+      </button>
+      <button type="button" class="action-item" (click)="runWorkflow(workflow.id)">
+        <clr-icon shape="play"></clr-icon>
+        Run
       </button>
       <button type="button" class="action-item" [routerLink]="[absoluteRoutes.COPY_WORKFLOW, workflow.id]">
         <clr-icon shape="copy"></clr-icon>
@@ -46,7 +50,10 @@
         <clr-icon shape="pencil"></clr-icon>
         Edit
       </button>
-      <button type="button" class="action-item"><clr-icon shape="close" ></clr-icon> Delete </button>
+      <button type="button" class="action-item" (click)="deleteWorkflow(workflow.id)">
+        <clr-icon shape="close" ></clr-icon>
+        Delete
+      </button>
     </clr-dg-action-overflow>
 
     <clr-dg-cell>{{workflow.name}}</clr-dg-cell>

@@ -35,8 +35,21 @@ export const WORKFLOW_DETAILS_CHANGED = 'WORKFLOW_DETAILS_CHANGED';
 export const WORKFLOW_SENSOR_CHANGED = 'WORKFLOW_SENSOR_CHANGED';
 export const WORKFLOW_SENSOR_TYPE_SWITCHED = 'WORKFLOW_SENSOR_TYPE_SWITCHED';
 export const WORKFLOW_ADD_EMPTY_JOB = 'WORKFLOW_ADD_EMPTY_JOB';
+export const WORKFLOW_REMOVE_JOB = 'WORKFLOW_REMOVE_JOB';
 export const WORKFLOW_JOB_CHANGED = 'WORKFLOW_JOB_CHANGED';
 export const WORKFLOW_JOB_TYPE_SWITCHED = 'WORKFLOW_JOB_TYPE_SWITCHED';
+
+export const DELETE_WORKFLOW = 'DELETE_WORKFLOW';
+export const DELETE_WORKFLOW_SUCCESS = 'DELETE_WORKFLOW_SUCCESS';
+export const DELETE_WORKFLOW_FAILURE = 'DELETE_WORKFLOW_FAILURE';
+
+export const SWITCH_WORKFLOW_ACTIVE_STATE = 'SWITCH_WORKFLOW_ACTIVE_STATE';
+export const SWITCH_WORKFLOW_ACTIVE_STATE_SUCCESS = 'SWITCH_WORKFLOW_ACTIVE_STATE_SUCCESS';
+export const SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE = 'SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE';
+
+export const RUN_WORKFLOW = 'RUN_WORKFLOW';
+export const RUN_WORKFLOW_SUCCESS = 'RUN_WORKFLOW_SUCCESS';
+export const RUN_WORKFLOW_FAILURE = 'RUN_WORKFLOW_FAILURE';
 
 export class InitializeWorkflows implements Action {
   readonly type = INITIALIZE_WORKFLOWS;
@@ -105,14 +118,60 @@ export class WorkflowAddEmptyJob implements Action {
   constructor(public payload: number) {}
 }
 
+export class WorkflowRemoveJob implements Action {
+  readonly type = WORKFLOW_REMOVE_JOB;
+  constructor(public payload: string) {}
+}
+
 export class WorkflowJobChanged implements Action {
   readonly type = WORKFLOW_JOB_CHANGED;
-  constructor(public payload: { order: number; jobEntry: WorkflowEntryModel }) {}
+  constructor(public payload: { jobId: string; jobEntry: WorkflowEntryModel }) {}
 }
 
 export class WorkflowJobTypeSwitched implements Action {
   readonly type = WORKFLOW_JOB_TYPE_SWITCHED;
-  constructor(public payload: { order: number; jobEntry: WorkflowEntryModel }) {}
+  constructor(public payload: { jobId: string; jobEntry: WorkflowEntryModel }) {}
+}
+
+export class DeleteWorkflow implements Action {
+  readonly type = DELETE_WORKFLOW;
+  constructor(public payload: number) {}
+}
+
+export class DeleteWorkflowSuccess implements Action {
+  readonly type = DELETE_WORKFLOW_SUCCESS;
+  constructor(public payload: number) {}
+}
+
+export class DeleteWorkflowFailure implements Action {
+  readonly type = DELETE_WORKFLOW_FAILURE;
+}
+
+export class SwitchWorkflowActiveState implements Action {
+  readonly type = SWITCH_WORKFLOW_ACTIVE_STATE;
+  constructor(public payload: { id: number; currentActiveState: boolean }) {}
+}
+
+export class SwitchWorkflowActiveStateSuccess implements Action {
+  readonly type = SWITCH_WORKFLOW_ACTIVE_STATE_SUCCESS;
+  constructor(public payload: number) {}
+}
+
+export class SwitchWorkflowActiveStateFailure implements Action {
+  readonly type = SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE;
+}
+
+export class RunWorkflow implements Action {
+  readonly type = RUN_WORKFLOW;
+  constructor(public payload: number) {}
+}
+
+export class RunWorkflowSuccess implements Action {
+  readonly type = RUN_WORKFLOW_SUCCESS;
+}
+
+export class RunWorkflowFailure implements Action {
+  readonly type = RUN_WORKFLOW_FAILURE;
 }
 
 export type WorkflowsActions =
@@ -129,5 +188,15 @@ export type WorkflowsActions =
   | WorkflowSensorChanged
   | WorkflowSensorTypeSwitched
   | WorkflowAddEmptyJob
+  | WorkflowRemoveJob
   | WorkflowJobChanged
-  | WorkflowJobTypeSwitched;
+  | WorkflowJobTypeSwitched
+  | DeleteWorkflow
+  | DeleteWorkflowSuccess
+  | DeleteWorkflowFailure
+  | SwitchWorkflowActiveState
+  | SwitchWorkflowActiveStateSuccess
+  | SwitchWorkflowActiveStateFailure
+  | RunWorkflow
+  | RunWorkflowSuccess
+  | RunWorkflowFailure;

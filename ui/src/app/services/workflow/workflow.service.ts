@@ -42,6 +42,18 @@ export class WorkflowService {
       .pipe(map((response) => response.body));
   }
 
+  deleteWorkflow(id: number): Observable<boolean> {
+    const params = new HttpParams().set('id', id.toString());
+
+    return this.httpClient
+      .delete<boolean>(api.DELETE_WORKFLOW, { params: params, observe: 'response' })
+      .pipe(map((_) => _.body));
+  }
+
+  switchWorkflowActiveState(id: number): Observable<boolean> {
+    return this.httpClient.post<boolean>(api.SWITCH_WORKFLOW_ACTIVE_STATE.replace('{id}', id.toString()), { observe: 'response' });
+  }
+
   getWorkflowDynamicFormParts(): Observable<DynamicFormParts> {
     return of(
       new DynamicFormParts(
@@ -69,5 +81,12 @@ export class WorkflowService {
         ],
       ),
     );
+  }
+
+  runWorkflow(id: number): Observable<boolean> {
+    const params = new HttpParams().set('workflowId', id.toString());
+    return this.httpClient
+      .put<boolean>(api.RUN_WORKFLOW, null, { params: params, observe: 'response' })
+      .pipe(map((_) => _.body));
   }
 }

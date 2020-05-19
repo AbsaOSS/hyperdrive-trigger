@@ -49,6 +49,6 @@ export class WorkflowsComponent implements AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.workflowsSubscription.unsubscribe();
+    !!this.workflowsSubscription && this.workflowsSubscription.unsubscribe();
   }
 }

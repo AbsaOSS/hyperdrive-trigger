@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+@import "../node_modules/ngx-toastr/toastr.css";
+
 ng-deep, .clr-popover-content.datepicker{
 
   z-index: 9000

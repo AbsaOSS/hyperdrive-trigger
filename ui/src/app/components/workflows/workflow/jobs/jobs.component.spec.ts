@@ -16,25 +16,115 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { JobsComponent } from './jobs.component';
+import { FormPart, WorkflowFormPartsModel } from '../../../../models/workflowFormParts.model';
+import { provideMockStore } from '@ngrx/store/testing';
+import { Store } from '@ngrx/store';
+import { WorkflowAddEmptyJob, WorkflowRemoveJob } from '../../../../stores/workflows/workflows.actions';
+import { JobEntryModel } from '../../../../models/jobEntry.model';
+import { WorkflowEntryModel } from '../../../../models/workflowEntry.model';
 
 describe('JobsComponent', () => {
-  // let component: JobsComponent;
-  // let fixture: ComponentFixture<JobsComponent>;
-  //
-  // beforeEach(async(() => {
-  //   TestBed.configureTestingModule({
-  //     declarations: [ JobsComponent ]
-  //   })
-  //   .compileComponents();
-  // }));
-  //
-  // beforeEach(() => {
-  //   fixture = TestBed.createComponent(JobsComponent);
-  //   component = fixture.componentInstance;
-  //   fixture.detectChanges();
-  // });
-  //
-  // it('should create', () => {
-  //   expect(component).toBeTruthy();
-  // });
+  let fixture: ComponentFixture<JobsComponent>;
+  let underTest: JobsComponent;
+
+  const uuid = '7a03f745-6b41-4161-9b57-765ac8f58574';
+  const initialAppState = {
+    workflows: {
+      workflowFormParts: new WorkflowFormPartsModel(
+        [],
+        undefined,
+        new FormPart('jobStaticPart', 'jobStaticPart', true, 'jobStaticPart'),
+        undefined,
+        undefined,
+      ),
+      workflowAction: {
+        mode: 'mode',
+        workflowData: {
+          jobs: [JobEntryModel.createAsObject(uuid, 0, [new WorkflowEntryModel('jobStaticPart', 'value')])],
+        },
+      },
+    },
+  };
+
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      providers: [provideMockStore({ initialState: initialAppState })],
+      declarations: [JobsComponent],
+    }).compileComponents();
+  }));
+
+  beforeEach(() => {
+    fixture = TestBed.createComponent(JobsComponent);
+    underTest = fixture.componentInstance;
+  });
+
+  it('should create', () => {
+    expect(underTest).toBeTruthy();
+  });
+
+  it('should after view init set component properties', async(() => {
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(underTest.mode).toBe(initialAppState.workflows.workflowAction.mode);
+      expect(underTest.hiddenJobs.size).toEqual(0);
+      expect(underTest.staticJobPart).toEqual(initialAppState.workflows.workflowFormParts.staticJobPart);
+      expect(underTest.jobData).toEqual(initialAppState.workflows.workflowAction.workflowData.jobs);
+    });
+  }));
+
+  it('toggleJob() should toggle a job', async(() => {
+    expect(underTest.hiddenJobs.size).toEqual(0);
+    underTest.toggleJob('abcd');
+    expect(underTest.hiddenJobs.size).toEqual(1);
+    expect(underTest.hiddenJobs).toContain('abcd');
+    underTest.toggleJob('abcd');
+    expect(underTest.hiddenJobs.size).toEqual(0);
+  }));
+
+  it('isJobHidden() should return whether is job hidden', async(() => {
+    underTest.hiddenJobs = new Set<string>().add('abcd');
+
+    expect(underTest.isJobHidden('abcd')).toBeTrue();
+    expect(underTest.isJobHidden('9999')).toBeFalse();
+  }));
+
+  it('getJobName() should return job name', async(() => {
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(underTest.getJobName(uuid)).toBe('value');
+    });
+  }));
+
+  it('getJobName() should return empty string when job is not found', async(() => {
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(underTest.getJobName('9999')).toBe('');
+    });
+  }));
+
+  it('addJob() add job actions should be dispatched', async(() => {
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      const mockStore = fixture.debugElement.injector.get(Store);
+      const storeSpy = spyOn(mockStore, 'dispatch');
+
+      underTest.addJob();
+
+      expect(storeSpy).toHaveBeenCalledTimes(1);
+      expect(storeSpy).toHaveBeenCalledWith(new WorkflowAddEmptyJob(initialAppState.workflows.workflowAction.workflowData.jobs.length));
+    });
+  }));
+
+  it('removeJob() remove job actions should be dispatched', async(() => {
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      const mockStore = fixture.debugElement.injector.get(Store);
+      const storeSpy = spyOn(mockStore, 'dispatch');
+
+      underTest.removeJob('abcdef');
+
+      expect(storeSpy).toHaveBeenCalledTimes(1);
+      expect(storeSpy).toHaveBeenCalledWith(new WorkflowRemoveJob('abcdef'));
+    });
+  }));
 });

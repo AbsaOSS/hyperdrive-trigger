@@ -29,7 +29,7 @@ import { WorkflowEntryModel } from '../../../../../models/workflowEntry.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class JobComponent implements OnInit, OnDestroy {
-  @Input() jobIndex: number;
+  @Input() jobId: string;
   workflowModes = workflowModes;
   selectedJob: string;
   mode: string;
@@ -52,8 +52,8 @@ export class JobComponent implements OnInit, OnDestroy {
       this.jobSwitchPart = state.workflowFormParts.jobSwitchPart;
       this.staticJobPart = state.workflowFormParts.staticJobPart;
 
-      const jobDataOption = state.workflowAction.workflowData.jobs.find((job) => job.order == this.jobIndex);
-      this.jobData = !!jobDataOption ? jobDataOption.job : [];
+      const jobDataOption = state.workflowAction.workflowData.jobs.find((job) => job.jobId == this.jobId);
+      this.jobData = !!jobDataOption ? jobDataOption.entries : [];
 
       const selected = this.jobData.find((value) => value.property == this.jobSwitchPart.property);
       this.selectedJob = !!selected ? selected.value : undefined;
@@ -62,11 +62,11 @@ export class JobComponent implements OnInit, OnDestroy {
     this.jobChangesSubscription = this.jobChanges.subscribe((jobChange) => {
       if (jobChange.property == this.jobSwitchPart.property) {
         this.store.dispatch(
-          new WorkflowJobTypeSwitched({ order: this.jobIndex, jobEntry: new WorkflowEntryModel(jobChange.property, jobChange.value) }),
+          new WorkflowJobTypeSwitched({ jobId: this.jobId, jobEntry: new WorkflowEntryModel(jobChange.property, jobChange.value) }),
         );
       } else {
         this.store.dispatch(
-          new WorkflowJobChanged({ order: this.jobIndex, jobEntry: new WorkflowEntryModel(jobChange.property, jobChange.value) }),
+          new WorkflowJobChanged({ jobId: this.jobId, jobEntry: new WorkflowEntryModel(jobChange.property, jobChange.value) }),
         );
       }
     });
@@ -87,7 +87,7 @@ export class JobComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.jobChangesSubscription.unsubscribe();
-    this.workflowSubscription.unsubscribe();
+    !!this.jobChangesSubscription && this.jobChangesSubscription.unsubscribe();
+    !!this.workflowSubscription && this.workflowSubscription.unsubscribe();
   }
 }
