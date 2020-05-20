@@ -16,7 +16,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { MultipleStatusFilterComponent } from './multiple-status-filter.component';
-import { DagRunModel } from '../../../../models/dagRuns/dagRun.model';
+import { DagRunModelFactory } from '../../../../models/dagRuns/dagRun.model';
 
 describe('MultipleStatusFilterComponent', () => {
   let fixture: ComponentFixture<MultipleStatusFilterComponent>;
@@ -41,7 +41,7 @@ describe('MultipleStatusFilterComponent', () => {
       const underTest = fixture.componentInstance;
       underTest.selectedValues = ['Failed', 'Running'];
       underTest.property = 'status';
-      const dagRun = new DagRunModel('workflowName', 'projectName', 8, 'Failed', new Date(Date.now()), new Date(Date.now()), 0);
+      const dagRun = DagRunModelFactory.create('workflowName', 'projectName', 8, 'Failed', new Date(Date.now()), new Date(Date.now()), 0);
 
       expect(underTest.accepts(dagRun)).toBeTrue();
     });
@@ -50,7 +50,7 @@ describe('MultipleStatusFilterComponent', () => {
       const underTest = fixture.componentInstance;
       underTest.selectedValues = ['Failed', 'Running'];
       underTest.property = 'status';
-      const dagRun = new DagRunModel('workflowName', 'projectName', 8, 'Fail', new Date(Date.now()), new Date(Date.now()), 0);
+      const dagRun = DagRunModelFactory.create('workflowName', 'projectName', 8, 'Fail', new Date(Date.now()), new Date(Date.now()), 0);
 
       expect(underTest.accepts(dagRun)).toBeFalse();
     });
@@ -59,7 +59,15 @@ describe('MultipleStatusFilterComponent', () => {
       const underTest = fixture.componentInstance;
       underTest.selectedValues = ['Failed', 'Running'];
       underTest.property = 'status';
-      const dagRun = new DagRunModel('workflowName', 'projectName', 8, 'differentStatus', new Date(Date.now()), new Date(Date.now()), 0);
+      const dagRun = DagRunModelFactory.create(
+        'workflowName',
+        'projectName',
+        8,
+        'differentStatus',
+        new Date(Date.now()),
+        new Date(Date.now()),
+        0,
+      );
 
       expect(underTest.accepts(dagRun)).toBeFalse();
     });
@@ -68,7 +76,7 @@ describe('MultipleStatusFilterComponent', () => {
       const underTest = fixture.componentInstance;
       underTest.selectedValues = [];
       underTest.property = 'status';
-      const dagRun = new DagRunModel('workflowName', 'projectName', 8, 'Failed', new Date(Date.now()), new Date(Date.now()), 0);
+      const dagRun = DagRunModelFactory.create('workflowName', 'projectName', 8, 'Failed', new Date(Date.now()), new Date(Date.now()), 0);
 
       expect(underTest.accepts(dagRun)).toBeTrue();
     });

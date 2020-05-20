@@ -16,7 +16,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { NumberRangeFilterComponent } from './number-range-filter.component';
-import { DagRunModel } from '../../../../models/dagRuns/dagRun.model';
+import { DagRunModelFactory } from '../../../../models/dagRuns/dagRun.model';
 
 describe('NumberRangeFilterComponent', () => {
   let fixture: ComponentFixture<NumberRangeFilterComponent>;
@@ -41,7 +41,7 @@ describe('NumberRangeFilterComponent', () => {
       const underTest = fixture.componentInstance;
       underTest.value = { from: 1, to: 3 };
       underTest.property = 'jobCount';
-      const dagRun = new DagRunModel('value', 'projectName', 2, 'Status', new Date(Date.now()), new Date(Date.now()), 0);
+      const dagRun = DagRunModelFactory.create('value', 'projectName', 2, 'Status', new Date(Date.now()), new Date(Date.now()), 0);
 
       expect(underTest.accepts(dagRun)).toBeTrue();
     });
@@ -50,7 +50,7 @@ describe('NumberRangeFilterComponent', () => {
       const underTest = fixture.componentInstance;
       underTest.value = { from: 1, to: 2 };
       underTest.property = 'jobCount';
-      const dagRun = new DagRunModel('value', 'projectName', 1, 'Status', new Date(Date.now()), new Date(Date.now()), 0);
+      const dagRun = DagRunModelFactory.create('value', 'projectName', 1, 'Status', new Date(Date.now()), new Date(Date.now()), 0);
 
       expect(underTest.accepts(dagRun)).toBeTrue();
     });
@@ -59,7 +59,7 @@ describe('NumberRangeFilterComponent', () => {
       const underTest = fixture.componentInstance;
       underTest.value = { from: 1, to: 2 };
       underTest.property = 'jobCount';
-      const dagRun = new DagRunModel('value', 'projectName', 2, 'Status', new Date(Date.now()), new Date(Date.now()), 0);
+      const dagRun = DagRunModelFactory.create('value', 'projectName', 2, 'Status', new Date(Date.now()), new Date(Date.now()), 0);
 
       expect(underTest.accepts(dagRun)).toBeTrue();
     });
@@ -68,7 +68,7 @@ describe('NumberRangeFilterComponent', () => {
       const underTest = fixture.componentInstance;
       underTest.value = { from: 5, to: 8 };
       underTest.property = 'jobCount';
-      const dagRun = new DagRunModel('value', 'projectName', 2, 'Status', new Date(Date.now()), new Date(Date.now()), 0);
+      const dagRun = DagRunModelFactory.create('value', 'projectName', 2, 'Status', new Date(Date.now()), new Date(Date.now()), 0);
 
       expect(underTest.accepts(dagRun)).toBeFalse();
     });

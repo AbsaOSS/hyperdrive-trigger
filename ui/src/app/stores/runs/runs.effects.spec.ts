@@ -21,10 +21,10 @@ import { provideMockActions } from '@ngrx/effects/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Actions } from '@ngrx/effects';
 import { cold } from 'jasmine-marbles';
-import { GetDagRunDetail, GetDagRuns } from './runs.actions';
 import * as RunsActions from './runs.actions';
+import { GetDagRunDetail, GetDagRuns } from './runs.actions';
 
-import { DagRunModel } from '../../models/dagRuns/dagRun.model';
+import { DagRunModel, DagRunModelFactory } from '../../models/dagRuns/dagRun.model';
 import { JobInstanceModel, JobInstanceModelFactory, JobStatusFactory, JobTypeFactory } from '../../models/jobInstance.model';
 import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
 import { SortAttributesModel } from '../../models/search/sortAttributes.model';
@@ -46,7 +46,15 @@ describe('RunsEffects', () => {
 
   describe('runsGet', () => {
     it('should return dag runs', () => {
-      const dagRunModel = new DagRunModel('workflowName', 'projectName', 2, 'Status', new Date(Date.now()), new Date(Date.now()), 0);
+      const dagRunModel = DagRunModelFactory.create(
+        'workflowName',
+        'projectName',
+        2,
+        'Status',
+        new Date(Date.now()),
+        new Date(Date.now()),
+        0,
+      );
       const searchResponseModel = new TableSearchResponseModel<DagRunModel>([dagRunModel], 1);
 
       const action = new GetDagRuns({ from: 0, size: 0, sort: new SortAttributesModel('', 0) });

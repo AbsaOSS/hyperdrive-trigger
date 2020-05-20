@@ -13,14 +13,34 @@
  * limitations under the License.
  */
 
-export class DagRunModel {
-  constructor(
-    public workflowName: string,
-    public projectName: string,
-    public jobCount: number,
-    public status: string,
-    public started: Date,
-    public finished: Date,
-    public id: number,
-  ) {}
+export type DagRunModel = {
+  workflowName: string;
+  projectName: string;
+  jobCount: number;
+  status: string;
+  started: Date;
+  finished: Date;
+  id: number;
+};
+
+export class DagRunModelFactory {
+  static create(
+    workflowName: string,
+    projectName: string,
+    jobCount: number,
+    status: string,
+    started: Date,
+    finished: Date,
+    id: number,
+  ): DagRunModel {
+    return {
+      workflowName: workflowName,
+      projectName: projectName,
+      jobCount: jobCount,
+      status: status,
+      started: started,
+      finished: finished,
+      id: id,
+    };
+  }
 }
