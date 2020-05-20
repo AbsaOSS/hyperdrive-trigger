@@ -323,7 +323,10 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
     case WorkflowsActions.CREATE_WORKFLOW:
       return {
         ...state,
-        loading: true,
+        workflowAction: {
+          ...state.workflowAction,
+          loading: true
+        }
       };
     case WorkflowsActions.CREATE_WORKFLOW_SUCCESS:
       let projects;
@@ -337,17 +340,26 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
       return {
         ...state,
         projects: [...projects],
-        loading: false,
+        workflowAction: {
+          ...state.workflowAction,
+          loading: false
+        }
       };
     case WorkflowsActions.CREATE_WORKFLOW_FAILURE:
       return {
         ...state,
-        loading: false,
+        workflowAction: {
+          ...state.workflowAction,
+          loading: false
+        }
       };
     case WorkflowsActions.UPDATE_WORKFLOW:
       return {
         ...state,
-        loading: true,
+        workflowAction: {
+          ...state.workflowAction,
+          loading: true
+        }
       };
     case WorkflowsActions.UPDATE_WORKFLOW_SUCCESS: {
       const projectsWithoutWorkflow = state.projects.map((project) => {
@@ -364,13 +376,19 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
       return {
         ...state,
         projects: [...updatedProjects],
-        loading: false,
+        workflowAction: {
+          ...state.workflowAction,
+          loading: false
+        }
       };
     }
     case WorkflowsActions.UPDATE_WORKFLOW_FAILURE:
       return {
         ...state,
-        loading: false,
+        workflowAction: {
+          ...state.workflowAction,
+          loading: false
+        }
       };
     default:
       return state;
