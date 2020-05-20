@@ -28,4 +28,4 @@ export class JobEntryModel {
   }
 }
 
-export type JobEntryModelObject = { jobId: string; order: number; entries: { property: string; value: any }[] };
+export type JobEntryModelObject = { jobId: string; order: number; entries: WorkflowEntryModel[] };

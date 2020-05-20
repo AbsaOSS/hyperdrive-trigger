@@ -19,7 +19,7 @@ import { JobComponent } from './job.component';
 import { provideMockStore } from '@ngrx/store/testing';
 import { DynamicFormPart, DynamicFormParts, FormPart, WorkflowFormPartsModel } from '../../../../../models/workflowFormParts.model';
 import { JobEntryModel } from '../../../../../models/jobEntry.model';
-import { WorkflowEntryModel } from '../../../../../models/workflowEntry.model';
+import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
 
 describe('JobComponent', () => {
   let fixture: ComponentFixture<JobComponent>;
@@ -43,7 +43,7 @@ describe('JobComponent', () => {
       workflowAction: {
         mode: 'mode',
         workflowData: {
-          jobs: [JobEntryModel.createNew(0, [new WorkflowEntryModel('jobStaticPart', 'value')])],
+          jobs: [JobEntryModel.createNew(0, [WorkflowEntryModelFactory.create('jobStaticPart', 'value')])],
         },
       },
     },

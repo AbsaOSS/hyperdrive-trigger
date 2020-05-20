@@ -21,7 +21,7 @@ import { provideMockStore } from '@ngrx/store/testing';
 import { Store } from '@ngrx/store';
 import { WorkflowAddEmptyJob, WorkflowRemoveJob } from '../../../../stores/workflows/workflows.actions';
 import { JobEntryModel } from '../../../../models/jobEntry.model';
-import { WorkflowEntryModel } from '../../../../models/workflowEntry.model';
+import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../models/workflowEntry.model';
 
 describe('JobsComponent', () => {
   let fixture: ComponentFixture<JobsComponent>;
@@ -40,7 +40,7 @@ describe('JobsComponent', () => {
       workflowAction: {
         mode: 'mode',
         workflowData: {
-          jobs: [JobEntryModel.createAsObject(uuid, 0, [new WorkflowEntryModel('jobStaticPart', 'value')])],
+          jobs: [JobEntryModel.createAsObject(uuid, 0, [WorkflowEntryModelFactory.create('jobStaticPart', 'value')])],
         },
       },
     },

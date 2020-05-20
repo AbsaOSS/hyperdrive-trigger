@@ -15,7 +15,7 @@
 
 import { Component, Input, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
-import { WorkflowEntryModel } from '../../../../../models/workflowEntry.model';
+import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
 
 @Component({
   selector: 'app-boolean-part',
@@ -41,6 +41,6 @@ export class BooleanPartComponent implements OnInit {
 
   modelChanged(value: boolean) {
     this.value = value;
-    this.valueChanges.next(new WorkflowEntryModel(this.property, this.value));
+    this.valueChanges.next(WorkflowEntryModelFactory.create(this.property, this.value));
   }
 }

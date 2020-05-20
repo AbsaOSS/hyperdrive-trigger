@@ -29,8 +29,8 @@ export interface State {
     loading: boolean;
     workflow: WorkflowJoinedModel;
     workflowData: {
-      details: { property: string; value: any }[];
-      sensor: { property: string; value: any }[];
+      details: WorkflowEntryModel[];
+      sensor: WorkflowEntryModel[];
       jobs: JobEntryModelObject[];
     };
   };
@@ -165,10 +165,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
           ...state.workflowAction,
           workflowData: {
             ...state.workflowAction.workflowData,
-            sensor: [
-              ...initialState.workflowAction.workflowData.sensor,
-              { property: action.payload.property, value: action.payload.value },
-            ],
+            sensor: [...initialState.workflowAction.workflowData.sensor, action.payload],
           },
         },
       };
@@ -226,9 +223,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
     }
     case WorkflowsActions.WORKFLOW_JOB_TYPE_SWITCHED:
       const oldJob = state.workflowAction.workflowData.jobs.find((job) => job.jobId === action.payload.jobId);
-      const cleanedJobData = JobEntryModel.createAsObject(oldJob.jobId, oldJob.order, [
-        new WorkflowEntryModel(action.payload.jobEntry.property, action.payload.jobEntry.value),
-      ]);
+      const cleanedJobData = JobEntryModel.createAsObject(oldJob.jobId, oldJob.order, [action.payload.jobEntry]);
 
       const cleanedJobsData = [
         ...state.workflowAction.workflowData.jobs.filter((item) => item.jobId !== action.payload.jobId),

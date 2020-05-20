@@ -14,7 +14,7 @@
  */
 
 import { WorkflowRemoveJob } from './workflows.actions';
-import { WorkflowEntryModel } from '../../models/workflowEntry.model';
+import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../models/workflowEntry.model';
 import { JobEntryModel } from '../../models/jobEntry.model';
 import { State, workflowsReducer } from './workflows.reducers';
 import { UuidUtil } from '../../utils/uuid/uuid.util';
@@ -26,28 +26,28 @@ describe('WorkflowsReducers', () => {
   const uuid3 = UuidUtil.createUUID();
 
   const job0 = JobEntryModel.createAsObject(uuid0, 0, [
-    new WorkflowEntryModel('name', 'Job Number Zero'),
-    new WorkflowEntryModel('jobParameters.variables.scriptLocation', '/tmp/somewhere/script.sh'),
-    new WorkflowEntryModel('jobType.name', 'Shell'),
+    WorkflowEntryModelFactory.create('name', 'Job Number Zero'),
+    WorkflowEntryModelFactory.create('jobParameters.variables.scriptLocation', '/tmp/somewhere/script.sh'),
+    WorkflowEntryModelFactory.create('jobType.name', 'Shell'),
   ]);
   const job1 = JobEntryModel.createAsObject(uuid1, 1, [
-    new WorkflowEntryModel('name', 'Job Number One'),
-    new WorkflowEntryModel('jobParameters.variables.jobJar', '/etc/driver.jar'),
-    new WorkflowEntryModel('jobParameters.variables.mainClass', 'za.co.absa.hyperdrive.MainClass'),
-    new WorkflowEntryModel('jobParameters.variables.deploymentMode', 'cluster'),
-    new WorkflowEntryModel('jobType.name', 'Spark'),
+    WorkflowEntryModelFactory.create('name', 'Job Number One'),
+    WorkflowEntryModelFactory.create('jobParameters.variables.jobJar', '/etc/driver.jar'),
+    WorkflowEntryModelFactory.create('jobParameters.variables.mainClass', 'za.co.absa.hyperdrive.MainClass'),
+    WorkflowEntryModelFactory.create('jobParameters.variables.deploymentMode', 'cluster'),
+    WorkflowEntryModelFactory.create('jobType.name', 'Spark'),
   ]);
   const job2 = JobEntryModel.createAsObject(uuid2, 2, [
-    new WorkflowEntryModel('name', 'Job Number Two'),
-    new WorkflowEntryModel('jobParameters.variables.jobJar', '/etc/driver2.jar'),
-    new WorkflowEntryModel('jobParameters.variables.mainClass', 'za.co.absa.hyperdrive.MainClass2'),
-    new WorkflowEntryModel('jobParameters.variables.deploymentMode', 'client'),
-    new WorkflowEntryModel('jobType.name', 'Spark'),
+    WorkflowEntryModelFactory.create('name', 'Job Number Two'),
+    WorkflowEntryModelFactory.create('jobParameters.variables.jobJar', '/etc/driver2.jar'),
+    WorkflowEntryModelFactory.create('jobParameters.variables.mainClass', 'za.co.absa.hyperdrive.MainClass2'),
+    WorkflowEntryModelFactory.create('jobParameters.variables.deploymentMode', 'client'),
+    WorkflowEntryModelFactory.create('jobType.name', 'Spark'),
   ]);
   const job3 = JobEntryModel.createAsObject(uuid3, 3, [
-    new WorkflowEntryModel('name', 'Job Number Three'),
-    new WorkflowEntryModel('jobParameters.variables.scriptLocation', '/tmp/somepath/script.sh'),
-    new WorkflowEntryModel('jobType.name', 'Shell'),
+    WorkflowEntryModelFactory.create('name', 'Job Number Three'),
+    WorkflowEntryModelFactory.create('jobParameters.variables.scriptLocation', '/tmp/somepath/script.sh'),
+    WorkflowEntryModelFactory.create('jobType.name', 'Shell'),
   ]);
 
   const initialAppState: State = {

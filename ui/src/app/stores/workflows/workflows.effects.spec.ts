@@ -45,8 +45,9 @@ import { workflowModes } from '../../models/enums/workflowModes.constants';
 import { SensorModelFactory, SensorTypeFactory } from '../../models/sensor.model';
 import { DagDefinitionJoinedModelFactory } from '../../models/dagDefinitionJoined.model';
 import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
-import { WorkflowEntryModel } from '../../models/workflowEntry.model';
-import { JobDefinitionModelFactory } from '../../models/jobDefinition.model';
+import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../models/workflowEntry.model';
+import { JobDefinitionModel, JobDefinitionModelFactory } from '../../models/jobDefinition.model';
+import { JobEntryModel } from '../../models/jobEntry.model';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { texts } from '../../constants/texts.constants';
@@ -233,20 +234,23 @@ describe('WorkflowsEffects', () => {
           payload: {
             workflow: workflow,
             detailsData: [
-              new WorkflowEntryModel(workflowFormParts.DETAILS.WORKFLOW_NAME.property, workflow.name),
-              new WorkflowEntryModel(workflowFormParts.DETAILS.PROJECT_NAME.property, workflow.project),
-              new WorkflowEntryModel(workflowFormParts.DETAILS.IS_ACTIVE.property, workflow.isActive),
+              WorkflowEntryModelFactory.create(workflowFormParts.DETAILS.WORKFLOW_NAME.property, workflow.name),
+              WorkflowEntryModelFactory.create(workflowFormParts.DETAILS.PROJECT_NAME.property, workflow.project),
+              WorkflowEntryModelFactory.create(workflowFormParts.DETAILS.IS_ACTIVE.property, workflow.isActive),
             ],
-            sensorData: [new WorkflowEntryModel(workflowFormParts.SENSOR.SENSOR_TYPE.property, workflow.sensor.sensorType.name)],
+            sensorData: [WorkflowEntryModelFactory.create(workflowFormParts.SENSOR.SENSOR_TYPE.property, workflow.sensor.sensorType.name)],
             jobsData: [
               jasmine.objectContaining({
                 order: 0,
                 entries: [
-                  new WorkflowEntryModel(
+                  WorkflowEntryModelFactory.create(
                     workflowFormParts.JOB.JOB_TYPE.property,
                     workflow.dagDefinitionJoined.jobDefinitions[0].jobType.name,
                   ),
-                  new WorkflowEntryModel(workflowFormParts.JOB.JOB_NAME.property, workflow.dagDefinitionJoined.jobDefinitions[0].name),
+                  WorkflowEntryModelFactory.create(
+                    workflowFormParts.JOB.JOB_NAME.property,
+                    workflow.dagDefinitionJoined.jobDefinitions[0].name,
+                  ),
                 ],
               }),
             ],

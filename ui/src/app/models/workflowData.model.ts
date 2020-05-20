@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { WorkflowEntryModel } from './workflowEntry.model';
+import { WorkflowEntryModel, WorkflowEntryModelFactory } from './workflowEntry.model';
 import { WorkflowJoinedModel } from './workflowJoined.model';
 import { workflowFormParts as workflowFormPartsConsts, workflowFormPartsSequences } from '../constants/workflowFormParts.constants';
 import get from 'lodash/get';
@@ -27,7 +27,7 @@ export class WorkflowDataModel {
     return workflowFormPartsSequences.allDetails.map((detail) => {
       const value = get(this.worfklow, detail.property);
       if (value != undefined) {
-        return new WorkflowEntryModel(detail.property, value);
+        return WorkflowEntryModelFactory.create(detail.property, value);
       }
     });
   }
@@ -40,7 +40,7 @@ export class WorkflowDataModel {
     return sensorDynamicParts.concat(sensorType).map((part) => {
       const value = get(this.worfklow.sensor, part.property);
       if (value != undefined) {
-        return new WorkflowEntryModel(part.property, value);
+        return WorkflowEntryModelFactory.create(part.property, value);
       }
     });
   }
@@ -55,7 +55,7 @@ export class WorkflowDataModel {
       const jobData = jobDynamicParts.concat(jobDynamicPart, jobStaticPart).map((part) => {
         const value = get(job, part.property);
         if (value != undefined) {
-          return new WorkflowEntryModel(part.property, value);
+          return WorkflowEntryModelFactory.create(part.property, value);
         }
       });
       return JobEntryModel.createNew(job.order, jobData);

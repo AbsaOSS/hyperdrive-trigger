@@ -20,7 +20,7 @@ import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import { DynamicFormPart, DynamicFormParts, FormPart, WorkflowFormPartsModel } from '../../../../models/workflowFormParts.model';
 import { WorkflowSensorChanged, WorkflowSensorTypeSwitched } from '../../../../stores/workflows/workflows.actions';
 import * as fromApp from '../../../../stores/app.reducers';
-import { WorkflowEntryModel } from '../../../../models/workflowEntry.model';
+import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../models/workflowEntry.model';
 
 describe('SensorComponent', () => {
   let fixture: ComponentFixture<SensorComponent>;
@@ -81,7 +81,7 @@ describe('SensorComponent', () => {
   }));
 
   it('should dispatch workflow sensor change when value is received', async(() => {
-    const usedWorkflowEntry = new WorkflowEntryModel('property', 'value');
+    const usedWorkflowEntry = WorkflowEntryModelFactory.create('property', 'value');
     fixture.detectChanges();
     fixture.whenStable().then(() => {
       const storeSpy = spyOn(mockStore, 'dispatch');
@@ -96,7 +96,10 @@ describe('SensorComponent', () => {
   }));
 
   it('should dispatch workflow sensor type switch when value for switch is received', async(() => {
-    const usedWorkflowEntry = new WorkflowEntryModel(initialAppState.workflows.workflowFormParts.sensorSwitchPart.property, 'value');
+    const usedWorkflowEntry = WorkflowEntryModelFactory.create(
+      initialAppState.workflows.workflowFormParts.sensorSwitchPart.property,
+      'value',
+    );
 
     fixture.detectChanges();
     fixture.whenStable().then(() => {
