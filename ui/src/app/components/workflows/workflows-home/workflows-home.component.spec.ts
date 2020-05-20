@@ -17,8 +17,8 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { WorkflowsHomeComponent } from './workflows-home.component';
 import { provideMockStore } from '@ngrx/store/testing';
-import { ProjectModel } from '../../../models/project.model';
-import { WorkflowModel } from '../../../models/workflow.model';
+import { ProjectModel, ProjectModelFactory } from '../../../models/project.model';
+import { WorkflowModel, WorkflowModelFactory } from '../../../models/workflow.model';
 import { ConfirmationDialogService } from '../../../services/confirmation-dialog/confirmation-dialog.service';
 import { Store } from '@ngrx/store';
 import { AppState } from '../../../stores/app.reducers';
@@ -38,8 +38,12 @@ describe('WorkflowsHomeComponent', () => {
   const initialAppState = {
     workflows: {
       projects: [
-        new ProjectModel('projectOne', [new WorkflowModel('workflowOne', undefined, undefined, undefined, undefined, undefined)]),
-        new ProjectModel('projectTwo', [new WorkflowModel('workflowTwo', undefined, undefined, undefined, undefined, undefined)]),
+        ProjectModelFactory.create('projectOne', [
+          WorkflowModelFactory.create('workflowOne', undefined, undefined, undefined, undefined, undefined),
+        ]),
+        ProjectModelFactory.create('projectTwo', [
+          WorkflowModelFactory.create('workflowTwo', undefined, undefined, undefined, undefined, undefined),
+        ]),
       ],
     },
   };

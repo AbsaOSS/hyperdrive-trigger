@@ -18,8 +18,8 @@ import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { api } from '../../constants/api.constants';
 import { WorkflowService } from './workflow.service';
-import { ProjectModel } from '../../models/project.model';
-import { WorkflowModel } from '../../models/workflow.model';
+import { ProjectModel, ProjectModelFactory } from '../../models/project.model';
+import { WorkflowModel, WorkflowModelFactory } from '../../models/workflow.model';
 import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
 
 describe('WorkflowService', () => {
@@ -45,8 +45,8 @@ describe('WorkflowService', () => {
 
   it('getProjects() should return projects', () => {
     const projects = [
-      new ProjectModel('projectName1', [
-        new WorkflowModel('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 0),
+      ProjectModelFactory.create('projectName1', [
+        WorkflowModelFactory.create('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 0),
       ]),
     ];
 

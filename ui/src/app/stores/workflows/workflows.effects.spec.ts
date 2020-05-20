@@ -32,8 +32,8 @@ import * as WorkflowsActions from './workflows.actions';
 
 import { WorkflowsEffects } from './workflows.effects';
 import { WorkflowService } from '../../services/workflow/workflow.service';
-import { ProjectModel } from '../../models/project.model';
-import { WorkflowModel } from '../../models/workflow.model';
+import { ProjectModel, ProjectModelFactory } from '../../models/project.model';
+import { WorkflowModel, WorkflowModelFactory } from '../../models/workflow.model';
 import { provideMockStore } from '@ngrx/store/testing';
 import { DynamicFormPart, DynamicFormParts, FormPart, WorkflowFormPartsModel } from '../../models/workflowFormParts.model';
 import {
@@ -103,11 +103,11 @@ describe('WorkflowsEffects', () => {
   describe('workflowsInitialize', () => {
     it('should return workflows and projects', () => {
       const projects = [
-        new ProjectModel('projectName1', [
-          new WorkflowModel('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 0),
+        ProjectModelFactory.create('projectName1', [
+          WorkflowModelFactory.create('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 0),
         ]),
-        new ProjectModel('projectName2', [
-          new WorkflowModel('workflowName2', true, 'projectName2', new Date(Date.now()), new Date(Date.now()), 1),
+        ProjectModelFactory.create('projectName2', [
+          WorkflowModelFactory.create('workflowName2', true, 'projectName2', new Date(Date.now()), new Date(Date.now()), 1),
         ]),
       ];
 
@@ -144,11 +144,11 @@ describe('WorkflowsEffects', () => {
 
     it('should return initialize workflows failure if workflowService.getWorkflowDynamicFormParts responds with an error', () => {
       const projects = [
-        new ProjectModel('projectName1', [
-          new WorkflowModel('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 0),
+        ProjectModelFactory.create('projectName1', [
+          WorkflowModelFactory.create('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 0),
         ]),
-        new ProjectModel('projectName2', [
-          new WorkflowModel('workflowName2', true, 'projectName2', new Date(Date.now()), new Date(Date.now()), 1),
+        ProjectModelFactory.create('projectName2', [
+          WorkflowModelFactory.create('workflowName2', true, 'projectName2', new Date(Date.now()), new Date(Date.now()), 1),
         ]),
       ];
 
