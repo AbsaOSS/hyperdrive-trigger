@@ -14,7 +14,7 @@
  */
 
 import * as WorkflowsActions from '../workflows/workflows.actions';
-import { ProjectModel } from '../../models/project.model';
+import { ProjectModel, ProjectModelFactory } from '../../models/project.model';
 import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
 import { WorkflowFormPartsModel } from '../../models/workflowFormParts.model';
 import { WorkflowEntryModel } from '../../models/workflowEntry.model';
@@ -199,13 +199,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
     case WorkflowsActions.WORKFLOW_JOB_CHANGED: {
       const oldJob = state.workflowAction.workflowData.jobs.find((job) => job.jobId === action.payload.jobId);
       const filteredOldJobData = oldJob.entries.filter((jobEntry) => jobEntry.property !== action.payload.jobEntry.property);
-      const updatedJobData = [
-        ...filteredOldJobData,
-        {
-          property: action.payload.jobEntry.property,
-          value: action.payload.jobEntry.value,
-        },
-      ];
+      const updatedJobData = [...filteredOldJobData, action.payload.jobEntry];
       const updatedJobsData = [
         ...state.workflowAction.workflowData.jobs.filter((jobEntry) => jobEntry.jobId !== action.payload.jobId),
         JobEntryModelFactory.create(oldJob.jobId, oldJob.order, updatedJobData),
@@ -249,7 +243,10 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
       };
     case WorkflowsActions.DELETE_WORKFLOW_SUCCESS:
       const newProjects = state.projects.map((project) => {
-        return { name: project.name, workflows: project.workflows.filter((workflow) => workflow.id != action.payload) };
+        return ProjectModelFactory.create(
+          project.name,
+          project.workflows.filter((workflow) => workflow.id != action.payload),
+        );
       });
       return {
         ...state,
@@ -277,12 +274,12 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
       };
     case WorkflowsActions.SWITCH_WORKFLOW_ACTIVE_STATE_SUCCESS:
       const updatedProjects = state.projects.map((project) => {
-        return {
-          name: project.name,
-          workflows: project.workflows.map((workflow) => {
+        return ProjectModelFactory.create(
+          project.name,
+          project.workflows.map((workflow) => {
             return workflow.id == action.payload ? { ...workflow, isActive: !workflow.isActive } : workflow;
           }),
-        };
+        );
       });
       return {
         ...state,
