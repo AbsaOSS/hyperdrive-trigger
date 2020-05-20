@@ -20,7 +20,7 @@ import { api } from '../../constants/api.constants';
 import { WorkflowService } from './workflow.service';
 import { ProjectModel, ProjectModelFactory } from '../../models/project.model';
 import { WorkflowModel, WorkflowModelFactory } from '../../models/workflow.model';
-import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
+import { WorkflowJoinedModel, WorkflowJoinedModelFactory } from '../../models/workflowJoined.model';
 
 describe('WorkflowService', () => {
   let underTest: WorkflowService;
@@ -61,7 +61,7 @@ describe('WorkflowService', () => {
   });
 
   it('getWorkflow() should return workflow data', () => {
-    const workflow = new WorkflowJoinedModel('name', true, 'project', undefined, undefined, undefined, 0);
+    const workflow = WorkflowJoinedModelFactory.create('name', true, 'project', undefined, undefined, undefined, 0);
 
     underTest.getWorkflow(workflow.id).subscribe(
       (data) => expect(data).toEqual(workflow),

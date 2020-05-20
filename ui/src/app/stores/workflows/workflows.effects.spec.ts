@@ -42,9 +42,9 @@ import {
   workflowFormPartsSequences,
 } from '../../constants/workflowFormParts.constants';
 import { workflowModes } from '../../models/enums/workflowModes.constants';
-import { SensorModelFactory, SensorTypeFactory } from '../../models/sensor.model';
-import { DagDefinitionJoinedModelFactory } from '../../models/dagDefinitionJoined.model';
-import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
+import { SensorModel, SensorModelFactory, SensorTypeFactory } from '../../models/sensor.model';
+import { DagDefinitionJoinedModel, DagDefinitionJoinedModelFactory } from '../../models/dagDefinitionJoined.model';
+import { WorkflowJoinedModel, WorkflowJoinedModelFactory } from '../../models/workflowJoined.model';
 import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../models/workflowEntry.model';
 import { JobDefinitionModel, JobDefinitionModelFactory } from '../../models/jobDefinition.model';
 import { JobEntryModel } from '../../models/jobEntry.model';
@@ -213,7 +213,7 @@ describe('WorkflowsEffects', () => {
 
     it('should initialize workflow', () => {
       const jobDefinition = JobDefinitionModelFactory.create(10, 'name', JobTypeFactory.create('name'), undefined, 0, 10);
-      const workflow = new WorkflowJoinedModel(
+      const workflow = WorkflowJoinedModelFactory.create(
         'name',
         true,
         'project',
@@ -488,7 +488,7 @@ describe('WorkflowsEffects', () => {
       const toastrServiceSpy = spyOn(toastrService, 'success');
       const routerSpy = spyOn(router, 'navigateByUrl');
 
-      const workflow = new WorkflowJoinedModel(
+      const workflow = WorkflowJoinedModelFactory.create(
         'name',
         true,
         'project',
@@ -497,7 +497,7 @@ describe('WorkflowsEffects', () => {
         DagDefinitionJoinedModelFactory.create(10, [JobDefinitionModelFactory.create(10, 'name', { name: 'name' }, undefined, 0, 10)], 10),
         10,
       );
-      const createWorkflowSuccessPayload: WorkflowModel = new WorkflowModel(
+      const createWorkflowSuccessPayload: WorkflowModel = WorkflowModelFactory.create(
         workflow.name,
         workflow.isActive,
         workflow.project,
@@ -553,7 +553,7 @@ describe('WorkflowsEffects', () => {
       const toastrServiceSpy = spyOn(toastrService, 'success');
       const routerSpy = spyOn(router, 'navigateByUrl');
 
-      const workflow = new WorkflowJoinedModel(
+      const workflow = WorkflowJoinedModelFactory.create(
         'name',
         true,
         'project',
@@ -562,7 +562,7 @@ describe('WorkflowsEffects', () => {
         DagDefinitionJoinedModelFactory.create(10, [JobDefinitionModelFactory.create(10, 'name', { name: 'name' }, undefined, 0, 10)], 10),
         10,
       );
-      const updateWorkflowSuccessPayload: WorkflowModel = new WorkflowModel(
+      const updateWorkflowSuccessPayload: WorkflowModel = WorkflowModelFactory.create(
         workflow.name,
         workflow.isActive,
         workflow.project,
