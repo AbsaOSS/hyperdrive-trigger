@@ -17,7 +17,7 @@ import { WorkflowEntryModel, WorkflowEntryModelFactory } from './workflowEntry.m
 import { WorkflowJoinedModel } from './workflowJoined.model';
 import { workflowFormParts as workflowFormPartsConsts, workflowFormPartsSequences } from '../constants/workflowFormParts.constants';
 import get from 'lodash/get';
-import { JobEntryModel } from './jobEntry.model';
+import { JobEntryModel, JobEntryModelFactory } from './jobEntry.model';
 import { DynamicFormParts } from './workflowFormParts.model';
 
 export class WorkflowDataModel {
@@ -58,7 +58,7 @@ export class WorkflowDataModel {
           return WorkflowEntryModelFactory.create(part.property, value);
         }
       });
-      return JobEntryModel.createNew(job.order, jobData);
+      return JobEntryModelFactory.createWithUuid(job.order, jobData);
     });
     return jobsData;
   }

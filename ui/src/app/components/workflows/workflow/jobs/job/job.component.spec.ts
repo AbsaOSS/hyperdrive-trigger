@@ -18,7 +18,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { JobComponent } from './job.component';
 import { provideMockStore } from '@ngrx/store/testing';
 import { DynamicFormPart, DynamicFormParts, FormPart, WorkflowFormPartsModel } from '../../../../../models/workflowFormParts.model';
-import { JobEntryModel } from '../../../../../models/jobEntry.model';
+import { JobEntryModel, JobEntryModelFactory } from '../../../../../models/jobEntry.model';
 import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
 
 describe('JobComponent', () => {
@@ -43,7 +43,7 @@ describe('JobComponent', () => {
       workflowAction: {
         mode: 'mode',
         workflowData: {
-          jobs: [JobEntryModel.createNew(0, [WorkflowEntryModelFactory.create('jobStaticPart', 'value')])],
+          jobs: [JobEntryModelFactory.createWithUuid(0, [WorkflowEntryModelFactory.create('jobStaticPart', 'value')])],
         },
       },
     },

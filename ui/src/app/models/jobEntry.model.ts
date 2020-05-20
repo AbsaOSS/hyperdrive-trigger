@@ -16,16 +16,14 @@
 import { WorkflowEntryModel } from './workflowEntry.model';
 import { UuidUtil } from '../utils/uuid/uuid.util';
 
-export class JobEntryModel {
-  private constructor(public readonly jobId: string, public order: number, public entries: WorkflowEntryModel[]) {}
+export type JobEntryModel = { jobId: string; order: number; entries: WorkflowEntryModel[] };
 
-  static createNew(order: number, entries: WorkflowEntryModel[]): JobEntryModel {
-    return new JobEntryModel(UuidUtil.createUUID(), order, entries);
+export class JobEntryModelFactory {
+  static createWithUuid(order: number, entries: WorkflowEntryModel[]): JobEntryModel {
+    return { jobId: UuidUtil.createUUID(), order: order, entries: entries };
   }
 
-  static createAsObject(jobId: string, order: number, entries: WorkflowEntryModel[]): JobEntryModelObject {
-    return new JobEntryModel(jobId, order, entries);
+  static create(jobId: string, order: number, entries: WorkflowEntryModel[]): JobEntryModel {
+    return { jobId: jobId, order: order, entries: entries };
   }
 }
-
-export type JobEntryModelObject = { jobId: string; order: number; entries: WorkflowEntryModel[] };

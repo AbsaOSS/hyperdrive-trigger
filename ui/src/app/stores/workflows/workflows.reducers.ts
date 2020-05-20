@@ -18,7 +18,7 @@ import { ProjectModel } from '../../models/project.model';
 import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
 import { WorkflowFormPartsModel } from '../../models/workflowFormParts.model';
 import { WorkflowEntryModel } from '../../models/workflowEntry.model';
-import { JobEntryModel, JobEntryModelObject } from '../../models/jobEntry.model';
+import { JobEntryModel, JobEntryModelFactory } from '../../models/jobEntry.model';
 
 export interface State {
   projects: ProjectModel[];
@@ -31,7 +31,7 @@ export interface State {
     workflowData: {
       details: WorkflowEntryModel[];
       sensor: WorkflowEntryModel[];
-      jobs: JobEntryModelObject[];
+      jobs: JobEntryModel[];
     };
   };
   workflowFormParts: WorkflowFormPartsModel;
@@ -54,7 +54,7 @@ const initialState: State = {
   workflowFormParts: undefined,
 };
 
-function removeJob(jobId: string, jobsOriginal: JobEntryModelObject[]): JobEntryModelObject[] {
+function removeJob(jobId: string, jobsOriginal: JobEntryModel[]): JobEntryModel[] {
   const jobs = [...jobsOriginal];
   const removeIndex = jobs.findIndex((job) => job.jobId === jobId);
   const removeOrder = jobs[removeIndex].order;
@@ -170,7 +170,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         },
       };
     case WorkflowsActions.WORKFLOW_ADD_EMPTY_JOB:
-      const emptyJobData = JobEntryModel.createNew(action.payload, []);
+      const emptyJobData = JobEntryModelFactory.createWithUuid(action.payload, []);
       const jobs = [...state.workflowAction.workflowData.jobs, emptyJobData];
       return {
         ...state,
@@ -208,7 +208,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
       ];
       const updatedJobsData = [
         ...state.workflowAction.workflowData.jobs.filter((jobEntry) => jobEntry.jobId !== action.payload.jobId),
-        JobEntryModel.createAsObject(oldJob.jobId, oldJob.order, updatedJobData),
+        JobEntryModelFactory.create(oldJob.jobId, oldJob.order, updatedJobData),
       ];
       return {
         ...state,
@@ -223,7 +223,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
     }
     case WorkflowsActions.WORKFLOW_JOB_TYPE_SWITCHED:
       const oldJob = state.workflowAction.workflowData.jobs.find((job) => job.jobId === action.payload.jobId);
-      const cleanedJobData = JobEntryModel.createAsObject(oldJob.jobId, oldJob.order, [action.payload.jobEntry]);
+      const cleanedJobData = JobEntryModelFactory.create(oldJob.jobId, oldJob.order, [action.payload.jobEntry]);
 
       const cleanedJobsData = [
         ...state.workflowAction.workflowData.jobs.filter((item) => item.jobId !== action.payload.jobId),

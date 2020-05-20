@@ -20,7 +20,7 @@ import { FormPart, WorkflowFormPartsModel } from '../../../../models/workflowFor
 import { provideMockStore } from '@ngrx/store/testing';
 import { Store } from '@ngrx/store';
 import { WorkflowAddEmptyJob, WorkflowRemoveJob } from '../../../../stores/workflows/workflows.actions';
-import { JobEntryModel } from '../../../../models/jobEntry.model';
+import { JobEntryModel, JobEntryModelFactory } from '../../../../models/jobEntry.model';
 import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../models/workflowEntry.model';
 
 describe('JobsComponent', () => {
@@ -40,7 +40,7 @@ describe('JobsComponent', () => {
       workflowAction: {
         mode: 'mode',
         workflowData: {
-          jobs: [JobEntryModel.createAsObject(uuid, 0, [WorkflowEntryModelFactory.create('jobStaticPart', 'value')])],
+          jobs: [JobEntryModelFactory.create(uuid, 0, [WorkflowEntryModelFactory.create('jobStaticPart', 'value')])],
         },
       },
     },
