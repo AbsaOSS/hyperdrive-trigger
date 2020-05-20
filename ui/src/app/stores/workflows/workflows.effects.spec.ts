@@ -42,7 +42,7 @@ import {
   workflowFormPartsSequences,
 } from '../../constants/workflowFormParts.constants';
 import { workflowModes } from '../../models/enums/workflowModes.constants';
-import { SensorModel } from '../../models/sensor.model';
+import { SensorModelFactory, SensorTypeFactory } from '../../models/sensor.model';
 import { DagDefinitionJoinedModelFactory } from '../../models/dagDefinitionJoined.model';
 import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
 import { WorkflowEntryModel } from '../../models/workflowEntry.model';
@@ -217,7 +217,7 @@ describe('WorkflowsEffects', () => {
         true,
         'project',
         undefined,
-        new SensorModel(10, { name: 'name' }, undefined, 10),
+        SensorModelFactory.create(10, SensorTypeFactory.create('name'), undefined, 10),
         DagDefinitionJoinedModelFactory.create(10, [jobDefinition], 10),
         10,
       );
@@ -489,7 +489,7 @@ describe('WorkflowsEffects', () => {
         true,
         'project',
         undefined,
-        new SensorModel(10, { name: 'name' }, undefined, 10),
+        SensorModelFactory.create(10, SensorTypeFactory.create('name'), undefined, 10),
         DagDefinitionJoinedModelFactory.create(10, [JobDefinitionModelFactory.create(10, 'name', { name: 'name' }, undefined, 0, 10)], 10),
         10,
       );
@@ -554,7 +554,7 @@ describe('WorkflowsEffects', () => {
         true,
         'project',
         undefined,
-        new SensorModel(10, { name: 'name' }, undefined, 10),
+        SensorModelFactory.create(10, SensorTypeFactory.create('name'), undefined, 10),
         DagDefinitionJoinedModelFactory.create(10, [JobDefinitionModelFactory.create(10, 'name', { name: 'name' }, undefined, 0, 10)], 10),
         10,
       );
