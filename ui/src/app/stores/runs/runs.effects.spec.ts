@@ -25,7 +25,7 @@ import { GetDagRunDetail, GetDagRuns } from './runs.actions';
 import * as RunsActions from './runs.actions';
 
 import { DagRunModel } from '../../models/dagRuns/dagRun.model';
-import { JobInstanceModel, JobStatus, JobType } from '../../models/jobInstance.model';
+import { JobInstanceModel, JobInstanceModelFactory, JobStatusFactory, JobTypeFactory } from '../../models/jobInstance.model';
 import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
 import { SortAttributesModel } from '../../models/search/sortAttributes.model';
 
@@ -83,7 +83,14 @@ describe('RunsEffects', () => {
     it('should return dag run detail', () => {
       const id = 0;
       const jobInstances: JobInstanceModel[] = [
-        new JobInstanceModel(id, 'jobName0', new JobType('JobType'), new Date(Date.now()), new Date(Date.now()), new JobStatus('Status')),
+        JobInstanceModelFactory.create(
+          id,
+          'jobName0',
+          JobTypeFactory.create('JobType'),
+          new Date(Date.now()),
+          new Date(Date.now()),
+          JobStatusFactory.create('Status'),
+        ),
       ];
 
       const action = new GetDagRunDetail(id);

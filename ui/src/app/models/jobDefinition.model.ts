@@ -13,16 +13,37 @@
  * limitations under the License.
  */
 
-export class JobDefinitionModel {
-  constructor(
-    public dagDefinitionId: number = 0,
-    public name: string,
-    public jobType: { name: string },
-    public jobParameters: JobParametersModel,
-    public order: number,
-    public id: number,
-  ) {}
+import { JobType } from './jobInstance.model';
+
+export type JobDefinitionModel = {
+  dagDefinitionId: number;
+  name: string;
+  jobType: JobType;
+  jobParameters: JobParametersModel;
+  order: number;
+  id: number;
+};
+
+export type JobParametersModel = {
+  variables: Map<string, string>;
+  maps: Map<string, Set<string>>;
+};
+
+export class JobDefinitionModelFactory {
+  static create(
+    dagDefinitionId = 0,
+    name: string,
+    jobType: JobType,
+    jobParameters: JobParametersModel,
+    order: number,
+    id: number,
+  ): JobDefinitionModel {
+    return { dagDefinitionId: dagDefinitionId, name: name, jobType: jobType, jobParameters: jobParameters, order: order, id: id };
+  }
 }
-export class JobParametersModel {
-  constructor(public variables: Map<string, string>, public maps: Map<string, Set<string>>) {}
+
+export class JobParametersModelFactory {
+  static create(variables: Map<string, string>, maps: Map<string, Set<string>>): JobParametersModel {
+    return { variables: variables, maps: maps };
+  }
 }

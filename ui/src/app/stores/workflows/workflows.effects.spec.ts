@@ -43,15 +43,16 @@ import {
 } from '../../constants/workflowFormParts.constants';
 import { workflowModes } from '../../models/enums/workflowModes.constants';
 import { SensorModel } from '../../models/sensor.model';
-import { DagDefinitionJoinedModel } from '../../models/dagDefinitionJoined.model';
+import { DagDefinitionJoinedModelFactory } from '../../models/dagDefinitionJoined.model';
 import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
 import { WorkflowEntryModel } from '../../models/workflowEntry.model';
-import { JobDefinitionModel } from '../../models/jobDefinition.model';
+import { JobDefinitionModelFactory } from '../../models/jobDefinition.model';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { texts } from '../../constants/texts.constants';
 import { Router } from '@angular/router';
 import { absoluteRoutes } from '../../constants/routes.constants';
+import { JobTypeFactory } from '../../models/jobInstance.model';
 
 describe('WorkflowsEffects', () => {
   let underTest: WorkflowsEffects;
@@ -210,13 +211,14 @@ describe('WorkflowsEffects', () => {
     });
 
     it('should initialize workflow', () => {
+      const jobDefinition = JobDefinitionModelFactory.create(10, 'name', JobTypeFactory.create('name'), undefined, 0, 10);
       const workflow = new WorkflowJoinedModel(
         'name',
         true,
         'project',
         undefined,
         new SensorModel(10, { name: 'name' }, undefined, 10),
-        new DagDefinitionJoinedModel(10, [new JobDefinitionModel(10, 'name', { name: 'name' }, undefined, 0, 10)], 10),
+        DagDefinitionJoinedModelFactory.create(10, [jobDefinition], 10),
         10,
       );
 
@@ -488,7 +490,7 @@ describe('WorkflowsEffects', () => {
         'project',
         undefined,
         new SensorModel(10, { name: 'name' }, undefined, 10),
-        new DagDefinitionJoinedModel(10, [new JobDefinitionModel(10, 'name', { name: 'name' }, undefined, 0, 10)], 10),
+        DagDefinitionJoinedModelFactory.create(10, [JobDefinitionModelFactory.create(10, 'name', { name: 'name' }, undefined, 0, 10)], 10),
         10,
       );
       const createWorkflowSuccessPayload: WorkflowModel = new WorkflowModel(
@@ -553,7 +555,7 @@ describe('WorkflowsEffects', () => {
         'project',
         undefined,
         new SensorModel(10, { name: 'name' }, undefined, 10),
-        new DagDefinitionJoinedModel(10, [new JobDefinitionModel(10, 'name', { name: 'name' }, undefined, 0, 10)], 10),
+        DagDefinitionJoinedModelFactory.create(10, [JobDefinitionModelFactory.create(10, 'name', { name: 'name' }, undefined, 0, 10)], 10),
         10,
       );
       const updateWorkflowSuccessPayload: WorkflowModel = new WorkflowModel(

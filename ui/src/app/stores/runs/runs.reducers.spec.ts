@@ -23,7 +23,7 @@ import {
   GetDagRunsSuccess,
 } from './runs.actions';
 import { DagRunModel } from '../../models/dagRuns/dagRun.model';
-import { JobInstanceModel, JobStatus, JobType } from '../../models/jobInstance.model';
+import { JobInstanceModel, JobInstanceModelFactory, JobStatusFactory, JobTypeFactory } from '../../models/jobInstance.model';
 import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
 import { SortAttributesModel } from '../../models/search/sortAttributes.model';
 
@@ -81,7 +81,14 @@ describe('RunsReducers', () => {
 
   it('should set detail and loading to false on get dag run detail success', () => {
     const jobInstances: JobInstanceModel[] = [
-      new JobInstanceModel(0, 'jobName0', new JobType('JobType'), new Date(Date.now()), new Date(Date.now()), new JobStatus('Status')),
+      JobInstanceModelFactory.create(
+        0,
+        'jobName0',
+        JobTypeFactory.create('JobType'),
+        new Date(Date.now()),
+        new Date(Date.now()),
+        JobStatusFactory.create('Status'),
+      ),
     ];
     const runsAction = new GetDagRunDetailSuccess(jobInstances);
 
