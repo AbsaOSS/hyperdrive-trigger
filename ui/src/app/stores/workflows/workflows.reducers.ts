@@ -363,7 +363,10 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
       };
     case WorkflowsActions.UPDATE_WORKFLOW_SUCCESS: {
       const projectsWithoutWorkflow = state.projects.map((project) => {
-        return { name: project.name, workflows: project.workflows.filter((workflow) => workflow.id != action.payload.id) };
+        return new ProjectModel(
+          project.name,
+          project.workflows.filter((workflow) => workflow.id != action.payload.id)
+        );
       });
       let updatedProjects;
       if (state.projects.some((project) => project.name == action.payload.project)) {
