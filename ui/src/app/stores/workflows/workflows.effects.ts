@@ -22,8 +22,8 @@ import { WorkflowService } from '../../services/workflow/workflow.service';
 import { ProjectModel } from '../../models/project.model';
 import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
 import { workflowModes } from '../../models/enums/workflowModes.constants';
-import { DynamicFormParts, WorkflowFormPartsModel } from '../../models/workflowFormParts.model';
-import { workflowFormPartsSequences, workflowFormParts as workflowFormPartsConsts } from '../../constants/workflowFormParts.constants';
+import { DynamicFormParts, WorkflowFormPartsModelFactory } from '../../models/workflowFormParts.model';
+import { workflowFormParts as workflowFormPartsConsts, workflowFormPartsSequences } from '../../constants/workflowFormParts.constants';
 import { AppState, selectWorkflowState } from '../app.reducers';
 import { Store } from '@ngrx/store';
 import * as fromWorkflows from './workflows.reducers';
@@ -55,7 +55,7 @@ export class WorkflowsEffects {
     mergeMap((projects: ProjectModel[]) => {
       return this.workflowService.getWorkflowDynamicFormParts().pipe(
         mergeMap((workflowComponents: DynamicFormParts) => {
-          const workflowFormParts = new WorkflowFormPartsModel(
+          const workflowFormParts = WorkflowFormPartsModelFactory.create(
             workflowFormPartsSequences.allDetails,
             workflowFormPartsConsts.SENSOR.SENSOR_TYPE,
             workflowFormPartsConsts.JOB.JOB_NAME,

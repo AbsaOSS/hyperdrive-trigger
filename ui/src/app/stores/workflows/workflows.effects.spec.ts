@@ -19,6 +19,7 @@ import { provideMockActions } from '@ngrx/effects/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Actions } from '@ngrx/effects';
 import { cold } from 'jasmine-marbles';
+import * as WorkflowsActions from './workflows.actions';
 import {
   CreateWorkflow,
   DeleteWorkflow,
@@ -28,26 +29,29 @@ import {
   SwitchWorkflowActiveState,
   UpdateWorkflow,
 } from './workflows.actions';
-import * as WorkflowsActions from './workflows.actions';
 
 import { WorkflowsEffects } from './workflows.effects';
 import { WorkflowService } from '../../services/workflow/workflow.service';
-import { ProjectModel, ProjectModelFactory } from '../../models/project.model';
-import { WorkflowModel, WorkflowModelFactory } from '../../models/workflow.model';
+import { ProjectModelFactory } from '../../models/project.model';
+import { WorkflowModelFactory } from '../../models/workflow.model';
 import { provideMockStore } from '@ngrx/store/testing';
-import { DynamicFormPart, DynamicFormParts, FormPart, WorkflowFormPartsModel } from '../../models/workflowFormParts.model';
+import {
+  DynamicFormPartFactory,
+  DynamicFormPartsFactory,
+  FormPartFactory,
+  WorkflowFormPartsModelFactory,
+} from '../../models/workflowFormParts.model';
 import {
   workflowFormParts,
   workflowFormParts as workflowFormPartsConsts,
   workflowFormPartsSequences,
 } from '../../constants/workflowFormParts.constants';
 import { workflowModes } from '../../models/enums/workflowModes.constants';
-import { SensorModel, SensorModelFactory, SensorTypeFactory } from '../../models/sensor.model';
-import { DagDefinitionJoinedModel, DagDefinitionJoinedModelFactory } from '../../models/dagDefinitionJoined.model';
-import { WorkflowJoinedModel, WorkflowJoinedModelFactory } from '../../models/workflowJoined.model';
-import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../models/workflowEntry.model';
-import { JobDefinitionModel, JobDefinitionModelFactory } from '../../models/jobDefinition.model';
-import { JobEntryModel } from '../../models/jobEntry.model';
+import { SensorModelFactory, SensorTypeFactory } from '../../models/sensor.model';
+import { DagDefinitionJoinedModelFactory } from '../../models/dagDefinitionJoined.model';
+import { WorkflowJoinedModelFactory } from '../../models/workflowJoined.model';
+import { WorkflowEntryModelFactory } from '../../models/workflowEntry.model';
+import { JobDefinitionModelFactory } from '../../models/jobDefinition.model';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { texts } from '../../constants/texts.constants';
@@ -72,12 +76,12 @@ describe('WorkflowsEffects', () => {
           jobs: [{ jobId: 'jobId', order: 0, entries: [{ property: 'jobProp', value: 'jobVal' }] }],
         },
       },
-      workflowFormParts: new WorkflowFormPartsModel(
+      workflowFormParts: WorkflowFormPartsModelFactory.create(
         workflowFormPartsSequences.allDetails,
         workflowFormPartsConsts.SENSOR.SENSOR_TYPE,
         workflowFormPartsConsts.JOB.JOB_NAME,
         workflowFormPartsConsts.JOB.JOB_TYPE,
-        new DynamicFormParts([], []),
+        DynamicFormPartsFactory.create([], []),
       ),
     },
   };
@@ -111,12 +115,12 @@ describe('WorkflowsEffects', () => {
         ]),
       ];
 
-      const dynamicFormParts = new DynamicFormParts(
-        [new DynamicFormPart('typeOne', [new FormPart('nameOne', 'propertyOne', true, 'string-field')])],
-        [new DynamicFormPart('typeTwo', [new FormPart('nameTwo', 'propertyTwo', false, 'string-field')])],
+      const dynamicFormParts = DynamicFormPartsFactory.create(
+        [DynamicFormPartFactory.create('typeOne', [FormPartFactory.create('nameOne', 'propertyOne', true, 'string-field')])],
+        [DynamicFormPartFactory.create('typeTwo', [FormPartFactory.create('nameTwo', 'propertyTwo', false, 'string-field')])],
       );
 
-      const workflowFormParts = new WorkflowFormPartsModel(
+      const workflowFormParts = WorkflowFormPartsModelFactory.create(
         workflowFormPartsSequences.allDetails,
         workflowFormPartsConsts.SENSOR.SENSOR_TYPE,
         workflowFormPartsConsts.JOB.JOB_NAME,

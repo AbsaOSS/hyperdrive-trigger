@@ -16,12 +16,12 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { JobsComponent } from './jobs.component';
-import { FormPart, WorkflowFormPartsModel } from '../../../../models/workflowFormParts.model';
+import { FormPartFactory, WorkflowFormPartsModelFactory } from '../../../../models/workflowFormParts.model';
 import { provideMockStore } from '@ngrx/store/testing';
 import { Store } from '@ngrx/store';
 import { WorkflowAddEmptyJob, WorkflowRemoveJob } from '../../../../stores/workflows/workflows.actions';
-import { JobEntryModel, JobEntryModelFactory } from '../../../../models/jobEntry.model';
-import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../models/workflowEntry.model';
+import { JobEntryModelFactory } from '../../../../models/jobEntry.model';
+import { WorkflowEntryModelFactory } from '../../../../models/workflowEntry.model';
 
 describe('JobsComponent', () => {
   let fixture: ComponentFixture<JobsComponent>;
@@ -30,10 +30,10 @@ describe('JobsComponent', () => {
   const uuid = '7a03f745-6b41-4161-9b57-765ac8f58574';
   const initialAppState = {
     workflows: {
-      workflowFormParts: new WorkflowFormPartsModel(
+      workflowFormParts: WorkflowFormPartsModelFactory.create(
         [],
         undefined,
-        new FormPart('jobStaticPart', 'jobStaticPart', true, 'jobStaticPart'),
+        FormPartFactory.create('jobStaticPart', 'jobStaticPart', true, 'jobStaticPart'),
         undefined,
         undefined,
       ),
