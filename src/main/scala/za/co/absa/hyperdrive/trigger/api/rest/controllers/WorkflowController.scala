@@ -37,12 +37,12 @@ class WorkflowController @Inject()(workflowService: WorkflowService) {
     }.toJava.toCompletableFuture
 
   @PutMapping(path = Array("/workflow"))
-  def createWorkflow(@RequestBody workflow: WorkflowJoined): CompletableFuture[Boolean] = {
+  def createWorkflow(@RequestBody workflow: WorkflowJoined): CompletableFuture[WorkflowJoined] = {
     workflowService.createWorkflow(workflow)
   }
 
   @GetMapping(path = Array("/workflow"))
-  def getWorkflow(@RequestParam id: Long): CompletableFuture[Option[WorkflowJoined]] = {
+  def getWorkflow(@RequestParam id: Long): CompletableFuture[WorkflowJoined] = {
     workflowService.getWorkflow(id).toJava.toCompletableFuture
   }
 
@@ -57,12 +57,12 @@ class WorkflowController @Inject()(workflowService: WorkflowService) {
   }
 
   @DeleteMapping(path = Array("/workflows"))
-    def deleteWorkflow(@RequestParam id: Long): CompletableFuture[Boolean] = {
-      workflowService.deleteWorkflow(id).toJava.toCompletableFuture
-    }
+  def deleteWorkflow(@RequestParam id: Long): CompletableFuture[Boolean] = {
+    workflowService.deleteWorkflow(id).toJava.toCompletableFuture
+  }
 
   @PostMapping(path = Array("/workflows"))
-  def updateWorkflow(@RequestBody workflow: WorkflowJoined): CompletableFuture[Boolean] = {
+  def updateWorkflow(@RequestBody workflow: WorkflowJoined): CompletableFuture[WorkflowJoined] = {
     workflowService.updateWorkflow(workflow)
   }
 

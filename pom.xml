@@ -38,7 +38,7 @@
         <play-ws-standalone.version>2.0.3</play-ws-standalone.version>
         <play-ahc-ws-standalone.version>2.0.2</play-ahc-ws-standalone.version>
         <spring-boot-starter-web.version>2.0.0.RELEASE</spring-boot-starter-web.version>
-        <jackson-module.version>2.9.8</jackson-module.version>
+        <jackson-module.version>2.11.0</jackson-module.version>
         <spring-boot-starter-tomcat.version>2.0.0.RELEASE</spring-boot-starter-tomcat.version>
         <alchim31>3.2.0</alchim31>
         <openui5.version>1.60.2</openui5.version>
@@ -71,6 +71,11 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-scala_${scala.compat.version}</artifactId>
+            <version>${jackson-module.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.typesafe.slick</groupId>
             <artifactId>slick_${scala.compat.version}</artifactId>
@@ -130,11 +135,6 @@
             <groupId>org.quartz-scheduler</groupId>
             <artifactId>quartz</artifactId>
             <version>${quartz.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-scala_${scala.compat.version}</artifactId>
-            <version>${jackson-module.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

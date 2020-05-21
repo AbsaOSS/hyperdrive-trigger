@@ -27,15 +27,15 @@ import scala.concurrent.{ExecutionContext, Future}
 trait WorkflowValidationService {
   val workflowRepository: WorkflowRepository
 
-  def validateOnInsert(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Option[Seq[ApiError]]]
+  def validateOnInsert(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Seq[ApiError]]
 
-  def validateOnUpdate(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Option[Seq[ApiError]]]
+  def validateOnUpdate(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Seq[ApiError]]
 }
 
 @Service
 class WorkflowValidationServiceImpl @Inject()(override val workflowRepository: WorkflowRepository)
   extends WorkflowValidationService {
-  override def validateOnInsert(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Option[Seq[ApiError]]] = {
+  override def validateOnInsert(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Seq[ApiError]] = {
     val validators = Seq(
       validateWorkflowNotExists(workflow),
       validateProjectIsNotEmpty(workflow)
@@ -43,7 +43,7 @@ class WorkflowValidationServiceImpl @Inject()(override val workflowRepository: W
     combine(validators)
   }
 
-  override def validateOnUpdate(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Option[Seq[ApiError]]] = {
+  override def validateOnUpdate(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Seq[ApiError]] = {
     val validators = Seq(
       validateWorkflowIsUnique(workflow),
       validateProjectIsNotEmpty(workflow)
@@ -53,7 +53,7 @@ class WorkflowValidationServiceImpl @Inject()(override val workflowRepository: W
 
   private def combine(validators: Seq[Future[Seq[ApiError]]])(implicit ec: ExecutionContext) = {
     val combinedValidators = Future.fold(validators)(Seq.empty[ApiError])(_ ++ _)
-    combinedValidators.map(errors => if (errors.isEmpty) None else Some(errors))
+    combinedValidators
   }
 
   private def validateWorkflowNotExists(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Seq[ApiError]] = {

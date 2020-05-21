@@ -15,6 +15,8 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
+import java.time.LocalDateTime
+
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.models.errors.ApiError
 import za.co.absa.hyperdrive.trigger.models.{Project, ProjectInfo, Workflow, WorkflowJoined}
@@ -27,12 +29,12 @@ trait WorkflowService {
   val dagInstanceRepository: DagInstanceRepository
   val workflowValidationService: WorkflowValidationService
 
-  def createWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], Boolean]]
-  def getWorkflow(id: Long)(implicit ec: ExecutionContext): Future[Option[WorkflowJoined]]
+  def createWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], WorkflowJoined]]
+  def getWorkflow(id: Long)(implicit ec: ExecutionContext): Future[WorkflowJoined]
   def getWorkflows()(implicit ec: ExecutionContext): Future[Seq[Workflow]]
   def getWorkflowsByProjectName(projectName: String)(implicit ec: ExecutionContext): Future[Seq[Workflow]]
   def deleteWorkflow(id: Long)(implicit ec: ExecutionContext): Future[Boolean]
-  def updateWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], Boolean]]
+  def updateWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], WorkflowJoined]]
   def switchWorkflowActiveState(id: Long)(implicit ec: ExecutionContext): Future[Boolean]
   def getProjectNames()(implicit ec: ExecutionContext): Future[Set[String]]
   def getProjects()(implicit ec: ExecutionContext): Future[Seq[Project]]
@@ -45,14 +47,21 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
                           override val dagInstanceRepository: DagInstanceRepository,
                           override val workflowValidationService: WorkflowValidationService) extends WorkflowService {
 
-  def createWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], Boolean]] = {
+  def createWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], WorkflowJoined]] = {
     for {
       validationErrors <- workflowValidationService.validateOnInsert(workflow)
-      dbError <- doIf(validationErrors.isEmpty, () => workflowRepository.insertWorkflow(workflow), None)
-    } yield { toEither(Seq(validationErrors, dbError.map(error => Seq(error)))) }
+      result <- doIf(validationErrors, () => {
+        workflowRepository.insertWorkflow(workflow).flatMap {
+          case Left(error) => Future.successful(Left(error))
+          case Right(workflowId) => getWorkflow(workflowId).map(Right(_))
+        }
+      })
+    } yield {
+      result
+    }
   }
 
-  def getWorkflow(id: Long)(implicit ec: ExecutionContext): Future[Option[WorkflowJoined]] = {
+  def getWorkflow(id: Long)(implicit ec: ExecutionContext): Future[WorkflowJoined] = {
     workflowRepository.getWorkflow(id)
   }
 
@@ -68,11 +77,37 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
     workflowRepository.deleteWorkflow(id).map(_ => true)
   }
 
-  override def updateWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], Boolean]] = {
+  override def updateWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], WorkflowJoined]] = {
     for {
       validationErrors <- workflowValidationService.validateOnUpdate(workflow)
-      dbError <- doIf(validationErrors.isEmpty, () => workflowRepository.updateWorkflow(workflow), None)
-    } yield { toEither(Seq(validationErrors, dbError.map(error => Seq(error)))) }
+      result <- doIf(validationErrors, () => {
+        getWorkflow(workflow.id).flatMap { originalWorkflow =>
+          val updatedWorkflow = workflow.copy(
+            id = originalWorkflow.id,
+            created = originalWorkflow.created,
+            updated = originalWorkflow.updated,
+            sensor = workflow.sensor.copy(
+              id = originalWorkflow.sensor.id,
+              workflowId = originalWorkflow.id,
+              properties = workflow.sensor.properties.copy(
+                sensorId = originalWorkflow.sensor.properties.sensorId
+              )
+            ),
+            dagDefinitionJoined = workflow.dagDefinitionJoined.copy(
+              id = originalWorkflow.dagDefinitionJoined.id,
+              workflowId = originalWorkflow.id
+            )
+          )
+
+          workflowRepository.updateWorkflow(updatedWorkflow).flatMap {
+            case Left(error) => Future.successful(Left(error))
+            case Right(_) => getWorkflow(workflow.id).map(Right(_))
+          }
+        }
+      })
+    } yield {
+      result
+    }
   }
 
   override def switchWorkflowActiveState(id: Long)(implicit ec: ExecutionContext): Future[Boolean] = {
@@ -96,23 +131,20 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
   }
 
   override def runWorkflow(workflowId: Long)(implicit ec: ExecutionContext): Future[Boolean] = {
-    workflowRepository.getWorkflow(workflowId).map(_.map { joinedWorkflow =>
+    workflowRepository.getWorkflow(workflowId).map( joinedWorkflow =>
       dagInstanceRepository.insertJoinedDagInstance(joinedWorkflow.dagDefinitionJoined.toDagInstanceJoined())
-    }).map(_ => true)
+    ).map(_ => true)
   }
 
-  private def doIf[T](condition: Boolean, future: () => Future[T], defaultValue: T) = {
-    if (condition) future.apply() else Future.successful(defaultValue)
-  }
-
-  private def toEither(errorsOpts: Seq[Option[Seq[ApiError]]]): Either[Seq[ApiError], Boolean] = {
-    val errors = errorsOpts
-      .filter(_.isDefined)
-      .flatMap(_.get)
-    if (errors.isEmpty) {
-      Right(true)
+  private def doIf[T](validationErrors: Seq[ApiError], future: () => Future[Either[ApiError, T]])(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], T]] = {
+    if (validationErrors.isEmpty) {
+      future.apply().map {
+        case Left(error) => Left(Seq(error))
+        case Right(result) => Right(result)
+      }
     } else {
-      Left(errors)
+      Future.successful(Left(validationErrors))
     }
   }
+
 }

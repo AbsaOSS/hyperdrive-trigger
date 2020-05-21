@@ -20,11 +20,13 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Actions } from '@ngrx/effects';
 import { cold } from 'jasmine-marbles';
 import {
+  CreateWorkflow,
   DeleteWorkflow,
   InitializeWorkflows,
   RunWorkflow,
   StartWorkflowInitialization,
   SwitchWorkflowActiveState,
+  UpdateWorkflow,
 } from './workflows.actions';
 import * as WorkflowsActions from './workflows.actions';
 
@@ -45,7 +47,6 @@ import { DagDefinitionJoinedModel } from '../../models/dagDefinitionJoined.model
 import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
 import { WorkflowEntryModel } from '../../models/workflowEntry.model';
 import { JobDefinitionModel } from '../../models/jobDefinition.model';
-import { JobEntryModel } from '../../models/jobEntry.model';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { texts } from '../../constants/texts.constants';
@@ -63,6 +64,11 @@ describe('WorkflowsEffects', () => {
     workflows: {
       workflowAction: {
         mode: workflowModes.CREATE,
+        workflowData: {
+          details: [{ property: 'detailProp', value: 'detailVal' }],
+          sensor: [{ property: 'sensorProp', value: 'sensorVal' }],
+          jobs: [{ jobId: 'jobId', order: 0, entries: [{ property: 'jobProp', value: 'jobVal' }] }],
+        },
       },
       workflowFormParts: new WorkflowFormPartsModel(
         workflowFormPartsSequences.allDetails,
@@ -448,6 +454,136 @@ describe('WorkflowsEffects', () => {
       expect(underTest.workflowRun).toBeObservable(expected);
       expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
       expect(toastrServiceSpy).toHaveBeenCalledWith(texts.RUN_WORKFLOW_FAILURE_NOTIFICATION);
+    });
+  });
+
+  describe('workflowCreate', () => {
+    it('should return create workflow failure when service fails to create workflow', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'error');
+
+      const action = new CreateWorkflow();
+      mockActions = cold('-a', { a: action });
+      const createWorkflowResponse = cold('-#|');
+
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowsActions.CREATE_WORKFLOW_FAILURE,
+        },
+      });
+
+      spyOn(workflowService, 'createWorkflow').and.returnValue(createWorkflowResponse);
+
+      expect(underTest.workflowCreate).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.CREATE_WORKFLOW_FAILURE_NOTIFICATION);
+    });
+
+    it('should return create workflow success when service returns success creation', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'success');
+      const routerSpy = spyOn(router, 'navigateByUrl');
+
+      const workflow = new WorkflowJoinedModel(
+        'name',
+        true,
+        'project',
+        undefined,
+        new SensorModel(10, { name: 'name' }, undefined, 10),
+        new DagDefinitionJoinedModel(10, [new JobDefinitionModel(10, 'name', { name: 'name' }, undefined, 0, 10)], 10),
+        10,
+      );
+      const createWorkflowSuccessPayload: WorkflowModel = new WorkflowModel(
+        workflow.name,
+        workflow.isActive,
+        workflow.project,
+        workflow.created,
+        workflow.updated,
+        workflow.id,
+      );
+
+      const action = new CreateWorkflow();
+      mockActions = cold('-a', { a: action });
+
+      const createWorkflowResponse = cold('-a|', { a: workflow });
+
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowsActions.CREATE_WORKFLOW_SUCCESS,
+          payload: createWorkflowSuccessPayload,
+        },
+      });
+
+      spyOn(workflowService, 'createWorkflow').and.returnValue(createWorkflowResponse);
+
+      expect(underTest.workflowCreate).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.CREATE_WORKFLOW_SUCCESS_NOTIFICATION);
+      expect(routerSpy).toHaveBeenCalledTimes(1);
+      expect(routerSpy).toHaveBeenCalledWith(absoluteRoutes.SHOW_WORKFLOW + '/' + workflow.id);
+    });
+  });
+
+  describe('workflowUpdate', () => {
+    it('should return update workflow failure when service fails to update workflow', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'error');
+
+      const action = new UpdateWorkflow();
+      mockActions = cold('-a', { a: action });
+      const updateWorkflowResponse = cold('-#|');
+
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowsActions.UPDATE_WORKFLOW_FAILURE,
+        },
+      });
+
+      spyOn(workflowService, 'updateWorkflow').and.returnValue(updateWorkflowResponse);
+
+      expect(underTest.workflowUpdate).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.UPDATE_WORKFLOW_FAILURE_NOTIFICATION);
+    });
+
+    it('should return create workflow success when service returns success creation', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'success');
+      const routerSpy = spyOn(router, 'navigateByUrl');
+
+      const workflow = new WorkflowJoinedModel(
+        'name',
+        true,
+        'project',
+        undefined,
+        new SensorModel(10, { name: 'name' }, undefined, 10),
+        new DagDefinitionJoinedModel(10, [new JobDefinitionModel(10, 'name', { name: 'name' }, undefined, 0, 10)], 10),
+        10,
+      );
+      const updateWorkflowSuccessPayload: WorkflowModel = new WorkflowModel(
+        workflow.name,
+        workflow.isActive,
+        workflow.project,
+        workflow.created,
+        workflow.updated,
+        workflow.id,
+      );
+
+      const action = new UpdateWorkflow();
+      mockActions = cold('-a', { a: action });
+
+      const updateWorkflowResponse = cold('-a|', { a: workflow });
+
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowsActions.UPDATE_WORKFLOW_SUCCESS,
+          payload: updateWorkflowSuccessPayload,
+        },
+      });
+
+      spyOn(workflowService, 'updateWorkflow').and.returnValue(updateWorkflowResponse);
+
+      expect(underTest.workflowUpdate).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.UPDATE_WORKFLOW_SUCCESS_NOTIFICATION);
+      expect(routerSpy).toHaveBeenCalledTimes(1);
+      expect(routerSpy).toHaveBeenCalledWith(absoluteRoutes.SHOW_WORKFLOW + '/' + workflow.id);
     });
   });
 });

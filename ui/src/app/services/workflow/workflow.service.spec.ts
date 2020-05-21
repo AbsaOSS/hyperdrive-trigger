@@ -110,4 +110,30 @@ describe('WorkflowService', () => {
     expect(req.request.method).toEqual('PUT');
     req.flush(new Boolean(true));
   });
+
+  it('createWorkflow() should return created workflow', () => {
+    const workflow = new WorkflowJoinedModel('name', true, 'project', undefined, undefined, undefined, 0);
+
+    underTest.createWorkflow(workflow).subscribe(
+      (data) => expect(data).toEqual(workflow),
+      (error) => fail(error),
+    );
+
+    const req = httpTestingController.expectOne(api.CREATE_WORKFLOW);
+    expect(req.request.method).toEqual('PUT');
+    req.flush(workflow);
+  });
+
+  it('updateWorkflow() should return updated workflow', () => {
+    const workflow = new WorkflowJoinedModel('name', true, 'project', undefined, undefined, undefined, 0);
+
+    underTest.updateWorkflow(workflow).subscribe(
+      (data) => expect(data).toEqual(workflow),
+      (error) => fail(error),
+    );
+
+    const req = httpTestingController.expectOne(api.UPDATE_WORKFLOW);
+    expect(req.request.method).toEqual('POST');
+    req.flush(workflow);
+  });
 });

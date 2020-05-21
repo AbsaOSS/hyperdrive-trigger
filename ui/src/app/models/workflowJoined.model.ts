@@ -25,5 +25,6 @@ export class WorkflowJoinedModel {
     public sensor: SensorModel,
     public dagDefinitionJoined: DagDefinitionJoinedModel,
     public id: number,
+    public updated?: Date,
   ) {}
 }

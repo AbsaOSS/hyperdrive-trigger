@@ -25,7 +25,7 @@ case class DagDefinition(
 )
 
 case class DagDefinitionJoined(
-  workflowId: Long,
+  workflowId: Long = 0,
   jobDefinitions: Seq[JobDefinition],
   id: Long = 0
 ){

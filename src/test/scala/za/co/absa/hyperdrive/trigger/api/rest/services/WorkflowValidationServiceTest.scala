@@ -45,7 +45,7 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
     val result = Await.result(underTest.validateOnInsert(workflowJoined), Duration(120, TimeUnit.SECONDS))
 
     // then
-    result shouldBe None
+    result.isEmpty shouldBe true
   }
 
   it should "fail if the workflow name already exists" in {
@@ -58,8 +58,8 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
     val result = Await.result(underTest.validateOnInsert(workflow), Duration(120, TimeUnit.SECONDS))
 
     // then
-    result.isDefined shouldBe true
-    result.get should contain theSameElementsInOrderAs Seq(ValidationError("Workflow name already exists"))
+    result.nonEmpty shouldBe true
+    result should contain theSameElementsInOrderAs Seq(ValidationError("Workflow name already exists"))
   }
 
   it should "fail if the project name is empty" in {
@@ -73,8 +73,8 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
     val result = Await.result(underTest.validateOnInsert(invalidWorkflow), Duration(120, TimeUnit.SECONDS))
 
     // then
-    result.isDefined shouldBe true
-    result.get should contain theSameElementsInOrderAs Seq(ValidationError("Project must not be empty"))
+    result.nonEmpty shouldBe true
+    result should contain theSameElementsInOrderAs Seq(ValidationError("Project must not be empty"))
   }
 
   it should "fail if the project name is not defined" in {
@@ -88,8 +88,8 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
     val result = Await.result(underTest.validateOnInsert(invalidWorkflow), Duration(120, TimeUnit.SECONDS))
 
     // then
-    result.isDefined shouldBe true
-    result.get should contain theSameElementsInOrderAs Seq(ValidationError("Project must be set"))
+    result.nonEmpty shouldBe true
+    result should contain theSameElementsInOrderAs Seq(ValidationError("Project must be set"))
   }
 
   "validateOnUpdate" should "return None if entity is valid" in {
@@ -102,7 +102,7 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
     val result = Await.result(underTest.validateOnUpdate(workflow), Duration(120, TimeUnit.SECONDS))
 
     // then
-    result shouldBe None
+    result.isEmpty shouldBe true
   }
 
   it should "fail if the workflow name already exists in another entity" in {
@@ -115,8 +115,8 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
     val result = Await.result(underTest.validateOnUpdate(workflow), Duration(120, TimeUnit.SECONDS))
 
     // then
-    result.isDefined shouldBe true
-    result.get should contain theSameElementsInOrderAs Seq(ValidationError("Workflow name already exists"))
+    result.nonEmpty shouldBe true
+    result should contain theSameElementsInOrderAs Seq(ValidationError("Workflow name already exists"))
   }
 
   it should "fail if the project name is empty" in {
@@ -130,8 +130,8 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
     val result = Await.result(underTest.validateOnUpdate(invalidWorkflow), Duration(120, TimeUnit.SECONDS))
 
     // then
-    result.isDefined shouldBe true
-    result.get should contain theSameElementsInOrderAs Seq(ValidationError("Project must not be empty"))
+    result.nonEmpty shouldBe true
+    result should contain theSameElementsInOrderAs Seq(ValidationError("Project must not be empty"))
   }
 
 }

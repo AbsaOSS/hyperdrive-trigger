@@ -25,7 +25,13 @@ import { absoluteRoutes } from '../../../constants/routes.constants';
 import { ConfirmationDialogService } from '../../../services/confirmation-dialog/confirmation-dialog.service';
 import { Store } from '@ngrx/store';
 import { AppState } from '../../../stores/app.reducers';
-import { DeleteWorkflow, RunWorkflow, SwitchWorkflowActiveState } from '../../../stores/workflows/workflows.actions';
+import {
+  CreateWorkflow,
+  DeleteWorkflow,
+  RunWorkflow,
+  SwitchWorkflowActiveState,
+  UpdateWorkflow,
+} from '../../../stores/workflows/workflows.actions';
 
 describe('WorkflowComponent', () => {
   let underTest: WorkflowComponent;
@@ -204,6 +210,72 @@ describe('WorkflowComponent', () => {
     spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
 
     underTest.runWorkflow(id);
+    subject.next(false);
+
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(storeSpy).toHaveBeenCalledTimes(0);
+    });
+  }));
+
+  it('createWorkflow() should dispatch create workflow when dialog is confirmed', async(() => {
+    const subject = new Subject<boolean>();
+    const storeSpy = spyOn(store, 'dispatch');
+
+    spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
+
+    underTest.createWorkflow();
+    underTest.ngOnInit();
+    subject.next(true);
+
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(storeSpy).toHaveBeenCalled();
+      expect(storeSpy).toHaveBeenCalledWith(new CreateWorkflow());
+    });
+  }));
+
+  it('createWorkflow() should not dispatch create workflow when dialog is not confirmed', async(() => {
+    const id = 1;
+    const subject = new Subject<boolean>();
+    const storeSpy = spyOn(store, 'dispatch');
+
+    spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
+
+    underTest.createWorkflow();
+    subject.next(false);
+
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(storeSpy).toHaveBeenCalledTimes(0);
+    });
+  }));
+
+  it('updateWorkflow() should dispatch update workflow when dialog is confirmed', async(() => {
+    const subject = new Subject<boolean>();
+    const storeSpy = spyOn(store, 'dispatch');
+
+    spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
+
+    underTest.updateWorkflow();
+    underTest.ngOnInit();
+    subject.next(true);
+
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(storeSpy).toHaveBeenCalled();
+      expect(storeSpy).toHaveBeenCalledWith(new UpdateWorkflow());
+    });
+  }));
+
+  it('updateWorkflow() should not dispatch update workflow when dialog is not confirmed', async(() => {
+    const id = 1;
+    const subject = new Subject<boolean>();
+    const storeSpy = spyOn(store, 'dispatch');
+
+    spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
+
+    underTest.updateWorkflow();
     subject.next(false);
 
     fixture.detectChanges();

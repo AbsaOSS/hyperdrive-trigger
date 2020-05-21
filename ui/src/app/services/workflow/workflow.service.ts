@@ -54,6 +54,33 @@ export class WorkflowService {
     return this.httpClient.post<boolean>(api.SWITCH_WORKFLOW_ACTIVE_STATE.replace('{id}', id.toString()), { observe: 'response' });
   }
 
+  createWorkflow(workflowRequest: WorkflowJoinedModel): Observable<WorkflowJoinedModel> {
+    return this.httpClient
+      .put<WorkflowJoinedModel>(api.CREATE_WORKFLOW, workflowRequest, { observe: 'response' })
+      .pipe(
+        map((_) => {
+          return _.body;
+        }),
+      );
+  }
+
+  updateWorkflow(workflowRequest: WorkflowJoinedModel): Observable<WorkflowJoinedModel> {
+    return this.httpClient
+      .post<WorkflowJoinedModel>(api.UPDATE_WORKFLOW, workflowRequest, { observe: 'response' })
+      .pipe(
+        map((_) => {
+          return _.body;
+        }),
+      );
+  }
+
+  runWorkflow(id: number): Observable<boolean> {
+    const params = new HttpParams().set('workflowId', id.toString());
+    return this.httpClient
+      .put<boolean>(api.RUN_WORKFLOW, null, { params: params, observe: 'response' })
+      .pipe(map((_) => _.body));
+  }
+
   getWorkflowDynamicFormParts(): Observable<DynamicFormParts> {
     return of(
       new DynamicFormParts(
@@ -81,12 +108,5 @@ export class WorkflowService {
         ],
       ),
     );
-  }
-
-  runWorkflow(id: number): Observable<boolean> {
-    const params = new HttpParams().set('workflowId', id.toString());
-    return this.httpClient
-      .put<boolean>(api.RUN_WORKFLOW, null, { params: params, observe: 'response' })
-      .pipe(map((_) => _.body));
   }
 }

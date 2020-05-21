@@ -20,8 +20,10 @@ import { Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
 import {
   DeleteWorkflow,
-  RunWorkflow,
+  CreateWorkflow,
   StartWorkflowInitialization,
+  UpdateWorkflow,
+  RunWorkflow,
   SwitchWorkflowActiveState,
 } from '../../../stores/workflows/workflows.actions';
 import { workflowModes } from '../../../models/enums/workflowModes.constants';
@@ -118,6 +120,22 @@ export class WorkflowComponent implements OnInit, OnDestroy {
       .confirm(ConfirmationDialogTypes.YesOrNo, texts.RUN_WORKFLOW_CONFIRMATION_TITLE, texts.RUN_WORKFLOW_CONFIRMATION_CONTENT)
       .subscribe((confirmed) => {
         if (confirmed) this.store.dispatch(new RunWorkflow(id));
+      });
+  }
+
+  createWorkflow() {
+    this.confirmationDialogServiceSubscription = this.confirmationDialogService
+      .confirm(ConfirmationDialogTypes.YesOrNo, texts.CREATE_WORKFLOW_CONFIRMATION_TITLE, texts.CREATE_WORKFLOW_CONFIRMATION_CONTENT)
+      .subscribe((confirmed) => {
+        if (confirmed) this.store.dispatch(new CreateWorkflow());
+      });
+  }
+
+  updateWorkflow() {
+    this.confirmationDialogServiceSubscription = this.confirmationDialogService
+      .confirm(ConfirmationDialogTypes.YesOrNo, texts.UPDATE_WORKFLOW_CONFIRMATION_TITLE, texts.UPDATE_WORKFLOW_CONFIRMATION_CONTENT)
+      .subscribe((confirmed) => {
+        if (confirmed) this.store.dispatch(new UpdateWorkflow());
       });
   }
 
