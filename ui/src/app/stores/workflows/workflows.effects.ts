@@ -33,7 +33,7 @@ import { Router } from '@angular/router';
 import { absoluteRoutes } from '../../constants/routes.constants';
 import { ToastrService } from 'ngx-toastr';
 import { texts } from '../../constants/texts.constants';
-import { WorkflowModel } from '../../models/workflow.model';
+import { WorkflowModel, WorkflowModelFactory } from '../../models/workflow.model';
 import { WorkflowRequestModel } from '../../models/workflowRequest.model';
 
 @Injectable()
@@ -237,7 +237,7 @@ export class WorkflowsEffects {
 
       return this.workflowService.createWorkflow(workflowCreateRequest).pipe(
         mergeMap((result: WorkflowJoinedModel) => {
-          const workflow: WorkflowModel = new WorkflowModel(
+          const workflow: WorkflowModel = WorkflowModelFactory.create(
             result.name,
             result.isActive,
             result.project,
@@ -280,7 +280,7 @@ export class WorkflowsEffects {
 
       return this.workflowService.updateWorkflow(workflowUpdateRequest).pipe(
         mergeMap((result: WorkflowJoinedModel) => {
-          const workflow: WorkflowModel = new WorkflowModel(
+          const workflow: WorkflowModel = WorkflowModelFactory.create(
             result.name,
             result.isActive,
             result.project,

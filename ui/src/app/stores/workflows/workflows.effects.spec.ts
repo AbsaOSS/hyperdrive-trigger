@@ -33,7 +33,7 @@ import {
 import { WorkflowsEffects } from './workflows.effects';
 import { WorkflowService } from '../../services/workflow/workflow.service';
 import { ProjectModelFactory } from '../../models/project.model';
-import { WorkflowModelFactory } from '../../models/workflow.model';
+import { WorkflowModel, WorkflowModelFactory } from '../../models/workflow.model';
 import { provideMockStore } from '@ngrx/store/testing';
 import {
   DynamicFormPartFactory,

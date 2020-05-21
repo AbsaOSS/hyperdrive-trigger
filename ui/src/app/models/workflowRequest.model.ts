@@ -14,12 +14,12 @@
  */
 
 import { WorkflowEntryModel } from './workflowEntry.model';
-import { JobEntryModelObject } from './jobEntry.model';
+import { JobEntryModel } from './jobEntry.model';
 import set from 'lodash/set';
-import { WorkflowJoinedModel } from './workflowJoined.model';
-import { PropertiesModel, SensorModel } from './sensor.model';
-import { DagDefinitionJoinedModel } from './dagDefinitionJoined.model';
-import { JobDefinitionModel, JobParametersModel } from './jobDefinition.model';
+import { WorkflowJoinedModel, WorkflowJoinedModelFactory } from './workflowJoined.model';
+import { PropertiesModel, SensorModel, SensorModelFactory } from './sensor.model';
+import { DagDefinitionJoinedModel, DagDefinitionJoinedModelFactory } from './dagDefinitionJoined.model';
+import { JobDefinitionModel, JobDefinitionModelFactory, JobParametersModel } from './jobDefinition.model';
 
 class WorkflowDetails {
   constructor(
@@ -48,7 +48,7 @@ class WorkflowJobDefinition {
 }
 
 export class WorkflowRequestModel {
-  constructor(public detailsData: WorkflowEntryModel[], public sensorData: WorkflowEntryModel[], public jobsData: JobEntryModelObject[]) {}
+  constructor(public detailsData: WorkflowEntryModel[], public sensorData: WorkflowEntryModel[], public jobsData: JobEntryModel[]) {}
 
   getCreateWorkflowRequestObject(): WorkflowJoinedModel {
     return this.createWorkflowRequestObject();
@@ -57,22 +57,21 @@ export class WorkflowRequestModel {
   getUpdateWorkflowRequestObject(id: number): WorkflowJoinedModel {
     return this.createWorkflowRequestObject(id);
   }
-
   private createWorkflowRequestObject(id = 0): WorkflowJoinedModel {
     const workflowDetails = this.getWorkflowDetails(id);
     const workflowSensor = this.getWorkflowSensor();
     const workflowJobsDefinitions = this.getWorkflowJobsDefinitions();
 
-    return new WorkflowJoinedModel(
+    return WorkflowJoinedModelFactory.create(
       workflowDetails.name,
       workflowDetails.isActive,
       workflowDetails.project,
       workflowDetails.created,
-      new SensorModel(workflowSensor.workflowId, workflowSensor.sensorType, workflowSensor.properties, workflowSensor.id),
-      new DagDefinitionJoinedModel(
+      SensorModelFactory.create(workflowSensor.workflowId, workflowSensor.sensorType, workflowSensor.properties, workflowSensor.id),
+      DagDefinitionJoinedModelFactory.create(
         0,
         workflowJobsDefinitions.map((workflowJobDefinition) => {
-          return new JobDefinitionModel(
+          return JobDefinitionModelFactory.create(
             workflowJobDefinition.dagDefinitionId,
             workflowJobDefinition.name,
             workflowJobDefinition.jobType,

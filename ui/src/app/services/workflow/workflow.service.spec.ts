@@ -112,7 +112,7 @@ describe('WorkflowService', () => {
   });
 
   it('createWorkflow() should return created workflow', () => {
-    const workflow = new WorkflowJoinedModel('name', true, 'project', undefined, undefined, undefined, 0);
+    const workflow = WorkflowJoinedModelFactory.create('name', true, 'project', undefined, undefined, undefined, 0);
 
     underTest.createWorkflow(workflow).subscribe(
       (data) => expect(data).toEqual(workflow),
@@ -125,7 +125,7 @@ describe('WorkflowService', () => {
   });
 
   it('updateWorkflow() should return updated workflow', () => {
-    const workflow = new WorkflowJoinedModel('name', true, 'project', undefined, undefined, undefined, 0);
+    const workflow = WorkflowJoinedModelFactory.create('name', true, 'project', undefined, undefined, undefined, 0);
 
     underTest.updateWorkflow(workflow).subscribe(
       (data) => expect(data).toEqual(workflow),

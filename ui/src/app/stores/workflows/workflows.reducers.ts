@@ -327,7 +327,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
           project.name == action.payload.project ? { ...project, workflows: [...project.workflows, action.payload] } : project,
         );
       } else {
-        projects = [...state.projects, new ProjectModel(action.payload.project, [action.payload])];
+        projects = [...state.projects, ProjectModelFactory.create(action.payload.project, [action.payload])];
       }
       return {
         ...state,
@@ -355,7 +355,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
       };
     case WorkflowsActions.UPDATE_WORKFLOW_SUCCESS: {
       const projectsWithoutWorkflow = state.projects.map((project) => {
-        return new ProjectModel(
+        return ProjectModelFactory.create(
           project.name,
           project.workflows.filter((workflow) => workflow.id != action.payload.id),
         );
@@ -366,7 +366,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
           project.name == action.payload.project ? { ...project, workflows: [...project.workflows, action.payload] } : project,
         );
       } else {
-        updatedProjects = [...state.projects, new ProjectModel(action.payload.project, [action.payload])];
+        updatedProjects = [...state.projects, ProjectModelFactory.create(action.payload.project, [action.payload])];
       }
       return {
         ...state,
