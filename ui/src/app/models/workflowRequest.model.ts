@@ -16,37 +16,103 @@
 import { WorkflowEntryModel } from './workflowEntry.model';
 import { JobEntryModelObject } from './jobEntry.model';
 import set from 'lodash/set';
+import { WorkflowJoinedModel } from './workflowJoined.model';
+import { PropertiesModel, SensorModel } from './sensor.model';
+import { DagDefinitionJoinedModel } from './dagDefinitionJoined.model';
+import { JobDefinitionModel, JobParametersModel } from './jobDefinition.model';
+
+class WorkflowDetails {
+  constructor(
+    public name?: string,
+    public isActive?: boolean,
+    public project?: string,
+    public created?: Date,
+    public id?: number,
+    public updated?: Date,
+  ) {}
+}
+
+class WorkflowSensor {
+  constructor(public workflowId?: number, public sensorType?: { name: string }, public properties?: PropertiesModel, public id?: number) {}
+}
+
+class WorkflowJobDefinition {
+  constructor(
+    public dagDefinitionId?: number,
+    public name?: string,
+    public jobType?: { name: string },
+    public jobParameters?: JobParametersModel,
+    public order?: number,
+    public id?: number,
+  ) {}
+}
 
 export class WorkflowRequestModel {
   constructor(public detailsData: WorkflowEntryModel[], public sensorData: WorkflowEntryModel[], public jobsData: JobEntryModelObject[]) {}
 
-  getCreateWorkflowRequestObject(): Record<string, any> {
+  getCreateWorkflowRequestObject(): WorkflowJoinedModel {
     return this.createWorkflowRequestObject();
   }
 
-  getUpdateWorkflowRequestObject(id: number): Record<string, any> {
-    const workflowRequest = this.createWorkflowRequestObject();
-    set(workflowRequest, 'id', id);
-    return workflowRequest;
+  getUpdateWorkflowRequestObject(id: number): WorkflowJoinedModel {
+    return this.createWorkflowRequestObject(id);
   }
 
-  private createWorkflowRequestObject(): Record<string, any> {
-    const workflowRequestObject = {};
-    this.detailsData.forEach((detail) => {
-      set(workflowRequestObject, detail.property, detail.value);
-    });
+  private createWorkflowRequestObject(id = 0): WorkflowJoinedModel {
+    const workflowDetails = this.getWorkflowDetails(id);
+    const workflowSensor = this.getWorkflowSensor();
+    const workflowJobsDefinitions = this.getWorkflowJobsDefinitions();
 
+    return new WorkflowJoinedModel(
+      workflowDetails.name,
+      workflowDetails.isActive,
+      workflowDetails.project,
+      workflowDetails.created,
+      new SensorModel(workflowSensor.workflowId, workflowSensor.sensorType, workflowSensor.properties, workflowSensor.id),
+      new DagDefinitionJoinedModel(
+        0,
+        workflowJobsDefinitions.map((workflowJobDefinition) => {
+          return new JobDefinitionModel(
+            workflowJobDefinition.dagDefinitionId,
+            workflowJobDefinition.name,
+            workflowJobDefinition.jobType,
+            workflowJobDefinition.jobParameters,
+            workflowJobDefinition.order,
+            workflowJobDefinition.id,
+          );
+        }),
+        0,
+      ),
+      workflowDetails.id,
+      workflowDetails.updated,
+    );
+  }
+
+  private getWorkflowDetails(id = 0): WorkflowDetails {
+    const workflowDetails = new WorkflowDetails();
+    this.detailsData.forEach((detail: WorkflowEntryModel) => {
+      set(workflowDetails, detail.property, detail.value);
+    });
+    workflowDetails.id = id;
+    return workflowDetails;
+  }
+
+  private getWorkflowSensor(): WorkflowSensor {
+    const workflowSensor = new WorkflowSensor();
     this.sensorData.forEach((sensor) => {
-      set(workflowRequestObject, 'sensor.' + sensor.property, sensor.value);
+      set(workflowSensor, sensor.property, sensor.value);
     });
+    return workflowSensor;
+  }
 
-    this.jobsData.forEach((jobDef) => {
-      set(workflowRequestObject, 'dagDefinitionJoined.jobDefinitions[' + jobDef.order + '].order', jobDef.order);
+  private getWorkflowJobsDefinitions(): WorkflowJobDefinition[] {
+    return this.jobsData.map((jobDef) => {
+      const workflowJobDefinition = new WorkflowJobDefinition();
+      workflowJobDefinition.order = jobDef.order;
       jobDef.entries.forEach((jobProp) => {
-        set(workflowRequestObject, 'dagDefinitionJoined.jobDefinitions[' + jobDef.order + '].' + jobProp.property, jobProp.value);
+        set(workflowJobDefinition, jobProp.property, jobProp.value);
       });
+      return workflowJobDefinition;
     });
-
-    return workflowRequestObject;
   }
 }

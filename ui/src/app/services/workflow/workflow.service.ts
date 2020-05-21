@@ -54,9 +54,9 @@ export class WorkflowService {
     return this.httpClient.post<boolean>(api.SWITCH_WORKFLOW_ACTIVE_STATE.replace('{id}', id.toString()), { observe: 'response' });
   }
 
-  createWorkflow(workflowObject): Observable<WorkflowJoinedModel> {
+  createWorkflow(workflowRequest: WorkflowJoinedModel): Observable<WorkflowJoinedModel> {
     return this.httpClient
-      .put<WorkflowJoinedModel>(api.CREATE_WORKFLOW, workflowObject, { observe: 'response' })
+      .put<WorkflowJoinedModel>(api.CREATE_WORKFLOW, workflowRequest, { observe: 'response' })
       .pipe(
         map((_) => {
           return _.body;
@@ -64,9 +64,9 @@ export class WorkflowService {
       );
   }
 
-  updateWorkflow(workflowObject): Observable<WorkflowJoinedModel> {
+  updateWorkflow(workflowRequest: WorkflowJoinedModel): Observable<WorkflowJoinedModel> {
     return this.httpClient
-      .post<WorkflowJoinedModel>(api.UPDATE_WORKFLOW, workflowObject, { observe: 'response' })
+      .post<WorkflowJoinedModel>(api.UPDATE_WORKFLOW, workflowRequest, { observe: 'response' })
       .pipe(
         map((_) => {
           return _.body;

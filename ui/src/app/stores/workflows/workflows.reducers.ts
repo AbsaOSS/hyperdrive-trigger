@@ -325,8 +325,8 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         ...state,
         workflowAction: {
           ...state.workflowAction,
-          loading: true
-        }
+          loading: true,
+        },
       };
     case WorkflowsActions.CREATE_WORKFLOW_SUCCESS:
       let projects;
@@ -342,30 +342,30 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         projects: [...projects],
         workflowAction: {
           ...state.workflowAction,
-          loading: false
-        }
+          loading: false,
+        },
       };
     case WorkflowsActions.CREATE_WORKFLOW_FAILURE:
       return {
         ...state,
         workflowAction: {
           ...state.workflowAction,
-          loading: false
-        }
+          loading: false,
+        },
       };
     case WorkflowsActions.UPDATE_WORKFLOW:
       return {
         ...state,
         workflowAction: {
           ...state.workflowAction,
-          loading: true
-        }
+          loading: true,
+        },
       };
     case WorkflowsActions.UPDATE_WORKFLOW_SUCCESS: {
       const projectsWithoutWorkflow = state.projects.map((project) => {
         return new ProjectModel(
           project.name,
-          project.workflows.filter((workflow) => workflow.id != action.payload.id)
+          project.workflows.filter((workflow) => workflow.id != action.payload.id),
         );
       });
       let updatedProjects;
@@ -381,8 +381,8 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         projects: [...updatedProjects],
         workflowAction: {
           ...state.workflowAction,
-          loading: false
-        }
+          loading: false,
+        },
       };
     }
     case WorkflowsActions.UPDATE_WORKFLOW_FAILURE:
@@ -390,8 +390,8 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         ...state,
         workflowAction: {
           ...state.workflowAction,
-          loading: false
-        }
+          loading: false,
+        },
       };
     default:
       return state;
