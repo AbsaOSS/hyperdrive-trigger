@@ -19,6 +19,7 @@ import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
 import { WorkflowFormPartsModel } from '../../models/workflowFormParts.model';
 import { WorkflowEntryModel } from '../../models/workflowEntry.model';
 import { JobEntryModel } from '../../models/jobEntry.model';
+import { WorkflowModel } from '../../models/workflow.model';
 
 export const INITIALIZE_WORKFLOWS = 'INITIALIZE_WORKFLOWS';
 export const INITIALIZE_WORKFLOWS_SUCCESS = 'INITIALIZE_WORKFLOWS_SUCCESS';
@@ -50,6 +51,14 @@ export const SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE = 'SWITCH_WORKFLOW_ACTIVE_STAT
 export const RUN_WORKFLOW = 'RUN_WORKFLOW';
 export const RUN_WORKFLOW_SUCCESS = 'RUN_WORKFLOW_SUCCESS';
 export const RUN_WORKFLOW_FAILURE = 'RUN_WORKFLOW_FAILURE';
+
+export const CREATE_WORKFLOW = 'CREATE_WORKFLOW';
+export const CREATE_WORKFLOW_SUCCESS = 'CREATE_WORKFLOW_SUCCESS';
+export const CREATE_WORKFLOW_FAILURE = 'CREATE_WORKFLOW_FAILURE';
+
+export const UPDATE_WORKFLOW = 'UPDATE_WORKFLOW';
+export const UPDATE_WORKFLOW_SUCCESS = 'UPDATE_WORKFLOW_SUCCESS';
+export const UPDATE_WORKFLOW_FAILURE = 'UPDATE_WORKFLOW_FAILURE';
 
 export class InitializeWorkflows implements Action {
   readonly type = INITIALIZE_WORKFLOWS;
@@ -174,6 +183,32 @@ export class RunWorkflowFailure implements Action {
   readonly type = RUN_WORKFLOW_FAILURE;
 }
 
+export class CreateWorkflow implements Action {
+  readonly type = CREATE_WORKFLOW;
+}
+
+export class CreateWorkflowSuccess implements Action {
+  readonly type = CREATE_WORKFLOW_SUCCESS;
+  constructor(public payload: WorkflowModel) {}
+}
+
+export class CreateWorkflowFailure implements Action {
+  readonly type = CREATE_WORKFLOW_FAILURE;
+}
+
+export class UpdateWorkflow implements Action {
+  readonly type = UPDATE_WORKFLOW;
+}
+
+export class UpdateWorkflowSuccess implements Action {
+  readonly type = UPDATE_WORKFLOW_SUCCESS;
+  constructor(public payload: WorkflowModel) {}
+}
+
+export class UpdateWorkflowFailure implements Action {
+  readonly type = UPDATE_WORKFLOW_FAILURE;
+}
+
 export type WorkflowsActions =
   | InitializeWorkflows
   | InitializeWorkflowsSuccess
@@ -199,4 +234,10 @@ export type WorkflowsActions =
   | SwitchWorkflowActiveStateFailure
   | RunWorkflow
   | RunWorkflowSuccess
-  | RunWorkflowFailure;
+  | RunWorkflowFailure
+  | CreateWorkflow
+  | CreateWorkflowSuccess
+  | CreateWorkflowFailure
+  | UpdateWorkflow
+  | UpdateWorkflowSuccess
+  | UpdateWorkflowFailure;

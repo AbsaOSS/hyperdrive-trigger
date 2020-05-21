@@ -17,6 +17,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
 import cloneDeep from 'lodash/cloneDeep';
 import { WorkflowEntryModel } from '../../../../../models/workflowEntry.model';
+import set from 'lodash/set';
 
 @Component({
   selector: 'app-key-string-value-part',
@@ -26,12 +27,17 @@ import { WorkflowEntryModel } from '../../../../../models/workflowEntry.model';
 export class KeyStringValuePartComponent implements OnInit {
   @Input() isShow: boolean;
   @Input() name: string;
-  @Input() value: [string, string][];
+  @Input() value: Record<string, any>;
   @Input() property: string;
   @Input() valueChanges: Subject<WorkflowEntryModel>;
 
+  mapOfValues: [string, string][] = [];
+
   ngOnInit(): void {
-    if (!this.value || this.value.length == 0) this.modelChanged([['', '']]);
+    for (const prop in this.value) {
+      this.mapOfValues.push([prop, this.value[prop]]);
+    }
+    if (!this.mapOfValues || this.mapOfValues.length == 0) this.modelChanged([['', '']]);
   }
 
   trackByFn(index, item) {
@@ -39,14 +45,14 @@ export class KeyStringValuePartComponent implements OnInit {
   }
 
   onAdd() {
-    const clonedValue: [string, string][] = cloneDeep(this.value);
+    const clonedValue: [string, string][] = cloneDeep(this.mapOfValues);
     clonedValue.push(['', '']);
     this.modelChanged(clonedValue);
   }
 
   onDelete(index: number) {
-    const clonedValue: [string, string][] = cloneDeep(this.value);
-    if (this.value.length === 1) {
+    const clonedValue: [string, string][] = cloneDeep(this.mapOfValues);
+    if (this.mapOfValues.length === 1) {
       clonedValue[index][0] = '';
       clonedValue[index][1] = '';
     } else {
@@ -56,13 +62,18 @@ export class KeyStringValuePartComponent implements OnInit {
   }
 
   ngModelChanged(value: string, index: number, key: number) {
-    const clonedValue: [string, string][] = cloneDeep(this.value);
+    const clonedValue: [string, string][] = cloneDeep(this.mapOfValues);
     clonedValue[index][key] = value;
     this.modelChanged(clonedValue);
   }
 
   modelChanged(value: [string, string][]) {
-    this.value = value;
-    this.valueChanges.next(new WorkflowEntryModel(this.property, value));
+    const valueInObject = {};
+    value.forEach((val) => {
+      set(valueInObject, val[0], val[1]);
+    });
+    this.value = valueInObject;
+    this.mapOfValues = value;
+    this.valueChanges.next(new WorkflowEntryModel(this.property, valueInObject));
   }
 }

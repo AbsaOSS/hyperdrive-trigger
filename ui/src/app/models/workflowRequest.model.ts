@@ -1,0 +1,118 @@
+/*
+ * Copyright 2018 ABSA Group Limited
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import { WorkflowEntryModel } from './workflowEntry.model';
+import { JobEntryModelObject } from './jobEntry.model';
+import set from 'lodash/set';
+import { WorkflowJoinedModel } from './workflowJoined.model';
+import { PropertiesModel, SensorModel } from './sensor.model';
+import { DagDefinitionJoinedModel } from './dagDefinitionJoined.model';
+import { JobDefinitionModel, JobParametersModel } from './jobDefinition.model';
+
+class WorkflowDetails {
+  constructor(
+    public name?: string,
+    public isActive?: boolean,
+    public project?: string,
+    public created?: Date,
+    public id?: number,
+    public updated?: Date,
+  ) {}
+}
+
+class WorkflowSensor {
+  constructor(public workflowId?: number, public sensorType?: { name: string }, public properties?: PropertiesModel, public id?: number) {}
+}
+
+class WorkflowJobDefinition {
+  constructor(
+    public dagDefinitionId?: number,
+    public name?: string,
+    public jobType?: { name: string },
+    public jobParameters?: JobParametersModel,
+    public order?: number,
+    public id?: number,
+  ) {}
+}
+
+export class WorkflowRequestModel {
+  constructor(public detailsData: WorkflowEntryModel[], public sensorData: WorkflowEntryModel[], public jobsData: JobEntryModelObject[]) {}
+
+  getCreateWorkflowRequestObject(): WorkflowJoinedModel {
+    return this.createWorkflowRequestObject();
+  }
+
+  getUpdateWorkflowRequestObject(id: number): WorkflowJoinedModel {
+    return this.createWorkflowRequestObject(id);
+  }
+
+  private createWorkflowRequestObject(id = 0): WorkflowJoinedModel {
+    const workflowDetails = this.getWorkflowDetails(id);
+    const workflowSensor = this.getWorkflowSensor();
+    const workflowJobsDefinitions = this.getWorkflowJobsDefinitions();
+
+    return new WorkflowJoinedModel(
+      workflowDetails.name,
+      workflowDetails.isActive,
+      workflowDetails.project,
+      workflowDetails.created,
+      new SensorModel(workflowSensor.workflowId, workflowSensor.sensorType, workflowSensor.properties, workflowSensor.id),
+      new DagDefinitionJoinedModel(
+        0,
+        workflowJobsDefinitions.map((workflowJobDefinition) => {
+          return new JobDefinitionModel(
+            workflowJobDefinition.dagDefinitionId,
+            workflowJobDefinition.name,
+            workflowJobDefinition.jobType,
+            workflowJobDefinition.jobParameters,
+            workflowJobDefinition.order,
+            workflowJobDefinition.id,
+          );
+        }),
+        0,
+      ),
+      workflowDetails.id,
+      workflowDetails.updated,
+    );
+  }
+
+  private getWorkflowDetails(id = 0): WorkflowDetails {
+    const workflowDetails = new WorkflowDetails();
+    this.detailsData.forEach((detail: WorkflowEntryModel) => {
+      set(workflowDetails, detail.property, detail.value);
+    });
+    workflowDetails.id = id;
+    return workflowDetails;
+  }
+
+  private getWorkflowSensor(): WorkflowSensor {
+    const workflowSensor = new WorkflowSensor();
+    this.sensorData.forEach((sensor) => {
+      set(workflowSensor, sensor.property, sensor.value);
+    });
+    return workflowSensor;
+  }
+
+  private getWorkflowJobsDefinitions(): WorkflowJobDefinition[] {
+    return this.jobsData.map((jobDef) => {
+      const workflowJobDefinition = new WorkflowJobDefinition();
+      workflowJobDefinition.order = jobDef.order;
+      jobDef.entries.forEach((jobProp) => {
+        set(workflowJobDefinition, jobProp.property, jobProp.value);
+      });
+      return workflowJobDefinition;
+    });
+  }
+}
