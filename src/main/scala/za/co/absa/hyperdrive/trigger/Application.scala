@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.api.rest
+package za.co.absa.hyperdrive.trigger
 
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind._
@@ -25,7 +25,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.context.annotation.{Bean, ComponentScan, Configuration}
 import org.springframework.scheduling.annotation.EnableAsync
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
-import za.co.absa.hyperdrive.trigger.HyperDriverManager
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.JobStatus
 import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
 import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes.SensorType
@@ -34,7 +33,7 @@ import za.co.absa.hyperdrive.trigger.models.enums.{JobStatuses, JobTypes, Sensor
 @SpringBootApplication
 @EnableAsync
 @Configuration
-@ComponentScan(basePackages = Array("za.co.absa.hyperdrive.trigger"))
+//@ComponentScan(basePackages = Array("za.co.absa.hyperdrive.trigger"))
 class Application() {
   @Bean def asyncExecutor(): ThreadPoolTaskExecutor = {
     val executor = new ThreadPoolTaskExecutor()

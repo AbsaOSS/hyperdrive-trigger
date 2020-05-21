@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -13,14 +14,15 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.api.rest
+package za.co.absa.hyperdrive.trigger
 
-import org.springframework.boot.builder.SpringApplicationBuilder
-import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
-import za.co.absa.hyperdrive.trigger.Application
+import java.util.concurrent.TimeUnit
 
-class ServletInitializer extends SpringBootServletInitializer {
-  
-  override def configure(application: SpringApplicationBuilder): SpringApplicationBuilder = application.sources(classOf[Application])
-  
+import scala.concurrent.{Await, Future}
+import scala.concurrent.duration.Duration
+
+object TestUtils {
+  def await[T](future: Future[T]): T = {
+    Await.result(future, Duration(120, TimeUnit.SECONDS))
+  }
 }

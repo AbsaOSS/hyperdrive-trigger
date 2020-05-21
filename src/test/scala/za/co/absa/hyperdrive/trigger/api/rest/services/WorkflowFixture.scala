@@ -17,11 +17,17 @@
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
 import java.time.LocalDateTime
+import java.util.UUID
 
+import org.apache.commons.lang3.RandomStringUtils
 import za.co.absa.hyperdrive.trigger.models.{DagDefinitionJoined, JobDefinition, JobParameters, Properties, Sensor, Settings, WorkflowJoined}
 import za.co.absa.hyperdrive.trigger.models.enums.{JobTypes, SensorTypes}
 
 object WorkflowFixture {
+  val Random = new scala.util.Random(42)
+  val MinLengthRandomString = 3
+  val MaxLengthRandomString = 45
+  val MinRandomDate = LocalDateTime.of(2020, 1, 1, 0, 0, 0)
 
   def createWorkflowJoined() = {
     WorkflowJoined(
@@ -75,4 +81,117 @@ object WorkflowFixture {
       )
     )
   }
+
+  def createKafkaOffloadingWorkflow(projectName: String) = {
+    WorkflowJoined(
+      name = randomString(),
+      isActive = randomBoolean(),
+      created = randomDate(),
+      updated = if (randomBoolean()) Some(randomDate()) else None,
+      project = projectName,
+      sensor = Sensor(
+        workflowId = 0,
+        sensorType = SensorTypes.AbsaKafka,
+        properties = Properties(
+          sensorId = 0,
+          settings = Settings(
+            variables = Map("topic" -> randomString()),
+            maps = Map("servers" -> Set(
+              s"http://${randomString()}:${randomInt(0, 65535)}",
+              s"https://${randomString()}:${randomInt(0, 65535)}",
+              s"https://${randomString()}:${randomInt(0, 65535)}"))
+          ),
+          matchProperties = Map("ingestionToken" -> randomUuid())
+        )
+      ),
+      dagDefinitionJoined = DagDefinitionJoined(
+        workflowId = 0,
+        jobDefinitions = Seq(
+          JobDefinition(
+            dagDefinitionId = 0,
+            name = s"${randomString()} Driver",
+            jobType = JobTypes.Spark,
+            jobParameters = JobParameters(
+              variables = Map(
+                "jobJar" -> s"${randomString()}/driver.jar",
+                "mainClass" -> "za.co.absa.hyperdrive.driver.drivers.CommandLineIngestionDriver",
+                "deploymentMode" -> "cluster"
+              ),
+              maps = Map("appArguments" -> Set(
+                s"--component.decoder=za.co.absa.hyperdrive.ingestor.implementation.decoder.avro.confluent.ConfluentAvroKafkaStreamDecoder",
+                s"--component.ingestor=Spark",
+                s"--component.manager=za.co.absa.hyperdrive.ingestor.implementation.manager.checkpoint.CheckpointOffsetManager",
+                s"--component.reader=za.co.absa.hyperdrive.ingestor.implementation.reader.kafka.KafkaStreamReader",
+                s"--component.transformer=za.co.absa.hyperdrive.ingestor.implementation.transformer.column.selection.ColumnSelectorStreamTransformer",
+                s"--component.writer=za.co.absa.hyperdrive.ingestor.implementation.writer.parquet.ParquetPartitioningStreamWriter",
+                s"--decoder.avro.schema.registry.url=${randomString()}",
+                s"--decoder.avro.schema.retention.policy=${randomString()}",
+                s"--decoder.avro.value.schema.id=${randomString()}",
+                s"--decoder.avro.value.schema.naming.strategy=${randomString()}",
+                s"--decoder.avro.value.schema.record.name=${randomString()}",
+                s"--decoder.avro.value.schema.record.namespace=${randomString()}",
+                s"--ingestor.spark.app.name=${randomString()}",
+                s"--manager.checkpoint.base.location=${randomString()}",
+                s"--reader.kafka.brokers=${randomString()}",
+                s"--reader.kafka.topic=${randomString()}",
+                s"--reader.option.failOnDataLoss=${randomString()}",
+                s"--reader.option.kafka.sasl.jaas.config=${randomString()}",
+                s"--reader.option.kafka.sasl.kerberos.service.name=${randomString()}",
+                s"--reader.option.kafka.sasl.mechanism=${randomString()}",
+                s"--reader.option.kafka.security.protocol=${randomString()}",
+                s"--reader.option.kafka.ssl.key.password=${randomString()}",
+                s"--reader.option.kafka.ssl.keystore.location=${randomString()}",
+                s"--reader.option.kafka.ssl.keystore.password=${randomString()}",
+                s"--reader.option.kafka.ssl.truststore.location=${randomString()}",
+                s"--reader.option.kafka.ssl.truststore.password=${randomString()}",
+                s"--transformer.columns.to.select=${randomString()}",
+                s"--writer.parquet.destination.directory=${randomString()}"
+              ))
+            ),
+            order = 0
+          ),
+          JobDefinition(
+            dagDefinitionId = 0,
+            name = s"${randomString()} Publisher",
+            jobType = JobTypes.Spark,
+            jobParameters = JobParameters(
+              variables = Map(
+                "jobJar" -> s"${randomString()}/publisher.jar",
+                "mainClass" -> "za.co.absa.hyperdrive.publisher.HyperdrivePublisher",
+                "deploymentMode" -> "cluster"
+              ),
+              maps = Map("appArguments" -> Set(
+                s"--reader.kafka.topic=${randomString()}",
+                s"--reader.option.kafka.sasl.kerberos.service.name=${randomString()}",
+                s"--publish-directory=${randomString()}"
+              ))
+            ),
+            order = 1
+          )
+        )
+      )
+    )
+  }
+
+  private def randomString(minLength: Int = MinLengthRandomString, maxLength: Int = MaxLengthRandomString) = {
+    val length = randomInt(minLength, maxLength)
+    RandomStringUtils.randomAscii(length)
+  }
+
+  private def randomUuid() = {
+    UUID.randomUUID().toString
+  }
+
+  private def randomDate() = {
+    val currentYear = LocalDateTime.now().getYear
+    val endOfYear = LocalDateTime.of(currentYear, 12, 31, 23, 59, 59)
+    val days = java.time.temporal.ChronoUnit.DAYS.between(MinRandomDate, endOfYear).toInt
+    MinRandomDate.plusDays(Random.nextInt(days)).plusSeconds(Random.nextInt(86400))
+  }
+
+  private def randomBoolean() = {
+    Random.nextBoolean()
+  }
+
+  private def randomInt(min: Int, max: Int) = min + Random.nextInt(max - min)
 }

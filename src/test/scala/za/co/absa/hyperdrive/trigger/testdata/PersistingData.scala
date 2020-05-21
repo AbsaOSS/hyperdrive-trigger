@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -13,14 +14,8 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.api.rest
+package za.co.absa.hyperdrive.trigger.testdata
 
-import org.springframework.boot.builder.SpringApplicationBuilder
-import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
-import za.co.absa.hyperdrive.trigger.Application
+import org.scalatest.Tag
 
-class ServletInitializer extends SpringBootServletInitializer {
-  
-  override def configure(application: SpringApplicationBuilder): SpringApplicationBuilder = application.sources(classOf[Application])
-  
-}
+object PersistingData extends Tag("za.co.absa.hyperdrive.trigger.testdata.PersistingData")

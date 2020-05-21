@@ -204,7 +204,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring.version}</version>
                 <configuration>
-                    <mainClass>za.co.absa.hyperdrive.trigger.api.rest.Application</mainClass>
+                    <mainClass>za.co.absa.hyperdrive.trigger.Application</mainClass>
                 </configuration>
                 <executions>
                     <execution>
@@ -261,6 +261,9 @@
                         <goals>
                             <goal>test</goal>
                         </goals>
+                        <configuration>
+                            <tagsToExclude>za.co.absa.hyperdrive.trigger.testdata.PersistingData</tagsToExclude>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

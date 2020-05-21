@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.testdata
+package za.co.absa.hyperdrive.trigger
 
-import javax.annotation.PostConstruct
-import javax.inject.Inject
-import org.springframework.test.context.TestPropertySource
-import slick.jdbc.H2Profile
-import za.co.absa.hyperdrive.trigger.api.rest.services.WorkflowService
-import za.co.absa.hyperdrive.trigger.persistance.{RepositoryTestBase, WorkflowRepository, WorkflowRepositoryImpl}
+import org.junit.runner.RunWith
+import org.scalatest.{BeforeAndAfterAll, Suite}
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.test.context.TestContextManager
+import org.springframework.test.context.junit4.SpringRunner
 
-@TestPropertySource(locations = Array("application-local.properties"))
-class TestDataInserterLocalhost @Inject() (workflowService: WorkflowService){
-
+@SpringBootTest
+@RunWith(classOf[SpringRunner])
+trait SpringIntegrationTest extends BeforeAndAfterAll { this: Suite =>
+  override def beforeAll(): Unit = {
+    new TestContextManager(classOf[SpringIntegrationTest]).prepareTestInstance(this)
+    super.beforeAll()
+  }
 }

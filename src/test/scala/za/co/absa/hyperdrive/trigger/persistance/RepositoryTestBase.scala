@@ -19,6 +19,7 @@ import java.time.LocalDateTime
 import java.util.concurrent.TimeUnit
 
 import slick.jdbc.H2Profile
+import za.co.absa.hyperdrive.trigger.TestUtils
 import za.co.absa.hyperdrive.trigger.models.dagRuns.DagRun
 import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, SensorTypes}
 import za.co.absa.hyperdrive.trigger.models.{DagInstance, Properties, Sensor, Settings, Workflow}
@@ -95,7 +96,7 @@ trait RepositoryTestBase extends Repository {
   }
 
   def await[T](future: Future[T]): T = {
-    Await.result(future, Duration(120, TimeUnit.SECONDS))
+    TestUtils.await[T](future)
   }
 
   object TestData {
