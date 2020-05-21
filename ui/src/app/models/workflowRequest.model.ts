@@ -17,9 +17,9 @@ import { WorkflowEntryModel } from './workflowEntry.model';
 import { JobEntryModel } from './jobEntry.model';
 import set from 'lodash/set';
 import { WorkflowJoinedModel, WorkflowJoinedModelFactory } from './workflowJoined.model';
-import { PropertiesModel, SensorModel, SensorModelFactory } from './sensor.model';
-import { DagDefinitionJoinedModel, DagDefinitionJoinedModelFactory } from './dagDefinitionJoined.model';
-import { JobDefinitionModel, JobDefinitionModelFactory, JobParametersModel } from './jobDefinition.model';
+import { SensorModel } from './sensor.model';
+import { DagDefinitionJoinedModelFactory } from './dagDefinitionJoined.model';
+import { JobDefinitionModel } from './jobDefinition.model';
 
 class WorkflowDetails {
   constructor(
@@ -29,21 +29,6 @@ class WorkflowDetails {
     public created?: Date,
     public id?: number,
     public updated?: Date,
-  ) {}
-}
-
-class WorkflowSensor {
-  constructor(public workflowId?: number, public sensorType?: { name: string }, public properties?: PropertiesModel, public id?: number) {}
-}
-
-class WorkflowJobDefinition {
-  constructor(
-    public dagDefinitionId?: number,
-    public name?: string,
-    public jobType?: { name: string },
-    public jobParameters?: JobParametersModel,
-    public order?: number,
-    public id?: number,
   ) {}
 }
 
@@ -67,21 +52,8 @@ export class WorkflowRequestModel {
       workflowDetails.isActive,
       workflowDetails.project,
       workflowDetails.created,
-      SensorModelFactory.create(workflowSensor.workflowId, workflowSensor.sensorType, workflowSensor.properties, workflowSensor.id),
-      DagDefinitionJoinedModelFactory.create(
-        0,
-        workflowJobsDefinitions.map((workflowJobDefinition) => {
-          return JobDefinitionModelFactory.create(
-            workflowJobDefinition.dagDefinitionId,
-            workflowJobDefinition.name,
-            workflowJobDefinition.jobType,
-            workflowJobDefinition.jobParameters,
-            workflowJobDefinition.order,
-            workflowJobDefinition.id,
-          );
-        }),
-        0,
-      ),
+      workflowSensor,
+      DagDefinitionJoinedModelFactory.create(0, workflowJobsDefinitions, 0),
       workflowDetails.id,
       workflowDetails.updated,
     );
@@ -96,22 +68,21 @@ export class WorkflowRequestModel {
     return workflowDetails;
   }
 
-  private getWorkflowSensor(): WorkflowSensor {
-    const workflowSensor = new WorkflowSensor();
+  private getWorkflowSensor(): SensorModel {
+    const partialSensor = {};
     this.sensorData.forEach((sensor) => {
-      set(workflowSensor, sensor.property, sensor.value);
+      set(partialSensor, sensor.property, sensor.value);
     });
-    return workflowSensor;
+    return partialSensor as SensorModel;
   }
 
-  private getWorkflowJobsDefinitions(): WorkflowJobDefinition[] {
+  private getWorkflowJobsDefinitions(): JobDefinitionModel[] {
     return this.jobsData.map((jobDef) => {
-      const workflowJobDefinition = new WorkflowJobDefinition();
-      workflowJobDefinition.order = jobDef.order;
+      const partialJobDefinition = { order: jobDef.order };
       jobDef.entries.forEach((jobProp) => {
-        set(workflowJobDefinition, jobProp.property, jobProp.value);
+        set(partialJobDefinition, jobProp.property, jobProp.value);
       });
-      return workflowJobDefinition;
+      return partialJobDefinition as JobDefinitionModel;
     });
   }
 }
