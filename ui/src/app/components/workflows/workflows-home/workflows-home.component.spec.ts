@@ -24,12 +24,16 @@ import { Store } from '@ngrx/store';
 import { AppState } from '../../../stores/app.reducers';
 import { Subject } from 'rxjs';
 import { DeleteWorkflow, RunWorkflow, SwitchWorkflowActiveState } from '../../../stores/workflows/workflows.actions';
+import { RouterTestingModule } from '@angular/router/testing';
+import { Router } from '@angular/router';
+import { absoluteRoutes } from '../../../constants/routes.constants';
 
 describe('WorkflowsHomeComponent', () => {
   let fixture: ComponentFixture<WorkflowsHomeComponent>;
   let underTest: WorkflowsHomeComponent;
   let confirmationDialogService: ConfirmationDialogService;
   let store: Store<AppState>;
+  let router: Router;
 
   const initialAppState = {
     workflows: {
@@ -44,9 +48,11 @@ describe('WorkflowsHomeComponent', () => {
     TestBed.configureTestingModule({
       providers: [ConfirmationDialogService, provideMockStore({ initialState: initialAppState })],
       declarations: [WorkflowsHomeComponent],
+      imports: [RouterTestingModule.withRoutes([])],
     }).compileComponents();
     confirmationDialogService = TestBed.inject(ConfirmationDialogService);
     store = TestBed.inject(Store);
+    router = TestBed.inject(Router);
   }));
 
   beforeEach(() => {
@@ -165,5 +171,15 @@ describe('WorkflowsHomeComponent', () => {
     fixture.whenStable().then(() => {
       expect(storeSpy).toHaveBeenCalledTimes(0);
     });
+  }));
+
+  it('showWorkflow() should navigate to show workflow page', async(() => {
+    const id = 42;
+    const routerSpy = spyOn(router, 'navigate');
+
+    underTest.showWorkflow(id);
+
+    expect(routerSpy).toHaveBeenCalledTimes(1);
+    expect(routerSpy).toHaveBeenCalledWith([absoluteRoutes.SHOW_WORKFLOW, id]);
   }));
 });
