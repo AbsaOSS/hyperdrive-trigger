@@ -14,11 +14,11 @@
  */
 
 import * as WorkflowsActions from '../workflows/workflows.actions';
-import { ProjectModel } from '../../models/project.model';
+import { ProjectModel, ProjectModelFactory } from '../../models/project.model';
 import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
 import { WorkflowFormPartsModel } from '../../models/workflowFormParts.model';
 import { WorkflowEntryModel } from '../../models/workflowEntry.model';
-import { JobEntryModel, JobEntryModelObject } from '../../models/jobEntry.model';
+import { JobEntryModel, JobEntryModelFactory } from '../../models/jobEntry.model';
 
 export interface State {
   projects: ProjectModel[];
@@ -29,9 +29,9 @@ export interface State {
     loading: boolean;
     workflow: WorkflowJoinedModel;
     workflowData: {
-      details: { property: string; value: any }[];
-      sensor: { property: string; value: any }[];
-      jobs: JobEntryModelObject[];
+      details: WorkflowEntryModel[];
+      sensor: WorkflowEntryModel[];
+      jobs: JobEntryModel[];
     };
   };
   workflowFormParts: WorkflowFormPartsModel;
@@ -54,7 +54,7 @@ const initialState: State = {
   workflowFormParts: undefined,
 };
 
-function removeJob(jobId: string, jobsOriginal: JobEntryModelObject[]): JobEntryModelObject[] {
+function removeJob(jobId: string, jobsOriginal: JobEntryModel[]): JobEntryModel[] {
   const jobs = [...jobsOriginal];
   const removeIndex = jobs.findIndex((job) => job.jobId === jobId);
   const removeOrder = jobs[removeIndex].order;
@@ -165,15 +165,12 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
           ...state.workflowAction,
           workflowData: {
             ...state.workflowAction.workflowData,
-            sensor: [
-              ...initialState.workflowAction.workflowData.sensor,
-              { property: action.payload.property, value: action.payload.value },
-            ],
+            sensor: [...initialState.workflowAction.workflowData.sensor, action.payload],
           },
         },
       };
     case WorkflowsActions.WORKFLOW_ADD_EMPTY_JOB:
-      const emptyJobData = JobEntryModel.createNew(action.payload, []);
+      const emptyJobData = JobEntryModelFactory.createWithUuid(action.payload, []);
       const jobs = [...state.workflowAction.workflowData.jobs, emptyJobData];
       return {
         ...state,
@@ -202,16 +199,10 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
     case WorkflowsActions.WORKFLOW_JOB_CHANGED: {
       const oldJob = state.workflowAction.workflowData.jobs.find((job) => job.jobId === action.payload.jobId);
       const filteredOldJobData = oldJob.entries.filter((jobEntry) => jobEntry.property !== action.payload.jobEntry.property);
-      const updatedJobData = [
-        ...filteredOldJobData,
-        {
-          property: action.payload.jobEntry.property,
-          value: action.payload.jobEntry.value,
-        },
-      ];
+      const updatedJobData = [...filteredOldJobData, action.payload.jobEntry];
       const updatedJobsData = [
         ...state.workflowAction.workflowData.jobs.filter((jobEntry) => jobEntry.jobId !== action.payload.jobId),
-        JobEntryModel.createAsObject(oldJob.jobId, oldJob.order, updatedJobData),
+        JobEntryModelFactory.create(oldJob.jobId, oldJob.order, updatedJobData),
       ];
       return {
         ...state,
@@ -226,9 +217,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
     }
     case WorkflowsActions.WORKFLOW_JOB_TYPE_SWITCHED:
       const oldJob = state.workflowAction.workflowData.jobs.find((job) => job.jobId === action.payload.jobId);
-      const cleanedJobData = JobEntryModel.createAsObject(oldJob.jobId, oldJob.order, [
-        new WorkflowEntryModel(action.payload.jobEntry.property, action.payload.jobEntry.value),
-      ]);
+      const cleanedJobData = JobEntryModelFactory.create(oldJob.jobId, oldJob.order, [action.payload.jobEntry]);
 
       const cleanedJobsData = [
         ...state.workflowAction.workflowData.jobs.filter((item) => item.jobId !== action.payload.jobId),
@@ -254,7 +243,10 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
       };
     case WorkflowsActions.DELETE_WORKFLOW_SUCCESS:
       const newProjects = state.projects.map((project) => {
-        return { name: project.name, workflows: project.workflows.filter((workflow) => workflow.id != action.payload) };
+        return ProjectModelFactory.create(
+          project.name,
+          project.workflows.filter((workflow) => workflow.id != action.payload),
+        );
       });
       return {
         ...state,
@@ -282,12 +274,12 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
       };
     case WorkflowsActions.SWITCH_WORKFLOW_ACTIVE_STATE_SUCCESS:
       const updatedProjects = state.projects.map((project) => {
-        return {
-          name: project.name,
-          workflows: project.workflows.map((workflow) => {
+        return ProjectModelFactory.create(
+          project.name,
+          project.workflows.map((workflow) => {
             return workflow.id == action.payload ? { ...workflow, isActive: !workflow.isActive } : workflow;
           }),
-        };
+        );
       });
       return {
         ...state,
@@ -335,7 +327,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
           project.name == action.payload.project ? { ...project, workflows: [...project.workflows, action.payload] } : project,
         );
       } else {
-        projects = [...state.projects, new ProjectModel(action.payload.project, [action.payload])];
+        projects = [...state.projects, ProjectModelFactory.create(action.payload.project, [action.payload])];
       }
       return {
         ...state,
@@ -363,7 +355,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
       };
     case WorkflowsActions.UPDATE_WORKFLOW_SUCCESS: {
       const projectsWithoutWorkflow = state.projects.map((project) => {
-        return new ProjectModel(
+        return ProjectModelFactory.create(
           project.name,
           project.workflows.filter((workflow) => workflow.id != action.payload.id),
         );
@@ -374,7 +366,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
           project.name == action.payload.project ? { ...project, workflows: [...project.workflows, action.payload] } : project,
         );
       } else {
-        updatedProjects = [...state.projects, new ProjectModel(action.payload.project, [action.payload])];
+        updatedProjects = [...state.projects, ProjectModelFactory.create(action.payload.project, [action.payload])];
       }
       return {
         ...state,

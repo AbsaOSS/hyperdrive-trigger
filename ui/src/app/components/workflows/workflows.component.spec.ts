@@ -17,8 +17,8 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { WorkflowsComponent } from './workflows.component';
 import { provideMockStore } from '@ngrx/store/testing';
-import { ProjectModel } from '../../models/project.model';
-import { WorkflowModel } from '../../models/workflow.model';
+import { ProjectModel, ProjectModelFactory } from '../../models/project.model';
+import { WorkflowModel, WorkflowModelFactory } from '../../models/workflow.model';
 
 describe('WorkflowsComponent', () => {
   let fixture: ComponentFixture<WorkflowsComponent>;
@@ -28,8 +28,12 @@ describe('WorkflowsComponent', () => {
     workflows: {
       loading: true,
       projects: [
-        new ProjectModel('projectOne', [new WorkflowModel('workflowOne', undefined, undefined, undefined, undefined, undefined)]),
-        new ProjectModel('projectTwo', [new WorkflowModel('workflowTwo', undefined, undefined, undefined, undefined, undefined)]),
+        ProjectModelFactory.create('projectOne', [
+          WorkflowModelFactory.create('workflowOne', undefined, undefined, undefined, undefined, undefined),
+        ]),
+        ProjectModelFactory.create('projectTwo', [
+          WorkflowModelFactory.create('workflowTwo', undefined, undefined, undefined, undefined, undefined),
+        ]),
       ],
     },
   };

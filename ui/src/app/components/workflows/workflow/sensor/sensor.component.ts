@@ -20,7 +20,7 @@ import { Store } from '@ngrx/store';
 import { AppState, selectWorkflowState } from '../../../../stores/app.reducers';
 import { WorkflowSensorChanged, WorkflowSensorTypeSwitched } from '../../../../stores/workflows/workflows.actions';
 import { DynamicFormPart, FormPart } from '../../../../models/workflowFormParts.model';
-import { WorkflowEntryModel } from '../../../../models/workflowEntry.model';
+import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../models/workflowEntry.model';
 
 @Component({
   selector: 'app-sensor',
@@ -56,9 +56,9 @@ export class SensorComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.sensorChangesSubscription = this.sensorChanges.pipe().subscribe((sensorChange) => {
       if (sensorChange.property == this.sensorSwitchPart.property) {
-        this.store.dispatch(new WorkflowSensorTypeSwitched(new WorkflowEntryModel(sensorChange.property, sensorChange.value)));
+        this.store.dispatch(new WorkflowSensorTypeSwitched(WorkflowEntryModelFactory.create(sensorChange.property, sensorChange.value)));
       } else {
-        this.store.dispatch(new WorkflowSensorChanged(new WorkflowEntryModel(sensorChange.property, sensorChange.value)));
+        this.store.dispatch(new WorkflowSensorChanged(WorkflowEntryModelFactory.create(sensorChange.property, sensorChange.value)));
       }
     });
   }

@@ -17,9 +17,14 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { JobComponent } from './job.component';
 import { provideMockStore } from '@ngrx/store/testing';
-import { DynamicFormPart, DynamicFormParts, FormPart, WorkflowFormPartsModel } from '../../../../../models/workflowFormParts.model';
-import { JobEntryModel } from '../../../../../models/jobEntry.model';
-import { WorkflowEntryModel } from '../../../../../models/workflowEntry.model';
+import {
+  DynamicFormPartFactory,
+  DynamicFormPartsFactory,
+  FormPartFactory,
+  WorkflowFormPartsModelFactory,
+} from '../../../../../models/workflowFormParts.model';
+import { JobEntryModelFactory } from '../../../../../models/jobEntry.model';
+import { WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
 
 describe('JobComponent', () => {
   let fixture: ComponentFixture<JobComponent>;
@@ -27,23 +32,23 @@ describe('JobComponent', () => {
 
   const initialAppState = {
     workflows: {
-      workflowFormParts: new WorkflowFormPartsModel(
+      workflowFormParts: WorkflowFormPartsModelFactory.create(
         [],
         undefined,
-        new FormPart('jobStaticPart', 'jobStaticPart', true, 'jobStaticPart'),
-        new FormPart('switchPartName', 'switchPartProp', true, 'switchPartType', ['optionOne', 'optionTwo']),
-        new DynamicFormParts(
+        FormPartFactory.create('jobStaticPart', 'jobStaticPart', true, 'jobStaticPart'),
+        FormPartFactory.create('switchPartName', 'switchPartProp', true, 'switchPartType', ['optionOne', 'optionTwo']),
+        DynamicFormPartsFactory.create(
           [],
           [
-            new DynamicFormPart('optionOne', [new FormPart('partOne', 'partOne', true, 'partOne')]),
-            new DynamicFormPart('optionTwo', [new FormPart('partTwo', 'partTwo', true, 'partTwo')]),
+            DynamicFormPartFactory.create('optionOne', [FormPartFactory.create('partOne', 'partOne', true, 'partOne')]),
+            DynamicFormPartFactory.create('optionTwo', [FormPartFactory.create('partTwo', 'partTwo', true, 'partTwo')]),
           ],
         ),
       ),
       workflowAction: {
         mode: 'mode',
         workflowData: {
-          jobs: [JobEntryModel.createNew(0, [new WorkflowEntryModel('jobStaticPart', 'value')])],
+          jobs: [JobEntryModelFactory.createWithUuid(0, [WorkflowEntryModelFactory.create('jobStaticPart', 'value')])],
         },
       },
     },

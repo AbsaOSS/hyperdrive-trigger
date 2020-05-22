@@ -20,7 +20,7 @@ import { DebugElement, Predicate } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
-import { WorkflowEntryModel } from '../../../../../models/workflowEntry.model';
+import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
 import set from 'lodash/set';
 
 describe('KeyStringValuePartComponent', () => {
@@ -74,7 +74,7 @@ describe('KeyStringValuePartComponent', () => {
             expect(results[0].nativeElement.value).toBe(newKey);
             expect(results[1].nativeElement.value).toBe(newValue);
             expect(subjectSpy).toHaveBeenCalledTimes(1);
-            expect(subjectSpy).toHaveBeenCalledWith(new WorkflowEntryModel(propertyName, newValueObject));
+            expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValueObject));
           });
         }),
       );
@@ -118,7 +118,7 @@ describe('KeyStringValuePartComponent', () => {
         const testedValue = fixture.debugElement.queryAll(inputSelector)[2].nativeElement.value;
         expect(testedValue).toBe(newItemKey);
         expect(subjectSpy).toHaveBeenCalled();
-        expect(subjectSpy).toHaveBeenCalledWith(new WorkflowEntryModel(propertyName, newValueObject));
+        expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValueObject));
       });
     });
   }));
@@ -160,7 +160,7 @@ describe('KeyStringValuePartComponent', () => {
         const testedValue = fixture.debugElement.queryAll(inputSelector)[3].nativeElement.value;
         expect(testedValue).toBe(newItemValue);
         expect(subjectSpy).toHaveBeenCalled();
-        expect(subjectSpy).toHaveBeenCalledWith(new WorkflowEntryModel(propertyName, newValueObject));
+        expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValueObject));
       });
     });
   }));
@@ -192,7 +192,7 @@ describe('KeyStringValuePartComponent', () => {
       fixture.detectChanges();
       fixture.whenStable().then(() => {
         expect(subjectSpy).toHaveBeenCalled();
-        expect(subjectSpy).toHaveBeenCalledWith(new WorkflowEntryModel(propertyName, newValueObject));
+        expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValueObject));
       });
     });
   }));
@@ -224,7 +224,7 @@ describe('KeyStringValuePartComponent', () => {
       fixture.detectChanges();
       fixture.whenStable().then(() => {
         expect(subjectSpy).toHaveBeenCalled();
-        expect(subjectSpy).toHaveBeenCalledWith(new WorkflowEntryModel(propertyName, newValueObject));
+        expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValueObject));
       });
     });
   }));

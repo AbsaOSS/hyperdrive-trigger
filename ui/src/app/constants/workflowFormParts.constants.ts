@@ -13,20 +13,20 @@
  * limitations under the License.
  */
 
-import { FormPart } from '../models/workflowFormParts.model';
+import { FormPartFactory } from '../models/workflowFormParts.model';
 
 export const workflowFormParts = {
   DETAILS: {
-    WORKFLOW_NAME: new FormPart('Workflow name', 'name', true, 'string-field'),
-    PROJECT_NAME: new FormPart('Project name', 'project', true, 'string-field'),
-    IS_ACTIVE: new FormPart('Is active', 'isActive', true, 'boolean-field'),
+    WORKFLOW_NAME: FormPartFactory.create('Workflow name', 'name', true, 'string-field'),
+    PROJECT_NAME: FormPartFactory.create('Project name', 'project', true, 'string-field'),
+    IS_ACTIVE: FormPartFactory.create('Is active', 'isActive', true, 'boolean-field'),
   },
   SENSOR: {
-    SENSOR_TYPE: new FormPart('Sensor type', 'sensorType.name', true, 'select-field'),
+    SENSOR_TYPE: FormPartFactory.create('Sensor type', 'sensorType.name', true, 'select-field'),
   },
   JOB: {
-    JOB_NAME: new FormPart('Job name', 'name', true, 'string-field'),
-    JOB_TYPE: new FormPart('Job type', 'jobType.name', true, 'select-field'),
+    JOB_NAME: FormPartFactory.create('Job name', 'name', true, 'string-field'),
+    JOB_TYPE: FormPartFactory.create('Job type', 'jobType.name', true, 'select-field'),
   },
 };
 

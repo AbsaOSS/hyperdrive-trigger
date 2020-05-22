@@ -15,6 +15,13 @@
 
 import { WorkflowModel } from './workflow.model';
 
-export class ProjectModel {
-  constructor(public name: string, public workflows: WorkflowModel[]) {}
+export type ProjectModel = {
+  name: string;
+  workflows: WorkflowModel[];
+};
+
+export class ProjectModelFactory {
+  static create(name: string, workflows: WorkflowModel[]): ProjectModel {
+    return { name: name, workflows: workflows };
+  }
 }

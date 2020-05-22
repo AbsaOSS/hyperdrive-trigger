@@ -20,7 +20,7 @@ import { DebugElement, Predicate } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
-import { WorkflowEntryModel } from '../../../../../models/workflowEntry.model';
+import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
 
 describe('SelectPartComponent', () => {
   let fixture: ComponentFixture<SelectPartComponent>;
@@ -70,7 +70,7 @@ describe('SelectPartComponent', () => {
             const result = fixture.debugElement.query(inputSelector).nativeElement.value;
             expect(result).toBe(newValue);
             expect(subjectSpy).toHaveBeenCalledTimes(1);
-            expect(subjectSpy).toHaveBeenCalledWith(new WorkflowEntryModel(propertyName, newValue));
+            expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValue));
           });
         }),
       );
@@ -103,7 +103,7 @@ describe('SelectPartComponent', () => {
         const testedValue = fixture.debugElement.query(inputSelector).nativeElement.value;
         expect(testedValue).toBe(newValue);
         expect(subjectSpy).toHaveBeenCalled();
-        expect(subjectSpy).toHaveBeenCalledWith(new WorkflowEntryModel(propertyName, newValue));
+        expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValue));
       });
     });
   }));

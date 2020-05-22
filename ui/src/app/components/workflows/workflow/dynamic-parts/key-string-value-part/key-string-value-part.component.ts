@@ -16,7 +16,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
 import cloneDeep from 'lodash/cloneDeep';
-import { WorkflowEntryModel } from '../../../../../models/workflowEntry.model';
+import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
 import set from 'lodash/set';
 
 @Component({
@@ -74,6 +74,6 @@ export class KeyStringValuePartComponent implements OnInit {
     });
     this.value = valueInObject;
     this.mapOfValues = value;
-    this.valueChanges.next(new WorkflowEntryModel(this.property, valueInObject));
+    this.valueChanges.next(WorkflowEntryModelFactory.create(this.property, valueInObject));
   }
 }

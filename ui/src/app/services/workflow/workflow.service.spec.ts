@@ -18,9 +18,9 @@ import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { api } from '../../constants/api.constants';
 import { WorkflowService } from './workflow.service';
-import { ProjectModel } from '../../models/project.model';
-import { WorkflowModel } from '../../models/workflow.model';
-import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
+import { ProjectModel, ProjectModelFactory } from '../../models/project.model';
+import { WorkflowModel, WorkflowModelFactory } from '../../models/workflow.model';
+import { WorkflowJoinedModel, WorkflowJoinedModelFactory } from '../../models/workflowJoined.model';
 
 describe('WorkflowService', () => {
   let underTest: WorkflowService;
@@ -45,8 +45,8 @@ describe('WorkflowService', () => {
 
   it('getProjects() should return projects', () => {
     const projects = [
-      new ProjectModel('projectName1', [
-        new WorkflowModel('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 0),
+      ProjectModelFactory.create('projectName1', [
+        WorkflowModelFactory.create('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 0),
       ]),
     ];
 
@@ -61,7 +61,7 @@ describe('WorkflowService', () => {
   });
 
   it('getWorkflow() should return workflow data', () => {
-    const workflow = new WorkflowJoinedModel('name', true, 'project', undefined, undefined, undefined, 0);
+    const workflow = WorkflowJoinedModelFactory.create('name', true, 'project', undefined, undefined, undefined, 0);
 
     underTest.getWorkflow(workflow.id).subscribe(
       (data) => expect(data).toEqual(workflow),
@@ -112,7 +112,7 @@ describe('WorkflowService', () => {
   });
 
   it('createWorkflow() should return created workflow', () => {
-    const workflow = new WorkflowJoinedModel('name', true, 'project', undefined, undefined, undefined, 0);
+    const workflow = WorkflowJoinedModelFactory.create('name', true, 'project', undefined, undefined, undefined, 0);
 
     underTest.createWorkflow(workflow).subscribe(
       (data) => expect(data).toEqual(workflow),
@@ -125,7 +125,7 @@ describe('WorkflowService', () => {
   });
 
   it('updateWorkflow() should return updated workflow', () => {
-    const workflow = new WorkflowJoinedModel('name', true, 'project', undefined, undefined, undefined, 0);
+    const workflow = WorkflowJoinedModelFactory.create('name', true, 'project', undefined, undefined, undefined, 0);
 
     underTest.updateWorkflow(workflow).subscribe(
       (data) => expect(data).toEqual(workflow),
