@@ -175,7 +175,7 @@ object WorkflowFixture {
 
   private def randomString(minLength: Int = MinLengthRandomString, maxLength: Int = MaxLengthRandomString) = {
     val length = randomInt(minLength, maxLength)
-    RandomStringUtils.randomAscii(length)
+    RandomStringUtils.randomAlphanumeric(length)
   }
 
   private def randomUuid() = {
