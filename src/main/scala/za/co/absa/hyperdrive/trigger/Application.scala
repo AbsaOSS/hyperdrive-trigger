@@ -33,7 +33,6 @@ import za.co.absa.hyperdrive.trigger.models.enums.{JobStatuses, JobTypes, Sensor
 @SpringBootApplication
 @EnableAsync
 @Configuration
-//@ComponentScan(basePackages = Array("za.co.absa.hyperdrive.trigger"))
 class Application() {
   @Bean def asyncExecutor(): ThreadPoolTaskExecutor = {
     val executor = new ThreadPoolTaskExecutor()
