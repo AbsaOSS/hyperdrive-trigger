@@ -16,15 +16,37 @@
 import { SensorModel } from './sensor.model';
 import { DagDefinitionJoinedModel } from './dagDefinitionJoined.model';
 
-export class WorkflowJoinedModel {
-  constructor(
-    public name: string,
-    public isActive: boolean,
-    public project: string,
-    public created: Date,
-    public sensor: SensorModel,
-    public dagDefinitionJoined: DagDefinitionJoinedModel,
-    public id: number,
-    public updated?: Date,
-  ) {}
+export type WorkflowJoinedModel = {
+  name: string;
+  isActive: boolean;
+  project: string;
+  created: Date;
+  sensor: SensorModel;
+  dagDefinitionJoined: DagDefinitionJoinedModel;
+  id: number;
+  updated?: Date;
+};
+
+export class WorkflowJoinedModelFactory {
+  static create(
+    name: string,
+    isActive: boolean,
+    project: string,
+    created: Date,
+    sensor: SensorModel,
+    dagDefinitionJoined: DagDefinitionJoinedModel,
+    id: number,
+    updated?: Date,
+  ): WorkflowJoinedModel {
+    return {
+      name: name,
+      isActive: isActive,
+      project: project,
+      created: created,
+      sensor: sensor,
+      dagDefinitionJoined: dagDefinitionJoined,
+      id: id,
+      updated: updated,
+    };
+  }
 }

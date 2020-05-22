@@ -17,7 +17,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { StringPartComponent } from './string-part.component';
 import { Subject } from 'rxjs';
-import { WorkflowEntryModel } from '../../../../../models/workflowEntry.model';
+import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
 import { By } from '@angular/platform-browser';
 import { DebugElement, Predicate } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -68,7 +68,7 @@ describe('StringPartComponent', () => {
             const result = fixture.debugElement.query(inputSelector).nativeElement.value;
             expect(result).toBe(newValue);
             expect(subjectSpy).toHaveBeenCalledTimes(1);
-            expect(subjectSpy).toHaveBeenCalledWith(new WorkflowEntryModel(propertyName, newValue));
+            expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValue));
           });
         }),
       );
@@ -100,7 +100,7 @@ describe('StringPartComponent', () => {
         const testedValue = fixture.debugElement.query(inputSelector).nativeElement.value;
         expect(testedValue).toBe(newValue);
         expect(subjectSpy).toHaveBeenCalled();
-        expect(subjectSpy).toHaveBeenCalledWith(new WorkflowEntryModel(propertyName, newValue));
+        expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValue));
       });
     });
   }));

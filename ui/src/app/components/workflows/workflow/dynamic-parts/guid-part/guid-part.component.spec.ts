@@ -20,7 +20,7 @@ import { DebugElement, Predicate } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
-import { WorkflowEntryModel } from '../../../../../models/workflowEntry.model';
+import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
 
 describe('GuidPartComponent', () => {
   let fixture: ComponentFixture<GuidPartComponent>;
@@ -68,7 +68,7 @@ describe('GuidPartComponent', () => {
             const result = fixture.debugElement.query(inputSelector).nativeElement.value;
             expect(result.length).toBe(36);
             expect(subjectSpy).toHaveBeenCalledTimes(1);
-            expect(subjectSpy).toHaveBeenCalledWith(new WorkflowEntryModel(propertyName, result));
+            expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, result));
           });
         }),
       );
@@ -93,7 +93,7 @@ describe('GuidPartComponent', () => {
 
       expect(oldValue.length).toBe(36);
       expect(subjectSpy).toHaveBeenCalled();
-      expect(subjectSpy).toHaveBeenCalledWith(new WorkflowEntryModel(propertyName, oldValue));
+      expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, oldValue));
 
       const buttonElement = fixture.debugElement.query(buttonSelector).nativeElement;
       buttonElement.click();
@@ -104,7 +104,7 @@ describe('GuidPartComponent', () => {
         expect(testedValue.length).toBe(36);
         expect(oldValue != testedValue).toBeTrue();
         expect(subjectSpy).toHaveBeenCalled();
-        expect(subjectSpy).toHaveBeenCalledWith(new WorkflowEntryModel(propertyName, testedValue));
+        expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, testedValue));
       });
     });
   }));

@@ -22,8 +22,8 @@ import { WorkflowService } from '../../services/workflow/workflow.service';
 import { ProjectModel } from '../../models/project.model';
 import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
 import { workflowModes } from '../../models/enums/workflowModes.constants';
-import { DynamicFormParts, WorkflowFormPartsModel } from '../../models/workflowFormParts.model';
-import { workflowFormPartsSequences, workflowFormParts as workflowFormPartsConsts } from '../../constants/workflowFormParts.constants';
+import { DynamicFormParts, WorkflowFormPartsModelFactory } from '../../models/workflowFormParts.model';
+import { workflowFormParts as workflowFormPartsConsts, workflowFormPartsSequences } from '../../constants/workflowFormParts.constants';
 import { AppState, selectWorkflowState } from '../app.reducers';
 import { Store } from '@ngrx/store';
 import * as fromWorkflows from './workflows.reducers';
@@ -33,7 +33,7 @@ import { Router } from '@angular/router';
 import { absoluteRoutes } from '../../constants/routes.constants';
 import { ToastrService } from 'ngx-toastr';
 import { texts } from '../../constants/texts.constants';
-import { WorkflowModel } from '../../models/workflow.model';
+import { WorkflowModel, WorkflowModelFactory } from '../../models/workflow.model';
 import { WorkflowRequestModel } from '../../models/workflowRequest.model';
 
 @Injectable()
@@ -55,7 +55,7 @@ export class WorkflowsEffects {
     mergeMap((projects: ProjectModel[]) => {
       return this.workflowService.getWorkflowDynamicFormParts().pipe(
         mergeMap((workflowComponents: DynamicFormParts) => {
-          const workflowFormParts = new WorkflowFormPartsModel(
+          const workflowFormParts = WorkflowFormPartsModelFactory.create(
             workflowFormPartsSequences.allDetails,
             workflowFormPartsConsts.SENSOR.SENSOR_TYPE,
             workflowFormPartsConsts.JOB.JOB_NAME,
@@ -237,7 +237,7 @@ export class WorkflowsEffects {
 
       return this.workflowService.createWorkflow(workflowCreateRequest).pipe(
         mergeMap((result: WorkflowJoinedModel) => {
-          const workflow: WorkflowModel = new WorkflowModel(
+          const workflow: WorkflowModel = WorkflowModelFactory.create(
             result.name,
             result.isActive,
             result.project,
@@ -280,7 +280,7 @@ export class WorkflowsEffects {
 
       return this.workflowService.updateWorkflow(workflowUpdateRequest).pipe(
         mergeMap((result: WorkflowJoinedModel) => {
-          const workflow: WorkflowModel = new WorkflowModel(
+          const workflow: WorkflowModel = WorkflowModelFactory.create(
             result.name,
             result.isActive,
             result.project,

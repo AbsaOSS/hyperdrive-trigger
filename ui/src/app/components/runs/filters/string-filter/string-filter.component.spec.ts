@@ -16,7 +16,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { StringFilterComponent } from './string-filter.component';
-import { DagRunModel } from '../../../../models/dagRuns/dagRun.model';
+import { DagRunModelFactory } from '../../../../models/dagRuns/dagRun.model';
 
 describe('StringFilterComponent', () => {
   let fixture: ComponentFixture<StringFilterComponent>;
@@ -42,7 +42,7 @@ describe('StringFilterComponent', () => {
       const underTest = fixture.componentInstance;
       underTest.value = 'value';
       underTest.property = 'workflowName';
-      const dagRun = new DagRunModel('value', 'projectName', 2, 'Status', new Date(Date.now()), new Date(Date.now()), 0);
+      const dagRun = DagRunModelFactory.create('value', 'projectName', 2, 'Status', new Date(Date.now()), new Date(Date.now()), 0);
 
       expect(underTest.accepts(dagRun)).toBeTrue();
     });
@@ -51,7 +51,7 @@ describe('StringFilterComponent', () => {
       const underTest = fixture.componentInstance;
       underTest.value = 'lue';
       underTest.property = 'workflowName';
-      const dagRun = new DagRunModel('value', 'projectName', 2, 'Status', new Date(Date.now()), new Date(Date.now()), 0);
+      const dagRun = DagRunModelFactory.create('value', 'projectName', 2, 'Status', new Date(Date.now()), new Date(Date.now()), 0);
 
       expect(underTest.accepts(dagRun)).toBeTrue();
     });
@@ -60,7 +60,7 @@ describe('StringFilterComponent', () => {
       const underTest = fixture.componentInstance;
       underTest.value = 'differentValue';
       underTest.property = 'workflowName';
-      const dagRun = new DagRunModel('value', 'projectName', 2, 'Status', new Date(Date.now()), new Date(Date.now()), 0);
+      const dagRun = DagRunModelFactory.create('value', 'projectName', 2, 'Status', new Date(Date.now()), new Date(Date.now()), 0);
 
       expect(underTest.accepts(dagRun)).toBeFalse();
     });
@@ -69,7 +69,7 @@ describe('StringFilterComponent', () => {
       const underTest = fixture.componentInstance;
       underTest.value = 'differentValue';
       underTest.property = 'jobCount';
-      const dagRun = new DagRunModel('value', 'projectName', 2, 'Status', new Date(Date.now()), new Date(Date.now()), 0);
+      const dagRun = DagRunModelFactory.create('value', 'projectName', 2, 'Status', new Date(Date.now()), new Date(Date.now()), 0);
 
       expect(() => underTest.accepts(dagRun)).toThrowError(TypeError);
     });

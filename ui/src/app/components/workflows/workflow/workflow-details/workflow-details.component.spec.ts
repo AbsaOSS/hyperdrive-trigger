@@ -17,7 +17,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { WorkflowDetailsComponent } from './workflow-details.component';
 import { provideMockStore } from '@ngrx/store/testing';
-import { WorkflowFormPartsModel } from '../../../../models/workflowFormParts.model';
+import { WorkflowFormPartsModelFactory } from '../../../../models/workflowFormParts.model';
 
 describe('WorkflowDetailsComponent', () => {
   let fixture: ComponentFixture<WorkflowDetailsComponent>;
@@ -25,7 +25,7 @@ describe('WorkflowDetailsComponent', () => {
 
   const initialAppState = {
     workflows: {
-      workflowFormParts: new WorkflowFormPartsModel([], undefined, undefined, undefined, undefined),
+      workflowFormParts: WorkflowFormPartsModelFactory.create([], undefined, undefined, undefined, undefined),
       workflowAction: {
         mode: 'mode',
         workflowData: {

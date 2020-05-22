@@ -20,7 +20,7 @@ import { DynamicFormPart, FormPart } from '../../../../../models/workflowFormPar
 import { Store } from '@ngrx/store';
 import { AppState, selectWorkflowState } from '../../../../../stores/app.reducers';
 import { WorkflowJobChanged, WorkflowJobTypeSwitched } from '../../../../../stores/workflows/workflows.actions';
-import { WorkflowEntryModel } from '../../../../../models/workflowEntry.model';
+import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
 
 @Component({
   selector: 'app-job',
@@ -62,11 +62,14 @@ export class JobComponent implements OnInit, OnDestroy {
     this.jobChangesSubscription = this.jobChanges.subscribe((jobChange) => {
       if (jobChange.property == this.jobSwitchPart.property) {
         this.store.dispatch(
-          new WorkflowJobTypeSwitched({ jobId: this.jobId, jobEntry: new WorkflowEntryModel(jobChange.property, jobChange.value) }),
+          new WorkflowJobTypeSwitched({
+            jobId: this.jobId,
+            jobEntry: WorkflowEntryModelFactory.create(jobChange.property, jobChange.value),
+          }),
         );
       } else {
         this.store.dispatch(
-          new WorkflowJobChanged({ jobId: this.jobId, jobEntry: new WorkflowEntryModel(jobChange.property, jobChange.value) }),
+          new WorkflowJobChanged({ jobId: this.jobId, jobEntry: WorkflowEntryModelFactory.create(jobChange.property, jobChange.value) }),
         );
       }
     });

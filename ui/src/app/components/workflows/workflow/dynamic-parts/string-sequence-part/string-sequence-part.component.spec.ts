@@ -20,7 +20,7 @@ import { DebugElement, Predicate } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
-import { WorkflowEntryModel } from '../../../../../models/workflowEntry.model';
+import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
 
 describe('StringSequencePartComponent', () => {
   let fixture: ComponentFixture<StringSequencePartComponent>;
@@ -69,7 +69,7 @@ describe('StringSequencePartComponent', () => {
             expect(results.length == 1).toBeTrue();
             expect(results[0].nativeElement.value).toBe(newValue[0]);
             expect(subjectSpy).toHaveBeenCalledTimes(1);
-            expect(subjectSpy).toHaveBeenCalledWith(new WorkflowEntryModel(propertyName, newValue));
+            expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValue));
           });
         }),
       );
@@ -103,7 +103,7 @@ describe('StringSequencePartComponent', () => {
         const testedValue = fixture.debugElement.queryAll(inputSelector)[1].nativeElement.value;
         expect(testedValue).toBe(newItem);
         expect(subjectSpy).toHaveBeenCalled();
-        expect(subjectSpy).toHaveBeenCalledWith(new WorkflowEntryModel(propertyName, newValue));
+        expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValue));
       });
     });
   }));
@@ -131,7 +131,7 @@ describe('StringSequencePartComponent', () => {
         const result = testedValue.map((element) => element.nativeElement.value);
         expect(result).toEqual(newValue);
         expect(subjectSpy).toHaveBeenCalled();
-        expect(subjectSpy).toHaveBeenCalledWith(new WorkflowEntryModel(propertyName, newValue));
+        expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValue));
       });
     });
   }));
@@ -159,7 +159,7 @@ describe('StringSequencePartComponent', () => {
         const result = testedValue.map((element) => element.nativeElement.value);
         expect(result).toEqual(newValue);
         expect(subjectSpy).toHaveBeenCalled();
-        expect(subjectSpy).toHaveBeenCalledWith(new WorkflowEntryModel(propertyName, newValue));
+        expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValue));
       });
     });
   }));

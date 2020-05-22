@@ -15,6 +15,14 @@
 
 import { JobDefinitionModel } from './jobDefinition.model';
 
-export class DagDefinitionJoinedModel {
-  constructor(public workflowId: number = 0, public jobDefinitions: JobDefinitionModel[], public id: number) {}
+export type DagDefinitionJoinedModel = {
+  workflowId: number;
+  jobDefinitions: JobDefinitionModel[];
+  id: number;
+};
+
+export class DagDefinitionJoinedModelFactory {
+  static create(workflowId: number, jobDefinitions: JobDefinitionModel[], id: number): DagDefinitionJoinedModel {
+    return { workflowId: workflowId, jobDefinitions: jobDefinitions, id: id };
+  }
 }

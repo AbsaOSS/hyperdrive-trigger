@@ -22,8 +22,8 @@ import {
   GetDagRunsFailure,
   GetDagRunsSuccess,
 } from './runs.actions';
-import { DagRunModel } from '../../models/dagRuns/dagRun.model';
-import { JobInstanceModel, JobStatus, JobType } from '../../models/jobInstance.model';
+import { DagRunModel, DagRunModelFactory } from '../../models/dagRuns/dagRun.model';
+import { JobInstanceModel, JobInstanceModelFactory, JobStatusFactory, JobTypeFactory } from '../../models/jobInstance.model';
 import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
 import { SortAttributesModel } from '../../models/search/sortAttributes.model';
 
@@ -48,7 +48,15 @@ describe('RunsReducers', () => {
   });
 
   it('should set dag runs, total and loading to false on get dag runs success', () => {
-    const dagRunModel = new DagRunModel('workflowName', 'projectName', 2, 'Status', new Date(Date.now()), new Date(Date.now()), 0);
+    const dagRunModel = DagRunModelFactory.create(
+      'workflowName',
+      'projectName',
+      2,
+      'Status',
+      new Date(Date.now()),
+      new Date(Date.now()),
+      0,
+    );
     const dagRunFilterResultModel = new TableSearchResponseModel<DagRunModel>([dagRunModel], 1);
     const runsAction = new GetDagRunsSuccess({ dagRuns: dagRunFilterResultModel });
 
@@ -81,7 +89,14 @@ describe('RunsReducers', () => {
 
   it('should set detail and loading to false on get dag run detail success', () => {
     const jobInstances: JobInstanceModel[] = [
-      new JobInstanceModel(0, 'jobName0', new JobType('JobType'), new Date(Date.now()), new Date(Date.now()), new JobStatus('Status')),
+      JobInstanceModelFactory.create(
+        0,
+        'jobName0',
+        JobTypeFactory.create('JobType'),
+        new Date(Date.now()),
+        new Date(Date.now()),
+        JobStatusFactory.create('Status'),
+      ),
     ];
     const runsAction = new GetDagRunDetailSuccess(jobInstances);
 

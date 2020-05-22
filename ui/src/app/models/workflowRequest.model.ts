@@ -14,12 +14,12 @@
  */
 
 import { WorkflowEntryModel } from './workflowEntry.model';
-import { JobEntryModelObject } from './jobEntry.model';
+import { JobEntryModel } from './jobEntry.model';
 import set from 'lodash/set';
-import { WorkflowJoinedModel } from './workflowJoined.model';
-import { PropertiesModel, SensorModel } from './sensor.model';
-import { DagDefinitionJoinedModel } from './dagDefinitionJoined.model';
-import { JobDefinitionModel, JobParametersModel } from './jobDefinition.model';
+import { WorkflowJoinedModel, WorkflowJoinedModelFactory } from './workflowJoined.model';
+import { SensorModel } from './sensor.model';
+import { DagDefinitionJoinedModelFactory } from './dagDefinitionJoined.model';
+import { JobDefinitionModel } from './jobDefinition.model';
 
 class WorkflowDetails {
   constructor(
@@ -32,23 +32,8 @@ class WorkflowDetails {
   ) {}
 }
 
-class WorkflowSensor {
-  constructor(public workflowId?: number, public sensorType?: { name: string }, public properties?: PropertiesModel, public id?: number) {}
-}
-
-class WorkflowJobDefinition {
-  constructor(
-    public dagDefinitionId?: number,
-    public name?: string,
-    public jobType?: { name: string },
-    public jobParameters?: JobParametersModel,
-    public order?: number,
-    public id?: number,
-  ) {}
-}
-
 export class WorkflowRequestModel {
-  constructor(public detailsData: WorkflowEntryModel[], public sensorData: WorkflowEntryModel[], public jobsData: JobEntryModelObject[]) {}
+  constructor(public detailsData: WorkflowEntryModel[], public sensorData: WorkflowEntryModel[], public jobsData: JobEntryModel[]) {}
 
   getCreateWorkflowRequestObject(): WorkflowJoinedModel {
     return this.createWorkflowRequestObject();
@@ -57,32 +42,18 @@ export class WorkflowRequestModel {
   getUpdateWorkflowRequestObject(id: number): WorkflowJoinedModel {
     return this.createWorkflowRequestObject(id);
   }
-
   private createWorkflowRequestObject(id = 0): WorkflowJoinedModel {
     const workflowDetails = this.getWorkflowDetails(id);
     const workflowSensor = this.getWorkflowSensor();
     const workflowJobsDefinitions = this.getWorkflowJobsDefinitions();
 
-    return new WorkflowJoinedModel(
+    return WorkflowJoinedModelFactory.create(
       workflowDetails.name,
       workflowDetails.isActive,
       workflowDetails.project,
       workflowDetails.created,
-      new SensorModel(workflowSensor.workflowId, workflowSensor.sensorType, workflowSensor.properties, workflowSensor.id),
-      new DagDefinitionJoinedModel(
-        0,
-        workflowJobsDefinitions.map((workflowJobDefinition) => {
-          return new JobDefinitionModel(
-            workflowJobDefinition.dagDefinitionId,
-            workflowJobDefinition.name,
-            workflowJobDefinition.jobType,
-            workflowJobDefinition.jobParameters,
-            workflowJobDefinition.order,
-            workflowJobDefinition.id,
-          );
-        }),
-        0,
-      ),
+      workflowSensor,
+      DagDefinitionJoinedModelFactory.create(0, workflowJobsDefinitions, 0),
       workflowDetails.id,
       workflowDetails.updated,
     );
@@ -97,22 +68,21 @@ export class WorkflowRequestModel {
     return workflowDetails;
   }
 
-  private getWorkflowSensor(): WorkflowSensor {
-    const workflowSensor = new WorkflowSensor();
+  private getWorkflowSensor(): SensorModel {
+    const partialSensor = {};
     this.sensorData.forEach((sensor) => {
-      set(workflowSensor, sensor.property, sensor.value);
+      set(partialSensor, sensor.property, sensor.value);
     });
-    return workflowSensor;
+    return partialSensor as SensorModel;
   }
 
-  private getWorkflowJobsDefinitions(): WorkflowJobDefinition[] {
+  private getWorkflowJobsDefinitions(): JobDefinitionModel[] {
     return this.jobsData.map((jobDef) => {
-      const workflowJobDefinition = new WorkflowJobDefinition();
-      workflowJobDefinition.order = jobDef.order;
+      const partialJobDefinition = { order: jobDef.order };
       jobDef.entries.forEach((jobProp) => {
-        set(workflowJobDefinition, jobProp.property, jobProp.value);
+        set(partialJobDefinition, jobProp.property, jobProp.value);
       });
-      return workflowJobDefinition;
+      return partialJobDefinition as JobDefinitionModel;
     });
   }
 }

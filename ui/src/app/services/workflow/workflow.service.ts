@@ -20,7 +20,7 @@ import { map } from 'rxjs/operators';
 import { ProjectModel } from '../../models/project.model';
 import { Observable, of } from 'rxjs';
 import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
-import { DynamicFormPart, DynamicFormParts, FormPart } from '../../models/workflowFormParts.model';
+import { DynamicFormPartFactory, DynamicFormParts, DynamicFormPartsFactory, FormPartFactory } from '../../models/workflowFormParts.model';
 
 @Injectable({
   providedIn: 'root',
@@ -83,28 +83,35 @@ export class WorkflowService {
 
   getWorkflowDynamicFormParts(): Observable<DynamicFormParts> {
     return of(
-      new DynamicFormParts(
+      DynamicFormPartsFactory.create(
         [
-          new DynamicFormPart('Kafka', [
-            new FormPart('Topic', 'properties.settings.variables.topic', true, 'string-field'),
-            new FormPart('Kafka servers', 'properties.settings.maps.servers', true, 'set-field'),
-            new FormPart('Match properties', 'properties.matchProperties', false, 'key-value-field'),
+          DynamicFormPartFactory.create('Kafka', [
+            FormPartFactory.create('Topic', 'properties.settings.variables.topic', true, 'string-field'),
+            FormPartFactory.create('Kafka servers', 'properties.settings.maps.servers', true, 'set-field'),
+            FormPartFactory.create('Match properties', 'properties.matchProperties', false, 'key-value-field'),
           ]),
-          new DynamicFormPart('Absa-Kafka', [
-            new FormPart('Topic', 'properties.settings.variables.topic', true, 'string-field'),
-            new FormPart('Kafka servers', 'properties.settings.maps.servers', true, 'set-field'),
-            new FormPart('Ingestion token', 'properties.matchProperties.ingestionToken', true, 'guid-field'),
+          DynamicFormPartFactory.create('Absa-Kafka', [
+            FormPartFactory.create('Topic', 'properties.settings.variables.topic', true, 'string-field'),
+            FormPartFactory.create('Kafka servers', 'properties.settings.maps.servers', true, 'set-field'),
+            FormPartFactory.create('Ingestion token', 'properties.matchProperties.ingestionToken', true, 'guid-field'),
           ]),
-          new DynamicFormPart('Time', [new FormPart('Run at', 'properties.settings.variables.cronExpression', true, 'cron-quartz-field')]),
+          DynamicFormPartFactory.create('Time', [
+            FormPartFactory.create('Run at', 'properties.settings.variables.cronExpression', true, 'cron-quartz-field'),
+          ]),
         ],
         [
-          new DynamicFormPart('Spark', [
-            new FormPart('Job jar', 'jobParameters.variables.jobJar', true, 'string-field'),
-            new FormPart('Main class', 'jobParameters.variables.mainClass', true, 'string-field'),
-            new FormPart('Deployment mode', 'jobParameters.variables.deploymentMode', true, 'select-field', ['cluster', 'client']),
-            new FormPart('App arguments', 'jobParameters.maps.appArguments', false, 'set-field'),
+          DynamicFormPartFactory.create('Spark', [
+            FormPartFactory.create('Job jar', 'jobParameters.variables.jobJar', true, 'string-field'),
+            FormPartFactory.create('Main class', 'jobParameters.variables.mainClass', true, 'string-field'),
+            FormPartFactory.create('Deployment mode', 'jobParameters.variables.deploymentMode', true, 'select-field', [
+              'cluster',
+              'client',
+            ]),
+            FormPartFactory.create('App arguments', 'jobParameters.maps.appArguments', false, 'set-field'),
           ]),
-          new DynamicFormPart('Shell', [new FormPart('Script location', 'jobParameters.variables.scriptLocation', true, 'string-field')]),
+          DynamicFormPartFactory.create('Shell', [
+            FormPartFactory.create('Script location', 'jobParameters.variables.scriptLocation', true, 'string-field'),
+          ]),
         ],
       ),
     );

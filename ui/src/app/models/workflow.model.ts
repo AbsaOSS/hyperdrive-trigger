@@ -13,13 +13,17 @@
  * limitations under the License.
  */
 
-export class WorkflowModel {
-  constructor(
-    public name: string,
-    public isActive: boolean,
-    public project: string,
-    public created: Date,
-    public updated: Date,
-    public id: number,
-  ) {}
+export type WorkflowModel = {
+  name: string;
+  isActive: boolean;
+  project: string;
+  created: Date;
+  updated: Date;
+  id: number;
+};
+
+export class WorkflowModelFactory {
+  static create(name: string, isActive: boolean, project: string, created: Date, updated: Date, id: number): WorkflowModel {
+    return { name: name, isActive: isActive, project: project, created: created, updated: updated, id: id };
+  }
 }

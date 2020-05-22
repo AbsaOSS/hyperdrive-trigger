@@ -15,7 +15,7 @@
 
 import { Component, Input, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
-import { WorkflowEntryModel } from '../../../../../models/workflowEntry.model';
+import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
 
 @Component({
   selector: 'app-select-part',
@@ -45,6 +45,6 @@ export class SelectPartComponent implements OnInit {
 
   modelChanged(value: string) {
     this.value = value;
-    this.valueChanges.next(new WorkflowEntryModel(this.property, this.value));
+    this.valueChanges.next(WorkflowEntryModelFactory.create(this.property, this.value));
   }
 }

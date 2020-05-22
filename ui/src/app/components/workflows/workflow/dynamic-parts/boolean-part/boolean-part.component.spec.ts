@@ -18,7 +18,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { BooleanPartComponent } from './boolean-part.component';
 import { DebugElement, Predicate } from '@angular/core';
 import { Subject } from 'rxjs';
-import { WorkflowEntryModel } from '../../../../../models/workflowEntry.model';
+import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
 import { By } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 
@@ -68,7 +68,7 @@ describe('BooleanPartComponent', () => {
             const result = fixture.debugElement.query(inputSelector).nativeElement.checked;
             expect(result).toBe(newValue);
             expect(subjectSpy).toHaveBeenCalledTimes(1);
-            expect(subjectSpy).toHaveBeenCalledWith(new WorkflowEntryModel(propertyName, newValue));
+            expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValue));
           });
         }),
       );
@@ -99,7 +99,7 @@ describe('BooleanPartComponent', () => {
         const testedValue = fixture.debugElement.query(inputSelector).nativeElement.checked;
         expect(testedValue).toBe(newValue);
         expect(subjectSpy).toHaveBeenCalled();
-        expect(subjectSpy).toHaveBeenCalledWith(new WorkflowEntryModel(propertyName, newValue));
+        expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValue));
       });
     });
   }));

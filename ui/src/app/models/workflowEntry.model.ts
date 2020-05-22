@@ -13,6 +13,13 @@
  * limitations under the License.
  */
 
-export class WorkflowEntryModel {
-  constructor(public property: string, public value: any) {}
+export type WorkflowEntryModel = {
+  property: string;
+  value: any;
+};
+
+export class WorkflowEntryModelFactory {
+  static create(property: string, value: any): WorkflowEntryModel {
+    return { property: property, value: value };
+  }
 }
