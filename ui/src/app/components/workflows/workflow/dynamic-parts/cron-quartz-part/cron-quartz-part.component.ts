@@ -15,10 +15,16 @@
 
 import { Component, Input, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
+import cronstrue from 'cronstrue';
+import { isValidCron } from 'cron-validator';
+import { Subscription } from 'rxjs';
 import { WorkflowEntryModel } from '../../../../../models/workflowEntry.model';
 import { sensorFrequency } from '../../../../../constants/cronExpressionOptions.constants';
 import { EveryMinute } from '../../../../../constants/cronExpressionOptions.constants';
 import { EveryHour } from '../../../../../constants/cronExpressionOptions.constants';
+import { ConfirmationDialogService } from '../../../../../services/confirmation-dialog/confirmation-dialog.service';
+import { ConfirmationDialogTypes } from '../../../../../constants/confirmationDialogTypes.constants';
+import { texts } from '../../../../../constants/texts.constants';
 
 @Component({
   selector: 'app-cron-quartz-part',
@@ -36,6 +42,9 @@ export class CronQuartzPartComponent implements OnInit {
   dayValue: number;
   minuteValue: number;
   hourValue: number;
+  validateCronDialogServiceSubscription: Subscription = null;
+  readableCronExpression: string;
+  validCron: boolean;
 
   hourValues = [
     EveryHour.Zero,
@@ -82,20 +91,34 @@ export class CronQuartzPartComponent implements OnInit {
   minutesValues = [EveryHour.Five, EveryHour.Ten, EveryHour.Fifteen, EveryHour.Twenty, EveryMinute.TwentyFive, EveryMinute.Thirty];
 
   frequencies = sensorFrequency.FREQUENCIES;
+  invalidCronExpression = texts.VALIDATE_CRON_CONFIRMATION_MESSAGE;
   cron: string[] = [];
 
-  constructor() {
+  constructor(private confirmationDialogService: ConfirmationDialogService) {
     // do nothing
   }
 
   ngOnInit(): void {
-    if (!this.value) {
-      this.cron = ['*', '*', '0', '?', '*', '*', '*'];
-      this.modelChanged();
+    // this.value = 'error'; invalid
+    // this.value = '0 0/20 * ? * * *'; every minute
+    // this.value = '0 20 * ? * * *'; every hour
+    // this.value = '0 0 20 ? * * *'; every day at
+
+    if (!this.validateCron(this.value)) {
+      this.cron = ['0', '0', '0', '?', '*', '*', '*'];
+      this.validCron = false;
+      // this.validationMessage();
+      this.modelChanged(this.cron.join(' '));
+    } else {
+      this.validCron = true;
+      this.modelChanged(this.value);
     }
-    if (this.value) {
-      this.fromCron(this.value);
-    }
+  }
+
+  validateCron(value: string): boolean {
+    const validationOptions = { seconds: true, allowBlankDay: true, alias: true };
+    const slicedCron = value.replace(/\s+/g, ' ').split(' ').slice(0, 6).join(' ');
+    return isValidCron(slicedCron, validationOptions);
   }
 
   fromCron(value: string) {
@@ -103,40 +126,49 @@ export class CronQuartzPartComponent implements OnInit {
 
     if (showCron[1] !== '*' && isNaN(+showCron[1])) {
       this.base = this.frequencies[0].value;
-      this.minuteValue = +showCron[1].replace('0/', ' ');
-    } else if (showCron[1] !== '*' && !isNaN(+showCron[1])) {
+      this.minuteValue = +showCron[1].replace('0/', '');
+      this.readableCronExpression = cronstrue.toString(value);
+    } else if (showCron[1] !== '*' && !isNaN(+showCron[1]) && showCron[2] === '*') {
       this.base = this.frequencies[1].value;
       this.hourValue = +showCron[1];
+      this.readableCronExpression = cronstrue.toString(value);
     } else if (showCron[2] !== '*' && !isNaN(+showCron[2])) {
       this.base = this.frequencies[2].value;
       this.dayValue = +showCron[2];
+      this.readableCronExpression = cronstrue.toString(this.value);
     }
+    // this.validCron = this.validateCron(value) ? true : false;
   }
 
-  validCron(value: string): void {
+  validationMessage(): void {
+    this.confirmationDialogService.confirm(
+      ConfirmationDialogTypes.Info,
+      texts.VALIDATE_CRON_CONFIRMATION_TITTLE,
+      texts.VALIDATE_CRON_CONFIRMATION_CONTENT,
+    );
   }
   onMinuteSelect(option): void {
     this.minuteValue = option;
     const cronMinute = `0/${this.minuteValue}`;
-    this.cron = ['*', cronMinute, '*', '?', '*', '*', '*'];
-    this.modelChanged();
+    this.cron = ['0', cronMinute, '*', '?', '*', '*', '*'];
+    this.modelChanged(this.cron.join(' '));
   }
 
   onHourSelect(option): void {
     this.hourValue = option;
-    this.cron = ['*', `${this.hourValue}`, '*', '?', '*', '*', '*'];
-    this.modelChanged();
+    this.cron = ['0', `${this.hourValue}`, '*', '?', '*', '*', '*'];
+    this.modelChanged(this.cron.join(' '));
   }
 
   onDaySelect(option): void {
     this.dayValue = option;
-    this.cron = ['*', '*', `${this.dayValue}`, '?', '*', '*', '*'];
-    this.modelChanged();
+    this.cron = ['0', '0', `${this.dayValue}`, '?', '*', '*', '*'];
+    this.modelChanged(this.cron.join(' '));
   }
 
-  modelChanged(): void {
-    this.value = this.cron.join(' ');
-    console.log('sending this cron ' + this.value);
+  modelChanged(value: string): void {
+    this.value = value;
+    this.fromCron(this.value);
     this.valueChanges.next(new WorkflowEntryModel(this.property, this.value));
   }
 }

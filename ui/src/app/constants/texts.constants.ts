@@ -32,4 +32,8 @@ export const texts = {
   RUN_WORKFLOW_CONFIRMATION_CONTENT: 'Do you really want to run the workflow now?',
   RUN_WORKFLOW_SUCCESS_NOTIFICATION: 'The workflow has been dispatched.',
   RUN_WORKFLOW_FAILURE_NOTIFICATION: "Sorry, the workflow couldn't be dispatched. Please try again.",
+
+  VALIDATE_CRON_CONFIRMATION_TITTLE: 'Invalid cron expression',
+  VALIDATE_CRON_CONFIRMATION_CONTENT: 'Cron expression is invalid. Going to use the default one.',
+  VALIDATE_CRON_CONFIRMATION_MESSAGE: 'Invalid cron expression, please update with correct expression.',
 };

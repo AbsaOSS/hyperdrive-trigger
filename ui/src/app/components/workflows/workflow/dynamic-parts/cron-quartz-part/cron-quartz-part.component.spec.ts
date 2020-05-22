@@ -43,7 +43,7 @@ fdescribe('CronQuartzPartComponent', () => {
     const underTest = fixture.componentInstance;
     underTest.valueChanges = new Subject<WorkflowEntryModel>();
     underTest.value = undefined;
-    const expectedMinuteCron = ['*', '*', '0', '?', '*', '*', '*'];
+    const expectedMinuteCron = ['0', '0', '0', '?', '*', '*', '*'];
     underTest.ngOnInit();
 
     expect(underTest.cron.join('')).toEqual(expectedMinuteCron.join(''));
@@ -53,7 +53,7 @@ fdescribe('CronQuartzPartComponent', () => {
     it('should set correct base, minute. hour and day values on Hour every cron expression', () => {
       const underTest = fixture.componentInstance;
       underTest.valueChanges = new Subject<WorkflowEntryModel>();
-      underTest.value = '* 0/10 * ? * * *';
+      underTest.value = '0 0/10 * ? * * *';
       underTest.ngOnInit();
       underTest.fromCron(underTest.value);
 
@@ -66,7 +66,7 @@ fdescribe('CronQuartzPartComponent', () => {
     it('should set correct base, minute. hour and day values on Hour at cron expression', () => {
       const underTest = fixture.componentInstance;
       underTest.valueChanges = new Subject<WorkflowEntryModel>();
-      underTest.value = '* 15 0 ? * * *';
+      underTest.value = '0 15 0 ? * * *';
       underTest.ngOnInit();
       underTest.fromCron(underTest.value);
 
@@ -79,7 +79,7 @@ fdescribe('CronQuartzPartComponent', () => {
     it('should set correct base, minute. hour and day values on Day cron expression', () => {
       const underTest = fixture.componentInstance;
       underTest.valueChanges = new Subject<WorkflowEntryModel>();
-      underTest.value = '* * 18 ? * * *';
+      underTest.value = '0 0 18 ? * * *';
       underTest.ngOnInit();
       underTest.fromCron(underTest.value);
 
@@ -94,7 +94,7 @@ fdescribe('CronQuartzPartComponent', () => {
     const underTest = fixture.componentInstance;
     underTest.valueChanges = new Subject<WorkflowEntryModel>();
     const minuteValue = 10;
-    const expectedMinuteCron = ['*', '0/10', '*', '?', '*', '*', '*'];
+    const expectedMinuteCron = ['0', '0/10', '*', '?', '*', '*', '*'];
     underTest.onMinuteSelect(minuteValue);
 
     expect(underTest.cron.join(' ')).toEqual(expectedMinuteCron.join(' '));
@@ -104,7 +104,7 @@ fdescribe('CronQuartzPartComponent', () => {
     const underTest = fixture.componentInstance;
     underTest.valueChanges = new Subject<WorkflowEntryModel>();
     const hourValue = 20;
-    const expectedHourCron = ['*', '20', '*', '?', '*', '*', '*'];
+    const expectedHourCron = ['0', '20', '*', '?', '*', '*', '*'];
     underTest.onHourSelect(hourValue);
 
     expect(underTest.cron.join(' ')).toEqual(expectedHourCron.join(' '));
@@ -113,8 +113,8 @@ fdescribe('CronQuartzPartComponent', () => {
   it('should set cron for every day', () => {
     const underTest = fixture.componentInstance;
     underTest.valueChanges = new Subject<WorkflowEntryModel>();
-    const dayValue = 30;
-    const expectedDayCron = ['*', '*', '30', '?', '*', '*', '*'];
+    const dayValue = 18;
+    const expectedDayCron = ['0', '0', '18', '?', '*', '*', '*'];
     underTest.onDaySelect(dayValue);
 
     expect(underTest.cron.join(' ')).toEqual(expectedDayCron.join(' '));
