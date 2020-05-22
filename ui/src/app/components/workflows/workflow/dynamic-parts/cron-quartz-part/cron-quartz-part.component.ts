@@ -99,15 +99,15 @@ export class CronQuartzPartComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // this.value = 'error'; invalid
+    // this.value = 'error';
     // this.value = '0 0/20 * ? * * *'; every minute
     // this.value = '0 20 * ? * * *'; every hour
     // this.value = '0 0 20 ? * * *'; every day at
 
     if (!this.validateCron(this.value)) {
+      this.validationMessage(this.value);
       this.cron = ['0', '0', '0', '?', '*', '*', '*'];
       this.validCron = false;
-      // this.validationMessage();
       this.modelChanged(this.cron.join(' '));
     } else {
       this.validCron = true;
@@ -137,15 +137,17 @@ export class CronQuartzPartComponent implements OnInit {
       this.dayValue = +showCron[2];
       this.readableCronExpression = cronstrue.toString(this.value);
     }
-    // this.validCron = this.validateCron(value) ? true : false;
+    this.validCron = this.validateCron(value) ? true : false;
   }
 
-  validationMessage(): void {
-    this.confirmationDialogService.confirm(
-      ConfirmationDialogTypes.Info,
-      texts.VALIDATE_CRON_CONFIRMATION_TITTLE,
-      texts.VALIDATE_CRON_CONFIRMATION_CONTENT,
-    );
+  validationMessage(value: string): void {
+    if (this.isShow) {
+      this.confirmationDialogService.confirm(
+        ConfirmationDialogTypes.Info,
+        texts.VALIDATE_CRON_CONFIRMATION_TITTLE,
+        texts.VALIDATE_CRON_CONFIRMATION_CONTENT,
+      );
+    }
   }
   onMinuteSelect(option): void {
     this.minuteValue = option;

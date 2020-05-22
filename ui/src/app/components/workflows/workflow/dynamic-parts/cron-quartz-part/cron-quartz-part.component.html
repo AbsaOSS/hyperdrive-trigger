@@ -73,12 +73,13 @@
   </clr-control-container>
 </div>
 
+<!-- <div *ngIf="!isShow"> -->
 <div>
   <clr-control-container>
     <label>Free Text</label>
     <div class="form-group">
-      <input [readOnly]="isShow ? true : false" clrControl value="{{value}}" [size]="12">
-
+      <input [readOnly]="true" clrControl value="{{value}}" [size]="12">
+      <!-- <input [readOnly]="isShow ? true : false" clrControl value="{{value}}" [size]="12"> -->
     </div>
   </clr-control-container>
   <br>

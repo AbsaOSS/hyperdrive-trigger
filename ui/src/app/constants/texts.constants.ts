@@ -44,6 +44,6 @@ export const texts = {
   UPDATE_WORKFLOW_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
 
   VALIDATE_CRON_CONFIRMATION_TITTLE: 'Invalid cron expression',
-  VALIDATE_CRON_CONFIRMATION_CONTENT: 'Cron expression is invalid. Going to use the default one.',
+  VALIDATE_CRON_CONFIRMATION_CONTENT: 'Cron expression is invalid. Going to use default expression in free text.',
   VALIDATE_CRON_CONFIRMATION_MESSAGE: 'Invalid cron expression, please update with correct expression.',
 };
