@@ -21,6 +21,7 @@ import { By } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { WorkflowEntryModel } from '../../../../../models/workflowEntry.model';
+import set from 'lodash/set';
 
 describe('KeyStringValuePartComponent', () => {
   let fixture: ComponentFixture<KeyStringValuePartComponent>;
@@ -52,7 +53,10 @@ describe('KeyStringValuePartComponent', () => {
         'should pass with ' + parameter + ' value',
         async(() => {
           const oldValue = parameter;
-          const newValue = [['', '']];
+          const newKey = '';
+          const newValue = '';
+          const newValueObject = {};
+          set(newValueObject, '', '');
           const propertyName = 'property';
           const testedSubject = new Subject<WorkflowEntryModel>();
           const subjectSpy = spyOn(testedSubject, 'next');
@@ -67,10 +71,10 @@ describe('KeyStringValuePartComponent', () => {
           fixture.whenStable().then(() => {
             const results = fixture.debugElement.queryAll(inputSelector);
             expect(results.length == 2).toBeTrue();
-            expect(results[0].nativeElement.value).toBe(newValue[0][0]);
-            expect(results[1].nativeElement.value).toBe(newValue[0][1]);
+            expect(results[0].nativeElement.value).toBe(newKey);
+            expect(results[1].nativeElement.value).toBe(newValue);
             expect(subjectSpy).toHaveBeenCalledTimes(1);
-            expect(subjectSpy).toHaveBeenCalledWith(new WorkflowEntryModel(propertyName, newValue));
+            expect(subjectSpy).toHaveBeenCalledWith(new WorkflowEntryModel(propertyName, newValueObject));
           });
         }),
       );
@@ -81,16 +85,16 @@ describe('KeyStringValuePartComponent', () => {
     const oldItemKey = 'oldKey';
     const oldItemValue = 'oldValue';
     const newItemKey = 'newKey';
-    const oldValue: [string, string][] = [
-      ['keyOne', 'valueOne'],
-      [oldItemKey, oldItemValue],
-      ['keyThree', 'valueThree'],
-    ];
-    const newValue: [string, string][] = [
-      ['keyOne', 'valueOne'],
-      [newItemKey, oldItemValue],
-      ['keyThree', 'valueThree'],
-    ];
+
+    const oldValueObject = {};
+    set(oldValueObject, 'keyOne', 'valueOne');
+    set(oldValueObject, oldItemKey, oldItemValue);
+    set(oldValueObject, 'keyThree', 'valueThree');
+
+    const newValueObject = {};
+    set(newValueObject, 'keyOne', 'valueOne');
+    set(newValueObject, newItemKey, oldItemValue);
+    set(newValueObject, 'keyThree', 'valueThree');
 
     const propertyName = 'property';
     const testedSubject = new Subject<WorkflowEntryModel>();
@@ -98,7 +102,7 @@ describe('KeyStringValuePartComponent', () => {
 
     underTest.isShow = false;
     underTest.name = 'name';
-    underTest.value = oldValue;
+    underTest.value = oldValueObject;
     underTest.property = propertyName;
     underTest.valueChanges = testedSubject;
 
@@ -114,7 +118,7 @@ describe('KeyStringValuePartComponent', () => {
         const testedValue = fixture.debugElement.queryAll(inputSelector)[2].nativeElement.value;
         expect(testedValue).toBe(newItemKey);
         expect(subjectSpy).toHaveBeenCalled();
-        expect(subjectSpy).toHaveBeenCalledWith(new WorkflowEntryModel(propertyName, newValue));
+        expect(subjectSpy).toHaveBeenCalledWith(new WorkflowEntryModel(propertyName, newValueObject));
       });
     });
   }));
@@ -123,16 +127,16 @@ describe('KeyStringValuePartComponent', () => {
     const oldItemKey = 'oldKey';
     const oldItemValue = 'oldValue';
     const newItemValue = 'newValue';
-    const oldValue: [string, string][] = [
-      ['keyOne', 'valueOne'],
-      [oldItemKey, oldItemValue],
-      ['keyThree', 'valueThree'],
-    ];
-    const newValue: [string, string][] = [
-      ['keyOne', 'valueOne'],
-      [oldItemKey, newItemValue],
-      ['keyThree', 'valueThree'],
-    ];
+
+    const oldValueObject = {};
+    set(oldValueObject, 'keyOne', 'valueOne');
+    set(oldValueObject, oldItemKey, oldItemValue);
+    set(oldValueObject, 'keyThree', 'valueThree');
+
+    const newValueObject = {};
+    set(newValueObject, 'keyOne', 'valueOne');
+    set(newValueObject, oldItemKey, newItemValue);
+    set(newValueObject, 'keyThree', 'valueThree');
 
     const propertyName = 'property';
     const testedSubject = new Subject<WorkflowEntryModel>();
@@ -140,7 +144,7 @@ describe('KeyStringValuePartComponent', () => {
 
     underTest.isShow = false;
     underTest.name = 'name';
-    underTest.value = oldValue;
+    underTest.value = oldValueObject;
     underTest.property = propertyName;
     underTest.valueChanges = testedSubject;
 
@@ -156,28 +160,28 @@ describe('KeyStringValuePartComponent', () => {
         const testedValue = fixture.debugElement.queryAll(inputSelector)[3].nativeElement.value;
         expect(testedValue).toBe(newItemValue);
         expect(subjectSpy).toHaveBeenCalled();
-        expect(subjectSpy).toHaveBeenCalledWith(new WorkflowEntryModel(propertyName, newValue));
+        expect(subjectSpy).toHaveBeenCalledWith(new WorkflowEntryModel(propertyName, newValueObject));
       });
     });
   }));
 
   it('onDelete() should remove element from value and publish change', async(() => {
-    const oldValue: [string, string][] = [
-      ['keyOne', 'valueOne'],
-      ['keyTwo', 'valueTwo'],
-      ['keyThree', 'valueThree'],
-    ];
-    const newValue: [string, string][] = [
-      ['keyOne', 'valueOne'],
-      ['keyThree', 'valueThree'],
-    ];
+    const oldValueObject = {};
+    set(oldValueObject, 'keyOne', 'valueOne');
+    set(oldValueObject, 'keyTwo', 'valueTwo');
+    set(oldValueObject, 'keyThree', 'valueThree');
+
+    const newValueObject = {};
+    set(newValueObject, 'keyOne', 'valueOne');
+    set(newValueObject, 'keyThree', 'valueThree');
+
     const propertyName = 'property';
     const testedSubject = new Subject<WorkflowEntryModel>();
     const subjectSpy = spyOn(testedSubject, 'next');
 
     underTest.isShow = false;
     underTest.name = 'name';
-    underTest.value = oldValue;
+    underTest.value = oldValueObject;
     underTest.property = propertyName;
     underTest.valueChanges = testedSubject;
 
@@ -188,28 +192,28 @@ describe('KeyStringValuePartComponent', () => {
       fixture.detectChanges();
       fixture.whenStable().then(() => {
         expect(subjectSpy).toHaveBeenCalled();
-        expect(subjectSpy).toHaveBeenCalledWith(new WorkflowEntryModel(propertyName, newValue));
+        expect(subjectSpy).toHaveBeenCalledWith(new WorkflowEntryModel(propertyName, newValueObject));
       });
     });
   }));
 
   it('onAdd() should add empty string key value element to value and publish change', async(() => {
-    const oldValue: [string, string][] = [
-      ['keyOne', 'valueOne'],
-      ['keyTwo', 'valueTwo'],
-    ];
-    const newValue: [string, string][] = [
-      ['keyOne', 'valueOne'],
-      ['keyTwo', 'valueTwo'],
-      ['', ''],
-    ];
+    const oldValueObject = {};
+    set(oldValueObject, 'keyOne', 'valueOne');
+    set(oldValueObject, 'keyTwo', 'valueTwo');
+
+    const newValueObject = {};
+    set(newValueObject, 'keyOne', 'valueOne');
+    set(newValueObject, 'keyTwo', 'valueTwo');
+    set(newValueObject, '', '');
+
     const propertyName = 'property';
     const testedSubject = new Subject<WorkflowEntryModel>();
     const subjectSpy = spyOn(testedSubject, 'next');
 
     underTest.isShow = false;
     underTest.name = 'name';
-    underTest.value = oldValue;
+    underTest.value = oldValueObject;
     underTest.property = propertyName;
     underTest.valueChanges = testedSubject;
 
@@ -220,7 +224,7 @@ describe('KeyStringValuePartComponent', () => {
       fixture.detectChanges();
       fixture.whenStable().then(() => {
         expect(subjectSpy).toHaveBeenCalled();
-        expect(subjectSpy).toHaveBeenCalledWith(new WorkflowEntryModel(propertyName, newValue));
+        expect(subjectSpy).toHaveBeenCalledWith(new WorkflowEntryModel(propertyName, newValueObject));
       });
     });
   }));

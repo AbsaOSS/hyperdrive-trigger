@@ -320,6 +320,79 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         ...state,
         loading: false,
       };
+    case WorkflowsActions.CREATE_WORKFLOW:
+      return {
+        ...state,
+        workflowAction: {
+          ...state.workflowAction,
+          loading: true,
+        },
+      };
+    case WorkflowsActions.CREATE_WORKFLOW_SUCCESS:
+      let projects;
+      if (state.projects.some((project) => project.name == action.payload.project)) {
+        projects = state.projects.map((project) =>
+          project.name == action.payload.project ? { ...project, workflows: [...project.workflows, action.payload] } : project,
+        );
+      } else {
+        projects = [...state.projects, new ProjectModel(action.payload.project, [action.payload])];
+      }
+      return {
+        ...state,
+        projects: [...projects],
+        workflowAction: {
+          ...state.workflowAction,
+          loading: false,
+        },
+      };
+    case WorkflowsActions.CREATE_WORKFLOW_FAILURE:
+      return {
+        ...state,
+        workflowAction: {
+          ...state.workflowAction,
+          loading: false,
+        },
+      };
+    case WorkflowsActions.UPDATE_WORKFLOW:
+      return {
+        ...state,
+        workflowAction: {
+          ...state.workflowAction,
+          loading: true,
+        },
+      };
+    case WorkflowsActions.UPDATE_WORKFLOW_SUCCESS: {
+      const projectsWithoutWorkflow = state.projects.map((project) => {
+        return new ProjectModel(
+          project.name,
+          project.workflows.filter((workflow) => workflow.id != action.payload.id),
+        );
+      });
+      let updatedProjects;
+      if (state.projects.some((project) => project.name == action.payload.project)) {
+        updatedProjects = projectsWithoutWorkflow.map((project) =>
+          project.name == action.payload.project ? { ...project, workflows: [...project.workflows, action.payload] } : project,
+        );
+      } else {
+        updatedProjects = [...state.projects, new ProjectModel(action.payload.project, [action.payload])];
+      }
+      return {
+        ...state,
+        projects: [...updatedProjects],
+        workflowAction: {
+          ...state.workflowAction,
+          loading: false,
+        },
+      };
+    }
+    case WorkflowsActions.UPDATE_WORKFLOW_FAILURE:
+      return {
+        ...state,
+        workflowAction: {
+          ...state.workflowAction,
+          loading: false,
+        },
+      };
     default:
       return state;
   }

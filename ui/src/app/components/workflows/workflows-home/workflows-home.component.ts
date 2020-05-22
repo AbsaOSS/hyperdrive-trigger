@@ -24,6 +24,7 @@ import { ConfirmationDialogTypes } from '../../../constants/confirmationDialogTy
 import { DeleteWorkflow, SwitchWorkflowActiveState } from '../../../stores/workflows/workflows.actions';
 import { ConfirmationDialogService } from '../../../services/confirmation-dialog/confirmation-dialog.service';
 import { texts } from '../../../constants/texts.constants';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-workflows-home',
@@ -37,7 +38,7 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
   workflows: WorkflowModel[] = [];
   absoluteRoutes = absoluteRoutes;
 
-  constructor(private store: Store<AppState>, private confirmationDialogService: ConfirmationDialogService) {}
+  constructor(private store: Store<AppState>, private confirmationDialogService: ConfirmationDialogService, private router: Router) {}
 
   ngOnInit(): void {
     this.workflowsSubscription = this.store.select(selectWorkflowState).subscribe((state) => {
@@ -71,6 +72,10 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
       .subscribe((confirmed) => {
         if (confirmed) this.store.dispatch(new RunWorkflow(id));
       });
+  }
+
+  showWorkflow(id: number) {
+    this.router.navigate([absoluteRoutes.SHOW_WORKFLOW, id]);
   }
 
   ngOnDestroy(): void {

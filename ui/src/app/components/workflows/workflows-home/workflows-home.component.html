@@ -30,7 +30,7 @@
 
   <clr-dg-row *clrDgItems="let workflow of workflows" [clrDgItem]="workflow">
     <clr-dg-action-overflow>
-      <button type="button" class="action-item" [routerLink]="[absoluteRoutes.SHOW_WORKFLOW, workflow.id]">
+      <button type="button" class="action-item" (click)="showWorkflow(workflow.id)">
         <clr-icon shape="eye"></clr-icon>
         Show
       </button>
@@ -56,9 +56,9 @@
       </button>
     </clr-dg-action-overflow>
 
-    <clr-dg-cell>{{workflow.name}}</clr-dg-cell>
-    <clr-dg-cell>{{workflow.project}}</clr-dg-cell>
-    <clr-dg-cell [ngSwitch]="workflow.isActive">
+    <clr-dg-cell (dblclick)="showWorkflow(workflow.id)">{{workflow.name}}</clr-dg-cell>
+    <clr-dg-cell (dblclick)="showWorkflow(workflow.id)">{{workflow.project}}</clr-dg-cell>
+    <clr-dg-cell (dblclick)="showWorkflow(workflow.id)" [ngSwitch]="workflow.isActive">
       <clr-icon *ngSwitchCase="true" shape="circle" class="is-solid" style="color: green"></clr-icon>
       <clr-icon *ngSwitchCase="false" shape="circle" class="is-solid" style="color: red"></clr-icon>
       {{workflow.isActive ? 'Yes' : 'No'}}

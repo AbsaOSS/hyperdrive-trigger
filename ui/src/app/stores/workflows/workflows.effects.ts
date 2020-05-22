@@ -28,10 +28,13 @@ import { AppState, selectWorkflowState } from '../app.reducers';
 import { Store } from '@ngrx/store';
 import * as fromWorkflows from './workflows.reducers';
 import { WorkflowDataModel } from '../../models/workflowData.model';
+import set from 'lodash/set';
 import { Router } from '@angular/router';
 import { absoluteRoutes } from '../../constants/routes.constants';
 import { ToastrService } from 'ngx-toastr';
 import { texts } from '../../constants/texts.constants';
+import { WorkflowModel } from '../../models/workflow.model';
+import { WorkflowRequestModel } from '../../models/workflowRequest.model';
 
 @Injectable()
 export class WorkflowsEffects {
@@ -216,6 +219,92 @@ export class WorkflowsEffects {
         catchError(() => {
           this.toastrService.error(texts.RUN_WORKFLOW_FAILURE_NOTIFICATION);
           return [{ type: WorkflowActions.RUN_WORKFLOW_FAILURE }];
+        }),
+      );
+    }),
+  );
+
+  @Effect({ dispatch: true })
+  workflowCreate = this.actions.pipe(
+    ofType(WorkflowActions.CREATE_WORKFLOW),
+    withLatestFrom(this.store.select(selectWorkflowState)),
+    switchMap(([action, state]: [WorkflowActions.CreateWorkflow, fromWorkflows.State]) => {
+      const workflowCreateRequest = new WorkflowRequestModel(
+        state.workflowAction.workflowData.details,
+        state.workflowAction.workflowData.sensor,
+        state.workflowAction.workflowData.jobs,
+      ).getCreateWorkflowRequestObject();
+
+      return this.workflowService.createWorkflow(workflowCreateRequest).pipe(
+        mergeMap((result: WorkflowJoinedModel) => {
+          const workflow: WorkflowModel = new WorkflowModel(
+            result.name,
+            result.isActive,
+            result.project,
+            result.created,
+            result.updated,
+            result.id,
+          );
+          this.toastrService.success(texts.CREATE_WORKFLOW_SUCCESS_NOTIFICATION);
+          this.router.navigateByUrl(absoluteRoutes.SHOW_WORKFLOW + '/' + workflow.id);
+
+          return [
+            {
+              type: WorkflowActions.CREATE_WORKFLOW_SUCCESS,
+              payload: workflow,
+            },
+          ];
+        }),
+        catchError(() => {
+          this.toastrService.error(texts.CREATE_WORKFLOW_FAILURE_NOTIFICATION);
+          return [
+            {
+              type: WorkflowActions.CREATE_WORKFLOW_FAILURE,
+            },
+          ];
+        }),
+      );
+    }),
+  );
+
+  @Effect({ dispatch: true })
+  workflowUpdate = this.actions.pipe(
+    ofType(WorkflowActions.UPDATE_WORKFLOW),
+    withLatestFrom(this.store.select(selectWorkflowState)),
+    switchMap(([action, state]: [WorkflowActions.CreateWorkflow, fromWorkflows.State]) => {
+      const workflowUpdateRequest = new WorkflowRequestModel(
+        state.workflowAction.workflowData.details,
+        state.workflowAction.workflowData.sensor,
+        state.workflowAction.workflowData.jobs,
+      ).getUpdateWorkflowRequestObject(state.workflowAction.id);
+
+      return this.workflowService.updateWorkflow(workflowUpdateRequest).pipe(
+        mergeMap((result: WorkflowJoinedModel) => {
+          const workflow: WorkflowModel = new WorkflowModel(
+            result.name,
+            result.isActive,
+            result.project,
+            result.created,
+            result.updated,
+            result.id,
+          );
+          this.toastrService.success(texts.UPDATE_WORKFLOW_SUCCESS_NOTIFICATION);
+          this.router.navigateByUrl(absoluteRoutes.SHOW_WORKFLOW + '/' + workflow.id);
+
+          return [
+            {
+              type: WorkflowActions.UPDATE_WORKFLOW_SUCCESS,
+              payload: workflow,
+            },
+          ];
+        }),
+        catchError(() => {
+          this.toastrService.error(texts.UPDATE_WORKFLOW_FAILURE_NOTIFICATION);
+          return [
+            {
+              type: WorkflowActions.UPDATE_WORKFLOW_FAILURE,
+            },
+          ];
         }),
       );
     }),

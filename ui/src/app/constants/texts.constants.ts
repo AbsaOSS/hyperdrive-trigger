@@ -33,6 +33,16 @@ export const texts = {
   RUN_WORKFLOW_SUCCESS_NOTIFICATION: 'The workflow has been dispatched.',
   RUN_WORKFLOW_FAILURE_NOTIFICATION: "Sorry, the workflow couldn't be dispatched. Please try again.",
 
+  CREATE_WORKFLOW_CONFIRMATION_TITLE: 'Create workflow',
+  CREATE_WORKFLOW_CONFIRMATION_CONTENT: 'Are you sure you want to create new workflow?',
+  CREATE_WORKFLOW_SUCCESS_NOTIFICATION: 'Workflow has been created.',
+  CREATE_WORKFLOW_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
+
+  UPDATE_WORKFLOW_CONFIRMATION_TITLE: 'Update workflow',
+  UPDATE_WORKFLOW_CONFIRMATION_CONTENT: 'Are you sure you want to update the workflow?',
+  UPDATE_WORKFLOW_SUCCESS_NOTIFICATION: 'Workflow has been updated.',
+  UPDATE_WORKFLOW_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
+
   VALIDATE_CRON_CONFIRMATION_TITTLE: 'Invalid cron expression',
   VALIDATE_CRON_CONFIRMATION_CONTENT: 'Cron expression is invalid. Going to use the default one.',
   VALIDATE_CRON_CONFIRMATION_MESSAGE: 'Invalid cron expression, please update with correct expression.',
