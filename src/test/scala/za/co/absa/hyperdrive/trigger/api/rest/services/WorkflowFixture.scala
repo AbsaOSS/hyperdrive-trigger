@@ -38,7 +38,7 @@ object WorkflowFixture {
           sensorId = 0,
           settings = Settings(
             variables = Map("topic" -> "testTopic"),
-            maps = Map("servers" -> Set("http://localhost:9093", "http://localhost:9092"))
+            maps = Map("servers" -> List("http://localhost:9093", "http://localhost:9092"))
           ),
           matchProperties = Map("ingestionToken" -> "abcdef-123456")
         )
@@ -55,7 +55,7 @@ object WorkflowFixture {
                 "mainClass" -> "aaa.bbb.TestClass",
                 "deploymentMode" -> "cluster"
               ),
-              maps = Map("aaa" -> Set("bbb", "ccc"))
+              maps = Map("aaa" -> List("bbb", "ccc"))
             ),
             order = 1
           ),
@@ -67,7 +67,7 @@ object WorkflowFixture {
               variables = Map("jobJar" -> "/dir/driver.jar",
                 "mainClass" -> "aaa.bbb.TestClass"
               ),
-              maps = Map("appArguments" -> Set("--arg1=value1", "--arg2=value2"))
+              maps = Map("appArguments" -> List("--arg1=value1", "--arg2=value2"))
             ),
             order = 2
           )
