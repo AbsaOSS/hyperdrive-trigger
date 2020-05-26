@@ -28,7 +28,7 @@ trait SensorTable {
     def workflowId: Rep[Long] = column[Long]("workflow_id")
     def sensorType: Rep[SensorType] = column[SensorType]("sensor_type")
     def variables: Rep[Map[String, String]] = column[Map[String, String]]("variables")
-    def maps: Rep[Map[String, Set[String]]] = column[Map[String, Set[String]]]("maps")
+    def maps: Rep[Map[String, List[String]]] = column[Map[String, List[String]]]("maps")
     def matchProperties: Rep[Map[String, String]] = column[Map[String, String]]("match_properties")
     def id: Rep[Long] = column[Long]("id", O.PrimaryKey, O.AutoInc, O.SqlType("BIGSERIAL"))
 

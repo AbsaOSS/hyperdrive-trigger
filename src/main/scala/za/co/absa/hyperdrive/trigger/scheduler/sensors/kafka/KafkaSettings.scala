@@ -19,7 +19,7 @@ import za.co.absa.hyperdrive.trigger.models.Settings
 
 case class KafkaSettings(
   topic: String,
-  servers: Set[String]
+  servers: List[String]
 )
 
 object KafkaSettings {
