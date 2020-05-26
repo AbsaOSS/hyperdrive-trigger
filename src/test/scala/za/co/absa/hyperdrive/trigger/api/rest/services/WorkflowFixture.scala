@@ -106,7 +106,7 @@ object WorkflowFixture {
           sensorId = 0,
           settings = Settings(
             variables = Map(KafkaSettings.Topic -> randomString()),
-            maps = Map(KafkaSettings.Servers -> Set(
+            maps = Map(KafkaSettings.Servers -> List(
               s"http://${randomString()}:${randomInt(0, 65535)}",
               s"https://${randomString()}:${randomInt(0, 65535)}",
               s"https://${randomString()}:${randomInt(0, 65535)}"))
@@ -127,7 +127,7 @@ object WorkflowFixture {
                 "mainClass" -> "za.co.absa.hyperdrive.driver.drivers.CommandLineIngestionDriver",
                 "deploymentMode" -> "cluster"
               ),
-              maps = Map("appArguments" -> Set(
+              maps = Map("appArguments" -> List(
                 s"--component.decoder=za.co.absa.hyperdrive.ingestor.implementation.decoder.avro.confluent.ConfluentAvroKafkaStreamDecoder",
                 s"--component.ingestor=Spark",
                 s"--component.manager=za.co.absa.hyperdrive.ingestor.implementation.manager.checkpoint.CheckpointOffsetManager",
@@ -170,7 +170,7 @@ object WorkflowFixture {
                 "mainClass" -> "za.co.absa.hyperdrive.publisher.HyperdrivePublisher",
                 "deploymentMode" -> "cluster"
               ),
-              maps = Map("appArguments" -> Set(
+              maps = Map("appArguments" -> List(
                 s"--reader.kafka.topic=${randomString()}",
                 s"--reader.option.kafka.sasl.kerberos.service.name=${randomString()}",
                 s"--publish-directory=${randomString()}"
