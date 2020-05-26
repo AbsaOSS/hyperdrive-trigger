@@ -29,7 +29,7 @@ trait JobDefinitionTable {
     def name: Rep[String] = column[String]("name")
     def jobType: Rep[JobType] = column[JobType]("job_type")
     def variables: Rep[Map[String, String]] = column[Map[String, String]]("variables")
-    def maps: Rep[Map[String, Set[String]]] = column[Map[String, Set[String]]]("maps")
+    def maps: Rep[Map[String, List[String]]] = column[Map[String, List[String]]]("maps")
     def order: Rep[Int] = column[Int]("order")
     def id: Rep[Long] = column[Long]("id", O.PrimaryKey, O.AutoInc, O.SqlType("BIGSERIAL"))
 

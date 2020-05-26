@@ -22,9 +22,9 @@ case class SparkParameters(
   jobJar: String,
   mainClass: String,
   deploymentMode: String,
-  appArguments: Set[String],
-  additionalJars: Set[String],
-  additionalFiles: Set[String]
+  appArguments: List[String],
+  additionalJars: List[String],
+  additionalFiles: List[String]
 )
 
 object SparkParameters {
@@ -33,9 +33,9 @@ object SparkParameters {
       jobJar = jobParameters.variables("jobJar"),
       mainClass = jobParameters.variables("mainClass"),
       deploymentMode = jobParameters.variables("deploymentMode"),
-      appArguments = Try(jobParameters.maps("appArguments")).getOrElse(Set.empty[String]),
-      additionalJars = Try(jobParameters.maps("additionalJars")).getOrElse(Set.empty[String]),
-      additionalFiles = Try(jobParameters.maps("additionalFiles")).getOrElse(Set.empty[String])
+      appArguments = Try(jobParameters.maps("appArguments")).getOrElse(List.empty[String]),
+      additionalJars = Try(jobParameters.maps("additionalJars")).getOrElse(List.empty[String]),
+      additionalFiles = Try(jobParameters.maps("additionalFiles")).getOrElse(List.empty[String])
     )
   }
 }

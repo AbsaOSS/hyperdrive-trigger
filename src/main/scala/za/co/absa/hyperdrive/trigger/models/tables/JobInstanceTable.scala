@@ -31,7 +31,7 @@ trait JobInstanceTable {
     def jobName: Rep[String] = column[String]("job_name")
     def jobType: Rep[JobType] = column[JobType]("job_type")
     def variables: Rep[Map[String, String]] = column[Map[String, String]]("variables")
-    def maps: Rep[Map[String, Set[String]]] = column[Map[String, Set[String]]]("maps")
+    def maps: Rep[Map[String, List[String]]] = column[Map[String, List[String]]]("maps")
     def jobStatus: Rep[JobStatus] = column[JobStatus]("job_status")
     def executorJobId: Rep[Option[String]] = column[Option[String]]("executor_job_id")
     def created: Rep[LocalDateTime] = column[LocalDateTime]("created")
