@@ -53,6 +53,19 @@ class TestDataGeneratorLocal extends FlatSpec with Matchers with SpringIntegrati
     }
   }
 
+  it should "insert timebase shellscript workflows" taggedAs PersistingData in {
+    val numberOfProjects = 20
+    val workflowsPerProject = 1
+    for {
+      i <- 1 to numberOfProjects
+      _ <- 1 to workflowsPerProject
+    } yield {
+      val workflow = WorkflowFixture.createTimeBasedShellScriptWorkflow(s"Project $i")
+      val result = await(workflowService.createWorkflow(workflow))
+      result.isRight shouldBe true
+    }
+  }
+
   it should "insert job runs for active sensors" taggedAs PersistingData in {
     val sensors = await(sensorRepository.getNewActiveSensors(Seq.empty))
     sensors.foreach(sensor => {

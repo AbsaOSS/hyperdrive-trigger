@@ -68,6 +68,8 @@
 
         <skip.docker>true</skip.docker>
         <skipNpmTests>${skipTests}</skipNpmTests>
+        <scalatest.suites/>
+        <scalatest.tagsToExclude>za.co.absa.hyperdrive.trigger.testdata.PersistingData</scalatest.tagsToExclude>
     </properties>
 
     <dependencies>
@@ -262,7 +264,8 @@
                             <goal>test</goal>
                         </goals>
                         <configuration>
-                            <tagsToExclude>za.co.absa.hyperdrive.trigger.testdata.PersistingData</tagsToExclude>
+                            <suites>${scalatest.suites}</suites>
+                            <tagsToExclude>${scalatest.tagsToExclude}</tagsToExclude>
                         </configuration>
                     </execution>
                 </executions>
@@ -354,6 +357,15 @@
             <id>docker</id>
             <properties>
                 <skip.docker>false</skip.docker>
+            </properties>
+        </profile>
+        <profile>
+            <id>testdata</id>
+            <properties>
+                <scalatest.suites>za.co.absa.hyperdrive.trigger.testdata.TestDataGeneratorLocal</scalatest.suites>
+                <scalatest.tagsToExclude/>
+                <skip.npm>true</skip.npm>
+                <skip.installnodenpm>true</skip.installnodenpm>
             </properties>
         </profile>
     </profiles>

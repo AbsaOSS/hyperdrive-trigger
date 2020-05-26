@@ -22,12 +22,22 @@ import java.util.UUID
 import org.apache.commons.lang3.RandomStringUtils
 import za.co.absa.hyperdrive.trigger.models.{DagDefinitionJoined, JobDefinition, JobParameters, Properties, Sensor, Settings, WorkflowJoined}
 import za.co.absa.hyperdrive.trigger.models.enums.{JobTypes, SensorTypes}
+import za.co.absa.hyperdrive.trigger.scheduler.sensors.kafka.KafkaSettings
+import za.co.absa.hyperdrive.trigger.scheduler.sensors.time.TimeSensorSettings
 
 object WorkflowFixture {
   val Random = new scala.util.Random(42)
   val MinLengthRandomString = 3
   val MaxLengthRandomString = 45
   val MinRandomDate = LocalDateTime.of(2020, 1, 1, 0, 0, 0)
+  val CronExpressions = Seq(
+    "0 0/10 * ? * * *",
+    "0 1 * ? * * *",
+    "0 31 * ? * * *",
+    "0 0 18 ? * * *",
+    "0 0 6 ? * * *",
+    "0 43 12 22 4 ? *"
+  )
 
   def createWorkflowJoined() = {
     WorkflowJoined(
@@ -43,8 +53,8 @@ object WorkflowFixture {
         properties = Properties(
           sensorId = 0,
           settings = Settings(
-            variables = Map("topic" -> "testTopic"),
-            maps = Map("servers" -> Set("http://localhost:9093", "http://localhost:9092"))
+            variables = Map(KafkaSettings.Topic -> "testTopic"),
+            maps = Map(KafkaSettings.Servers -> Set("http://localhost:9093", "http://localhost:9092"))
           ),
           matchProperties = Map("ingestionToken" -> "abcdef-123456")
         )
@@ -95,8 +105,8 @@ object WorkflowFixture {
         properties = Properties(
           sensorId = 0,
           settings = Settings(
-            variables = Map("topic" -> randomString()),
-            maps = Map("servers" -> Set(
+            variables = Map(KafkaSettings.Topic -> randomString()),
+            maps = Map(KafkaSettings.Servers -> Set(
               s"http://${randomString()}:${randomInt(0, 65535)}",
               s"https://${randomString()}:${randomInt(0, 65535)}",
               s"https://${randomString()}:${randomInt(0, 65535)}"))
@@ -173,6 +183,45 @@ object WorkflowFixture {
     )
   }
 
+  def createTimeBasedShellScriptWorkflow(projectName: String) = {
+    WorkflowJoined(
+      name = s"Time ${randomString()}",
+      isActive = randomBoolean(),
+      created = randomDate(),
+      updated = if (randomBoolean()) Some(randomDate()) else None,
+      project = projectName,
+      sensor = Sensor(
+        workflowId = 0,
+        sensorType = SensorTypes.Time,
+        properties = Properties(
+          sensorId = 0,
+          settings = Settings(
+            variables = Map(TimeSensorSettings.CRON_EXPRESSION_KEY -> randomCron()),
+            maps = Map.empty
+          ),
+          matchProperties = Map.empty
+        )
+      ),
+      dagDefinitionJoined = DagDefinitionJoined(
+        workflowId = 0,
+        jobDefinitions = Seq(
+          JobDefinition(
+            dagDefinitionId = 0,
+            name = s"${randomString()}",
+            jobType = JobTypes.Shell,
+            jobParameters = JobParameters(
+              variables = Map(
+                "scriptLocation" -> s"${randomString()}/script.sh"
+              ),
+              maps = Map.empty
+            ),
+            order = 0
+          )
+        )
+      )
+    )
+  }
+
   private def randomString(minLength: Int = MinLengthRandomString, maxLength: Int = MaxLengthRandomString) = {
     val length = randomInt(minLength, maxLength)
     RandomStringUtils.randomAlphanumeric(length)
@@ -194,4 +243,6 @@ object WorkflowFixture {
   }
 
   private def randomInt(min: Int, max: Int) = min + Random.nextInt(max - min)
+
+  private def randomCron() = CronExpressions(Random.nextInt(CronExpressions.size))
 }
