@@ -32,5 +32,5 @@ case class Properties(
 
 case class Settings(
   variables: Map[String, String],
-  maps: Map[String, Set[String]]
+  maps: Map[String, List[String]]
 )
