@@ -19,6 +19,7 @@ import { provideMockActions } from '@ngrx/effects/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Actions } from '@ngrx/effects';
 import { cold } from 'jasmine-marbles';
+import * as WorkflowsActions from './workflows.actions';
 import {
   CreateWorkflow,
   DeleteWorkflow,
@@ -28,30 +29,35 @@ import {
   SwitchWorkflowActiveState,
   UpdateWorkflow,
 } from './workflows.actions';
-import * as WorkflowsActions from './workflows.actions';
 
 import { WorkflowsEffects } from './workflows.effects';
 import { WorkflowService } from '../../services/workflow/workflow.service';
-import { ProjectModel } from '../../models/project.model';
-import { WorkflowModel } from '../../models/workflow.model';
+import { ProjectModelFactory } from '../../models/project.model';
+import { WorkflowModel, WorkflowModelFactory } from '../../models/workflow.model';
 import { provideMockStore } from '@ngrx/store/testing';
-import { DynamicFormPart, DynamicFormParts, FormPart, WorkflowFormPartsModel } from '../../models/workflowFormParts.model';
+import {
+  DynamicFormPartFactory,
+  DynamicFormPartsFactory,
+  FormPartFactory,
+  WorkflowFormPartsModelFactory,
+} from '../../models/workflowFormParts.model';
 import {
   workflowFormParts,
   workflowFormParts as workflowFormPartsConsts,
   workflowFormPartsSequences,
 } from '../../constants/workflowFormParts.constants';
 import { workflowModes } from '../../models/enums/workflowModes.constants';
-import { SensorModel } from '../../models/sensor.model';
-import { DagDefinitionJoinedModel } from '../../models/dagDefinitionJoined.model';
-import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
-import { WorkflowEntryModel } from '../../models/workflowEntry.model';
-import { JobDefinitionModel } from '../../models/jobDefinition.model';
+import { SensorModelFactory, SensorTypeFactory } from '../../models/sensor.model';
+import { DagDefinitionJoinedModelFactory } from '../../models/dagDefinitionJoined.model';
+import { WorkflowJoinedModelFactory } from '../../models/workflowJoined.model';
+import { WorkflowEntryModelFactory } from '../../models/workflowEntry.model';
+import { JobDefinitionModelFactory } from '../../models/jobDefinition.model';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { texts } from '../../constants/texts.constants';
 import { Router } from '@angular/router';
 import { absoluteRoutes } from '../../constants/routes.constants';
+import { JobTypeFactory } from '../../models/jobInstance.model';
 
 describe('WorkflowsEffects', () => {
   let underTest: WorkflowsEffects;
@@ -70,12 +76,12 @@ describe('WorkflowsEffects', () => {
           jobs: [{ jobId: 'jobId', order: 0, entries: [{ property: 'jobProp', value: 'jobVal' }] }],
         },
       },
-      workflowFormParts: new WorkflowFormPartsModel(
+      workflowFormParts: WorkflowFormPartsModelFactory.create(
         workflowFormPartsSequences.allDetails,
         workflowFormPartsConsts.SENSOR.SENSOR_TYPE,
         workflowFormPartsConsts.JOB.JOB_NAME,
         workflowFormPartsConsts.JOB.JOB_TYPE,
-        new DynamicFormParts([], []),
+        DynamicFormPartsFactory.create([], []),
       ),
     },
   };
@@ -101,20 +107,20 @@ describe('WorkflowsEffects', () => {
   describe('workflowsInitialize', () => {
     it('should return workflows and projects', () => {
       const projects = [
-        new ProjectModel('projectName1', [
-          new WorkflowModel('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 0),
+        ProjectModelFactory.create('projectName1', [
+          WorkflowModelFactory.create('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 0),
         ]),
-        new ProjectModel('projectName2', [
-          new WorkflowModel('workflowName2', true, 'projectName2', new Date(Date.now()), new Date(Date.now()), 1),
+        ProjectModelFactory.create('projectName2', [
+          WorkflowModelFactory.create('workflowName2', true, 'projectName2', new Date(Date.now()), new Date(Date.now()), 1),
         ]),
       ];
 
-      const dynamicFormParts = new DynamicFormParts(
-        [new DynamicFormPart('typeOne', [new FormPart('nameOne', 'propertyOne', true, 'string-field')])],
-        [new DynamicFormPart('typeTwo', [new FormPart('nameTwo', 'propertyTwo', false, 'string-field')])],
+      const dynamicFormParts = DynamicFormPartsFactory.create(
+        [DynamicFormPartFactory.create('typeOne', [FormPartFactory.create('nameOne', 'propertyOne', true, 'string-field')])],
+        [DynamicFormPartFactory.create('typeTwo', [FormPartFactory.create('nameTwo', 'propertyTwo', false, 'string-field')])],
       );
 
-      const workflowFormParts = new WorkflowFormPartsModel(
+      const workflowFormParts = WorkflowFormPartsModelFactory.create(
         workflowFormPartsSequences.allDetails,
         workflowFormPartsConsts.SENSOR.SENSOR_TYPE,
         workflowFormPartsConsts.JOB.JOB_NAME,
@@ -142,11 +148,11 @@ describe('WorkflowsEffects', () => {
 
     it('should return initialize workflows failure if workflowService.getWorkflowDynamicFormParts responds with an error', () => {
       const projects = [
-        new ProjectModel('projectName1', [
-          new WorkflowModel('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 0),
+        ProjectModelFactory.create('projectName1', [
+          WorkflowModelFactory.create('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 0),
         ]),
-        new ProjectModel('projectName2', [
-          new WorkflowModel('workflowName2', true, 'projectName2', new Date(Date.now()), new Date(Date.now()), 1),
+        ProjectModelFactory.create('projectName2', [
+          WorkflowModelFactory.create('workflowName2', true, 'projectName2', new Date(Date.now()), new Date(Date.now()), 1),
         ]),
       ];
 
@@ -210,13 +216,14 @@ describe('WorkflowsEffects', () => {
     });
 
     it('should initialize workflow', () => {
-      const workflow = new WorkflowJoinedModel(
+      const jobDefinition = JobDefinitionModelFactory.create(10, 'name', JobTypeFactory.create('name'), undefined, 0, 10);
+      const workflow = WorkflowJoinedModelFactory.create(
         'name',
         true,
         'project',
         undefined,
-        new SensorModel(10, { name: 'name' }, undefined, 10),
-        new DagDefinitionJoinedModel(10, [new JobDefinitionModel(10, 'name', { name: 'name' }, undefined, 0, 10)], 10),
+        SensorModelFactory.create(10, SensorTypeFactory.create('name'), undefined, 10),
+        DagDefinitionJoinedModelFactory.create(10, [jobDefinition], 10),
         10,
       );
 
@@ -231,20 +238,23 @@ describe('WorkflowsEffects', () => {
           payload: {
             workflow: workflow,
             detailsData: [
-              new WorkflowEntryModel(workflowFormParts.DETAILS.WORKFLOW_NAME.property, workflow.name),
-              new WorkflowEntryModel(workflowFormParts.DETAILS.PROJECT_NAME.property, workflow.project),
-              new WorkflowEntryModel(workflowFormParts.DETAILS.IS_ACTIVE.property, workflow.isActive),
+              WorkflowEntryModelFactory.create(workflowFormParts.DETAILS.WORKFLOW_NAME.property, workflow.name),
+              WorkflowEntryModelFactory.create(workflowFormParts.DETAILS.PROJECT_NAME.property, workflow.project),
+              WorkflowEntryModelFactory.create(workflowFormParts.DETAILS.IS_ACTIVE.property, workflow.isActive),
             ],
-            sensorData: [new WorkflowEntryModel(workflowFormParts.SENSOR.SENSOR_TYPE.property, workflow.sensor.sensorType.name)],
+            sensorData: [WorkflowEntryModelFactory.create(workflowFormParts.SENSOR.SENSOR_TYPE.property, workflow.sensor.sensorType.name)],
             jobsData: [
               jasmine.objectContaining({
                 order: 0,
                 entries: [
-                  new WorkflowEntryModel(
+                  WorkflowEntryModelFactory.create(
                     workflowFormParts.JOB.JOB_TYPE.property,
                     workflow.dagDefinitionJoined.jobDefinitions[0].jobType.name,
                   ),
-                  new WorkflowEntryModel(workflowFormParts.JOB.JOB_NAME.property, workflow.dagDefinitionJoined.jobDefinitions[0].name),
+                  WorkflowEntryModelFactory.create(
+                    workflowFormParts.JOB.JOB_NAME.property,
+                    workflow.dagDefinitionJoined.jobDefinitions[0].name,
+                  ),
                 ],
               }),
             ],
@@ -482,16 +492,16 @@ describe('WorkflowsEffects', () => {
       const toastrServiceSpy = spyOn(toastrService, 'success');
       const routerSpy = spyOn(router, 'navigateByUrl');
 
-      const workflow = new WorkflowJoinedModel(
+      const workflow = WorkflowJoinedModelFactory.create(
         'name',
         true,
         'project',
         undefined,
-        new SensorModel(10, { name: 'name' }, undefined, 10),
-        new DagDefinitionJoinedModel(10, [new JobDefinitionModel(10, 'name', { name: 'name' }, undefined, 0, 10)], 10),
+        SensorModelFactory.create(10, SensorTypeFactory.create('name'), undefined, 10),
+        DagDefinitionJoinedModelFactory.create(10, [JobDefinitionModelFactory.create(10, 'name', { name: 'name' }, undefined, 0, 10)], 10),
         10,
       );
-      const createWorkflowSuccessPayload: WorkflowModel = new WorkflowModel(
+      const createWorkflowSuccessPayload: WorkflowModel = WorkflowModelFactory.create(
         workflow.name,
         workflow.isActive,
         workflow.project,
@@ -547,16 +557,16 @@ describe('WorkflowsEffects', () => {
       const toastrServiceSpy = spyOn(toastrService, 'success');
       const routerSpy = spyOn(router, 'navigateByUrl');
 
-      const workflow = new WorkflowJoinedModel(
+      const workflow = WorkflowJoinedModelFactory.create(
         'name',
         true,
         'project',
         undefined,
-        new SensorModel(10, { name: 'name' }, undefined, 10),
-        new DagDefinitionJoinedModel(10, [new JobDefinitionModel(10, 'name', { name: 'name' }, undefined, 0, 10)], 10),
+        SensorModelFactory.create(10, SensorTypeFactory.create('name'), undefined, 10),
+        DagDefinitionJoinedModelFactory.create(10, [JobDefinitionModelFactory.create(10, 'name', { name: 'name' }, undefined, 0, 10)], 10),
         10,
       );
-      const updateWorkflowSuccessPayload: WorkflowModel = new WorkflowModel(
+      const updateWorkflowSuccessPayload: WorkflowModel = WorkflowModelFactory.create(
         workflow.name,
         workflow.isActive,
         workflow.project,

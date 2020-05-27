@@ -17,5 +17,5 @@ package za.co.absa.hyperdrive.trigger.models
 
 case class JobParameters(
   variables: Map[String, String],
-  maps: Map[String, Set[String]] = Map.empty[String, Set[String]]
+  maps: Map[String, List[String]] = Map.empty[String, List[String]]
 )

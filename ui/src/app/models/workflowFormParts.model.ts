@@ -13,24 +13,64 @@
  * limitations under the License.
  */
 
-export class WorkflowFormPartsModel {
-  constructor(
-    public detailsParts: FormPart[],
-    public sensorSwitchPart: FormPart,
-    public staticJobPart: FormPart,
-    public jobSwitchPart: FormPart,
-    public dynamicParts: DynamicFormParts,
-  ) {}
+export type WorkflowFormPartsModel = {
+  detailsParts: FormPart[];
+  sensorSwitchPart: FormPart;
+  staticJobPart: FormPart;
+  jobSwitchPart: FormPart;
+  dynamicParts: DynamicFormParts;
+};
+
+export type DynamicFormParts = {
+  sensorDynamicParts: DynamicFormPart[];
+  jobDynamicParts: DynamicFormPart[];
+};
+
+export type DynamicFormPart = {
+  name: string;
+  parts: FormPart[];
+};
+
+export type FormPart = {
+  name: string;
+  property: string;
+  isRequired: boolean;
+  type: string;
+  options?: string[];
+};
+
+export class WorkflowFormPartsModelFactory {
+  static create(
+    detailsParts: FormPart[],
+    sensorSwitchPart: FormPart,
+    staticJobPart: FormPart,
+    jobSwitchPart: FormPart,
+    dynamicParts: DynamicFormParts,
+  ): WorkflowFormPartsModel {
+    return {
+      detailsParts: detailsParts,
+      sensorSwitchPart: sensorSwitchPart,
+      staticJobPart: staticJobPart,
+      jobSwitchPart: jobSwitchPart,
+      dynamicParts: dynamicParts,
+    };
+  }
 }
 
-export class DynamicFormParts {
-  constructor(public sensorDynamicParts: DynamicFormPart[], public jobDynamicParts: DynamicFormPart[]) {}
+export class DynamicFormPartsFactory {
+  static create(sensorDynamicParts: DynamicFormPart[], jobDynamicParts: DynamicFormPart[]): DynamicFormParts {
+    return { sensorDynamicParts: sensorDynamicParts, jobDynamicParts: jobDynamicParts };
+  }
 }
 
-export class DynamicFormPart {
-  constructor(public name: string, public parts: FormPart[]) {}
+export class DynamicFormPartFactory {
+  static create(name: string, parts: FormPart[]): DynamicFormPart {
+    return { name: name, parts: parts };
+  }
 }
 
-export class FormPart {
-  constructor(public name: string, public property: string, public isRequired: boolean, public type: string, public options?: string[]) {}
+export class FormPartFactory {
+  static create(name: string, property: string, isRequired: boolean, type: string, options?: string[]): FormPart {
+    return { name: name, property: property, isRequired: isRequired, type: type, options: options };
+  }
 }

@@ -16,7 +16,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { DatetimeRangeFilterComponent } from './datetime-range-filter.component';
-import { DagRunModel } from '../../../../models/dagRuns/dagRun.model';
+import { DagRunModelFactory } from '../../../../models/dagRuns/dagRun.model';
 
 describe('DatetimeRangeFilterComponent', () => {
   let fixture: ComponentFixture<DatetimeRangeFilterComponent>;
@@ -46,7 +46,7 @@ describe('DatetimeRangeFilterComponent', () => {
 
       underTest.value = { from: past, to: future };
       underTest.property = 'started';
-      const dagRun = new DagRunModel('value', 'projectName', 2, 'Status', today, today, 0);
+      const dagRun = DagRunModelFactory.create('value', 'projectName', 2, 'Status', today, today, 0);
 
       expect(underTest.accepts(dagRun)).toBeTrue();
     });
@@ -60,7 +60,7 @@ describe('DatetimeRangeFilterComponent', () => {
 
       underTest.value = { from: past, to: future };
       underTest.property = 'started';
-      const dagRun = new DagRunModel('value', 'projectName', 2, 'Status', future, today, 0);
+      const dagRun = DagRunModelFactory.create('value', 'projectName', 2, 'Status', future, today, 0);
 
       expect(underTest.accepts(dagRun)).toBeTrue();
     });
@@ -74,7 +74,7 @@ describe('DatetimeRangeFilterComponent', () => {
 
       underTest.value = { from: past, to: past };
       underTest.property = 'started';
-      const dagRun = new DagRunModel('value', 'projectName', 2, 'Status', future, today, 0);
+      const dagRun = DagRunModelFactory.create('value', 'projectName', 2, 'Status', future, today, 0);
 
       expect(underTest.accepts(dagRun)).toBeFalse();
     });

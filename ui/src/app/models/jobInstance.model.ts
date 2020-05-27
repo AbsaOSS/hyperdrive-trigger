@@ -13,21 +13,37 @@
  * limitations under the License.
  */
 
-export class JobInstanceModel {
-  constructor(
-    public id: number,
-    public jobName: string,
-    public jobType: JobType,
-    public created: Date,
-    public updated: Date,
-    public jobStatus: JobStatus,
-  ) {}
+export type JobInstanceModel = {
+  id: number;
+  jobName: string;
+  jobType: JobType;
+  created: Date;
+  updated: Date;
+  jobStatus: JobStatus;
+};
+
+export type JobStatus = {
+  name: string;
+};
+
+export type JobType = {
+  name: string;
+};
+
+export class JobInstanceModelFactory {
+  static create(id: number, jobName: string, jobType: JobType, created: Date, updated: Date, jobStatus: JobStatus): JobInstanceModel {
+    return { id: id, jobName: jobName, jobType: jobType, created: created, updated: updated, jobStatus: jobStatus };
+  }
 }
 
-export class JobStatus {
-  constructor(public name: string) {}
+export class JobStatusFactory {
+  static create(name: string): JobStatus {
+    return { name: name };
+  }
 }
 
-export class JobType {
-  constructor(public name: string) {}
+export class JobTypeFactory {
+  static create(name: string): JobType {
+    return { name: name };
+  }
 }

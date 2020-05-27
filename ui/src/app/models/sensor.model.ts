@@ -13,14 +13,48 @@
  * limitations under the License.
  */
 
-export class SensorModel {
-  constructor(public workflowId: number = 0, public sensorType: { name: string }, public properties: PropertiesModel, public id: number) {}
+export type SensorModel = {
+  workflowId: number;
+  sensorType: SensorType;
+  properties: PropertiesModel;
+  id: number;
+};
+
+export type SensorType = {
+  name: string;
+};
+
+export type PropertiesModel = {
+  sensorId: number;
+  settings: SettingsModel;
+  matchProperties: Map<string, string>;
+};
+
+export type SettingsModel = {
+  variables: Map<string, string>;
+  maps: Map<string, Set<string>>;
+};
+
+export class SensorModelFactory {
+  static create(workflowId: number, sensorType: SensorType, properties: PropertiesModel, id: number): SensorModel {
+    return { workflowId: workflowId, sensorType: sensorType, properties: properties, id: id };
+  }
 }
 
-export class PropertiesModel {
-  constructor(public sensorId: number = 0, public settings: SettingsModel, public matchProperties: Map<string, string>) {}
+export class SensorTypeFactory {
+  static create(name: string): SensorType {
+    return { name: name };
+  }
 }
 
-export class SettingsModel {
-  constructor(public variables: Map<string, string>, public maps: Map<string, Set<string>>) {}
+export class PropertiesModelFactory {
+  static create(sensorId: number, settings: SettingsModel, matchProperties: Map<string, string>): PropertiesModel {
+    return { sensorId: sensorId, settings: settings, matchProperties: matchProperties };
+  }
+}
+
+export class SettingsModelFactory {
+  static create(variables: Map<string, string>, maps: Map<string, Set<string>>): SettingsModel {
+    return { variables: variables, maps: maps };
+  }
 }
