@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-export const sensorFrequency = {
-  FREQUENCIES: [
+export const userFriendly = {
+  OPTIONS: [
     {
       value: 1,
       label: 'Hour every',
@@ -65,3 +65,16 @@ export enum EveryMinute {
   Fifty = 50,
   FiftyFive = 55,
 }
+
+export const Frequecies = {
+  OPTIONS: [
+    {
+      value: 1,
+      label: 'User friendly input',
+    },
+    {
+      value: 2,
+      label: 'Free text cron expression ',
+    },
+  ],
+};

@@ -17,11 +17,11 @@ import { Component, Input, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
 import cronstrue from 'cronstrue';
 import { isValidCron } from 'cron-validator';
-import { Subscription } from 'rxjs';
 import { WorkflowEntryModel } from '../../../../../models/workflowEntry.model';
-import { sensorFrequency } from '../../../../../constants/cronExpressionOptions.constants';
+import { userFriendly } from '../../../../../constants/cronExpressionOptions.constants';
 import { EveryMinute } from '../../../../../constants/cronExpressionOptions.constants';
 import { EveryHour } from '../../../../../constants/cronExpressionOptions.constants';
+import { Frequecies } from '../../../../../constants/cronExpressionOptions.constants';
 import { ConfirmationDialogService } from '../../../../../services/confirmation-dialog/confirmation-dialog.service';
 import { ConfirmationDialogTypes } from '../../../../../constants/confirmationDialogTypes.constants';
 import { texts } from '../../../../../constants/texts.constants';
@@ -39,12 +39,13 @@ export class CronQuartzPartComponent implements OnInit {
   @Input() valueChanges: Subject<WorkflowEntryModel>;
 
   base: number;
+  freq: number;
   dayValue: number;
-  minuteValue: number;
   hourValue: number;
-  validateCronDialogServiceSubscription: Subscription = null;
-  readableCronExpression: string;
   validCron: boolean;
+  minuteValue: number;
+  dayMinuteValue: number;
+  readableCronExpression: string;
 
   hourValues = [
     EveryHour.Zero,
@@ -90,29 +91,29 @@ export class CronQuartzPartComponent implements OnInit {
 
   minutesValues = [EveryHour.Five, EveryHour.Ten, EveryHour.Fifteen, EveryHour.Twenty, EveryMinute.TwentyFive, EveryMinute.Thirty];
 
-  frequencies = sensorFrequency.FREQUENCIES;
-  invalidCronExpression = texts.VALIDATE_CRON_CONFIRMATION_MESSAGE;
   cron: string[] = [];
+  frequencies = Frequecies.OPTIONS;
+  userFriendly = userFriendly.OPTIONS;
+  invalidCronExpression = texts.VALIDATE_CRON_CONFIRMATION_MESSAGE;
 
   constructor(private confirmationDialogService: ConfirmationDialogService) {
     // do nothing
   }
 
   ngOnInit(): void {
-    // this.value = 'error';
-    // this.value = '0 0/20 * ? * * *'; every minute
-    // this.value = '0 20 * ? * * *'; every hour
-    // this.value = '0 0 20 ? * * *'; every day at
-
-    if (!this.validateCron(this.value)) {
-      this.validationMessage(this.value);
+    if (!this.value) {
+      this.cron = ['0', '0', '0', '?', '*', '*', '*'];
+      this.modelChanged(this.cron.join(' '));
+    } else if (!this.validateCron(this.value)) {
       this.cron = ['0', '0', '0', '?', '*', '*', '*'];
       this.validCron = false;
+      this.validationMessage();
       this.modelChanged(this.cron.join(' '));
     } else {
       this.validCron = true;
       this.modelChanged(this.value);
     }
+    this.freq = this.frequencies[0].value;
   }
 
   validateCron(value: string): boolean {
@@ -125,22 +126,22 @@ export class CronQuartzPartComponent implements OnInit {
     const showCron: string[] = value.replace(/\s+/g, ' ').split(' ');
 
     if (showCron[1] !== '*' && isNaN(+showCron[1])) {
-      this.base = this.frequencies[0].value;
+      this.base = this.userFriendly[0].value;
       this.minuteValue = +showCron[1].replace('0/', '');
       this.readableCronExpression = cronstrue.toString(value);
     } else if (showCron[1] !== '*' && !isNaN(+showCron[1]) && showCron[2] === '*') {
-      this.base = this.frequencies[1].value;
+      this.base = this.userFriendly[1].value;
       this.hourValue = +showCron[1];
       this.readableCronExpression = cronstrue.toString(value);
     } else if (showCron[2] !== '*' && !isNaN(+showCron[2])) {
-      this.base = this.frequencies[2].value;
+      this.base = this.userFriendly[2].value;
+      this.dayMinuteValue = +showCron[1];
       this.dayValue = +showCron[2];
       this.readableCronExpression = cronstrue.toString(this.value);
     }
-    this.validCron = this.validateCron(value) ? true : false;
   }
 
-  validationMessage(value: string): void {
+  validationMessage(): void {
     if (this.isShow) {
       this.confirmationDialogService.confirm(
         ConfirmationDialogTypes.Info,
@@ -166,6 +167,18 @@ export class CronQuartzPartComponent implements OnInit {
     this.dayValue = option;
     this.cron = ['0', '0', `${this.dayValue}`, '?', '*', '*', '*'];
     this.modelChanged(this.cron.join(' '));
+  }
+
+  onFreeText(text): void {
+    this.freq = this.frequencies[1].value;
+    if (this.validateCron(text)) {
+      this.readableCronExpression = cronstrue.toString(text);
+      this.validCron = true;
+      this.modelChanged(text);
+    } else {
+      this.validCron = false;
+      this.invalidCronExpression = 'please update with correct free text cron expression.';
+    }
   }
 
   modelChanged(value: string): void {

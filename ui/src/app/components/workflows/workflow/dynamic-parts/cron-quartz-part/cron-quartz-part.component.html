@@ -16,71 +16,72 @@
 
 <div *ngIf="!isShow">
   <clr-control-container>
-    <label>{{name}}</label>
-
-    <span>Every</span>
+    <label>Frequency</label>
 
     <div class="clr-select-wrapper">
+      <select class="clr-select" clrControl [(ngModel)]="freq">
+        <option *ngFor="let option of frequencies" [selected]="freq==option.value" [value]="option.value">
+          {{option.label}}</option>
+      </select>
+    </div>
+  </clr-control-container>
+</div>
+
+<div *ngIf="!isShow">
+  <clr-control-container>
+
+    <div class="form-group">
+      <input *ngIf="freq == 2" [readOnly]="false" clrControl value="{{ value }}"
+        (change)="onFreeText($event.target.value)" [size]="24">
+
+      <input *ngIf="freq == 2" [readOnly]="true" clrControl
+        value="{{ validCron ? readableCronExpression : 'please update with a correct expression.'}}" [size]="60" />
+    </div>
+
+    <span *ngIf="freq == 1">Every</span>
+
+    <div class="clr-select-wrapper" *ngIf="freq == 1">
       <select class="clr-select" clrControl [(ngModel)]="base">
-        <option *ngFor="let option of frequencies" [selected]="base==option.value" [value]="option.value">
+        <option *ngFor="let option of userFriendly" [selected]="base==option.value" [value]="option.value">
           {{option.label}}</option>
       </select>
     </div>
 
-    <span *ngIf="base == 3">at</span>
+    <span *ngIf="base == 3 && freq == 1">at</span>
 
-    <div class="clr-select-wrapper" *ngIf="base == 3">
+    <div class="clr-select-wrapper" *ngIf="base == 3 && freq == 1">
       <select class="clr-select" clrControl [(ngModel)]="dayValue" (change)="onDaySelect($event.target.value)">
         <option *ngFor="let option of hourValues" [selected]="dayValue==option" [value]="option">{{option}}</option>
       </select>
     </div>
 
-    <div class="clr-select-wrapper" *ngIf="base == 2">
+    <div class="clr-select-wrapper" *ngIf="base == 2 && freq == 1">
       <select class="clr-select" clrControl [(ngModel)]="hourValue" (change)="onHourSelect($event.target.value)">
         <option *ngFor="let option of minuteValues" [selected]="hourValue==option" [value]="option">{{option}}</option>
       </select>
     </div>
 
-    <div class="clr-select-wrapper" *ngIf="base == 1">
+    <div class="clr-select-wrapper" *ngIf="base == 1 && freq == 1">
       <select class="clr-select" clrControl [(ngModel)]="minuteValue" (change)="onMinuteSelect($event.target.value)">
         <option *ngFor="let option of minutesValues" [selected]="minuteValue==option" [value]="option">{{option}}
         </option>
       </select>
     </div>
 
-    <span *ngIf="base == 3"> : 00</span>
+    <span *ngIf="base == 3 && freq == 1"> : {{ dayMinuteValue }}</span>
 
-    <span *ngIf="base == 2"> minutes past the hour</span>
+    <span *ngIf="base == 2 && freq == 1"> minutes past the hour</span>
 
-    <span *ngIf="base == 1"> minutes</span>
+    <span *ngIf="base == 1 && freq == 1"> minutes</span>
 
   </clr-control-container>
 </div>
 
 <div *ngIf="isShow">
   <clr-control-container>
-    <label>{{name}}</label>
+    <label>Frequency</label>
 
-    <input *ngIf="base == 1" [readOnly]="true" clrControl [ngStyle]="{color: validCron ? 'black' : 'red' }"
-      value="{{ validCron ? readableCronExpression : invalidCronExpression }}" [size]="60" />
-
-    <input *ngIf="base == 2" [readOnly]="true" clrControl [ngStyle]="{color: validCron ? 'black' : 'red' }"
-      value="{{ validCron ? readableCronExpression : invalidCronExpression }}" [size]="60" />
-
-    <input *ngIf="base == 3" [readOnly]="true" clrControl [ngStyle]="{color: validCron ? 'black' : 'red' }"
-      value="{{ validCron ? readableCronExpression : invalidCronExpression }}" [size]="60" />
+    <input [readOnly]="true" clrControl value="{{ readableCronExpression }}" [size]="60" />
 
   </clr-control-container>
-</div>
-
-<!-- <div *ngIf="!isShow"> -->
-<div>
-  <clr-control-container>
-    <label>Free Text</label>
-    <div class="form-group">
-      <input [readOnly]="true" clrControl value="{{value}}" [size]="12">
-      <!-- <input [readOnly]="isShow ? true : false" clrControl value="{{value}}" [size]="12"> -->
-    </div>
-  </clr-control-container>
-  <br>
 </div>
