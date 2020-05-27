@@ -17,7 +17,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
 import cronstrue from 'cronstrue';
 import { isValidCron } from 'cron-validator';
-import { WorkflowEntryModel } from '../../../../../models/workflowEntry.model';
+import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
 import { userFriendly } from '../../../../../constants/cronExpressionOptions.constants';
 import { EveryMinute } from '../../../../../constants/cronExpressionOptions.constants';
 import { EveryHour } from '../../../../../constants/cronExpressionOptions.constants';
@@ -184,6 +184,6 @@ export class CronQuartzPartComponent implements OnInit {
   modelChanged(value: string): void {
     this.value = value;
     this.fromCron(this.value);
-    this.valueChanges.next(new WorkflowEntryModel(this.property, this.value));
+    this.valueChanges.next(WorkflowEntryModelFactory.create(this.property, this.value));
   }
 }
