@@ -128,34 +128,34 @@ object WorkflowFixture {
                 "deploymentMode" -> "cluster"
               ),
               maps = Map("appArguments" -> List(
-                s"--component.decoder=za.co.absa.hyperdrive.ingestor.implementation.decoder.avro.confluent.ConfluentAvroKafkaStreamDecoder",
-                s"--component.ingestor=Spark",
-                s"--component.manager=za.co.absa.hyperdrive.ingestor.implementation.manager.checkpoint.CheckpointOffsetManager",
-                s"--component.reader=za.co.absa.hyperdrive.ingestor.implementation.reader.kafka.KafkaStreamReader",
-                s"--component.transformer=za.co.absa.hyperdrive.ingestor.implementation.transformer.column.selection.ColumnSelectorStreamTransformer",
-                s"--component.writer=za.co.absa.hyperdrive.ingestor.implementation.writer.parquet.ParquetPartitioningStreamWriter",
-                s"--decoder.avro.schema.registry.url=${randomString()}",
-                s"--decoder.avro.schema.retention.policy=${randomString()}",
-                s"--decoder.avro.value.schema.id=${randomString()}",
-                s"--decoder.avro.value.schema.naming.strategy=${randomString()}",
-                s"--decoder.avro.value.schema.record.name=${randomString()}",
-                s"--decoder.avro.value.schema.record.namespace=${randomString()}",
-                s"--ingestor.spark.app.name=${randomString()}",
-                s"--manager.checkpoint.base.location=${randomString()}",
-                s"--reader.kafka.brokers=${randomString()}",
-                s"--reader.kafka.topic=${randomString()}",
-                s"--reader.option.failOnDataLoss=${randomString()}",
-                s"--reader.option.kafka.sasl.jaas.config=${randomString()}",
-                s"--reader.option.kafka.sasl.kerberos.service.name=${randomString()}",
-                s"--reader.option.kafka.sasl.mechanism=${randomString()}",
-                s"--reader.option.kafka.security.protocol=${randomString()}",
-                s"--reader.option.kafka.ssl.key.password=${randomString()}",
-                s"--reader.option.kafka.ssl.keystore.location=${randomString()}",
-                s"--reader.option.kafka.ssl.keystore.password=${randomString()}",
-                s"--reader.option.kafka.ssl.truststore.location=${randomString()}",
-                s"--reader.option.kafka.ssl.truststore.password=${randomString()}",
-                s"--transformer.columns.to.select=${randomString()}",
-                s"--writer.parquet.destination.directory=${randomString()}"
+                s"component.decoder=za.co.absa.hyperdrive.ingestor.implementation.decoder.avro.confluent.ConfluentAvroKafkaStreamDecoder",
+                s"component.ingestor=Spark",
+                s"component.manager=za.co.absa.hyperdrive.ingestor.implementation.manager.checkpoint.CheckpointOffsetManager",
+                s"component.reader=za.co.absa.hyperdrive.ingestor.implementation.reader.kafka.KafkaStreamReader",
+                s"component.transformer=za.co.absa.hyperdrive.ingestor.implementation.transformer.column.selection.ColumnSelectorStreamTransformer",
+                s"component.writer=za.co.absa.hyperdrive.ingestor.implementation.writer.parquet.ParquetPartitioningStreamWriter",
+                s"decoder.avro.schema.registry.url=${randomString()}",
+                s"decoder.avro.schema.retention.policy=${randomString()}",
+                s"decoder.avro.value.schema.id=${randomString()}",
+                s"decoder.avro.value.schema.naming.strategy=${randomString()}",
+                s"decoder.avro.value.schema.record.name=${randomString()}",
+                s"decoder.avro.value.schema.record.namespace=${randomString()}",
+                s"ingestor.spark.app.name=${randomString()}",
+                s"manager.checkpoint.base.location=${randomString()}",
+                s"reader.kafka.brokers=${randomString()}",
+                s"reader.kafka.topic=${randomString()}",
+                s"reader.option.failOnDataLoss=${randomString()}",
+                s"reader.option.kafka.sasl.jaas.config=${randomString()}",
+                s"reader.option.kafka.sasl.kerberos.service.name=${randomString()}",
+                s"reader.option.kafka.sasl.mechanism=${randomString()}",
+                s"reader.option.kafka.security.protocol=${randomString()}",
+                s"reader.option.kafka.ssl.key.password=${randomString()}",
+                s"reader.option.kafka.ssl.keystore.location=${randomString()}",
+                s"reader.option.kafka.ssl.keystore.password=${randomString()}",
+                s"reader.option.kafka.ssl.truststore.location=${randomString()}",
+                s"reader.option.kafka.ssl.truststore.password=${randomString()}",
+                s"transformer.columns.to.select=${randomString()}",
+                s"writer.parquet.destination.directory=${randomString()}"
               ))
             ),
             order = 0
@@ -171,8 +171,8 @@ object WorkflowFixture {
                 "deploymentMode" -> "cluster"
               ),
               maps = Map("appArguments" -> List(
-                s"--reader.kafka.topic=${randomString()}",
-                s"--reader.option.kafka.sasl.kerberos.service.name=${randomString()}",
+                s"--buffer-directory=${randomString()}",
+                s"--raw-directory=${randomString()}",
                 s"--publish-directory=${randomString()}"
               ))
             ),
@@ -196,7 +196,9 @@ object WorkflowFixture {
         properties = Properties(
           sensorId = 0,
           settings = Settings(
-            variables = Map(TimeSensorSettings.CRON_EXPRESSION_KEY -> randomCron()),
+            variables = Map(
+              TimeSensorSettings.CRON_EXPRESSION_KEY -> randomCron(),
+              TimeSensorSettings.QUARTZ_JOB_ID_KEY -> randomUuid()),
             maps = Map.empty
           ),
           matchProperties = Map.empty
