@@ -32,7 +32,7 @@ case class Sensor(
 case class Properties(
   sensorId: Long = 0,
   @(NotNull @field) @(Valid @field) @BeanProperty settings: Settings,
-  @(NotNull @field) @(Valid @field) @BeanProperty matchProperties: Map[String, String]
+  @(NotNull @field) @BeanProperty matchProperties: Map[String, String]
 )
 
 case class Settings(

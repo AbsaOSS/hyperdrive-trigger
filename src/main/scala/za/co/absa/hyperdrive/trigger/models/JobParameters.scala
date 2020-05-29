@@ -17,9 +17,9 @@ package za.co.absa.hyperdrive.trigger.models
 
 import javax.validation.constraints.NotNull
 
+import scala.beans.BeanProperty
+
 case class JobParameters(
-  @NotNull
-  variables: Map[String, String],
-  @NotNull
-  maps: Map[String, List[String]] = Map.empty[String, List[String]]
+  @NotNull @BeanProperty variables: Map[String, String],
+  @NotNull @BeanProperty maps: Map[String, List[String]] = Map.empty[String, List[String]]
 )

@@ -17,14 +17,19 @@ package za.co.absa.hyperdrive.trigger.models
 
 import java.time.LocalDateTime
 
+import javax.validation.Valid
+import javax.validation.constraints.NotNull
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.InQueue
 import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
+
+import scala.annotation.meta.field
+import scala.beans.BeanProperty
 
 case class JobDefinition(
   dagDefinitionId: Long = 0,
   name: String,
   jobType: JobType,
-  jobParameters: JobParameters,
+  @(NotNull @field) @(Valid @field) @BeanProperty jobParameters: JobParameters,
   order: Int,
   id: Long = 0
 ){
