@@ -70,11 +70,11 @@ export class WorkflowRequestModel {
   }
 
   private getWorkflowSensor(): SensorModel {
-    const sensor = SensorModelFactory.createEmpty();
+    const partialSensor = SensorModelFactory.createEmpty();
     this.sensorData.forEach((sensor) => {
-      set(sensor, sensor.property, sensor.value);
+      set(partialSensor, sensor.property, sensor.value);
     });
-    return sensor;
+    return partialSensor;
   }
 
   private getWorkflowDagDefinition(): DagDefinitionJoinedModel {
