@@ -17,7 +17,11 @@ package za.co.absa.hyperdrive.trigger.models
 
 import java.time.LocalDateTime
 
+import javax.validation.constraints.NotNull
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
+
+import scala.annotation.meta.field
+import scala.beans.BeanProperty
 
 case class DagDefinition(
   workflowId: Long,
@@ -26,6 +30,8 @@ case class DagDefinition(
 
 case class DagDefinitionJoined(
   workflowId: Long = 0,
+  @(NotNull @field)
+  @BeanProperty
   jobDefinitions: Seq[JobDefinition],
   id: Long = 0
 ){

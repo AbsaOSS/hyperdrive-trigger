@@ -15,22 +15,27 @@
 
 package za.co.absa.hyperdrive.trigger.models
 
+import javax.validation.Valid
+import javax.validation.constraints.NotNull
 import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes.SensorType
+
+import scala.annotation.meta.field
+import scala.beans.BeanProperty
 
 case class Sensor(
   workflowId: Long = 0,
   sensorType: SensorType,
-  properties: Properties,
+  @(NotNull @field) @(Valid @field) @BeanProperty properties: Properties,
   id: Long = 0
 )
 
 case class Properties(
   sensorId: Long = 0,
-  settings: Settings,
-  matchProperties: Map[String, String]
+  @(NotNull @field) @(Valid @field) @BeanProperty settings: Settings,
+  @(NotNull @field) @(Valid @field) @BeanProperty matchProperties: Map[String, String]
 )
 
 case class Settings(
-  variables: Map[String, String],
-  maps: Map[String, List[String]]
+  @(NotNull @field) @BeanProperty variables: Map[String, String],
+  @(NotNull @field) @BeanProperty maps: Map[String, List[String]]
 )

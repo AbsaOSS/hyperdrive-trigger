@@ -18,6 +18,9 @@ package za.co.absa.hyperdrive.trigger.api.rest.controllers
 import java.util.concurrent.CompletableFuture
 
 import javax.inject.Inject
+import javax.validation.Valid
+import org.springframework.lang.NonNull
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation._
 import za.co.absa.hyperdrive.trigger.api.rest.services.WorkflowService
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, ApiException}
@@ -37,7 +40,7 @@ class WorkflowController @Inject()(workflowService: WorkflowService) {
     }.toJava.toCompletableFuture
 
   @PutMapping(path = Array("/workflow"))
-  def createWorkflow(@RequestBody workflow: WorkflowJoined): CompletableFuture[WorkflowJoined] = {
+  def createWorkflow(@RequestBody @Valid workflow: WorkflowJoined): CompletableFuture[WorkflowJoined] = {
     workflowService.createWorkflow(workflow)
   }
 
@@ -62,7 +65,7 @@ class WorkflowController @Inject()(workflowService: WorkflowService) {
   }
 
   @PostMapping(path = Array("/workflows"))
-  def updateWorkflow(@RequestBody workflow: WorkflowJoined): CompletableFuture[WorkflowJoined] = {
+  def updateWorkflow(@RequestBody @Valid workflow: WorkflowJoined): CompletableFuture[WorkflowJoined] = {
     workflowService.updateWorkflow(workflow)
   }
 

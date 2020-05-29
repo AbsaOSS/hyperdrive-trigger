@@ -17,6 +17,12 @@ package za.co.absa.hyperdrive.trigger.models
 
 import java.time.LocalDateTime
 
+import javax.validation.Valid
+import javax.validation.constraints.NotNull
+
+import scala.annotation.meta.field
+import scala.beans.BeanProperty
+
 case class Workflow(
   name: String,
   isActive: Boolean,
@@ -36,8 +42,8 @@ case class WorkflowJoined(
   project: String,
   created: LocalDateTime = LocalDateTime.now(),
   updated: Option[LocalDateTime],
-  sensor: Sensor,
-  dagDefinitionJoined: DagDefinitionJoined,
+  @(NotNull @field) @(Valid @field) @BeanProperty sensor: Sensor,
+  @(NotNull @field) @(Valid @field) @BeanProperty dagDefinitionJoined: DagDefinitionJoined,
   id: Long = 0
 ){
   def toWorkflow: Workflow = {
