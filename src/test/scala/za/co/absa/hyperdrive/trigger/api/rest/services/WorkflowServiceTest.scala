@@ -16,15 +16,19 @@
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
 import java.time.LocalDateTime
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 import org.mockito.ArgumentMatchers.{eq => eqTo, _}
+import org.mockito.ArgumentCaptor
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, Matchers}
+import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, DatabaseError, ValidationError}
-import za.co.absa.hyperdrive.trigger.models.{Project, Workflow, WorkflowJoined}
+import za.co.absa.hyperdrive.trigger.models.{Project, Properties, Sensor, Settings, Workflow, WorkflowJoined}
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, WorkflowRepository}
+import za.co.absa.hyperdrive.trigger.scheduler.sensors.time.TimeSensorSettings
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
@@ -92,6 +96,35 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
     result shouldBe Left(Seq(error))
   }
 
+  it should "should generate a quartz job id for a time-based job" in {
+    // given
+    val underTest = new WorkflowServiceImpl(workflowRepository, dagInstanceRepository, workflowValidationService)
+    val workflow = WorkflowFixture.createWorkflowJoined().copy(sensor = Sensor(
+      sensorType = SensorTypes.Time,
+      properties = Properties(
+        settings = Settings(
+          variables = Map(TimeSensorSettings.CRON_EXPRESSION_KEY -> "* * * * ? *"),
+          maps = Map()
+        ),
+        matchProperties = Map()
+      )
+    ))
+
+    val deliberateError = DatabaseError("deliberateError")
+    when(workflowValidationService.validateOnInsert(any[WorkflowJoined])(any[ExecutionContext])).thenReturn(Future{Seq.empty})
+    when(workflowRepository.insertWorkflow(any[WorkflowJoined])(any[ExecutionContext])).thenReturn(Future{Left(deliberateError)})
+
+    // when
+    Await.result(underTest.createWorkflow(workflow), Duration(120, TimeUnit.SECONDS))
+
+    // then
+    val captor = ArgumentCaptor.forClass(classOf[WorkflowJoined])
+    verify(workflowRepository).insertWorkflow(captor.capture())(any[ExecutionContext])
+    val insertedWorkflow: WorkflowJoined = captor.getValue
+    insertedWorkflow.sensor.properties.settings.variables should contain key TimeSensorSettings.QUARTZ_JOB_ID_KEY
+    insertedWorkflow.sensor.properties.settings.variables(TimeSensorSettings.QUARTZ_JOB_ID_KEY) should not be empty
+  }
+
   "WorkflowService.updateWorkflow" should "should update a workflow" in {
     // given
     val underTest = new WorkflowServiceImpl(workflowRepository, dagInstanceRepository, workflowValidationService)
@@ -142,6 +175,69 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
     // then
     verify(workflowRepository).updateWorkflow(any[WorkflowJoined])(any[ExecutionContext])
     result shouldBe Left(Seq(error))
+  }
+
+  it should "should generate a quartz job id for a time-based job" in {
+    // given
+    val underTest = new WorkflowServiceImpl(workflowRepository, dagInstanceRepository, workflowValidationService)
+    val workflow = WorkflowFixture.createWorkflowJoined().copy(sensor = Sensor(
+      sensorType = SensorTypes.Time,
+      properties = Properties(
+        settings = Settings(
+          variables = Map(TimeSensorSettings.CRON_EXPRESSION_KEY -> "* * * * ? *"),
+          maps = Map()
+        ),
+        matchProperties = Map()
+      )
+    ))
+
+    val deliberateError = DatabaseError("deliberateError")
+    when(workflowValidationService.validateOnUpdate(any[WorkflowJoined])(any[ExecutionContext])).thenReturn(Future{Seq.empty})
+    when(workflowRepository.getWorkflow(eqTo(workflow.id))(any[ExecutionContext])).thenReturn(Future{workflow})
+    when(workflowRepository.updateWorkflow(any[WorkflowJoined])(any[ExecutionContext])).thenReturn(Future{Left(deliberateError)})
+
+    // when
+    Await.result(underTest.updateWorkflow(workflow), Duration(120, TimeUnit.SECONDS))
+
+    // then
+    val captor = ArgumentCaptor.forClass(classOf[WorkflowJoined])
+    verify(workflowRepository).updateWorkflow(captor.capture())(any[ExecutionContext])
+    val updatedWorkflow: WorkflowJoined = captor.getValue
+    updatedWorkflow.sensor.properties.settings.variables should contain key TimeSensorSettings.QUARTZ_JOB_ID_KEY
+    updatedWorkflow.sensor.properties.settings.variables(TimeSensorSettings.QUARTZ_JOB_ID_KEY) should not be empty
+  }
+
+  it should "should not modify the quartz job id if it already exists" in {
+    // given
+    val underTest = new WorkflowServiceImpl(workflowRepository, dagInstanceRepository, workflowValidationService)
+    val uuid = UUID.randomUUID().toString
+    val workflow = WorkflowFixture.createWorkflowJoined().copy(sensor = Sensor(
+      sensorType = SensorTypes.Time,
+      properties = Properties(
+        settings = Settings(
+          variables = Map(
+            TimeSensorSettings.CRON_EXPRESSION_KEY -> "* * * * ? *",
+            TimeSensorSettings.QUARTZ_JOB_ID_KEY -> uuid
+          ),
+          maps = Map()
+        ),
+        matchProperties = Map()
+      )
+    ))
+
+    val deliberateError = DatabaseError("deliberateError")
+    when(workflowValidationService.validateOnUpdate(any[WorkflowJoined])(any[ExecutionContext])).thenReturn(Future{Seq.empty})
+    when(workflowRepository.getWorkflow(eqTo(workflow.id))(any[ExecutionContext])).thenReturn(Future{workflow})
+    when(workflowRepository.updateWorkflow(any[WorkflowJoined])(any[ExecutionContext])).thenReturn(Future{Left(deliberateError)})
+
+    // when
+    Await.result(underTest.updateWorkflow(workflow), Duration(120, TimeUnit.SECONDS))
+
+    // then
+    val captor = ArgumentCaptor.forClass(classOf[WorkflowJoined])
+    verify(workflowRepository).updateWorkflow(captor.capture())(any[ExecutionContext])
+    val updatedWorkflow: WorkflowJoined = captor.getValue
+    updatedWorkflow.sensor.properties.settings.variables(TimeSensorSettings.QUARTZ_JOB_ID_KEY) shouldBe uuid
   }
 
   "WorkflowService.getProjects" should "should return no project on no workflows" in {

@@ -16,11 +16,14 @@
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
 import java.time.LocalDateTime
+import java.util.UUID
 
 import org.springframework.stereotype.Service
+import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes
 import za.co.absa.hyperdrive.trigger.models.errors.ApiError
 import za.co.absa.hyperdrive.trigger.models.{Project, ProjectInfo, Workflow, WorkflowJoined}
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, WorkflowRepository}
+import za.co.absa.hyperdrive.trigger.scheduler.sensors.time.TimeSensorSettings
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -48,10 +51,11 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
                           override val workflowValidationService: WorkflowValidationService) extends WorkflowService {
 
   def createWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], WorkflowJoined]] = {
+    val workflowWithQuartzJobId = addQuartzJobIdForTimeSensor(workflow)
     for {
-      validationErrors <- workflowValidationService.validateOnInsert(workflow)
+      validationErrors <- workflowValidationService.validateOnInsert(workflowWithQuartzJobId)
       result <- doIf(validationErrors, () => {
-        workflowRepository.insertWorkflow(workflow).flatMap {
+        workflowRepository.insertWorkflow(workflowWithQuartzJobId).flatMap {
           case Left(error) => Future.successful(Left(error))
           case Right(workflowId) => getWorkflow(workflowId).map(Right(_))
         }
@@ -78,22 +82,23 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
   }
 
   override def updateWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], WorkflowJoined]] = {
+    val workflowWithQuartzJobId = addQuartzJobIdForTimeSensor(workflow)
     for {
-      validationErrors <- workflowValidationService.validateOnUpdate(workflow)
+      validationErrors <- workflowValidationService.validateOnUpdate(workflowWithQuartzJobId)
       result <- doIf(validationErrors, () => {
-        getWorkflow(workflow.id).flatMap { originalWorkflow =>
-          val updatedWorkflow = workflow.copy(
+        getWorkflow(workflowWithQuartzJobId.id).flatMap { originalWorkflow =>
+          val updatedWorkflow = workflowWithQuartzJobId.copy(
             id = originalWorkflow.id,
             created = originalWorkflow.created,
             updated = originalWorkflow.updated,
-            sensor = workflow.sensor.copy(
+            sensor = workflowWithQuartzJobId.sensor.copy(
               id = originalWorkflow.sensor.id,
               workflowId = originalWorkflow.id,
-              properties = workflow.sensor.properties.copy(
+              properties = workflowWithQuartzJobId.sensor.properties.copy(
                 sensorId = originalWorkflow.sensor.properties.sensorId
               )
             ),
-            dagDefinitionJoined = workflow.dagDefinitionJoined.copy(
+            dagDefinitionJoined = workflowWithQuartzJobId.dagDefinitionJoined.copy(
               id = originalWorkflow.dagDefinitionJoined.id,
               workflowId = originalWorkflow.id
             )
@@ -101,7 +106,7 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
 
           workflowRepository.updateWorkflow(updatedWorkflow).flatMap {
             case Left(error) => Future.successful(Left(error))
-            case Right(_) => getWorkflow(workflow.id).map(Right(_))
+            case Right(_) => getWorkflow(workflowWithQuartzJobId.id).map(Right(_))
           }
         }
       })
@@ -144,6 +149,19 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
       }
     } else {
       Future.successful(Left(validationErrors))
+    }
+  }
+
+  private def addQuartzJobIdForTimeSensor(workflow: WorkflowJoined): WorkflowJoined = {
+    if (workflow.sensor.sensorType == SensorTypes.Time &&
+      !workflow.sensor.properties.settings.variables.contains(TimeSensorSettings.QUARTZ_JOB_ID_KEY)) {
+      val variablesWithQuartzJobId = workflow.sensor.properties.settings.variables + (TimeSensorSettings.QUARTZ_JOB_ID_KEY -> UUID.randomUUID().toString)
+      workflow.copy(
+        sensor = workflow.sensor.copy(
+          properties = workflow.sensor.properties.copy(
+            settings = workflow.sensor.properties.settings.copy(variables = variablesWithQuartzJobId))))
+    } else {
+      workflow
     }
   }
 
