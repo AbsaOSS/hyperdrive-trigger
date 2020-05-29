@@ -25,4 +25,8 @@ export class DagDefinitionJoinedModelFactory {
   static create(workflowId: number, jobDefinitions: JobDefinitionModel[], id: number): DagDefinitionJoinedModel {
     return { workflowId: workflowId, jobDefinitions: jobDefinitions, id: id };
   }
+
+  static createEmpty(): DagDefinitionJoinedModel {
+    return this.create(undefined, [], undefined);
+  }
 }

@@ -71,13 +71,7 @@
  * Zone JS is required by default for Angular itself.
  */
 import 'zone.js/dist/zone';
-import { environment } from './environments/environment'; // Included with Angular CLI.
 
-if (!environment.production) {
-  (Map.prototype as any).toJSON = function () {
-    return JSON.parse(JSON.stringify([...this]));
-  };
-}
 /***************************************************************************************************
  * APPLICATION IMPORTS
  */
