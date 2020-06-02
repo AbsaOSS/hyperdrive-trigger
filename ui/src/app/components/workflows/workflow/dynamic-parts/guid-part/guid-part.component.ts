@@ -17,11 +17,14 @@ import { Component, Input, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
 import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
 import { UuidUtil } from '../../../../../utils/uuid/uuid.util';
+import { ControlContainer, NgForm } from "@angular/forms";
+import { PartValidation, PartValidationFactory } from "../../../../../models/workflowFormParts.model";
 
 @Component({
   selector: 'app-guid-part',
   templateUrl: './guid-part.component.html',
   styleUrls: ['./guid-part.component.scss'],
+  viewProviders: [{ provide: ControlContainer, useExisting: NgForm}]
 })
 export class GuidPartComponent implements OnInit {
   @Input() isShow: boolean;
@@ -29,6 +32,8 @@ export class GuidPartComponent implements OnInit {
   @Input() value: string;
   @Input() property: string;
   @Input() valueChanges: Subject<WorkflowEntryModel>;
+  @Input() partValidation: PartValidation;
+  partValidationSafe: PartValidation;
 
   constructor() {
     // do nothing
@@ -36,6 +41,11 @@ export class GuidPartComponent implements OnInit {
 
   ngOnInit(): void {
     if (!this.value) this.refreshGuid();
+    this.partValidationSafe = PartValidationFactory.create(
+      !!this.partValidation.isRequired ? this.partValidation.isRequired : true,
+      !!this.partValidation.maxLength ? this.partValidation.maxLength : 36,
+      !!this.partValidation.minLength ? this.partValidation.minLength : 36,
+    );
   }
 
   refreshGuid() {

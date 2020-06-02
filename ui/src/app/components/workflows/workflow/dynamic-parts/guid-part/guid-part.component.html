@@ -15,8 +15,22 @@
 
 <clr-control-container>
   <label>{{name}}</label>
-  <input clrControl type="text" [readOnly]="true"  name="workflowName" [size]="40" [ngModel]="value" (ngModelChange)="modelChanged($event)"/>
+  <input clrControl
+         type="text"
+         [id]="name"
+         [name]="name"
+         [readOnly]="true"
+         [ngModel]="value"
+         (ngModelChange)="modelChanged($event)"
+         [size]="partValidationSafe.maxLength"
+         [required]="partValidationSafe.isRequired"
+         [minlength]="partValidationSafe.minLength"
+         [maxlength]="partValidationSafe.maxLength"
+  />
   <button *ngIf="!isShow" type="button" class="btn btn-link" (click)="refreshGuid()">
     <clr-icon shape="refresh"></clr-icon>
   </button>
+  <clr-control-error *clrIfError="'required'">{{name}} must be filled!</clr-control-error>
+  <clr-control-error *clrIfError="'minlength'">{{name}} must be {{ partValidationSafe.minLength }} characters!</clr-control-error>
+  <clr-control-error *clrIfError="'maxlength'">{{name}} must be {{ partValidationSafe.maxLength }} characters!</clr-control-error>
 </clr-control-container>
