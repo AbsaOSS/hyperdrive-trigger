@@ -15,7 +15,15 @@
 
 <clr-control-container *ngFor="let val of value; let i = index; trackBy: trackByFn;">
   <label *ngIf="i == 0">{{name}}</label>
-  <input clrControl [readOnly]="isShow" type="text" [size]="70" [ngModel]="val" (ngModelChange)="ngModelChanged($event, i)"/>
+  <input [name]="name+ '-'+i" clrControl [readOnly]="isShow" type="text" [ngModel]="val"
+         (ngModelChange)="ngModelChanged($event, i)"
+         [size]="partValidation.maxLength"
+         required
+         [minlength]="partValidation.minLength"
+         [maxlength]="partValidation.maxLength"/>
+  <clr-control-error *clrIfError="'required'">{{name}} must be filled!</clr-control-error>
+  <clr-control-error *clrIfError="'minlength'">{{name}} must be at least {{ partValidation.minLength }} characters!</clr-control-error>
+  <clr-control-error *clrIfError="'maxlength'">{{name}} must be at most {{ partValidation.maxLength }} characters!</clr-control-error>
 
   <button *ngIf="!isShow" type="button" class="btn btn-link" (click)="onDeleteValue(i)">
     <clr-icon shape="trash"></clr-icon>
@@ -24,6 +32,14 @@
   <button type="button" class="btn btn-link" *ngIf="!isShow && value.length - 1 === i" (click)="onAddValue()">
     <clr-icon shape="plus"></clr-icon>
   </button>
-
 </clr-control-container>
 
+<clr-control-container *ngIf="value.length == 0 && !isShow">
+  <label>{{name}}</label>
+  <input [name]="name" clrControl [ngModel]="undefined" [required]="partValidation.isRequired" type="hidden"/>
+  <clr-control-error *clrIfError="'required'">At least one must be defined!</clr-control-error>
+
+  <button type="button" class="btn btn-link" (click)="onAddValue()">
+    <clr-icon shape="plus"></clr-icon>
+  </button>
+</clr-control-container>

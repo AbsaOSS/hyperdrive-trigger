@@ -16,11 +16,14 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
 import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
+import { ControlContainer, NgForm } from "@angular/forms";
+import { PartValidation, PartValidationFactory } from "../../../../../models/workflowFormParts.model";
 
 @Component({
   selector: 'app-string-sequence-part',
   templateUrl: './string-sequence-part.component.html',
   styleUrls: ['./string-sequence-part.component.scss'],
+  viewProviders: [{ provide: ControlContainer, useExisting: NgForm}]
 })
 export class StringSequencePartComponent implements OnInit {
   @Input() isShow: boolean;
@@ -28,13 +31,22 @@ export class StringSequencePartComponent implements OnInit {
   @Input() value: string[];
   @Input() property: string;
   @Input() valueChanges: Subject<WorkflowEntryModel>;
+  @Input() partValidation: PartValidation;
+  partValidationSafe: PartValidation;
 
   constructor() {
     // do nothing
   }
 
   ngOnInit(): void {
-    if (!this.value) this.modelChanged(['']);
+    this.partValidationSafe = PartValidationFactory.create(
+      !this.partValidation.isRequired ? this.partValidation.isRequired : true,
+      !!this.partValidation.maxLength ? this.partValidation.maxLength : 60,
+      !!this.partValidation.minLength ? this.partValidation.minLength : 0,
+    );
+
+    if (!this.value)
+      this.modelChanged(this.partValidationSafe.isRequired ? [''] : []);
   }
 
   trackByFn(index, item) {
@@ -43,7 +55,7 @@ export class StringSequencePartComponent implements OnInit {
 
   onDeleteValue(index: number) {
     const clonedValue = Object.assign([], this.value);
-    this.value.length === 1 ? (clonedValue[0] = '') : clonedValue.splice(index, 1);
+    this.value.length === 1 && this.partValidationSafe.isRequired ? (clonedValue[0] = '') : clonedValue.splice(index, 1);
     this.modelChanged(clonedValue);
   }
 
