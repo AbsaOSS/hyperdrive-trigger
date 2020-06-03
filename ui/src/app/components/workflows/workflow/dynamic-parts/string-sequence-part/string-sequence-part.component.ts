@@ -16,14 +16,14 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
 import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
-import { ControlContainer, NgForm } from "@angular/forms";
-import { PartValidation, PartValidationFactory } from "../../../../../models/workflowFormParts.model";
+import { ControlContainer, NgForm } from '@angular/forms';
+import { PartValidation, PartValidationFactory } from '../../../../../models/workflowFormParts.model';
 
 @Component({
   selector: 'app-string-sequence-part',
   templateUrl: './string-sequence-part.component.html',
   styleUrls: ['./string-sequence-part.component.scss'],
-  viewProviders: [{ provide: ControlContainer, useExisting: NgForm}]
+  viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
 })
 export class StringSequencePartComponent implements OnInit {
   @Input() isShow: boolean;
@@ -45,8 +45,7 @@ export class StringSequencePartComponent implements OnInit {
       !!this.partValidation.minLength ? this.partValidation.minLength : 0,
     );
 
-    if (!this.value)
-      this.modelChanged(this.partValidationSafe.isRequired ? [''] : []);
+    if (!this.value) this.modelChanged(this.partValidationSafe.isRequired ? [''] : []);
   }
 
   trackByFn(index, item) {

@@ -18,8 +18,8 @@ import { Subject } from 'rxjs';
 import cloneDeep from 'lodash/cloneDeep';
 import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
 import set from 'lodash/set';
-import {ControlContainer, NgForm} from "@angular/forms";
-import {PartValidation, PartValidationFactory} from "../../../../../models/workflowFormParts.model";
+import { ControlContainer, NgForm } from '@angular/forms';
+import { PartValidation, PartValidationFactory } from '../../../../../models/workflowFormParts.model';
 
 @Component({
   selector: 'app-key-string-value-part',
@@ -65,7 +65,7 @@ export class KeyStringValuePartComponent implements OnInit {
   onDelete(index: number) {
     const clonedValue: [string, string][] = cloneDeep(this.mapOfValues);
 
-    this.mapOfValues.length === 1 && this.partValidationSafe.isRequired ? (clonedValue[index] = ['','']) : clonedValue.splice(index, 1);
+    this.mapOfValues.length === 1 && this.partValidationSafe.isRequired ? (clonedValue[index] = ['', '']) : clonedValue.splice(index, 1);
 
     this.modelChanged(clonedValue);
   }

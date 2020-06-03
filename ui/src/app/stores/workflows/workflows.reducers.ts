@@ -19,7 +19,7 @@ import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
 import { WorkflowFormPartsModel } from '../../models/workflowFormParts.model';
 import { WorkflowEntryModel } from '../../models/workflowEntry.model';
 import { JobEntryModel, JobEntryModelFactory } from '../../models/jobEntry.model';
-import { ApiErrorModel } from "../../models/errors/apiError.model";
+import { ApiErrorModel } from '../../models/errors/apiError.model';
 
 export interface State {
   projects: ProjectModel[];
@@ -29,7 +29,7 @@ export interface State {
     mode: string;
     loading: boolean;
     workflow: WorkflowJoinedModel;
-    backendValidationErrors: ApiErrorModel[];
+    backendValidationErrors: string[];
     workflowData: {
       details: WorkflowEntryModel[];
       sensor: WorkflowEntryModel[];
@@ -396,8 +396,8 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
           ...state.workflowAction,
           backendValidationErrors: [
             ...state.workflowAction.backendValidationErrors.slice(0, action.payload),
-            ...state.workflowAction.backendValidationErrors.slice(action.payload + 1)
-          ]
+            ...state.workflowAction.backendValidationErrors.slice(action.payload + 1),
+          ],
         },
       };
     default:

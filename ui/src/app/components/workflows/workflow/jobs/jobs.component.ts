@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { workflowModes } from '../../../../models/enums/workflowModes.constants';
 import { Subscription } from 'rxjs';
 import cloneDeep from 'lodash/cloneDeep';
@@ -56,7 +56,7 @@ export class JobsComponent implements OnDestroy, OnInit {
   ngOnInit(): void {
     this.jobsUnfoldSubscription = this.jobsUnfold.subscribe((event) => {
       this.hiddenJobs.clear();
-    })
+    });
   }
 
   trackByFn(index, item: JobEntryModel) {

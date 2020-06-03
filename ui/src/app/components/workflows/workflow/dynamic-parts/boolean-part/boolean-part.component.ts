@@ -16,13 +16,13 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
 import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
-import { ControlContainer, NgForm } from "@angular/forms";
+import { ControlContainer, NgForm } from '@angular/forms';
 
 @Component({
   selector: 'app-boolean-part',
   templateUrl: './boolean-part.component.html',
   styleUrls: ['./boolean-part.component.scss'],
-  viewProviders: [{ provide: ControlContainer, useExisting: NgForm }]
+  viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
 })
 export class BooleanPartComponent implements OnInit {
   @Input() isShow: boolean;

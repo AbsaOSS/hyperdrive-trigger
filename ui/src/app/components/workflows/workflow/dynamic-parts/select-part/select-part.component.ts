@@ -16,14 +16,14 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
 import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
-import {ControlContainer, NgForm} from "@angular/forms";
-import {PartValidation, PartValidationFactory} from "../../../../../models/workflowFormParts.model";
+import { ControlContainer, NgForm } from '@angular/forms';
+import { PartValidation, PartValidationFactory } from '../../../../../models/workflowFormParts.model';
 
 @Component({
   selector: 'app-select-part',
   templateUrl: './select-part.component.html',
   styleUrls: ['./select-part.component.scss'],
-  viewProviders: [{ provide: ControlContainer, useExisting: NgForm}]
+  viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
 })
 export class SelectPartComponent implements OnInit {
   @Input() isShow: boolean;
@@ -46,9 +46,7 @@ export class SelectPartComponent implements OnInit {
     if (!this.value || this.value == '') {
       this.modelChanged(this.options.length != 0 ? this.options[0] : '');
     }
-    this.partValidationSafe = PartValidationFactory.create(
-      !!this.partValidation.isRequired ? this.partValidation.isRequired : true,
-    );
+    this.partValidationSafe = PartValidationFactory.create(!!this.partValidation.isRequired ? this.partValidation.isRequired : true);
   }
 
   modelChanged(value: string) {

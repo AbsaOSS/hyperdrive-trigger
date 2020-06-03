@@ -13,26 +13,27 @@
  * limitations under the License.
  */
 
-import {Component, EventEmitter, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
-import {AppState, selectWorkflowState} from '../../../stores/app.reducers';
-import {Subscription} from 'rxjs';
-import {Store} from '@ngrx/store';
+import { Component, EventEmitter, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AppState, selectWorkflowState } from '../../../stores/app.reducers';
+import { Subscription } from 'rxjs';
+import { Store } from '@ngrx/store';
 import {
   DeleteWorkflow,
   CreateWorkflow,
   StartWorkflowInitialization,
   UpdateWorkflow,
   RunWorkflow,
-  SwitchWorkflowActiveState, RemoveBackendValidationError,
+  SwitchWorkflowActiveState,
+  RemoveBackendValidationError,
 } from '../../../stores/workflows/workflows.actions';
-import {workflowModes} from '../../../models/enums/workflowModes.constants';
-import {absoluteRoutes} from '../../../constants/routes.constants';
-import {PreviousRouteService} from '../../../services/previousRoute/previous-route.service';
-import {ConfirmationDialogService} from '../../../services/confirmation-dialog/confirmation-dialog.service';
-import {ConfirmationDialogTypes} from '../../../constants/confirmationDialogTypes.constants';
-import {texts} from '../../../constants/texts.constants';
-import {ApiErrorModel} from "../../../models/errors/apiError.model";
+import { workflowModes } from '../../../models/enums/workflowModes.constants';
+import { absoluteRoutes } from '../../../constants/routes.constants';
+import { PreviousRouteService } from '../../../services/previousRoute/previous-route.service';
+import { ConfirmationDialogService } from '../../../services/confirmation-dialog/confirmation-dialog.service';
+import { ConfirmationDialogTypes } from '../../../constants/confirmationDialogTypes.constants';
+import { texts } from '../../../constants/texts.constants';
+import { ApiErrorModel } from '../../../models/errors/apiError.model';
 
 @Component({
   selector: 'app-workflow',
@@ -47,7 +48,7 @@ export class WorkflowComponent implements OnInit, OnDestroy {
   mode: string;
   id: number;
   isWorkflowActive: boolean;
-  backendValidationErrors: ApiErrorModel[];
+  backendValidationErrors: string[];
 
   workflowModes = workflowModes;
   absoluteRoutes = absoluteRoutes;
@@ -69,7 +70,7 @@ export class WorkflowComponent implements OnInit, OnDestroy {
     route: ActivatedRoute,
   ) {
     this.paramsSubscription = route.params.subscribe((parameters) => {
-      this.store.dispatch(new StartWorkflowInitialization({id: parameters.id, mode: parameters.mode}));
+      this.store.dispatch(new StartWorkflowInitialization({ id: parameters.id, mode: parameters.mode }));
     });
   }
 
@@ -120,10 +121,13 @@ export class WorkflowComponent implements OnInit, OnDestroy {
         texts.SWITCH_WORKFLOW_ACTIVE_STATE_CONTENT(this.isWorkflowActive),
       )
       .subscribe((confirmed) => {
-        if (confirmed) this.store.dispatch(new SwitchWorkflowActiveState({
-          id: id,
-          currentActiveState: this.isWorkflowActive
-        }));
+        if (confirmed)
+          this.store.dispatch(
+            new SwitchWorkflowActiveState({
+              id: id,
+              currentActiveState: this.isWorkflowActive,
+            }),
+          );
       });
   }
 

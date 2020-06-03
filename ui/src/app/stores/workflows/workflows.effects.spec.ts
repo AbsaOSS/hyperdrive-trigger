@@ -39,6 +39,7 @@ import {
   DynamicFormPartFactory,
   DynamicFormPartsFactory,
   FormPartFactory,
+  PartValidationFactory,
   WorkflowFormPartsModelFactory,
 } from '../../models/workflowFormParts.model';
 import {
@@ -116,8 +117,16 @@ describe('WorkflowsEffects', () => {
       ];
 
       const dynamicFormParts = DynamicFormPartsFactory.create(
-        [DynamicFormPartFactory.create('typeOne', [FormPartFactory.create('nameOne', 'propertyOne', true, 'string-field')])],
-        [DynamicFormPartFactory.create('typeTwo', [FormPartFactory.create('nameTwo', 'propertyTwo', false, 'string-field')])],
+        [
+          DynamicFormPartFactory.create('typeOne', [
+            FormPartFactory.create('nameOne', 'propertyOne', 'string-field', PartValidationFactory.create(true)),
+          ]),
+        ],
+        [
+          DynamicFormPartFactory.create('typeTwo', [
+            FormPartFactory.create('nameTwo', 'propertyTwo', 'string-field', PartValidationFactory.create(true)),
+          ]),
+        ],
       );
 
       const workflowFormParts = WorkflowFormPartsModelFactory.create(
@@ -473,11 +482,12 @@ describe('WorkflowsEffects', () => {
 
       const action = new CreateWorkflow();
       mockActions = cold('-a', { a: action });
-      const createWorkflowResponse = cold('-#|');
+      const createWorkflowResponse = cold('-#|', null, 'notValidationError');
 
       const expected = cold('--a', {
         a: {
           type: WorkflowsActions.CREATE_WORKFLOW_FAILURE,
+          payload: [],
         },
       });
 

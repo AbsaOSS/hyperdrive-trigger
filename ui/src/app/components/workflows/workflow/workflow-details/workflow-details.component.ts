@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { Component, OnDestroy, OnInit} from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { workflowModes } from '../../../../models/enums/workflowModes.constants';
 import { Subject, Subscription } from 'rxjs';
 import { delay, distinctUntilChanged } from 'rxjs/operators';

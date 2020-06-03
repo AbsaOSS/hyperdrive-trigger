@@ -21,7 +21,7 @@ import { AppState, selectWorkflowState } from '../../../../stores/app.reducers';
 import { WorkflowSensorChanged, WorkflowSensorTypeSwitched } from '../../../../stores/workflows/workflows.actions';
 import { DynamicFormPart, FormPart } from '../../../../models/workflowFormParts.model';
 import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../models/workflowEntry.model';
-import { delay } from "rxjs/operators";
+import { delay } from 'rxjs/operators';
 
 @Component({
   selector: 'app-sensor',

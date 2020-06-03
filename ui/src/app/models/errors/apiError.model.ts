@@ -13,14 +13,13 @@
  * limitations under the License.
  */
 
-
 export type ApiErrorModel = {
-   message: string;
-   errorType: {name: string};
-}
+  message: string;
+  errorType: { name: string };
+};
 
 export class ApiErrorModelFactory {
-    static create(message: string, errorType: {name: string}): ApiErrorModel {
+  static create(message: string, errorType: { name: string }): ApiErrorModel {
     return { message: message, errorType: errorType };
   }
 }

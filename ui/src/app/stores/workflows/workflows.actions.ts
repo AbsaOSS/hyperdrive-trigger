@@ -20,7 +20,7 @@ import { WorkflowFormPartsModel } from '../../models/workflowFormParts.model';
 import { WorkflowEntryModel } from '../../models/workflowEntry.model';
 import { JobEntryModel } from '../../models/jobEntry.model';
 import { WorkflowModel } from '../../models/workflow.model';
-import { ApiErrorModel } from "../../models/errors/apiError.model";
+import { ApiErrorModel } from '../../models/errors/apiError.model';
 
 export const INITIALIZE_WORKFLOWS = 'INITIALIZE_WORKFLOWS';
 export const INITIALIZE_WORKFLOWS_SUCCESS = 'INITIALIZE_WORKFLOWS_SUCCESS';
@@ -197,7 +197,7 @@ export class CreateWorkflowSuccess implements Action {
 
 export class CreateWorkflowFailure implements Action {
   readonly type = CREATE_WORKFLOW_FAILURE;
-  constructor(public payload: ApiErrorModel[]) {}
+  constructor(public payload: string[]) {}
 }
 
 export class UpdateWorkflow implements Action {

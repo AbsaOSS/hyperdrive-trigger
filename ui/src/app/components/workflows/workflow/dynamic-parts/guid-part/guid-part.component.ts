@@ -17,14 +17,14 @@ import { Component, Input, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
 import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
 import { UuidUtil } from '../../../../../utils/uuid/uuid.util';
-import { ControlContainer, NgForm } from "@angular/forms";
-import { PartValidation, PartValidationFactory } from "../../../../../models/workflowFormParts.model";
+import { ControlContainer, NgForm } from '@angular/forms';
+import { PartValidation, PartValidationFactory } from '../../../../../models/workflowFormParts.model';
 
 @Component({
   selector: 'app-guid-part',
   templateUrl: './guid-part.component.html',
   styleUrls: ['./guid-part.component.scss'],
-  viewProviders: [{ provide: ControlContainer, useExisting: NgForm}]
+  viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
 })
 export class GuidPartComponent implements OnInit {
   @Input() isShow: boolean;

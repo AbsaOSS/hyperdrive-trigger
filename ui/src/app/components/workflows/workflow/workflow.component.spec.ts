@@ -219,6 +219,8 @@ describe('WorkflowComponent', () => {
   }));
 
   it('createWorkflow() should dispatch create workflow when dialog is confirmed', async(() => {
+    underTest.workflowForm = { form: { valid: true } };
+
     const subject = new Subject<boolean>();
     const storeSpy = spyOn(store, 'dispatch');
 
@@ -237,6 +239,7 @@ describe('WorkflowComponent', () => {
 
   it('createWorkflow() should not dispatch create workflow when dialog is not confirmed', async(() => {
     const id = 1;
+    underTest.workflowForm = { form: { valid: true } };
     const subject = new Subject<boolean>();
     const storeSpy = spyOn(store, 'dispatch');
 
@@ -252,6 +255,8 @@ describe('WorkflowComponent', () => {
   }));
 
   it('updateWorkflow() should dispatch update workflow when dialog is confirmed', async(() => {
+    underTest.workflowForm = { form: { valid: true } };
+
     const subject = new Subject<boolean>();
     const storeSpy = spyOn(store, 'dispatch');
 
@@ -270,6 +275,7 @@ describe('WorkflowComponent', () => {
 
   it('updateWorkflow() should not dispatch update workflow when dialog is not confirmed', async(() => {
     const id = 1;
+    underTest.workflowForm = { form: { valid: true } };
     const subject = new Subject<boolean>();
     const storeSpy = spyOn(store, 'dispatch');
 

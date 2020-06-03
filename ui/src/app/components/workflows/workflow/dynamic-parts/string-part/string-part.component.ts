@@ -16,14 +16,14 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
 import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
-import {ControlContainer, NgForm} from "@angular/forms";
-import {PartValidation, PartValidationFactory} from "../../../../../models/workflowFormParts.model";
+import { ControlContainer, NgForm } from '@angular/forms';
+import { PartValidation, PartValidationFactory } from '../../../../../models/workflowFormParts.model';
 
 @Component({
   selector: 'app-string-part',
   templateUrl: './string-part.component.html',
   styleUrls: ['./string-part.component.scss'],
-  viewProviders: [{ provide: ControlContainer, useExisting: NgForm}]
+  viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
 })
 export class StringPartComponent implements OnInit {
   @Input() isShow: boolean;

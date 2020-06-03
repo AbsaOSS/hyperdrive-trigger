@@ -35,7 +35,7 @@ import { ToastrService } from 'ngx-toastr';
 import { texts } from '../../constants/texts.constants';
 import { WorkflowModel, WorkflowModelFactory } from '../../models/workflow.model';
 import { WorkflowRequestModel } from '../../models/workflowRequest.model';
-import {ApiErrorModel} from "../../models/errors/apiError.model";
+import { ApiErrorModel } from '../../models/errors/apiError.model';
 
 @Injectable()
 export class WorkflowsEffects {
@@ -256,13 +256,17 @@ export class WorkflowsEffects {
             },
           ];
         }),
-        catchError((error) => {
-          let validationError: ApiErrorModel[] = error as ApiErrorModel[];
-          if(!!validationError || validationError.length != 0) {
+        catchError((errorResponse) => {
+          if (
+            errorResponse.error instanceof Array &&
+            errorResponse.error.every(
+              (err) => !!err.message && !!err.errorType && !!err.errorType.name && err.errorType.name == 'validationError',
+            )
+          ) {
             return [
               {
                 type: WorkflowActions.CREATE_WORKFLOW_FAILURE,
-                payload: validationError
+                payload: errorResponse.error.map((err) => err.message),
               },
             ];
           } else {
@@ -270,7 +274,7 @@ export class WorkflowsEffects {
             return [
               {
                 type: WorkflowActions.CREATE_WORKFLOW_FAILURE,
-                payload: []
+                payload: [],
               },
             ];
           }
