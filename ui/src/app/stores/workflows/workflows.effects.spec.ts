@@ -548,11 +548,12 @@ describe('WorkflowsEffects', () => {
 
       const action = new UpdateWorkflow();
       mockActions = cold('-a', { a: action });
-      const updateWorkflowResponse = cold('-#|');
+      const updateWorkflowResponse = cold('-#|', null, 'notWorkflowValidation');
 
       const expected = cold('--a', {
         a: {
           type: WorkflowsActions.UPDATE_WORKFLOW_FAILURE,
+          payload: []
         },
       });
 
