@@ -15,5 +15,19 @@
 
 <clr-input-container>
   <label>{{name}}</label>
-  <input [readOnly]="isShow" clrInput type="text" [size]="60" [ngModel]="value" (ngModelChange)="modelChanged($event)"/>
+  <input clrInput
+         type="text"
+         [id]="name"
+         [name]="name"
+         [readOnly]="isShow"
+         [ngModel]="value"
+         (ngModelChange)="modelChanged($event)"
+         [size]="partValidationSafe.maxLength"
+         [required]="partValidationSafe.isRequired"
+         [minlength]="partValidationSafe.minLength"
+         [maxlength]="partValidationSafe.maxLength"
+  />
+  <clr-control-error *clrIfError="'required'">{{name}} must be filled!</clr-control-error>
+  <clr-control-error *clrIfError="'minlength'">{{name}} must be at least {{ partValidationSafe.minLength }} characters!</clr-control-error>
+  <clr-control-error *clrIfError="'maxlength'">{{name}} must be at most {{ partValidationSafe.maxLength }} characters!</clr-control-error>
 </clr-input-container>
