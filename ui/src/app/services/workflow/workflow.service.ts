@@ -102,19 +102,19 @@ export class WorkflowService {
               'Topic',
               'properties.settings.variables.topic',
               'string-field',
-              PartValidationFactory.create(true, 50, 5),
+              PartValidationFactory.create(true, 50, 1),
             ),
             FormPartFactory.create(
               'Kafka servers',
               'properties.settings.maps.servers',
               'set-field',
-              PartValidationFactory.create(true, 50, 5),
+              PartValidationFactory.create(true, 50, 1),
             ),
             FormPartFactory.create(
               'Match properties',
               'properties.matchProperties',
               'key-value-field',
-              PartValidationFactory.create(false, 50, 5),
+              PartValidationFactory.create(false, 50, 1),
             ),
           ]),
           DynamicFormPartFactory.create('Absa-Kafka', [
@@ -122,13 +122,13 @@ export class WorkflowService {
               'Topic',
               'properties.settings.variables.topic',
               'string-field',
-              PartValidationFactory.create(true, 50, 5),
+              PartValidationFactory.create(true, 50, 1),
             ),
             FormPartFactory.create(
               'Kafka servers',
               'properties.settings.maps.servers',
               'set-field',
-              PartValidationFactory.create(true, 50, 5),
+              PartValidationFactory.create(true, 50, 1),
             ),
             FormPartFactory.create(
               'Ingestion token',
@@ -166,7 +166,7 @@ export class WorkflowService {
               'App arguments',
               'jobParameters.maps.appArguments',
               'set-field',
-              PartValidationFactory.create(false, 50, 5),
+              PartValidationFactory.create(false, 50, 1),
             ),
           ]),
           DynamicFormPartFactory.create('Shell', [
