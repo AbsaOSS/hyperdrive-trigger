@@ -19,6 +19,7 @@ import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
 import { WorkflowFormPartsModel } from '../../models/workflowFormParts.model';
 import { WorkflowEntryModel } from '../../models/workflowEntry.model';
 import { JobEntryModel, JobEntryModelFactory } from '../../models/jobEntry.model';
+import { ApiErrorModel } from "../../models/errors/apiError.model";
 
 export interface State {
   projects: ProjectModel[];
@@ -28,6 +29,7 @@ export interface State {
     mode: string;
     loading: boolean;
     workflow: WorkflowJoinedModel;
+    backendValidationErrors: ApiErrorModel[];
     workflowData: {
       details: WorkflowEntryModel[];
       sensor: WorkflowEntryModel[];
@@ -45,6 +47,7 @@ const initialState: State = {
     mode: undefined,
     loading: true,
     workflow: undefined,
+    backendValidationErrors: [],
     workflowData: {
       details: [],
       sensor: [],
@@ -342,6 +345,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         ...state,
         workflowAction: {
           ...state.workflowAction,
+          validationBackendErrors: action.payload,
           loading: false,
         },
       };
@@ -383,6 +387,17 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         workflowAction: {
           ...state.workflowAction,
           loading: false,
+        },
+      };
+    case WorkflowsActions.REMOVE_BACKEND_VALIDATION_ERROR:
+      return {
+        ...state,
+        workflowAction: {
+          ...state.workflowAction,
+          backendValidationErrors: [
+            ...state.workflowAction.backendValidationErrors.slice(0, action.payload),
+            ...state.workflowAction.backendValidationErrors.slice(action.payload + 1)
+          ]
         },
       };
     default:
