@@ -345,7 +345,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         ...state,
         workflowAction: {
           ...state.workflowAction,
-          validationBackendErrors: action.payload,
+          backendValidationErrors: action.payload,
           loading: false,
         },
       };
