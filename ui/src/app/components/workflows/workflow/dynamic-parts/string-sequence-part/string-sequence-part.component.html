@@ -15,7 +15,7 @@
 
 <clr-control-container *ngFor="let val of value; let i = index; trackBy: trackByFn;">
   <label *ngIf="i == 0">{{name}}</label>
-  <input [name]="name+ '-'+i" clrControl [readOnly]="isShow" type="text" [ngModel]="val"
+  <input [name]="name+ '-'+i+uiid" clrControl [readOnly]="isShow" type="text" [ngModel]="val"
          (ngModelChange)="ngModelChanged($event, i)"
          [size]="partValidation.maxLength"
          required
@@ -36,7 +36,7 @@
 
 <clr-control-container *ngIf="value.length == 0 && !isShow">
   <label>{{name}}</label>
-  <input [name]="name" clrControl [ngModel]="undefined" [required]="partValidation.isRequired" type="hidden"/>
+  <input [name]="name+uiid" clrControl [ngModel]="undefined" [required]="partValidation.isRequired" type="hidden"/>
   <clr-control-error *clrIfError="'required'">At least one must be defined!</clr-control-error>
 
   <button type="button" class="btn btn-link" (click)="onAddValue()">

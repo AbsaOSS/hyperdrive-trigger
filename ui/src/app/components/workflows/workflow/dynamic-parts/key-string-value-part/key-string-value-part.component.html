@@ -22,7 +22,7 @@
         clrControl
         type="text"
         placeholder="key"
-        [id]="name+i+0"
+        [id]="name+i+0+uiid"
         [ngModel]="val[0]"
         (ngModelChange)="ngModelChanged($event, i,0)"
         [size]="partValidation.maxLength"
@@ -42,7 +42,7 @@
         clrControl
         type="text"
         placeholder="value"
-        [id]="name+i+1"
+        [id]="name+i+1+uiid"
         [ngModel]="val[1]"
         (ngModelChange)="ngModelChanged($event, i,1)"
         [size]="partValidation.maxLength"

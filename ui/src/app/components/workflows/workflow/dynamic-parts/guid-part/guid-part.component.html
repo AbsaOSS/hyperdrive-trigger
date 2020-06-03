@@ -17,8 +17,8 @@
   <label>{{name}}</label>
   <input clrControl
          type="text"
-         [id]="name"
-         [name]="name"
+         [id]="name+uiid"
+         [name]="name+uiid"
          [readOnly]="true"
          [ngModel]="value"
          (ngModelChange)="modelChanged($event)"

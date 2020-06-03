@@ -20,6 +20,7 @@ import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../mo
 import set from 'lodash/set';
 import { ControlContainer, NgForm } from '@angular/forms';
 import { PartValidation, PartValidationFactory } from '../../../../../models/workflowFormParts.model';
+import { UuidUtil } from '../../../../../utils/uuid/uuid.util';
 
 @Component({
   selector: 'app-key-string-value-part',
@@ -27,6 +28,7 @@ import { PartValidation, PartValidationFactory } from '../../../../../models/wor
   styleUrls: ['./key-string-value-part.component.scss'],
 })
 export class KeyStringValuePartComponent implements OnInit {
+  uiid = UuidUtil.createUUID();
   @Input() isShow: boolean;
   @Input() name: string;
   @Input() value: Record<string, any>;

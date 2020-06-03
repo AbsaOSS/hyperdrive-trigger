@@ -18,6 +18,7 @@ import { Subject } from 'rxjs';
 import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
 import { ControlContainer, NgForm } from '@angular/forms';
 import { PartValidation, PartValidationFactory } from '../../../../../models/workflowFormParts.model';
+import { UuidUtil } from '../../../../../utils/uuid/uuid.util';
 
 @Component({
   selector: 'app-string-sequence-part',
@@ -26,6 +27,7 @@ import { PartValidation, PartValidationFactory } from '../../../../../models/wor
   viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
 })
 export class StringSequencePartComponent implements OnInit {
+  uiid = UuidUtil.createUUID();
   @Input() isShow: boolean;
   @Input() name: string;
   @Input() value: string[];

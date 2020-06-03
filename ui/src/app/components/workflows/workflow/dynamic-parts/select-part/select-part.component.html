@@ -18,8 +18,8 @@
     <label>{{name}}</label>
     <select
       clrSelect
-      [id]="name"
-      [name]="name"
+      [id]="name+uiid"
+      [name]="name+uiid"
       [ngModel]="value"
       (ngModelChange)="modelChanged($event)"
       [required]="partValidationSafe.isRequired"
@@ -33,6 +33,6 @@
 <div *ngIf="isShow">
   <clr-input-container>
     <label class="clr-control-label">{{name}}</label>
-    <input clrInput type="text" [id]="name" [name]="name" [ngModel]="value" [readOnly]="true"/>
+    <input clrInput type="text" [id]="name+uiid" [name]="name+uiid" [ngModel]="value" [readOnly]="true"/>
   </clr-input-container>
 </div>

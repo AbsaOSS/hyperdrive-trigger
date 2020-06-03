@@ -27,6 +27,7 @@ import { PartValidation, PartValidationFactory } from '../../../../../models/wor
   viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
 })
 export class GuidPartComponent implements OnInit {
+  uiid = UuidUtil.createUUID();
   @Input() isShow: boolean;
   @Input() name: string;
   @Input() value: string;
