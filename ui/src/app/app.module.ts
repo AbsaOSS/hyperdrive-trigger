@@ -33,7 +33,7 @@ import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { environment } from '../environments/environment';
 import { AuthService } from './services/auth/auth.service';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
-import { FormsModule } from '@angular/forms';
+import {FormsModule} from '@angular/forms';
 import { AuthEffects } from './stores/auth/auth.effects';
 import { CsrfInterceptor } from './services/interceptors/csrf.interceptor';
 import { UnauthorizedInterceptor } from './services/interceptors/unauthorized.interceptor';
@@ -92,21 +92,21 @@ import { ConfirmationDialogComponent } from './components/common/confirmation-di
     DynamicPartsComponent,
     ConfirmationDialogComponent,
   ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    ClarityModule,
-    FormsModule,
-    BrowserAnimationsModule,
-    HttpClientModule,
-    ToastrModule.forRoot({
-      timeOut: 5000,
-    }),
-    StoreModule.forRoot(reducers),
-    EffectsModule.forRoot([AuthEffects, RunsEffects, WorkflowsEffects]),
-    StoreRouterConnectingModule.forRoot(),
-    !environment.production ? StoreDevtoolsModule.instrument() : [],
-  ],
+    imports: [
+        BrowserModule,
+        AppRoutingModule,
+        ClarityModule,
+        FormsModule,
+        BrowserAnimationsModule,
+        HttpClientModule,
+        ToastrModule.forRoot({
+            timeOut: 5000,
+        }),
+        StoreModule.forRoot(reducers),
+        EffectsModule.forRoot([AuthEffects, RunsEffects, WorkflowsEffects]),
+        StoreRouterConnectingModule.forRoot(),
+        !environment.production ? StoreDevtoolsModule.instrument() : [],
+    ],
   providers: [
     AuthService,
     AuthGuardService,
