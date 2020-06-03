@@ -21,7 +21,8 @@
       [name]="formPart.name"
       [valueChanges]="valueChanges"
       [value]="getValue(formPart.property)"
-      [property]="formPart.property">
+      [property]="formPart.property"
+      [partValidation]="formPart.partValidation">
     </app-string-part>
     <app-string-sequence-part
       *ngSwitchCase="'set-field'"
@@ -29,7 +30,8 @@
       [name]="formPart.name"
       [valueChanges]="valueChanges"
       [value]="getValue(formPart.property)"
-      [property]="formPart.property">
+      [property]="formPart.property"
+      [partValidation]="formPart.partValidation">
     </app-string-sequence-part>
     <app-key-string-value-part
       *ngSwitchCase="'key-value-field'"
@@ -37,7 +39,8 @@
       [name]="formPart.name"
       [valueChanges]="valueChanges"
       [value]="getValue(formPart.property)"
-      [property]="formPart.property">
+      [property]="formPart.property"
+      [partValidation]="formPart.partValidation">
     </app-key-string-value-part>
     <app-guid-part
       *ngSwitchCase="'guid-field'"
@@ -45,7 +48,8 @@
       [name]="formPart.name"
       [valueChanges]="valueChanges"
       [value]="getValue(formPart.property)"
-      [property]="formPart.property">
+      [property]="formPart.property"
+      [partValidation]="formPart.partValidation">
     </app-guid-part>
     <app-cron-quartz-part
       *ngSwitchCase="'cron-quartz-field'"
@@ -62,7 +66,8 @@
       [valueChanges]="valueChanges"
       [value]="getValue(formPart.property)"
       [property]="formPart.property"
-      [options]="formPart.options">
+      [options]="formPart.options"
+      [partValidation]="formPart.partValidation">
     </app-select-part>
     <app-boolean-part
       *ngSwitchCase="'boolean-field'"
