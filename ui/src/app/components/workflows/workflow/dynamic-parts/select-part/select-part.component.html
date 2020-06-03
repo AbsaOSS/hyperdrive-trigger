@@ -26,7 +26,7 @@
     >
       <option *ngFor="let option of options" [value]="option">{{option}}</option>
     </select>
-    <clr-control-error *clrIfError="'required'">{{name}} one option has to be selected!</clr-control-error>
+    <clr-control-error *clrIfError="'required'">{{texts.FORM_VALIDATION_ONE_MUST_BE_SELECTED(name)}}</clr-control-error>
   </clr-select-container>
 </div>
 

@@ -19,6 +19,7 @@ import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../mo
 import { ControlContainer, NgForm } from '@angular/forms';
 import { PartValidation, PartValidationFactory } from '../../../../../models/workflowFormParts.model';
 import { UuidUtil } from '../../../../../utils/uuid/uuid.util';
+import { texts } from 'src/app/constants/texts.constants';
 
 @Component({
   selector: 'app-string-part',
@@ -28,6 +29,7 @@ import { UuidUtil } from '../../../../../utils/uuid/uuid.util';
 })
 export class StringPartComponent implements OnInit {
   uiid = UuidUtil.createUUID();
+  texts = texts;
   @Input() isShow: boolean;
   @Input() name: string;
   @Input() value: string;

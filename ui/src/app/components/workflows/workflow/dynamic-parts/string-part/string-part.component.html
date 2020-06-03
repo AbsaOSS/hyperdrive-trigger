@@ -27,7 +27,7 @@
          [minlength]="partValidationSafe.minLength"
          [maxlength]="partValidationSafe.maxLength"
   />
-  <clr-control-error *clrIfError="'required'">{{name}} must be filled!</clr-control-error>
-  <clr-control-error *clrIfError="'minlength'">{{name}} must be at least {{ partValidationSafe.minLength }} characters!</clr-control-error>
-  <clr-control-error *clrIfError="'maxlength'">{{name}} must be at most {{ partValidationSafe.maxLength }} characters!</clr-control-error>
+  <clr-control-error *clrIfError="'required'">{{texts.FORM_VALIDATION_MUST_BE_FILLED(name)}}</clr-control-error>
+  <clr-control-error *clrIfError="'minlength'">{{texts.FORM_VALIDATION_MIN_LENGTH(name, partValidationSafe.minLength)}}</clr-control-error>
+  <clr-control-error *clrIfError="'maxlength'">{{texts.FORM_VALIDATION_MAX_LENGTH(name, partValidationSafe.minLength)}}</clr-control-error>
 </clr-input-container>

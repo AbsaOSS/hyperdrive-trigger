@@ -33,7 +33,6 @@ import { PreviousRouteService } from '../../../services/previousRoute/previous-r
 import { ConfirmationDialogService } from '../../../services/confirmation-dialog/confirmation-dialog.service';
 import { ConfirmationDialogTypes } from '../../../constants/confirmationDialogTypes.constants';
 import { texts } from '../../../constants/texts.constants';
-import { ApiErrorModel } from '../../../models/errors/apiError.model';
 
 @Component({
   selector: 'app-workflow',

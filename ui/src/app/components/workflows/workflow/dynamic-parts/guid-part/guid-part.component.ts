@@ -19,6 +19,7 @@ import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../mo
 import { UuidUtil } from '../../../../../utils/uuid/uuid.util';
 import { ControlContainer, NgForm } from '@angular/forms';
 import { PartValidation, PartValidationFactory } from '../../../../../models/workflowFormParts.model';
+import { texts } from '../../../../../constants/texts.constants';
 
 @Component({
   selector: 'app-guid-part',
@@ -28,6 +29,7 @@ import { PartValidation, PartValidationFactory } from '../../../../../models/wor
 })
 export class GuidPartComponent implements OnInit {
   uiid = UuidUtil.createUUID();
+  texts = texts;
   @Input() isShow: boolean;
   @Input() name: string;
   @Input() value: string;
