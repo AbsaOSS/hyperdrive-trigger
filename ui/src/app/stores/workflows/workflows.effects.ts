@@ -35,6 +35,7 @@ import { ToastrService } from 'ngx-toastr';
 import { texts } from '../../constants/texts.constants';
 import { WorkflowModel, WorkflowModelFactory } from '../../models/workflow.model';
 import { WorkflowRequestModel } from '../../models/workflowRequest.model';
+import {ApiErrorModel} from "../../models/errors/apiError.model";
 
 @Injectable()
 export class WorkflowsEffects {
@@ -255,13 +256,24 @@ export class WorkflowsEffects {
             },
           ];
         }),
-        catchError(() => {
-          this.toastrService.error(texts.CREATE_WORKFLOW_FAILURE_NOTIFICATION);
-          return [
-            {
-              type: WorkflowActions.CREATE_WORKFLOW_FAILURE,
-            },
-          ];
+        catchError((error) => {
+          let validationError: ApiErrorModel[] = error as ApiErrorModel[];
+          if(!!validationError || validationError.length != 0) {
+            return [
+              {
+                type: WorkflowActions.CREATE_WORKFLOW_FAILURE,
+                payload: validationError
+              },
+            ];
+          } else {
+            this.toastrService.error(texts.CREATE_WORKFLOW_FAILURE_NOTIFICATION);
+            return [
+              {
+                type: WorkflowActions.CREATE_WORKFLOW_FAILURE,
+                payload: []
+              },
+            ];
+          }
         }),
       );
     }),

@@ -13,20 +13,28 @@
  * limitations under the License.
  */
 
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { api } from '../../constants/api.constants';
-import { map } from 'rxjs/operators';
-import { ProjectModel } from '../../models/project.model';
-import { Observable, of } from 'rxjs';
-import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
-import { DynamicFormPartFactory, DynamicFormParts, DynamicFormPartsFactory, FormPartFactory } from '../../models/workflowFormParts.model';
+import {Injectable} from '@angular/core';
+import {HttpClient, HttpErrorResponse, HttpParams} from '@angular/common/http';
+import {api} from '../../constants/api.constants';
+import {catchError, map} from 'rxjs/operators';
+import {ProjectModel} from '../../models/project.model';
+import { Observable, of, throwError } from 'rxjs';
+import {WorkflowJoinedModel} from '../../models/workflowJoined.model';
+import {
+  DynamicFormPartFactory,
+  DynamicFormParts,
+  DynamicFormPartsFactory,
+  FormPartFactory,
+  PartValidationFactory
+} from '../../models/workflowFormParts.model';
+import {ApiErrorModel} from "../../models/errors/apiError.model";
 
 @Injectable({
   providedIn: 'root',
 })
 export class WorkflowService {
-  constructor(private httpClient: HttpClient) {}
+  constructor(private httpClient: HttpClient) {
+  }
 
   getProjects(): Observable<ProjectModel[]> {
     return this.httpClient
@@ -61,6 +69,14 @@ export class WorkflowService {
         map((_) => {
           return _.body;
         }),
+        catchError((errorResponse: HttpErrorResponse) => {
+          let validationError: ApiErrorModel[] = errorResponse.error as ApiErrorModel[];
+          if(!!validationError) {
+            return validationError.every(err => err.errorType.name == 'validationError') ? throwError(validationError) : throwError(errorResponse);
+          } else {
+            return throwError(errorResponse);
+          }
+        })
       );
   }
 
@@ -86,31 +102,56 @@ export class WorkflowService {
       DynamicFormPartsFactory.create(
         [
           DynamicFormPartFactory.create('Kafka', [
-            FormPartFactory.create('Topic', 'properties.settings.variables.topic', true, 'string-field'),
-            FormPartFactory.create('Kafka servers', 'properties.settings.maps.servers', true, 'set-field'),
-            FormPartFactory.create('Match properties', 'properties.matchProperties', false, 'key-value-field'),
+            FormPartFactory.create(
+              'Topic', 'properties.settings.variables.topic', 'string-field',
+              PartValidationFactory.create(true, 50, 5)
+            ),
+            FormPartFactory.create('Kafka servers', 'properties.settings.maps.servers', 'set-field',
+              PartValidationFactory.create(true, 50, 5)
+            ),
+            FormPartFactory.create('Match properties', 'properties.matchProperties', 'key-value-field',
+              PartValidationFactory.create(false)
+            ),
           ]),
           DynamicFormPartFactory.create('Absa-Kafka', [
-            FormPartFactory.create('Topic', 'properties.settings.variables.topic', true, 'string-field'),
-            FormPartFactory.create('Kafka servers', 'properties.settings.maps.servers', true, 'set-field'),
-            FormPartFactory.create('Ingestion token', 'properties.matchProperties.ingestionToken', true, 'guid-field'),
+            FormPartFactory.create('Topic', 'properties.settings.variables.topic', 'string-field',
+              PartValidationFactory.create(true, 50, 5)
+            ),
+            FormPartFactory.create('Kafka servers', 'properties.settings.maps.servers', 'set-field',
+              PartValidationFactory.create(true, 50, 5)
+            ),
+            FormPartFactory.create('Ingestion token', 'properties.matchProperties.ingestionToken', 'guid-field',
+              PartValidationFactory.create(true, 36, 36)
+            ),
           ]),
           DynamicFormPartFactory.create('Time', [
-            FormPartFactory.create('Run at', 'properties.settings.variables.cronExpression', true, 'cron-quartz-field'),
+            FormPartFactory.create('Run at', 'properties.settings.variables.cronExpression', 'cron-quartz-field',
+              PartValidationFactory.create(true)
+            ),
           ]),
         ],
         [
           DynamicFormPartFactory.create('Spark', [
-            FormPartFactory.create('Job jar', 'jobParameters.variables.jobJar', true, 'string-field'),
-            FormPartFactory.create('Main class', 'jobParameters.variables.mainClass', true, 'string-field'),
-            FormPartFactory.create('Deployment mode', 'jobParameters.variables.deploymentMode', true, 'select-field', [
-              'cluster',
-              'client',
-            ]),
-            FormPartFactory.create('App arguments', 'jobParameters.maps.appArguments', false, 'set-field'),
+            FormPartFactory.create('Job jar', 'jobParameters.variables.jobJar', 'string-field',
+              PartValidationFactory.create(true, 50, 1)
+            ),
+            FormPartFactory.create('Main class', 'jobParameters.variables.mainClass', 'string-field',
+              PartValidationFactory.create(true, 50, 1)
+            ),
+            FormPartFactory.create('Deployment mode', 'jobParameters.variables.deploymentMode', 'select-field',
+              PartValidationFactory.create(true),
+              [
+                'cluster',
+                'client',
+              ]),
+            FormPartFactory.create('App arguments', 'jobParameters.maps.appArguments', 'set-field',
+              PartValidationFactory.create(false, 50, 5)
+            ),
           ]),
           DynamicFormPartFactory.create('Shell', [
-            FormPartFactory.create('Script location', 'jobParameters.variables.scriptLocation', true, 'string-field'),
+            FormPartFactory.create('Script location', 'jobParameters.variables.scriptLocation', 'string-field',
+              PartValidationFactory.create(true, 50, 1)
+            ),
           ]),
         ],
       ),
