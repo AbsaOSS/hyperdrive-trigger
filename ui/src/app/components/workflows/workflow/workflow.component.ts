@@ -13,25 +13,26 @@
  * limitations under the License.
  */
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { AppState, selectWorkflowState } from '../../../stores/app.reducers';
-import { Subscription } from 'rxjs';
-import { Store } from '@ngrx/store';
+import {Component, EventEmitter, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
+import {AppState, selectWorkflowState} from '../../../stores/app.reducers';
+import {Subscription} from 'rxjs';
+import {Store} from '@ngrx/store';
 import {
   DeleteWorkflow,
   CreateWorkflow,
   StartWorkflowInitialization,
   UpdateWorkflow,
   RunWorkflow,
-  SwitchWorkflowActiveState,
+  SwitchWorkflowActiveState, RemoveBackendValidationError,
 } from '../../../stores/workflows/workflows.actions';
-import { workflowModes } from '../../../models/enums/workflowModes.constants';
-import { absoluteRoutes } from '../../../constants/routes.constants';
-import { PreviousRouteService } from '../../../services/previousRoute/previous-route.service';
-import { ConfirmationDialogService } from '../../../services/confirmation-dialog/confirmation-dialog.service';
-import { ConfirmationDialogTypes } from '../../../constants/confirmationDialogTypes.constants';
-import { texts } from '../../../constants/texts.constants';
+import {workflowModes} from '../../../models/enums/workflowModes.constants';
+import {absoluteRoutes} from '../../../constants/routes.constants';
+import {PreviousRouteService} from '../../../services/previousRoute/previous-route.service';
+import {ConfirmationDialogService} from '../../../services/confirmation-dialog/confirmation-dialog.service';
+import {ConfirmationDialogTypes} from '../../../constants/confirmationDialogTypes.constants';
+import {texts} from '../../../constants/texts.constants';
+import {ApiErrorModel} from "../../../models/errors/apiError.model";
 
 @Component({
   selector: 'app-workflow',
@@ -39,10 +40,14 @@ import { texts } from '../../../constants/texts.constants';
   styleUrls: ['./workflow.component.scss'],
 })
 export class WorkflowComponent implements OnInit, OnDestroy {
+  @ViewChild('workflowForm') workflowForm;
+  @Output() jobsUnfold: EventEmitter<any> = new EventEmitter();
+
   loading = true;
   mode: string;
   id: number;
   isWorkflowActive: boolean;
+  backendValidationErrors: ApiErrorModel[];
 
   workflowModes = workflowModes;
   absoluteRoutes = absoluteRoutes;
@@ -64,7 +69,7 @@ export class WorkflowComponent implements OnInit, OnDestroy {
     route: ActivatedRoute,
   ) {
     this.paramsSubscription = route.params.subscribe((parameters) => {
-      this.store.dispatch(new StartWorkflowInitialization({ id: parameters.id, mode: parameters.mode }));
+      this.store.dispatch(new StartWorkflowInitialization({id: parameters.id, mode: parameters.mode}));
     });
   }
 
@@ -74,6 +79,7 @@ export class WorkflowComponent implements OnInit, OnDestroy {
       this.mode = state.workflowAction.mode;
       this.id = state.workflowAction.id;
       this.isWorkflowActive = !!state.workflowAction.workflow ? state.workflowAction.workflow.isActive : false;
+      this.backendValidationErrors = state.workflowAction.backendValidationErrors;
     });
   }
 
@@ -87,6 +93,10 @@ export class WorkflowComponent implements OnInit, OnDestroy {
 
   toggleJobsAccordion() {
     this.isJobsAccordionHidden = !this.isJobsAccordionHidden;
+  }
+
+  removeBackendValidationError(index: number) {
+    this.store.dispatch(new RemoveBackendValidationError(index));
   }
 
   cancelWorkflow() {
@@ -110,7 +120,10 @@ export class WorkflowComponent implements OnInit, OnDestroy {
         texts.SWITCH_WORKFLOW_ACTIVE_STATE_CONTENT(this.isWorkflowActive),
       )
       .subscribe((confirmed) => {
-        if (confirmed) this.store.dispatch(new SwitchWorkflowActiveState({ id: id, currentActiveState: this.isWorkflowActive }));
+        if (confirmed) this.store.dispatch(new SwitchWorkflowActiveState({
+          id: id,
+          currentActiveState: this.isWorkflowActive
+        }));
       });
   }
 
@@ -123,19 +136,32 @@ export class WorkflowComponent implements OnInit, OnDestroy {
   }
 
   createWorkflow() {
-    this.confirmationDialogServiceSubscription = this.confirmationDialogService
-      .confirm(ConfirmationDialogTypes.YesOrNo, texts.CREATE_WORKFLOW_CONFIRMATION_TITLE, texts.CREATE_WORKFLOW_CONFIRMATION_CONTENT)
-      .subscribe((confirmed) => {
-        if (confirmed) this.store.dispatch(new CreateWorkflow());
-      });
+    this.showHiddenParts();
+    if (this.workflowForm.form.valid) {
+      this.confirmationDialogServiceSubscription = this.confirmationDialogService
+        .confirm(ConfirmationDialogTypes.YesOrNo, texts.CREATE_WORKFLOW_CONFIRMATION_TITLE, texts.CREATE_WORKFLOW_CONFIRMATION_CONTENT)
+        .subscribe((confirmed) => {
+          if (confirmed) this.store.dispatch(new CreateWorkflow());
+        });
+    }
   }
 
   updateWorkflow() {
-    this.confirmationDialogServiceSubscription = this.confirmationDialogService
-      .confirm(ConfirmationDialogTypes.YesOrNo, texts.UPDATE_WORKFLOW_CONFIRMATION_TITLE, texts.UPDATE_WORKFLOW_CONFIRMATION_CONTENT)
-      .subscribe((confirmed) => {
-        if (confirmed) this.store.dispatch(new UpdateWorkflow());
-      });
+    this.showHiddenParts();
+    if (this.workflowForm.form.valid) {
+      this.confirmationDialogServiceSubscription = this.confirmationDialogService
+        .confirm(ConfirmationDialogTypes.YesOrNo, texts.UPDATE_WORKFLOW_CONFIRMATION_TITLE, texts.UPDATE_WORKFLOW_CONFIRMATION_CONTENT)
+        .subscribe((confirmed) => {
+          if (confirmed) this.store.dispatch(new UpdateWorkflow());
+        });
+    }
+  }
+
+  showHiddenParts() {
+    this.isDetailsAccordionHidden = false;
+    this.isSensorAccordionHidden = false;
+    this.isJobsAccordionHidden = false;
+    this.jobsUnfold.emit();
   }
 
   ngOnDestroy(): void {
