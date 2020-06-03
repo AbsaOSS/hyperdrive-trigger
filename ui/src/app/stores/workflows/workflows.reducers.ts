@@ -387,6 +387,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         workflowAction: {
           ...state.workflowAction,
           loading: false,
+          backendValidationErrors: action.payload,
         },
       };
     case WorkflowsActions.REMOVE_BACKEND_VALIDATION_ERROR:

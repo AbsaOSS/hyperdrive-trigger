@@ -314,13 +314,28 @@ export class WorkflowsEffects {
             },
           ];
         }),
-        catchError(() => {
-          this.toastrService.error(texts.UPDATE_WORKFLOW_FAILURE_NOTIFICATION);
-          return [
-            {
-              type: WorkflowActions.UPDATE_WORKFLOW_FAILURE,
-            },
-          ];
+        catchError((errorResponse) => {
+          if (
+            errorResponse.error instanceof Array &&
+            errorResponse.error.every(
+              (err) => !!err.message && !!err.errorType && !!err.errorType.name && err.errorType.name == 'validationError',
+            )
+          ) {
+            return [
+              {
+                type: WorkflowActions.UPDATE_WORKFLOW_FAILURE,
+                payload: errorResponse.error.map((err) => err.message),
+              },
+            ];
+          } else {
+            this.toastrService.error(texts.UPDATE_WORKFLOW_FAILURE_NOTIFICATION);
+            return [
+              {
+                type: WorkflowActions.UPDATE_WORKFLOW_FAILURE,
+                payload: [],
+              },
+            ];
+          }
         }),
       );
     }),

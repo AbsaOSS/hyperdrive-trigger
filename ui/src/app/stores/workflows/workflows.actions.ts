@@ -211,6 +211,7 @@ export class UpdateWorkflowSuccess implements Action {
 
 export class UpdateWorkflowFailure implements Action {
   readonly type = UPDATE_WORKFLOW_FAILURE;
+  constructor(public payload: string[]) {}
 }
 
 export class RemoveBackendValidationError implements Action {
