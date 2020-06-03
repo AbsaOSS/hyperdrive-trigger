@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -13,22 +14,15 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.scheduler.sensors.kafka
+package za.co.absa.hyperdrive.trigger
 
-import za.co.absa.hyperdrive.trigger.models.Settings
+import java.util.concurrent.TimeUnit
 
-case class KafkaSettings(
-  topic: String,
-  servers: List[String]
-)
+import scala.concurrent.{Await, Future}
+import scala.concurrent.duration.Duration
 
-object KafkaSettings {
-  val Topic = "topic"
-  val Servers = "servers"
-  def apply(settings: Settings): KafkaSettings = {
-    KafkaSettings(
-      topic = settings.variables(Topic),
-      servers = settings.maps(Servers)
-    )
+object TestUtils {
+  def await[T](future: Future[T]): T = {
+    Await.result(future, Duration(120, TimeUnit.SECONDS))
   }
 }

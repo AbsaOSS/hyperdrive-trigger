@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -13,22 +14,16 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.scheduler.sensors.kafka
+package za.co.absa.hyperdrive.trigger.testdata
 
-import za.co.absa.hyperdrive.trigger.models.Settings
+import org.scalatest.{BeforeAndAfterAll, Suite}
 
-case class KafkaSettings(
-  topic: String,
-  servers: List[String]
-)
+trait LocalDatabaseConfig extends BeforeAndAfterAll { this: Suite =>
 
-object KafkaSettings {
-  val Topic = "topic"
-  val Servers = "servers"
-  def apply(settings: Settings): KafkaSettings = {
-    KafkaSettings(
-      topic = settings.variables(Topic),
-      servers = settings.maps(Servers)
-    )
+  override def beforeAll(): Unit = {
+    System.setProperty("db.driver", "org.postgresql.Driver")
+    System.setProperty("db.url", "jdbc:postgresql://localhost:5432/hyperdriver")
+    System.setProperty("db.user", "hyperdriver")
+    super.beforeAll()
   }
 }

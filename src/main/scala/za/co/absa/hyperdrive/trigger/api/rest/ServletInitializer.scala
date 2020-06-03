@@ -17,6 +17,7 @@ package za.co.absa.hyperdrive.trigger.api.rest
 
 import org.springframework.boot.builder.SpringApplicationBuilder
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
+import za.co.absa.hyperdrive.trigger.Application
 
 class ServletInitializer extends SpringBootServletInitializer {
   
