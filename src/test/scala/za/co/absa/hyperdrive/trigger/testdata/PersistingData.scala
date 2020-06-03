@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -13,22 +14,8 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.scheduler.sensors.kafka
+package za.co.absa.hyperdrive.trigger.testdata
 
-import za.co.absa.hyperdrive.trigger.models.Settings
+import org.scalatest.Tag
 
-case class KafkaSettings(
-  topic: String,
-  servers: List[String]
-)
-
-object KafkaSettings {
-  val Topic = "topic"
-  val Servers = "servers"
-  def apply(settings: Settings): KafkaSettings = {
-    KafkaSettings(
-      topic = settings.variables(Topic),
-      servers = settings.maps(Servers)
-    )
-  }
-}
+object PersistingData extends Tag("za.co.absa.hyperdrive.trigger.testdata.PersistingData")

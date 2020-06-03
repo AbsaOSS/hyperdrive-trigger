@@ -68,6 +68,8 @@
 
         <skip.docker>true</skip.docker>
         <skipNpmTests>${skipTests}</skipNpmTests>
+        <scalatest.suites/>
+        <scalatest.tagsToExclude>za.co.absa.hyperdrive.trigger.testdata.PersistingData</scalatest.tagsToExclude>
     </properties>
 
     <dependencies>
@@ -129,6 +131,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
             <version>${spring.version}</version>
         </dependency>
         <dependency>
@@ -199,7 +206,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring.version}</version>
                 <configuration>
-                    <mainClass>za.co.absa.hyperdrive.trigger.api.rest.Application</mainClass>
+                    <mainClass>za.co.absa.hyperdrive.trigger.Application</mainClass>
                 </configuration>
                 <executions>
                     <execution>
@@ -256,6 +263,10 @@
                         <goals>
                             <goal>test</goal>
                         </goals>
+                        <configuration>
+                            <suites>${scalatest.suites}</suites>
+                            <tagsToExclude>${scalatest.tagsToExclude}</tagsToExclude>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -346,6 +357,15 @@
             <id>docker</id>
             <properties>
                 <skip.docker>false</skip.docker>
+            </properties>
+        </profile>
+        <profile>
+            <id>testdata</id>
+            <properties>
+                <scalatest.suites>za.co.absa.hyperdrive.trigger.testdata.TestDataGeneratorLocal</scalatest.suites>
+                <scalatest.tagsToExclude/>
+                <skip.npm>true</skip.npm>
+                <skip.installnodenpm>true</skip.installnodenpm>
             </properties>
         </profile>
     </profiles>
