@@ -27,7 +27,6 @@ import {
   FormPartFactory,
   PartValidationFactory,
 } from '../../models/workflowFormParts.model';
-import { ApiErrorModel, ApiErrorModelFactory } from '../../models/errors/apiError.model';
 
 @Injectable({
   providedIn: 'root',
@@ -68,6 +67,9 @@ export class WorkflowService {
         map((_) => {
           return _.body;
         }),
+        catchError((errorResponse: HttpErrorResponse) => {
+          return throwError(errorResponse.error);
+        }),
       );
   }
 
@@ -77,6 +79,9 @@ export class WorkflowService {
       .pipe(
         map((_) => {
           return _.body;
+        }),
+        catchError((errorResponse: HttpErrorResponse) => {
+          return throwError(errorResponse.error);
         }),
       );
   }

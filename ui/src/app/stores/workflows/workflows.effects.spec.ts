@@ -59,6 +59,7 @@ import { texts } from '../../constants/texts.constants';
 import { Router } from '@angular/router';
 import { absoluteRoutes } from '../../constants/routes.constants';
 import { JobTypeFactory } from '../../models/jobInstance.model';
+import { ApiErrorModelFactory } from '../../models/errors/apiError.model';
 
 describe('WorkflowsEffects', () => {
   let underTest: WorkflowsEffects;
@@ -477,7 +478,7 @@ describe('WorkflowsEffects', () => {
   });
 
   describe('workflowCreate', () => {
-    it('should return create workflow failure when service fails to create workflow', () => {
+    it('should return create workflow failure with no backend validation errors when service fails to create workflow', () => {
       const toastrServiceSpy = spyOn(toastrService, 'error');
 
       const action = new CreateWorkflow();
@@ -496,6 +497,27 @@ describe('WorkflowsEffects', () => {
       expect(underTest.workflowCreate).toBeObservable(expected);
       expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
       expect(toastrServiceSpy).toHaveBeenCalledWith(texts.CREATE_WORKFLOW_FAILURE_NOTIFICATION);
+    });
+
+    it('should return create workflow failure with backend validation errors when service fails to create workflow', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'error');
+      const error = ApiErrorModelFactory.create('error', { name: 'validationError' });
+
+      const action = new CreateWorkflow();
+      mockActions = cold('-a', { a: action });
+      const createWorkflowResponse = cold('-#|', null, [error]);
+
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowsActions.CREATE_WORKFLOW_FAILURE,
+          payload: [error.message],
+        },
+      });
+
+      spyOn(workflowService, 'createWorkflow').and.returnValue(createWorkflowResponse);
+
+      expect(underTest.workflowCreate).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(0);
     });
 
     it('should return create workflow success when service returns success creation', () => {
@@ -543,7 +565,7 @@ describe('WorkflowsEffects', () => {
   });
 
   describe('workflowUpdate', () => {
-    it('should return update workflow failure when service fails to update workflow', () => {
+    it('should return update workflow failure with no backend validation errors when service fails to update workflow', () => {
       const toastrServiceSpy = spyOn(toastrService, 'error');
 
       const action = new UpdateWorkflow();
@@ -553,7 +575,7 @@ describe('WorkflowsEffects', () => {
       const expected = cold('--a', {
         a: {
           type: WorkflowsActions.UPDATE_WORKFLOW_FAILURE,
-          payload: []
+          payload: [],
         },
       });
 
@@ -562,6 +584,26 @@ describe('WorkflowsEffects', () => {
       expect(underTest.workflowUpdate).toBeObservable(expected);
       expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
       expect(toastrServiceSpy).toHaveBeenCalledWith(texts.UPDATE_WORKFLOW_FAILURE_NOTIFICATION);
+    });
+
+    it('should return update workflow failure with backend validation errors when service fails to update workflow', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'error');
+      const error = ApiErrorModelFactory.create('error', { name: 'validationError' });
+      const action = new UpdateWorkflow();
+      mockActions = cold('-a', { a: action });
+      const updateWorkflowResponse = cold('-#|', null, [error]);
+
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowsActions.UPDATE_WORKFLOW_FAILURE,
+          payload: [error.message],
+        },
+      });
+
+      spyOn(workflowService, 'updateWorkflow').and.returnValue(updateWorkflowResponse);
+
+      expect(underTest.workflowUpdate).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(0);
     });
 
     it('should return create workflow success when service returns success creation', () => {

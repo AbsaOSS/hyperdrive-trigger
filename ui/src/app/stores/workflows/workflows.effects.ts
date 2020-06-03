@@ -258,15 +258,15 @@ export class WorkflowsEffects {
         }),
         catchError((errorResponse) => {
           if (
-            errorResponse.error instanceof Array &&
-            errorResponse.error.every(
+            errorResponse instanceof Array &&
+            errorResponse.every(
               (err) => !!err.message && !!err.errorType && !!err.errorType.name && err.errorType.name == 'validationError',
             )
           ) {
             return [
               {
                 type: WorkflowActions.CREATE_WORKFLOW_FAILURE,
-                payload: errorResponse.error.map((err) => err.message),
+                payload: errorResponse.map((err) => err.message),
               },
             ];
           } else {
@@ -316,15 +316,15 @@ export class WorkflowsEffects {
         }),
         catchError((errorResponse) => {
           if (
-            errorResponse.error instanceof Array &&
-            errorResponse.error.every(
+            errorResponse instanceof Array &&
+            errorResponse.every(
               (err) => !!err.message && !!err.errorType && !!err.errorType.name && err.errorType.name == 'validationError',
             )
           ) {
             return [
               {
                 type: WorkflowActions.UPDATE_WORKFLOW_FAILURE,
-                payload: errorResponse.error.map((err) => err.message),
+                payload: errorResponse.map((err) => err.message),
               },
             ];
           } else {
