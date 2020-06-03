@@ -20,6 +20,7 @@ import { WorkflowFormPartsModel } from '../../models/workflowFormParts.model';
 import { WorkflowEntryModel } from '../../models/workflowEntry.model';
 import { JobEntryModel } from '../../models/jobEntry.model';
 import { WorkflowModel } from '../../models/workflow.model';
+import { ApiErrorModel } from "../../models/errors/apiError.model";
 
 export const INITIALIZE_WORKFLOWS = 'INITIALIZE_WORKFLOWS';
 export const INITIALIZE_WORKFLOWS_SUCCESS = 'INITIALIZE_WORKFLOWS_SUCCESS';
@@ -59,6 +60,8 @@ export const CREATE_WORKFLOW_FAILURE = 'CREATE_WORKFLOW_FAILURE';
 export const UPDATE_WORKFLOW = 'UPDATE_WORKFLOW';
 export const UPDATE_WORKFLOW_SUCCESS = 'UPDATE_WORKFLOW_SUCCESS';
 export const UPDATE_WORKFLOW_FAILURE = 'UPDATE_WORKFLOW_FAILURE';
+
+export const REMOVE_BACKEND_VALIDATION_ERROR = 'REMOVE_BACKEND_VALIDATION_ERROR';
 
 export class InitializeWorkflows implements Action {
   readonly type = INITIALIZE_WORKFLOWS;
@@ -194,6 +197,7 @@ export class CreateWorkflowSuccess implements Action {
 
 export class CreateWorkflowFailure implements Action {
   readonly type = CREATE_WORKFLOW_FAILURE;
+  constructor(public payload: ApiErrorModel[]) {}
 }
 
 export class UpdateWorkflow implements Action {
@@ -207,6 +211,11 @@ export class UpdateWorkflowSuccess implements Action {
 
 export class UpdateWorkflowFailure implements Action {
   readonly type = UPDATE_WORKFLOW_FAILURE;
+}
+
+export class RemoveBackendValidationError implements Action {
+  readonly type = REMOVE_BACKEND_VALIDATION_ERROR;
+  constructor(public payload: number) {}
 }
 
 export type WorkflowsActions =
@@ -240,4 +249,5 @@ export type WorkflowsActions =
   | CreateWorkflowFailure
   | UpdateWorkflow
   | UpdateWorkflowSuccess
-  | UpdateWorkflowFailure;
+  | UpdateWorkflowFailure
+  | RemoveBackendValidationError;
