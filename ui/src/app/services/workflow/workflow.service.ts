@@ -110,7 +110,7 @@ export class WorkflowService {
               PartValidationFactory.create(true, 50, 5)
             ),
             FormPartFactory.create('Match properties', 'properties.matchProperties', 'key-value-field',
-              PartValidationFactory.create(false)
+              PartValidationFactory.create(false, 50, 5)
             ),
           ]),
           DynamicFormPartFactory.create('Absa-Kafka', [
