@@ -196,9 +196,7 @@ object WorkflowFixture {
         properties = Properties(
           sensorId = 0,
           settings = Settings(
-            variables = Map(
-              TimeSensorSettings.CRON_EXPRESSION_KEY -> randomCron(),
-              TimeSensorSettings.QUARTZ_JOB_ID_KEY -> randomUuid()),
+            variables = Map(TimeSensorSettings.CRON_EXPRESSION_KEY -> randomCron()),
             maps = Map.empty
           ),
           matchProperties = Map.empty

@@ -63,10 +63,9 @@ class TimeSensorIntegrationTest extends FlatSpec with Matchers with BeforeAndAft
     val processor = new EventProcessor(eventRepository, dagDefinitionRepository, dagInstanceRepository)
     val sensors = new Sensors(processor, sensorRepository)
     val cronExpression = "0/3 * * * * ?"
-    val quartzJobId = "1234-5678-abcd"
 
     // Persist workflow, sensor and dagDefinition
-    val properties = Properties(-1L, Settings(Map("cronExpression" -> cronExpression, "quartzJobId" -> quartzJobId), Map.empty), Map.empty)
+    val properties = Properties(-1L, Settings(Map("cronExpression" -> cronExpression), Map.empty), Map.empty)
     val sensor = Sensor(-1L, SensorTypes.Time, properties)
 
     val jobParameters1 = JobParameters(Map("deploymentMode" -> "client", "jobJar" -> "spark-job.jar", "mainClass" -> "TheMainClass"), Map.empty)
@@ -93,7 +92,7 @@ class TimeSensorIntegrationTest extends FlatSpec with Matchers with BeforeAndAft
         val scheduler = TimeSensorQuartzSchedulerManager.getScheduler
         val jobKeys = scheduler.getJobKeys(GroupMatcher.groupEquals[JobKey](TimeSensor.JOB_GROUP_NAME))
         jobKeys should have size 1
-        jobKeys.iterator().next().getName shouldBe quartzJobId
+        jobKeys.iterator().next().getName shouldBe sensor.id.toString
       }))
 
     // Check that inactive sensor is removed from quartz
