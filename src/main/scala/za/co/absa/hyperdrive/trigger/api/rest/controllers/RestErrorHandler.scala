@@ -16,18 +16,31 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.controllers
 
+import org.slf4j.LoggerFactory
+import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.http.{HttpStatus, ResponseEntity}
 import org.springframework.web.bind.annotation.{ExceptionHandler, RestControllerAdvice}
 import org.springframework.web.context.request.WebRequest
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
 import za.co.absa.hyperdrive.trigger.models.errors.ApiException
-
 @RestControllerAdvice
-class ApiExceptionHandler extends ResponseEntityExceptionHandler {
+class RestErrorHandler {
+  private val logger = LoggerFactory.getLogger(this.getClass)
 
   @ExceptionHandler(Array(classOf[ApiException]))
-  protected def handleException(ex: RuntimeException, request: WebRequest): ResponseEntity[Object] = {
-    val apiException = ex.asInstanceOf[ApiException]
-    new ResponseEntity(apiException.apiErrors, HttpStatus.UNPROCESSABLE_ENTITY)
+  def handleApiException(ex: ApiException, request: WebRequest): ResponseEntity[Object] = {
+    logger.error("ApiException occurred", ex)
+    new ResponseEntity(ex.apiErrors, HttpStatus.UNPROCESSABLE_ENTITY)
+  }
+
+  @ExceptionHandler(Array(classOf[HttpMessageNotReadableException]))
+  def handleMethodArgumentNotValidException(ex: HttpMessageNotReadableException, request: WebRequest): ResponseEntity[Object] = {
+    logger.error("Probably Jackson Deserialization failed", ex)
+    new ResponseEntity(HttpStatus.BAD_REQUEST)
+  }
+
+  @ExceptionHandler
+  def handleThrowable(ex: Throwable): ResponseEntity[Object] = {
+    logger.error("Unexpected error occurred", ex)
+    new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
   }
 }

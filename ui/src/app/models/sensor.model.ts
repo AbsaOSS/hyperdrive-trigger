@@ -35,15 +35,13 @@ export type SettingsModel = {
   maps: Map<string, Set<string>>;
 };
 
-export class SensorModelFactory {
-  static create(workflowId: number, sensorType: SensorType, properties: PropertiesModel, id: number): SensorModel {
-    return { workflowId: workflowId, sensorType: sensorType, properties: properties, id: id };
+export class SettingsModelFactory {
+  static create(variables: Map<string, string>, maps: Map<string, Set<string>>): SettingsModel {
+    return { variables: variables, maps: maps };
   }
-}
 
-export class SensorTypeFactory {
-  static create(name: string): SensorType {
-    return { name: name };
+  static createEmpty(): SettingsModel {
+    return this.create(new Map<string, string>(), new Map<string, Set<string>>());
   }
 }
 
@@ -51,10 +49,28 @@ export class PropertiesModelFactory {
   static create(sensorId: number, settings: SettingsModel, matchProperties: Map<string, string>): PropertiesModel {
     return { sensorId: sensorId, settings: settings, matchProperties: matchProperties };
   }
+
+  static createEmpty(): PropertiesModel {
+    return this.create(undefined, SettingsModelFactory.createEmpty(), new Map<string, string>());
+  }
 }
 
-export class SettingsModelFactory {
-  static create(variables: Map<string, string>, maps: Map<string, Set<string>>): SettingsModel {
-    return { variables: variables, maps: maps };
+export class SensorTypeFactory {
+  static create(name: string): SensorType {
+    return { name: name };
+  }
+
+  static createEmpty(): SensorType {
+    return this.create(undefined);
+  }
+}
+
+export class SensorModelFactory {
+  static create(workflowId: number, sensorType: SensorType, properties: PropertiesModel, id: number): SensorModel {
+    return { workflowId: workflowId, sensorType: sensorType, properties: properties, id: id };
+  }
+
+  static createEmpty(): SensorModel {
+    return this.create(undefined, SensorTypeFactory.createEmpty(), PropertiesModelFactory.createEmpty(), undefined);
   }
 }

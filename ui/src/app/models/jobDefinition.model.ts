@@ -29,6 +29,16 @@ export type JobParametersModel = {
   maps: Map<string, Set<string>>;
 };
 
+export class JobParametersModelFactory {
+  static create(variables: Map<string, string>, maps: Map<string, Set<string>>): JobParametersModel {
+    return { variables: variables, maps: maps };
+  }
+
+  static createEmpty(): JobParametersModel {
+    return this.create(new Map(), new Map());
+  }
+}
+
 export class JobDefinitionModelFactory {
   static create(
     dagDefinitionId = 0,
@@ -40,10 +50,8 @@ export class JobDefinitionModelFactory {
   ): JobDefinitionModel {
     return { dagDefinitionId: dagDefinitionId, name: name, jobType: jobType, jobParameters: jobParameters, order: order, id: id };
   }
-}
 
-export class JobParametersModelFactory {
-  static create(variables: Map<string, string>, maps: Map<string, Set<string>>): JobParametersModel {
-    return { variables: variables, maps: maps };
+  static createEmpty(): JobDefinitionModel {
+    return this.create(undefined, undefined, undefined, JobParametersModelFactory.createEmpty(), undefined, undefined);
   }
 }

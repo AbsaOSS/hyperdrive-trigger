@@ -17,9 +17,9 @@ import { WorkflowEntryModel } from './workflowEntry.model';
 import { JobEntryModel } from './jobEntry.model';
 import set from 'lodash/set';
 import { WorkflowJoinedModel, WorkflowJoinedModelFactory } from './workflowJoined.model';
-import { SensorModel } from './sensor.model';
-import { DagDefinitionJoinedModelFactory } from './dagDefinitionJoined.model';
-import { JobDefinitionModel } from './jobDefinition.model';
+import { SensorModel, SensorModelFactory } from './sensor.model';
+import { DagDefinitionJoinedModel, DagDefinitionJoinedModelFactory } from './dagDefinitionJoined.model';
+import { JobDefinitionModelFactory } from './jobDefinition.model';
 
 class WorkflowDetails {
   constructor(
@@ -42,10 +42,11 @@ export class WorkflowRequestModel {
   getUpdateWorkflowRequestObject(id: number): WorkflowJoinedModel {
     return this.createWorkflowRequestObject(id);
   }
+
   private createWorkflowRequestObject(id = 0): WorkflowJoinedModel {
     const workflowDetails = this.getWorkflowDetails(id);
     const workflowSensor = this.getWorkflowSensor();
-    const workflowJobsDefinitions = this.getWorkflowJobsDefinitions();
+    const workflowDagDefinition = this.getWorkflowDagDefinition();
 
     return WorkflowJoinedModelFactory.create(
       workflowDetails.name,
@@ -53,7 +54,7 @@ export class WorkflowRequestModel {
       workflowDetails.project,
       workflowDetails.created,
       workflowSensor,
-      DagDefinitionJoinedModelFactory.create(0, workflowJobsDefinitions, 0),
+      workflowDagDefinition,
       workflowDetails.id,
       workflowDetails.updated,
     );
@@ -69,20 +70,22 @@ export class WorkflowRequestModel {
   }
 
   private getWorkflowSensor(): SensorModel {
-    const partialSensor = {};
+    const partialSensor = SensorModelFactory.createEmpty();
     this.sensorData.forEach((sensor) => {
       set(partialSensor, sensor.property, sensor.value);
     });
-    return partialSensor as SensorModel;
+    return partialSensor;
   }
 
-  private getWorkflowJobsDefinitions(): JobDefinitionModel[] {
-    return this.jobsData.map((jobDef) => {
-      const partialJobDefinition = { order: jobDef.order };
+  private getWorkflowDagDefinition(): DagDefinitionJoinedModel {
+    const jobDefinitions = this.jobsData.map((jobDef) => {
+      const partialJobDefinition = JobDefinitionModelFactory.createEmpty();
+      partialJobDefinition.order = jobDef.order;
       jobDef.entries.forEach((jobProp) => {
         set(partialJobDefinition, jobProp.property, jobProp.value);
       });
-      return partialJobDefinition as JobDefinitionModel;
+      return partialJobDefinition;
     });
+    return DagDefinitionJoinedModelFactory.create(0, jobDefinitions, 0);
   }
 }
