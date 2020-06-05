@@ -139,24 +139,26 @@ export class WorkflowComponent implements OnInit, OnDestroy {
   }
 
   createWorkflow() {
-    this.showHiddenParts();
     if (this.workflowForm.form.valid) {
       this.confirmationDialogServiceSubscription = this.confirmationDialogService
         .confirm(ConfirmationDialogTypes.YesOrNo, texts.CREATE_WORKFLOW_CONFIRMATION_TITLE, texts.CREATE_WORKFLOW_CONFIRMATION_CONTENT)
         .subscribe((confirmed) => {
           if (confirmed) this.store.dispatch(new CreateWorkflow());
         });
+    } else {
+      this.showHiddenParts();
     }
   }
 
   updateWorkflow() {
-    this.showHiddenParts();
     if (this.workflowForm.form.valid) {
       this.confirmationDialogServiceSubscription = this.confirmationDialogService
         .confirm(ConfirmationDialogTypes.YesOrNo, texts.UPDATE_WORKFLOW_CONFIRMATION_TITLE, texts.UPDATE_WORKFLOW_CONFIRMATION_CONTENT)
         .subscribe((confirmed) => {
           if (confirmed) this.store.dispatch(new UpdateWorkflow());
         });
+    } else {
+      this.showHiddenParts();
     }
   }
 
