@@ -47,10 +47,10 @@ export const texts = {
     return `${name} must be filled!`;
   },
   FORM_VALIDATION_MIN_LENGTH(name: string, length: number): string {
-    return `${name} must be at least ${length} characters!`;
+    return `${name} must be at least ${length} characters long!`;
   },
   FORM_VALIDATION_MAX_LENGTH(name: string, length: number): string {
-    return `${name} must be at most ${length} characters!`;
+    return `${name} must be at most ${length} characters long!`;
   },
   FORM_VALIDATION_AT_LEAST_ONE_DEFINED(): string {
     return `At least one must be defined!`;

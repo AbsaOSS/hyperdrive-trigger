@@ -21,6 +21,7 @@ import { Store } from '@ngrx/store';
 import { AppState, selectWorkflowState } from '../../../../../stores/app.reducers';
 import { WorkflowJobChanged, WorkflowJobTypeSwitched } from '../../../../../stores/workflows/workflows.actions';
 import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
+import { delay } from "rxjs/operators";
 
 @Component({
   selector: 'app-job',
@@ -58,7 +59,7 @@ export class JobComponent implements OnInit, OnDestroy {
       this.selectedJob = !!selected ? selected.value : undefined;
     });
 
-    this.jobChangesSubscription = this.jobChanges.subscribe((jobChange) => {
+    this.jobChangesSubscription = this.jobChanges.pipe(delay(0)).subscribe((jobChange) => {
       if (jobChange.property == this.jobSwitchPart.property) {
         this.store.dispatch(
           new WorkflowJobTypeSwitched({

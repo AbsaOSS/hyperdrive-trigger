@@ -44,8 +44,8 @@ export class KeyStringValuePartComponent implements OnInit {
   ngOnInit(): void {
     this.partValidationSafe = PartValidationFactory.create(
       !this.partValidation.isRequired ? this.partValidation.isRequired : true,
-      !!this.partValidation.maxLength ? this.partValidation.maxLength : 60,
-      !!this.partValidation.minLength ? this.partValidation.minLength : 0,
+      !!this.partValidation.maxLength ? this.partValidation.maxLength : Number.MAX_SAFE_INTEGER,
+      !!this.partValidation.minLength ? this.partValidation.minLength : 1,
     );
 
     for (const prop in this.value) {
