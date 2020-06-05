@@ -20,7 +20,7 @@ import { CronQuartzPartComponent } from './cron-quartz-part.component';
 import { WorkflowEntryModel } from '../../../../../models/workflowEntry.model';
 import { userFriendly } from '../../../../../constants/cronExpressionOptions.constants';
 
-fdescribe('CronQuartzPartComponent', () => {
+describe('CronQuartzPartComponent', () => {
   let fixture: ComponentFixture<CronQuartzPartComponent>;
   let component: CronQuartzPartComponent;
 

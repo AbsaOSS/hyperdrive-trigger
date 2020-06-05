@@ -101,11 +101,6 @@ export class CronQuartzPartComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // // this.value = '0,17,23,41 0 0 ? * * *';
-    this.value = '0 10 * ? * * *';
-    // console.log(this.value.length);
-    console.log(cronstrue.toString(this.value).length);
-
     if (!this.value) {
       this.cron = ['0', '0', '0', '?', '*', '*', '*'];
       this.modelChanged(this.cron.join(' '));
@@ -158,7 +153,6 @@ export class CronQuartzPartComponent implements OnInit {
 
   checkReadableMessage(value: string): void {
     this.freq = cronstrue.toString(value).length > 30 ? this.frequencies[1].value : this.frequencies[0].value;
-
   }
   onMinuteSelect(option): void {
     this.minuteValue = option;
