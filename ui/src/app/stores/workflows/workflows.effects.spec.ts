@@ -59,7 +59,7 @@ import { texts } from '../../constants/texts.constants';
 import { Router } from '@angular/router';
 import { absoluteRoutes } from '../../constants/routes.constants';
 import { JobTypeFactory } from '../../models/jobInstance.model';
-import { ApiErrorModelFactory } from '../../models/errors/apiError.model';
+import {ApiErrorModel, ApiErrorModelFactory} from '../../models/errors/apiError.model';
 
 describe('WorkflowsEffects', () => {
   let underTest: WorkflowsEffects;
@@ -649,4 +649,38 @@ describe('WorkflowsEffects', () => {
       expect(routerSpy).toHaveBeenCalledWith(absoluteRoutes.SHOW_WORKFLOW + '/' + workflow.id);
     });
   });
+
+  describe('isBackendValidationError', () => {
+    it('should return false if string is passed', () => {
+      const errorResponse: string = 'errorResponse';
+      expect(underTest.isBackendValidationError(errorResponse)).toBeFalsy();
+    });
+
+    it('should return false if wrong object is passed', () => {
+      const errorResponse: Object = {fieldOne: 'fieldOne', fieldTwo: true, fieldThree: {nestedField: 99}};
+      expect(underTest.isBackendValidationError(errorResponse)).toBeFalsy();
+    });
+
+    it('should return false if array with wrong object is passed', () => {
+      const errorResponse: Array<any> = [{fieldOne: 'fieldOne', fieldTwo: true, fieldThree: {nestedField: 99}}]
+      expect(underTest.isBackendValidationError(errorResponse)).toBeFalsy();
+    });
+
+    it('should return false if correct object array is passed with incorrect error type', () => {
+      const errorResponse: ApiErrorModel[] = [
+        ApiErrorModelFactory.create('message1', {name: 'validationError'}),
+        ApiErrorModelFactory.create('message2', {name: 'wrongName'})
+      ];
+      expect(underTest.isBackendValidationError(errorResponse)).toBeFalsy();
+    });
+
+    it('should return true if array with validation error is passed', () => {
+      const errorResponse: ApiErrorModel[] = [
+        ApiErrorModelFactory.create('message1', {name: 'validationError'}),
+        ApiErrorModelFactory.create('message2', {name: 'validationError'})
+      ];
+      expect(underTest.isBackendValidationError(errorResponse)).toBeTruthy();
+    });
+  });
+
 });

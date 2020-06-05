@@ -257,12 +257,7 @@ export class WorkflowsEffects {
           ];
         }),
         catchError((errorResponse) => {
-          if (
-            errorResponse instanceof Array &&
-            errorResponse.every(
-              (err) => !!err.message && !!err.errorType && !!err.errorType.name && err.errorType.name == 'validationError',
-            )
-          ) {
+          if (this.isBackendValidationError(errorResponse)) {
             return [
               {
                 type: WorkflowActions.CREATE_WORKFLOW_FAILURE,
@@ -315,12 +310,7 @@ export class WorkflowsEffects {
           ];
         }),
         catchError((errorResponse) => {
-          if (
-            errorResponse instanceof Array &&
-            errorResponse.every(
-              (err) => !!err.message && !!err.errorType && !!err.errorType.name && err.errorType.name == 'validationError',
-            )
-          ) {
+          if (this.isBackendValidationError(errorResponse)) {
             return [
               {
                 type: WorkflowActions.UPDATE_WORKFLOW_FAILURE,
@@ -340,4 +330,10 @@ export class WorkflowsEffects {
       );
     }),
   );
+
+  isBackendValidationError(errorResponse: any): boolean {
+    return errorResponse instanceof Array && errorResponse.every(
+      (err) => !!err.message && !!err.errorType && !!err.errorType.name && err.errorType.name == 'validationError',
+    )
+  }
 }
