@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -13,19 +14,15 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.scheduler.sensors.time
+package za.co.absa.hyperdrive.trigger
 
-import za.co.absa.hyperdrive.trigger.models.Settings
+import java.util.concurrent.TimeUnit
 
-case class TimeSensorSettings(
-   cronExpression: String
-)
+import scala.concurrent.{Await, Future}
+import scala.concurrent.duration.Duration
 
-object TimeSensorSettings {
-  val CRON_EXPRESSION_KEY = "cronExpression"
-  def apply(settings: Settings): TimeSensorSettings = {
-    TimeSensorSettings(
-      cronExpression = settings.variables(CRON_EXPRESSION_KEY)
-    )
+object TestUtils {
+  def await[T](future: Future[T]): T = {
+    Await.result(future, Duration(120, TimeUnit.SECONDS))
   }
 }

@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -13,19 +14,19 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.scheduler.sensors.time
+package za.co.absa.hyperdrive.trigger
 
-import za.co.absa.hyperdrive.trigger.models.Settings
+import org.junit.runner.RunWith
+import org.scalatest.{BeforeAndAfterAll, Suite}
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.test.context.TestContextManager
+import org.springframework.test.context.junit4.SpringRunner
 
-case class TimeSensorSettings(
-   cronExpression: String
-)
-
-object TimeSensorSettings {
-  val CRON_EXPRESSION_KEY = "cronExpression"
-  def apply(settings: Settings): TimeSensorSettings = {
-    TimeSensorSettings(
-      cronExpression = settings.variables(CRON_EXPRESSION_KEY)
-    )
+@SpringBootTest
+@RunWith(classOf[SpringRunner])
+trait SpringIntegrationTest extends BeforeAndAfterAll { this: Suite =>
+  override def beforeAll(): Unit = {
+    new TestContextManager(classOf[SpringIntegrationTest]).prepareTestInstance(this)
+    super.beforeAll()
   }
 }

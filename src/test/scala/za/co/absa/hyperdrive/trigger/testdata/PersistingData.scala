@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -13,19 +14,8 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.scheduler.sensors.time
+package za.co.absa.hyperdrive.trigger.testdata
 
-import za.co.absa.hyperdrive.trigger.models.Settings
+import org.scalatest.Tag
 
-case class TimeSensorSettings(
-   cronExpression: String
-)
-
-object TimeSensorSettings {
-  val CRON_EXPRESSION_KEY = "cronExpression"
-  def apply(settings: Settings): TimeSensorSettings = {
-    TimeSensorSettings(
-      cronExpression = settings.variables(CRON_EXPRESSION_KEY)
-    )
-  }
-}
+object PersistingData extends Tag("za.co.absa.hyperdrive.trigger.testdata.PersistingData")

@@ -23,10 +23,12 @@ case class KafkaSettings(
 )
 
 object KafkaSettings {
+  val Topic = "topic"
+  val Servers = "servers"
   def apply(settings: Settings): KafkaSettings = {
     KafkaSettings(
-      topic = settings.variables("topic"),
-      servers = settings.maps("servers")
+      topic = settings.variables(Topic),
+      servers = settings.maps(Servers)
     )
   }
 }
