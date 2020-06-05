@@ -332,8 +332,9 @@ export class WorkflowsEffects {
   );
 
   isBackendValidationError(errorResponse: any): boolean {
-    return errorResponse instanceof Array && errorResponse.every(
-      (err) => !!err.message && !!err.errorType && !!err.errorType.name && err.errorType.name == 'validationError',
-    )
+    return (
+      errorResponse instanceof Array &&
+      errorResponse.every((err) => !!err.message && !!err.errorType && !!err.errorType.name && err.errorType.name == 'validationError')
+    );
   }
 }

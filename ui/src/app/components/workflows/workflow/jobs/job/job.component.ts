@@ -21,7 +21,7 @@ import { Store } from '@ngrx/store';
 import { AppState, selectWorkflowState } from '../../../../../stores/app.reducers';
 import { WorkflowJobChanged, WorkflowJobTypeSwitched } from '../../../../../stores/workflows/workflows.actions';
 import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
-import { delay } from "rxjs/operators";
+import { delay } from 'rxjs/operators';
 
 @Component({
   selector: 'app-job',

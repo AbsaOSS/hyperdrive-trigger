@@ -321,5 +321,4 @@ describe('WorkflowComponent', () => {
     expect(underTest.isJobsAccordionHidden).toBeFalsy();
     expect(jobsUnfoldSpy).toHaveBeenCalledTimes(1);
   });
-
 });
