@@ -17,7 +17,7 @@
   <label *ngIf="i == 0">{{name}}</label>
   <input [name]="name+ '-'+i+uiid" clrControl [readOnly]="isShow" type="text" [ngModel]="val"
          (ngModelChange)="ngModelChanged($event, i)"
-         [size]="partValidationSafe.maxLength < 100 ? partValidationSafe.maxLength : 100"
+         [size]="partValidationSafe.maxLength < maxFieldSize ? partValidationSafe.maxLength : maxFieldSize"
          required
          [minlength]="partValidation.minLength"
          [maxlength]="partValidation.maxLength"/>

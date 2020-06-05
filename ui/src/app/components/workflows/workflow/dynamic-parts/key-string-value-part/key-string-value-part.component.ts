@@ -41,6 +41,8 @@ export class KeyStringValuePartComponent implements OnInit {
 
   mapOfValues: [string, string][] = [];
 
+  maxFieldSize: number = 100;
+
   ngOnInit(): void {
     this.partValidationSafe = PartValidationFactory.create(
       !this.partValidation.isRequired ? this.partValidation.isRequired : true,

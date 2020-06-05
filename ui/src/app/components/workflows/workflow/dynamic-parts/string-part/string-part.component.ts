@@ -38,6 +38,8 @@ export class StringPartComponent implements OnInit {
   @Input() partValidation: PartValidation;
   partValidationSafe: PartValidation;
 
+  maxFieldSize: number = 100;
+
   constructor() {
     // do nothing
   }

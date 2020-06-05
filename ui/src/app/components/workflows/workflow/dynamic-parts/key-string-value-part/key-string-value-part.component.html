@@ -25,7 +25,7 @@
         [id]="name+i+0+uiid"
         [ngModel]="val[0]"
         (ngModelChange)="ngModelChanged($event, i,0)"
-        [size]="partValidationSafe.maxLength < 100 ? partValidationSafe.maxLength : 100"
+        [size]="partValidationSafe.maxLength < maxFieldSize ? partValidationSafe.maxLength : maxFieldSize"
         required
         [minlength]="partValidation.minLength"
         [maxlength]="partValidation.maxLength"
@@ -45,7 +45,7 @@
         [id]="name+i+1+uiid"
         [ngModel]="val[1]"
         (ngModelChange)="ngModelChanged($event, i,1)"
-        [size]="partValidationSafe.maxLength < 100 ? partValidationSafe.maxLength : 100"
+        [size]="partValidationSafe.maxLength < maxFieldSize ? partValidationSafe.maxLength : maxFieldSize"
         required
         [minlength]="partValidation.minLength"
         [maxlength]="partValidation.maxLength"
@@ -68,10 +68,10 @@
   <clr-control-container>
     <label *ngIf="i == 0" class="clr-control-label">{{name}}</label>
     <label *ngIf="i != 0" class="clr-control-label"></label>
-    Key {{i+1}}: <input [readOnly]="true" clrControl value="{{val[0]}}" [size]="partValidationSafe.maxLength < 100 ? partValidationSafe.maxLength : 100"/>
+    Key {{i+1}}: <input [readOnly]="true" clrControl value="{{val[0]}}" [size]="partValidationSafe.maxLength < maxFieldSize ? partValidationSafe.maxLength : maxFieldSize"/>
   </clr-control-container>
   <clr-control-container>
-    Value {{i+1}}: <input [readOnly]="true" clrControl value="{{val[1]}}" [size]="partValidationSafe.maxLength < 100 ? partValidationSafe.maxLength : 100"/>
+    Value {{i+1}}: <input [readOnly]="true" clrControl value="{{val[1]}}" [size]="partValidationSafe.maxLength < maxFieldSize ? partValidationSafe.maxLength : maxFieldSize"/>
   </clr-control-container>
   </div>
 </div>

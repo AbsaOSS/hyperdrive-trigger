@@ -22,7 +22,7 @@
          [readOnly]="isShow"
          [ngModel]="value"
          (ngModelChange)="modelChanged($event)"
-         [size]="partValidationSafe.maxLength < 100 ? partValidationSafe.maxLength : 100"
+         [size]="partValidationSafe.maxLength < maxFieldSize ? partValidationSafe.maxLength : maxFieldSize"
          [required]="partValidationSafe.isRequired"
          [minlength]="partValidationSafe.minLength"
          [maxlength]="partValidationSafe.maxLength"
