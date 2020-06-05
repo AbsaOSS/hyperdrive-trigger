@@ -56,6 +56,7 @@ class Application() {
       .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
       .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
       .configure(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES, false)
+      .configure(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES, true)
       .registerModule(module)
   }
 
