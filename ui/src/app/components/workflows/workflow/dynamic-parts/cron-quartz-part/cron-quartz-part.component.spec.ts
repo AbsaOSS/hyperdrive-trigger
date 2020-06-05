@@ -20,7 +20,7 @@ import { CronQuartzPartComponent } from './cron-quartz-part.component';
 import { WorkflowEntryModel } from '../../../../../models/workflowEntry.model';
 import { userFriendly } from '../../../../../constants/cronExpressionOptions.constants';
 
-describe('CronQuartzPartComponent', () => {
+fdescribe('CronQuartzPartComponent', () => {
   let fixture: ComponentFixture<CronQuartzPartComponent>;
   let component: CronQuartzPartComponent;
 
@@ -129,6 +129,25 @@ describe('CronQuartzPartComponent', () => {
 
       expect(underTest.validateCron(underTest.value)).toBeFalsy();
     });
+  });
+
+  it('should set default view to user friendly input on readable string length less than 30', () => {
+    const underTest = fixture.componentInstance;
+    underTest.valueChanges = new Subject<WorkflowEntryModel>();
+    underTest.value = '0 0 18 ? * * *';
+    underTest.checkReadableMessage(underTest.value);
+
+    expect(underTest.freq).toEqual(underTest.frequencies[0].value);
+  });
+
+  it('should set default view to free text cron expression on readable string length not less than 30', () => {
+    const underTest = fixture.componentInstance;
+    underTest.valueChanges = new Subject<WorkflowEntryModel>();
+    underTest.value = '0,17,23,41 0 0 ? * * *';
+    underTest.checkReadableMessage(underTest.value);
+
+    console.log(underTest.freq);
+    expect(underTest.freq).toEqual(underTest.frequencies[1].value);
   });
 
   it('should set cron for every minutes', () => {

@@ -35,7 +35,7 @@
         (change)="onFreeText($event.target.value)" [size]="24">
 
       <input *ngIf="freq == 2" [readOnly]="true" clrControl
-        value="{{ validCron ? readableCronExpression : 'please update with a correct expression.'}}" [size]="60" />
+        value="{{ validCron ? readableCronExpression : 'please update with a correct expression.'}}" [size]="80" />
     </div>
 
     <span *ngIf="freq == 1">Every</span>
@@ -81,7 +81,7 @@
   <clr-control-container>
     <label>Frequency</label>
 
-    <input [readOnly]="true" clrControl value="{{ readableCronExpression }}" [size]="60" />
+    <input [readOnly]="true" clrControl value="{{ readableCronExpression }}" [size]="80" />
 
   </clr-control-container>
 </div>
