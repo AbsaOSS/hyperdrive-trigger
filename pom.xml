@@ -24,6 +24,61 @@
     <artifactId>hyperdrive-trigger</artifactId>
     <packaging>jar</packaging>
 
+    <name>hyperdrive-trigger</name>
+    <description>Hyperdrive-Trigger is a scheduler and GUI for hyperdrive.</description>
+    <url>https://github.com/AbsaOSS/hyperdrive-trigger</url>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+        </repository>
+    </distributionManagement>
+
+    <scm>
+        <connection>scm:git:git://github.com/AbsaOSS/hyperdrive-trigger.git</connection>
+        <developerConnection>scm:git:ssh://github.com:AbsaOSS/hyperdrive-trigger.git</developerConnection>
+        <url>https://github.com/AbsaOSS/hyperdrive-trigger/tree/master</url>
+    </scm>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <organization>
+        <name>ABSA Group Limited</name>
+        <url>https://www.absa.africa</url>
+    </organization>
+
+    <developers>
+        <developer>
+            <id>jozefbakus</id>
+            <name>Jozef Bakus</name>
+            <timezone>Europe/Prague</timezone>
+            <url>https://github.com/jozefbakus</url>
+        </developer>
+        <developer>
+            <id>kevinwallimann</id>
+            <name>Kevin Wallimann</name>
+            <timezone>Europe/Prague</timezone>
+            <url>https://github.com/kevinwallimann</url>
+        </developer>
+        <developer>
+            <id>senelesithole</id>
+            <name>Senele Sithole</name>
+            <timezone>Africa/Johannesburg</timezone>
+            <url>https://github.com/senelesithole</url>
+        </developer>
+    </developers>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -61,6 +116,11 @@
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
         <scalatest-maven-plugin.version>2.0.0</scalatest-maven-plugin.version>
         <dockerfile-maven.version>1.4.13</dockerfile-maven.version>
+
+        <!-- Deployment -->
+        <gpg.plugin.version>1.6</gpg.plugin.version>
+        <nexus.staging.plugin.version>1.6.8</nexus.staging.plugin.version>
+        <maven.release.plugin.version>2.5.3</maven.release.plugin.version>
 
         <skip.docker>true</skip.docker>
     </properties>
@@ -277,7 +337,20 @@
                     <noCache>true</noCache>
                 </configuration>
             </plugin>
+            <!-- Deployment-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>${maven.release.plugin.version}</version>
+                <configuration>
+                    <tagNameFormat>v@{project.version}</tagNameFormat>
+                    <releaseProfiles>deploy</releaseProfiles>
+                    <username>git</username> <!-- Make sure git-push is not tried with local user -->
+                </configuration>
+            </plugin>
+
         </plugins>
+
     </build>
 
     <profiles>
@@ -286,6 +359,66 @@
             <properties>
                 <skip.docker>false</skip.docker>
             </properties>
+        </profile>
+        <profile>
+            <id>deploy</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>net.alchim31.maven</groupId>
+                        <artifactId>scala-maven-plugin</artifactId>
+                        <version>${alchim31}</version>
+                        <configuration>
+                            <scalaVersion>${scala.compat.version}</scalaVersion>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>doc-jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>${gpg.plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <version>${nexus.staging.plugin.version}</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>ossrh</serverId>
+                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                            <autoReleaseAfterClose>false</autoReleaseAfterClose>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 </project>
