@@ -39,13 +39,12 @@ export class CronQuartzPartComponent implements OnInit {
   @Input() valueChanges: Subject<WorkflowEntryModel>;
 
   defaultCronExpression = '0 0/25 * ? * * *';
-  everyDayUserFriendly: { prefix: string[], suffix: string[], position: number } =
+  everyDayUserFriendly: UserFriendlyConstruction =
     {prefix: ['0', '0'], suffix: ['?', '*', '*', '*'], position: 2};
-  everyHourUserFriendly: { prefix: string[], suffix: string[], position: number } =
+  everyHourUserFriendly: UserFriendlyConstruction =
     {prefix: ['0'], suffix: ['*', '?', '*', '*', '*'], position: 1}
-  everyHourEveryUserFriendly: { prefix: string[], suffix: string[], position: number } =
+  everyHourEveryUserFriendly: UserFriendlyConstruction =
     {prefix: ['0'], suffix: ['*', '?', '*', '*', '*'], position: 1}
-
 
   inputType;
   freeText: string;
@@ -183,3 +182,5 @@ export class CronQuartzPartComponent implements OnInit {
   }
 
 }
+
+interface UserFriendlyConstruction { prefix: string[], suffix: string[], position: number }
