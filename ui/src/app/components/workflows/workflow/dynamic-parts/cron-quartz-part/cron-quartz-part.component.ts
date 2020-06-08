@@ -118,7 +118,6 @@ export class CronQuartzPartComponent implements OnInit, OnDestroy {
     }
 
     this.fromCron(this.value);
-    this.freq = !this.minuteValue && !this.hourValue && !this.dayValue ? this.frequencies[1].value : this.frequencies[0].value;
   }
 
   ngOnDestroy(): void {
@@ -128,18 +127,66 @@ export class CronQuartzPartComponent implements OnInit, OnDestroy {
   fromCron(value: string) {
     const showCron: string[] = value.replace(/\s+/g, ' ').split(' ');
 
-    if (showCron[1] !== '*' && isNaN(+showCron[1])) {
+    if (
+      value === '0 0/5 * ? * * *' ||
+      value === '0 0/10 * ? * * *' ||
+      value === '0 0/15 * ? * * *' ||
+      value === '0 0/20 * ? * * *' ||
+      value === '0 0/25 * ? * * *' ||
+      value === '0 0/30 * ? * * *'
+    ) {
+      this.freq = this.frequencies[0].value;
       this.base = this.userFriendly[0].value;
       this.minuteValue = +showCron[1].replace('0/', '');
-    } else if (showCron[1] !== '*' && !isNaN(+showCron[1]) && showCron[2] === '*') {
+    } else if (
+      value === '0 0 * ? * * *' ||
+      value === '0 5 * ? * * *' ||
+      value === '0 10 * ? * * *' ||
+      value === '0 15 * ? * * *' ||
+      value === '0 20 * ? * * *' ||
+      value === '0 25 * ? * * *' ||
+      value === '0 30 * ? * * *' ||
+      value === '0 35 * ? * * *' ||
+      value === '0 40 * ? * * *' ||
+      value === '0 45 * ? * * *' ||
+      value === '0 50 * ? * * *' ||
+      value === '0 55 * ? * * *'
+    ) {
+      this.freq = this.frequencies[0].value;
       this.base = this.userFriendly[1].value;
       this.hourValue = +showCron[1];
-    } else if (showCron[2] !== '*' && !isNaN(+showCron[2])) {
+    } else if (
+      value === '0 0 0 ? * * *' ||
+      value === '0 0 1 ? * * *' ||
+      value === '0 0 2 ? * * *' ||
+      value === '0 0 3 ? * * *' ||
+      value === '0 0 4 ? * * *' ||
+      value === '0 0 5 ? * * *' ||
+      value === '0 0 6 ? * * *' ||
+      value === '0 0 7 ? * * *' ||
+      value === '0 0 8 ? * * *' ||
+      value === '0 0 9 ? * * *' ||
+      value === '0 0 10 ? * * *' ||
+      value === '0 0 11 ? * * *' ||
+      value === '0 0 12 ? * * *' ||
+      value === '0 0 13 ? * * *' ||
+      value === '0 0 14 ? * * *' ||
+      value === '0 0 15 ? * * *' ||
+      value === '0 0 16 ? * * *' ||
+      value === '0 0 17 ? * * *' ||
+      value === '0 0 18 ? * * *' ||
+      value === '0 0 19 ? * * *' ||
+      value === '0 0 20 ? * * *' ||
+      value === '0 0 21 ? * * *' ||
+      value === '0 0 22 ? * * *' ||
+      value === '0 0 23 ? * * *'
+    ) {
+      this.freq = this.frequencies[0].value;
       this.base = this.userFriendly[2].value;
-      this.dayMinuteValue = +showCron[1];
       this.dayValue = +showCron[2];
+    } else {
+      this.freq = this.frequencies[1].value;
     }
-    this.freq = this.frequencies[0].value;
   }
 
   onMinuteSelect(option): void {

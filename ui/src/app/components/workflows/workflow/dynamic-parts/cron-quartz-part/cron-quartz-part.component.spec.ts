@@ -17,7 +17,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { Subject } from 'rxjs';
 
 import { CronQuartzPartComponent } from './cron-quartz-part.component';
-import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
+import { WorkflowEntryModel } from '../../../../../models/workflowEntry.model';
 import { userFriendly } from '../../../../../constants/cronExpressionOptions.constants';
 import { Frequecies } from '../../../../../constants/cronExpressionOptions.constants';
 import { provideMockStore } from '@ngrx/store/testing';
@@ -59,27 +59,6 @@ describe('CronQuartzPartComponent', () => {
 
       expect(underTest.cron.join('')).toEqual(expectedMinuteCron.join(''));
     });
-
-    it('should set freq to free text when no minute, hour and day values are set', () => {
-      const underTest = fixture.componentInstance;
-      underTest.valueChanges = new Subject<WorkflowEntryModel>();
-      underTest.ngOnInit();
-      underTest.minuteValue = undefined;
-      underTest.hourValue = undefined;
-      underTest.dayValue = undefined;
-
-      expect(underTest.freq).toEqual(frequencies[1].value);
-    });
-
-    it('should set freq to user friendly if one of minute, hour and day value is set', () => {
-      const underTest = fixture.componentInstance;
-      underTest.valueChanges = new Subject<WorkflowEntryModel>();
-      underTest.value = '0 /20 * ? * * *';
-      underTest.ngOnInit();
-      underTest.fromCron(underTest.value);
-
-      expect(underTest.freq).toEqual(frequencies[0].value);
-    });
   });
 
   describe('fromCron', () => {
@@ -92,6 +71,7 @@ describe('CronQuartzPartComponent', () => {
 
       expect(underTest.base).toEqual(userFriendly.OPTIONS[0].value);
       expect(underTest.minuteValue).toEqual(10);
+      expect(underTest.freq).toEqual(frequencies[0].value);
       expect(underTest.hourValue).toMatch('undefined');
       expect(underTest.dayValue).toMatch('undefined');
     });
@@ -106,6 +86,7 @@ describe('CronQuartzPartComponent', () => {
       expect(underTest.base).toEqual(userFriendly.OPTIONS[1].value);
       expect(underTest.minuteValue).toMatch('undefined');
       expect(underTest.hourValue).toEqual(15);
+      expect(underTest.freq).toEqual(frequencies[0].value);
       expect(underTest.dayValue).toMatch('undefined');
     });
 
@@ -119,7 +100,7 @@ describe('CronQuartzPartComponent', () => {
       expect(underTest.base).toEqual(userFriendly.OPTIONS[2].value);
       expect(underTest.minuteValue).toMatch('undefined');
       expect(underTest.hourValue).toMatch('undefined');
-      expect(underTest.dayMinuteValue).toEqual(0);
+      expect(underTest.freq).toEqual(frequencies[0].value);
       expect(underTest.dayValue).toEqual(18);
     });
   });
