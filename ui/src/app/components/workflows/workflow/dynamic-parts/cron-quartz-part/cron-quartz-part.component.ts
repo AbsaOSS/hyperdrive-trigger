@@ -21,9 +21,6 @@ import { userFriendly } from '../../../../../constants/cronExpressionOptions.con
 import { EveryMinute } from '../../../../../constants/cronExpressionOptions.constants';
 import { EveryHour } from '../../../../../constants/cronExpressionOptions.constants';
 import { Frequecies } from '../../../../../constants/cronExpressionOptions.constants';
-import { ConfirmationDialogService } from '../../../../../services/confirmation-dialog/confirmation-dialog.service';
-import { ConfirmationDialogTypes } from '../../../../../constants/confirmationDialogTypes.constants';
-import { texts } from '../../../../../constants/texts.constants';
 import { QuartzExpressionDetailModel } from 'src/app/models/quartzExpressionDetail.model';
 import { AppState, selectUtilState } from 'src/app/stores/app.reducers';
 import { GetQuartzDetail } from '../../../../../stores/util/util.actions';
@@ -47,7 +44,6 @@ export class CronQuartzPartComponent implements OnInit, OnDestroy {
   hourValue: number;
   minuteValue: number;
   dayMinuteValue: number;
-  readableCronExpression: string;
   loading = true;
   quatzDetailsSubscription: Subscription;
   quartzDetails: QuartzExpressionDetailModel[];
@@ -100,7 +96,6 @@ export class CronQuartzPartComponent implements OnInit, OnDestroy {
   quartzDetailse: any;
   frequencies = Frequecies.OPTIONS;
   userFriendly = userFriendly.OPTIONS;
-  invalidCronExpression = texts.VALIDATE_CRON_CONFIRMATION_MESSAGE;
 
   constructor(private store: Store<AppState>) {}
 

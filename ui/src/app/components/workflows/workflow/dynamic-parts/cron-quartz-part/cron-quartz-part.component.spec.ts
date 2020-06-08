@@ -24,13 +24,12 @@ import { provideMockStore } from '@ngrx/store/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 describe('CronQuartzPartComponent', () => {
-  let fixture: ComponentFixture<CronQuartzPartComponent>;
   let component: CronQuartzPartComponent;
+  let fixture: ComponentFixture<CronQuartzPartComponent>;
   const frequencies = Frequecies.OPTIONS;
 
   const initialAppState = {
     quartzExpressionDetail: {},
-    loading: false,
   };
 
   beforeEach(async(() => {
@@ -44,119 +43,114 @@ describe('CronQuartzPartComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(CronQuartzPartComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
   });
 
-  // it('should create', () => {
-  //   expect(component).toBeTruthy();
-  // });
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
 
-  // describe('ngOnInit', () => {
-  //   it('should set default cron expression when value is undefined', () => {
-  //     const underTest = fixture.componentInstance;
-  //     underTest.valueChanges = new Subject<WorkflowEntryModel>();
-  //     underTest.value = undefined;
-  //     const expectedMinuteCron = ['0', '0', '0', '?', '*', '*', '*'];
-  //     underTest.valueChanges.next(WorkflowEntryModelFactory.create('name', underTest.value));
-  //     underTest.ngOnInit();
+  describe('ngOnInit', () => {
+    it('should set default cron expression when value is undefined', () => {
+      const underTest = fixture.componentInstance;
+      underTest.valueChanges = new Subject<WorkflowEntryModel>();
+      underTest.value = undefined;
+      const expectedMinuteCron = ['0', '0', '0', '?', '*', '*', '*'];
+      underTest.ngOnInit();
 
-  //     expect(underTest.cron.join('')).toEqual(expectedMinuteCron.join(''));
-  //   });
+      expect(underTest.cron.join('')).toEqual(expectedMinuteCron.join(''));
+    });
 
-  // it('should set freq to free text when no minute, hour and day values are set', () => {
-  //   const underTest = fixture.componentInstance;
-  //   underTest.valueChanges = new Subject<WorkflowEntryModel>();
-  //   underTest.ngOnInit();
-  //   underTest.minuteValue = undefined;
-  //   underTest.hourValue = undefined;
-  //   underTest.dayValue = undefined;
+    it('should set freq to free text when no minute, hour and day values are set', () => {
+      const underTest = fixture.componentInstance;
+      underTest.valueChanges = new Subject<WorkflowEntryModel>();
+      underTest.ngOnInit();
+      underTest.minuteValue = undefined;
+      underTest.hourValue = undefined;
+      underTest.dayValue = undefined;
 
-  //   expect(underTest.freq).toEqual(frequencies[1].value);
-  // });
+      expect(underTest.freq).toEqual(frequencies[1].value);
+    });
 
-  // it('should set freq to user friendly if one of minute, hour and day value is set', () => {
-  //   const underTest = fixture.componentInstance;
-  //   underTest.valueChanges = new Subject<WorkflowEntryModel>();
-  //   underTest.ngOnInit();
-  //   underTest.minuteValue = undefined;
-  //   underTest.hourValue = undefined;
-  //   underTest.dayValue = undefined;
+    it('should set freq to user friendly if one of minute, hour and day value is set', () => {
+      const underTest = fixture.componentInstance;
+      underTest.valueChanges = new Subject<WorkflowEntryModel>();
+      underTest.value = '0 /20 * ? * * *';
+      underTest.ngOnInit();
+      underTest.fromCron(underTest.value);
 
-  //   console.log(underTest.freq);
-  //   console.log(frequencies[0].value);
-  //   expect(underTest.freq).toEqual(frequencies[0].value);
-  // });
-  // });
+      expect(underTest.freq).toEqual(frequencies[0].value);
+    });
+  });
 
-  // describe('fromCron', () => {
-  //   it('should set correct base, minute. hour and day values on Hour every cron expression', () => {
-  //     const underTest = fixture.componentInstance;
-  //     underTest.valueChanges = new Subject<WorkflowEntryModel>();
-  //     underTest.value = '0 0/10 * ? * * *';
-  //     underTest.ngOnInit();
-  //     underTest.fromCron(underTest.value);
+  describe('fromCron', () => {
+    it('should set correct base, minute. hour and day values on Hour every cron expression', () => {
+      const underTest = fixture.componentInstance;
+      underTest.valueChanges = new Subject<WorkflowEntryModel>();
+      underTest.value = '0 0/10 * ? * * *';
+      underTest.ngOnInit();
+      underTest.fromCron(underTest.value);
 
-  //     expect(underTest.base).toEqual(userFriendly.OPTIONS[0].value);
-  //     expect(underTest.minuteValue).toEqual(10);
-  //     expect(underTest.hourValue).toMatch('undefined');
-  //     expect(underTest.dayValue).toMatch('undefined');
-  //   });
+      expect(underTest.base).toEqual(userFriendly.OPTIONS[0].value);
+      expect(underTest.minuteValue).toEqual(10);
+      expect(underTest.hourValue).toMatch('undefined');
+      expect(underTest.dayValue).toMatch('undefined');
+    });
 
-  //   it('should set correct base, minute. hour and day values on Hour at cron expression', () => {
-  //     const underTest = fixture.componentInstance;
-  //     underTest.valueChanges = new Subject<WorkflowEntryModel>();
-  //     underTest.value = '0 15 * ? * * *';
-  //     underTest.ngOnInit();
-  //     underTest.fromCron(underTest.value);
+    it('should set correct base, minute. hour and day values on Hour at cron expression', () => {
+      const underTest = fixture.componentInstance;
+      underTest.valueChanges = new Subject<WorkflowEntryModel>();
+      underTest.value = '0 15 * ? * * *';
+      underTest.ngOnInit();
+      underTest.fromCron(underTest.value);
 
-  //     expect(underTest.base).toEqual(userFriendly.OPTIONS[1].value);
-  //     expect(underTest.minuteValue).toMatch('undefined');
-  //     expect(underTest.hourValue).toEqual(15);
-  //     expect(underTest.dayValue).toMatch('undefined');
-  //   });
+      expect(underTest.base).toEqual(userFriendly.OPTIONS[1].value);
+      expect(underTest.minuteValue).toMatch('undefined');
+      expect(underTest.hourValue).toEqual(15);
+      expect(underTest.dayValue).toMatch('undefined');
+    });
 
-  //   it('should set correct base, minute. hour and day values on Day cron expression', () => {
-  //     const underTest = fixture.componentInstance;
-  //     underTest.valueChanges = new Subject<WorkflowEntryModel>();
-  //     underTest.value = '0 0 18 ? * * *';
-  //     underTest.ngOnInit();
-  //     underTest.fromCron(underTest.value);
+    it('should set correct base, minute. hour and day values on Day cron expression', () => {
+      const underTest = fixture.componentInstance;
+      underTest.valueChanges = new Subject<WorkflowEntryModel>();
+      underTest.value = '0 0 18 ? * * *';
+      underTest.ngOnInit();
+      underTest.fromCron(underTest.value);
 
-  //     expect(underTest.base).toEqual(userFriendly.OPTIONS[2].value);
-  //     expect(underTest.minuteValue).toMatch('undefined');
-  //     expect(underTest.hourValue).toMatch('undefined');
-  //     expect(underTest.dayMinuteValue).toEqual(0);
-  //     expect(underTest.dayValue).toEqual(18);
-  //   });
-  // });
+      expect(underTest.base).toEqual(userFriendly.OPTIONS[2].value);
+      expect(underTest.minuteValue).toMatch('undefined');
+      expect(underTest.hourValue).toMatch('undefined');
+      expect(underTest.dayMinuteValue).toEqual(0);
+      expect(underTest.dayValue).toEqual(18);
+    });
+  });
 
-  // it('should set cron for every minutes', () => {
-  //   const underTest = fixture.componentInstance;
-  //   underTest.valueChanges = new Subject<WorkflowEntryModel>();
-  //   const minuteValue = 10;
-  //   const expectedMinuteCron = ['0', '0/10', '*', '?', '*', '*', '*'];
-  //   underTest.onMinuteSelect(minuteValue);
+  it('should set cron for every minutes', () => {
+    const underTest = fixture.componentInstance;
+    underTest.valueChanges = new Subject<WorkflowEntryModel>();
+    const minuteValue = 10;
+    const expectedMinuteCron = ['0', '0/10', '*', '?', '*', '*', '*'];
+    underTest.onMinuteSelect(minuteValue);
 
-  //   expect(underTest.cron.join(' ')).toEqual(expectedMinuteCron.join(' '));
-  // });
+    expect(underTest.cron.join(' ')).toEqual(expectedMinuteCron.join(' '));
+  });
 
-  // it('should set cron for every hour', () => {
-  //   const underTest = fixture.componentInstance;
-  //   underTest.valueChanges = new Subject<WorkflowEntryModel>();
-  //   const hourValue = 20;
-  //   const expectedHourCron = ['0', '20', '*', '?', '*', '*', '*'];
-  //   underTest.onHourSelect(hourValue);
+  it('should set cron for every hour', () => {
+    const underTest = fixture.componentInstance;
+    underTest.valueChanges = new Subject<WorkflowEntryModel>();
+    const hourValue = 20;
+    const expectedHourCron = ['0', '20', '*', '?', '*', '*', '*'];
+    underTest.onHourSelect(hourValue);
 
-  //   expect(underTest.cron.join(' ')).toEqual(expectedHourCron.join(' '));
-  // });
+    expect(underTest.cron.join(' ')).toEqual(expectedHourCron.join(' '));
+  });
 
-  // it('should set cron for every day', () => {
-  //   const underTest = fixture.componentInstance;
-  //   underTest.valueChanges = new Subject<WorkflowEntryModel>();
-  //   const dayValue = 18;
-  //   const expectedDayCron = ['0', '0', '18', '?', '*', '*', '*'];
-  //   underTest.onDaySelect(dayValue);
+  it('should set cron for every day', () => {
+    const underTest = fixture.componentInstance;
+    underTest.valueChanges = new Subject<WorkflowEntryModel>();
+    const dayValue = 18;
+    const expectedDayCron = ['0', '0', '18', '?', '*', '*', '*'];
+    underTest.onDaySelect(dayValue);
 
-  //   expect(underTest.cron.join(' ')).toEqual(expectedDayCron.join(' '));
-  // });
+    expect(underTest.cron.join(' ')).toEqual(expectedDayCron.join(' '));
+  });
 });
