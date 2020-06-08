@@ -21,6 +21,10 @@ export type QuartzExpressionDetailModel = {
 
 export class QuartzExpressionDetailModelFactory {
   static create(expression: string, isValid: boolean, explained: string): QuartzExpressionDetailModel {
-    return { expression: expression, isValid: isValid, explained: explained };
+    return {
+      expression: expression,
+      isValid: isValid,
+      explained: explained,
+    };
   }
 }

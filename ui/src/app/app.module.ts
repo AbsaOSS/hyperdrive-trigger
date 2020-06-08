@@ -63,6 +63,7 @@ import { DynamicPartsComponent } from './components/workflows/workflow/dynamic-p
 import { PreviousRouteService } from './services/previousRoute/previous-route.service';
 import { ToastrModule } from 'ngx-toastr';
 import { ConfirmationDialogComponent } from './components/common/confirmation-dialog/confirmation-dialog.component';
+import { UtilEffects } from './stores/util/util.effects';
 
 @NgModule({
   declarations: [
@@ -103,7 +104,7 @@ import { ConfirmationDialogComponent } from './components/common/confirmation-di
       timeOut: 5000,
     }),
     StoreModule.forRoot(reducers),
-    EffectsModule.forRoot([AuthEffects, RunsEffects, WorkflowsEffects]),
+    EffectsModule.forRoot([AuthEffects, RunsEffects, WorkflowsEffects, UtilEffects]),
     StoreRouterConnectingModule.forRoot(),
     !environment.production ? StoreDevtoolsModule.instrument() : [],
   ],

@@ -1,4 +1,4 @@
-<!--
+<!-- 
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -11,7 +11,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License.
+ * limitations under the License.\
 -->
 
 <div *ngIf="!isShow">
@@ -31,11 +31,12 @@
   <clr-control-container>
 
     <div class="form-group">
-      <input *ngIf="freq == 2" [readOnly]="false" clrControl value="{{ value }}"
+      <input *ngIf="freq == 2" [readOnly]="false" clrControl value="{{ quartzDetailse.expression }}"
         (change)="onFreeText($event.target.value)" [size]="24">
-
+        
       <input *ngIf="freq == 2" [readOnly]="true" clrControl
-        value="{{ validCron ? readableCronExpression : 'please update with a correct expression.'}}" [size]="80" />
+        value="{{ quartzDetailse.explained }}" [size]="60" />
+
     </div>
 
     <span *ngIf="freq == 1">Every</span>
@@ -80,8 +81,8 @@
 <div *ngIf="isShow">
   <clr-control-container>
     <label>Frequency</label>
-
-    <input [readOnly]="true" clrControl value="{{ readableCronExpression }}" [size]="80" />
+    
+    <input [readOnly]="true" clrControl value="{{quartzDetailse.explained}}" [size]="60" />
 
   </clr-control-container>
 </div>
