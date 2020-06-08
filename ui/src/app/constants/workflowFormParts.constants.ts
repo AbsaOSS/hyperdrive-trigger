@@ -13,20 +13,20 @@
  * limitations under the License.
  */
 
-import { FormPartFactory } from '../models/workflowFormParts.model';
+import { FormPartFactory, PartValidationFactory } from '../models/workflowFormParts.model';
 
 export const workflowFormParts = {
   DETAILS: {
-    WORKFLOW_NAME: FormPartFactory.create('Workflow name', 'name', true, 'string-field'),
-    PROJECT_NAME: FormPartFactory.create('Project name', 'project', true, 'string-field'),
-    IS_ACTIVE: FormPartFactory.create('Is active', 'isActive', true, 'boolean-field'),
+    WORKFLOW_NAME: FormPartFactory.create('Workflow name', 'name', 'string-field', PartValidationFactory.create(true, 45, 1)),
+    PROJECT_NAME: FormPartFactory.create('Project name', 'project', 'string-field', PartValidationFactory.create(true, undefined, 1)),
+    IS_ACTIVE: FormPartFactory.create('Is active', 'isActive', 'boolean-field', PartValidationFactory.create(true)),
   },
   SENSOR: {
-    SENSOR_TYPE: FormPartFactory.create('Sensor type', 'sensorType.name', true, 'select-field'),
+    SENSOR_TYPE: FormPartFactory.create('Sensor type', 'sensorType.name', 'select-field', PartValidationFactory.create(true)),
   },
   JOB: {
-    JOB_NAME: FormPartFactory.create('Job name', 'name', true, 'string-field'),
-    JOB_TYPE: FormPartFactory.create('Job type', 'jobType.name', true, 'select-field'),
+    JOB_NAME: FormPartFactory.create('Job name', 'name', 'string-field', PartValidationFactory.create(true, undefined, 1)),
+    JOB_TYPE: FormPartFactory.create('Job type', 'jobType.name', 'select-field', PartValidationFactory.create(true)),
   },
 };
 

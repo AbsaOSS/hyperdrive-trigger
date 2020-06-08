@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { Component, OnDestroy } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { workflowModes } from '../../../../models/enums/workflowModes.constants';
 import { Subscription } from 'rxjs';
 import cloneDeep from 'lodash/cloneDeep';
@@ -28,7 +28,8 @@ import { JobEntryModel } from '../../../../models/jobEntry.model';
   templateUrl: './jobs.component.html',
   styleUrls: ['./jobs.component.scss'],
 })
-export class JobsComponent implements OnDestroy {
+export class JobsComponent implements OnDestroy, OnInit {
+  @Input() jobsUnfold: EventEmitter<any>;
   workflowModes = workflowModes;
   mode: string;
   jobData: JobEntryModel[];
@@ -36,6 +37,7 @@ export class JobsComponent implements OnDestroy {
   staticJobPart: FormPart;
 
   workflowSubscription: Subscription;
+  jobsUnfoldSubscription: Subscription;
 
   constructor(private store: Store<AppState>) {
     this.hiddenJobs = new Set();
@@ -48,6 +50,12 @@ export class JobsComponent implements OnDestroy {
       if (this.jobData.length == 0) {
         this.store.dispatch(new WorkflowAddEmptyJob(0));
       }
+    });
+  }
+
+  ngOnInit(): void {
+    this.jobsUnfoldSubscription = this.jobsUnfold.subscribe((event) => {
+      this.hiddenJobs.clear();
     });
   }
 
@@ -85,5 +93,6 @@ export class JobsComponent implements OnDestroy {
 
   ngOnDestroy(): void {
     !!this.workflowSubscription && this.workflowSubscription.unsubscribe();
+    !!this.jobsUnfoldSubscription && this.jobsUnfoldSubscription.unsubscribe();
   }
 }

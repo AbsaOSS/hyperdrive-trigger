@@ -39,6 +39,7 @@ import {
   DynamicFormPartFactory,
   DynamicFormPartsFactory,
   FormPartFactory,
+  PartValidationFactory,
   WorkflowFormPartsModelFactory,
 } from '../../models/workflowFormParts.model';
 import {
@@ -58,6 +59,7 @@ import { texts } from '../../constants/texts.constants';
 import { Router } from '@angular/router';
 import { absoluteRoutes } from '../../constants/routes.constants';
 import { JobTypeFactory } from '../../models/jobInstance.model';
+import { ApiErrorModel, ApiErrorModelFactory } from '../../models/errors/apiError.model';
 
 describe('WorkflowsEffects', () => {
   let underTest: WorkflowsEffects;
@@ -116,8 +118,16 @@ describe('WorkflowsEffects', () => {
       ];
 
       const dynamicFormParts = DynamicFormPartsFactory.create(
-        [DynamicFormPartFactory.create('typeOne', [FormPartFactory.create('nameOne', 'propertyOne', true, 'string-field')])],
-        [DynamicFormPartFactory.create('typeTwo', [FormPartFactory.create('nameTwo', 'propertyTwo', false, 'string-field')])],
+        [
+          DynamicFormPartFactory.create('typeOne', [
+            FormPartFactory.create('nameOne', 'propertyOne', 'string-field', PartValidationFactory.create(true)),
+          ]),
+        ],
+        [
+          DynamicFormPartFactory.create('typeTwo', [
+            FormPartFactory.create('nameTwo', 'propertyTwo', 'string-field', PartValidationFactory.create(true)),
+          ]),
+        ],
       );
 
       const workflowFormParts = WorkflowFormPartsModelFactory.create(
@@ -468,16 +478,17 @@ describe('WorkflowsEffects', () => {
   });
 
   describe('workflowCreate', () => {
-    it('should return create workflow failure when service fails to create workflow', () => {
+    it('should return create workflow failure with no backend validation errors when service fails to create workflow', () => {
       const toastrServiceSpy = spyOn(toastrService, 'error');
 
       const action = new CreateWorkflow();
       mockActions = cold('-a', { a: action });
-      const createWorkflowResponse = cold('-#|');
+      const createWorkflowResponse = cold('-#|', null, 'notValidationError');
 
       const expected = cold('--a', {
         a: {
           type: WorkflowsActions.CREATE_WORKFLOW_FAILURE,
+          payload: [],
         },
       });
 
@@ -486,6 +497,27 @@ describe('WorkflowsEffects', () => {
       expect(underTest.workflowCreate).toBeObservable(expected);
       expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
       expect(toastrServiceSpy).toHaveBeenCalledWith(texts.CREATE_WORKFLOW_FAILURE_NOTIFICATION);
+    });
+
+    it('should return create workflow failure with backend validation errors when service fails to create workflow', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'error');
+      const error = ApiErrorModelFactory.create('error', { name: 'validationError' });
+
+      const action = new CreateWorkflow();
+      mockActions = cold('-a', { a: action });
+      const createWorkflowResponse = cold('-#|', null, [error]);
+
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowsActions.CREATE_WORKFLOW_FAILURE,
+          payload: [error.message],
+        },
+      });
+
+      spyOn(workflowService, 'createWorkflow').and.returnValue(createWorkflowResponse);
+
+      expect(underTest.workflowCreate).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(0);
     });
 
     it('should return create workflow success when service returns success creation', () => {
@@ -533,16 +565,17 @@ describe('WorkflowsEffects', () => {
   });
 
   describe('workflowUpdate', () => {
-    it('should return update workflow failure when service fails to update workflow', () => {
+    it('should return update workflow failure with no backend validation errors when service fails to update workflow', () => {
       const toastrServiceSpy = spyOn(toastrService, 'error');
 
       const action = new UpdateWorkflow();
       mockActions = cold('-a', { a: action });
-      const updateWorkflowResponse = cold('-#|');
+      const updateWorkflowResponse = cold('-#|', null, 'notWorkflowValidation');
 
       const expected = cold('--a', {
         a: {
           type: WorkflowsActions.UPDATE_WORKFLOW_FAILURE,
+          payload: [],
         },
       });
 
@@ -551,6 +584,26 @@ describe('WorkflowsEffects', () => {
       expect(underTest.workflowUpdate).toBeObservable(expected);
       expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
       expect(toastrServiceSpy).toHaveBeenCalledWith(texts.UPDATE_WORKFLOW_FAILURE_NOTIFICATION);
+    });
+
+    it('should return update workflow failure with backend validation errors when service fails to update workflow', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'error');
+      const error = ApiErrorModelFactory.create('error', { name: 'validationError' });
+      const action = new UpdateWorkflow();
+      mockActions = cold('-a', { a: action });
+      const updateWorkflowResponse = cold('-#|', null, [error]);
+
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowsActions.UPDATE_WORKFLOW_FAILURE,
+          payload: [error.message],
+        },
+      });
+
+      spyOn(workflowService, 'updateWorkflow').and.returnValue(updateWorkflowResponse);
+
+      expect(underTest.workflowUpdate).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(0);
     });
 
     it('should return create workflow success when service returns success creation', () => {
@@ -594,6 +647,39 @@ describe('WorkflowsEffects', () => {
       expect(toastrServiceSpy).toHaveBeenCalledWith(texts.UPDATE_WORKFLOW_SUCCESS_NOTIFICATION);
       expect(routerSpy).toHaveBeenCalledTimes(1);
       expect(routerSpy).toHaveBeenCalledWith(absoluteRoutes.SHOW_WORKFLOW + '/' + workflow.id);
+    });
+  });
+
+  describe('isBackendValidationError', () => {
+    it('should return false if string is passed', () => {
+      const errorResponse = 'errorResponse';
+      expect(underTest.isBackendValidationError(errorResponse)).toBeFalsy();
+    });
+
+    it('should return false if wrong object is passed', () => {
+      const errorResponse: Record<string, any> = { fieldOne: 'fieldOne', fieldTwo: true, fieldThree: { nestedField: 99 } };
+      expect(underTest.isBackendValidationError(errorResponse)).toBeFalsy();
+    });
+
+    it('should return false if array with wrong object is passed', () => {
+      const errorResponse: Array<any> = [{ fieldOne: 'fieldOne', fieldTwo: true, fieldThree: { nestedField: 99 } }];
+      expect(underTest.isBackendValidationError(errorResponse)).toBeFalsy();
+    });
+
+    it('should return false if correct object array is passed with incorrect error type', () => {
+      const errorResponse: ApiErrorModel[] = [
+        ApiErrorModelFactory.create('message1', { name: 'validationError' }),
+        ApiErrorModelFactory.create('message2', { name: 'wrongName' }),
+      ];
+      expect(underTest.isBackendValidationError(errorResponse)).toBeFalsy();
+    });
+
+    it('should return true if array with validation error is passed', () => {
+      const errorResponse: ApiErrorModel[] = [
+        ApiErrorModelFactory.create('message1', { name: 'validationError' }),
+        ApiErrorModelFactory.create('message2', { name: 'validationError' }),
+      ];
+      expect(underTest.isBackendValidationError(errorResponse)).toBeTruthy();
     });
   });
 });

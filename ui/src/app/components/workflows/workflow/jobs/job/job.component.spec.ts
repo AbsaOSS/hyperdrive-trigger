@@ -21,6 +21,7 @@ import {
   DynamicFormPartFactory,
   DynamicFormPartsFactory,
   FormPartFactory,
+  PartValidationFactory,
   WorkflowFormPartsModelFactory,
 } from '../../../../../models/workflowFormParts.model';
 import { JobEntryModelFactory } from '../../../../../models/jobEntry.model';
@@ -35,13 +36,20 @@ describe('JobComponent', () => {
       workflowFormParts: WorkflowFormPartsModelFactory.create(
         [],
         undefined,
-        FormPartFactory.create('jobStaticPart', 'jobStaticPart', true, 'jobStaticPart'),
-        FormPartFactory.create('switchPartName', 'switchPartProp', true, 'switchPartType', ['optionOne', 'optionTwo']),
+        FormPartFactory.create('jobStaticPart', 'jobStaticPart', 'jobStaticPart', PartValidationFactory.create(true)),
+        FormPartFactory.create('switchPartName', 'switchPartProp', 'switchPartType', PartValidationFactory.create(true), [
+          'optionOne',
+          'optionTwo',
+        ]),
         DynamicFormPartsFactory.create(
           [],
           [
-            DynamicFormPartFactory.create('optionOne', [FormPartFactory.create('partOne', 'partOne', true, 'partOne')]),
-            DynamicFormPartFactory.create('optionTwo', [FormPartFactory.create('partTwo', 'partTwo', true, 'partTwo')]),
+            DynamicFormPartFactory.create('optionOne', [
+              FormPartFactory.create('partOne', 'partOne', 'partOne', PartValidationFactory.create(true)),
+            ]),
+            DynamicFormPartFactory.create('optionTwo', [
+              FormPartFactory.create('partTwo', 'partTwo', 'partTwo', PartValidationFactory.create(true)),
+            ]),
           ],
         ),
       ),

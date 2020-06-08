@@ -18,10 +18,11 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { KeyStringValuePartComponent } from './key-string-value-part.component';
 import { DebugElement, Predicate } from '@angular/core';
 import { By } from '@angular/platform-browser';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
 import set from 'lodash/set';
+import { PartValidationFactory } from '../../../../../models/workflowFormParts.model';
 
 describe('KeyStringValuePartComponent', () => {
   let fixture: ComponentFixture<KeyStringValuePartComponent>;
@@ -33,6 +34,7 @@ describe('KeyStringValuePartComponent', () => {
     TestBed.configureTestingModule({
       declarations: [KeyStringValuePartComponent],
       imports: [FormsModule],
+      providers: [NgForm],
     }).compileComponents();
   }));
 
@@ -60,12 +62,14 @@ describe('KeyStringValuePartComponent', () => {
           const propertyName = 'property';
           const testedSubject = new Subject<WorkflowEntryModel>();
           const subjectSpy = spyOn(testedSubject, 'next');
+          const partValidation = PartValidationFactory.create(true, 5, 50);
 
           underTest.isShow = false;
           underTest.name = 'name';
           underTest.value = oldValue;
           underTest.property = propertyName;
           underTest.valueChanges = testedSubject;
+          underTest.partValidation = partValidation;
           fixture.detectChanges();
 
           fixture.whenStable().then(() => {
@@ -97,6 +101,7 @@ describe('KeyStringValuePartComponent', () => {
     set(newValueObject, 'keyThree', 'valueThree');
 
     const propertyName = 'property';
+    const partValidation = PartValidationFactory.create(true, 5, 50);
     const testedSubject = new Subject<WorkflowEntryModel>();
     const subjectSpy = spyOn(testedSubject, 'next');
 
@@ -105,6 +110,7 @@ describe('KeyStringValuePartComponent', () => {
     underTest.value = oldValueObject;
     underTest.property = propertyName;
     underTest.valueChanges = testedSubject;
+    underTest.partValidation = partValidation;
 
     fixture.detectChanges();
     fixture.whenStable().then(() => {
@@ -139,6 +145,7 @@ describe('KeyStringValuePartComponent', () => {
     set(newValueObject, 'keyThree', 'valueThree');
 
     const propertyName = 'property';
+    const partValidation = PartValidationFactory.create(true, 5, 50);
     const testedSubject = new Subject<WorkflowEntryModel>();
     const subjectSpy = spyOn(testedSubject, 'next');
 
@@ -147,6 +154,7 @@ describe('KeyStringValuePartComponent', () => {
     underTest.value = oldValueObject;
     underTest.property = propertyName;
     underTest.valueChanges = testedSubject;
+    underTest.partValidation = partValidation;
 
     fixture.detectChanges();
     fixture.whenStable().then(() => {
@@ -176,6 +184,7 @@ describe('KeyStringValuePartComponent', () => {
     set(newValueObject, 'keyThree', 'valueThree');
 
     const propertyName = 'property';
+    const partValidation = PartValidationFactory.create(true, 5, 50);
     const testedSubject = new Subject<WorkflowEntryModel>();
     const subjectSpy = spyOn(testedSubject, 'next');
 
@@ -184,6 +193,7 @@ describe('KeyStringValuePartComponent', () => {
     underTest.value = oldValueObject;
     underTest.property = propertyName;
     underTest.valueChanges = testedSubject;
+    underTest.partValidation = partValidation;
 
     fixture.detectChanges();
     fixture.whenStable().then(() => {
@@ -208,6 +218,7 @@ describe('KeyStringValuePartComponent', () => {
     set(newValueObject, '', '');
 
     const propertyName = 'property';
+    const partValidation = PartValidationFactory.create(true, 5, 50);
     const testedSubject = new Subject<WorkflowEntryModel>();
     const subjectSpy = spyOn(testedSubject, 'next');
 
@@ -216,6 +227,7 @@ describe('KeyStringValuePartComponent', () => {
     underTest.value = oldValueObject;
     underTest.property = propertyName;
     underTest.valueChanges = testedSubject;
+    underTest.partValidation = partValidation;
 
     fixture.detectChanges();
     fixture.whenStable().then(() => {

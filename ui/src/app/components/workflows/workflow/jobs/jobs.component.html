@@ -31,7 +31,7 @@
         <clr-icon shape="trash" class="is-error"></clr-icon>
       </button>
     </div>
-    <div class="accordion-content" *ngIf="!isJobHidden(job.jobId)">
+    <div class="accordion-content" [hidden]="isJobHidden(job.jobId)">
       <app-job
         [jobId]="job.jobId">
       </app-job>

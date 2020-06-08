@@ -35,6 +35,7 @@ import { ToastrService } from 'ngx-toastr';
 import { texts } from '../../constants/texts.constants';
 import { WorkflowModel, WorkflowModelFactory } from '../../models/workflow.model';
 import { WorkflowRequestModel } from '../../models/workflowRequest.model';
+import { ApiErrorModel } from '../../models/errors/apiError.model';
 
 @Injectable()
 export class WorkflowsEffects {
@@ -255,13 +256,23 @@ export class WorkflowsEffects {
             },
           ];
         }),
-        catchError(() => {
-          this.toastrService.error(texts.CREATE_WORKFLOW_FAILURE_NOTIFICATION);
-          return [
-            {
-              type: WorkflowActions.CREATE_WORKFLOW_FAILURE,
-            },
-          ];
+        catchError((errorResponse) => {
+          if (this.isBackendValidationError(errorResponse)) {
+            return [
+              {
+                type: WorkflowActions.CREATE_WORKFLOW_FAILURE,
+                payload: errorResponse.map((err) => err.message),
+              },
+            ];
+          } else {
+            this.toastrService.error(texts.CREATE_WORKFLOW_FAILURE_NOTIFICATION);
+            return [
+              {
+                type: WorkflowActions.CREATE_WORKFLOW_FAILURE,
+                payload: [],
+              },
+            ];
+          }
         }),
       );
     }),
@@ -298,15 +309,32 @@ export class WorkflowsEffects {
             },
           ];
         }),
-        catchError(() => {
-          this.toastrService.error(texts.UPDATE_WORKFLOW_FAILURE_NOTIFICATION);
-          return [
-            {
-              type: WorkflowActions.UPDATE_WORKFLOW_FAILURE,
-            },
-          ];
+        catchError((errorResponse) => {
+          if (this.isBackendValidationError(errorResponse)) {
+            return [
+              {
+                type: WorkflowActions.UPDATE_WORKFLOW_FAILURE,
+                payload: errorResponse.map((err) => err.message),
+              },
+            ];
+          } else {
+            this.toastrService.error(texts.UPDATE_WORKFLOW_FAILURE_NOTIFICATION);
+            return [
+              {
+                type: WorkflowActions.UPDATE_WORKFLOW_FAILURE,
+                payload: [],
+              },
+            ];
+          }
         }),
       );
     }),
   );
+
+  isBackendValidationError(errorResponse: any): boolean {
+    return (
+      errorResponse instanceof Array &&
+      errorResponse.every((err) => !!err.message && !!err.errorType && !!err.errorType.name && err.errorType.name == 'validationError')
+    );
+  }
 }

@@ -18,9 +18,10 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { StringSequencePartComponent } from './string-sequence-part.component';
 import { DebugElement, Predicate } from '@angular/core';
 import { By } from '@angular/platform-browser';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
+import { PartValidation, PartValidationFactory } from '../../../../../models/workflowFormParts.model';
 
 describe('StringSequencePartComponent', () => {
   let fixture: ComponentFixture<StringSequencePartComponent>;
@@ -32,6 +33,7 @@ describe('StringSequencePartComponent', () => {
     TestBed.configureTestingModule({
       declarations: [StringSequencePartComponent],
       imports: [FormsModule],
+      providers: [NgForm],
     }).compileComponents();
   }));
 
@@ -56,12 +58,14 @@ describe('StringSequencePartComponent', () => {
           const propertyName = 'property';
           const testedSubject = new Subject<WorkflowEntryModel>();
           const subjectSpy = spyOn(testedSubject, 'next');
+          const partValidation = PartValidationFactory.create(true, 5, 50);
 
           underTest.isShow = false;
           underTest.name = 'name';
           underTest.value = oldValue;
           underTest.property = propertyName;
           underTest.valueChanges = testedSubject;
+          underTest.partValidation = partValidation;
           fixture.detectChanges();
 
           fixture.whenStable().then(() => {
@@ -84,12 +88,14 @@ describe('StringSequencePartComponent', () => {
     const propertyName = 'property';
     const testedSubject = new Subject<WorkflowEntryModel>();
     const subjectSpy = spyOn(testedSubject, 'next');
+    const partValidation = PartValidationFactory.create(true, 5, 50);
 
     underTest.isShow = false;
     underTest.name = 'name';
     underTest.value = oldValue;
     underTest.property = propertyName;
     underTest.valueChanges = testedSubject;
+    underTest.partValidation = partValidation;
 
     fixture.detectChanges();
     fixture.whenStable().then(() => {
@@ -114,12 +120,14 @@ describe('StringSequencePartComponent', () => {
     const propertyName = 'property';
     const testedSubject = new Subject<WorkflowEntryModel>();
     const subjectSpy = spyOn(testedSubject, 'next');
+    const partValidation = PartValidationFactory.create(true, 5, 50);
 
     underTest.isShow = false;
     underTest.name = 'name';
     underTest.value = oldValue;
     underTest.property = propertyName;
     underTest.valueChanges = testedSubject;
+    underTest.partValidation = partValidation;
 
     fixture.detectChanges();
     fixture.whenStable().then(() => {
@@ -142,12 +150,14 @@ describe('StringSequencePartComponent', () => {
     const propertyName = 'property';
     const testedSubject = new Subject<WorkflowEntryModel>();
     const subjectSpy = spyOn(testedSubject, 'next');
+    const partValidation = PartValidationFactory.create(true, 5, 50);
 
     underTest.isShow = false;
     underTest.name = 'name';
     underTest.value = oldValue;
     underTest.property = propertyName;
     underTest.valueChanges = testedSubject;
+    underTest.partValidation = partValidation;
 
     fixture.detectChanges();
     fixture.whenStable().then(() => {

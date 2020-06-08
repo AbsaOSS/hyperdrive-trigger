@@ -34,8 +34,8 @@ export type DynamicFormPart = {
 export type FormPart = {
   name: string;
   property: string;
-  isRequired: boolean;
   type: string;
+  partValidation: PartValidation;
   options?: string[];
 };
 
@@ -70,7 +70,23 @@ export class DynamicFormPartFactory {
 }
 
 export class FormPartFactory {
-  static create(name: string, property: string, isRequired: boolean, type: string, options?: string[]): FormPart {
-    return { name: name, property: property, isRequired: isRequired, type: type, options: options };
+  static create(name: string, property: string, type: string, partValidation: PartValidation, options?: string[]): FormPart {
+    return { name: name, property: property, type: type, partValidation: partValidation, options: options };
+  }
+}
+
+export type PartValidation = {
+  isRequired: boolean;
+  maxLength?: number;
+  minLength?: number;
+};
+
+export class PartValidationFactory {
+  static create(isRequired: boolean, maxLength?: number, minLength?: number): PartValidation {
+    return {
+      isRequired: isRequired,
+      maxLength: maxLength,
+      minLength: minLength,
+    };
   }
 }

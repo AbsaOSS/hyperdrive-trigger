@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { async, ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 
 import { SensorComponent } from './sensor.component';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
@@ -21,6 +21,7 @@ import {
   DynamicFormPartFactory,
   DynamicFormPartsFactory,
   FormPartFactory,
+  PartValidationFactory,
   WorkflowFormPartsModelFactory,
 } from '../../../../models/workflowFormParts.model';
 import { WorkflowSensorChanged, WorkflowSensorTypeSwitched } from '../../../../stores/workflows/workflows.actions';
@@ -36,13 +37,20 @@ describe('SensorComponent', () => {
     workflows: {
       workflowFormParts: WorkflowFormPartsModelFactory.create(
         [],
-        FormPartFactory.create('switchPartName', 'switchPartProp', true, 'switchPartType', ['optionOne', 'optionTwo']),
+        FormPartFactory.create('switchPartName', 'switchPartProp', 'switchPartType', PartValidationFactory.create(true), [
+          'optionOne',
+          'optionTwo',
+        ]),
         undefined,
         undefined,
         DynamicFormPartsFactory.create(
           [
-            DynamicFormPartFactory.create('optionOne', [FormPartFactory.create('partOne', 'partOne', true, 'partOne')]),
-            DynamicFormPartFactory.create('optionTwo', [FormPartFactory.create('partTwo', 'partTwo', true, 'partTwo')]),
+            DynamicFormPartFactory.create('optionOne', [
+              FormPartFactory.create('partOne', 'partOne', 'partOne', PartValidationFactory.create(true)),
+            ]),
+            DynamicFormPartFactory.create('optionTwo', [
+              FormPartFactory.create('partTwo', 'partTwo', 'partTwo', PartValidationFactory.create(true)),
+            ]),
           ],
           [],
         ),
@@ -85,13 +93,14 @@ describe('SensorComponent', () => {
     });
   }));
 
-  it('should dispatch workflow sensor change when value is received', async(() => {
+  it('should dispatch workflow sensor change when value is received', fakeAsync(() => {
     const usedWorkflowEntry = WorkflowEntryModelFactory.create('property', 'value');
     fixture.detectChanges();
     fixture.whenStable().then(() => {
       const storeSpy = spyOn(mockStore, 'dispatch');
       underTest.sensorChanges.next(usedWorkflowEntry);
       fixture.detectChanges();
+      tick(200);
 
       fixture.whenStable().then(() => {
         expect(storeSpy).toHaveBeenCalledTimes(1);
@@ -100,7 +109,7 @@ describe('SensorComponent', () => {
     });
   }));
 
-  it('should dispatch workflow sensor type switch when value for switch is received', async(() => {
+  it('should dispatch workflow sensor type switch when value for switch is received', fakeAsync(() => {
     const usedWorkflowEntry = WorkflowEntryModelFactory.create(
       initialAppState.workflows.workflowFormParts.sensorSwitchPart.property,
       'value',
@@ -111,6 +120,7 @@ describe('SensorComponent', () => {
       const storeSpy = spyOn(mockStore, 'dispatch');
       underTest.sensorChanges.next(usedWorkflowEntry);
       fixture.detectChanges();
+      tick(200);
 
       fixture.whenStable().then(() => {
         expect(storeSpy).toHaveBeenCalledTimes(1);

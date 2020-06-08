@@ -20,7 +20,8 @@ import { Subject } from 'rxjs';
 import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
 import { By } from '@angular/platform-browser';
 import { DebugElement, Predicate } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
+import { PartValidationFactory } from '../../../../../models/workflowFormParts.model';
 
 describe('StringPartComponent', () => {
   let fixture: ComponentFixture<StringPartComponent>;
@@ -32,6 +33,7 @@ describe('StringPartComponent', () => {
     TestBed.configureTestingModule({
       declarations: [StringPartComponent],
       imports: [FormsModule],
+      providers: [NgForm],
     }).compileComponents();
   }));
 
@@ -54,6 +56,7 @@ describe('StringPartComponent', () => {
           const oldValue = parameter;
           const newValue = '';
           const propertyName = 'property';
+          const partValidation = PartValidationFactory.create(true, 5, 50);
           const testedSubject = new Subject<WorkflowEntryModel>();
           const subjectSpy = spyOn(testedSubject, 'next');
 
@@ -62,6 +65,7 @@ describe('StringPartComponent', () => {
           underTest.value = oldValue;
           underTest.property = propertyName;
           underTest.valueChanges = testedSubject;
+          underTest.partValidation = partValidation;
           fixture.detectChanges();
 
           fixture.whenStable().then(() => {
@@ -81,12 +85,14 @@ describe('StringPartComponent', () => {
     const propertyName = 'property';
     const testedSubject = new Subject<WorkflowEntryModel>();
     const subjectSpy = spyOn(testedSubject, 'next');
+    const partValidation = PartValidationFactory.create(true, 5, 50);
 
     underTest.isShow = false;
     underTest.name = 'name';
     underTest.value = oldValue;
     underTest.property = propertyName;
     underTest.valueChanges = testedSubject;
+    underTest.partValidation = partValidation;
 
     fixture.detectChanges();
     fixture.whenStable().then(() => {
