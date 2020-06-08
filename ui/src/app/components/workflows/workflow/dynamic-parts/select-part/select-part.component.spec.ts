@@ -18,9 +18,10 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { SelectPartComponent } from './select-part.component';
 import { DebugElement, Predicate } from '@angular/core';
 import { By } from '@angular/platform-browser';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
+import { PartValidationFactory } from '../../../../../models/workflowFormParts.model';
 
 describe('SelectPartComponent', () => {
   let fixture: ComponentFixture<SelectPartComponent>;
@@ -32,6 +33,7 @@ describe('SelectPartComponent', () => {
     TestBed.configureTestingModule({
       declarations: [SelectPartComponent],
       imports: [FormsModule],
+      providers: [NgForm],
     }).compileComponents();
   }));
 
@@ -57,6 +59,7 @@ describe('SelectPartComponent', () => {
           const options = ['one', 'two', 'three'];
           const testedSubject = new Subject<WorkflowEntryModel>();
           const subjectSpy = spyOn(testedSubject, 'next');
+          const partValidation = PartValidationFactory.create(true);
 
           underTest.isShow = false;
           underTest.name = 'name';
@@ -64,6 +67,7 @@ describe('SelectPartComponent', () => {
           underTest.property = propertyName;
           underTest.options = options;
           underTest.valueChanges = testedSubject;
+          underTest.partValidation = partValidation;
           fixture.detectChanges();
 
           fixture.whenStable().then(() => {
@@ -84,6 +88,7 @@ describe('SelectPartComponent', () => {
     const options = [oldValue, 'two', newValue];
     const testedSubject = new Subject<WorkflowEntryModel>();
     const subjectSpy = spyOn(testedSubject, 'next');
+    const partValidation = PartValidationFactory.create(true);
 
     underTest.isShow = false;
     underTest.name = 'name';
@@ -91,6 +96,7 @@ describe('SelectPartComponent', () => {
     underTest.property = propertyName;
     underTest.options = options;
     underTest.valueChanges = testedSubject;
+    underTest.partValidation = partValidation;
 
     fixture.detectChanges();
     fixture.whenStable().then(() => {

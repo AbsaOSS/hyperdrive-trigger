@@ -16,15 +16,23 @@
 <div *ngIf="!isShow">
   <clr-select-container>
     <label>{{name}}</label>
-    <select clrSelect [ngModel]="value" (ngModelChange)="modelChanged($event)">
+    <select
+      clrSelect
+      [id]="name+uiid"
+      [name]="name+uiid"
+      [ngModel]="value"
+      (ngModelChange)="modelChanged($event)"
+      [required]="partValidationSafe.isRequired"
+    >
       <option *ngFor="let option of options" [value]="option">{{option}}</option>
     </select>
+    <clr-control-error *clrIfError="'required'">{{texts.FORM_VALIDATION_ONE_MUST_BE_SELECTED(name)}}</clr-control-error>
   </clr-select-container>
 </div>
 
 <div *ngIf="isShow">
   <clr-input-container>
     <label class="clr-control-label">{{name}}</label>
-    <input clrInput type="text" [ngModel]="value" [readOnly]="true"/>
+    <input clrInput type="text" [id]="name+uiid" [name]="name+uiid" [ngModel]="value" [readOnly]="true"/>
   </clr-input-container>
 </div>

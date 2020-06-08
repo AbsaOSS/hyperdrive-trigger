@@ -20,7 +20,7 @@ import { DebugElement, Predicate } from '@angular/core';
 import { Subject } from 'rxjs';
 import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
 import { By } from '@angular/platform-browser';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 
 describe('BooleanPartComponent', () => {
   let fixture: ComponentFixture<BooleanPartComponent>;
@@ -32,6 +32,7 @@ describe('BooleanPartComponent', () => {
     TestBed.configureTestingModule({
       declarations: [BooleanPartComponent],
       imports: [FormsModule],
+      providers: [NgForm],
     }).compileComponents();
   }));
 
