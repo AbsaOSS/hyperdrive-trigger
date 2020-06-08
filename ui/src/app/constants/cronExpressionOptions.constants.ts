@@ -13,68 +13,64 @@
  * limitations under the License.
  */
 
-export const userFriendly = {
-  OPTIONS: [
-    {
-      value: 1,
-      label: 'Hour every',
-    },
-    {
-      value: 2,
-      label: 'Hour at',
-    },
-    {
-      value: 3,
-      label: 'Day',
-    },
-  ],
-};
+export const HourEveryValues = [
+  5,
+  10,
+  15,
+  20,
+  25,
+  30
+]
 
-export enum EveryHour {
-  Zero = 0,
-  One,
-  Two,
-  Three,
-  Four,
-  Five,
-  Six,
-  Seven,
-  Eight,
-  Nine,
-  Ten,
-  Eleven,
-  Twelve,
-  Thirteen,
-  Fourteen,
-  Fifteen,
-  Sixtenn,
-  Seventeen,
-  Eighteen,
-  Nineteen,
-  Twenty,
-  TwentyOne,
-  TwentyTwo,
-  TwentyThree,
-}
-export enum EveryMinute {
-  TwentyFive = 25,
-  Thirty = 30,
-  ThirtyFive = 35,
-  Forty = 40,
-  FortyFive = 45,
-  Fifty = 50,
-  FiftyFive = 55,
+export const HourAtValues = [
+  0,
+  5,
+  10,
+  15,
+  20,
+  25,
+  30,
+  35,
+  40,
+  45,
+  50,
+  55
+]
+
+export const DayValues = [
+  0,
+  1 ,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9,
+  10,
+  11,
+  12,
+  13,
+  14,
+  15,
+  16,
+  17,
+  18,
+  19,
+  20,
+  21,
+  22,
+  23,
+]
+
+export enum InputTypes {
+  FREE_TEXT = 'Free text quartz cron expression',
+  USER_FRIENDLY = 'User friendly input',
 }
 
-export const Frequecies = {
-  OPTIONS: [
-    {
-      value: 1,
-      label: 'User friendly input',
-    },
-    {
-      value: 2,
-      label: 'Free text cron expression ',
-    },
-  ],
-};
+export enum Frequencies {
+  HOUR_EVERY= 'Hour every',
+  HOUR_AT = 'Hour at',
+  DAY = 'Day'
+}

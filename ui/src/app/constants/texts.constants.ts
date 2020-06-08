@@ -46,4 +46,6 @@ export const texts = {
   VALIDATE_CRON_CONFIRMATION_TITTLE: 'Invalid cron expression',
   VALIDATE_CRON_CONFIRMATION_CONTENT: 'Cron expression is invalid. Going to use default frequency.',
   VALIDATE_CRON_CONFIRMATION_MESSAGE: 'Invalid cron expression, please update with correct expression.',
+
+  CRON_QUARTZ_INVALID_FOR_USER_FRIENDLY: 'Invalid quartz expression for user friendly input. Default will be used.'
 };

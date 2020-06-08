@@ -18,70 +18,84 @@
   <clr-control-container>
     <label>Frequency</label>
 
+<!--  Frequency select -->
     <div class="clr-select-wrapper">
-      <select class="clr-select" clrControl [(ngModel)]="freq">
-        <option *ngFor="let option of frequencies" [selected]="freq==option.value" [value]="option.value">
-          {{option.label}}</option>
+      <select class="clr-select" clrControl [ngModel]="inputType" (ngModelChange)="onInputTypeChange($event)">
+        <option *ngFor="let option of InputTypes | keyvalue" [selected]="inputType==option.value" [value]="option.value">
+          {{option.value}}</option>
       </select>
     </div>
   </clr-control-container>
-</div>
 
-<div *ngIf="!isShow">
-  <clr-control-container>
 
-    <div class="form-group">
-      <input *ngIf="freq == 2" [readOnly]="false" clrControl value="{{ value }}"
-        (change)="onFreeText($event.target.value)" [size]="24">
+<!-- Free text input -->
+  <clr-control-container *ngIf="inputType == InputTypes.FREE_TEXT">
+    <input  [readOnly]="false" clrControl [ngModel]="freeText" (ngModelChange)="onFreeTextChange($event)"/>
 
-      <input *ngIf="freq == 2" [readOnly]="true" clrControl
-        value="{{ validCron ? readableCronExpression : 'please update with a correct expression.'}}" [size]="80" />
-    </div>
+    <input *ngIf="(validation | async) as validationResult; else loading" [readOnly]="true" clrControl
+           [value]="validationResult.isValid ? validationResult.explained : 'Incorrect expression!' "/>
 
-    <span *ngIf="freq == 1">Every</span>
-
-    <div class="clr-select-wrapper" *ngIf="freq == 1">
-      <select class="clr-select" clrControl [(ngModel)]="base">
-        <option *ngFor="let option of userFriendly" [selected]="base==option.value" [value]="option.value">
-          {{option.label}}</option>
-      </select>
-    </div>
-
-    <span *ngIf="base == 3 && freq == 1">at</span>
-
-    <div class="clr-select-wrapper" *ngIf="base == 3 && freq == 1">
-      <select class="clr-select" clrControl [(ngModel)]="dayValue" (change)="onDaySelect($event.target.value)">
-        <option *ngFor="let option of hourValues" [selected]="dayValue==option" [value]="option">{{option}}</option>
-      </select>
-    </div>
-
-    <div class="clr-select-wrapper" *ngIf="base == 2 && freq == 1">
-      <select class="clr-select" clrControl [(ngModel)]="hourValue" (change)="onHourSelect($event.target.value)">
-        <option *ngFor="let option of minuteValues" [selected]="hourValue==option" [value]="option">{{option}}</option>
-      </select>
-    </div>
-
-    <div class="clr-select-wrapper" *ngIf="base == 1 && freq == 1">
-      <select class="clr-select" clrControl [(ngModel)]="minuteValue" (change)="onMinuteSelect($event.target.value)">
-        <option *ngFor="let option of minutesValues" [selected]="minuteValue==option" [value]="option">{{option}}
-        </option>
-      </select>
-    </div>
-
-    <span *ngIf="base == 3 && freq == 1"> : {{ dayMinuteValue }}</span>
-
-    <span *ngIf="base == 2 && freq == 1"> minutes past the hour</span>
-
-    <span *ngIf="base == 1 && freq == 1"> minutes</span>
-
+    <ng-template #loading>
+      <clr-spinner clrInline></clr-spinner>
+      <span>Verifying</span>
+    </ng-template>
   </clr-control-container>
+
+<!--  User friendly input -->
+  <div *ngIf="inputType == InputTypes.USER_FRIENDLY">
+
+      <clr-control-container>
+        <span>Every</span>
+          <div class="clr-select-wrapper">
+            <select class="clr-select" clrControl [ngModel]="frequency" (ngModelChange)="onFrequencyChange($event)">
+              <option *ngFor="let option of Frequencies | keyvalue" [selected]="frequency==option.value" [value]="option.value">
+                {{option.value}}</option>
+            </select>
+          </div>
+
+        <span *ngIf="frequency == Frequencies.DAY">at</span>
+
+        <div class="clr-select-wrapper" *ngIf="frequency == Frequencies.DAY">
+          <select class="clr-select" clrControl [ngModel]="day" (ngModelChange)="onDayChange($event)">
+            <option *ngFor="let option of DayValues" [selected]="day==option" [value]="option">{{option}}</option>
+          </select>
+        </div>
+
+
+        <div class="clr-select-wrapper" *ngIf="frequency == Frequencies.HOUR_AT">
+          <select class="clr-select" clrControl [ngModel]="hourAt" (ngModelChange)="onHourAtChange($event)" >
+            <option *ngFor="let option of HourAtValues" [selected]="hourAt==option" [value]="option">{{option}}</option>
+          </select>
+        </div>
+
+        <div class="clr-select-wrapper" *ngIf="frequency == Frequencies.HOUR_EVERY">
+          <select class="clr-select" clrControl [ngModel]="hourEvery" (ngModelChange)="onHourEveryChange($event)">
+            <option *ngFor="let option of HourEveryValues" [selected]="hourEvery==option" [value]="option">{{option}}</option>
+          </select>
+        </div>
+
+        <span *ngIf="frequency == Frequencies.HOUR_EVERY"> minutes</span>
+        <span *ngIf="frequency == Frequencies.DAY"> o'clock</span>
+        <span *ngIf="frequency == Frequencies.HOUR_AT"> minutes past the hour</span>
+
+      </clr-control-container>
+
+
+
+
+  </div>
+
 </div>
+
 
 <div *ngIf="isShow">
   <clr-control-container>
     <label>Frequency</label>
-
-    <input [readOnly]="true" clrControl value="{{ readableCronExpression }}" [size]="80" />
-
+    <input *ngIf="(validation | async) as validationResult; else loading" [readOnly]="true" clrControl
+           [value]="validationResult.isValid ? validationResult.explained : 'Incorrect expression!' "/>
+    <ng-template #loading>
+      <clr-spinner clrInline></clr-spinner>
+      <span>Verifying</span>
+    </ng-template>
   </clr-control-container>
 </div>
