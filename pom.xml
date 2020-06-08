@@ -22,7 +22,7 @@
     <version>0.0.1-SNAPSHOT</version>
     <groupId>za.co.absa</groupId>
     <artifactId>hyperdrive-trigger</artifactId>
-    <packaging>jar</packaging>
+    <packaging>war</packaging>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -47,7 +47,6 @@
         <webjars.locator.version>0.35</webjars.locator.version>
         <spring.version>2.0.0.RELEASE</spring.version>
         <quartz.version>2.3.2</quartz.version>
-        <maven.war.version>2.2</maven.war.version>
         <log4j.version>2.11.1</log4j.version>
         <slf4j.log4j2.version>1.7.26</slf4j.log4j2.version>
         <spring.ldap.version>5.0.3.RELEASE</spring.ldap.version>
@@ -64,7 +63,7 @@
         <scalatest-maven-plugin.version>2.0.0</scalatest-maven-plugin.version>
         <dockerfile-maven.version>1.4.13</dockerfile-maven.version>
         <frontend.maven.plugin.version>1.9.0</frontend.maven.plugin.version>
-
+        <maven.war.plugin.version>2.6</maven.war.plugin.version>
 
         <skip.docker>true</skip.docker>
         <skipNpmTests>${skipTests}</skipNpmTests>
@@ -147,6 +146,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
             <version>${spring-boot-starter-tomcat.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
@@ -291,6 +291,27 @@
                         <JAR_FILE>target/${project.build.finalName}.jar</JAR_FILE>
                     </buildArgs>
                     <noCache>true</noCache>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>${maven.war.plugin.version}</version>
+                <configuration>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                    <webResources>
+                        <resource>
+                            <directory>target/classes/ui</directory>
+                            <targetPath>/</targetPath>
+                            <filtering>false</filtering>
+                        </resource>
+                    </webResources>
+                    <packagingExcludes>META-INF/*.SF, META-INF/*.DSA, META-INF/*.RSA</packagingExcludes>
+                    <archive>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                        </manifest>
+                    </archive>
                 </configuration>
             </plugin>
             <plugin>
