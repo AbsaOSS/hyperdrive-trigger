@@ -20,25 +20,8 @@
 </div>
 
 <div *ngIf="!loading">
-
-  <!--  BUTTONS  -->
-  <div class="btn-group" *ngIf="mode != workflowModes.SHOW">
-    <button type="button" class="btn btn-sm btn-secondary" *ngIf="mode != workflowModes.EDIT" (click)="createWorkflow()">
-      <clr-icon shape="check"></clr-icon>
-      Create new workflow
-    </button>
-    <button type="button" class="btn btn-sm btn-secondary" *ngIf="mode == workflowModes.EDIT" (click)="updateWorkflow()">
-      <clr-icon shape="check"></clr-icon>
-      Update workflow
-    </button>
-    <button type="button" class="btn btn-sm btn-secondary" (click)="cancelWorkflow()">
-      <clr-icon shape="times"></clr-icon>
-      Cancel
-    </button>
-  </div>
-
   <div class="btn-group" *ngIf="mode == workflowModes.SHOW">
-    <button type="button" class="btn btn-sm btn-secondary"  (click)="switchWorkflowActiveState(id)">
+    <button type="button" class="btn btn-sm btn-secondary" (click)="switchWorkflowActiveState(id)">
       <clr-icon shape="power"></clr-icon>
       {{isWorkflowActive ? 'Deactivate' : 'Activate'}}
     </button>
@@ -60,9 +43,37 @@
     </button>
   </div>
 
-  <!--  ACCORDIONS  -->
-  <form clrForm>
+  <form clrForm (ngSubmit)="mode != workflowModes.EDIT ? createWorkflow() : updateWorkflow()" #workflowForm="ngForm" novalidate>
+    <div class="btn-group" *ngIf="mode != workflowModes.SHOW">
+      <button type="submit" class="btn btn-sm btn-secondary" *ngIf="mode != workflowModes.EDIT">
+        <clr-icon shape="check"></clr-icon>
+        Create new workflow
+      </button>
+      <button type="submit" class="btn btn-sm btn-secondary" *ngIf="mode == workflowModes.EDIT">
+        <clr-icon shape="check"></clr-icon>
+        Update workflow
+      </button>
+      <button type="button" class="btn btn-sm btn-secondary" (click)="cancelWorkflow()">
+        <clr-icon shape="times"></clr-icon>
+        Cancel
+      </button>
+    </div>
 
+    <div *ngFor="let error of backendValidationErrors; let index = index" class="alert alert-danger" role="alert">
+      <div class="alert-items">
+        <div class="alert-item static">
+          <div class="alert-icon-wrapper">
+            <clr-icon class="alert-icon" shape="exclamation-triangle"></clr-icon>
+          </div>
+          <span class="alert-text">{{error}} </span>
+        </div>
+      </div>
+      <button type="button" class="close" aria-label="Close" (click)="removeBackendValidationError(index)">
+        <clr-icon aria-hidden="true" shape="close"></clr-icon>
+      </button>
+    </div>
+
+    <!--  ACCORDIONS  -->
     <div class="clr-row">
       <div class="clr-col">
         <div class="card">
@@ -71,7 +82,7 @@
               <clr-icon shape="angle" [dir]="isDetailsAccordionHidden?'right':'down'"></clr-icon>
               Workflow details
             </div>
-            <div *ngIf="!isDetailsAccordionHidden" class="accordion-content">
+            <div [hidden]="isDetailsAccordionHidden" class="accordion-content">
               <app-workflow-details></app-workflow-details>
             </div>
           </div>
@@ -83,7 +94,7 @@
               <clr-icon shape="angle" [dir]="isSensorAccordionHidden?'right':'down'"></clr-icon>
               Sensor
             </div>
-            <div *ngIf="!isSensorAccordionHidden" class="accordion-content">
+            <div [hidden]="isSensorAccordionHidden" class="accordion-content">
               <app-sensor></app-sensor>
             </div>
           </div>
@@ -95,8 +106,8 @@
               <clr-icon shape="angle" [dir]="isJobsAccordionHidden?'right':'down'"></clr-icon>
               Jobs
             </div>
-            <div *ngIf="!isJobsAccordionHidden">
-              <app-jobs></app-jobs>
+            <div [hidden]="isJobsAccordionHidden">
+              <app-jobs [jobsUnfold]="jobsUnfold"></app-jobs>
             </div>
           </div>
 

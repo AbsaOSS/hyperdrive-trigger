@@ -14,32 +14,75 @@
   -->
 
 <div *ngIf="!isShow">
-  <clr-control-container *ngFor="let val of mapOfValues; let i = index; trackBy: trackByFn;">
-    <label *ngIf="i == 0">{{name}}</label>
+  <div *ngFor="let val of mapOfValues; let i = index; trackBy: trackByFn;">
+    <clr-control-container>
+      <label *ngIf="i == 0">{{name}}</label>
+      Key {{i+1}}:
+      <input
+        clrControl
+        type="text"
+        placeholder="key"
+        [id]="name+i+0+uiid"
+        [ngModel]="val[0]"
+        (ngModelChange)="ngModelChanged($event, i,0)"
+        [size]="partValidationSafe.maxLength < maxFieldSize ? partValidationSafe.maxLength : maxFieldSize"
+        required
+        [minlength]="partValidation.minLength"
+        [maxlength]="partValidation.maxLength"
+      />
+      <clr-control-error *clrIfError="'required'">{{texts.FORM_VALIDATION_MUST_BE_FILLED(name)}}</clr-control-error>
+      <clr-control-error *clrIfError="'minlength'">{{texts.FORM_VALIDATION_MIN_LENGTH(name, partValidationSafe.minLength)}}</clr-control-error>
+      <clr-control-error *clrIfError="'maxlength'">{{texts.FORM_VALIDATION_MAX_LENGTH(name, partValidationSafe.maxLength)}}</clr-control-error>
+    </clr-control-container>
 
-    <input clrControl [id]="name+i+0" type="text" placeholder="key" [size]="20" [ngModel]="val[0]"
-           (ngModelChange)="ngModelChanged($event, i,0)"/>
-    -
-    <input clrControl [id]="name+i+1" type="text" placeholder="value" [size]="40" [ngModel]="val[1]"
-           (ngModelChange)="ngModelChanged($event, i,1)"/>
 
-    <button type="button" class="btn btn-link" (click)="onDelete(i)">
-      <clr-icon shape="trash"></clr-icon>
-    </button>
-
-    <button type="button" class="btn btn-link" *ngIf="mapOfValues.length - 1 === i" (click)="onAdd()">
-      <clr-icon shape="plus"></clr-icon>
-    </button>
-
-  </clr-control-container>
+    <clr-control-container>
+      Value {{i+1}}:
+      <input
+        clrControl
+        type="text"
+        placeholder="value"
+        [id]="name+i+1+uiid"
+        [ngModel]="val[1]"
+        (ngModelChange)="ngModelChanged($event, i,1)"
+        [size]="partValidationSafe.maxLength < maxFieldSize ? partValidationSafe.maxLength : maxFieldSize"
+        required
+        [minlength]="partValidation.minLength"
+        [maxlength]="partValidation.maxLength"
+      />
+      <clr-control-error *clrIfError="'required'">{{texts.FORM_VALIDATION_MUST_BE_FILLED(name)}}</clr-control-error>
+      <clr-control-error *clrIfError="'minlength'">{{texts.FORM_VALIDATION_MIN_LENGTH(name, partValidationSafe.minLength)}}</clr-control-error>
+      <clr-control-error *clrIfError="'maxlength'">{{texts.FORM_VALIDATION_MAX_LENGTH(name, partValidationSafe.maxLength)}}</clr-control-error>
+      <button type="button" class="btn btn-link" (click)="onDelete(i)">
+        <clr-icon shape="trash"></clr-icon>
+      </button>
+      <button type="button" class="btn btn-link" *ngIf="mapOfValues.length - 1 === i" (click)="onAdd()">
+        <clr-icon shape="plus"></clr-icon>
+      </button>
+    </clr-control-container>
+  </div>
 </div>
 
 <div *ngIf="isShow">
-  <clr-control-container *ngFor="let val of mapOfValues let i = index;">
+  <div *ngFor="let val of mapOfValues let i = index;">
+  <clr-control-container>
     <label *ngIf="i == 0" class="clr-control-label">{{name}}</label>
     <label *ngIf="i != 0" class="clr-control-label"></label>
-    <input [readOnly]="true" clrControl value="{{val[0]}} = {{val[1]}}" [size]="60"/>
+    Key {{i+1}}: <input [readOnly]="true" clrControl value="{{val[0]}}" [size]="partValidationSafe.maxLength < maxFieldSize ? partValidationSafe.maxLength : maxFieldSize"/>
   </clr-control-container>
+  <clr-control-container>
+    Value {{i+1}}: <input [readOnly]="true" clrControl value="{{val[1]}}" [size]="partValidationSafe.maxLength < maxFieldSize ? partValidationSafe.maxLength : maxFieldSize"/>
+  </clr-control-container>
+  </div>
 </div>
 
+<clr-control-container *ngIf="mapOfValues.length == 0 && !isShow">
+  <label>{{name}}</label>
+  <input [name]="name" clrControl [ngModel]="undefined" [required]="partValidationSafe.isRequired" type="hidden"/>
+  <clr-control-error *clrIfError="'required'">{{texts.FORM_VALIDATION_AT_LEAST_ONE_DEFINED}}</clr-control-error>
+
+  <button type="button" class="btn btn-link" (click)="onAdd()">
+    <clr-icon shape="plus"></clr-icon>
+  </button>
+</clr-control-container>
 

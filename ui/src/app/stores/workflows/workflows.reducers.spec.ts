@@ -58,6 +58,7 @@ describe('WorkflowsReducers', () => {
       mode: undefined,
       loading: true,
       workflow: undefined,
+      backendValidationErrors: [],
       workflowData: {
         details: [],
         sensor: [],

@@ -42,4 +42,20 @@ export const texts = {
   UPDATE_WORKFLOW_CONFIRMATION_CONTENT: 'Are you sure you want to update the workflow?',
   UPDATE_WORKFLOW_SUCCESS_NOTIFICATION: 'Workflow has been updated.',
   UPDATE_WORKFLOW_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
+
+  FORM_VALIDATION_MUST_BE_FILLED(name: string): string {
+    return `${name} must be filled!`;
+  },
+  FORM_VALIDATION_MIN_LENGTH(name: string, length: number): string {
+    return `${name} must be at least ${length} characters long!`;
+  },
+  FORM_VALIDATION_MAX_LENGTH(name: string, length: number): string {
+    return `${name} must be at most ${length} characters long!`;
+  },
+  FORM_VALIDATION_AT_LEAST_ONE_DEFINED(): string {
+    return `At least one must be defined!`;
+  },
+  FORM_VALIDATION_ONE_MUST_BE_SELECTED(name: string): string {
+    return `${name} one option has to be selected!`;
+  },
 };

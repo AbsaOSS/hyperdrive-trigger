@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AppState, selectWorkflowState } from '../../../stores/app.reducers';
 import { Subscription } from 'rxjs';
@@ -25,6 +25,7 @@ import {
   UpdateWorkflow,
   RunWorkflow,
   SwitchWorkflowActiveState,
+  RemoveBackendValidationError,
 } from '../../../stores/workflows/workflows.actions';
 import { workflowModes } from '../../../models/enums/workflowModes.constants';
 import { absoluteRoutes } from '../../../constants/routes.constants';
@@ -39,10 +40,14 @@ import { texts } from '../../../constants/texts.constants';
   styleUrls: ['./workflow.component.scss'],
 })
 export class WorkflowComponent implements OnInit, OnDestroy {
+  @ViewChild('workflowForm') workflowForm;
+  @Output() jobsUnfold: EventEmitter<any> = new EventEmitter();
+
   loading = true;
   mode: string;
   id: number;
   isWorkflowActive: boolean;
+  backendValidationErrors: string[];
 
   workflowModes = workflowModes;
   absoluteRoutes = absoluteRoutes;
@@ -74,6 +79,7 @@ export class WorkflowComponent implements OnInit, OnDestroy {
       this.mode = state.workflowAction.mode;
       this.id = state.workflowAction.id;
       this.isWorkflowActive = !!state.workflowAction.workflow ? state.workflowAction.workflow.isActive : false;
+      this.backendValidationErrors = state.workflowAction.backendValidationErrors;
     });
   }
 
@@ -87,6 +93,10 @@ export class WorkflowComponent implements OnInit, OnDestroy {
 
   toggleJobsAccordion() {
     this.isJobsAccordionHidden = !this.isJobsAccordionHidden;
+  }
+
+  removeBackendValidationError(index: number) {
+    this.store.dispatch(new RemoveBackendValidationError(index));
   }
 
   cancelWorkflow() {
@@ -110,7 +120,13 @@ export class WorkflowComponent implements OnInit, OnDestroy {
         texts.SWITCH_WORKFLOW_ACTIVE_STATE_CONTENT(this.isWorkflowActive),
       )
       .subscribe((confirmed) => {
-        if (confirmed) this.store.dispatch(new SwitchWorkflowActiveState({ id: id, currentActiveState: this.isWorkflowActive }));
+        if (confirmed)
+          this.store.dispatch(
+            new SwitchWorkflowActiveState({
+              id: id,
+              currentActiveState: this.isWorkflowActive,
+            }),
+          );
       });
   }
 
@@ -123,19 +139,34 @@ export class WorkflowComponent implements OnInit, OnDestroy {
   }
 
   createWorkflow() {
-    this.confirmationDialogServiceSubscription = this.confirmationDialogService
-      .confirm(ConfirmationDialogTypes.YesOrNo, texts.CREATE_WORKFLOW_CONFIRMATION_TITLE, texts.CREATE_WORKFLOW_CONFIRMATION_CONTENT)
-      .subscribe((confirmed) => {
-        if (confirmed) this.store.dispatch(new CreateWorkflow());
-      });
+    if (this.workflowForm.form.valid) {
+      this.confirmationDialogServiceSubscription = this.confirmationDialogService
+        .confirm(ConfirmationDialogTypes.YesOrNo, texts.CREATE_WORKFLOW_CONFIRMATION_TITLE, texts.CREATE_WORKFLOW_CONFIRMATION_CONTENT)
+        .subscribe((confirmed) => {
+          if (confirmed) this.store.dispatch(new CreateWorkflow());
+        });
+    } else {
+      this.showHiddenParts();
+    }
   }
 
   updateWorkflow() {
-    this.confirmationDialogServiceSubscription = this.confirmationDialogService
-      .confirm(ConfirmationDialogTypes.YesOrNo, texts.UPDATE_WORKFLOW_CONFIRMATION_TITLE, texts.UPDATE_WORKFLOW_CONFIRMATION_CONTENT)
-      .subscribe((confirmed) => {
-        if (confirmed) this.store.dispatch(new UpdateWorkflow());
-      });
+    if (this.workflowForm.form.valid) {
+      this.confirmationDialogServiceSubscription = this.confirmationDialogService
+        .confirm(ConfirmationDialogTypes.YesOrNo, texts.UPDATE_WORKFLOW_CONFIRMATION_TITLE, texts.UPDATE_WORKFLOW_CONFIRMATION_CONTENT)
+        .subscribe((confirmed) => {
+          if (confirmed) this.store.dispatch(new UpdateWorkflow());
+        });
+    } else {
+      this.showHiddenParts();
+    }
+  }
+
+  showHiddenParts() {
+    this.isDetailsAccordionHidden = false;
+    this.isSensorAccordionHidden = false;
+    this.isJobsAccordionHidden = false;
+    this.jobsUnfold.emit();
   }
 
   ngOnDestroy(): void {

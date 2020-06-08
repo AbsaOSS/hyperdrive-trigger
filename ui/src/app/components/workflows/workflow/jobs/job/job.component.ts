@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Subject, Subscription } from 'rxjs';
 import { workflowModes } from '../../../../../models/enums/workflowModes.constants';
 import { DynamicFormPart, FormPart } from '../../../../../models/workflowFormParts.model';
@@ -21,12 +21,12 @@ import { Store } from '@ngrx/store';
 import { AppState, selectWorkflowState } from '../../../../../stores/app.reducers';
 import { WorkflowJobChanged, WorkflowJobTypeSwitched } from '../../../../../stores/workflows/workflows.actions';
 import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
+import { delay } from 'rxjs/operators';
 
 @Component({
   selector: 'app-job',
   templateUrl: './job.component.html',
   styleUrls: ['./job.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class JobComponent implements OnInit, OnDestroy {
   @Input() jobId: string;
@@ -59,7 +59,7 @@ export class JobComponent implements OnInit, OnDestroy {
       this.selectedJob = !!selected ? selected.value : undefined;
     });
 
-    this.jobChangesSubscription = this.jobChanges.subscribe((jobChange) => {
+    this.jobChangesSubscription = this.jobChanges.pipe(delay(0)).subscribe((jobChange) => {
       if (jobChange.property == this.jobSwitchPart.property) {
         this.store.dispatch(
           new WorkflowJobTypeSwitched({

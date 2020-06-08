@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { workflowModes } from '../../../../models/enums/workflowModes.constants';
 import { Subject, Subscription } from 'rxjs';
-import { distinctUntilChanged } from 'rxjs/operators';
+import { delay, distinctUntilChanged } from 'rxjs/operators';
 import { Store } from '@ngrx/store';
 import { AppState, selectWorkflowState } from '../../../../stores/app.reducers';
 import { WorkflowDetailsChanged } from '../../../../stores/workflows/workflows.actions';
@@ -27,7 +27,6 @@ import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../model
   selector: 'app-workflow-details',
   templateUrl: './workflow-details.component.html',
   styleUrls: ['./workflow-details.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WorkflowDetailsComponent implements OnInit, OnDestroy {
   workflowModes = workflowModes;
@@ -48,7 +47,7 @@ export class WorkflowDetailsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.detailsChangesSubscription = this.detailsChanges.pipe(distinctUntilChanged()).subscribe((newValue) => {
+    this.detailsChangesSubscription = this.detailsChanges.pipe(distinctUntilChanged(), delay(0)).subscribe((newValue) => {
       this.store.dispatch(new WorkflowDetailsChanged(WorkflowEntryModelFactory.create(newValue.property, newValue.value)));
     });
   }

@@ -16,12 +16,13 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { JobsComponent } from './jobs.component';
-import { FormPartFactory, WorkflowFormPartsModelFactory } from '../../../../models/workflowFormParts.model';
+import { FormPartFactory, PartValidationFactory, WorkflowFormPartsModelFactory } from '../../../../models/workflowFormParts.model';
 import { provideMockStore } from '@ngrx/store/testing';
 import { Store } from '@ngrx/store';
 import { WorkflowAddEmptyJob, WorkflowRemoveJob } from '../../../../stores/workflows/workflows.actions';
 import { JobEntryModelFactory } from '../../../../models/jobEntry.model';
 import { WorkflowEntryModelFactory } from '../../../../models/workflowEntry.model';
+import { EventEmitter } from '@angular/core';
 
 describe('JobsComponent', () => {
   let fixture: ComponentFixture<JobsComponent>;
@@ -33,7 +34,7 @@ describe('JobsComponent', () => {
       workflowFormParts: WorkflowFormPartsModelFactory.create(
         [],
         undefined,
-        FormPartFactory.create('jobStaticPart', 'jobStaticPart', true, 'jobStaticPart'),
+        FormPartFactory.create('jobStaticPart', 'jobStaticPart', 'jobStaticPart', PartValidationFactory.create(true)),
         undefined,
         undefined,
       ),
@@ -63,6 +64,7 @@ describe('JobsComponent', () => {
   });
 
   it('should after view init set component properties', async(() => {
+    underTest.jobsUnfold = new EventEmitter();
     fixture.detectChanges();
     fixture.whenStable().then(() => {
       expect(underTest.mode).toBe(initialAppState.workflows.workflowAction.mode);
@@ -89,6 +91,7 @@ describe('JobsComponent', () => {
   }));
 
   it('getJobName() should return job name', async(() => {
+    underTest.jobsUnfold = new EventEmitter();
     fixture.detectChanges();
     fixture.whenStable().then(() => {
       expect(underTest.getJobName(uuid)).toBe('value');
@@ -96,6 +99,7 @@ describe('JobsComponent', () => {
   }));
 
   it('getJobName() should return empty string when job is not found', async(() => {
+    underTest.jobsUnfold = new EventEmitter();
     fixture.detectChanges();
     fixture.whenStable().then(() => {
       expect(underTest.getJobName('9999')).toBe('');
@@ -103,6 +107,7 @@ describe('JobsComponent', () => {
   }));
 
   it('addJob() add job actions should be dispatched', async(() => {
+    underTest.jobsUnfold = new EventEmitter();
     fixture.detectChanges();
     fixture.whenStable().then(() => {
       const mockStore = fixture.debugElement.injector.get(Store);
@@ -116,6 +121,7 @@ describe('JobsComponent', () => {
   }));
 
   it('removeJob() remove job actions should be dispatched', async(() => {
+    underTest.jobsUnfold = new EventEmitter();
     fixture.detectChanges();
     fixture.whenStable().then(() => {
       const mockStore = fixture.debugElement.injector.get(Store);
