@@ -30,8 +30,6 @@
     "@ngrx/store": "^9.0.0-beta.2",
     "@ngrx/store-devtools": "^9.0.0-beta.2",
     "@webcomponents/webcomponentsjs": "^2.0.0",
-    "cron-validator": "^1.1.1",
-    "cronstrue": "^1.94.0",
     "lodash": "^4.17.15",
     "ngx-toastr": "^12.0.1",
     "rxjs": "~6.5.4",

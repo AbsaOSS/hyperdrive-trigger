@@ -16,5 +16,4 @@
 export enum ConfirmationDialogTypes {
   Delete = 'delete',
   YesOrNo = 'yes_or_no',
-  Info = 'info_message',
 }
