@@ -27,7 +27,6 @@ import { WorkflowComponent } from './components/workflows/workflow/workflow.comp
 const routes: Routes = [
   { path: routeNames.DEFAULT, redirectTo: routeNames.WORKFLOWS, pathMatch: 'full', canActivate: [AuthGuardService] },
   { path: routeNames.LOGIN, component: LoginComponent, canActivate: [LogInGuardService] },
-  { path: routeNames.WORKFLOWS_HOME, component: WorkflowsHomeComponent, canActivate: [AuthGuardService] },
   {
     path: routeNames.WORKFLOWS,
     component: WorkflowsComponent,
