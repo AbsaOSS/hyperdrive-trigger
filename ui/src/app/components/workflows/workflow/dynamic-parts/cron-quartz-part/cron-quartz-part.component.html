@@ -96,7 +96,7 @@
 <div *ngIf="isShow">
   <clr-control-container>
     <label>Frequency</label>
-    <input *ngIf="(validation | async) as validationResult; else loading" [readOnly]="true" clrControl
+    <input *ngIf="(validation | async) as validationResult; else loading" [readOnly]="true" clrControl [size]="100"
            [value]="validationResult.isValid ? validationResult.explained : 'Incorrect expression!' "/>
     <ng-template #loading>
       <clr-spinner clrInline></clr-spinner>
