@@ -13,21 +13,19 @@
  * limitations under the License.
  */
 
-export const api = {
-  USER_INFO: '/user/info',
-  LOGIN: '/login',
-  LOGOUT: '/logout',
+export const HourEveryValues = [5, 10, 15, 20, 25, 30];
 
-  DAG_RUN_SEARCH: '/dagRuns/search',
-  JOB_INSTANCES: '/jobInstances',
+export const HourAtValues = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
 
-  GET_PROJECTS: '/workflows/projects',
-  GET_WORKFLOW: '/workflow',
-  DELETE_WORKFLOW: '/workflows',
-  SWITCH_WORKFLOW_ACTIVE_STATE: '/workflows/{id}/switchActiveState',
-  RUN_WORKFLOW: '/workflow/run',
-  CREATE_WORKFLOW: '/workflow',
-  UPDATE_WORKFLOW: '/workflows',
+export const DayValues = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
 
-  GET_QUARTZ_DETAIL: '/util/quartzDetail',
-};
+export enum InputTypes {
+  FREE_TEXT = 'Free text quartz cron expression',
+  USER_FRIENDLY = 'User friendly input',
+}
+
+export enum Frequencies {
+  HOUR_EVERY = 'Hour every',
+  HOUR_AT = 'Hour at',
+  DAY = 'Day',
+}
