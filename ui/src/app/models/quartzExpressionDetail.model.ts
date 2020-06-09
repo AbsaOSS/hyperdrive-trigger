@@ -13,21 +13,14 @@
  * limitations under the License.
  */
 
-export const api = {
-  USER_INFO: '/user/info',
-  LOGIN: '/login',
-  LOGOUT: '/logout',
-
-  DAG_RUN_SEARCH: '/dagRuns/search',
-  JOB_INSTANCES: '/jobInstances',
-
-  GET_PROJECTS: '/workflows/projects',
-  GET_WORKFLOW: '/workflow',
-  DELETE_WORKFLOW: '/workflows',
-  SWITCH_WORKFLOW_ACTIVE_STATE: '/workflows/{id}/switchActiveState',
-  RUN_WORKFLOW: '/workflow/run',
-  CREATE_WORKFLOW: '/workflow',
-  UPDATE_WORKFLOW: '/workflows',
-
-  GET_QUARTZ_DETAIL: '/util/quartzDetail',
+export type QuartzExpressionDetailModel = {
+  expression: string;
+  isValid: boolean;
+  explained: string;
 };
+
+export class QuartzExpressionDetailModelFactory {
+  static create(expression: string, isValid: boolean, explained: string): QuartzExpressionDetailModel {
+    return { expression: expression, isValid: isValid, explained: explained };
+  }
+}

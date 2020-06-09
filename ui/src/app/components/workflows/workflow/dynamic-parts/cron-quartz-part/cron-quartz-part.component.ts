@@ -1,213 +1,204 @@
-import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
-import { Subject } from 'rxjs';
-import { WorkflowEntryModel } from '../../../../../models/workflowEntry.model';
+/*
+ * Copyright 2018 ABSA Group Limited
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import { Component, Input, OnInit } from '@angular/core';
+import { Observable, Subject } from 'rxjs';
+import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
+import {
+  DayValues,
+  Frequencies,
+  HourAtValues,
+  HourEveryValues,
+  InputTypes,
+} from '../../../../../constants/cronExpressionOptions.constants';
+import { UtilService } from '../../../../../services/util/util.service';
+import { QuartzExpressionDetailModel } from '../../../../../models/quartzExpressionDetail.model';
+import { ToastrService } from 'ngx-toastr';
+import { texts } from '../../../../../constants/texts.constants';
+import { ControlContainer, NgForm } from '@angular/forms';
+import { UuidUtil } from '../../../../../utils/uuid/uuid.util';
 
 @Component({
   selector: 'app-cron-quartz-part',
   templateUrl: './cron-quartz-part.component.html',
   styleUrls: ['./cron-quartz-part.component.scss'],
+  viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
 })
-export class CronQuartzPartComponent implements OnInit, AfterViewInit {
+export class CronQuartzPartComponent implements OnInit {
   @Input() isShow: boolean;
   @Input() name: string;
   @Input() value: string;
   @Input() property: string;
   @Input() valueChanges: Subject<WorkflowEntryModel>;
 
-  base;
-  dayValue;
-  dayOfMonthValue;
-  monthValue;
-  minuteValue;
-  everyHourEvery;
-  // hourValue;
-  everyHourAt;
+  uiid = UuidUtil.createUUID();
+  defaultCronExpression = '0 0/25 * ? * * *';
+  everyDayUserFriendly: UserFriendlyConstruction = { prefix: ['0', '0'], suffix: ['?', '*', '*', '*'], position: 2 };
+  everyHourUserFriendly: UserFriendlyConstruction = { prefix: ['0'], suffix: ['*', '?', '*', '*', '*'], position: 1 };
+  everyHourEveryUserFriendly: UserFriendlyConstruction = { prefix: ['0'], suffix: ['*', '?', '*', '*', '*'], position: 1 };
 
-  frequencies = [
-    {
-      value: 1,
-      label: 'Hour every',
-    },
-    {
-      value: 2,
-      label: 'Hour at',
-    },
-    {
-      value: 3,
-      label: 'Day',
-    },
-    {
-      value: 4,
-      label: 'Week',
-    },
-    {
-      value: 5,
-      label: 'Month',
-    },
-    {
-      value: 6,
-      label: 'Year',
-    },
-  ];
-  dayValues = [
-    {
-      value: 1,
-      label: 'Monday',
-    },
-    {
-      value: 2,
-      label: 'Tuesday',
-    },
-    {
-      value: 3,
-      label: 'Wednesday',
-    },
-    {
-      value: 4,
-      label: 'Thursday',
-    },
-    {
-      value: 5,
-      label: 'Friday',
-    },
-    {
-      value: 6,
-      label: 'Saturday',
-    },
-    {
-      value: 7,
-      label: 'Sunday',
-    },
-  ];
-  dayOfMonthValues = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31];
-  monthValues = [
-    {
-      value: 1,
-      label: 'January',
-    },
-    {
-      value: 2,
-      label: 'February',
-    },
-    {
-      value: 3,
-      label: 'March',
-    },
-    {
-      value: 4,
-      label: 'April',
-    },
-    {
-      value: 5,
-      label: 'May',
-    },
-    {
-      value: 6,
-      label: 'June',
-    },
-    {
-      value: 7,
-      label: 'July',
-    },
-    {
-      value: 8,
-      label: 'August',
-    },
-    {
-      value: 9,
-      label: 'September',
-    },
-    {
-      value: 10,
-      label: 'October',
-    },
-    {
-      value: 11,
-      label: 'November',
-    },
-    {
-      value: 12,
-      label: 'December',
-    },
-  ];
-  hourValues = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
-  minuteValues = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
-  minutesValues = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
+  inputType;
+  freeText: string;
+  validation: Observable<QuartzExpressionDetailModel>;
 
-  constructor() {
+  frequency: string;
+  day: number;
+  hourAt: number;
+  hourEvery: number;
+
+  InputTypes = InputTypes;
+  Frequencies = Frequencies;
+  DayValues = DayValues;
+  HourAtValues = HourAtValues;
+  HourEveryValues = HourEveryValues;
+  texts = texts;
+
+  constructor(private toastrService: ToastrService, private utilService: UtilService) {
     // do nothing
   }
 
   ngOnInit(): void {
-    this.fromCron(this.value);
+    if (!this.value) {
+      this.inputType = this.InputTypes.USER_FRIENDLY;
+      this.modelChanged(this.defaultCronExpression);
+      this.fromQuartzUserFriendly(this.defaultCronExpression);
+    } else {
+      if (this.fromQuartzUserFriendly(this.value)) {
+        this.inputType = this.InputTypes.USER_FRIENDLY;
+      } else {
+        this.freeText = this.value;
+        this.inputType = this.InputTypes.FREE_TEXT;
+      }
+    }
+    this.validation = this.utilService.getQuartzDetail(this.value);
   }
 
-  ngAfterViewInit(): void {
-    // this.fromCron(this.value)
+  onInputTypeChange(value) {
+    this.inputType = value;
+    if (value == InputTypes.USER_FRIENDLY) {
+      if (!this.fromQuartzUserFriendly(this.value)) {
+        this.toastrService.warning(texts.CRON_QUARTZ_INVALID_FOR_USER_FRIENDLY);
+        this.modelChanged(this.defaultCronExpression);
+        this.fromQuartzUserFriendly(this.defaultCronExpression);
+      }
+    } else {
+      this.onFreeTextChange(this.value);
+    }
   }
 
-  setCron(n): string {
-    const cron = ['0', '*', '*', '*', '*', '?'];
-
-    if (n && n.base && n.base >= 2) {
-      cron[1] = typeof n.minuteValue !== undefined ? n.minuteValue : '0';
-    }
-
-    if (n && n.base && n.base >= 3) {
-      cron[2] = typeof n.hourValue !== undefined ? n.hourValue : '*';
-    }
-
-    if (n && n.base && n.base === 4) {
-      cron[3] = '?';
-      cron[5] = n.dayValue;
-    }
-
-    if (n && n.base && n.base >= 5) {
-      cron[3] = typeof n.dayOfMonthValue !== undefined ? n.dayOfMonthValue : '?';
-    }
-
-    if (n && n.base && n.base === 6) {
-      cron[4] = typeof n.monthValue !== undefined ? n.monthValue : '*';
-    }
-    return cron.join(' ');
+  onFreeTextChange(value) {
+    this.modelChanged(value);
+    this.freeText = value;
+    this.validation = this.utilService.getQuartzDetail(value);
   }
 
-  fromCron(value: string) {
-    const cron: string[] = value.replace(/\s+/g, ' ').split(' ');
-    // var frequency = {base: '1'}; // default: every minute
-
-    if (cron[1] === '*' && cron[2] === '*' && cron[3] === '*' && cron[4] === '*' && cron[5] === '?') {
-      this.base = 1; // every minute
-    } else if (cron[2] === '*' && cron[3] === '*' && cron[4] === '*' && cron[5] === '?') {
-      this.base = 2; // every hour
-    } else if (cron[3] === '*' && cron[4] === '*' && cron[5] === '?') {
-      this.base = 3; // every day
-    } else if (cron[3] === '?') {
-      this.base = 4; // every week
-    } else if (cron[4] === '*' && cron[5] === '?') {
-      this.base = 5; // every month
-    } else if (cron[5] === '?') {
-      this.base = 6; // every year
+  onFrequencyChange(value) {
+    this.frequency = value;
+    switch (value) {
+      case Frequencies.DAY:
+        this.onDayChange(DayValues[0]);
+        break;
+      case Frequencies.HOUR_EVERY:
+        this.onHourEveryChange(HourEveryValues[0]);
+        break;
+      case Frequencies.HOUR_AT:
+        this.onHourAtChange(HourAtValues[0]);
+        break;
     }
-
-    // if (cron[1] !== '*') {
-    //   this.minuteValue = parseInt(cron[1]);
-    // }
-    // if (cron[2] !== '*') {
-    //   this.hourValue = parseInt(cron[2]);
-    // }
-    // if (cron[3] !== '*' && cron[3] !== '?') {
-    //   this.dayOfMonthValue = parseInt(cron[3]);
-    // }
-    // if (cron[4] !== '*') {
-    //   this.monthValue = parseInt(cron[4]);
-    // }
-    // if (cron[5] !== '*' && cron[5] !== '?') {
-    //   this.dayValue = parseInt(cron[5]);
-    // }
-    // //
-    // frequency.base += ''; // 'cast' to string in order to set proper value on "every" modal
-    // //
-    // return frequency;
   }
+
+  onDayChange(value) {
+    this.day = value;
+    const result = [...this.everyDayUserFriendly.prefix, this.day, ...this.everyDayUserFriendly.suffix];
+    this.modelChanged(result.join(' '));
+  }
+
+  onHourAtChange(value) {
+    this.hourAt = value;
+    const result = [...this.everyHourUserFriendly.prefix, this.hourAt, ...this.everyHourUserFriendly.suffix];
+    this.modelChanged(result.join(' '));
+  }
+
+  onHourEveryChange(value) {
+    this.hourEvery = value;
+    const cronMinute = `0/${this.hourEvery}`;
+    const result = [...this.everyHourEveryUserFriendly.prefix, cronMinute, ...this.everyHourEveryUserFriendly.suffix];
+
+    this.modelChanged(result.join(' '));
+  }
+
+  containsPrefixSuffix(value: string[], prefix: string[], suffix: string[]): boolean {
+    return (
+      value.slice(0, prefix.length).join(' ') == prefix.join(' ') &&
+      value.slice(prefix.length + 1, value.length).join(' ') == suffix.join(' ')
+    );
+  }
+
+  fromQuartzUserFriendly(value: string): boolean {
+    const splittedCron: string[] = value.replace(/\s+/g, ' ').split(' ');
+
+    if (splittedCron.length == 7) {
+      if (
+        this.containsPrefixSuffix(splittedCron, this.everyHourEveryUserFriendly.prefix, this.everyHourEveryUserFriendly.suffix) &&
+        isNaN(+splittedCron[this.everyHourEveryUserFriendly.position])
+      ) {
+        const usedValue = splittedCron[this.everyHourEveryUserFriendly.position];
+        if (usedValue.startsWith('0/')) {
+          const usedValueWithoutPrefix = usedValue.replace('0/', '');
+          if (!isNaN(+usedValueWithoutPrefix) && Object.values(this.HourEveryValues).includes(+usedValueWithoutPrefix)) {
+            this.hourEvery = +usedValueWithoutPrefix;
+            this.frequency = Frequencies.HOUR_EVERY;
+            return true;
+          }
+        }
+      } else if (
+        this.containsPrefixSuffix(splittedCron, this.everyHourUserFriendly.prefix, this.everyHourUserFriendly.suffix) &&
+        !isNaN(+splittedCron[this.everyHourUserFriendly.position])
+      ) {
+        const usedValue: number = +splittedCron[this.everyHourUserFriendly.position];
+        if (Object.values(this.HourAtValues).includes(usedValue)) {
+          this.hourAt = usedValue;
+          this.frequency = Frequencies.HOUR_AT;
+          return true;
+        }
+      } else if (
+        this.containsPrefixSuffix(splittedCron, this.everyDayUserFriendly.prefix, this.everyDayUserFriendly.suffix) &&
+        !isNaN(+splittedCron[this.everyDayUserFriendly.position])
+      ) {
+        const usedValue: number = +splittedCron[this.everyDayUserFriendly.position];
+        if (Object.values(this.DayValues).includes(usedValue)) {
+          this.day = usedValue;
+          this.frequency = Frequencies.DAY;
+          return true;
+        }
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  }
+
+  modelChanged(value: string): void {
+    this.value = value;
+    this.valueChanges.next(WorkflowEntryModelFactory.create(this.property, this.value));
+  }
+}
+
+interface UserFriendlyConstruction {
+  prefix: string[];
+  suffix: string[];
+  position: number;
 }

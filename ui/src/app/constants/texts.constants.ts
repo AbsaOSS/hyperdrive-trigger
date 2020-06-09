@@ -43,6 +43,8 @@ export const texts = {
   UPDATE_WORKFLOW_SUCCESS_NOTIFICATION: 'Workflow has been updated.',
   UPDATE_WORKFLOW_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
 
+  CRON_QUARTZ_INVALID_FOR_USER_FRIENDLY: 'Invalid quartz expression for user friendly input. Default will be used.',
+
   FORM_VALIDATION_MUST_BE_FILLED(name: string): string {
     return `${name} must be filled!`;
   },
@@ -58,4 +60,6 @@ export const texts = {
   FORM_VALIDATION_ONE_MUST_BE_SELECTED(name: string): string {
     return `${name} one option has to be selected!`;
   },
+  FORM_VALIDATION_QUARTZ_CRON: 'Quartz cron expression must be set correctly.',
+  FORM_VALIDATION_QUARTZ_CRON_CLR_ERR: 'Incorrect expression!',
 };
