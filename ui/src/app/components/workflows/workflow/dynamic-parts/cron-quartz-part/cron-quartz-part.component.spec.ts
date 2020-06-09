@@ -13,170 +13,397 @@
  * limitations under the License.
  */
 
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { async, TestBed } from '@angular/core/testing';
 import { Subject } from 'rxjs';
 
 import { CronQuartzPartComponent } from './cron-quartz-part.component';
-import { WorkflowEntryModel } from '../../../../../models/workflowEntry.model';
-// import { userFriendly } from '../../../../../constants/cronExpressionOptions.constants';
+import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { UtilService } from '../../../../../services/util/util.service';
+import {
+  DayValues,
+  Frequencies,
+  HourAtValues,
+  HourEveryValues,
+  InputTypes,
+} from '../../../../../constants/cronExpressionOptions.constants';
+import { texts } from '../../../../../constants/texts.constants';
 
 describe('CronQuartzPartComponent', () => {
-  let fixture: ComponentFixture<CronQuartzPartComponent>;
-  let component: CronQuartzPartComponent;
+  let underTest: CronQuartzPartComponent;
+  let toastrService: ToastrService;
+  let utilService: UtilService;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [CronQuartzPartComponent],
+      providers: [UtilService, CronQuartzPartComponent],
+      imports: [HttpClientTestingModule, ToastrModule.forRoot()],
     }).compileComponents();
+    underTest = TestBed.inject(CronQuartzPartComponent);
+    toastrService = TestBed.inject(ToastrService);
+    utilService = TestBed.inject(UtilService);
   }));
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(CronQuartzPartComponent);
-    component = fixture.componentInstance;
+  it('should create', () => {
+    expect(underTest).toBeTruthy();
   });
 
-  // it('should create', () => {
-  //   expect(component).toBeTruthy();
-  // });
-  //
-  // describe('ngOnInit', () => {
-  //   it('should set default cron expression when value is undefined', () => {
-  //     const underTest = fixture.componentInstance;
-  //     underTest.valueChanges = new Subject<WorkflowEntryModel>();
-  //     underTest.value = undefined;
-  //     const expectedMinuteCron = ['0', '0', '0', '?', '*', '*', '*'];
-  //     underTest.ngOnInit();
-  //
-  //     expect(underTest.cron.join('')).toEqual(expectedMinuteCron.join(''));
-  //   });
-  //
-  //   it('should set default cron, set validCron to false when value is not valid', () => {
-  //     const underTest = fixture.componentInstance;
-  //     underTest.valueChanges = new Subject<WorkflowEntryModel>();
-  //     underTest.value = 'invalid-cron-expression';
-  //     const expectedMinuteCron = ['0', '0', '0', '?', '*', '*', '*'];
-  //     underTest.ngOnInit();
-  //
-  //     expect(underTest.cron.join('')).toEqual(expectedMinuteCron.join(''));
-  //     expect(underTest.validCron).toBeFalsy();
-  //   });
-  //
-  //   it('should set default cron, set validCron to true when value is valid', () => {
-  //     const underTest = fixture.componentInstance;
-  //     underTest.valueChanges = new Subject<WorkflowEntryModel>();
-  //     underTest.value = '0 18 0 ? * * *';
-  //     underTest.ngOnInit();
-  //
-  //     expect(underTest.validCron).toBeTruthy();
-  //   });
-  // });
-  //
-  // describe('fromCron', () => {
-  //   it('should set correct base, minute. hour and day values on Hour every cron expression', () => {
-  //     const underTest = fixture.componentInstance;
-  //     underTest.valueChanges = new Subject<WorkflowEntryModel>();
-  //     underTest.value = '0 0/10 * ? * * *';
-  //     underTest.ngOnInit();
-  //     underTest.fromCron(underTest.value);
-  //
-  //     expect(underTest.base).toEqual(userFriendly.OPTIONS[0].value);
-  //     expect(underTest.minuteValue).toEqual(10);
-  //     expect(underTest.hourValue).toMatch('undefined');
-  //     expect(underTest.dayValue).toMatch('undefined');
-  //   });
-  //
-  //   it('should set correct base, minute. hour and day values on Hour at cron expression', () => {
-  //     const underTest = fixture.componentInstance;
-  //     underTest.valueChanges = new Subject<WorkflowEntryModel>();
-  //     underTest.value = '0 15 * ? * * *';
-  //     underTest.ngOnInit();
-  //     underTest.fromCron(underTest.value);
-  //
-  //     expect(underTest.base).toEqual(userFriendly.OPTIONS[1].value);
-  //     expect(underTest.minuteValue).toMatch('undefined');
-  //     expect(underTest.hourValue).toEqual(15);
-  //     expect(underTest.dayValue).toMatch('undefined');
-  //   });
-  //
-  //   it('should set correct base, minute. hour and day values on Day cron expression', () => {
-  //     const underTest = fixture.componentInstance;
-  //     underTest.valueChanges = new Subject<WorkflowEntryModel>();
-  //     underTest.value = '0 0 18 ? * * *';
-  //     underTest.ngOnInit();
-  //     underTest.fromCron(underTest.value);
-  //
-  //     expect(underTest.base).toEqual(userFriendly.OPTIONS[2].value);
-  //     expect(underTest.minuteValue).toMatch('undefined');
-  //     expect(underTest.hourValue).toMatch('undefined');
-  //     expect(underTest.dayMinuteValue).toEqual(0);
-  //     expect(underTest.dayValue).toEqual(18);
-  //   });
-  // });
-  //
-  // describe('validateCron', () => {
-  //   it('should pass on valid cron expressions', () => {
-  //     const underTest = fixture.componentInstance;
-  //     underTest.valueChanges = new Subject<WorkflowEntryModel>();
-  //     underTest.value = '0 0/30 * ? * * *';
-  //
-  //     expect(underTest.validateCron(underTest.value)).toBeTruthy();
-  //   });
-  //
-  //   it('should fail on invalid cron expressions', () => {
-  //     const underTest = fixture.componentInstance;
-  //     underTest.valueChanges = new Subject<WorkflowEntryModel>();
-  //     underTest.value = '0 /10 * ? * * *';
-  //
-  //     expect(underTest.validateCron(underTest.value)).toBeFalsy();
-  //   });
-  // });
-  //
-  // it('should set default view to user friendly input on readable string length less than 30', () => {
-  //   const underTest = fixture.componentInstance;
-  //   underTest.valueChanges = new Subject<WorkflowEntryModel>();
-  //   underTest.value = '0 0 18 ? * * *';
-  //   underTest.checkReadableMessage(underTest.value);
-  //
-  //   expect(underTest.freq).toEqual(underTest.frequencies[0].value);
-  // });
-  //
-  // it('should set default view to free text cron expression on readable string length not less than 30', () => {
-  //   const underTest = fixture.componentInstance;
-  //   underTest.valueChanges = new Subject<WorkflowEntryModel>();
-  //   underTest.value = '0,17,23,41 0 0 ? * * *';
-  //   underTest.checkReadableMessage(underTest.value);
-  //
-  //   console.log(underTest.freq);
-  //   expect(underTest.freq).toEqual(underTest.frequencies[1].value);
-  // });
-  //
-  // it('should set cron for every minutes', () => {
-  //   const underTest = fixture.componentInstance;
-  //   underTest.valueChanges = new Subject<WorkflowEntryModel>();
-  //   const minuteValue = 10;
-  //   const expectedMinuteCron = ['0', '0/10', '*', '?', '*', '*', '*'];
-  //   underTest.onMinuteSelect(minuteValue);
-  //
-  //   expect(underTest.cron.join(' ')).toEqual(expectedMinuteCron.join(' '));
-  // });
-  //
-  // it('should set cron for every hour', () => {
-  //   const underTest = fixture.componentInstance;
-  //   underTest.valueChanges = new Subject<WorkflowEntryModel>();
-  //   const hourValue = 20;
-  //   const expectedHourCron = ['0', '20', '*', '?', '*', '*', '*'];
-  //   underTest.onHourSelect(hourValue);
-  //
-  //   expect(underTest.cron.join(' ')).toEqual(expectedHourCron.join(' '));
-  // });
-  //
-  // it('should set cron for every day', () => {
-  //   const underTest = fixture.componentInstance;
-  //   underTest.valueChanges = new Subject<WorkflowEntryModel>();
-  //   const dayValue = 18;
-  //   const expectedDayCron = ['0', '0', '18', '?', '*', '*', '*'];
-  //   underTest.onDaySelect(dayValue);
-  //
-  //   expect(underTest.cron.join(' ')).toEqual(expectedDayCron.join(' '));
-  // });
+  describe('ngOnInit', () => {
+    it('should set default cron expression when value is undefined', () => {
+      const property = 'property';
+
+      underTest.value = undefined;
+      underTest.property = property;
+      underTest.valueChanges = new Subject<WorkflowEntryModel>();
+
+      const valueChangesSpy = spyOn(underTest.valueChanges, 'next');
+      const utilServiceSpy = spyOn(utilService, 'getQuartzDetail');
+      underTest.ngOnInit();
+
+      expect(underTest.value).toEqual(underTest.defaultCronExpression);
+      expect(valueChangesSpy).toHaveBeenCalled();
+      expect(valueChangesSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(property, underTest.defaultCronExpression));
+      expect(utilServiceSpy).toHaveBeenCalled();
+      expect(utilServiceSpy).toHaveBeenCalledWith(underTest.defaultCronExpression);
+    });
+
+    it('should set free text when input cron expression is invalid', () => {
+      const property = 'property';
+      const value = 'value';
+
+      underTest.value = value;
+      underTest.property = property;
+      underTest.valueChanges = new Subject<WorkflowEntryModel>();
+
+      underTest.ngOnInit();
+
+      expect(underTest.value).toEqual(value);
+      expect(underTest.freeText).toEqual(value);
+      expect(underTest.inputType).toEqual(InputTypes.FREE_TEXT);
+    });
+
+    it('should set user friendly when input cron expression is suitable for user friendly', () => {
+      const property = 'property';
+      const value = '0 0 2 ? * * *';
+
+      underTest.value = value;
+      underTest.property = property;
+      underTest.valueChanges = new Subject<WorkflowEntryModel>();
+
+      underTest.ngOnInit();
+
+      expect(underTest.day).toEqual(2);
+      expect(underTest.frequency).toEqual(Frequencies.DAY);
+      expect(underTest.inputType).toEqual(InputTypes.USER_FRIENDLY);
+    });
+  });
+
+  describe('onInputTypeChange', () => {
+    it('when is switched to free text, free text field should be set and validation should be called', () => {
+      const property = 'property';
+      const valuePrevious = '';
+      const valueUpdated = '0 0 2 ? * * *';
+
+      underTest.value = valueUpdated;
+      underTest.freeText = valuePrevious;
+      underTest.property = property;
+      underTest.valueChanges = new Subject<WorkflowEntryModel>();
+      underTest.validation = undefined;
+      const valueChangesSpy = spyOn(underTest.valueChanges, 'next');
+
+      underTest.onInputTypeChange(InputTypes.FREE_TEXT);
+
+      expect(underTest.inputType).toEqual(InputTypes.FREE_TEXT);
+      expect(underTest.freeText).toEqual(valueUpdated);
+      expect(underTest.validation).toBeDefined();
+      expect(valueChangesSpy).toHaveBeenCalled();
+      expect(valueChangesSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(property, valueUpdated));
+    });
+
+    it('when is switched to user friendly and expression could not be used defualt should be used', () => {
+      const property = 'property';
+
+      underTest.value = 'wrong expression';
+      underTest.property = property;
+      underTest.valueChanges = new Subject<WorkflowEntryModel>();
+
+      const valueChangesSpy = spyOn(underTest.valueChanges, 'next');
+      const toastrServiceSpy = spyOn(toastrService, 'warning');
+
+      underTest.onInputTypeChange(InputTypes.USER_FRIENDLY);
+
+      expect(underTest.value).toEqual(underTest.defaultCronExpression);
+      expect(valueChangesSpy).toHaveBeenCalled();
+      expect(valueChangesSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(property, underTest.defaultCronExpression));
+      expect(toastrServiceSpy).toHaveBeenCalled();
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.CRON_QUARTZ_INVALID_FOR_USER_FRIENDLY);
+    });
+
+    it('when is switched to user friendly and expression could be used all required fields should be set', () => {
+      const property = 'property';
+      const value = '0 0 2 ? * * *';
+
+      underTest.value = value;
+      underTest.property = property;
+      underTest.valueChanges = new Subject<WorkflowEntryModel>();
+
+      underTest.onInputTypeChange(InputTypes.USER_FRIENDLY);
+
+      expect(underTest.day).toEqual(2);
+      expect(underTest.frequency).toEqual(Frequencies.DAY);
+      expect(underTest.inputType).toEqual(InputTypes.USER_FRIENDLY);
+    });
+  });
+
+  describe('onFreeTextChange', () => {
+    it('when free text is changed, it should dispatch value change and call validation service', () => {
+      const property = 'property';
+      const expression = '0 0 5 ? * * *';
+
+      underTest.value = undefined;
+      underTest.property = property;
+      underTest.valueChanges = new Subject<WorkflowEntryModel>();
+
+      const valueChangesSpy = spyOn(underTest.valueChanges, 'next');
+      const utilServiceSpy = spyOn(utilService, 'getQuartzDetail');
+      underTest.onFreeTextChange(expression);
+
+      expect(underTest.value).toEqual(expression);
+      expect(valueChangesSpy).toHaveBeenCalled();
+      expect(valueChangesSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(property, expression));
+      expect(utilServiceSpy).toHaveBeenCalled();
+      expect(utilServiceSpy).toHaveBeenCalledWith(expression);
+    });
+  });
+
+  describe('modelChanged', () => {
+    it('when model change is called, it should dispatch value change', () => {
+      const property = 'property';
+      const expressionOld = '0 0 5 ? * * *';
+      const expressionUpdated = '0 0 6 ? * * *';
+
+      underTest.value = expressionOld;
+      underTest.property = property;
+      underTest.valueChanges = new Subject<WorkflowEntryModel>();
+      underTest.validation = undefined;
+
+      const valueChangesSpy = spyOn(underTest.valueChanges, 'next');
+      underTest.modelChanged(expressionUpdated);
+
+      expect(underTest.value).toEqual(expressionUpdated);
+      expect(valueChangesSpy).toHaveBeenCalled();
+      expect(valueChangesSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(property, expressionUpdated));
+    });
+  });
+
+  describe('containsPrefixSuffix', () => {
+    it('should return true when tested value contains prefix and suffix', () => {
+      const testedValue = ['a', 'b', 'c', 'd', 'e'];
+      const prefix = ['a', 'b'];
+      const suffix = ['d', 'e'];
+
+      const result = underTest.containsPrefixSuffix(testedValue, prefix, suffix);
+      expect(result).toBeTruthy();
+    });
+
+    it('should return false when tested value does not contain prefix', () => {
+      const testedValue = ['a', 'b', 'c', 'd', 'e'];
+      const prefix = ['a', 'x'];
+      const suffix = ['d', 'e'];
+
+      const result = underTest.containsPrefixSuffix(testedValue, prefix, suffix);
+      expect(result).toBeFalsy();
+    });
+
+    it('should return false when tested value does not contain suffix', () => {
+      const testedValue = ['a', 'b', 'c', 'd', 'e'];
+      const prefix = ['a', 'b'];
+      const suffix = ['d', 'x'];
+
+      const result = underTest.containsPrefixSuffix(testedValue, prefix, suffix);
+      expect(result).toBeFalsy();
+    });
+  });
+
+  describe('onDayChange', () => {
+    it('when day changes should dispatch value change with updated expression', () => {
+      const initialValue = 5;
+      const updatedValue = 6;
+      const property = 'property';
+      const result = [...underTest.everyDayUserFriendly.prefix, updatedValue, ...underTest.everyDayUserFriendly.suffix].join(' ');
+
+      underTest.valueChanges = new Subject<WorkflowEntryModel>();
+      underTest.property = property;
+      underTest.value = undefined;
+      underTest.day = initialValue;
+
+      const valueChangesSpy = spyOn(underTest.valueChanges, 'next');
+
+      underTest.onDayChange(updatedValue);
+
+      expect(underTest.day).toEqual(updatedValue);
+      expect(underTest.value).toEqual(result);
+      expect(valueChangesSpy).toHaveBeenCalled();
+      expect(valueChangesSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(property, result));
+    });
+  });
+
+  describe('onHourAtChange', () => {
+    it('when hour at changes should dispatch value change with updated expression', () => {
+      const initialValue = 5;
+      const updatedValue = 6;
+      const property = 'property';
+      const result = [...underTest.everyHourUserFriendly.prefix, updatedValue, ...underTest.everyHourUserFriendly.suffix].join(' ');
+
+      underTest.valueChanges = new Subject<WorkflowEntryModel>();
+      underTest.property = property;
+      underTest.value = undefined;
+      underTest.hourAt = initialValue;
+
+      const valueChangesSpy = spyOn(underTest.valueChanges, 'next');
+
+      underTest.onHourAtChange(updatedValue);
+
+      expect(underTest.hourAt).toEqual(updatedValue);
+      expect(underTest.value).toEqual(result);
+      expect(valueChangesSpy).toHaveBeenCalled();
+      expect(valueChangesSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(property, result));
+    });
+  });
+
+  describe('onHourEveryChange', () => {
+    it('when hour every changes should dispatch value change with updated expression', () => {
+      const initialValue = 5;
+      const updatedValue = 6;
+      const property = 'property';
+      const result = [
+        ...underTest.everyHourEveryUserFriendly.prefix,
+        `0/${updatedValue}`,
+        ...underTest.everyHourEveryUserFriendly.suffix,
+      ].join(' ');
+
+      underTest.valueChanges = new Subject<WorkflowEntryModel>();
+      underTest.property = property;
+      underTest.value = undefined;
+      underTest.hourEvery = initialValue;
+
+      const valueChangesSpy = spyOn(underTest.valueChanges, 'next');
+
+      underTest.onHourEveryChange(updatedValue);
+
+      expect(underTest.hourEvery).toEqual(updatedValue);
+      expect(underTest.value).toEqual(result);
+      expect(valueChangesSpy).toHaveBeenCalled();
+      expect(valueChangesSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(property, result));
+    });
+  });
+
+  describe('onFrequencyChange', () => {
+    it('when frequency day is passed it should call onDayChange', () => {
+      const frequency = Frequencies.DAY;
+      const onDayChangeSpy = spyOn(underTest, 'onDayChange');
+
+      underTest.onFrequencyChange(frequency);
+
+      expect(underTest.frequency).toEqual(frequency);
+      expect(onDayChangeSpy).toHaveBeenCalled();
+      expect(onDayChangeSpy).toHaveBeenCalledWith(DayValues[0]);
+    });
+
+    it('when frequency hour every is passed it should call onDayChange', () => {
+      const frequency = Frequencies.HOUR_EVERY;
+      const onDayChangeSpy = spyOn(underTest, 'onHourEveryChange');
+
+      underTest.onFrequencyChange(frequency);
+
+      expect(underTest.frequency).toEqual(frequency);
+      expect(onDayChangeSpy).toHaveBeenCalled();
+      expect(onDayChangeSpy).toHaveBeenCalledWith(HourEveryValues[0]);
+    });
+
+    it('when frequency hour at is passed it should call onDayChange', () => {
+      const frequency = Frequencies.HOUR_AT;
+      const onDayChangeSpy = spyOn(underTest, 'onHourAtChange');
+
+      underTest.onFrequencyChange(frequency);
+
+      expect(underTest.frequency).toEqual(frequency);
+      expect(onDayChangeSpy).toHaveBeenCalled();
+      expect(onDayChangeSpy).toHaveBeenCalledWith(HourAtValues[0]);
+    });
+  });
+
+  describe('fromQuartzUserFriendly', () => {
+    it('when expression with wrong number of parts is passed should return false', () => {
+      const expressionOne = '1 2 3 4 5 6 7 8';
+      const expressionTwo = '1 2 3 4';
+
+      const resultOne = underTest.fromQuartzUserFriendly(expressionOne);
+      const resultTwo = underTest.fromQuartzUserFriendly(expressionTwo);
+
+      expect(resultOne).toBeFalsy();
+      expect(resultTwo).toBeFalsy();
+    });
+
+    it('when expression for every day is passed with correct day value, it should return true and set required fields', () => {
+      const day = 5;
+      const expression = `0 0 ${day} ? * * *`;
+
+      const result = underTest.fromQuartzUserFriendly(expression);
+
+      expect(result).toBeTruthy();
+      expect(underTest.frequency).toEqual(Frequencies.DAY);
+      expect(underTest.day).toEqual(day);
+    });
+
+    it('when expression for every day is passed with incorrect day value, it should return false', () => {
+      const day = 99;
+      const expression = `0 0 ${day} ? * * *`;
+
+      const result = underTest.fromQuartzUserFriendly(expression);
+
+      expect(result).toBeFalsy();
+    });
+
+    it('when expression for every hour at is passed with correct hour value, it should return true and set required fields', () => {
+      const hour = 5;
+      const expression = `0 ${hour} * ? * * *`;
+
+      const result = underTest.fromQuartzUserFriendly(expression);
+
+      expect(result).toBeTruthy();
+      expect(underTest.frequency).toEqual(Frequencies.HOUR_AT);
+      expect(underTest.hourAt).toEqual(hour);
+    });
+
+    it('when expression for every hour at is passed with incorrect hour value, it should return false', () => {
+      const hour = 99;
+      const expression = `0 ${hour} * ? * * *`;
+
+      const result = underTest.fromQuartzUserFriendly(expression);
+
+      expect(result).toBeFalsy();
+    });
+
+    it('when expression for every hour every is passed with correct minute value, it should return true and set required fields', () => {
+      const minute = 5;
+      const expression = `0 0/${minute} * ? * * *`;
+
+      const result = underTest.fromQuartzUserFriendly(expression);
+
+      expect(result).toBeTruthy();
+      expect(underTest.frequency).toEqual(Frequencies.HOUR_EVERY);
+      expect(underTest.hourEvery).toEqual(minute);
+    });
+
+    it('when expression for every hour every is passed with incorrect minute value, it should return false', () => {
+      const minute = 99;
+      const expression = `0 0/${minute} * ? * * *`;
+
+      const result = underTest.fromQuartzUserFriendly(expression);
+
+      expect(result).toBeFalsy();
+    });
+  });
 });
