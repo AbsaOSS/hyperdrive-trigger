@@ -15,7 +15,6 @@
 
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { HomeComponent } from './components/home/home.component';
 import { LoginComponent } from './components/login/login.component';
 import { WorkflowsComponent } from './components/workflows/workflows.component';
 import { RunsComponent } from './components/runs/runs.component';
@@ -26,9 +25,9 @@ import { WorkflowsHomeComponent } from './components/workflows/workflows-home/wo
 import { WorkflowComponent } from './components/workflows/workflow/workflow.component';
 
 const routes: Routes = [
-  { path: routeNames.DEFAULT, redirectTo: routeNames.HOME, pathMatch: 'full', canActivate: [AuthGuardService] },
+  { path: routeNames.DEFAULT, redirectTo: routeNames.WORKFLOWS, pathMatch: 'full', canActivate: [AuthGuardService] },
   { path: routeNames.LOGIN, component: LoginComponent, canActivate: [LogInGuardService] },
-  { path: routeNames.HOME, component: HomeComponent, canActivate: [AuthGuardService] },
+  { path: routeNames.WORKFLOWS_HOME, component: WorkflowsHomeComponent, canActivate: [AuthGuardService] },
   {
     path: routeNames.WORKFLOWS,
     component: WorkflowsComponent,
