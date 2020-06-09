@@ -60,4 +60,6 @@ export const texts = {
   FORM_VALIDATION_ONE_MUST_BE_SELECTED(name: string): string {
     return `${name} one option has to be selected!`;
   },
+  FORM_VALIDATION_QUARTZ_CRON: 'Quartz cron expression must be set correctly.',
+  FORM_VALIDATION_QUARTZ_CRON_CLR_ERR: 'Incorrect expression!',
 };

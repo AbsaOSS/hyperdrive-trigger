@@ -20,7 +20,7 @@
 
 <!--  Frequency select -->
     <div class="clr-select-wrapper">
-      <select class="clr-select" clrControl [ngModel]="inputType" (ngModelChange)="onInputTypeChange($event)">
+      <select clrControl [name]="name+'-input-type-'+uiid" class="clr-select" [ngModel]="inputType" (ngModelChange)="onInputTypeChange($event)">
         <option *ngFor="let option of InputTypes | keyvalue" [selected]="inputType==option.value" [value]="option.value">
           {{option.value}}</option>
       </select>
@@ -30,11 +30,20 @@
 
 <!-- Free text input -->
   <clr-control-container *ngIf="inputType == InputTypes.FREE_TEXT">
-    <input  [readOnly]="false" clrControl [ngModel]="freeText" (ngModelChange)="onFreeTextChange($event)"/>
+    <input clrControl
+           [name]="name+'-freetext-'+uiid"
+           (ngModelChange)="onFreeTextChange($event)"
+           [ngModel]="freeText"
+           [readOnly]="false"
+           [size]="100" />
+  </clr-control-container>
 
-    <input *ngIf="(validation | async) as validationResult; else loading" [readOnly]="true" clrControl
-           [value]="validationResult.isValid ? validationResult.explained : 'Incorrect expression!' "/>
-
+  <clr-control-container *ngIf="inputType == InputTypes.FREE_TEXT">
+    <input *ngIf="(validation | async) as validationResult; else loading" [readOnly]="true"
+           clrControl [name]="name+'-freetextvalidation-'+uiid"
+           [ngModel]="validationResult.isValid ? validationResult.explained : texts.FORM_VALIDATION_QUARTZ_CRON_CLR_ERR "
+           [cronQuartzExpressionValidator]="validationResult.isValid" [size]="100">
+    <clr-control-error>{{texts.FORM_VALIDATION_QUARTZ_CRON}}</clr-control-error>
     <ng-template #loading>
       <clr-spinner clrInline></clr-spinner>
       <span>Verifying</span>
@@ -47,7 +56,7 @@
       <clr-control-container>
         <span>Every</span>
           <div class="clr-select-wrapper">
-            <select class="clr-select" clrControl [ngModel]="frequency" (ngModelChange)="onFrequencyChange($event)">
+            <select [name]="name+'-frequency-'+uiid"  class="clr-select" clrControl [ngModel]="frequency" (ngModelChange)="onFrequencyChange($event)">
               <option *ngFor="let option of Frequencies | keyvalue" [selected]="frequency==option.value" [value]="option.value">
                 {{option.value}}</option>
             </select>
@@ -56,20 +65,20 @@
         <span *ngIf="frequency == Frequencies.DAY">at</span>
 
         <div class="clr-select-wrapper" *ngIf="frequency == Frequencies.DAY">
-          <select class="clr-select" clrControl [ngModel]="day" (ngModelChange)="onDayChange($event)">
+          <select [name]="name+'-day-'+uiid"  class="clr-select" clrControl [ngModel]="day" (ngModelChange)="onDayChange($event)">
             <option *ngFor="let option of DayValues" [selected]="day==option" [value]="option">{{option}}</option>
           </select>
         </div>
 
 
         <div class="clr-select-wrapper" *ngIf="frequency == Frequencies.HOUR_AT">
-          <select class="clr-select" clrControl [ngModel]="hourAt" (ngModelChange)="onHourAtChange($event)" >
+          <select [name]="name+'-hourat-'+uiid"  class="clr-select" clrControl [ngModel]="hourAt" (ngModelChange)="onHourAtChange($event)" >
             <option *ngFor="let option of HourAtValues" [selected]="hourAt==option" [value]="option">{{option}}</option>
           </select>
         </div>
 
         <div class="clr-select-wrapper" *ngIf="frequency == Frequencies.HOUR_EVERY">
-          <select class="clr-select" clrControl [ngModel]="hourEvery" (ngModelChange)="onHourEveryChange($event)">
+          <select [name]="name+'-hourevry-'+uiid"  class="clr-select" clrControl [ngModel]="hourEvery" (ngModelChange)="onHourEveryChange($event)">
             <option *ngFor="let option of HourEveryValues" [selected]="hourEvery==option" [value]="option">{{option}}</option>
           </select>
         </div>
@@ -77,11 +86,7 @@
         <span *ngIf="frequency == Frequencies.HOUR_EVERY"> minutes</span>
         <span *ngIf="frequency == Frequencies.DAY"> o'clock</span>
         <span *ngIf="frequency == Frequencies.HOUR_AT"> minutes past the hour</span>
-
       </clr-control-container>
-
-
-
 
   </div>
 
