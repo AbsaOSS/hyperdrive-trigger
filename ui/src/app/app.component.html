@@ -17,13 +17,12 @@
 <div class="main-container">
   <header class="header-6" *ngIf="isAuthenticated">
     <div class="branding">
-      <a routerLink="{{routes.HOME}}" class="nav-link">
+      <a routerLink="{{routes.WORKFLOWS}}" class="nav-link">
         <clr-icon shape="dashboard"></clr-icon>
         <span class="title">Hyperdrive</span>
       </a>
     </div>
     <div class="header-nav">
-      <a routerLinkActive="active" routerLink="{{routes.HOME}}" class="nav-link nav-text">Home</a>
       <a routerLinkActive="active" routerLink="{{routes.WORKFLOWS}}" class="nav-link nav-text">Workflows</a>
       <a routerLinkActive="active" routerLink="{{routes.RUNS}}" class="nav-link nav-text">Runs</a>
     </div>

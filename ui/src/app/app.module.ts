@@ -17,7 +17,6 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
-import { HomeComponent } from './components/home/home.component';
 import { LoginComponent } from './components/login/login.component';
 import { WorkflowsComponent } from './components/workflows/workflows.component';
 import { RunsComponent } from './components/runs/runs.component';
@@ -68,7 +67,6 @@ import { CronQuartzExpressionValidator } from './components/workflows/workflow/d
 @NgModule({
   declarations: [
     AppComponent,
-    HomeComponent,
     LoginComponent,
     WorkflowsComponent,
     RunsComponent,
