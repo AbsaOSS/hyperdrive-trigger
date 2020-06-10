@@ -63,10 +63,9 @@ class TimeSensorIntegrationTest extends FlatSpec with Matchers with BeforeAndAft
     val processor = new EventProcessor(eventRepository, dagDefinitionRepository, dagInstanceRepository)
     val sensors = new Sensors(processor, sensorRepository)
     val cronExpression = "0/3 * * * * ?"
-    val quartzJobId = "1234-5678-abcd"
 
     // Persist workflow, sensor and dagDefinition
-    val properties = Properties(-1L, Settings(Map("cronExpression" -> cronExpression, "quartzJobId" -> quartzJobId), Map.empty), Map.empty)
+    val properties = Properties(-1L, Settings(Map("cronExpression" -> cronExpression), Map.empty), Map.empty)
     val sensor = Sensor(-1L, SensorTypes.Time, properties)
 
     val jobParameters1 = JobParameters(Map("deploymentMode" -> "client", "jobJar" -> "spark-job.jar", "mainClass" -> "TheMainClass"), Map.empty)
@@ -76,7 +75,8 @@ class TimeSensorIntegrationTest extends FlatSpec with Matchers with BeforeAndAft
 
     val dagDefinitionJoined = DagDefinitionJoined(-1L, Seq(jobDefinition1, jobDefinition2))
     val workflowJoined = WorkflowJoined("Time-Sensor Workflow", true, "some-project", LocalDateTime.now(), None, sensor, dagDefinitionJoined)
-    await(workflowRepository.insertWorkflow(workflowJoined))
+    val workflowId = await(workflowRepository.insertWorkflow(workflowJoined)).right.get
+    val insertedWorkflow = await(workflowRepository.getWorkflow(workflowId))
 
     // Start Quartz and register sensor
     sensors.prepareSensors()
@@ -88,17 +88,18 @@ class TimeSensorIntegrationTest extends FlatSpec with Matchers with BeforeAndAft
     allEvents should not be empty
 
     // Check that the same time sensor is created exactly once
+    val jobKey = insertedWorkflow.sensor.id.toString
     await(sensors.processEvents().map(
       _ => {
         val scheduler = TimeSensorQuartzSchedulerManager.getScheduler
         val jobKeys = scheduler.getJobKeys(GroupMatcher.groupEquals[JobKey](TimeSensor.JOB_GROUP_NAME))
         jobKeys should have size 1
-        jobKeys.iterator().next().getName shouldBe quartzJobId
+        jobKeys.iterator().next().getName shouldBe jobKey
       }))
 
     // Check that inactive sensor is removed from quartz
     val workflow = await(workflowRepository.getWorkflows()).head
-    await(workflowRepository.updateWorkflowActiveState(workflow.id, isActive = false))
+    await(workflowRepository.switchWorkflowActiveState(workflow.id))
     await(sensors.processEvents().map(
       _ => {
         val scheduler = TimeSensorQuartzSchedulerManager.getScheduler
