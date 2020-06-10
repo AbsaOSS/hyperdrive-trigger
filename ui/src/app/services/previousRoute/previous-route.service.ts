@@ -34,4 +34,8 @@ export class PreviousRouteService {
   public getPreviousUrl() {
     return this.previousUrl;
   }
+
+  public getCurrentUrl() {
+    return this.currentUrl;
+  }
 }

@@ -101,7 +101,11 @@ export class WorkflowComponent implements OnInit, OnDestroy {
 
   cancelWorkflow() {
     const previousUrl = this.previousRouteService.getPreviousUrl();
-    !!previousUrl ? this.router.navigateByUrl(previousUrl) : this.router.navigateByUrl(absoluteRoutes.WORKFLOWS_HOME);
+    const currentUrl = this.previousRouteService.getCurrentUrl();
+
+    !previousUrl || previousUrl === currentUrl
+      ? this.router.navigateByUrl(absoluteRoutes.WORKFLOWS_HOME)
+      : this.router.navigateByUrl(previousUrl);
   }
 
   deleteWorkflow(id: number) {
