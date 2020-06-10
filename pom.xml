@@ -61,11 +61,9 @@
         <maven.ant.plugin.version>1.8</maven.ant.plugin.version>
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
         <scalatest-maven-plugin.version>2.0.0</scalatest-maven-plugin.version>
-        <dockerfile-maven.version>1.4.13</dockerfile-maven.version>
         <frontend.maven.plugin.version>1.9.0</frontend.maven.plugin.version>
         <maven.war.plugin.version>2.6</maven.war.plugin.version>
 
-        <skip.docker>true</skip.docker>
         <skipNpmTests>${skipTests}</skipNpmTests>
         <scalatest.suites/>
         <scalatest.tagsToExclude>za.co.absa.hyperdrive.trigger.testdata.PersistingData</scalatest.tagsToExclude>
@@ -271,29 +269,6 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>com.spotify</groupId>
-                <artifactId>dockerfile-maven-plugin</artifactId>
-                <version>${dockerfile-maven.version}</version>
-                <executions>
-                    <execution>
-                        <id>default</id>
-                        <goals>
-                            <goal>build</goal>
-                            <goal>push</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <skip>${skip.docker}</skip>
-                    <repository>absaoss/hyperdrive-trigger</repository>
-                    <tag>latest</tag>
-                    <buildArgs>
-                        <JAR_FILE>target/${project.build.finalName}.jar</JAR_FILE>
-                    </buildArgs>
-                    <noCache>true</noCache>
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <version>${maven.war.plugin.version}</version>
@@ -374,12 +349,6 @@
     </build>
 
     <profiles>
-        <profile>
-            <id>docker</id>
-            <properties>
-                <skip.docker>false</skip.docker>
-            </properties>
-        </profile>
         <profile>
             <id>testdata</id>
             <properties>
