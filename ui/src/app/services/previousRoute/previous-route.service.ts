@@ -15,6 +15,7 @@
 
 import { Injectable } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
+import { absoluteRoutes } from '../../constants/routes.constants';
 
 @Injectable()
 export class PreviousRouteService {
@@ -33,5 +34,9 @@ export class PreviousRouteService {
 
   public getPreviousUrl() {
     return this.previousUrl;
+  }
+
+  public getCurrentUrl() {
+    return this.currentUrl;
   }
 }
