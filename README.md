@@ -22,7 +22,7 @@ docker-compose up
 
 Access the application at 
 ```
-http://localhost:8082/hyperdrive_trigger_war
+http://localhost:8082/hyperdrive_trigger
 ```
 
 To stop the application, type

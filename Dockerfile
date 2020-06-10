@@ -21,4 +21,4 @@ LABEL \
     name="Hyperdrive Workflow Manager"
 
 ARG WAR_FILE
-COPY ${WAR_FILE} /usr/local/tomcat/webapps/hyperdrive_trigger_war.war
+COPY ${WAR_FILE} /usr/local/tomcat/webapps/hyperdrive_trigger.war
