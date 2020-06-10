@@ -152,7 +152,7 @@ export class WorkflowService {
               'Job jar',
               'jobParameters.variables.jobJar',
               'string-field',
-              PartValidationFactory.create(true, undefined, 1)
+              PartValidationFactory.create(true, undefined, 1),
             ),
             FormPartFactory.create(
               'Main class',
