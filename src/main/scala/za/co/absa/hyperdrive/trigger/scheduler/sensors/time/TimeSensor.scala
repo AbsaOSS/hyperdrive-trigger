@@ -26,10 +26,9 @@ import scala.concurrent.{ExecutionContext, Future}
 class TimeSensor(eventsProcessor: (Seq[Event], Properties) => Future[Boolean],
                  properties: Properties,
                  executionContext: ExecutionContext,
-                 scheduler: Scheduler,
-                 quartzJobId: String
+                 scheduler: Scheduler
                 ) extends PushSensor(eventsProcessor, properties, executionContext) {
-  val jobKey: JobKey = new JobKey(quartzJobId, TimeSensor.JOB_GROUP_NAME)
+  val jobKey: JobKey = new JobKey(properties.sensorId.toString, TimeSensor.JOB_GROUP_NAME)
   val jobTriggerKey: TriggerKey = new TriggerKey(jobKey.getName, TimeSensor.JOB_TRIGGER_GROUP_NAME)
 
   override def push: Seq[Event] => Future[Unit] = (events: Seq[Event]) =>
@@ -79,7 +78,7 @@ object TimeSensor {
             properties: Properties, executionContext: ExecutionContext): TimeSensor = {
     val quartzScheduler = TimeSensorQuartzSchedulerManager.getScheduler
     val timeSensorSettings = TimeSensorSettings(properties.settings)
-    val sensor = new TimeSensor(eventsProcessor, properties, executionContext, quartzScheduler, timeSensorSettings.quartzJobId)
+    val sensor = new TimeSensor(eventsProcessor, properties, executionContext, quartzScheduler)
 
     val sensorId = properties.sensorId
     val cronExpression = timeSensorSettings.cronExpression

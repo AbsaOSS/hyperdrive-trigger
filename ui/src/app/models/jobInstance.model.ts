@@ -1,0 +1,49 @@
+/*
+ * Copyright 2018 ABSA Group Limited
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+export type JobInstanceModel = {
+  id: number;
+  jobName: string;
+  jobType: JobType;
+  created: Date;
+  updated: Date;
+  jobStatus: JobStatus;
+};
+
+export type JobStatus = {
+  name: string;
+};
+
+export type JobType = {
+  name: string;
+};
+
+export class JobInstanceModelFactory {
+  static create(id: number, jobName: string, jobType: JobType, created: Date, updated: Date, jobStatus: JobStatus): JobInstanceModel {
+    return { id: id, jobName: jobName, jobType: jobType, created: created, updated: updated, jobStatus: jobStatus };
+  }
+}
+
+export class JobStatusFactory {
+  static create(name: string): JobStatus {
+    return { name: name };
+  }
+}
+
+export class JobTypeFactory {
+  static create(name: string): JobType {
+    return { name: name };
+  }
+}

@@ -1,0 +1,44 @@
+<!--
+  ~ Copyright 2018 ABSA Group Limited
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="loading" *ngIf="loading">
+    <span class="spinner spinner-inverse">
+        Loading...
+    </span>
+</div>
+
+<nav class="sidenav" *ngIf="!loading">
+  <section class="sidenav-content">
+    <a class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+       [routerLink]="[absoluteRoutes.WORKFLOWS_HOME]">
+      All workflows
+    </a>
+    <section class="nav-group collapsible" *ngFor="let project of projects; let index = index;">
+      <input [id]="index" type="checkbox" checked>
+      <label [for]="index">{{project.name}}</label>
+      <ul class="nav-list" *ngFor="let workflow of project.workflows">
+        <li>
+          <a routerLinkActive="active"
+             [routerLink]="[absoluteRoutes.SHOW_WORKFLOW, workflow.id]"
+             class="nav-link">{{workflow.name}}</a>
+        </li>
+      </ul>
+    </section>
+  </section>
+</nav>
+
+<div class="content-area" *ngIf="!loading">
+  <router-outlet *ngIf="!loading"></router-outlet>
+</div>
