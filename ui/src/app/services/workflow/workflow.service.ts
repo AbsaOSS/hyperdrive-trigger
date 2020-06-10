@@ -148,7 +148,12 @@ export class WorkflowService {
         ],
         [
           DynamicFormPartFactory.create('Spark', [
-            FormPartFactory.create('Job jar', 'jobParameters.variables.jobJar', 'string-field', PartValidationFactory.create(true, 50, 1)),
+            FormPartFactory.create(
+              'Job jar',
+              'jobParameters.variables.jobJar',
+              'string-field',
+              PartValidationFactory.create(true, undefined, 1),
+            ),
             FormPartFactory.create(
               'Main class',
               'jobParameters.variables.mainClass',
