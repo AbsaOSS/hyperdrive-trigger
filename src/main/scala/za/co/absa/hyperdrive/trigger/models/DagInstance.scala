@@ -15,11 +15,15 @@
 
 package za.co.absa.hyperdrive.trigger.models
 
+import java.time.LocalDateTime
+
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses.DagInstanceStatus
 
 case class DagInstance(
   status: DagInstanceStatus,
   workflowId: Long,
+  started: LocalDateTime,
+  finished: Option[LocalDateTime],
   id: Long = 0
 )
 
@@ -27,12 +31,16 @@ case class DagInstanceJoined(
   status: DagInstanceStatus,
   workflowId: Long,
   jobInstances: Seq[JobInstance],
+  started: LocalDateTime,
+  finished: Option[LocalDateTime],
   id: Long = 0
 ){
   def toDagInstance(): DagInstance = {
     DagInstance(
       status = this.status,
-      workflowId = this.workflowId
+      workflowId = this.workflowId,
+      started = this.started,
+      finished = this.finished
     )
   }
 }

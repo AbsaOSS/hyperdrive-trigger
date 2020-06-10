@@ -17,19 +17,24 @@ package za.co.absa.hyperdrive.trigger.persistance
 
 import java.time.LocalDateTime
 
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype
+import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, DatabaseError, GenericDatabaseError}
 import za.co.absa.hyperdrive.trigger.models.{ProjectInfo, _}
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success}
 
 trait WorkflowRepository extends Repository {
-  def insertWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Unit]
-  def getWorkflow(id: Long)(implicit ec: ExecutionContext): Future[Option[WorkflowJoined]]
+  def insertWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[ApiError, Long]]
+  def existsWorkflow(name: String)(implicit ec: ExecutionContext): Future[Boolean]
+  def existsOtherWorkflow(name: String, id: Long)(implicit ec: ExecutionContext): Future[Boolean]
+  def getWorkflow(id: Long)(implicit ec: ExecutionContext): Future[WorkflowJoined]
   def getWorkflows()(implicit ec: ExecutionContext): Future[Seq[Workflow]]
   def getWorkflowsByProjectName(projectName: String)(implicit ec: ExecutionContext): Future[Seq[Workflow]]
   def deleteWorkflow(id: Long)(implicit ec: ExecutionContext): Future[Unit]
-  def updateWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Unit]
-  def updateWorkflowActiveState(id: Long, isActive: Boolean)(implicit ec: ExecutionContext): Future[Unit]
+  def updateWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[ApiError, Unit]]
+  def switchWorkflowActiveState(id: Long)(implicit ec: ExecutionContext): Future[Unit]
   def getProjects()(implicit ec: ExecutionContext): Future[Seq[String]]
   def getProjectsInfo()(implicit ec: ExecutionContext): Future[Seq[ProjectInfo]]
 }
@@ -37,17 +42,34 @@ trait WorkflowRepository extends Repository {
 @stereotype.Repository
 class WorkflowRepositoryImpl extends WorkflowRepository {
   import profile.api._
+  private val logger = LoggerFactory.getLogger(this.getClass)
 
-  override def insertWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Unit] = db.run(
+  override def insertWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[ApiError, Long]] = db.run(
     (for {
       workflowId <- workflowTable returning workflowTable.map(_.id) += workflow.toWorkflow.copy(created = LocalDateTime.now())
       sensorId <- sensorTable += workflow.sensor.copy(workflowId = workflowId)
       dagId <- dagDefinitionTable returning dagDefinitionTable.map(_.id) += workflow.dagDefinitionJoined.toDag().copy(workflowId = workflowId)
       jobId <- jobDefinitionTable ++= workflow.dagDefinitionJoined.jobDefinitions.map(_.copy(dagDefinitionId = dagId))
-    } yield ()).transactionally
+    } yield (workflowId)).transactionally.asTry
+  ).map {
+    case Success(workflowId) => Right(workflowId)
+    case Failure(ex) =>
+      logger.error(s"Unexpected error occurred when inserting workflow $workflow", ex)
+      Left(GenericDatabaseError)
+  }
+
+  override def existsWorkflow(name: String)(implicit ec: ExecutionContext): Future[Boolean] = db.run(
+    workflowTable.filter(_.name === name).exists.result
   )
 
-  override def getWorkflow(id: Long)(implicit ec: ExecutionContext): Future[Option[WorkflowJoined]] = {
+  override def existsOtherWorkflow(name: String, id: Long)(implicit ec: ExecutionContext): Future[Boolean] = db.run(
+    workflowTable.filter(_.name === name)
+      .filter(_.id =!= id)
+      .exists
+      .result
+  )
+
+  override def getWorkflow(id: Long)(implicit ec: ExecutionContext): Future[WorkflowJoined] = {
     db.run(
       (for {
       w <- workflowTable if w.id === id
@@ -58,7 +80,7 @@ class WorkflowRepositoryImpl extends WorkflowRepository {
       (w, s, dd, jd)
     }).result
     ).map { wsddjd =>
-      wsddjd.headOption map {
+      val workflowOption = wsddjd.headOption map {
         case (w,s,dd,_) =>
           WorkflowJoined(
             name = w.name,
@@ -75,6 +97,7 @@ class WorkflowRepositoryImpl extends WorkflowRepository {
             id = w.id
           )
       }
+      workflowOption.getOrElse(throw new Exception(s"Workflow with ${id} does not exist."));
     }
   }
 
@@ -106,29 +129,44 @@ class WorkflowRepositoryImpl extends WorkflowRepository {
     )
   }
 
-  override def updateWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Unit] = {
+  override def updateWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[ApiError, Unit]] = {
     db.run((for {
       w <- workflowTable.filter(_.id === workflow.id).update(workflow.toWorkflow.copy(updated = Option(LocalDateTime.now())))
-      s <- sensorTable.filter(_.id === workflow.sensor.id).update(workflow.sensor)
+      s <- sensorTable.filter(_.workflowId === workflow.id).update(workflow.sensor)
       dd <- dagDefinitionTable.filter(_.workflowId === workflow.id).update(workflow.dagDefinitionJoined.toDag())
       deleteJds <- jobDefinitionTable.filter(_.dagDefinitionId === workflow.dagDefinitionJoined.id).delete
       insertJds <- jobDefinitionTable ++= workflow.dagDefinitionJoined.jobDefinitions.map(_.copy(dagDefinitionId = workflow.dagDefinitionJoined.id))
-    } yield {}
-      ).transactionally)
+    } yield {}).transactionally.asTry
+    ).map {
+        case Success(_) => Right((): Unit)
+        case Failure(ex) =>
+          logger.error(s"Unexpected error occurred when updating workflow $workflow", ex)
+          Left(GenericDatabaseError)
+      }
   }
 
-  override def updateWorkflowActiveState(id: Long, isActive: Boolean)(implicit ec: ExecutionContext): Future[Unit] = db.run(
-    for {
-      w <- workflowTable.filter(_.id === id)
-        .map(workflow => (workflow.isActive, workflow.updated)).update((isActive, Option(LocalDateTime.now())))
+  override def switchWorkflowActiveState(id: Long)(implicit ec: ExecutionContext): Future[Unit] = {
+    val workflowQuery = workflowTable.filter(_.id === id).map(workflow => (workflow.isActive, workflow.updated))
+    val resultAction = for {
+      workflowOpt <- workflowQuery.result.headOption
+      workflowUpdatedActionOpt = workflowOpt.map(
+        workflowValue =>
+          workflowQuery.update((!workflowValue._1), Option(LocalDateTime.now()))
+      )
+      affected <- workflowUpdatedActionOpt.getOrElse(DBIO.successful(0))
     } yield {
-      if(w == 1) {
-        DBIO.successful((): Unit)
-      } else {
-        DBIO.failed(new Exception("Update workflow exception"))
-      }
-    }.transactionally
-  )
+      affected
+    }
+    db.run(
+      resultAction.flatMap(result => {
+        if (result == 1) {
+          DBIO.successful((): Unit)
+        } else {
+          DBIO.failed(new Exception("Update workflow exception"))
+        }
+      }).transactionally
+    )
+  }
 
   override def getProjects()(implicit ec: ExecutionContext): Future[Seq[String]] = db.run(
     workflowTable.map(_.project).distinct.sortBy(_.value).result

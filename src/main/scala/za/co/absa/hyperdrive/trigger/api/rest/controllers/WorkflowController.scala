@@ -17,24 +17,32 @@ package za.co.absa.hyperdrive.trigger.api.rest.controllers
 
 import java.util.concurrent.CompletableFuture
 
-import za.co.absa.hyperdrive.trigger.api.rest.services.WorkflowService
-import za.co.absa.hyperdrive.trigger.models.{ProjectInfo, Workflow, WorkflowJoined, WorkflowState}
 import javax.inject.Inject
 import org.springframework.web.bind.annotation._
+import za.co.absa.hyperdrive.trigger.api.rest.services.WorkflowService
+import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, ApiException}
+import za.co.absa.hyperdrive.trigger.models._
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.compat.java8.FutureConverters._
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 @RestController
 class WorkflowController @Inject()(workflowService: WorkflowService) {
 
+  implicit def eitherToCompletableFutureOrException[T](response: Future[Either[Seq[ApiError], T]]): CompletableFuture[T] =
+    response.map {
+      case Left(apiErrors) => throw new ApiException(apiErrors)
+      case Right(result) => result
+    }.toJava.toCompletableFuture
+
   @PutMapping(path = Array("/workflow"))
-  def createWorkflow(@RequestBody workflow: WorkflowJoined): CompletableFuture[Boolean] = {
-    workflowService.createWorkflow(workflow).toJava.toCompletableFuture
+  def createWorkflow(@RequestBody workflow: WorkflowJoined): CompletableFuture[WorkflowJoined] = {
+    workflowService.createWorkflow(workflow)
   }
 
   @GetMapping(path = Array("/workflow"))
-  def getWorkflow(@RequestParam id: Long): CompletableFuture[Option[WorkflowJoined]] = {
+  def getWorkflow(@RequestParam id: Long): CompletableFuture[WorkflowJoined] = {
     workflowService.getWorkflow(id).toJava.toCompletableFuture
   }
 
@@ -49,22 +57,27 @@ class WorkflowController @Inject()(workflowService: WorkflowService) {
   }
 
   @DeleteMapping(path = Array("/workflows"))
-    def deleteWorkflow(@RequestParam id: Long): CompletableFuture[Boolean] = {
-      workflowService.deleteWorkflow(id).toJava.toCompletableFuture
-    }
-
-  @PostMapping(path = Array("/workflows"))
-  def updateWorkflow(@RequestBody workflow: WorkflowJoined): CompletableFuture[Boolean] = {
-    workflowService.updateWorkflow(workflow).toJava.toCompletableFuture
+  def deleteWorkflow(@RequestParam id: Long): CompletableFuture[Boolean] = {
+    workflowService.deleteWorkflow(id).toJava.toCompletableFuture
   }
 
-  @PostMapping(path = Array("/workflows/{id}/setActiveState"))
-  def updateWorkflowActiveState(@PathVariable id: Long, @RequestBody workflowState: WorkflowState): CompletableFuture[Boolean] = {
-    workflowService.updateWorkflowActiveState(id, workflowState.isActive).toJava.toCompletableFuture
+  @PostMapping(path = Array("/workflows"))
+  def updateWorkflow(@RequestBody workflow: WorkflowJoined): CompletableFuture[WorkflowJoined] = {
+    workflowService.updateWorkflow(workflow)
+  }
+
+  @PostMapping(path = Array("/workflows/{id}/switchActiveState"))
+  def switchWorkflowActiveState(@PathVariable id: Long): CompletableFuture[Boolean] = {
+    workflowService.switchWorkflowActiveState(id).toJava.toCompletableFuture
+  }
+
+  @GetMapping(path = Array("/workflows/projectNames"))
+  def getProjectNames(): CompletableFuture[Set[String]] = {
+    workflowService.getProjectNames.toJava.toCompletableFuture
   }
 
   @GetMapping(path = Array("/workflows/projects"))
-  def getProjects(): CompletableFuture[Set[String]] = {
+  def getProjects(): CompletableFuture[Seq[Project]] = {
     workflowService.getProjects.toJava.toCompletableFuture
   }
 

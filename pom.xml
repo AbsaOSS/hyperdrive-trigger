@@ -38,7 +38,7 @@
         <play-ws-standalone.version>2.0.3</play-ws-standalone.version>
         <play-ahc-ws-standalone.version>2.0.2</play-ahc-ws-standalone.version>
         <spring-boot-starter-web.version>2.0.0.RELEASE</spring-boot-starter-web.version>
-        <jackson-module.version>2.9.8</jackson-module.version>
+        <jackson-module.version>2.11.0</jackson-module.version>
         <spring-boot-starter-tomcat.version>2.0.0.RELEASE</spring-boot-starter-tomcat.version>
         <alchim31>3.2.0</alchim31>
         <openui5.version>1.60.2</openui5.version>
@@ -55,17 +55,29 @@
         <h2database.version>1.4.200</h2database.version>
         <mockito.version>2.25.0</mockito.version>
         <cronutils.version>9.0.2</cronutils.version>
+        <node.version>12.14.1</node.version>
+        <npm.version>6.13.4</npm.version>
         <scala-maven-plugin.version>3.2.1</scala-maven-plugin.version>
         <maven-resources-plugin.version>3.1.0</maven-resources-plugin.version>
         <maven.ant.plugin.version>1.8</maven.ant.plugin.version>
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
         <scalatest-maven-plugin.version>2.0.0</scalatest-maven-plugin.version>
         <dockerfile-maven.version>1.4.13</dockerfile-maven.version>
+        <frontend.maven.plugin.version>1.9.0</frontend.maven.plugin.version>
+
 
         <skip.docker>true</skip.docker>
+        <skipNpmTests>${skipTests}</skipNpmTests>
+        <scalatest.suites/>
+        <scalatest.tagsToExclude>za.co.absa.hyperdrive.trigger.testdata.PersistingData</scalatest.tagsToExclude>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-scala_${scala.compat.version}</artifactId>
+            <version>${jackson-module.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.typesafe.slick</groupId>
             <artifactId>slick_${scala.compat.version}</artifactId>
@@ -122,14 +134,14 @@
             <version>${spring.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.quartz-scheduler</groupId>
             <artifactId>quartz</artifactId>
             <version>${quartz.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-scala_${scala.compat.version}</artifactId>
-            <version>${jackson-module.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -194,7 +206,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring.version}</version>
                 <configuration>
-                    <mainClass>za.co.absa.hyperdrive.trigger.api.rest.Application</mainClass>
+                    <mainClass>za.co.absa.hyperdrive.trigger.Application</mainClass>
                 </configuration>
                 <executions>
                     <execution>
@@ -251,6 +263,10 @@
                         <goals>
                             <goal>test</goal>
                         </goals>
+                        <configuration>
+                            <suites>${scalatest.suites}</suites>
+                            <tagsToExclude>${scalatest.tagsToExclude}</tagsToExclude>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -277,7 +293,63 @@
                     <noCache>true</noCache>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <version>${frontend.maven.plugin.version}</version>
+                <configuration>
+                    <workingDirectory>ui</workingDirectory>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>install node and npm</id>
+                        <goals>
+                            <goal>install-node-and-npm</goal>
+                        </goals>
+                        <configuration>
+                            <nodeVersion>v${node.version}</nodeVersion>
+                            <npmVersion>${npm.version}</npmVersion>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm install</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>npm build</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>run build</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm lint</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>run lint:ci</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm tests</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <phase>test</phase>
+                        <configuration>
+                            <skipTests>${skipNpmTests}</skipTests>
+                            <arguments>run test:ci</arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
+
     </build>
 
     <profiles>
@@ -285,6 +357,15 @@
             <id>docker</id>
             <properties>
                 <skip.docker>false</skip.docker>
+            </properties>
+        </profile>
+        <profile>
+            <id>testdata</id>
+            <properties>
+                <scalatest.suites>za.co.absa.hyperdrive.trigger.testdata.TestDataGeneratorLocal</scalatest.suites>
+                <scalatest.tagsToExclude/>
+                <skip.npm>true</skip.npm>
+                <skip.installnodenpm>true</skip.installnodenpm>
             </properties>
         </profile>
     </profiles>

@@ -19,14 +19,16 @@ import za.co.absa.hyperdrive.trigger.models.Settings
 
 case class KafkaSettings(
   topic: String,
-  servers: Set[String]
+  servers: List[String]
 )
 
 object KafkaSettings {
+  val Topic = "topic"
+  val Servers = "servers"
   def apply(settings: Settings): KafkaSettings = {
     KafkaSettings(
-      topic = settings.variables("topic"),
-      servers = settings.maps("servers")
+      topic = settings.variables(Topic),
+      servers = settings.maps(Servers)
     )
   }
 }

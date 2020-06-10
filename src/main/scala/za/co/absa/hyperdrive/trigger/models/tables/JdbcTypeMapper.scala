@@ -77,10 +77,10 @@ trait JdbcTypeMapper {
     )
 
   //TEMPORARY MAPPING, SEPARATE TABLE WILL BE CREATED
-  implicit lazy val mapSetMapper: JdbcType[Map[String, Set[String]]] =
-    MappedColumnType.base[Map[String, Set[String]], String](
+  implicit lazy val mapListMapper: JdbcType[Map[String, List[String]]] =
+    MappedColumnType.base[Map[String, List[String]], String](
       parameters => Json.toJson(parameters).toString(),
-      parametersEncoded => Json.parse(parametersEncoded).as[Map[String, Set[String]]]
+      parametersEncoded => Json.parse(parametersEncoded).as[Map[String, List[String]]]
     )
 
 }

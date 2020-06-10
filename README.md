@@ -52,3 +52,5 @@ docker build --build-arg JAR_FILE=target/hyperdrive-trigger-0.0.1-SNAPSHOT.jar -
 
 If `docker-compose up` fails with this error message, probably the docker image was not present when `docker-compose up` was called. `docker-compose` tries to build the image by itself, which doesn't work.
 
+## Testdata
+`mvn test -Ptestdata` creates testdata in `localhost:5432/hyperdriver`, assuming the DB-user `hyperdriver` exists.

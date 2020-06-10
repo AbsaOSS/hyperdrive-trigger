@@ -21,7 +21,7 @@ import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.InQueue
 import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
 
 case class JobDefinition(
-  dagDefinitionId: Long,
+  dagDefinitionId: Long = 0,
   name: String,
   jobType: JobType,
   jobParameters: JobParameters,

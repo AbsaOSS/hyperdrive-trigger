@@ -21,7 +21,7 @@ case class Workflow(
   name: String,
   isActive: Boolean,
   project: String,
-  created: LocalDateTime,
+  created: LocalDateTime = LocalDateTime.now(),
   updated: Option[LocalDateTime],
   id: Long = 0
 )
@@ -34,7 +34,7 @@ case class WorkflowJoined(
   name: String,
   isActive: Boolean,
   project: String,
-  created: LocalDateTime,
+  created: LocalDateTime = LocalDateTime.now(),
   updated: Option[LocalDateTime],
   sensor: Sensor,
   dagDefinitionJoined: DagDefinitionJoined,

@@ -39,7 +39,7 @@ class ShellExecutorTest extends FlatSpec with Matchers with BeforeAndAfterAll wi
   private val testJobInstance = JobInstance(
     jobName = "jobName",
     jobType = Shell,
-    jobParameters = JobParameters(variables = Map.empty[String, String], maps = Map.empty[String, Set[String]]),
+    jobParameters = JobParameters(variables = Map.empty[String, String], maps = Map.empty[String, List[String]]),
     jobStatus = InQueue,
     executorJobId = None,
     created = LocalDateTime.now(),

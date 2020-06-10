@@ -18,17 +18,14 @@ package za.co.absa.hyperdrive.trigger.scheduler.sensors.time
 import za.co.absa.hyperdrive.trigger.models.Settings
 
 case class TimeSensorSettings(
-   cronExpression: String,
-   quartzJobId: String
+   cronExpression: String
 )
 
 object TimeSensorSettings {
   val CRON_EXPRESSION_KEY = "cronExpression"
-  val QUARTZ_JOB_ID_KEY = "quartzJobId"
   def apply(settings: Settings): TimeSensorSettings = {
     TimeSensorSettings(
-      cronExpression = settings.variables(CRON_EXPRESSION_KEY),
-      quartzJobId = settings.variables(QUARTZ_JOB_ID_KEY)
+      cronExpression = settings.variables(CRON_EXPRESSION_KEY)
     )
   }
 }

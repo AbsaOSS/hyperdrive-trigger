@@ -1,0 +1,68 @@
+<!--
+  ~ Copyright 2018 ABSA Group Limited
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<clr-datagrid>
+
+  <clr-dg-action-bar>
+    <div class="btn-group">
+      <button type="button" class="btn btn-sm btn-secondary" [routerLink]="[absoluteRoutes.CREATE_WORKFLOW]">
+        <clr-icon shape="plus"></clr-icon>
+        Create new workflow
+      </button>
+    </div>
+  </clr-dg-action-bar>
+
+  <clr-dg-column>Workflow name</clr-dg-column>
+  <clr-dg-column>Project name</clr-dg-column>
+  <clr-dg-column>Is active</clr-dg-column>
+
+  <clr-dg-row *clrDgItems="let workflow of workflows" [clrDgItem]="workflow">
+    <clr-dg-action-overflow>
+      <button type="button" class="action-item" (click)="showWorkflow(workflow.id)">
+        <clr-icon shape="eye"></clr-icon>
+        Show
+      </button>
+      <button type="button" class="action-item" (click)="switchWorkflowActiveState(workflow.id, workflow.isActive)">
+        <clr-icon shape="power"></clr-icon>
+        {{workflow.isActive ? 'Deactivate' : 'Activate'}}
+      </button>
+      <button type="button" class="action-item" (click)="runWorkflow(workflow.id)">
+        <clr-icon shape="play"></clr-icon>
+        Run
+      </button>
+      <button type="button" class="action-item" [routerLink]="[absoluteRoutes.COPY_WORKFLOW, workflow.id]">
+        <clr-icon shape="copy"></clr-icon>
+        Copy
+      </button>
+      <button type="button" class="action-item" [routerLink]="[absoluteRoutes.EDIT_WORKFLOW, workflow.id]">
+        <clr-icon shape="pencil"></clr-icon>
+        Edit
+      </button>
+      <button type="button" class="action-item" (click)="deleteWorkflow(workflow.id)">
+        <clr-icon shape="close" ></clr-icon>
+        Delete
+      </button>
+    </clr-dg-action-overflow>
+
+    <clr-dg-cell (dblclick)="showWorkflow(workflow.id)">{{workflow.name}}</clr-dg-cell>
+    <clr-dg-cell (dblclick)="showWorkflow(workflow.id)">{{workflow.project}}</clr-dg-cell>
+    <clr-dg-cell (dblclick)="showWorkflow(workflow.id)" [ngSwitch]="workflow.isActive">
+      <clr-icon *ngSwitchCase="true" shape="circle" class="is-solid" style="color: green"></clr-icon>
+      <clr-icon *ngSwitchCase="false" shape="circle" class="is-solid" style="color: red"></clr-icon>
+      {{workflow.isActive ? 'Yes' : 'No'}}
+    </clr-dg-cell>
+  </clr-dg-row>
+</clr-datagrid>
+
