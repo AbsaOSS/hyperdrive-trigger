@@ -15,7 +15,6 @@
 
 import { Injectable } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
-import { absoluteRoutes } from '../../constants/routes.constants';
 
 @Injectable()
 export class PreviousRouteService {
