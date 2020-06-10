@@ -39,9 +39,7 @@ export class WorkflowDataModel {
     const sensorDynamicParts = sensorDynamicOption == undefined ? [] : sensorDynamicOption.parts;
     return sensorDynamicParts.concat(sensorType).map((part) => {
       const value = get(this.worfklow.sensor, part.property);
-      if (value != undefined) {
-        return WorkflowEntryModelFactory.create(part.property, value);
-      }
+      return WorkflowEntryModelFactory.create(part.property, value);
     });
   }
 
@@ -54,9 +52,7 @@ export class WorkflowDataModel {
       const jobDynamicParts = jobDynamicOption == undefined ? [] : jobDynamicOption.parts;
       const jobData = jobDynamicParts.concat(jobDynamicPart, jobStaticPart).map((part) => {
         const value = get(job, part.property);
-        if (value != undefined) {
-          return WorkflowEntryModelFactory.create(part.property, value);
-        }
+        return WorkflowEntryModelFactory.create(part.property, value);
       });
       return JobEntryModelFactory.createWithUuid(job.order, jobData);
     });

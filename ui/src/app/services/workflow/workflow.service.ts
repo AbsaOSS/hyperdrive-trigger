@@ -163,6 +163,12 @@ export class WorkflowService {
               ['cluster', 'client'],
             ),
             FormPartFactory.create(
+              'Additional jars',
+              'jobParameters.maps.additionalJars',
+              'set-field',
+              PartValidationFactory.create(false, undefined, 1),
+            ),
+            FormPartFactory.create(
               'App arguments',
               'jobParameters.maps.appArguments',
               'set-field',
