@@ -18,7 +18,6 @@ import { workflowModes } from '../models/enums/workflowModes.constants';
 export const routeNames = {
   DEFAULT: '',
   LOGIN: 'login',
-  HOME: 'home',
   WORKFLOWS: 'workflows',
   WORKFLOWS_HOME: '',
   WORKFLOW_ACTION: ':mode',
@@ -29,7 +28,6 @@ export const routeNames = {
 export const absoluteRoutes = {
   DEFAULT: `/${routeNames.DEFAULT}`,
   LOGIN: `/${routeNames.LOGIN}`,
-  HOME: `/${routeNames.HOME}`,
   WORKFLOWS: `/${routeNames.WORKFLOWS}`,
   WORKFLOWS_HOME: `/${routeNames.WORKFLOWS}`,
   SHOW_WORKFLOW: `/${routeNames.WORKFLOWS}/${workflowModes.SHOW}`,
