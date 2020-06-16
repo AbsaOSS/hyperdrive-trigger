@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --aot",
-    "build": "ng build --aot --prod",
+    "start": "ng serve --aot --open --base-href /hyperdrive_trigger/ --deploy-url /hyperdrive_trigger/",
+    "build": "ng build --aot --prod --base-href /hyperdrive_trigger/",
     "test": "ng test",
     "test:ci": "ng test --karmaConfig=karma.conf.ci.js",
     "lint": "tsc --noEmit && eslint 'src/**/*.{js,ts}' --quiet --fix",
