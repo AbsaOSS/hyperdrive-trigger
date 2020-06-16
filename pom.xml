@@ -41,7 +41,7 @@
 
     <scm>
         <connection>scm:git:git://github.com/AbsaOSS/hyperdrive-trigger.git</connection>
-        <developerConnection>scm:git:ssh://github.com:AbsaOSS/hyperdrive-trigger.git</developerConnection>
+        <developerConnection>scm:git:ssh://github.com/AbsaOSS/hyperdrive-trigger.git</developerConnection>
         <url>https://github.com/AbsaOSS/hyperdrive-trigger/tree/master</url>
     </scm>
 
