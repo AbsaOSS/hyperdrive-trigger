@@ -12,134 +12,107 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+ <nav class="sidenav">
+    <section class="sidenav-content">
+      <a href="..." class="nav-link active" style="padding-right: 30px">
+        NavasdasdkaklsdlasldlaskdlkasldklaskdlkalsdkElement1asdasdkasdjaskdkasd111
+      </a>
+      <a href="..." class="nav-link">
+        Nav Element 2
+      </a>
+      <section class="nav-group collapsible">
+        <input id="tabexample1" type="checkbox">
+        <label for="tabexample1" style="padding-right: 30px">CollapsiblasdasdasdasdNaasdasdElement222</label>
+        <ul class="nav-list">
+          <li><a class="nav-link" style="padding-right: 30px">Linkasdasda sdasdasdasdasda sdasdasdasda sdasdasdasdasd333</a></li>
+        </ul>
+      </section>
+      <section class="nav-group">
+        <input id="tabexample2" type="checkbox">
+        <label for="tabexample2">Default Nav Element</label>
+        <ul class="nav-list">
+          <li><a class="nav-link">Link 1</a></li>
+          <li><a class="nav-link">Link 2</a></li>
+          <li><a class="nav-link active">Link 3</a></li>
+          <li><a class="nav-link">Link 4</a></li>
+          <li><a class="nav-link">Link 5</a></li>
+          <li><a class="nav-link">Link 6</a></li>
+        </ul>
+      </section>
+    </section>
+  </nav>
+
+
+
 
 <div class="content-area">
-  <clr-datagrid (clrDgRefresh)="onClarityDgRefresh($event)" [clrDgLoading]="loading">
 
-    <clr-dg-action-bar>
-      <div class="btn-group">
-        <button type="button" class="btn btn-sm btn-secondary" (click)="clearFilters()">
-          <clr-icon shape="trash"></clr-icon>
-          Clear filters
-        </button>
-        <button type="button" class="btn btn-sm btn-secondary" (click)="clearSort()">
-          <clr-icon shape="trash"></clr-icon>
-          Clear sort
-        </button>
-        <button type="button" class="btn btn-sm btn-secondary" (click)="refresh()">
-          <clr-icon shape="refresh"></clr-icon>
-          Refresh
-        </button>
+
+  <div class="card">
+    <div class="card-block">
+      <div class="accordion-content">
+        <form clrForm>
+          <clr-input-container>
+            <label>Field 1 label</label>
+            <input class="p1" clrInput type="text" [(ngModel)]="model" name="example" [size]="100" [readOnly]="true"  style="width:100%;"/>
+          </clr-input-container>
+          <clr-input-container>
+            <label>Field 2 label</label>
+            <input clrInput type="text" [(ngModel)]="model" style="width:100%;" name="example" />
+          </clr-input-container>
+
+          <clr-select-container>
+            <label>Select</label>
+            <select clrSelect>
+              <option *ngFor="let option of options" [value]="option"  style="width:100%;">{{option}}</option>
+            </select>
+          </clr-select-container>
+
+        </form>
       </div>
-    </clr-dg-action-bar>
+    </div>
+  </div>
 
-    <clr-dg-column [clrDgField]="dagRunColumns.WORKFLOW_NAME" [clrFilterValue]>
-      <ng-container *clrDgHideableColumn="{hidden: false}">Workflow name</ng-container>
-      <clr-dg-filter [clrDgFilter]="workflowNameFilter">
-        <app-string-filter #workflowNameFilter [property]="dagRunColumns.WORKFLOW_NAME"
-                           [removeFiltersSubject]="removeFiltersSubject">
-        </app-string-filter>
-      </clr-dg-filter>
-    </clr-dg-column>
-    <clr-dg-column [clrDgField]="dagRunColumns.PROJECT_NAME">
-      <ng-container *clrDgHideableColumn="{hidden: false}">Project name</ng-container>
-      <clr-dg-filter [clrDgFilter]="projectNameFilter">
-        <app-string-filter #projectNameFilter [property]="dagRunColumns.PROJECT_NAME"
-                           [removeFiltersSubject]="removeFiltersSubject">
-        </app-string-filter>
-      </clr-dg-filter>
-    </clr-dg-column>
-    <clr-dg-column [clrDgField]="dagRunColumns.JOB_COUNT">
-      <ng-container *clrDgHideableColumn="{hidden: false}">Job count</ng-container>
-      <clr-dg-filter [clrDgFilter]="jobCountFilter">
-        <app-number-range-filter #jobCountFilter [property]="dagRunColumns.JOB_COUNT"
-                                 [removeFiltersSubject]="removeFiltersSubject">
-        </app-number-range-filter>
-      </clr-dg-filter>
-    </clr-dg-column>
-    <clr-dg-column [clrDgField]="dagRunColumns.STARTED">
-      <ng-container *clrDgHideableColumn="{hidden: false}">Started</ng-container>
-      <clr-dg-filter [clrDgFilter]="startedFilter">
-        <app-datetime-range-filter #startedFilter [property]="dagRunColumns.STARTED"
-                                   [removeFiltersSubject]="removeFiltersSubject">
-        </app-datetime-range-filter>
-      </clr-dg-filter>
-    </clr-dg-column>
-    <clr-dg-column [clrDgField]="dagRunColumns.FINISHED">
-      <ng-container *clrDgHideableColumn="{hidden: false}">Finished</ng-container>
-      <clr-dg-filter [clrDgFilter]="finishedFilter">
-        <app-datetime-range-filter #finishedFilter [property]="dagRunColumns.FINISHED"
-                                   [removeFiltersSubject]="removeFiltersSubject">
-        </app-datetime-range-filter>
-      </clr-dg-filter>
-    </clr-dg-column>
-    <clr-dg-column [clrDgField]="dagRunColumns.STATUS">
-      <ng-container *clrDgHideableColumn="{hidden: false}">Status</ng-container>
-      <clr-dg-filter [clrDgFilter]="multiStatusFilter">
-        <app-multiple-status-filter #multiStatusFilter
-                                    [property]="dagRunColumns.STATUS"
-                                    [removeFiltersSubject]="removeFiltersSubject"
-                                    [statuses]="dagInstanceStatuses.getStatuses()">
-        </app-multiple-status-filter>
-      </clr-dg-filter>
-    </clr-dg-column>
-    <clr-dg-placeholder>We couldn't find any dag runs!</clr-dg-placeholder>
+  <form clrForm>
+    <clr-input-container>
+      <label>Field 1 label</label>
+      <input class="p1" clrInput type="text" [(ngModel)]="model" name="example" [size]="100" [readOnly]="true"/>
+    </clr-input-container>
+    <clr-input-container>
+      <label>Field 2 label</label>
+      <input clrInput type="text" [(ngModel)]="model" name="example" />
+    </clr-input-container>
+  </form>
 
-    <clr-dg-row *ngFor="let dagRun of dagRuns" [clrDgItem]="dagRun">
-      <clr-dg-cell>{{dagRun.workflowName}}</clr-dg-cell>
-      <clr-dg-cell>{{dagRun.projectName}}</clr-dg-cell>
-      <clr-dg-cell>{{dagRun.jobCount}}</clr-dg-cell>
-      <clr-dg-cell>{{dagRun.started | date:'medium'}}</clr-dg-cell>
-      <clr-dg-cell>{{dagRun.finished | date:'medium'}}</clr-dg-cell>
-      <clr-dg-cell [ngSwitch]="dagRun.status">
-        <clr-icon *ngSwitchCase="dagInstanceStatuses.IN_QUEUE.name"
-                  [attr.shape]="dagInstanceStatuses.IN_QUEUE.shape"
-                  [style.color]="dagInstanceStatuses.IN_QUEUE.color"
-                  class="is-solid">
-        </clr-icon>
-        <clr-icon *ngSwitchCase="dagInstanceStatuses.RUNNING.name"
-                  [attr.shape]="dagInstanceStatuses.RUNNING.shape"
-                  [style.color]="dagInstanceStatuses.RUNNING.color"
-                  class="is-solid">
-        </clr-icon>
-        <clr-icon *ngSwitchCase="dagInstanceStatuses.SUCCEEDED.name"
-                  [attr.shape]="dagInstanceStatuses.SUCCEEDED.shape"
-                  [style.color]="dagInstanceStatuses.SUCCEEDED.color"
-                  class="is-solid">
-        </clr-icon>
-        <clr-icon *ngSwitchCase="dagInstanceStatuses.FAILED.name"
-                  [attr.shape]="dagInstanceStatuses.FAILED.shape"
-                  [style.color]="dagInstanceStatuses.FAILED.color"
-                  class="is-solid">
-        </clr-icon>
-        <clr-icon *ngSwitchDefault
-                  shape="help"
-                  style="color: darkgoldenrod"
-                  class="is-solid">
-        </clr-icon>
-        {{dagRun.status}}
-      </clr-dg-cell>
-    </clr-dg-row>
+  <form clrForm>
+    <clr-textarea-container>
+    <label>Field 1 label</label>
+    <textarea clrTextarea [(ngModel)]="model" [readOnly]="true" name="description" required></textarea>
+    </clr-textarea-container>
+  </form>
 
-    <clr-dg-detail *clrIfDetail="let detail">
-      <clr-dg-detail-header>
-        <b>Workflow name: </b>{{detail.workflowName}}<br/>
-        <b>Project name: </b>{{detail.projectName}}<br/>
-        <b>Started: </b>{{detail.started | date:'medium'}}<br/>
-        <b>Finished: </b>{{detail.finished | date:'medium'}}<br/>
-        <b>Status: </b>{{detail.status}}
-      </clr-dg-detail-header>
-      <clr-dg-detail-body>
-        <app-run-detail [dagRunId]="detail.id"></app-run-detail>
-      </clr-dg-detail-body>
-    </clr-dg-detail>
+  <h1>Header 1 (Display)</h1>
+  <h2>Header 2 (Headline)</h2>
+  <h3>Header 3 (Sub Heading)</h3>
+  <h4>Header 4 (Section Heading Level 1)</h4>
+  <h5>Header 5 (Category / group label, TOC)</h5>
+  <h6>Header 6 (Section Heading Level 2 group label)</h6>
 
-    <clr-dg-footer>
-      <clr-dg-pagination #pagination [clrDgPageSize]="50" [(clrDgPage)]="page"
-                         [clrDgTotalItems]="total"></clr-dg-pagination>
-      <clr-dg-page-size [clrPageSizeOptions]="[50,100,150,200,250]">Dag runs per page</clr-dg-page-size>
-      {{pagination.firstItem + 1}} - {{pagination.lastItem + 1}}
-      of {{total}} dag runs
-    </clr-dg-footer>
-  </clr-datagrid>
+  <a href="..." role="tooltip" aria-haspopup="true" class="tooltip tooltip-lg">
+    <clr-icon shape="info-circle" size="24"></clr-icon>
+    <span class="tooltip-content">BodytextBodytextBodytextBodytextBodytextBodytextBodytextBodytextBodytextBodytextBodytext</span>
+  </a>
+
+  <p class="p1">BodytextBodytextBodytextBodytextBodytextBodytextBodytextBodytextBodytextBodytextBodytext</p>
+  <p class="p2">Section header Section header Section header Section header Section header Section header Section header</p>
+  <p class="p3">Table, grid, and form text Table, grid, and form text Table, grid, and form text Table, grid, and form text</p>
+  <p class="p4">Form labels and column headers Form labels and column headers Form labels and column headers Form labels and column headers</p>
+  <p class="p5">Table footers and chart data Table footers and chart data Table footers and chart data Table footers and chart data</p>
+  <p class="p6">Mostly buttons Mostly buttons Mostly buttons Mostly buttons Mostly buttons Mostly buttons Mostly buttons Mostly buttons</p>
+  <p class="p7">Tags and labels Tags and labels Tags and labels Tags and labels Tags and labels Tags and labels Tags and labels Tags and labels</p>
+  <p class="p8">Badges Badges Badges Badges Badges Badges Badges Badges Badges Badges Badges Badges Badges Badges Badges Badges Badges Badges</p>
+  <pre class="language-html">Monospaced</pre> or <code class="language-html">Monospaced</code>
+
+
+
 </div>
