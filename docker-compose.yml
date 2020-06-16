@@ -18,7 +18,7 @@ services:
   postgres_container:
     image: postgres:11
     volumes:
-      - ./target/classes/db_scripts/db_script_v0.sql:/docker-entrypoint-initdb.d/db.sql
+      - ./target/classes/db_scripts/db_script_v1.sql:/docker-entrypoint-initdb.d/db.sql
       - postgres-data:/var/lib/postgresql/data
     environment:
       - POSTGRES_PASSWORD=password
@@ -33,7 +33,7 @@ services:
     environment:
       - JAVA_OPTS=-Ddb.user=postgres -Ddb.url=jdbc:postgresql://postgres_container:5432/testdb -Ddb.password=password
     ports:
-      - 7123:7123
+      - 8082:8080
 
 volumes:
   postgres-data:

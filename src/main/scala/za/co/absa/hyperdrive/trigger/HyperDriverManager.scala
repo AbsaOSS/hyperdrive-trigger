@@ -15,6 +15,7 @@
 
 package za.co.absa.hyperdrive.trigger
 
+import javax.annotation.PostConstruct
 import javax.inject.Inject
 import org.springframework.stereotype.Component
 import za.co.absa.hyperdrive.trigger.scheduler.JobScheduler
@@ -23,12 +24,17 @@ import scala.concurrent.Future
 
 @Component
 class HyperDriverManager @Inject() (jobScheduler: JobScheduler) {
-  
+
+  @PostConstruct
+  def init(): Unit = {
+    startManager()
+  }
+
   def isManagerRunning: Boolean = {
     jobScheduler.isManagerRunning
   }
 
-  def startManager: Unit = {
+  def startManager(): Unit = {
     jobScheduler.startManager()
   }
 
