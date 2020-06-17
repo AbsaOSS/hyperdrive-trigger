@@ -29,5 +29,9 @@
 }
 
 .sidenav {
-  width: min-content;
+  word-wrap: break-word;
+}
+
+.sidenav-content {
+  padding-right: 0.3rem
 }
