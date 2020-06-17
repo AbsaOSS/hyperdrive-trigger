@@ -14,7 +14,7 @@
  */
 
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { RouterTestingModule } from '@angular/router/testing';
 import { WorkflowsComponent } from './workflows.component';
 import { provideMockStore } from '@ngrx/store/testing';
 import { ProjectModel, ProjectModelFactory } from '../../models/project.model';
@@ -41,6 +41,7 @@ describe('WorkflowsComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       providers: [provideMockStore({ initialState: initialAppState })],
+      imports: [RouterTestingModule],
       declarations: [WorkflowsComponent],
     }).compileComponents();
   }));

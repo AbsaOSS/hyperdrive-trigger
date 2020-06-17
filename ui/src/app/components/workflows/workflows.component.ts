@@ -14,6 +14,7 @@
  */
 
 import { AfterViewInit, Component, OnDestroy } from '@angular/core';
+import { Router } from '@angular/router';
 import { WorkflowModel } from '../../models/workflow.model';
 import { ProjectModel } from '../../models/project.model';
 import { Store } from '@ngrx/store';
@@ -36,8 +37,10 @@ export class WorkflowsComponent implements AfterViewInit, OnDestroy {
 
   absoluteRoutes = absoluteRoutes;
 
-  constructor(private store: Store<AppState>) {
+  constructor(private store: Store<AppState>, private router: Router) {
     this.store.dispatch(new InitializeWorkflows());
+
+    this.refreshSidenav();
   }
 
   ngAfterViewInit(): void {
@@ -46,6 +49,12 @@ export class WorkflowsComponent implements AfterViewInit, OnDestroy {
       this.projects = state.projects;
       this.workflows = [].concat(...state.projects.map((project) => project.workflows));
     });
+  }
+
+  refreshSidenav() {
+    this.router.routeReuseStrategy.shouldReuseRoute = function () {
+      return false;
+    };
   }
 
   ngOnDestroy(): void {
