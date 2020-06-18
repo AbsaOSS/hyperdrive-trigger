@@ -38,7 +38,6 @@ export class WorkflowsComponent implements AfterViewInit, OnDestroy {
 
   constructor(private store: Store<AppState>) {
     this.store.dispatch(new InitializeWorkflows());
-
   }
 
   ngAfterViewInit(): void {
@@ -48,12 +47,6 @@ export class WorkflowsComponent implements AfterViewInit, OnDestroy {
       this.workflows = [].concat(...state.projects.map((project) => project.workflows));
     });
   }
-
-  // refreshSidenav() {
-  //   this.router.routeReuseStrategy.shouldReuseRoute = function () {
-  //     return false;
-  //   };
-  // }
 
   ngOnDestroy(): void {
     !!this.workflowsSubscription && this.workflowsSubscription.unsubscribe();
