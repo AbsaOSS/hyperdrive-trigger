@@ -360,7 +360,6 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
       };
     case WorkflowsActions.UPDATE_WORKFLOW_SUCCESS: {
       const projectsWithoutWorkflow = state.projects.map((project) => {
-        // if (project.workflows.length > 1) {
         return ProjectModelFactory.create(
           project.name,
           project.workflows.filter((workflow) => workflow.id != action.payload.id),
