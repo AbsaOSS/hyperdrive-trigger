@@ -13,26 +13,24 @@
   ~ limitations under the License.
   -->
 
-<div *ngIf="!isShow">
-  <clr-select-container>
-    <label>{{name}}</label>
-    <select
-      clrSelect
-      [id]="name+uiid"
-      [name]="name+uiid"
-      [ngModel]="value"
-      (ngModelChange)="modelChanged($event)"
-      [required]="partValidationSafe.isRequired"
-    >
-      <option *ngFor="let option of options" [value]="option">{{option}}</option>
-    </select>
-    <clr-control-error *clrIfError="'required'">{{texts.FORM_VALIDATION_ONE_MUST_BE_SELECTED(name)}}</clr-control-error>
-  </clr-select-container>
-</div>
+<clr-select-container *ngIf="!isShow">
+  <label>{{name}}</label>
+  <select
+    clrSelect
+    [id]="name+uiid"
+    style="width:100%; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"
+    [name]="name+uiid"
+    [ngModel]="value"
+    (ngModelChange)="modelChanged($event)"
+    [required]="partValidationSafe.isRequired">
+    <option *ngFor="let option of options" [value]="option">{{option}}</option>
+  </select>
+  <clr-control-error *clrIfError="'required'">{{texts.FORM_VALIDATION_ONE_MUST_BE_SELECTED(name)}}</clr-control-error>
+</clr-select-container>
 
-<div *ngIf="isShow">
-  <clr-input-container>
-    <label class="clr-control-label">{{name}}</label>
-    <input clrInput type="text" [id]="name+uiid" [name]="name+uiid" [ngModel]="value" [readOnly]="true"/>
-  </clr-input-container>
+<div *ngIf="isShow" class="clr-form-control clr-row">
+  <label class="clr-control-label clr-col-12 clr-col-md-2">{{name}}</label>
+  <span class="clr-control-container clr-col-md-10 clr-col-12 breakableSpan">
+    {{value}}
+  </span>
 </div>
