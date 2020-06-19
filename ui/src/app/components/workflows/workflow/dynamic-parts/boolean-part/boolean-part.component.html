@@ -22,9 +22,9 @@
   </clr-checkbox-container>
 </div>
 
-<div *ngIf="isShow">
-  <clr-input-container>
-    <label>{{name}}</label>
-    <input [readOnly]="true" clrInput type="text" value="{{value ? 'Yes' : 'No'}}" />
-  </clr-input-container>
+<div *ngIf="isShow" class="clr-form-control clr-row">
+  <label class="clr-control-label clr-col-12 clr-col-md-2">{{name}}</label>
+  <span class="clr-control-container clr-col-md-10 clr-col-12 breakableSpan">
+    {{value ? 'Yes' : 'No'}}
+  </span>
 </div>
