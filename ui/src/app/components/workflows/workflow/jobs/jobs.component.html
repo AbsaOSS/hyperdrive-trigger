@@ -20,7 +20,7 @@
 
 <div class="card" *ngFor="let job of this.jobData; let index = index; trackBy: trackByFn;">
   <div class="card-block">
-    <div class="card-title notSelectable" (click)="toggleJob(job.jobId)">
+    <div class="card-title notSelectable" style="word-wrap: break-word;" (click)="toggleJob(job.jobId)">
       <clr-icon shape="angle" [dir]="isJobHidden(job.jobId)?'right':'down'"></clr-icon>
       {{getJobName(job.jobId)}}
       <button type="button" class="btn btn-link" *ngIf="mode != workflowModes.SHOW">

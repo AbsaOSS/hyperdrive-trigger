@@ -27,7 +27,6 @@ describe('GuidPartComponent', () => {
   let fixture: ComponentFixture<GuidPartComponent>;
   let underTest: GuidPartComponent;
 
-  const inputSelector: Predicate<DebugElement> = By.css('input[type="text"]');
   const buttonSelector: Predicate<DebugElement> = By.css('button[type="button"]');
 
   beforeEach(async(() => {
@@ -69,7 +68,7 @@ describe('GuidPartComponent', () => {
           fixture.detectChanges();
 
           fixture.whenStable().then(() => {
-            const result = fixture.debugElement.query(inputSelector).nativeElement.value;
+            const result = underTest.value;
             expect(result.length).toBe(36);
             expect(subjectSpy).toHaveBeenCalledTimes(1);
             expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, result));
@@ -94,8 +93,7 @@ describe('GuidPartComponent', () => {
 
     fixture.detectChanges();
     fixture.whenStable().then(() => {
-      const inputElement = fixture.debugElement.query(inputSelector).nativeElement;
-      const oldValue = inputElement.value;
+      const oldValue = underTest.value;
 
       expect(oldValue.length).toBe(36);
       expect(subjectSpy).toHaveBeenCalled();
@@ -106,7 +104,7 @@ describe('GuidPartComponent', () => {
 
       fixture.detectChanges();
       fixture.whenStable().then(() => {
-        const testedValue = fixture.debugElement.query(inputSelector).nativeElement.value;
+        const testedValue = underTest.value;
         expect(testedValue.length).toBe(36);
         expect(oldValue != testedValue).toBeTrue();
         expect(subjectSpy).toHaveBeenCalled();

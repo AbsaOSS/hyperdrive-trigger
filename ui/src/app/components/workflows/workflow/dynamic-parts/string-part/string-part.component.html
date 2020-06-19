@@ -13,7 +13,7 @@
   ~ limitations under the License.
   -->
 
-<clr-input-container>
+<clr-input-container *ngIf="!isShow">
   <label>{{name}}</label>
   <input clrInput
          type="text"
@@ -22,7 +22,6 @@
          [readOnly]="isShow"
          [ngModel]="value"
          (ngModelChange)="modelChanged($event)"
-         [size]="partValidationSafe.maxLength < maxFieldSize ? partValidationSafe.maxLength : maxFieldSize"
          [required]="partValidationSafe.isRequired"
          [minlength]="partValidationSafe.minLength"
          [maxlength]="partValidationSafe.maxLength"
@@ -31,3 +30,10 @@
   <clr-control-error *clrIfError="'minlength'">{{texts.FORM_VALIDATION_MIN_LENGTH(name, partValidationSafe.minLength)}}</clr-control-error>
   <clr-control-error *clrIfError="'maxlength'">{{texts.FORM_VALIDATION_MAX_LENGTH(name, partValidationSafe.maxLength)}}</clr-control-error>
 </clr-input-container>
+
+<div *ngIf="isShow" class="clr-form-control clr-row">
+  <label class="clr-control-label clr-col-12 clr-col-md-2">{{name}}</label>
+  <span class="clr-control-container clr-col-md-10 clr-col-12 breakableSpan">
+    {{value}}
+  </span>
+</div>

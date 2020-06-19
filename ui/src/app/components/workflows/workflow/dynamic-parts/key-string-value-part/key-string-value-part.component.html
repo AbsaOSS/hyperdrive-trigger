@@ -17,19 +17,17 @@
   <div *ngFor="let val of mapOfValues; let i = index; trackBy: trackByFn;">
     <clr-control-container>
       <label *ngIf="i == 0">{{name}}</label>
-      Key {{i+1}}:
       <input
         clrControl
         type="text"
-        placeholder="key"
         [id]="name+i+0+uiid"
         [ngModel]="val[0]"
         (ngModelChange)="ngModelChanged($event, i,0)"
-        [size]="partValidationSafe.maxLength < maxFieldSize ? partValidationSafe.maxLength : maxFieldSize"
         required
         [minlength]="partValidation.minLength"
         [maxlength]="partValidation.maxLength"
       />
+      <clr-control-helper>Key {{i+1}}</clr-control-helper>
       <clr-control-error *clrIfError="'required'">{{texts.FORM_VALIDATION_MUST_BE_FILLED(name)}}</clr-control-error>
       <clr-control-error *clrIfError="'minlength'">{{texts.FORM_VALIDATION_MIN_LENGTH(name, partValidationSafe.minLength)}}</clr-control-error>
       <clr-control-error *clrIfError="'maxlength'">{{texts.FORM_VALIDATION_MAX_LENGTH(name, partValidationSafe.maxLength)}}</clr-control-error>
@@ -37,19 +35,17 @@
 
 
     <clr-control-container>
-      Value {{i+1}}:
       <input
         clrControl
         type="text"
-        placeholder="value"
         [id]="name+i+1+uiid"
         [ngModel]="val[1]"
         (ngModelChange)="ngModelChanged($event, i,1)"
-        [size]="partValidationSafe.maxLength < maxFieldSize ? partValidationSafe.maxLength : maxFieldSize"
         required
         [minlength]="partValidation.minLength"
         [maxlength]="partValidation.maxLength"
       />
+      <clr-control-helper>Value {{i+1}}</clr-control-helper>
       <clr-control-error *clrIfError="'required'">{{texts.FORM_VALIDATION_MUST_BE_FILLED(name)}}</clr-control-error>
       <clr-control-error *clrIfError="'minlength'">{{texts.FORM_VALIDATION_MIN_LENGTH(name, partValidationSafe.minLength)}}</clr-control-error>
       <clr-control-error *clrIfError="'maxlength'">{{texts.FORM_VALIDATION_MAX_LENGTH(name, partValidationSafe.maxLength)}}</clr-control-error>
@@ -63,19 +59,6 @@
   </div>
 </div>
 
-<div *ngIf="isShow">
-  <div *ngFor="let val of mapOfValues let i = index;">
-  <clr-control-container>
-    <label *ngIf="i == 0" class="clr-control-label">{{name}}</label>
-    <label *ngIf="i != 0" class="clr-control-label"></label>
-    Key {{i+1}}: <input [readOnly]="true" clrControl value="{{val[0]}}" [size]="partValidationSafe.maxLength < maxFieldSize ? partValidationSafe.maxLength : maxFieldSize"/>
-  </clr-control-container>
-  <clr-control-container>
-    Value {{i+1}}: <input [readOnly]="true" clrControl value="{{val[1]}}" [size]="partValidationSafe.maxLength < maxFieldSize ? partValidationSafe.maxLength : maxFieldSize"/>
-  </clr-control-container>
-  </div>
-</div>
-
 <clr-control-container *ngIf="mapOfValues.length == 0 && !isShow">
   <label>{{name}}</label>
   <input [name]="name" clrControl [ngModel]="undefined" [required]="partValidationSafe.isRequired" type="hidden"/>
@@ -86,3 +69,20 @@
   </button>
 </clr-control-container>
 
+<div *ngIf="isShow">
+  <div *ngFor="let val of mapOfValues; let i = index; trackBy: trackByFn;">
+    <div class="clr-form-control clr-row">
+      <label class="clr-control-label clr-col-12 clr-col-md-2" *ngIf="i == 0">{{name}}</label>
+      <label class="clr-control-label clr-col-12 clr-col-md-2" *ngIf="i != 0"></label>
+      <span class="clr-control-container clr-col-md-10 clr-col-12 breakableSpan">
+        Key {{i+1}}: {{val[0]}}
+      </span>
+    </div>
+    <div class="clr-form-control clr-row">
+      <label class="clr-control-label clr-col-12 clr-col-md-2"></label>
+      <span class="clr-control-container clr-col-md-10 clr-col-12 breakableSpan">
+        Value {{i+1}}: {{val[1]}}
+      </span>
+    </div>
+  </div>
+</div>
