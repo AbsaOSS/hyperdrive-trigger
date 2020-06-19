@@ -245,12 +245,13 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         loading: true,
       };
     case WorkflowsActions.DELETE_WORKFLOW_SUCCESS:
-      const newProjects = state.projects.map((project) => {
+      let newProjects = state.projects.map((project) => {
         return ProjectModelFactory.create(
           project.name,
           project.workflows.filter((workflow) => workflow.id != action.payload),
         );
       });
+      newProjects = newProjects.filter((project) => project.workflows.length !== 0);
       return {
         ...state,
         projects: [...newProjects],
@@ -370,8 +371,9 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
           project.name == action.payload.project ? { ...project, workflows: [...project.workflows, action.payload] } : project,
         );
       } else {
-        updatedProjects = [...state.projects, ProjectModelFactory.create(action.payload.project, [action.payload])];
+        updatedProjects = [...projectsWithoutWorkflow, ProjectModelFactory.create(action.payload.project, [action.payload])];
       }
+      updatedProjects = updatedProjects.filter((project) => project.workflows.length !== 0);
       return {
         ...state,
         projects: [...updatedProjects],

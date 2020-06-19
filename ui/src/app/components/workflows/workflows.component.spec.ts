@@ -14,7 +14,6 @@
  */
 
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { WorkflowsComponent } from './workflows.component';
 import { provideMockStore } from '@ngrx/store/testing';
 import { ProjectModel, ProjectModelFactory } from '../../models/project.model';
