@@ -42,7 +42,7 @@
     <input *ngIf="(validation | async) as validationResult; else loading" [readOnly]="true"
            clrControl [name]="name+'-freetextvalidation-'+uiid"
            [ngModel]="validationResult.isValid ? validationResult.explained : texts.FORM_VALIDATION_QUARTZ_CRON_CLR_ERR "
-           [cronQuartzExpressionValidator]="validationResult.isValid" [size]="100">
+           [cronQuartzExpressionValidator]="validationResult.isValid">
     <clr-control-error>{{texts.FORM_VALIDATION_QUARTZ_CRON}}</clr-control-error>
     <ng-template #loading>
       <clr-spinner clrInline></clr-spinner>
@@ -92,15 +92,13 @@
 
 </div>
 
-
-<div *ngIf="isShow">
-  <clr-control-container>
-    <label>Frequency</label>
-    <input *ngIf="(validation | async) as validationResult; else loading" [readOnly]="true" clrControl [size]="100"
-           [value]="validationResult.isValid ? validationResult.explained : 'Incorrect expression!' "/>
-    <ng-template #loading>
-      <clr-spinner clrInline></clr-spinner>
-      <span>Verifying</span>
-    </ng-template>
-  </clr-control-container>
+<div *ngIf="isShow" class="clr-form-control clr-row">
+  <label class="clr-control-label clr-col-12 clr-col-md-2">Frequency</label>
+  <span class="clr-control-container clr-col-md-10 clr-col-12 breakableSpan" *ngIf="(validation | async) as validationResult; else loading">
+    {{validationResult.isValid ? validationResult.explained : 'Incorrect expression!' }}
+  </span>
+  <ng-template #loading>
+    <clr-spinner clrInline></clr-spinner>
+    <span>Verifying</span>
+  </ng-template>
 </div>

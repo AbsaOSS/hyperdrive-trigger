@@ -13,24 +13,12 @@
   ~ limitations under the License.
   -->
 
-<clr-control-container>
-  <label>{{name}}</label>
-  <input clrControl
-         type="text"
-         [id]="name+uiid"
-         [name]="name+uiid"
-         [readOnly]="true"
-         [ngModel]="value"
-         (ngModelChange)="modelChanged($event)"
-         [size]="partValidationSafe.maxLength < 100 ? partValidationSafe.maxLength : 100"
-         [required]="partValidationSafe.isRequired"
-         [minlength]="partValidationSafe.minLength"
-         [maxlength]="partValidationSafe.maxLength"
-  />
-  <button *ngIf="!isShow" type="button" class="btn btn-link" (click)="refreshGuid()">
+<div class="clr-form-control clr-row">
+  <label class="clr-control-label clr-col-12 clr-col-md-2">{{name}}</label>
+  <span class="clr-control-container clr-col-md-10 clr-col-12 breakableSpan">
+    {{value}}
+    <button *ngIf="!isShow" type="button" class="btn btn-link" (click)="refreshGuid()">
     <clr-icon shape="refresh"></clr-icon>
   </button>
-  <clr-control-error *clrIfError="'required'">{{texts.FORM_VALIDATION_MUST_BE_FILLED(name)}}</clr-control-error>
-  <clr-control-error *clrIfError="'minlength'">{{texts.FORM_VALIDATION_MIN_LENGTH(name, partValidationSafe.minLength)}}</clr-control-error>
-  <clr-control-error *clrIfError="'maxlength'">{{texts.FORM_VALIDATION_MAX_LENGTH(name, partValidationSafe.maxLength)}}</clr-control-error>
-</clr-control-container>
+  </span>
+</div>
