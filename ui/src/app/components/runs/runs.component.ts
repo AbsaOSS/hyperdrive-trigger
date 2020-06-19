@@ -38,10 +38,6 @@ import { EqualsMultipleFilterAttributes } from '../../models/search/equalsMultip
 export class RunsComponent implements OnDestroy, AfterViewInit {
   @ViewChildren(ClrDatagridColumn) columns: QueryList<ClrDatagridColumn>;
 
-  model = "asdasdasdaasdasdasdaasdasdasdaasdasdasdaasdasdasdaasdasdasdaasdasdasdaasdasdasdaasdasdasdaasdasdasda";
-  exampleForm;
-  options = ['aaa', 'bbbbbbbbbbbb', 'asdasdasdasdasdasdasdasdasdasd', 'asdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasd'];
-
   runsSubscription: Subscription = null;
   page = 1;
   pageFrom = 0;
