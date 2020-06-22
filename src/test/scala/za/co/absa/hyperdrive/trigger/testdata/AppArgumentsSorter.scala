@@ -54,8 +54,8 @@ class AppArgumentsSorter extends FlatSpec with Matchers with SpringIntegrationTe
   }
 
   it should "sort app arguments" taggedAs PersistingData in {
-//    val workflowIds = Await.result(workflowService.getWorkflows(), Duration(120, TimeUnit.SECONDS)).map(_.id)
-    val workflowIds = Seq(91)
+    val workflowIds = Await.result(workflowService.getWorkflows(), Duration(120, TimeUnit.SECONDS)).map(_.id)
+//    val workflowIds = Seq(91)
     val workflows = workflowIds.map(workflowId =>
       Await.result(workflowService.getWorkflow(workflowId), Duration(120, TimeUnit.SECONDS)))
 
