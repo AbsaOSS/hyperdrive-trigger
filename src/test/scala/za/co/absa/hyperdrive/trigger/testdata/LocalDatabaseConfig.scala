@@ -24,6 +24,7 @@ trait LocalDatabaseConfig extends BeforeAndAfterAll { this: Suite =>
     System.setProperty("db.driver", "org.postgresql.Driver")
     System.setProperty("db.url", "jdbc:postgresql://localhost:5432/hyperdriver")
     System.setProperty("db.user", "hyperdriver")
+//    System.setProperty("db.password", "")
     super.beforeAll()
   }
 }
