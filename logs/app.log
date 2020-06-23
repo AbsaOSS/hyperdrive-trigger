@@ -1,0 +1,33 @@
+2020-06-23 13:12:06,067 DEBUG za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor [ScalaTest-main-running-EventProcessorTest] Processing events. Sensor id: 1. Events: List(0)
+2020-06-23 13:12:06,081 DEBUG za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor [ScalaTest-main-running-EventProcessorTest] Processing events. Sensor id: 1. Events: List(0)
+2020-06-23 13:12:06,084 DEBUG za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor [ScalaTest-main-running-EventProcessorTest] Processing events. Sensor id: 1. Events: List(0)
+2020-06-23 13:12:06,171 INFO org.quartz.impl.StdSchedulerFactory [ScalaTest-main-running-TimeSensorIntegrationTest] Using default implementation for ThreadExecutor
+2020-06-23 13:12:06,183 INFO org.quartz.core.SchedulerSignalerImpl [ScalaTest-main-running-TimeSensorIntegrationTest] Initialized Scheduler Signaller of type: class org.quartz.core.SchedulerSignalerImpl
+2020-06-23 13:12:06,184 INFO org.quartz.core.QuartzScheduler [ScalaTest-main-running-TimeSensorIntegrationTest] Quartz Scheduler v.2.3.2 created.
+2020-06-23 13:12:06,184 INFO org.quartz.simpl.RAMJobStore [ScalaTest-main-running-TimeSensorIntegrationTest] RAMJobStore initialized.
+2020-06-23 13:12:06,185 INFO org.quartz.core.QuartzScheduler [ScalaTest-main-running-TimeSensorIntegrationTest] Scheduler meta-data: Quartz Scheduler (v2.3.2) 'za.co.absa.hyperdrive.trigger.scheduler.sensors.time.TimeSensorQuartzScheduler' with instanceId 'NON_CLUSTERED'
+  Scheduler class: 'org.quartz.core.QuartzScheduler' - running locally.
+  NOT STARTED.
+  Currently in standby mode.
+  Number of jobs executed: 0
+  Using thread pool 'za.co.absa.hyperdrive.trigger.scheduler.sensors.time.TimeSensorQuartzSchedulerThreadPool' - with 0 threads.
+  Using job-store 'org.quartz.simpl.RAMJobStore' - which does not support persistence. and is not clustered.
+
+2020-06-23 13:12:06,185 INFO org.quartz.impl.StdSchedulerFactory [ScalaTest-main-running-TimeSensorIntegrationTest] Quartz scheduler 'za.co.absa.hyperdrive.trigger.scheduler.sensors.time.TimeSensorQuartzScheduler' initialized from an externally provided properties instance.
+2020-06-23 13:12:06,185 INFO org.quartz.impl.StdSchedulerFactory [ScalaTest-main-running-TimeSensorIntegrationTest] Quartz scheduler version: 2.3.2
+2020-06-23 13:12:06,185 INFO za.co.absa.hyperdrive.trigger.scheduler.sensors.time.TimeSensorQuartzSchedulerManager$ [ScalaTest-main-running-TimeSensorIntegrationTest] Starting Quartz Scheduler za.co.absa.hyperdrive.trigger.scheduler.sensors.time.TimeSensorQuartzScheduler now
+2020-06-23 13:12:06,186 INFO org.quartz.core.QuartzScheduler [ScalaTest-main-running-TimeSensorIntegrationTest] Scheduler za.co.absa.hyperdrive.trigger.scheduler.sensors.time.TimeSensorQuartzScheduler_$_NON_CLUSTERED started.
+2020-06-23 13:12:06,186 DEBUG za.co.absa.hyperdrive.trigger.scheduler.sensors.Sensors [ScalaTest-main-running-TimeSensorIntegrationTest] Processing events. Sensors: Set()
+2020-06-23 13:12:06,213 DEBUG za.co.absa.hyperdrive.trigger.scheduler.sensors.Sensors [pool-1-thread-6] Processing events successful
+2020-06-23 13:12:06,218 INFO za.co.absa.hyperdrive.trigger.scheduler.sensors.time.TimeSensorQuartzJob [TimeSensorQuartz-thread-1] Starting Time Sensor Quartz Job
+2020-06-23 13:12:06,220 DEBUG za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor [TimeSensorQuartz-thread-1] Processing events. Sensor id: 1. Events: List(0)
+2020-06-23 13:12:09,004 INFO za.co.absa.hyperdrive.trigger.scheduler.sensors.time.TimeSensorQuartzJob [TimeSensorQuartz-thread-2] Starting Time Sensor Quartz Job
+2020-06-23 13:12:09,008 DEBUG za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor [TimeSensorQuartz-thread-2] Processing events. Sensor id: 1. Events: List(0)
+2020-06-23 13:12:11,226 DEBUG za.co.absa.hyperdrive.trigger.scheduler.sensors.Sensors [ScalaTest-main-running-TimeSensorIntegrationTest] Processing events. Sensors: Set(1)
+2020-06-23 13:12:11,234 DEBUG za.co.absa.hyperdrive.trigger.scheduler.sensors.Sensors [pool-1-thread-7] Processing events successful
+2020-06-23 13:12:11,257 DEBUG za.co.absa.hyperdrive.trigger.scheduler.sensors.Sensors [ScalaTest-main-running-TimeSensorIntegrationTest] Processing events. Sensors: Set(1)
+2020-06-23 13:12:11,267 DEBUG za.co.absa.hyperdrive.trigger.scheduler.sensors.Sensors [pool-1-thread-13] Processing events successful
+2020-06-23 13:12:11,270 INFO za.co.absa.hyperdrive.trigger.scheduler.sensors.time.TimeSensorQuartzSchedulerManager$ [ScalaTest-main-running-TimeSensorIntegrationTest] Stopping Quartz Scheduler za.co.absa.hyperdrive.trigger.scheduler.sensors.time.TimeSensorQuartzScheduler now
+2020-06-23 13:12:11,270 INFO org.quartz.core.QuartzScheduler [ScalaTest-main-running-TimeSensorIntegrationTest] Scheduler za.co.absa.hyperdrive.trigger.scheduler.sensors.time.TimeSensorQuartzScheduler_$_NON_CLUSTERED paused.
+2020-06-23 13:12:11,270 INFO za.co.absa.hyperdrive.trigger.scheduler.sensors.time.TimeSensorQuartzSchedulerManager$ [ScalaTest-main-running-TimeSensorIntegrationTest] Stopped Quartz Scheduler za.co.absa.hyperdrive.trigger.scheduler.sensors.time.TimeSensorQuartzScheduler
+2020-06-23 13:12:11,451 INFO za.co.absa.hyperdrive.trigger.scheduler.executors.shell.ShellExecutor$ [Thread-5] echo

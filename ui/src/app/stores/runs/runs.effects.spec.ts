@@ -90,7 +90,7 @@ describe('RunsEffects', () => {
   describe('runDetailGet', () => {
     it('should return dag run detail', () => {
       const id = 0;
-      const jobInstances: JobInstanceModel[] = [
+      const jobInstancesA: JobInstanceModel[] = [
         JobInstanceModelFactory.create(
           id,
           'jobName0',
@@ -102,13 +102,36 @@ describe('RunsEffects', () => {
         ),
       ];
 
+      const jobInstancesB: JobInstanceModel[] = [
+        JobInstanceModelFactory.create(
+          id,
+          'jobName1',
+          JobTypeFactory.create('JobType1'),
+          new Date(Date.now()),
+          new Date(Date.now()),
+          JobStatusFactory.create('Status'),
+          2,
+        ),
+      ];
+      const jobInstancesC: JobInstanceModel[] = [
+        JobInstanceModelFactory.create(
+          id,
+          'jobName2',
+          JobTypeFactory.create('JobType2'),
+          new Date(Date.now()),
+          new Date(Date.now()),
+          JobStatusFactory.create('Status'),
+          3,
+        ),
+      ];
+
       const action = new GetDagRunDetail(id);
       mockActions = cold('-a', { a: action });
-      const dagRunDetailResponse = cold('-a|', { a: jobInstances });
+      const dagRunDetailResponse = cold('-a|', { a: [jobInstancesA, jobInstancesB, jobInstancesC] });
       const expected = cold('--a', {
         a: {
           type: RunsActions.GET_DAG_RUN_DETAIL_SUCCESS,
-          payload: jobInstances,
+          payload: [jobInstancesA, jobInstancesB, jobInstancesC],
         },
       });
 
