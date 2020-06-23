@@ -16,6 +16,7 @@
 import { AfterViewInit, Component, OnDestroy, QueryList, ViewChildren } from '@angular/core';
 import { DagRunModel } from '../../models/dagRuns/dagRun.model';
 import { ClrDatagridColumn, ClrDatagridStateInterface } from '@clr/angular';
+import { ClrDatagridSortOrder } from '@clr/angular';
 import { Store } from '@ngrx/store';
 import { AppState, selectRunState } from '../../stores/app.reducers';
 import { GetDagRuns } from '../../stores/runs/runs.actions';
@@ -51,6 +52,7 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
 
   dagRunColumns = dagRunColumns;
   dagInstanceStatuses = dagInstanceStatuses;
+  descSort = ClrDatagridSortOrder.DESC;
 
   removeFiltersSubject: Subject<any> = new Subject();
 
