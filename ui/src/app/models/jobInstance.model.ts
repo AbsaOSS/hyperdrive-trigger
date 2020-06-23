@@ -20,6 +20,7 @@ export type JobInstanceModel = {
   created: Date;
   updated: Date;
   jobStatus: JobStatus;
+  order: number;
 };
 
 export type JobStatus = {
@@ -31,8 +32,16 @@ export type JobType = {
 };
 
 export class JobInstanceModelFactory {
-  static create(id: number, jobName: string, jobType: JobType, created: Date, updated: Date, jobStatus: JobStatus): JobInstanceModel {
-    return { id: id, jobName: jobName, jobType: jobType, created: created, updated: updated, jobStatus: jobStatus };
+  static create(
+    id: number,
+    jobName: string,
+    jobType: JobType,
+    created: Date,
+    updated: Date,
+    jobStatus: JobStatus,
+    order: number,
+  ): JobInstanceModel {
+    return { id: id, jobName: jobName, jobType: jobType, created: created, updated: updated, jobStatus: jobStatus, order: order };
   }
 }
 
