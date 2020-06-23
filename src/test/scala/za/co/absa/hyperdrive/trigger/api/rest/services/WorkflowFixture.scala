@@ -185,7 +185,7 @@ object WorkflowFixture {
 
   def createTimeBasedShellScriptWorkflow(projectName: String) = {
     WorkflowJoined(
-      name = s"Time ${randomString()}",
+      name = s"Time ${randomString(maxLength = MaxLengthRandomString - 5)}",
       isActive = randomBoolean(),
       created = randomDate(),
       updated = if (randomBoolean()) Some(randomDate()) else None,
