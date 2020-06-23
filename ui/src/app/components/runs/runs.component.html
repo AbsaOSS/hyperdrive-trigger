@@ -57,7 +57,7 @@
         </app-number-range-filter>
       </clr-dg-filter>
     </clr-dg-column>
-    <clr-dg-column [clrDgField]="dagRunColumns.STARTED">
+    <clr-dg-column [clrDgField]="dagRunColumns.STARTED" [clrDgField]="'name'" [clrDgSortOrder]="descSort">
       <ng-container *clrDgHideableColumn="{hidden: false}">Started</ng-container>
       <clr-dg-filter [clrDgFilter]="startedFilter">
         <app-datetime-range-filter #startedFilter [property]="dagRunColumns.STARTED"
