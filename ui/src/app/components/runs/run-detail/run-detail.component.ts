@@ -20,7 +20,6 @@ import { Store } from '@ngrx/store';
 import { AppState, selectRunState } from '../../../stores/app.reducers';
 import { GetDagRunDetail } from '../../../stores/runs/runs.actions';
 import { Subscription } from 'rxjs';
-import { ClrDatagridSortOrder } from '@clr/angular';
 
 @Component({
   selector: 'app-run-detail',
@@ -35,7 +34,6 @@ export class RunDetailComponent implements OnInit, OnDestroy {
   loading = true;
 
   jobStatuses = jobStatuses;
-  ascSort = ClrDatagridSortOrder.ASC;
 
   constructor(private store: Store<AppState>) {}
 
