@@ -17,7 +17,6 @@ import { Component, Input, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
 import cloneDeep from 'lodash/cloneDeep';
 import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
-import set from 'lodash/set';
 import { ControlContainer, NgForm } from '@angular/forms';
 import { PartValidation, PartValidationFactory } from '../../../../../models/workflowFormParts.model';
 import { UuidUtil } from '../../../../../utils/uuid/uuid.util';
@@ -85,7 +84,7 @@ export class KeyStringValuePartComponent implements OnInit {
   modelChanged(value: [string, string][]) {
     const valueInObject = {};
     value.forEach((val) => {
-      set(valueInObject, val[0], val[1]);
+      valueInObject[`${val[0]}`.toString()] = val[1];
     });
     this.value = valueInObject;
     this.mapOfValues = value;
