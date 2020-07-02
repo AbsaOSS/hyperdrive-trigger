@@ -13,14 +13,13 @@
  * limitations under the License.
  */
 
-import { Component, OnDestroy, OnInit, QueryList, ViewChildren } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription, Subject } from 'rxjs';
 import { AppState, selectWorkflowState } from '../../../stores/app.reducers';
 import { WorkflowModel } from '../../../models/workflow.model';
-import { ClrDatagridColumn, ClrDatagridSortOrder } from '@clr/angular';
+import { ClrDatagridSortOrder } from '@clr/angular';
 import { Store } from '@ngrx/store';
 import { absoluteRoutes } from '../../../constants/routes.constants';
-import { SortAttributesModel } from '../../../models/search/sortAttributes.model';
 import { workflowsHomeColumns } from '../../../constants/workflow.constants';
 import { RunWorkflow } from '../../../stores/workflows/workflows.actions';
 import { ConfirmationDialogTypes } from '../../../constants/confirmationDialogTypes.constants';
@@ -35,14 +34,12 @@ import { Router } from '@angular/router';
   styleUrls: ['./workflows-home.component.scss'],
 })
 export class WorkflowsHomeComponent implements OnInit, OnDestroy {
-  @ViewChildren(ClrDatagridColumn) columns: QueryList<ClrDatagridColumn>;
-
   confirmationDialogServiceSubscription: Subscription = null;
   runWorkflowDialogSubscription: Subscription = null;
   workflowsSubscription: Subscription = null;
   workflows: WorkflowModel[] = [];
 
-  sort: SortAttributesModel = null;
+  sorted = false;
   ascSort = ClrDatagridSortOrder.ASC;
 
   absoluteRoutes = absoluteRoutes;
@@ -95,7 +92,7 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
   }
 
   clearSort() {
-    !!this.sort ? (this.columns.find((_) => _.field == this.sort.by).sortOrder = 0) : undefined;
+    this.sorted = !this.sorted;
   }
 
   ngOnDestroy(): void {

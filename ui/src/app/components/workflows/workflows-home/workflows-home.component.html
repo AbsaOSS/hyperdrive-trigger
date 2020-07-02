@@ -41,16 +41,16 @@
     <ng-container *clrDgHideableColumn="{hideden: false}">Workflow name</ng-container>
     <clr-dg-filter [clrDgFilter]="workflowNameFilter">
       <app-string-filter #workflowNameFilter [property]="workflowsHomeColumns.WORKFLOW_NAME"
-                         [removeFiltersSubject]="removeWorkflowFilterSubject">
+        [removeFiltersSubject]="removeWorkflowFilterSubject">
       </app-string-filter>
     </clr-dg-filter>
   </clr-dg-column>
 
-  <clr-dg-column [clrDgField]="workflowsHomeColumns.PROJECT_NAME" [clrDgSortOrder]="ascSort">
+  <clr-dg-column [clrDgField]="workflowsHomeColumns.PROJECT_NAME" [clrDgSortOrder]="ascSort" [(clrDgSorted)]="sorted">
     <ng-container *clrDgHideableColumn="{hideden: false}">Project name</ng-container>
     <clr-dg-filter [clrDgFilter]="projectNameFilterHome">
       <app-string-filter #projectNameFilterHome [property]="workflowsHomeColumns.PROJECT_NAME"
-                         [removeFiltersSubject]="removeWorkflowFilterSubject">
+        [removeFiltersSubject]="removeWorkflowFilterSubject">
       </app-string-filter>
     </clr-dg-filter>
   </clr-dg-column>
@@ -80,7 +80,7 @@
         Edit
       </button>
       <button type="button" class="action-item" (click)="deleteWorkflow(workflow.id)">
-        <clr-icon shape="close" ></clr-icon>
+        <clr-icon shape="close"></clr-icon>
         Delete
       </button>
     </clr-dg-action-overflow>
@@ -94,4 +94,3 @@
     </clr-dg-cell>
   </clr-dg-row>
 </clr-datagrid>
-
