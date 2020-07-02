@@ -14,25 +14,23 @@
  */
 
 import { AfterViewInit, Component, Input, OnDestroy } from '@angular/core';
-import { Subject, Subscription } from 'rxjs';
 import { ClrDatagridFilterInterface } from '@clr/angular';
-import { DagRunModel } from '../../../../models/dagRuns/dagRun.model';
-import { StatusModel } from '../../../../models/status.model';
-import { EqualsMultipleFilterAttributes } from '../../../../models/search/equalsMultipleFilterAttributes.model';
+import { Subject, Subscription } from 'rxjs';
+import { DagRunModel } from '../../../../../models/dagRuns/dagRun.model';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { ContainsFilterAttributes } from '../../../../../models/search/containsFilterAttributes.model';
 
 @Component({
-  selector: 'app-multiple-status-filter',
-  templateUrl: './multiple-status-filter.component.html',
-  styleUrls: ['./multiple-status-filter.component.scss'],
+  selector: 'app-string-filter',
+  templateUrl: './string-filter.component.html',
+  styleUrls: ['./string-filter.component.scss'],
 })
-export class MultipleStatusFilterComponent implements ClrDatagridFilterInterface<DagRunModel>, AfterViewInit, OnDestroy {
+export class StringFilterComponent implements ClrDatagridFilterInterface<DagRunModel>, AfterViewInit, OnDestroy {
   @Input() removeFiltersSubject: Subject<any>;
   @Input() property: string;
-  @Input() statuses: StatusModel[];
-  selectedValues: string[] = [];
-  isSelected: any = [];
+  value: string = undefined;
 
+  //clarity interface
   changes = new Subject<any>();
 
   modelChanges: Subject<any> = new Subject<any>();
@@ -46,7 +44,6 @@ export class MultipleStatusFilterComponent implements ClrDatagridFilterInterface
     this.modelSubscription = this.modelChanges.pipe(debounceTime(500), distinctUntilChanged()).subscribe((newValue) => {
       this.changes.next();
     });
-
     this.removeFiltersSubject.subscribe((_) => this.onRemoveFilter());
   }
 
@@ -55,39 +52,25 @@ export class MultipleStatusFilterComponent implements ClrDatagridFilterInterface
     !!this.modelSubscription && this.modelSubscription.unsubscribe();
   }
 
-  toggleStatuses(statusModel) {
-    if (this.selectedValues.indexOf(statusModel.name) < 0) {
-      this.selectedValues = this.selectedValues.concat(statusModel.name);
-    } else {
-      this.selectedValues = this.selectedValues.filter((status) => status !== statusModel.name);
-    }
-
-    this.changes.next(true);
+  isActive(): boolean {
+    return !!this.value;
   }
 
   accepts(item: DagRunModel): boolean {
-    if (this.selectedValues.length === 0) {
-      return true;
-    }
-    for (const selectedStatus of this.selectedValues) {
-      if (selectedStatus === item[this.property]) {
-        return true;
-      }
-    }
-    return false;
+    const state: string = item[this.property];
+    return (!state && !item) || state.includes(this.value);
   }
 
   get state() {
-    return new EqualsMultipleFilterAttributes(this.property, this.selectedValues);
+    return new ContainsFilterAttributes(this.property, this.value);
   }
 
-  isActive(): boolean {
-    return this.selectedValues !== null && this.selectedValues.length > 0;
+  modelChanged(value: string) {
+    this.modelChanges.next(value);
   }
 
   onRemoveFilter() {
-    this.selectedValues = [];
-    this.modelChanges.next(this.selectedValues);
-    this.isSelected = [];
+    this.value = undefined;
+    this.modelChanges.next(this.value);
   }
 }

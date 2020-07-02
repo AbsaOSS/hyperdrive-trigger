@@ -15,10 +15,10 @@
 
 import { AfterViewInit, Component, Input } from '@angular/core';
 import { ClrDatagridFilterInterface } from '@clr/angular';
-import { DagRunModel } from '../../../../models/dagRuns/dagRun.model';
+import { DagRunModel } from '../../../../../models/dagRuns/dagRun.model';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { DateTimeRangeFilterAttributes } from '../../../../models/search/dateTimeRangeFilterAttributes.model';
+import { DateTimeRangeFilterAttributes } from '../../../../../models/search/dateTimeRangeFilterAttributes.model';
 
 @Component({
   selector: 'app-datetime-range-filter',

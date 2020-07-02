@@ -24,8 +24,37 @@
     </div>
   </clr-dg-action-bar>
 
-  <clr-dg-column>Workflow name</clr-dg-column>
-  <clr-dg-column>Project name</clr-dg-column>
+  <clr-dg-action-bar>
+    <div class="btn-group">
+      <button type="button" class="btn btn-sm btn-secondary" (click)="clearFilters()">
+        <clr-icon shape="trash"></clr-icon>
+        Clear filters
+      </button>
+      <button type="button" class="btn btn-sm btn-secondary" (click)="clearSort()">
+        <clr-icon shape="trash"></clr-icon>
+        Clear sort
+      </button>
+    </div>
+  </clr-dg-action-bar>
+
+  <clr-dg-column [clrDgField]="workflowsHomeColumns.WORKFLOW_NAME" [clrFilterValue]>
+    <ng-container *clrDgHideableColumn="{hideden: false}">Workflow name</ng-container>
+    <clr-dg-filter [clrDgFilter]="workflowNameFilter">
+      <app-string-filter #workflowNameFilter [property]="workflowsHomeColumns.WORKFLOW_NAME"
+                         [removeFiltersSubject]="removeWorkflowFilterSubject">
+      </app-string-filter>
+    </clr-dg-filter>
+  </clr-dg-column>
+
+  <clr-dg-column [clrDgField]="workflowsHomeColumns.PROJECT_NAME" [clrDgSortOrder]="ascSort">
+    <ng-container *clrDgHideableColumn="{hideden: false}">Project name</ng-container>
+    <clr-dg-filter [clrDgFilter]="projectNameFilterHome">
+      <app-string-filter #projectNameFilterHome [property]="workflowsHomeColumns.PROJECT_NAME"
+                         [removeFiltersSubject]="removeWorkflowFilterSubject">
+      </app-string-filter>
+    </clr-dg-filter>
+  </clr-dg-column>
+
   <clr-dg-column>Is active</clr-dg-column>
 
   <clr-dg-row *clrDgItems="let workflow of workflows" [clrDgItem]="workflow">

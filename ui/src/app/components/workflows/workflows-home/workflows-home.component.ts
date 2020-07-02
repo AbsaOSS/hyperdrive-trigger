@@ -13,12 +13,15 @@
  * limitations under the License.
  */
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Component, OnDestroy, OnInit, QueryList, ViewChildren } from '@angular/core';
+import { Subscription, Subject } from 'rxjs';
 import { AppState, selectWorkflowState } from '../../../stores/app.reducers';
 import { WorkflowModel } from '../../../models/workflow.model';
+import { ClrDatagridColumn, ClrDatagridSortOrder } from '@clr/angular';
 import { Store } from '@ngrx/store';
 import { absoluteRoutes } from '../../../constants/routes.constants';
+import { SortAttributesModel } from '../../../models/search/sortAttributes.model';
+import { workflowsHomeColumns } from '../../../constants/workflow.constants';
 import { RunWorkflow } from '../../../stores/workflows/workflows.actions';
 import { ConfirmationDialogTypes } from '../../../constants/confirmationDialogTypes.constants';
 import { DeleteWorkflow, SwitchWorkflowActiveState } from '../../../stores/workflows/workflows.actions';
@@ -32,11 +35,20 @@ import { Router } from '@angular/router';
   styleUrls: ['./workflows-home.component.scss'],
 })
 export class WorkflowsHomeComponent implements OnInit, OnDestroy {
+  @ViewChildren(ClrDatagridColumn) columns: QueryList<ClrDatagridColumn>;
+
   confirmationDialogServiceSubscription: Subscription = null;
   runWorkflowDialogSubscription: Subscription = null;
   workflowsSubscription: Subscription = null;
   workflows: WorkflowModel[] = [];
+
+  sort: SortAttributesModel = null;
+  ascSort = ClrDatagridSortOrder.ASC;
+
   absoluteRoutes = absoluteRoutes;
+  workflowsHomeColumns = workflowsHomeColumns;
+
+  removeWorkflowFilterSubject: Subject<any> = new Subject();
 
   constructor(private store: Store<AppState>, private confirmationDialogService: ConfirmationDialogService, private router: Router) {}
 
@@ -76,6 +88,14 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
 
   showWorkflow(id: number) {
     this.router.navigate([absoluteRoutes.SHOW_WORKFLOW, id]);
+  }
+
+  clearFilters() {
+    this.removeWorkflowFilterSubject.next();
+  }
+
+  clearSort() {
+    !!this.sort ? (this.columns.find((_) => _.field == this.sort.by).sortOrder = 0) : undefined;
   }
 
   ngOnDestroy(): void {
