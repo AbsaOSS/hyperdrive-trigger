@@ -20,6 +20,8 @@ import { catchError, map } from 'rxjs/operators';
 import { ProjectModel } from '../../models/project.model';
 import { Observable, of, throwError } from 'rxjs';
 import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
+import { TableSearchRequestModel } from '../../models/search/tableSearchRequest.model';
+import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
 import {
   DynamicFormPartFactory,
   DynamicFormParts,
@@ -38,6 +40,18 @@ export class WorkflowService {
     return this.httpClient
       .get<ProjectModel[]>(api.GET_PROJECTS, { observe: 'response' })
       .pipe(map((_) => _.body));
+  }
+
+  searchProjects(searchRequestModel: TableSearchRequestModel): Observable<TableSearchResponseModel<ProjectModel>> {
+    return this.httpClient
+      .post<TableSearchResponseModel<ProjectModel>>(api.PROJECTS_SEARCH, searchRequestModel, {
+        observe: 'response',
+      })
+      .pipe(
+        map((_) => {
+          return _.body;
+        }),
+      );
   }
 
   getWorkflow(id: number): Observable<WorkflowJoinedModel> {

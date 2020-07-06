@@ -227,18 +227,12 @@ export class RemoveBackendValidationError implements Action {
 
 export class GetProjects implements Action {
   readonly type = GET_PROJECTS;
-  constructor(public payoload: TableSearchRequestModel) {}
+  constructor(public payload: TableSearchRequestModel) {}
 }
-
-// export class InitializeWorkflowsSuccess implements Action {
-//   readonly type = INITIALIZE_WORKFLOWS_SUCCESS;
-//   constructor(public payload: { projects: ProjectModel[]; workflowFormParts: WorkflowFormPartsModel }) {}
-// }
 
 export class GetProjectsSuccess implements Action {
   readonly type = GET_PROJECTS_SUCCESS;
-    constructor(public payload: { projects: ProjectModel[]; workflowFormParts: WorkflowFormPartsModel }) {}
-  // constructor(public payoload: TableSearchResponseModel<WorkflowJoinedModel>) {}
+  constructor(public payload: TableSearchResponseModel<ProjectModel>) {}
 }
 
 export class GetProjectsFailure implements Action {

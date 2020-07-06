@@ -30,4 +30,6 @@ export const api = {
   UPDATE_WORKFLOW: '/workflows',
 
   GET_QUARTZ_DETAIL: '/util/quartzDetail',
+
+  PROJECTS_SEARCH: '/projects/search',
 };

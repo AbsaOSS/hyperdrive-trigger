@@ -21,6 +21,7 @@ import { catchError, mergeMap, switchMap, withLatestFrom } from 'rxjs/operators'
 import { WorkflowService } from '../../services/workflow/workflow.service';
 import { ProjectModel } from '../../models/project.model';
 import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
+import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
 import { workflowModes } from '../../models/enums/workflowModes.constants';
 import { DynamicFormParts, WorkflowFormPartsModelFactory } from '../../models/workflowFormParts.model';
 import { workflowFormParts as workflowFormPartsConsts, workflowFormPartsSequences } from '../../constants/workflowFormParts.constants';
@@ -335,9 +336,9 @@ export class WorkflowsEffects {
   projectsGet = this.actions.pipe(
     ofType(WorkflowActions.GET_PROJECTS),
     switchMap((action: WorkflowActions.GetProjects) => {
-      return this.workflowService.getProjects();
+      return this.workflowService.searchProjects(action.payload);
     }),
-    mergeMap((projects: ProjectModel[]) => {
+    mergeMap((projectsSearchResults: TableSearchResponseModel<ProjectModel>) => {
       return this.workflowService.getWorkflowDynamicFormParts().pipe(
         mergeMap((workflowComponents: DynamicFormParts) => {
           const workflowFormParts = WorkflowFormPartsModelFactory.create(
@@ -351,7 +352,7 @@ export class WorkflowsEffects {
             {
               type: WorkflowActions.GET_PROJECTS_SUCCESS,
               payload: {
-                projects: projects,
+                projects: projectsSearchResults,
                 workflowFormParts: workflowFormParts,
               },
             },
