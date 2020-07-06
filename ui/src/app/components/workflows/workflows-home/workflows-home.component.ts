@@ -13,15 +13,18 @@
  * limitations under the License.
  */
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { Subscription, Subject } from 'rxjs';
 import { AppState, selectWorkflowState } from '../../../stores/app.reducers';
 import { WorkflowModel } from '../../../models/workflow.model';
-import { ClrDatagridSortOrder } from '@clr/angular';
+import { ClrDatagridColumn, ClrDatagridSortOrder, ClrDatagridStateInterface } from '@clr/angular';
 import { Store } from '@ngrx/store';
 import { absoluteRoutes } from '../../../constants/routes.constants';
 import { workflowsHomeColumns } from '../../../constants/workflow.constants';
-import { RunWorkflow } from '../../../stores/workflows/workflows.actions';
+import { RunWorkflow, GetProjects } from '../../../stores/workflows/workflows.actions';
+import { TableSearchRequestModel } from '../../../models/search/tableSearchRequest.model';
+import { SortAttributesModel } from '../../../models/search/sortAttributes.model';
+import { ContainsFilterAttributes } from '../../../models/search/containsFilterAttributes.model';
 import { ConfirmationDialogTypes } from '../../../constants/confirmationDialogTypes.constants';
 import { DeleteWorkflow, SwitchWorkflowActiveState } from '../../../stores/workflows/workflows.actions';
 import { ConfirmationDialogService } from '../../../services/confirmation-dialog/confirmation-dialog.service';
@@ -34,13 +37,22 @@ import { Router } from '@angular/router';
   styleUrls: ['./workflows-home.component.scss'],
 })
 export class WorkflowsHomeComponent implements OnInit, OnDestroy {
+  @ViewChildren(ClrDatagridColumn) columns: QueryList<ClrDatagridColumn>;
+
   confirmationDialogServiceSubscription: Subscription = null;
   runWorkflowDialogSubscription: Subscription = null;
   workflowsSubscription: Subscription = null;
   workflows: WorkflowModel[] = [];
 
-  sorted = false;
+  page = 1;
+  pageFrom = 0;
+  pageSize = 0;
+  total = 0;
+  sort: SortAttributesModel = null;
+
   ascSort = ClrDatagridSortOrder.ASC;
+  loading = true;
+  filters: any[] = [];
 
   absoluteRoutes = absoluteRoutes;
   workflowsHomeColumns = workflowsHomeColumns;
@@ -52,7 +64,10 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.workflowsSubscription = this.store.select(selectWorkflowState).subscribe((state) => {
       this.workflows = [].concat(...state.projects.map((project) => project.workflows));
+      this.total = this.workflows.length;
+      this.loading = state.loading;
     });
+
   }
 
   deleteWorkflow(id: number) {
@@ -92,7 +107,31 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
   }
 
   clearSort() {
-    this.sorted = !this.sorted;
+    !!this.sort ? (this.columns.find((_) => _.field === this.sort.by).sortOrder = 0) : undefined;
+  }
+
+  onClarityDgRefresh(state: ClrDatagridStateInterface) {
+    this.sort = state.sort ? new SortAttributesModel(state.sort.by as string, state.sort.reverse ? -1 : 1) : undefined;
+    this.pageFrom = state.page.from < 0 ? 0 : state.page.from;
+    this.pageSize = state.page.size;
+    this.filters = state.filters ? state.filters : [];
+
+    this.refresh();
+  }
+
+  refresh() {
+    const workflowSearchRequestModel: TableSearchRequestModel = {
+      from: this.pageFrom,
+      size: this.pageSize,
+      sort: this.sort,
+      containsFilterAttributes: this.filters.filter((f) => f instanceof ContainsFilterAttributes),
+      intRangeFilterAttributes: null,
+      dateTimeRangeFilterAttributes: null,
+      equalsMultipleFilterAttributes: null,
+    };
+
+    this.store.dispatch(new GetProjects(workflowSearchRequestModel));
+
   }
 
   ngOnDestroy(): void {

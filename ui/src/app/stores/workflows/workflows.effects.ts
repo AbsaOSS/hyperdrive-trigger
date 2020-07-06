@@ -331,6 +331,43 @@ export class WorkflowsEffects {
     }),
   );
 
+  @Effect({ dispatch: true })
+  projectsGet = this.actions.pipe(
+    ofType(WorkflowActions.GET_PROJECTS),
+    switchMap((action: WorkflowActions.GetProjects) => {
+      return this.workflowService.getProjects();
+    }),
+    mergeMap((projects: ProjectModel[]) => {
+      return this.workflowService.getWorkflowDynamicFormParts().pipe(
+        mergeMap((workflowComponents: DynamicFormParts) => {
+          const workflowFormParts = WorkflowFormPartsModelFactory.create(
+            workflowFormPartsSequences.allDetails,
+            workflowFormPartsConsts.SENSOR.SENSOR_TYPE,
+            workflowFormPartsConsts.JOB.JOB_NAME,
+            workflowFormPartsConsts.JOB.JOB_TYPE,
+            workflowComponents,
+          );
+          return [
+            {
+              type: WorkflowActions.GET_PROJECTS_SUCCESS,
+              payload: {
+                projects: projects,
+                workflowFormParts: workflowFormParts,
+              },
+            },
+          ];
+        }),
+        catchError(() => {
+          return [
+            {
+              type: WorkflowActions.GET_PROJECTS_FAILURE,
+            },
+          ];
+        }),
+      );
+    }),
+  );
+
   isBackendValidationError(errorResponse: any): boolean {
     return (
       errorResponse instanceof Array &&

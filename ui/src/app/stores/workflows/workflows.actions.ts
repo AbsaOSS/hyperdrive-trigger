@@ -21,6 +21,8 @@ import { WorkflowEntryModel } from '../../models/workflowEntry.model';
 import { JobEntryModel } from '../../models/jobEntry.model';
 import { WorkflowModel } from '../../models/workflow.model';
 import { ApiErrorModel } from '../../models/errors/apiError.model';
+import { TableSearchRequestModel } from '../../models/search/tableSearchRequest.model';
+import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
 
 export const INITIALIZE_WORKFLOWS = 'INITIALIZE_WORKFLOWS';
 export const INITIALIZE_WORKFLOWS_SUCCESS = 'INITIALIZE_WORKFLOWS_SUCCESS';
@@ -60,6 +62,10 @@ export const CREATE_WORKFLOW_FAILURE = 'CREATE_WORKFLOW_FAILURE';
 export const UPDATE_WORKFLOW = 'UPDATE_WORKFLOW';
 export const UPDATE_WORKFLOW_SUCCESS = 'UPDATE_WORKFLOW_SUCCESS';
 export const UPDATE_WORKFLOW_FAILURE = 'UPDATE_WORKFLOW_FAILURE';
+
+export const GET_PROJECTS = 'GET_PROJECTS';
+export const GET_PROJECTS_SUCCESS = 'GET_PROJECTS_SUCCESS';
+export const GET_PROJECTS_FAILURE = 'GET_PROJECTS_FAILURE';
 
 export const REMOVE_BACKEND_VALIDATION_ERROR = 'REMOVE_BACKEND_VALIDATION_ERROR';
 
@@ -219,6 +225,26 @@ export class RemoveBackendValidationError implements Action {
   constructor(public payload: number) {}
 }
 
+export class GetProjects implements Action {
+  readonly type = GET_PROJECTS;
+  constructor(public payoload: TableSearchRequestModel) {}
+}
+
+// export class InitializeWorkflowsSuccess implements Action {
+//   readonly type = INITIALIZE_WORKFLOWS_SUCCESS;
+//   constructor(public payload: { projects: ProjectModel[]; workflowFormParts: WorkflowFormPartsModel }) {}
+// }
+
+export class GetProjectsSuccess implements Action {
+  readonly type = GET_PROJECTS_SUCCESS;
+    constructor(public payload: { projects: ProjectModel[]; workflowFormParts: WorkflowFormPartsModel }) {}
+  // constructor(public payoload: TableSearchResponseModel<WorkflowJoinedModel>) {}
+}
+
+export class GetProjectsFailure implements Action {
+  readonly type = GET_PROJECTS_FAILURE;
+}
+
 export type WorkflowsActions =
   | InitializeWorkflows
   | InitializeWorkflowsSuccess
@@ -251,4 +277,7 @@ export type WorkflowsActions =
   | UpdateWorkflow
   | UpdateWorkflowSuccess
   | UpdateWorkflowFailure
-  | RemoveBackendValidationError;
+  | RemoveBackendValidationError
+  | GetProjects
+  | GetProjectsSuccess
+  | GetProjectsFailure;

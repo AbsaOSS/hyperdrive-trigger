@@ -403,6 +403,12 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
           ],
         },
       };
+    case WorkflowsActions.GET_PROJECTS:
+      return { ...state, loading: false };
+    case WorkflowsActions.GET_PROJECTS_SUCCESS:
+      return { ...state, loading: false, projects: action.payload.projects, workflowFormParts: action.payload.workflowFormParts };
+    case WorkflowsActions.GET_PROJECTS_FAILURE:
+      return { ...initialState, loading: false };
     default:
       return state;
   }

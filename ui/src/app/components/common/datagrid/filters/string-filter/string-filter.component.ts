@@ -25,7 +25,7 @@ import { ContainsFilterAttributes } from '../../../../../models/search/containsF
   templateUrl: './string-filter.component.html',
   styleUrls: ['./string-filter.component.scss'],
 })
-export class StringFilterComponent implements ClrDatagridFilterInterface<DagRunModel>, AfterViewInit, OnDestroy {
+export class StringFilterComponent implements ClrDatagridFilterInterface<any>, AfterViewInit, OnDestroy {
   @Input() removeFiltersSubject: Subject<any>;
   @Input() property: string;
   value: string = undefined;
@@ -56,7 +56,7 @@ export class StringFilterComponent implements ClrDatagridFilterInterface<DagRunM
     return !!this.value;
   }
 
-  accepts(item: DagRunModel): boolean {
+  accepts(item: any): boolean {
     const state: string = item[this.property];
     return (!state && !item) || state.includes(this.value);
   }
