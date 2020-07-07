@@ -28,11 +28,12 @@ import {
   StartWorkflowInitialization,
   SwitchWorkflowActiveState,
   UpdateWorkflow,
+  GetProjects,
 } from './workflows.actions';
 
 import { WorkflowsEffects } from './workflows.effects';
 import { WorkflowService } from '../../services/workflow/workflow.service';
-import { ProjectModelFactory } from '../../models/project.model';
+import { ProjectModel, ProjectModelFactory } from '../../models/project.model';
 import { WorkflowModel, WorkflowModelFactory } from '../../models/workflow.model';
 import { provideMockStore } from '@ngrx/store/testing';
 import {
@@ -60,6 +61,8 @@ import { Router } from '@angular/router';
 import { absoluteRoutes } from '../../constants/routes.constants';
 import { JobTypeFactory } from '../../models/jobInstance.model';
 import { ApiErrorModel, ApiErrorModelFactory } from '../../models/errors/apiError.model';
+import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
+import { SortAttributesModel } from 'src/app/models/search/sortAttributes.model';
 
 describe('WorkflowsEffects', () => {
   let underTest: WorkflowsEffects;
@@ -649,6 +652,71 @@ describe('WorkflowsEffects', () => {
       expect(routerSpy).toHaveBeenCalledWith(absoluteRoutes.SHOW_WORKFLOW + '/' + workflow.id);
     });
   });
+
+  // describe('projectsGet', () => {
+  //   it('should return projects', () => {
+  //     const project =
+  //       ProjectModelFactory.create('project1', [
+  //         WorkflowModelFactory.create('name1', true, 'projec1', new Date(Date.now()), new Date(Date.now()), 0),
+  //       ]);
+
+  //     const dynamicFormParts = DynamicFormPartsFactory.create(
+  //       [
+  //         DynamicFormPartFactory.create('typeOne', [
+  //           FormPartFactory.create('nameOne', 'propertyOne', 'string-field', PartValidationFactory.create(true)),
+  //         ]),
+  //       ],
+  //       [
+  //         DynamicFormPartFactory.create('typeTwo', [
+  //           FormPartFactory.create('nameTwo', 'propertyTwo', 'string-field', PartValidationFactory.create(true)),
+  //         ]),
+  //       ],
+  //     );
+
+  //     const workflowFormParts1 = WorkflowFormPartsModelFactory.create(
+  //       workflowFormPartsSequences.allDetails,
+  //       workflowFormPartsConsts.SENSOR.SENSOR_TYPE,
+  //       workflowFormPartsConsts.JOB.JOB_NAME,
+  //       workflowFormPartsConsts.JOB.JOB_TYPE,
+  //       dynamicFormParts,
+  //     );
+
+  //     const searchResponseModel = new TableSearchResponseModel<ProjectModel>([project], 1);
+
+  //     const action = new GetProjects({ from: 0, size: 0, sort: new SortAttributesModel('', 0) });
+  //     mockActions = cold('-a', {a : action });
+  //     const searchProjectsResponse = cold('--a', { a: searchResponseModel });
+  //     const expected = cold('--a', {
+  //       a: {
+  //         type: WorkflowsActions.GET_PROJECTS_SUCCESS,
+  //         payload: {
+  //           projects: searchResponseModel,
+  //           workflowFormParts: workflowFormParts1
+  //         }
+  //       }
+  //     });
+
+  //     spyOn(workflowService, 'searchProjects').and.returnValue(searchProjectsResponse);
+
+  //     expect(underTest.projectsGet).toBeObservable(expected);
+  //   });
+
+  //   it('should return get projects failure if workflowSerivce.searchProjects responds with an error', () => {
+  //     const action = new GetProjects({ from: 0, size: 0, sort: new SortAttributesModel('', 0) });
+  //     mockActions = cold('a', { a: action });
+  //     const errorResponse = cold('-#|');
+  //     const expected = cold('--a', {
+  //       a: {
+  //         type: WorkflowsActions.GET_PROJECTS_FAILURE,
+  //       },
+  //     });
+
+  //     spyOn(workflowService, 'searchProjects').and.returnValue(errorResponse);
+
+  //     expect(underTest.projectsGet).toBeObservable(expected);
+
+  //   });
+  // });
 
   describe('isBackendValidationError', () => {
     it('should return false if string is passed', () => {

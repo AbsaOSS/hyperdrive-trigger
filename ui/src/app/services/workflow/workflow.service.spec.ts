@@ -21,6 +21,8 @@ import { WorkflowService } from './workflow.service';
 import { ProjectModel, ProjectModelFactory } from '../../models/project.model';
 import { WorkflowModel, WorkflowModelFactory } from '../../models/workflow.model';
 import { WorkflowJoinedModel, WorkflowJoinedModelFactory } from '../../models/workflowJoined.model';
+import { SortAttributesModel } from 'src/app/models/search/sortAttributes.model';
+import { TableSearchResponseModel } from 'src/app/models/search/tableSearchResponse.model';
 
 describe('WorkflowService', () => {
   let underTest: WorkflowService;
@@ -59,6 +61,23 @@ describe('WorkflowService', () => {
     expect(req.request.method).toEqual('GET');
     req.flush([...projects]);
   });
+
+  // it('searchProjects() should return searched projects', () => {
+  //   const project =
+  //     ProjectModelFactory.create('project1', [
+  //       WorkflowModelFactory.create('name1', true, 'projec1', new Date(Date.now()), new Date(Date.now()), 0),
+  //     ]);
+
+  //   const searchResponseModel = new TableSearchResponseModel<ProjectModel>([project], 1);
+  //   underTest.searchProjects({ from: 0, size: 0, sort: new SortAttributesModel('', 0) }).subscribe(
+  //     (data) => expect(data).toEqual(searchResponseModel),
+  //     (error) => fail(error),
+  //   );
+
+  //   const req  = httpTestingController.expectOne(api.PROJECTS_SEARCH);
+  //   expect(req.request.method).toEqual('POST');
+  //   req.flush(project);
+  // });
 
   it('getWorkflow() should return workflow data', () => {
     const workflow = WorkflowJoinedModelFactory.create('name', true, 'project', undefined, undefined, undefined, 0);

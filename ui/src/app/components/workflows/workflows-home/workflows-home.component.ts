@@ -67,7 +67,6 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
       this.total = this.workflows.length;
       this.loading = state.loading;
     });
-
   }
 
   deleteWorkflow(id: number) {
@@ -131,7 +130,6 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
     };
 
     this.store.dispatch(new GetProjects(workflowSearchRequestModel));
-
   }
 
   ngOnDestroy(): void {
