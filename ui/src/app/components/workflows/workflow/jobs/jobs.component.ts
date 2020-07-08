@@ -16,7 +16,7 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { workflowModes } from '../../../../models/enums/workflowModes.constants';
 import { Subscription } from 'rxjs';
-import cloneDeep from 'lodash/cloneDeep';
+import cloneDeep from 'lodash-es/cloneDeep';
 import { AppState, selectWorkflowState } from '../../../../stores/app.reducers';
 import { Store } from '@ngrx/store';
 import { FormPart } from '../../../../models/workflowFormParts.model';

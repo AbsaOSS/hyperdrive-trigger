@@ -16,7 +16,7 @@
 import { WorkflowEntryModel, WorkflowEntryModelFactory } from './workflowEntry.model';
 import { WorkflowJoinedModel } from './workflowJoined.model';
 import { workflowFormParts as workflowFormPartsConsts, workflowFormPartsSequences } from '../constants/workflowFormParts.constants';
-import get from 'lodash/get';
+import get from 'lodash-es/get';
 import { JobEntryModel, JobEntryModelFactory } from './jobEntry.model';
 import { DynamicFormParts } from './workflowFormParts.model';
 
