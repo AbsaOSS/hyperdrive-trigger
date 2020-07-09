@@ -13,12 +13,8 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models
+alter table "job_instance"
+add "key_value_pairs" VARCHAR NOT NULL DEFAULT '{}';
 
-import scala.collection.immutable.SortedMap
-
-case class JobParameters(
-  variables: Map[String, String],
-  maps: Map[String, List[String]] = Map.empty[String, List[String]],
-  keyValuePairs: Map[String, SortedMap[String, String]] = Map.empty
-)
+alter table "job_definition"
+add "key_value_pairs" VARCHAR NOT NULL DEFAULT '{}';

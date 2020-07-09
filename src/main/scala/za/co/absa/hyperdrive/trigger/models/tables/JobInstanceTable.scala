@@ -22,6 +22,8 @@ import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
 import za.co.absa.hyperdrive.trigger.models._
 import slick.lifted.{ForeignKeyQuery, ProvenShape}
 
+import scala.collection.immutable.SortedMap
+
 trait JobInstanceTable {
   this: Profile with JdbcTypeMapper with DagInstanceTable =>
   import profile.api._
@@ -32,6 +34,7 @@ trait JobInstanceTable {
     def jobType: Rep[JobType] = column[JobType]("job_type")
     def variables: Rep[Map[String, String]] = column[Map[String, String]]("variables")
     def maps: Rep[Map[String, List[String]]] = column[Map[String, List[String]]]("maps")
+    def keyValuePairs: Rep[Map[String, SortedMap[String, String]]] = column[Map[String, SortedMap[String, String]]]("key_value_pairs")
     def jobStatus: Rep[JobStatus] = column[JobStatus]("job_status")
     def executorJobId: Rep[Option[String]] = column[Option[String]]("executor_job_id")
     def created: Rep[LocalDateTime] = column[LocalDateTime]("created")
@@ -48,6 +51,7 @@ trait JobInstanceTable {
       jobType,
       variables,
       maps,
+      keyValuePairs,
       jobStatus,
       executorJobId,
       created,
@@ -62,15 +66,16 @@ trait JobInstanceTable {
           jobType = jobInstanceTuple._2,
           jobParameters = JobParameters(
             variables = jobInstanceTuple._3,
-            maps = jobInstanceTuple._4
+            maps = jobInstanceTuple._4,
+            keyValuePairs = jobInstanceTuple._5
           ),
-          jobStatus = jobInstanceTuple._5,
-          executorJobId = jobInstanceTuple._6,
-          created = jobInstanceTuple._7,
-          updated = jobInstanceTuple._8,
-          order = jobInstanceTuple._9,
-          dagInstanceId = jobInstanceTuple._10,
-          id = jobInstanceTuple._11
+          jobStatus = jobInstanceTuple._6,
+          executorJobId = jobInstanceTuple._7,
+          created = jobInstanceTuple._8,
+          updated = jobInstanceTuple._9,
+          order = jobInstanceTuple._10,
+          dagInstanceId = jobInstanceTuple._11,
+          id = jobInstanceTuple._12
         ),
       (jobInstance: JobInstance) =>
         Option(
@@ -78,6 +83,7 @@ trait JobInstanceTable {
           jobInstance.jobType,
           jobInstance.jobParameters.variables,
           jobInstance.jobParameters.maps,
+          jobInstance.jobParameters.keyValuePairs,
           jobInstance.jobStatus,
           jobInstance.executorJobId,
           jobInstance.created,
