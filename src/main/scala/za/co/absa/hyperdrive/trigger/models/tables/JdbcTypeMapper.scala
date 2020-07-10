@@ -88,8 +88,8 @@ trait JdbcTypeMapper {
     MappedColumnType.base[Map[String, SortedMap[String, String]], String](
       parameters => Json.toJson(parameters).toString(),
       parametersEncoded => {
-        val p: Map[String, Map[String, String]] = Json.parse(parametersEncoded).as[Map[String, Map[String, String]]]
-        p.map{case (key, value) => key -> SortedMap(value.toArray:_*)}
+        val genericMap = Json.parse(parametersEncoded).as[Map[String, Map[String, String]]]
+        genericMap.map{case (key, value) => key -> SortedMap(value.toArray:_*)}
       }
     )
 
