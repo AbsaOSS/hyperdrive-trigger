@@ -69,6 +69,7 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
         this.total = state.total;
         this.loading = state.loading;
       });
+    localStorage.removeItem('dgState');
   }
 
   ngOnDestroy(): void {

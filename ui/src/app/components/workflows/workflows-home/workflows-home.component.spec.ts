@@ -62,6 +62,19 @@ describe('WorkflowsHomeComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(WorkflowsHomeComponent);
     underTest = fixture.componentInstance;
+    let storage = {};
+
+    const mockLocalStorage = {
+      getItem: (key: string): string => (key in storage ? store[key] : null),
+      setItem: (key: string, value: string) => (storage[key] = `${value}`),
+      removeItem: (key: string) => delete storage[key],
+      clear: () => (storage = {}),
+    };
+
+    spyOn(Storage.prototype, 'getItem').and.callFake(mockLocalStorage.getItem);
+    spyOn(Storage.prototype, 'setItem').and.callFake(mockLocalStorage.setItem);
+    spyOn(Storage.prototype, 'removeItem').and.callFake(mockLocalStorage.removeItem);
+    spyOn(Storage.prototype, 'clear').and.callFake(mockLocalStorage.clear);
   });
 
   it('should create', () => {

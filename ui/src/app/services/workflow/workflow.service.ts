@@ -42,18 +42,6 @@ export class WorkflowService {
       .pipe(map((_) => _.body));
   }
 
-  searchProjects(searchRequestModel: TableSearchRequestModel): Observable<TableSearchResponseModel<ProjectModel>> {
-    return this.httpClient
-      .post<TableSearchResponseModel<ProjectModel>>(api.PROJECTS_SEARCH, searchRequestModel, {
-        observe: 'response',
-      })
-      .pipe(
-        map((_) => {
-          return _.body;
-        }),
-      );
-  }
-
   getWorkflow(id: number): Observable<WorkflowJoinedModel> {
     const params = new HttpParams().set('id', id.toString());
 

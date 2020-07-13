@@ -28,7 +28,6 @@ import {
   StartWorkflowInitialization,
   SwitchWorkflowActiveState,
   UpdateWorkflow,
-  GetProjects,
 } from './workflows.actions';
 
 import { WorkflowsEffects } from './workflows.effects';

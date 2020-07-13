@@ -21,8 +21,7 @@ import { WorkflowEntryModel } from '../../models/workflowEntry.model';
 import { JobEntryModel } from '../../models/jobEntry.model';
 import { WorkflowModel } from '../../models/workflow.model';
 import { ApiErrorModel } from '../../models/errors/apiError.model';
-import { TableSearchRequestModel } from '../../models/search/tableSearchRequest.model';
-import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
+import { ClrDatagridStateInterface } from '@clr/angular';
 
 export const INITIALIZE_WORKFLOWS = 'INITIALIZE_WORKFLOWS';
 export const INITIALIZE_WORKFLOWS_SUCCESS = 'INITIALIZE_WORKFLOWS_SUCCESS';
@@ -63,9 +62,7 @@ export const UPDATE_WORKFLOW = 'UPDATE_WORKFLOW';
 export const UPDATE_WORKFLOW_SUCCESS = 'UPDATE_WORKFLOW_SUCCESS';
 export const UPDATE_WORKFLOW_FAILURE = 'UPDATE_WORKFLOW_FAILURE';
 
-export const GET_PROJECTS = 'GET_PROJECTS';
-export const GET_PROJECTS_SUCCESS = 'GET_PROJECTS_SUCCESS';
-export const GET_PROJECTS_FAILURE = 'GET_PROJECTS_FAILURE';
+export const SET_DATAGRID_STATE = 'SET_DATAGRID_STATE';
 
 export const REMOVE_BACKEND_VALIDATION_ERROR = 'REMOVE_BACKEND_VALIDATION_ERROR';
 
@@ -225,18 +222,9 @@ export class RemoveBackendValidationError implements Action {
   constructor(public payload: number) {}
 }
 
-export class GetProjects implements Action {
-  readonly type = GET_PROJECTS;
-  constructor(public payload: TableSearchRequestModel) {}
-}
-
-export class GetProjectsSuccess implements Action {
-  readonly type = GET_PROJECTS_SUCCESS;
-  constructor(public payload: TableSearchResponseModel<ProjectModel>) {}
-}
-
-export class GetProjectsFailure implements Action {
-  readonly type = GET_PROJECTS_FAILURE;
+export class SetDatagridState implements Action {
+  readonly type = SET_DATAGRID_STATE;
+  constructor(public payload: ClrDatagridStateInterface) {}
 }
 
 export type WorkflowsActions =
@@ -272,6 +260,4 @@ export type WorkflowsActions =
   | UpdateWorkflowSuccess
   | UpdateWorkflowFailure
   | RemoveBackendValidationError
-  | GetProjects
-  | GetProjectsSuccess
-  | GetProjectsFailure;
+  | SetDatagridState;

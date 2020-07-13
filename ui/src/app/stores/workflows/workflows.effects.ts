@@ -21,7 +21,6 @@ import { catchError, mergeMap, switchMap, withLatestFrom } from 'rxjs/operators'
 import { WorkflowService } from '../../services/workflow/workflow.service';
 import { ProjectModel } from '../../models/project.model';
 import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
-import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
 import { workflowModes } from '../../models/enums/workflowModes.constants';
 import { DynamicFormParts, WorkflowFormPartsModelFactory } from '../../models/workflowFormParts.model';
 import { workflowFormParts as workflowFormPartsConsts, workflowFormPartsSequences } from '../../constants/workflowFormParts.constants';
@@ -327,43 +326,6 @@ export class WorkflowsEffects {
               },
             ];
           }
-        }),
-      );
-    }),
-  );
-
-  @Effect({ dispatch: true })
-  projectsGet = this.actions.pipe(
-    ofType(WorkflowActions.GET_PROJECTS),
-    switchMap((action: WorkflowActions.GetProjects) => {
-      return this.workflowService.searchProjects(action.payload);
-    }),
-    mergeMap((projectsSearchResults: TableSearchResponseModel<ProjectModel>) => {
-      return this.workflowService.getWorkflowDynamicFormParts().pipe(
-        mergeMap((workflowComponents: DynamicFormParts) => {
-          const workflowFormParts = WorkflowFormPartsModelFactory.create(
-            workflowFormPartsSequences.allDetails,
-            workflowFormPartsConsts.SENSOR.SENSOR_TYPE,
-            workflowFormPartsConsts.JOB.JOB_NAME,
-            workflowFormPartsConsts.JOB.JOB_TYPE,
-            workflowComponents,
-          );
-          return [
-            {
-              type: WorkflowActions.GET_PROJECTS_SUCCESS,
-              payload: {
-                projects: projectsSearchResults,
-                workflowFormParts: workflowFormParts,
-              },
-            },
-          ];
-        }),
-        catchError(() => {
-          return [
-            {
-              type: WorkflowActions.GET_PROJECTS_FAILURE,
-            },
-          ];
         }),
       );
     }),

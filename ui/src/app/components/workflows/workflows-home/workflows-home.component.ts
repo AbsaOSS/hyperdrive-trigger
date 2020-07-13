@@ -21,8 +21,7 @@ import { ClrDatagridColumn, ClrDatagridSortOrder, ClrDatagridStateInterface } fr
 import { Store } from '@ngrx/store';
 import { absoluteRoutes } from '../../../constants/routes.constants';
 import { workflowsHomeColumns } from '../../../constants/workflow.constants';
-import { RunWorkflow, GetProjects } from '../../../stores/workflows/workflows.actions';
-import { TableSearchRequestModel } from '../../../models/search/tableSearchRequest.model';
+import { RunWorkflow, SetDatagridState } from '../../../stores/workflows/workflows.actions';
 import { SortAttributesModel } from '../../../models/search/sortAttributes.model';
 import { ContainsFilterAttributes } from '../../../models/search/containsFilterAttributes.model';
 import { ConfirmationDialogTypes } from '../../../constants/confirmationDialogTypes.constants';
@@ -53,6 +52,9 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
   ascSort = ClrDatagridSortOrder.ASC;
   loading = true;
   filters: any[] = [];
+  appState;
+  projectFilterValue;
+  workflowFilterValue;
 
   absoluteRoutes = absoluteRoutes;
   workflowsHomeColumns = workflowsHomeColumns;
@@ -62,11 +64,63 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
   constructor(private store: Store<AppState>, private confirmationDialogService: ConfirmationDialogService, private router: Router) {}
 
   ngOnInit(): void {
+    this.getState();
+
     this.workflowsSubscription = this.store.select(selectWorkflowState).subscribe((state) => {
       this.workflows = [].concat(...state.projects.map((project) => project.workflows));
+
+      if (this.projectFilterValue && this.workflowFilterValue) {
+        this.workflows = this.workflows.filter(
+          (projects) => projects.name.includes(this.workflowFilterValue) && projects.project.includes(this.projectFilterValue),
+        );
+      } else if (this.workflowFilterValue && !this.projectFilterValue) {
+        this.workflows = this.workflows.filter((projects) => projects.name.includes(this.workflowFilterValue));
+      } else if (this.projectFilterValue && !this.workflowFilterValue) {
+        this.workflows = this.workflows.filter((projects) => projects.project.includes(this.projectFilterValue));
+      } else {
+        this.workflows = this.workflows;
+      }
       this.total = this.workflows.length;
       this.loading = state.loading;
     });
+    this.appState ? console.log(this.appState) : console.log('On init I am not there');
+
+    console.log('project filter value ' + this.projectFilterValue);
+    console.log('workflow name filter value ' + this.workflowFilterValue);
+    console.log(this.workflows);
+    // console.log(this.appState=);
+  }
+
+  getState() {
+    if (localStorage.getItem('dgState')) {
+      this.appState = JSON.parse(localStorage.getItem('dgState'));
+
+      if (this.appState.filters && this.appState.filters.length === 2) {
+        this.workflowFilterValue =
+          this.appState.filters[0].field === workflowsHomeColumns.WORKFLOW_NAME ? this.appState.filters[0].value : undefined;
+        this.projectFilterValue =
+          this.appState.filters[1].field === workflowsHomeColumns.PROJECT_NAME ? this.appState.filters[1].value : undefined;
+      } else if (this.appState.filters && this.appState.filters.length === 1) {
+        this.workflowFilterValue =
+          this.appState.filters[0].field === workflowsHomeColumns.WORKFLOW_NAME ? this.appState.filters[0].value : undefined;
+        this.projectFilterValue =
+          this.appState.filters[0].field === workflowsHomeColumns.PROJECT_NAME ? this.appState.filters[0].value : undefined;
+      }
+    }
+  }
+
+  setState(state: ClrDatagridStateInterface) {
+    sessionStorage.setItem('dgState', JSON.stringify(state));
+  }
+
+  setPersistedState() {
+    localStorage.setItem('dgState', JSON.stringify(this.appState));
+    // this.store.dispatch(new SetDatagridState(this.appState));
+  }
+
+  onClarityDgRefresh(state: ClrDatagridStateInterface) {
+    this.appState = state;
+    this.setState(this.appState);
   }
 
   deleteWorkflow(id: number) {
@@ -75,6 +129,7 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
       .subscribe((confirmed) => {
         if (confirmed) this.store.dispatch(new DeleteWorkflow(id));
       });
+    this.setPersistedState();
   }
 
   switchWorkflowActiveState(id: number, currentActiveState: boolean) {
@@ -87,6 +142,7 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
       .subscribe((confirmed) => {
         if (confirmed) this.store.dispatch(new SwitchWorkflowActiveState({ id: id, currentActiveState: currentActiveState }));
       });
+    this.setPersistedState();
   }
 
   runWorkflow(id: number) {
@@ -95,6 +151,7 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
       .subscribe((confirmed) => {
         if (confirmed) this.store.dispatch(new RunWorkflow(id));
       });
+    this.setPersistedState();
   }
 
   showWorkflow(id: number) {
@@ -103,38 +160,24 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
 
   clearFilters() {
     this.removeWorkflowFilterSubject.next();
+    this.workflowsSubscription = this.store.select(selectWorkflowState).subscribe((state) => {
+      this.workflows = [].concat(...state.projects.map((project) => project.workflows));
+      this.total = this.workflows.length;
+      this.loading = state.loading;
+    });
+    localStorage.removeItem('dgState');
   }
 
   clearSort() {
     !!this.sort ? (this.columns.find((_) => _.field === this.sort.by).sortOrder = 0) : undefined;
   }
 
-  onClarityDgRefresh(state: ClrDatagridStateInterface) {
-    this.sort = state.sort ? new SortAttributesModel(state.sort.by as string, state.sort.reverse ? -1 : 1) : undefined;
-    this.pageFrom = state.page.from < 0 ? 0 : state.page.from;
-    this.pageSize = state.page.size;
-    this.filters = state.filters ? state.filters : [];
-
-    this.refresh();
-  }
-
-  refresh() {
-    const workflowSearchRequestModel: TableSearchRequestModel = {
-      from: this.pageFrom,
-      size: this.pageSize,
-      sort: this.sort,
-      containsFilterAttributes: this.filters.filter((f) => f instanceof ContainsFilterAttributes),
-      intRangeFilterAttributes: null,
-      dateTimeRangeFilterAttributes: null,
-      equalsMultipleFilterAttributes: null,
-    };
-
-    this.store.dispatch(new GetProjects(workflowSearchRequestModel));
-  }
-
   ngOnDestroy(): void {
     !!this.workflowsSubscription && this.workflowsSubscription.unsubscribe();
     !!this.confirmationDialogServiceSubscription && this.confirmationDialogServiceSubscription.unsubscribe();
     !!this.runWorkflowDialogSubscription && this.runWorkflowDialogSubscription.unsubscribe();
+    // localStorage.clear();
+    // localStorage.removeItem('dgState');
+    sessionStorage.clear();
   }
 }

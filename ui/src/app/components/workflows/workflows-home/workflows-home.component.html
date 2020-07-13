@@ -37,7 +37,7 @@
     </div>
   </clr-dg-action-bar>
 
-  <clr-dg-column [clrDgField]="workflowsHomeColumns.WORKFLOW_NAME" [clrFilterValue]>
+  <clr-dg-column [clrDgField]="workflowsHomeColumns.WORKFLOW_NAME" [(clrFilterValue)]="workflowFilterValue">
     <ng-container *clrDgHideableColumn="{hidden: false}">Workflow name</ng-container>
     <clr-dg-filter [clrDgFilter]="workflowNameFilter">
       <app-string-filter #workflowNameFilter [property]="workflowsHomeColumns.WORKFLOW_NAME"
@@ -46,7 +46,7 @@
     </clr-dg-filter>
   </clr-dg-column>
 
-  <clr-dg-column [clrDgField]="workflowsHomeColumns.PROJECT_NAME" [clrDgSortOrder]="ascSort">
+  <clr-dg-column [clrDgField]="workflowsHomeColumns.PROJECT_NAME" [(clrFilterValue)]="projectFilterValue" [clrDgSortOrder]="ascSort">
     <ng-container *clrDgHideableColumn="{hidden: false}">Project name</ng-container>
     <clr-dg-filter [clrDgFilter]="projectNameFilterHome">
       <app-string-filter #projectNameFilterHome [property]="workflowsHomeColumns.PROJECT_NAME"
