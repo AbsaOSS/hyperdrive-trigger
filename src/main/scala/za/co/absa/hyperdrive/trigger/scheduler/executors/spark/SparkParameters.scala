@@ -16,6 +16,7 @@
 package za.co.absa.hyperdrive.trigger.scheduler.executors.spark
 
 import za.co.absa.hyperdrive.trigger.models.JobParameters
+
 import scala.util.Try
 
 case class SparkParameters(
@@ -24,9 +25,13 @@ case class SparkParameters(
   deploymentMode: String,
   appArguments: List[String],
   additionalJars: List[String],
-  additionalFiles: List[String]
+  additionalFiles: List[String],
+  additionalSparkConfig: Map[String, String]
 )
 
+/**
+ * See workflow.service.ts for the definition of the keys
+ */
 object SparkParameters {
   def apply(jobParameters: JobParameters): SparkParameters = {
     SparkParameters(
@@ -35,7 +40,8 @@ object SparkParameters {
       deploymentMode = jobParameters.variables("deploymentMode"),
       appArguments = Try(jobParameters.maps("appArguments")).getOrElse(List.empty[String]),
       additionalJars = Try(jobParameters.maps("additionalJars")).getOrElse(List.empty[String]),
-      additionalFiles = Try(jobParameters.maps("additionalFiles")).getOrElse(List.empty[String])
+      additionalFiles = Try(jobParameters.maps("additionalFiles")).getOrElse(List.empty[String]),
+      additionalSparkConfig = Try(jobParameters.keyValuePairs("additionalSparkConfig")).getOrElse(Map.empty[String, String])
     )
   }
 }

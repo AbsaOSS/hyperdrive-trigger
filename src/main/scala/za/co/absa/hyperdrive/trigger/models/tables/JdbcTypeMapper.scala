@@ -23,6 +23,7 @@ import play.api.libs.json.{JsValue, Json}
 import slick.jdbc.JdbcType
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses.DagInstanceStatus
 
+import scala.collection.immutable.SortedMap
 import scala.util.Try
 
 trait JdbcTypeMapper {
@@ -81,6 +82,15 @@ trait JdbcTypeMapper {
     MappedColumnType.base[Map[String, List[String]], String](
       parameters => Json.toJson(parameters).toString(),
       parametersEncoded => Json.parse(parametersEncoded).as[Map[String, List[String]]]
+    )
+
+  implicit lazy val mapSortedMapMapper: JdbcType[Map[String, SortedMap[String, String]]] =
+    MappedColumnType.base[Map[String, SortedMap[String, String]], String](
+      parameters => Json.toJson(parameters).toString(),
+      parametersEncoded => {
+        val genericMap = Json.parse(parametersEncoded).as[Map[String, Map[String, String]]]
+        genericMap.map{case (key, value) => key -> SortedMap(value.toArray:_*)}
+      }
     )
 
 }
