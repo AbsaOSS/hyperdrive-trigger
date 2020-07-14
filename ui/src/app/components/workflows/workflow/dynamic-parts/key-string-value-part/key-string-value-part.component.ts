@@ -84,7 +84,7 @@ export class KeyStringValuePartComponent implements OnInit {
   modelChanged(value: [string, string][]) {
     const valueInObject = {};
     value.forEach((val) => {
-      valueInObject[`${val[0]}`.toString()] = val[1];
+      valueInObject[`${val[0]}`.toString().trim()] = val[1].trim();
     });
     this.value = valueInObject;
     this.mapOfValues = value;

@@ -56,7 +56,7 @@ export class StringPartComponent implements OnInit {
   }
 
   modelChanged(value: string) {
-    this.value = value;
+    this.value = value.trim();
     this.valueChanges.next(WorkflowEntryModelFactory.create(this.property, this.value));
   }
 }
