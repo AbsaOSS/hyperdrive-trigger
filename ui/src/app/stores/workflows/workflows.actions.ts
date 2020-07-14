@@ -20,7 +20,7 @@ import { WorkflowFormPartsModel } from '../../models/workflowFormParts.model';
 import { WorkflowEntryModel } from '../../models/workflowEntry.model';
 import { JobEntryModel } from '../../models/jobEntry.model';
 import { WorkflowModel } from '../../models/workflow.model';
-import { ApiErrorModel } from '../../models/errors/apiError.model';
+import { SortAttributesModel } from '../../models/search/sortAttributes.model';
 
 export const INITIALIZE_WORKFLOWS = 'INITIALIZE_WORKFLOWS';
 export const INITIALIZE_WORKFLOWS_SUCCESS = 'INITIALIZE_WORKFLOWS_SUCCESS';
@@ -62,6 +62,9 @@ export const UPDATE_WORKFLOW_SUCCESS = 'UPDATE_WORKFLOW_SUCCESS';
 export const UPDATE_WORKFLOW_FAILURE = 'UPDATE_WORKFLOW_FAILURE';
 
 export const REMOVE_BACKEND_VALIDATION_ERROR = 'REMOVE_BACKEND_VALIDATION_ERROR';
+
+export const SET_WORKFLOWS_SORT = 'SET_WORKFLOWS_SORT';
+export const SET_WORKFLOWS_FILTERS = 'SET_WORKFLOWS_FILTERS';
 
 export class InitializeWorkflows implements Action {
   readonly type = INITIALIZE_WORKFLOWS;
@@ -219,6 +222,16 @@ export class RemoveBackendValidationError implements Action {
   constructor(public payload: number) {}
 }
 
+export class SetWorkflowsSort implements Action {
+  readonly type = SET_WORKFLOWS_SORT;
+  constructor(public payload: SortAttributesModel) {}
+}
+
+export class SetWorkflowsFilters implements Action {
+  readonly type = SET_WORKFLOWS_FILTERS;
+  constructor(public payload: any[]) {}
+}
+
 export type WorkflowsActions =
   | InitializeWorkflows
   | InitializeWorkflowsSuccess
@@ -251,4 +264,6 @@ export type WorkflowsActions =
   | UpdateWorkflow
   | UpdateWorkflowSuccess
   | UpdateWorkflowFailure
-  | RemoveBackendValidationError;
+  | RemoveBackendValidationError
+  | SetWorkflowsSort
+  | SetWorkflowsFilters;

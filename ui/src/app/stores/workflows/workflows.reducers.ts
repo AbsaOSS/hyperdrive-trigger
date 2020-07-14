@@ -19,7 +19,7 @@ import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
 import { WorkflowFormPartsModel } from '../../models/workflowFormParts.model';
 import { WorkflowEntryModel } from '../../models/workflowEntry.model';
 import { JobEntryModel, JobEntryModelFactory } from '../../models/jobEntry.model';
-import { ApiErrorModel } from '../../models/errors/apiError.model';
+import { SortAttributesModel } from '../../models/search/sortAttributes.model';
 
 export interface State {
   projects: ProjectModel[];
@@ -36,6 +36,8 @@ export interface State {
       jobs: JobEntryModel[];
     };
   };
+  workflowsSort: SortAttributesModel;
+  workflowsFilters: any[];
   workflowFormParts: WorkflowFormPartsModel;
 }
 
@@ -54,6 +56,8 @@ const initialState: State = {
       jobs: [],
     },
   },
+  workflowsSort: undefined,
+  workflowsFilters: undefined,
   workflowFormParts: undefined,
 };
 
@@ -402,6 +406,16 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
             ...state.workflowAction.backendValidationErrors.slice(action.payload + 1),
           ],
         },
+      };
+    case WorkflowsActions.SET_WORKFLOWS_SORT:
+      return {
+        ...state,
+        workflowsSort: action.payload
+      };
+    case WorkflowsActions.SET_WORKFLOWS_FILTERS:
+      return {
+        ...state,
+        workflowsFilters: action.payload
       };
     default:
       return state;
