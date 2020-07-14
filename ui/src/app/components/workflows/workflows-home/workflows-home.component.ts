@@ -47,14 +47,12 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
   workflowsHomeColumns = workflowsHomeColumns;
 
   removeWorkflowFilterSubject: Subject<any> = new Subject();
-  sort: SortAttributesModel = undefined
+  sort: SortAttributesModel = undefined;
   filters: any[] = undefined;
   ignoreRefresh = false;
 
   constructor(private store: Store<AppState>, private confirmationDialogService: ConfirmationDialogService, private router: Router) {
-    this.routerSubscription = router.events.pipe(
-      filter(e => e instanceof ResolveEnd)
-    ).subscribe((e: ResolveEnd) => {
+    this.routerSubscription = router.events.pipe(filter((e) => e instanceof ResolveEnd)).subscribe((e: ResolveEnd) => {
       this.ignoreRefresh = e.state.root.component !== WorkflowsHomeComponent;
     });
   }
@@ -105,7 +103,7 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
   }
 
   onClarityDgRefresh(state: ClrDatagridStateInterface) {
-    if(!this.ignoreRefresh){
+    if (!this.ignoreRefresh) {
       this.sort = state.sort ? new SortAttributesModel(state.sort.by as string, state.sort.reverse ? -1 : 1) : undefined;
       this.store.dispatch(new SetWorkflowsSort(this.sort));
       this.filters = state.filters ? state.filters : [];
@@ -113,16 +111,16 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
     }
   }
 
-  getFilter(name: String): any | undefined {
+  getFilter(name: string): any | undefined {
     let filter = undefined;
-    if(this.filters) {
-      filter = this.filters.find(filter => filter.field == name);
+    if (this.filters) {
+      filter = this.filters.find((filter) => filter.field == name);
     }
     return filter ? filter.value : undefined;
   }
 
-  getSort(name: String): any | undefined {
-    return this.sort && this.sort.by == name ? this.sort.order : undefined
+  getSort(name: string): any | undefined {
+    return this.sort && this.sort.by == name ? this.sort.order : undefined;
   }
 
   clearFilters() {

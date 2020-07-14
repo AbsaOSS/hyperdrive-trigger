@@ -410,12 +410,12 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
     case WorkflowsActions.SET_WORKFLOWS_SORT:
       return {
         ...state,
-        workflowsSort: action.payload
+        workflowsSort: action.payload,
       };
     case WorkflowsActions.SET_WORKFLOWS_FILTERS:
       return {
         ...state,
-        workflowsFilters: action.payload
+        workflowsFilters: action.payload,
       };
     default:
       return state;
