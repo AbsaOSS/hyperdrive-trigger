@@ -16,7 +16,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { NumberRangeFilterComponent } from './number-range-filter.component';
-import { DagRunModelFactory } from '../../../../models/dagRuns/dagRun.model';
+import { DagRunModelFactory } from '../../../../../models/dagRuns/dagRun.model';
 
 describe('NumberRangeFilterComponent', () => {
   let fixture: ComponentFixture<NumberRangeFilterComponent>;
