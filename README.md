@@ -37,6 +37,10 @@ docker volume prune
 ```
 This removes stopped containers and volumes that are not referenced by any containers.
 
+### Liquibase
+The docker-compose file creates a container for liquibase. To access it, find its container id with `docker ps`, and log into the container
+using `docker exec -it <container-id> sh`. The liquibase binary is located under `/liquibase/liquibase`. To execute a command,
+simply type e.g. `/liquibase/liquibase history`
 
 ### Troubleshooting
 
