@@ -192,7 +192,7 @@ export class CronQuartzPartComponent implements OnInit {
   }
 
   modelChanged(value: string): void {
-    this.value = value;
+    this.value = value.trim();
     this.valueChanges.next(WorkflowEntryModelFactory.create(this.property, this.value));
   }
 }
