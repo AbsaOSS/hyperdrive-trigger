@@ -3,6 +3,15 @@ Event based workflow manager.
 
 
 # Development
+## Liquibase
+The liquibase maven plugin may be used to issue liquibase commands. To use it, three environment variables have to be defined
+- `HYP_DB_URL`: The connection url to the db, starting with `jdbc://postgresql`
+- `HYP_DB_USER`: The database user
+- `HYP_DB_PASSWORD`: The password for the database user
+
+Then, the liquibase maven plugin can be executed, e.g.
+`mvn liquibase:status`
+
 ## Docker image
 For development purposes, hyperdrive-trigger can be executed as a docker image. This requires a running local docker instance. The provided docker composition consists of the hyperdrive-trigger and a Postgres database. It is currently not possible to start spark-jobs using this docker composition.
 
