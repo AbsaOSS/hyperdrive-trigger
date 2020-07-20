@@ -42,10 +42,10 @@ import { RunDetailComponent } from './components/runs/run-detail/run-detail.comp
 import { RunsEffects } from './stores/runs/runs.effects';
 import { WorkflowsEffects } from './stores/workflows/workflows.effects';
 import { WorkflowsHomeComponent } from './components/workflows/workflows-home/workflows-home.component';
-import { StringFilterComponent } from './components/runs/filters/string-filter/string-filter.component';
-import { DatetimeRangeFilterComponent } from './components/runs/filters/datetime-range-filter/datetime-range-filter.component';
-import { MultipleStatusFilterComponent } from './components/runs/filters/multiple-status-filter/multiple-status-filter.component';
-import { NumberRangeFilterComponent } from './components/runs/filters/number-range-filter/number-range-filter.component';
+import { StringFilterComponent } from './components/common/datagrid/filters/string-filter/string-filter.component';
+import { DatetimeRangeFilterComponent } from './components/common/datagrid/filters/datetime-range-filter/datetime-range-filter.component';
+import { MultipleStatusFilterComponent } from './components/common/datagrid/filters/multiple-status-filter/multiple-status-filter.component';
+import { NumberRangeFilterComponent } from './components/common/datagrid/filters/number-range-filter/number-range-filter.component';
 import { WorkflowComponent } from './components/workflows/workflow/workflow.component';
 import { WorkflowDetailsComponent } from './components/workflows/workflow/workflow-details/workflow-details.component';
 import { SensorComponent } from './components/workflows/workflow/sensor/sensor.component';

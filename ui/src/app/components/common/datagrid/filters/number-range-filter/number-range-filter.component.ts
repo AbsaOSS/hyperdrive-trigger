@@ -15,17 +15,16 @@
 
 import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
 import { ClrDatagridFilterInterface } from '@clr/angular';
-import { DagRunModel } from '../../../../models/dagRuns/dagRun.model';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { IntRangeFilterAttributes } from '../../../../models/search/intRangeFilterAttributes.model';
+import { IntRangeFilterAttributes } from '../../../../../models/search/intRangeFilterAttributes.model';
 
 @Component({
   selector: 'app-number-range-filter',
   templateUrl: './number-range-filter.component.html',
   styleUrls: ['./number-range-filter.component.scss'],
 })
-export class NumberRangeFilterComponent implements ClrDatagridFilterInterface<DagRunModel>, AfterViewInit {
+export class NumberRangeFilterComponent implements ClrDatagridFilterInterface<any>, AfterViewInit {
   @Input() removeFiltersSubject: Subject<any>;
   @Input() property: string;
   value: { from: number; to: number } = { from: undefined, to: undefined };
@@ -48,7 +47,7 @@ export class NumberRangeFilterComponent implements ClrDatagridFilterInterface<Da
     this.removeFiltersSubject.subscribe((_) => this.onRemoveFilter());
   }
 
-  accepts(item: DagRunModel): boolean {
+  accepts(item: any): boolean {
     const state: number = item[this.property];
 
     const left: boolean = !!this.value.from ? this.value.from <= state : true;
