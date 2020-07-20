@@ -15,17 +15,16 @@
 
 import { AfterViewInit, Component, Input } from '@angular/core';
 import { ClrDatagridFilterInterface } from '@clr/angular';
-import { DagRunModel } from '../../../../models/dagRuns/dagRun.model';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { DateTimeRangeFilterAttributes } from '../../../../models/search/dateTimeRangeFilterAttributes.model';
+import { DateTimeRangeFilterAttributes } from '../../../../../models/search/dateTimeRangeFilterAttributes.model';
 
 @Component({
   selector: 'app-datetime-range-filter',
   templateUrl: './datetime-range-filter.component.html',
   styleUrls: ['./datetime-range-filter.component.scss'],
 })
-export class DatetimeRangeFilterComponent implements ClrDatagridFilterInterface<DagRunModel>, AfterViewInit {
+export class DatetimeRangeFilterComponent implements ClrDatagridFilterInterface<any>, AfterViewInit {
   @Input() removeFiltersSubject: Subject<any>;
   @Input() property: string;
   value: { from: Date; to: Date } = { from: undefined, to: undefined };
@@ -48,7 +47,7 @@ export class DatetimeRangeFilterComponent implements ClrDatagridFilterInterface<
     this.removeFiltersSubject.subscribe((_) => this.onRemoveFilter());
   }
 
-  accepts(item: DagRunModel): boolean {
+  accepts(item: any): boolean {
     const state: Date = item[this.property];
 
     const left: boolean = !!this.value.from ? this.value.from <= state : true;
