@@ -16,19 +16,18 @@
 import { AfterViewInit, Component, Input, OnDestroy } from '@angular/core';
 import { ClrDatagridFilterInterface } from '@clr/angular';
 import { Subject, Subscription } from 'rxjs';
-import { DagRunModel } from '../../../../models/dagRuns/dagRun.model';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { ContainsFilterAttributes } from '../../../../models/search/containsFilterAttributes.model';
+import { ContainsFilterAttributes } from '../../../../../models/search/containsFilterAttributes.model';
 
 @Component({
   selector: 'app-string-filter',
   templateUrl: './string-filter.component.html',
   styleUrls: ['./string-filter.component.scss'],
 })
-export class StringFilterComponent implements ClrDatagridFilterInterface<DagRunModel>, AfterViewInit, OnDestroy {
+export class StringFilterComponent implements ClrDatagridFilterInterface<any>, AfterViewInit, OnDestroy {
   @Input() removeFiltersSubject: Subject<any>;
   @Input() property: string;
-  value: string = undefined;
+  @Input() value: string = undefined;
 
   //clarity interface
   changes = new Subject<any>();
@@ -56,7 +55,7 @@ export class StringFilterComponent implements ClrDatagridFilterInterface<DagRunM
     return !!this.value;
   }
 
-  accepts(item: DagRunModel): boolean {
+  accepts(item: any): boolean {
     const state: string = item[this.property];
     return (!state && !item) || state.includes(this.value);
   }

@@ -18,6 +18,7 @@ import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../models/work
 import { JobEntryModel, JobEntryModelFactory } from '../../models/jobEntry.model';
 import { State, workflowsReducer } from './workflows.reducers';
 import { UuidUtil } from '../../utils/uuid/uuid.util';
+import { SortAttributesModel } from '../../models/search/sortAttributes.model';
 
 describe('WorkflowsReducers', () => {
   const uuid0 = UuidUtil.createUUID();
@@ -65,6 +66,8 @@ describe('WorkflowsReducers', () => {
         jobs: [job1, job0, job2, job3],
       },
     },
+    workflowsSort: undefined,
+    workflowsFilters: [],
     workflowFormParts: undefined,
   };
 

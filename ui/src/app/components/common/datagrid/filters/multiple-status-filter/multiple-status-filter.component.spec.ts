@@ -16,7 +16,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { MultipleStatusFilterComponent } from './multiple-status-filter.component';
-import { DagRunModelFactory } from '../../../../models/dagRuns/dagRun.model';
+import { DagRunModelFactory } from '../../../../../models/dagRuns/dagRun.model';
 
 describe('MultipleStatusFilterComponent', () => {
   let fixture: ComponentFixture<MultipleStatusFilterComponent>;

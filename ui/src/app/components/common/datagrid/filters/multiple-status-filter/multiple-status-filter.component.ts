@@ -16,9 +16,8 @@
 import { AfterViewInit, Component, Input, OnDestroy } from '@angular/core';
 import { Subject, Subscription } from 'rxjs';
 import { ClrDatagridFilterInterface } from '@clr/angular';
-import { DagRunModel } from '../../../../models/dagRuns/dagRun.model';
-import { StatusModel } from '../../../../models/status.model';
-import { EqualsMultipleFilterAttributes } from '../../../../models/search/equalsMultipleFilterAttributes.model';
+import { StatusModel } from '../../../../../models/status.model';
+import { EqualsMultipleFilterAttributes } from '../../../../../models/search/equalsMultipleFilterAttributes.model';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
@@ -26,7 +25,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
   templateUrl: './multiple-status-filter.component.html',
   styleUrls: ['./multiple-status-filter.component.scss'],
 })
-export class MultipleStatusFilterComponent implements ClrDatagridFilterInterface<DagRunModel>, AfterViewInit, OnDestroy {
+export class MultipleStatusFilterComponent implements ClrDatagridFilterInterface<any>, AfterViewInit, OnDestroy {
   @Input() removeFiltersSubject: Subject<any>;
   @Input() property: string;
   @Input() statuses: StatusModel[];
@@ -65,7 +64,7 @@ export class MultipleStatusFilterComponent implements ClrDatagridFilterInterface
     this.changes.next(true);
   }
 
-  accepts(item: DagRunModel): boolean {
+  accepts(item: any): boolean {
     if (this.selectedValues.length === 0) {
       return true;
     }

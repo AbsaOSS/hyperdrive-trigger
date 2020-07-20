@@ -16,7 +16,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { DatetimeRangeFilterComponent } from './datetime-range-filter.component';
-import { DagRunModelFactory } from '../../../../models/dagRuns/dagRun.model';
+import { DagRunModelFactory } from '../../../../../models/dagRuns/dagRun.model';
 
 describe('DatetimeRangeFilterComponent', () => {
   let fixture: ComponentFixture<DatetimeRangeFilterComponent>;

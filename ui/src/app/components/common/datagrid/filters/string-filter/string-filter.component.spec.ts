@@ -15,20 +15,21 @@
 
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { NumberRangeFilterComponent } from './number-range-filter.component';
-import { DagRunModelFactory } from '../../../../models/dagRuns/dagRun.model';
+import { StringFilterComponent } from './string-filter.component';
+import { DagRunModelFactory } from '../../../../../models/dagRuns/dagRun.model';
 
-describe('NumberRangeFilterComponent', () => {
-  let fixture: ComponentFixture<NumberRangeFilterComponent>;
+describe('StringFilterComponent', () => {
+  let fixture: ComponentFixture<StringFilterComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [NumberRangeFilterComponent],
+      providers: [],
+      declarations: [StringFilterComponent],
     }).compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(NumberRangeFilterComponent);
+    fixture = TestBed.createComponent(StringFilterComponent);
   });
 
   it('should create', () => {
@@ -37,40 +38,40 @@ describe('NumberRangeFilterComponent', () => {
   });
 
   describe('accepts', () => {
-    it('should accept when it is in the range', () => {
+    it('should accept on exact match', () => {
       const underTest = fixture.componentInstance;
-      underTest.value = { from: 1, to: 3 };
-      underTest.property = 'jobCount';
+      underTest.value = 'value';
+      underTest.property = 'workflowName';
       const dagRun = DagRunModelFactory.create('value', 'projectName', 2, 'Status', new Date(Date.now()), new Date(Date.now()), 0);
 
       expect(underTest.accepts(dagRun)).toBeTrue();
     });
 
-    it('should accept when it is on left edge of the range', () => {
+    it('should accept on partial match', () => {
       const underTest = fixture.componentInstance;
-      underTest.value = { from: 1, to: 2 };
-      underTest.property = 'jobCount';
-      const dagRun = DagRunModelFactory.create('value', 'projectName', 1, 'Status', new Date(Date.now()), new Date(Date.now()), 0);
-
-      expect(underTest.accepts(dagRun)).toBeTrue();
-    });
-
-    it('should accept when it is on right edge of the range', () => {
-      const underTest = fixture.componentInstance;
-      underTest.value = { from: 1, to: 2 };
-      underTest.property = 'jobCount';
+      underTest.value = 'lue';
+      underTest.property = 'workflowName';
       const dagRun = DagRunModelFactory.create('value', 'projectName', 2, 'Status', new Date(Date.now()), new Date(Date.now()), 0);
 
       expect(underTest.accepts(dagRun)).toBeTrue();
     });
 
-    it('should not accept when it is not in the range', () => {
+    it('should not accept on no match', () => {
       const underTest = fixture.componentInstance;
-      underTest.value = { from: 5, to: 8 };
-      underTest.property = 'jobCount';
+      underTest.value = 'differentValue';
+      underTest.property = 'workflowName';
       const dagRun = DagRunModelFactory.create('value', 'projectName', 2, 'Status', new Date(Date.now()), new Date(Date.now()), 0);
 
       expect(underTest.accepts(dagRun)).toBeFalse();
+    });
+
+    it('should throw error on wrong type', () => {
+      const underTest = fixture.componentInstance;
+      underTest.value = 'differentValue';
+      underTest.property = 'jobCount';
+      const dagRun = DagRunModelFactory.create('value', 'projectName', 2, 'Status', new Date(Date.now()), new Date(Date.now()), 0);
+
+      expect(() => underTest.accepts(dagRun)).toThrowError(TypeError);
     });
   });
 });
