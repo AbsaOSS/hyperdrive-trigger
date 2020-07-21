@@ -43,7 +43,7 @@ export class WorkflowsComponent implements AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     this.workflowsSubscription = this.store.select(selectWorkflowState).subscribe((state) => {
       this.loading = state.loading;
-      this.projects = state.projects;
+      this.projects = [].concat(...state.projects.slice().sort((projectA, projectB) => projectA.name.localeCompare(projectB.name)));
       this.workflows = [].concat(...state.projects.map((project) => project.workflows));
     });
   }
