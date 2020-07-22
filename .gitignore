@@ -17,5 +17,7 @@ syntax: glob
 # building
 target
 
-#UI
-/ui/node
+# Hyperdrive-Trigger specific
+node
+node_modules
+logs
