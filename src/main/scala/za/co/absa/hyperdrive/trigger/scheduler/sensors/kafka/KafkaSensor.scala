@@ -50,15 +50,15 @@ class KafkaSensor(
   }
 
   override def poll(): Future[Unit] = {
-    logger.debug(s"$logMsgPrefix. Pooling new events.")
+    logger.debug(s"$logMsgPrefix. Polling new events.")
     val fut = Future {
       consumer.pollAsScala(Duration.ofMillis(KafkaConfig.getPollDuration))
     } flatMap processRecords map (_ => consumer.commitSync())
 
     fut.onComplete {
-      case Success(_) => logger.debug(s"$logMsgPrefix. Pooling successful")
+      case Success(_) => logger.debug(s"$logMsgPrefix. Polling successful")
       case Failure(exception) => {
-        logger.debug(s"$logMsgPrefix. Pooling failed.", exception)
+        logger.debug(s"$logMsgPrefix. Polling failed.", exception)
       }
     }
 
