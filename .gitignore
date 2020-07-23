@@ -1,16 +1,8 @@
-/target/
-
-.cache-main
-.cache-tests
-
 # use glob syntax.
 syntax: glob
-*.ser
 *.class
 *~
 *.bak
-#*.off
-*.old
 
 # eclipse conf file
 .settings
@@ -24,32 +16,8 @@ syntax: glob
 
 # building
 target
-build
-null
-tmp*
-temp*
-dist
-test-output
-build.log
 
-# other scm
-.svn
-.CVS
-.hg*
-
-# switch to regexp syntax.
-#  syntax: regexp
-#  ^\.pc/
-
-#SHITTY output not in target directory
-build.log
-
-.cache*
-dependency-reduced-pom.xml
-
-_testOutput
-output
-/keystore/
-
-#UI
-/ui/node
+# Hyperdrive-Trigger specific
+node
+node_modules
+logs
