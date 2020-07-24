@@ -18,16 +18,17 @@ package za.co.absa.hyperdrive.trigger.scheduler.sensors.time
 
 import org.quartz.CronScheduleBuilder.cronSchedule
 import org.quartz._
-import za.co.absa.hyperdrive.trigger.models.{Event, Properties}
+import za.co.absa.hyperdrive.trigger.models.{Event, Properties, Sensor}
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.PushSensor
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class TimeSensor(eventsProcessor: (Seq[Event], Properties) => Future[Boolean],
-                 properties: Properties,
+                 sensorDefinition: Sensor,
                  executionContext: ExecutionContext,
                  scheduler: Scheduler
-                ) extends PushSensor(eventsProcessor, properties, executionContext) {
+                ) extends PushSensor(eventsProcessor, sensorDefinition, executionContext) {
+  private val properties = sensorDefinition.properties
   val jobKey: JobKey = new JobKey(properties.sensorId.toString, TimeSensor.JOB_GROUP_NAME)
   val jobTriggerKey: TriggerKey = new TriggerKey(jobKey.getName, TimeSensor.JOB_TRIGGER_GROUP_NAME)
 
@@ -75,12 +76,12 @@ object TimeSensor {
   val JOB_TRIGGER_GROUP_NAME: String = "time-sensor-job-trigger-group"
 
   def apply(eventsProcessor: (Seq[Event], Properties) => Future[Boolean],
-            properties: Properties, executionContext: ExecutionContext): TimeSensor = {
+            sensorDefinition: Sensor, executionContext: ExecutionContext): TimeSensor = {
     val quartzScheduler = TimeSensorQuartzSchedulerManager.getScheduler
-    val timeSensorSettings = TimeSensorSettings(properties.settings)
-    val sensor = new TimeSensor(eventsProcessor, properties, executionContext, quartzScheduler)
+    val timeSensorSettings = TimeSensorSettings(sensorDefinition.properties.settings)
+    val sensor = new TimeSensor(eventsProcessor, sensorDefinition, executionContext, quartzScheduler)
 
-    val sensorId = properties.sensorId
+    val sensorId = sensorDefinition.properties.sensorId
     val cronExpression = timeSensorSettings.cronExpression
 
     validateJobKeys(sensor.jobKey, sensor.jobTriggerKey, quartzScheduler, sensorId)

@@ -50,12 +50,9 @@ class SensorsTest extends FlatSpec with MockitoSugar with Matchers with BeforeAn
     val cronExpression = "0 10 * ? * * *" // every hour at xx:10
     val timeSensor = createTimeSensor(sensorId, cronExpression)
 
-    when(sensorRepository.getInactiveSensors(any())(any[ExecutionContext])).thenReturn(Future {
-      Seq.empty
-    })
-    when(sensorRepository.getNewActiveSensors(any())(any[ExecutionContext])).thenReturn(Future {
-      Seq(timeSensor)
-    })
+    when(sensorRepository.getChangedSensors(any())(any[ExecutionContext])).thenReturn(Future{Seq.empty})
+    when(sensorRepository.getInactiveSensors(any())(any[ExecutionContext])).thenReturn(Future{Seq.empty})
+    when(sensorRepository.getNewActiveSensors(any())(any[ExecutionContext])).thenReturn(Future{Seq(timeSensor)})
 
     val underTest = new Sensors(eventProcessor, sensorRepository)
 
@@ -78,6 +75,7 @@ class SensorsTest extends FlatSpec with MockitoSugar with Matchers with BeforeAn
     val cronExpression2 = "0 0/10 * ? * * *" // every hour every 10 minutes
     val timeSensor2 = createTimeSensor(sensorId2, cronExpression2)
 
+    when(sensorRepository.getChangedSensors(any())(any[ExecutionContext])).thenReturn(Future{Seq.empty})
     when(sensorRepository.getInactiveSensors(any())(any[ExecutionContext])).thenReturn(
       Future {Seq.empty[Long]},
       Future {Seq(sensorId)}
@@ -115,6 +113,7 @@ class SensorsTest extends FlatSpec with MockitoSugar with Matchers with BeforeAn
     val cronExpression3 = "0 0 18 ? * * *" // every day at 18:00
     val timeSensor3 = createTimeSensor(sensorId3, cronExpression3)
 
+    when(sensorRepository.getChangedSensors(any())(any[ExecutionContext])).thenReturn(Future{Seq.empty})
     when(sensorRepository.getInactiveSensors(any())(any[ExecutionContext])).thenReturn(
       Future {Seq.empty},
       Future {Seq(sensorId, sensorId2)},
@@ -132,7 +131,6 @@ class SensorsTest extends FlatSpec with MockitoSugar with Matchers with BeforeAn
     await(underTest.processEvents())
     verifyQuartzJobExists(sensorId, cronExpression)
     verifyQuartzJobExists(sensorId2, cronExpression2)
-
     await(underTest.processEvents())
     verifyQuartzJobNotExists(sensorId)
     verifyQuartzJobNotExists(sensorId2)
@@ -141,6 +139,42 @@ class SensorsTest extends FlatSpec with MockitoSugar with Matchers with BeforeAn
     await(underTest.processEvents())
     verifyQuartzJobExists(sensorId, cronExpression)
     verifyQuartzJobNotExists(sensorId3)
+
+    underTest.cleanUpSensors()
+  }
+
+  it should "update a time sensor if its type or properties have changed" in {
+    // given
+    val sensorId = 1L
+    val cronExpression = "0 10 * ? * * *" // every hour at xx:10
+    val timeSensor = createTimeSensor(sensorId, cronExpression)
+
+    val changedCronExpression = "0 0 18 ? * * *" // every day at 18:00
+    val changedTimeSensor = createTimeSensor(sensorId, changedCronExpression)
+
+    val sensorId2 = 2L
+    val cronExpression2 = "0 0/10 * ? * * *" // every hour every 10 minutes
+    val timeSensor2 = createTimeSensor(sensorId2, cronExpression2)
+
+    when(sensorRepository.getChangedSensors(any())(any[ExecutionContext])).thenReturn(
+      Future{Seq.empty},
+      Future{Seq(changedTimeSensor)}
+    )
+    when(sensorRepository.getInactiveSensors(any())(any[ExecutionContext])).thenReturn(Future {Seq.empty})
+    when(sensorRepository.getNewActiveSensors(any())(any[ExecutionContext])).thenReturn(
+      Future {Seq(timeSensor, timeSensor2)},
+      Future {Seq(timeSensor)}
+    )
+    val underTest = new Sensors(eventProcessor, sensorRepository)
+
+    // when, then
+    underTest.prepareSensors()
+    await(underTest.processEvents())
+    verifyQuartzJobExists(sensorId, cronExpression)
+    verifyQuartzJobExists(sensorId2, cronExpression2)
+    await(underTest.processEvents())
+    verifyQuartzJobExists(sensorId, changedCronExpression)
+    verifyQuartzJobExists(sensorId2, cronExpression2)
 
     underTest.cleanUpSensors()
   }

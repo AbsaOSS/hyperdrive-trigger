@@ -15,20 +15,20 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.sensors
 
-import za.co.absa.hyperdrive.trigger.models.{Event, Properties}
+import za.co.absa.hyperdrive.trigger.models.{Event, Properties, Sensor}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 trait Sensor {
   val eventsProcessor: (Seq[Event], Properties) => Future[Boolean]
-  val properties: Properties
+  val sensorDefinition: za.co.absa.hyperdrive.trigger.models.Sensor
   implicit val executionContext: ExecutionContext
   def close(): Unit
 }
 
 abstract class PollSensor(
   override val eventsProcessor: (Seq[Event], Properties) => Future[Boolean],
-  override val properties: Properties,
+  override val sensorDefinition: za.co.absa.hyperdrive.trigger.models.Sensor,
   override val executionContext: ExecutionContext
 ) extends Sensor {
   implicit val ec: ExecutionContext = executionContext
@@ -37,7 +37,7 @@ abstract class PollSensor(
 
 abstract class PushSensor(
   override val eventsProcessor: (Seq[Event], Properties) => Future[Boolean],
-  override val properties: Properties,
+  override val sensorDefinition: za.co.absa.hyperdrive.trigger.models.Sensor,
   override val executionContext: ExecutionContext
 ) extends Sensor {
   implicit val ec: ExecutionContext = executionContext

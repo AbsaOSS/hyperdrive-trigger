@@ -16,13 +16,15 @@
 package za.co.absa.hyperdrive.trigger.persistance
 
 import org.springframework.stereotype
-import za.co.absa.hyperdrive.trigger.models.Sensor
+import za.co.absa.hyperdrive.trigger.models.{Properties, Sensor}
+import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes.SensorType
 
 import scala.concurrent.{ExecutionContext, Future}
 
 trait SensorRepository extends Repository {
   def getNewActiveSensors(idsToFilter: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[Sensor]]
   def getInactiveSensors(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[Long]]
+  def getChangedSensors(originalSensors: Seq[Sensor])(implicit ec: ExecutionContext): Future[Seq[Sensor]]
 }
 
 @stereotype.Repository
@@ -45,5 +47,24 @@ class SensorRepositoryImpl extends SensorRepository {
     } yield {
       sensor.id
     }).result
+  }
+
+  override def getChangedSensors(originalSensors: Seq[Sensor])(implicit ec: ExecutionContext): Future[Seq[Sensor]] = db.run {(
+    for {
+      sensor <- sensorTable if originalSensors
+        .map(originalSensor => sensorIsDifferent(sensor, originalSensor))
+        .reduceLeftOption(_ || _)
+        .getOrElse(false: Rep[Boolean])
+    } yield {
+      sensor
+    }).result
+  }
+
+  private def sensorIsDifferent(sensor: SensorTable, originalSensor: Sensor): Rep[Boolean] = {
+    sensor.id === originalSensor.id &&
+      (sensor.sensorType =!= originalSensor.sensorType ||
+      sensor.variables =!= originalSensor.properties.settings.variables ||
+      sensor.maps =!= originalSensor.properties.settings.maps ||
+      sensor.matchProperties =!= originalSensor.properties.matchProperties)
   }
 }
