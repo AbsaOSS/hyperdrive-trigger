@@ -46,6 +46,7 @@ class LdapAuthentication extends HyperdriverAuthentication {
     requiredParameters.foreach {
       case param if param._1.isEmpty =>
         throw new IllegalArgumentException(s"${param._2} has to be configured in order to use ldap authentication")
+      case _ => 
     }
   }
 
