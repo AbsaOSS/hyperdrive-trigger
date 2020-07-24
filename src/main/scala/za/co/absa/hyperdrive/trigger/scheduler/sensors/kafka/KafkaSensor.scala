@@ -93,7 +93,7 @@ class KafkaSensor(
     Event(sourceEventId, properties.sensorId, payload)
   }
 
-  override def close(): Unit = {
+  override def closeInternal(): Unit = {
     consumer.unsubscribe()
   }
 

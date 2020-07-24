@@ -35,7 +35,7 @@ class TimeSensor(eventsProcessor: (Seq[Event], Properties) => Future[Boolean],
   override def push: Seq[Event] => Future[Unit] = (events: Seq[Event]) =>
     eventsProcessor.apply(events, properties).map(_ => (): Unit)
 
-  override def close(): Unit = {
+  override def closeInternal(): Unit = {
     scheduler.deleteJob(jobKey)
   }
 
