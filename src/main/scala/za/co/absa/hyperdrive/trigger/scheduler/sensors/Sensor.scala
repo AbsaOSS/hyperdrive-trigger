@@ -16,7 +16,7 @@
 package za.co.absa.hyperdrive.trigger.scheduler.sensors
 
 import org.slf4j.LoggerFactory
-import za.co.absa.hyperdrive.trigger.models.{Event, Properties, Sensor}
+import za.co.absa.hyperdrive.trigger.models.{Event, Properties}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
