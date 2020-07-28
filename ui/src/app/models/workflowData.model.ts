@@ -19,9 +19,14 @@ import { workflowFormParts as workflowFormPartsConsts, workflowFormPartsSequence
 import get from 'lodash/get';
 import { JobEntryModel, JobEntryModelFactory } from './jobEntry.model';
 import { DynamicFormParts } from './workflowFormParts.model';
+import { WorkflowFormDataModel, WorkflowFormDataModelFactory } from './workflowFormData.model';
 
 export class WorkflowDataModel {
   constructor(private worfklow: WorkflowJoinedModel, private dynamicParts: DynamicFormParts) {}
+
+  getWorkflowFromData(): WorkflowFormDataModel {
+    return WorkflowFormDataModelFactory.create(this.getDetailsData(), this.getSensorData(), this.getJobsData());
+  }
 
   getDetailsData(): WorkflowEntryModel[] {
     return workflowFormPartsSequences.allDetails.map((detail) => {

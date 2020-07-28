@@ -180,6 +180,12 @@ export class WorkflowService {
               PartValidationFactory.create(false, undefined, 1),
             ),
             FormPartFactory.create(
+              'Additional Spark Config',
+              'jobParameters.keyValuePairs.additionalSparkConfig',
+              'key-value-field',
+              PartValidationFactory.create(false, undefined, 1),
+            ),
+            FormPartFactory.create(
               'App arguments',
               'jobParameters.maps.appArguments',
               'set-field',

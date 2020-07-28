@@ -20,7 +20,9 @@ import { WorkflowFormPartsModel } from '../../models/workflowFormParts.model';
 import { WorkflowEntryModel } from '../../models/workflowEntry.model';
 import { JobEntryModel } from '../../models/jobEntry.model';
 import { WorkflowModel } from '../../models/workflow.model';
-import { ApiErrorModel } from '../../models/errors/apiError.model';
+import { SortAttributesModel } from '../../models/search/sortAttributes.model';
+import { HistoryModel } from '../../models/historyModel';
+import { WorkflowFormDataModel } from '../../models/workflowFormData.model';
 
 export const INITIALIZE_WORKFLOWS = 'INITIALIZE_WORKFLOWS';
 export const INITIALIZE_WORKFLOWS_SUCCESS = 'INITIALIZE_WORKFLOWS_SUCCESS';
@@ -62,6 +64,17 @@ export const UPDATE_WORKFLOW_SUCCESS = 'UPDATE_WORKFLOW_SUCCESS';
 export const UPDATE_WORKFLOW_FAILURE = 'UPDATE_WORKFLOW_FAILURE';
 
 export const REMOVE_BACKEND_VALIDATION_ERROR = 'REMOVE_BACKEND_VALIDATION_ERROR';
+
+export const SET_WORKFLOWS_SORT = 'SET_WORKFLOWS_SORT';
+export const SET_WORKFLOWS_FILTERS = 'SET_WORKFLOWS_FILTERS';
+
+export const LOAD_HISTORY_FOR_WORKFLOW = 'LOAD_HISTORY_FOR_WORKFLOW';
+export const LOAD_HISTORY_FOR_WORKFLOW_SUCCESS = 'LOAD_HISTORY_FOR_WORKFLOW_SUCCESS';
+export const LOAD_HISTORY_FOR_WORKFLOW_FAILURE = 'LOAD_HISTORY_FOR_WORKFLOW_FAILURE';
+
+export const LOAD_WORKFLOWS_FROM_HISTORY = 'LOAD_WORKFLOWS_FROM_HISTORY';
+export const LOAD_WORKFLOWS_FROM_HISTORY_SUCCESS = 'LOAD_WORKFLOWS_FROM_HISTORY_SUCCESS';
+export const LOAD_WORKFLOWS_FROM_HISTORY_FAILURE = 'LOAD_WORKFLOWS_FROM_HISTORY_FAILURE';
 
 export class InitializeWorkflows implements Action {
   readonly type = INITIALIZE_WORKFLOWS;
@@ -219,6 +232,52 @@ export class RemoveBackendValidationError implements Action {
   constructor(public payload: number) {}
 }
 
+export class SetWorkflowsSort implements Action {
+  readonly type = SET_WORKFLOWS_SORT;
+  constructor(public payload: SortAttributesModel) {}
+}
+
+export class SetWorkflowsFilters implements Action {
+  readonly type = SET_WORKFLOWS_FILTERS;
+  constructor(public payload: any[]) {}
+}
+
+export class LoadHistoryForWorkflow implements Action {
+  readonly type = LOAD_HISTORY_FOR_WORKFLOW;
+  constructor(public payload: number) {}
+}
+
+export class LoadHistoryForWorkflowSuccess implements Action {
+  readonly type = LOAD_HISTORY_FOR_WORKFLOW_SUCCESS;
+  constructor(public payload: HistoryModel[]) {}
+}
+
+export class LoadHistoryForWorkflowFailure implements Action {
+  readonly type = LOAD_HISTORY_FOR_WORKFLOW_FAILURE;
+}
+
+export class LoadWorkflowsFromHistory implements Action {
+  readonly type = LOAD_WORKFLOWS_FROM_HISTORY;
+  constructor(public payload: { leftWorkflowHistoryId: number; rightWorkflowHistoryId: number }) {}
+}
+
+export class LoadWorkflowsFromHistorySuccess implements Action {
+  readonly type = LOAD_WORKFLOWS_FROM_HISTORY_SUCCESS;
+  constructor(
+    public payload: {
+      workflowFormParts: WorkflowFormPartsModel;
+      leftWorkflowHistoryData: WorkflowFormDataModel;
+      leftWorkflowHistory: HistoryModel;
+      rightWorkflowHistoryData: WorkflowFormDataModel;
+      rightWorkflowHistory: HistoryModel;
+    },
+  ) {}
+}
+
+export class LoadWorkflowsFromHistoryFailure implements Action {
+  readonly type = LOAD_WORKFLOWS_FROM_HISTORY_FAILURE;
+}
+
 export type WorkflowsActions =
   | InitializeWorkflows
   | InitializeWorkflowsSuccess
@@ -251,4 +310,12 @@ export type WorkflowsActions =
   | UpdateWorkflow
   | UpdateWorkflowSuccess
   | UpdateWorkflowFailure
-  | RemoveBackendValidationError;
+  | RemoveBackendValidationError
+  | SetWorkflowsSort
+  | SetWorkflowsFilters
+  | LoadHistoryForWorkflow
+  | LoadHistoryForWorkflowSuccess
+  | LoadHistoryForWorkflowFailure
+  | LoadWorkflowsFromHistory
+  | LoadWorkflowsFromHistorySuccess
+  | LoadWorkflowsFromHistoryFailure;

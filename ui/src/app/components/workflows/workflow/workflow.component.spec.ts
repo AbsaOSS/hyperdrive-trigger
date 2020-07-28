@@ -18,26 +18,21 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { WorkflowComponent } from './workflow.component';
 import { provideMockStore } from '@ngrx/store/testing';
 import { ActivatedRoute, Router } from '@angular/router';
-import { of, Subject } from 'rxjs';
+import { of } from 'rxjs';
 import { RouterTestingModule } from '@angular/router/testing';
 import { PreviousRouteService } from '../../../services/previousRoute/previous-route.service';
-import { absoluteRoutes } from '../../../constants/routes.constants';
 import { ConfirmationDialogService } from '../../../services/confirmation-dialog/confirmation-dialog.service';
 import { Store } from '@ngrx/store';
 import { AppState } from '../../../stores/app.reducers';
-import {
-  CreateWorkflow,
-  DeleteWorkflow,
-  RunWorkflow,
-  SwitchWorkflowActiveState,
-  UpdateWorkflow,
-} from '../../../stores/workflows/workflows.actions';
+import { StartWorkflowInitialization } from '../../../stores/workflows/workflows.actions';
+import { DynamicFormPartsFactory, WorkflowFormPartsModelFactory } from '../../../models/workflowFormParts.model';
+import { workflowFormParts, workflowFormPartsSequences } from '../../../constants/workflowFormParts.constants';
 
 describe('WorkflowComponent', () => {
   let underTest: WorkflowComponent;
   let fixture: ComponentFixture<WorkflowComponent>;
   let previousRouteService: PreviousRouteService;
-  let router;
+  let router: Router;
   let confirmationDialogService: ConfirmationDialogService;
   let store: Store<AppState>;
 
@@ -50,6 +45,19 @@ describe('WorkflowComponent', () => {
         workflow: {
           isActive: true,
         },
+        workflowFormData: {
+          details: [{ property: 'detailProp', value: 'detailVal' }],
+          sensor: [{ property: 'sensorProp', value: 'sensorVal' }],
+          jobs: [{ jobId: 'jobId', order: 0, entries: [{ property: 'jobProp', value: 'jobVal' }] }],
+        },
+        workflowFormParts: WorkflowFormPartsModelFactory.create(
+          workflowFormPartsSequences.allDetails,
+          workflowFormParts.SENSOR.SENSOR_TYPE,
+          workflowFormParts.JOB.JOB_NAME,
+          workflowFormParts.JOB.JOB_TYPE,
+          DynamicFormPartsFactory.create([], []),
+        ),
+        backendValidationErrors: ['validationError'],
       },
     },
   };
@@ -94,231 +102,25 @@ describe('WorkflowComponent', () => {
       expect(underTest.loading).toBe(initialAppState.workflows.workflowAction.loading);
       expect(underTest.mode).toBe(initialAppState.workflows.workflowAction.mode);
       expect(underTest.id).toBe(initialAppState.workflows.workflowAction.id);
+      expect(underTest.isWorkflowActive).toBe(initialAppState.workflows.workflowAction.workflow.isActive);
+      expect(underTest.backendValidationErrors).toBe(initialAppState.workflows.workflowAction.backendValidationErrors);
+      expect(underTest.workflowFormParts).toBe(initialAppState.workflows.workflowAction.workflowFormParts);
+      expect(underTest.workflowData).toBe(initialAppState.workflows.workflowAction.workflowFormData);
     });
   }));
 
-  it('toggleDetailsAccordion() should toggle detail accordion', () => {
-    expect(underTest.isDetailsAccordionHidden).toBeFalse();
-    underTest.toggleDetailsAccordion();
-    expect(underTest.isDetailsAccordionHidden).toBeTrue();
-  });
-
-  it('toggleSensorAccordion() should toggle sensor accordion', () => {
-    expect(underTest.isSensorAccordionHidden).toBeFalse();
-    underTest.toggleSensorAccordion();
-    expect(underTest.isSensorAccordionHidden).toBeTrue();
-  });
-
-  it('toggleJobsAccordion() should toggle jobs accordion', () => {
-    expect(underTest.isJobsAccordionHidden).toBeFalse();
-    underTest.toggleJobsAccordion();
-    expect(underTest.isJobsAccordionHidden).toBeTrue();
-  });
-
-  it('deleteWorkflow() should dispatch delete workflow action with id when dialog is confirmed', async(() => {
-    const id = 1;
-    const subject = new Subject<boolean>();
-    const storeSpy = spyOn(store, 'dispatch');
-
-    spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
-
-    underTest.deleteWorkflow(id);
-    subject.next(true);
-
+  it('when changes is dispatched from child component it should propagate action to store', async(() => {
+    const usedAction = new StartWorkflowInitialization({ id: 1, mode: 'mode' });
     fixture.detectChanges();
     fixture.whenStable().then(() => {
-      expect(storeSpy).toHaveBeenCalled();
-      expect(storeSpy).toHaveBeenCalledWith(new DeleteWorkflow(id));
+      const storeSpy = spyOn(store, 'dispatch');
+      underTest.changes.next(usedAction);
+      fixture.detectChanges();
+
+      fixture.whenStable().then(() => {
+        expect(storeSpy).toHaveBeenCalledTimes(1);
+        expect(storeSpy).toHaveBeenCalledWith(usedAction);
+      });
     });
   }));
-
-  it('deleteWorkflow() should not dispatch delete workflow action when dialog is not confirmed', async(() => {
-    const id = 1;
-    const subject = new Subject<boolean>();
-    const storeSpy = spyOn(store, 'dispatch');
-
-    spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
-
-    underTest.deleteWorkflow(id);
-    subject.next(false);
-
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(storeSpy).toHaveBeenCalledTimes(0);
-    });
-  }));
-
-  it('switchWorkflowActiveState() should dispatch switch workflow active state with id and old value when dialog is confirmed', async(() => {
-    const id = 1;
-    const subject = new Subject<boolean>();
-    const storeSpy = spyOn(store, 'dispatch');
-
-    spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
-
-    underTest.switchWorkflowActiveState(id);
-    underTest.ngOnInit();
-    subject.next(true);
-
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(storeSpy).toHaveBeenCalled();
-      expect(storeSpy).toHaveBeenCalledWith(
-        new SwitchWorkflowActiveState({ id: id, currentActiveState: initialAppState.workflows.workflowAction.workflow.isActive }),
-      );
-    });
-  }));
-
-  it('switchWorkflowActiveState() should not dispatch switch workflow active state when dialog is not confirmed', async(() => {
-    const id = 1;
-    const subject = new Subject<boolean>();
-    const storeSpy = spyOn(store, 'dispatch');
-
-    spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
-
-    underTest.switchWorkflowActiveState(id);
-    subject.next(false);
-
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(storeSpy).toHaveBeenCalledTimes(0);
-    });
-  }));
-
-  it('runWorkflow() should dispatch switch run workflow', async(() => {
-    const id = 42;
-    const subject = new Subject<boolean>();
-    const storeSpy = spyOn(store, 'dispatch');
-
-    spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
-
-    underTest.runWorkflow(id);
-    underTest.ngOnInit();
-    subject.next(true);
-
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(storeSpy).toHaveBeenCalled();
-      expect(storeSpy).toHaveBeenCalledWith(new RunWorkflow(id));
-    });
-  }));
-
-  it('runWorkflow() should not dispatch run workflow when dialog is not confirmed', async(() => {
-    const id = 42;
-    const subject = new Subject<boolean>();
-    const storeSpy = spyOn(store, 'dispatch');
-
-    spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
-
-    underTest.runWorkflow(id);
-    subject.next(false);
-
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(storeSpy).toHaveBeenCalledTimes(0);
-    });
-  }));
-
-  it('createWorkflow() should dispatch create workflow when dialog is confirmed', async(() => {
-    underTest.workflowForm = { form: { valid: true } };
-
-    const subject = new Subject<boolean>();
-    const storeSpy = spyOn(store, 'dispatch');
-
-    spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
-
-    underTest.createWorkflow();
-    underTest.ngOnInit();
-    subject.next(true);
-
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(storeSpy).toHaveBeenCalled();
-      expect(storeSpy).toHaveBeenCalledWith(new CreateWorkflow());
-    });
-  }));
-
-  it('createWorkflow() should not dispatch create workflow when dialog is not confirmed', async(() => {
-    const id = 1;
-    underTest.workflowForm = { form: { valid: true } };
-    const subject = new Subject<boolean>();
-    const storeSpy = spyOn(store, 'dispatch');
-
-    spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
-
-    underTest.createWorkflow();
-    subject.next(false);
-
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(storeSpy).toHaveBeenCalledTimes(0);
-    });
-  }));
-
-  it('updateWorkflow() should dispatch update workflow when dialog is confirmed', async(() => {
-    underTest.workflowForm = { form: { valid: true } };
-
-    const subject = new Subject<boolean>();
-    const storeSpy = spyOn(store, 'dispatch');
-
-    spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
-
-    underTest.updateWorkflow();
-    underTest.ngOnInit();
-    subject.next(true);
-
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(storeSpy).toHaveBeenCalled();
-      expect(storeSpy).toHaveBeenCalledWith(new UpdateWorkflow());
-    });
-  }));
-
-  it('updateWorkflow() should not dispatch update workflow when dialog is not confirmed', async(() => {
-    const id = 1;
-    underTest.workflowForm = { form: { valid: true } };
-    const subject = new Subject<boolean>();
-    const storeSpy = spyOn(store, 'dispatch');
-
-    spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
-
-    underTest.updateWorkflow();
-    subject.next(false);
-
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(storeSpy).toHaveBeenCalledTimes(0);
-    });
-  }));
-
-  it('cancelWorkflow() should navigate back when history is not empty', () => {
-    const testUrl = 'test/url';
-    spyOn(previousRouteService, 'getPreviousUrl').and.returnValue(testUrl);
-    const routerSpy = spyOn(router, 'navigateByUrl');
-
-    underTest.cancelWorkflow();
-    expect(routerSpy).toHaveBeenCalledTimes(1);
-    expect(routerSpy).toHaveBeenCalledWith(testUrl);
-  });
-
-  it('cancelWorkflow() should navigate to workflows home when history is empty', () => {
-    spyOn(previousRouteService, 'getPreviousUrl').and.returnValue(undefined);
-    const routerSpy = spyOn(router, 'navigateByUrl');
-    underTest.cancelWorkflow();
-    expect(routerSpy).toHaveBeenCalledTimes(1);
-    expect(routerSpy).toHaveBeenCalledWith(absoluteRoutes.WORKFLOWS_HOME);
-  });
-
-  it('showHiddenParts() should show hidden parts', () => {
-    const jobsUnfoldSpy = spyOn(underTest.jobsUnfold, 'emit');
-    underTest.isDetailsAccordionHidden = true;
-    underTest.isSensorAccordionHidden = true;
-    underTest.isJobsAccordionHidden = true;
-
-    underTest.showHiddenParts();
-
-    expect(underTest.isDetailsAccordionHidden).toBeFalsy();
-    expect(underTest.isSensorAccordionHidden).toBeFalsy();
-    expect(underTest.isJobsAccordionHidden).toBeFalsy();
-    expect(jobsUnfoldSpy).toHaveBeenCalledTimes(1);
-  });
 });

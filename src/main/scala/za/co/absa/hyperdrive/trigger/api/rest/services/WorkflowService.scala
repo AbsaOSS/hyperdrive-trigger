@@ -15,8 +15,8 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
-import java.time.LocalDateTime
-
+import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.models.errors.ApiError
 import za.co.absa.hyperdrive.trigger.models.{Project, ProjectInfo, Workflow, WorkflowJoined}
@@ -48,10 +48,11 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
                           override val workflowValidationService: WorkflowValidationService) extends WorkflowService {
 
   def createWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], WorkflowJoined]] = {
+    val userName = getUserName.apply();
     for {
       validationErrors <- workflowValidationService.validateOnInsert(workflow)
       result <- doIf(validationErrors, () => {
-        workflowRepository.insertWorkflow(workflow).flatMap {
+        workflowRepository.insertWorkflow(workflow, userName).flatMap {
           case Left(error) => Future.successful(Left(error))
           case Right(workflowId) => getWorkflow(workflowId).map(Right(_))
         }
@@ -74,10 +75,12 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
   }
 
   def deleteWorkflow(id: Long)(implicit ec: ExecutionContext): Future[Boolean] = {
-    workflowRepository.deleteWorkflow(id).map(_ => true)
+    val userName = getUserName.apply();
+    workflowRepository.deleteWorkflow(id, userName).map(_ => true)
   }
 
   override def updateWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], WorkflowJoined]] = {
+    val userName = getUserName.apply();
     for {
       validationErrors <- workflowValidationService.validateOnUpdate(workflow)
       result <- doIf(validationErrors, () => {
@@ -99,7 +102,7 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
             )
           )
 
-          workflowRepository.updateWorkflow(updatedWorkflow).flatMap {
+          workflowRepository.updateWorkflow(updatedWorkflow, userName).flatMap {
             case Left(error) => Future.successful(Left(error))
             case Right(_) => getWorkflow(workflow.id).map(Right(_))
           }
@@ -111,7 +114,8 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
   }
 
   override def switchWorkflowActiveState(id: Long)(implicit ec: ExecutionContext): Future[Boolean] = {
-    workflowRepository.switchWorkflowActiveState(id).map(_ => true)
+    val userName = getUserName.apply();
+    workflowRepository.switchWorkflowActiveState(id, userName).map(_ => true)
   }
 
   override def getProjectNames()(implicit ec: ExecutionContext): Future[Set[String]] = {
@@ -145,6 +149,10 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
     } else {
       Future.successful(Left(validationErrors))
     }
+  }
+
+  private[services] def getUserName: () => String = {
+    SecurityContextHolder.getContext.getAuthentication.getPrincipal.asInstanceOf[UserDetails].getUsername
   }
 
 }

@@ -13,7 +13,7 @@
   ~ limitations under the License.
   -->
 
-<clr-datagrid>
+<clr-datagrid (clrDgRefresh)="onClarityDgRefresh($event)">
 
   <clr-dg-action-bar>
     <div class="btn-group">
@@ -21,11 +21,40 @@
         <clr-icon shape="plus"></clr-icon>
         Create new workflow
       </button>
+      <button type="button" class="btn btn-sm btn-secondary" (click)="clearFilters()">
+        <clr-icon shape="trash"></clr-icon>
+        Clear filters
+      </button>
+      <button type="button" class="btn btn-sm btn-secondary" (click)="clearSort()">
+        <clr-icon shape="trash"></clr-icon>
+        Clear sort
+      </button>
     </div>
   </clr-dg-action-bar>
 
-  <clr-dg-column>Workflow name</clr-dg-column>
-  <clr-dg-column>Project name</clr-dg-column>
+  <clr-dg-column [clrDgField]="workflowsHomeColumns.WORKFLOW_NAME"
+                 [clrDgSortOrder]="getSort(workflowsHomeColumns.WORKFLOW_NAME)">
+    <ng-container>Workflow name</ng-container>
+    <clr-dg-filter [clrDgFilter]="workflowNameFilter">
+      <app-string-filter [value]="getFilter(workflowsHomeColumns.WORKFLOW_NAME)"
+                         #workflowNameFilter
+                         [property]="workflowsHomeColumns.WORKFLOW_NAME"
+                         [removeFiltersSubject]="removeWorkflowFilterSubject">
+      </app-string-filter>
+    </clr-dg-filter>
+  </clr-dg-column>
+  <clr-dg-column
+    [clrDgField]="workflowsHomeColumns.PROJECT_NAME"
+    [clrDgSortOrder]="getSort(workflowsHomeColumns.PROJECT_NAME)">
+    <ng-container>Project name</ng-container>
+    <clr-dg-filter [clrDgFilter]="workflowProjectFilter">
+      <app-string-filter [removeFiltersSubject]="removeWorkflowFilterSubject"
+                         [value]="getFilter(workflowsHomeColumns.PROJECT_NAME)"
+                         #workflowProjectFilter
+                         [property]="workflowsHomeColumns.PROJECT_NAME">
+      </app-string-filter>
+    </clr-dg-filter>
+  </clr-dg-column>
   <clr-dg-column>Is active</clr-dg-column>
 
   <clr-dg-row *clrDgItems="let workflow of workflows" [clrDgItem]="workflow">
@@ -51,8 +80,12 @@
         Edit
       </button>
       <button type="button" class="action-item" (click)="deleteWorkflow(workflow.id)">
-        <clr-icon shape="close" ></clr-icon>
+        <clr-icon shape="close"></clr-icon>
         Delete
+      </button>
+      <button type="button" class="action-item" [routerLink]="[absoluteRoutes.WORKFLOW_HISTORY(workflow.id)]">
+        <clr-icon shape="history"></clr-icon>
+        Show History
       </button>
     </clr-dg-action-overflow>
 
