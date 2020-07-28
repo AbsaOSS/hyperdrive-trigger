@@ -335,7 +335,7 @@ export class WorkflowsEffects {
           return [
             {
               type: WorkflowActions.LOAD_HISTORY_FOR_WORKFLOW_SUCCESS,
-              payload: historyForWorkflow.sort((left, right) => right.changedOn.valueOf() - left.changedOn.valueOf()),
+              payload: historyForWorkflow.sort((left, right) => right.id - left.id),
             },
           ];
         }),

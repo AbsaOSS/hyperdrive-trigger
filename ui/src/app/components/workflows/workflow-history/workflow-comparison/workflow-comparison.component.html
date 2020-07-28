@@ -19,9 +19,9 @@
     </span>
 </div>
 
-<div class="content-area asd" *ngIf="!loading">
+<div class="content-area" *ngIf="!loading">
   <div class="clr-row" *ngIf="isLoadedSuccessfully()">
-    <div class="clr-col">
+    <div class="clr-col oneSideOfComparison" >
       <app-history-detail [historyDetail]="workflowHistoryLeft"></app-history-detail>
       <app-workflow-form
         [mode]="workflowModes.COMPARISON"
@@ -33,7 +33,7 @@
       </app-workflow-form>
 
     </div>
-    <div class="clr-col">
+    <div class="clr-col oneSideOfComparison">
       <app-history-detail [historyDetail]="workflowHistoryRight"></app-history-detail>
       <app-workflow-form
         [mode]="workflowModes.COMPARISON"
