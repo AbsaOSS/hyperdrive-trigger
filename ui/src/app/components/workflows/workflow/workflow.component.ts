@@ -26,6 +26,7 @@ import {
   RunWorkflow,
   SwitchWorkflowActiveState,
   RemoveBackendValidationError,
+  InitializeWorkflows,
 } from '../../../stores/workflows/workflows.actions';
 import { workflowModes } from '../../../models/enums/workflowModes.constants';
 import { absoluteRoutes } from '../../../constants/routes.constants';
@@ -159,11 +160,20 @@ export class WorkflowComponent implements OnInit, OnDestroy {
       this.confirmationDialogServiceSubscription = this.confirmationDialogService
         .confirm(ConfirmationDialogTypes.YesOrNo, texts.UPDATE_WORKFLOW_CONFIRMATION_TITLE, texts.UPDATE_WORKFLOW_CONFIRMATION_CONTENT)
         .subscribe((confirmed) => {
-          if (confirmed) this.store.dispatch(new UpdateWorkflow());
+          if (confirmed) {
+            this.store.dispatch(new UpdateWorkflow());
+            this.initializeAfterAction();
+          }
         });
     } else {
       this.showHiddenParts();
     }
+  }
+
+  initializeAfterAction() {
+    setTimeout(() => {
+      this.store.dispatch(new InitializeWorkflows());
+    }, 1000);
   }
 
   showHiddenParts() {

@@ -27,11 +27,11 @@ describe('WorkflowsComponent', () => {
     workflows: {
       loading: true,
       projects: [
-        ProjectModelFactory.create('projectTwo', [
-          WorkflowModelFactory.create('workflowTwo', undefined, undefined, undefined, undefined, undefined),
-        ]),
         ProjectModelFactory.create('projectOne', [
           WorkflowModelFactory.create('workflowOne', undefined, undefined, undefined, undefined, undefined),
+        ]),
+        ProjectModelFactory.create('projectTwo', [
+          WorkflowModelFactory.create('workflowTwo', undefined, undefined, undefined, undefined, undefined),
         ]),
       ],
     },
@@ -57,7 +57,7 @@ describe('WorkflowsComponent', () => {
     fixture.detectChanges();
     fixture.whenStable().then(() => {
       expect(underTest.loading).toBe(initialAppState.workflows.loading);
-      expect(underTest.projects).toEqual([initialAppState.workflows.projects[1], initialAppState.workflows.projects[0]]);
+      expect(underTest.projects).toEqual(initialAppState.workflows.projects);
       expect(underTest.workflows).toEqual([].concat(...initialAppState.workflows.projects.map((project) => project.workflows)));
     });
   }));

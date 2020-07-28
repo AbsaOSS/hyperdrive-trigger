@@ -82,7 +82,12 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
     case WorkflowsActions.INITIALIZE_WORKFLOWS:
       return { ...state, loading: true };
     case WorkflowsActions.INITIALIZE_WORKFLOWS_SUCCESS:
-      return { ...state, loading: false, projects: action.payload.projects, workflowFormParts: action.payload.workflowFormParts };
+      return {
+        ...state,
+        loading: false,
+        projects: action.payload.projects.slice().sort((projectA, projectB) => projectA.name.localeCompare(projectB.name)),
+        workflowFormParts: action.payload.workflowFormParts,
+      };
     case WorkflowsActions.INITIALIZE_WORKFLOWS_FAILURE:
       return { ...initialState, loading: false };
 
