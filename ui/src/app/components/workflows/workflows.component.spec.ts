@@ -57,7 +57,7 @@ describe('WorkflowsComponent', () => {
     fixture.detectChanges();
     fixture.whenStable().then(() => {
       expect(underTest.loading).toBe(initialAppState.workflows.loading);
-      expect(underTest.projects).toEqual(initialAppState.workflows.projects);
+      expect(underTest.projects).toBe(initialAppState.workflows.projects);
       expect(underTest.workflows).toEqual([].concat(...initialAppState.workflows.projects.map((project) => project.workflows)));
     });
   }));
