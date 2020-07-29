@@ -30,6 +30,7 @@ import { IntRangeFilterAttributes } from '../../models/search/intRangeFilterAttr
 import { DateTimeRangeFilterAttributes } from '../../models/search/dateTimeRangeFilterAttributes.model';
 import { SortAttributesModel } from '../../models/search/sortAttributes.model';
 import { EqualsMultipleFilterAttributes } from '../../models/search/equalsMultipleFilterAttributes.model';
+import { DatagridService } from '../../services/datagrid/datagrid.service';
 
 @Component({
   selector: 'app-runs',
@@ -45,6 +46,9 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
   pageSize = 0;
   sort: SortAttributesModel = null;
 
+  workflowFilter: any;
+  projectFilter: any;
+
   dagRuns: DagRunModel[] = [];
   total = 0;
   loading = true;
@@ -56,7 +60,7 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
 
   removeFiltersSubject: Subject<any> = new Subject();
 
-  constructor(private store: Store<AppState>) {
+  constructor(private store: Store<AppState>, private datagrid: DatagridService) {
     // do nothing
   }
 
@@ -96,6 +100,22 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
     };
 
     this.store.dispatch(new GetDagRuns(searchRequestModel));
+  }
+
+  getWorkflowFilter(): string | any {
+    this.datagrid.getWorkflowFilter().subscribe((value) => {
+      this.workflowFilter = value;
+    });
+
+    return this.workflowFilter ? this.workflowFilter : undefined;
+  }
+
+  getProjectFilter(): string | any {
+    this.datagrid.getProjectFilter().subscribe((value) => {
+      this.projectFilter = value;
+    });
+
+    return this.projectFilter ? this.projectFilter : undefined;
   }
 
   clearFilters() {

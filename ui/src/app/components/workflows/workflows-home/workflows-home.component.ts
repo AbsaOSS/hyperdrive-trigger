@@ -29,6 +29,7 @@ import { ClrDatagridColumn, ClrDatagridStateInterface } from '@clr/angular';
 import { SortAttributesModel } from '../../../models/search/sortAttributes.model';
 import { filter } from 'rxjs/operators';
 import { workflowsHomeColumns } from 'src/app/constants/workflow.constants';
+import { DatagridService } from '../../../services/datagrid/datagrid.service';
 
 @Component({
   selector: 'app-workflows-home',
@@ -51,7 +52,12 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
   filters: any[] = undefined;
   ignoreRefresh = false;
 
-  constructor(private store: Store<AppState>, private confirmationDialogService: ConfirmationDialogService, private router: Router) {
+  constructor(
+    private store: Store<AppState>,
+    private confirmationDialogService: ConfirmationDialogService,
+    private router: Router,
+    private datagrid: DatagridService,
+  ) {
     this.routerSubscription = router.events.pipe(filter((e) => e instanceof ResolveEnd)).subscribe((e: ResolveEnd) => {
       this.ignoreRefresh = e.state.root.component !== WorkflowsHomeComponent;
     });
@@ -108,6 +114,8 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
       this.store.dispatch(new SetWorkflowsSort(this.sort));
       this.filters = state.filters ? state.filters : [];
       this.store.dispatch(new SetWorkflowsFilters(this.filters));
+      this.datagrid.changeWorkflowFilter(this.getFilter(this.workflowsHomeColumns.WORKFLOW_NAME));
+      this.datagrid.changeProjectFilter(this.getFilter(this.workflowsHomeColumns.PROJECT_NAME));
     }
   }
 
