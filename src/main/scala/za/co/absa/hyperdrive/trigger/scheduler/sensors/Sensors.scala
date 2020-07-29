@@ -43,8 +43,8 @@ class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: Sensor
   def processEvents(): Future[Unit] = {
     logger.debug(s"Processing events. Sensors: ${sensors.keys}")
     val fut = for {
-      _ <- updateChangedSensors()
       _ <- removeInactiveSensors()
+      _ <- updateChangedSensors()
       _ <- addNewSensors()
       _ <- pollEvents()
     } yield {

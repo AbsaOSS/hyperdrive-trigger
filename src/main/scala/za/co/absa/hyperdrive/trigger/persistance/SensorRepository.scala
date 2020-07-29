@@ -16,8 +16,7 @@
 package za.co.absa.hyperdrive.trigger.persistance
 
 import org.springframework.stereotype
-import za.co.absa.hyperdrive.trigger.models.{Properties, Sensor}
-import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes.SensorType
+import za.co.absa.hyperdrive.trigger.models.Sensor
 
 import scala.concurrent.{ExecutionContext, Future}
 
