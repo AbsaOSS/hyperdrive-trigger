@@ -20,7 +20,7 @@ import java.util.Collections
 
 import org.apache.kafka.clients.consumer.{ConsumerRecord, KafkaConsumer}
 import play.api.libs.json.{JsError, JsSuccess, Json}
-import za.co.absa.hyperdrive.trigger.models.{Event, Properties}
+import za.co.absa.hyperdrive.trigger.models.{Event, Properties, Sensor}
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.PollSensor
 import za.co.absa.hyperdrive.trigger.scheduler.utilities.KafkaConfig
 
@@ -32,13 +32,13 @@ import scala.util.{Failure, Success, Try}
 
 class KafkaSensor(
   eventsProcessor: (Seq[Event], Properties) => Future[Boolean],
-  properties: Properties,
+  sensorDefinition: Sensor,
   executionContext: ExecutionContext
-) extends PollSensor(eventsProcessor, properties, executionContext) {
+) extends PollSensor(eventsProcessor, sensorDefinition, executionContext) {
 
+  private val properties = sensorDefinition.properties
   private val logger = LoggerFactory.getLogger(this.getClass)
   private val logMsgPrefix = s"Sensor id = ${properties.sensorId}."
-
   private val kafkaSettings = KafkaSettings(properties.settings)
 
   private val consumer = new KafkaConsumer[String, String](KafkaConfig.getConsumerProperties(kafkaSettings))
@@ -50,15 +50,15 @@ class KafkaSensor(
   }
 
   override def poll(): Future[Unit] = {
-    logger.debug(s"$logMsgPrefix. Pooling new events.")
+    logger.debug(s"$logMsgPrefix. Polling new events.")
     val fut = Future {
       consumer.pollAsScala(Duration.ofMillis(KafkaConfig.getPollDuration))
     } flatMap processRecords map (_ => consumer.commitSync())
 
     fut.onComplete {
-      case Success(_) => logger.debug(s"$logMsgPrefix. Pooling successful")
+      case Success(_) => logger.debug(s"$logMsgPrefix. Polling successful")
       case Failure(exception) => {
-        logger.debug(s"$logMsgPrefix. Pooling failed.", exception)
+        logger.debug(s"$logMsgPrefix. Polling failed.", exception)
       }
     }
 
@@ -93,7 +93,7 @@ class KafkaSensor(
     Event(sourceEventId, properties.sensorId, payload)
   }
 
-  override def close(): Unit = {
+  override def closeInternal(): Unit = {
     consumer.unsubscribe()
   }
 

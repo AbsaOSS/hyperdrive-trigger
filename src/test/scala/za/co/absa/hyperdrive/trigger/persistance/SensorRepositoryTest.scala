@@ -17,9 +17,8 @@ package za.co.absa.hyperdrive.trigger.persistance
 
 import org.scalatest.{FlatSpec, _}
 
-import scala.concurrent.Await
+import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration.Duration
 
 class SensorRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryTestBase {
 
@@ -44,11 +43,21 @@ class SensorRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll
     insertSensors(allSensors)
 
     // execute
-    val result = Await.result(sensorRepository.getNewActiveSensors(idsToExclude), Duration.Inf)
+    val result = await(sensorRepository.getNewActiveSensors(idsToExclude))
 
     // verify
     result.size shouldBe 2
     result should contain theSameElementsAs Seq(activeKafka._1, activeTimeW101._1)
+  }
+
+  it should "given an empty seq, return all active sensors" in {
+    insertSensors(allSensors)
+
+    val result = await(sensorRepository.getNewActiveSensors(Seq.empty))
+
+    result should contain theSameElementsAs allSensors
+      .filter{ case (_, workflow) => workflow.isActive }
+      .map{ case (sensor, _) => sensor }
   }
 
   "sensorRepository.getInactiveSensors" should "given a set of sensor ids, return the ids of the inactive ones" in {
@@ -57,10 +66,53 @@ class SensorRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll
     insertSensors(allSensors)
 
     // execute
-    val result = Await.result(sensorRepository.getInactiveSensors(ids), Duration.Inf)
+    val result = await(sensorRepository.getInactiveSensors(ids))
 
     // verify
     result.size shouldBe 2
     result should contain theSameElementsAs Seq(inactiveTime._1.id, inactiveKafka._1.id)
+  }
+
+  it should "given an empty seq, return en empty seq" in {
+    insertSensors(allSensors)
+
+    val result = await(sensorRepository.getInactiveSensors(Seq.empty))
+
+    result shouldBe empty
+  }
+
+  "sensorRepository.getChangedSensors" should "given a set of sensors, return the sensors with changed type or properties" in {
+    // prepare
+    insertSensors(allSensors)
+
+    val changedActiveTimeW100 = activeTimeW100._1.copy(
+      properties = activeTimeW100._1.properties.copy(
+        settings = activeTimeW100._1.properties.settings.copy(variables = Map("cronExpression" -> "0 0 1 ? * * *"))
+      ))
+    val changedActiveAbsaKafka = activeAbsaKafka._1.copy(
+      properties = activeAbsaKafka._1.properties.copy(
+        settings = activeAbsaKafka._1.properties.settings.copy(maps = Map("servers" -> List("abcd", "xyz")))
+      ))
+    val changedActiveKafka = activeKafka._1.copy(
+      properties = activeKafka._1.properties.copy(
+        matchProperties = Map("key" -> "value")
+      ))
+    val changedInactiveTime = inactiveTime._1.copy(sensorType = SensorTypes.Kafka)
+    val changedSensors = Seq(changedActiveTimeW100, changedActiveAbsaKafka, changedActiveKafka, changedInactiveTime)
+
+    // execute
+    val result = await(sensorRepository.getChangedSensors(changedSensors ++ Seq(activeTimeW101._1, inactiveAbsaKafka._1, inactiveKafka._1)))
+
+    // verify
+    result.size shouldBe 4
+    result should contain theSameElementsAs allSensors
+      .filter { case (sensor, _) => changedSensors.map(_.id).contains(sensor.id) }
+      .map { case (sensor, _) => sensor }
+  }
+
+  it should "given an empty seq, return an empty seq" in {
+    val result = await(sensorRepository.getChangedSensors(Seq.empty))
+
+    result shouldBe empty
   }
 }
