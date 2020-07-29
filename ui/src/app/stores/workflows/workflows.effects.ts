@@ -28,20 +28,21 @@ import { AppState, selectWorkflowState } from '../app.reducers';
 import { Store } from '@ngrx/store';
 import * as fromWorkflows from './workflows.reducers';
 import { WorkflowDataModel } from '../../models/workflowData.model';
-import set from 'lodash/set';
 import { Router } from '@angular/router';
 import { absoluteRoutes } from '../../constants/routes.constants';
 import { ToastrService } from 'ngx-toastr';
 import { texts } from '../../constants/texts.constants';
 import { WorkflowModel, WorkflowModelFactory } from '../../models/workflow.model';
 import { WorkflowRequestModel } from '../../models/workflowRequest.model';
-import { ApiErrorModel } from '../../models/errors/apiError.model';
+import { JobService } from '../../services/job/job.service';
+import { JobForRunModel } from '../../models/jobForRun.model';
 
 @Injectable()
 export class WorkflowsEffects {
   constructor(
     private actions: Actions,
     private workflowService: WorkflowService,
+    private jobService: JobService,
     private store: Store<AppState>,
     private router: Router,
     private toastrService: ToastrService,
@@ -326,6 +327,30 @@ export class WorkflowsEffects {
               },
             ];
           }
+        }),
+      );
+    }),
+  );
+
+  @Effect({ dispatch: true })
+  jobsForRunLoad = this.actions.pipe(
+    ofType(WorkflowActions.LOAD_JOBS_FOR_RUN),
+    switchMap((action: WorkflowActions.LoadJobsForRun) => {
+      return this.jobService.getJobsForRun(action.payload).pipe(
+        mergeMap((result: JobForRunModel[]) => {
+          return [
+            {
+              type: WorkflowActions.LOAD_JOBS_FOR_RUN_SUCCESS,
+              payload: result,
+            },
+          ];
+        }),
+        catchError(() => {
+          return [
+            {
+              type: WorkflowActions.LOAD_JOBS_FOR_RUN_FAILURE,
+            },
+          ];
         }),
       );
     }),

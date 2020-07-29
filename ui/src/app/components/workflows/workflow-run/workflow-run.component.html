@@ -1,0 +1,17 @@
+<clr-modal [clrModalOpen]="isOpen" (clrModalOpenChange)="close(false)" [clrModalSize]="'sm'">
+  <h3 class="modal-title">Jobs to run</h3>
+  <div class="modal-body">
+
+    <clr-checkbox-container *ngFor="let job of jobs">
+      <clr-checkbox-wrapper>
+        <input type="checkbox" clrCheckbox value="option1" name="options" [checked]="isSelected(job.id)" (change)="changeSelection(job.id)"/>
+        <label>{{job.name}}</label>
+      </clr-checkbox-wrapper>
+    </clr-checkbox-container>
+
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline" (click)="close(false)">Cancel</button>
+    <button type="button" class="btn btn-primary" [disabled]="!(selectedJobs.length > 0)" (click)="close(true)">Run</button>
+  </div>
+</clr-modal>

@@ -13,22 +13,10 @@
  * limitations under the License.
  */
 
-export const api = {
-  USER_INFO: '/user/info',
-  LOGIN: '/login',
-  LOGOUT: '/logout',
+package za.co.absa.hyperdrive.trigger.models
 
-  DAG_RUN_SEARCH: '/dagRuns/search',
-  JOB_INSTANCES: '/jobInstances',
-
-  GET_PROJECTS: '/workflows/projects',
-  GET_WORKFLOW: '/workflow',
-  DELETE_WORKFLOW: '/workflows',
-  SWITCH_WORKFLOW_ACTIVE_STATE: '/workflows/{id}/switchActiveState',
-  RUN_WORKFLOW: '/workflow/run',
-  CREATE_WORKFLOW: '/workflow',
-  UPDATE_WORKFLOW: '/workflows',
-  GET_JOBS_FOR_RUN: '/jobsForRun',
-
-  GET_QUARTZ_DETAIL: '/util/quartzDetail',
-};
+case class JobForRun(
+  name: String,
+  order: Int,
+  id: Long
+)

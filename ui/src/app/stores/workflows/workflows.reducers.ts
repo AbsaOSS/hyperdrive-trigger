@@ -20,6 +20,7 @@ import { WorkflowFormPartsModel } from '../../models/workflowFormParts.model';
 import { WorkflowEntryModel } from '../../models/workflowEntry.model';
 import { JobEntryModel, JobEntryModelFactory } from '../../models/jobEntry.model';
 import { SortAttributesModel } from '../../models/search/sortAttributes.model';
+import { JobForRunModel } from '../../models/jobForRun.model';
 
 export interface State {
   projects: ProjectModel[];
@@ -39,6 +40,12 @@ export interface State {
   workflowsSort: SortAttributesModel;
   workflowsFilters: any[];
   workflowFormParts: WorkflowFormPartsModel;
+  jobsForRun: {
+    isOpen: boolean;
+    loading: boolean;
+    jobs: JobForRunModel[];
+    isSuccessfullyLoaded: boolean;
+  };
 }
 
 const initialState: State = {
@@ -59,6 +66,12 @@ const initialState: State = {
   workflowsSort: undefined,
   workflowsFilters: undefined,
   workflowFormParts: undefined,
+  jobsForRun: {
+    isOpen: false,
+    loading: true,
+    jobs: undefined,
+    isSuccessfullyLoaded: false,
+  },
 };
 
 function removeJob(jobId: string, jobsOriginal: JobEntryModel[]): JobEntryModel[] {
@@ -416,6 +429,36 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
       return {
         ...state,
         workflowsFilters: action.payload,
+      };
+    case WorkflowsActions.LOAD_JOBS_FOR_RUN:
+      return {
+        ...state,
+        jobsForRun: {
+          ...initialState.jobsForRun,
+          loading: true,
+          isOpen: true,
+        },
+      };
+    case WorkflowsActions.LOAD_JOBS_FOR_RUN_SUCCESS:
+      return {
+        ...state,
+        jobsForRun: {
+          ...state.jobsForRun,
+          loading: false,
+          jobs: action.payload,
+          isSuccessfullyLoaded: true,
+          isOpen: true,
+        },
+      };
+    case WorkflowsActions.LOAD_JOBS_FOR_RUN_FAILURE:
+      return {
+        ...state,
+        jobsForRun: {
+          ...initialState.jobsForRun,
+          loading: false,
+          isSuccessfullyLoaded: false,
+          isOpen: true,
+        },
       };
     default:
       return state;

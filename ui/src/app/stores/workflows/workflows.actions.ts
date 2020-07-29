@@ -21,6 +21,7 @@ import { WorkflowEntryModel } from '../../models/workflowEntry.model';
 import { JobEntryModel } from '../../models/jobEntry.model';
 import { WorkflowModel } from '../../models/workflow.model';
 import { SortAttributesModel } from '../../models/search/sortAttributes.model';
+import { JobForRunModel } from '../../models/jobForRun.model';
 
 export const INITIALIZE_WORKFLOWS = 'INITIALIZE_WORKFLOWS';
 export const INITIALIZE_WORKFLOWS_SUCCESS = 'INITIALIZE_WORKFLOWS_SUCCESS';
@@ -65,6 +66,10 @@ export const REMOVE_BACKEND_VALIDATION_ERROR = 'REMOVE_BACKEND_VALIDATION_ERROR'
 
 export const SET_WORKFLOWS_SORT = 'SET_WORKFLOWS_SORT';
 export const SET_WORKFLOWS_FILTERS = 'SET_WORKFLOWS_FILTERS';
+
+export const LOAD_JOBS_FOR_RUN = 'LOAD_JOBS_FOR_RUN';
+export const LOAD_JOBS_FOR_RUN_SUCCESS = 'LOAD_JOBS_FOR_RUN_SUCCESS';
+export const LOAD_JOBS_FOR_RUN_FAILURE = 'LOAD_JOBS_FOR_RUN_FAILURE';
 
 export class InitializeWorkflows implements Action {
   readonly type = INITIALIZE_WORKFLOWS;
@@ -232,6 +237,20 @@ export class SetWorkflowsFilters implements Action {
   constructor(public payload: any[]) {}
 }
 
+export class LoadJobsForRun implements Action {
+  readonly type = LOAD_JOBS_FOR_RUN;
+  constructor(public payload: number) {}
+}
+
+export class LoadJobsForRunSuccess implements Action {
+  readonly type = LOAD_JOBS_FOR_RUN_SUCCESS;
+  constructor(public payload: JobForRunModel[]) {}
+}
+
+export class LoadJobsForRunFailure implements Action {
+  readonly type = LOAD_JOBS_FOR_RUN_FAILURE;
+}
+
 export type WorkflowsActions =
   | InitializeWorkflows
   | InitializeWorkflowsSuccess
@@ -266,4 +285,7 @@ export type WorkflowsActions =
   | UpdateWorkflowFailure
   | RemoveBackendValidationError
   | SetWorkflowsSort
-  | SetWorkflowsFilters;
+  | SetWorkflowsFilters
+  | LoadJobsForRun
+  | LoadJobsForRunSuccess
+  | LoadJobsForRunFailure;
