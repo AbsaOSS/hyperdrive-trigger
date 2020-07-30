@@ -70,6 +70,8 @@ export const SET_WORKFLOWS_FILTERS = 'SET_WORKFLOWS_FILTERS';
 export const LOAD_JOBS_FOR_RUN = 'LOAD_JOBS_FOR_RUN';
 export const LOAD_JOBS_FOR_RUN_SUCCESS = 'LOAD_JOBS_FOR_RUN_SUCCESS';
 export const LOAD_JOBS_FOR_RUN_FAILURE = 'LOAD_JOBS_FOR_RUN_FAILURE';
+export const RUN_JOBS = 'RUN_JOBS';
+export const RUN_JOBS_CANCEL = 'RUN_JOBS_CANCEL';
 
 export class InitializeWorkflows implements Action {
   readonly type = INITIALIZE_WORKFLOWS;
@@ -251,6 +253,15 @@ export class LoadJobsForRunFailure implements Action {
   readonly type = LOAD_JOBS_FOR_RUN_FAILURE;
 }
 
+export class RunJobs implements Action {
+  readonly type = RUN_JOBS;
+  constructor(public payload: { workflowId: number; jobs?: number[] }) {}
+}
+
+export class RunJobsCancel implements Action {
+  readonly type = RUN_JOBS_CANCEL;
+}
+
 export type WorkflowsActions =
   | InitializeWorkflows
   | InitializeWorkflowsSuccess
@@ -288,4 +299,6 @@ export type WorkflowsActions =
   | SetWorkflowsFilters
   | LoadJobsForRun
   | LoadJobsForRunSuccess
-  | LoadJobsForRunFailure;
+  | LoadJobsForRunFailure
+  | RunJobs
+  | RunJobsCancel;

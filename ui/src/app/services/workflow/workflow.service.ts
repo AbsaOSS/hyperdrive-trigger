@@ -93,6 +93,13 @@ export class WorkflowService {
       .pipe(map((_) => _.body));
   }
 
+  runWorkflowsJobs(workflowId: number, jobsIds: number[]): Observable<boolean> {
+    const params = new HttpParams().set('workflowId', workflowId.toString());
+    return this.httpClient
+      .put<boolean>(api.RUN_WORKFLOWS_JOBS, { jobsIds: jobsIds }, { params: params, observe: 'response' })
+      .pipe(map((_) => _.body));
+  }
+
   getWorkflowDynamicFormParts(): Observable<DynamicFormParts> {
     return of(
       DynamicFormPartsFactory.create(

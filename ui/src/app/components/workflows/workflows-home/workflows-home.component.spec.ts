@@ -159,41 +159,41 @@ describe('WorkflowsHomeComponent', () => {
     });
   }));
 
-  it('runWorkflow() should dispatch switch run workflow', async(() => {
-    const id = 42;
-    const subject = new Subject<boolean>();
-    const storeSpy = spyOn(store, 'dispatch');
-
-    spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
-
-    underTest.runWorkflow(id);
-    underTest.ngOnInit();
-    subject.next(true);
-
-    fixture.detectChanges();
-    expect(underTest.ignoreRefresh).toBeTrue();
-    fixture.whenStable().then(() => {
-      expect(storeSpy).toHaveBeenCalled();
-      expect(storeSpy).toHaveBeenCalledWith(new RunWorkflow(id));
-    });
-  }));
-
-  it('runWorkflow() should not dispatch run workflow when dialog is not confirmed', async(() => {
-    const id = 42;
-    const subject = new Subject<boolean>();
-    const storeSpy = spyOn(store, 'dispatch');
-
-    spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
-
-    underTest.runWorkflow(id);
-    subject.next(false);
-
-    fixture.detectChanges();
-    expect(underTest.ignoreRefresh).toBeTrue();
-    fixture.whenStable().then(() => {
-      expect(storeSpy).toHaveBeenCalledTimes(0);
-    });
-  }));
+  // it('runWorkflow() should dispatch switch run workflow', async(() => {
+  //   const id = 42;
+  //   const subject = new Subject<boolean>();
+  //   const storeSpy = spyOn(store, 'dispatch');
+  //
+  //   spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
+  //
+  //   underTest.runWorkflow(id);
+  //   underTest.ngOnInit();
+  //   subject.next(true);
+  //
+  //   fixture.detectChanges();
+  //   expect(underTest.ignoreRefresh).toBeTrue();
+  //   fixture.whenStable().then(() => {
+  //     expect(storeSpy).toHaveBeenCalled();
+  //     expect(storeSpy).toHaveBeenCalledWith(new RunWorkflow(id));
+  //   });
+  // }));
+  //
+  // it('runWorkflow() should not dispatch run workflow when dialog is not confirmed', async(() => {
+  //   const id = 42;
+  //   const subject = new Subject<boolean>();
+  //   const storeSpy = spyOn(store, 'dispatch');
+  //
+  //   spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
+  //
+  //   underTest.runWorkflow(id);
+  //   subject.next(false);
+  //
+  //   fixture.detectChanges();
+  //   expect(underTest.ignoreRefresh).toBeTrue();
+  //   fixture.whenStable().then(() => {
+  //     expect(storeSpy).toHaveBeenCalledTimes(0);
+  //   });
+  // }));
 
   it('showWorkflow() should navigate to show workflow page', async(() => {
     const id = 42;

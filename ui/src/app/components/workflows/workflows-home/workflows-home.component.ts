@@ -19,7 +19,7 @@ import { AppState, selectWorkflowState } from '../../../stores/app.reducers';
 import { WorkflowModel } from '../../../models/workflow.model';
 import { Store } from '@ngrx/store';
 import { absoluteRoutes } from '../../../constants/routes.constants';
-import { RunWorkflow, SetWorkflowsFilters, SetWorkflowsSort } from '../../../stores/workflows/workflows.actions';
+import { LoadJobsForRun, RunWorkflow, SetWorkflowsFilters, SetWorkflowsSort } from '../../../stores/workflows/workflows.actions';
 import { ConfirmationDialogTypes } from '../../../constants/confirmationDialogTypes.constants';
 import { DeleteWorkflow, SwitchWorkflowActiveState } from '../../../stores/workflows/workflows.actions';
 import { ConfirmationDialogService } from '../../../services/confirmation-dialog/confirmation-dialog.service';
@@ -90,12 +90,7 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
   }
 
   runWorkflow(id: number) {
-    this.runWorkflowDialogSubscription = this.confirmationDialogService
-      .confirm(ConfirmationDialogTypes.YesOrNo, texts.RUN_WORKFLOW_CONFIRMATION_TITLE, texts.RUN_WORKFLOW_CONFIRMATION_CONTENT)
-      .subscribe((confirmed) => {
-        this.ignoreRefresh = true;
-        if (confirmed) this.store.dispatch(new RunWorkflow(id));
-      });
+    this.store.dispatch(new LoadJobsForRun(id));
   }
 
   showWorkflow(id: number) {

@@ -36,6 +36,8 @@ import { WorkflowModel, WorkflowModelFactory } from '../../models/workflow.model
 import { WorkflowRequestModel } from '../../models/workflowRequest.model';
 import { JobService } from '../../services/job/job.service';
 import { JobForRunModel } from '../../models/jobForRun.model';
+import { RUN_JOBS } from '../workflows/workflows.actions';
+import { EMPTY } from 'rxjs';
 
 @Injectable()
 export class WorkflowsEffects {
@@ -351,6 +353,28 @@ export class WorkflowsEffects {
               type: WorkflowActions.LOAD_JOBS_FOR_RUN_FAILURE,
             },
           ];
+        }),
+      );
+    }),
+  );
+
+  @Effect({ dispatch: false })
+  jobsRun = this.actions.pipe(
+    ofType(WorkflowActions.RUN_JOBS),
+    switchMap((action: WorkflowActions.RunJobs) => {
+      return this.workflowService.runWorkflowsJobs(action.payload.workflowId, action.payload.jobs).pipe(
+        mergeMap((runWorkflowSuccess) => {
+          if (runWorkflowSuccess) {
+            this.toastrService.success('success');
+            return EMPTY;
+          } else {
+            this.toastrService.error('faile1');
+            return EMPTY;
+          }
+        }),
+        catchError(() => {
+          this.toastrService.error('faile2');
+          return EMPTY;
         }),
       );
     }),

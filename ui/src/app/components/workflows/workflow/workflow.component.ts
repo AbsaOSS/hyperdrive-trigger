@@ -137,11 +137,6 @@ export class WorkflowComponent implements OnInit, OnDestroy {
 
   runWorkflow(id: number) {
     this.store.dispatch(new LoadJobsForRun(id));
-    // this.runWorkflowDialogSubscription = this.confirmationDialogService
-    //   .confirm(ConfirmationDialogTypes.YesOrNo, texts.RUN_WORKFLOW_CONFIRMATION_TITLE, texts.RUN_WORKFLOW_CONFIRMATION_CONTENT)
-    //   .subscribe((confirmed) => {
-    //     if (confirmed) this.store.dispatch(new RunWorkflow(id));
-    //   });
   }
 
   createWorkflow() {

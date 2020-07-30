@@ -1,4 +1,8 @@
-<clr-modal [clrModalOpen]="isOpen" (clrModalOpenChange)="close(false)" [clrModalSize]="'sm'">
+<clr-modal [clrModalOpen]="isOpen"
+           [clrModalClosable]="true"
+           [clrModalStaticBackdrop]="false"
+           (clrModalOpenChange)="close(false)"
+           [clrModalSize]="'sm'">
   <h3 class="modal-title">Jobs to run</h3>
   <div class="modal-body">
 

@@ -43,6 +43,7 @@ export interface State {
   jobsForRun: {
     isOpen: boolean;
     loading: boolean;
+    workflowId: number;
     jobs: JobForRunModel[];
     isSuccessfullyLoaded: boolean;
   };
@@ -69,6 +70,7 @@ const initialState: State = {
   jobsForRun: {
     isOpen: false,
     loading: true,
+    workflowId: undefined,
     jobs: undefined,
     isSuccessfullyLoaded: false,
   },
@@ -435,6 +437,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         ...state,
         jobsForRun: {
           ...initialState.jobsForRun,
+          workflowId: action.payload,
           loading: true,
           isOpen: true,
         },
@@ -458,6 +461,23 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
           loading: false,
           isSuccessfullyLoaded: false,
           isOpen: true,
+        },
+      };
+    case WorkflowsActions.RUN_JOBS:
+      return {
+        ...state,
+        jobsForRun: {
+          ...initialState.jobsForRun,
+          loading: false,
+          isOpen: false,
+        },
+      };
+    case WorkflowsActions.RUN_JOBS_CANCEL:
+      return {
+        ...state,
+        jobsForRun: {
+          ...initialState.jobsForRun,
+          isOpen: false,
         },
       };
     default:
