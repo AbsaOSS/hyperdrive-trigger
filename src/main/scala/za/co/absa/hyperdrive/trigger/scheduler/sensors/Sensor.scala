@@ -15,20 +15,30 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.sensors
 
+import org.slf4j.LoggerFactory
 import za.co.absa.hyperdrive.trigger.models.{Event, Properties}
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
 
 trait Sensor {
+  private val logger = LoggerFactory.getLogger(this.getClass)
   val eventsProcessor: (Seq[Event], Properties) => Future[Boolean]
-  val properties: Properties
+  val sensorDefinition: za.co.absa.hyperdrive.trigger.models.Sensor
   implicit val executionContext: ExecutionContext
-  def close(): Unit
+  def close(): Unit = {
+    try {
+      closeInternal()
+    } catch {
+      case NonFatal(e) => logger.warn(s"Couldn't close sensor $sensorDefinition", e)
+    }
+  }
+  def closeInternal(): Unit
 }
 
 abstract class PollSensor(
   override val eventsProcessor: (Seq[Event], Properties) => Future[Boolean],
-  override val properties: Properties,
+  override val sensorDefinition: za.co.absa.hyperdrive.trigger.models.Sensor,
   override val executionContext: ExecutionContext
 ) extends Sensor {
   implicit val ec: ExecutionContext = executionContext
@@ -37,7 +47,7 @@ abstract class PollSensor(
 
 abstract class PushSensor(
   override val eventsProcessor: (Seq[Event], Properties) => Future[Boolean],
-  override val properties: Properties,
+  override val sensorDefinition: za.co.absa.hyperdrive.trigger.models.Sensor,
   override val executionContext: ExecutionContext
 ) extends Sensor {
   implicit val ec: ExecutionContext = executionContext
