@@ -33,6 +33,7 @@ import { PreviousRouteService } from '../../../services/previousRoute/previous-r
 import { ConfirmationDialogService } from '../../../services/confirmation-dialog/confirmation-dialog.service';
 import { ConfirmationDialogTypes } from '../../../constants/confirmationDialogTypes.constants';
 import { texts } from '../../../constants/texts.constants';
+import { DatagridService } from '../../../services/datagrid/datagrid.service';
 
 @Component({
   selector: 'app-workflow',
@@ -48,6 +49,7 @@ export class WorkflowComponent implements OnInit, OnDestroy {
   id: number;
   isWorkflowActive: boolean;
   backendValidationErrors: string[];
+  name: string;
 
   workflowModes = workflowModes;
   absoluteRoutes = absoluteRoutes;
@@ -67,6 +69,7 @@ export class WorkflowComponent implements OnInit, OnDestroy {
     private previousRouteService: PreviousRouteService,
     private router: Router,
     route: ActivatedRoute,
+    private datagrid: DatagridService,
   ) {
     this.paramsSubscription = route.params.subscribe((parameters) => {
       this.store.dispatch(new StartWorkflowInitialization({ id: parameters.id, mode: parameters.mode }));
@@ -80,6 +83,7 @@ export class WorkflowComponent implements OnInit, OnDestroy {
       this.id = state.workflowAction.id;
       this.isWorkflowActive = !!state.workflowAction.workflow ? state.workflowAction.workflow.isActive : false;
       this.backendValidationErrors = state.workflowAction.backendValidationErrors;
+      this.name = !!state.workflowAction.workflow ? state.workflowAction.workflow.name : undefined;
     });
   }
 
@@ -164,6 +168,11 @@ export class WorkflowComponent implements OnInit, OnDestroy {
     } else {
       this.showHiddenParts();
     }
+  }
+
+  viewWorklowRuns(workflowName: string) {
+    this.datagrid.setWorkflowFilter(workflowName);
+    this.router.navigate([absoluteRoutes.RUNS]);
   }
 
   showHiddenParts() {

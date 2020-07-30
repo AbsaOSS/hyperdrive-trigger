@@ -30,6 +30,7 @@ import { IntRangeFilterAttributes } from '../../models/search/intRangeFilterAttr
 import { DateTimeRangeFilterAttributes } from '../../models/search/dateTimeRangeFilterAttributes.model';
 import { SortAttributesModel } from '../../models/search/sortAttributes.model';
 import { EqualsMultipleFilterAttributes } from '../../models/search/equalsMultipleFilterAttributes.model';
+import { DatagridService } from '../../services/datagrid/datagrid.service';
 
 @Component({
   selector: 'app-runs',
@@ -40,10 +41,14 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
   @ViewChildren(ClrDatagridColumn) columns: QueryList<ClrDatagridColumn>;
 
   runsSubscription: Subscription = null;
+  datagridSubscription: Subscription = null;
   page = 1;
   pageFrom = 0;
   pageSize = 0;
   sort: SortAttributesModel = null;
+
+  workflowFiler: any;
+  projectFilter: any;
 
   dagRuns: DagRunModel[] = [];
   total = 0;
@@ -56,7 +61,7 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
 
   removeFiltersSubject: Subject<any> = new Subject();
 
-  constructor(private store: Store<AppState>) {
+  constructor(private store: Store<AppState>, private datagrid: DatagridService) {
     // do nothing
   }
 
@@ -73,6 +78,8 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
 
   ngOnDestroy(): void {
     !!this.runsSubscription && this.runsSubscription.unsubscribe();
+    this.datagrid.setProjectFilter(undefined);
+    this.datagrid.setWorkflowFilter(undefined);
   }
 
   onClarityDgRefresh(state: ClrDatagridStateInterface) {
@@ -82,6 +89,22 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
     this.filters = state.filters ? state.filters : [];
 
     this.refresh();
+  }
+
+  getWorkflowFilter(): string | any {
+    this.datagrid.getWorkflowFilter().subscribe((value) => {
+      this.workflowFiler = value;
+    });
+
+    return this.workflowFiler ? this.workflowFiler : undefined;
+  }
+
+  geProjectFilter(): string | any {
+    this.datagrid.getProjectFilter().subscribe((value) => {
+      this.projectFilter = value;
+    });
+
+    return this.projectFilter ? this.projectFilter : undefined;
   }
 
   refresh() {
@@ -100,6 +123,8 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
 
   clearFilters() {
     this.removeFiltersSubject.next();
+    this.datagrid.setProjectFilter(undefined);
+    this.datagrid.setWorkflowFilter(undefined);
   }
 
   clearSort() {
