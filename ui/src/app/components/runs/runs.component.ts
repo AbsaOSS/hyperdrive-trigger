@@ -41,7 +41,6 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
   @ViewChildren(ClrDatagridColumn) columns: QueryList<ClrDatagridColumn>;
 
   runsSubscription: Subscription = null;
-  datagridSubscription: Subscription = null;
   page = 1;
   pageFrom = 0;
   pageSize = 0;

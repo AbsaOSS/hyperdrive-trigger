@@ -23,6 +23,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { PreviousRouteService } from '../../../services/previousRoute/previous-route.service';
 import { absoluteRoutes } from '../../../constants/routes.constants';
 import { ConfirmationDialogService } from '../../../services/confirmation-dialog/confirmation-dialog.service';
+import { DatagridService } from '../../../services/datagrid/datagrid.service';
 import { Store } from '@ngrx/store';
 import { AppState } from '../../../stores/app.reducers';
 import {
@@ -40,6 +41,7 @@ describe('WorkflowComponent', () => {
   let router;
   let confirmationDialogService: ConfirmationDialogService;
   let store: Store<AppState>;
+  let datagridService: DatagridService;
 
   const initialAppState = {
     workflows: {
@@ -49,6 +51,7 @@ describe('WorkflowComponent', () => {
         id: 0,
         workflow: {
           isActive: true,
+          name: 'workflowName',
         },
       },
     },
@@ -69,6 +72,7 @@ describe('WorkflowComponent', () => {
           },
         },
         PreviousRouteService,
+        DatagridService,
       ],
       imports: [RouterTestingModule.withRoutes([])],
       declarations: [WorkflowComponent],
@@ -77,6 +81,7 @@ describe('WorkflowComponent', () => {
     router = TestBed.inject(Router);
     confirmationDialogService = TestBed.inject(ConfirmationDialogService);
     store = TestBed.inject(Store);
+    datagridService = TestBed.inject(DatagridService);
   }));
 
   beforeEach(() => {
@@ -94,6 +99,7 @@ describe('WorkflowComponent', () => {
       expect(underTest.loading).toBe(initialAppState.workflows.workflowAction.loading);
       expect(underTest.mode).toBe(initialAppState.workflows.workflowAction.mode);
       expect(underTest.id).toBe(initialAppState.workflows.workflowAction.id);
+      expect(underTest.name).toBe(initialAppState.workflows.workflowAction.workflow.name);
     });
   }));
 
@@ -307,6 +313,20 @@ describe('WorkflowComponent', () => {
     expect(routerSpy).toHaveBeenCalledTimes(1);
     expect(routerSpy).toHaveBeenCalledWith(absoluteRoutes.WORKFLOWS_HOME);
   });
+
+  it('viewWorklowRuns() should set workflow filter and navigate to runs page', async(() => {
+    const name = 'workflowName';
+    const routerSpy = spyOn(router, 'navigate');
+    const datagridServiceSpy = spyOn(datagridService, 'setWorkflowFilter');
+
+    underTest.viewWorklowRuns(name);
+
+    expect(datagridServiceSpy).toHaveBeenCalledTimes(1);
+    expect(datagridServiceSpy).toHaveBeenCalledWith(name);
+
+    expect(routerSpy).toHaveBeenCalledTimes(1);
+    expect(routerSpy).toHaveBeenCalledWith([absoluteRoutes.RUNS]);
+  }));
 
   it('showHiddenParts() should show hidden parts', () => {
     const jobsUnfoldSpy = spyOn(underTest.jobsUnfold, 'emit');

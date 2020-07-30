@@ -21,6 +21,7 @@ import { ProjectModel, ProjectModelFactory } from '../../../models/project.model
 import { WorkflowModel, WorkflowModelFactory } from '../../../models/workflow.model';
 import { SortAttributesModel } from '../../../models/search/sortAttributes.model';
 import { ConfirmationDialogService } from '../../../services/confirmation-dialog/confirmation-dialog.service';
+import { DatagridService } from '../../../services/datagrid/datagrid.service';
 import { Store } from '@ngrx/store';
 import { AppState } from '../../../stores/app.reducers';
 import { Subject } from 'rxjs';
@@ -42,6 +43,7 @@ describe('WorkflowsHomeComponent', () => {
   let confirmationDialogService: ConfirmationDialogService;
   let store: Store<AppState>;
   let router: Router;
+  let datagridService: DatagridService;
 
   const initialAppState = {
     workflows: {
@@ -60,13 +62,14 @@ describe('WorkflowsHomeComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      providers: [ConfirmationDialogService, provideMockStore({ initialState: initialAppState })],
+      providers: [ConfirmationDialogService, provideMockStore({ initialState: initialAppState }), DatagridService],
       declarations: [WorkflowsHomeComponent],
       imports: [RouterTestingModule.withRoutes([])],
     }).compileComponents();
     confirmationDialogService = TestBed.inject(ConfirmationDialogService);
     store = TestBed.inject(Store);
     router = TestBed.inject(Router);
+    datagridService = TestBed.inject(DatagridService);
   }));
 
   beforeEach(() => {
@@ -203,6 +206,24 @@ describe('WorkflowsHomeComponent', () => {
 
     expect(routerSpy).toHaveBeenCalledTimes(1);
     expect(routerSpy).toHaveBeenCalledWith([absoluteRoutes.SHOW_WORKFLOW, id]);
+  }));
+
+  it('viewWorklowRuns() should set filters and navigate to runs page', async(() => {
+    const name = 'workflowName';
+    const routerSpy = spyOn(router, 'navigate');
+    const workflowSpy = spyOn(datagridService, 'setWorkflowFilter');
+    const projectSpy = spyOn(datagridService, 'setProjectFilter');
+
+    underTest.viewWorklowRuns(name);
+
+    expect(workflowSpy).toHaveBeenCalledTimes(1);
+    expect(workflowSpy).toHaveBeenCalledWith(name);
+
+    expect(projectSpy).toHaveBeenCalledTimes(1);
+    expect(projectSpy).toHaveBeenCalledWith(undefined);
+
+    expect(routerSpy).toHaveBeenCalledTimes(1);
+    expect(routerSpy).toHaveBeenCalledWith([absoluteRoutes.RUNS]);
   }));
 
   describe('onClarityDgRefresh', () => {
