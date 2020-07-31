@@ -50,10 +50,6 @@ export const SWITCH_WORKFLOW_ACTIVE_STATE = 'SWITCH_WORKFLOW_ACTIVE_STATE';
 export const SWITCH_WORKFLOW_ACTIVE_STATE_SUCCESS = 'SWITCH_WORKFLOW_ACTIVE_STATE_SUCCESS';
 export const SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE = 'SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE';
 
-export const RUN_WORKFLOW = 'RUN_WORKFLOW';
-export const RUN_WORKFLOW_SUCCESS = 'RUN_WORKFLOW_SUCCESS';
-export const RUN_WORKFLOW_FAILURE = 'RUN_WORKFLOW_FAILURE';
-
 export const CREATE_WORKFLOW = 'CREATE_WORKFLOW';
 export const CREATE_WORKFLOW_SUCCESS = 'CREATE_WORKFLOW_SUCCESS';
 export const CREATE_WORKFLOW_FAILURE = 'CREATE_WORKFLOW_FAILURE';
@@ -183,19 +179,6 @@ export class SwitchWorkflowActiveStateFailure implements Action {
   readonly type = SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE;
 }
 
-export class RunWorkflow implements Action {
-  readonly type = RUN_WORKFLOW;
-  constructor(public payload: number) {}
-}
-
-export class RunWorkflowSuccess implements Action {
-  readonly type = RUN_WORKFLOW_SUCCESS;
-}
-
-export class RunWorkflowFailure implements Action {
-  readonly type = RUN_WORKFLOW_FAILURE;
-}
-
 export class CreateWorkflow implements Action {
   readonly type = CREATE_WORKFLOW;
 }
@@ -285,9 +268,6 @@ export type WorkflowsActions =
   | SwitchWorkflowActiveState
   | SwitchWorkflowActiveStateSuccess
   | SwitchWorkflowActiveStateFailure
-  | RunWorkflow
-  | RunWorkflowSuccess
-  | RunWorkflowFailure
   | CreateWorkflow
   | CreateWorkflowSuccess
   | CreateWorkflowFailure

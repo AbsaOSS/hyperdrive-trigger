@@ -23,7 +23,6 @@ import {
   CreateWorkflow,
   StartWorkflowInitialization,
   UpdateWorkflow,
-  RunWorkflow,
   SwitchWorkflowActiveState,
   RemoveBackendValidationError,
   LoadJobsForRun,

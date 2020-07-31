@@ -28,7 +28,7 @@ import { AppState } from '../../../stores/app.reducers';
 import {
   CreateWorkflow,
   DeleteWorkflow,
-  RunWorkflow,
+  LoadJobsForRun,
   SwitchWorkflowActiveState,
   UpdateWorkflow,
 } from '../../../stores/workflows/workflows.actions';
@@ -184,39 +184,18 @@ describe('WorkflowComponent', () => {
     });
   }));
 
-  // it('runWorkflow() should dispatch switch run workflow', async(() => {
-  //   const id = 42;
-  //   const subject = new Subject<boolean>();
-  //   const storeSpy = spyOn(store, 'dispatch');
-  //
-  //   spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
-  //
-  //   underTest.runWorkflow(id);
-  //   underTest.ngOnInit();
-  //   subject.next(true);
-  //
-  //   fixture.detectChanges();
-  //   fixture.whenStable().then(() => {
-  //     expect(storeSpy).toHaveBeenCalled();
-  //     expect(storeSpy).toHaveBeenCalledWith(new RunWorkflow(id));
-  //   });
-  // }));
-  //
-  // it('runWorkflow() should not dispatch run workflow when dialog is not confirmed', async(() => {
-  //   const id = 42;
-  //   const subject = new Subject<boolean>();
-  //   const storeSpy = spyOn(store, 'dispatch');
-  //
-  //   spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
-  //
-  //   underTest.runWorkflow(id);
-  //   subject.next(false);
-  //
-  //   fixture.detectChanges();
-  //   fixture.whenStable().then(() => {
-  //     expect(storeSpy).toHaveBeenCalledTimes(0);
-  //   });
-  // }));
+  it('runWorkflow() should dispatch load jobs for run', async(() => {
+    const id = 42;
+    const storeSpy = spyOn(store, 'dispatch');
+
+    underTest.runWorkflow(id);
+
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(storeSpy).toHaveBeenCalled();
+      expect(storeSpy).toHaveBeenCalledWith(new LoadJobsForRun(id));
+    });
+  }));
 
   it('createWorkflow() should dispatch create workflow when dialog is confirmed', async(() => {
     underTest.workflowForm = { form: { valid: true } };

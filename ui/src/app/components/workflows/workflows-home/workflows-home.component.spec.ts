@@ -17,9 +17,8 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { WorkflowsHomeComponent } from './workflows-home.component';
 import { provideMockStore } from '@ngrx/store/testing';
-import { ProjectModel, ProjectModelFactory } from '../../../models/project.model';
-import { WorkflowModel, WorkflowModelFactory } from '../../../models/workflow.model';
-import { SortAttributesModel } from '../../../models/search/sortAttributes.model';
+import { ProjectModelFactory } from '../../../models/project.model';
+import { WorkflowModelFactory } from '../../../models/workflow.model';
 import { ConfirmationDialogService } from '../../../services/confirmation-dialog/confirmation-dialog.service';
 import { Store } from '@ngrx/store';
 import { AppState } from '../../../stores/app.reducers';
@@ -28,13 +27,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { Router } from '@angular/router';
 import { absoluteRoutes } from '../../../constants/routes.constants';
 import { ClrDatagridStateInterface } from '@clr/angular';
-import {
-  DeleteWorkflow,
-  RunWorkflow,
-  SwitchWorkflowActiveState,
-  SetWorkflowsSort,
-  SetWorkflowsFilters,
-} from '../../../stores/workflows/workflows.actions';
+import { DeleteWorkflow, SwitchWorkflowActiveState, SetWorkflowsSort, LoadJobsForRun } from '../../../stores/workflows/workflows.actions';
 
 describe('WorkflowsHomeComponent', () => {
   let fixture: ComponentFixture<WorkflowsHomeComponent>;
@@ -159,41 +152,17 @@ describe('WorkflowsHomeComponent', () => {
     });
   }));
 
-  // it('runWorkflow() should dispatch switch run workflow', async(() => {
-  //   const id = 42;
-  //   const subject = new Subject<boolean>();
-  //   const storeSpy = spyOn(store, 'dispatch');
-  //
-  //   spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
-  //
-  //   underTest.runWorkflow(id);
-  //   underTest.ngOnInit();
-  //   subject.next(true);
-  //
-  //   fixture.detectChanges();
-  //   expect(underTest.ignoreRefresh).toBeTrue();
-  //   fixture.whenStable().then(() => {
-  //     expect(storeSpy).toHaveBeenCalled();
-  //     expect(storeSpy).toHaveBeenCalledWith(new RunWorkflow(id));
-  //   });
-  // }));
-  //
-  // it('runWorkflow() should not dispatch run workflow when dialog is not confirmed', async(() => {
-  //   const id = 42;
-  //   const subject = new Subject<boolean>();
-  //   const storeSpy = spyOn(store, 'dispatch');
-  //
-  //   spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
-  //
-  //   underTest.runWorkflow(id);
-  //   subject.next(false);
-  //
-  //   fixture.detectChanges();
-  //   expect(underTest.ignoreRefresh).toBeTrue();
-  //   fixture.whenStable().then(() => {
-  //     expect(storeSpy).toHaveBeenCalledTimes(0);
-  //   });
-  // }));
+  it('runWorkflow() should dispatch load jobs for run', async(() => {
+    const id = 42;
+    const storeSpy = spyOn(store, 'dispatch');
+
+    underTest.runWorkflow(id);
+
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(storeSpy).toHaveBeenCalledWith(new LoadJobsForRun(id));
+    });
+  }));
 
   it('showWorkflow() should navigate to show workflow page', async(() => {
     const id = 42;

@@ -23,7 +23,7 @@ import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, Matchers}
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, DatabaseError, ValidationError}
-import za.co.absa.hyperdrive.trigger.models.{Project, Workflow, WorkflowJoined}
+import za.co.absa.hyperdrive.trigger.models.{DagInstanceJoined, Project, Workflow, WorkflowJoined}
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, WorkflowRepository}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -188,5 +188,46 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
     verify(workflowRepository, times(1)).getWorkflows()
     result.length shouldBe 2
   }
+
+  "WorkflowService.runWorkflowsJobs" should "should insert joined dag instance when jobs ids exist in workflow" in {
+    // given
+    val underTest = new WorkflowServiceImpl(workflowRepository, dagInstanceRepository, workflowValidationService)
+
+    val workflowJoined = WorkflowFixture.createWorkflowJoined().copy()
+    val workflowId = workflowJoined.id
+    val jobsIds = workflowJoined.dagDefinitionJoined.jobDefinitions.map(_.id)
+
+    when(workflowRepository.getWorkflow(eqTo(workflowId))(any[ExecutionContext])).thenReturn(Future{workflowJoined})
+    when(dagInstanceRepository.insertJoinedDagInstance(any[DagInstanceJoined])(any[ExecutionContext])).thenReturn(Future{(): Unit})
+
+    // when
+    val result: Boolean = Await.result(underTest.runWorkflowsJobs(workflowId, jobsIds), Duration(120, TimeUnit.SECONDS))
+
+    // then
+    verify(workflowRepository, times(1)).getWorkflow(any[Long])(any[ExecutionContext])
+    verify(dagInstanceRepository, times(1)).insertJoinedDagInstance(any[DagInstanceJoined])(any[ExecutionContext])
+    result shouldBe true
+  }
+
+  "WorkflowService.runWorkflowsJobs" should "should not insert joined dag instance when jobs ids does not exist in workflow" in {
+    // given
+    val underTest = new WorkflowServiceImpl(workflowRepository, dagInstanceRepository, workflowValidationService)
+
+    val workflowJoined = WorkflowFixture.createWorkflowJoined().copy()
+    val workflowId = workflowJoined.id
+    val jobsIds: Seq[Long] = Seq(9999, 8888)
+
+    when(workflowRepository.getWorkflow(eqTo(workflowId))(any[ExecutionContext])).thenReturn(Future{workflowJoined})
+    when(dagInstanceRepository.insertJoinedDagInstance(any[DagInstanceJoined])(any[ExecutionContext])).thenReturn(Future{(): Unit})
+
+    // when
+    val result: Boolean = Await.result(underTest.runWorkflowsJobs(workflowId, jobsIds), Duration(120, TimeUnit.SECONDS))
+
+    // then
+    verify(workflowRepository, times(1)).getWorkflow(any[Long])(any[ExecutionContext])
+    verify(dagInstanceRepository, times(0)).insertJoinedDagInstance(any[DagInstanceJoined])(any[ExecutionContext])
+    result shouldBe false
+  }
+
 
 }

@@ -19,7 +19,7 @@ import { AppState, selectWorkflowState } from '../../../stores/app.reducers';
 import { WorkflowModel } from '../../../models/workflow.model';
 import { Store } from '@ngrx/store';
 import { absoluteRoutes } from '../../../constants/routes.constants';
-import { LoadJobsForRun, RunWorkflow, SetWorkflowsFilters, SetWorkflowsSort } from '../../../stores/workflows/workflows.actions';
+import { LoadJobsForRun, SetWorkflowsFilters, SetWorkflowsSort } from '../../../stores/workflows/workflows.actions';
 import { ConfirmationDialogTypes } from '../../../constants/confirmationDialogTypes.constants';
 import { DeleteWorkflow, SwitchWorkflowActiveState } from '../../../stores/workflows/workflows.actions';
 import { ConfirmationDialogService } from '../../../services/confirmation-dialog/confirmation-dialog.service';

@@ -15,8 +15,6 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
-import java.time.LocalDateTime
-
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.models.errors.ApiError
 import za.co.absa.hyperdrive.trigger.models.{Project, ProjectInfo, Workflow, WorkflowJoined}

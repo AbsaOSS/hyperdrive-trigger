@@ -207,28 +207,6 @@ export class WorkflowsEffects {
   );
 
   @Effect({ dispatch: true })
-  workflowRun = this.actions.pipe(
-    ofType(WorkflowActions.RUN_WORKFLOW),
-    switchMap((action: WorkflowActions.RunWorkflow) => {
-      return this.workflowService.runWorkflow(action.payload).pipe(
-        mergeMap((runWorkflowSuccess) => {
-          if (runWorkflowSuccess) {
-            this.toastrService.success(texts.RUN_WORKFLOW_SUCCESS_NOTIFICATION);
-            return [{ type: WorkflowActions.RUN_WORKFLOW_SUCCESS }];
-          } else {
-            this.toastrService.error(texts.RUN_WORKFLOW_FAILURE_NOTIFICATION);
-            return [{ type: WorkflowActions.RUN_WORKFLOW_FAILURE }];
-          }
-        }),
-        catchError(() => {
-          this.toastrService.error(texts.RUN_WORKFLOW_FAILURE_NOTIFICATION);
-          return [{ type: WorkflowActions.RUN_WORKFLOW_FAILURE }];
-        }),
-      );
-    }),
-  );
-
-  @Effect({ dispatch: true })
   workflowCreate = this.actions.pipe(
     ofType(WorkflowActions.CREATE_WORKFLOW),
     withLatestFrom(this.store.select(selectWorkflowState)),
@@ -348,6 +326,7 @@ export class WorkflowsEffects {
           ];
         }),
         catchError(() => {
+          this.toastrService.error(texts.LOAD_JOBS_FOR_RUN_FAILURE_NOTIFICATION);
           return [
             {
               type: WorkflowActions.LOAD_JOBS_FOR_RUN_FAILURE,
@@ -365,16 +344,28 @@ export class WorkflowsEffects {
       return this.workflowService.runWorkflowsJobs(action.payload.workflowId, action.payload.jobs).pipe(
         mergeMap((runWorkflowSuccess) => {
           if (runWorkflowSuccess) {
-            this.toastrService.success('success');
-            return EMPTY;
+            this.toastrService.success(texts.RUN_WORKFLOWS_JOBS_SUCCESS_NOTIFICATION);
+            return [
+              {
+                type: EMPTY,
+              },
+            ];
           } else {
-            this.toastrService.error('faile1');
-            return EMPTY;
+            this.toastrService.error(texts.RUN_WORKFLOWS_JOBS_FAILURE_NOTIFICATION);
+            return [
+              {
+                type: EMPTY,
+              },
+            ];
           }
         }),
         catchError(() => {
-          this.toastrService.error('faile2');
-          return EMPTY;
+          this.toastrService.error(texts.RUN_WORKFLOWS_JOBS_FAILURE_NOTIFICATION);
+          return [
+            {
+              type: EMPTY,
+            },
+          ];
         }),
       );
     }),

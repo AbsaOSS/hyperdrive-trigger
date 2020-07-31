@@ -18,9 +18,9 @@ import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { api } from '../../constants/api.constants';
 import { WorkflowService } from './workflow.service';
-import { ProjectModel, ProjectModelFactory } from '../../models/project.model';
-import { WorkflowModel, WorkflowModelFactory } from '../../models/workflow.model';
-import { WorkflowJoinedModel, WorkflowJoinedModelFactory } from '../../models/workflowJoined.model';
+import { ProjectModelFactory } from '../../models/project.model';
+import { WorkflowModelFactory } from '../../models/workflow.model';
+import { WorkflowJoinedModelFactory } from '../../models/workflowJoined.model';
 
 describe('WorkflowService', () => {
   let underTest: WorkflowService;
@@ -135,5 +135,20 @@ describe('WorkflowService', () => {
     const req = httpTestingController.expectOne(api.UPDATE_WORKFLOW);
     expect(req.request.method).toEqual('POST');
     req.flush(workflow);
+  });
+
+  it('runWorkflowsJobs() should run selected jobs', () => {
+    const workflowId = 5;
+    const jobsIds = [1, 2, 3];
+    const response = true;
+
+    underTest.runWorkflowsJobs(workflowId, jobsIds).subscribe(
+      (data) => expect(data).toEqual(response),
+      (error) => fail(error),
+    );
+
+    const req = httpTestingController.expectOne(api.RUN_WORKFLOWS_JOBS + `?workflowId=${workflowId}`);
+    expect(req.request.method).toEqual('PUT');
+    req.flush(new Boolean(response));
   });
 });
