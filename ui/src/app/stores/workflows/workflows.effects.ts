@@ -28,20 +28,23 @@ import { AppState, selectWorkflowState } from '../app.reducers';
 import { Store } from '@ngrx/store';
 import * as fromWorkflows from './workflows.reducers';
 import { WorkflowDataModel } from '../../models/workflowData.model';
-import set from 'lodash/set';
 import { Router } from '@angular/router';
 import { absoluteRoutes } from '../../constants/routes.constants';
 import { ToastrService } from 'ngx-toastr';
 import { texts } from '../../constants/texts.constants';
 import { WorkflowModel, WorkflowModelFactory } from '../../models/workflow.model';
 import { WorkflowRequestModel } from '../../models/workflowRequest.model';
-import { ApiErrorModel } from '../../models/errors/apiError.model';
+import { JobService } from '../../services/job/job.service';
+import { JobForRunModel } from '../../models/jobForRun.model';
+import { RUN_JOBS } from '../workflows/workflows.actions';
+import { EMPTY } from 'rxjs';
 
 @Injectable()
 export class WorkflowsEffects {
   constructor(
     private actions: Actions,
     private workflowService: WorkflowService,
+    private jobService: JobService,
     private store: Store<AppState>,
     private router: Router,
     private toastrService: ToastrService,
@@ -204,28 +207,6 @@ export class WorkflowsEffects {
   );
 
   @Effect({ dispatch: true })
-  workflowRun = this.actions.pipe(
-    ofType(WorkflowActions.RUN_WORKFLOW),
-    switchMap((action: WorkflowActions.RunWorkflow) => {
-      return this.workflowService.runWorkflow(action.payload).pipe(
-        mergeMap((runWorkflowSuccess) => {
-          if (runWorkflowSuccess) {
-            this.toastrService.success(texts.RUN_WORKFLOW_SUCCESS_NOTIFICATION);
-            return [{ type: WorkflowActions.RUN_WORKFLOW_SUCCESS }];
-          } else {
-            this.toastrService.error(texts.RUN_WORKFLOW_FAILURE_NOTIFICATION);
-            return [{ type: WorkflowActions.RUN_WORKFLOW_FAILURE }];
-          }
-        }),
-        catchError(() => {
-          this.toastrService.error(texts.RUN_WORKFLOW_FAILURE_NOTIFICATION);
-          return [{ type: WorkflowActions.RUN_WORKFLOW_FAILURE }];
-        }),
-      );
-    }),
-  );
-
-  @Effect({ dispatch: true })
   workflowCreate = this.actions.pipe(
     ofType(WorkflowActions.CREATE_WORKFLOW),
     withLatestFrom(this.store.select(selectWorkflowState)),
@@ -326,6 +307,65 @@ export class WorkflowsEffects {
               },
             ];
           }
+        }),
+      );
+    }),
+  );
+
+  @Effect({ dispatch: true })
+  jobsForRunLoad = this.actions.pipe(
+    ofType(WorkflowActions.LOAD_JOBS_FOR_RUN),
+    switchMap((action: WorkflowActions.LoadJobsForRun) => {
+      return this.jobService.getJobsForRun(action.payload).pipe(
+        mergeMap((result: JobForRunModel[]) => {
+          return [
+            {
+              type: WorkflowActions.LOAD_JOBS_FOR_RUN_SUCCESS,
+              payload: result,
+            },
+          ];
+        }),
+        catchError(() => {
+          this.toastrService.error(texts.LOAD_JOBS_FOR_RUN_FAILURE_NOTIFICATION);
+          return [
+            {
+              type: WorkflowActions.LOAD_JOBS_FOR_RUN_FAILURE,
+            },
+          ];
+        }),
+      );
+    }),
+  );
+
+  @Effect({ dispatch: false })
+  jobsRun = this.actions.pipe(
+    ofType(WorkflowActions.RUN_JOBS),
+    switchMap((action: WorkflowActions.RunJobs) => {
+      return this.workflowService.runWorkflowJobs(action.payload.workflowId, action.payload.jobs).pipe(
+        mergeMap((runWorkflowSuccess) => {
+          if (runWorkflowSuccess) {
+            this.toastrService.success(texts.RUN_WORKFLOWS_JOBS_SUCCESS_NOTIFICATION);
+            return [
+              {
+                type: EMPTY,
+              },
+            ];
+          } else {
+            this.toastrService.error(texts.RUN_WORKFLOWS_JOBS_FAILURE_NOTIFICATION);
+            return [
+              {
+                type: EMPTY,
+              },
+            ];
+          }
+        }),
+        catchError(() => {
+          this.toastrService.error(texts.RUN_WORKFLOWS_JOBS_FAILURE_NOTIFICATION);
+          return [
+            {
+              type: EMPTY,
+            },
+          ];
         }),
       );
     }),

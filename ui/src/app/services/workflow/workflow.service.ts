@@ -86,10 +86,10 @@ export class WorkflowService {
       );
   }
 
-  runWorkflow(id: number): Observable<boolean> {
-    const params = new HttpParams().set('workflowId', id.toString());
+  runWorkflowJobs(workflowId: number, jobIds: number[]): Observable<boolean> {
+    const params = new HttpParams().set('workflowId', workflowId.toString());
     return this.httpClient
-      .put<boolean>(api.RUN_WORKFLOW, null, { params: params, observe: 'response' })
+      .put<boolean>(api.RUN_WORKFLOWS_JOBS, { jobIds: jobIds }, { params: params, observe: 'response' })
       .pipe(map((_) => _.body));
   }
 

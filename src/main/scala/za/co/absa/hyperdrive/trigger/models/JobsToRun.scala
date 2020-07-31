@@ -13,22 +13,10 @@
  * limitations under the License.
  */
 
-export const api = {
-  USER_INFO: '/user/info',
-  LOGIN: '/login',
-  LOGOUT: '/logout',
+package za.co.absa.hyperdrive.trigger.models
 
-  DAG_RUN_SEARCH: '/dagRuns/search',
-  JOB_INSTANCES: '/jobInstances',
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 
-  GET_PROJECTS: '/workflows/projects',
-  GET_WORKFLOW: '/workflow',
-  DELETE_WORKFLOW: '/workflows',
-  SWITCH_WORKFLOW_ACTIVE_STATE: '/workflows/{id}/switchActiveState',
-  RUN_WORKFLOWS_JOBS: '/workflow/jobs/run',
-  CREATE_WORKFLOW: '/workflow',
-  UPDATE_WORKFLOW: '/workflows',
-  GET_JOBS_FOR_RUN: '/jobsForRun',
-
-  GET_QUARTZ_DETAIL: '/util/quartzDetail',
-};
+case class JobsToRun(
+   @JsonDeserialize(contentAs = classOf[java.lang.Long]) jobIds: Seq[Long]
+)

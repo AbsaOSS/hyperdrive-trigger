@@ -63,6 +63,7 @@ import { PreviousRouteService } from './services/previousRoute/previous-route.se
 import { ToastrModule } from 'ngx-toastr';
 import { ConfirmationDialogComponent } from './components/common/confirmation-dialog/confirmation-dialog.component';
 import { CronQuartzExpressionValidator } from './components/workflows/workflow/dynamic-parts/cron-quartz-part/validator/cron-quartz-expression.validator';
+import { WorkflowRunComponent } from './components/workflows/workflow-run/workflow-run.component';
 
 @NgModule({
   declarations: [
@@ -91,6 +92,7 @@ import { CronQuartzExpressionValidator } from './components/workflows/workflow/d
     DynamicPartsComponent,
     ConfirmationDialogComponent,
     CronQuartzExpressionValidator,
+    WorkflowRunComponent,
   ],
   imports: [
     BrowserModule,

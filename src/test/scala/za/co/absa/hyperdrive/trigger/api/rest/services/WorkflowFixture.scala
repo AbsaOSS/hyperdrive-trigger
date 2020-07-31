@@ -48,7 +48,7 @@ object WorkflowFixture {
       updated = None,
       project = "testProject",
       sensor = Sensor(
-        workflowId = 0,
+        workflowId = 10,
         sensorType = SensorTypes.AbsaKafka,
         properties = Properties(
           sensorId = 0,
@@ -60,7 +60,7 @@ object WorkflowFixture {
         )
       ),
       dagDefinitionJoined = DagDefinitionJoined(
-        workflowId = 0,
+        workflowId = 10,
         jobDefinitions = Seq(
           JobDefinition(
             dagDefinitionId = 0,
@@ -73,7 +73,8 @@ object WorkflowFixture {
               ),
               maps = Map("aaa" -> List("bbb", "ccc"))
             ),
-            order = 1
+            order = 1,
+            id = 1
           ),
           JobDefinition(
             dagDefinitionId = 0,
@@ -85,7 +86,8 @@ object WorkflowFixture {
               ),
               maps = Map("appArguments" -> List("--arg1=value1", "--arg2=value2"))
             ),
-            order = 2
+            order = 2,
+            id = 2
           )
         )
       )

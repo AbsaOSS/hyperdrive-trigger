@@ -91,4 +91,9 @@ class WorkflowController @Inject()(workflowService: WorkflowService) {
     workflowService.runWorkflow(workflowId).toJava.toCompletableFuture
   }
 
+  @PutMapping(path = Array("/workflow/jobs/run"))
+  def runWorkflowJobs(@RequestParam workflowId: Long, @RequestBody jobsToRun: JobsToRun): CompletableFuture[Boolean] = {
+    workflowService.runWorkflowJobs(workflowId, jobsToRun.jobIds).toJava.toCompletableFuture
+  }
+
 }
