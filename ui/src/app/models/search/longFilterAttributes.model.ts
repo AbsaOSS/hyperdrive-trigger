@@ -13,17 +13,8 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models.dagRuns
+import { FilterAttributes } from './filterAttributes.model';
 
-import java.time.LocalDateTime
-
-case class DagRun(
-  workflowId: Long,
-  workflowName: String,
-  projectName: String,
-  jobCount: Int,
-  started: LocalDateTime,
-  finished: Option[LocalDateTime],
-  status: String,
-  id: Long = 0
-)
+export class LongFilterAttributes implements FilterAttributes {
+  constructor(public field: string, public value: number) {}
+}

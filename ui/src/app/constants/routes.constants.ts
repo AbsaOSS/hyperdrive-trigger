@@ -23,6 +23,7 @@ export const routeNames = {
   WORKFLOW_ACTION: ':mode',
   WORKFLOW_ACTION_WITH_ID: ':mode/:id',
   RUNS: 'runs',
+  RUNS_WITH_WORKFLOW_ID: 'runs/:workflowId',
 };
 
 export const absoluteRoutes = {
@@ -35,4 +36,7 @@ export const absoluteRoutes = {
   EDIT_WORKFLOW: `/${routeNames.WORKFLOWS}/${workflowModes.EDIT}`,
   COPY_WORKFLOW: `/${routeNames.WORKFLOWS}/${workflowModes.COPY}`,
   RUNS: `/${routeNames.RUNS}`,
+  RUNS_WITH_WORKFLOW_ID(workflowId: number): string {
+    return `/runs/${workflowId}`;
+  },
 };
