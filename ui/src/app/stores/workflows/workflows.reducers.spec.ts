@@ -77,6 +77,7 @@ describe('WorkflowsReducers', () => {
       rightWorkflowHistoryData: undefined,
       rightWorkflowHistory: undefined,
     },
+    jobsForRun: undefined,
   };
 
   describe('workflowsInitialize', () => {

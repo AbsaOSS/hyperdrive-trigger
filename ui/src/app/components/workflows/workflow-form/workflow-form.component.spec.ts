@@ -27,8 +27,8 @@ import { AppState } from '../../../stores/app.reducers';
 import {
   CreateWorkflow,
   DeleteWorkflow,
+  LoadJobsForRun,
   RemoveBackendValidationError,
-  RunWorkflow,
   SwitchWorkflowActiveState,
   UpdateWorkflow,
 } from '../../../stores/workflows/workflows.actions';
@@ -37,7 +37,7 @@ import { JobEntryModelFactory } from '../../../models/jobEntry.model';
 import { WorkflowFormPartsModelFactory } from '../../../models/workflowFormParts.model';
 import { FormsModule } from '@angular/forms';
 
-describe('WorkflowComponent', () => {
+describe('WorkflowFormComponent', () => {
   let underTest: WorkflowFormComponent;
   let fixture: ComponentFixture<WorkflowFormComponent>;
   let previousRouteService: PreviousRouteService;
@@ -182,39 +182,16 @@ describe('WorkflowComponent', () => {
     });
   }));
 
-  it('runWorkflow() should dispatch switch run workflow', async(() => {
+  it('runWorkflow() should dispatch load jobs for run', async(() => {
     const id = 42;
-    const subject = new Subject<boolean>();
     const storeSpy = spyOn(store, 'dispatch');
-
-    const dialogServiceSpy = spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
 
     underTest.runWorkflow(id);
 
-    subject.next(true);
-
     fixture.detectChanges();
     fixture.whenStable().then(() => {
-      expect(dialogServiceSpy).toHaveBeenCalled();
       expect(storeSpy).toHaveBeenCalled();
-      expect(storeSpy).toHaveBeenCalledWith(new RunWorkflow(id));
-    });
-  }));
-
-  it('runWorkflow() should not dispatch run workflow when dialog is not confirmed', async(() => {
-    const id = 42;
-    const subject = new Subject<boolean>();
-    const storeSpy = spyOn(store, 'dispatch');
-
-    const dialogServiceSpy = spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
-
-    underTest.runWorkflow(id);
-    subject.next(false);
-
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(dialogServiceSpy).toHaveBeenCalled();
-      expect(storeSpy).toHaveBeenCalledTimes(0);
+      expect(storeSpy).toHaveBeenCalledWith(new LoadJobsForRun(id));
     });
   }));
 

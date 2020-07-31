@@ -36,6 +36,10 @@ import { WorkflowModel, WorkflowModelFactory } from '../../models/workflow.model
 import { WorkflowRequestModel } from '../../models/workflowRequest.model';
 import { WorkflowHistoriesForComparisonModel, HistoryModel } from '../../models/historyModel';
 import { WorkflowHistoryService } from '../../services/workflowHistory/workflow-history.service';
+import { JobService } from '../../services/job/job.service';
+import { JobForRunModel } from '../../models/jobForRun.model';
+import { RUN_JOBS } from '../workflows/workflows.actions';
+import { EMPTY } from 'rxjs';
 
 @Injectable()
 export class WorkflowsEffects {
@@ -43,6 +47,7 @@ export class WorkflowsEffects {
     private actions: Actions,
     private workflowService: WorkflowService,
     private workflowHistoryService: WorkflowHistoryService,
+    private jobService: JobService,
     private store: Store<AppState>,
     private router: Router,
     private toastrService: ToastrService,
@@ -193,28 +198,6 @@ export class WorkflowsEffects {
               type: WorkflowActions.SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE,
             },
           ];
-        }),
-      );
-    }),
-  );
-
-  @Effect({ dispatch: true })
-  workflowRun = this.actions.pipe(
-    ofType(WorkflowActions.RUN_WORKFLOW),
-    switchMap((action: WorkflowActions.RunWorkflow) => {
-      return this.workflowService.runWorkflow(action.payload).pipe(
-        mergeMap((runWorkflowSuccess) => {
-          if (runWorkflowSuccess) {
-            this.toastrService.success(texts.RUN_WORKFLOW_SUCCESS_NOTIFICATION);
-            return [{ type: WorkflowActions.RUN_WORKFLOW_SUCCESS }];
-          } else {
-            this.toastrService.error(texts.RUN_WORKFLOW_FAILURE_NOTIFICATION);
-            return [{ type: WorkflowActions.RUN_WORKFLOW_FAILURE }];
-          }
-        }),
-        catchError(() => {
-          this.toastrService.error(texts.RUN_WORKFLOW_FAILURE_NOTIFICATION);
-          return [{ type: WorkflowActions.RUN_WORKFLOW_FAILURE }];
         }),
       );
     }),
@@ -407,6 +390,65 @@ export class WorkflowsEffects {
       workflowComponents,
     );
   }
+
+  @Effect({ dispatch: true })
+  jobsForRunLoad = this.actions.pipe(
+    ofType(WorkflowActions.LOAD_JOBS_FOR_RUN),
+    switchMap((action: WorkflowActions.LoadJobsForRun) => {
+      return this.jobService.getJobsForRun(action.payload).pipe(
+        mergeMap((result: JobForRunModel[]) => {
+          return [
+            {
+              type: WorkflowActions.LOAD_JOBS_FOR_RUN_SUCCESS,
+              payload: result,
+            },
+          ];
+        }),
+        catchError(() => {
+          this.toastrService.error(texts.LOAD_JOBS_FOR_RUN_FAILURE_NOTIFICATION);
+          return [
+            {
+              type: WorkflowActions.LOAD_JOBS_FOR_RUN_FAILURE,
+            },
+          ];
+        }),
+      );
+    }),
+  );
+
+  @Effect({ dispatch: false })
+  jobsRun = this.actions.pipe(
+    ofType(WorkflowActions.RUN_JOBS),
+    switchMap((action: WorkflowActions.RunJobs) => {
+      return this.workflowService.runWorkflowJobs(action.payload.workflowId, action.payload.jobs).pipe(
+        mergeMap((runWorkflowSuccess) => {
+          if (runWorkflowSuccess) {
+            this.toastrService.success(texts.RUN_WORKFLOWS_JOBS_SUCCESS_NOTIFICATION);
+            return [
+              {
+                type: EMPTY,
+              },
+            ];
+          } else {
+            this.toastrService.error(texts.RUN_WORKFLOWS_JOBS_FAILURE_NOTIFICATION);
+            return [
+              {
+                type: EMPTY,
+              },
+            ];
+          }
+        }),
+        catchError(() => {
+          this.toastrService.error(texts.RUN_WORKFLOWS_JOBS_FAILURE_NOTIFICATION);
+          return [
+            {
+              type: EMPTY,
+            },
+          ];
+        }),
+      );
+    }),
+  );
 
   isBackendValidationError(errorResponse: any): boolean {
     return (

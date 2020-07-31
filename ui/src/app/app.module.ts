@@ -67,6 +67,7 @@ import { WorkflowHistoryComponent } from './components/workflows/workflow-histor
 import { WorkflowComparisonComponent } from './components/workflows/workflow-history/workflow-comparison/workflow-comparison.component';
 import { WorkflowFormComponent } from './components/workflows/workflow-form/workflow-form.component';
 import { HistoryDetailComponent } from './components/workflows/workflow-history/workflow-comparison/history-detail/history-detail.component';
+import { WorkflowRunComponent } from './components/workflows/workflow-run/workflow-run.component';
 
 @NgModule({
   declarations: [
@@ -99,6 +100,7 @@ import { HistoryDetailComponent } from './components/workflows/workflow-history/
     WorkflowComparisonComponent,
     WorkflowFormComponent,
     HistoryDetailComponent,
+    WorkflowRunComponent,
   ],
   imports: [
     BrowserModule,

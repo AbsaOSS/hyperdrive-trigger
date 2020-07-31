@@ -24,8 +24,8 @@ import { texts } from '../../../constants/texts.constants';
 import {
   CreateWorkflow,
   DeleteWorkflow,
+  LoadJobsForRun,
   RemoveBackendValidationError,
-  RunWorkflow,
   SwitchWorkflowActiveState,
   UpdateWorkflow,
 } from '../../../stores/workflows/workflows.actions';
@@ -67,7 +67,6 @@ export class WorkflowFormComponent implements OnDestroy {
   paramsSubscription: Subscription;
   workflowSubscription: Subscription;
   confirmationDialogServiceSubscription: Subscription = null;
-  runWorkflowDialogSubscription: Subscription = null;
 
   constructor(
     private store: Store<AppState>,
@@ -118,11 +117,7 @@ export class WorkflowFormComponent implements OnDestroy {
   }
 
   runWorkflow(id: number) {
-    this.runWorkflowDialogSubscription = this.confirmationDialogService
-      .confirm(ConfirmationDialogTypes.YesOrNo, texts.RUN_WORKFLOW_CONFIRMATION_TITLE, texts.RUN_WORKFLOW_CONFIRMATION_CONTENT)
-      .subscribe((confirmed) => {
-        if (confirmed) this.store.dispatch(new RunWorkflow(id));
-      });
+    this.store.dispatch(new LoadJobsForRun(id));
   }
 
   deleteWorkflow(id: number) {
@@ -174,6 +169,5 @@ export class WorkflowFormComponent implements OnDestroy {
     !!this.workflowSubscription && this.workflowSubscription.unsubscribe();
     !!this.paramsSubscription && this.paramsSubscription.unsubscribe();
     !!this.confirmationDialogServiceSubscription && this.confirmationDialogServiceSubscription.unsubscribe();
-    !!this.runWorkflowDialogSubscription && this.runWorkflowDialogSubscription.unsubscribe();
   }
 }

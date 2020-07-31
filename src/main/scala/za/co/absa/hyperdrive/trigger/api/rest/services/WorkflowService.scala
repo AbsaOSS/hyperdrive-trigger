@@ -40,6 +40,7 @@ trait WorkflowService {
   def getProjects()(implicit ec: ExecutionContext): Future[Seq[Project]]
   def getProjectsInfo()(implicit ec: ExecutionContext): Future[Seq[ProjectInfo]]
   def runWorkflow(workflowId: Long)(implicit ec: ExecutionContext): Future[Boolean]
+  def runWorkflowJobs(workflowId: Long, jobIds: Seq[Long])(implicit ec: ExecutionContext): Future[Boolean]
 }
 
 @Service
@@ -138,6 +139,23 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
     workflowRepository.getWorkflow(workflowId).map( joinedWorkflow =>
       dagInstanceRepository.insertJoinedDagInstance(joinedWorkflow.dagDefinitionJoined.toDagInstanceJoined())
     ).map(_ => true)
+  }
+
+  override def runWorkflowJobs(workflowId: Long, jobIds: Seq[Long])(implicit ec: ExecutionContext): Future[Boolean] = {
+    workflowRepository.getWorkflow(workflowId).flatMap(joinedWorkflow => {
+      val dagDefinitionJoined = joinedWorkflow.dagDefinitionJoined
+
+      val anyJobIdIsNotPartOfWorkflow = !jobIds.forall(id => dagDefinitionJoined.jobDefinitions.map(_.id).contains(id))
+
+      if(anyJobIdIsNotPartOfWorkflow) {
+        Future.successful(false)
+      } else {
+        val dagDefinitionWithFilteredJobs = dagDefinitionJoined.copy(
+          jobDefinitions = dagDefinitionJoined.jobDefinitions.filter(job => jobIds.contains(job.id))
+        )
+        dagInstanceRepository.insertJoinedDagInstance(dagDefinitionWithFilteredJobs.toDagInstanceJoined()).map(_=>true)
+      }
+    })
   }
 
   private def doIf[T](validationErrors: Seq[ApiError], future: () => Future[Either[ApiError, T]])(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], T]] = {

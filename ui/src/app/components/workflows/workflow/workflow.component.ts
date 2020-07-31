@@ -18,7 +18,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AppState, selectWorkflowState } from '../../../stores/app.reducers';
 import { Subject, Subscription } from 'rxjs';
 import { Action, Store } from '@ngrx/store';
-import { StartWorkflowInitialization } from '../../../stores/workflows/workflows.actions';
+import { StartWorkflowInitialization, LoadJobsForRun } from '../../../stores/workflows/workflows.actions';
 import { workflowModes } from '../../../models/enums/workflowModes.constants';
 import { absoluteRoutes } from '../../../constants/routes.constants';
 import { PreviousRouteService } from '../../../services/previousRoute/previous-route.service';
