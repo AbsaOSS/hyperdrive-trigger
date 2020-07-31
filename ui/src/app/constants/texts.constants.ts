@@ -28,8 +28,6 @@ export const texts = {
   },
   SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
 
-  RUN_WORKFLOW_CONFIRMATION_TITLE: 'Run workflow',
-  RUN_WORKFLOW_CONFIRMATION_CONTENT: 'Do you really want to run the workflow now?',
   RUN_WORKFLOWS_JOBS_SUCCESS_NOTIFICATION: 'Workflow has been submitted.',
   RUN_WORKFLOWS_JOBS_FAILURE_NOTIFICATION: "Sorry, jobs couldn't be submitted. Please try again.",
   LOAD_JOBS_FOR_RUN_FAILURE_NOTIFICATION: "Sorry, jobs couldn't be loaded. Please try again.",
