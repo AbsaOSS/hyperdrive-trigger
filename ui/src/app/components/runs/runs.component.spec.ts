@@ -18,31 +18,43 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { RunsComponent } from './runs.component';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import * as fromApp from '../../stores/app.reducers';
+import { ActivatedRoute } from '@angular/router';
+import { of } from 'rxjs';
 
 describe('RunsComponent', () => {
-  // let component: RunsComponent;
-  // let fixture: ComponentFixture<RunsComponent>;
-  // let mockStore: MockStore<fromApp.AppState>;
-  //
-  // const initialAppState = {
-  //   auth: {},
-  //   runs: {},
-  // };
-  //
-  // beforeEach(async(() => {
-  //   TestBed.configureTestingModule({
-  //     providers: [provideMockStore({ initialState: initialAppState })],
-  //     declarations: [RunsComponent],
-  //   }).compileComponents();
-  // }));
-  //
-  // beforeEach(() => {
-  //   fixture = TestBed.createComponent(RunsComponent);
-  //   component = fixture.componentInstance;
-  //   fixture.detectChanges();
-  // });
-  //
-  // it('should create', () => {
-  //   expect(component).toBeTruthy();
-  // });
+  let component: RunsComponent;
+  let fixture: ComponentFixture<RunsComponent>;
+  let mockStore: MockStore<fromApp.AppState>;
+
+  const initialAppState = {
+    auth: {},
+    runs: {},
+  };
+
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideMockStore({ initialState: initialAppState }),
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            params: of({
+              workflowId: 0,
+            }),
+          },
+        },
+      ],
+      declarations: [RunsComponent],
+    }).compileComponents();
+  }));
+
+  beforeEach(() => {
+    fixture = TestBed.createComponent(RunsComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
 });
