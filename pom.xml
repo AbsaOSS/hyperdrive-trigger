@@ -116,6 +116,7 @@
         <dockerfile-maven.version>1.4.13</dockerfile-maven.version>
         <frontend.maven.plugin.version>1.9.0</frontend.maven.plugin.version>
         <commons.lang3.version>3.11</commons.lang3.version>
+        <buildnumber.maven.plugin.version>1.4</buildnumber.maven.plugin.version>
 
 
         <!-- Deployment -->
@@ -259,6 +260,19 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <App-Version>${project.version}</App-Version>
+                            <Build-Number>${buildNumber}</Build-Number>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+
+            <plugin>
                 <groupId>net.alchim31.maven</groupId>
                 <artifactId>scala-maven-plugin</artifactId>
                 <version>${alchim31}</version>
@@ -400,6 +414,22 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>buildnumber-maven-plugin</artifactId>
+                <version>${buildnumber.maven.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>create</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <shortRevisionLength>8</shortRevisionLength>
+                </configuration>
             </plugin>
         </plugins>
 
