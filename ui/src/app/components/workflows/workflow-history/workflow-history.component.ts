@@ -56,9 +56,8 @@ export class WorkflowHistoryComponent implements OnInit {
   }
 
   isSelectable(inputHistory: HistoryModel): boolean {
-    const areTwoSelected = this.selected.length == 2;
+    const hasEmptySlotForSelect = this.selected.length < 2;
     const isAlreadySelected = this.selected.some((history: HistoryModel) => history === inputHistory);
-    const result = areTwoSelected && !isAlreadySelected;
-    return !result;
+    return hasEmptySlotForSelect || isAlreadySelected;
   }
 }

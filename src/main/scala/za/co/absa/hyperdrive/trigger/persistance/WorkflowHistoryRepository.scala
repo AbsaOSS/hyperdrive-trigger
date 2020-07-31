@@ -87,8 +87,8 @@ class WorkflowHistoryRepositoryImpl extends WorkflowHistoryRepository {
     )
 
     queryResult.map(
-      _.headOption.map{ workflowsForComparisonTouple =>
-        WorkflowsFromHistory(workflowsForComparisonTouple._1, workflowsForComparisonTouple._2)
+      _.headOption.map{ workflowsForComparisonTuple =>
+        WorkflowsFromHistory(workflowsForComparisonTuple._1, workflowsForComparisonTuple._2)
       }.getOrElse(
         throw new Exception(s"Workflow history with ${leftWorkflowHistoryId} or ${rightWorkflowHistoryId} does not exist.")
       )

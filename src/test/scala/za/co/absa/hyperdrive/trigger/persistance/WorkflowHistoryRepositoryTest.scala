@@ -16,12 +16,12 @@
 package za.co.absa.hyperdrive.trigger.persistance
 
 import org.scalatest.{FlatSpec, _}
+import za.co.absa.hyperdrive.trigger.TestUtils
 import za.co.absa.hyperdrive.trigger.api.rest.services.WorkflowFixture
-import za.co.absa.hyperdrive.trigger.models.{History}
+import za.co.absa.hyperdrive.trigger.models.History
 import za.co.absa.hyperdrive.trigger.models.enums.DBOperation
 import za.co.absa.hyperdrive.trigger.models.enums.DBOperation.DBOperation
 
-import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 
@@ -43,8 +43,8 @@ class WorkflowHistoryRepositoryTest extends FlatSpec with Matchers with BeforeAn
     clearData()
   }
 
-  private def historyVerification(history: Seq[History], historyId: Long, user: String, dbOperation: DBOperation): Boolean = {
-    history.exists(history => {
+  private def verifyHistory(historyEntries: Seq[History], historyId: Long, user: String, dbOperation: DBOperation): Boolean = {
+    historyEntries.exists(history => {
       history.id == historyId && history.changedBy == user && history.operation == dbOperation
     })
   }
@@ -57,21 +57,21 @@ class WorkflowHistoryRepositoryTest extends FlatSpec with Matchers with BeforeAn
     val workflowId = workflowCreate.id
     val user = "fakeUser"
 
-    val createResultId = Await.result(db.run(workflowHistoryRepository.create(workflowCreate, user)), Duration.Inf)
-    val updateResultId = Await.result(db.run(workflowHistoryRepository.update(workflowUpdate, user)), Duration.Inf)
-    val deleteResultId = Await.result(db.run(workflowHistoryRepository.delete(workflowDelete, user)), Duration.Inf)
+    val createResultId = TestUtils.await(db.run(workflowHistoryRepository.create(workflowCreate, user)))
+    val updateResultId = TestUtils.await(db.run(workflowHistoryRepository.update(workflowUpdate, user)))
+    val deleteResultId = TestUtils.await(db.run(workflowHistoryRepository.delete(workflowDelete, user)))
 
-    val result = Await.result(workflowHistoryRepository.getHistoryForWorkflow(workflowId), Duration.Inf)
+    val result = TestUtils.await(workflowHistoryRepository.getHistoryForWorkflow(workflowId))
     result.size shouldBe 3
-    historyVerification(result, createResultId, user, DBOperation.Create) shouldBe true
-    historyVerification(result, updateResultId, user, DBOperation.Update) shouldBe true
-    historyVerification(result, deleteResultId, user, DBOperation.Delete) shouldBe true
+    verifyHistory(result, createResultId, user, DBOperation.Create) shouldBe true
+    verifyHistory(result, updateResultId, user, DBOperation.Update) shouldBe true
+    verifyHistory(result, deleteResultId, user, DBOperation.Delete) shouldBe true
   }
 
   "workflowHistoryRepository.getHistoryForWorkflow" should "return empty array when db does not contain history record for specific workflow id" in {
     val workflowId = 999
 
-    val result = Await.result(workflowHistoryRepository.getHistoryForWorkflow(workflowId), Duration.Inf)
+    val result = TestUtils.await(workflowHistoryRepository.getHistoryForWorkflow(workflowId))
     result.size shouldBe 0
   }
 
@@ -82,12 +82,12 @@ class WorkflowHistoryRepositoryTest extends FlatSpec with Matchers with BeforeAn
     val workflowId = workflowCreate.id
     val user = "fakeUser"
 
-    val createResultId = Await.result(db.run(workflowHistoryRepository.create(workflowCreate, user)), Duration.Inf)
-    val updateResultId = Await.result(db.run(workflowHistoryRepository.update(workflowUpdate, user)), Duration.Inf)
+    val createResultId = TestUtils.await(db.run(workflowHistoryRepository.create(workflowCreate, user)))
+    val updateResultId = TestUtils.await(db.run(workflowHistoryRepository.update(workflowUpdate, user)))
 
-    val result = Await.result(workflowHistoryRepository.getWorkflowsFromHistory(updateResultId, createResultId), Duration.Inf)
-    historyVerification(Seq(result.leftWorkflowHistory.history), updateResultId, user, DBOperation.Update) shouldBe true
-    historyVerification(Seq(result.rightWorkflowHistory.history), createResultId, user, DBOperation.Create) shouldBe true
+    val result = TestUtils.await(workflowHistoryRepository.getWorkflowsFromHistory(updateResultId, createResultId))
+    verifyHistory(Seq(result.leftWorkflowHistory.history), updateResultId, user, DBOperation.Update) shouldBe true
+    verifyHistory(Seq(result.rightWorkflowHistory.history), createResultId, user, DBOperation.Create) shouldBe true
     result.leftWorkflowHistory.workflowId shouldBe workflowId
     result.leftWorkflowHistory.workflow shouldBe workflowUpdate
     result.leftWorkflowHistory.workflow.name shouldBe workflowUpdate.name
@@ -101,10 +101,10 @@ class WorkflowHistoryRepositoryTest extends FlatSpec with Matchers with BeforeAn
 
     val user = "fakeUser"
 
-    val createResultId = Await.result(db.run(workflowHistoryRepository.create(workflowCreate, user)), Duration.Inf)
+    val createResultId = TestUtils.await(db.run(workflowHistoryRepository.create(workflowCreate, user)))
     val notCreatedId = 999
     val exceptionResult = the [Exception] thrownBy
-      Await.result(workflowHistoryRepository.getWorkflowsFromHistory(createResultId, notCreatedId), Duration.Inf)
+      TestUtils.await(workflowHistoryRepository.getWorkflowsFromHistory(createResultId, notCreatedId))
 
     exceptionResult.getMessage should equal (s"Workflow history with ${createResultId} or ${notCreatedId} does not exist.")
   }

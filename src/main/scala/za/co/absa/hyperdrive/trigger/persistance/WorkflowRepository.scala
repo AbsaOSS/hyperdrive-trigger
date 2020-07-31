@@ -149,24 +149,26 @@ class WorkflowRepositoryImpl(override val workflowHistoryRepository: WorkflowHis
   }
 
   override def updateWorkflow(workflow: WorkflowJoined, user: String)(implicit ec: ExecutionContext): Future[Either[ApiError, Unit]] = {
-    db.run((for {
-      w <- workflowTable.filter(_.id === workflow.id).update(workflow.toWorkflow.copy(updated = Option(LocalDateTime.now())))
-      s <- sensorTable.filter(_.workflowId === workflow.id).update(workflow.sensor)
-      dd <- dagDefinitionTable.filter(_.workflowId === workflow.id).update(workflow.dagDefinitionJoined.toDag())
-      deleteJds <- jobDefinitionTable.filter(_.dagDefinitionId === workflow.dagDefinitionJoined.id).delete
-      insertJds <- jobDefinitionTable ++= workflow.dagDefinitionJoined.jobDefinitions.map(_.copy(dagDefinitionId = workflow.dagDefinitionJoined.id))
-    } yield {
-      w
-    }).asTry.map {
+    db.run(
+      (for {
+        w <- workflowTable.filter(_.id === workflow.id).update(workflow.toWorkflow.copy(updated = Option(LocalDateTime.now())))
+        s <- sensorTable.filter(_.workflowId === workflow.id).update(workflow.sensor)
+        dd <- dagDefinitionTable.filter(_.workflowId === workflow.id).update(workflow.dagDefinitionJoined.toDag())
+        deleteJds <- jobDefinitionTable.filter(_.dagDefinitionId === workflow.dagDefinitionJoined.id).delete
+        insertJds <- jobDefinitionTable ++= workflow.dagDefinitionJoined.jobDefinitions.map(_.copy(dagDefinitionId = workflow.dagDefinitionJoined.id))
+      } yield {
+        w
+      }).flatMap(
+        result => getWorkflowJoined(workflow.id).map(
+          workflowUpdated => workflowHistoryRepository.update(workflowUpdated, user)
+        ).flatMap(_.map(_ => result))
+      ).transactionally.asTry.map {
         case Success(_) => Right((): Unit)
         case Failure(ex) =>
           logger.error(s"Unexpected error occurred when updating workflow $workflow", ex)
           Left(GenericDatabaseError)
-      }.flatMap(
-      result => getWorkflowJoined(workflow.id).map(
-        workflowUpdated => workflowHistoryRepository.update(workflowUpdated, user)
-      ).flatMap(_.map(_ => result))
-    ).transactionally)
+      }
+    )
   }
 
   override def switchWorkflowActiveState(id: Long, user: String)(implicit ec: ExecutionContext): Future[Unit] = {
@@ -183,18 +185,17 @@ class WorkflowRepositoryImpl(override val workflowHistoryRepository: WorkflowHis
     }
 
     db.run(
-      resultAction.flatMap(result => {
+      resultAction.flatMap(
+        result => getWorkflowJoined(id).map(
+          workflow => workflowHistoryRepository.update(workflow, user)
+        ).flatMap(_.map(_ => result))
+      ).flatMap(result => {
         if (result == 1) {
           DBIO.successful((): Unit)
         } else {
           DBIO.failed(new Exception("Update workflow exception"))
         }
-      }.flatMap(
-        result => getWorkflowJoined(id).map(
-          workflow => workflowHistoryRepository.update(workflow, user)
-        ).flatMap(_.map(_ => result))
-      )
-      ).transactionally
+      }).transactionally
     )
   }
 
