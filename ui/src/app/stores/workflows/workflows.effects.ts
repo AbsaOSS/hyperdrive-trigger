@@ -341,7 +341,7 @@ export class WorkflowsEffects {
   jobsRun = this.actions.pipe(
     ofType(WorkflowActions.RUN_JOBS),
     switchMap((action: WorkflowActions.RunJobs) => {
-      return this.workflowService.runWorkflowsJobs(action.payload.workflowId, action.payload.jobs).pipe(
+      return this.workflowService.runWorkflowJobs(action.payload.workflowId, action.payload.jobs).pipe(
         mergeMap((runWorkflowSuccess) => {
           if (runWorkflowSuccess) {
             this.toastrService.success(texts.RUN_WORKFLOWS_JOBS_SUCCESS_NOTIFICATION);

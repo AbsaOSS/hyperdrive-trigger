@@ -671,43 +671,43 @@ describe('WorkflowsEffects', () => {
     it('should display success when service successfully runs workflows jobs', () => {
       const toastrServiceSpy = spyOn(toastrService, 'success');
       const workflowId = 42;
-      const jobsIds = [1, 2, 3];
+      const jobIds = [1, 2, 3];
       const response = true;
 
-      const action = new RunJobs({ workflowId: workflowId, jobs: jobsIds });
+      const action = new RunJobs({ workflowId: workflowId, jobs: jobIds });
       mockActions = cold('-a', { a: action });
 
-      const runWorkflowsJobsResponse = cold('-a|', { a: response });
+      const runWorkflowJobsResponse = cold('-a|', { a: response });
       const expected = cold('--a', {
         a: {
           type: EMPTY,
         },
       });
 
-      spyOn(workflowService, 'runWorkflowsJobs').and.returnValue(runWorkflowsJobsResponse);
+      spyOn(workflowService, 'runWorkflowJobs').and.returnValue(runWorkflowJobsResponse);
 
       expect(underTest.jobsRun).toBeObservable(expected);
       expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
       expect(toastrServiceSpy).toHaveBeenCalledWith(texts.RUN_WORKFLOWS_JOBS_SUCCESS_NOTIFICATION);
     });
 
-    it('display failure when service fails to run workflows jobs', () => {
+    it('display failure when service fails to run workflow jobs', () => {
       const toastrServiceSpy = spyOn(toastrService, 'error');
       const workflowId = 42;
-      const jobsIds = [1, 2, 3];
+      const jobIds = [1, 2, 3];
       const response = false;
 
-      const action = new RunJobs({ workflowId: workflowId, jobs: jobsIds });
+      const action = new RunJobs({ workflowId: workflowId, jobs: jobIds });
       mockActions = cold('-a', { a: action });
 
-      const runWorkflowsJobsResponse = cold('-a|', { a: response });
+      const runWorkflowJobsResponse = cold('-a|', { a: response });
       const expected = cold('--a', {
         a: {
           type: EMPTY,
         },
       });
 
-      spyOn(workflowService, 'runWorkflowsJobs').and.returnValue(runWorkflowsJobsResponse);
+      spyOn(workflowService, 'runWorkflowJobs').and.returnValue(runWorkflowJobsResponse);
 
       expect(underTest.jobsRun).toBeObservable(expected);
       expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
@@ -717,13 +717,13 @@ describe('WorkflowsEffects', () => {
     it('should display failure when service throws an exception while running workflows jobs', () => {
       const toastrServiceSpy = spyOn(toastrService, 'error');
       const workflowId = 42;
-      const jobsIds = [1, 2, 3];
+      const jobIds = [1, 2, 3];
 
-      const action = new RunJobs({ workflowId: workflowId, jobs: jobsIds });
+      const action = new RunJobs({ workflowId: workflowId, jobs: jobIds });
       mockActions = cold('-a', { a: action });
 
-      const runWorkflowsJobsResponse = cold('-#|');
-      spyOn(workflowService, 'runWorkflowsJobs').and.returnValue(runWorkflowsJobsResponse);
+      const runWorkflowJobsResponse = cold('-#|');
+      spyOn(workflowService, 'runWorkflowJobs').and.returnValue(runWorkflowJobsResponse);
 
       const expected = cold('--a', {
         a: {

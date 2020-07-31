@@ -99,18 +99,6 @@ describe('WorkflowService', () => {
     req.flush(new Boolean(true));
   });
 
-  it('should run a workflow', () => {
-    const response = true;
-    underTest.runWorkflow(42).subscribe(
-      (data) => expect(data).toEqual(response),
-      (error) => fail(error),
-    );
-
-    const req = httpTestingController.expectOne(`${api.RUN_WORKFLOW}?workflowId=42`);
-    expect(req.request.method).toEqual('PUT');
-    req.flush(new Boolean(true));
-  });
-
   it('createWorkflow() should return created workflow', () => {
     const workflow = WorkflowJoinedModelFactory.create('name', true, 'project', undefined, undefined, undefined, 0);
 
@@ -137,12 +125,12 @@ describe('WorkflowService', () => {
     req.flush(workflow);
   });
 
-  it('runWorkflowsJobs() should run selected jobs', () => {
+  it('runWorkflowJobs() should run selected jobs', () => {
     const workflowId = 5;
-    const jobsIds = [1, 2, 3];
+    const jobIds = [1, 2, 3];
     const response = true;
 
-    underTest.runWorkflowsJobs(workflowId, jobsIds).subscribe(
+    underTest.runWorkflowJobs(workflowId, jobIds).subscribe(
       (data) => expect(data).toEqual(response),
       (error) => fail(error),
     );
