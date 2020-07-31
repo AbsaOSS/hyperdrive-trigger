@@ -18,9 +18,9 @@ import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { api } from '../../constants/api.constants';
 import { WorkflowService } from './workflow.service';
-import { ProjectModel, ProjectModelFactory } from '../../models/project.model';
-import { WorkflowModel, WorkflowModelFactory } from '../../models/workflow.model';
-import { WorkflowJoinedModel, WorkflowJoinedModelFactory } from '../../models/workflowJoined.model';
+import { ProjectModelFactory } from '../../models/project.model';
+import { WorkflowModelFactory } from '../../models/workflow.model';
+import { WorkflowJoinedModelFactory } from '../../models/workflowJoined.model';
 
 describe('WorkflowService', () => {
   let underTest: WorkflowService;
@@ -99,18 +99,6 @@ describe('WorkflowService', () => {
     req.flush(new Boolean(true));
   });
 
-  it('should run a workflow', () => {
-    const response = true;
-    underTest.runWorkflow(42).subscribe(
-      (data) => expect(data).toEqual(response),
-      (error) => fail(error),
-    );
-
-    const req = httpTestingController.expectOne(`${api.RUN_WORKFLOW}?workflowId=42`);
-    expect(req.request.method).toEqual('PUT');
-    req.flush(new Boolean(true));
-  });
-
   it('createWorkflow() should return created workflow', () => {
     const workflow = WorkflowJoinedModelFactory.create('name', true, 'project', undefined, undefined, undefined, 0);
 
@@ -135,5 +123,20 @@ describe('WorkflowService', () => {
     const req = httpTestingController.expectOne(api.UPDATE_WORKFLOW);
     expect(req.request.method).toEqual('POST');
     req.flush(workflow);
+  });
+
+  it('runWorkflowJobs() should run selected jobs', () => {
+    const workflowId = 5;
+    const jobIds = [1, 2, 3];
+    const response = true;
+
+    underTest.runWorkflowJobs(workflowId, jobIds).subscribe(
+      (data) => expect(data).toEqual(response),
+      (error) => fail(error),
+    );
+
+    const req = httpTestingController.expectOne(api.RUN_WORKFLOWS_JOBS + `?workflowId=${workflowId}`);
+    expect(req.request.method).toEqual('PUT');
+    req.flush(new Boolean(response));
   });
 });
