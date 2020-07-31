@@ -15,10 +15,10 @@
 
 <div class="clr-row">
   <div class="clr-col">
-    <input clrDate type="date" name="from" placeholder="from" readonly="readonly" [(clrDate)]="value.from" (clrDateChange)='modelChanged($event)'/>
+    <input clrDate type="date" name="from" placeholder="from" readonly="readonly" [max]="value.to | date:'yyyy-MM-dd'" [(clrDate)]="value.from" (clrDateChange)='modelChanged($event)'/>
   </div>
   <div class="clr-col">
-    <input clrDate type="date" name="to" placeholder="to" readonly="readonly" [(clrDate)]="value.to" (clrDateChange)='modelChanged($event)'/>
+    <input clrDate type="date" name="to" placeholder="to" readonly="readonly" [min]="value.from | date:'yyyy-MM-dd'" [(clrDate)]="value.to" (clrDateChange)='modelChanged($event)'/>
   </div>
   <div class="clr-col">
     <button type="button" class="btn btn-link btn-icon" (click)="onRemoveFilter()" [disabled]="!isActive()">
