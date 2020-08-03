@@ -87,6 +87,10 @@
         <clr-icon shape="history"></clr-icon>
         Show History
       </button>
+      <button type="button" class="action-item" [routerLink]="[absoluteRoutes.RUNS_WITH_WORKFLOW_ID(workflow.id)]">
+        <clr-icon shape="view-list"></clr-icon>
+        View Runs
+      </button>
     </clr-dg-action-overflow>
 
     <clr-dg-cell (dblclick)="showWorkflow(workflow.id)">{{workflow.name}}</clr-dg-cell>
