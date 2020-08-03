@@ -16,23 +16,16 @@
 import { Component, EventEmitter, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AppState, selectWorkflowState } from '../../../stores/app.reducers';
-import { Subscription } from 'rxjs';
-import { Store } from '@ngrx/store';
-import {
-  DeleteWorkflow,
-  CreateWorkflow,
-  StartWorkflowInitialization,
-  UpdateWorkflow,
-  SwitchWorkflowActiveState,
-  RemoveBackendValidationError,
-  LoadJobsForRun,
-} from '../../../stores/workflows/workflows.actions';
+import { Subject, Subscription } from 'rxjs';
+import { Action, Store } from '@ngrx/store';
+import { StartWorkflowInitialization, LoadJobsForRun } from '../../../stores/workflows/workflows.actions';
 import { workflowModes } from '../../../models/enums/workflowModes.constants';
 import { absoluteRoutes } from '../../../constants/routes.constants';
 import { PreviousRouteService } from '../../../services/previousRoute/previous-route.service';
 import { ConfirmationDialogService } from '../../../services/confirmation-dialog/confirmation-dialog.service';
-import { ConfirmationDialogTypes } from '../../../constants/confirmationDialogTypes.constants';
-import { texts } from '../../../constants/texts.constants';
+import { WorkflowEntryModel } from '../../../models/workflowEntry.model';
+import { JobEntryModel } from '../../../models/jobEntry.model';
+import { WorkflowFormPartsModel } from '../../../models/workflowFormParts.model';
 
 @Component({
   selector: 'app-workflow',
@@ -52,14 +45,18 @@ export class WorkflowComponent implements OnInit, OnDestroy {
   workflowModes = workflowModes;
   absoluteRoutes = absoluteRoutes;
 
-  isDetailsAccordionHidden = false;
-  isSensorAccordionHidden = false;
-  isJobsAccordionHidden = false;
-
   paramsSubscription: Subscription;
   workflowSubscription: Subscription;
-  confirmationDialogServiceSubscription: Subscription = null;
-  runWorkflowDialogSubscription: Subscription = null;
+
+  workflowData: {
+    details: WorkflowEntryModel[];
+    sensor: WorkflowEntryModel[];
+    jobs: JobEntryModel[];
+  };
+  workflowFormParts: WorkflowFormPartsModel;
+
+  changes: Subject<Action> = new Subject<Action>();
+  changesSubscription: Subscription;
 
   constructor(
     private store: Store<AppState>,
@@ -80,99 +77,16 @@ export class WorkflowComponent implements OnInit, OnDestroy {
       this.id = state.workflowAction.id;
       this.isWorkflowActive = !!state.workflowAction.workflow ? state.workflowAction.workflow.isActive : false;
       this.backendValidationErrors = state.workflowAction.backendValidationErrors;
+      this.workflowFormParts = state.workflowAction.workflowFormParts;
+      this.workflowData = state.workflowAction.workflowFormData;
     });
-  }
-
-  toggleDetailsAccordion() {
-    this.isDetailsAccordionHidden = !this.isDetailsAccordionHidden;
-  }
-
-  toggleSensorAccordion() {
-    this.isSensorAccordionHidden = !this.isSensorAccordionHidden;
-  }
-
-  toggleJobsAccordion() {
-    this.isJobsAccordionHidden = !this.isJobsAccordionHidden;
-  }
-
-  removeBackendValidationError(index: number) {
-    this.store.dispatch(new RemoveBackendValidationError(index));
-  }
-
-  cancelWorkflow() {
-    const previousUrl = this.previousRouteService.getPreviousUrl();
-    const currentUrl = this.previousRouteService.getCurrentUrl();
-
-    !previousUrl || previousUrl === currentUrl
-      ? this.router.navigateByUrl(absoluteRoutes.WORKFLOWS_HOME)
-      : this.router.navigateByUrl(previousUrl);
-  }
-
-  deleteWorkflow(id: number) {
-    this.confirmationDialogServiceSubscription = this.confirmationDialogService
-      .confirm(ConfirmationDialogTypes.Delete, texts.DELETE_WORKFLOW_CONFIRMATION_TITLE, texts.DELETE_WORKFLOW_CONFIRMATION_CONTENT)
-      .subscribe((confirmed) => {
-        if (confirmed) this.store.dispatch(new DeleteWorkflow(id));
-      });
-  }
-
-  switchWorkflowActiveState(id: number) {
-    this.confirmationDialogServiceSubscription = this.confirmationDialogService
-      .confirm(
-        ConfirmationDialogTypes.YesOrNo,
-        texts.SWITCH_WORKFLOW_ACTIVE_STATE_TITLE,
-        texts.SWITCH_WORKFLOW_ACTIVE_STATE_CONTENT(this.isWorkflowActive),
-      )
-      .subscribe((confirmed) => {
-        if (confirmed)
-          this.store.dispatch(
-            new SwitchWorkflowActiveState({
-              id: id,
-              currentActiveState: this.isWorkflowActive,
-            }),
-          );
-      });
-  }
-
-  runWorkflow(id: number) {
-    this.store.dispatch(new LoadJobsForRun(id));
-  }
-
-  createWorkflow() {
-    if (this.workflowForm.form.valid) {
-      this.confirmationDialogServiceSubscription = this.confirmationDialogService
-        .confirm(ConfirmationDialogTypes.YesOrNo, texts.CREATE_WORKFLOW_CONFIRMATION_TITLE, texts.CREATE_WORKFLOW_CONFIRMATION_CONTENT)
-        .subscribe((confirmed) => {
-          if (confirmed) this.store.dispatch(new CreateWorkflow());
-        });
-    } else {
-      this.showHiddenParts();
-    }
-  }
-
-  updateWorkflow() {
-    if (this.workflowForm.form.valid) {
-      this.confirmationDialogServiceSubscription = this.confirmationDialogService
-        .confirm(ConfirmationDialogTypes.YesOrNo, texts.UPDATE_WORKFLOW_CONFIRMATION_TITLE, texts.UPDATE_WORKFLOW_CONFIRMATION_CONTENT)
-        .subscribe((confirmed) => {
-          if (confirmed) this.store.dispatch(new UpdateWorkflow());
-        });
-    } else {
-      this.showHiddenParts();
-    }
-  }
-
-  showHiddenParts() {
-    this.isDetailsAccordionHidden = false;
-    this.isSensorAccordionHidden = false;
-    this.isJobsAccordionHidden = false;
-    this.jobsUnfold.emit();
+    this.changesSubscription = this.changes.subscribe((state) => {
+      this.store.dispatch(state);
+    });
   }
 
   ngOnDestroy(): void {
     !!this.workflowSubscription && this.workflowSubscription.unsubscribe();
     !!this.paramsSubscription && this.paramsSubscription.unsubscribe();
-    !!this.confirmationDialogServiceSubscription && this.confirmationDialogServiceSubscription.unsubscribe();
-    !!this.runWorkflowDialogSubscription && this.runWorkflowDialogSubscription.unsubscribe();
   }
 }

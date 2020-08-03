@@ -17,12 +17,12 @@ import { Injectable } from '@angular/core';
 import { Actions, Effect, ofType } from '@ngrx/effects';
 import * as WorkflowActions from '../workflows/workflows.actions';
 
-import { catchError, mergeMap, switchMap, withLatestFrom } from 'rxjs/operators';
+import { catchError, map, mergeMap, switchMap, withLatestFrom } from 'rxjs/operators';
 import { WorkflowService } from '../../services/workflow/workflow.service';
 import { ProjectModel } from '../../models/project.model';
 import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
 import { workflowModes } from '../../models/enums/workflowModes.constants';
-import { DynamicFormParts, WorkflowFormPartsModelFactory } from '../../models/workflowFormParts.model';
+import { DynamicFormParts, WorkflowFormPartsModel, WorkflowFormPartsModelFactory } from '../../models/workflowFormParts.model';
 import { workflowFormParts as workflowFormPartsConsts, workflowFormPartsSequences } from '../../constants/workflowFormParts.constants';
 import { AppState, selectWorkflowState } from '../app.reducers';
 import { Store } from '@ngrx/store';
@@ -34,6 +34,8 @@ import { ToastrService } from 'ngx-toastr';
 import { texts } from '../../constants/texts.constants';
 import { WorkflowModel, WorkflowModelFactory } from '../../models/workflow.model';
 import { WorkflowRequestModel } from '../../models/workflowRequest.model';
+import { WorkflowHistoriesForComparisonModel, HistoryModel } from '../../models/historyModel';
+import { WorkflowHistoryService } from '../../services/workflowHistory/workflow-history.service';
 import { JobService } from '../../services/job/job.service';
 import { JobForRunModel } from '../../models/jobForRun.model';
 import { RUN_JOBS } from '../workflows/workflows.actions';
@@ -44,6 +46,7 @@ export class WorkflowsEffects {
   constructor(
     private actions: Actions,
     private workflowService: WorkflowService,
+    private workflowHistoryService: WorkflowHistoryService,
     private jobService: JobService,
     private store: Store<AppState>,
     private router: Router,
@@ -59,13 +62,7 @@ export class WorkflowsEffects {
     mergeMap((projects: ProjectModel[]) => {
       return this.workflowService.getWorkflowDynamicFormParts().pipe(
         mergeMap((workflowComponents: DynamicFormParts) => {
-          const workflowFormParts = WorkflowFormPartsModelFactory.create(
-            workflowFormPartsSequences.allDetails,
-            workflowFormPartsConsts.SENSOR.SENSOR_TYPE,
-            workflowFormPartsConsts.JOB.JOB_NAME,
-            workflowFormPartsConsts.JOB.JOB_TYPE,
-            workflowComponents,
-          );
+          const workflowFormParts = this.getWorkflowFormParts(workflowComponents);
           return [
             {
               type: WorkflowActions.INITIALIZE_WORKFLOWS_SUCCESS,
@@ -108,7 +105,7 @@ export class WorkflowsEffects {
         } else {
           return this.workflowService.getWorkflow(action.payload.id).pipe(
             mergeMap((worfklow: WorkflowJoinedModel) => {
-              const workflowData = new WorkflowDataModel(worfklow, state.workflowFormParts.dynamicParts);
+              const workflowData = new WorkflowDataModel(worfklow, state.workflowAction.workflowFormParts.dynamicParts);
 
               return [
                 {
@@ -212,9 +209,9 @@ export class WorkflowsEffects {
     withLatestFrom(this.store.select(selectWorkflowState)),
     switchMap(([action, state]: [WorkflowActions.CreateWorkflow, fromWorkflows.State]) => {
       const workflowCreateRequest = new WorkflowRequestModel(
-        state.workflowAction.workflowData.details,
-        state.workflowAction.workflowData.sensor,
-        state.workflowAction.workflowData.jobs,
+        state.workflowAction.workflowFormData.details,
+        state.workflowAction.workflowFormData.sensor,
+        state.workflowAction.workflowFormData.jobs,
       ).getCreateWorkflowRequestObject();
 
       return this.workflowService.createWorkflow(workflowCreateRequest).pipe(
@@ -265,9 +262,9 @@ export class WorkflowsEffects {
     withLatestFrom(this.store.select(selectWorkflowState)),
     switchMap(([action, state]: [WorkflowActions.CreateWorkflow, fromWorkflows.State]) => {
       const workflowUpdateRequest = new WorkflowRequestModel(
-        state.workflowAction.workflowData.details,
-        state.workflowAction.workflowData.sensor,
-        state.workflowAction.workflowData.jobs,
+        state.workflowAction.workflowFormData.details,
+        state.workflowAction.workflowFormData.sensor,
+        state.workflowAction.workflowFormData.jobs,
       ).getUpdateWorkflowRequestObject(state.workflowAction.id);
 
       return this.workflowService.updateWorkflow(workflowUpdateRequest).pipe(
@@ -311,6 +308,88 @@ export class WorkflowsEffects {
       );
     }),
   );
+
+  @Effect({ dispatch: true })
+  historyForWorkflowLoad = this.actions.pipe(
+    ofType(WorkflowActions.LOAD_HISTORY_FOR_WORKFLOW),
+    switchMap((action: WorkflowActions.LoadHistoryForWorkflow) => {
+      return this.workflowHistoryService.getHistoryForWorkflow(action.payload).pipe(
+        mergeMap((historyForWorkflow: HistoryModel[]) => {
+          return [
+            {
+              type: WorkflowActions.LOAD_HISTORY_FOR_WORKFLOW_SUCCESS,
+              payload: historyForWorkflow.sort((left, right) => right.id - left.id),
+            },
+          ];
+        }),
+        catchError(() => {
+          this.toastrService.error(texts.LOAD_HISTORY_FOR_WORKFLOW_FAILURE_NOTIFICATION);
+          return [
+            {
+              type: WorkflowActions.LOAD_HISTORY_FOR_WORKFLOW_FAILURE,
+            },
+          ];
+        }),
+      );
+    }),
+  );
+
+  @Effect({ dispatch: true })
+  workflowsFromHistoryLoad = this.actions.pipe(
+    ofType(WorkflowActions.LOAD_WORKFLOWS_FROM_HISTORY),
+    switchMap((action: WorkflowActions.LoadWorkflowsFromHistory) => {
+      return this.workflowHistoryService.getWorkflowsFromHistory(
+        action.payload.leftWorkflowHistoryId,
+        action.payload.rightWorkflowHistoryId,
+      );
+    }),
+    mergeMap((workflowHistForComparison: WorkflowHistoriesForComparisonModel) => {
+      return this.workflowService.getWorkflowDynamicFormParts().pipe(
+        mergeMap((workflowComponents: DynamicFormParts) => {
+          const workflowFormParts = this.getWorkflowFormParts(workflowComponents);
+
+          const leftWorkflowHistory = new WorkflowDataModel(
+            workflowHistForComparison.leftWorkflowHistory.workflow,
+            workflowFormParts.dynamicParts,
+          );
+          const rightWorkflowHistory = new WorkflowDataModel(
+            workflowHistForComparison.rightWorkflowHistory.workflow,
+            workflowFormParts.dynamicParts,
+          );
+          return [
+            {
+              type: WorkflowActions.LOAD_WORKFLOWS_FROM_HISTORY_SUCCESS,
+              payload: {
+                workflowFormParts: workflowFormParts,
+                leftWorkflowHistoryData: leftWorkflowHistory.getWorkflowFromData(),
+                leftWorkflowHistory: workflowHistForComparison.leftWorkflowHistory.history,
+                rightWorkflowHistoryData: rightWorkflowHistory.getWorkflowFromData(),
+                rightWorkflowHistory: workflowHistForComparison.rightWorkflowHistory.history,
+              },
+            },
+          ];
+        }),
+      );
+    }),
+    catchError(() => {
+      this.toastrService.error(texts.LOAD_WORKFLOWS_FROM_HISTORY_FAILURE_NOTIFICATION);
+      return [
+        {
+          type: WorkflowActions.LOAD_WORKFLOWS_FROM_HISTORY_FAILURE,
+        },
+      ];
+    }),
+  );
+
+  getWorkflowFormParts(workflowComponents: DynamicFormParts): WorkflowFormPartsModel {
+    return WorkflowFormPartsModelFactory.create(
+      workflowFormPartsSequences.allDetails,
+      workflowFormPartsConsts.SENSOR.SENSOR_TYPE,
+      workflowFormPartsConsts.JOB.JOB_NAME,
+      workflowFormPartsConsts.JOB.JOB_TYPE,
+      workflowComponents,
+    );
+  }
 
   @Effect({ dispatch: true })
   jobsForRunLoad = this.actions.pipe(

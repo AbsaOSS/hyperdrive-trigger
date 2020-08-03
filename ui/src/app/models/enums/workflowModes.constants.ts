@@ -18,4 +18,5 @@ export const workflowModes = {
   CREATE: 'create',
   EDIT: 'edit',
   COPY: 'copy',
+  COMPARISON: 'comparison',
 };

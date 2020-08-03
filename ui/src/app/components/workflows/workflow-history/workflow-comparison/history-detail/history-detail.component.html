@@ -1,0 +1,58 @@
+<!--
+  ~ Copyright 2018 ABSA Group Limited
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<form clrForm novalidate>
+
+  <div class="clr-row">
+    <div class="clr-col">
+      <div class="card">
+        <div class="card-block">
+          <div class="card-title notSelectable" (click)="toggleHistoryDetailAccordion()">
+            <clr-icon shape="angle" [dir]="isHistoryDetailHidden?'right':'down'"></clr-icon>
+            History info
+          </div>
+          <div [hidden]="isHistoryDetailHidden" class="accordion-content">
+            <app-string-part
+              [isShow]="true"
+              [name]="'Operation'"
+              [valueChanges]="detailsChanges"
+              [value]="historyDetail.operation.name"
+              [property]="'operation'"
+              [partValidation]="partValidation">
+            </app-string-part>
+
+            <app-string-part
+              [isShow]="true"
+              [name]="'Change By'"
+              [valueChanges]="detailsChanges"
+              [value]="historyDetail.changedBy"
+              [property]="'user'"
+              [partValidation]="partValidation">
+            </app-string-part>
+
+            <app-string-part
+              [isShow]="true"
+              [name]="'Changed on'"
+              [valueChanges]="detailsChanges"
+              [value]="historyDetail.changedOn | date: 'medium'"
+              [property]="'date'"
+              [partValidation]="partValidation">
+            </app-string-part>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
