@@ -69,6 +69,7 @@ describe('WorkflowsReducers', () => {
     workflowsSort: undefined,
     workflowsFilters: [],
     workflowFormParts: undefined,
+    jobsForRun: undefined,
   };
 
   describe('workflowsInitialize', () => {
