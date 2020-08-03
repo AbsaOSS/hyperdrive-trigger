@@ -19,7 +19,7 @@ import java.time.LocalDateTime
 
 import slick.ast.BaseTypedType
 import slick.lifted.{AbstractTable, ColumnOrdered}
-import za.co.absa.hyperdrive.trigger.models.search.{ContainsFilterAttributes, DateTimeRangeFilterAttributes, EqualsMultipleFilterAttributes, IntRangeFilterAttributes, SortAttributes, TableSearchRequest, TableSearchResponse}
+import za.co.absa.hyperdrive.trigger.models.search.{ContainsFilterAttributes, DateTimeRangeFilterAttributes, EqualsMultipleFilterAttributes, IntRangeFilterAttributes, LongFilterAttributes, SortAttributes, TableSearchRequest, TableSearchResponse}
 
 import scala.concurrent.ExecutionContext
 
@@ -41,11 +41,14 @@ trait SearchableTableQuery {
         query.filter(table => applyDateTimeRangeFilter(attributes, table.fieldMapping)))
       val withMultiEquals = request.getEqualsMultipleFilterAttributes.foldLeft(filteredQuery)((query, attributes) =>
         query.filter(table => applyEqualsMultipleFilter(attributes, table.fieldMapping)))
+      val withLongFilter = request.getLongFilterAttributes.foldLeft(withMultiEquals)((query, attributes) =>
+        query.filter(table => applyLongFilter(attributes, table.fieldMapping)))
 
-      val length = withMultiEquals.length.result
+
+      val length = withLongFilter.length.result
 
 
-      val result = withMultiEquals
+      val result = withLongFilter
         .sortBy(table => sortFields(request.sort, table.fieldMapping, table.defaultSortColumn))
         .drop(request.from)
         .take(request.size)
@@ -77,6 +80,11 @@ trait SearchableTableQuery {
     private def applyEqualsMultipleFilter(attributes: EqualsMultipleFilterAttributes, fieldMapping: Map[String, Rep[_]]): Rep[Boolean] = {
       val tableField = fieldMapping(attributes.field).asInstanceOf[Rep[String]]
       tableField inSetBind attributes.values
+    }
+
+    private def applyLongFilter(attributes: LongFilterAttributes, fieldMapping: Map[String, Rep[_]]): Rep[Boolean] = {
+      val tableField = fieldMapping(attributes.field).asInstanceOf[Rep[Long]]
+      tableField === attributes.value
     }
 
     private def applyRangeFilter[B: BaseTypedType](tableField: Rep[B], start: Option[B], end: Option[B]): Rep[Boolean] = {

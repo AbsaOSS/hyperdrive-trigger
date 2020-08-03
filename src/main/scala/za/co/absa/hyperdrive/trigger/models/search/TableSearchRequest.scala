@@ -20,6 +20,7 @@ case class TableSearchRequest(
   intRangeFilterAttributes: Option[Seq[IntRangeFilterAttributes]] = None,
   dateTimeRangeFilterAttributes: Option[Seq[DateTimeRangeFilterAttributes]] = None,
   equalsMultipleFilterAttributes: Option[Seq[EqualsMultipleFilterAttributes]] = None,
+  longFilterAttributes: Option[Seq[LongFilterAttributes]] = None,
   sort: Option[SortAttributes],
   from: Int,
   size: Int
@@ -28,4 +29,5 @@ case class TableSearchRequest(
   def getIntRangeFilterAttributes: Seq[IntRangeFilterAttributes] = intRangeFilterAttributes.getOrElse(Seq())
   def getDateTimeRangeFilterAttributes: Seq[DateTimeRangeFilterAttributes] = dateTimeRangeFilterAttributes.getOrElse(Seq())
   def getEqualsMultipleFilterAttributes: Seq[EqualsMultipleFilterAttributes] = equalsMultipleFilterAttributes.getOrElse(Seq())
+  def getLongFilterAttributes: Seq[LongFilterAttributes] = longFilterAttributes.getOrElse(Seq())
 }

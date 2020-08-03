@@ -18,6 +18,8 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { RunsComponent } from './runs.component';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import * as fromApp from '../../stores/app.reducers';
+import { ActivatedRoute } from '@angular/router';
+import { of } from 'rxjs';
 
 describe('RunsComponent', () => {
   let component: RunsComponent;
@@ -31,7 +33,17 @@ describe('RunsComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      providers: [provideMockStore({ initialState: initialAppState })],
+      providers: [
+        provideMockStore({ initialState: initialAppState }),
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            params: of({
+              workflowId: 0,
+            }),
+          },
+        },
+      ],
       declarations: [RunsComponent],
     }).compileComponents();
   }));

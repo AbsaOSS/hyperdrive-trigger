@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -13,17 +14,6 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models.dagRuns
+package za.co.absa.hyperdrive.trigger.models.search
 
-import java.time.LocalDateTime
-
-case class DagRun(
-  workflowId: Long,
-  workflowName: String,
-  projectName: String,
-  jobCount: Int,
-  started: LocalDateTime,
-  finished: Option[LocalDateTime],
-  status: String,
-  id: Long = 0
-)
+case class LongFilterAttributes(override val field: String, value: Long) extends FilterAttributes

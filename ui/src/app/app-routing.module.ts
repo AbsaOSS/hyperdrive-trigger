@@ -42,6 +42,7 @@ const routes: Routes = [
   },
   { path: routeNames.WORKFLOW_HISTORY_COMPARISON, component: WorkflowComparisonComponent, canActivate: [AuthGuardService] },
   { path: routeNames.RUNS, component: RunsComponent, canActivate: [AuthGuardService] },
+  { path: routeNames.RUNS_WITH_WORKFLOW_ID, component: RunsComponent, canActivate: [AuthGuardService] },
 ];
 
 @NgModule({
