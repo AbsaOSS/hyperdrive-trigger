@@ -35,6 +35,7 @@ trait RepositoryTestBase extends Repository {
   def h2SchemaSetup(): Unit = {
     val schema = DBIO.seq(
       workflowTable.schema.create,
+      workflowHistoryTable.schema.create,
       dagDefinitionTable.schema.create,
       sensorTable.schema.create,
       jobDefinitionTable.schema.create,
@@ -55,6 +56,7 @@ trait RepositoryTestBase extends Repository {
       sensorTable.schema.drop,
       dagDefinitionTable.schema.drop,
       workflowTable.schema.drop,
+      workflowHistoryTable.schema.drop,
       dagRunTable.schema.drop
     )
     run(schema)
@@ -69,6 +71,7 @@ trait RepositoryTestBase extends Repository {
       sensorTable.delete,
       dagDefinitionTable.delete,
       workflowTable.delete,
+      workflowHistoryTable.delete,
       dagRunTable.delete
     )
     run(schema)

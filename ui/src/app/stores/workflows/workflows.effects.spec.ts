@@ -24,6 +24,7 @@ import {
   CreateWorkflow,
   DeleteWorkflow,
   InitializeWorkflows,
+  LoadHistoryForWorkflow,
   LoadJobsForRun,
   RunJobs,
   StartWorkflowInitialization,
@@ -37,7 +38,9 @@ import { ProjectModelFactory } from '../../models/project.model';
 import { WorkflowModel, WorkflowModelFactory } from '../../models/workflow.model';
 import { provideMockStore } from '@ngrx/store/testing';
 import {
+  DynamicFormPart,
   DynamicFormPartFactory,
+  DynamicFormParts,
   DynamicFormPartsFactory,
   FormPartFactory,
   PartValidationFactory,
@@ -61,12 +64,15 @@ import { Router } from '@angular/router';
 import { absoluteRoutes } from '../../constants/routes.constants';
 import { JobTypeFactory } from '../../models/jobInstance.model';
 import { ApiErrorModel, ApiErrorModelFactory } from '../../models/errors/apiError.model';
+import { WorkflowHistoryService } from '../../services/workflowHistory/workflow-history.service';
+import { HistoryModel, HistoryModelFactory } from '../../models/historyModel';
 import { JobForRunModelFactory } from '../../models/jobForRun.model';
 import { JobService } from '../../services/job/job.service';
 
 describe('WorkflowsEffects', () => {
   let underTest: WorkflowsEffects;
   let workflowService: WorkflowService;
+  let workflowHistoryService: WorkflowHistoryService;
   let jobService: JobService;
   let mockActions: Observable<any>;
   let toastrService: ToastrService;
@@ -76,19 +82,19 @@ describe('WorkflowsEffects', () => {
     workflows: {
       workflowAction: {
         mode: workflowModes.CREATE,
-        workflowData: {
+        workflowFormData: {
           details: [{ property: 'detailProp', value: 'detailVal' }],
           sensor: [{ property: 'sensorProp', value: 'sensorVal' }],
           jobs: [{ jobId: 'jobId', order: 0, entries: [{ property: 'jobProp', value: 'jobVal' }] }],
         },
+        workflowFormParts: WorkflowFormPartsModelFactory.create(
+          workflowFormPartsSequences.allDetails,
+          workflowFormPartsConsts.SENSOR.SENSOR_TYPE,
+          workflowFormPartsConsts.JOB.JOB_NAME,
+          workflowFormPartsConsts.JOB.JOB_TYPE,
+          DynamicFormPartsFactory.create([], []),
+        ),
       },
-      workflowFormParts: WorkflowFormPartsModelFactory.create(
-        workflowFormPartsSequences.allDetails,
-        workflowFormPartsConsts.SENSOR.SENSOR_TYPE,
-        workflowFormPartsConsts.JOB.JOB_NAME,
-        workflowFormPartsConsts.JOB.JOB_TYPE,
-        DynamicFormPartsFactory.create([], []),
-      ),
     },
   };
 
@@ -106,6 +112,7 @@ describe('WorkflowsEffects', () => {
     });
     underTest = TestBed.inject(WorkflowsEffects);
     workflowService = TestBed.inject(WorkflowService);
+    workflowHistoryService = TestBed.inject(WorkflowHistoryService);
     jobService = TestBed.inject(JobService);
     mockActions = TestBed.inject(Actions);
     toastrService = TestBed.inject(ToastrService);
@@ -589,6 +596,78 @@ describe('WorkflowsEffects', () => {
       expect(toastrServiceSpy).toHaveBeenCalledWith(texts.UPDATE_WORKFLOW_SUCCESS_NOTIFICATION);
       expect(routerSpy).toHaveBeenCalledTimes(1);
       expect(routerSpy).toHaveBeenCalledWith(absoluteRoutes.SHOW_WORKFLOW + '/' + workflow.id);
+    });
+  });
+
+  describe('historyForWorkflowLoad', () => {
+    it('should successfully load history for workflow', () => {
+      const payload = 42;
+      const response: HistoryModel[] = [HistoryModelFactory.create(1, new Date(Date.now()), 'userName', { name: 'operation' })];
+
+      const action = new LoadHistoryForWorkflow(payload);
+      mockActions = cold('-a', { a: action });
+
+      const getHistoryForWorkflowResponse = cold('-a|', { a: response });
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowsActions.LOAD_HISTORY_FOR_WORKFLOW_SUCCESS,
+          payload: response,
+        },
+      });
+
+      spyOn(workflowHistoryService, 'getHistoryForWorkflow').and.returnValue(getHistoryForWorkflowResponse);
+
+      expect(underTest.historyForWorkflowLoad).toBeObservable(expected);
+    });
+
+    it('should display failure when service fails to load history for workflow', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'error');
+      const payload = 42;
+
+      const action = new LoadHistoryForWorkflow(payload);
+      mockActions = cold('-a', { a: action });
+
+      const getHistoryForWorkflowResponse = cold('-#|');
+      spyOn(workflowHistoryService, 'getHistoryForWorkflow').and.returnValue(getHistoryForWorkflowResponse);
+
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowsActions.LOAD_HISTORY_FOR_WORKFLOW_FAILURE,
+        },
+      });
+      expect(underTest.historyForWorkflowLoad).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.LOAD_HISTORY_FOR_WORKFLOW_FAILURE_NOTIFICATION);
+    });
+  });
+
+  describe('workflowsFromHistoryLoad', () => {
+    it('should load workflows from history', () => {
+      //TODO: Implement test. I need help from you guys. (Problem could be how we combine multiple observables in effects)
+    });
+
+    it('should display failure when service fails to load workflows from history', () => {
+      //TODO: Implement test. I need help from you guys. (Problem could be how we combine multiple observables in effects)
+    });
+  });
+
+  describe('getWorkflowFormParts', () => {
+    it('should return workflow form parts', () => {
+      const sensorDynamicPart: DynamicFormPart = DynamicFormPartFactory.create('sensorDynamicPart', [
+        FormPartFactory.create('name1', 'property1', 'type1', PartValidationFactory.create(true)),
+      ]);
+      const jobDynamicParts: DynamicFormPart = DynamicFormPartFactory.create('jobDynamicPart', [
+        FormPartFactory.create('name2', 'property2', 'type2', PartValidationFactory.create(true)),
+      ]);
+      const dynamicFormParts: DynamicFormParts = DynamicFormPartsFactory.create([sensorDynamicPart], [jobDynamicParts]);
+
+      const result = underTest.getWorkflowFormParts(dynamicFormParts);
+      expect(result).toBeDefined();
+      expect(result.dynamicParts).toBe(dynamicFormParts);
+      expect(result.detailsParts).toBe(workflowFormPartsSequences.allDetails);
+      expect(result.sensorSwitchPart).toBe(workflowFormPartsConsts.SENSOR.SENSOR_TYPE);
+      expect(result.staticJobPart).toBe(workflowFormPartsConsts.JOB.JOB_NAME);
+      expect(result.jobSwitchPart).toBe(workflowFormPartsConsts.JOB.JOB_TYPE);
     });
   });
 
