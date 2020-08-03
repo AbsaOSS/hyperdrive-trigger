@@ -1,0 +1,134 @@
+<!--
+  ~ Copyright 2018 ABSA Group Limited
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="btn-group" *ngIf="mode == workflowModes.SHOW">
+  <button type="button" class="btn btn-sm btn-secondary" (click)="switchWorkflowActiveState(id)">
+    <clr-icon shape="power"></clr-icon>
+    {{isWorkflowActive ? 'Deactivate' : 'Activate'}}
+  </button>
+  <button type="button" class="btn btn-sm btn-secondary" (click)="runWorkflow(id)">
+    <clr-icon shape="play"></clr-icon>
+    Run
+  </button>
+  <button type="button" class="btn btn-sm btn-secondary" [routerLink]="[absoluteRoutes.COPY_WORKFLOW, id]">
+    <clr-icon shape="copy"></clr-icon>
+    Copy
+  </button>
+  <button type="button" class="btn btn-sm btn-secondary" [routerLink]="[absoluteRoutes.EDIT_WORKFLOW, id]">
+    <clr-icon shape="pencil"></clr-icon>
+    Edit
+  </button>
+  <button type="button" class="btn btn-sm btn-secondary" (click)="deleteWorkflow(id)">
+    <clr-icon shape="close"></clr-icon>
+    Delete
+  </button>
+  <button type="button" class="btn btn-sm btn-secondary" [routerLink]="[absoluteRoutes.WORKFLOW_HISTORY(id)]">
+    <clr-icon shape="history"></clr-icon>
+    History
+  </button>
+  <button type="button" class="btn btn-sm btn-secondary" [routerLink]="[absoluteRoutes.RUNS_WITH_WORKFLOW_ID(id)]">
+    <clr-icon shape="view-list"></clr-icon>
+    View Runs
+  </button>
+</div>
+
+<form clrForm (ngSubmit)="mode != workflowModes.EDIT ? createWorkflow() : updateWorkflow()" #workflowForm="ngForm" novalidate>
+  <div class="btn-group" *ngIf="mode != workflowModes.SHOW && mode != workflowModes.COMPARISON">
+    <button type="submit" class="btn btn-sm btn-secondary" *ngIf="mode != workflowModes.EDIT">
+      <clr-icon shape="check"></clr-icon>
+      Create new workflow
+    </button>
+    <button type="submit" class="btn btn-sm btn-secondary" *ngIf="mode == workflowModes.EDIT">
+      <clr-icon shape="check"></clr-icon>
+      Update workflow
+    </button>
+    <button type="button" class="btn btn-sm btn-secondary" (click)="cancelWorkflow()">
+      <clr-icon shape="times"></clr-icon>
+      Cancel
+    </button>
+  </div>
+
+  <div *ngFor="let error of backendValidationErrors; let index = index" class="alert alert-danger" role="alert">
+    <div class="alert-items">
+      <div class="alert-item static">
+        <div class="alert-icon-wrapper">
+          <clr-icon class="alert-icon" shape="exclamation-triangle"></clr-icon>
+        </div>
+        <span class="alert-text">{{error}} </span>
+      </div>
+    </div>
+    <button type="button" class="close" aria-label="Close" (click)="removeBackendValidationError(index)">
+      <clr-icon aria-hidden="true" shape="close"></clr-icon>
+    </button>
+  </div>
+
+  <!--  ACCORDIONS  -->
+  <div class="clr-row">
+    <div class="clr-col">
+      <div class="card">
+        <div class="card-block">
+          <div class="card-title notSelectable" (click)="toggleDetailsAccordion()">
+            <clr-icon shape="angle" [dir]="isDetailsAccordionHidden?'right':'down'"></clr-icon>
+            Workflow details
+          </div>
+          <div [hidden]="isDetailsAccordionHidden" class="accordion-content">
+            <app-workflow-details
+              [mode]="mode"
+              [parts]="workflowFormParts.detailsParts"
+              [data]="workflowData.details"
+              [changes]="changes">
+            </app-workflow-details>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-block">
+          <div class="card-title notSelectable" (click)="toggleSensorAccordion()">
+            <clr-icon shape="angle" [dir]="isSensorAccordionHidden?'right':'down'"></clr-icon>
+            Sensor
+          </div>
+          <div [hidden]="isSensorAccordionHidden" class="accordion-content">
+            <app-sensor
+              [mode]="mode"
+              [workflowFormParts]="workflowFormParts"
+              [sensorData]="workflowData.sensor"
+              [changes]="changes">
+            </app-sensor>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-block">
+          <div class="card-title notSelectable" (click)="toggleJobsAccordion()">
+            <clr-icon shape="angle" [dir]="isJobsAccordionHidden?'right':'down'"></clr-icon>
+            Jobs
+          </div>
+          <div [hidden]="isJobsAccordionHidden">
+            <app-jobs
+              [jobsUnfold]="jobsUnfold"
+              [mode]="mode"
+              [workflowFormParts]="workflowFormParts"
+              [jobsData]="getJobsData()"
+              [changes]="changes">
+            </app-jobs>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</form>

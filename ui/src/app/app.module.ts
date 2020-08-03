@@ -47,22 +47,26 @@ import { DatetimeRangeFilterComponent } from './components/common/datagrid/filte
 import { MultipleStatusFilterComponent } from './components/common/datagrid/filters/multiple-status-filter/multiple-status-filter.component';
 import { NumberRangeFilterComponent } from './components/common/datagrid/filters/number-range-filter/number-range-filter.component';
 import { WorkflowComponent } from './components/workflows/workflow/workflow.component';
-import { WorkflowDetailsComponent } from './components/workflows/workflow/workflow-details/workflow-details.component';
-import { SensorComponent } from './components/workflows/workflow/sensor/sensor.component';
-import { JobsComponent } from './components/workflows/workflow/jobs/jobs.component';
-import { StringPartComponent } from './components/workflows/workflow/dynamic-parts/string-part/string-part.component';
-import { BooleanPartComponent } from './components/workflows/workflow/dynamic-parts/boolean-part/boolean-part.component';
-import { SelectPartComponent } from './components/workflows/workflow/dynamic-parts/select-part/select-part.component';
-import { StringSequencePartComponent } from './components/workflows/workflow/dynamic-parts/string-sequence-part/string-sequence-part.component';
-import { KeyStringValuePartComponent } from './components/workflows/workflow/dynamic-parts/key-string-value-part/key-string-value-part.component';
-import { GuidPartComponent } from './components/workflows/workflow/dynamic-parts/guid-part/guid-part.component';
-import { CronQuartzPartComponent } from './components/workflows/workflow/dynamic-parts/cron-quartz-part/cron-quartz-part.component';
-import { JobComponent } from './components/workflows/workflow/jobs/job/job.component';
-import { DynamicPartsComponent } from './components/workflows/workflow/dynamic-parts/dynamic-parts.component';
+import { WorkflowDetailsComponent } from './components/workflows/workflow-form/workflow-details/workflow-details.component';
+import { SensorComponent } from './components/workflows/workflow-form/sensor/sensor.component';
+import { JobsComponent } from './components/workflows/workflow-form/jobs/jobs.component';
+import { StringPartComponent } from './components/workflows/workflow-form/dynamic-parts/string-part/string-part.component';
+import { BooleanPartComponent } from './components/workflows/workflow-form/dynamic-parts/boolean-part/boolean-part.component';
+import { SelectPartComponent } from './components/workflows/workflow-form/dynamic-parts/select-part/select-part.component';
+import { StringSequencePartComponent } from './components/workflows/workflow-form/dynamic-parts/string-sequence-part/string-sequence-part.component';
+import { KeyStringValuePartComponent } from './components/workflows/workflow-form/dynamic-parts/key-string-value-part/key-string-value-part.component';
+import { GuidPartComponent } from './components/workflows/workflow-form/dynamic-parts/guid-part/guid-part.component';
+import { CronQuartzPartComponent } from './components/workflows/workflow-form/dynamic-parts/cron-quartz-part/cron-quartz-part.component';
+import { JobComponent } from './components/workflows/workflow-form/jobs/job/job.component';
+import { DynamicPartsComponent } from './components/workflows/workflow-form/dynamic-parts/dynamic-parts.component';
 import { PreviousRouteService } from './services/previousRoute/previous-route.service';
 import { ToastrModule } from 'ngx-toastr';
 import { ConfirmationDialogComponent } from './components/common/confirmation-dialog/confirmation-dialog.component';
-import { CronQuartzExpressionValidator } from './components/workflows/workflow/dynamic-parts/cron-quartz-part/validator/cron-quartz-expression.validator';
+import { CronQuartzExpressionValidator } from './components/workflows/workflow-form/dynamic-parts/cron-quartz-part/validator/cron-quartz-expression.validator';
+import { WorkflowHistoryComponent } from './components/workflows/workflow-history/workflow-history.component';
+import { WorkflowComparisonComponent } from './components/workflows/workflow-history/workflow-comparison/workflow-comparison.component';
+import { WorkflowFormComponent } from './components/workflows/workflow-form/workflow-form.component';
+import { HistoryDetailComponent } from './components/workflows/workflow-history/workflow-comparison/history-detail/history-detail.component';
 import { WorkflowRunComponent } from './components/workflows/workflow-run/workflow-run.component';
 
 @NgModule({
@@ -92,6 +96,10 @@ import { WorkflowRunComponent } from './components/workflows/workflow-run/workfl
     DynamicPartsComponent,
     ConfirmationDialogComponent,
     CronQuartzExpressionValidator,
+    WorkflowHistoryComponent,
+    WorkflowComparisonComponent,
+    WorkflowFormComponent,
+    HistoryDetailComponent,
     WorkflowRunComponent,
   ],
   imports: [

@@ -78,6 +78,15 @@ create table "dag_instance" (
   "id" BIGSERIAL NOT NULL PRIMARY KEY
 );
 
+create table "workflow_history" (
+  "id" BIGSERIAL NOT NULL PRIMARY KEY,
+  "changed_on" TIMESTAMP NOT NULL,
+  "changed_by" VARCHAR NOT NULL,
+  "operation" VARCHAR NOT NULL,
+  "workflow_id" BIGINT NOT NULL,
+  "workflow" VARCHAR NOT NULL
+);
+
 alter table "job_instance"
   add constraint "job_instance_dag_instance_fk"
   foreign key("dag_instance_id")

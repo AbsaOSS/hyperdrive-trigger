@@ -28,6 +28,8 @@ export const api = {
   RUN_WORKFLOWS_JOBS: '/workflow/jobs/run',
   CREATE_WORKFLOW: '/workflow',
   UPDATE_WORKFLOW: '/workflows',
+  GET_HISTORY_FOR_WORKFLOW: '/workflowHistory',
+  GET_WORKFLOWS_FROM_HISTORY: '/workflowsFromHistory',
   GET_JOBS_FOR_RUN: '/jobsForRun',
 
   GET_QUARTZ_DETAIL: '/util/quartzDetail',

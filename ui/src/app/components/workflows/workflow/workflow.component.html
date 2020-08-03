@@ -20,104 +20,14 @@
 </div>
 
 <div *ngIf="!loading">
-  <div class="btn-group" *ngIf="mode == workflowModes.SHOW">
-    <button type="button" class="btn btn-sm btn-secondary" (click)="switchWorkflowActiveState(id)">
-      <clr-icon shape="power"></clr-icon>
-      {{isWorkflowActive ? 'Deactivate' : 'Activate'}}
-    </button>
-    <button type="button" class="btn btn-sm btn-secondary" (click)="runWorkflow(id)">
-      <clr-icon shape="play"></clr-icon>
-      Run
-    </button>
-    <button type="button" class="btn btn-sm btn-secondary" [routerLink]="[absoluteRoutes.COPY_WORKFLOW, id]">
-      <clr-icon shape="copy"></clr-icon>
-      Copy
-    </button>
-    <button type="button" class="btn btn-sm btn-secondary" [routerLink]="[absoluteRoutes.EDIT_WORKFLOW, id]">
-      <clr-icon shape="pencil"></clr-icon>
-      Edit
-    </button>
-    <button type="button" class="btn btn-sm btn-secondary" (click)="deleteWorkflow(id)">
-      <clr-icon shape="close"></clr-icon>
-      Delete
-    </button>
-    <button type="button" class="btn btn-sm btn-secondary" [routerLink]="[absoluteRoutes.RUNS_WITH_WORKFLOW_ID(id)]">
-      <clr-icon shape="view-list"></clr-icon>
-      View Runs
-    </button>
-  </div>
-
-  <form clrForm (ngSubmit)="mode != workflowModes.EDIT ? createWorkflow() : updateWorkflow()" #workflowForm="ngForm" novalidate>
-    <div class="btn-group" *ngIf="mode != workflowModes.SHOW">
-      <button type="submit" class="btn btn-sm btn-secondary" *ngIf="mode != workflowModes.EDIT">
-        <clr-icon shape="check"></clr-icon>
-        Create new workflow
-      </button>
-      <button type="submit" class="btn btn-sm btn-secondary" *ngIf="mode == workflowModes.EDIT">
-        <clr-icon shape="check"></clr-icon>
-        Update workflow
-      </button>
-      <button type="button" class="btn btn-sm btn-secondary" (click)="cancelWorkflow()">
-        <clr-icon shape="times"></clr-icon>
-        Cancel
-      </button>
-    </div>
-
-    <div *ngFor="let error of backendValidationErrors; let index = index" class="alert alert-danger" role="alert">
-      <div class="alert-items">
-        <div class="alert-item static">
-          <div class="alert-icon-wrapper">
-            <clr-icon class="alert-icon" shape="exclamation-triangle"></clr-icon>
-          </div>
-          <span class="alert-text">{{error}} </span>
-        </div>
-      </div>
-      <button type="button" class="close" aria-label="Close" (click)="removeBackendValidationError(index)">
-        <clr-icon aria-hidden="true" shape="close"></clr-icon>
-      </button>
-    </div>
-
-    <!--  ACCORDIONS  -->
-    <div class="clr-row">
-      <div class="clr-col">
-        <div class="card">
-          <div class="card-block">
-            <div class="card-title notSelectable" (click)="toggleDetailsAccordion()">
-              <clr-icon shape="angle" [dir]="isDetailsAccordionHidden?'right':'down'"></clr-icon>
-              Workflow details
-            </div>
-            <div [hidden]="isDetailsAccordionHidden" class="accordion-content">
-              <app-workflow-details></app-workflow-details>
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-block">
-            <div class="card-title notSelectable" (click)="toggleSensorAccordion()">
-              <clr-icon shape="angle" [dir]="isSensorAccordionHidden?'right':'down'"></clr-icon>
-              Sensor
-            </div>
-            <div [hidden]="isSensorAccordionHidden" class="accordion-content">
-              <app-sensor></app-sensor>
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-block">
-            <div class="card-title notSelectable" (click)="toggleJobsAccordion()">
-              <clr-icon shape="angle" [dir]="isJobsAccordionHidden?'right':'down'"></clr-icon>
-              Jobs
-            </div>
-            <div [hidden]="isJobsAccordionHidden">
-              <app-jobs [jobsUnfold]="jobsUnfold"></app-jobs>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </div>
-  </form>
+  <app-workflow-form
+    [mode]="mode"
+    [workflowData]="workflowData"
+    [workflowFormParts]="workflowFormParts"
+    [id]="id"
+    [backendValidationErrors]="backendValidationErrors"
+    [changes]="changes"
+    [isWorkflowActive]="isWorkflowActive">
+  </app-workflow-form>
 
 </div>

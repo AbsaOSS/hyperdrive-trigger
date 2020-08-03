@@ -14,11 +14,10 @@
  */
 
 import { WorkflowRemoveJob } from './workflows.actions';
-import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../models/workflowEntry.model';
-import { JobEntryModel, JobEntryModelFactory } from '../../models/jobEntry.model';
+import { WorkflowEntryModelFactory } from '../../models/workflowEntry.model';
+import { JobEntryModelFactory } from '../../models/jobEntry.model';
 import { State, workflowsReducer } from './workflows.reducers';
 import { UuidUtil } from '../../utils/uuid/uuid.util';
-import { SortAttributesModel } from '../../models/search/sortAttributes.model';
 
 describe('WorkflowsReducers', () => {
   const uuid0 = UuidUtil.createUUID();
@@ -59,8 +58,9 @@ describe('WorkflowsReducers', () => {
       mode: undefined,
       loading: true,
       workflow: undefined,
+      workflowFormParts: undefined,
       backendValidationErrors: [],
-      workflowData: {
+      workflowFormData: {
         details: [],
         sensor: [],
         jobs: [job1, job0, job2, job3],
@@ -68,7 +68,15 @@ describe('WorkflowsReducers', () => {
     },
     workflowsSort: undefined,
     workflowsFilters: [],
-    workflowFormParts: undefined,
+    history: {
+      loading: true,
+      workflowHistory: [],
+      workflowFormParts: undefined,
+      leftWorkflowHistoryData: undefined,
+      leftWorkflowHistory: undefined,
+      rightWorkflowHistoryData: undefined,
+      rightWorkflowHistory: undefined,
+    },
     jobsForRun: undefined,
   };
 
@@ -76,10 +84,10 @@ describe('WorkflowsReducers', () => {
     it('WORKFLOW_REMOVE_JOB should remove the job and adjust orders', () => {
       const state = workflowsReducer(initialAppState, new WorkflowRemoveJob(uuid1));
 
-      expect(state.workflowAction.workflowData.jobs.length).toBe(3);
-      expect(state.workflowAction.workflowData.jobs).toContain(job0);
-      expect(state.workflowAction.workflowData.jobs).toContain({ ...job2, order: 1 });
-      expect(state.workflowAction.workflowData.jobs).toContain({ ...job3, order: 2 });
+      expect(state.workflowAction.workflowFormData.jobs.length).toBe(3);
+      expect(state.workflowAction.workflowFormData.jobs).toContain(job0);
+      expect(state.workflowAction.workflowFormData.jobs).toContain({ ...job2, order: 1 });
+      expect(state.workflowAction.workflowFormData.jobs).toContain({ ...job3, order: 2 });
     });
   });
 });

@@ -34,7 +34,10 @@ class TimeSensorIntegrationTest extends FlatSpec with Matchers with BeforeAndAft
   private val sensorRepository: SensorRepositoryImpl = new SensorRepositoryImpl {
     override val profile = h2Profile
   }
-  private val workflowRepository: WorkflowRepositoryImpl = new WorkflowRepositoryImpl {
+  private val workflowHistoryRepository: WorkflowHistoryRepositoryImpl = new WorkflowHistoryRepositoryImpl {
+    override val profile = h2Profile
+  }
+  private val workflowRepository: WorkflowRepositoryImpl = new WorkflowRepositoryImpl(workflowHistoryRepository) {
     override val profile = h2Profile
   }
   private val eventRepository: EventRepositoryImpl = new EventRepositoryImpl {
@@ -75,7 +78,8 @@ class TimeSensorIntegrationTest extends FlatSpec with Matchers with BeforeAndAft
 
     val dagDefinitionJoined = DagDefinitionJoined(-1L, Seq(jobDefinition1, jobDefinition2))
     val workflowJoined = WorkflowJoined("Time-Sensor Workflow", true, "some-project", LocalDateTime.now(), None, sensor, dagDefinitionJoined)
-    val workflowId = await(workflowRepository.insertWorkflow(workflowJoined)).right.get
+    val userName = "fakeUserName"
+    val workflowId = await(workflowRepository.insertWorkflow(workflowJoined, userName)).right.get
     val insertedWorkflow = await(workflowRepository.getWorkflow(workflowId))
 
     // Start Quartz and register sensor
@@ -99,7 +103,7 @@ class TimeSensorIntegrationTest extends FlatSpec with Matchers with BeforeAndAft
 
     // Check that inactive sensor is removed from quartz
     val workflow = await(workflowRepository.getWorkflows()).head
-    await(workflowRepository.switchWorkflowActiveState(workflow.id))
+    await(workflowRepository.switchWorkflowActiveState(workflow.id, userName))
     await(sensors.processEvents().map(
       _ => {
         val scheduler = TimeSensorQuartzSchedulerManager.getScheduler
