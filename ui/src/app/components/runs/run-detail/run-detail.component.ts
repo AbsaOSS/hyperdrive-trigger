@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { jobStatuses } from '../../../models/enums/jobStatuses.constants';
 import { JobInstanceModel } from '../../../models/jobInstance.model';
 import { Store } from '@ngrx/store';
@@ -26,8 +26,9 @@ import { Subscription } from 'rxjs';
   templateUrl: './run-detail.component.html',
   styleUrls: ['./run-detail.component.scss'],
 })
-export class RunDetailComponent implements OnInit, OnDestroy {
+export class RunDetailComponent implements OnInit, OnDestroy, OnChanges {
   @Input('dagRunId') dagRunId: number;
+  @Input('jobStatus') jobStatus: string;
   runDetailSubscription: Subscription;
 
   jobInstances: JobInstanceModel[];
@@ -44,6 +45,10 @@ export class RunDetailComponent implements OnInit, OnDestroy {
       this.loading = state.detail.loading;
       this.jobInstances = state.detail.jobInstances;
     });
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+   // so nothing
   }
 
   ngOnDestroy(): void {
