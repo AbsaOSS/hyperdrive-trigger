@@ -13,16 +13,21 @@
   ~ limitations under the License.
   -->
 
-<div class="clr-row">
-  <div class="clr-col">
-    <input clrDate type="date" name="from" placeholder="from" readonly="readonly" [max]="value.to | date:'yyyy-MM-dd'" [(clrDate)]="value.from" (clrDateChange)='modelChanged($event)'/>
-  </div>
-  <div class="clr-col">
-    <input clrDate type="date" name="to" placeholder="to" readonly="readonly" [min]="value.from | date:'yyyy-MM-dd'" [(clrDate)]="value.to" (clrDateChange)='modelChanged($event)'/>
-  </div>
+<form clrForm class="clr-row">
+  <clr-date-container class="clr-col">
+    <input clrDate type="date" name="from" placeholder="from" readonly="readonly"
+           [max]="value.to | date:'yyyy-MM-dd'"
+           [(clrDate)]="value.from" (clrDateChange)='modelChanged($event)'>
+  </clr-date-container>
+  <clr-date-container class="clr-col">
+    <input clrDate type="date" name="to" placeholder="to" readonly="readonly"
+           [min]="value.from | date:'yyyy-MM-dd'"
+           [(clrDate)]="value.to" (clrDateChange)='modelChanged($event)'>
+  </clr-date-container>
+
   <div class="clr-col">
     <button type="button" class="btn btn-link btn-icon" (click)="onRemoveFilter()" [disabled]="!isActive()">
       <clr-icon shape="trash"></clr-icon>
     </button>
   </div>
-</div>
+</form>
