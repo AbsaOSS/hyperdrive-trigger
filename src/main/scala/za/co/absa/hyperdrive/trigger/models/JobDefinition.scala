@@ -22,6 +22,7 @@ import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
 
 case class JobDefinition(
   dagDefinitionId: Long = 0,
+  jobTemplateId: Long = 0,
   name: String,
   jobType: JobType,
   jobParameters: JobParameters,
@@ -42,3 +43,4 @@ case class JobDefinition(
     )
   }
 }
+

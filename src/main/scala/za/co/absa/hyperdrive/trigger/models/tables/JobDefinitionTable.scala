@@ -15,19 +15,20 @@
 
 package za.co.absa.hyperdrive.trigger.models.tables
 
-import za.co.absa.hyperdrive.trigger.models.{DagDefinition, JobDefinition, JobParameters}
+import za.co.absa.hyperdrive.trigger.models.{DagDefinition, JobDefinition, JobParameters, JobTemplate}
 import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
 import slick.lifted.{ForeignKeyQuery, ProvenShape}
 
 import scala.collection.immutable.SortedMap
 
 trait JobDefinitionTable {
-  this: Profile with JdbcTypeMapper with DagDefinitionTable =>
+  this: Profile with JdbcTypeMapper with DagDefinitionTable with JobTemplateTable =>
   import  profile.api._
 
   final class JobDefinitionTable(tag: Tag) extends Table[JobDefinition](tag, _tableName = "job_definition") {
 
     def dagDefinitionId: Rep[Long] = column[Long]("dag_definition_id")
+    def jobTemplateId: Rep[Long] = column[Long]("job_template_id")
     def name: Rep[String] = column[String]("name")
     def jobType: Rep[JobType] = column[JobType]("job_type")
     def variables: Rep[Map[String, String]] = column[Map[String, String]]("variables")
@@ -39,23 +40,29 @@ trait JobDefinitionTable {
     def dagDefinition_fk: ForeignKeyQuery[DagDefinitionTable, DagDefinition] =
       foreignKey("job_definition_dag_definition_fk", dagDefinitionId, TableQuery[DagDefinitionTable])(_.id)
 
-    def * : ProvenShape[JobDefinition] = (dagDefinitionId, name, jobType, variables, maps, keyValuePairs, order, id) <> (
+    def jobTemplate_fk: ForeignKeyQuery[JobTemplateTable, JobTemplate] =
+      foreignKey("job_definition_job_template_fk", jobTemplateId, TableQuery[JobTemplateTable])(_.id)
+
+    def * : ProvenShape[JobDefinition] = (dagDefinitionId, jobTemplateId, name, jobType, variables, maps, keyValuePairs,
+      order, id) <> (
       jobDefinitionTuple =>
         JobDefinition.apply(
           dagDefinitionId = jobDefinitionTuple._1,
-          name = jobDefinitionTuple._2,
-          jobType = jobDefinitionTuple._3,
+          jobTemplateId = jobDefinitionTuple._2,
+          name = jobDefinitionTuple._3,
+          jobType = jobDefinitionTuple._4,
           jobParameters = JobParameters(
-            variables = jobDefinitionTuple._4,
-            maps = jobDefinitionTuple._5,
-            keyValuePairs = jobDefinitionTuple._6
+            variables = jobDefinitionTuple._5,
+            maps = jobDefinitionTuple._6,
+            keyValuePairs = jobDefinitionTuple._7
           ),
-          order = jobDefinitionTuple._7,
-          id = jobDefinitionTuple._8
+          order = jobDefinitionTuple._8,
+          id = jobDefinitionTuple._9
         ),
       (jobDefinition: JobDefinition) =>
         Option(
           jobDefinition.dagDefinitionId,
+          jobDefinition.jobTemplateId,
           jobDefinition.name,
           jobDefinition.jobType,
           jobDefinition.jobParameters.variables,

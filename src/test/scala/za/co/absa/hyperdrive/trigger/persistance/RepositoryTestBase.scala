@@ -39,12 +39,12 @@ trait RepositoryTestBase extends Repository {
       workflowHistoryTable.schema.create,
       dagDefinitionTable.schema.create,
       sensorTable.schema.create,
+      jobTemplateTable.schema.create,
       jobDefinitionTable.schema.create,
       dagInstanceTable.schema.create,
       jobInstanceTable.schema.create,
       eventTable.schema.create,
-      dagRunTable.schema.create,
-      jobTemplateTable.schema.create
+      dagRunTable.schema.create
     )
     run(schema)
   }
@@ -55,12 +55,12 @@ trait RepositoryTestBase extends Repository {
       jobInstanceTable.schema.drop,
       dagInstanceTable.schema.drop,
       jobDefinitionTable.schema.drop,
+      jobTemplateTable.schema.drop,
       sensorTable.schema.drop,
       dagDefinitionTable.schema.drop,
       workflowTable.schema.drop,
       workflowHistoryTable.schema.drop,
-      dagRunTable.schema.drop,
-      jobTemplateTable.schema.drop
+      dagRunTable.schema.drop
     )
     run(schema)
   }
@@ -71,12 +71,12 @@ trait RepositoryTestBase extends Repository {
       jobInstanceTable.delete,
       dagInstanceTable.delete,
       jobDefinitionTable.delete,
+      jobTemplateTable.delete,
       sensorTable.delete,
       dagDefinitionTable.delete,
       workflowTable.delete,
       workflowHistoryTable.delete,
-      dagRunTable.delete,
-      jobTemplateTable.delete
+      dagRunTable.delete
     )
     run(schema)
   }

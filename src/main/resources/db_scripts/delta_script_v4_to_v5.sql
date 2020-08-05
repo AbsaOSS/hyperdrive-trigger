@@ -21,3 +21,29 @@ create table "job_template" (
   "key_value_pairs" VARCHAR NOT NULL,
   "id" BIGSERIAL NOT NULL PRIMARY KEY
 );
+
+insert into "job_template" ("name", "job_type", "variables", "maps", "key_value_pairs")
+values ('Generic Spark Job', 'Spark', '{}', '{}', '{}');
+insert into "job_template" ("name", "job_type", "variables", "maps", "key_value_pairs")
+values ('Generic Shell Job', 'Shell', '{}', '{}', '{}');
+
+alter table "job_definition"
+add "job_template_id" BIGINT;
+
+alter table "job_definition"
+add constraint "job_definition_job_template_fk"
+foreign key("job_template_id")
+references "job_template"("id")
+on update NO ACTION on delete NO ACTION;
+
+update "job_definition" set "job_template_id" = (select id from job_template where name = 'Generic Spark Job')
+where "job_type" = 'Spark';
+update "job_definition" set "job_template_id" = (select id from job_template where name = 'Generic Shell Job')
+where "job_type" = 'Shell';
+
+alter table "job_definition"
+alter column "job_template_id" SET NOT NULL;
+
+-- delete later to enable simple rollback
+alter table "job_definition"
+rename column "job_type" to "deprecated_job_type"

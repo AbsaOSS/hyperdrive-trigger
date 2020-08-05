@@ -36,7 +36,7 @@ class JobTemplateRepositoryTest extends FlatSpec with Matchers with BeforeAndAft
     clearData()
   }
 
-  "dagInstanceRepository.getJobTemplate" should "return a job template by id" in {
+  "jobTemplateRepository.getJobTemplate" should "return a job template by id" in {
     insertJobTemplates()
     val result = await(jobTemplateRepository.getJobTemplate(100))
     result.id shouldBe 100
@@ -46,5 +46,6 @@ class JobTemplateRepositoryTest extends FlatSpec with Matchers with BeforeAndAft
     val result = await(jobTemplateRepository.getJobTemplates())
     result.isEmpty shouldBe true
   }
+
 
 }

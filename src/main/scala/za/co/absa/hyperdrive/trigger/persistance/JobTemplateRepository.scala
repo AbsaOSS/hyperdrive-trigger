@@ -15,12 +15,16 @@
 
 package za.co.absa.hyperdrive.trigger.persistance
 
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype
-import za.co.absa.hyperdrive.trigger.models.{JobForRun, JobTemplate}
+import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, GenericDatabaseError}
+import za.co.absa.hyperdrive.trigger.models.JobTemplate
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success}
 
 trait JobTemplateRepository extends Repository {
+  def insertJobTemplate(jobTemplate: JobTemplate)(implicit ec: ExecutionContext): Future[Either[ApiError, Long]]
   def getJobTemplate(id: Long)(implicit ec: ExecutionContext): Future[JobTemplate]
   def getJobTemplates()(implicit ec: ExecutionContext): Future[Seq[JobTemplate]]
 }
@@ -28,6 +32,7 @@ trait JobTemplateRepository extends Repository {
 @stereotype.Repository
 class JobTemplateRepositoryImpl extends JobTemplateRepository {
   import profile.api._
+  private val logger = LoggerFactory.getLogger(this.getClass)
 
   override def getJobTemplate(id: Long)(implicit ec: ExecutionContext): Future[JobTemplate] = db.run(
     jobTemplateTable.filter(_.id === id).result.map(
@@ -38,4 +43,19 @@ class JobTemplateRepositoryImpl extends JobTemplateRepository {
   override def getJobTemplates()(implicit ec: ExecutionContext): Future[Seq[JobTemplate]] = db.run(
     jobTemplateTable.sortBy(_.name).result
   )
+
+  override def insertJobTemplate(jobTemplate: JobTemplate)(implicit ec: ExecutionContext): Future[Either[ApiError, Long]] = {
+    db.run(
+      (for {
+        jobTemplateId <- jobTemplateTable returning jobTemplateTable.map(_.id) += jobTemplate
+      } yield {
+        jobTemplateId
+      }).transactionally.asTry.map {
+        case Success(jobTemplateId) => Right(jobTemplateId)
+        case Failure(ex) =>
+          logger.error(s"Unexpected error occurred when inserting jobTemplate $jobTemplate", ex)
+          Left(GenericDatabaseError)
+      }
+    )
+  }
 }

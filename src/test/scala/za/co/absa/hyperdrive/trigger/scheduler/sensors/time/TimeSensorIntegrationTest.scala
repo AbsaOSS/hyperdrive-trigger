@@ -21,6 +21,7 @@ import java.time.LocalDateTime
 import org.quartz.JobKey
 import org.quartz.impl.matchers.GroupMatcher
 import org.scalatest._
+import za.co.absa.hyperdrive.trigger.api.rest.services.JobTemplateFixture
 import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.models.enums.{JobTypes, SensorTypes}
 import za.co.absa.hyperdrive.trigger.persistance._
@@ -49,6 +50,9 @@ class TimeSensorIntegrationTest extends FlatSpec with Matchers with BeforeAndAft
   private val dagInstanceRepository: DagInstanceRepositoryImpl = new DagInstanceRepositoryImpl {
     override val profile = h2Profile
   }
+  private val jobTemplateRepository: JobTemplateRepositoryImpl = new JobTemplateRepositoryImpl {
+    override val profile = h2Profile
+  }
 
   override def beforeAll: Unit = {
     h2SchemaSetup()
@@ -67,14 +71,17 @@ class TimeSensorIntegrationTest extends FlatSpec with Matchers with BeforeAndAft
     val sensors = new Sensors(processor, sensorRepository)
     val cronExpression = "0/3 * * * * ?"
 
+    val sparkTemplate = JobTemplateFixture.createGenericSparkJobTemplate()
+    val sparkTemplateId = await(jobTemplateRepository.insertJobTemplate(sparkTemplate)).right.get
+
     // Persist workflow, sensor and dagDefinition
     val properties = Properties(-1L, Settings(Map("cronExpression" -> cronExpression), Map.empty), Map.empty)
     val sensor = Sensor(-1L, SensorTypes.Time, properties)
 
     val jobParameters1 = JobParameters(Map("deploymentMode" -> "client", "jobJar" -> "spark-job.jar", "mainClass" -> "TheMainClass"), Map.empty)
-    val jobDefinition1 = JobDefinition(-1L, "Time-Sensor Job 1", JobTypes.Spark, jobParameters1, 1)
+    val jobDefinition1 = JobDefinition(-1L, sparkTemplateId, "Time-Sensor Job 1", JobTypes.Spark, jobParameters1, 1)
     val jobParameters2 = JobParameters(Map("deploymentMode" -> "client", "jobJar" -> "spark-job-2.jar", "mainClass" -> "TheMainClass"), Map.empty)
-    val jobDefinition2 = JobDefinition(-1L, "Time-Sensor Job 2", JobTypes.Spark, jobParameters2, 2)
+    val jobDefinition2 = JobDefinition(-1L, sparkTemplateId, "Time-Sensor Job 2", JobTypes.Spark, jobParameters2, 2)
 
     val dagDefinitionJoined = DagDefinitionJoined(-1L, Seq(jobDefinition1, jobDefinition2))
     val workflowJoined = WorkflowJoined("Time-Sensor Workflow", true, "some-project", LocalDateTime.now(), None, sensor, dagDefinitionJoined)
