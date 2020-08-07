@@ -26,9 +26,9 @@ class JobTemplateResolutionUtilTest extends FlatSpec with Matchers {
 
   "resolveDagDefinition" should "return a DagInstance with the same jobType as in the template" in {
     // given
-    val jobDefinition = createJobDefinition()
-    val dagDefinitionJoined = createDagDefinitionJoined(jobDefinition)
     val jobTemplate = GenericSparkJobTemplate
+    val jobDefinition = createJobDefinition().copy(jobTemplateId = jobTemplate.id)
+    val dagDefinitionJoined = createDagDefinitionJoined(jobDefinition)
 
     // when
     val dagInstanceJoined = JobTemplateResolutionUtil.resolveDagDefinitionJoined(dagDefinitionJoined, Seq(jobTemplate))
@@ -82,9 +82,9 @@ class JobTemplateResolutionUtilTest extends FlatSpec with Matchers {
       "sharedKey3" -> "templateValueForSharedKey3",
       "sharedKey4" -> "templateValueForSharedKey4"
     ), Map(), Map())
-    val jobDefinition = createJobDefinition().copy(jobParameters = userParameters)
-    val dagDefinitionJoined = createDagDefinitionJoined(jobDefinition)
     val jobTemplate = GenericSparkJobTemplate.copy(jobParameters = templateParameters)
+    val jobDefinition = createJobDefinition().copy(jobTemplateId = jobTemplate.id, jobParameters = userParameters)
+    val dagDefinitionJoined = createDagDefinitionJoined(jobDefinition)
 
     // when
     val dagInstanceJoined = JobTemplateResolutionUtil.resolveDagDefinitionJoined(dagDefinitionJoined, Seq(jobTemplate))
@@ -115,9 +115,9 @@ class JobTemplateResolutionUtilTest extends FlatSpec with Matchers {
       "sharedKey3" -> List("templateValue1ForSharedKey3", "templateValue2ForSharedKey3"),
       "sharedKey4" -> List("templateValue1ForSharedKey4", "templateValue2ForSharedKey4")
     ), Map())
-    val jobDefinition = createJobDefinition().copy(jobParameters = userParameters)
-    val dagDefinitionJoined = createDagDefinitionJoined(jobDefinition)
     val jobTemplate = GenericSparkJobTemplate.copy(jobParameters = templateParameters)
+    val jobDefinition = createJobDefinition().copy(jobTemplateId = jobTemplate.id, jobParameters = userParameters)
+    val dagDefinitionJoined = createDagDefinitionJoined(jobDefinition)
 
     // when
     val dagInstanceJoined = JobTemplateResolutionUtil.resolveDagDefinitionJoined(dagDefinitionJoined, Seq(jobTemplate))
@@ -148,9 +148,9 @@ class JobTemplateResolutionUtilTest extends FlatSpec with Matchers {
       "sharedKey3" -> SortedMap("sharedKey31" -> "templateValueForSharedKey31", "templateKey32" -> "valueForTemplateKey32"),
       "sharedKey4" -> SortedMap("sharedKey41" -> "templateValueForSharedKey41", "templateKey42" -> "valueForTemplateKey42")
     ))
-    val jobDefinition = createJobDefinition().copy(jobParameters = userParameters)
-    val dagDefinitionJoined = createDagDefinitionJoined(jobDefinition)
     val jobTemplate = GenericSparkJobTemplate.copy(jobParameters = templateParameters)
+    val jobDefinition = createJobDefinition().copy(jobTemplateId = jobTemplate.id, jobParameters = userParameters)
+    val dagDefinitionJoined = createDagDefinitionJoined(jobDefinition)
 
     // when
     val dagInstanceJoined = JobTemplateResolutionUtil.resolveDagDefinitionJoined(dagDefinitionJoined, Seq(jobTemplate))
@@ -183,7 +183,6 @@ class JobTemplateResolutionUtilTest extends FlatSpec with Matchers {
     JobDefinition(
       dagDefinitionId = 53,
       name = "JobDefinition0",
-      jobType = JobTypes.Spark,
       jobParameters = JobParameters(Map(), Map(), Map()),
       order = 2,
       id = 42

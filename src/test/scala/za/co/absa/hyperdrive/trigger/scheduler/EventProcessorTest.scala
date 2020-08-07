@@ -119,7 +119,7 @@ class EventProcessorTest extends FlatSpec with MockitoSugar with Matchers with B
   }
 
   private def createJobDefintion(dagDefinitionId: Long): JobDefinition = {
-    JobDefinition(dagDefinitionId, -1L, "someJobName", JobTypes.Spark, JobParameters(Map.empty, Map.empty), 1)
+    JobDefinition(dagDefinitionId, -1L, "someJobName", JobParameters(Map.empty, Map.empty), 1)
   }
 
   private def createDagDefinition(workflowId: Long, id: Long, jobDefinitions: Seq[JobDefinition]) = DagDefinitionJoined(workflowId, jobDefinitions, id)

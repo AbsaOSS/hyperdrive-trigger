@@ -81,9 +81,9 @@ class TimeSensorIntegrationTest extends FlatSpec with Matchers with BeforeAndAft
     val sensor = Sensor(-1L, SensorTypes.Time, properties)
 
     val jobParameters1 = JobParameters(Map("deploymentMode" -> "client", "jobJar" -> "spark-job.jar", "mainClass" -> "TheMainClass"), Map.empty)
-    val jobDefinition1 = JobDefinition(-1L, sparkTemplateId, "Time-Sensor Job 1", JobTypes.Spark, jobParameters1, 1)
+    val jobDefinition1 = JobDefinition(-1L, sparkTemplateId, "Time-Sensor Job 1", jobParameters1, 1)
     val jobParameters2 = JobParameters(Map("deploymentMode" -> "client", "jobJar" -> "spark-job-2.jar", "mainClass" -> "TheMainClass"), Map.empty)
-    val jobDefinition2 = JobDefinition(-1L, sparkTemplateId, "Time-Sensor Job 2", JobTypes.Spark, jobParameters2, 2)
+    val jobDefinition2 = JobDefinition(-1L, sparkTemplateId, "Time-Sensor Job 2", jobParameters2, 2)
 
     val dagDefinitionJoined = DagDefinitionJoined(-1L, Seq(jobDefinition1, jobDefinition2))
     val workflowJoined = WorkflowJoined("Time-Sensor Workflow", true, "some-project", LocalDateTime.now(), None, sensor, dagDefinitionJoined)

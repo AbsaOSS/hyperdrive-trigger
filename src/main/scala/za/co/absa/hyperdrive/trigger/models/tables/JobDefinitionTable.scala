@@ -30,7 +30,6 @@ trait JobDefinitionTable {
     def dagDefinitionId: Rep[Long] = column[Long]("dag_definition_id")
     def jobTemplateId: Rep[Long] = column[Long]("job_template_id")
     def name: Rep[String] = column[String]("name")
-    def jobType: Rep[JobType] = column[JobType]("job_type")
     def variables: Rep[Map[String, String]] = column[Map[String, String]]("variables")
     def maps: Rep[Map[String, List[String]]] = column[Map[String, List[String]]]("maps")
     def keyValuePairs: Rep[Map[String, SortedMap[String, String]]] = column[Map[String, SortedMap[String, String]]]("key_value_pairs")
@@ -43,28 +42,26 @@ trait JobDefinitionTable {
     def jobTemplate_fk: ForeignKeyQuery[JobTemplateTable, JobTemplate] =
       foreignKey("job_definition_job_template_fk", jobTemplateId, TableQuery[JobTemplateTable])(_.id)
 
-    def * : ProvenShape[JobDefinition] = (dagDefinitionId, jobTemplateId, name, jobType, variables, maps, keyValuePairs,
+    def * : ProvenShape[JobDefinition] = (dagDefinitionId, jobTemplateId, name, variables, maps, keyValuePairs,
       order, id) <> (
       jobDefinitionTuple =>
         JobDefinition.apply(
           dagDefinitionId = jobDefinitionTuple._1,
           jobTemplateId = jobDefinitionTuple._2,
           name = jobDefinitionTuple._3,
-          jobType = jobDefinitionTuple._4,
           jobParameters = JobParameters(
-            variables = jobDefinitionTuple._5,
-            maps = jobDefinitionTuple._6,
-            keyValuePairs = jobDefinitionTuple._7
+            variables = jobDefinitionTuple._4,
+            maps = jobDefinitionTuple._5,
+            keyValuePairs = jobDefinitionTuple._6
           ),
-          order = jobDefinitionTuple._8,
-          id = jobDefinitionTuple._9
+          order = jobDefinitionTuple._7,
+          id = jobDefinitionTuple._8
         ),
       (jobDefinition: JobDefinition) =>
         Option(
           jobDefinition.dagDefinitionId,
           jobDefinition.jobTemplateId,
           jobDefinition.name,
-          jobDefinition.jobType,
           jobDefinition.jobParameters.variables,
           jobDefinition.jobParameters.maps,
           jobDefinition.jobParameters.keyValuePairs,

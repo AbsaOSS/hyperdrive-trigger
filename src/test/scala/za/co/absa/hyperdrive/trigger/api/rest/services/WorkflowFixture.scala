@@ -67,7 +67,6 @@ object WorkflowFixture {
             dagDefinitionId = 0,
             jobTemplateId = GenericSparkJobTemplate.id,
             name = "TestJob1",
-            jobType = JobTypes.Spark,
             jobParameters = JobParameters(
               variables = Map("jobJar" -> "/dir/driver.jar",
                 "mainClass" -> "aaa.bbb.TestClass",
@@ -82,7 +81,6 @@ object WorkflowFixture {
             dagDefinitionId = 0,
             jobTemplateId = GenericShellJobTemplate.id,
             name = "TestJob2",
-            jobType = JobTypes.Shell,
             jobParameters = JobParameters(
               variables = Map("jobJar" -> "/dir/driver.jar",
                 "mainClass" -> "aaa.bbb.TestClass"
@@ -126,7 +124,6 @@ object WorkflowFixture {
             dagDefinitionId = 0,
             jobTemplateId = GenericSparkJobTemplate.id,
             name = s"${randomString()} Driver",
-            jobType = JobTypes.Spark,
             jobParameters = JobParameters(
               variables = Map(
                 "jobJar" -> s"${randomString()}/driver.jar",
@@ -170,7 +167,6 @@ object WorkflowFixture {
             dagDefinitionId = 0,
             jobTemplateId = GenericSparkJobTemplate.id,
             name = s"${randomString()} Publisher",
-            jobType = JobTypes.Spark,
             jobParameters = JobParameters(
               variables = Map(
                 "jobJar" -> s"${randomString()}/publisher.jar",
@@ -216,7 +212,6 @@ object WorkflowFixture {
             dagDefinitionId = 0,
             jobTemplateId = GenericShellJobTemplate.id,
             name = s"${randomString()}",
-            jobType = JobTypes.Shell,
             jobParameters = JobParameters(
               variables = Map(
                 "scriptLocation" -> s"${randomString()}/script.sh"

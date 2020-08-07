@@ -15,13 +15,10 @@
 
 package za.co.absa.hyperdrive.trigger.models
 
-import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
-
 case class JobDefinition(
   dagDefinitionId: Long = 0,
   jobTemplateId: Long = 0,
   name: String,
-  jobType: JobType,
   jobParameters: JobParameters,
   order: Int,
   id: Long = 0
