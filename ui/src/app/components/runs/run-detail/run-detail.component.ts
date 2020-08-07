@@ -19,16 +19,16 @@ import { JobInstanceModel } from '../../../models/jobInstance.model';
 import { Store } from '@ngrx/store';
 import { AppState, selectRunState } from '../../../stores/app.reducers';
 import { GetDagRunDetail } from '../../../stores/runs/runs.actions';
-import { Subscription } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-run-detail',
   templateUrl: './run-detail.component.html',
   styleUrls: ['./run-detail.component.scss'],
 })
-export class RunDetailComponent implements OnInit, OnDestroy, OnChanges {
+export class RunDetailComponent implements OnInit, OnDestroy {
   @Input('dagRunId') dagRunId: number;
-  @Input('jobStatus') jobStatus: string;
+  @Input() refreshSubject: Subject<boolean> = new Subject<boolean>();
   runDetailSubscription: Subscription;
 
   jobInstances: JobInstanceModel[];
@@ -45,10 +45,15 @@ export class RunDetailComponent implements OnInit, OnDestroy, OnChanges {
       this.loading = state.detail.loading;
       this.jobInstances = state.detail.jobInstances;
     });
+    this.onRefresh();
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-   // so nothing
+  onRefresh() {
+    this.refreshSubject.subscribe((response) => {
+      if (response) {
+        this.store.dispatch(new GetDagRunDetail(this.dagRunId));
+      }
+    });
   }
 
   ngOnDestroy(): void {

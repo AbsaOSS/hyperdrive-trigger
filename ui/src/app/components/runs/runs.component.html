@@ -130,7 +130,7 @@
         <b>Status: </b>{{detail.status}}
       </clr-dg-detail-header>
       <clr-dg-detail-body>
-        <app-run-detail [dagRunId]="detail.id" [jobStatus]="detail.status"></app-run-detail>
+        <app-run-detail [dagRunId]="detail.id" [refreshSubject]="refreshSubject.asObservable()"></app-run-detail>
       </clr-dg-detail-body>
     </clr-dg-detail>
 
