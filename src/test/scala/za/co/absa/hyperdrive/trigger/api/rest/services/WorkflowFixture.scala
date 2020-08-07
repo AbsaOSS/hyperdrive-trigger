@@ -20,6 +20,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 import org.apache.commons.lang3.RandomStringUtils
+import za.co.absa.hyperdrive.trigger.api.rest.services.JobTemplateFixture.{GenericShellJobTemplate, GenericSparkJobTemplate}
 import za.co.absa.hyperdrive.trigger.models.{DagDefinitionJoined, JobDefinition, JobParameters, Properties, Sensor, Settings, WorkflowJoined}
 import za.co.absa.hyperdrive.trigger.models.enums.{JobTypes, SensorTypes}
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.kafka.KafkaSettings
@@ -64,6 +65,7 @@ object WorkflowFixture {
         jobDefinitions = Seq(
           JobDefinition(
             dagDefinitionId = 0,
+            jobTemplateId = GenericSparkJobTemplate.id,
             name = "TestJob1",
             jobType = JobTypes.Spark,
             jobParameters = JobParameters(
@@ -78,6 +80,7 @@ object WorkflowFixture {
           ),
           JobDefinition(
             dagDefinitionId = 0,
+            jobTemplateId = GenericShellJobTemplate.id,
             name = "TestJob2",
             jobType = JobTypes.Shell,
             jobParameters = JobParameters(
@@ -121,6 +124,7 @@ object WorkflowFixture {
         jobDefinitions = Seq(
           JobDefinition(
             dagDefinitionId = 0,
+            jobTemplateId = GenericSparkJobTemplate.id,
             name = s"${randomString()} Driver",
             jobType = JobTypes.Spark,
             jobParameters = JobParameters(
@@ -164,6 +168,7 @@ object WorkflowFixture {
           ),
           JobDefinition(
             dagDefinitionId = 0,
+            jobTemplateId = GenericSparkJobTemplate.id,
             name = s"${randomString()} Publisher",
             jobType = JobTypes.Spark,
             jobParameters = JobParameters(
@@ -209,6 +214,7 @@ object WorkflowFixture {
         jobDefinitions = Seq(
           JobDefinition(
             dagDefinitionId = 0,
+            jobTemplateId = GenericShellJobTemplate.id,
             name = s"${randomString()}",
             jobType = JobTypes.Shell,
             jobParameters = JobParameters(

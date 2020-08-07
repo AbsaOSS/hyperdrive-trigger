@@ -13,17 +13,6 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models
 
-import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
-
-case class JobDefinition(
-  dagDefinitionId: Long = 0,
-  jobTemplateId: Long = 0,
-  name: String,
-  jobType: JobType,
-  jobParameters: JobParameters,
-  order: Int,
-  id: Long = 0
-)
-
+alter table "job_definition"
+drop column "deprecated_job_type"

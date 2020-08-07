@@ -25,7 +25,7 @@ import scala.util.{Failure, Success}
 
 trait JobTemplateRepository extends Repository {
   def insertJobTemplate(jobTemplate: JobTemplate)(implicit ec: ExecutionContext): Future[Either[ApiError, Long]]
-  def getJobTemplate(id: Long)(implicit ec: ExecutionContext): Future[JobTemplate]
+  def getJobTemplatesByIds(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[JobTemplate]]
   def getJobTemplates()(implicit ec: ExecutionContext): Future[Seq[JobTemplate]]
 }
 
@@ -34,10 +34,8 @@ class JobTemplateRepositoryImpl extends JobTemplateRepository {
   import profile.api._
   private val logger = LoggerFactory.getLogger(this.getClass)
 
-  override def getJobTemplate(id: Long)(implicit ec: ExecutionContext): Future[JobTemplate] = db.run(
-    jobTemplateTable.filter(_.id === id).result.map(
-      jobTemplate => jobTemplate.headOption.getOrElse(throw new Exception(s"JobTemplate with ${id} does not exist."))
-    )
+  override def getJobTemplatesByIds(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[JobTemplate]] = db.run(
+    jobTemplateTable.filter(_.id inSetBind ids).result
   )
 
   override def getJobTemplates()(implicit ec: ExecutionContext): Future[Seq[JobTemplate]] = db.run(

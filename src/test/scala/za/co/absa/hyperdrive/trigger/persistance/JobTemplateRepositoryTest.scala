@@ -38,8 +38,9 @@ class JobTemplateRepositoryTest extends FlatSpec with Matchers with BeforeAndAft
 
   "jobTemplateRepository.getJobTemplate" should "return a job template by id" in {
     insertJobTemplates()
-    val result = await(jobTemplateRepository.getJobTemplate(100))
-    result.id shouldBe 100
+    val result = await(jobTemplateRepository.getJobTemplatesByIds(Seq(100)))
+    result should have size 1
+    result.head.id shouldBe 100
   }
 
   "jobTemplateRepository.getJobTemplates" should "return zero job templates when db is empty" in {
