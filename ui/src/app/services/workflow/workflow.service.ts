@@ -75,7 +75,7 @@ export class WorkflowService {
 
   updateWorkflow(workflowRequest: WorkflowJoinedModel): Observable<WorkflowJoinedModel> {
     return this.httpClient
-      .post<WorkflowJoinedModel>(api.UPDATE_WORKFLOW, workflowRequest, { observe: 'response' })
+      .put<WorkflowJoinedModel>(api.UPDATE_WORKFLOW, workflowRequest, { observe: 'response' })
       .pipe(
         map((_) => {
           return _.body;

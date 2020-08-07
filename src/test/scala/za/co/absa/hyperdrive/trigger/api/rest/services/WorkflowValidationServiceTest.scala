@@ -96,7 +96,9 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
     // given
     val underTest = new WorkflowValidationServiceImpl(workflowRepository)
     val workflow = WorkflowFixture.createWorkflowJoined()
+    val persistedWorkflow = workflow.copy(name = "oldName")
     when(workflowRepository.existsOtherWorkflow(eqTo(workflow.name), eqTo(workflow.id))(any[ExecutionContext])).thenReturn(Future{false})
+    when(workflowRepository.getWorkflow(eqTo(workflow.id))(any[ExecutionContext])).thenReturn(Future{persistedWorkflow})
 
     // when
     val result = Await.result(underTest.validateOnUpdate(workflow), Duration(120, TimeUnit.SECONDS))
@@ -109,7 +111,9 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
     // given
     val underTest = new WorkflowValidationServiceImpl(workflowRepository)
     val workflow = WorkflowFixture.createWorkflowJoined()
+    val persistedWorkflow = workflow.copy(project = "differentProject")
     when(workflowRepository.existsOtherWorkflow(eqTo(workflow.name), eqTo(workflow.id))(any[ExecutionContext])).thenReturn(Future{true})
+    when(workflowRepository.getWorkflow(eqTo(workflow.id))(any[ExecutionContext])).thenReturn(Future{persistedWorkflow})
 
     // when
     val result = Await.result(underTest.validateOnUpdate(workflow), Duration(120, TimeUnit.SECONDS))
@@ -125,6 +129,7 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
     val workflow = WorkflowFixture.createWorkflowJoined()
     val invalidWorkflow = workflow.copy(project = "")
     when(workflowRepository.existsOtherWorkflow(eqTo(invalidWorkflow.name), eqTo(invalidWorkflow.id))(any[ExecutionContext])).thenReturn(Future{false})
+    when(workflowRepository.getWorkflow(eqTo(workflow.id))(any[ExecutionContext])).thenReturn(Future{workflow})
 
     // when
     val result = Await.result(underTest.validateOnUpdate(invalidWorkflow), Duration(120, TimeUnit.SECONDS))
@@ -134,4 +139,19 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
     result should contain theSameElementsInOrderAs Seq(ValidationError("Project must not be empty"))
   }
 
+  it should "fail if the workflow data is already persisted" in {
+    // given
+    val underTest = new WorkflowValidationServiceImpl(workflowRepository)
+    val persistedWorkflow = WorkflowFixture.createWorkflowJoined()
+    val toBeUpdatedWorkflow = persistedWorkflow.copy()
+    when(workflowRepository.existsOtherWorkflow(eqTo(toBeUpdatedWorkflow.name), eqTo(toBeUpdatedWorkflow.id))(any[ExecutionContext])).thenReturn(Future{false})
+    when(workflowRepository.getWorkflow(eqTo(toBeUpdatedWorkflow.id))(any[ExecutionContext])).thenReturn(Future{persistedWorkflow})
+
+    // when
+    val result = Await.result(underTest.validateOnUpdate(toBeUpdatedWorkflow), Duration(120, TimeUnit.SECONDS))
+
+    // then
+    result.nonEmpty shouldBe true
+    result should contain theSameElementsInOrderAs Seq(ValidationError("nothing to update"))
+  }
 }

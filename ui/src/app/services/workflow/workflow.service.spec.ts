@@ -121,7 +121,7 @@ describe('WorkflowService', () => {
     );
 
     const req = httpTestingController.expectOne(api.UPDATE_WORKFLOW);
-    expect(req.request.method).toEqual('POST');
+    expect(req.request.method).toEqual('PUT');
     req.flush(workflow);
   });
 

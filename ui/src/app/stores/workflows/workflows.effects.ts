@@ -260,7 +260,7 @@ export class WorkflowsEffects {
   workflowUpdate = this.actions.pipe(
     ofType(WorkflowActions.UPDATE_WORKFLOW),
     withLatestFrom(this.store.select(selectWorkflowState)),
-    switchMap(([action, state]: [WorkflowActions.CreateWorkflow, fromWorkflows.State]) => {
+    switchMap(([action, state]: [WorkflowActions.UpdateWorkflow, fromWorkflows.State]) => {
       const workflowUpdateRequest = new WorkflowRequestModel(
         state.workflowAction.workflowFormData.details,
         state.workflowAction.workflowFormData.sensor,

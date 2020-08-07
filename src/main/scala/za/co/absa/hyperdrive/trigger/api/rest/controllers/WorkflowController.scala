@@ -61,7 +61,7 @@ class WorkflowController @Inject()(workflowService: WorkflowService) {
     workflowService.deleteWorkflow(id).toJava.toCompletableFuture
   }
 
-  @PostMapping(path = Array("/workflows"))
+  @PutMapping(path = Array("/workflows"))
   def updateWorkflow(@RequestBody workflow: WorkflowJoined): CompletableFuture[WorkflowJoined] = {
     workflowService.updateWorkflow(workflow)
   }

@@ -46,7 +46,8 @@ class WorkflowValidationServiceImpl @Inject()(override val workflowRepository: W
   override def validateOnUpdate(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Seq[ApiError]] = {
     val validators = Seq(
       validateWorkflowIsUnique(workflow),
-      validateProjectIsNotEmpty(workflow)
+      validateProjectIsNotEmpty(workflow),
+      validateWorkflowData(workflow)
     )
     combine(validators)
   }
@@ -82,4 +83,14 @@ class WorkflowValidationServiceImpl @Inject()(override val workflowRepository: W
     }
     Future.successful(projectValidation.toSeq)
   }
+
+  private def validateWorkflowData(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Seq[ApiError]] = {
+    workflowRepository.getWorkflow(workflow.id)
+      .map(persistedWorkflowData => if (persistedWorkflowData == workflow) {
+        Seq(ValidationError("nothing to update"))
+      } else {
+        Seq()
+      })
+  }
 }
+
