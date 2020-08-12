@@ -147,7 +147,7 @@ export class WorkflowService {
           ]),
         ],
         [
-          DynamicFormPartFactory.createKeyValue('Generic Spark Job', 'Spark', [
+          DynamicFormPartFactory.createWithLabel('Spark', 'Generic Spark Job', [
             FormPartFactory.create(
               'Job jar',
               'jobParameters.variables.jobJar',
@@ -195,7 +195,7 @@ export class WorkflowService {
               PartValidationFactory.create(false, undefined, 1),
             ),
           ]),
-          DynamicFormPartFactory.createKeyValue('Generic Shell Job', 'Shell', [
+          DynamicFormPartFactory.createWithLabel('Shell', 'Generic Shell Job', [
             FormPartFactory.create(
               'Script location',
               'jobParameters.variables.scriptLocation',

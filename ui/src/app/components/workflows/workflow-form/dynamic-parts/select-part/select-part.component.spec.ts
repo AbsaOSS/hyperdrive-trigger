@@ -57,9 +57,9 @@ describe('SelectPartComponent', () => {
           const newValue = 'oneValue';
           const propertyName = 'property';
           const options = new Map([
-            ['oneKey', newValue],
-            ['twoKey', 'twoValue'],
-            ['threeKey', 'threeValue'],
+            [newValue, 'oneLabel'],
+            ['two', 'twoLabel'],
+            ['three', 'threeLabel'],
           ]);
           const testedSubject = new Subject<WorkflowEntryModel>();
           const subjectSpy = spyOn(testedSubject, 'next');
@@ -90,9 +90,9 @@ describe('SelectPartComponent', () => {
     const newValue = 'threeValue';
     const propertyName = 'property';
     const options = new Map([
-      ['oneKey', oldValue],
+      [oldValue, 'oneLabel'],
       ['two', 'two'],
-      ['threeKey', newValue],
+      [newValue, 'threeLabel'],
     ]);
 
     const testedSubject = new Subject<WorkflowEntryModel>();

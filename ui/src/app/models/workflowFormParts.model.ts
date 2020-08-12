@@ -27,8 +27,8 @@ export type DynamicFormParts = {
 };
 
 export type DynamicFormPart = {
-  key: string;
   value: string;
+  label: string;
   parts: FormPart[];
 };
 
@@ -66,11 +66,11 @@ export class DynamicFormPartsFactory {
 
 export class DynamicFormPartFactory {
   static create(name: string, parts: FormPart[]): DynamicFormPart {
-    return { key: name, value: name, parts: parts };
+    return { value: name, label: name, parts: parts };
   }
 
-  static createKeyValue(key: string, value: string, parts: FormPart[]): DynamicFormPart {
-    return { key: key, value: value, parts: parts };
+  static createWithLabel(value: string, label: string, parts: FormPart[]): DynamicFormPart {
+    return { value: value, label: label, parts: parts };
   }
 }
 

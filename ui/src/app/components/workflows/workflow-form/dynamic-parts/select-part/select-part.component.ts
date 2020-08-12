@@ -48,7 +48,7 @@ export class SelectPartComponent implements OnInit {
       this.options = new Map();
     }
     if (!this.value || this.value == '') {
-      this.modelChanged(this.options.size != 0 ? this.options.values().next().value : '');
+      this.modelChanged(this.options.size != 0 ? this.options.keys().next().value : '');
     }
     this.partValidationSafe = PartValidationFactory.create(!!this.partValidation.isRequired ? this.partValidation.isRequired : true);
   }

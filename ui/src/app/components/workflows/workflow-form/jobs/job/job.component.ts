@@ -61,7 +61,7 @@ export class JobComponent implements OnInit, OnDestroy {
   }
 
   getJobTypes(): Map<string, string> {
-    return new Map(this.workflowFormParts.dynamicParts.jobDynamicParts.map((part) => [part.key, part.value]));
+    return new Map(this.workflowFormParts.dynamicParts.jobDynamicParts.map((part) => [part.value, part.label]));
   }
 
   getSelectedJobComponent(): FormPart[] {

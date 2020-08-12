@@ -48,13 +48,13 @@ describe('JobComponent', () => {
     PartValidationFactory.create(true),
     new Map([
       ['optionOne', 'optionOne'],
-      ['optionTwoKey', 'optionTwoValue'],
+      ['optionTwo', 'optionTwoLabel'],
     ]),
   );
   const jobDynamicPartOne: DynamicFormPart = DynamicFormPartFactory.create('optionOne', [
     FormPartFactory.create('partOne', 'partOne', 'partOne', PartValidationFactory.create(true)),
   ]);
-  const jobDynamicPartTwo: DynamicFormPart = DynamicFormPartFactory.createKeyValue('optionTwoKey', 'optionTwoValue', [
+  const jobDynamicPartTwo: DynamicFormPart = DynamicFormPartFactory.createWithLabel('optionTwo', 'optionTwoLabel', [
     FormPartFactory.create('partTwo', 'partTwo', 'partTwo', PartValidationFactory.create(true)),
   ]);
   const workflowFormParts = WorkflowFormPartsModelFactory.create(

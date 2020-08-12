@@ -23,7 +23,8 @@
     [ngModel]="value"
     (ngModelChange)="modelChanged($event)"
     [required]="partValidationSafe.isRequired">
-    <option *ngFor="let option of options | keyvalue" [value]="option.value">{{option.key}}</option>
+    <!-- option.key contains the value, option.value contains the label -->
+    <option *ngFor="let option of options | keyvalue" [value]="option.key">{{option.value}}</option>
   </select>
   <clr-control-error *clrIfError="'required'">{{texts.FORM_VALIDATION_ONE_MUST_BE_SELECTED(name)}}</clr-control-error>
 </clr-select-container>
@@ -31,6 +32,6 @@
 <div *ngIf="isShow" class="clr-form-control clr-row">
   <label class="clr-control-label clr-col-12 clr-col-md-2">{{name}}</label>
   <span class="clr-control-container clr-col-md-10 clr-col-12 breakableSpan">
-    {{value}}
+    {{options.get(value.toString())}}
   </span>
 </div>

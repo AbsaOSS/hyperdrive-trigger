@@ -52,7 +52,7 @@ export class SensorComponent implements OnInit, OnDestroy {
   }
 
   getSensorTypes(): Map<string, string> {
-    return new Map(this.workflowFormParts.dynamicParts.sensorDynamicParts.map((component) => [component.key, component.value]));
+    return new Map(this.workflowFormParts.dynamicParts.sensorDynamicParts.map((component) => [component.value, component.label]));
   }
 
   getSelectedSensorComponent(): FormPart[] {
