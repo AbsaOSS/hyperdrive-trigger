@@ -46,12 +46,15 @@ describe('JobComponent', () => {
     'switchPartProp',
     'switchPartType',
     PartValidationFactory.create(true),
-    ['optionOne', 'optionTwo'],
+    new Map([
+      ['optionOne', 'optionOne'],
+      ['optionTwoKey', 'optionTwoValue'],
+    ]),
   );
   const jobDynamicPartOne: DynamicFormPart = DynamicFormPartFactory.create('optionOne', [
     FormPartFactory.create('partOne', 'partOne', 'partOne', PartValidationFactory.create(true)),
   ]);
-  const jobDynamicPartTwo: DynamicFormPart = DynamicFormPartFactory.create('optionTwo', [
+  const jobDynamicPartTwo: DynamicFormPart = DynamicFormPartFactory.createKeyValue('optionTwoKey', 'optionTwoValue', [
     FormPartFactory.create('partTwo', 'partTwo', 'partTwo', PartValidationFactory.create(true)),
   ]);
   const workflowFormParts = WorkflowFormPartsModelFactory.create(
@@ -64,7 +67,7 @@ describe('JobComponent', () => {
   const jobsData = [
     JobEntryModelFactory.createWithUuid(0, [
       WorkflowEntryModelFactory.create('jobStaticPart', 'value'),
-      WorkflowEntryModelFactory.create('switchPartProp', 'optionTwo'),
+      WorkflowEntryModelFactory.create('switchPartProp', 'optionTwoValue'),
     ]),
   ];
   const mode = 'mode';

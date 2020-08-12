@@ -40,7 +40,7 @@ export class WorkflowDataModel {
   getSensorData(): WorkflowEntryModel[] {
     const sensorType = workflowFormPartsConsts.SENSOR.SENSOR_TYPE;
     const sensorTypeValue = get(this.worfklow.sensor, sensorType.property);
-    const sensorDynamicOption = this.dynamicParts.sensorDynamicParts.find((part) => part.name == sensorTypeValue);
+    const sensorDynamicOption = this.dynamicParts.sensorDynamicParts.find((part) => part.value == sensorTypeValue);
     const sensorDynamicParts = sensorDynamicOption == undefined ? [] : sensorDynamicOption.parts;
     return sensorDynamicParts.concat(sensorType).map((part) => {
       const value = get(this.worfklow.sensor, part.property);
@@ -53,7 +53,7 @@ export class WorkflowDataModel {
       const jobStaticPart = workflowFormPartsConsts.JOB.JOB_NAME;
       const jobDynamicPart = workflowFormPartsConsts.JOB.JOB_TYPE;
       const jobDynamicPartValue = get(job, jobDynamicPart.property);
-      const jobDynamicOption = this.dynamicParts.jobDynamicParts.find((part) => part.name == jobDynamicPartValue);
+      const jobDynamicOption = this.dynamicParts.jobDynamicParts.find((part) => part.value == jobDynamicPartValue);
       const jobDynamicParts = jobDynamicOption == undefined ? [] : jobDynamicOption.parts;
       const jobData = jobDynamicParts.concat(jobDynamicPart, jobStaticPart).map((part) => {
         const value = get(job, part.property);

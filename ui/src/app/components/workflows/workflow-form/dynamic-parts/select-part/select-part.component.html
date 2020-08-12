@@ -23,7 +23,7 @@
     [ngModel]="value"
     (ngModelChange)="modelChanged($event)"
     [required]="partValidationSafe.isRequired">
-    <option *ngFor="let option of options" [value]="option">{{option}}</option>
+    <option *ngFor="let option of options | keyvalue" [value]="option.value">{{option.key}}</option>
   </select>
   <clr-control-error *clrIfError="'required'">{{texts.FORM_VALIDATION_ONE_MUST_BE_SELECTED(name)}}</clr-control-error>
 </clr-select-container>

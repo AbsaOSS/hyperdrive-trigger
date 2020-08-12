@@ -60,12 +60,12 @@ export class JobComponent implements OnInit, OnDestroy {
     });
   }
 
-  getJobTypes(): string[] {
-    return this.workflowFormParts.dynamicParts.jobDynamicParts.map((part) => part.name);
+  getJobTypes(): Map<string, string> {
+    return new Map(this.workflowFormParts.dynamicParts.jobDynamicParts.map((part) => [part.key, part.value]));
   }
 
   getSelectedJobComponent(): FormPart[] {
-    const jobDynamicPart = this.workflowFormParts.dynamicParts.jobDynamicParts.find((jdp) => jdp.name == this.getSelectedJob());
+    const jobDynamicPart = this.workflowFormParts.dynamicParts.jobDynamicParts.find((jdp) => jdp.value == this.getSelectedJob());
     return jobDynamicPart ? jobDynamicPart.parts : this.workflowFormParts.dynamicParts.jobDynamicParts[0].parts;
   }
 

@@ -147,7 +147,7 @@ export class WorkflowService {
           ]),
         ],
         [
-          DynamicFormPartFactory.create('Spark', [
+          DynamicFormPartFactory.createKeyValue('Generic Spark Job', 'Spark', [
             FormPartFactory.create(
               'Job jar',
               'jobParameters.variables.jobJar',
@@ -165,7 +165,10 @@ export class WorkflowService {
               'jobParameters.variables.deploymentMode',
               'select-field',
               PartValidationFactory.create(true),
-              ['cluster', 'client'],
+              new Map([
+                ['cluster', 'cluster'],
+                ['client', 'client'],
+              ]),
             ),
             FormPartFactory.create(
               'Additional jars',
@@ -192,7 +195,7 @@ export class WorkflowService {
               PartValidationFactory.create(false, undefined, 1),
             ),
           ]),
-          DynamicFormPartFactory.create('Shell', [
+          DynamicFormPartFactory.createKeyValue('Generic Shell Job', 'Shell', [
             FormPartFactory.create(
               'Script location',
               'jobParameters.variables.scriptLocation',

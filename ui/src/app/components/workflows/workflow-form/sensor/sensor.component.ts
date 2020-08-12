@@ -51,15 +51,15 @@ export class SensorComponent implements OnInit, OnDestroy {
     });
   }
 
-  getSensorTypes(): string[] {
-    return this.workflowFormParts.dynamicParts.sensorDynamicParts.map((component) => component.name);
+  getSensorTypes(): Map<string, string> {
+    return new Map(this.workflowFormParts.dynamicParts.sensorDynamicParts.map((component) => [component.key, component.value]));
   }
 
   getSelectedSensorComponent(): FormPart[] {
     const selected = this.sensorData.find((value) => value.property == this.workflowFormParts.sensorSwitchPart.property);
     const selectedSensor = !!selected ? selected.value : undefined;
 
-    const sensorComponent = this.workflowFormParts.dynamicParts.sensorDynamicParts.find((sp) => sp.name == selectedSensor);
+    const sensorComponent = this.workflowFormParts.dynamicParts.sensorDynamicParts.find((sp) => sp.value == selectedSensor);
     return sensorComponent ? sensorComponent.parts : this.workflowFormParts.dynamicParts.sensorDynamicParts[0].parts;
   }
 

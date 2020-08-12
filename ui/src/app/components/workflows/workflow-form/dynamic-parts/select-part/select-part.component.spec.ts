@@ -54,9 +54,13 @@ describe('SelectPartComponent', () => {
         'should pass with ' + parameter + ' value',
         async(() => {
           const oldValue = parameter;
-          const newValue = 'one';
+          const newValue = 'oneValue';
           const propertyName = 'property';
-          const options = ['one', 'two', 'three'];
+          const options = new Map([
+            ['oneKey', newValue],
+            ['twoKey', 'twoValue'],
+            ['threeKey', 'threeValue'],
+          ]);
           const testedSubject = new Subject<WorkflowEntryModel>();
           const subjectSpy = spyOn(testedSubject, 'next');
           const partValidation = PartValidationFactory.create(true);
@@ -82,10 +86,15 @@ describe('SelectPartComponent', () => {
   });
 
   it('should change value and publish change on user input', async(() => {
-    const oldValue = 'one';
-    const newValue = 'three';
+    const oldValue = 'oneValue';
+    const newValue = 'threeValue';
     const propertyName = 'property';
-    const options = [oldValue, 'two', newValue];
+    const options = new Map([
+      ['oneKey', oldValue],
+      ['two', 'two'],
+      ['threeKey', newValue],
+    ]);
+
     const testedSubject = new Subject<WorkflowEntryModel>();
     const subjectSpy = spyOn(testedSubject, 'next');
     const partValidation = PartValidationFactory.create(true);
