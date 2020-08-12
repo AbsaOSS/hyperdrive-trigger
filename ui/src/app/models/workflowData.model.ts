@@ -51,7 +51,7 @@ export class WorkflowDataModel {
   getJobsData(): JobEntryModel[] {
     const jobsData = this.worfklow.dagDefinitionJoined.jobDefinitions.map((job) => {
       const jobStaticPart = workflowFormPartsConsts.JOB.JOB_NAME;
-      const jobDynamicPart = workflowFormPartsConsts.JOB.JOB_TYPE;
+      const jobDynamicPart = workflowFormPartsConsts.JOB.JOB_TEMPLATE_ID;
       const jobDynamicPartValue = get(job, jobDynamicPart.property);
       const jobDynamicOption = this.dynamicParts.jobDynamicParts.find((part) => part.value == jobDynamicPartValue);
       const jobDynamicParts = jobDynamicOption == undefined ? [] : jobDynamicOption.parts;

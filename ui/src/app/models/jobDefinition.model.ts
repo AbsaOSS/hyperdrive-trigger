@@ -18,7 +18,7 @@ import { JobType } from './jobInstance.model';
 export type JobDefinitionModel = {
   dagDefinitionId: number;
   name: string;
-  jobType: JobType;
+  jobTemplateId: string;
   jobParameters: JobParametersModel;
   order: number;
   id: number;
@@ -43,12 +43,19 @@ export class JobDefinitionModelFactory {
   static create(
     dagDefinitionId = 0,
     name: string,
-    jobType: JobType,
+    jobTemplateId: string,
     jobParameters: JobParametersModel,
     order: number,
     id: number,
   ): JobDefinitionModel {
-    return { dagDefinitionId: dagDefinitionId, name: name, jobType: jobType, jobParameters: jobParameters, order: order, id: id };
+    return {
+      dagDefinitionId: dagDefinitionId,
+      name: name,
+      jobTemplateId: jobTemplateId,
+      jobParameters: jobParameters,
+      order: order,
+      id: id,
+    };
   }
 
   static createEmpty(): JobDefinitionModel {

@@ -386,7 +386,7 @@ export class WorkflowsEffects {
       workflowFormPartsSequences.allDetails,
       workflowFormPartsConsts.SENSOR.SENSOR_TYPE,
       workflowFormPartsConsts.JOB.JOB_NAME,
-      workflowFormPartsConsts.JOB.JOB_TYPE,
+      workflowFormPartsConsts.JOB.JOB_TEMPLATE_ID,
       workflowComponents,
     );
   }

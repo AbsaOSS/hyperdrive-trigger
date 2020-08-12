@@ -91,7 +91,7 @@ describe('WorkflowsEffects', () => {
           workflowFormPartsSequences.allDetails,
           workflowFormPartsConsts.SENSOR.SENSOR_TYPE,
           workflowFormPartsConsts.JOB.JOB_NAME,
-          workflowFormPartsConsts.JOB.JOB_TYPE,
+          workflowFormPartsConsts.JOB.JOB_TEMPLATE_ID,
           DynamicFormPartsFactory.create([], []),
         ),
       },
@@ -147,7 +147,7 @@ describe('WorkflowsEffects', () => {
         workflowFormPartsSequences.allDetails,
         workflowFormPartsConsts.SENSOR.SENSOR_TYPE,
         workflowFormPartsConsts.JOB.JOB_NAME,
-        workflowFormPartsConsts.JOB.JOB_TYPE,
+        workflowFormPartsConsts.JOB.JOB_TEMPLATE_ID,
         dynamicFormParts,
       );
 
@@ -239,7 +239,7 @@ describe('WorkflowsEffects', () => {
     });
 
     it('should initialize workflow', () => {
-      const jobDefinition = JobDefinitionModelFactory.create(10, 'name', JobTypeFactory.create('name'), undefined, 0, 10);
+      const jobDefinition = JobDefinitionModelFactory.create(10, 'name', '1', undefined, 0, 10);
       const workflow = WorkflowJoinedModelFactory.create(
         'name',
         true,
@@ -271,8 +271,8 @@ describe('WorkflowsEffects', () => {
                 order: 0,
                 entries: [
                   WorkflowEntryModelFactory.create(
-                    workflowFormParts.JOB.JOB_TYPE.property,
-                    workflow.dagDefinitionJoined.jobDefinitions[0].jobType.name,
+                    workflowFormParts.JOB.JOB_TEMPLATE_ID.property,
+                    workflow.dagDefinitionJoined.jobDefinitions[0].jobTemplateId,
                   ),
                   WorkflowEntryModelFactory.create(
                     workflowFormParts.JOB.JOB_NAME.property,
@@ -479,7 +479,7 @@ describe('WorkflowsEffects', () => {
         'project',
         undefined,
         SensorModelFactory.create(10, SensorTypeFactory.create('name'), undefined, 10),
-        DagDefinitionJoinedModelFactory.create(10, [JobDefinitionModelFactory.create(10, 'name', { name: 'name' }, undefined, 0, 10)], 10),
+        DagDefinitionJoinedModelFactory.create(10, [JobDefinitionModelFactory.create(10, 'name', '1', undefined, 0, 10)], 10),
         10,
       );
       const createWorkflowSuccessPayload: WorkflowModel = WorkflowModelFactory.create(
@@ -565,7 +565,7 @@ describe('WorkflowsEffects', () => {
         'project',
         undefined,
         SensorModelFactory.create(10, SensorTypeFactory.create('name'), undefined, 10),
-        DagDefinitionJoinedModelFactory.create(10, [JobDefinitionModelFactory.create(10, 'name', { name: 'name' }, undefined, 0, 10)], 10),
+        DagDefinitionJoinedModelFactory.create(10, [JobDefinitionModelFactory.create(10, 'name', '1', undefined, 0, 10)], 10),
         10,
       );
       const updateWorkflowSuccessPayload: WorkflowModel = WorkflowModelFactory.create(
@@ -667,7 +667,7 @@ describe('WorkflowsEffects', () => {
       expect(result.detailsParts).toBe(workflowFormPartsSequences.allDetails);
       expect(result.sensorSwitchPart).toBe(workflowFormPartsConsts.SENSOR.SENSOR_TYPE);
       expect(result.staticJobPart).toBe(workflowFormPartsConsts.JOB.JOB_NAME);
-      expect(result.jobSwitchPart).toBe(workflowFormPartsConsts.JOB.JOB_TYPE);
+      expect(result.jobSwitchPart).toBe(workflowFormPartsConsts.JOB.JOB_TEMPLATE_ID);
     });
   });
 

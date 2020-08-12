@@ -94,6 +94,8 @@ export class WorkflowService {
   }
 
   getWorkflowDynamicFormParts(): Observable<DynamicFormParts> {
+    const sparkJobTemplateId = '1';
+    const shellJobTemplateId = '2';
     return of(
       DynamicFormPartsFactory.create(
         [
@@ -147,7 +149,7 @@ export class WorkflowService {
           ]),
         ],
         [
-          DynamicFormPartFactory.createWithLabel('Spark', 'Generic Spark Job', [
+          DynamicFormPartFactory.createWithLabel(sparkJobTemplateId, 'Generic Spark Job', [
             FormPartFactory.create(
               'Job jar',
               'jobParameters.variables.jobJar',
@@ -195,7 +197,7 @@ export class WorkflowService {
               PartValidationFactory.create(false, undefined, 1),
             ),
           ]),
-          DynamicFormPartFactory.createWithLabel('Shell', 'Generic Shell Job', [
+          DynamicFormPartFactory.createWithLabel(shellJobTemplateId, 'Generic Shell Job', [
             FormPartFactory.create(
               'Script location',
               'jobParameters.variables.scriptLocation',
