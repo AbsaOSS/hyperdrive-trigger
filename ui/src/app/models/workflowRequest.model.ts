@@ -45,8 +45,8 @@ export class WorkflowRequestModel {
 
   private createWorkflowRequestObject(id = 0): WorkflowJoinedModel {
     const workflowDetails = this.getWorkflowDetails(id);
-    const workflowSensor = this.getWorkflowSensor();
-    const workflowDagDefinition = this.getWorkflowDagDefinition();
+    const workflowSensor = this.getWorkflowSensor(id);
+    const workflowDagDefinition = this.getWorkflowDagDefinition(id);
 
     return WorkflowJoinedModelFactory.create(
       workflowDetails.name,
@@ -69,23 +69,25 @@ export class WorkflowRequestModel {
     return workflowDetails;
   }
 
-  private getWorkflowSensor(): SensorModel {
+  private getWorkflowSensor(id = 0): SensorModel {
     const partialSensor = SensorModelFactory.createEmpty();
     this.sensorData.forEach((sensor) => {
       set(partialSensor, sensor.property, sensor.value);
     });
+    partialSensor.workflowId = id;
     return partialSensor;
   }
 
-  private getWorkflowDagDefinition(): DagDefinitionJoinedModel {
+  private getWorkflowDagDefinition(id = 0): DagDefinitionJoinedModel {
     const jobDefinitions = this.jobsData.map((jobDef) => {
       const partialJobDefinition = JobDefinitionModelFactory.createEmpty();
       partialJobDefinition.order = jobDef.order;
       jobDef.entries.forEach((jobProp) => {
         set(partialJobDefinition, jobProp.property, jobProp.value);
       });
+      partialJobDefinition.id = +jobDef.jobId;
       return partialJobDefinition;
     });
-    return DagDefinitionJoinedModelFactory.create(0, jobDefinitions, 0);
+    return DagDefinitionJoinedModelFactory.create(id, jobDefinitions, 0);
   }
 }

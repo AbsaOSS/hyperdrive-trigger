@@ -20,6 +20,8 @@ export const workflowFormParts = {
     WORKFLOW_NAME: FormPartFactory.create('Workflow name', 'name', 'string-field', PartValidationFactory.create(true, 45, 1)),
     PROJECT_NAME: FormPartFactory.create('Project name', 'project', 'string-field', PartValidationFactory.create(true, undefined, 1)),
     IS_ACTIVE: FormPartFactory.create('Is active', 'isActive', 'boolean-field', PartValidationFactory.create(true)),
+    CREATED: FormPartFactory.create('created', 'created', 'date-field', PartValidationFactory.create(false)),
+    UPDATED: FormPartFactory.create('updated', 'updated', 'date-field', PartValidationFactory.create(false)),
   },
   SENSOR: {
     SENSOR_TYPE: FormPartFactory.create('Sensor type', 'sensorType.name', 'select-field', PartValidationFactory.create(true)),
@@ -31,7 +33,13 @@ export const workflowFormParts = {
 };
 
 export const workflowFormPartsSequences = {
-  allDetails: [workflowFormParts.DETAILS.WORKFLOW_NAME, workflowFormParts.DETAILS.PROJECT_NAME, workflowFormParts.DETAILS.IS_ACTIVE],
+  allDetails: [
+    workflowFormParts.DETAILS.WORKFLOW_NAME,
+    workflowFormParts.DETAILS.PROJECT_NAME,
+    workflowFormParts.DETAILS.IS_ACTIVE,
+    workflowFormParts.DETAILS.CREATED,
+    workflowFormParts.DETAILS.UPDATED,
+  ],
   allSensors: [workflowFormParts.SENSOR.SENSOR_TYPE],
   allJobs: [workflowFormParts.JOB.JOB_NAME, workflowFormParts.JOB.JOB_TYPE],
 };

@@ -267,6 +267,20 @@ export class WorkflowsEffects {
         state.workflowAction.workflowFormData.jobs,
       ).getUpdateWorkflowRequestObject(state.workflowAction.id);
 
+      console.log(workflowUpdateRequest);
+      
+
+      workflowUpdateRequest.sensor.id = state.workflowAction.workflow.sensor.id;
+      workflowUpdateRequest.dagDefinitionJoined.id = state.workflowAction.workflow.dagDefinitionJoined.id;
+      workflowUpdateRequest.sensor.properties.sensorId = state.workflowAction.workflow.sensor.properties.sensorId;
+      const dagDefinitionsLength = workflowUpdateRequest.dagDefinitionJoined.jobDefinitions.length;
+      for (let i = 0; i < dagDefinitionsLength; i++) {
+        workflowUpdateRequest.dagDefinitionJoined.jobDefinitions[i].dagDefinitionId = state.workflowAction.workflow.dagDefinitionJoined.id;
+      }
+
+      console.log(workflowUpdateRequest);
+      
+
       return this.workflowService.updateWorkflow(workflowUpdateRequest).pipe(
         mergeMap((result: WorkflowJoinedModel) => {
           const workflow: WorkflowModel = WorkflowModelFactory.create(

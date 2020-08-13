@@ -59,7 +59,7 @@ export class WorkflowDataModel {
         const value = get(job, part.property);
         return WorkflowEntryModelFactory.create(part.property, value);
       });
-      return JobEntryModelFactory.createWithUuid(job.order, jobData);
+      return JobEntryModelFactory.create(job.id.toString(), job.order, jobData);
     });
     return jobsData;
   }
