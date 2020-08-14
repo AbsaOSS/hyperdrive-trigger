@@ -67,7 +67,7 @@ describe('JobComponent', () => {
   const jobsData = [
     JobEntryModelFactory.createWithUuid(0, [
       WorkflowEntryModelFactory.create('jobStaticPart', 'value'),
-      WorkflowEntryModelFactory.create('switchPartProp', 'optionTwoValue'),
+      WorkflowEntryModelFactory.create('switchPartProp', 'optionTwo'),
     ]),
   ];
   const mode = 'mode';
