@@ -31,7 +31,7 @@ export class WorkflowDataModel {
   getDetailsData(): WorkflowEntryModel[] {
     return workflowFormPartsSequences.allDetails.map((detail) => {
       const value = get(this.worfklow, detail.property);
-      if (value != undefined) {
+      if (value !== undefined || value !== null) {
         return WorkflowEntryModelFactory.create(detail.property, value);
       }
     });
