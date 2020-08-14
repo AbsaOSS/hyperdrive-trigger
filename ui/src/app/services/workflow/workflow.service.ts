@@ -134,11 +134,16 @@ export class WorkflowService {
   getWorkflowDynamicFormParts(): Observable<DynamicFormParts> {
     const shellTemplateId$ = this.getJobTemplateId(jobTemplates.SHELL_JOB);
     const sparkTemplateId$ = this.getJobTemplateId(jobTemplates.SPARK_JOB);
+    const hyperConformanceTemplateId$ = this.getJobTemplateId(jobTemplates.HYPERCONFORMANCE_JOB);
 
-    return combineLatest([shellTemplateId$, sparkTemplateId$]).pipe(
-      mergeMap(([shellTemplateId, sparkTemplateId]) => {
+    return combineLatest([shellTemplateId$, sparkTemplateId$, hyperConformanceTemplateId$]).pipe(
+      mergeMap(([shellTemplateId, sparkTemplateId, hyperConformanceTemplateId]) => {
         const sensorParts = WorkflowService.getSensorDynamicFormParts();
-        const jobParts = WorkflowService.getJobDynamicFormParts(sparkTemplateId?.toString(), shellTemplateId?.toString());
+        const jobParts = WorkflowService.getJobDynamicFormParts(
+          sparkTemplateId?.toString(),
+          shellTemplateId?.toString(),
+          hyperConformanceTemplateId?.toString(),
+        );
         return of(DynamicFormPartsFactory.create(sensorParts, jobParts));
       }),
     );
@@ -204,13 +209,20 @@ export class WorkflowService {
     ];
   }
 
-  private static getJobDynamicFormParts(sparkTemplateId: string, shellTemplateId: string): DynamicFormPart[] {
+  private static getJobDynamicFormParts(
+    sparkTemplateId: string,
+    shellTemplateId: string,
+    hyperConformanceTemplateId: string,
+  ): DynamicFormPart[] {
     const jobDynamicFormParts = [];
     if (sparkTemplateId != null) {
       jobDynamicFormParts.push(this.getSparkDynamicFormParts(sparkTemplateId));
     }
     if (shellTemplateId != null) {
       jobDynamicFormParts.push(this.getShellDynamicFormParts(shellTemplateId));
+    }
+    if (shellTemplateId != null) {
+      jobDynamicFormParts.push(this.getHyperConformanceDynamicFormParts(hyperConformanceTemplateId));
     }
     return jobDynamicFormParts;
   }
@@ -268,6 +280,35 @@ export class WorkflowService {
         'jobParameters.variables.scriptLocation',
         'string-field',
         PartValidationFactory.create(true, undefined, 1),
+      ),
+    ]);
+  }
+
+  private static getHyperConformanceDynamicFormParts(templateId: string): DynamicFormPart {
+    return DynamicFormPartFactory.createWithLabel(templateId, jobTemplates.HYPERCONFORMANCE_JOB, [
+      FormPartFactory.create(
+        'Additional jars',
+        'jobParameters.maps.additionalJars',
+        'set-field',
+        PartValidationFactory.create(false, undefined, 1),
+      ),
+      FormPartFactory.create(
+        'Additional files',
+        'jobParameters.maps.additionalFiles',
+        'set-field',
+        PartValidationFactory.create(false, undefined, 1),
+      ),
+      FormPartFactory.create(
+        'Additional Spark Config',
+        'jobParameters.keyValuePairs.additionalSparkConfig',
+        'key-value-field',
+        PartValidationFactory.create(false, undefined, 1),
+      ),
+      FormPartFactory.create(
+        'App arguments',
+        'jobParameters.maps.appArguments',
+        'set-field',
+        PartValidationFactory.create(false, undefined, 1),
       ),
     ]);
   }
