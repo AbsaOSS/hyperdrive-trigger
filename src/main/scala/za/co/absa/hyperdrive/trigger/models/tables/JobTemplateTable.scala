@@ -27,7 +27,7 @@ trait JobTemplateTable {
 
   final class JobTemplateTable(tag: Tag) extends Table[JobTemplate](tag, _tableName = "job_template") {
 
-    def name: Rep[String] = column[String]("name")
+    def name: Rep[String] = column[String]("name", O.Unique)
     def jobType: Rep[JobType] = column[JobType]("job_type")
     def variables: Rep[Map[String, String]] = column[Map[String, String]]("variables")
     def maps: Rep[Map[String, List[String]]] = column[Map[String, List[String]]]("maps")

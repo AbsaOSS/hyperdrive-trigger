@@ -156,7 +156,7 @@ left join workflow
     on workflow.id = dag_instance.workflow_id;
 
 create table "job_template" (
-  "name" VARCHAR NOT NULL,
+  "name" VARCHAR NOT NULL UNIQUE,
   "job_type" VARCHAR NOT NULL,
   "variables" VARCHAR NOT NULL,
   "maps" VARCHAR NOT NULL,

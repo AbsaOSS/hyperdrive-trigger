@@ -16,9 +16,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { api } from '../../constants/api.constants';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map, mergeMap } from 'rxjs/operators';
 import { ProjectModel } from '../../models/project.model';
-import { Observable, of, throwError } from 'rxjs';
+import { combineLatest, Observable, of, throwError } from 'rxjs';
 import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
 import {
   DynamicFormPartFactory,
@@ -94,8 +94,24 @@ export class WorkflowService {
   }
 
   getWorkflowDynamicFormParts(): Observable<DynamicFormParts> {
-    const sparkJobTemplateId = '1';
-    const shellJobTemplateId = '2';
+    const shellTemplateId$ = this.getJobTemplateId('Generic Shell Job');
+    const sparkTemplateId$ = this.getJobTemplateId('Generic Spark Job');
+
+    return combineLatest([shellTemplateId$, sparkTemplateId$]).pipe(
+      mergeMap(([shellTemplateId, sparkTemplateId]) => {
+        return WorkflowService.fillWorkflowDynamicFormParts(shellTemplateId.toString(), sparkTemplateId.toString());
+      }),
+    );
+  }
+
+  private getJobTemplateId(name: string): Observable<number> {
+    const params = new HttpParams().set('name', name);
+    return this.httpClient
+      .get<number>(api.GET_JOB_TEMPLATE_ID, { params: params, observe: 'response' })
+      .pipe(map((response) => response.body));
+  }
+
+  private static fillWorkflowDynamicFormParts(sparkTemplateId: string, shellTemplateId: string): Observable<DynamicFormParts> {
     return of(
       DynamicFormPartsFactory.create(
         [
@@ -149,7 +165,7 @@ export class WorkflowService {
           ]),
         ],
         [
-          DynamicFormPartFactory.createWithLabel(sparkJobTemplateId, 'Generic Spark Job', [
+          DynamicFormPartFactory.createWithLabel(sparkTemplateId, 'Generic Spark Job', [
             FormPartFactory.create(
               'Job jar',
               'jobParameters.variables.jobJar',
@@ -197,7 +213,7 @@ export class WorkflowService {
               PartValidationFactory.create(false, undefined, 1),
             ),
           ]),
-          DynamicFormPartFactory.createWithLabel(shellJobTemplateId, 'Generic Shell Job', [
+          DynamicFormPartFactory.createWithLabel(shellTemplateId, 'Generic Shell Job', [
             FormPartFactory.create(
               'Script location',
               'jobParameters.variables.scriptLocation',

@@ -16,7 +16,6 @@
 package za.co.absa.hyperdrive.trigger.persistance
 
 import org.scalatest.{FlatSpec, _}
-import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -36,17 +35,23 @@ class JobTemplateRepositoryTest extends FlatSpec with Matchers with BeforeAndAft
     clearData()
   }
 
-  "jobTemplateRepository.getJobTemplate" should "return a job template by id" in {
+  "getJobTemplate" should "return a job template by id" in {
     insertJobTemplates()
     val result = await(jobTemplateRepository.getJobTemplatesByIds(Seq(100)))
     result should have size 1
     result.head.id shouldBe 100
   }
 
-  "jobTemplateRepository.getJobTemplates" should "return zero job templates when db is empty" in {
-    val result = await(jobTemplateRepository.getJobTemplates())
-    result.isEmpty shouldBe true
+  "getJobTemplateIdByName" should "return the job template id" in {
+    insertJobTemplates()
+    val result = await(jobTemplateRepository.getJobTemplateIdByName("jobTemplate1"))
+    result shouldBe 100
   }
 
+  "getJobTemplateIdByName" should "throw an error if the job template name doesn't exist" in {
+    insertJobTemplates()
+    val result = await(jobTemplateRepository.getJobTemplateIdByName("non-existent").failed)
+    result.getMessage should include("non-existent")
+  }
 
 }

@@ -15,7 +15,7 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
-import org.mockito.ArgumentMatchers._
+import org.mockito.ArgumentMatchers.{eq => eqTo, _}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, Matchers}
@@ -35,7 +35,7 @@ class JobTemplateServiceTest extends AsyncFlatSpec with Matchers with MockitoSug
     reset(jobTemplateRepository)
   }
 
-  "JobTemplateService.resolveJobTemplate" should "resolve the job template" in {
+  "resolveJobTemplate" should "resolve the job template" in {
     // given
     val dagDefinitionJoined = WorkflowFixture.createWorkflowJoined().dagDefinitionJoined
     val jobTemplates = Seq(GenericShellJobTemplate, GenericSparkJobTemplate)
@@ -50,5 +50,16 @@ class JobTemplateServiceTest extends AsyncFlatSpec with Matchers with MockitoSug
     jobInstances should have size 2
     jobInstances.head.jobType shouldBe JobTypes.Spark
     jobInstances(1).jobType shouldBe JobTypes.Shell
+  }
+
+  "getJobTemplateId" should "get the job template id" in {
+    // given
+    when(jobTemplateRepository.getJobTemplateIdByName(eqTo("some-template"))(any[ExecutionContext])).thenReturn(Future{42L})
+
+    // when
+    val result = await(underTest.getJobTemplateId("some-template"))
+
+    // then
+    result shouldBe 42L
   }
 }

@@ -26,7 +26,7 @@ import scala.util.{Failure, Success}
 trait JobTemplateRepository extends Repository {
   def insertJobTemplate(jobTemplate: JobTemplate)(implicit ec: ExecutionContext): Future[Either[ApiError, Long]]
   def getJobTemplatesByIds(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[JobTemplate]]
-  def getJobTemplates()(implicit ec: ExecutionContext): Future[Seq[JobTemplate]]
+  def getJobTemplateIdByName(name: String)(implicit ec: ExecutionContext): Future[Long]
 }
 
 @stereotype.Repository
@@ -36,10 +36,6 @@ class JobTemplateRepositoryImpl extends JobTemplateRepository {
 
   override def getJobTemplatesByIds(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[JobTemplate]] = db.run(
     jobTemplateTable.filter(_.id inSetBind ids).result
-  )
-
-  override def getJobTemplates()(implicit ec: ExecutionContext): Future[Seq[JobTemplate]] = db.run(
-    jobTemplateTable.sortBy(_.name).result
   )
 
   override def insertJobTemplate(jobTemplate: JobTemplate)(implicit ec: ExecutionContext): Future[Either[ApiError, Long]] = {
@@ -56,4 +52,19 @@ class JobTemplateRepositoryImpl extends JobTemplateRepository {
       }
     )
   }
+
+  override def getJobTemplateIdByName(name: String)(implicit ec: ExecutionContext): Future[Long] =
+    db.run(jobTemplateTable
+      .filter(_.name === name)
+      .map(_.id)
+      .take(1)
+      .result
+      .asTry.map {
+        case Success(value) if value.nonEmpty => value.head
+        case Success(value) => throw new Exception(s"No jobTemplate found for name $name")
+        case Failure(ex) =>
+          logger.error(s"Unexpected error occurred for getJobTemplateIdByName. name:$name", ex)
+          throw ex
+      }
+    )
 }

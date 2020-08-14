@@ -27,6 +27,7 @@ trait JobTemplateService {
   val jobTemplateRepository: JobTemplateRepository
 
   def resolveJobTemplate(dagDefinition: DagDefinitionJoined)(implicit ec: ExecutionContext): Future[DagInstanceJoined]
+  def getJobTemplateId(name: String)(implicit ec: ExecutionContext): Future[Long]
 }
 
 @Service
@@ -37,4 +38,8 @@ class JobTemplateServiceImpl(override val jobTemplateRepository: JobTemplateRepo
       jobTemplates => JobTemplateResolutionUtil.resolveDagDefinitionJoined(dagDefinitionJoined, jobTemplates)
     )
   }
+
+  override def getJobTemplateId(name: String)(implicit ec: ExecutionContext): Future[Long] =
+    jobTemplateRepository.getJobTemplateIdByName(name)
+
 }
