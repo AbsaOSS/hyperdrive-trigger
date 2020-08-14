@@ -54,12 +54,12 @@ class JobTemplateServiceTest extends AsyncFlatSpec with Matchers with MockitoSug
 
   "getJobTemplateId" should "get the job template id" in {
     // given
-    when(jobTemplateRepository.getJobTemplateIdByName(eqTo("some-template"))(any[ExecutionContext])).thenReturn(Future{42L})
+    when(jobTemplateRepository.getJobTemplateIdByName(eqTo("some-template"))(any[ExecutionContext])).thenReturn(Future{Some(42L)})
 
     // when
     val result = await(underTest.getJobTemplateId("some-template"))
 
     // then
-    result shouldBe 42L
+    result.get shouldBe 42L
   }
 }

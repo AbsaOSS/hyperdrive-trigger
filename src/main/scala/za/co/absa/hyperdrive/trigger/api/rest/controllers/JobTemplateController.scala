@@ -29,7 +29,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class JobTemplateController @Inject()(jobTemplateService: JobTemplateService) {
 
   @GetMapping(path = Array("/jobTemplateId"))
-  def getJobTemplateIdByName(@RequestParam name: String): CompletableFuture[Long] = {
+  def getJobTemplateIdByName(@RequestParam name: String): CompletableFuture[Option[Long]] = {
     jobTemplateService.getJobTemplateId(name).toJava.toCompletableFuture
   }
 
