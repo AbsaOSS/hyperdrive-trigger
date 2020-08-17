@@ -61,6 +61,7 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
   descSort = ClrDatagridSortOrder.DESC;
 
   removeFiltersSubject: Subject<any> = new Subject();
+  refreshSubject: Subject<boolean> = new Subject<boolean>();
 
   constructor(private store: Store<AppState>, route: ActivatedRoute) {
     this.paramsSubscription = route.params.subscribe((parameters) => {
@@ -106,6 +107,7 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
     };
 
     this.store.dispatch(new GetDagRuns(searchRequestModel));
+    this.refreshSubject.next(true);
   }
 
   clearFilters() {
