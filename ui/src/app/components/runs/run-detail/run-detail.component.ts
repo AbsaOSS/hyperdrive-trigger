@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { Component, Input, OnDestroy, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { jobStatuses } from '../../../models/enums/jobStatuses.constants';
 import { JobInstanceModel } from '../../../models/jobInstance.model';
 import { Store } from '@ngrx/store';
@@ -30,6 +30,7 @@ export class RunDetailComponent implements OnInit, OnDestroy {
   @Input('dagRunId') dagRunId: number;
   @Input() refreshSubject: Subject<boolean> = new Subject<boolean>();
   runDetailSubscription: Subscription;
+  refreshSubscription: Subscription;
 
   jobInstances: JobInstanceModel[];
   loading = true;
@@ -45,18 +46,20 @@ export class RunDetailComponent implements OnInit, OnDestroy {
       this.loading = state.detail.loading;
       this.jobInstances = state.detail.jobInstances;
     });
-    this.onRefresh();
-  }
 
-  onRefresh() {
-    this.refreshSubject.subscribe((response) => {
+    this.refreshSubscription = this.refreshSubject.subscribe((response) => {
       if (response) {
-        this.store.dispatch(new GetDagRunDetail(this.dagRunId));
+        this.onRefresh();
       }
     });
   }
 
+  onRefresh() {
+    this.store.dispatch(new GetDagRunDetail(this.dagRunId));
+  }
+
   ngOnDestroy(): void {
     !!this.runDetailSubscription && this.runDetailSubscription.unsubscribe();
+    !!this.refreshSubscription && this.refreshSubscription.unsubscribe();
   }
 }
