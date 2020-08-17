@@ -18,14 +18,22 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { RunDetailComponent } from './run-detail.component';
 import { provideMockStore } from '@ngrx/store/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { AppState } from '../../../stores/app.reducers';
+import { Store } from '@ngrx/store';
+import { Subject } from 'rxjs';
+import { GetDagRunDetail } from '../../../stores/runs/runs.actions';
 
 describe('RunDetailComponent', () => {
-  let component: RunDetailComponent;
+  let underTest: RunDetailComponent;
   let fixture: ComponentFixture<RunDetailComponent>;
+  let store: Store<AppState>;
 
   const initialAppState = {
     runs: {
-      detail: {},
+      detail: {
+        loading: true,
+        jobInstances: [],
+      },
     },
   };
 
@@ -35,15 +43,39 @@ describe('RunDetailComponent', () => {
       declarations: [RunDetailComponent],
       imports: [HttpClientTestingModule],
     }).compileComponents();
+    store = TestBed.inject(Store);
   }));
 
   beforeEach(() => {
     fixture = TestBed.createComponent(RunDetailComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
+    underTest = fixture.componentInstance;
   });
 
   it('should create', () => {
-    expect(component).toBeTruthy();
+    expect(underTest).toBeTruthy();
   });
+
+  it('onInit should set component properties', async(() => {
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(underTest.loading).toBe(initialAppState.runs.detail.loading);
+      expect(underTest.jobInstances).toBe(initialAppState.runs.detail.jobInstances);
+    });
+  }));
+
+  it('onRefresh() should dispatch GetDagRunDetail', async(() => {
+    underTest.dagRunId = 42;
+    underTest.refreshSubject = new Subject<boolean>();
+    const subject = new Subject<boolean>();
+    const storeSpy = spyOn(store, 'dispatch');
+
+    underTest.onRefresh();
+    subject.next(true);
+
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(storeSpy).toHaveBeenCalled();
+      expect(storeSpy).toHaveBeenCalledWith(new GetDagRunDetail(underTest.dagRunId));
+    });
+  }));
 });
