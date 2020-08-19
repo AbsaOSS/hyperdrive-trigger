@@ -88,9 +88,7 @@ class WorkflowValidationServiceImpl @Inject()(override val workflowRepository: W
     val workflowDetailsVerification = Seq(
       originalWorkflow.name == updatedWorkflow.name,
       originalWorkflow.isActive == updatedWorkflow.isActive,
-      originalWorkflow.project == updatedWorkflow.project,
-      originalWorkflow.created == updatedWorkflow.created,
-      originalWorkflow.updated == updatedWorkflow.updated
+      originalWorkflow.project == updatedWorkflow.project
     )
 
     val workflowSensorVerification = Seq(
