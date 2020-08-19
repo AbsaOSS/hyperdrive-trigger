@@ -95,11 +95,13 @@ export class WorkflowFormComponent implements OnDestroy, OnInit {
   }
 
   areWorkflowEntriesEqual(leftEntries: WorkflowEntryModel[], rightEntries: WorkflowEntryModel[]): boolean {
-    return leftEntries
-      .map((leftEntry) =>
-        rightEntries.some((rightEntry) => isEqual(rightEntry.value, leftEntry.value) && rightEntry.property == leftEntry.property),
-      )
-      .every((entry) => entry);
+    function compareEntries(left: WorkflowEntryModel[], right: WorkflowEntryModel[]): boolean[] {
+      return left.map((leftEntry) =>
+        right.some((rightEntry) => isEqual(rightEntry.value, leftEntry.value) && rightEntry.property == leftEntry.property),
+      );
+    }
+
+    return [...compareEntries(leftEntries, rightEntries), ...compareEntries(rightEntries, leftEntries)].every((entry) => entry);
   }
 
   areJobsEqual(leftJobEntry: JobEntryModel[], rightJobEntry: JobEntryModel[]): boolean {
