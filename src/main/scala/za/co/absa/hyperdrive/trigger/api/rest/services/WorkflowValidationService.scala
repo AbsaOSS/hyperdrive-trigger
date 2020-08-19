@@ -29,7 +29,7 @@ trait WorkflowValidationService {
 
   def validateOnInsert(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Seq[ApiError]]
 
-  def validateOnUpdate(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Seq[ApiError]]
+  def validateOnUpdate(originalWorkflow: WorkflowJoined, updatedWorkflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Seq[ApiError]]
 }
 
 @Service
@@ -43,10 +43,11 @@ class WorkflowValidationServiceImpl @Inject()(override val workflowRepository: W
     combine(validators)
   }
 
-  override def validateOnUpdate(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Seq[ApiError]] = {
+  override def validateOnUpdate(originalWorkflow: WorkflowJoined, updatedWorkflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Seq[ApiError]] = {
     val validators = Seq(
-      validateWorkflowIsUnique(workflow),
-      validateProjectIsNotEmpty(workflow)
+      validateWorkflowIsUnique(updatedWorkflow),
+      validateProjectIsNotEmpty(updatedWorkflow),
+      validateWorkflowData(originalWorkflow, updatedWorkflow)
     )
     combine(validators)
   }
@@ -81,5 +82,41 @@ class WorkflowValidationServiceImpl @Inject()(override val workflowRepository: W
       case None => Some(ValidationError("Project must be set"))
     }
     Future.successful(projectValidation.toSeq)
+  }
+
+  private def validateWorkflowData(originalWorkflow: WorkflowJoined, updatedWorkflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Seq[ApiError]] = {
+    val workflowDetailsVerification = Seq(
+      originalWorkflow.name == updatedWorkflow.name,
+      originalWorkflow.isActive == updatedWorkflow.isActive,
+      originalWorkflow.project == updatedWorkflow.project,
+      originalWorkflow.created == updatedWorkflow.created,
+      originalWorkflow.updated == updatedWorkflow.updated
+    )
+
+    val workflowSensorVerification = Seq(
+      originalWorkflow.sensor.sensorType == updatedWorkflow.sensor.sensorType,
+      originalWorkflow.sensor.properties == updatedWorkflow.sensor.properties
+    )
+
+    val workflowJobsVerification = Seq(
+      Seq(originalWorkflow.dagDefinitionJoined.jobDefinitions.length == updatedWorkflow.dagDefinitionJoined.jobDefinitions.length),
+      originalWorkflow.dagDefinitionJoined.jobDefinitions.flatMap(originalJob => {
+        val updatedJobOption = updatedWorkflow.dagDefinitionJoined.jobDefinitions.find(_.order == originalJob.order)
+        updatedJobOption.map(updatedJob =>
+          Seq(
+            originalJob.name == updatedJob.name,
+            originalJob.jobType == updatedJob.jobType,
+            originalJob.order == updatedJob.order,
+            originalJob.jobParameters == originalJob.jobParameters
+          )
+        ).getOrElse(Seq(false))
+      })
+    ).flatten
+
+    if((workflowDetailsVerification ++ workflowSensorVerification ++ workflowJobsVerification).contains(false)) {
+      Future.successful(Seq(ValidationError("Nothing to update")))
+    } else {
+      Future.successful(Seq())
+    }
   }
 }

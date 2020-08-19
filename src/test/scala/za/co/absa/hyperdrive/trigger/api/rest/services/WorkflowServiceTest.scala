@@ -94,8 +94,9 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
 
   "WorkflowService.updateWorkflow" should "should update a workflow" in {
     // given
-    val workflowJoined = WorkflowFixture.createWorkflowJoined()
-    when(workflowValidationService.validateOnUpdate(eqTo(workflowJoined))(any[ExecutionContext])).thenReturn(Future{Seq.empty})
+    val originalJoined = WorkflowFixture.createWorkflowJoined()
+    val workflowJoined = originalJoined.copy(name = "newName")
+    when(workflowValidationService.validateOnUpdate(eqTo(workflowJoined), eqTo(originalJoined))(any[ExecutionContext])).thenReturn(Future{Seq.empty})
     when(workflowRepository.updateWorkflow(any[WorkflowJoined], any[String])(any[ExecutionContext])).thenReturn(Future{Right((): Unit)})
     when(workflowRepository.getWorkflow(eqTo(workflowJoined.id))(any[ExecutionContext])).thenReturn(Future{workflowJoined})
     when(workflowRepository.getWorkflow(eqTo(workflowJoined.id))(any[ExecutionContext])).thenReturn(Future{workflowJoined})
@@ -110,9 +111,10 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
 
   it should "should return with errors if validation failed and not attempt to update on DB" in {
     // given
-    val workflowJoined = WorkflowFixture.createWorkflowJoined()
+    val originalJoined = WorkflowFixture.createWorkflowJoined()
+    val workflowJoined = originalJoined.copy()
     val errors: Seq[ApiError] = Seq(ValidationError("error"))
-    when(workflowValidationService.validateOnUpdate(eqTo(workflowJoined))(any[ExecutionContext]))
+    when(workflowValidationService.validateOnUpdate(eqTo(workflowJoined), eqTo(originalJoined))(any[ExecutionContext]))
       .thenReturn(Future{errors})
     when(workflowRepository.getWorkflow(eqTo(workflowJoined.id))(any[ExecutionContext])).thenReturn(Future{workflowJoined})
 
@@ -126,9 +128,10 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
 
   it should "should return with errors if DB update failed" in {
     // given
-    val workflowJoined = WorkflowFixture.createWorkflowJoined()
+    val originalJoined = WorkflowFixture.createWorkflowJoined()
+    val workflowJoined = originalJoined.copy(project = "diff")
     val error = DatabaseError("error")
-    when(workflowValidationService.validateOnUpdate(eqTo(workflowJoined))(any[ExecutionContext])).thenReturn(Future{Seq.empty})
+    when(workflowValidationService.validateOnUpdate(eqTo(workflowJoined), eqTo(originalJoined))(any[ExecutionContext])).thenReturn(Future{Seq.empty})
     when(workflowRepository.getWorkflow(eqTo(workflowJoined.id))(any[ExecutionContext])).thenReturn(Future{workflowJoined})
     when(workflowRepository.updateWorkflow(any[WorkflowJoined], any[String])(any[ExecutionContext]))
       .thenReturn(Future{Left(error)})

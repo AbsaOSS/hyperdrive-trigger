@@ -95,11 +95,13 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
   "validateOnUpdate" should "return None if entity is valid" in {
     // given
     val underTest = new WorkflowValidationServiceImpl(workflowRepository)
-    val workflow = WorkflowFixture.createWorkflowJoined()
+    val originalJoined = WorkflowFixture.createWorkflowJoined()
+    val workflow = originalJoined.copy(name = "diff")
     when(workflowRepository.existsOtherWorkflow(eqTo(workflow.name), eqTo(workflow.id))(any[ExecutionContext])).thenReturn(Future{false})
+    when(workflowRepository.getWorkflow(eqTo(workflow.id))(any[ExecutionContext])).thenReturn(Future{originalJoined})
 
     // when
-    val result = Await.result(underTest.validateOnUpdate(workflow), Duration(120, TimeUnit.SECONDS))
+    val result = Await.result(underTest.validateOnUpdate(workflow, originalJoined), Duration(120, TimeUnit.SECONDS))
 
     // then
     result.isEmpty shouldBe true
@@ -108,11 +110,12 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
   it should "fail if the workflow name already exists in another entity" in {
     // given
     val underTest = new WorkflowValidationServiceImpl(workflowRepository)
-    val workflow = WorkflowFixture.createWorkflowJoined()
+    val originalJoined = WorkflowFixture.createWorkflowJoined()
+    val workflow = originalJoined.copy()
     when(workflowRepository.existsOtherWorkflow(eqTo(workflow.name), eqTo(workflow.id))(any[ExecutionContext])).thenReturn(Future{true})
 
     // when
-    val result = Await.result(underTest.validateOnUpdate(workflow), Duration(120, TimeUnit.SECONDS))
+    val result = Await.result(underTest.validateOnUpdate(workflow, originalJoined), Duration(120, TimeUnit.SECONDS))
 
     // then
     result.nonEmpty shouldBe true
@@ -125,9 +128,10 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
     val workflow = WorkflowFixture.createWorkflowJoined()
     val invalidWorkflow = workflow.copy(project = "")
     when(workflowRepository.existsOtherWorkflow(eqTo(invalidWorkflow.name), eqTo(invalidWorkflow.id))(any[ExecutionContext])).thenReturn(Future{false})
+    when(workflowRepository.getWorkflow(eqTo(workflow.id))(any[ExecutionContext])).thenReturn(Future{workflow})
 
     // when
-    val result = Await.result(underTest.validateOnUpdate(invalidWorkflow), Duration(120, TimeUnit.SECONDS))
+    val result = Await.result(underTest.validateOnUpdate(invalidWorkflow, workflow), Duration(120, TimeUnit.SECONDS))
 
     // then
     result.nonEmpty shouldBe true
