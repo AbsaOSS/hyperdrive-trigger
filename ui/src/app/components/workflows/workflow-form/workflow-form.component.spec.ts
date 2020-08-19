@@ -36,8 +36,10 @@ import { WorkflowFormComponent } from './workflow-form.component';
 import { JobEntryModelFactory } from '../../../models/jobEntry.model';
 import { WorkflowFormPartsModelFactory } from '../../../models/workflowFormParts.model';
 import { FormsModule } from '@angular/forms';
+import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../models/workflowEntry.model';
+import { WorkflowModelFactory } from 'src/app/models/workflow.model';
 
-describe('WorkflowFormComponent', () => {
+fdescribe('WorkflowFormComponent', () => {
   let underTest: WorkflowFormComponent;
   let fixture: ComponentFixture<WorkflowFormComponent>;
   let previousRouteService: PreviousRouteService;
@@ -231,6 +233,31 @@ describe('WorkflowFormComponent', () => {
       expect(dialogServiceSpy).toHaveBeenCalled();
       expect(storeSpy).toHaveBeenCalledTimes(0);
     });
+  }));
+
+
+  it('hasWorkflowChanged() should return false if workflowData has not changed', async(() => {
+    underTest.initialWorkflowData = {
+      details: [],
+      sensor: [],
+      jobs: []
+    };
+
+    expect(underTest.hasWorkflowChanged()).toBeFalse();
+  }));
+
+  it('hasWorkflowChanged() should return true if workflowData has changed', async(() => {
+    const detail = [WorkflowEntryModelFactory.create('projectX', 'project')];
+    const sensors = [WorkflowEntryModelFactory.create('properties.settings.variables.cronExpression', '0 0/30 * ? * * *')];
+    const job = [JobEntryModelFactory.create('uis99', 1, [WorkflowEntryModelFactory.create('name', 'workflowName')])];
+
+    underTest.initialWorkflowData = {
+      details: detail,
+      sensor: sensors,
+      jobs: job
+    };
+
+    expect(underTest.hasWorkflowChanged()).toBeTrue();
   }));
 
   it('updateWorkflow() should dispatch update workflow when dialog is confirmed', async(() => {

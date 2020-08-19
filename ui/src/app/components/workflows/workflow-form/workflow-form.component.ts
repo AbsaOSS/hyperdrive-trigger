@@ -36,7 +36,7 @@ import { ConfirmationDialogService } from '../../../services/confirmation-dialog
 import { PreviousRouteService } from '../../../services/previousRoute/previous-route.service';
 import { Router } from '@angular/router';
 import cloneDeep from 'lodash/cloneDeep';
-import { isEqual } from 'lodash/isEqual';
+import isEqual from 'lodash/isEqual';
 
 @Component({
   selector: 'app-workflow-form',
