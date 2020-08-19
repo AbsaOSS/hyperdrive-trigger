@@ -235,12 +235,11 @@ fdescribe('WorkflowFormComponent', () => {
     });
   }));
 
-
   it('hasWorkflowChanged() should return false if workflowData has not changed', async(() => {
     underTest.initialWorkflowData = {
       details: [],
       sensor: [],
-      jobs: []
+      jobs: [],
     };
 
     expect(underTest.hasWorkflowChanged()).toBeFalse();
@@ -254,7 +253,7 @@ fdescribe('WorkflowFormComponent', () => {
     underTest.initialWorkflowData = {
       details: detail,
       sensor: sensors,
-      jobs: job
+      jobs: job,
     };
 
     expect(underTest.hasWorkflowChanged()).toBeTrue();
