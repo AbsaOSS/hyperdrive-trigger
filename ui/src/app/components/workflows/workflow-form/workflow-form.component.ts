@@ -37,6 +37,7 @@ import { PreviousRouteService } from '../../../services/previousRoute/previous-r
 import { Router } from '@angular/router';
 import cloneDeep from 'lodash/cloneDeep';
 import isEqual from 'lodash/isEqual';
+import { WorkflowFormDataModel } from '../../../models/workflowFormData.model';
 
 @Component({
   selector: 'app-workflow-form',
@@ -46,11 +47,7 @@ import isEqual from 'lodash/isEqual';
 export class WorkflowFormComponent implements OnDestroy, OnInit {
   @ViewChild('workflowForm') workflowForm;
   @Output() jobsUnfold: EventEmitter<any> = new EventEmitter();
-  @Input() workflowData: {
-    details: WorkflowEntryModel[];
-    sensor: WorkflowEntryModel[];
-    jobs: JobEntryModel[];
-  };
+  @Input() workflowData: WorkflowFormDataModel;
   @Input() workflowFormParts: WorkflowFormPartsModel;
   @Input() id: number;
   @Input() mode: string;
@@ -69,11 +66,7 @@ export class WorkflowFormComponent implements OnDestroy, OnInit {
   workflowSubscription: Subscription;
   confirmationDialogServiceSubscription: Subscription = null;
 
-  initialWorkflowData: {
-    details: WorkflowEntryModel[];
-    sensor: WorkflowEntryModel[];
-    jobs: JobEntryModel[];
-  };
+  initialWorkflowData: WorkflowFormDataModel;
 
   constructor(
     private store: Store<AppState>,
