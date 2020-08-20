@@ -22,6 +22,7 @@ import za.co.absa.hyperdrive.trigger.models.WorkflowJoined
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, ValidationError}
 import za.co.absa.hyperdrive.trigger.persistance.WorkflowRepository
 
+import scala.collection.immutable.SortedMap
 import scala.concurrent.{ExecutionContext, Future}
 
 trait WorkflowValidationService {
@@ -29,7 +30,7 @@ trait WorkflowValidationService {
 
   def validateOnInsert(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Seq[ApiError]]
 
-  def validateOnUpdate(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Seq[ApiError]]
+  def validateOnUpdate(originalWorkflow: WorkflowJoined, updatedWorkflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Seq[ApiError]]
 }
 
 @Service
@@ -43,10 +44,11 @@ class WorkflowValidationServiceImpl @Inject()(override val workflowRepository: W
     combine(validators)
   }
 
-  override def validateOnUpdate(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Seq[ApiError]] = {
+  override def validateOnUpdate(originalWorkflow: WorkflowJoined, updatedWorkflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Seq[ApiError]] = {
     val validators = Seq(
-      validateWorkflowIsUnique(workflow),
-      validateProjectIsNotEmpty(workflow)
+      validateWorkflowIsUnique(updatedWorkflow),
+      validateProjectIsNotEmpty(updatedWorkflow),
+      validateWorkflowData(originalWorkflow, updatedWorkflow)
     )
     combine(validators)
   }
@@ -81,5 +83,62 @@ class WorkflowValidationServiceImpl @Inject()(override val workflowRepository: W
       case None => Some(ValidationError("Project must be set"))
     }
     Future.successful(projectValidation.toSeq)
+  }
+
+  private[services] def validateWorkflowData(originalWorkflow: WorkflowJoined, updatedWorkflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Seq[ApiError]] = {
+    val workflowDetailsVerification = Seq(
+      originalWorkflow.name == updatedWorkflow.name,
+      originalWorkflow.isActive == updatedWorkflow.isActive,
+      originalWorkflow.project == updatedWorkflow.project
+    )
+
+    val workflowSensorVerification = Seq(
+      originalWorkflow.sensor.sensorType == updatedWorkflow.sensor.sensorType,
+      originalWorkflow.sensor.properties.matchProperties.equals(updatedWorkflow.sensor.properties.matchProperties),
+      originalWorkflow.sensor.properties.settings.variables.equals(updatedWorkflow.sensor.properties.settings.variables),
+      areMapsEqual(originalWorkflow.sensor.properties.settings.maps, updatedWorkflow.sensor.properties.settings.maps)
+    )
+
+    val workflowJobsVerification = Seq(
+      Seq(originalWorkflow.dagDefinitionJoined.jobDefinitions.length == updatedWorkflow.dagDefinitionJoined.jobDefinitions.length),
+      Seq(originalWorkflow.dagDefinitionJoined.jobDefinitions.map(_.order).equals(updatedWorkflow.dagDefinitionJoined.jobDefinitions.map(_.order))),
+      originalWorkflow.dagDefinitionJoined.jobDefinitions.flatMap(originalJob => {
+        val updatedJobOption = updatedWorkflow.dagDefinitionJoined.jobDefinitions.find(_.order == originalJob.order)
+        updatedJobOption.map(updatedJob =>
+          Seq(
+            originalJob.name == updatedJob.name,
+            originalJob.jobType == updatedJob.jobType,
+            originalJob.order == updatedJob.order,
+            originalJob.jobParameters.variables.equals(updatedJob.jobParameters.variables),
+            areMapsEqual(originalJob.jobParameters.maps, updatedJob.jobParameters.maps),
+            areMapsOfMapsEqual(originalJob.jobParameters.keyValuePairs, updatedJob.jobParameters.keyValuePairs)
+          )
+        ).getOrElse(Seq(false))
+      })
+    ).flatten
+
+    if((workflowDetailsVerification ++ workflowSensorVerification ++ workflowJobsVerification).contains(false)) {
+      Future.successful(Seq())
+    } else {
+      Future.successful(Seq(ValidationError("Nothing to update")))
+    }
+  }
+
+  private[services] def areMapsEqual(leftMap: Map[String, List[String]], rightMap: Map[String, List[String]]): Boolean = {
+    leftMap.keys.equals(rightMap.keys) && !leftMap.map {
+      case (keyLeft: String, valueLeft: List[String]) =>
+        rightMap.find(_._1 == keyLeft).exists {
+          case (_: String, valueRight: List[String]) => valueLeft.equals(valueRight)
+        }
+    }.toSeq.contains(false)
+  }
+
+  private[services] def areMapsOfMapsEqual(leftMap: Map[String, SortedMap[String, String]], rightMap: Map[String, SortedMap[String, String]]): Boolean = {
+    leftMap.keys.equals(rightMap.keys) && !leftMap.map {
+      case (keyLeft: String, valueLeft: SortedMap[String, String]) =>
+        rightMap.find(_._1 == keyLeft).exists {
+          case (_: String, valueRight: SortedMap[String, String]) => valueLeft.equals(valueRight)
+        }
+    }.toSeq.contains(false)
   }
 }
