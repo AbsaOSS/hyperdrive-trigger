@@ -118,9 +118,9 @@ class WorkflowValidationServiceImpl @Inject()(override val workflowRepository: W
     ).flatten
 
     if((workflowDetailsVerification ++ workflowSensorVerification ++ workflowJobsVerification).contains(false)) {
-      Future.successful(Seq(ValidationError("Nothing to update")))
-    } else {
       Future.successful(Seq())
+    } else {
+      Future.successful(Seq(ValidationError("Nothing to update")))
     }
   }
 
