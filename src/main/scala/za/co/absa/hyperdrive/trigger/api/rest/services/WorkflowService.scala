@@ -82,11 +82,9 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
 
   override def updateWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], WorkflowJoined]] = {
     val userName = getUserName.apply();
-    var originalWorkflow: WorkflowJoined = null;
-      getWorkflow(workflow.id)
-      .map(workflow => originalWorkflow = workflow);
 
     for {
+      originalWorkflow <- getWorkflow(workflow.id)
       validationErrors <- workflowValidationService.validateOnUpdate(workflow, originalWorkflow)
       result <- doIf(validationErrors, () => {
         getWorkflow(workflow.id).flatMap { originalWorkflow =>

@@ -22,6 +22,7 @@ import za.co.absa.hyperdrive.trigger.models.WorkflowJoined
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, ValidationError}
 import za.co.absa.hyperdrive.trigger.persistance.WorkflowRepository
 
+import scala.collection.immutable.SortedMap
 import scala.concurrent.{ExecutionContext, Future}
 
 trait WorkflowValidationService {
@@ -93,11 +94,14 @@ class WorkflowValidationServiceImpl @Inject()(override val workflowRepository: W
 
     val workflowSensorVerification = Seq(
       originalWorkflow.sensor.sensorType == updatedWorkflow.sensor.sensorType,
-      originalWorkflow.sensor.properties == updatedWorkflow.sensor.properties
+      originalWorkflow.sensor.properties.matchProperties.equals(updatedWorkflow.sensor.properties.matchProperties),
+      originalWorkflow.sensor.properties.settings.variables.equals(updatedWorkflow.sensor.properties.settings.variables),
+      areMapsEqual(originalWorkflow.sensor.properties.settings.maps, updatedWorkflow.sensor.properties.settings.maps)
     )
 
     val workflowJobsVerification = Seq(
       Seq(originalWorkflow.dagDefinitionJoined.jobDefinitions.length == updatedWorkflow.dagDefinitionJoined.jobDefinitions.length),
+      Seq(originalWorkflow.dagDefinitionJoined.jobDefinitions.map(_.order).equals(updatedWorkflow.dagDefinitionJoined.jobDefinitions.map(_.order))),
       originalWorkflow.dagDefinitionJoined.jobDefinitions.flatMap(originalJob => {
         val updatedJobOption = updatedWorkflow.dagDefinitionJoined.jobDefinitions.find(_.order == originalJob.order)
         updatedJobOption.map(updatedJob =>
@@ -105,7 +109,9 @@ class WorkflowValidationServiceImpl @Inject()(override val workflowRepository: W
             originalJob.name == updatedJob.name,
             originalJob.jobType == updatedJob.jobType,
             originalJob.order == updatedJob.order,
-            originalJob.jobParameters == originalJob.jobParameters
+            originalJob.jobParameters.variables.equals(updatedJob.jobParameters.variables),
+            areMapsEqual(originalJob.jobParameters.maps, updatedJob.jobParameters.maps),
+            areMapsOfMapsEqual(originalJob.jobParameters.keyValuePairs, updatedJob.jobParameters.keyValuePairs)
           )
         ).getOrElse(Seq(false))
       })
@@ -116,5 +122,23 @@ class WorkflowValidationServiceImpl @Inject()(override val workflowRepository: W
     } else {
       Future.successful(Seq())
     }
+  }
+
+  private def areMapsEqual(leftMap: Map[String, List[String]], rightMap: Map[String, List[String]]): Boolean = {
+    leftMap.keys.equals(rightMap.keys) && !leftMap.map {
+      case (keyLeft: String, valueLeft: List[String]) =>
+        rightMap.find(_._1 == keyLeft).exists {
+          case (_: String, valueRight: List[String]) => valueLeft.equals(valueRight)
+        }
+    }.toSeq.contains(false)
+  }
+
+  private def areMapsOfMapsEqual(leftMap: Map[String, SortedMap[String, String]], rightMap: Map[String, SortedMap[String, String]]): Boolean = {
+    leftMap.keys.equals(rightMap.keys) && !leftMap.map {
+      case (keyLeft: String, valueLeft: SortedMap[String, String]) =>
+        rightMap.find(_._1 == keyLeft).exists {
+          case (_: String, valueRight: SortedMap[String, String]) => valueLeft.equals(valueRight)
+        }
+    }.toSeq.contains(false)
   }
 }
