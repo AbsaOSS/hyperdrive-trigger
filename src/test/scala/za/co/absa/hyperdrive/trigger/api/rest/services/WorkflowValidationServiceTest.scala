@@ -21,9 +21,10 @@ import org.mockito.ArgumentMatchers.{eq => eqTo, _}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, Matchers}
-import za.co.absa.hyperdrive.trigger.models.errors.ValidationError
+import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, ValidationError}
 import za.co.absa.hyperdrive.trigger.persistance.WorkflowRepository
 
+import scala.collection.immutable.SortedMap
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future}
@@ -95,13 +96,12 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
   "validateOnUpdate" should "return None if entity is valid" in {
     // given
     val underTest = new WorkflowValidationServiceImpl(workflowRepository)
-    val originalJoined = WorkflowFixture.createWorkflowJoined()
-    val workflow = originalJoined.copy(name = "diff")
-    when(workflowRepository.existsOtherWorkflow(eqTo(workflow.name), eqTo(workflow.id))(any[ExecutionContext])).thenReturn(Future{false})
-    when(workflowRepository.getWorkflow(eqTo(workflow.id))(any[ExecutionContext])).thenReturn(Future{originalJoined})
+    val originalWorkflow = WorkflowFixture.createWorkflowJoined()
+    val updatedWorkflow = originalWorkflow.copy(name = "diff")
+    when(workflowRepository.existsOtherWorkflow(eqTo(updatedWorkflow.name), eqTo(updatedWorkflow.id))(any[ExecutionContext])).thenReturn(Future{false})
 
     // when
-    val result = Await.result(underTest.validateOnUpdate(workflow, originalJoined), Duration(120, TimeUnit.SECONDS))
+    val result = Await.result(underTest.validateOnUpdate(originalWorkflow, updatedWorkflow), Duration(120, TimeUnit.SECONDS))
 
     // then
     result.isEmpty shouldBe true
@@ -110,12 +110,12 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
   it should "fail if the workflow name already exists in another entity" in {
     // given
     val underTest = new WorkflowValidationServiceImpl(workflowRepository)
-    val originalJoined = WorkflowFixture.createWorkflowJoined()
-    val workflow = originalJoined.copy()
-    when(workflowRepository.existsOtherWorkflow(eqTo(workflow.name), eqTo(workflow.id))(any[ExecutionContext])).thenReturn(Future{true})
+    val originalWorkflow = WorkflowFixture.createWorkflowJoined()
+    val updatedWorkflow = originalWorkflow.copy(name = "differentName")
+    when(workflowRepository.existsOtherWorkflow(eqTo(updatedWorkflow.name), eqTo(updatedWorkflow.id))(any[ExecutionContext])).thenReturn(Future{true})
 
     // when
-    val result = Await.result(underTest.validateOnUpdate(workflow, originalJoined), Duration(120, TimeUnit.SECONDS))
+    val result = Await.result(underTest.validateOnUpdate(originalWorkflow, updatedWorkflow), Duration(120, TimeUnit.SECONDS))
 
     // then
     result.nonEmpty shouldBe true
@@ -125,17 +125,86 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
   it should "fail if the project name is empty" in {
     // given
     val underTest = new WorkflowValidationServiceImpl(workflowRepository)
-    val workflow = WorkflowFixture.createWorkflowJoined()
-    val invalidWorkflow = workflow.copy(project = "")
-    when(workflowRepository.existsOtherWorkflow(eqTo(invalidWorkflow.name), eqTo(invalidWorkflow.id))(any[ExecutionContext])).thenReturn(Future{false})
-    when(workflowRepository.getWorkflow(eqTo(workflow.id))(any[ExecutionContext])).thenReturn(Future{workflow})
+    val originalWorkflow = WorkflowFixture.createWorkflowJoined()
+    val updatedWorkflow = originalWorkflow.copy(project = "")
+    when(workflowRepository.existsOtherWorkflow(eqTo(updatedWorkflow.name), eqTo(updatedWorkflow.id))(any[ExecutionContext])).thenReturn(Future{false})
 
     // when
-    val result = Await.result(underTest.validateOnUpdate(invalidWorkflow, workflow), Duration(120, TimeUnit.SECONDS))
+    val result = Await.result(underTest.validateOnUpdate(originalWorkflow, updatedWorkflow), Duration(120, TimeUnit.SECONDS))
 
     // then
     result.nonEmpty shouldBe true
     result should contain theSameElementsInOrderAs Seq(ValidationError("Project must not be empty"))
   }
 
+  "areMapsEqual" should "return true if maps contain same elements otherwise false" in {
+    // given
+    val mapEmpty = Map.empty[String, List[String]]
+    val mapOne = Map("aa" -> List("11", "22"), "bb" -> List("33"))
+    val mapTwo = Map("bb" -> List("33"), "aa" -> List("11", "22"))
+    val mapThree = Map("cc" -> List("44", "55"))
+
+    val underTest = new WorkflowValidationServiceImpl(workflowRepository)
+
+    // then
+    underTest.areMapsEqual(mapEmpty, mapEmpty) shouldBe true
+    underTest.areMapsEqual(mapEmpty, mapOne) shouldBe false
+    underTest.areMapsEqual(mapOne, mapEmpty) shouldBe false
+    underTest.areMapsEqual(mapOne, mapThree) shouldBe false
+    underTest.areMapsEqual(mapThree, mapOne) shouldBe false
+    underTest.areMapsEqual(mapOne, mapOne) shouldBe true
+    underTest.areMapsEqual(mapOne, mapTwo) shouldBe true
+    underTest.areMapsEqual(mapTwo, mapOne) shouldBe true
+    underTest.areMapsEqual(mapThree, mapThree) shouldBe true
+  }
+
+  "areMapsOfMapsEqual" should "return true if maps contain same elements otherwise false" in {
+    // given
+    val mapEmpty = Map.empty[String, SortedMap[String, String]]
+    val mapOne = Map("aa" -> SortedMap("11" -> "22", "33" -> "44"), "bb" -> SortedMap("55" -> "66"))
+    val mapTwo = Map("bb" -> SortedMap("55" -> "66"), "aa" -> SortedMap("11" -> "22", "33" -> "44"))
+    val mapThree = Map("cc" -> SortedMap("77" -> "88"))
+
+    val underTest = new WorkflowValidationServiceImpl(workflowRepository)
+
+    // then
+    underTest.areMapsOfMapsEqual(mapEmpty, mapEmpty) shouldBe true
+    underTest.areMapsOfMapsEqual(mapEmpty, mapOne) shouldBe false
+    underTest.areMapsOfMapsEqual(mapOne, mapEmpty) shouldBe false
+    underTest.areMapsOfMapsEqual(mapOne, mapThree) shouldBe false
+    underTest.areMapsOfMapsEqual(mapThree, mapOne) shouldBe false
+    underTest.areMapsOfMapsEqual(mapOne, mapOne) shouldBe true
+    underTest.areMapsOfMapsEqual(mapOne, mapTwo) shouldBe true
+    underTest.areMapsOfMapsEqual(mapTwo, mapOne) shouldBe true
+    underTest.areMapsOfMapsEqual(mapThree, mapThree) shouldBe true
+  }
+
+  "validateWorkflowData" should "return empty seq when workflows are different otherwise seq with error" in {
+    // given
+    val originalWorkflow = WorkflowFixture.createWorkflowJoined();
+    val changeInDetails = originalWorkflow.copy(name = "differentName")
+    val changeInSensor = originalWorkflow.copy(
+      sensor = originalWorkflow.sensor.copy(
+        properties = originalWorkflow.sensor.properties.copy(matchProperties = Map("diffKey" -> "diffValue"))
+      )
+    )
+    val changeInJobs = originalWorkflow.copy(
+      dagDefinitionJoined = originalWorkflow.dagDefinitionJoined.copy(
+        jobDefinitions = Seq(
+          originalWorkflow.dagDefinitionJoined.jobDefinitions.head,
+          originalWorkflow.dagDefinitionJoined.jobDefinitions.last.copy(
+            name = "differentName"
+          )
+        )
+      )
+    )
+
+    val underTest = new WorkflowValidationServiceImpl(workflowRepository)
+
+    // then
+    Await.result(underTest.validateWorkflowData(originalWorkflow, originalWorkflow.copy()), Duration(120, TimeUnit.SECONDS)) shouldBe Seq(ValidationError("Nothing to update"))
+    Await.result(underTest.validateWorkflowData(originalWorkflow, changeInDetails), Duration(120, TimeUnit.SECONDS)) shouldBe Seq.empty[ApiError]
+    Await.result(underTest.validateWorkflowData(originalWorkflow, changeInSensor), Duration(120, TimeUnit.SECONDS)) shouldBe Seq.empty[ApiError]
+    Await.result(underTest.validateWorkflowData(originalWorkflow, changeInJobs), Duration(120, TimeUnit.SECONDS)) shouldBe Seq.empty[ApiError]
+  }
 }

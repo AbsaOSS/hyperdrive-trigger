@@ -85,7 +85,7 @@ class WorkflowValidationServiceImpl @Inject()(override val workflowRepository: W
     Future.successful(projectValidation.toSeq)
   }
 
-  private def validateWorkflowData(originalWorkflow: WorkflowJoined, updatedWorkflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Seq[ApiError]] = {
+  private[services] def validateWorkflowData(originalWorkflow: WorkflowJoined, updatedWorkflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Seq[ApiError]] = {
     val workflowDetailsVerification = Seq(
       originalWorkflow.name == updatedWorkflow.name,
       originalWorkflow.isActive == updatedWorkflow.isActive,
@@ -124,7 +124,7 @@ class WorkflowValidationServiceImpl @Inject()(override val workflowRepository: W
     }
   }
 
-  private def areMapsEqual(leftMap: Map[String, List[String]], rightMap: Map[String, List[String]]): Boolean = {
+  private[services] def areMapsEqual(leftMap: Map[String, List[String]], rightMap: Map[String, List[String]]): Boolean = {
     leftMap.keys.equals(rightMap.keys) && !leftMap.map {
       case (keyLeft: String, valueLeft: List[String]) =>
         rightMap.find(_._1 == keyLeft).exists {
@@ -133,7 +133,7 @@ class WorkflowValidationServiceImpl @Inject()(override val workflowRepository: W
     }.toSeq.contains(false)
   }
 
-  private def areMapsOfMapsEqual(leftMap: Map[String, SortedMap[String, String]], rightMap: Map[String, SortedMap[String, String]]): Boolean = {
+  private[services] def areMapsOfMapsEqual(leftMap: Map[String, SortedMap[String, String]], rightMap: Map[String, SortedMap[String, String]]): Boolean = {
     leftMap.keys.equals(rightMap.keys) && !leftMap.map {
       case (keyLeft: String, valueLeft: SortedMap[String, String]) =>
         rightMap.find(_._1 == keyLeft).exists {
