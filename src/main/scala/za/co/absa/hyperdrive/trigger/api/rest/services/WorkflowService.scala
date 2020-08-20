@@ -82,31 +82,31 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
 
   override def updateWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], WorkflowJoined]] = {
     val userName = getUserName.apply();
-    for {
-      validationErrors <- workflowValidationService.validateOnUpdate(workflow)
-      result <- doIf(validationErrors, () => {
-        getWorkflow(workflow.id).flatMap { originalWorkflow =>
-          val updatedWorkflow = workflow.copy(
-            id = originalWorkflow.id,
-            created = originalWorkflow.created,
-            updated = originalWorkflow.updated,
-            sensor = workflow.sensor.copy(
-              id = originalWorkflow.sensor.id,
-              workflowId = originalWorkflow.id,
-              properties = workflow.sensor.properties.copy(
-                sensorId = originalWorkflow.sensor.properties.sensorId
-              )
-            ),
-            dagDefinitionJoined = workflow.dagDefinitionJoined.copy(
-              id = originalWorkflow.dagDefinitionJoined.id,
-              workflowId = originalWorkflow.id
-            )
-          )
 
-          workflowRepository.updateWorkflow(updatedWorkflow, userName).flatMap {
-            case Left(error) => Future.successful(Left(error))
-            case Right(_) => getWorkflow(workflow.id).map(Right(_))
-          }
+    for {
+      originalWorkflow <- getWorkflow(workflow.id)
+      validationErrors <- workflowValidationService.validateOnUpdate(originalWorkflow, workflow)
+      result <- doIf(validationErrors, () => {
+        val updatedWorkflow = workflow.copy(
+          id = originalWorkflow.id,
+          created = originalWorkflow.created,
+          updated = originalWorkflow.updated,
+          sensor = workflow.sensor.copy(
+            id = originalWorkflow.sensor.id,
+            workflowId = originalWorkflow.id,
+            properties = workflow.sensor.properties.copy(
+              sensorId = originalWorkflow.sensor.properties.sensorId
+            )
+          ),
+          dagDefinitionJoined = workflow.dagDefinitionJoined.copy(
+            id = originalWorkflow.dagDefinitionJoined.id,
+            workflowId = originalWorkflow.id
+          )
+        )
+
+        workflowRepository.updateWorkflow(updatedWorkflow, userName).flatMap {
+          case Left(error) => Future.successful(Left(error))
+          case Right(_) => getWorkflow(workflow.id).map(Right(_))
         }
       })
     } yield {
@@ -136,7 +136,7 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
   }
 
   override def runWorkflow(workflowId: Long)(implicit ec: ExecutionContext): Future[Boolean] = {
-    workflowRepository.getWorkflow(workflowId).map( joinedWorkflow =>
+    workflowRepository.getWorkflow(workflowId).map(joinedWorkflow =>
       dagInstanceRepository.insertJoinedDagInstance(joinedWorkflow.dagDefinitionJoined.toDagInstanceJoined())
     ).map(_ => true)
   }
