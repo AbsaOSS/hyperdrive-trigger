@@ -50,7 +50,7 @@
       <clr-icon shape="check"></clr-icon>
       Create new workflow
     </button>
-    <button type="submit" class="btn btn-sm btn-secondary" *ngIf="mode == workflowModes.EDIT">
+    <button type="submit" class="btn btn-sm btn-secondary" [disabled]="!hasWorkflowChanged()" *ngIf="mode == workflowModes.EDIT">
       <clr-icon shape="check"></clr-icon>
       Update workflow
     </button>

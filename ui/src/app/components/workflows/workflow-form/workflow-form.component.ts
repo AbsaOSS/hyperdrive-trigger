@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { Component, EventEmitter, Input, OnDestroy, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { WorkflowEntryModel } from '../../../models/workflowEntry.model';
 import { JobEntryModel } from '../../../models/jobEntry.model';
 import { WorkflowFormPartsModel } from '../../../models/workflowFormParts.model';
@@ -36,20 +36,18 @@ import { ConfirmationDialogService } from '../../../services/confirmation-dialog
 import { PreviousRouteService } from '../../../services/previousRoute/previous-route.service';
 import { Router } from '@angular/router';
 import cloneDeep from 'lodash/cloneDeep';
+import isEqual from 'lodash/isEqual';
+import { WorkflowFormDataModel } from '../../../models/workflowFormData.model';
 
 @Component({
   selector: 'app-workflow-form',
   templateUrl: './workflow-form.component.html',
   styleUrls: ['./workflow-form.component.scss'],
 })
-export class WorkflowFormComponent implements OnDestroy {
+export class WorkflowFormComponent implements OnDestroy, OnInit {
   @ViewChild('workflowForm') workflowForm;
   @Output() jobsUnfold: EventEmitter<any> = new EventEmitter();
-  @Input() workflowData: {
-    details: WorkflowEntryModel[];
-    sensor: WorkflowEntryModel[];
-    jobs: JobEntryModel[];
-  };
+  @Input() workflowData: WorkflowFormDataModel;
   @Input() workflowFormParts: WorkflowFormPartsModel;
   @Input() id: number;
   @Input() mode: string;
@@ -68,12 +66,48 @@ export class WorkflowFormComponent implements OnDestroy {
   workflowSubscription: Subscription;
   confirmationDialogServiceSubscription: Subscription = null;
 
+  initialWorkflowData: WorkflowFormDataModel;
+
   constructor(
     private store: Store<AppState>,
     private confirmationDialogService: ConfirmationDialogService,
     private previousRouteService: PreviousRouteService,
     private router: Router,
   ) {}
+
+  ngOnInit() {
+    this.initialWorkflowData = this.workflowData;
+  }
+
+  hasWorkflowChanged(): boolean {
+    return !(
+      this.areWorkflowEntriesEqual(this.workflowData.details, this.initialWorkflowData.details) &&
+      this.areWorkflowEntriesEqual(this.workflowData.sensor, this.initialWorkflowData.sensor) &&
+      this.areJobsEqual(this.workflowData.jobs, this.initialWorkflowData.jobs)
+    );
+  }
+
+  areWorkflowEntriesEqual(leftEntries: WorkflowEntryModel[], rightEntries: WorkflowEntryModel[]): boolean {
+    function compareEntries(left: WorkflowEntryModel[], right: WorkflowEntryModel[]): boolean[] {
+      return left.map((leftEntry) =>
+        right.some((rightEntry) => isEqual(rightEntry.value, leftEntry.value) && rightEntry.property == leftEntry.property),
+      );
+    }
+
+    return [...compareEntries(leftEntries, rightEntries), ...compareEntries(rightEntries, leftEntries)].every((entry) => entry);
+  }
+
+  areJobsEqual(leftJobEntry: JobEntryModel[], rightJobEntry: JobEntryModel[]): boolean {
+    if (leftJobEntry.length != rightJobEntry.length) {
+      return false;
+    } else {
+      const leftJobEntrySorted = leftJobEntry.slice().sort((left, right) => left.order - right.order);
+      const rightJobEntrySorted = rightJobEntry.slice().sort((left, right) => left.order - right.order);
+      return leftJobEntrySorted
+        .map((job, index) => this.areWorkflowEntriesEqual(job.entries, rightJobEntrySorted[index].entries))
+        .every((entry) => entry);
+    }
+  }
 
   toggleDetailsAccordion() {
     this.isDetailsAccordionHidden = !this.isDetailsAccordionHidden;
