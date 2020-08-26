@@ -42,13 +42,6 @@ export class WorkflowsComponent implements AfterViewInit, OnDestroy {
     this.workflowsSubscription = this.store.select(selectWorkflowState).subscribe((state) => {
       this.loading = state.loading;
       this.projects = state.projects;
-      // this.projects = [...state.projects].sort((projectLeft, projectRight) => projectLeft.name.localeCompare(projectRight.name));
-      // this.projects = [...this.projects].map((project: ProjectModel) => {
-      //   const workflowsSorted = [...project.workflows].sort((workflowLeft, workflowRight) =>
-      //     workflowLeft.name.localeCompare(workflowRight.name),
-      //   );
-      //   return { ...project, workflows: workflowsSorted };
-      // });
     });
   }
 

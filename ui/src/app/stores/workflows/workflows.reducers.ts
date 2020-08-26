@@ -107,18 +107,23 @@ function removeJob(jobId: string, jobsOriginal: JobEntryModel[]): JobEntryModel[
   });
 }
 
+function sortProjectsAndWorkflows(projects: ProjectModel[]): ProjectModel[] {
+  let sortedProjects = projects.sort((projectLeft, projectRight) => projectLeft.name.localeCompare(projectRight.name));
+  sortedProjects = [...sortedProjects].map((project: ProjectModel) => {
+    const sortedWorkflows = [...project.workflows].sort((workflowLeft, workflowRight) =>
+      workflowLeft.name.localeCompare(workflowRight.name));
+    return { ... project, workflows: sortedWorkflows };
+  });
+  return sortedProjects;
+}
+
 export function workflowsReducer(state: State = initialState, action: WorkflowsActions.WorkflowsActions) {
   switch (action.type) {
     case WorkflowsActions.INITIALIZE_WORKFLOWS:
       return { ...state, loading: true };
     case WorkflowsActions.INITIALIZE_WORKFLOWS_SUCCESS:
-      let sortedProjects = [...action.payload.projects]
-        .sort((projectLeft, projectRight) => projectLeft.name.localeCompare(projectRight.name));
-      sortedProjects = [...sortedProjects].map((project: ProjectModel) => {
-        const workflowSorted = [...project.workflows]
-          .sort((workflowLeft, workflowRight) => workflowLeft.name.localeCompare(workflowRight.name));
-        return { ...project, workflows: workflowSorted };
-        });
+      let sortedProjects = [...action.payload.projects];
+      sortedProjects = sortProjectsAndWorkflows(sortedProjects);
       return {
         ...state,
         loading: false,
@@ -306,15 +311,10 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         );
       });
       newProjects = newProjects.filter((project) => project.workflows.length !== 0);
-      let sortedNewProjects = [...newProjects].sort((projectLeft, projectRight) => projectLeft.name.localeCompare(projectRight.name));
-      sortedNewProjects = [...sortedNewProjects].map((project: ProjectModel) => {
-        const workflowSorted = [...project.workflows]
-            .sort((workflowLeft, workflowRight) => workflowLeft.name.localeCompare(workflowRight.name));
-        return { ...project, workflows: workflowSorted };
-      });
+      newProjects = sortProjectsAndWorkflows([...newProjects]);
       return {
         ...state,
-        projects: [...sortedNewProjects],
+        projects: [...newProjects],
         workflowAction: {
           ...state.workflowAction,
         },
@@ -346,13 +346,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
           }),
         );
       });
-      let sortedUpdatedProjects = [...updatedProjects]
-        .sort((projectLeft, projectRight) => projectLeft.name.localeCompare(projectRight.name));
-      sortedUpdatedProjects = [...sortedUpdatedProjects].map((project: ProjectModel) => {
-        const workflowSorted = [...project.workflows]
-            .sort((workflowLeft, workflowRight) => workflowLeft.name.localeCompare(workflowRight.name));
-        return { ...project, workflows: workflowSorted };
-      });
+      const sortedUpdatedProjects = sortProjectsAndWorkflows([...updatedProjects]);
       return {
         ...state,
         projects: [...sortedUpdatedProjects],
@@ -387,12 +381,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
       } else {
         projects = [...state.projects, ProjectModelFactory.create(action.payload.project, [action.payload])];
       }
-      projects = [...projects].sort((projectLeft, projectRight) => projectLeft.name.localeCompare(projectRight.name));
-      projects = [...projects].map((project: ProjectModel) => {
-        const workflowSorted = [...project.workflows]
-          .sort((workflowLeft, workflowRight) => workflowLeft.name.localeCompare(workflowRight.name));
-        return { ...project, workflows: workflowSorted };
-    });
+      projects = sortProjectsAndWorkflows([...projects]);
       return {
         ...state,
         projects: [...projects],
@@ -435,12 +424,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         updatedProjects = [...projectsWithoutWorkflow, ProjectModelFactory.create(action.payload.project, [action.payload])];
       }
       updatedProjects = updatedProjects.filter((project) => project.workflows.length !== 0);
-      let sortUpdatedProjects = [...updatedProjects].sort((projectLeft, projectRight) => projectLeft.name.localeCompare(projectRight.name));
-      sortUpdatedProjects = [...sortUpdatedProjects].map((project: ProjectModel) => {
-        const workflowSorted = [...project.workflows]
-          .sort((workflowLeft, workflowRight) => workflowLeft.name.localeCompare(workflowRight.name));
-        return { ...project, workflows: workflowSorted };
-    });
+      const sortUpdatedProjects = sortProjectsAndWorkflows([...updatedProjects]);
       return {
         ...state,
         projects: [...sortUpdatedProjects],
