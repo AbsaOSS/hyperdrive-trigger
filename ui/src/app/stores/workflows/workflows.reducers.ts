@@ -111,8 +111,9 @@ function sortProjectsAndWorkflows(projects: ProjectModel[]): ProjectModel[] {
   let sortedProjects = projects.sort((projectLeft, projectRight) => projectLeft.name.localeCompare(projectRight.name));
   sortedProjects = [...sortedProjects].map((project: ProjectModel) => {
     const sortedWorkflows = [...project.workflows].sort((workflowLeft, workflowRight) =>
-      workflowLeft.name.localeCompare(workflowRight.name));
-    return { ... project, workflows: sortedWorkflows };
+      workflowLeft.name.localeCompare(workflowRight.name),
+    );
+    return { ...project, workflows: sortedWorkflows };
   });
   return sortedProjects;
 }
