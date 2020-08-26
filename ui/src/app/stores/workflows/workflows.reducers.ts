@@ -34,6 +34,7 @@ export interface State {
     workflowFormParts: WorkflowFormPartsModel;
     backendValidationErrors: string[];
     workflowFormData: WorkflowFormDataModel;
+    workflowPath: string;
   };
   workflowsSort: SortAttributesModel;
   workflowsFilters: any[];
@@ -70,6 +71,7 @@ const initialState: State = {
       sensor: [],
       jobs: [],
     },
+    workflowPath: undefined,
   },
   workflowsSort: undefined,
   workflowsFilters: undefined,
@@ -541,6 +543,40 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         jobsForRun: {
           ...initialState.jobsForRun,
           isOpen: false,
+        },
+      };
+    case WorkflowsActions.EXPORT_WORKFLOW:
+      return {
+        ...state,
+        loading: true,
+      };
+    case WorkflowsActions.EXPORT_WORKFLOW_DONE:
+      return {
+        ...state,
+        loading: false,
+      };
+    case WorkflowsActions.SET_WORKFLOW_PATH:
+      return {
+        ...state,
+        workflowAction: {
+          ...state.workflowAction,
+          workflowPath: action.payload,
+        },
+      };
+    case WorkflowsActions.IMPORT_WORKFLOW:
+      return {
+        ...state,
+        workflowAction: {
+          ...state.workflowAction,
+          loading: true,
+        },
+      };
+    case WorkflowsActions.IMPORT_WORKFLOW_DONE:
+      return {
+        ...state,
+        workflowAction: {
+          ...state.workflowAction,
+          loading: false,
         },
       };
     default:

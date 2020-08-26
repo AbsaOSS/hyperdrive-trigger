@@ -14,7 +14,7 @@
  */
 
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams, HttpResponse } from '@angular/common/http';
 import { api } from '../../constants/api.constants';
 import { catchError, map } from 'rxjs/operators';
 import { ProjectModel } from '../../models/project.model';
@@ -58,6 +58,27 @@ export class WorkflowService {
 
   switchWorkflowActiveState(id: number): Observable<boolean> {
     return this.httpClient.post<boolean>(api.SWITCH_WORKFLOW_ACTIVE_STATE.replace('{id}', id.toString()), { observe: 'response' });
+  }
+
+  exportWorkflow(id: number): Observable<HttpResponse<Blob>> {
+    const params = new HttpParams().set('id', id.toString());
+
+    return this.httpClient
+      .get(api.EXPORT_WORKFLOW, { params: params, observe: 'response', responseType: 'blob' })
+      .pipe(map((response: HttpResponse<Blob>) => response));
+  }
+
+  importWorkflow(pathToWorkflow: string): Observable<WorkflowJoinedModel> {
+    const params = new HttpParams().set('id', (52).toString());
+
+    return this.httpClient
+      .get<WorkflowJoinedModel>(api.GET_WORKFLOW, { params: params, observe: 'response' })
+      .pipe(map((response) => response.body));
+    // const params = new HttpParams().set('id', id.toString());
+    //
+    // return this.httpClient
+    //   .get(api.EXPORT_WORKFLOW, { params: params, observe: 'response', responseType: 'blob' })
+    //   .pipe(map((response: HttpResponse<Blob>) => response));
   }
 
   createWorkflow(workflowRequest: WorkflowJoinedModel): Observable<WorkflowJoinedModel> {

@@ -19,7 +19,13 @@ import { AppState, selectWorkflowState } from '../../../stores/app.reducers';
 import { WorkflowModel } from '../../../models/workflow.model';
 import { Store } from '@ngrx/store';
 import { absoluteRoutes } from '../../../constants/routes.constants';
-import { LoadJobsForRun, SetWorkflowsFilters, SetWorkflowsSort } from '../../../stores/workflows/workflows.actions';
+import {
+  ExportWorkflow, ImportWorkflow,
+  ImportWorkflowDone,
+  LoadJobsForRun, SetWorkflowPath,
+  SetWorkflowsFilters,
+  SetWorkflowsSort
+} from '../../../stores/workflows/workflows.actions';
 import { ConfirmationDialogTypes } from '../../../constants/confirmationDialogTypes.constants';
 import { DeleteWorkflow, SwitchWorkflowActiveState } from '../../../stores/workflows/workflows.actions';
 import { ConfirmationDialogService } from '../../../services/confirmation-dialog/confirmation-dialog.service';
@@ -51,6 +57,9 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
   filters: any[] = undefined;
   ignoreRefresh = false;
 
+  isWorkflowImportOpen = false;
+  workflowFilePath = null;
+
   constructor(private store: Store<AppState>, private confirmationDialogService: ConfirmationDialogService, private router: Router) {
     this.routerSubscription = router.events.pipe(filter((e) => e instanceof ResolveEnd)).subscribe((e: ResolveEnd) => {
       this.ignoreRefresh = e.state.root.component !== WorkflowsHomeComponent;
@@ -64,6 +73,27 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
       this.filters = state.workflowsFilters;
     });
   }
+
+  exportWorkflow(id: number) {
+    this.store.dispatch(new ExportWorkflow(id));
+  }
+
+  // importWorkflow() {
+  //   this.isWorkflowImportOpen = true;
+  // }
+  //
+  // closeWorkflowImport(isSubmit: boolean) {
+    // console.log('onSubmit', isSubmit);
+    // if (this.isWorkflowImportOpen) {
+    //   if (isSubmit) {
+    //     console.log(this.workflowFilePath);
+    //     this.store.dispatch(new SetWorkflowPath(this.workflowFilePath));
+    //     this.router.navigate([absoluteRoutes.IMPORT_WORKFLOW]);
+    //   }
+    //   this.isWorkflowImportOpen = false;
+    //   this.workflowFilePath = null;
+    // }
+  // }
 
   deleteWorkflow(id: number) {
     this.confirmationDialogServiceSubscription = this.confirmationDialogService

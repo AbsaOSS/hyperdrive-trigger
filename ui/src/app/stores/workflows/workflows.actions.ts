@@ -79,6 +79,13 @@ export const LOAD_WORKFLOWS_FROM_HISTORY = 'LOAD_WORKFLOWS_FROM_HISTORY';
 export const LOAD_WORKFLOWS_FROM_HISTORY_SUCCESS = 'LOAD_WORKFLOWS_FROM_HISTORY_SUCCESS';
 export const LOAD_WORKFLOWS_FROM_HISTORY_FAILURE = 'LOAD_WORKFLOWS_FROM_HISTORY_FAILURE';
 
+export const EXPORT_WORKFLOW = 'EXPORT_WORKFLOW';
+export const EXPORT_WORKFLOW_DONE = 'EXPORT_WORKFLOW_DONE';
+
+export const SET_WORKFLOW_PATH = 'SET_WORKFLOW_PATH';
+export const IMPORT_WORKFLOW = 'IMPORT_WORKFLOW';
+export const IMPORT_WORKFLOW_DONE = 'IMPORT_WORKFLOW_DONE';
+
 export class InitializeWorkflows implements Action {
   readonly type = INITIALIZE_WORKFLOWS;
 }
@@ -291,6 +298,28 @@ export class LoadWorkflowsFromHistoryFailure implements Action {
   readonly type = LOAD_WORKFLOWS_FROM_HISTORY_FAILURE;
 }
 
+export class ExportWorkflow implements Action {
+  readonly type = EXPORT_WORKFLOW;
+  constructor(public payload: number) {}
+}
+
+export class ExportWorkflowDone implements Action {
+  readonly type = EXPORT_WORKFLOW_DONE;
+}
+
+export class SetWorkflowPath implements Action {
+  readonly type = SET_WORKFLOW_PATH;
+  constructor(public payload: string) {}
+}
+
+export class ImportWorkflow implements Action {
+  readonly type = IMPORT_WORKFLOW;
+}
+
+export class ImportWorkflowDone implements Action {
+  readonly type = IMPORT_WORKFLOW_DONE;
+}
+
 export type WorkflowsActions =
   | InitializeWorkflows
   | InitializeWorkflowsSuccess
@@ -328,10 +357,14 @@ export type WorkflowsActions =
   | LoadJobsForRunFailure
   | RunJobs
   | RunJobsCancel
-  | SetWorkflowsFilters
   | LoadHistoryForWorkflow
   | LoadHistoryForWorkflowSuccess
   | LoadHistoryForWorkflowFailure
   | LoadWorkflowsFromHistory
   | LoadWorkflowsFromHistorySuccess
-  | LoadWorkflowsFromHistoryFailure;
+  | LoadWorkflowsFromHistoryFailure
+  | ExportWorkflow
+  | ExportWorkflowDone
+  | SetWorkflowPath
+  | ImportWorkflow
+  | ImportWorkflowDone;
