@@ -116,14 +116,13 @@ describe('WorkflowsReducers', () => {
 
   describe('sortProjectsAndWorkflows', () => {
     it('should sort projects and workflows', () => {
-
       const sortedProjects = [
         ProjectModelFactory.create('projectName1', [
           WorkflowModelFactory.create('workflowName1', true, 'projectName1', undefined, undefined, 1),
           WorkflowModelFactory.create('workflowName2', true, 'projectName1', undefined, undefined, 2),
           WorkflowModelFactory.create('workflowName3', true, 'projectName1', undefined, undefined, 3),
           WorkflowModelFactory.create('workflowName4', true, 'projectName1', undefined, undefined, 4),
-          WorkflowModelFactory.create('workflowName5', true, 'projectName1', undefined, undefined, 5)
+          WorkflowModelFactory.create('workflowName5', true, 'projectName1', undefined, undefined, 5),
         ]),
         ProjectModelFactory.create('projectName2', [
           WorkflowModelFactory.create('workflowName6', true, 'projectName2', undefined, undefined, 6),
@@ -141,7 +140,6 @@ describe('WorkflowsReducers', () => {
     });
 
     it('should fail sort projects and workflows when length is not the same ', () => {
-
       const sortedProjects = [
         ProjectModelFactory.create('', []),
         ProjectModelFactory.create('projectName1', [
@@ -149,7 +147,7 @@ describe('WorkflowsReducers', () => {
           WorkflowModelFactory.create('workflowName2', true, 'projectName1', undefined, undefined, 2),
           WorkflowModelFactory.create('workflowName3', true, 'projectName1', undefined, undefined, 3),
           WorkflowModelFactory.create('workflowName4', true, 'projectName1', undefined, undefined, 4),
-          WorkflowModelFactory.create('workflowName5', true, 'projectName1', undefined, undefined, 5)
+          WorkflowModelFactory.create('workflowName5', true, 'projectName1', undefined, undefined, 5),
         ]),
         ProjectModelFactory.create('projectName2', [
           WorkflowModelFactory.create('workflowName6', true, 'projectName2', undefined, undefined, 6),
@@ -167,7 +165,6 @@ describe('WorkflowsReducers', () => {
     });
 
     it('should sort projects and workflows when empty ', () => {
-
       const projects = [
         ProjectModelFactory.create('project2', []),
         ProjectModelFactory.create('project9', []),
