@@ -107,15 +107,28 @@ function removeJob(jobId: string, jobsOriginal: JobEntryModel[]): JobEntryModel[
   });
 }
 
+export function sortProjectsAndWorkflows(projects: ProjectModel[]): ProjectModel[] {
+  let sortedProjects = projects.sort((projectLeft, projectRight) => projectLeft.name.localeCompare(projectRight.name));
+  sortedProjects = [...sortedProjects].map((project: ProjectModel) => {
+    const sortedWorkflows = [...project.workflows].sort((workflowLeft, workflowRight) =>
+      workflowLeft.name.localeCompare(workflowRight.name),
+    );
+    return { ...project, workflows: sortedWorkflows };
+  });
+  return sortedProjects;
+}
+
 export function workflowsReducer(state: State = initialState, action: WorkflowsActions.WorkflowsActions) {
   switch (action.type) {
     case WorkflowsActions.INITIALIZE_WORKFLOWS:
       return { ...state, loading: true };
     case WorkflowsActions.INITIALIZE_WORKFLOWS_SUCCESS:
+      let sortedProjects = [...action.payload.projects];
+      sortedProjects = sortProjectsAndWorkflows(sortedProjects);
       return {
         ...state,
         loading: false,
-        projects: action.payload.projects,
+        projects: sortedProjects,
         workflowAction: {
           ...state.workflowAction,
           workflowFormParts: action.payload.workflowFormParts,
@@ -143,6 +156,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
           loading: false,
         },
       };
+
     case WorkflowsActions.LOAD_WORKFLOW_SUCCESS:
       return {
         ...state,
@@ -174,6 +188,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
           loading: false,
         },
       };
+
     case WorkflowsActions.WORKFLOW_DETAILS_CHANGED:
       const detailsData = [
         ...state.workflowAction.workflowFormData.details.filter((item) => item.property !== action.payload.property),
@@ -215,6 +230,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
           },
         },
       };
+
     case WorkflowsActions.WORKFLOW_ADD_EMPTY_JOB:
       const emptyJobData = JobEntryModelFactory.createWithUuid(action.payload, []);
       const jobs = [...state.workflowAction.workflowFormData.jobs, emptyJobData];
@@ -279,6 +295,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
           },
         },
       };
+
     case WorkflowsActions.DELETE_WORKFLOW:
       return {
         ...state,
@@ -295,6 +312,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         );
       });
       newProjects = newProjects.filter((project) => project.workflows.length !== 0);
+      newProjects = sortProjectsAndWorkflows([...newProjects]);
       return {
         ...state,
         projects: [...newProjects],
@@ -311,6 +329,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         },
         loading: false,
       };
+
     case WorkflowsActions.SWITCH_WORKFLOW_ACTIVE_STATE:
       return {
         ...state,
@@ -328,9 +347,10 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
           }),
         );
       });
+      const sortedUpdatedProjects = sortProjectsAndWorkflows([...updatedProjects]);
       return {
         ...state,
-        projects: [...updatedProjects],
+        projects: [...sortedUpdatedProjects],
         workflowAction: {
           ...state.workflowAction,
         },
@@ -344,6 +364,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         },
         loading: false,
       };
+
     case WorkflowsActions.CREATE_WORKFLOW:
       return {
         ...state,
@@ -361,6 +382,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
       } else {
         projects = [...state.projects, ProjectModelFactory.create(action.payload.project, [action.payload])];
       }
+      projects = sortProjectsAndWorkflows([...projects]);
       return {
         ...state,
         projects: [...projects],
@@ -378,6 +400,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
           loading: false,
         },
       };
+
     case WorkflowsActions.UPDATE_WORKFLOW:
       return {
         ...state,
@@ -402,9 +425,10 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         updatedProjects = [...projectsWithoutWorkflow, ProjectModelFactory.create(action.payload.project, [action.payload])];
       }
       updatedProjects = updatedProjects.filter((project) => project.workflows.length !== 0);
+      const sortUpdatedProjects = sortProjectsAndWorkflows([...updatedProjects]);
       return {
         ...state,
-        projects: [...updatedProjects],
+        projects: [...sortUpdatedProjects],
         workflowAction: {
           ...state.workflowAction,
           loading: false,
@@ -420,6 +444,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
           backendValidationErrors: action.payload,
         },
       };
+
     case WorkflowsActions.REMOVE_BACKEND_VALIDATION_ERROR:
       return {
         ...state,
@@ -431,6 +456,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
           ],
         },
       };
+
     case WorkflowsActions.SET_WORKFLOWS_SORT:
       return {
         ...state,
@@ -441,6 +467,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         ...state,
         workflowsFilters: action.payload,
       };
+
     case WorkflowsActions.LOAD_HISTORY_FOR_WORKFLOW:
       return {
         ...state,
@@ -466,6 +493,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
           loading: false,
         },
       };
+
     case WorkflowsActions.LOAD_WORKFLOWS_FROM_HISTORY:
       return {
         ...state,
@@ -495,6 +523,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
           loading: false,
         },
       };
+
     case WorkflowsActions.LOAD_JOBS_FOR_RUN:
       return {
         ...state,
@@ -526,6 +555,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
           isOpen: true,
         },
       };
+
     case WorkflowsActions.RUN_JOBS:
       return {
         ...state,
@@ -543,6 +573,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
           isOpen: false,
         },
       };
+
     default:
       return state;
   }
