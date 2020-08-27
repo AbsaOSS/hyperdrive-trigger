@@ -14,11 +14,11 @@
  */
 
 import { Component, EventEmitter, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
-import {ActivatedRoute, NavigationEnd, Router} from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { AppState, selectWorkflowState } from '../../../stores/app.reducers';
 import { Subject, Subscription } from 'rxjs';
 import { Action, Store } from '@ngrx/store';
-import {StartWorkflowInitialization, LoadJobsForRun, ImportWorkflow} from '../../../stores/workflows/workflows.actions';
+import { StartWorkflowInitialization, LoadJobsForRun, ImportWorkflow } from '../../../stores/workflows/workflows.actions';
 import { workflowModes } from '../../../models/enums/workflowModes.constants';
 import { absoluteRoutes } from '../../../constants/routes.constants';
 import { PreviousRouteService } from '../../../services/previousRoute/previous-route.service';
@@ -26,7 +26,7 @@ import { ConfirmationDialogService } from '../../../services/confirmation-dialog
 import { WorkflowEntryModel } from '../../../models/workflowEntry.model';
 import { JobEntryModel } from '../../../models/jobEntry.model';
 import { WorkflowFormPartsModel } from '../../../models/workflowFormParts.model';
-import {debounceTime, distinctUntilChanged} from "rxjs/operators";
+import {debounceTime, delay, distinctUntilChanged} from 'rxjs/operators';
 
 @Component({
   selector: 'app-workflow',
@@ -66,10 +66,8 @@ export class WorkflowComponent implements OnInit, OnDestroy {
     private router: Router,
     route: ActivatedRoute,
   ) {
-    console.log('constructor');
-    this.paramsSubscription = route.params.subscribe((parameters) => {
-      console.log('something', parameters.mode);
-      if(parameters.mode == this.workflowModes.IMPORT) {
+    this.paramsSubscription = route.params.pipe(delay(0)).subscribe((parameters) => {
+      if (parameters.mode == this.workflowModes.IMPORT) {
         this.store.dispatch(new ImportWorkflow());
       } else {
         this.store.dispatch(new StartWorkflowInitialization({ id: parameters.id, mode: parameters.mode }));
@@ -93,7 +91,6 @@ export class WorkflowComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    console.log('onDestroy');
     !!this.paramsSubscription && this.paramsSubscription.unsubscribe();
     !!this.workflowSubscription && this.workflowSubscription.unsubscribe();
   }

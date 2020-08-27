@@ -13,28 +13,28 @@
   ~ limitations under the License.
   -->
 
-<!--<clr-modal-->
-<!--  [clrModalOpen]="isWorkflowImportOpen"-->
-<!--  [clrModalClosable]="true"-->
-<!--  [clrModalStaticBackdrop]="false"-->
-<!--  (clrModalOpenChange)="closeWorkflowImport(false)">-->
-<!--  <h3 class="modal-title">Upload workflow</h3>-->
-<!--  <div class="modal-body">-->
-<!--    <form class="clr-form">-->
-<!--      <div class="clr-form-control">-->
-<!--        <div class="clr-control-container">-->
-<!--          <div class="clr-file-wrapper">-->
-<!--            <input name="asd" type="file" id="basic-default" placeholder="Enter value here" [(ngModel)]="workflowFilePath" />-->
-<!--          </div>-->
-<!--        </div>-->
-<!--      </div>-->
-<!--    </form>-->
-<!--  </div>-->
-<!--  <div class="modal-footer">-->
-<!--    <button type="button" class="btn btn-outline" (click)="closeWorkflowImport(false)">Cancel</button>-->
-<!--    <button type="button" class="btn btn-primary" [disabled]="!workflowFilePath" (click)="closeWorkflowImport(true)">Upload</button>-->
-<!--  </div>-->
-<!--</clr-modal>-->
+<clr-modal
+  [clrModalOpen]="isWorkflowImportOpen"
+  [clrModalClosable]="true"
+  [clrModalStaticBackdrop]="false"
+  (clrModalOpenChange)="closeWorkflowImport(false)">
+  <h3 class="modal-title">Upload workflow</h3>
+  <div class="modal-body">
+    <form class="clr-form">
+      <div class="clr-form-control">
+        <div class="clr-control-container">
+          <div class="clr-file-wrapper">
+            <input name="asd" type="file" id="basic-default" placeholder="Enter value here" (change)="setFile($event.target.files)" />
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline" (click)="closeWorkflowImport(false)">Cancel</button>
+    <button type="button" class="btn btn-primary" [disabled]="!workflowFilePath" (click)="closeWorkflowImport(true)">Upload</button>
+  </div>
+</clr-modal>
 
 <clr-datagrid (clrDgRefresh)="onClarityDgRefresh($event)">
 
@@ -44,10 +44,10 @@
         <clr-icon shape="plus"></clr-icon>
         Create new workflow
       </button>
-<!--      <button type="button" class="btn btn-sm btn-secondary" (click)="importWorkflow()">-->
-<!--        <clr-icon shape="import"></clr-icon>-->
-<!--        Import workflow-->
-<!--      </button>-->
+      <button type="button" class="btn btn-sm btn-secondary" (click)="importWorkflow()">
+        <clr-icon shape="import"></clr-icon>
+        Import workflow
+      </button>
       <button type="button" class="btn btn-sm btn-secondary" (click)="clearFilters()">
         <clr-icon shape="trash"></clr-icon>
         Clear filters

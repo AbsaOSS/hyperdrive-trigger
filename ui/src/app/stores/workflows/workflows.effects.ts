@@ -17,7 +17,7 @@ import { Injectable } from '@angular/core';
 import { Actions, Effect, ofType } from '@ngrx/effects';
 import * as WorkflowActions from '../workflows/workflows.actions';
 
-import { catchError, mergeMap, switchMap, withLatestFrom } from 'rxjs/operators';
+import {catchError, delay, mergeMap, switchMap, withLatestFrom} from 'rxjs/operators';
 import { WorkflowService } from '../../services/workflow/workflow.service';
 import { ProjectModel } from '../../models/project.model';
 import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
@@ -28,7 +28,7 @@ import { AppState, selectWorkflowState } from '../app.reducers';
 import { Store } from '@ngrx/store';
 import * as fromWorkflows from './workflows.reducers';
 import { WorkflowDataModel } from '../../models/workflowData.model';
-import {ActivatedRoute, Router} from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { absoluteRoutes } from '../../constants/routes.constants';
 import { ToastrService } from 'ngx-toastr';
 import { texts } from '../../constants/texts.constants';
@@ -38,7 +38,7 @@ import { WorkflowHistoriesForComparisonModel, HistoryModel } from '../../models/
 import { WorkflowHistoryService } from '../../services/workflowHistory/workflow-history.service';
 import { JobService } from '../../services/job/job.service';
 import { JobForRunModel } from '../../models/jobForRun.model';
-import {EXPORT_WORKFLOW_DONE, IMPORT_WORKFLOW, IMPORT_WORKFLOW_DONE} from '../workflows/workflows.actions';
+import { EXPORT_WORKFLOW_DONE, IMPORT_WORKFLOW, IMPORT_WORKFLOW_DONE } from '../workflows/workflows.actions';
 import { EMPTY } from 'rxjs';
 import { HttpResponse } from '@angular/common/http';
 
@@ -462,7 +462,7 @@ export class WorkflowsEffects {
           a.href = URL.createObjectURL(workflowBlobResponse.body);
 
           const contentDisposition = workflowBlobResponse.headers.get('content-disposition') || '';
-          const matches = /filename=([^;]+)/ig.exec(contentDisposition);
+          const matches = /filename=([^;]+)/gi.exec(contentDisposition);
 
           a.download = (matches[1] || `workflow-${action.payload}`).trim();
           a.click();
@@ -500,8 +500,7 @@ export class WorkflowsEffects {
     ofType(WorkflowActions.IMPORT_WORKFLOW),
     withLatestFrom(this.store.select(selectWorkflowState)),
     switchMap(([action, state]: [WorkflowActions.ImportWorkflow, fromWorkflows.State]) => {
-      console.log('workflowImport');
-      if(state.workflowAction.workflowPath) {
+      if (state.workflowAction.workflowPath) {
         return this.workflowService.importWorkflow(state.workflowAction.workflowPath).pipe(
           mergeMap((workflow: WorkflowJoinedModel) => {
             this.toastrService.success(texts.IMPORT_WORKFLOW_SUCCESS_NOTIFICATION);
@@ -521,7 +520,6 @@ export class WorkflowsEffects {
         );
       } else {
         this.toastrService.error(texts.IMPORT_WORKFLOW_FAILURE_NOTIFICATION);
-        console.log('undefined');
         this.router.navigateByUrl(absoluteRoutes.WORKFLOWS);
         return [
           {

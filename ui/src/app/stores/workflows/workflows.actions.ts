@@ -309,7 +309,7 @@ export class ExportWorkflowDone implements Action {
 
 export class SetWorkflowPath implements Action {
   readonly type = SET_WORKFLOW_PATH;
-  constructor(public payload: string) {}
+  constructor(public payload: File) {}
 }
 
 export class ImportWorkflow implements Action {

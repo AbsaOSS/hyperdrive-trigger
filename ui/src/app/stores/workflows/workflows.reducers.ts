@@ -34,7 +34,7 @@ export interface State {
     workflowFormParts: WorkflowFormPartsModel;
     backendValidationErrors: string[];
     workflowFormData: WorkflowFormDataModel;
-    workflowPath: string;
+    workflowPath: File;
   };
   workflowsSort: SortAttributesModel;
   workflowsFilters: any[];
