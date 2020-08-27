@@ -18,7 +18,6 @@ import { WorkflowEntryModelFactory } from '../../models/workflowEntry.model';
 import { JobEntryModelFactory } from '../../models/jobEntry.model';
 import { State, workflowsReducer } from './workflows.reducers';
 import { UuidUtil } from '../../utils/uuid/uuid.util';
-import removeJob from './workflows.reducers'
 
 describe('WorkflowsReducers', () => {
   const uuid0 = UuidUtil.createUUID();
