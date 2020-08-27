@@ -65,19 +65,22 @@ export class WorkflowService {
 
     return this.httpClient
       .get(api.EXPORT_WORKFLOW, { params: params, observe: 'response', responseType: 'blob' })
-      .pipe(map((response: HttpResponse<Blob>) => response));
+      .pipe(
+        map((response: HttpResponse<Blob>) => response),
+        catchError((errorResponse: HttpErrorResponse) => {
+          return throwError(errorResponse.error);
+        }),
+      );
   }
 
   importWorkflow(pathToWorkflow: File): Observable<WorkflowJoinedModel> {
-    let testData:FormData = new FormData();
-    testData.append('file', pathToWorkflow, 'name');
+    let formData: FormData = new FormData();
+    formData.append('file', pathToWorkflow, pathToWorkflow.name);
 
     return this.httpClient
-      .post<WorkflowJoinedModel>(api.IMPORT_WORKFLOW, testData, { observe: 'response' })
+      .post<WorkflowJoinedModel>(api.IMPORT_WORKFLOW, formData, { observe: 'response' })
       .pipe(
-        map((_) => {
-          return _.body;
-        }),
+        map((_) => { return _.body; }),
         catchError((errorResponse: HttpErrorResponse) => {
           return throwError(errorResponse.error);
         }),

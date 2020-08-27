@@ -17,7 +17,7 @@ import { Injectable } from '@angular/core';
 import { Actions, Effect, ofType } from '@ngrx/effects';
 import * as WorkflowActions from '../workflows/workflows.actions';
 
-import {catchError, delay, mergeMap, switchMap, withLatestFrom} from 'rxjs/operators';
+import { catchError, mergeMap, switchMap, withLatestFrom } from 'rxjs/operators';
 import { WorkflowService } from '../../services/workflow/workflow.service';
 import { ProjectModel } from '../../models/project.model';
 import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
@@ -38,7 +38,7 @@ import { WorkflowHistoriesForComparisonModel, HistoryModel } from '../../models/
 import { WorkflowHistoryService } from '../../services/workflowHistory/workflow-history.service';
 import { JobService } from '../../services/job/job.service';
 import { JobForRunModel } from '../../models/jobForRun.model';
-import { EXPORT_WORKFLOW_DONE, IMPORT_WORKFLOW, IMPORT_WORKFLOW_DONE } from '../workflows/workflows.actions';
+import { EXPORT_WORKFLOW_DONE } from '../workflows/workflows.actions';
 import { EMPTY } from 'rxjs';
 import { HttpResponse } from '@angular/common/http';
 
@@ -517,13 +517,22 @@ export class WorkflowsEffects {
               },
             ];
           }),
+          catchError((errorResponse) => {
+            this.toastrService.error(texts.IMPORT_WORKFLOW_FAILURE_NOTIFICATION);
+            this.router.navigateByUrl(absoluteRoutes.WORKFLOWS);
+            return [
+              {
+                type: WorkflowActions.IMPORT_WORKFLOW_FAILURE,
+              },
+            ];
+          }),
         );
       } else {
         this.toastrService.error(texts.IMPORT_WORKFLOW_FAILURE_NOTIFICATION);
         this.router.navigateByUrl(absoluteRoutes.WORKFLOWS);
         return [
           {
-            type: WorkflowActions.IMPORT_WORKFLOW_DONE,
+            type: WorkflowActions.IMPORT_WORKFLOW_FAILURE,
           },
         ];
       }

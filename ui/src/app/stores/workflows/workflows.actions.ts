@@ -82,9 +82,9 @@ export const LOAD_WORKFLOWS_FROM_HISTORY_FAILURE = 'LOAD_WORKFLOWS_FROM_HISTORY_
 export const EXPORT_WORKFLOW = 'EXPORT_WORKFLOW';
 export const EXPORT_WORKFLOW_DONE = 'EXPORT_WORKFLOW_DONE';
 
-export const SET_WORKFLOW_PATH = 'SET_WORKFLOW_PATH';
+export const SET_WORKFLOW_FILE = 'SET_WORKFLOW_FILE';
 export const IMPORT_WORKFLOW = 'IMPORT_WORKFLOW';
-export const IMPORT_WORKFLOW_DONE = 'IMPORT_WORKFLOW_DONE';
+export const IMPORT_WORKFLOW_FAILURE = 'IMPORT_WORKFLOW_FAILURE';
 
 export class InitializeWorkflows implements Action {
   readonly type = INITIALIZE_WORKFLOWS;
@@ -307,8 +307,8 @@ export class ExportWorkflowDone implements Action {
   readonly type = EXPORT_WORKFLOW_DONE;
 }
 
-export class SetWorkflowPath implements Action {
-  readonly type = SET_WORKFLOW_PATH;
+export class SetWorkflowFile implements Action {
+  readonly type = SET_WORKFLOW_FILE;
   constructor(public payload: File) {}
 }
 
@@ -316,8 +316,8 @@ export class ImportWorkflow implements Action {
   readonly type = IMPORT_WORKFLOW;
 }
 
-export class ImportWorkflowDone implements Action {
-  readonly type = IMPORT_WORKFLOW_DONE;
+export class ImportWorkflowFailure implements Action {
+  readonly type = IMPORT_WORKFLOW_FAILURE;
 }
 
 export type WorkflowsActions =
@@ -365,6 +365,6 @@ export type WorkflowsActions =
   | LoadWorkflowsFromHistoryFailure
   | ExportWorkflow
   | ExportWorkflowDone
-  | SetWorkflowPath
+  | SetWorkflowFile
   | ImportWorkflow
-  | ImportWorkflowDone;
+  | ImportWorkflowFailure;

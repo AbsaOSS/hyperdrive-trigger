@@ -24,7 +24,13 @@
       <div class="clr-form-control">
         <div class="clr-control-container">
           <div class="clr-file-wrapper">
-            <input name="asd" type="file" id="basic-default" placeholder="Enter value here" (change)="setFile($event.target.files)" />
+            <input
+              name="workflow-file-inlut"
+              type="file"
+              id="basic-default"
+              placeholder="Enter value here"
+              (change)="setWorkflowFile($event.target.files)"
+            />
           </div>
         </div>
       </div>
@@ -32,7 +38,7 @@
   </div>
   <div class="modal-footer">
     <button type="button" class="btn btn-outline" (click)="closeWorkflowImport(false)">Cancel</button>
-    <button type="button" class="btn btn-primary" [disabled]="!workflowFilePath" (click)="closeWorkflowImport(true)">Upload</button>
+    <button type="button" class="btn btn-primary" [disabled]="!workflowFile" (click)="closeWorkflowImport(true)">Upload</button>
   </div>
 </clr-modal>
 

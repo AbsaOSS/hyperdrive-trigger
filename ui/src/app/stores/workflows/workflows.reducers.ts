@@ -555,7 +555,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         ...state,
         loading: false,
       };
-    case WorkflowsActions.SET_WORKFLOW_PATH:
+    case WorkflowsActions.SET_WORKFLOW_FILE:
       return {
         ...state,
         workflowAction: {
@@ -571,11 +571,13 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
           loading: true,
         },
       };
-    case WorkflowsActions.IMPORT_WORKFLOW_DONE:
+    case WorkflowsActions.IMPORT_WORKFLOW_FAILURE:
       return {
         ...state,
         workflowAction: {
           ...state.workflowAction,
+          workflow: undefined,
+          workflowPath: undefined,
           loading: false,
         },
       };
