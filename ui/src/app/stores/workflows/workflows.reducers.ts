@@ -107,7 +107,7 @@ function removeJob(jobId: string, jobsOriginal: JobEntryModel[]): JobEntryModel[
   });
 }
 
-function sortProjectsAndWorkflows(projects: ProjectModel[]): ProjectModel[] {
+export function sortProjectsAndWorkflows(projects: ProjectModel[]): ProjectModel[] {
   let sortedProjects = projects.sort((projectLeft, projectRight) => projectLeft.name.localeCompare(projectRight.name));
   sortedProjects = [...sortedProjects].map((project: ProjectModel) => {
     const sortedWorkflows = [...project.workflows].sort((workflowLeft, workflowRight) =>
