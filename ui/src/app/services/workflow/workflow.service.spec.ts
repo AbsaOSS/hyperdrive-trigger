@@ -99,6 +99,24 @@ describe('WorkflowService', () => {
     req.flush(new Boolean(true));
   });
 
+  it('exportWorkflow() should return workflow blob', () => {
+    //TODO: Implement test. I need help from you guys.
+  });
+
+  it('importWorkflow() should return imported workflow', () => {
+    const workflow = WorkflowJoinedModelFactory.create('name', true, 'project', undefined, undefined, undefined, 0);
+    const file: File = new File(['content'], 'filename.json');
+
+    underTest.importWorkflow(file).subscribe(
+      (data) => expect(data).toEqual(workflow),
+      (error) => fail(error),
+    );
+
+    const req = httpTestingController.expectOne(api.IMPORT_WORKFLOW);
+    expect(req.request.method).toEqual('POST');
+    req.flush(workflow);
+  });
+
   it('createWorkflow() should return created workflow', () => {
     const workflow = WorkflowJoinedModelFactory.create('name', true, 'project', undefined, undefined, undefined, 0);
 

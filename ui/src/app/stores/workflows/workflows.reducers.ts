@@ -34,7 +34,7 @@ export interface State {
     workflowFormParts: WorkflowFormPartsModel;
     backendValidationErrors: string[];
     workflowFormData: WorkflowFormDataModel;
-    workflowPath: File;
+    workflowFile: File;
   };
   workflowsSort: SortAttributesModel;
   workflowsFilters: any[];
@@ -71,7 +71,7 @@ const initialState: State = {
       sensor: [],
       jobs: [],
     },
-    workflowPath: undefined,
+    workflowFile: undefined,
   },
   workflowsSort: undefined,
   workflowsFilters: undefined,
@@ -560,7 +560,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         ...state,
         workflowAction: {
           ...state.workflowAction,
-          workflowPath: action.payload,
+          workflowFile: action.payload,
         },
       };
     case WorkflowsActions.IMPORT_WORKFLOW:
@@ -577,7 +577,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         workflowAction: {
           ...state.workflowAction,
           workflow: undefined,
-          workflowPath: undefined,
+          workflowFile: undefined,
           loading: false,
         },
       };

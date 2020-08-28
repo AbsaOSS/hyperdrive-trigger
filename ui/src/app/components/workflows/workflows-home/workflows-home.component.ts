@@ -58,7 +58,7 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
   ignoreRefresh = false;
 
   isWorkflowImportOpen = false;
-  workflowFile: File = null;
+  workflowFile: File = undefined;
 
   constructor(private store: Store<AppState>, private confirmationDialogService: ConfirmationDialogService, private router: Router) {
     this.routerSubscription = router.events.pipe(filter((e) => e instanceof ResolveEnd)).subscribe((e: ResolveEnd) => {
@@ -93,7 +93,7 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
         this.router.navigate([absoluteRoutes.IMPORT_WORKFLOW]);
       }
       this.isWorkflowImportOpen = false;
-      this.workflowFile = null;
+      this.workflowFile = undefined;
     }
   }
 

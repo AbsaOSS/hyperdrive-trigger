@@ -60,20 +60,29 @@ export class WorkflowService {
     return this.httpClient.post<boolean>(api.SWITCH_WORKFLOW_ACTIVE_STATE.replace('{id}', id.toString()), { observe: 'response' });
   }
 
-  exportWorkflow(id: number): Observable<HttpResponse<Blob>> {
+  exportWorkflow(id: number): Observable<{ blob: Blob; fileName: string }> {
     const params = new HttpParams().set('id', id.toString());
 
     return this.httpClient.get(api.EXPORT_WORKFLOW, { params: params, observe: 'response', responseType: 'blob' }).pipe(
-      map((response: HttpResponse<Blob>) => response),
+      map((response: HttpResponse<Blob>) => {
+        const contentDisposition = response.headers.get('content-disposition') || '';
+        const matches = /filename=([^;]+)/gi.exec(contentDisposition);
+        const fileName = matches[1] || `workflow-${id}`;
+
+        return {
+          blob: response.body,
+          fileName: fileName,
+        };
+      }),
       catchError((errorResponse: HttpErrorResponse) => {
         return throwError(errorResponse.error);
       }),
     );
   }
 
-  importWorkflow(pathToWorkflow: File): Observable<WorkflowJoinedModel> {
+  importWorkflow(workflowFile: File): Observable<WorkflowJoinedModel> {
     const formData: FormData = new FormData();
-    formData.append('file', pathToWorkflow, pathToWorkflow.name);
+    formData.append('file', workflowFile, workflowFile.name);
 
     return this.httpClient
       .post<WorkflowJoinedModel>(api.IMPORT_WORKFLOW, formData, { observe: 'response' })

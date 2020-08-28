@@ -457,31 +457,19 @@ export class WorkflowsEffects {
     ofType(WorkflowActions.EXPORT_WORKFLOW),
     switchMap((action: WorkflowActions.ExportWorkflow) => {
       return this.workflowService.exportWorkflow(action.payload).pipe(
-        mergeMap((workflowBlobResponse: HttpResponse<Blob>) => {
+        mergeMap((workflowBlobResponse: { blob: Blob; fileName: string }) => {
           const a = document.createElement('a');
-          a.href = URL.createObjectURL(workflowBlobResponse.body);
+          a.href = URL.createObjectURL(workflowBlobResponse.blob);
 
-          const contentDisposition = workflowBlobResponse.headers.get('content-disposition') || '';
-          const matches = /filename=([^;]+)/gi.exec(contentDisposition);
-
-          a.download = (matches[1] || `workflow-${action.payload}`).trim();
+          a.download = workflowBlobResponse.fileName.trim();
           a.click();
 
-          if (workflowBlobResponse.ok) {
-            this.toastrService.success(texts.EXPORT_WORKFLOW_SUCCESS_NOTIFICATION);
-            return [
-              {
-                type: EXPORT_WORKFLOW_DONE,
-              },
-            ];
-          } else {
-            this.toastrService.error(texts.EXPORT_WORKFLOW_FAILURE_NOTIFICATION);
-            return [
-              {
-                type: EXPORT_WORKFLOW_DONE,
-              },
-            ];
-          }
+          this.toastrService.success(texts.EXPORT_WORKFLOW_SUCCESS_NOTIFICATION);
+          return [
+            {
+              type: EXPORT_WORKFLOW_DONE,
+            },
+          ];
         }),
         catchError(() => {
           this.toastrService.error(texts.EXPORT_WORKFLOW_FAILURE_NOTIFICATION);
@@ -500,8 +488,8 @@ export class WorkflowsEffects {
     ofType(WorkflowActions.IMPORT_WORKFLOW),
     withLatestFrom(this.store.select(selectWorkflowState)),
     switchMap(([action, state]: [WorkflowActions.ImportWorkflow, fromWorkflows.State]) => {
-      if (state.workflowAction.workflowPath) {
-        return this.workflowService.importWorkflow(state.workflowAction.workflowPath).pipe(
+      if (state.workflowAction.workflowFile) {
+        return this.workflowService.importWorkflow(state.workflowAction.workflowFile).pipe(
           mergeMap((workflow: WorkflowJoinedModel) => {
             this.toastrService.success(texts.IMPORT_WORKFLOW_SUCCESS_NOTIFICATION);
             const workflowData = new WorkflowDataModel(workflow, state.workflowAction.workflowFormParts.dynamicParts);

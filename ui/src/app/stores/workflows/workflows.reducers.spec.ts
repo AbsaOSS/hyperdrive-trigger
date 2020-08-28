@@ -65,7 +65,7 @@ describe('WorkflowsReducers', () => {
         sensor: [],
         jobs: [job1, job0, job2, job3],
       },
-      workflowPath: undefined,
+      workflowFile: undefined,
     },
     workflowsSort: undefined,
     workflowsFilters: [],
