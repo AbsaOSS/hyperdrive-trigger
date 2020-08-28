@@ -109,15 +109,28 @@ function removeJob(jobId: string, jobsOriginal: JobEntryModel[]): JobEntryModel[
   });
 }
 
+export function sortProjectsAndWorkflows(projects: ProjectModel[]): ProjectModel[] {
+  let sortedProjects = projects.sort((projectLeft, projectRight) => projectLeft.name.localeCompare(projectRight.name));
+  sortedProjects = [...sortedProjects].map((project: ProjectModel) => {
+    const sortedWorkflows = [...project.workflows].sort((workflowLeft, workflowRight) =>
+      workflowLeft.name.localeCompare(workflowRight.name),
+    );
+    return { ...project, workflows: sortedWorkflows };
+  });
+  return sortedProjects;
+}
+
 export function workflowsReducer(state: State = initialState, action: WorkflowsActions.WorkflowsActions) {
   switch (action.type) {
     case WorkflowsActions.INITIALIZE_WORKFLOWS:
       return { ...state, loading: true };
     case WorkflowsActions.INITIALIZE_WORKFLOWS_SUCCESS:
+      let sortedProjects = [...action.payload.projects];
+      sortedProjects = sortProjectsAndWorkflows(sortedProjects);
       return {
         ...state,
         loading: false,
-        projects: action.payload.projects,
+        projects: sortedProjects,
         workflowAction: {
           ...state.workflowAction,
           workflowFormParts: action.payload.workflowFormParts,
@@ -330,9 +343,10 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
           }),
         );
       });
+      const sortedUpdatedProjects = sortProjectsAndWorkflows([...updatedProjects]);
       return {
         ...state,
-        projects: [...updatedProjects],
+        projects: [...sortedUpdatedProjects],
         workflowAction: {
           ...state.workflowAction,
         },
@@ -363,6 +377,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
       } else {
         projects = [...state.projects, ProjectModelFactory.create(action.payload.project, [action.payload])];
       }
+      projects = sortProjectsAndWorkflows([...projects]);
       return {
         ...state,
         projects: [...projects],
@@ -404,9 +419,10 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         updatedProjects = [...projectsWithoutWorkflow, ProjectModelFactory.create(action.payload.project, [action.payload])];
       }
       updatedProjects = updatedProjects.filter((project) => project.workflows.length !== 0);
+      const sortUpdatedProjects = sortProjectsAndWorkflows([...updatedProjects]);
       return {
         ...state,
-        projects: [...updatedProjects],
+        projects: [...sortUpdatedProjects],
         workflowAction: {
           ...state.workflowAction,
           loading: false,
