@@ -23,9 +23,7 @@ import * as WorkflowsActions from './workflows.actions';
 import {
   CreateWorkflow,
   DeleteWorkflow,
-  EXPORT_WORKFLOW_DONE,
   ExportWorkflow,
-  IMPORT_WORKFLOW_FAILURE,
   ImportWorkflow,
   InitializeWorkflows,
   LoadHistoryForWorkflow,
@@ -838,7 +836,7 @@ describe('WorkflowsEffects', () => {
       const exportWorkflowResponse = cold('-a|', { a: response });
       const expected = cold('--a', {
         a: {
-          type: EXPORT_WORKFLOW_DONE,
+          type: WorkflowsActions.EXPORT_WORKFLOW_DONE,
         },
       });
 
@@ -863,7 +861,7 @@ describe('WorkflowsEffects', () => {
 
       const expected = cold('--a', {
         a: {
-          type: EXPORT_WORKFLOW_DONE,
+          type: WorkflowsActions.EXPORT_WORKFLOW_DONE,
         },
       });
       expect(underTest.workflowExport).toBeObservable(expected);
@@ -941,7 +939,7 @@ describe('WorkflowsEffects', () => {
 
       const expected = cold('--a', {
         a: {
-          type: IMPORT_WORKFLOW_FAILURE,
+          type: WorkflowsActions.IMPORT_WORKFLOW_FAILURE,
         },
       });
       expect(underTest.workflowImport).toBeObservable(expected);

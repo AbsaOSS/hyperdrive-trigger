@@ -38,9 +38,7 @@ import { WorkflowHistoriesForComparisonModel, HistoryModel } from '../../models/
 import { WorkflowHistoryService } from '../../services/workflowHistory/workflow-history.service';
 import { JobService } from '../../services/job/job.service';
 import { JobForRunModel } from '../../models/jobForRun.model';
-import { EXPORT_WORKFLOW_DONE } from '../workflows/workflows.actions';
 import { EMPTY } from 'rxjs';
-import { HttpResponse } from '@angular/common/http';
 
 @Injectable()
 export class WorkflowsEffects {
@@ -467,7 +465,7 @@ export class WorkflowsEffects {
           this.toastrService.success(texts.EXPORT_WORKFLOW_SUCCESS_NOTIFICATION);
           return [
             {
-              type: EXPORT_WORKFLOW_DONE,
+              type: WorkflowActions.EXPORT_WORKFLOW_DONE,
             },
           ];
         }),
@@ -475,7 +473,7 @@ export class WorkflowsEffects {
           this.toastrService.error(texts.EXPORT_WORKFLOW_FAILURE_NOTIFICATION);
           return [
             {
-              type: EXPORT_WORKFLOW_DONE,
+              type: WorkflowActions.EXPORT_WORKFLOW_DONE,
             },
           ];
         }),
