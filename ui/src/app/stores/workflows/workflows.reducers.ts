@@ -22,7 +22,7 @@ import { SortAttributesModel } from '../../models/search/sortAttributes.model';
 import { WorkflowFormDataModel } from '../../models/workflowFormData.model';
 import { HistoryModel } from '../../models/historyModel';
 import { JobForRunModel } from '../../models/jobForRun.model';
-import { workflowModes } from "../../models/enums/workflowModes.constants";
+import { workflowModes } from '../../models/enums/workflowModes.constants';
 
 export interface State {
   projects: ProjectModel[];
