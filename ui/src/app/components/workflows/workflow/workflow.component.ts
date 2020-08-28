@@ -66,7 +66,7 @@ export class WorkflowComponent implements OnInit, OnDestroy {
     private router: Router,
     route: ActivatedRoute,
   ) {
-    this.paramsSubscription = route.params.pipe(delay(0)).subscribe((parameters) => {
+    this.paramsSubscription = route.params.subscribe((parameters) => {
       if (parameters.mode == this.workflowModes.IMPORT) {
         this.store.dispatch(new ImportWorkflow());
       } else {
