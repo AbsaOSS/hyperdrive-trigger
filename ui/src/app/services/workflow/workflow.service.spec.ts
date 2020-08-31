@@ -100,7 +100,22 @@ describe('WorkflowService', () => {
   });
 
   it('exportWorkflow() should return workflow blob', () => {
-    //TODO: Implement test. I need help from you guys.
+    const content = '{"workflowId":"1"}';
+    const blob = new Blob([content], { type: 'application/json' });
+    const filename = 'filename.json';
+    const id = 1;
+    underTest.exportWorkflow(id).subscribe(
+      (data) => {
+        expect(data.fileName).toEqual(filename);
+        expect(data.blob).toEqual(blob);
+      },
+      (error) => fail(error),
+    );
+    const req = httpTestingController.expectOne(api.EXPORT_WORKFLOW + `?id=${id}`);
+    expect(req.request.method).toEqual('GET');
+    req.flush(blob, {
+      headers: { 'Content-Disposition': `attachment; filename=${filename}` },
+    });
   });
 
   it('importWorkflow() should return imported workflow', () => {

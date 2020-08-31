@@ -461,6 +461,7 @@ export class WorkflowsEffects {
 
           a.download = workflowBlobResponse.fileName.trim();
           a.click();
+          a.remove();
 
           this.toastrService.success(texts.EXPORT_WORKFLOW_SUCCESS_NOTIFICATION);
           return [

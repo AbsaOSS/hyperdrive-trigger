@@ -823,7 +823,7 @@ describe('WorkflowsEffects', () => {
   describe('workflowExport', () => {
     it('should display success when service successfully exports workflow', () => {
       const toastrServiceSpy = spyOn(toastrService, 'success');
-      const aSpy = jasmine.createSpyObj('a', ['click']);
+      const aSpy = jasmine.createSpyObj('a', ['click', 'remove']);
       spyOn(document, 'createElement').and.returnValue(aSpy);
 
       const workflowId = 42;
@@ -847,6 +847,8 @@ describe('WorkflowsEffects', () => {
       expect(toastrServiceSpy).toHaveBeenCalledWith(texts.EXPORT_WORKFLOW_SUCCESS_NOTIFICATION);
       expect(aSpy.click).toHaveBeenCalledTimes(1);
       expect(aSpy.click).toHaveBeenCalledWith();
+      expect(aSpy.remove).toHaveBeenCalledTimes(1);
+      expect(aSpy.remove).toHaveBeenCalledWith();
     });
 
     it('should display failure when service throws an exception while exporting workflow', () => {

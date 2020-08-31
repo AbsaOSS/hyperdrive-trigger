@@ -108,7 +108,7 @@ class WorkflowController @Inject()(workflowService: WorkflowService) {
       )
 
       ResponseEntity.ok()
-        .contentType(MediaType.parseMediaType("application/octet-stream"))
+        .contentType(MediaType.parseMediaType("application/json"))
         .header(HttpHeaders.CONTENT_DISPOSITION, s"attachment; filename=${workflow.name}.json")
         .body(resource)
     }.toJava.toCompletableFuture
