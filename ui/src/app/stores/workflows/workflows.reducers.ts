@@ -22,6 +22,7 @@ import { SortAttributesModel } from '../../models/search/sortAttributes.model';
 import { WorkflowFormDataModel } from '../../models/workflowFormData.model';
 import { HistoryModel } from '../../models/historyModel';
 import { JobForRunModel } from '../../models/jobForRun.model';
+import { workflowModes } from '../../models/enums/workflowModes.constants';
 
 export interface State {
   projects: ProjectModel[];
@@ -34,6 +35,7 @@ export interface State {
     workflowFormParts: WorkflowFormPartsModel;
     backendValidationErrors: string[];
     workflowFormData: WorkflowFormDataModel;
+    workflowFile: File;
   };
   workflowsSort: SortAttributesModel;
   workflowsFilters: any[];
@@ -70,6 +72,7 @@ const initialState: State = {
       sensor: [],
       jobs: [],
     },
+    workflowFile: undefined,
   },
   workflowsSort: undefined,
   workflowsFilters: undefined,
@@ -107,15 +110,28 @@ function removeJob(jobId: string, jobsOriginal: JobEntryModel[]): JobEntryModel[
   });
 }
 
+export function sortProjectsAndWorkflows(projects: ProjectModel[]): ProjectModel[] {
+  let sortedProjects = projects.sort((projectLeft, projectRight) => projectLeft.name.localeCompare(projectRight.name));
+  sortedProjects = [...sortedProjects].map((project: ProjectModel) => {
+    const sortedWorkflows = [...project.workflows].sort((workflowLeft, workflowRight) =>
+      workflowLeft.name.localeCompare(workflowRight.name),
+    );
+    return { ...project, workflows: sortedWorkflows };
+  });
+  return sortedProjects;
+}
+
 export function workflowsReducer(state: State = initialState, action: WorkflowsActions.WorkflowsActions) {
   switch (action.type) {
     case WorkflowsActions.INITIALIZE_WORKFLOWS:
       return { ...state, loading: true };
     case WorkflowsActions.INITIALIZE_WORKFLOWS_SUCCESS:
+      let sortedProjects = [...action.payload.projects];
+      sortedProjects = sortProjectsAndWorkflows(sortedProjects);
       return {
         ...state,
         loading: false,
-        projects: action.payload.projects,
+        projects: sortedProjects,
         workflowAction: {
           ...state.workflowAction,
           workflowFormParts: action.payload.workflowFormParts,
@@ -328,9 +344,10 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
           }),
         );
       });
+      const sortedUpdatedProjects = sortProjectsAndWorkflows([...updatedProjects]);
       return {
         ...state,
-        projects: [...updatedProjects],
+        projects: [...sortedUpdatedProjects],
         workflowAction: {
           ...state.workflowAction,
         },
@@ -361,6 +378,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
       } else {
         projects = [...state.projects, ProjectModelFactory.create(action.payload.project, [action.payload])];
       }
+      projects = sortProjectsAndWorkflows([...projects]);
       return {
         ...state,
         projects: [...projects],
@@ -402,9 +420,10 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         updatedProjects = [...projectsWithoutWorkflow, ProjectModelFactory.create(action.payload.project, [action.payload])];
       }
       updatedProjects = updatedProjects.filter((project) => project.workflows.length !== 0);
+      const sortUpdatedProjects = sortProjectsAndWorkflows([...updatedProjects]);
       return {
         ...state,
-        projects: [...updatedProjects],
+        projects: [...sortUpdatedProjects],
         workflowAction: {
           ...state.workflowAction,
           loading: false,
@@ -541,6 +560,43 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         jobsForRun: {
           ...initialState.jobsForRun,
           isOpen: false,
+        },
+      };
+    case WorkflowsActions.EXPORT_WORKFLOW:
+      return {
+        ...state,
+        loading: true,
+      };
+    case WorkflowsActions.EXPORT_WORKFLOW_DONE:
+      return {
+        ...state,
+        loading: false,
+      };
+    case WorkflowsActions.SET_WORKFLOW_FILE:
+      return {
+        ...state,
+        workflowAction: {
+          ...state.workflowAction,
+          workflowFile: action.payload,
+        },
+      };
+    case WorkflowsActions.IMPORT_WORKFLOW:
+      return {
+        ...state,
+        workflowAction: {
+          ...state.workflowAction,
+          mode: workflowModes.IMPORT,
+          loading: true,
+        },
+      };
+    case WorkflowsActions.IMPORT_WORKFLOW_FAILURE:
+      return {
+        ...state,
+        workflowAction: {
+          ...state.workflowAction,
+          workflow: undefined,
+          workflowFile: undefined,
+          loading: false,
         },
       };
     default:

@@ -97,25 +97,27 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
 
   "WorkflowService.updateWorkflow" should "should update a workflow" in {
     // given
-    val workflowJoined = WorkflowFixture.createWorkflowJoined()
-    when(workflowValidationService.validateOnUpdate(eqTo(workflowJoined))(any[ExecutionContext])).thenReturn(Future{Seq.empty})
+    val originalWorkflow = WorkflowFixture.createWorkflowJoined()
+    val updatedWorkflow = originalWorkflow.copy(name = "newName")
+
+    when(workflowRepository.getWorkflow(eqTo(originalWorkflow.id))(any[ExecutionContext])).thenReturn(Future{originalWorkflow}).thenReturn(Future{updatedWorkflow})
+    when(workflowValidationService.validateOnUpdate(eqTo(originalWorkflow), eqTo(updatedWorkflow))(any[ExecutionContext])).thenReturn(Future{Seq.empty})
     when(workflowRepository.updateWorkflow(any[WorkflowJoined], any[String])(any[ExecutionContext])).thenReturn(Future{Right((): Unit)})
-    when(workflowRepository.getWorkflow(eqTo(workflowJoined.id))(any[ExecutionContext])).thenReturn(Future{workflowJoined})
-    when(workflowRepository.getWorkflow(eqTo(workflowJoined.id))(any[ExecutionContext])).thenReturn(Future{workflowJoined})
 
     // when
-    val result = await(underTest.updateWorkflow(workflowJoined))
+    val result = await(underTest.updateWorkflow(updatedWorkflow))
 
     // then
     verify(workflowRepository).updateWorkflow(any[WorkflowJoined], any[String])(any[ExecutionContext])
-    result shouldBe Right(workflowJoined)
+    result shouldBe Right(updatedWorkflow)
   }
 
   it should "should return with errors if validation failed and not attempt to update on DB" in {
     // given
-    val workflowJoined = WorkflowFixture.createWorkflowJoined()
+    val originalJoined = WorkflowFixture.createWorkflowJoined()
+    val workflowJoined = originalJoined.copy()
     val errors: Seq[ApiError] = Seq(ValidationError("error"))
-    when(workflowValidationService.validateOnUpdate(eqTo(workflowJoined))(any[ExecutionContext]))
+    when(workflowValidationService.validateOnUpdate(eqTo(workflowJoined), eqTo(originalJoined))(any[ExecutionContext]))
       .thenReturn(Future{errors})
     when(workflowRepository.getWorkflow(eqTo(workflowJoined.id))(any[ExecutionContext])).thenReturn(Future{workflowJoined})
 
@@ -129,15 +131,17 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
 
   it should "should return with errors if DB update failed" in {
     // given
-    val workflowJoined = WorkflowFixture.createWorkflowJoined()
+    val originalWorkflow = WorkflowFixture.createWorkflowJoined()
+    val updatedWorkflow = originalWorkflow.copy(project = "diff")
+
     val error = DatabaseError("error")
-    when(workflowValidationService.validateOnUpdate(eqTo(workflowJoined))(any[ExecutionContext])).thenReturn(Future{Seq.empty})
-    when(workflowRepository.getWorkflow(eqTo(workflowJoined.id))(any[ExecutionContext])).thenReturn(Future{workflowJoined})
+    when(workflowRepository.getWorkflow(eqTo(originalWorkflow.id))(any[ExecutionContext])).thenReturn(Future{originalWorkflow})
+    when(workflowValidationService.validateOnUpdate(eqTo(originalWorkflow), eqTo(updatedWorkflow))(any[ExecutionContext])).thenReturn(Future{Seq.empty})
     when(workflowRepository.updateWorkflow(any[WorkflowJoined], any[String])(any[ExecutionContext]))
       .thenReturn(Future{Left(error)})
 
     // when
-    val result = await(underTest.updateWorkflow(workflowJoined))
+    val result = await(underTest.updateWorkflow(updatedWorkflow))
 
     // then
     verify(workflowRepository).updateWorkflow(any[WorkflowJoined], any[String])(any[ExecutionContext])

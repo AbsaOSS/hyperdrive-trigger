@@ -26,6 +26,10 @@
     <clr-icon shape="copy"></clr-icon>
     Copy
   </button>
+  <button type="button" class="btn btn-sm btn-secondary" (click)="exportWorkflow(id)">
+    <clr-icon shape="export"></clr-icon>
+    Export
+  </button>
   <button type="button" class="btn btn-sm btn-secondary" [routerLink]="[absoluteRoutes.EDIT_WORKFLOW, id]">
     <clr-icon shape="pencil"></clr-icon>
     Edit
@@ -50,7 +54,7 @@
       <clr-icon shape="check"></clr-icon>
       Create new workflow
     </button>
-    <button type="submit" class="btn btn-sm btn-secondary" *ngIf="mode == workflowModes.EDIT">
+    <button type="submit" class="btn btn-sm btn-secondary" [disabled]="!hasWorkflowChanged()" *ngIf="mode == workflowModes.EDIT">
       <clr-icon shape="check"></clr-icon>
       Update workflow
     </button>

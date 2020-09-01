@@ -27,6 +27,7 @@ import { AppState } from '../../../stores/app.reducers';
 import {
   CreateWorkflow,
   DeleteWorkflow,
+  ExportWorkflow,
   LoadJobsForRun,
   RemoveBackendValidationError,
   SwitchWorkflowActiveState,
@@ -36,6 +37,7 @@ import { WorkflowFormComponent } from './workflow-form.component';
 import { JobEntryModelFactory } from '../../../models/jobEntry.model';
 import { WorkflowFormPartsModelFactory } from '../../../models/workflowFormParts.model';
 import { FormsModule } from '@angular/forms';
+import { WorkflowEntryModelFactory } from '../../../models/workflowEntry.model';
 
 describe('WorkflowFormComponent', () => {
   let underTest: WorkflowFormComponent;
@@ -195,6 +197,19 @@ describe('WorkflowFormComponent', () => {
     });
   }));
 
+  it('exportWorkflow() should dispatch workflow export', async(() => {
+    const id = 42;
+    const storeSpy = spyOn(store, 'dispatch');
+
+    underTest.exportWorkflow(id);
+
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(storeSpy).toHaveBeenCalled();
+      expect(storeSpy).toHaveBeenCalledWith(new ExportWorkflow(id));
+    });
+  }));
+
   it('createWorkflow() should dispatch create workflow when dialog is confirmed', async(() => {
     underTest.workflowForm = { form: { valid: true } };
 
@@ -231,6 +246,101 @@ describe('WorkflowFormComponent', () => {
       expect(dialogServiceSpy).toHaveBeenCalled();
       expect(storeSpy).toHaveBeenCalledTimes(0);
     });
+  }));
+
+  it('hasWorkflowChanged() should return false if workflowData has not changed', async(() => {
+    underTest.initialWorkflowData = {
+      details: [],
+      sensor: [],
+      jobs: [],
+    };
+
+    expect(underTest.hasWorkflowChanged()).toBeFalse();
+  }));
+
+  it('hasWorkflowChanged() should return true if workflowData has changed', async(() => {
+    const detail = [WorkflowEntryModelFactory.create('projectX', 'project')];
+    const sensors = [WorkflowEntryModelFactory.create('properties.settings.variables.cronExpression', '0 0/30 * ? * * *')];
+    const job = [JobEntryModelFactory.create('uis99', 1, [WorkflowEntryModelFactory.create('name', 'workflowName')])];
+
+    underTest.initialWorkflowData = {
+      details: detail,
+      sensor: sensors,
+      jobs: job,
+    };
+
+    expect(underTest.hasWorkflowChanged()).toBeTrue();
+  }));
+
+  it('areWorkflowEntriesEqual() should return true if entries are empty', async(() => {
+    expect(underTest.areWorkflowEntriesEqual([], [])).toBeTrue();
+  }));
+
+  it('areWorkflowEntriesEqual() should return true if entries are equal', async(() => {
+    const firstEntry = WorkflowEntryModelFactory.create('first', 'first');
+    const secondEntry = WorkflowEntryModelFactory.create('second', 'second');
+    const thirdEntry = WorkflowEntryModelFactory.create('third', 'third');
+
+    expect(underTest.areWorkflowEntriesEqual([firstEntry, secondEntry, thirdEntry], [firstEntry, secondEntry, thirdEntry])).toBeTrue();
+    expect(underTest.areWorkflowEntriesEqual([firstEntry, secondEntry, thirdEntry], [secondEntry, firstEntry, thirdEntry])).toBeTrue();
+  }));
+
+  it('areWorkflowEntriesEqual() should return false if entries are not equal', async(() => {
+    const firstEntry = WorkflowEntryModelFactory.create('first', 'first');
+    const secondEntry = WorkflowEntryModelFactory.create('second', 'second');
+
+    expect(underTest.areWorkflowEntriesEqual([firstEntry], [firstEntry, secondEntry])).toBeFalsy();
+    expect(underTest.areWorkflowEntriesEqual([firstEntry, secondEntry], [firstEntry])).toBeFalsy();
+  }));
+
+  it('areJobsEqual() should return true if entries are empty', async(() => {
+    expect(underTest.areJobsEqual([], [])).toBeTrue();
+  }));
+
+  it('areJobsEqual() should return true if entries are equal', async(() => {
+    const firstEntry = WorkflowEntryModelFactory.create('first', 'first');
+    const secondEntry = WorkflowEntryModelFactory.create('second', 'second');
+    const thirdEntry = WorkflowEntryModelFactory.create('third', 'third');
+
+    expect(
+      underTest.areJobsEqual(
+        [JobEntryModelFactory.createWithUuid(0, [firstEntry, secondEntry, thirdEntry])],
+        [JobEntryModelFactory.createWithUuid(1, [firstEntry, secondEntry, thirdEntry])],
+      ),
+    ).toBeTrue();
+    expect(
+      underTest.areJobsEqual(
+        [JobEntryModelFactory.createWithUuid(1, [firstEntry, secondEntry, thirdEntry])],
+        [JobEntryModelFactory.createWithUuid(0, [secondEntry, firstEntry, thirdEntry])],
+      ),
+    ).toBeTrue();
+  }));
+
+  it('areJobsEqual() should return false if entries differ in length', async(() => {
+    const firstEntry = WorkflowEntryModelFactory.create('first', 'first');
+    const secondEntry = WorkflowEntryModelFactory.create('second', 'second');
+    const thirdEntry = WorkflowEntryModelFactory.create('third', 'third');
+
+    expect(underTest.areJobsEqual([JobEntryModelFactory.createWithUuid(0, [firstEntry, secondEntry, thirdEntry])], [])).toBeFalsy();
+    expect(underTest.areJobsEqual([], [JobEntryModelFactory.createWithUuid(0, [firstEntry, secondEntry, thirdEntry])])).toBeFalsy();
+  }));
+
+  it('areJobsEqual() should return false if entries are not equal', async(() => {
+    const firstEntry = WorkflowEntryModelFactory.create('first', 'first');
+    const secondEntry = WorkflowEntryModelFactory.create('second', 'second');
+
+    expect(
+      underTest.areJobsEqual(
+        [JobEntryModelFactory.createWithUuid(0, [firstEntry])],
+        [JobEntryModelFactory.createWithUuid(0, [firstEntry, secondEntry])],
+      ),
+    ).toBeFalsy();
+    expect(
+      underTest.areJobsEqual(
+        [JobEntryModelFactory.createWithUuid(0, [firstEntry, secondEntry])],
+        [JobEntryModelFactory.createWithUuid(0, [firstEntry])],
+      ),
+    ).toBeFalsy();
   }));
 
   it('updateWorkflow() should dispatch update workflow when dialog is confirmed', async(() => {
