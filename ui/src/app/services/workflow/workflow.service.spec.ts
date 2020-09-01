@@ -99,6 +99,39 @@ describe('WorkflowService', () => {
     req.flush(new Boolean(true));
   });
 
+  it('exportWorkflow() should return workflow blob', () => {
+    const content = '{"workflowId":"1"}';
+    const blob = new Blob([content], { type: 'application/json' });
+    const filename = 'filename.json';
+    const id = 1;
+    underTest.exportWorkflow(id).subscribe(
+      (data) => {
+        expect(data.fileName).toEqual(filename);
+        expect(data.blob).toEqual(blob);
+      },
+      (error) => fail(error),
+    );
+    const req = httpTestingController.expectOne(api.EXPORT_WORKFLOW + `?id=${id}`);
+    expect(req.request.method).toEqual('GET');
+    req.flush(blob, {
+      headers: { 'Content-Disposition': `attachment; filename=${filename}` },
+    });
+  });
+
+  it('importWorkflow() should return imported workflow', () => {
+    const workflow = WorkflowJoinedModelFactory.create('name', true, 'project', undefined, undefined, undefined, 0);
+    const file: File = new File(['content'], 'filename.json');
+
+    underTest.importWorkflow(file).subscribe(
+      (data) => expect(data).toEqual(workflow),
+      (error) => fail(error),
+    );
+
+    const req = httpTestingController.expectOne(api.IMPORT_WORKFLOW);
+    expect(req.request.method).toEqual('POST');
+    req.flush(workflow);
+  });
+
   it('createWorkflow() should return created workflow', () => {
     const workflow = WorkflowJoinedModelFactory.create('name', true, 'project', undefined, undefined, undefined, 0);
 

@@ -27,7 +27,14 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { Router } from '@angular/router';
 import { absoluteRoutes } from '../../../constants/routes.constants';
 import { ClrDatagridStateInterface } from '@clr/angular';
-import { DeleteWorkflow, SwitchWorkflowActiveState, SetWorkflowsSort, LoadJobsForRun } from '../../../stores/workflows/workflows.actions';
+import {
+  DeleteWorkflow,
+  SwitchWorkflowActiveState,
+  SetWorkflowsSort,
+  LoadJobsForRun,
+  ExportWorkflow,
+  SetWorkflowFile,
+} from '../../../stores/workflows/workflows.actions';
 
 describe('WorkflowsHomeComponent', () => {
   let fixture: ComponentFixture<WorkflowsHomeComponent>;
@@ -77,6 +84,94 @@ describe('WorkflowsHomeComponent', () => {
       expect(underTest.workflows).toEqual([].concat(...initialAppState.workflows.projects.map((project) => project.workflows)));
       expect(underTest.sort).toEqual(initialAppState.workflowsSort);
       expect(underTest.filters).toBeUndefined();
+    });
+  }));
+
+  it('exportWorkflow() should dispatch workflow export', async(() => {
+    const id = 42;
+    const storeSpy = spyOn(store, 'dispatch');
+
+    underTest.exportWorkflow(id);
+
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(storeSpy).toHaveBeenCalledWith(new ExportWorkflow(id));
+    });
+  }));
+
+  it('importWorkflow() should set is workflow import variable to true', async(() => {
+    expect(underTest.isWorkflowImportOpen).toBeFalsy();
+    underTest.importWorkflow();
+
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(underTest.isWorkflowImportOpen).toBeTruthy();
+    });
+  }));
+
+  it('setWorkflowFile() should set workflow file', async(() => {
+    const dataTransfer = new DataTransfer();
+    const file: File = new File(['content'], 'filename.jpg');
+    dataTransfer.items.add(file);
+    const fileList: FileList = dataTransfer.files;
+
+    expect(underTest.workflowFile).toBeUndefined();
+    underTest.setWorkflowFile(fileList);
+
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(underTest.workflowFile).toBeDefined();
+    });
+  }));
+
+  it('closeWorkflowImport() should close modal and remove workflow file when is submitted is false', async(() => {
+    const isSubmitted = false;
+    const file: File = new File(['content'], 'filename.jpg');
+    const storeSpy = spyOn(store, 'dispatch');
+
+    underTest.isWorkflowImportOpen = true;
+    underTest.workflowFile = file;
+
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(underTest.workflowFile).toBeDefined();
+      expect(underTest.isWorkflowImportOpen).toBeTruthy();
+
+      underTest.closeWorkflowImport(isSubmitted);
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(underTest.workflowFile).toBeUndefined();
+        expect(underTest.isWorkflowImportOpen).toBeFalsy();
+        expect(storeSpy).toHaveBeenCalledTimes(0);
+      });
+    });
+  }));
+
+  it('closeWorkflowImport() should close modal, remove workflow file and dispatch and navigate to import when is submitted is true', async(() => {
+    const isSubmitted = true;
+    const file: File = new File(['content'], 'filename.jpg');
+    const storeSpy = spyOn(store, 'dispatch');
+    const routerSpy = spyOn(router, 'navigate');
+
+    underTest.isWorkflowImportOpen = true;
+    underTest.workflowFile = file;
+
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(underTest.workflowFile).toBeDefined();
+      expect(underTest.isWorkflowImportOpen).toBeTruthy();
+
+      underTest.closeWorkflowImport(isSubmitted);
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(underTest.workflowFile).toBeUndefined();
+        expect(underTest.isWorkflowImportOpen).toBeFalsy();
+
+        expect(routerSpy).toHaveBeenCalledTimes(1);
+        expect(routerSpy).toHaveBeenCalledWith([absoluteRoutes.IMPORT_WORKFLOW]);
+        expect(storeSpy).toHaveBeenCalled();
+        expect(storeSpy).toHaveBeenCalledWith(new SetWorkflowFile(file));
+      });
     });
   }));
 

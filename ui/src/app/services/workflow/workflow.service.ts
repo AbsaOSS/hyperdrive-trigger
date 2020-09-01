@@ -14,7 +14,7 @@
  */
 
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams, HttpResponse } from '@angular/common/http';
 import { api } from '../../constants/api.constants';
 import { catchError, map } from 'rxjs/operators';
 import { ProjectModel } from '../../models/project.model';
@@ -58,6 +58,42 @@ export class WorkflowService {
 
   switchWorkflowActiveState(id: number): Observable<boolean> {
     return this.httpClient.post<boolean>(api.SWITCH_WORKFLOW_ACTIVE_STATE.replace('{id}', id.toString()), { observe: 'response' });
+  }
+
+  exportWorkflow(id: number): Observable<{ blob: Blob; fileName: string }> {
+    const params = new HttpParams().set('id', id.toString());
+
+    return this.httpClient.get(api.EXPORT_WORKFLOW, { params: params, observe: 'response', responseType: 'blob' }).pipe(
+      map((response: HttpResponse<Blob>) => {
+        const contentDisposition = response.headers.get('content-disposition') || '';
+        const matches = /filename=([^;]+)/gi.exec(contentDisposition);
+        const fileName = matches[1] || `workflow-${id}`;
+
+        return {
+          blob: response.body,
+          fileName: fileName,
+        };
+      }),
+      catchError((errorResponse: HttpErrorResponse) => {
+        return throwError(errorResponse.error);
+      }),
+    );
+  }
+
+  importWorkflow(workflowFile: File): Observable<WorkflowJoinedModel> {
+    const formData: FormData = new FormData();
+    formData.append('file', workflowFile, workflowFile.name);
+
+    return this.httpClient
+      .post<WorkflowJoinedModel>(api.IMPORT_WORKFLOW, formData, { observe: 'response' })
+      .pipe(
+        map((_) => {
+          return _.body;
+        }),
+        catchError((errorResponse: HttpErrorResponse) => {
+          return throwError(errorResponse.error);
+        }),
+      );
   }
 
   createWorkflow(workflowRequest: WorkflowJoinedModel): Observable<WorkflowJoinedModel> {

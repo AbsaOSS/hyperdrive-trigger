@@ -26,6 +26,10 @@
     <clr-icon shape="copy"></clr-icon>
     Copy
   </button>
+  <button type="button" class="btn btn-sm btn-secondary" (click)="exportWorkflow(id)">
+    <clr-icon shape="export"></clr-icon>
+    Export
+  </button>
   <button type="button" class="btn btn-sm btn-secondary" [routerLink]="[absoluteRoutes.EDIT_WORKFLOW, id]">
     <clr-icon shape="pencil"></clr-icon>
     Edit

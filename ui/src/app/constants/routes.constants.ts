@@ -37,6 +37,7 @@ export const absoluteRoutes = {
   CREATE_WORKFLOW: `/${routeNames.WORKFLOWS}/${workflowModes.CREATE}`,
   EDIT_WORKFLOW: `/${routeNames.WORKFLOWS}/${workflowModes.EDIT}`,
   COPY_WORKFLOW: `/${routeNames.WORKFLOWS}/${workflowModes.COPY}`,
+  IMPORT_WORKFLOW: `/${routeNames.WORKFLOWS}/${workflowModes.IMPORT}`,
   RUNS: `/${routeNames.RUNS}`,
   RUNS_WITH_WORKFLOW_ID(workflowId: number): string {
     return `/runs/${workflowId}`;

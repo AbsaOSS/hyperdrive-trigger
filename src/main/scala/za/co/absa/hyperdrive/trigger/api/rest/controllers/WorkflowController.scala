@@ -18,7 +18,11 @@ package za.co.absa.hyperdrive.trigger.api.rest.controllers
 import java.util.concurrent.CompletableFuture
 
 import javax.inject.Inject
+import org.springframework.core.io.ByteArrayResource
+import org.springframework.http.{HttpHeaders, MediaType, ResponseEntity}
 import org.springframework.web.bind.annotation._
+import org.springframework.web.multipart.MultipartFile
+import za.co.absa.hyperdrive.trigger.ObjectMapperSingleton
 import za.co.absa.hyperdrive.trigger.api.rest.services.WorkflowService
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, ApiException}
 import za.co.absa.hyperdrive.trigger.models._
@@ -94,6 +98,26 @@ class WorkflowController @Inject()(workflowService: WorkflowService) {
   @PutMapping(path = Array("/workflow/jobs/run"))
   def runWorkflowJobs(@RequestParam workflowId: Long, @RequestBody jobsToRun: JobsToRun): CompletableFuture[Boolean] = {
     workflowService.runWorkflowJobs(workflowId, jobsToRun.jobIds).toJava.toCompletableFuture
+  }
+
+  @GetMapping(path = Array("/workflow/export"))
+  def exportWorkflow(@RequestParam id: Long): CompletableFuture[ResponseEntity[ByteArrayResource]] = {
+    workflowService.getWorkflow(id).map { workflow =>
+      val resource = new ByteArrayResource(
+        ObjectMapperSingleton.getObjectMapper.writeValueAsBytes(workflow)
+      )
+
+      ResponseEntity.ok()
+        .contentType(MediaType.parseMediaType("application/json"))
+        .header(HttpHeaders.CONTENT_DISPOSITION, s"attachment; filename=${workflow.name}.json")
+        .body(resource)
+    }.toJava.toCompletableFuture
+  }
+
+  @PostMapping(path = Array("/workflow/import"))
+  def importWorkflow(@RequestPart("file") file: MultipartFile): CompletableFuture[WorkflowJoined] = {
+    val workflow = ObjectMapperSingleton.getObjectMapper.readValue(file.getBytes, classOf[WorkflowJoined])
+    Future.successful(workflow).toJava.toCompletableFuture
   }
 
 }

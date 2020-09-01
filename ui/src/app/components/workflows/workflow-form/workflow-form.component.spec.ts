@@ -27,6 +27,7 @@ import { AppState } from '../../../stores/app.reducers';
 import {
   CreateWorkflow,
   DeleteWorkflow,
+  ExportWorkflow,
   LoadJobsForRun,
   RemoveBackendValidationError,
   SwitchWorkflowActiveState,
@@ -193,6 +194,19 @@ describe('WorkflowFormComponent', () => {
     fixture.whenStable().then(() => {
       expect(storeSpy).toHaveBeenCalled();
       expect(storeSpy).toHaveBeenCalledWith(new LoadJobsForRun(id));
+    });
+  }));
+
+  it('exportWorkflow() should dispatch workflow export', async(() => {
+    const id = 42;
+    const storeSpy = spyOn(store, 'dispatch');
+
+    underTest.exportWorkflow(id);
+
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(storeSpy).toHaveBeenCalled();
+      expect(storeSpy).toHaveBeenCalledWith(new ExportWorkflow(id));
     });
   }));
 
