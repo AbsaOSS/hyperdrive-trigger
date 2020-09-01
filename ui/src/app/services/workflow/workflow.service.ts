@@ -221,7 +221,7 @@ export class WorkflowService {
     if (shellTemplateId != null) {
       jobDynamicFormParts.push(this.getShellDynamicFormParts(shellTemplateId));
     }
-    if (shellTemplateId != null) {
+    if (hyperConformanceTemplateId != null) {
       jobDynamicFormParts.push(this.getHyperConformanceDynamicFormParts(hyperConformanceTemplateId));
     }
     return jobDynamicFormParts;
