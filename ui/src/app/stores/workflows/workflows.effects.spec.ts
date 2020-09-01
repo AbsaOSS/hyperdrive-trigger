@@ -876,7 +876,7 @@ describe('WorkflowsEffects', () => {
     it('should import workflow', () => {
       const toastrServiceSpy = spyOn(toastrService, 'success');
 
-      const jobDefinition = JobDefinitionModelFactory.create(10, 'name', JobTypeFactory.create('name'), undefined, 0, 10);
+      const jobDefinition = JobDefinitionModelFactory.create(10, 'name', '1', undefined, 0, 10);
       const workflow = WorkflowJoinedModelFactory.create(
         'name',
         true,
@@ -908,8 +908,8 @@ describe('WorkflowsEffects', () => {
                 order: 0,
                 entries: [
                   WorkflowEntryModelFactory.create(
-                    workflowFormParts.JOB.JOB_TYPE.property,
-                    workflow.dagDefinitionJoined.jobDefinitions[0].jobType.name,
+                    workflowFormParts.JOB.JOB_TEMPLATE_ID.property,
+                    workflow.dagDefinitionJoined.jobDefinitions[0].jobTemplateId,
                   ),
                   WorkflowEntryModelFactory.create(
                     workflowFormParts.JOB.JOB_NAME.property,
