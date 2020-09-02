@@ -187,45 +187,40 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
     result.length shouldBe 2
   }
 
-//  "WorkflowService.runWorkflowJobs" should "should insert joined dag instance when jobs ids exist in workflow" in {
-//    // given
-//    val underTest = new WorkflowServiceImpl(workflowRepository, dagInstanceRepository, workflowValidationService)
-//
-//    val workflowJoined = WorkflowFixture.createWorkflowJoined().copy()
-//    val workflowId = workflowJoined.id
-//    val jobIds = workflowJoined.dagDefinitionJoined.jobDefinitions.map(_.id)
-//
-//    when(workflowRepository.getWorkflow(eqTo(workflowId))(any[ExecutionContext])).thenReturn(Future{workflowJoined})
-//    when(dagInstanceRepository.insertJoinedDagInstance(any[DagInstanceJoined])(any[ExecutionContext])).thenReturn(Future{(): Unit})
-//
-//    // when
-//    val result: Boolean = TestUtils.await(underTest.runWorkflowJobs(workflowId, jobIds))
-//
-//    // then
-//    verify(workflowRepository, times(1)).getWorkflow(any[Long])(any[ExecutionContext])
-//    verify(dagInstanceRepository, times(1)).insertJoinedDagInstance(any[DagInstanceJoined])(any[ExecutionContext])
-//    result shouldBe true
-//  }
-//
-//  "WorkflowService.runWorkflowJobs" should "should not insert joined dag instance when jobs ids does not exist in workflow" in {
-//    // given
-//    val underTest = new WorkflowServiceImpl(workflowRepository, dagInstanceRepository, workflowValidationService)
-//
-//    val workflowJoined = WorkflowFixture.createWorkflowJoined().copy()
-//    val workflowId = workflowJoined.id
-//    val jobIds: Seq[Long] = Seq(9999, 8888)
-//
-//    when(workflowRepository.getWorkflow(eqTo(workflowId))(any[ExecutionContext])).thenReturn(Future{workflowJoined})
-//    when(dagInstanceRepository.insertJoinedDagInstance(any[DagInstanceJoined])(any[ExecutionContext])).thenReturn(Future{(): Unit})
-//
-//    // when
-//    val result: Boolean = TestUtils.await(underTest.runWorkflowJobs(workflowId, jobIds))
-//
-//    // then
-//    verify(workflowRepository, times(1)).getWorkflow(any[Long])(any[ExecutionContext])
-//    verify(dagInstanceRepository, never).insertJoinedDagInstance(any[DagInstanceJoined])(any[ExecutionContext])
-//    result shouldBe false
-//  }
+  "WorkflowService.runWorkflowJobs" should "should insert joined dag instance when jobs ids exist in workflow" in {
+    // given
+    val workflowJoined = WorkflowFixture.createWorkflowJoined().copy()
+    val workflowId = workflowJoined.id
+    val jobIds = workflowJoined.dagDefinitionJoined.jobDefinitions.map(_.id)
 
+    when(workflowRepository.getWorkflow(eqTo(workflowId))(any[ExecutionContext])).thenReturn(Future{workflowJoined})
+    when(dagInstanceRepository.insertJoinedDagInstance(any[DagInstanceJoined])(any[ExecutionContext])).thenReturn(Future{(): Unit})
+
+    // when
+    val result: Boolean = TestUtils.await(underTest.runWorkflowJobs(workflowId, jobIds))
+
+    // then
+    verify(workflowRepository, times(1)).getWorkflow(any[Long])(any[ExecutionContext])
+    verify(dagInstanceRepository, times(1)).insertJoinedDagInstance(any[DagInstanceJoined])(any[ExecutionContext])
+    result shouldBe true
+  }
+
+  "WorkflowService.runWorkflowJobs" should "should not insert joined dag instance when jobs ids does not exist in workflow" in {
+    // given
+    val workflowJoined = WorkflowFixture.createWorkflowJoined().copy()
+    val workflowId = workflowJoined.id
+    val jobIds: Seq[Long] = Seq(9999, 8888)
+
+    when(workflowRepository.getWorkflow(eqTo(workflowId))(any[ExecutionContext])).thenReturn(Future{workflowJoined})
+    when(dagInstanceRepository.insertJoinedDagInstance(any[DagInstanceJoined])(any[ExecutionContext])).thenReturn(Future{(): Unit})
+
+    // when
+    val result: Boolean = TestUtils.await(underTest.runWorkflowJobs(workflowId, jobIds))
+
+    // then
+    verify(workflowRepository, times(1)).getWorkflow(any[Long])(any[ExecutionContext])
+    verify(dagInstanceRepository, never).insertJoinedDagInstance(any[DagInstanceJoined])(any[ExecutionContext])
+    result shouldBe false
+  }
 
 }
