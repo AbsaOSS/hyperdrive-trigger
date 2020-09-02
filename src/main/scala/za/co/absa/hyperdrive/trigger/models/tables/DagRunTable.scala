@@ -33,8 +33,9 @@ trait DagRunTable extends SearchableTableQuery {
     def started: Rep[LocalDateTime] = column[LocalDateTime]("started")
     def finished: Rep[Option[LocalDateTime]] = column[Option[LocalDateTime]]("finished")
     def status: Rep[String] = column[String]("status")
+    def triggeredBy: Rep[String] = column[String]("triggered_by")
     def id: Rep[Long] = column[Long]("id", O.PrimaryKey, O.AutoInc, O.SqlType("BIGSERIAL"))
-    override def * : ProvenShape[DagRun] = (workflowId, workflowName, projectName, jobCount, started, finished, status, id).mapTo[DagRun]
+    override def * : ProvenShape[DagRun] = (workflowId, workflowName, projectName, jobCount, started, finished, status, triggeredBy, id).mapTo[DagRun]
 
     override def fieldMapping: Map[String, Rep[_]] = Map(
       "workflowId" -> this.workflowId,
@@ -44,6 +45,7 @@ trait DagRunTable extends SearchableTableQuery {
       "started" -> this.started,
       "finished" -> this.finished,
       "status" -> this.status,
+      "triggeredBy" -> this.triggeredBy,
       "id" -> this.id
     )
 

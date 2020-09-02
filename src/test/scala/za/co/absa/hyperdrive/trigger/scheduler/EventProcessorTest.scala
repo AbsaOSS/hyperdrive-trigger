@@ -56,7 +56,7 @@ class EventProcessorTest extends AsyncFlatSpec with MockitoSugar with Matchers w
     val underTest = new EventProcessor(eventRepository, dagDefinitionRepository, dagInstanceRepository)
 
     // when
-    underTest.eventProcessor(Seq(event), Properties(sensorId, Settings(Map.empty, Map.empty), Map.empty)).map(
+    underTest.eventProcessor("triggered by")(Seq(event), Properties(sensorId, Settings(Map.empty, Map.empty), Map.empty)).map(
       _ => {
         // then
         val dagInstanceCaptor = ArgumentCaptor.forClass(classOf[Seq[(DagInstanceJoined, Event)]])
@@ -88,7 +88,7 @@ class EventProcessorTest extends AsyncFlatSpec with MockitoSugar with Matchers w
     val underTest = new EventProcessor(eventRepository, dagDefinitionRepository, dagInstanceRepository)
 
     // when
-    underTest.eventProcessor(Seq(event), Properties(sensorId, Settings(Map.empty, Map.empty), Map.empty)).map(
+    underTest.eventProcessor("triggered by")(Seq(event), Properties(sensorId, Settings(Map.empty, Map.empty), Map.empty)).map(
       _ => {
         // then
         verify(dagDefinitionRepository, never()).getJoinedDagDefinition(any())(any[ExecutionContext])
@@ -109,7 +109,7 @@ class EventProcessorTest extends AsyncFlatSpec with MockitoSugar with Matchers w
     val underTest = new EventProcessor(eventRepository, dagDefinitionRepository, dagInstanceRepository)
 
     // when
-    underTest.eventProcessor(Seq(event), Properties(sensorId, Settings(Map.empty, Map.empty), Map.empty)).map(
+    underTest.eventProcessor("triggered by")(Seq(event), Properties(sensorId, Settings(Map.empty, Map.empty), Map.empty)).map(
       _ => {
         // then
         verify(dagDefinitionRepository).getJoinedDagDefinition(eqTo(sensorId))(any[ExecutionContext])

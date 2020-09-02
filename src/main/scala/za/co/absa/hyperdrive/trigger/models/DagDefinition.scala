@@ -29,9 +29,10 @@ case class DagDefinitionJoined(
   jobDefinitions: Seq[JobDefinition],
   id: Long = 0
 ){
-  def toDagInstanceJoined(): DagInstanceJoined = {
+  def toDagInstanceJoined(triggeredBy: String): DagInstanceJoined = {
     DagInstanceJoined(
       status = DagInstanceStatuses.InQueue,
+      triggeredBy = triggeredBy,
       workflowId = this.workflowId,
       jobInstances = jobDefinitions.map(_.toJobInstance()),
       started = LocalDateTime.now(),
