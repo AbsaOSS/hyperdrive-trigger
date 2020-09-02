@@ -88,6 +88,15 @@ create table "workflow_history" (
   "workflow" VARCHAR NOT NULL
 );
 
+create table "job_template" (
+  "name" VARCHAR NOT NULL UNIQUE,
+  "job_type" VARCHAR NOT NULL,
+  "variables" VARCHAR NOT NULL,
+  "maps" VARCHAR NOT NULL,
+  "key_value_pairs" VARCHAR NOT NULL,
+  "id" BIGSERIAL NOT NULL PRIMARY KEY
+);
+
 alter table "job_instance"
   add constraint "job_instance_dag_instance_fk"
   foreign key("dag_instance_id")
@@ -155,15 +164,6 @@ left join (
     on jobInstanceCount.dag_instance_id = dag_instance.id
 left join workflow
     on workflow.id = dag_instance.workflow_id;
-
-create table "job_template" (
-  "name" VARCHAR NOT NULL UNIQUE,
-  "job_type" VARCHAR NOT NULL,
-  "variables" VARCHAR NOT NULL,
-  "maps" VARCHAR NOT NULL,
-  "key_value_pairs" VARCHAR NOT NULL,
-  "id" BIGSERIAL NOT NULL PRIMARY KEY
-);
 
 insert into "job_template" ("name", "job_type", "variables", "maps", "key_value_pairs")
 values ('Generic Spark Job', 'Spark', '{}', '{}', '{}');
