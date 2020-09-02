@@ -13,8 +13,6 @@
  * limitations under the License.
  */
 
-import { JobType } from './jobInstance.model';
-
 export type JobDefinitionModel = {
   dagDefinitionId: number;
   name: string;

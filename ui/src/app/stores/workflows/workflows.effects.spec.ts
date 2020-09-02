@@ -64,7 +64,6 @@ import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { texts } from '../../constants/texts.constants';
 import { Router } from '@angular/router';
 import { absoluteRoutes } from '../../constants/routes.constants';
-import { JobTypeFactory } from '../../models/jobInstance.model';
 import { ApiErrorModel, ApiErrorModelFactory } from '../../models/errors/apiError.model';
 import { WorkflowHistoryService } from '../../services/workflowHistory/workflow-history.service';
 import { HistoryModel, HistoryModelFactory } from '../../models/historyModel';

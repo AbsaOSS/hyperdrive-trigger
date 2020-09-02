@@ -19,8 +19,7 @@ import java.util.concurrent.CompletableFuture
 
 import javax.inject.Inject
 import org.springframework.web.bind.annotation._
-import za.co.absa.hyperdrive.trigger.api.rest.services.{JobInstanceService, JobTemplateService}
-import za.co.absa.hyperdrive.trigger.models.JobInstance
+import za.co.absa.hyperdrive.trigger.api.rest.services.JobTemplateService
 
 import scala.compat.java8.FutureConverters._
 import scala.concurrent.ExecutionContext.Implicits.global

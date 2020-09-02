@@ -22,9 +22,9 @@ import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, Matchers}
 import za.co.absa.hyperdrive.trigger.TestUtils.await
+import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, DatabaseError, ValidationError}
-import za.co.absa.hyperdrive.trigger.models.{DagDefinitionJoined, DagInstanceJoined, Project, Workflow, WorkflowJoined}
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, WorkflowRepository}
 
 import scala.concurrent.ExecutionContext.Implicits.global

@@ -20,13 +20,13 @@ import java.util.concurrent.TimeUnit
 
 import slick.jdbc.H2Profile
 import za.co.absa.hyperdrive.trigger.TestUtils
+import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.models.dagRuns.DagRun
 import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobTypes, SensorTypes}
-import za.co.absa.hyperdrive.trigger.models.{DagInstance, JobParameters, JobTemplate, Properties, Sensor, Settings, Workflow}
 
 import scala.collection.immutable.SortedMap
-import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
+import scala.concurrent.{Await, Future}
 
 trait RepositoryTestBase extends Repository {
   val h2Profile = H2Profile

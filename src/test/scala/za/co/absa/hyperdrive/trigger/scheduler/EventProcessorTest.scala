@@ -27,7 +27,7 @@ import play.api.libs.json.JsObject
 import za.co.absa.hyperdrive.trigger.TestUtils.await
 import za.co.absa.hyperdrive.trigger.api.rest.services.JobTemplateService
 import za.co.absa.hyperdrive.trigger.models._
-import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobTypes}
+import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
 import za.co.absa.hyperdrive.trigger.persistance.{DagDefinitionRepository, DagInstanceRepository, EventRepository}
 import za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor
 

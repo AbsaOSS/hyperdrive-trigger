@@ -21,8 +21,8 @@ import java.util.UUID
 
 import org.apache.commons.lang3.RandomStringUtils
 import za.co.absa.hyperdrive.trigger.api.rest.services.JobTemplateFixture.{GenericShellJobTemplate, GenericSparkJobTemplate}
-import za.co.absa.hyperdrive.trigger.models.{DagDefinitionJoined, JobDefinition, JobParameters, Properties, Sensor, Settings, WorkflowJoined}
-import za.co.absa.hyperdrive.trigger.models.enums.{JobTypes, SensorTypes}
+import za.co.absa.hyperdrive.trigger.models._
+import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.kafka.KafkaSettings
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.time.TimeSensorSettings
 

@@ -23,7 +23,7 @@ import org.quartz.impl.matchers.GroupMatcher
 import org.scalatest._
 import za.co.absa.hyperdrive.trigger.api.rest.services.{JobTemplateFixture, JobTemplateService, JobTemplateServiceImpl}
 import za.co.absa.hyperdrive.trigger.models._
-import za.co.absa.hyperdrive.trigger.models.enums.{JobTypes, SensorTypes}
+import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes
 import za.co.absa.hyperdrive.trigger.persistance._
 import za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.Sensors
