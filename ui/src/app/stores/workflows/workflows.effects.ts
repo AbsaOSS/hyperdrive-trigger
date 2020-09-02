@@ -34,7 +34,7 @@ import { ToastrService } from 'ngx-toastr';
 import { texts } from '../../constants/texts.constants';
 import { WorkflowModel, WorkflowModelFactory } from '../../models/workflow.model';
 import { WorkflowRequestModel } from '../../models/workflowRequest.model';
-import { WorkflowHistoriesForComparisonModel, HistoryModel } from '../../models/historyModel';
+import { HistoryModel, WorkflowHistoriesForComparisonModel } from '../../models/historyModel';
 import { WorkflowHistoryService } from '../../services/workflowHistory/workflow-history.service';
 import { JobService } from '../../services/job/job.service';
 import { JobForRunModel } from '../../models/jobForRun.model';
@@ -386,7 +386,7 @@ export class WorkflowsEffects {
       workflowFormPartsSequences.allDetails,
       workflowFormPartsConsts.SENSOR.SENSOR_TYPE,
       workflowFormPartsConsts.JOB.JOB_NAME,
-      workflowFormPartsConsts.JOB.JOB_TYPE,
+      workflowFormPartsConsts.JOB.JOB_TEMPLATE_ID,
       workflowComponents,
     );
   }

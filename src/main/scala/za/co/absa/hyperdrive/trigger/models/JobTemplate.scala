@@ -15,33 +15,11 @@
 
 package za.co.absa.hyperdrive.trigger.models
 
-case class DagDefinition(
-  workflowId: Long,
+import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
+
+case class JobTemplate(
+  name: String,
+  jobType: JobType,
+  jobParameters: JobParameters,
   id: Long = 0
 )
-
-case class DagDefinitionJoined(
-  workflowId: Long = 0,
-  jobDefinitions: Seq[JobDefinition],
-  id: Long = 0
-){
-  def toDag(): DagDefinition = {
-    DagDefinition(
-      workflowId = this.workflowId,
-      id = this.id
-    )
-  }
-}
-
-object DagDefinitionJoined {
-  def apply(
-    dagDefinition: DagDefinition,
-    jobDefinitions: Seq[JobDefinition]
-  ): DagDefinitionJoined = {
-    DagDefinitionJoined(
-      workflowId = dagDefinition.workflowId,
-      jobDefinitions = jobDefinitions,
-      id = dagDefinition.id
-    )
-  }
-}
