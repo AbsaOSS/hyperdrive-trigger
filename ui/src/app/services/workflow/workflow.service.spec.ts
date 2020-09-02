@@ -13,14 +13,15 @@
  * limitations under the License.
  */
 
-import { TestBed } from '@angular/core/testing';
+import {TestBed} from '@angular/core/testing';
 
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { api } from '../../constants/api.constants';
-import { WorkflowService } from './workflow.service';
-import { ProjectModelFactory } from '../../models/project.model';
-import { WorkflowModelFactory } from '../../models/workflow.model';
-import { WorkflowJoinedModelFactory } from '../../models/workflowJoined.model';
+import {HttpClientTestingModule, HttpTestingController} from '@angular/common/http/testing';
+import {api} from '../../constants/api.constants';
+import {WorkflowService} from './workflow.service';
+import {ProjectModelFactory} from '../../models/project.model';
+import {WorkflowModelFactory} from '../../models/workflow.model';
+import {WorkflowJoinedModelFactory} from '../../models/workflowJoined.model';
+import {jobTemplates} from '../../constants/jobTemplates.constants';
 
 describe('WorkflowService', () => {
   let underTest: WorkflowService;
@@ -171,5 +172,36 @@ describe('WorkflowService', () => {
     const req = httpTestingController.expectOne(api.RUN_WORKFLOWS_JOBS + `?workflowId=${workflowId}`);
     expect(req.request.method).toEqual('PUT');
     req.flush(new Boolean(response));
+  });
+
+  it('getWorkflowDynamicFormParts() should not return no form parts if no template ids are present', () => {
+    underTest.getWorkflowDynamicFormParts().subscribe(
+      (data) => expect(data.jobDynamicParts.length).toEqual(0),
+      (error) => fail(error),
+    );
+
+    const req = httpTestingController.expectOne(encodeURI(api.GET_JOB_TEMPLATE_ID + `?name=` + jobTemplates.SPARK_JOB));
+    expect(req.request.method).toEqual('GET');
+    req.flush(null);
+    const reqShell = httpTestingController.expectOne(encodeURI(api.GET_JOB_TEMPLATE_ID + `?name=` + jobTemplates.SHELL_JOB));
+    expect(reqShell.request.method).toEqual('GET');
+    reqShell.flush(null);
+  });
+
+  it('getWorkflowDynamicFormParts() should not return only the shell-job form part if no other template ids are present', () => {
+    underTest.getWorkflowDynamicFormParts().subscribe(
+      (data) => {
+        expect(data.jobDynamicParts.length).toEqual(1);
+        expect(data.jobDynamicParts[0].label).toEqual(jobTemplates.SHELL_JOB);
+      },
+      (error) => fail(error),
+    );
+
+    const req = httpTestingController.expectOne(encodeURI(api.GET_JOB_TEMPLATE_ID + `?name=` + jobTemplates.SPARK_JOB));
+    expect(req.request.method).toEqual('GET');
+    req.flush(null);
+    const reqShell = httpTestingController.expectOne(encodeURI(api.GET_JOB_TEMPLATE_ID + `?name=` + jobTemplates.SHELL_JOB));
+    expect(reqShell.request.method).toEqual('GET');
+    reqShell.flush(2);
   });
 });

@@ -13,20 +13,20 @@
  * limitations under the License.
  */
 
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import {async, ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { WorkflowComponent } from './workflow.component';
-import { provideMockStore } from '@ngrx/store/testing';
-import { ActivatedRoute, Router } from '@angular/router';
-import { of } from 'rxjs';
-import { RouterTestingModule } from '@angular/router/testing';
-import { PreviousRouteService } from '../../../services/previousRoute/previous-route.service';
-import { ConfirmationDialogService } from '../../../services/confirmation-dialog/confirmation-dialog.service';
-import { Store } from '@ngrx/store';
-import { AppState } from '../../../stores/app.reducers';
-import { StartWorkflowInitialization } from '../../../stores/workflows/workflows.actions';
-import { DynamicFormPartsFactory, WorkflowFormPartsModelFactory } from '../../../models/workflowFormParts.model';
-import { workflowFormParts, workflowFormPartsSequences } from '../../../constants/workflowFormParts.constants';
+import {WorkflowComponent} from './workflow.component';
+import {provideMockStore} from '@ngrx/store/testing';
+import {ActivatedRoute, Router} from '@angular/router';
+import {of} from 'rxjs';
+import {RouterTestingModule} from '@angular/router/testing';
+import {PreviousRouteService} from '../../../services/previousRoute/previous-route.service';
+import {ConfirmationDialogService} from '../../../services/confirmation-dialog/confirmation-dialog.service';
+import {Store} from '@ngrx/store';
+import {AppState} from '../../../stores/app.reducers';
+import {StartWorkflowInitialization} from '../../../stores/workflows/workflows.actions';
+import {DynamicFormPartsFactory, WorkflowFormPartsModelFactory} from '../../../models/workflowFormParts.model';
+import {workflowFormParts, workflowFormPartsSequences} from '../../../constants/workflowFormParts.constants';
 
 describe('WorkflowComponent', () => {
   let underTest: WorkflowComponent;
@@ -54,7 +54,7 @@ describe('WorkflowComponent', () => {
           workflowFormPartsSequences.allDetails,
           workflowFormParts.SENSOR.SENSOR_TYPE,
           workflowFormParts.JOB.JOB_NAME,
-          workflowFormParts.JOB.JOB_TYPE,
+          workflowFormParts.JOB.JOB_TEMPLATE_ID,
           DynamicFormPartsFactory.create([], []),
         ),
         backendValidationErrors: ['validationError'],

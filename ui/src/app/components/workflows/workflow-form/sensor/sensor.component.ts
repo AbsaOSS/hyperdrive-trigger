@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { workflowModes } from '../../../../models/enums/workflowModes.constants';
-import { Subject, Subscription } from 'rxjs';
-import { Action } from '@ngrx/store';
-import { WorkflowSensorChanged, WorkflowSensorTypeSwitched } from '../../../../stores/workflows/workflows.actions';
-import { FormPart, WorkflowFormPartsModel } from '../../../../models/workflowFormParts.model';
-import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../models/workflowEntry.model';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {workflowModes} from '../../../../models/enums/workflowModes.constants';
+import {Subject, Subscription} from 'rxjs';
+import {Action} from '@ngrx/store';
+import {WorkflowSensorChanged, WorkflowSensorTypeSwitched} from '../../../../stores/workflows/workflows.actions';
+import {FormPart, WorkflowFormPartsModel} from '../../../../models/workflowFormParts.model';
+import {WorkflowEntryModel, WorkflowEntryModelFactory} from '../../../../models/workflowEntry.model';
 
 @Component({
   selector: 'app-sensor',
@@ -51,15 +51,15 @@ export class SensorComponent implements OnInit, OnDestroy {
     });
   }
 
-  getSensorTypes(): string[] {
-    return this.workflowFormParts.dynamicParts.sensorDynamicParts.map((component) => component.name);
+  getSensorTypes(): Map<string, string> {
+    return new Map(this.workflowFormParts.dynamicParts.sensorDynamicParts.map((component) => [component.value, component.label]));
   }
 
   getSelectedSensorComponent(): FormPart[] {
     const selected = this.sensorData.find((value) => value.property == this.workflowFormParts.sensorSwitchPart.property);
     const selectedSensor = !!selected ? selected.value : undefined;
 
-    const sensorComponent = this.workflowFormParts.dynamicParts.sensorDynamicParts.find((sp) => sp.name == selectedSensor);
+    const sensorComponent = this.workflowFormParts.dynamicParts.sensorDynamicParts.find((sp) => sp.value == selectedSensor);
     return sensorComponent ? sensorComponent.parts : this.workflowFormParts.dynamicParts.sensorDynamicParts[0].parts;
   }
 
