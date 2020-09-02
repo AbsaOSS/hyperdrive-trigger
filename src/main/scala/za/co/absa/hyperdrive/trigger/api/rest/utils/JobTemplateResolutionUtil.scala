@@ -22,6 +22,7 @@ import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.InQueue
 import za.co.absa.hyperdrive.trigger.models._
 
 import scala.collection.immutable.SortedMap
+import scala.util.{Failure, Success, Try}
 
 
 object JobTemplateResolutionUtil {
@@ -31,7 +32,13 @@ object JobTemplateResolutionUtil {
     DagInstanceJoined(
       status = DagInstanceStatuses.InQueue,
       workflowId = dagDefinitionJoined.workflowId,
-      jobInstances = dagDefinitionJoined.jobDefinitions.map(jd => resolveJobDefinition(jd, jobTemplatesLookup(jd.jobTemplateId))),
+      jobInstances = dagDefinitionJoined.jobDefinitions.map(jd => {
+        val jobTemplate = Try(jobTemplatesLookup(jd.jobTemplateId)) match {
+          case Success(value) => value
+          case Failure(_) => throw new NoSuchElementException(s"Couldn't find template with id ${jd.jobTemplateId}")
+        }
+        resolveJobDefinition(jd, jobTemplate)
+      }),
       started = LocalDateTime.now(),
       finished = None
     )

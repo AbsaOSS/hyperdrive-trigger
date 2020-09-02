@@ -174,7 +174,19 @@ class JobTemplateResolutionUtilTest extends FlatSpec with Matchers {
       )
     )
   }
-  
+
+  it should "throw an error if the jobTemplate doesn't exist" in {
+    // given
+    val jobDefinition = createJobDefinition().copy(jobTemplateId = 1)
+    val dagDefinitionJoined = createDagDefinitionJoined(jobDefinition)
+
+    // when
+    val result = intercept[NoSuchElementException](JobTemplateResolutionUtil.resolveDagDefinitionJoined(dagDefinitionJoined, Seq.empty))
+
+    // then
+    result.getMessage should include("template with id 1")
+  }
+
   private def createDagDefinitionJoined(jobDefinition: JobDefinition) = {
     DagDefinitionJoined(jobDefinitions = Seq(jobDefinition))
   }
