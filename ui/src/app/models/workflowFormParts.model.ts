@@ -27,7 +27,8 @@ export type DynamicFormParts = {
 };
 
 export type DynamicFormPart = {
-  name: string;
+  value: string;
+  label: string;
   parts: FormPart[];
 };
 
@@ -36,7 +37,7 @@ export type FormPart = {
   property: string;
   type: string;
   partValidation: PartValidation;
-  options?: string[];
+  options?: Map<string, string>;
 };
 
 export class WorkflowFormPartsModelFactory {
@@ -65,12 +66,16 @@ export class DynamicFormPartsFactory {
 
 export class DynamicFormPartFactory {
   static create(name: string, parts: FormPart[]): DynamicFormPart {
-    return { name: name, parts: parts };
+    return { value: name, label: name, parts: parts };
+  }
+
+  static createWithLabel(value: string, label: string, parts: FormPart[]): DynamicFormPart {
+    return { value: value, label: label, parts: parts };
   }
 }
 
 export class FormPartFactory {
-  static create(name: string, property: string, type: string, partValidation: PartValidation, options?: string[]): FormPart {
+  static create(name: string, property: string, type: string, partValidation: PartValidation, options?: Map<string, string>): FormPart {
     return { name: name, property: property, type: type, partValidation: partValidation, options: options };
   }
 }

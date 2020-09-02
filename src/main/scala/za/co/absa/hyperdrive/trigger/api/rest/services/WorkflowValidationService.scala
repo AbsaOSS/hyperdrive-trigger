@@ -107,7 +107,7 @@ class WorkflowValidationServiceImpl @Inject()(override val workflowRepository: W
         updatedJobOption.map(updatedJob =>
           Seq(
             originalJob.name == updatedJob.name,
-            originalJob.jobType == updatedJob.jobType,
+            originalJob.jobTemplateId == updatedJob.jobTemplateId,
             originalJob.order == updatedJob.order,
             originalJob.jobParameters.variables.equals(updatedJob.jobParameters.variables),
             areMapsEqual(originalJob.jobParameters.maps, updatedJob.jobParameters.maps),

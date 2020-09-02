@@ -13,14 +13,6 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models
 
-case class JobDefinition(
-  dagDefinitionId: Long = 0,
-  jobTemplateId: Long = 0,
-  name: String,
-  jobParameters: JobParameters,
-  order: Int,
-  id: Long = 0
-)
-
+alter table "job_definition"
+drop column "deprecated_job_type"

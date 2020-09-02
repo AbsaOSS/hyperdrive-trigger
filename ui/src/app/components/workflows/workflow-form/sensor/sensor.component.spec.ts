@@ -39,10 +39,16 @@ describe('SensorComponent', () => {
   ];
   const workflowFormParts = WorkflowFormPartsModelFactory.create(
     [],
-    FormPartFactory.create('switchPartName', 'switchPartProp', 'switchPartType', PartValidationFactory.create(true), [
-      'optionOne',
-      'optionTwo',
-    ]),
+    FormPartFactory.create(
+      'switchPartName',
+      'switchPartProp',
+      'switchPartType',
+      PartValidationFactory.create(true),
+      new Map([
+        ['optionOne', 'optionOne'],
+        ['optionTwo', 'optionTwoLabel'],
+      ]),
+    ),
     undefined,
     undefined,
     DynamicFormPartsFactory.create(
@@ -50,7 +56,7 @@ describe('SensorComponent', () => {
         DynamicFormPartFactory.create('optionOne', [
           FormPartFactory.create('partOne', 'partOne', 'partOne', PartValidationFactory.create(true)),
         ]),
-        DynamicFormPartFactory.create('optionTwo', [
+        DynamicFormPartFactory.createWithLabel('optionTwo', 'optionTwoLabel', [
           FormPartFactory.create('partTwo', 'partTwo', 'partTwo', PartValidationFactory.create(true)),
         ]),
       ],

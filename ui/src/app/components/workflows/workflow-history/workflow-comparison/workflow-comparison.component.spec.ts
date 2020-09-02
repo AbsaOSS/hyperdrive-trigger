@@ -35,7 +35,7 @@ describe('WorkflowComparisonComponent', () => {
           workflowFormPartsSequences.allDetails,
           workflowFormParts.SENSOR.SENSOR_TYPE,
           workflowFormParts.JOB.JOB_NAME,
-          workflowFormParts.JOB.JOB_TYPE,
+          workflowFormParts.JOB.JOB_TEMPLATE_ID,
           DynamicFormPartsFactory.create([], []),
         ),
         leftWorkflowHistoryData: {

@@ -20,12 +20,13 @@ import java.util.concurrent.TimeUnit
 
 import slick.jdbc.H2Profile
 import za.co.absa.hyperdrive.trigger.TestUtils
+import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.models.dagRuns.DagRun
-import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, SensorTypes}
-import za.co.absa.hyperdrive.trigger.models.{DagInstance, Properties, Sensor, Settings, Workflow}
+import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobTypes, SensorTypes}
 
-import scala.concurrent.{Await, Future}
+import scala.collection.immutable.SortedMap
 import scala.concurrent.duration._
+import scala.concurrent.{Await, Future}
 
 trait RepositoryTestBase extends Repository {
   val h2Profile = H2Profile
@@ -38,6 +39,7 @@ trait RepositoryTestBase extends Repository {
       workflowHistoryTable.schema.create,
       dagDefinitionTable.schema.create,
       sensorTable.schema.create,
+      jobTemplateTable.schema.create,
       jobDefinitionTable.schema.create,
       dagInstanceTable.schema.create,
       jobInstanceTable.schema.create,
@@ -53,6 +55,7 @@ trait RepositoryTestBase extends Repository {
       jobInstanceTable.schema.drop,
       dagInstanceTable.schema.drop,
       jobDefinitionTable.schema.drop,
+      jobTemplateTable.schema.drop,
       sensorTable.schema.drop,
       dagDefinitionTable.schema.drop,
       workflowTable.schema.drop,
@@ -68,6 +71,7 @@ trait RepositoryTestBase extends Repository {
       jobInstanceTable.delete,
       dagInstanceTable.delete,
       jobDefinitionTable.delete,
+      jobTemplateTable.delete,
       sensorTable.delete,
       dagDefinitionTable.delete,
       workflowTable.delete,
@@ -88,6 +92,10 @@ trait RepositoryTestBase extends Repository {
     val workflows = sensorsAndWorkflows.map{case (_, workflow) => workflow}.distinct
     run(workflowTable.forceInsertAll(workflows))
     run(sensorTable.forceInsertAll(sensors))
+  }
+
+  def insertJobTemplates(): Unit = {
+    run(jobTemplateTable.forceInsertAll(TestData.jobTemplates))
   }
 
   def run[R](action: DBIO[R]): Unit = {
@@ -125,6 +133,9 @@ trait RepositoryTestBase extends Repository {
     val dr5 = DagRun(workflowId = 5, workflowName = "workflowName5", projectName = "projectName3", jobCount = 2, started = LocalDateTime.now().plusDays(5), finished = None, status = DagInstanceStatuses.Running.name, id = 304)
     val dagRuns: Seq[DagRun] = Seq(dr1, dr2, dr3, dr4, dr5)
 
+    val jt1 = JobTemplate(name = "jobTemplate1", jobType = JobTypes.Spark, JobParameters(Map("key" -> "value"), Map("key" -> List("value1", "value2")), Map("key" -> SortedMap("subKey1" -> "value1"))), id = 100)
+    val jt2 = JobTemplate(name = "jobTemplate2", jobType = JobTypes.Shell, JobParameters(Map(), Map(), Map()), id = 101)
+    val jobTemplates = Seq(jt1, jt2)
   }
 
   object TestSensors {

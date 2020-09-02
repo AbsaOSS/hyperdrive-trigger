@@ -13,14 +13,7 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models
-
-case class JobDefinition(
-  dagDefinitionId: Long = 0,
-  jobTemplateId: Long = 0,
-  name: String,
-  jobParameters: JobParameters,
-  order: Int,
-  id: Long = 0
-)
-
+export const jobTemplates = {
+  SHELL_JOB: 'Generic Shell Job',
+  SPARK_JOB: 'Generic Spark Job',
+};

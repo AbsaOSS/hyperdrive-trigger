@@ -34,7 +34,7 @@ export class SelectPartComponent implements OnInit {
   @Input() name: string;
   @Input() value: string;
   @Input() property: string;
-  @Input() options: string[];
+  @Input() options: Map<string, string>;
   @Input() valueChanges: Subject<WorkflowEntryModel>;
   @Input() partValidation: PartValidation;
   partValidationSafe: PartValidation;
@@ -45,10 +45,10 @@ export class SelectPartComponent implements OnInit {
 
   ngOnInit(): void {
     if (!this.options) {
-      this.options = [];
+      this.options = new Map();
     }
     if (!this.value || this.value == '') {
-      this.modelChanged(this.options.length != 0 ? this.options[0] : '');
+      this.modelChanged(this.options.size != 0 ? this.options.keys().next().value : '');
     }
     this.partValidationSafe = PartValidationFactory.create(!!this.partValidation.isRequired ? this.partValidation.isRequired : true);
   }

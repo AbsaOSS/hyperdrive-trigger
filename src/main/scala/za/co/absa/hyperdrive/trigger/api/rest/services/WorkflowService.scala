@@ -27,6 +27,7 @@ import scala.concurrent.{ExecutionContext, Future}
 trait WorkflowService {
   val workflowRepository: WorkflowRepository
   val dagInstanceRepository: DagInstanceRepository
+  val jobTemplateService: JobTemplateService
   val workflowValidationService: WorkflowValidationService
 
   def createWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], WorkflowJoined]]
@@ -46,6 +47,7 @@ trait WorkflowService {
 @Service
 class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
                           override val dagInstanceRepository: DagInstanceRepository,
+                          override val jobTemplateService: JobTemplateService,
                           override val workflowValidationService: WorkflowValidationService) extends WorkflowService {
 
   def createWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], WorkflowJoined]] = {
@@ -136,9 +138,13 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
   }
 
   override def runWorkflow(workflowId: Long)(implicit ec: ExecutionContext): Future[Boolean] = {
-    workflowRepository.getWorkflow(workflowId).map(joinedWorkflow =>
-      dagInstanceRepository.insertJoinedDagInstance(joinedWorkflow.dagDefinitionJoined.toDagInstanceJoined())
-    ).map(_ => true)
+    for {
+      joinedWorkflow <- workflowRepository.getWorkflow(workflowId)
+      dagInstanceJoined <- jobTemplateService.resolveJobTemplate(joinedWorkflow.dagDefinitionJoined)
+      _ <- dagInstanceRepository.insertJoinedDagInstance(dagInstanceJoined)
+    } yield {
+      true
+    }
   }
 
   override def runWorkflowJobs(workflowId: Long, jobIds: Seq[Long])(implicit ec: ExecutionContext): Future[Boolean] = {
@@ -153,7 +159,12 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
         val dagDefinitionWithFilteredJobs = dagDefinitionJoined.copy(
           jobDefinitions = dagDefinitionJoined.jobDefinitions.filter(job => jobIds.contains(job.id))
         )
-        dagInstanceRepository.insertJoinedDagInstance(dagDefinitionWithFilteredJobs.toDagInstanceJoined()).map(_=>true)
+        for {
+          dagInstanceJoined <- jobTemplateService.resolveJobTemplate(dagDefinitionWithFilteredJobs)
+          _ <- dagInstanceRepository.insertJoinedDagInstance(dagInstanceJoined)
+        } yield {
+          true
+        }
       }
     })
   }
