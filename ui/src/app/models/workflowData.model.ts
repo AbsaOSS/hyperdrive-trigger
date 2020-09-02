@@ -13,16 +13,13 @@
  * limitations under the License.
  */
 
-import {WorkflowEntryModel, WorkflowEntryModelFactory} from './workflowEntry.model';
-import {WorkflowJoinedModel} from './workflowJoined.model';
-import {
-  workflowFormParts as workflowFormPartsConsts,
-  workflowFormPartsSequences
-} from '../constants/workflowFormParts.constants';
+import { WorkflowEntryModel, WorkflowEntryModelFactory } from './workflowEntry.model';
+import { WorkflowJoinedModel } from './workflowJoined.model';
+import { workflowFormParts as workflowFormPartsConsts, workflowFormPartsSequences } from '../constants/workflowFormParts.constants';
 import get from 'lodash/get';
-import {JobEntryModel, JobEntryModelFactory} from './jobEntry.model';
-import {DynamicFormParts} from './workflowFormParts.model';
-import {WorkflowFormDataModel, WorkflowFormDataModelFactory} from './workflowFormData.model';
+import { JobEntryModel, JobEntryModelFactory } from './jobEntry.model';
+import { DynamicFormParts } from './workflowFormParts.model';
+import { WorkflowFormDataModel, WorkflowFormDataModelFactory } from './workflowFormData.model';
 
 export class WorkflowDataModel {
   constructor(private worfklow: WorkflowJoinedModel, private dynamicParts: DynamicFormParts) {}

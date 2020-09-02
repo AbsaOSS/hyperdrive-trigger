@@ -13,14 +13,14 @@
  * limitations under the License.
  */
 
-import {Injectable} from '@angular/core';
-import {HttpClient, HttpErrorResponse, HttpParams, HttpResponse} from '@angular/common/http';
-import {api} from '../../constants/api.constants';
-import {jobTemplates} from '../../constants/jobTemplates.constants';
-import {catchError, map, mergeMap} from 'rxjs/operators';
-import {ProjectModel} from '../../models/project.model';
-import {combineLatest, Observable, of, throwError} from 'rxjs';
-import {WorkflowJoinedModel} from '../../models/workflowJoined.model';
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpErrorResponse, HttpParams, HttpResponse } from '@angular/common/http';
+import { api } from '../../constants/api.constants';
+import { jobTemplates } from '../../constants/jobTemplates.constants';
+import { catchError, map, mergeMap } from 'rxjs/operators';
+import { ProjectModel } from '../../models/project.model';
+import { combineLatest, Observable, of, throwError } from 'rxjs';
+import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
 import {
   DynamicFormPart,
   DynamicFormPartFactory,

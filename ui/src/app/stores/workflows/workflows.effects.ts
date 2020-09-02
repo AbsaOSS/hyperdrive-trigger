@@ -13,39 +13,32 @@
  * limitations under the License.
  */
 
-import {Injectable} from '@angular/core';
-import {Actions, Effect, ofType} from '@ngrx/effects';
+import { Injectable } from '@angular/core';
+import { Actions, Effect, ofType } from '@ngrx/effects';
 import * as WorkflowActions from '../workflows/workflows.actions';
 
-import {catchError, mergeMap, switchMap, withLatestFrom} from 'rxjs/operators';
-import {WorkflowService} from '../../services/workflow/workflow.service';
-import {ProjectModel} from '../../models/project.model';
-import {WorkflowJoinedModel} from '../../models/workflowJoined.model';
-import {workflowModes} from '../../models/enums/workflowModes.constants';
-import {
-  DynamicFormParts,
-  WorkflowFormPartsModel,
-  WorkflowFormPartsModelFactory
-} from '../../models/workflowFormParts.model';
-import {
-  workflowFormParts as workflowFormPartsConsts,
-  workflowFormPartsSequences
-} from '../../constants/workflowFormParts.constants';
-import {AppState, selectWorkflowState} from '../app.reducers';
-import {Store} from '@ngrx/store';
+import { catchError, mergeMap, switchMap, withLatestFrom } from 'rxjs/operators';
+import { WorkflowService } from '../../services/workflow/workflow.service';
+import { ProjectModel } from '../../models/project.model';
+import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
+import { workflowModes } from '../../models/enums/workflowModes.constants';
+import { DynamicFormParts, WorkflowFormPartsModel, WorkflowFormPartsModelFactory } from '../../models/workflowFormParts.model';
+import { workflowFormParts as workflowFormPartsConsts, workflowFormPartsSequences } from '../../constants/workflowFormParts.constants';
+import { AppState, selectWorkflowState } from '../app.reducers';
+import { Store } from '@ngrx/store';
 import * as fromWorkflows from './workflows.reducers';
-import {WorkflowDataModel} from '../../models/workflowData.model';
-import {ActivatedRoute, Router} from '@angular/router';
-import {absoluteRoutes} from '../../constants/routes.constants';
-import {ToastrService} from 'ngx-toastr';
-import {texts} from '../../constants/texts.constants';
-import {WorkflowModel, WorkflowModelFactory} from '../../models/workflow.model';
-import {WorkflowRequestModel} from '../../models/workflowRequest.model';
-import {HistoryModel, WorkflowHistoriesForComparisonModel} from '../../models/historyModel';
-import {WorkflowHistoryService} from '../../services/workflowHistory/workflow-history.service';
-import {JobService} from '../../services/job/job.service';
-import {JobForRunModel} from '../../models/jobForRun.model';
-import {EMPTY} from 'rxjs';
+import { WorkflowDataModel } from '../../models/workflowData.model';
+import { ActivatedRoute, Router } from '@angular/router';
+import { absoluteRoutes } from '../../constants/routes.constants';
+import { ToastrService } from 'ngx-toastr';
+import { texts } from '../../constants/texts.constants';
+import { WorkflowModel, WorkflowModelFactory } from '../../models/workflow.model';
+import { WorkflowRequestModel } from '../../models/workflowRequest.model';
+import { HistoryModel, WorkflowHistoriesForComparisonModel } from '../../models/historyModel';
+import { WorkflowHistoryService } from '../../services/workflowHistory/workflow-history.service';
+import { JobService } from '../../services/job/job.service';
+import { JobForRunModel } from '../../models/jobForRun.model';
+import { EMPTY } from 'rxjs';
 
 @Injectable()
 export class WorkflowsEffects {

@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 
-import {TestBed} from '@angular/core/testing';
-import {EMPTY, Observable} from 'rxjs';
-import {provideMockActions} from '@ngrx/effects/testing';
-import {HttpClientTestingModule} from '@angular/common/http/testing';
-import {Actions} from '@ngrx/effects';
-import {cold} from 'jasmine-marbles';
+import { TestBed } from '@angular/core/testing';
+import { EMPTY, Observable } from 'rxjs';
+import { provideMockActions } from '@ngrx/effects/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { Actions } from '@ngrx/effects';
+import { cold } from 'jasmine-marbles';
 import * as WorkflowsActions from './workflows.actions';
 import {
   CreateWorkflow,
@@ -31,14 +31,14 @@ import {
   RunJobs,
   StartWorkflowInitialization,
   SwitchWorkflowActiveState,
-  UpdateWorkflow
+  UpdateWorkflow,
 } from './workflows.actions';
 
-import {WorkflowsEffects} from './workflows.effects';
-import {WorkflowService} from '../../services/workflow/workflow.service';
-import {ProjectModelFactory} from '../../models/project.model';
-import {WorkflowModel, WorkflowModelFactory} from '../../models/workflow.model';
-import {MockStore, provideMockStore} from '@ngrx/store/testing';
+import { WorkflowsEffects } from './workflows.effects';
+import { WorkflowService } from '../../services/workflow/workflow.service';
+import { ProjectModelFactory } from '../../models/project.model';
+import { WorkflowModel, WorkflowModelFactory } from '../../models/workflow.model';
+import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import {
   DynamicFormPart,
   DynamicFormPartFactory,
@@ -53,22 +53,22 @@ import {
   workflowFormParts as workflowFormPartsConsts,
   workflowFormPartsSequences,
 } from '../../constants/workflowFormParts.constants';
-import {workflowModes} from '../../models/enums/workflowModes.constants';
-import {SensorModelFactory, SensorTypeFactory} from '../../models/sensor.model';
-import {DagDefinitionJoinedModelFactory} from '../../models/dagDefinitionJoined.model';
-import {WorkflowJoinedModelFactory} from '../../models/workflowJoined.model';
-import {WorkflowEntryModelFactory} from '../../models/workflowEntry.model';
-import {JobDefinitionModelFactory} from '../../models/jobDefinition.model';
-import {RouterTestingModule} from '@angular/router/testing';
-import {ToastrModule, ToastrService} from 'ngx-toastr';
-import {texts} from '../../constants/texts.constants';
-import {Router} from '@angular/router';
-import {absoluteRoutes} from '../../constants/routes.constants';
-import {ApiErrorModel, ApiErrorModelFactory} from '../../models/errors/apiError.model';
-import {WorkflowHistoryService} from '../../services/workflowHistory/workflow-history.service';
-import {HistoryModel, HistoryModelFactory} from '../../models/historyModel';
-import {JobForRunModelFactory} from '../../models/jobForRun.model';
-import {JobService} from '../../services/job/job.service';
+import { workflowModes } from '../../models/enums/workflowModes.constants';
+import { SensorModelFactory, SensorTypeFactory } from '../../models/sensor.model';
+import { DagDefinitionJoinedModelFactory } from '../../models/dagDefinitionJoined.model';
+import { WorkflowJoinedModelFactory } from '../../models/workflowJoined.model';
+import { WorkflowEntryModelFactory } from '../../models/workflowEntry.model';
+import { JobDefinitionModelFactory } from '../../models/jobDefinition.model';
+import { RouterTestingModule } from '@angular/router/testing';
+import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { texts } from '../../constants/texts.constants';
+import { Router } from '@angular/router';
+import { absoluteRoutes } from '../../constants/routes.constants';
+import { ApiErrorModel, ApiErrorModelFactory } from '../../models/errors/apiError.model';
+import { WorkflowHistoryService } from '../../services/workflowHistory/workflow-history.service';
+import { HistoryModel, HistoryModelFactory } from '../../models/historyModel';
+import { JobForRunModelFactory } from '../../models/jobForRun.model';
+import { JobService } from '../../services/job/job.service';
 
 describe('WorkflowsEffects', () => {
   let underTest: WorkflowsEffects;

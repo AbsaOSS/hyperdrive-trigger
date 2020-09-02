@@ -13,14 +13,14 @@
  * limitations under the License.
  */
 
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
-import {Subject, Subscription} from 'rxjs';
-import {workflowModes} from '../../../../../models/enums/workflowModes.constants';
-import {FormPart, WorkflowFormPartsModel} from '../../../../../models/workflowFormParts.model';
-import {Action} from '@ngrx/store';
-import {WorkflowJobChanged, WorkflowJobTypeSwitched} from '../../../../../stores/workflows/workflows.actions';
-import {WorkflowEntryModel, WorkflowEntryModelFactory} from '../../../../../models/workflowEntry.model';
-import {JobEntryModel} from '../../../../../models/jobEntry.model';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Subject, Subscription } from 'rxjs';
+import { workflowModes } from '../../../../../models/enums/workflowModes.constants';
+import { FormPart, WorkflowFormPartsModel } from '../../../../../models/workflowFormParts.model';
+import { Action } from '@ngrx/store';
+import { WorkflowJobChanged, WorkflowJobTypeSwitched } from '../../../../../stores/workflows/workflows.actions';
+import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
+import { JobEntryModel } from '../../../../../models/jobEntry.model';
 
 @Component({
   selector: 'app-job',

@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-import {async, ComponentFixture, TestBed} from '@angular/core/testing';
+import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import {SensorComponent} from './sensor.component';
+import { SensorComponent } from './sensor.component';
 import {
   DynamicFormPartFactory,
   DynamicFormPartsFactory,
@@ -23,10 +23,10 @@ import {
   PartValidationFactory,
   WorkflowFormPartsModelFactory,
 } from '../../../../models/workflowFormParts.model';
-import {WorkflowSensorChanged, WorkflowSensorTypeSwitched} from '../../../../stores/workflows/workflows.actions';
-import {WorkflowEntryModelFactory} from '../../../../models/workflowEntry.model';
-import {Subject} from 'rxjs';
-import {Action} from '@ngrx/store';
+import { WorkflowSensorChanged, WorkflowSensorTypeSwitched } from '../../../../stores/workflows/workflows.actions';
+import { WorkflowEntryModelFactory } from '../../../../models/workflowEntry.model';
+import { Subject } from 'rxjs';
+import { Action } from '@ngrx/store';
 
 describe('SensorComponent', () => {
   let fixture: ComponentFixture<SensorComponent>;

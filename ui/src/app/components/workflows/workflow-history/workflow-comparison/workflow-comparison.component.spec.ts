@@ -13,15 +13,15 @@
  * limitations under the License.
  */
 
-import {async, ComponentFixture, TestBed} from '@angular/core/testing';
+import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import {WorkflowComparisonComponent} from './workflow-comparison.component';
-import {DynamicFormPartsFactory, WorkflowFormPartsModelFactory} from '../../../../models/workflowFormParts.model';
-import {workflowFormParts, workflowFormPartsSequences} from '../../../../constants/workflowFormParts.constants';
-import {provideMockStore} from '@ngrx/store/testing';
-import {ActivatedRoute} from '@angular/router';
-import {of} from 'rxjs';
-import {HistoryModelFactory} from '../../../../models/historyModel';
+import { WorkflowComparisonComponent } from './workflow-comparison.component';
+import { DynamicFormPartsFactory, WorkflowFormPartsModelFactory } from '../../../../models/workflowFormParts.model';
+import { workflowFormParts, workflowFormPartsSequences } from '../../../../constants/workflowFormParts.constants';
+import { provideMockStore } from '@ngrx/store/testing';
+import { ActivatedRoute } from '@angular/router';
+import { of } from 'rxjs';
+import { HistoryModelFactory } from '../../../../models/historyModel';
 
 describe('WorkflowComparisonComponent', () => {
   let underTest: WorkflowComparisonComponent;

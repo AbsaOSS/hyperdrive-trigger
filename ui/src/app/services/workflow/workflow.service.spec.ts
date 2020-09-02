@@ -13,15 +13,15 @@
  * limitations under the License.
  */
 
-import {TestBed} from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 
-import {HttpClientTestingModule, HttpTestingController} from '@angular/common/http/testing';
-import {api} from '../../constants/api.constants';
-import {WorkflowService} from './workflow.service';
-import {ProjectModelFactory} from '../../models/project.model';
-import {WorkflowModelFactory} from '../../models/workflow.model';
-import {WorkflowJoinedModelFactory} from '../../models/workflowJoined.model';
-import {jobTemplates} from '../../constants/jobTemplates.constants';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { api } from '../../constants/api.constants';
+import { WorkflowService } from './workflow.service';
+import { ProjectModelFactory } from '../../models/project.model';
+import { WorkflowModelFactory } from '../../models/workflow.model';
+import { WorkflowJoinedModelFactory } from '../../models/workflowJoined.model';
+import { jobTemplates } from '../../constants/jobTemplates.constants';
 
 describe('WorkflowService', () => {
   let underTest: WorkflowService;

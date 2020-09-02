@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import {FormPartFactory, PartValidationFactory} from '../models/workflowFormParts.model';
+import { FormPartFactory, PartValidationFactory } from '../models/workflowFormParts.model';
 
 export const workflowFormParts = {
   DETAILS: {

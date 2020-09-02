@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
-import {Component, Input, OnInit} from '@angular/core';
-import {Subject} from 'rxjs';
-import {WorkflowEntryModel, WorkflowEntryModelFactory} from '../../../../../models/workflowEntry.model';
-import {ControlContainer, NgForm} from '@angular/forms';
-import {PartValidation, PartValidationFactory} from '../../../../../models/workflowFormParts.model';
-import {UuidUtil} from '../../../../../utils/uuid/uuid.util';
-import {texts} from 'src/app/constants/texts.constants';
+import { Component, Input, OnInit } from '@angular/core';
+import { Subject } from 'rxjs';
+import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
+import { ControlContainer, NgForm } from '@angular/forms';
+import { PartValidation, PartValidationFactory } from '../../../../../models/workflowFormParts.model';
+import { UuidUtil } from '../../../../../utils/uuid/uuid.util';
+import { texts } from 'src/app/constants/texts.constants';
 
 @Component({
   selector: 'app-select-part',
