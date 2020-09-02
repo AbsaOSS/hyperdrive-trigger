@@ -17,10 +17,9 @@ package za.co.absa.hyperdrive.trigger.api.rest.services
 
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.api.rest.utils.JobTemplateResolutionUtil
-import za.co.absa.hyperdrive.trigger.models.{DagDefinition, DagDefinitionJoined, DagInstanceJoined, JobDefinition, JobForRun, JobInstance, JobParameters, JobTemplate}
-import za.co.absa.hyperdrive.trigger.persistance.{JobDefinitionRepository, JobTemplateRepository}
+import za.co.absa.hyperdrive.trigger.models.{DagDefinitionJoined, DagInstanceJoined}
+import za.co.absa.hyperdrive.trigger.persistance.JobTemplateRepository
 
-import scala.collection.immutable.SortedMap
 import scala.concurrent.{ExecutionContext, Future}
 
 trait JobTemplateService {

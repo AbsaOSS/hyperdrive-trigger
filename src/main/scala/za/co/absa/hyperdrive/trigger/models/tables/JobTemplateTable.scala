@@ -15,9 +15,9 @@
 
 package za.co.absa.hyperdrive.trigger.models.tables
 
-import slick.lifted.{ForeignKeyQuery, ProvenShape}
+import slick.lifted.ProvenShape
 import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
-import za.co.absa.hyperdrive.trigger.models.{DagDefinition, JobDefinition, JobParameters, JobTemplate}
+import za.co.absa.hyperdrive.trigger.models.{JobParameters, JobTemplate}
 
 import scala.collection.immutable.SortedMap
 
