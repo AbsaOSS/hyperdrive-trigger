@@ -13,13 +13,16 @@
  * limitations under the License.
  */
 
-import { WorkflowEntryModel, WorkflowEntryModelFactory } from './workflowEntry.model';
-import { WorkflowJoinedModel } from './workflowJoined.model';
-import { workflowFormParts as workflowFormPartsConsts, workflowFormPartsSequences } from '../constants/workflowFormParts.constants';
+import {WorkflowEntryModel, WorkflowEntryModelFactory} from './workflowEntry.model';
+import {WorkflowJoinedModel} from './workflowJoined.model';
+import {
+  workflowFormParts as workflowFormPartsConsts,
+  workflowFormPartsSequences
+} from '../constants/workflowFormParts.constants';
 import get from 'lodash/get';
-import { JobEntryModel, JobEntryModelFactory } from './jobEntry.model';
-import { DynamicFormParts } from './workflowFormParts.model';
-import { WorkflowFormDataModel, WorkflowFormDataModelFactory } from './workflowFormData.model';
+import {JobEntryModel, JobEntryModelFactory} from './jobEntry.model';
+import {DynamicFormParts} from './workflowFormParts.model';
+import {WorkflowFormDataModel, WorkflowFormDataModelFactory} from './workflowFormData.model';
 
 export class WorkflowDataModel {
   constructor(private worfklow: WorkflowJoinedModel, private dynamicParts: DynamicFormParts) {}
@@ -40,7 +43,7 @@ export class WorkflowDataModel {
   getSensorData(): WorkflowEntryModel[] {
     const sensorType = workflowFormPartsConsts.SENSOR.SENSOR_TYPE;
     const sensorTypeValue = get(this.worfklow.sensor, sensorType.property);
-    const sensorDynamicOption = this.dynamicParts.sensorDynamicParts.find((part) => part.name == sensorTypeValue);
+    const sensorDynamicOption = this.dynamicParts.sensorDynamicParts.find((part) => part.value == sensorTypeValue);
     const sensorDynamicParts = sensorDynamicOption == undefined ? [] : sensorDynamicOption.parts;
     return sensorDynamicParts.concat(sensorType).map((part) => {
       const value = get(this.worfklow.sensor, part.property);
@@ -51,9 +54,9 @@ export class WorkflowDataModel {
   getJobsData(): JobEntryModel[] {
     const jobsData = this.worfklow.dagDefinitionJoined.jobDefinitions.map((job) => {
       const jobStaticPart = workflowFormPartsConsts.JOB.JOB_NAME;
-      const jobDynamicPart = workflowFormPartsConsts.JOB.JOB_TYPE;
+      const jobDynamicPart = workflowFormPartsConsts.JOB.JOB_TEMPLATE_ID;
       const jobDynamicPartValue = get(job, jobDynamicPart.property);
-      const jobDynamicOption = this.dynamicParts.jobDynamicParts.find((part) => part.name == jobDynamicPartValue);
+      const jobDynamicOption = this.dynamicParts.jobDynamicParts.find((part) => part.value == jobDynamicPartValue);
       const jobDynamicParts = jobDynamicOption == undefined ? [] : jobDynamicOption.parts;
       const jobData = jobDynamicParts.concat(jobDynamicPart, jobStaticPart).map((part) => {
         const value = get(job, part.property);

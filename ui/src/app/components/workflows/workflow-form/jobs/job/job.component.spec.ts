@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import {async, ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { JobComponent } from './job.component';
+import {JobComponent} from './job.component';
 import {
   DynamicFormPart,
   DynamicFormPartFactory,
@@ -25,11 +25,11 @@ import {
   PartValidationFactory,
   WorkflowFormPartsModelFactory,
 } from '../../../../../models/workflowFormParts.model';
-import { JobEntryModelFactory } from '../../../../../models/jobEntry.model';
-import { WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
-import { Subject } from 'rxjs';
-import { Action } from '@ngrx/store';
-import { WorkflowJobChanged, WorkflowJobTypeSwitched } from '../../../../../stores/workflows/workflows.actions';
+import {JobEntryModelFactory} from '../../../../../models/jobEntry.model';
+import {WorkflowEntryModelFactory} from '../../../../../models/workflowEntry.model';
+import {Subject} from 'rxjs';
+import {Action} from '@ngrx/store';
+import {WorkflowJobChanged, WorkflowJobTypeSwitched} from '../../../../../stores/workflows/workflows.actions';
 
 describe('JobComponent', () => {
   let fixture: ComponentFixture<JobComponent>;
@@ -46,12 +46,15 @@ describe('JobComponent', () => {
     'switchPartProp',
     'switchPartType',
     PartValidationFactory.create(true),
-    ['optionOne', 'optionTwo'],
+    new Map([
+      ['optionOne', 'optionOne'],
+      ['optionTwo', 'optionTwoLabel'],
+    ]),
   );
   const jobDynamicPartOne: DynamicFormPart = DynamicFormPartFactory.create('optionOne', [
     FormPartFactory.create('partOne', 'partOne', 'partOne', PartValidationFactory.create(true)),
   ]);
-  const jobDynamicPartTwo: DynamicFormPart = DynamicFormPartFactory.create('optionTwo', [
+  const jobDynamicPartTwo: DynamicFormPart = DynamicFormPartFactory.createWithLabel('optionTwo', 'optionTwoLabel', [
     FormPartFactory.create('partTwo', 'partTwo', 'partTwo', PartValidationFactory.create(true)),
   ]);
   const workflowFormParts = WorkflowFormPartsModelFactory.create(

@@ -13,14 +13,14 @@
  * limitations under the License.
  */
 
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { Subject, Subscription } from 'rxjs';
-import { workflowModes } from '../../../../../models/enums/workflowModes.constants';
-import { FormPart, WorkflowFormPartsModel } from '../../../../../models/workflowFormParts.model';
-import { Action } from '@ngrx/store';
-import { WorkflowJobChanged, WorkflowJobTypeSwitched } from '../../../../../stores/workflows/workflows.actions';
-import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
-import { JobEntryModel } from '../../../../../models/jobEntry.model';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {Subject, Subscription} from 'rxjs';
+import {workflowModes} from '../../../../../models/enums/workflowModes.constants';
+import {FormPart, WorkflowFormPartsModel} from '../../../../../models/workflowFormParts.model';
+import {Action} from '@ngrx/store';
+import {WorkflowJobChanged, WorkflowJobTypeSwitched} from '../../../../../stores/workflows/workflows.actions';
+import {WorkflowEntryModel, WorkflowEntryModelFactory} from '../../../../../models/workflowEntry.model';
+import {JobEntryModel} from '../../../../../models/jobEntry.model';
 
 @Component({
   selector: 'app-job',
@@ -60,12 +60,12 @@ export class JobComponent implements OnInit, OnDestroy {
     });
   }
 
-  getJobTypes(): string[] {
-    return this.workflowFormParts.dynamicParts.jobDynamicParts.map((part) => part.name);
+  getJobTypes(): Map<string, string> {
+    return new Map(this.workflowFormParts.dynamicParts.jobDynamicParts.map((part) => [part.value, part.label]));
   }
 
   getSelectedJobComponent(): FormPart[] {
-    const jobDynamicPart = this.workflowFormParts.dynamicParts.jobDynamicParts.find((jdp) => jdp.name == this.getSelectedJob());
+    const jobDynamicPart = this.workflowFormParts.dynamicParts.jobDynamicParts.find((jdp) => jdp.value == this.getSelectedJob());
     return jobDynamicPart ? jobDynamicPart.parts : this.workflowFormParts.dynamicParts.jobDynamicParts[0].parts;
   }
 

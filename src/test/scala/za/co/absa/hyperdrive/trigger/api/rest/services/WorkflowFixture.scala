@@ -20,8 +20,9 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 import org.apache.commons.lang3.RandomStringUtils
-import za.co.absa.hyperdrive.trigger.models.{DagDefinitionJoined, JobDefinition, JobParameters, Properties, Sensor, Settings, WorkflowJoined}
-import za.co.absa.hyperdrive.trigger.models.enums.{JobTypes, SensorTypes}
+import za.co.absa.hyperdrive.trigger.api.rest.services.JobTemplateFixture.{GenericShellJobTemplate, GenericSparkJobTemplate}
+import za.co.absa.hyperdrive.trigger.models._
+import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.kafka.KafkaSettings
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.time.TimeSensorSettings
 
@@ -64,8 +65,8 @@ object WorkflowFixture {
         jobDefinitions = Seq(
           JobDefinition(
             dagDefinitionId = 0,
+            jobTemplateId = GenericSparkJobTemplate.id,
             name = "TestJob1",
-            jobType = JobTypes.Spark,
             jobParameters = JobParameters(
               variables = Map("jobJar" -> "/dir/driver.jar",
                 "mainClass" -> "aaa.bbb.TestClass",
@@ -78,8 +79,8 @@ object WorkflowFixture {
           ),
           JobDefinition(
             dagDefinitionId = 0,
+            jobTemplateId = GenericShellJobTemplate.id,
             name = "TestJob2",
-            jobType = JobTypes.Shell,
             jobParameters = JobParameters(
               variables = Map("jobJar" -> "/dir/driver.jar",
                 "mainClass" -> "aaa.bbb.TestClass"
@@ -121,8 +122,8 @@ object WorkflowFixture {
         jobDefinitions = Seq(
           JobDefinition(
             dagDefinitionId = 0,
+            jobTemplateId = GenericSparkJobTemplate.id,
             name = s"${randomString()} Driver",
-            jobType = JobTypes.Spark,
             jobParameters = JobParameters(
               variables = Map(
                 "jobJar" -> s"${randomString()}/driver.jar",
@@ -164,8 +165,8 @@ object WorkflowFixture {
           ),
           JobDefinition(
             dagDefinitionId = 0,
+            jobTemplateId = GenericSparkJobTemplate.id,
             name = s"${randomString()} Publisher",
-            jobType = JobTypes.Spark,
             jobParameters = JobParameters(
               variables = Map(
                 "jobJar" -> s"${randomString()}/publisher.jar",
@@ -209,8 +210,8 @@ object WorkflowFixture {
         jobDefinitions = Seq(
           JobDefinition(
             dagDefinitionId = 0,
+            jobTemplateId = GenericShellJobTemplate.id,
             name = s"${randomString()}",
-            jobType = JobTypes.Shell,
             jobParameters = JobParameters(
               variables = Map(
                 "scriptLocation" -> s"${randomString()}/script.sh"

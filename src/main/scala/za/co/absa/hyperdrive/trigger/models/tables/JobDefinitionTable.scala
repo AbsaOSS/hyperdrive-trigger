@@ -15,21 +15,20 @@
 
 package za.co.absa.hyperdrive.trigger.models.tables
 
-import za.co.absa.hyperdrive.trigger.models.{DagDefinition, JobDefinition, JobParameters}
-import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
 import slick.lifted.{ForeignKeyQuery, ProvenShape}
+import za.co.absa.hyperdrive.trigger.models.{DagDefinition, JobDefinition, JobParameters, JobTemplate}
 
 import scala.collection.immutable.SortedMap
 
 trait JobDefinitionTable {
-  this: Profile with JdbcTypeMapper with DagDefinitionTable =>
-  import  profile.api._
+  this: Profile with JdbcTypeMapper with DagDefinitionTable with JobTemplateTable =>
+  import profile.api._
 
   final class JobDefinitionTable(tag: Tag) extends Table[JobDefinition](tag, _tableName = "job_definition") {
 
     def dagDefinitionId: Rep[Long] = column[Long]("dag_definition_id")
+    def jobTemplateId: Rep[Long] = column[Long]("job_template_id")
     def name: Rep[String] = column[String]("name")
-    def jobType: Rep[JobType] = column[JobType]("job_type")
     def variables: Rep[Map[String, String]] = column[Map[String, String]]("variables")
     def maps: Rep[Map[String, List[String]]] = column[Map[String, List[String]]]("maps")
     def keyValuePairs: Rep[Map[String, SortedMap[String, String]]] = column[Map[String, SortedMap[String, String]]]("key_value_pairs")
@@ -39,12 +38,16 @@ trait JobDefinitionTable {
     def dagDefinition_fk: ForeignKeyQuery[DagDefinitionTable, DagDefinition] =
       foreignKey("job_definition_dag_definition_fk", dagDefinitionId, TableQuery[DagDefinitionTable])(_.id)
 
-    def * : ProvenShape[JobDefinition] = (dagDefinitionId, name, jobType, variables, maps, keyValuePairs, order, id) <> (
+    def jobTemplate_fk: ForeignKeyQuery[JobTemplateTable, JobTemplate] =
+      foreignKey("job_definition_job_template_fk", jobTemplateId, TableQuery[JobTemplateTable])(_.id)
+
+    def * : ProvenShape[JobDefinition] = (dagDefinitionId, jobTemplateId, name, variables, maps, keyValuePairs,
+      order, id) <> (
       jobDefinitionTuple =>
         JobDefinition.apply(
           dagDefinitionId = jobDefinitionTuple._1,
-          name = jobDefinitionTuple._2,
-          jobType = jobDefinitionTuple._3,
+          jobTemplateId = jobDefinitionTuple._2,
+          name = jobDefinitionTuple._3,
           jobParameters = JobParameters(
             variables = jobDefinitionTuple._4,
             maps = jobDefinitionTuple._5,
@@ -56,8 +59,8 @@ trait JobDefinitionTable {
       (jobDefinition: JobDefinition) =>
         Option(
           jobDefinition.dagDefinitionId,
+          jobDefinition.jobTemplateId,
           jobDefinition.name,
-          jobDefinition.jobType,
           jobDefinition.jobParameters.variables,
           jobDefinition.jobParameters.maps,
           jobDefinition.jobParameters.keyValuePairs,

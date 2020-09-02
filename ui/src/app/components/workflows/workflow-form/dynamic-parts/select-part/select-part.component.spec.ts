@@ -13,15 +13,15 @@
  * limitations under the License.
  */
 
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import {async, ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { SelectPartComponent } from './select-part.component';
-import { DebugElement, Predicate } from '@angular/core';
-import { By } from '@angular/platform-browser';
-import { FormsModule, NgForm } from '@angular/forms';
-import { Subject } from 'rxjs';
-import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
-import { PartValidationFactory } from '../../../../../models/workflowFormParts.model';
+import {SelectPartComponent} from './select-part.component';
+import {DebugElement, Predicate} from '@angular/core';
+import {By} from '@angular/platform-browser';
+import {FormsModule, NgForm} from '@angular/forms';
+import {Subject} from 'rxjs';
+import {WorkflowEntryModel, WorkflowEntryModelFactory} from '../../../../../models/workflowEntry.model';
+import {PartValidationFactory} from '../../../../../models/workflowFormParts.model';
 
 describe('SelectPartComponent', () => {
   let fixture: ComponentFixture<SelectPartComponent>;
@@ -54,9 +54,13 @@ describe('SelectPartComponent', () => {
         'should pass with ' + parameter + ' value',
         async(() => {
           const oldValue = parameter;
-          const newValue = 'one';
+          const newValue = 'oneValue';
           const propertyName = 'property';
-          const options = ['one', 'two', 'three'];
+          const options = new Map([
+            [newValue, 'oneLabel'],
+            ['two', 'twoLabel'],
+            ['three', 'threeLabel'],
+          ]);
           const testedSubject = new Subject<WorkflowEntryModel>();
           const subjectSpy = spyOn(testedSubject, 'next');
           const partValidation = PartValidationFactory.create(true);
@@ -82,10 +86,15 @@ describe('SelectPartComponent', () => {
   });
 
   it('should change value and publish change on user input', async(() => {
-    const oldValue = 'one';
-    const newValue = 'three';
+    const oldValue = 'oneValue';
+    const newValue = 'threeValue';
     const propertyName = 'property';
-    const options = [oldValue, 'two', newValue];
+    const options = new Map([
+      [oldValue, 'oneLabel'],
+      ['two', 'two'],
+      [newValue, 'threeLabel'],
+    ]);
+
     const testedSubject = new Subject<WorkflowEntryModel>();
     const subjectSpy = spyOn(testedSubject, 'next');
     const partValidation = PartValidationFactory.create(true);
