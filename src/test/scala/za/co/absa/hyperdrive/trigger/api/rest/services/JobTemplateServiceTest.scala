@@ -39,14 +39,16 @@ class JobTemplateServiceTest extends AsyncFlatSpec with Matchers with MockitoSug
     // given
     val dagDefinitionJoined = WorkflowFixture.createWorkflowJoined().dagDefinitionJoined
     val jobTemplates = Seq(GenericShellJobTemplate, GenericSparkJobTemplate)
+    val triggeredBy = "triggered by"
 
     when(jobTemplateRepository.getJobTemplatesByIds(any())(any[ExecutionContext])).thenReturn(Future{jobTemplates})
 
     // when
-    val dagInstanceJoined = await(underTest.resolveJobTemplate(dagDefinitionJoined))
+    val dagInstanceJoined = await(underTest.resolveJobTemplate(dagDefinitionJoined, triggeredBy))
 
     // then
     val jobInstances = dagInstanceJoined.jobInstances
+    dagInstanceJoined.triggeredBy shouldBe triggeredBy
     jobInstances should have size 2
     jobInstances.head.jobType shouldBe JobTypes.Spark
     jobInstances(1).jobType shouldBe JobTypes.Shell

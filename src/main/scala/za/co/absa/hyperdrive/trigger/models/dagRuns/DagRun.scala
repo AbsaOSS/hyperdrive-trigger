@@ -25,5 +25,6 @@ case class DagRun(
   started: LocalDateTime,
   finished: Option[LocalDateTime],
   status: String,
+  triggeredBy: String,
   id: Long = 0
 )

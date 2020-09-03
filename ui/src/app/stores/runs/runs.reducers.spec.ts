@@ -53,6 +53,7 @@ describe('RunsReducers', () => {
       'projectName',
       2,
       'Status',
+      'Triggered by',
       new Date(Date.now()),
       new Date(Date.now()),
       0,

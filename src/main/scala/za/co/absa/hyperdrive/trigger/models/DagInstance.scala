@@ -21,6 +21,7 @@ import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses.DagInstanc
 
 case class DagInstance(
   status: DagInstanceStatus,
+  triggeredBy: String,
   workflowId: Long,
   started: LocalDateTime,
   finished: Option[LocalDateTime],
@@ -29,6 +30,7 @@ case class DagInstance(
 
 case class DagInstanceJoined(
   status: DagInstanceStatus,
+  triggeredBy: String,
   workflowId: Long,
   jobInstances: Seq[JobInstance],
   started: LocalDateTime,
@@ -38,6 +40,7 @@ case class DagInstanceJoined(
   def toDagInstance(): DagInstance = {
     DagInstance(
       status = this.status,
+      triggeredBy = this.triggeredBy,
       workflowId = this.workflowId,
       started = this.started,
       finished = this.finished

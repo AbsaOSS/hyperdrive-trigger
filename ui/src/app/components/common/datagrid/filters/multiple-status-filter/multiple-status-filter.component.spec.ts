@@ -41,7 +41,16 @@ describe('MultipleStatusFilterComponent', () => {
       const underTest = fixture.componentInstance;
       underTest.selectedValues = ['Failed', 'Running'];
       underTest.property = 'status';
-      const dagRun = DagRunModelFactory.create('workflowName', 'projectName', 8, 'Failed', new Date(Date.now()), new Date(Date.now()), 0);
+      const dagRun = DagRunModelFactory.create(
+        'workflowName',
+        'projectName',
+        8,
+        'Failed',
+        'Triggered by',
+        new Date(Date.now()),
+        new Date(Date.now()),
+        0,
+      );
 
       expect(underTest.accepts(dagRun)).toBeTrue();
     });
@@ -50,7 +59,16 @@ describe('MultipleStatusFilterComponent', () => {
       const underTest = fixture.componentInstance;
       underTest.selectedValues = ['Failed', 'Running'];
       underTest.property = 'status';
-      const dagRun = DagRunModelFactory.create('workflowName', 'projectName', 8, 'Fail', new Date(Date.now()), new Date(Date.now()), 0);
+      const dagRun = DagRunModelFactory.create(
+        'workflowName',
+        'projectName',
+        8,
+        'Fail',
+        'Triggered by',
+        new Date(Date.now()),
+        new Date(Date.now()),
+        0,
+      );
 
       expect(underTest.accepts(dagRun)).toBeFalse();
     });
@@ -64,6 +82,7 @@ describe('MultipleStatusFilterComponent', () => {
         'projectName',
         8,
         'differentStatus',
+        'Triggered by',
         new Date(Date.now()),
         new Date(Date.now()),
         0,
@@ -76,7 +95,16 @@ describe('MultipleStatusFilterComponent', () => {
       const underTest = fixture.componentInstance;
       underTest.selectedValues = [];
       underTest.property = 'status';
-      const dagRun = DagRunModelFactory.create('workflowName', 'projectName', 8, 'Failed', new Date(Date.now()), new Date(Date.now()), 0);
+      const dagRun = DagRunModelFactory.create(
+        'workflowName',
+        'projectName',
+        8,
+        'Failed',
+        'Triggered by',
+        new Date(Date.now()),
+        new Date(Date.now()),
+        0,
+      );
 
       expect(underTest.accepts(dagRun)).toBeTrue();
     });

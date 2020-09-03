@@ -46,7 +46,7 @@ describe('DatetimeRangeFilterComponent', () => {
 
       underTest.value = { from: past, to: future };
       underTest.property = 'started';
-      const dagRun = DagRunModelFactory.create('value', 'projectName', 2, 'Status', today, today, 0);
+      const dagRun = DagRunModelFactory.create('value', 'projectName', 2, 'Status', 'Triggered by', today, today, 0);
 
       expect(underTest.accepts(dagRun)).toBeTrue();
     });
@@ -60,7 +60,7 @@ describe('DatetimeRangeFilterComponent', () => {
 
       underTest.value = { from: past, to: future };
       underTest.property = 'started';
-      const dagRun = DagRunModelFactory.create('value', 'projectName', 2, 'Status', future, today, 0);
+      const dagRun = DagRunModelFactory.create('value', 'projectName', 2, 'Status', 'Triggered by', future, today, 0);
 
       expect(underTest.accepts(dagRun)).toBeTrue();
     });
@@ -74,7 +74,7 @@ describe('DatetimeRangeFilterComponent', () => {
 
       underTest.value = { from: past, to: past };
       underTest.property = 'started';
-      const dagRun = DagRunModelFactory.create('value', 'projectName', 2, 'Status', future, today, 0);
+      const dagRun = DagRunModelFactory.create('value', 'projectName', 2, 'Status', 'Triggered by', future, today, 0);
 
       expect(underTest.accepts(dagRun)).toBeFalse();
     });

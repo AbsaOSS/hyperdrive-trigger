@@ -56,15 +56,16 @@ class EventProcessorTest extends FlatSpec with MockitoSugar with Matchers with B
     val event = createEvent(sensorId)
     val jobDefinition = createJobDefintion(dagDefinitionId)
     val dagDefinition = createDagDefinition(workflowId, dagDefinitionId, Seq(jobDefinition))
+    val triggeredBy = "triggered by"
 
     val dagInstanceJoined = createDagInstanceJoined()
     when(eventRepository.getExistEvents(any())(any[ExecutionContext])).thenReturn(Future{Seq()})
     when(dagDefinitionRepository.getJoinedDagDefinition(eqTo(sensorId))(any[ExecutionContext])).thenReturn(Future{Some(dagDefinition)})
-    when(jobTemplateService.resolveJobTemplate(any[DagDefinitionJoined])(any[ExecutionContext])).thenReturn(Future{dagInstanceJoined})
+    when(jobTemplateService.resolveJobTemplate(any[DagDefinitionJoined], eqTo(triggeredBy))(any[ExecutionContext])).thenReturn(Future{dagInstanceJoined})
     when(dagInstanceRepository.insertJoinedDagInstances(any())(any[ExecutionContext])).thenReturn(Future{(): Unit})
 
     // when
-    await(underTest.eventProcessor(Seq(event), Properties(sensorId, Settings(Map.empty, Map.empty), Map.empty)))
+    await(underTest.eventProcessor(triggeredBy)(Seq(event), Properties(sensorId, Settings(Map.empty, Map.empty), Map.empty)))
 
     // then
     val dagInstanceCaptor = ArgumentCaptor.forClass(classOf[Seq[(DagInstanceJoined, Event)]])
@@ -85,15 +86,16 @@ class EventProcessorTest extends FlatSpec with MockitoSugar with Matchers with B
     // given
     val sensorId = 1L
     val event = createEvent(sensorId)
+    val triggeredBy = "triggered by"
 
     when(eventRepository.getExistEvents(any())(any[ExecutionContext])).thenReturn(Future{Seq(event.sensorEventId)})
 
     // when
-    await(underTest.eventProcessor(Seq(event), Properties(sensorId, Settings(Map.empty, Map.empty), Map.empty)))
+    await(underTest.eventProcessor(triggeredBy)(Seq(event), Properties(sensorId, Settings(Map.empty, Map.empty), Map.empty)))
 
     // then
     verify(dagDefinitionRepository, never()).getJoinedDagDefinition(any())(any[ExecutionContext])
-    verify(jobTemplateService, never).resolveJobTemplate(any[DagDefinitionJoined])(any[ExecutionContext])
+    verify(jobTemplateService, never).resolveJobTemplate(any[DagDefinitionJoined], eqTo(triggeredBy))(any[ExecutionContext])
     verify(dagInstanceRepository, never()).insertJoinedDagInstances(any())(any[ExecutionContext])
   }
 
@@ -101,15 +103,16 @@ class EventProcessorTest extends FlatSpec with MockitoSugar with Matchers with B
     // given
     val sensorId = 1L
     val event = createEvent(sensorId)
+    val triggeredBy = "triggered by"
 
     when(eventRepository.getExistEvents(any())(any[ExecutionContext])).thenReturn(Future{Seq()})
     when(dagDefinitionRepository.getJoinedDagDefinition(eqTo(sensorId))(any[ExecutionContext])).thenReturn(Future{None})
 
     // when
-    await(underTest.eventProcessor(Seq(event), Properties(sensorId, Settings(Map.empty, Map.empty), Map.empty)))
+    await(underTest.eventProcessor(triggeredBy)(Seq(event), Properties(sensorId, Settings(Map.empty, Map.empty), Map.empty)))
     // then
     verify(dagDefinitionRepository).getJoinedDagDefinition(eqTo(sensorId))(any[ExecutionContext])
-    verify(jobTemplateService, never).resolveJobTemplate(any[DagDefinitionJoined])(any[ExecutionContext])
+    verify(jobTemplateService, never).resolveJobTemplate(any[DagDefinitionJoined], eqTo(triggeredBy))(any[ExecutionContext])
     verify(dagInstanceRepository, never()).insertJoinedDagInstances(any())(any[ExecutionContext])
   }
 
@@ -127,6 +130,7 @@ class EventProcessorTest extends FlatSpec with MockitoSugar with Matchers with B
   private def createDagInstanceJoined() = {
     DagInstanceJoined(
       status = DagInstanceStatuses.InQueue,
+      triggeredBy = "triggered by",
       workflowId = 2,
       jobInstances = Seq(),
       started = LocalDateTime.now(),

@@ -28,6 +28,7 @@ trait DagInstanceTable {
   final class DagInstanceTable(tag: Tag) extends Table[DagInstance](tag, _tableName = "dag_instance") {
 
     def status: Rep[DagInstanceStatus] = column[DagInstanceStatus]("status")
+    def triggeredBy: Rep[String] = column[String]("triggered_by")
     def workflowId: Rep[Long] = column[Long]("workflow_id")
     def started: Rep[LocalDateTime] = column[LocalDateTime]("started")
     def finished: Rep[Option[LocalDateTime]] = column[Option[LocalDateTime]]("finished")
@@ -36,14 +37,15 @@ trait DagInstanceTable {
     def workflow_fk: ForeignKeyQuery[WorkflowTable, Workflow] =
       foreignKey("dag_instance_workflow_fk", workflowId, TableQuery[WorkflowTable])(_.id)
 
-    def * : ProvenShape[DagInstance] = (status, workflowId, started, finished, id) <> (
+    def * : ProvenShape[DagInstance] = (status, triggeredBy, workflowId, started, finished, id) <> (
       dagInstanceTuple =>
         DagInstance.apply(
           status = dagInstanceTuple._1,
-          workflowId = dagInstanceTuple._2,
-          started = dagInstanceTuple._3,
-          finished = dagInstanceTuple._4,
-          id = dagInstanceTuple._5
+          triggeredBy = dagInstanceTuple._2,
+          workflowId = dagInstanceTuple._3,
+          started = dagInstanceTuple._4,
+          finished = dagInstanceTuple._5,
+          id = dagInstanceTuple._6
         ),
       DagInstance.unapply
     )

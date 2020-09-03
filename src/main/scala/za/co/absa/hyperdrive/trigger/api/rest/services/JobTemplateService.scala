@@ -25,16 +25,16 @@ import scala.concurrent.{ExecutionContext, Future}
 trait JobTemplateService {
   val jobTemplateRepository: JobTemplateRepository
 
-  def resolveJobTemplate(dagDefinition: DagDefinitionJoined)(implicit ec: ExecutionContext): Future[DagInstanceJoined]
+  def resolveJobTemplate(dagDefinition: DagDefinitionJoined, triggeredBy: String)(implicit ec: ExecutionContext): Future[DagInstanceJoined]
   def getJobTemplateId(name: String)(implicit ec: ExecutionContext): Future[Option[Long]]
 }
 
 @Service
 class JobTemplateServiceImpl(override val jobTemplateRepository: JobTemplateRepository) extends JobTemplateService {
-  override def resolveJobTemplate(dagDefinitionJoined: DagDefinitionJoined)(implicit ec: ExecutionContext): Future[DagInstanceJoined] = {
+  override def resolveJobTemplate(dagDefinitionJoined: DagDefinitionJoined, triggeredBy: String)(implicit ec: ExecutionContext): Future[DagInstanceJoined] = {
     val jobTemplateIds = dagDefinitionJoined.jobDefinitions.map(_.jobTemplateId)
     jobTemplateRepository.getJobTemplatesByIds(jobTemplateIds).map(
-      jobTemplates => JobTemplateResolutionUtil.resolveDagDefinitionJoined(dagDefinitionJoined, jobTemplates)
+      jobTemplates => JobTemplateResolutionUtil.resolveDagDefinitionJoined(dagDefinitionJoined, jobTemplates, triggeredBy)
     )
   }
 
