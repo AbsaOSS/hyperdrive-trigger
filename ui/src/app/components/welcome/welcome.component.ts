@@ -16,35 +16,28 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { AppState, selectAuthState } from '../../stores/app.reducers';
-import { Login } from '../../stores/auth/auth.actions';
 import { Subscription } from 'rxjs';
+import { Router } from '@angular/router';
+import { absoluteRoutes } from '../../constants/routes.constants';
 
 @Component({
-  selector: 'app-login',
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss'],
+  selector: 'app-welcome',
+  templateUrl: './welcome.component.html',
 })
-export class LoginComponent implements OnInit, OnDestroy {
+export class WelcomeComponent implements OnInit, OnDestroy {
   authStateSubscription: Subscription;
-  authenticationFailed = false;
-  isModalOpen = false;
-  username = 'hyperdriver-user';
-  password = 'hyperdriver-password';
 
-  constructor(private store: Store<AppState>) {}
+  constructor(private store: Store<AppState>, private router: Router) {}
 
   ngOnInit(): void {
     this.authStateSubscription = this.store.select(selectAuthState).subscribe((state) => {
-      this.authenticationFailed = state.authenticationFailed;
-      this.isModalOpen = !state.isAuthenticated;
+      if (state.isAuthenticated) {
+        this.router.navigateByUrl(absoluteRoutes.DEFAULT);
+      }
     });
   }
 
   ngOnDestroy(): void {
     !!this.authStateSubscription && this.authStateSubscription.unsubscribe();
-  }
-
-  onSubmit() {
-    this.store.dispatch(new Login({ username: this.username, password: this.password }));
   }
 }

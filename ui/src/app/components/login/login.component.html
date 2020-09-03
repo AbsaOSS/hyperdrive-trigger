@@ -13,25 +13,28 @@
   ~ limitations under the License.
   -->
 
-<div class="login-wrapper">
-  <form class="login" clrForm (ngSubmit)="onSubmit()">
-    <section class="title">
-      <h3 class="welcome">Welcome to</h3>
-      Hyperdrive
-    </section>
-    <div class="login-group">
-      <clr-input-container>
-        <label class="clr-sr-only">Username</label>
-        <input type="text" placeholder="Username" name="username" clrInput required [(ngModel)]="logInForm.username"/>
-        <clr-control-error>Username is required!</clr-control-error>
-      </clr-input-container>
-      <clr-password-container>
-        <label class="clr-sr-only">Password</label>
-        <input type="password" placeholder="Password" name="password" clrPassword required [(ngModel)]="logInForm.password"/>
-        <clr-control-error>Password is required!</clr-control-error>
-      </clr-password-container>
-      <div class="error" [ngClass]="{'active': authenticationFailed}">Invalid username or password</div>
-      <button type="submit" class="btn btn-primary">Log in</button>
+<clr-modal [clrModalOpen]="isModalOpen"
+           [clrModalClosable]="false"
+           [clrModalSize]="'m'">
+  <h3 class="modal-title">Welcome to Hyperdrive</h3>
+  <div class="modal-body hyp-login">
+    <div class="login-wrapper">
+      <form class="login" clrForm (ngSubmit)="onSubmit()">
+        <div class="login-group">
+          <clr-input-container>
+            <label class="clr-sr-only">Username</label>
+            <input type="text" placeholder="Username" name="username" clrInput required [(ngModel)]="username"/>
+            <clr-control-error>Username is required!</clr-control-error>
+          </clr-input-container>
+          <clr-password-container>
+            <label class="clr-sr-only">Password</label>
+            <input type="password" placeholder="Password" name="password" clrPassword required [(ngModel)]="password"/>
+            <clr-control-error>Password is required!</clr-control-error>
+          </clr-password-container>
+          <div class="error" [ngClass]="{'active': authenticationFailed}">Invalid username or password</div>
+          <button type="submit" class="btn btn-primary">Log in</button>
+        </div>
+      </form>
     </div>
-  </form>
-</div>
+  </div>
+</clr-modal>

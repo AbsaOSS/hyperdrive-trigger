@@ -12,23 +12,4 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
-<div class="loading" *ngIf="loading">
-    <span class="spinner spinner-inverse">
-        Loading...
-    </span>
-</div>
-
-<div *ngIf="!loading">
-  <app-workflow-form
-    [mode]="mode"
-    [workflowData]="workflowData"
-    [initialWorkflowData]="initialWorkflowData"
-    [workflowFormParts]="workflowFormParts"
-    [id]="id"
-    [backendValidationErrors]="backendValidationErrors"
-    [changes]="changes"
-    [isWorkflowActive]="isWorkflowActive">
-  </app-workflow-form>
-
-</div>
+<app-login></app-login>
