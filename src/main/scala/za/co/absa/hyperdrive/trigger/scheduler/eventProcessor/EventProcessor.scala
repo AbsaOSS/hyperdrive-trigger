@@ -30,20 +30,20 @@ class EventProcessor(eventRepository: EventRepository,
   jobTemplateService: JobTemplateService) {
   private val logger = LoggerFactory.getLogger(this.getClass)
 
-  def eventProcessor(events: Seq[Event], properties: Properties)(implicit ec: ExecutionContext): Future[Boolean] = {
-    val fut = processEvents(events, properties)
+  def eventProcessor(triggeredBy: String)(events: Seq[Event], properties: Properties)(implicit ec: ExecutionContext): Future[Boolean] = {
+    val fut = processEvents(events, properties, triggeredBy)
     logger.debug(s"Processing events. Sensor id: ${properties.sensorId}. Events: ${events.map(_.id)}")
     fut
   }
 
-  private def processEvents(events: Seq[Event], properties: Properties)(implicit ec: ExecutionContext): Future[Boolean] = {
+  private def processEvents(events: Seq[Event], properties: Properties, triggeredBy: String)(implicit ec: ExecutionContext): Future[Boolean] = {
     eventRepository.getExistEvents(events.map(_.sensorEventId)).flatMap { eventsIdsInDB =>
       val newEvents = events.filter(e => !eventsIdsInDB.contains(e.sensorEventId))
       if (newEvents.nonEmpty) {
         dagDefinitionRepository.getJoinedDagDefinition(properties.sensorId).flatMap {
           case Some(joinedDagDefinition) =>
             for {
-              dagInstanceJoined <- jobTemplateService.resolveJobTemplate(joinedDagDefinition)
+              dagInstanceJoined <- jobTemplateService.resolveJobTemplate(joinedDagDefinition, triggeredBy)
               dagInstanceJoinedEvents = newEvents.map(event => (dagInstanceJoined, event))
               _ <- dagInstanceRepository.insertJoinedDagInstances(dagInstanceJoinedEvents)
             } yield {

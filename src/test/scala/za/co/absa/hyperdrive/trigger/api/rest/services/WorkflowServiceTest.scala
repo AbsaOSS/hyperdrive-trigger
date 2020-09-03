@@ -198,7 +198,7 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
 
     val dagInstanceJoined = createDagInstanceJoined()
     when(workflowRepository.getWorkflow(eqTo(workflowId))(any[ExecutionContext])).thenReturn(Future{workflowJoined})
-    when(jobTemplateService.resolveJobTemplate(any[DagDefinitionJoined])(any[ExecutionContext])).thenReturn(Future{dagInstanceJoined})
+    when(jobTemplateService.resolveJobTemplate(any[DagDefinitionJoined], eqTo(userName))(any[ExecutionContext])).thenReturn(Future{dagInstanceJoined})
     when(dagInstanceRepository.insertJoinedDagInstance(eqTo(dagInstanceJoined))(any[ExecutionContext])).thenReturn(Future{(): Unit})
 
     // when
@@ -206,7 +206,7 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
 
     // then
     verify(workflowRepository, times(1)).getWorkflow(any[Long])(any[ExecutionContext])
-    verify(jobTemplateService, times(1)).resolveJobTemplate(any[DagDefinitionJoined])(any[ExecutionContext])
+    verify(jobTemplateService, times(1)).resolveJobTemplate(any[DagDefinitionJoined], eqTo(userName))(any[ExecutionContext])
     verify(dagInstanceRepository, times(1)).insertJoinedDagInstance(any[DagInstanceJoined])(any[ExecutionContext])
     result shouldBe true
   }
@@ -216,6 +216,7 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
     val workflowJoined = WorkflowFixture.createWorkflowJoined().copy()
     val workflowId = workflowJoined.id
     val jobIds: Seq[Long] = Seq(9999, 8888)
+    val triggeredBy = "triggered by"
 
     when(workflowRepository.getWorkflow(eqTo(workflowId))(any[ExecutionContext])).thenReturn(Future{workflowJoined})
     when(dagInstanceRepository.insertJoinedDagInstance(any[DagInstanceJoined])(any[ExecutionContext])).thenReturn(Future{(): Unit})
@@ -225,7 +226,7 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
 
     // then
     verify(workflowRepository, times(1)).getWorkflow(any[Long])(any[ExecutionContext])
-    verify(jobTemplateService, never).resolveJobTemplate(any[DagDefinitionJoined])(any[ExecutionContext])
+    verify(jobTemplateService, never).resolveJobTemplate(any[DagDefinitionJoined], eqTo(triggeredBy))(any[ExecutionContext])
     verify(dagInstanceRepository, never).insertJoinedDagInstance(any[DagInstanceJoined])(any[ExecutionContext])
     result shouldBe false
   }
@@ -233,6 +234,7 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
   private def createDagInstanceJoined() = {
     DagInstanceJoined(
       status = DagInstanceStatuses.InQueue,
+      triggeredBy = userName,
       workflowId = 2,
       jobInstances = Seq(),
       started = LocalDateTime.now(),

@@ -138,9 +138,11 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
   }
 
   override def runWorkflow(workflowId: Long)(implicit ec: ExecutionContext): Future[Boolean] = {
+    val userName = getUserName.apply()
+
     for {
       joinedWorkflow <- workflowRepository.getWorkflow(workflowId)
-      dagInstanceJoined <- jobTemplateService.resolveJobTemplate(joinedWorkflow.dagDefinitionJoined)
+      dagInstanceJoined <- jobTemplateService.resolveJobTemplate(joinedWorkflow.dagDefinitionJoined, userName)
       _ <- dagInstanceRepository.insertJoinedDagInstance(dagInstanceJoined)
     } yield {
       true
@@ -148,6 +150,8 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
   }
 
   override def runWorkflowJobs(workflowId: Long, jobIds: Seq[Long])(implicit ec: ExecutionContext): Future[Boolean] = {
+    val userName = getUserName.apply();
+
     workflowRepository.getWorkflow(workflowId).flatMap(joinedWorkflow => {
       val dagDefinitionJoined = joinedWorkflow.dagDefinitionJoined
 
@@ -160,7 +164,7 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
           jobDefinitions = dagDefinitionJoined.jobDefinitions.filter(job => jobIds.contains(job.id))
         )
         for {
-          dagInstanceJoined <- jobTemplateService.resolveJobTemplate(dagDefinitionWithFilteredJobs)
+          dagInstanceJoined <- jobTemplateService.resolveJobTemplate(dagDefinitionWithFilteredJobs, userName)
           _ <- dagInstanceRepository.insertJoinedDagInstance(dagInstanceJoined)
         } yield {
           true

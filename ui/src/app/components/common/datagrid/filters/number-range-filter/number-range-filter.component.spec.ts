@@ -41,7 +41,16 @@ describe('NumberRangeFilterComponent', () => {
       const underTest = fixture.componentInstance;
       underTest.value = { from: 1, to: 3 };
       underTest.property = 'jobCount';
-      const dagRun = DagRunModelFactory.create('value', 'projectName', 2, 'Status', new Date(Date.now()), new Date(Date.now()), 0);
+      const dagRun = DagRunModelFactory.create(
+        'value',
+        'projectName',
+        2,
+        'Status',
+        'Triggered by',
+        new Date(Date.now()),
+        new Date(Date.now()),
+        0,
+      );
 
       expect(underTest.accepts(dagRun)).toBeTrue();
     });
@@ -50,7 +59,16 @@ describe('NumberRangeFilterComponent', () => {
       const underTest = fixture.componentInstance;
       underTest.value = { from: 1, to: 2 };
       underTest.property = 'jobCount';
-      const dagRun = DagRunModelFactory.create('value', 'projectName', 1, 'Status', new Date(Date.now()), new Date(Date.now()), 0);
+      const dagRun = DagRunModelFactory.create(
+        'value',
+        'projectName',
+        1,
+        'Status',
+        'Triggered by',
+        new Date(Date.now()),
+        new Date(Date.now()),
+        0,
+      );
 
       expect(underTest.accepts(dagRun)).toBeTrue();
     });
@@ -59,7 +77,16 @@ describe('NumberRangeFilterComponent', () => {
       const underTest = fixture.componentInstance;
       underTest.value = { from: 1, to: 2 };
       underTest.property = 'jobCount';
-      const dagRun = DagRunModelFactory.create('value', 'projectName', 2, 'Status', new Date(Date.now()), new Date(Date.now()), 0);
+      const dagRun = DagRunModelFactory.create(
+        'value',
+        'projectName',
+        2,
+        'Status',
+        'Triggered by',
+        new Date(Date.now()),
+        new Date(Date.now()),
+        0,
+      );
 
       expect(underTest.accepts(dagRun)).toBeTrue();
     });
@@ -68,7 +95,16 @@ describe('NumberRangeFilterComponent', () => {
       const underTest = fixture.componentInstance;
       underTest.value = { from: 5, to: 8 };
       underTest.property = 'jobCount';
-      const dagRun = DagRunModelFactory.create('value', 'projectName', 2, 'Status', new Date(Date.now()), new Date(Date.now()), 0);
+      const dagRun = DagRunModelFactory.create(
+        'value',
+        'projectName',
+        2,
+        'Status',
+        'Triggered by',
+        new Date(Date.now()),
+        new Date(Date.now()),
+        0,
+      );
 
       expect(underTest.accepts(dagRun)).toBeFalse();
     });
