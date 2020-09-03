@@ -27,10 +27,11 @@ import scala.util.{Failure, Success, Try}
 
 object JobTemplateResolutionUtil {
 
-  def resolveDagDefinitionJoined(dagDefinitionJoined: DagDefinitionJoined, jobTemplates: Seq[JobTemplate]): DagInstanceJoined = {
+  def resolveDagDefinitionJoined(dagDefinitionJoined: DagDefinitionJoined, jobTemplates: Seq[JobTemplate], triggeredBy: String): DagInstanceJoined = {
     val jobTemplatesLookup = jobTemplates.map(t => t.id -> t).toMap
     DagInstanceJoined(
       status = DagInstanceStatuses.InQueue,
+      triggeredBy = triggeredBy,
       workflowId = dagDefinitionJoined.workflowId,
       jobInstances = dagDefinitionJoined.jobDefinitions.map(jd => {
         val jobTemplate = Try(jobTemplatesLookup(jd.jobTemplateId)) match {

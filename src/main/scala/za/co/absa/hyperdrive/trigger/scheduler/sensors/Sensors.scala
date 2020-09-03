@@ -103,12 +103,12 @@ class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: Sensor
   private def startSensor(sensor: za.co.absa.hyperdrive.trigger.models.Sensor) = sensor match {
     case sensor if sensor.sensorType == SensorTypes.Kafka || sensor.sensorType == SensorTypes.AbsaKafka =>
 
-      Try(new KafkaSensor(eventProcessor.eventProcessor, sensor, executionContext)) match {
+      Try(new KafkaSensor(eventProcessor.eventProcessor(s"Sensor - ${sensor.sensorType.name}"), sensor, executionContext)) match {
         case Success(s) => sensors.put(sensor.id, s)
         case Failure(f) => logger.error(s"Couldn't create Kafka sensor for sensor (#${sensor.id}).", f)
       }
     case sensor if sensor.sensorType == SensorTypes.Time =>
-      Try(TimeSensor(eventProcessor.eventProcessor, sensor, executionContext)) match {
+      Try(TimeSensor(eventProcessor.eventProcessor(s"Sensor - ${sensor.sensorType.name}"), sensor, executionContext)) match {
         case Success(s) => sensors.put(sensor.id, s)
         case Failure(f) => logger.error(s"Couldn't create Time sensor for sensor (#${sensor.id}).", f)
       }
