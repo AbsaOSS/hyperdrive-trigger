@@ -31,6 +31,7 @@ export class AppComponent implements OnInit, OnDestroy {
   authStateSubscription: Subscription;
   isAuthenticated: boolean;
   username: string;
+  showLoginModal: boolean;
 
   constructor(private store: Store<fromApp.AppState>) {}
 
@@ -38,6 +39,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.authStateSubscription = this.store.select(selectAuthState).subscribe((state) => {
       this.isAuthenticated = state.isAuthenticated;
       this.username = state.username;
+      this.showLoginModal = state.showLoginModal;
     });
   }
 

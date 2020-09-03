@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { AppState, selectAuthState } from '../../stores/app.reducers';
 import { Login } from '../../stores/auth/auth.actions';
@@ -25,9 +25,9 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent implements OnInit, OnDestroy {
+  @Input() styleClass = '';
   authStateSubscription: Subscription;
   authenticationFailed = false;
-  isModalOpen = false;
   username = 'hyperdriver-user';
   password = 'hyperdriver-password';
 
@@ -36,7 +36,6 @@ export class LoginComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.authStateSubscription = this.store.select(selectAuthState).subscribe((state) => {
       this.authenticationFailed = state.authenticationFailed;
-      this.isModalOpen = !state.isAuthenticated;
     });
   }
 

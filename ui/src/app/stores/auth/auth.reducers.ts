@@ -20,12 +20,14 @@ export interface State {
   username: string;
   isAuthenticated: boolean;
   authenticationFailed: boolean;
+  showLoginModal: boolean;
 }
 
 const initialState: State = {
   username: localStorage.getItem(localStorageKeys.USERNAME),
   isAuthenticated: !!localStorage.getItem(localStorageKeys.CSRF_TOKEN),
   authenticationFailed: false,
+  showLoginModal: false,
 };
 
 export function authReducer(state: State = initialState, action: AuthActions.AuthActions) {
@@ -33,11 +35,13 @@ export function authReducer(state: State = initialState, action: AuthActions.Aut
     case AuthActions.LOGIN:
       return state;
     case AuthActions.LOGIN_SUCCESS:
-      return { ...state, isAuthenticated: true, username: action.payload.username };
+      return { ...state, isAuthenticated: true, username: action.payload.username, showLoginModal: false };
     case AuthActions.LOGIN_FAILURE:
       return { ...state, authenticationFailed: true };
     case AuthActions.LOGOUT:
       return state;
+    case AuthActions.SOFT_LOGOUT:
+      return { ...state, isAuthenticated: false, username: null, authenticationFailed: false, showLoginModal: true };
     case AuthActions.LOGOUT_SUCCESS:
       return { ...state, isAuthenticated: false, username: null, authenticationFailed: false };
     default:

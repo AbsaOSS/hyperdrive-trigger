@@ -20,6 +20,7 @@ import { catchError } from 'rxjs/operators';
 import { Store } from '@ngrx/store';
 import * as AuthActions from '../../stores/auth/auth.actions';
 import * as fromApp from '../../stores/app.reducers';
+import { api } from '../../constants/api.constants';
 
 @Injectable({
   providedIn: 'root',
@@ -31,7 +32,11 @@ export class UnauthorizedInterceptor implements HttpInterceptor {
     return next.handle(request).pipe(
       catchError((response: any) => {
         if (response instanceof HttpErrorResponse && response.status === 401) {
-          this.store.dispatch(new AuthActions.LogoutSuccess());
+          if (response.url.endsWith(api.UPDATE_WORKFLOW)) {
+            this.store.dispatch(new AuthActions.SoftLogout());
+          } else {
+            this.store.dispatch(new AuthActions.LogoutSuccess());
+          }
         }
         return throwError(response);
       }),

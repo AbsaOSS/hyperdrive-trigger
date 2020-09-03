@@ -61,7 +61,6 @@ export class AuthEffects {
     tap((action: AuthActions.LoginSuccess) => {
       localStorage.setItem(localStorageKeys.CSRF_TOKEN, action.payload.token);
       localStorage.setItem(localStorageKeys.USERNAME, action.payload.username);
-      this.router.navigateByUrl(absoluteRoutes.DEFAULT);
     }),
   );
 
@@ -76,7 +75,16 @@ export class AuthEffects {
   logOutSuccess: Observable<any> = this.actions.pipe(
     ofType(AuthActions.LOGOUT_SUCCESS),
     tap((_) => {
-      this.router.navigateByUrl(absoluteRoutes.LOGIN);
+      this.router.navigateByUrl(absoluteRoutes.WELCOME);
+      localStorage.removeItem(localStorageKeys.CSRF_TOKEN);
+      localStorage.removeItem(localStorageKeys.USERNAME);
+    }),
+  );
+
+  @Effect({ dispatch: false })
+  softLogOut: Observable<any> = this.actions.pipe(
+    ofType(AuthActions.SOFT_LOGOUT),
+    tap((_) => {
       localStorage.removeItem(localStorageKeys.CSRF_TOKEN);
       localStorage.removeItem(localStorageKeys.USERNAME);
     }),

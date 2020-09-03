@@ -13,8 +13,7 @@
  * limitations under the License.
  */
 
-
-.hyp-login .login {
-  min-height: 0;
-  width: 30rem;
+:host {
+  height: 100%;
+  width: 100%;
 }
