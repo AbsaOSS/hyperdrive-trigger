@@ -34,7 +34,7 @@ export class LoginDialogComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.authStateSubscription = this.store.select(selectAuthState).subscribe((state) => {
-      this.showLoginDialog = state.showLoginModal;
+      this.showLoginDialog = state.showLoginDialog;
     });
   }
 

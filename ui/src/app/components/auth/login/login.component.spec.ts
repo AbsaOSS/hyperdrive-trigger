@@ -28,7 +28,7 @@ describe('LoginComponent', () => {
     username: 'test',
     isAuthenticated: false,
     authenticationFailed: false,
-    showLoginModal: false,
+    showLoginDialog: false,
   };
 
   const initialAppState = {

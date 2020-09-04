@@ -30,7 +30,7 @@ describe('AuthReducers', () => {
         username: 'the-username',
         isAuthenticated: true,
         authenticationFailed: null,
-        showLoginModal: false,
+        showLoginDialog: false,
       }),
     );
   });
@@ -81,7 +81,7 @@ describe('AuthReducers', () => {
       username: 'the-username',
       isAuthenticated: true,
       authenticationFailed: true,
-      showLoginModal: false,
+      showLoginDialog: false,
     } as State;
     const authAction = new LogoutWithoutRedirect();
 
@@ -92,7 +92,7 @@ describe('AuthReducers', () => {
         username: null,
         isAuthenticated: false,
         authenticationFailed: false,
-        showLoginModal: true,
+        showLoginDialog: true,
       }),
     );
   });

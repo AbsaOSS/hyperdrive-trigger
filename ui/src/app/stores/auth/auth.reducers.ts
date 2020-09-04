@@ -20,14 +20,14 @@ export interface State {
   username: string;
   isAuthenticated: boolean;
   authenticationFailed: boolean;
-  showLoginModal: boolean;
+  showLoginDialog: boolean;
 }
 
 const initialState: State = {
   username: localStorage.getItem(localStorageKeys.USERNAME),
   isAuthenticated: !!localStorage.getItem(localStorageKeys.CSRF_TOKEN),
   authenticationFailed: false,
-  showLoginModal: false,
+  showLoginDialog: false,
 };
 
 export function authReducer(state: State = initialState, action: AuthActions.AuthActions) {
@@ -35,7 +35,7 @@ export function authReducer(state: State = initialState, action: AuthActions.Aut
     case AuthActions.LOGIN:
       return state;
     case AuthActions.LOGIN_SUCCESS:
-      return { ...state, isAuthenticated: true, username: action.payload.username, showLoginModal: false };
+      return { ...state, isAuthenticated: true, username: action.payload.username, showLoginDialog: false };
     case AuthActions.LOGIN_FAILURE:
       return { ...state, authenticationFailed: true };
     case AuthActions.LOGOUT:
@@ -43,7 +43,7 @@ export function authReducer(state: State = initialState, action: AuthActions.Aut
     case AuthActions.LOGOUT_SUCCESS:
       return { ...state, isAuthenticated: false, username: null, authenticationFailed: false };
     case AuthActions.LOGOUT_WITHOUT_REDIRECT:
-      return { ...state, isAuthenticated: false, username: null, authenticationFailed: false, showLoginModal: true };
+      return { ...state, isAuthenticated: false, username: null, authenticationFailed: false, showLoginDialog: true };
     default:
       return state;
   }
