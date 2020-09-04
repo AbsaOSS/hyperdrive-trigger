@@ -30,6 +30,7 @@ describe('AuthReducers', () => {
         username: 'the-username',
         isAuthenticated: true,
         authenticationFailed: null,
+        showLoginModal: false,
       }),
     );
   });

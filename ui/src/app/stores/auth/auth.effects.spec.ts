@@ -113,7 +113,6 @@ describe('AuthEffects', () => {
       mockActions = cold('-a', { a: action });
 
       expect(underTest.logInSuccess).toBeObservable(mockActions);
-      expect(router.navigateByUrl).toHaveBeenCalledWith(absoluteRoutes.DEFAULT);
       expect(localStorage.setItem).toHaveBeenCalledWith(localStorageKeys.USERNAME, 'test');
       expect(localStorage.setItem).toHaveBeenCalledWith(localStorageKeys.CSRF_TOKEN, '1234');
     });
@@ -152,7 +151,7 @@ describe('AuthEffects', () => {
       mockActions = cold('-a', { a: action });
 
       expect(underTest.logOutSuccess).toBeObservable(mockActions);
-      expect(router.navigateByUrl).toHaveBeenCalledWith(absoluteRoutes.LOGIN);
+      expect(router.navigateByUrl).toHaveBeenCalledWith(absoluteRoutes.WELCOME);
       expect(localStorage.removeItem).toHaveBeenCalledWith(localStorageKeys.USERNAME);
       expect(localStorage.removeItem).toHaveBeenCalledWith(localStorageKeys.CSRF_TOKEN);
     });

@@ -28,6 +28,7 @@ describe('AuthGuard Service', () => {
     username: 'test',
     isAuthenticated: true,
     authenticationFailed: false,
+    showLoginModal: false,
   };
 
   beforeEach(() => {
