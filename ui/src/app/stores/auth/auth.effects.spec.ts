@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 import { Actions } from '@ngrx/effects';
 import { AuthService } from '../../services/auth/auth.service';
 import * as AuthActions from './auth.actions';
-import { Login, LoginSuccess, Logout, LogoutSuccess } from './auth.actions';
+import { Login, LoginSuccess, Logout, LogoutSuccess, LogoutWithoutRedirect } from './auth.actions';
 import { cold } from 'jasmine-marbles';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -152,6 +152,19 @@ describe('AuthEffects', () => {
 
       expect(underTest.logOutSuccess).toBeObservable(mockActions);
       expect(router.navigateByUrl).toHaveBeenCalledWith(absoluteRoutes.WELCOME);
+      expect(localStorage.removeItem).toHaveBeenCalledWith(localStorageKeys.USERNAME);
+      expect(localStorage.removeItem).toHaveBeenCalledWith(localStorageKeys.CSRF_TOKEN);
+    });
+  });
+
+  describe('logOutWithoutRedirect', () => {
+    it('should remove username from storage but not navigate anywhere', () => {
+      spyOn(localStorage, 'removeItem');
+      const action = new LogoutWithoutRedirect();
+      mockActions = cold('-a', { a: action });
+
+      expect(underTest.logOutWithoutRedirect).toBeObservable(mockActions);
+      expect(router.navigateByUrl).toHaveBeenCalledTimes(0);
       expect(localStorage.removeItem).toHaveBeenCalledWith(localStorageKeys.USERNAME);
       expect(localStorage.removeItem).toHaveBeenCalledWith(localStorageKeys.CSRF_TOKEN);
     });

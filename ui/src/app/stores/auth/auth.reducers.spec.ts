@@ -1,5 +1,5 @@
 import { authReducer, State } from './auth.reducers';
-import { Login, LoginFailure, LoginSuccess, Logout, LogoutSuccess } from './auth.actions';
+import { Login, LoginFailure, LoginSuccess, Logout, LogoutSuccess, LogoutWithoutRedirect } from './auth.actions';
 
 describe('AuthReducers', () => {
   const initialState = {
@@ -72,6 +72,27 @@ describe('AuthReducers', () => {
         username: null,
         isAuthenticated: false,
         authenticationFailed: false,
+      }),
+    );
+  });
+
+  it('should set show modal login on logout without redirect', () => {
+    const state = {
+      username: 'the-username',
+      isAuthenticated: true,
+      authenticationFailed: true,
+      showLoginModal: false,
+    } as State;
+    const authAction = new LogoutWithoutRedirect();
+
+    const actual = authReducer(state, authAction);
+
+    expect(actual).toEqual(
+      toState({
+        username: null,
+        isAuthenticated: false,
+        authenticationFailed: false,
+        showLoginModal: true,
       }),
     );
   });

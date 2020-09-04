@@ -40,10 +40,10 @@ export function authReducer(state: State = initialState, action: AuthActions.Aut
       return { ...state, authenticationFailed: true };
     case AuthActions.LOGOUT:
       return state;
-    case AuthActions.SOFT_LOGOUT:
-      return { ...state, isAuthenticated: false, username: null, authenticationFailed: false, showLoginModal: true };
     case AuthActions.LOGOUT_SUCCESS:
       return { ...state, isAuthenticated: false, username: null, authenticationFailed: false };
+    case AuthActions.LOGOUT_WITHOUT_REDIRECT:
+      return { ...state, isAuthenticated: false, username: null, authenticationFailed: false, showLoginModal: true };
     default:
       return state;
   }

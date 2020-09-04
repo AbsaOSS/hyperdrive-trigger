@@ -33,7 +33,7 @@ export class UnauthorizedInterceptor implements HttpInterceptor {
       catchError((response: any) => {
         if (response instanceof HttpErrorResponse && response.status === 401) {
           if (response.url.endsWith(api.UPDATE_WORKFLOW)) {
-            this.store.dispatch(new AuthActions.SoftLogout());
+            this.store.dispatch(new AuthActions.LogoutWithoutRedirect());
           } else {
             this.store.dispatch(new AuthActions.LogoutSuccess());
           }

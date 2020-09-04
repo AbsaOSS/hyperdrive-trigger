@@ -20,7 +20,7 @@ export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
 export const LOGIN_FAILURE = 'LOGIN_FAILURE';
 export const LOGOUT = 'LOGOUT';
 export const LOGOUT_SUCCESS = 'LOGOUT_SUCCESS';
-export const SOFT_LOGOUT = 'SOFT_LOGOUT';
+export const LOGOUT_WITHOUT_REDIRECT = 'LOGOUT_WITHOUT_REDIRECT';
 
 export class Login implements Action {
   readonly type = LOGIN;
@@ -44,8 +44,8 @@ export class LogoutSuccess implements Action {
   readonly type = LOGOUT_SUCCESS;
 }
 
-export class SoftLogout implements Action {
-  readonly type = SOFT_LOGOUT;
+export class LogoutWithoutRedirect implements Action {
+  readonly type = LOGOUT_WITHOUT_REDIRECT;
 }
 
-export type AuthActions = Login | LoginSuccess | LoginFailure | Logout | LogoutSuccess | SoftLogout;
+export type AuthActions = Login | LoginSuccess | LoginFailure | Logout | LogoutSuccess | LogoutWithoutRedirect;
