@@ -21,7 +21,6 @@ import { Observable } from 'rxjs';
 import * as AuthActions from './auth.actions';
 import { switchMap, tap, mergeMap, catchError } from 'rxjs/operators';
 import { absoluteRoutes } from '../../constants/routes.constants';
-import { localStorageKeys } from '../../constants/localStorage.constants';
 
 @Injectable()
 export class AuthEffects {
@@ -55,15 +54,6 @@ export class AuthEffects {
     }),
   );
 
-  @Effect({ dispatch: false })
-  logInSuccess: Observable<any> = this.actions.pipe(
-    ofType(AuthActions.LOGIN_SUCCESS),
-    tap((action: AuthActions.LoginSuccess) => {
-      localStorage.setItem(localStorageKeys.CSRF_TOKEN, action.payload.token);
-      localStorage.setItem(localStorageKeys.USERNAME, action.payload.username);
-    }),
-  );
-
   @Effect({ dispatch: true })
   logOut: Observable<any> = this.actions.pipe(
     ofType(AuthActions.LOGOUT),
@@ -76,20 +66,6 @@ export class AuthEffects {
     ofType(AuthActions.LOGOUT_SUCCESS),
     tap((_) => {
       this.router.navigateByUrl(absoluteRoutes.WELCOME);
-      this.clearAuthentication();
     }),
   );
-
-  @Effect({ dispatch: false })
-  logOutWithoutRedirect: Observable<any> = this.actions.pipe(
-    ofType(AuthActions.LOGOUT_WITHOUT_REDIRECT),
-    tap((_) => {
-      this.clearAuthentication();
-    }),
-  );
-
-  clearAuthentication(): void {
-    localStorage.removeItem(localStorageKeys.CSRF_TOKEN);
-    localStorage.removeItem(localStorageKeys.USERNAME);
-  }
 }

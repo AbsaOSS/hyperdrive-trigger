@@ -14,37 +14,48 @@
  */
 
 import { Injectable } from '@angular/core';
-import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { HttpClient, HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
+import { Observable, Subject, throwError } from 'rxjs';
+import { catchError, first, tap } from 'rxjs/operators';
 import { Store } from '@ngrx/store';
 import * as AuthActions from '../../stores/auth/auth.actions';
 import * as fromApp from '../../stores/app.reducers';
 import { api } from '../../constants/api.constants';
+import { selectAuthState } from '../../stores/app.reducers';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UnauthorizedInterceptor implements HttpInterceptor {
-  constructor(private store: Store<fromApp.AppState>) {}
+  constructor(private store: Store<fromApp.AppState>, private httpClient: HttpClient) {}
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return next.handle(request).pipe(
       catchError((response: any) => {
-        if (response instanceof HttpErrorResponse && response.status === 401 && !response.url.endsWith(api.LOGIN)) {
-          if (this.isLogoutWithoutRedirect(response.url)) {
-            this.store.dispatch(new AuthActions.LogoutWithoutRedirect());
-          } else {
-            this.store.dispatch(new AuthActions.LogoutSuccess());
-          }
+        if (response instanceof HttpErrorResponse && response.status === 401 && !this.isLoginUrl(response.url)) {
+          this.store.dispatch(new AuthActions.LogoutWithoutRedirect());
+          return this.createRetryAfterAuthenticatedObservable(request);
         }
         return throwError(response);
       }),
     );
   }
 
-  isLogoutWithoutRedirect(responseUrl: string): boolean {
-    const urlsForRedirect = [api.UPDATE_WORKFLOW, api.CREATE_WORKFLOW];
-    return urlsForRedirect.some((urlForRedirect) => responseUrl.endsWith(urlForRedirect));
+  createRetryAfterAuthenticatedObservable(request: HttpRequest<any>): Observable<HttpEvent<any>> {
+    const requestRetrySubject: Subject<HttpEvent<any>> = new Subject<HttpEvent<any>>();
+    this.store
+      .select(selectAuthState)
+      .pipe(first((state) => state.isAuthenticated))
+      .subscribe(() => {
+        this.httpClient
+          .request(request)
+          .pipe(tap((response) => requestRetrySubject.next(response)))
+          .subscribe();
+      });
+    return requestRetrySubject.asObservable();
+  }
+
+  isLoginUrl(responseUrl: string): boolean {
+    return responseUrl.endsWith(api.LOGIN);
   }
 }

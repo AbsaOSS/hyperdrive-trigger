@@ -1,5 +1,6 @@
 import { authReducer, State } from './auth.reducers';
 import { Login, LoginFailure, LoginSuccess, Logout, LogoutSuccess, LogoutWithoutRedirect } from './auth.actions';
+import { localStorageKeys } from '../../constants/localStorage.constants';
 
 describe('AuthReducers', () => {
   const initialState = {
@@ -22,9 +23,12 @@ describe('AuthReducers', () => {
 
   it('should set authenticated flag and username on login success', () => {
     const authAction = new LoginSuccess({ username: 'the-username', token: '1234' });
+    spyOn(localStorage, 'setItem');
 
     const actual = authReducer(initialState, authAction);
 
+    expect(localStorage.setItem).toHaveBeenCalledWith(localStorageKeys.USERNAME, 'the-username');
+    expect(localStorage.setItem).toHaveBeenCalledWith(localStorageKeys.CSRF_TOKEN, '1234');
     expect(actual).toEqual(
       toState({
         username: 'the-username',
@@ -64,9 +68,12 @@ describe('AuthReducers', () => {
       authenticationFailed: true,
     } as State;
     const authAction = new LogoutSuccess();
+    spyOn(localStorage, 'removeItem');
 
     const actual = authReducer(state, authAction);
 
+    expect(localStorage.removeItem).toHaveBeenCalledWith(localStorageKeys.USERNAME);
+    expect(localStorage.removeItem).toHaveBeenCalledWith(localStorageKeys.CSRF_TOKEN);
     expect(actual).toEqual(
       toState({
         username: null,
@@ -84,9 +91,12 @@ describe('AuthReducers', () => {
       showLoginDialog: false,
     } as State;
     const authAction = new LogoutWithoutRedirect();
+    spyOn(localStorage, 'removeItem');
 
     const actual = authReducer(state, authAction);
 
+    expect(localStorage.removeItem).toHaveBeenCalledWith(localStorageKeys.USERNAME);
+    expect(localStorage.removeItem).toHaveBeenCalledWith(localStorageKeys.CSRF_TOKEN);
     expect(actual).toEqual(
       toState({
         username: null,
