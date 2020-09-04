@@ -31,8 +31,8 @@ export class UnauthorizedInterceptor implements HttpInterceptor {
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return next.handle(request).pipe(
       catchError((response: any) => {
-        if (response instanceof HttpErrorResponse && response.status === 401) {
-          if (response.url.endsWith(api.UPDATE_WORKFLOW)) {
+        if (response instanceof HttpErrorResponse && response.status === 401 && !response.url.endsWith(api.LOGIN)) {
+          if (this.isLogoutWithRedirect(response.url)) {
             this.store.dispatch(new AuthActions.LogoutWithoutRedirect());
           } else {
             this.store.dispatch(new AuthActions.LogoutSuccess());
@@ -41,5 +41,10 @@ export class UnauthorizedInterceptor implements HttpInterceptor {
         return throwError(response);
       }),
     );
+  }
+
+  isLogoutWithRedirect(responseUrl: string): boolean {
+    const urlsForRedirect = [api.UPDATE_WORKFLOW, api.CREATE_WORKFLOW];
+    return urlsForRedirect.some((urlForRedirect) => responseUrl.endsWith(urlForRedirect));
   }
 }
