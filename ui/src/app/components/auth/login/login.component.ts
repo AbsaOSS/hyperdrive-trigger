@@ -15,8 +15,8 @@
 
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { AppState, selectAuthState } from '../../stores/app.reducers';
-import { Login } from '../../stores/auth/auth.actions';
+import { AppState, selectAuthState } from '../../../stores/app.reducers';
+import { Login } from '../../../stores/auth/auth.actions';
 import { Subscription } from 'rxjs';
 
 @Component({

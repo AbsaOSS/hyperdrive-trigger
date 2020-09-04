@@ -18,7 +18,7 @@ import { provideMockStore, MockStore } from '@ngrx/store/testing';
 import { ClarityModule } from '@clr/angular';
 import { FormsModule } from '@angular/forms';
 import { WelcomeComponent } from './welcome.component';
-import * as fromApp from '../../stores/app.reducers';
+import * as fromApp from '../../../stores/app.reducers';
 import { RouterTestingModule } from '@angular/router/testing';
 
 describe('WelcomeComponent', () => {

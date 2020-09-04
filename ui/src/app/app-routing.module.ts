@@ -24,7 +24,7 @@ import { WorkflowsHomeComponent } from './components/workflows/workflows-home/wo
 import { WorkflowComponent } from './components/workflows/workflow/workflow.component';
 import { WorkflowHistoryComponent } from './components/workflows/workflow-history/workflow-history.component';
 import { WorkflowComparisonComponent } from './components/workflows/workflow-history/workflow-comparison/workflow-comparison.component';
-import { WelcomeComponent } from './components/welcome/welcome.component';
+import { WelcomeComponent } from './components/auth/welcome/welcome.component';
 
 const routes: Routes = [
   { path: routeNames.DEFAULT, redirectTo: routeNames.WORKFLOWS, pathMatch: 'full', canActivate: [AuthGuardService] },

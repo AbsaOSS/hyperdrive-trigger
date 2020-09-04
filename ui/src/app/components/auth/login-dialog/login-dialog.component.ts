@@ -15,37 +15,30 @@
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
+import { AppState, selectAuthState } from '../../../stores/app.reducers';
 import { Subscription } from 'rxjs';
-import * as AuthActions from './stores/auth/auth.actions';
-import * as fromApp from './stores/app.reducers';
-import { absoluteRoutes } from './constants/routes.constants';
-import { selectAuthState } from './stores/app.reducers';
+import { Router } from '@angular/router';
+import { absoluteRoutes } from '../../../constants/routes.constants';
+import * as fromApp from '../../../stores/app.reducers';
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss'],
+  selector: 'app-login-dialog',
+  templateUrl: './login-dialog.component.html',
+  styleUrls: ['./login-dialog.component.scss'],
 })
-export class AppComponent implements OnInit, OnDestroy {
-  routes = absoluteRoutes;
+export class LoginDialogComponent implements OnInit, OnDestroy {
   authStateSubscription: Subscription;
-  isAuthenticated: boolean;
-  username: string;
+  showLoginDialog = false;
 
   constructor(private store: Store<fromApp.AppState>) {}
 
   ngOnInit(): void {
     this.authStateSubscription = this.store.select(selectAuthState).subscribe((state) => {
-      this.isAuthenticated = state.isAuthenticated;
-      this.username = state.username;
+      this.showLoginDialog = state.showLoginModal;
     });
   }
 
   ngOnDestroy(): void {
     !!this.authStateSubscription && this.authStateSubscription.unsubscribe();
-  }
-
-  onLogOut() {
-    this.store.dispatch(new AuthActions.Logout());
   }
 }

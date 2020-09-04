@@ -14,13 +14,7 @@
   -->
 
 <app-confirmation-dialog></app-confirmation-dialog>
-<clr-modal [clrModalOpen]="showLoginModal"
-           [clrModalClosable]="false"
-           [clrModalSize]="'m'">
-  <div class="modal-body">
-    <app-login styleClass="hyp-login"></app-login>
-  </div>
-</clr-modal>
+<app-login-dialog></app-login-dialog>
 
 <div class="main-container">
   <header class="header-6" *ngIf="isAuthenticated">

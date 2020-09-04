@@ -15,10 +15,10 @@
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { AppState, selectAuthState } from '../../stores/app.reducers';
+import { AppState, selectAuthState } from '../../../stores/app.reducers';
 import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
-import { absoluteRoutes } from '../../constants/routes.constants';
+import { absoluteRoutes } from '../../../constants/routes.constants';
 
 @Component({
   selector: 'app-welcome',
