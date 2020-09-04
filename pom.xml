@@ -341,7 +341,7 @@
                 </executions>
                 <configuration>
                     <skip>${skip.docker}</skip>
-                    <repository>absaoss/hyperdrive-trigger</repository>
+                    <repository>bigdatarnd-hyperdrive-trigger</repository>
                     <tag>latest</tag>
                     <buildArgs>
                         <JAR_FILE>target/${project.build.finalName}.jar</JAR_FILE>

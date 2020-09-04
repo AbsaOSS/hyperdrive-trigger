@@ -45,7 +45,7 @@ This removes stopped containers and volumes that are not referenced by any conta
 If `mvn clean package -Pdocker` fails due to proxy settings, you may want to try to build the image using the docker console.
 
 ```
-docker build --build-arg JAR_FILE=target/hyperdrive-trigger-0.0.1-SNAPSHOT.jar -t absaoss/hyperdrive-trigger:latest .
+docker build --build-arg JAR_FILE=target/hyperdrive-trigger-0.0.1-SNAPSHOT.jar -t bigdatarnd-hyperdrive-trigger:latest .
 ```
 
 #### Error: hyperdrive-trigger_hyperdrive-trigger_1 exited with code 1
