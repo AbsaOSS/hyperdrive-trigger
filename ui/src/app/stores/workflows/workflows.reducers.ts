@@ -303,6 +303,28 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
           },
         },
       };
+    case WorkflowsActions.WORKFLOW_JOBS_REORDER:
+      const orderedJobs = [...state.workflowAction.workflowFormData.jobs]
+        .map((jobEntry) => {
+          if (jobEntry.order === action.payload.initialJobPosition) {
+            return { ...jobEntry, order: action.payload.updatedJobPosition };
+          }
+          if (jobEntry.order === action.payload.updatedJobPosition) {
+            return { ...jobEntry, order: action.payload.initialJobPosition };
+          }
+          return jobEntry;
+        })
+        .sort((projectLeft, projectRight) => projectLeft.order - projectRight.order);
+      return {
+        ...state,
+        workflowAction: {
+          ...state.workflowAction,
+          workflowFormData: {
+            ...state.workflowAction.workflowFormData,
+            jobs: orderedJobs,
+          },
+        },
+      };
     case WorkflowsActions.DELETE_WORKFLOW:
       return {
         ...state,
