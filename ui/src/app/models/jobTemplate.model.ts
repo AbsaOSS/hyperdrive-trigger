@@ -18,3 +18,9 @@ export type JobTemplateModel = {
   name: string;
   formConfig: string;
 };
+
+export class JobTemplateModelFactory {
+  static create(id: number, name: string, formConfig: string): JobTemplateModel {
+    return { id: id, name: name, formConfig: formConfig };
+  }
+}
