@@ -18,11 +18,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { JobsComponent } from './jobs.component';
 import { FormPartFactory, PartValidationFactory, WorkflowFormPartsModelFactory } from '../../../../models/workflowFormParts.model';
 import { Action } from '@ngrx/store';
-import {
-  WorkflowAddEmptyJob,
-  WorkflowJobsReorder,
-  WorkflowRemoveJob
-} from '../../../../stores/workflows/workflows.actions';
+import { WorkflowAddEmptyJob, WorkflowJobsReorder, WorkflowRemoveJob } from '../../../../stores/workflows/workflows.actions';
 import { JobEntryModelFactory } from '../../../../models/jobEntry.model';
 import { WorkflowEntryModelFactory } from '../../../../models/workflowEntry.model';
 import { EventEmitter } from '@angular/core';
