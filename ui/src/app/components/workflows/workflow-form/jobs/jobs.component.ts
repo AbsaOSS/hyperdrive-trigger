@@ -88,7 +88,7 @@ export class JobsComponent implements OnDestroy, OnInit, AfterViewChecked {
   }
 
   reorderJobs(initialJobPosition: number, updatedJobPosition: number) {
-    if (initialJobPosition != updatedJobPosition) {
+    if (initialJobPosition !== updatedJobPosition) {
       this.changes.next(new WorkflowJobsReorder({ initialJobPosition, updatedJobPosition }));
     }
   }
