@@ -127,6 +127,20 @@ export function sortProjectsAndWorkflows(projects: ProjectModel[]): ProjectModel
   return sortedProjects;
 }
 
+export function switchJobs(jobEntries: JobEntryModel[], initialJobPosition: number, updatedJobPosition: number): JobEntryModel[] {
+  return jobEntries
+    .map((jobEntry) => {
+      if (jobEntry.order === initialJobPosition) {
+        return { ...jobEntry, order: updatedJobPosition };
+      }
+      if (jobEntry.order === updatedJobPosition) {
+        return { ...jobEntry, order: initialJobPosition };
+      }
+      return jobEntry;
+    })
+    .sort((projectLeft, projectRight) => projectLeft.order - projectRight.order);
+}
+
 export function workflowsReducer(state: State = initialState, action: WorkflowsActions.WorkflowsActions) {
   switch (action.type) {
     case WorkflowsActions.INITIALIZE_WORKFLOWS:
@@ -304,24 +318,18 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         },
       };
     case WorkflowsActions.WORKFLOW_JOBS_REORDER:
-      const orderedJobs = [...state.workflowAction.workflowFormData.jobs]
-        .map((jobEntry) => {
-          if (jobEntry.order === action.payload.initialJobPosition) {
-            return { ...jobEntry, order: action.payload.updatedJobPosition };
-          }
-          if (jobEntry.order === action.payload.updatedJobPosition) {
-            return { ...jobEntry, order: action.payload.initialJobPosition };
-          }
-          return jobEntry;
-        })
-        .sort((projectLeft, projectRight) => projectLeft.order - projectRight.order);
+      const updatedJobs = switchJobs(
+        [...state.workflowAction.workflowFormData.jobs],
+        action.payload.initialJobPosition,
+        action.payload.updatedJobPosition,
+      );
       return {
         ...state,
         workflowAction: {
           ...state.workflowAction,
           workflowFormData: {
             ...state.workflowAction.workflowFormData,
-            jobs: orderedJobs,
+            jobs: updatedJobs,
           },
         },
       };
