@@ -174,7 +174,7 @@ describe('WorkflowService', () => {
     req.flush(new Boolean(response));
   });
 
-  it('getWorkflowDynamicFormParts() should not return no form parts if no template ids are present', () => {
+  it('getWorkflowDynamicFormParts() should return no form parts if no template ids are present', () => {
     underTest.getWorkflowDynamicFormParts().subscribe(
       (data) => expect(data.jobDynamicParts.length).toEqual(0),
       (error) => fail(error),
@@ -186,9 +186,12 @@ describe('WorkflowService', () => {
     const reqShell = httpTestingController.expectOne(encodeURI(api.GET_JOB_TEMPLATE_ID + `?name=` + jobTemplates.SHELL_JOB));
     expect(reqShell.request.method).toEqual('GET');
     reqShell.flush(null);
+    const reqHyper = httpTestingController.expectOne(encodeURI(api.GET_JOB_TEMPLATE_ID + `?name=` + jobTemplates.HYPERCONFORMANCE_JOB));
+    expect(reqHyper.request.method).toEqual('GET');
+    reqHyper.flush(null);
   });
 
-  it('getWorkflowDynamicFormParts() should not return only the shell-job form part if no other template ids are present', () => {
+  it('getWorkflowDynamicFormParts() should return only the shell-job form part if no other template ids are present', () => {
     underTest.getWorkflowDynamicFormParts().subscribe(
       (data) => {
         expect(data.jobDynamicParts.length).toEqual(1);
@@ -203,5 +206,8 @@ describe('WorkflowService', () => {
     const reqShell = httpTestingController.expectOne(encodeURI(api.GET_JOB_TEMPLATE_ID + `?name=` + jobTemplates.SHELL_JOB));
     expect(reqShell.request.method).toEqual('GET');
     reqShell.flush(2);
+    const reqHyper = httpTestingController.expectOne(encodeURI(api.GET_JOB_TEMPLATE_ID + `?name=` + jobTemplates.HYPERCONFORMANCE_JOB));
+    expect(reqHyper.request.method).toEqual('GET');
+    reqHyper.flush(null);
   });
 });
