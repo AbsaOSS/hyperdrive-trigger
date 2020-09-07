@@ -21,7 +21,7 @@ import { WorkflowService } from './workflow.service';
 import { ProjectModelFactory } from '../../models/project.model';
 import { WorkflowModelFactory } from '../../models/workflow.model';
 import { WorkflowJoinedModelFactory } from '../../models/workflowJoined.model';
-import { jobTemplates } from '../../constants/jobTemplates.constants';
+import { jobTemplateFormConfigs } from '../../constants/jobTemplates.constants';
 
 describe('WorkflowService', () => {
   let underTest: WorkflowService;
@@ -180,13 +180,13 @@ describe('WorkflowService', () => {
       (error) => fail(error),
     );
 
-    const req = httpTestingController.expectOne(encodeURI(api.GET_JOB_TEMPLATE_ID + `?name=` + jobTemplates.SPARK_JOB));
+    const req = httpTestingController.expectOne(encodeURI(api.GET_JOB_TEMPLATES + `?name=` + jobTemplateFormConfigs.SPARK));
     expect(req.request.method).toEqual('GET');
     req.flush(null);
-    const reqShell = httpTestingController.expectOne(encodeURI(api.GET_JOB_TEMPLATE_ID + `?name=` + jobTemplates.SHELL_JOB));
+    const reqShell = httpTestingController.expectOne(encodeURI(api.GET_JOB_TEMPLATES + `?name=` + jobTemplateFormConfigs.SHELL));
     expect(reqShell.request.method).toEqual('GET');
     reqShell.flush(null);
-    const reqHyper = httpTestingController.expectOne(encodeURI(api.GET_JOB_TEMPLATE_ID + `?name=` + jobTemplates.HYPERDRIVE_JOB));
+    const reqHyper = httpTestingController.expectOne(encodeURI(api.GET_JOB_TEMPLATES + `?name=` + jobTemplateFormConfigs.HYPERDRIVE));
     expect(reqHyper.request.method).toEqual('GET');
     reqHyper.flush(null);
   });
@@ -195,18 +195,18 @@ describe('WorkflowService', () => {
     underTest.getWorkflowDynamicFormParts().subscribe(
       (data) => {
         expect(data.jobDynamicParts.length).toEqual(1);
-        expect(data.jobDynamicParts[0].label).toEqual(jobTemplates.SHELL_JOB);
+        expect(data.jobDynamicParts[0].label).toEqual(jobTemplateFormConfigs.SHELL);
       },
       (error) => fail(error),
     );
 
-    const req = httpTestingController.expectOne(encodeURI(api.GET_JOB_TEMPLATE_ID + `?name=` + jobTemplates.SPARK_JOB));
+    const req = httpTestingController.expectOne(encodeURI(api.GET_JOB_TEMPLATES + `?name=` + jobTemplateFormConfigs.SPARK));
     expect(req.request.method).toEqual('GET');
     req.flush(null);
-    const reqShell = httpTestingController.expectOne(encodeURI(api.GET_JOB_TEMPLATE_ID + `?name=` + jobTemplates.SHELL_JOB));
+    const reqShell = httpTestingController.expectOne(encodeURI(api.GET_JOB_TEMPLATES + `?name=` + jobTemplateFormConfigs.SHELL));
     expect(reqShell.request.method).toEqual('GET');
     reqShell.flush(2);
-    const reqHyper = httpTestingController.expectOne(encodeURI(api.GET_JOB_TEMPLATE_ID + `?name=` + jobTemplates.HYPERDRIVE_JOB));
+    const reqHyper = httpTestingController.expectOne(encodeURI(api.GET_JOB_TEMPLATES + `?name=` + jobTemplateFormConfigs.HYPERDRIVE));
     expect(reqHyper.request.method).toEqual('GET');
     reqHyper.flush(null);
   });
