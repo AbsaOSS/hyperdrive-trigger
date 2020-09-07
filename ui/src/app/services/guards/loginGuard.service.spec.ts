@@ -28,6 +28,7 @@ describe('LoginGuard Service', () => {
     username: 'test',
     isAuthenticated: true,
     authenticationFailed: false,
+    showLoginDialog: false,
   };
 
   beforeEach(() => {

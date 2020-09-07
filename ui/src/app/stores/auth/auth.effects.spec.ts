@@ -7,12 +7,11 @@ import { Observable } from 'rxjs';
 import { Actions } from '@ngrx/effects';
 import { AuthService } from '../../services/auth/auth.service';
 import * as AuthActions from './auth.actions';
-import { Login, LoginSuccess, Logout, LogoutSuccess } from './auth.actions';
+import { Login, Logout, LogoutSuccess } from './auth.actions';
 import { cold } from 'jasmine-marbles';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { absoluteRoutes } from '../../constants/routes.constants';
-import { localStorageKeys } from '../../constants/localStorage.constants';
 
 describe('AuthEffects', () => {
   let underTest: AuthEffects;
@@ -106,19 +105,6 @@ describe('AuthEffects', () => {
     });
   });
 
-  describe('logInSuccess', () => {
-    it('should store username and navigate to home', () => {
-      spyOn(localStorage, 'setItem');
-      const action = new LoginSuccess({ username: 'test', token: '1234' });
-      mockActions = cold('-a', { a: action });
-
-      expect(underTest.logInSuccess).toBeObservable(mockActions);
-      expect(router.navigateByUrl).toHaveBeenCalledWith(absoluteRoutes.DEFAULT);
-      expect(localStorage.setItem).toHaveBeenCalledWith(localStorageKeys.USERNAME, 'test');
-      expect(localStorage.setItem).toHaveBeenCalledWith(localStorageKeys.CSRF_TOKEN, '1234');
-    });
-  });
-
   describe('logOut', () => {
     it('should return a LogoutSuccess', () => {
       const action = new Logout();
@@ -147,14 +133,11 @@ describe('AuthEffects', () => {
 
   describe('logOutSuccess', () => {
     it('should remove username from storage and navigate to login page', () => {
-      spyOn(localStorage, 'removeItem');
       const action = new LogoutSuccess();
       mockActions = cold('-a', { a: action });
 
       expect(underTest.logOutSuccess).toBeObservable(mockActions);
-      expect(router.navigateByUrl).toHaveBeenCalledWith(absoluteRoutes.LOGIN);
-      expect(localStorage.removeItem).toHaveBeenCalledWith(localStorageKeys.USERNAME);
-      expect(localStorage.removeItem).toHaveBeenCalledWith(localStorageKeys.CSRF_TOKEN);
+      expect(router.navigateByUrl).toHaveBeenCalledWith(absoluteRoutes.WELCOME);
     });
   });
 });

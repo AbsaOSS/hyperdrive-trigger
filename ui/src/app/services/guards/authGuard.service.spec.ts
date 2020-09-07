@@ -28,6 +28,7 @@ describe('AuthGuard Service', () => {
     username: 'test',
     isAuthenticated: true,
     authenticationFailed: false,
+    showLoginDialog: false,
   };
 
   beforeEach(() => {
@@ -53,6 +54,6 @@ describe('AuthGuard Service', () => {
 
     const expected = cold('(a|)', { a: false });
     expect(underTest.canActivate()).toBeObservable(expected);
-    expect(underTest.router.navigateByUrl).toHaveBeenCalledWith(absoluteRoutes.LOGIN);
+    expect(underTest.router.navigateByUrl).toHaveBeenCalledWith(absoluteRoutes.WELCOME);
   });
 });

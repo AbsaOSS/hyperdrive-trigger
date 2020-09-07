@@ -30,7 +30,7 @@ export class AuthGuardService implements CanActivate {
       take(1),
       map((state) => {
         if (!state.isAuthenticated) {
-          this.router.navigateByUrl(absoluteRoutes.LOGIN);
+          this.router.navigateByUrl(absoluteRoutes.WELCOME);
           return false;
         }
         return true;

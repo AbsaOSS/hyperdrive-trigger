@@ -35,6 +35,7 @@ export interface State {
     workflowFormParts: WorkflowFormPartsModel;
     backendValidationErrors: string[];
     workflowFormData: WorkflowFormDataModel;
+    initialWorkflowFormData: WorkflowFormDataModel;
     workflowFile: File;
   };
   workflowsSort: SortAttributesModel;
@@ -68,6 +69,11 @@ const initialState: State = {
     workflowFormParts: undefined,
     backendValidationErrors: [],
     workflowFormData: {
+      details: [],
+      sensor: [],
+      jobs: [],
+    },
+    initialWorkflowFormData: {
       details: [],
       sensor: [],
       jobs: [],
@@ -160,18 +166,20 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         },
       };
     case WorkflowsActions.LOAD_WORKFLOW_SUCCESS:
+      const workflowFormData = {
+        ...state.workflowAction.workflowFormData,
+        details: action.payload.detailsData,
+        sensor: action.payload.sensorData,
+        jobs: action.payload.jobsData,
+      };
       return {
         ...state,
         workflowAction: {
           ...state.workflowAction,
           workflow: action.payload.workflow,
           loading: false,
-          workflowFormData: {
-            ...state.workflowAction.workflowFormData,
-            details: action.payload.detailsData,
-            sensor: action.payload.sensorData,
-            jobs: action.payload.jobsData,
-          },
+          workflowFormData: workflowFormData,
+          initialWorkflowFormData: workflowFormData,
         },
       };
     case WorkflowsActions.LOAD_WORKFLOW_FAILURE:

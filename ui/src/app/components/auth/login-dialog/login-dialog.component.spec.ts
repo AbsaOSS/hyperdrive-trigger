@@ -17,17 +17,18 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideMockStore, MockStore } from '@ngrx/store/testing';
 import { ClarityModule } from '@clr/angular';
 import { FormsModule } from '@angular/forms';
-import { LoginComponent } from './login.component';
-import * as fromApp from '../../stores/app.reducers';
+import { LoginDialogComponent } from './login-dialog.component';
+import * as fromApp from '../../../stores/app.reducers';
 
-describe('LoginComponent', () => {
-  let component: LoginComponent;
-  let fixture: ComponentFixture<LoginComponent>;
+describe('WelcomeComponent', () => {
+  let component: LoginDialogComponent;
+  let fixture: ComponentFixture<LoginDialogComponent>;
   let mockStore: MockStore<fromApp.AppState>;
   const initialAuthState = {
     username: 'test',
     isAuthenticated: false,
     authenticationFailed: false,
+    showLoginDialog: false,
   };
 
   const initialAppState = {
@@ -38,7 +39,7 @@ describe('LoginComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       providers: [provideMockStore({ initialState: initialAppState })],
-      declarations: [LoginComponent],
+      declarations: [LoginDialogComponent],
       imports: [ClarityModule, FormsModule],
     }).compileComponents();
 
@@ -46,7 +47,7 @@ describe('LoginComponent', () => {
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(LoginComponent);
+    fixture = TestBed.createComponent(LoginDialogComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

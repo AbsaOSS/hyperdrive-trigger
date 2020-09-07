@@ -88,6 +88,11 @@ describe('WorkflowsReducers', () => {
         sensor: [],
         jobs: [job1, job0, job2, job3],
       },
+      initialWorkflowFormData: {
+        details: [],
+        sensor: [],
+        jobs: [job1, job0, job2, job3],
+      },
       workflowFile: undefined,
     },
     workflowsSort: undefined,
