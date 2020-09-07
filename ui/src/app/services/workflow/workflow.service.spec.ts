@@ -186,7 +186,7 @@ describe('WorkflowService', () => {
     const reqShell = httpTestingController.expectOne(encodeURI(api.GET_JOB_TEMPLATE_ID + `?name=` + jobTemplates.SHELL_JOB));
     expect(reqShell.request.method).toEqual('GET');
     reqShell.flush(null);
-    const reqHyper = httpTestingController.expectOne(encodeURI(api.GET_JOB_TEMPLATE_ID + `?name=` + jobTemplates.HYPERCONFORMANCE_JOB));
+    const reqHyper = httpTestingController.expectOne(encodeURI(api.GET_JOB_TEMPLATE_ID + `?name=` + jobTemplates.HYPERDRIVE_JOB));
     expect(reqHyper.request.method).toEqual('GET');
     reqHyper.flush(null);
   });
@@ -206,7 +206,7 @@ describe('WorkflowService', () => {
     const reqShell = httpTestingController.expectOne(encodeURI(api.GET_JOB_TEMPLATE_ID + `?name=` + jobTemplates.SHELL_JOB));
     expect(reqShell.request.method).toEqual('GET');
     reqShell.flush(2);
-    const reqHyper = httpTestingController.expectOne(encodeURI(api.GET_JOB_TEMPLATE_ID + `?name=` + jobTemplates.HYPERCONFORMANCE_JOB));
+    const reqHyper = httpTestingController.expectOne(encodeURI(api.GET_JOB_TEMPLATE_ID + `?name=` + jobTemplates.HYPERDRIVE_JOB));
     expect(reqHyper.request.method).toEqual('GET');
     reqHyper.flush(null);
   });

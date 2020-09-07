@@ -16,5 +16,5 @@
 export const jobTemplates = {
   SHELL_JOB: 'Generic Shell Job',
   SPARK_JOB: 'Generic Spark Job',
-  HYPERCONFORMANCE_JOB: 'Hyperconformance Job',
+  HYPERDRIVE_JOB: 'Hyperdrive Job',
 };

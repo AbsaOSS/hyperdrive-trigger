@@ -134,15 +134,15 @@ export class WorkflowService {
   getWorkflowDynamicFormParts(): Observable<DynamicFormParts> {
     const shellTemplateId$ = this.getJobTemplateId(jobTemplates.SHELL_JOB);
     const sparkTemplateId$ = this.getJobTemplateId(jobTemplates.SPARK_JOB);
-    const hyperConformanceTemplateId$ = this.getJobTemplateId(jobTemplates.HYPERCONFORMANCE_JOB);
+    const hyperdriveTemplateId$ = this.getJobTemplateId(jobTemplates.HYPERDRIVE_JOB);
 
-    return combineLatest([shellTemplateId$, sparkTemplateId$, hyperConformanceTemplateId$]).pipe(
-      mergeMap(([shellTemplateId, sparkTemplateId, hyperConformanceTemplateId]) => {
+    return combineLatest([shellTemplateId$, sparkTemplateId$, hyperdriveTemplateId$]).pipe(
+      mergeMap(([shellTemplateId, sparkTemplateId, hyperdriveTemplateId]) => {
         const sensorParts = WorkflowService.getSensorDynamicFormParts();
         const jobParts = WorkflowService.getJobDynamicFormParts(
           sparkTemplateId?.toString(),
           shellTemplateId?.toString(),
-          hyperConformanceTemplateId?.toString(),
+          hyperdriveTemplateId?.toString(),
         );
         return of(DynamicFormPartsFactory.create(sensorParts, jobParts));
       }),
@@ -209,11 +209,7 @@ export class WorkflowService {
     ];
   }
 
-  private static getJobDynamicFormParts(
-    sparkTemplateId: string,
-    shellTemplateId: string,
-    hyperConformanceTemplateId: string,
-  ): DynamicFormPart[] {
+  private static getJobDynamicFormParts(sparkTemplateId: string, shellTemplateId: string, hyperdriveTemplateId: string): DynamicFormPart[] {
     const jobDynamicFormParts = [];
     if (sparkTemplateId != null) {
       jobDynamicFormParts.push(this.getSparkDynamicFormParts(sparkTemplateId));
@@ -221,8 +217,8 @@ export class WorkflowService {
     if (shellTemplateId != null) {
       jobDynamicFormParts.push(this.getShellDynamicFormParts(shellTemplateId));
     }
-    if (hyperConformanceTemplateId != null) {
-      jobDynamicFormParts.push(this.getHyperConformanceDynamicFormParts(hyperConformanceTemplateId));
+    if (hyperdriveTemplateId != null) {
+      jobDynamicFormParts.push(this.getHyperConformanceDynamicFormParts(hyperdriveTemplateId));
     }
     return jobDynamicFormParts;
   }
@@ -285,7 +281,7 @@ export class WorkflowService {
   }
 
   private static getHyperConformanceDynamicFormParts(templateId: string): DynamicFormPart {
-    return DynamicFormPartFactory.createWithLabel(templateId, jobTemplates.HYPERCONFORMANCE_JOB, [
+    return DynamicFormPartFactory.createWithLabel(templateId, jobTemplates.HYPERDRIVE_JOB, [
       FormPartFactory.create(
         'Additional jars',
         'jobParameters.maps.additionalJars',
