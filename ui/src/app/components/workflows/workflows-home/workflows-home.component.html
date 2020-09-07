@@ -89,7 +89,32 @@
       </app-string-filter>
     </clr-dg-filter>
   </clr-dg-column>
-  <clr-dg-column>Is active</clr-dg-column>
+  <clr-dg-column
+  [clrDgField]="workflowsHomeColumns.IS_ACTIVE"
+  [clrDgSortOrder]="getSort(workflowsHomeColumns.IS_ACTIVE)">
+  <ng-container>Is active</ng-container>
+  <clr-dg-filter [clrDgFilter]="workflowIsActiveFilter">
+    <app-status-filter #workflowIsActiveFilter
+                       [property]="workflowsHomeColumns.IS_ACTIVE"
+                       [removeFiltersSubject]="removeWorkflowFilterSubject"
+                       [statuses]="workflowStatuses.getWorkflowStatuses()">
+    </app-status-filter>
+
+    <!-- <app-multiple-status-filter #workflowIsActiveFilter
+                                [property]="workflowsHomeColumns.IS_ACTIVE"
+                                [removeFiltersSubject]="removeWorkflowFilterSubject"
+                                [statuses]="workflowStatuses.getWorkflowStatuses()">
+    </app-multiple-status-filter> -->
+
+    <!-- <app-string-filter [removeFiltersSubject]="removeWorkflowFilterSubject"
+                       [value]="getFilter(workflowsHomeColumns.IS_ACTIVE)"
+                       #workflowIsActiveFilter
+                       [property]="workflowsHomeColumns.IS_ACTIVE">
+    </app-string-filter> -->
+
+  </clr-dg-filter>
+    
+    </clr-dg-column>
 
   <clr-dg-row *clrDgItems="let workflow of workflows" [clrDgItem]="workflow">
     <clr-dg-action-overflow>
@@ -134,9 +159,18 @@
     <clr-dg-cell (dblclick)="showWorkflow(workflow.id)">{{workflow.name}}</clr-dg-cell>
     <clr-dg-cell (dblclick)="showWorkflow(workflow.id)">{{workflow.project}}</clr-dg-cell>
     <clr-dg-cell (dblclick)="showWorkflow(workflow.id)" [ngSwitch]="workflow.isActive">
-      <clr-icon *ngSwitchCase="true" shape="circle" class="is-solid" style="color: green"></clr-icon>
-      <clr-icon *ngSwitchCase="false" shape="circle" class="is-solid" style="color: red"></clr-icon>
+      <clr-icon *ngSwitchCase="true"
+                [attr.shape]="workflowStatuses.YES.shape"
+                [style.color]="workflowStatuses.YES.color"
+                class="is-solid">
+      </clr-icon>
+      <clr-icon *ngSwitchCase="false"
+                [attr.shape]="workflowStatuses.NO.shape"
+                [style.color]="workflowStatuses.NO.color"
+                class="is-solid">
+      </clr-icon>
       {{workflow.isActive ? 'Yes' : 'No'}}
+      <!-- {{workflow.isActive ? workflowStatuses.YES.name : workflowStatuses.NO.name}} -->
     </clr-dg-cell>
   </clr-dg-row>
 </clr-datagrid>

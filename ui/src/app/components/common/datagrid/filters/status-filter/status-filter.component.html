@@ -1,0 +1,13 @@
+  <div
+  *ngFor="let status of statuses"
+  class="status-selectable"
+  (click)="toggleStatus(status.name)"
+  [class.status-selected]="status.name == value">
+  <clr-icon
+    class="is-solid"
+    [attr.shape]="status.shape"
+    [style.color]="status.color"
+    [textContent]="status.name">
+  </clr-icon>
+  {{status.name}}
+</div>
