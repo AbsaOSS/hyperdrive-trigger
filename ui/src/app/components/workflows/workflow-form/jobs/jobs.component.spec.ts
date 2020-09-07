@@ -18,7 +18,11 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { JobsComponent } from './jobs.component';
 import { FormPartFactory, PartValidationFactory, WorkflowFormPartsModelFactory } from '../../../../models/workflowFormParts.model';
 import { Action } from '@ngrx/store';
-import { WorkflowAddEmptyJob, WorkflowRemoveJob } from '../../../../stores/workflows/workflows.actions';
+import {
+  WorkflowAddEmptyJob,
+  WorkflowJobsReorder,
+  WorkflowRemoveJob
+} from '../../../../stores/workflows/workflows.actions';
 import { JobEntryModelFactory } from '../../../../models/jobEntry.model';
 import { WorkflowEntryModelFactory } from '../../../../models/workflowEntry.model';
 import { EventEmitter } from '@angular/core';
@@ -126,6 +130,33 @@ describe('JobsComponent', () => {
 
       expect(changesSpy).toHaveBeenCalledTimes(1);
       expect(changesSpy).toHaveBeenCalledWith(new WorkflowRemoveJob('abcdef'));
+    });
+  }));
+
+  it('reorderJobs() reorder jobs actions should be dispatched when positions are not equal', async(() => {
+    const initialJobPosition = 1;
+    const updatedJobPosition = 5;
+    const changesSpy = spyOn(underTest.changes, 'next');
+
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      underTest.reorderJobs(initialJobPosition, updatedJobPosition);
+
+      expect(changesSpy).toHaveBeenCalledTimes(1);
+      expect(changesSpy).toHaveBeenCalledWith(new WorkflowJobsReorder({ initialJobPosition, updatedJobPosition }));
+    });
+  }));
+
+  it('reorderJobs() reorder jobs actions should not be dispatched when positions are equal', async(() => {
+    const initialJobPosition = 5;
+    const updatedJobPosition = 5;
+    const changesSpy = spyOn(underTest.changes, 'next');
+
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      underTest.reorderJobs(initialJobPosition, updatedJobPosition);
+
+      expect(changesSpy).toHaveBeenCalledTimes(0);
     });
   }));
 });
