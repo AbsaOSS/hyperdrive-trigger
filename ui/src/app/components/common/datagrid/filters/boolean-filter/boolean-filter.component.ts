@@ -1,3 +1,18 @@
+/*
+ * Copyright 2018 ABSA Group Limited
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import {AfterViewInit, Component, Input, OnDestroy} from '@angular/core';
 import {Subject} from 'rxjs';
 import {ClrDatagridFilterInterface} from '@clr/angular';
@@ -8,7 +23,7 @@ import { ContainsFilterAttributes } from '../../../../../models/search/containsF
   selector: 'app-status-filter',
   templateUrl: './status-filter.component.html',
   styleUrls: ['./status-filter.component.scss']
-}) export class StatusFilterComponent implements ClrDatagridFilterInterface<any>, AfterViewInit, OnDestroy {
+}) export class BooleanFilterComponent implements ClrDatagridFilterInterface<any>, AfterViewInit, OnDestroy {
   @Input() removeFiltersSubject: Subject<any>;
   @Input() property: string;
   @Input() statuses: StatusModel[];
@@ -16,14 +31,16 @@ import { ContainsFilterAttributes } from '../../../../../models/search/containsF
 
   changes = new Subject<any>();
 
-  constructor() { }
+  constructor() {
+    // do nothing
+  }
 
   ngAfterViewInit(): void {
-    this.removeFiltersSubject.subscribe(_ => this.onRemoveFilter());
+    this.removeFiltersSubject.subscribe((_) => this.onRemoveFilter());
   }
 
   ngOnDestroy(): void {
-    this.removeFiltersSubject.unsubscribe();
+    !!this.removeFiltersSubject && this.removeFiltersSubject.unsubscribe();
   }
 
   toggleStatus(statusName: string) {
@@ -47,5 +64,4 @@ import { ContainsFilterAttributes } from '../../../../../models/search/containsF
     this.value = undefined;
     this.changes.next();
   }
-
 }

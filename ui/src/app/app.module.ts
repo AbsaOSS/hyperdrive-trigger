@@ -68,7 +68,7 @@ import { WorkflowComparisonComponent } from './components/workflows/workflow-his
 import { WorkflowFormComponent } from './components/workflows/workflow-form/workflow-form.component';
 import { HistoryDetailComponent } from './components/workflows/workflow-history/workflow-comparison/history-detail/history-detail.component';
 import { WorkflowRunComponent } from './components/workflows/workflow-run/workflow-run.component';
-import { StatusFilterComponent } from './components/common/datagrid/filters/status-filter/status-filter.component';
+import { BooleanFilterComponent } from './components/common/datagrid/filters/boolean-filter/boolean-filter.component';
 
 @NgModule({
   declarations: [
@@ -102,7 +102,7 @@ import { StatusFilterComponent } from './components/common/datagrid/filters/stat
     WorkflowFormComponent,
     HistoryDetailComponent,
     WorkflowRunComponent,
-    StatusFilterComponent,
+    BooleanFilterComponent,
   ],
   imports: [
     BrowserModule,
