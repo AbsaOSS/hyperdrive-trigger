@@ -25,6 +25,6 @@ COPY ${JAR_FILE} /usr/src/hyperdrive/hyperdrive-trigger.jar
 ENV JAVA_OPTS=""
 WORKDIR /usr/src/hyperdrive
 VOLUME /usr/src/hyperdrive/logs
-EXPOSE 7123 5433
+EXPOSE 7123 5432
 RUN chmod +x -R /usr/src/hyperdrive
 ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} -jar hyperdrive-trigger.jar"]
