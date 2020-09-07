@@ -94,24 +94,12 @@
   [clrDgSortOrder]="getSort(workflowsHomeColumns.IS_ACTIVE)">
   <ng-container>Is active</ng-container>
   <clr-dg-filter [clrDgFilter]="workflowIsActiveFilter">
-    <app-status-filter #workflowIsActiveFilter
+    <app-boolean-filter #workflowIsActiveFilter
                        [property]="workflowsHomeColumns.IS_ACTIVE"
                        [removeFiltersSubject]="removeWorkflowFilterSubject"
-                       [statuses]="workflowStatuses.getWorkflowStatuses()">
-    </app-status-filter>
-
-    <!-- <app-multiple-status-filter #workflowIsActiveFilter
-                                [property]="workflowsHomeColumns.IS_ACTIVE"
-                                [removeFiltersSubject]="removeWorkflowFilterSubject"
-                                [statuses]="workflowStatuses.getWorkflowStatuses()">
-    </app-multiple-status-filter> -->
-
-    <!-- <app-string-filter [removeFiltersSubject]="removeWorkflowFilterSubject"
-                       [value]="getFilter(workflowsHomeColumns.IS_ACTIVE)"
-                       #workflowIsActiveFilter
-                       [property]="workflowsHomeColumns.IS_ACTIVE">
-    </app-string-filter> -->
-
+                       [statuses]="workflowStatuses.getWorkflowStatuses()"
+                       [value]="getFilter(workflowsHomeColumns.IS_ACTIVE)">
+    </app-boolean-filter>
   </clr-dg-filter>
     
     </clr-dg-column>

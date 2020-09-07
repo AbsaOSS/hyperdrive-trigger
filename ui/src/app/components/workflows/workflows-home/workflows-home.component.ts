@@ -145,6 +145,7 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
     if (this.filters) {
       filter = this.filters.find((filter) => filter.field == name);
     }
+    console.log(filter);
     return filter ? filter.value : undefined;
   }
 

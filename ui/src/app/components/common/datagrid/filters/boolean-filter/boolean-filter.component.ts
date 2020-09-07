@@ -20,14 +20,14 @@ import {StatusModel} from '../../../../../models/status.model';
 import { ContainsFilterAttributes } from '../../../../../models/search/containsFilterAttributes.model';
 
 @Component({
-  selector: 'app-status-filter',
-  templateUrl: './status-filter.component.html',
-  styleUrls: ['./status-filter.component.scss']
+  selector: 'app-boolean-filter',
+  templateUrl: './boolean-filter.component.html',
+  styleUrls: ['./boolean-filter.component.scss']
 }) export class BooleanFilterComponent implements ClrDatagridFilterInterface<any>, AfterViewInit, OnDestroy {
   @Input() removeFiltersSubject: Subject<any>;
   @Input() property: string;
   @Input() statuses: StatusModel[];
-  value: string = undefined;
+  @Input() value: boolean;
 
   changes = new Subject<any>();
 
@@ -44,7 +44,9 @@ import { ContainsFilterAttributes } from '../../../../../models/search/containsF
   }
 
   toggleStatus(statusName: string) {
-    this.value = this.value == statusName ? undefined : statusName;
+    const toBoolean = this.convertToBoolean(statusName);
+    this.value = this.value == toBoolean ? undefined : toBoolean;
+    console.log(this.value);
     this.changes.next();
   }
 
@@ -64,4 +66,13 @@ import { ContainsFilterAttributes } from '../../../../../models/search/containsF
     this.value = undefined;
     this.changes.next();
   }
+
+  convertToBoolean(input: string): boolean | undefined {
+    try {
+      return JSON.parse(input);
+    } catch (e) {
+      return undefined;
+    }
+  }
+
 }
