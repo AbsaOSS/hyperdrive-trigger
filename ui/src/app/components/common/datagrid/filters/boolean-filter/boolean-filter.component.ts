@@ -14,10 +14,10 @@
  */
 
 import { AfterViewInit, Component, Input, OnDestroy } from '@angular/core';
-import {Subject, Subscription} from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 import { ClrDatagridFilterInterface } from '@clr/angular';
-import {EqualsMultipleFilterAttributes} from "../../../../../models/search/equalsMultipleFilterAttributes.model";
-import {debounceTime, distinctUntilChanged} from "rxjs/operators";
+import { EqualsMultipleFilterAttributes } from '../../../../../models/search/equalsMultipleFilterAttributes.model';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'app-boolean-filter',
@@ -28,8 +28,8 @@ export class BooleanFilterComponent implements ClrDatagridFilterInterface<any>, 
   @Input() removeFiltersSubject: Subject<any>;
   @Input() property: string;
   @Input() value;
-  isTrueSelected: boolean = false;
-  isFalseSelected: boolean = false;
+  isTrueSelected = false;
+  isFalseSelected = false;
 
   changes = new Subject<any>();
 
@@ -64,15 +64,15 @@ export class BooleanFilterComponent implements ClrDatagridFilterInterface<any>, 
   accepts(item: any): boolean {
     const testedValue = item[this.property];
 
-    if(this.isTrueSelected && testedValue == true) {
+    if (this.isTrueSelected && testedValue == true) {
       return true;
     }
 
-    if(this.isFalseSelected && testedValue == false) {
+    if (this.isFalseSelected && testedValue == false) {
       return true;
     }
 
-    return false
+    return false;
   }
 
   get state() {
