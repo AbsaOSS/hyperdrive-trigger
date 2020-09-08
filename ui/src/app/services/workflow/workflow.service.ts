@@ -201,6 +201,7 @@ export class WorkflowService {
           PartValidationFactory.create(true),
         ),
       ]),
+      DynamicFormPartFactory.create('Recurring', []),
     ];
   }
 
