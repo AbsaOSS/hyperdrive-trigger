@@ -43,6 +43,7 @@ export const WORKFLOW_ADD_EMPTY_JOB = 'WORKFLOW_ADD_EMPTY_JOB';
 export const WORKFLOW_REMOVE_JOB = 'WORKFLOW_REMOVE_JOB';
 export const WORKFLOW_JOB_CHANGED = 'WORKFLOW_JOB_CHANGED';
 export const WORKFLOW_JOB_TYPE_SWITCHED = 'WORKFLOW_JOB_TYPE_SWITCHED';
+export const WORKFLOW_JOBS_REORDER = 'WORKFLOW_JOBS_REORDER';
 
 export const DELETE_WORKFLOW = 'DELETE_WORKFLOW';
 export const DELETE_WORKFLOW_SUCCESS = 'DELETE_WORKFLOW_SUCCESS';
@@ -166,6 +167,11 @@ export class WorkflowJobChanged implements Action {
 export class WorkflowJobTypeSwitched implements Action {
   readonly type = WORKFLOW_JOB_TYPE_SWITCHED;
   constructor(public payload: { jobId: string; jobEntry: WorkflowEntryModel }) {}
+}
+
+export class WorkflowJobsReorder implements Action {
+  readonly type = WORKFLOW_JOBS_REORDER;
+  constructor(public payload: { initialJobPosition: number; updatedJobPosition: number }) {}
 }
 
 export class DeleteWorkflow implements Action {
@@ -337,6 +343,7 @@ export type WorkflowsActions =
   | WorkflowRemoveJob
   | WorkflowJobChanged
   | WorkflowJobTypeSwitched
+  | WorkflowJobsReorder
   | DeleteWorkflow
   | DeleteWorkflowSuccess
   | DeleteWorkflowFailure
