@@ -18,7 +18,7 @@ import { workflowModes } from '../../../../models/enums/workflowModes.constants'
 import { Subject, Subscription } from 'rxjs';
 import { Action } from '@ngrx/store';
 import { WorkflowFormPartsModel } from '../../../../models/workflowFormParts.model';
-import { WorkflowAddEmptyJob, WorkflowRemoveJob } from '../../../../stores/workflows/workflows.actions';
+import { WorkflowAddEmptyJob, WorkflowJobsReorder, WorkflowRemoveJob } from '../../../../stores/workflows/workflows.actions';
 import { JobEntryModel } from '../../../../models/jobEntry.model';
 
 @Component({
@@ -85,6 +85,12 @@ export class JobsComponent implements OnDestroy, OnInit, AfterViewChecked {
 
     const nameOption = jobData.find((value) => value.property === this.workflowFormParts.staticJobPart.property);
     return !!nameOption ? nameOption.value : '';
+  }
+
+  reorderJobs(initialJobPosition: number, updatedJobPosition: number) {
+    if (initialJobPosition !== updatedJobPosition) {
+      this.changes.next(new WorkflowJobsReorder({ initialJobPosition, updatedJobPosition }));
+    }
   }
 
   ngOnDestroy(): void {
