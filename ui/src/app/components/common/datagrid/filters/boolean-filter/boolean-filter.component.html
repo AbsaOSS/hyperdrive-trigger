@@ -13,10 +13,25 @@
   ~ limitations under the License.
   -->
 
-  <div *ngFor="let status of statuses" class="status-selectable" (click)="toggleStatus(status.name)"
-    [class.status-selected]="status.name == value">
-    <clr-icon class="is-solid" [attr.shape]="status.shape" [style.color]="status.color" [textContent]="status.name">
-    </clr-icon>
-    {{status.name == 'true' ? 'Yes' : 'No'}}
-  </div>
-  
+<div class="boolean-selectable" [class.boolean-selected]="true" (change)="toggleTrue()">
+  <clr-checkbox-container>
+    <clr-checkbox-wrapper>
+      <input type="checkbox" clrCheckbox [(ngModel)]="isTrueSelected"/>
+      <label>
+        <clr-icon class="is-solid" [attr.shape]="'circle'" [style.color]="'green'" [textContent]="'Yes'"></clr-icon>
+        Yes
+      </label>
+    </clr-checkbox-wrapper>
+  </clr-checkbox-container>
+</div>
+  <div class="boolean-selectable" [class.boolean-selected]="true" (change)="toggleFalse()">
+  <clr-checkbox-container>
+    <clr-checkbox-wrapper>
+      <input type="checkbox" clrCheckbox [(ngModel)]="isFalseSelected"/>
+      <label>
+        <clr-icon class="is-solid" [attr.shape]="'circle'" [style.color]="'red'" [textContent]="'No'"></clr-icon>
+        No
+      </label>
+    </clr-checkbox-wrapper>
+  </clr-checkbox-container>
+</div>

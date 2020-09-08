@@ -35,7 +35,6 @@ import { ClrDatagridColumn, ClrDatagridStateInterface } from '@clr/angular';
 import { SortAttributesModel } from '../../../models/search/sortAttributes.model';
 import { filter } from 'rxjs/operators';
 import { workflowsHomeColumns } from 'src/app/constants/workflow.constants';
-import { workflowStatuses } from '../../../models/enums/workflowStatuses.constancts';
 
 @Component({
   selector: 'app-workflows-home',
@@ -52,7 +51,6 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
   workflows: WorkflowModel[] = [];
   absoluteRoutes = absoluteRoutes;
   workflowsHomeColumns = workflowsHomeColumns;
-  workflowStatuses = workflowStatuses;
 
   removeWorkflowFilterSubject: Subject<any> = new Subject();
   sort: SortAttributesModel = undefined;
@@ -145,8 +143,8 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
     if (this.filters) {
       filter = this.filters.find((filter) => filter.field == name);
     }
-    console.log(filter);
-    return filter ? filter.value : undefined;
+
+    return filter && filter.value ? filter.value : undefined;
   }
 
   getSort(name: string): any | undefined {

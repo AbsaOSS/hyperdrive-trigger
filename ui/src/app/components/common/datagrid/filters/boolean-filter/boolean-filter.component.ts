@@ -14,10 +14,10 @@
  */
 
 import { AfterViewInit, Component, Input, OnDestroy } from '@angular/core';
-import { Subject } from 'rxjs';
+import {Subject, Subscription} from 'rxjs';
 import { ClrDatagridFilterInterface } from '@clr/angular';
-import { StatusModel } from '../../../../../models/status.model';
-import { ContainsFilterAttributes } from '../../../../../models/search/containsFilterAttributes.model';
+import {EqualsMultipleFilterAttributes} from "../../../../../models/search/equalsMultipleFilterAttributes.model";
+import {debounceTime, distinctUntilChanged} from "rxjs/operators";
 
 @Component({
   selector: 'app-boolean-filter',
@@ -27,51 +27,66 @@ import { ContainsFilterAttributes } from '../../../../../models/search/containsF
 export class BooleanFilterComponent implements ClrDatagridFilterInterface<any>, AfterViewInit, OnDestroy {
   @Input() removeFiltersSubject: Subject<any>;
   @Input() property: string;
-  @Input() statuses: StatusModel[];
-  @Input() value: boolean;
+  @Input() value;
+  isTrueSelected: boolean = false;
+  isFalseSelected: boolean = false;
 
   changes = new Subject<any>();
+
+  modelChanges: Subject<any> = new Subject<any>();
+  modelSubscription: Subscription;
 
   constructor() {
     // do nothing
   }
 
   ngAfterViewInit(): void {
+    this.modelSubscription = this.modelChanges.pipe(debounceTime(500), distinctUntilChanged()).subscribe((newValue) => {
+      this.changes.next();
+    });
+
     this.removeFiltersSubject.subscribe((_) => this.onRemoveFilter());
   }
 
   ngOnDestroy(): void {
     !!this.removeFiltersSubject && this.removeFiltersSubject.unsubscribe();
+    !!this.modelSubscription && this.modelSubscription.unsubscribe();
   }
 
-  toggleStatus(statusName: string) {
-    const toBoolean = this.convertToBoolean(statusName);
-    this.value = this.value == toBoolean ? undefined : toBoolean;
-    this.changes.next();
+  toggleTrue() {
+    this.changes.next(true);
+  }
+
+  toggleFalse() {
+    this.changes.next(true);
   }
 
   accepts(item: any): boolean {
-    return !!this.value ? item[this.property] == this.value : true;
-  }
+    const testedValue = item[this.property];
 
-  isActive(): boolean {
-    return !!this.value;
+    if(this.isTrueSelected && testedValue == true) {
+      return true;
+    }
+
+    if(this.isFalseSelected && testedValue == false) {
+      return true;
+    }
+
+    return false
   }
 
   get state() {
-    return new ContainsFilterAttributes(this.property, this.value);
+    const values: string[] = [];
+    return new EqualsMultipleFilterAttributes(this.property, values);
+  }
+
+  isActive(): boolean {
+    return this.isTrueSelected || this.isFalseSelected;
   }
 
   onRemoveFilter() {
-    this.value = undefined;
-    this.changes.next();
-  }
-
-  convertToBoolean(booleanString: string): boolean | undefined {
-    try {
-      return JSON.parse(booleanString);
-    } catch (e) {
-      return undefined;
-    }
+    this.isTrueSelected = false;
+    this.isFalseSelected = false;
+    this.modelChanges.next([]);
   }
 }
