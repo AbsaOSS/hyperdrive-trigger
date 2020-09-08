@@ -148,13 +148,13 @@
     <clr-dg-cell (dblclick)="showWorkflow(workflow.id)">{{workflow.project}}</clr-dg-cell>
     <clr-dg-cell (dblclick)="showWorkflow(workflow.id)" [ngSwitch]="workflow.isActive">
       <clr-icon *ngSwitchCase="true"
-                [attr.shape]="workflowStatuses.YES.shape"
-                [style.color]="workflowStatuses.YES.color"
+                [attr.shape]="workflowStatuses.TRUE.shape"
+                [style.color]="workflowStatuses.TRUE.color"
                 class="is-solid">
       </clr-icon>
       <clr-icon *ngSwitchCase="false"
-                [attr.shape]="workflowStatuses.NO.shape"
-                [style.color]="workflowStatuses.NO.color"
+                [attr.shape]="workflowStatuses.FALSE.shape"
+                [style.color]="workflowStatuses.FALSE.color"
                 class="is-solid">
       </clr-icon>
       {{workflow.isActive ? 'Yes' : 'No'}}

@@ -16,10 +16,10 @@
 import { StatusModel } from '../status.model';
 
 export const workflowStatuses = {
-  YES: new StatusModel('true', 'green', 'circle'),
-  NO: new StatusModel('false', 'red', 'circle'),
+  TRUE: new StatusModel('true', 'green', 'circle'),
+  FALSE: new StatusModel('false', 'red', 'circle'),
 
   getWorkflowStatuses(): StatusModel[] {
-    return [this.YES, this.NO];
+    return [this.TRUE, this.FALSE];
   },
 };

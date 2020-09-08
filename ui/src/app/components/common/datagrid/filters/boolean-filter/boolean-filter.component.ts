@@ -13,17 +13,18 @@
  * limitations under the License.
  */
 
-import {AfterViewInit, Component, Input, OnDestroy} from '@angular/core';
-import {Subject} from 'rxjs';
-import {ClrDatagridFilterInterface} from '@clr/angular';
-import {StatusModel} from '../../../../../models/status.model';
+import { AfterViewInit, Component, Input, OnDestroy } from '@angular/core';
+import { Subject } from 'rxjs';
+import { ClrDatagridFilterInterface } from '@clr/angular';
+import { StatusModel } from '../../../../../models/status.model';
 import { ContainsFilterAttributes } from '../../../../../models/search/containsFilterAttributes.model';
 
 @Component({
   selector: 'app-boolean-filter',
   templateUrl: './boolean-filter.component.html',
-  styleUrls: ['./boolean-filter.component.scss']
-}) export class BooleanFilterComponent implements ClrDatagridFilterInterface<any>, AfterViewInit, OnDestroy {
+  styleUrls: ['./boolean-filter.component.scss'],
+})
+export class BooleanFilterComponent implements ClrDatagridFilterInterface<any>, AfterViewInit, OnDestroy {
   @Input() removeFiltersSubject: Subject<any>;
   @Input() property: string;
   @Input() statuses: StatusModel[];
@@ -46,7 +47,6 @@ import { ContainsFilterAttributes } from '../../../../../models/search/containsF
   toggleStatus(statusName: string) {
     const toBoolean = this.convertToBoolean(statusName);
     this.value = this.value == toBoolean ? undefined : toBoolean;
-    console.log(this.value);
     this.changes.next();
   }
 
@@ -67,12 +67,11 @@ import { ContainsFilterAttributes } from '../../../../../models/search/containsF
     this.changes.next();
   }
 
-  convertToBoolean(input: string): boolean | undefined {
+  convertToBoolean(booleanString: string): boolean | undefined {
     try {
-      return JSON.parse(input);
+      return JSON.parse(booleanString);
     } catch (e) {
       return undefined;
     }
   }
-
 }
