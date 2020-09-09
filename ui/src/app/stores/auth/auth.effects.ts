@@ -21,6 +21,7 @@ import { Observable } from 'rxjs';
 import * as AuthActions from './auth.actions';
 import { switchMap, tap, mergeMap, catchError } from 'rxjs/operators';
 import { absoluteRoutes } from '../../constants/routes.constants';
+import { UserInfoModel } from '../../models/userInfo.model';
 
 @Injectable()
 export class AuthEffects {
@@ -33,11 +34,11 @@ export class AuthEffects {
       return this.authService.login(login.payload.username, login.payload.password).pipe(
         mergeMap((token: string) => {
           return this.authService.getUserInfo().pipe(
-            mergeMap((username: string) => {
+            mergeMap((userInfo: UserInfoModel) => {
               return [
                 {
                   type: AuthActions.LOGIN_SUCCESS,
-                  payload: { token: token, username: username },
+                  payload: { token: token, userInfo: userInfo },
                 },
               ];
             }),

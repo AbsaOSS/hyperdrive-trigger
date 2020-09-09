@@ -20,11 +20,12 @@ import { provideMockStore, MockStore } from '@ngrx/store/testing';
 import { AppComponent } from './app.component';
 import * as fromApp from './stores/app.reducers';
 import { selectAuthState } from './stores/app.reducers';
+import { UserInfoModelFactory } from './models/userInfo.model';
 
 describe('AppComponent', () => {
   let mockStore: MockStore<fromApp.AppState>;
   const initialAuthState = {
-    username: 'test-user',
+    userInfo: UserInfoModelFactory.create('test-user', 'env', 'ver'),
     isAuthenticated: true,
     authenticationFailed: false,
     showLoginDialog: false,

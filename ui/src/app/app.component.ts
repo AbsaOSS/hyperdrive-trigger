@@ -20,6 +20,7 @@ import * as AuthActions from './stores/auth/auth.actions';
 import * as fromApp from './stores/app.reducers';
 import { absoluteRoutes } from './constants/routes.constants';
 import { selectAuthState } from './stores/app.reducers';
+import { UserInfoModel } from './models/userInfo.model';
 
 @Component({
   selector: 'app-root',
@@ -30,14 +31,14 @@ export class AppComponent implements OnInit, OnDestroy {
   routes = absoluteRoutes;
   authStateSubscription: Subscription;
   isAuthenticated: boolean;
-  username: string;
+  userInfo: UserInfoModel;
 
   constructor(private store: Store<fromApp.AppState>) {}
 
   ngOnInit(): void {
     this.authStateSubscription = this.store.select(selectAuthState).subscribe((state) => {
       this.isAuthenticated = state.isAuthenticated;
-      this.username = state.username;
+      this.userInfo = state.userInfo;
     });
   }
 

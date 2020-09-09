@@ -31,11 +31,17 @@
     <div class="header-actions">
       <clr-dropdown>
         <button class="nav-text" clrDropdownTrigger aria-label="open user profile">
-          {{username}}
+          {{userInfo.username}}
           <clr-icon shape="caret down"></clr-icon>
         </button>
         <clr-dropdown-menu *clrIfOpen clrPosition="bottom-right">
           <a clrDropdownItem (click)="onLogOut()">Log out</a>
+          <div class="dropdown-divider"></div>
+          <div class="dropdown-item" style="cursor: default; pointer-events: none">
+            <strong>Environment:</strong> {{userInfo.environment}}
+            <br>
+            <strong>Version:</strong> {{userInfo.version}}
+          </div>
         </clr-dropdown-menu>
       </clr-dropdown>
     </div>

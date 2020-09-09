@@ -15,6 +15,7 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.controllers
 
+import org.springframework.beans.factory.annotation.Value
 import za.co.absa.hyperdrive.trigger.models.UserInfo
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails
@@ -22,12 +23,20 @@ import org.springframework.web.bind.annotation._
 
 @RestController 
 class UserInfoController {
+  @Value("${environment:Unknown}")
+  val environment: String = ""
+  @Value("${version:Unknown}")
+  val version: String = ""
 
   @GetMapping(path = Array("/user/info"))
   def userInfo(): UserInfo = {
     val auth = SecurityContextHolder.getContext.getAuthentication
     val principal = auth.getPrincipal.asInstanceOf[UserDetails]
-    UserInfo(principal.getUsername)
+    UserInfo(
+      username = principal.getUsername,
+      environment = environment,
+      version = version
+    )
   }
 
 }

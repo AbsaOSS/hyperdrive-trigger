@@ -18,6 +18,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { api } from '../../constants/api.constants';
+import { UserInfoModel } from '../../models/userInfo.model';
 
 @Injectable()
 export class AuthService {
@@ -25,8 +26,8 @@ export class AuthService {
 
   constructor(private httpClient: HttpClient) {}
 
-  getUserInfo(): Observable<string> {
-    return this.httpClient.get<{ username: string }>(api.USER_INFO, {}).pipe(map((_) => _.username));
+  getUserInfo(): Observable<UserInfoModel> {
+    return this.httpClient.get<UserInfoModel>(api.USER_INFO, {}).pipe(map((response) => response));
   }
 
   login(username: string, password: string): Observable<string> {

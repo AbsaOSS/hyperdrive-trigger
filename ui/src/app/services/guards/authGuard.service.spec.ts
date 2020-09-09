@@ -20,12 +20,13 @@ import { AuthGuardService } from './authGuard.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { absoluteRoutes } from '../../constants/routes.constants';
 import { selectAuthState } from '../../stores/app.reducers';
+import { UserInfoModelFactory } from '../../models/userInfo.model';
 
 describe('AuthGuard Service', () => {
   let underTest: AuthGuardService;
   let store: MockStore;
   const initialAuthState = {
-    username: 'test',
+    userInfo: UserInfoModelFactory.create('test', 'env', 'ver'),
     isAuthenticated: true,
     authenticationFailed: false,
     showLoginDialog: false,

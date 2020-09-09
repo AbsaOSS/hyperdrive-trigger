@@ -13,6 +13,14 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models
+export type UserInfoModel = {
+  username: string;
+  environment: string;
+  version: string;
+};
 
-case class UserInfo(username: String, environment: String, version: String)
+export class UserInfoModelFactory {
+  static create(username: string, environment: string, version: string): UserInfoModel {
+    return { username: username, environment: environment, version: version };
+  }
+}
