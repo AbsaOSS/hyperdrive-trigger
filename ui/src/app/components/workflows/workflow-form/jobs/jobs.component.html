@@ -18,12 +18,12 @@
   Add job
 </button>
 
-<div class="card" *ngFor="let job of this.jobsData; let index = index; trackBy: trackByFn;">
+<div clrDroppable [clrDraggable]="job.order" (clrDrop)="reorderJobs($event.dragDataTransfer, job.order)" class="card" *ngFor="let job of this.jobsData; let index = index; trackBy: trackByFn;">
   <div class="card-block">
     <div class="card-title notSelectable" style="word-wrap: break-word;" (click)="toggleJob(job.jobId)">
       <clr-icon shape="angle" [dir]="isJobHidden(job.jobId)?'right':'down'"></clr-icon>
       {{getJobName(job.jobId)}}
-      <button type="button" class="btn btn-link" *ngIf="mode != workflowModes.SHOW && mode != workflowModes.COMPARISON">
+      <button clrDragHandle type="button" class="btn btn-link" [hidden]="mode == workflowModes.SHOW || mode == workflowModes.COMPARISON">
         <clr-icon shape="drag-handle"></clr-icon>
       </button>
       <button type="button" style="float: right;" class="btn btn-link" *ngIf="mode != workflowModes.SHOW && mode != workflowModes.COMPARISON"

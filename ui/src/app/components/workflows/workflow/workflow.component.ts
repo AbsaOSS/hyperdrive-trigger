@@ -27,6 +27,7 @@ import { WorkflowEntryModel } from '../../../models/workflowEntry.model';
 import { JobEntryModel } from '../../../models/jobEntry.model';
 import { WorkflowFormPartsModel } from '../../../models/workflowFormParts.model';
 import { delay } from 'rxjs/operators';
+import { WorkflowFormDataModel } from '../../../models/workflowFormData.model';
 
 @Component({
   selector: 'app-workflow',
@@ -54,6 +55,7 @@ export class WorkflowComponent implements OnInit, OnDestroy {
     sensor: WorkflowEntryModel[];
     jobs: JobEntryModel[];
   };
+  initialWorkflowData: WorkflowFormDataModel;
   workflowFormParts: WorkflowFormPartsModel;
 
   changes: Subject<Action> = new Subject<Action>();
@@ -84,6 +86,7 @@ export class WorkflowComponent implements OnInit, OnDestroy {
       this.backendValidationErrors = state.workflowAction.backendValidationErrors;
       this.workflowFormParts = state.workflowAction.workflowFormParts;
       this.workflowData = state.workflowAction.workflowFormData;
+      this.initialWorkflowData = state.workflowAction.initialWorkflowFormData;
     });
     this.changesSubscription = this.changes.subscribe((state) => {
       this.store.dispatch(state);

@@ -15,12 +15,12 @@
 
 import { WorkflowRemoveJob } from './workflows.actions';
 import { WorkflowEntryModelFactory } from '../../models/workflowEntry.model';
-import { JobEntryModelFactory } from '../../models/jobEntry.model';
+import { JobEntryModel, JobEntryModelFactory } from '../../models/jobEntry.model';
 import { State, workflowsReducer } from './workflows.reducers';
 import { UuidUtil } from '../../utils/uuid/uuid.util';
 import { ProjectModelFactory } from '../../models/project.model';
 import { WorkflowModelFactory } from '../../models/workflow.model';
-import { sortProjectsAndWorkflows } from './workflows.reducers';
+import { sortProjectsAndWorkflows, switchJobs } from './workflows.reducers';
 
 describe('WorkflowsReducers', () => {
   const uuid0 = UuidUtil.createUUID();
@@ -84,6 +84,11 @@ describe('WorkflowsReducers', () => {
       workflowFormParts: undefined,
       backendValidationErrors: [],
       workflowFormData: {
+        details: [],
+        sensor: [],
+        jobs: [job1, job0, job2, job3],
+      },
+      initialWorkflowFormData: {
         details: [],
         sensor: [],
         jobs: [job1, job0, job2, job3],
@@ -181,6 +186,30 @@ describe('WorkflowsReducers', () => {
       ];
 
       expect(sortProjectsAndWorkflows(projects)).toEqual(sortedProjects);
+    });
+  });
+
+  describe('switchJobs', () => {
+    it('should switch and sort jobs', () => {
+      const job0 = JobEntryModelFactory.create(UuidUtil.createUUID(), 0, []);
+      const job1 = JobEntryModelFactory.create(UuidUtil.createUUID(), 1, []);
+      const job2 = JobEntryModelFactory.create(UuidUtil.createUUID(), 2, []);
+
+      const jobs: JobEntryModel[] = [job0, job1, job2];
+      const updatedJobs: JobEntryModel[] = [{ ...job2, order: 0 }, job1, { ...job0, order: 2 }];
+
+      expect(switchJobs(jobs, 0, 2)).toEqual(updatedJobs);
+      expect(switchJobs(jobs, 2, 0)).toEqual(updatedJobs);
+    });
+
+    it('should do nothing when positions are equal', () => {
+      const job0 = JobEntryModelFactory.create(UuidUtil.createUUID(), 0, []);
+      const job1 = JobEntryModelFactory.create(UuidUtil.createUUID(), 1, []);
+      const job2 = JobEntryModelFactory.create(UuidUtil.createUUID(), 2, []);
+
+      const jobs: JobEntryModel[] = [job0, job1, job2];
+
+      expect(switchJobs(jobs, 1, 1)).toEqual(jobs);
     });
   });
 });

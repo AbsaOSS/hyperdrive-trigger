@@ -15,36 +15,30 @@
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { AppState, selectAuthState } from '../../stores/app.reducers';
-import { Login } from '../../stores/auth/auth.actions';
+import { AppState, selectAuthState } from '../../../stores/app.reducers';
 import { Subscription } from 'rxjs';
+import { Router } from '@angular/router';
+import { absoluteRoutes } from '../../../constants/routes.constants';
+import * as fromApp from '../../../stores/app.reducers';
 
 @Component({
-  selector: 'app-login',
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss'],
+  selector: 'app-login-dialog',
+  templateUrl: './login-dialog.component.html',
+  styleUrls: ['./login-dialog.component.scss'],
 })
-export class LoginComponent implements OnInit, OnDestroy {
+export class LoginDialogComponent implements OnInit, OnDestroy {
   authStateSubscription: Subscription;
-  authenticationFailed = false;
-  logInForm = {
-    username: 'hyperdriver-user',
-    password: 'hyperdriver-password',
-  };
+  showLoginDialog = false;
 
-  constructor(private store: Store<AppState>) {}
+  constructor(private store: Store<fromApp.AppState>) {}
 
   ngOnInit(): void {
     this.authStateSubscription = this.store.select(selectAuthState).subscribe((state) => {
-      this.authenticationFailed = state.authenticationFailed;
+      this.showLoginDialog = state.showLoginDialog;
     });
   }
 
   ngOnDestroy(): void {
     !!this.authStateSubscription && this.authStateSubscription.unsubscribe();
-  }
-
-  onSubmit() {
-    this.store.dispatch(new Login(this.logInForm));
   }
 }
