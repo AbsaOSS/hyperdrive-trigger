@@ -1,0 +1,14 @@
+docker-compose.yml
+Dockerfile
+Jenkinsfile
+LICENSE
+README.md
+pom.xml
+
+.gitignore
+.idea
+
+target
+logs
+src
+ui
