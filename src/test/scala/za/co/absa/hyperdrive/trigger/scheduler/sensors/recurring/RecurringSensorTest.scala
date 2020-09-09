@@ -18,9 +18,10 @@ package za.co.absa.hyperdrive.trigger.scheduler.sensors.recurring
 
 import java.util.concurrent
 
+import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.{eq => eqTo, _}
-import org.mockito.Mockito.{reset, when}
+import org.mockito.Mockito.{reset, never, times, verify, when}
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
 import za.co.absa.hyperdrive.trigger.TestUtils.await
@@ -57,6 +58,7 @@ class RecurringSensorTest extends FlatSpec with MockitoSugar with Matchers with 
 
     // then
     result shouldBe (): Unit
+    verify(eventProcessor, never()).eventProcessor(any[String])(any[Seq[Event]], any[Properties])(any[ExecutionContext])
   }
 
   "RecurringSensor.poll" should "call event processor when workflow is not running" in {
@@ -75,5 +77,6 @@ class RecurringSensorTest extends FlatSpec with MockitoSugar with Matchers with 
 
     // then
     result shouldBe (): Unit
+    verify(eventProcessor, times(1)).eventProcessor(eqTo(triggeredBy))(any[Seq[Event]], any[Properties])(any[ExecutionContext])
   }
 }

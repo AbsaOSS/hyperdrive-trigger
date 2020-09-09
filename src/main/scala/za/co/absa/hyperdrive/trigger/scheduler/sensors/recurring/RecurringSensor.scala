@@ -43,12 +43,11 @@ class RecurringSensor(
   override def poll(): Future[Unit] = {
     logger.debug(s"$logMsgPrefix. Polling new events.")
 
-    val fut = dagInstanceRepository.hasRunningDagInstance(sensorDefinition.workflowId).flatMap {
-      case hasRunningDagInstance if hasRunningDagInstance => {
+    val fut = dagInstanceRepository.hasRunningDagInstance(sensorDefinition.workflowId).flatMap { hasRunningDagInstance =>
+      if (hasRunningDagInstance) {
         logger.debug(s"$logMsgPrefix. Workflow is running.")
         Future.successful((): Unit)
-      }
-      case hasRunningDagInstance if !hasRunningDagInstance => {
+      } else {
         val sourceEventId = s"sid=${properties.sensorId};t=${eventDateFormatter.format(Instant.now())}"
         val event = Event(sourceEventId, properties.sensorId, JsObject.empty)
         eventsProcessor.apply(Seq(event), properties).map(_ => (): Unit)
