@@ -22,6 +22,7 @@ LABEL \
 
 ARG JAR_FILE
 COPY ${JAR_FILE} /usr/src/hyperdrive/hyperdrive-trigger.jar
+COPY shellTest.sh /usr/src/hyperdrive/shellTest.sh
 ENV JAVA_OPTS=""
 WORKDIR /usr/src/hyperdrive
 VOLUME /usr/src/hyperdrive/logs
