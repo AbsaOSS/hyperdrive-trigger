@@ -89,7 +89,19 @@
       </app-string-filter>
     </clr-dg-filter>
   </clr-dg-column>
-  <clr-dg-column>Is active</clr-dg-column>
+  <clr-dg-column
+    [clrDgField]="workflowsHomeColumns.IS_ACTIVE"
+    [clrDgSortOrder]="getSort(workflowsHomeColumns.IS_ACTIVE)">
+    <ng-container>Is active</ng-container>
+    <clr-dg-filter [clrDgFilter]="workflowIsActiveFilter">
+      <app-boolean-filter [removeFiltersSubject]="removeWorkflowFilterSubject"
+                          [value]="getFilter(workflowsHomeColumns.IS_ACTIVE)"
+                          #workflowIsActiveFilter
+                          [property]="workflowsHomeColumns.IS_ACTIVE">
+      </app-boolean-filter>
+    </clr-dg-filter>
+
+  </clr-dg-column>
 
   <clr-dg-row *clrDgItems="let workflow of workflows" [clrDgItem]="workflow">
     <clr-dg-action-overflow>
