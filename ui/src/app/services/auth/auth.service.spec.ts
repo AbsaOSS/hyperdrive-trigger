@@ -18,7 +18,6 @@ import { TestBed } from '@angular/core/testing';
 import { AuthService } from './auth.service';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { api } from '../../constants/api.constants';
-import { UserInfoModelFactory } from '../../models/userInfo.model';
 
 describe('AuthService', () => {
   let underTest: AuthService;
@@ -41,17 +40,17 @@ describe('AuthService', () => {
     expect(underTest).toBeTruthy();
   });
 
-  it('should return the user info', () => {
-    const userInfo = UserInfoModelFactory.create('the-username', 'env', 'ver');
+  it('should return the user name', () => {
+    const username = 'the-username';
 
     underTest.getUserInfo().subscribe(
-      (data) => expect(data).toEqual(userInfo),
+      (data) => expect(data).toEqual(username),
       (error) => fail(error),
     );
 
     const req = httpTestingController.expectOne(api.USER_INFO);
     expect(req.request.method).toEqual('GET');
-    req.flush(userInfo);
+    req.flush({ username: username });
   });
 
   it('should login', () => {

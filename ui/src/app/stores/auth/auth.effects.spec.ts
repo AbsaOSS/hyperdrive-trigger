@@ -12,7 +12,6 @@ import { cold } from 'jasmine-marbles';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { absoluteRoutes } from '../../constants/routes.constants';
-import { UserInfoModelFactory } from '../../models/userInfo.model';
 
 describe('AuthEffects', () => {
   let underTest: AuthEffects;
@@ -34,16 +33,15 @@ describe('AuthEffects', () => {
   });
 
   describe('authLogin', () => {
-    it('should return user info and token', () => {
-      const userInfo = UserInfoModelFactory.create('the-username', 'env', 'ver');
+    it('should return username and token', () => {
       const action = new Login({ username: 'test', password: 'pass' });
       mockActions = cold('-a', { a: action });
       const loginResponse = cold('-a|', { a: '1234' });
-      const userInfoResponse = cold('-a|', { a: userInfo });
+      const userInfoResponse = cold('-a|', { a: 'the-username' });
       const expected = cold('---a', {
         a: {
           type: AuthActions.LOGIN_SUCCESS,
-          payload: { token: '1234', userInfo: userInfo },
+          payload: { username: 'the-username', token: '1234' },
         },
       });
 
@@ -84,13 +82,12 @@ describe('AuthEffects', () => {
     });
 
     it('should successfully return a request after a failed one', () => {
-      const userInfo = UserInfoModelFactory.create('the-username', 'env', 'ver');
       const failingAction = new Login({ username: 'fail', password: 'pass' });
       const successfulAction = new Login({ username: 'success', password: 'pass' });
       mockActions = cold('a----b', { a: failingAction, b: successfulAction });
       const errorResponse = cold('#|');
       const loginResponse = cold('a|', { a: '1234' });
-      const userInfoResponse = cold('a|', { a: userInfo });
+      const userInfoResponse = cold('a|', { a: 'the-username' });
 
       spyOn(authService, 'login').and.returnValues(errorResponse, loginResponse);
       spyOn(authService, 'getUserInfo').and.returnValue(userInfoResponse);
@@ -101,7 +98,7 @@ describe('AuthEffects', () => {
         },
         b: {
           type: AuthActions.LOGIN_SUCCESS,
-          payload: { token: '1234', userInfo: userInfo },
+          payload: { username: 'the-username', token: '1234' },
         },
       });
       expect(underTest.authLogin).toBeObservable(expected);

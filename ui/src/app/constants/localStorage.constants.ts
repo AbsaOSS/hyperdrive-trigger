@@ -16,6 +16,4 @@
 export const localStorageKeys = {
   CSRF_TOKEN: 'csrf-token',
   USERNAME: 'username',
-  ENVIRONMENT: 'environment',
-  VERSION: 'version',
 };

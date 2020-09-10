@@ -13,21 +13,13 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.api.rest.controllers
+export type AppInfoModel = {
+  environment: string;
+  version: string;
+};
 
-import za.co.absa.hyperdrive.trigger.models.UserInfo
-import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.security.core.userdetails.UserDetails
-import org.springframework.web.bind.annotation._
-
-@RestController 
-class UserInfoController {
-
-  @GetMapping(path = Array("/user/info"))
-  def userInfo(): UserInfo = {
-    val auth = SecurityContextHolder.getContext.getAuthentication
-    val principal = auth.getPrincipal.asInstanceOf[UserDetails]
-    UserInfo(principal.getUsername)
+export class AppInfoModelFactory {
+  static create(environment: string, version: string): AppInfoModel {
+    return { environment: environment, version: version };
   }
-
 }

@@ -14,7 +14,6 @@
  */
 
 import { Action } from '@ngrx/store';
-import { UserInfoModel } from '../../models/userInfo.model';
 
 export const LOGIN = 'LOGIN';
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
@@ -30,7 +29,7 @@ export class Login implements Action {
 
 export class LoginSuccess implements Action {
   readonly type = LOGIN_SUCCESS;
-  constructor(public payload: { token: string; userInfo: UserInfoModel }) {}
+  constructor(public payload: { token: string; username: string }) {}
 }
 
 export class LoginFailure implements Action {
