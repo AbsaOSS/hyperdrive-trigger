@@ -16,7 +16,7 @@
 import { AfterViewInit, Component, Input, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
 import { ClrDatagridFilterInterface } from '@clr/angular';
-import { EqualsMultipleFilterAttributes } from '../../../../../models/search/equalsMultipleFilterAttributes.model';
+import { BooleanFilterAttributes } from "../../../../../models/search/booleanFilterAttributes.model";
 
 @Component({
   selector: 'app-boolean-filter',
@@ -26,13 +26,15 @@ import { EqualsMultipleFilterAttributes } from '../../../../../models/search/equ
 export class BooleanFilterComponent implements ClrDatagridFilterInterface<any>, AfterViewInit, OnDestroy {
   @Input() removeFiltersSubject: Subject<any>;
   @Input() property: string;
-  @Input() value;
-  isTrueSelected = false;
-  isFalseSelected = false;
+  @Input() value: { isTrue: boolean, isFalse: boolean };
+
+  emptyValue = { from: undefined, to: undefined };
 
   changes = new Subject<any>();
 
   constructor() {
+    console.log(this.value);
+    console.log(!!this.value?.isTrue);
     // do nothing
   }
 
@@ -45,34 +47,31 @@ export class BooleanFilterComponent implements ClrDatagridFilterInterface<any>, 
   }
 
   toggleTrue() {
-    this.changes.next(true);
+    this.value = { ...this.value, isTrue: !!this.value?.isTrue ? !this.value.isTrue : true };
+    this.changes.next();
   }
 
   toggleFalse() {
-    this.changes.next(true);
+    this.value = { ...this.value, isFalse: !!this.value?.isFalse ? !this.value.isFalse : true };
+    this.changes.next();
   }
 
   accepts(item: any): boolean {
     const testedValue = item[this.property];
 
-    return (this.isTrueSelected && testedValue == true) || (this.isFalseSelected && testedValue == false);
+    return (this.value.isTrue && testedValue == true) || (this.value.isFalse && testedValue == false);
   }
 
   get state() {
-    const values: string[] = [];
-    return new EqualsMultipleFilterAttributes(this.property, values);
-    /* only a placeholder implementation to avoid runtime errors.
-       Backend-filtering functionality is not available for this filter.
-    */
+    return new BooleanFilterAttributes(this.property, this.value);
   }
 
   isActive(): boolean {
-    return this.isTrueSelected || this.isFalseSelected;
+    return !!this.value?.isTrue || !!this.value?.isFalse;
   }
 
   onRemoveFilter() {
-    this.isTrueSelected = false;
-    this.isFalseSelected = false;
+    this.value = this.emptyValue;
     this.changes.next();
   }
 }
