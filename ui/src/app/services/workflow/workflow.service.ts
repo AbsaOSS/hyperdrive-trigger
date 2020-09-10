@@ -16,7 +16,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpParams, HttpResponse } from '@angular/common/http';
 import { api } from '../../constants/api.constants';
-import { jobTemplates } from '../../constants/jobTemplates.constants';
+import { jobTemplateFormConfigs } from '../../constants/jobTemplates.constants';
 import { catchError, map, mergeMap } from 'rxjs/operators';
 import { ProjectModel } from '../../models/project.model';
 import { combineLatest, Observable, of, throwError } from 'rxjs';
@@ -29,6 +29,7 @@ import {
   FormPartFactory,
   PartValidationFactory,
 } from '../../models/workflowFormParts.model';
+import { JobTemplateModel } from '../../models/jobTemplate.model';
 
 @Injectable({
   providedIn: 'root',
@@ -132,22 +133,20 @@ export class WorkflowService {
   }
 
   getWorkflowDynamicFormParts(): Observable<DynamicFormParts> {
-    const shellTemplateId$ = this.getJobTemplateId(jobTemplates.SHELL_JOB);
-    const sparkTemplateId$ = this.getJobTemplateId(jobTemplates.SPARK_JOB);
-
-    return combineLatest([shellTemplateId$, sparkTemplateId$]).pipe(
-      mergeMap(([shellTemplateId, sparkTemplateId]) => {
+    return this.getJobTemplates().pipe(
+      mergeMap((jobTemplates) => {
         const sensorParts = WorkflowService.getSensorDynamicFormParts();
-        const jobParts = WorkflowService.getJobDynamicFormParts(sparkTemplateId?.toString(), shellTemplateId?.toString());
+        const jobParts = jobTemplates.map((jobTemplate) => {
+          return WorkflowService.getJobDynamicFormPart(jobTemplate);
+        });
         return of(DynamicFormPartsFactory.create(sensorParts, jobParts));
       }),
     );
   }
 
-  private getJobTemplateId(name: string): Observable<number> {
-    const params = new HttpParams().set('name', name);
+  private getJobTemplates(): Observable<JobTemplateModel[]> {
     return this.httpClient
-      .get<number>(api.GET_JOB_TEMPLATE_ID, { params: params, observe: 'response' })
+      .get<JobTemplateModel[]>(api.GET_JOB_TEMPLATES, { observe: 'response' })
       .pipe(map((response) => response.body));
   }
 
@@ -204,19 +203,20 @@ export class WorkflowService {
     ];
   }
 
-  private static getJobDynamicFormParts(sparkTemplateId: string, shellTemplateId: string): DynamicFormPart[] {
-    const jobDynamicFormParts = [];
-    if (sparkTemplateId != null) {
-      jobDynamicFormParts.push(this.getSparkDynamicFormParts(sparkTemplateId));
+  private static getJobDynamicFormPart(jobTemplate: JobTemplateModel): DynamicFormPart {
+    if (jobTemplate.formConfig === jobTemplateFormConfigs.SPARK) {
+      return this.getSparkDynamicFormParts(jobTemplate.id.toString(), jobTemplate.name);
     }
-    if (shellTemplateId != null) {
-      jobDynamicFormParts.push(this.getShellDynamicFormParts(shellTemplateId));
+    if (jobTemplate.formConfig === jobTemplateFormConfigs.SHELL) {
+      return this.getShellDynamicFormParts(jobTemplate.id.toString(), jobTemplate.name);
     }
-    return jobDynamicFormParts;
+    if (jobTemplate.formConfig === jobTemplateFormConfigs.HYPERDRIVE) {
+      return this.getHyperConformanceDynamicFormParts(jobTemplate.id.toString(), jobTemplate.name);
+    }
   }
 
-  private static getSparkDynamicFormParts(sparkTemplateId: string): DynamicFormPart {
-    return DynamicFormPartFactory.createWithLabel(sparkTemplateId, jobTemplates.SPARK_JOB, [
+  private static getSparkDynamicFormParts(templateId: string, templateName: string): DynamicFormPart {
+    return DynamicFormPartFactory.createWithLabel(templateId, templateName, [
       FormPartFactory.create('Job jar', 'jobParameters.variables.jobJar', 'string-field', PartValidationFactory.create(true, undefined, 1)),
       FormPartFactory.create(
         'Main class',
@@ -261,13 +261,42 @@ export class WorkflowService {
     ]);
   }
 
-  private static getShellDynamicFormParts(shellTemplateId: string): DynamicFormPart {
-    return DynamicFormPartFactory.createWithLabel(shellTemplateId, jobTemplates.SHELL_JOB, [
+  private static getShellDynamicFormParts(templateId: string, templateName: string): DynamicFormPart {
+    return DynamicFormPartFactory.createWithLabel(templateId, templateName, [
       FormPartFactory.create(
         'Script location',
         'jobParameters.variables.scriptLocation',
         'string-field',
         PartValidationFactory.create(true, undefined, 1),
+      ),
+    ]);
+  }
+
+  private static getHyperConformanceDynamicFormParts(templateId: string, templateName: string): DynamicFormPart {
+    return DynamicFormPartFactory.createWithLabel(templateId, templateName, [
+      FormPartFactory.create(
+        'Additional jars',
+        'jobParameters.maps.additionalJars',
+        'set-field',
+        PartValidationFactory.create(false, undefined, 1),
+      ),
+      FormPartFactory.create(
+        'Additional files',
+        'jobParameters.maps.additionalFiles',
+        'set-field',
+        PartValidationFactory.create(false, undefined, 1),
+      ),
+      FormPartFactory.create(
+        'Additional Spark Config',
+        'jobParameters.keyValuePairs.additionalSparkConfig',
+        'key-value-field',
+        PartValidationFactory.create(false, undefined, 1),
+      ),
+      FormPartFactory.create(
+        'App arguments',
+        'jobParameters.maps.appArguments',
+        'set-field',
+        PartValidationFactory.create(false, undefined, 1),
       ),
     ]);
   }
