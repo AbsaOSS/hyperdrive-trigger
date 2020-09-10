@@ -17,7 +17,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
-import { LoginComponent } from './components/login/login.component';
+import { LoginComponent } from './components/auth/login/login.component';
 import { WorkflowsComponent } from './components/workflows/workflows.component';
 import { RunsComponent } from './components/runs/runs.component';
 
@@ -68,6 +68,9 @@ import { WorkflowComparisonComponent } from './components/workflows/workflow-his
 import { WorkflowFormComponent } from './components/workflows/workflow-form/workflow-form.component';
 import { HistoryDetailComponent } from './components/workflows/workflow-history/workflow-comparison/history-detail/history-detail.component';
 import { WorkflowRunComponent } from './components/workflows/workflow-run/workflow-run.component';
+import { BooleanFilterComponent } from './components/common/datagrid/filters/boolean-filter/boolean-filter.component';
+import { WelcomeComponent } from './components/auth/welcome/welcome.component';
+import { LoginDialogComponent } from './components/auth/login-dialog/login-dialog.component';
 
 @NgModule({
   declarations: [
@@ -101,6 +104,9 @@ import { WorkflowRunComponent } from './components/workflows/workflow-run/workfl
     WorkflowFormComponent,
     HistoryDetailComponent,
     WorkflowRunComponent,
+    BooleanFilterComponent,
+    WelcomeComponent,
+    LoginDialogComponent,
   ],
   imports: [
     BrowserModule,

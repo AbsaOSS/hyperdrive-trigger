@@ -17,7 +17,7 @@ import { Injectable } from '@angular/core';
 import { Actions, Effect, ofType } from '@ngrx/effects';
 import * as WorkflowActions from '../workflows/workflows.actions';
 
-import { catchError, map, mergeMap, switchMap, withLatestFrom } from 'rxjs/operators';
+import { catchError, mergeMap, switchMap, withLatestFrom } from 'rxjs/operators';
 import { WorkflowService } from '../../services/workflow/workflow.service';
 import { ProjectModel } from '../../models/project.model';
 import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
@@ -28,17 +28,16 @@ import { AppState, selectWorkflowState } from '../app.reducers';
 import { Store } from '@ngrx/store';
 import * as fromWorkflows from './workflows.reducers';
 import { WorkflowDataModel } from '../../models/workflowData.model';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { absoluteRoutes } from '../../constants/routes.constants';
 import { ToastrService } from 'ngx-toastr';
 import { texts } from '../../constants/texts.constants';
 import { WorkflowModel, WorkflowModelFactory } from '../../models/workflow.model';
 import { WorkflowRequestModel } from '../../models/workflowRequest.model';
-import { WorkflowHistoriesForComparisonModel, HistoryModel } from '../../models/historyModel';
+import { HistoryModel, WorkflowHistoriesForComparisonModel } from '../../models/historyModel';
 import { WorkflowHistoryService } from '../../services/workflowHistory/workflow-history.service';
 import { JobService } from '../../services/job/job.service';
 import { JobForRunModel } from '../../models/jobForRun.model';
-import { RUN_JOBS } from '../workflows/workflows.actions';
 import { EMPTY } from 'rxjs';
 
 @Injectable()
@@ -51,6 +50,7 @@ export class WorkflowsEffects {
     private store: Store<AppState>,
     private router: Router,
     private toastrService: ToastrService,
+    private route: ActivatedRoute,
   ) {}
 
   @Effect({ dispatch: true })
@@ -386,7 +386,7 @@ export class WorkflowsEffects {
       workflowFormPartsSequences.allDetails,
       workflowFormPartsConsts.SENSOR.SENSOR_TYPE,
       workflowFormPartsConsts.JOB.JOB_NAME,
-      workflowFormPartsConsts.JOB.JOB_TYPE,
+      workflowFormPartsConsts.JOB.JOB_TEMPLATE_ID,
       workflowComponents,
     );
   }
@@ -447,6 +447,82 @@ export class WorkflowsEffects {
           ];
         }),
       );
+    }),
+  );
+
+  @Effect({ dispatch: true })
+  workflowExport = this.actions.pipe(
+    ofType(WorkflowActions.EXPORT_WORKFLOW),
+    switchMap((action: WorkflowActions.ExportWorkflow) => {
+      return this.workflowService.exportWorkflow(action.payload).pipe(
+        mergeMap((workflowBlobResponse: { blob: Blob; fileName: string }) => {
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(workflowBlobResponse.blob);
+
+          a.download = workflowBlobResponse.fileName.trim();
+          a.click();
+          a.remove();
+
+          this.toastrService.success(texts.EXPORT_WORKFLOW_SUCCESS_NOTIFICATION);
+          return [
+            {
+              type: WorkflowActions.EXPORT_WORKFLOW_DONE,
+            },
+          ];
+        }),
+        catchError(() => {
+          this.toastrService.error(texts.EXPORT_WORKFLOW_FAILURE_NOTIFICATION);
+          return [
+            {
+              type: WorkflowActions.EXPORT_WORKFLOW_DONE,
+            },
+          ];
+        }),
+      );
+    }),
+  );
+
+  @Effect({ dispatch: true })
+  workflowImport = this.actions.pipe(
+    ofType(WorkflowActions.IMPORT_WORKFLOW),
+    withLatestFrom(this.store.select(selectWorkflowState)),
+    switchMap(([action, state]: [WorkflowActions.ImportWorkflow, fromWorkflows.State]) => {
+      if (state.workflowAction.workflowFile) {
+        return this.workflowService.importWorkflow(state.workflowAction.workflowFile).pipe(
+          mergeMap((workflow: WorkflowJoinedModel) => {
+            this.toastrService.success(texts.IMPORT_WORKFLOW_SUCCESS_NOTIFICATION);
+            const workflowData = new WorkflowDataModel(workflow, state.workflowAction.workflowFormParts.dynamicParts);
+            return [
+              {
+                type: WorkflowActions.LOAD_WORKFLOW_SUCCESS,
+                payload: {
+                  workflow: workflow,
+                  detailsData: workflowData.getDetailsData(),
+                  sensorData: workflowData.getSensorData(),
+                  jobsData: workflowData.getJobsData(),
+                },
+              },
+            ];
+          }),
+          catchError((errorResponse) => {
+            this.toastrService.error(texts.IMPORT_WORKFLOW_FAILURE_NOTIFICATION);
+            this.router.navigateByUrl(absoluteRoutes.WORKFLOWS);
+            return [
+              {
+                type: WorkflowActions.IMPORT_WORKFLOW_FAILURE,
+              },
+            ];
+          }),
+        );
+      } else {
+        this.toastrService.error(texts.IMPORT_WORKFLOW_FAILURE_NOTIFICATION);
+        this.router.navigateByUrl(absoluteRoutes.WORKFLOWS);
+        return [
+          {
+            type: WorkflowActions.IMPORT_WORKFLOW_FAILURE,
+          },
+        ];
+      }
     }),
   );
 

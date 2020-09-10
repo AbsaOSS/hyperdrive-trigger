@@ -24,6 +24,7 @@ import { texts } from '../../../constants/texts.constants';
 import {
   CreateWorkflow,
   DeleteWorkflow,
+  ExportWorkflow,
   LoadJobsForRun,
   RemoveBackendValidationError,
   SwitchWorkflowActiveState,
@@ -44,10 +45,11 @@ import { WorkflowFormDataModel } from '../../../models/workflowFormData.model';
   templateUrl: './workflow-form.component.html',
   styleUrls: ['./workflow-form.component.scss'],
 })
-export class WorkflowFormComponent implements OnDestroy, OnInit {
+export class WorkflowFormComponent implements OnDestroy {
   @ViewChild('workflowForm') workflowForm;
   @Output() jobsUnfold: EventEmitter<any> = new EventEmitter();
   @Input() workflowData: WorkflowFormDataModel;
+  @Input() initialWorkflowData: WorkflowFormDataModel;
   @Input() workflowFormParts: WorkflowFormPartsModel;
   @Input() id: number;
   @Input() mode: string;
@@ -66,18 +68,12 @@ export class WorkflowFormComponent implements OnDestroy, OnInit {
   workflowSubscription: Subscription;
   confirmationDialogServiceSubscription: Subscription = null;
 
-  initialWorkflowData: WorkflowFormDataModel;
-
   constructor(
     private store: Store<AppState>,
     private confirmationDialogService: ConfirmationDialogService,
     private previousRouteService: PreviousRouteService,
     private router: Router,
   ) {}
-
-  ngOnInit() {
-    this.initialWorkflowData = this.workflowData;
-  }
 
   hasWorkflowChanged(): boolean {
     return !(
@@ -152,6 +148,10 @@ export class WorkflowFormComponent implements OnDestroy, OnInit {
 
   runWorkflow(id: number) {
     this.store.dispatch(new LoadJobsForRun(id));
+  }
+
+  exportWorkflow(id: number) {
+    this.store.dispatch(new ExportWorkflow(id));
   }
 
   deleteWorkflow(id: number) {

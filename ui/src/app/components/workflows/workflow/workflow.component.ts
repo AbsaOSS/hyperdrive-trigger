@@ -18,7 +18,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AppState, selectWorkflowState } from '../../../stores/app.reducers';
 import { Subject, Subscription } from 'rxjs';
 import { Action, Store } from '@ngrx/store';
-import { StartWorkflowInitialization, LoadJobsForRun } from '../../../stores/workflows/workflows.actions';
+import { StartWorkflowInitialization, ImportWorkflow } from '../../../stores/workflows/workflows.actions';
 import { workflowModes } from '../../../models/enums/workflowModes.constants';
 import { absoluteRoutes } from '../../../constants/routes.constants';
 import { PreviousRouteService } from '../../../services/previousRoute/previous-route.service';
@@ -26,6 +26,8 @@ import { ConfirmationDialogService } from '../../../services/confirmation-dialog
 import { WorkflowEntryModel } from '../../../models/workflowEntry.model';
 import { JobEntryModel } from '../../../models/jobEntry.model';
 import { WorkflowFormPartsModel } from '../../../models/workflowFormParts.model';
+import { delay } from 'rxjs/operators';
+import { WorkflowFormDataModel } from '../../../models/workflowFormData.model';
 
 @Component({
   selector: 'app-workflow',
@@ -53,6 +55,7 @@ export class WorkflowComponent implements OnInit, OnDestroy {
     sensor: WorkflowEntryModel[];
     jobs: JobEntryModel[];
   };
+  initialWorkflowData: WorkflowFormDataModel;
   workflowFormParts: WorkflowFormPartsModel;
 
   changes: Subject<Action> = new Subject<Action>();
@@ -66,7 +69,11 @@ export class WorkflowComponent implements OnInit, OnDestroy {
     route: ActivatedRoute,
   ) {
     this.paramsSubscription = route.params.subscribe((parameters) => {
-      this.store.dispatch(new StartWorkflowInitialization({ id: parameters.id, mode: parameters.mode }));
+      if (parameters.mode == this.workflowModes.IMPORT) {
+        this.store.dispatch(new ImportWorkflow());
+      } else {
+        this.store.dispatch(new StartWorkflowInitialization({ id: parameters.id, mode: parameters.mode }));
+      }
     });
   }
 
@@ -79,6 +86,7 @@ export class WorkflowComponent implements OnInit, OnDestroy {
       this.backendValidationErrors = state.workflowAction.backendValidationErrors;
       this.workflowFormParts = state.workflowAction.workflowFormParts;
       this.workflowData = state.workflowAction.workflowFormData;
+      this.initialWorkflowData = state.workflowAction.initialWorkflowFormData;
     });
     this.changesSubscription = this.changes.subscribe((state) => {
       this.store.dispatch(state);

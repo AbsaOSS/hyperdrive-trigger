@@ -43,6 +43,7 @@ export const WORKFLOW_ADD_EMPTY_JOB = 'WORKFLOW_ADD_EMPTY_JOB';
 export const WORKFLOW_REMOVE_JOB = 'WORKFLOW_REMOVE_JOB';
 export const WORKFLOW_JOB_CHANGED = 'WORKFLOW_JOB_CHANGED';
 export const WORKFLOW_JOB_TYPE_SWITCHED = 'WORKFLOW_JOB_TYPE_SWITCHED';
+export const WORKFLOW_JOBS_REORDER = 'WORKFLOW_JOBS_REORDER';
 
 export const DELETE_WORKFLOW = 'DELETE_WORKFLOW';
 export const DELETE_WORKFLOW_SUCCESS = 'DELETE_WORKFLOW_SUCCESS';
@@ -78,6 +79,13 @@ export const LOAD_HISTORY_FOR_WORKFLOW_FAILURE = 'LOAD_HISTORY_FOR_WORKFLOW_FAIL
 export const LOAD_WORKFLOWS_FROM_HISTORY = 'LOAD_WORKFLOWS_FROM_HISTORY';
 export const LOAD_WORKFLOWS_FROM_HISTORY_SUCCESS = 'LOAD_WORKFLOWS_FROM_HISTORY_SUCCESS';
 export const LOAD_WORKFLOWS_FROM_HISTORY_FAILURE = 'LOAD_WORKFLOWS_FROM_HISTORY_FAILURE';
+
+export const EXPORT_WORKFLOW = 'EXPORT_WORKFLOW';
+export const EXPORT_WORKFLOW_DONE = 'EXPORT_WORKFLOW_DONE';
+
+export const SET_WORKFLOW_FILE = 'SET_WORKFLOW_FILE';
+export const IMPORT_WORKFLOW = 'IMPORT_WORKFLOW';
+export const IMPORT_WORKFLOW_FAILURE = 'IMPORT_WORKFLOW_FAILURE';
 
 export class InitializeWorkflows implements Action {
   readonly type = INITIALIZE_WORKFLOWS;
@@ -159,6 +167,11 @@ export class WorkflowJobChanged implements Action {
 export class WorkflowJobTypeSwitched implements Action {
   readonly type = WORKFLOW_JOB_TYPE_SWITCHED;
   constructor(public payload: { jobId: string; jobEntry: WorkflowEntryModel }) {}
+}
+
+export class WorkflowJobsReorder implements Action {
+  readonly type = WORKFLOW_JOBS_REORDER;
+  constructor(public payload: { initialJobPosition: number; updatedJobPosition: number }) {}
 }
 
 export class DeleteWorkflow implements Action {
@@ -291,6 +304,28 @@ export class LoadWorkflowsFromHistoryFailure implements Action {
   readonly type = LOAD_WORKFLOWS_FROM_HISTORY_FAILURE;
 }
 
+export class ExportWorkflow implements Action {
+  readonly type = EXPORT_WORKFLOW;
+  constructor(public payload: number) {}
+}
+
+export class ExportWorkflowDone implements Action {
+  readonly type = EXPORT_WORKFLOW_DONE;
+}
+
+export class SetWorkflowFile implements Action {
+  readonly type = SET_WORKFLOW_FILE;
+  constructor(public payload: File) {}
+}
+
+export class ImportWorkflow implements Action {
+  readonly type = IMPORT_WORKFLOW;
+}
+
+export class ImportWorkflowFailure implements Action {
+  readonly type = IMPORT_WORKFLOW_FAILURE;
+}
+
 export type WorkflowsActions =
   | InitializeWorkflows
   | InitializeWorkflowsSuccess
@@ -308,6 +343,7 @@ export type WorkflowsActions =
   | WorkflowRemoveJob
   | WorkflowJobChanged
   | WorkflowJobTypeSwitched
+  | WorkflowJobsReorder
   | DeleteWorkflow
   | DeleteWorkflowSuccess
   | DeleteWorkflowFailure
@@ -328,10 +364,14 @@ export type WorkflowsActions =
   | LoadJobsForRunFailure
   | RunJobs
   | RunJobsCancel
-  | SetWorkflowsFilters
   | LoadHistoryForWorkflow
   | LoadHistoryForWorkflowSuccess
   | LoadHistoryForWorkflowFailure
   | LoadWorkflowsFromHistory
   | LoadWorkflowsFromHistorySuccess
-  | LoadWorkflowsFromHistoryFailure;
+  | LoadWorkflowsFromHistoryFailure
+  | ExportWorkflow
+  | ExportWorkflowDone
+  | SetWorkflowFile
+  | ImportWorkflow
+  | ImportWorkflowFailure;

@@ -42,6 +42,12 @@ export const texts = {
   UPDATE_WORKFLOW_SUCCESS_NOTIFICATION: 'Workflow has been updated.',
   UPDATE_WORKFLOW_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
 
+  EXPORT_WORKFLOW_SUCCESS_NOTIFICATION: 'Workflow has been exported.',
+  EXPORT_WORKFLOW_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
+
+  IMPORT_WORKFLOW_SUCCESS_NOTIFICATION: 'Workflow has been imported.',
+  IMPORT_WORKFLOW_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
+
   LOAD_HISTORY_FOR_WORKFLOW_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
   LOAD_WORKFLOWS_FROM_HISTORY_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
 

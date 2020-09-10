@@ -21,6 +21,7 @@ import { WorkflowService } from './workflow.service';
 import { ProjectModelFactory } from '../../models/project.model';
 import { WorkflowModelFactory } from '../../models/workflow.model';
 import { WorkflowJoinedModelFactory } from '../../models/workflowJoined.model';
+import { jobTemplates } from '../../constants/jobTemplates.constants';
 
 describe('WorkflowService', () => {
   let underTest: WorkflowService;
@@ -99,6 +100,39 @@ describe('WorkflowService', () => {
     req.flush(new Boolean(true));
   });
 
+  it('exportWorkflow() should return workflow blob', () => {
+    const content = '{"workflowId":"1"}';
+    const blob = new Blob([content], { type: 'application/json' });
+    const filename = 'filename.json';
+    const id = 1;
+    underTest.exportWorkflow(id).subscribe(
+      (data) => {
+        expect(data.fileName).toEqual(filename);
+        expect(data.blob).toEqual(blob);
+      },
+      (error) => fail(error),
+    );
+    const req = httpTestingController.expectOne(api.EXPORT_WORKFLOW + `?id=${id}`);
+    expect(req.request.method).toEqual('GET');
+    req.flush(blob, {
+      headers: { 'Content-Disposition': `attachment; filename=${filename}` },
+    });
+  });
+
+  it('importWorkflow() should return imported workflow', () => {
+    const workflow = WorkflowJoinedModelFactory.create('name', true, 'project', undefined, undefined, undefined, 0);
+    const file: File = new File(['content'], 'filename.json');
+
+    underTest.importWorkflow(file).subscribe(
+      (data) => expect(data).toEqual(workflow),
+      (error) => fail(error),
+    );
+
+    const req = httpTestingController.expectOne(api.IMPORT_WORKFLOW);
+    expect(req.request.method).toEqual('POST');
+    req.flush(workflow);
+  });
+
   it('createWorkflow() should return created workflow', () => {
     const workflow = WorkflowJoinedModelFactory.create('name', true, 'project', undefined, undefined, undefined, 0);
 
@@ -138,5 +172,36 @@ describe('WorkflowService', () => {
     const req = httpTestingController.expectOne(api.RUN_WORKFLOWS_JOBS + `?workflowId=${workflowId}`);
     expect(req.request.method).toEqual('PUT');
     req.flush(new Boolean(response));
+  });
+
+  it('getWorkflowDynamicFormParts() should not return no form parts if no template ids are present', () => {
+    underTest.getWorkflowDynamicFormParts().subscribe(
+      (data) => expect(data.jobDynamicParts.length).toEqual(0),
+      (error) => fail(error),
+    );
+
+    const req = httpTestingController.expectOne(encodeURI(api.GET_JOB_TEMPLATE_ID + `?name=` + jobTemplates.SPARK_JOB));
+    expect(req.request.method).toEqual('GET');
+    req.flush(null);
+    const reqShell = httpTestingController.expectOne(encodeURI(api.GET_JOB_TEMPLATE_ID + `?name=` + jobTemplates.SHELL_JOB));
+    expect(reqShell.request.method).toEqual('GET');
+    reqShell.flush(null);
+  });
+
+  it('getWorkflowDynamicFormParts() should not return only the shell-job form part if no other template ids are present', () => {
+    underTest.getWorkflowDynamicFormParts().subscribe(
+      (data) => {
+        expect(data.jobDynamicParts.length).toEqual(1);
+        expect(data.jobDynamicParts[0].label).toEqual(jobTemplates.SHELL_JOB);
+      },
+      (error) => fail(error),
+    );
+
+    const req = httpTestingController.expectOne(encodeURI(api.GET_JOB_TEMPLATE_ID + `?name=` + jobTemplates.SPARK_JOB));
+    expect(req.request.method).toEqual('GET');
+    req.flush(null);
+    const reqShell = httpTestingController.expectOne(encodeURI(api.GET_JOB_TEMPLATE_ID + `?name=` + jobTemplates.SHELL_JOB));
+    expect(reqShell.request.method).toEqual('GET');
+    reqShell.flush(2);
   });
 });

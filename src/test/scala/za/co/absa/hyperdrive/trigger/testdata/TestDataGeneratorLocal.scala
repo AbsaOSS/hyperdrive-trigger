@@ -82,7 +82,7 @@ class TestDataGeneratorLocal extends FlatSpec with Matchers with SpringIntegrati
     sensors.foreach(sensor => {
       val event = Event(UUID.randomUUID().toString, sensor.id, JsObject.empty)
       val properties = Properties(sensor.id, Settings(Map.empty, Map.empty), Map.empty)
-      val result = await(eventProcessor.eventProcessor(Seq(event), properties))
+      val result = await(eventProcessor.eventProcessor("triggered by")(Seq(event), properties))
       result shouldBe true
     })
 

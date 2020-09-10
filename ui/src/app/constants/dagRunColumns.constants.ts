@@ -20,4 +20,5 @@ export const dagRunColumns = {
   STARTED: 'started',
   FINISHED: 'finished',
   STATUS: 'status',
+  TRIGGERED_BY: 'triggeredBy',
 };

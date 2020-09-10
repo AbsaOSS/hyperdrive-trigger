@@ -17,7 +17,7 @@ import { workflowModes } from '../models/enums/workflowModes.constants';
 
 export const routeNames = {
   DEFAULT: '',
-  LOGIN: 'login',
+  WELCOME: 'welcome',
   WORKFLOWS: 'workflows',
   WORKFLOWS_HOME: '',
   WORKFLOW_ACTION: ':mode',
@@ -30,13 +30,14 @@ export const routeNames = {
 
 export const absoluteRoutes = {
   DEFAULT: `/${routeNames.DEFAULT}`,
-  LOGIN: `/${routeNames.LOGIN}`,
+  WELCOME: `/${routeNames.WELCOME}`,
   WORKFLOWS: `/${routeNames.WORKFLOWS}`,
   WORKFLOWS_HOME: `/${routeNames.WORKFLOWS}`,
   SHOW_WORKFLOW: `/${routeNames.WORKFLOWS}/${workflowModes.SHOW}`,
   CREATE_WORKFLOW: `/${routeNames.WORKFLOWS}/${workflowModes.CREATE}`,
   EDIT_WORKFLOW: `/${routeNames.WORKFLOWS}/${workflowModes.EDIT}`,
   COPY_WORKFLOW: `/${routeNames.WORKFLOWS}/${workflowModes.COPY}`,
+  IMPORT_WORKFLOW: `/${routeNames.WORKFLOWS}/${workflowModes.IMPORT}`,
   RUNS: `/${routeNames.RUNS}`,
   RUNS_WITH_WORKFLOW_ID(workflowId: number): string {
     return `/runs/${workflowId}`;
