@@ -14,10 +14,9 @@
  */
 
 import { AfterViewInit, Component, Input, OnDestroy } from '@angular/core';
-import { Subject, Subscription } from 'rxjs';
+import { Subject } from 'rxjs';
 import { ClrDatagridFilterInterface } from '@clr/angular';
 import { EqualsMultipleFilterAttributes } from '../../../../../models/search/equalsMultipleFilterAttributes.model';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'app-boolean-filter',
@@ -34,23 +33,18 @@ export class BooleanFilterComponent implements ClrDatagridFilterInterface<any>, 
   changes = new Subject<any>();
 
   modelChanges: Subject<any> = new Subject<any>();
-  modelSubscription: Subscription;
 
   constructor() {
     // do nothing
   }
 
   ngAfterViewInit(): void {
-    this.modelSubscription = this.modelChanges.pipe(debounceTime(500), distinctUntilChanged()).subscribe((newValue) => {
-      this.changes.next();
-    });
-
+    this.changes.next();
     this.removeFiltersSubject.subscribe((_) => this.onRemoveFilter());
   }
 
   ngOnDestroy(): void {
     !!this.removeFiltersSubject && this.removeFiltersSubject.unsubscribe();
-    !!this.modelSubscription && this.modelSubscription.unsubscribe();
   }
 
   toggleTrue() {
@@ -64,20 +58,15 @@ export class BooleanFilterComponent implements ClrDatagridFilterInterface<any>, 
   accepts(item: any): boolean {
     const testedValue = item[this.property];
 
-    if (this.isTrueSelected && testedValue == true) {
-      return true;
-    }
-
-    if (this.isFalseSelected && testedValue == false) {
-      return true;
-    }
-
-    return false;
+    return (this.isTrueSelected && testedValue == true) || (this.isFalseSelected && testedValue == false);
   }
 
   get state() {
     const values: string[] = [];
     return new EqualsMultipleFilterAttributes(this.property, values);
+    /* only a placeholder implementation to avoid runtime errors.
+       But backend-filtering functionality is not available for this filter.
+    */
   }
 
   isActive(): boolean {
@@ -87,6 +76,6 @@ export class BooleanFilterComponent implements ClrDatagridFilterInterface<any>, 
   onRemoveFilter() {
     this.isTrueSelected = false;
     this.isFalseSelected = false;
-    this.modelChanges.next([]);
+    this.modelChanges.next();
   }
 }
