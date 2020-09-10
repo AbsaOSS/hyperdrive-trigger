@@ -24,8 +24,8 @@ export interface State {
 const initialState: State = {
   loading: true,
   appInfo: {
-    environment: 'Undefined',
-    version: 'Undefined',
+    environment: 'Unknown',
+    version: 'Unknown',
   },
 };
 
