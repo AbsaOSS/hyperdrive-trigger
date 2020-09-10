@@ -94,7 +94,8 @@ create table "job_template" (
   "variables" VARCHAR NOT NULL,
   "maps" VARCHAR NOT NULL,
   "key_value_pairs" VARCHAR NOT NULL,
-  "id" BIGSERIAL NOT NULL PRIMARY KEY
+  "id" BIGSERIAL NOT NULL PRIMARY KEY,
+  "form_config" VARCHAR NOT NULL DEFAULT 'unknown';
 );
 
 alter table "job_instance"
@@ -166,7 +167,7 @@ left join (
 left join workflow
     on workflow.id = dag_instance.workflow_id;
 
-insert into "job_template" ("name", "job_type", "variables", "maps", "key_value_pairs")
-values ('Generic Spark Job', 'Spark', '{}', '{}', '{}');
-insert into "job_template" ("name", "job_type", "variables", "maps", "key_value_pairs")
-values ('Generic Shell Job', 'Shell', '{}', '{}', '{}');
+insert into "job_template" ("name", "job_type", "form_config", "variables", "maps", "key_value_pairs")
+values ('Generic Spark Job', 'Spark', 'Spark', '{}', '{}', '{}');
+insert into "job_template" ("name", "job_type", "form_config", "variables", "maps", "key_value_pairs")
+values ('Generic Shell Job', 'Shell', 'Shell', '{}', '{}', '{}');
