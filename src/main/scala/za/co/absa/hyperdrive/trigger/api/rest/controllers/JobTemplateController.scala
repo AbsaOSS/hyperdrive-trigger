@@ -20,6 +20,7 @@ import java.util.concurrent.CompletableFuture
 import javax.inject.Inject
 import org.springframework.web.bind.annotation._
 import za.co.absa.hyperdrive.trigger.api.rest.services.JobTemplateService
+import za.co.absa.hyperdrive.trigger.models.JobTemplate
 
 import scala.compat.java8.FutureConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -27,10 +28,9 @@ import scala.concurrent.ExecutionContext.Implicits.global
 @RestController
 class JobTemplateController @Inject()(jobTemplateService: JobTemplateService) {
 
-  @GetMapping(path = Array("/jobTemplateId"))
-  def getJobTemplateIdByName(@RequestParam name: String): CompletableFuture[Option[Long]] = {
-    jobTemplateService.getJobTemplateId(name).toJava.toCompletableFuture
+  @GetMapping(path = Array("/jobTemplates"))
+  def getJobTemplates: CompletableFuture[Seq[JobTemplate]] = {
+    jobTemplateService.getJobTemplates().toJava.toCompletableFuture
   }
-
 }
 

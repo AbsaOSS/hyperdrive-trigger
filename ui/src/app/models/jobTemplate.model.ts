@@ -13,14 +13,14 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models
+export type JobTemplateModel = {
+  id: number;
+  name: string;
+  formConfig: string;
+};
 
-import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
-
-case class JobTemplate(
-  name: String,
-  jobType: JobType,
-  jobParameters: JobParameters,
-  id: Long = 0,
-  formConfig: String
-)
+export class JobTemplateModelFactory {
+  static create(id: number, name: string, formConfig: string): JobTemplateModel {
+    return { id: id, name: name, formConfig: formConfig };
+  }
+}

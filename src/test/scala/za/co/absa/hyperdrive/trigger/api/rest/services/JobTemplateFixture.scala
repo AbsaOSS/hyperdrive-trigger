@@ -26,7 +26,8 @@ object JobTemplateFixture {
       name = "Generic Spark Job Template",
       jobType = JobTypes.Spark,
       jobParameters = JobParameters(Map(), Map(), Map()),
-      id = 1
+      id = 1,
+      formConfig = "Spark"
     )
   }
 
@@ -35,7 +36,8 @@ object JobTemplateFixture {
       name = "Generic Shell Job Template",
       jobType = JobTypes.Shell,
       jobParameters = JobParameters(Map(), Map(), Map()),
-      id = 2
+      id = 2,
+      formConfig = "Shell"
     )
   }
 }

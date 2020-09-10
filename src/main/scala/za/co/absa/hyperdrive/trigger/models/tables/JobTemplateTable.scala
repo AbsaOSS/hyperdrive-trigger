@@ -33,8 +33,9 @@ trait JobTemplateTable {
     def maps: Rep[Map[String, List[String]]] = column[Map[String, List[String]]]("maps")
     def keyValuePairs: Rep[Map[String, SortedMap[String, String]]] = column[Map[String, SortedMap[String, String]]]("key_value_pairs")
     def id: Rep[Long] = column[Long]("id", O.PrimaryKey, O.AutoInc, O.SqlType("BIGSERIAL"))
+    def formConfig: Rep[String] = column[String]("form_config")
 
-    def * : ProvenShape[JobTemplate] = (name, jobType, variables, maps, keyValuePairs, id) <> (
+    def * : ProvenShape[JobTemplate] = (name, jobType, variables, maps, keyValuePairs, id, formConfig) <> (
       jobTemplateTuple =>
         JobTemplate.apply(
           name = jobTemplateTuple._1,
@@ -44,7 +45,8 @@ trait JobTemplateTable {
             maps = jobTemplateTuple._4,
             keyValuePairs = jobTemplateTuple._5
           ),
-          id = jobTemplateTuple._6
+          id = jobTemplateTuple._6,
+          formConfig = jobTemplateTuple._7
         ),
       (jobTemplate: JobTemplate) =>
         Option(
@@ -53,7 +55,8 @@ trait JobTemplateTable {
           jobTemplate.jobParameters.variables,
           jobTemplate.jobParameters.maps,
           jobTemplate.jobParameters.keyValuePairs,
-          jobTemplate.id
+          jobTemplate.id,
+          jobTemplate.formConfig
         )
     )
   }

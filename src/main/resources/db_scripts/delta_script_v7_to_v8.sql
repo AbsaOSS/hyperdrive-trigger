@@ -13,14 +13,8 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models
+alter table "job_template"
+add "form_config" VARCHAR NOT NULL DEFAULT 'unknown';
 
-import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
-
-case class JobTemplate(
-  name: String,
-  jobType: JobType,
-  jobParameters: JobParameters,
-  id: Long = 0,
-  formConfig: String
-)
+update "job_template" set "form_config" = 'Spark' where "job_type" = 'Spark';
+update "job_template" set "form_config" = 'Shell' where "job_type" = 'Shell';

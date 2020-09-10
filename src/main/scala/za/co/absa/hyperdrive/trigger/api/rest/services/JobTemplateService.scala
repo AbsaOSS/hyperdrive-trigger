@@ -17,7 +17,7 @@ package za.co.absa.hyperdrive.trigger.api.rest.services
 
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.api.rest.utils.JobTemplateResolutionUtil
-import za.co.absa.hyperdrive.trigger.models.{DagDefinitionJoined, DagInstanceJoined}
+import za.co.absa.hyperdrive.trigger.models.{DagDefinitionJoined, DagInstanceJoined, JobTemplate}
 import za.co.absa.hyperdrive.trigger.persistance.JobTemplateRepository
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -26,7 +26,7 @@ trait JobTemplateService {
   val jobTemplateRepository: JobTemplateRepository
 
   def resolveJobTemplate(dagDefinition: DagDefinitionJoined, triggeredBy: String)(implicit ec: ExecutionContext): Future[DagInstanceJoined]
-  def getJobTemplateId(name: String)(implicit ec: ExecutionContext): Future[Option[Long]]
+  def getJobTemplates()(implicit ec: ExecutionContext): Future[Seq[JobTemplate]]
 }
 
 @Service
@@ -38,7 +38,7 @@ class JobTemplateServiceImpl(override val jobTemplateRepository: JobTemplateRepo
     )
   }
 
-  override def getJobTemplateId(name: String)(implicit ec: ExecutionContext): Future[Option[Long]] =
-    jobTemplateRepository.getJobTemplateIdByName(name)
+  override def getJobTemplates()(implicit ec: ExecutionContext): Future[Seq[JobTemplate]] =
+    jobTemplateRepository.getJobTemplates()
 
 }
