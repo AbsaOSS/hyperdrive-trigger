@@ -15,10 +15,10 @@
 
 databaseChangeLog:
   - changeSet:
-      id: v0.1.0_001
+      id: v0.1.0.add-started-finished
       author: kevin.wallimann@absa.africa
       context: default
       changes:
         - sqlFile:
             relativeToChangelogFile: true
-            path: v0.1.0_001.add-started-finished.sql
+            path: v0.1.0.add-started-finished.sql

@@ -16,11 +16,33 @@
 databaseChangeLog:
   - include:
       relativeToChangelogFile: true
-      file: v0.1.0_000.initial-create.yml
+      file: v0.1.0.initial-create.yml
   - include:
       relativeToChangelogFile: true
-      file: v0.1.0_001.add-started-finished.yml
+      file: v0.1.0.add-started-finished.yml
   - include:
       relativeToChangelogFile: true
-      file: v0.1.3_000.add-key-value-pairs.yml
+      file: v0.1.3.add-key-value-pairs.yml
+  - include:
+      relativeToChangelogFile: true
+      file: v0.2.0.add-workflow-history.yml
+  - include:
+      relativeToChangelogFile: true
+      file: v0.2.0.add-workflow-id-to-dag-run-view.yml
+  - include:
+      relativeToChangelogFile: true
+      file: v0.2.0.add-job-template.yml
+  - include:
+      relativeToChangelogFile: true
+      file: v0.2.0.add-job-template.yml
+  - include:
+      relativeToChangelogFile: true
+      file: v0.2.0.add-triggered-by.yml
+
+# only add for v0.2.1
+#  - include:
+#      relativeToChangelogFile: true
+#      file: v0.2.1.delete-job-type.yml
+
+
 

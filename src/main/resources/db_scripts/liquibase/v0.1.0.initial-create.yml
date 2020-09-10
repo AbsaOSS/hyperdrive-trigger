@@ -15,10 +15,10 @@
 
 databaseChangeLog:
   - changeSet:
-      id: v0.1.0_000
+      id: v0.1.0.initial-create
       author: kevin.wallimann@absa.africa
       context: default
       changes:
         - sqlFile:
             relativeToChangelogFile: true
-            path: v0.1.0_000.initial-create.sql
+            path: v0.1.0.initial-create.sql

@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+-- copy of db_scripts/db_script_v0.sql
+
 create table "workflow" (
   "name" VARCHAR(45) NOT NULL UNIQUE,
   "is_active" BOOLEAN NOT NULL,

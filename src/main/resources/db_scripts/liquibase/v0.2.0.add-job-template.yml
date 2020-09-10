@@ -15,10 +15,10 @@
 
 databaseChangeLog:
   - changeSet:
-      id: v0.1.3_000
+      id: v0.2.0.add-job-template
       author: kevin.wallimann@absa.africa
       context: default
       changes:
         - sqlFile:
             relativeToChangelogFile: true
-            path: v0.1.3_000.add-key-value-pairs.sql
+            path: v0.2.0.add-job-template.sql
