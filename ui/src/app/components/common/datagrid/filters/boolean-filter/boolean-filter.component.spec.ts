@@ -37,62 +37,56 @@ describe('BooleanFilterComponent', () => {
   });
 
   describe('accepts', () => {
-    it('should accept on true value and true isTrueSelected', () => {
+    it('should accept on true isTrue value and true testedValue', () => {
       const underTest = fixture.componentInstance;
-      underTest.value = true;
-      underTest.isTrueSelected = true;
+      underTest.value = { isTrue: true, isFalse: undefined };
       underTest.property = 'isActive';
       const workflow = WorkflowModelFactory.create('workflowName', true, 'projectName', new Date(Date.now()), new Date(Date.now()), 0);
 
       expect(underTest.accepts(workflow)).toBeTrue();
     });
 
-    it('should not accept on true value and false isTrueSelected', () => {
+    it('should not accept on true isTrue value and false testedValue', () => {
       const underTest = fixture.componentInstance;
-      underTest.value = true;
-      underTest.isTrueSelected = false;
-      underTest.property = 'isActive';
-      const workflow = WorkflowModelFactory.create('workflowName', true, 'projectName', new Date(Date.now()), new Date(Date.now()), 0);
-
-      expect(underTest.accepts(workflow)).toBeFalse();
-    });
-
-    it('should not accept on false value and true isTrueSelected', () => {
-      const underTest = fixture.componentInstance;
-      underTest.value = false;
-      underTest.isTrueSelected = true;
+      underTest.value = { isTrue: true, isFalse: false };
       underTest.property = 'isActive';
       const workflow = WorkflowModelFactory.create('workflowName', false, 'projectName', new Date(Date.now()), new Date(Date.now()), 0);
 
       expect(underTest.accepts(workflow)).toBeFalse();
     });
 
-    it('should accept on false value and true isFalseSelected', () => {
+    it('should not accept on false isTrue value and true testedValue', () => {
       const underTest = fixture.componentInstance;
-      underTest.value = false;
-      underTest.isFalseSelected = true;
+      underTest.value = { isTrue: false, isFalse: false };
+      underTest.property = 'isActive';
+      const workflow = WorkflowModelFactory.create('workflowName', true, 'projectName', new Date(Date.now()), new Date(Date.now()), 0);
+
+      expect(underTest.accepts(workflow)).toBeFalse();
+    });
+
+    it('should accept on true isFalse value and false testedValue', () => {
+      const underTest = fixture.componentInstance;
+      underTest.value = { isTrue: undefined, isFalse: true };
       underTest.property = 'isActive';
       const workflow = WorkflowModelFactory.create('workflowName', false, 'projectName', new Date(Date.now()), new Date(Date.now()), 0);
 
       expect(underTest.accepts(workflow)).toBeTrue();
     });
 
-    it('should not accept on false value and false isFalseSelected', () => {
+    it('should not accept on true isFalse value and true testedValue', () => {
       const underTest = fixture.componentInstance;
-      underTest.value = false;
-      underTest.isFalseSelected = false;
+      underTest.value = { isTrue: undefined, isFalse: true };
       underTest.property = 'isActive';
-      const workflow = WorkflowModelFactory.create('workflowName', false, 'projectName', new Date(Date.now()), new Date(Date.now()), 0);
+      const workflow = WorkflowModelFactory.create('workflowName', true, 'projectName', new Date(Date.now()), new Date(Date.now()), 0);
 
       expect(underTest.accepts(workflow)).toBeFalse();
     });
 
-    it('should not accept on true value and false isFalseSelected', () => {
+    it('should not accept on false isFalse value and false testedValue', () => {
       const underTest = fixture.componentInstance;
-      underTest.value = true;
-      underTest.isFalseSelected = false;
+      underTest.value = { isTrue: undefined, isFalse: false };
       underTest.property = 'isActive';
-      const workflow = WorkflowModelFactory.create('workflowName', true, 'projectName', new Date(Date.now()), new Date(Date.now()), 0);
+      const workflow = WorkflowModelFactory.create('workflowName', false, 'projectName', new Date(Date.now()), new Date(Date.now()), 0);
 
       expect(underTest.accepts(workflow)).toBeFalse();
     });

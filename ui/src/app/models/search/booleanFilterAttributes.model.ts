@@ -16,5 +16,5 @@
 import { FilterAttributes } from './filterAttributes.model';
 
 export class BooleanFilterAttributes implements FilterAttributes {
-  constructor(public field: string, public value: { isTrue: boolean, isFalse: boolean }) {}
+  constructor(public field: string, public value: { isTrue: boolean; isFalse: boolean }) {}
 }

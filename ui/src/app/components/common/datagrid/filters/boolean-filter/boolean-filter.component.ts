@@ -16,7 +16,7 @@
 import { AfterViewInit, Component, Input, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
 import { ClrDatagridFilterInterface } from '@clr/angular';
-import { BooleanFilterAttributes } from "../../../../../models/search/booleanFilterAttributes.model";
+import { BooleanFilterAttributes } from '../../../../../models/search/booleanFilterAttributes.model';
 
 @Component({
   selector: 'app-boolean-filter',
@@ -26,15 +26,13 @@ import { BooleanFilterAttributes } from "../../../../../models/search/booleanFil
 export class BooleanFilterComponent implements ClrDatagridFilterInterface<any>, AfterViewInit, OnDestroy {
   @Input() removeFiltersSubject: Subject<any>;
   @Input() property: string;
-  @Input() value: { isTrue: boolean, isFalse: boolean };
+  @Input() value: { isTrue: boolean; isFalse: boolean };
 
-  emptyValue = { from: undefined, to: undefined };
+  emptyValue = { isTrue: undefined, isFalse: undefined };
 
   changes = new Subject<any>();
 
   constructor() {
-    console.log(this.value);
-    console.log(!!this.value?.isTrue);
     // do nothing
   }
 
