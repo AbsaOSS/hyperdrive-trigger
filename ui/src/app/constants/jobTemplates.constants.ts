@@ -13,7 +13,8 @@
  * limitations under the License.
  */
 
-export const jobTemplates = {
-  SHELL_JOB: 'Generic Shell Job',
-  SPARK_JOB: 'Generic Spark Job',
+export const jobTemplateFormConfigs = {
+  SHELL: 'Shell',
+  SPARK: 'Spark',
+  HYPERDRIVE: 'Hyperdrive',
 };

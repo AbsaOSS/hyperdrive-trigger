@@ -1,4 +1,4 @@
-/*
+/*!
  * Copyright 2018 ABSA Group Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,15 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+ 
+.boolean-selectable {
+  cursor: pointer;
+  opacity: 0.3;
 
-package za.co.absa.hyperdrive.trigger.models
-
-import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
-
-case class JobTemplate(
-  name: String,
-  jobType: JobType,
-  jobParameters: JobParameters,
-  id: Long = 0,
-  formConfig: String
-)
+  &:hover,
+  &.boolean-selected {
+    opacity: 1;
+  }
+}

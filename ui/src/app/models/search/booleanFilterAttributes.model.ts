@@ -13,14 +13,8 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models
+import { FilterAttributes } from './filterAttributes.model';
 
-import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
-
-case class JobTemplate(
-  name: String,
-  jobType: JobType,
-  jobParameters: JobParameters,
-  id: Long = 0,
-  formConfig: String
-)
+export class BooleanFilterAttributes implements FilterAttributes {
+  constructor(public field: string, public value: { isTrue: boolean; isFalse: boolean }) {}
+}
