@@ -32,14 +32,11 @@ export class BooleanFilterComponent implements ClrDatagridFilterInterface<any>, 
 
   changes = new Subject<any>();
 
-  modelChanges: Subject<any> = new Subject<any>();
-
   constructor() {
     // do nothing
   }
 
   ngAfterViewInit(): void {
-    this.changes.next();
     this.removeFiltersSubject.subscribe((_) => this.onRemoveFilter());
   }
 
@@ -65,7 +62,7 @@ export class BooleanFilterComponent implements ClrDatagridFilterInterface<any>, 
     const values: string[] = [];
     return new EqualsMultipleFilterAttributes(this.property, values);
     /* only a placeholder implementation to avoid runtime errors.
-       But backend-filtering functionality is not available for this filter.
+       Backend-filtering functionality is not available for this filter.
     */
   }
 
@@ -76,6 +73,6 @@ export class BooleanFilterComponent implements ClrDatagridFilterInterface<any>, 
   onRemoveFilter() {
     this.isTrueSelected = false;
     this.isFalseSelected = false;
-    this.modelChanges.next();
+    this.changes.next();
   }
 }
