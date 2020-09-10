@@ -15,10 +15,10 @@
 
 databaseChangeLog:
   - changeSet:
-      id: v0.2.1.delete-job-type
+      id: v0.2.0.delete-job-type
       author: kevin.wallimann@absa.africa
       context: default
       changes:
         - sqlFile:
             relativeToChangelogFile: true
-            path: v0.2.1.delete-job-type.sql
+            path: v0.2.0.delete-job-type.sql

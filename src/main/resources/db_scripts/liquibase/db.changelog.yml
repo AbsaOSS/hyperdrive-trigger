@@ -34,15 +34,7 @@ databaseChangeLog:
       file: v0.2.0.add-job-template.yml
   - include:
       relativeToChangelogFile: true
-      file: v0.2.0.add-job-template.yml
+      file: v0.2.0.delete-job-type.yml
   - include:
       relativeToChangelogFile: true
       file: v0.2.0.add-triggered-by.yml
-
-# only add for v0.2.1
-#  - include:
-#      relativeToChangelogFile: true
-#      file: v0.2.1.delete-job-type.yml
-
-
-
