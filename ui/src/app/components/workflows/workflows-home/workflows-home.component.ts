@@ -19,7 +19,13 @@ import { AppState, selectWorkflowState } from '../../../stores/app.reducers';
 import { WorkflowModel } from '../../../models/workflow.model';
 import { Store } from '@ngrx/store';
 import { absoluteRoutes } from '../../../constants/routes.constants';
-import { RunWorkflow, SetWorkflowsFilters, SetWorkflowsSort } from '../../../stores/workflows/workflows.actions';
+import {
+  ExportWorkflow,
+  LoadJobsForRun,
+  SetWorkflowFile,
+  SetWorkflowsFilters,
+  SetWorkflowsSort,
+} from '../../../stores/workflows/workflows.actions';
 import { ConfirmationDialogTypes } from '../../../constants/confirmationDialogTypes.constants';
 import { DeleteWorkflow, SwitchWorkflowActiveState } from '../../../stores/workflows/workflows.actions';
 import { ConfirmationDialogService } from '../../../services/confirmation-dialog/confirmation-dialog.service';
@@ -51,6 +57,9 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
   filters: any[] = undefined;
   ignoreRefresh = false;
 
+  isWorkflowImportOpen = false;
+  workflowFile: File = undefined;
+
   constructor(private store: Store<AppState>, private confirmationDialogService: ConfirmationDialogService, private router: Router) {
     this.routerSubscription = router.events.pipe(filter((e) => e instanceof ResolveEnd)).subscribe((e: ResolveEnd) => {
       this.ignoreRefresh = e.state.root.component !== WorkflowsHomeComponent;
@@ -63,6 +72,29 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
       this.sort = state.workflowsSort;
       this.filters = state.workflowsFilters;
     });
+  }
+
+  exportWorkflow(id: number) {
+    this.store.dispatch(new ExportWorkflow(id));
+  }
+
+  importWorkflow() {
+    this.isWorkflowImportOpen = true;
+  }
+
+  setWorkflowFile(files: FileList) {
+    this.workflowFile = files.item(0);
+  }
+
+  closeWorkflowImport(isSubmit: boolean) {
+    if (this.isWorkflowImportOpen) {
+      if (isSubmit) {
+        this.store.dispatch(new SetWorkflowFile(this.workflowFile));
+        this.router.navigate([absoluteRoutes.IMPORT_WORKFLOW]);
+      }
+      this.isWorkflowImportOpen = false;
+      this.workflowFile = undefined;
+    }
   }
 
   deleteWorkflow(id: number) {
@@ -90,12 +122,7 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
   }
 
   runWorkflow(id: number) {
-    this.runWorkflowDialogSubscription = this.confirmationDialogService
-      .confirm(ConfirmationDialogTypes.YesOrNo, texts.RUN_WORKFLOW_CONFIRMATION_TITLE, texts.RUN_WORKFLOW_CONFIRMATION_CONTENT)
-      .subscribe((confirmed) => {
-        this.ignoreRefresh = true;
-        if (confirmed) this.store.dispatch(new RunWorkflow(id));
-      });
+    this.store.dispatch(new LoadJobsForRun(id));
   }
 
   showWorkflow(id: number) {

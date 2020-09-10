@@ -42,7 +42,16 @@ describe('StringFilterComponent', () => {
       const underTest = fixture.componentInstance;
       underTest.value = 'value';
       underTest.property = 'workflowName';
-      const dagRun = DagRunModelFactory.create('value', 'projectName', 2, 'Status', new Date(Date.now()), new Date(Date.now()), 0);
+      const dagRun = DagRunModelFactory.create(
+        'value',
+        'projectName',
+        2,
+        'Status',
+        'Triggered by',
+        new Date(Date.now()),
+        new Date(Date.now()),
+        0,
+      );
 
       expect(underTest.accepts(dagRun)).toBeTrue();
     });
@@ -51,7 +60,16 @@ describe('StringFilterComponent', () => {
       const underTest = fixture.componentInstance;
       underTest.value = 'lue';
       underTest.property = 'workflowName';
-      const dagRun = DagRunModelFactory.create('value', 'projectName', 2, 'Status', new Date(Date.now()), new Date(Date.now()), 0);
+      const dagRun = DagRunModelFactory.create(
+        'value',
+        'projectName',
+        2,
+        'Status',
+        'Triggered by',
+        new Date(Date.now()),
+        new Date(Date.now()),
+        0,
+      );
 
       expect(underTest.accepts(dagRun)).toBeTrue();
     });
@@ -60,7 +78,16 @@ describe('StringFilterComponent', () => {
       const underTest = fixture.componentInstance;
       underTest.value = 'differentValue';
       underTest.property = 'workflowName';
-      const dagRun = DagRunModelFactory.create('value', 'projectName', 2, 'Status', new Date(Date.now()), new Date(Date.now()), 0);
+      const dagRun = DagRunModelFactory.create(
+        'value',
+        'projectName',
+        2,
+        'Status',
+        'Triggered by',
+        new Date(Date.now()),
+        new Date(Date.now()),
+        0,
+      );
 
       expect(underTest.accepts(dagRun)).toBeFalse();
     });
@@ -69,7 +96,16 @@ describe('StringFilterComponent', () => {
       const underTest = fixture.componentInstance;
       underTest.value = 'differentValue';
       underTest.property = 'jobCount';
-      const dagRun = DagRunModelFactory.create('value', 'projectName', 2, 'Status', new Date(Date.now()), new Date(Date.now()), 0);
+      const dagRun = DagRunModelFactory.create(
+        'value',
+        'projectName',
+        2,
+        'Status',
+        'Triggered by',
+        new Date(Date.now()),
+        new Date(Date.now()),
+        0,
+      );
 
       expect(() => underTest.accepts(dagRun)).toThrowError(TypeError);
     });

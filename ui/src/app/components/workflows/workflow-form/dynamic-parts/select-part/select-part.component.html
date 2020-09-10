@@ -1,0 +1,37 @@
+<!--
+  ~ Copyright 2018 ABSA Group Limited
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<clr-select-container *ngIf="!isShow">
+  <label>{{name}}</label>
+  <select
+    clrSelect
+    [id]="name+uiid"
+    style="width:100%; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"
+    [name]="name+uiid"
+    [ngModel]="value"
+    (ngModelChange)="modelChanged($event)"
+    [required]="partValidationSafe.isRequired">
+    <!-- option.key contains the value, option.value contains the label -->
+    <option *ngFor="let option of options | keyvalue" [value]="option.key">{{option.value}}</option>
+  </select>
+  <clr-control-error *clrIfError="'required'">{{texts.FORM_VALIDATION_ONE_MUST_BE_SELECTED(name)}}</clr-control-error>
+</clr-select-container>
+
+<div *ngIf="isShow" class="clr-form-control clr-row">
+  <label class="clr-control-label clr-col-12 clr-col-md-2">{{name}}</label>
+  <span class="clr-control-container clr-col-md-10 clr-col-12 breakableSpan">
+    {{options.get(value.toString())}}
+  </span>
+</div>

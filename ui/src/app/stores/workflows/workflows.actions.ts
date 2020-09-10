@@ -21,6 +21,9 @@ import { WorkflowEntryModel } from '../../models/workflowEntry.model';
 import { JobEntryModel } from '../../models/jobEntry.model';
 import { WorkflowModel } from '../../models/workflow.model';
 import { SortAttributesModel } from '../../models/search/sortAttributes.model';
+import { HistoryModel } from '../../models/historyModel';
+import { WorkflowFormDataModel } from '../../models/workflowFormData.model';
+import { JobForRunModel } from '../../models/jobForRun.model';
 
 export const INITIALIZE_WORKFLOWS = 'INITIALIZE_WORKFLOWS';
 export const INITIALIZE_WORKFLOWS_SUCCESS = 'INITIALIZE_WORKFLOWS_SUCCESS';
@@ -40,6 +43,7 @@ export const WORKFLOW_ADD_EMPTY_JOB = 'WORKFLOW_ADD_EMPTY_JOB';
 export const WORKFLOW_REMOVE_JOB = 'WORKFLOW_REMOVE_JOB';
 export const WORKFLOW_JOB_CHANGED = 'WORKFLOW_JOB_CHANGED';
 export const WORKFLOW_JOB_TYPE_SWITCHED = 'WORKFLOW_JOB_TYPE_SWITCHED';
+export const WORKFLOW_JOBS_REORDER = 'WORKFLOW_JOBS_REORDER';
 
 export const DELETE_WORKFLOW = 'DELETE_WORKFLOW';
 export const DELETE_WORKFLOW_SUCCESS = 'DELETE_WORKFLOW_SUCCESS';
@@ -48,10 +52,6 @@ export const DELETE_WORKFLOW_FAILURE = 'DELETE_WORKFLOW_FAILURE';
 export const SWITCH_WORKFLOW_ACTIVE_STATE = 'SWITCH_WORKFLOW_ACTIVE_STATE';
 export const SWITCH_WORKFLOW_ACTIVE_STATE_SUCCESS = 'SWITCH_WORKFLOW_ACTIVE_STATE_SUCCESS';
 export const SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE = 'SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE';
-
-export const RUN_WORKFLOW = 'RUN_WORKFLOW';
-export const RUN_WORKFLOW_SUCCESS = 'RUN_WORKFLOW_SUCCESS';
-export const RUN_WORKFLOW_FAILURE = 'RUN_WORKFLOW_FAILURE';
 
 export const CREATE_WORKFLOW = 'CREATE_WORKFLOW';
 export const CREATE_WORKFLOW_SUCCESS = 'CREATE_WORKFLOW_SUCCESS';
@@ -65,6 +65,27 @@ export const REMOVE_BACKEND_VALIDATION_ERROR = 'REMOVE_BACKEND_VALIDATION_ERROR'
 
 export const SET_WORKFLOWS_SORT = 'SET_WORKFLOWS_SORT';
 export const SET_WORKFLOWS_FILTERS = 'SET_WORKFLOWS_FILTERS';
+
+export const LOAD_JOBS_FOR_RUN = 'LOAD_JOBS_FOR_RUN';
+export const LOAD_JOBS_FOR_RUN_SUCCESS = 'LOAD_JOBS_FOR_RUN_SUCCESS';
+export const LOAD_JOBS_FOR_RUN_FAILURE = 'LOAD_JOBS_FOR_RUN_FAILURE';
+export const RUN_JOBS = 'RUN_JOBS';
+export const RUN_JOBS_CANCEL = 'RUN_JOBS_CANCEL';
+
+export const LOAD_HISTORY_FOR_WORKFLOW = 'LOAD_HISTORY_FOR_WORKFLOW';
+export const LOAD_HISTORY_FOR_WORKFLOW_SUCCESS = 'LOAD_HISTORY_FOR_WORKFLOW_SUCCESS';
+export const LOAD_HISTORY_FOR_WORKFLOW_FAILURE = 'LOAD_HISTORY_FOR_WORKFLOW_FAILURE';
+
+export const LOAD_WORKFLOWS_FROM_HISTORY = 'LOAD_WORKFLOWS_FROM_HISTORY';
+export const LOAD_WORKFLOWS_FROM_HISTORY_SUCCESS = 'LOAD_WORKFLOWS_FROM_HISTORY_SUCCESS';
+export const LOAD_WORKFLOWS_FROM_HISTORY_FAILURE = 'LOAD_WORKFLOWS_FROM_HISTORY_FAILURE';
+
+export const EXPORT_WORKFLOW = 'EXPORT_WORKFLOW';
+export const EXPORT_WORKFLOW_DONE = 'EXPORT_WORKFLOW_DONE';
+
+export const SET_WORKFLOW_FILE = 'SET_WORKFLOW_FILE';
+export const IMPORT_WORKFLOW = 'IMPORT_WORKFLOW';
+export const IMPORT_WORKFLOW_FAILURE = 'IMPORT_WORKFLOW_FAILURE';
 
 export class InitializeWorkflows implements Action {
   readonly type = INITIALIZE_WORKFLOWS;
@@ -148,6 +169,11 @@ export class WorkflowJobTypeSwitched implements Action {
   constructor(public payload: { jobId: string; jobEntry: WorkflowEntryModel }) {}
 }
 
+export class WorkflowJobsReorder implements Action {
+  readonly type = WORKFLOW_JOBS_REORDER;
+  constructor(public payload: { initialJobPosition: number; updatedJobPosition: number }) {}
+}
+
 export class DeleteWorkflow implements Action {
   readonly type = DELETE_WORKFLOW;
   constructor(public payload: number) {}
@@ -174,19 +200,6 @@ export class SwitchWorkflowActiveStateSuccess implements Action {
 
 export class SwitchWorkflowActiveStateFailure implements Action {
   readonly type = SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE;
-}
-
-export class RunWorkflow implements Action {
-  readonly type = RUN_WORKFLOW;
-  constructor(public payload: number) {}
-}
-
-export class RunWorkflowSuccess implements Action {
-  readonly type = RUN_WORKFLOW_SUCCESS;
-}
-
-export class RunWorkflowFailure implements Action {
-  readonly type = RUN_WORKFLOW_FAILURE;
 }
 
 export class CreateWorkflow implements Action {
@@ -232,6 +245,87 @@ export class SetWorkflowsFilters implements Action {
   constructor(public payload: any[]) {}
 }
 
+export class LoadJobsForRun implements Action {
+  readonly type = LOAD_JOBS_FOR_RUN;
+  constructor(public payload: number) {}
+}
+
+export class LoadJobsForRunSuccess implements Action {
+  readonly type = LOAD_JOBS_FOR_RUN_SUCCESS;
+  constructor(public payload: JobForRunModel[]) {}
+}
+
+export class LoadJobsForRunFailure implements Action {
+  readonly type = LOAD_JOBS_FOR_RUN_FAILURE;
+}
+
+export class RunJobs implements Action {
+  readonly type = RUN_JOBS;
+  constructor(public payload: { workflowId: number; jobs?: number[] }) {}
+}
+
+export class RunJobsCancel implements Action {
+  readonly type = RUN_JOBS_CANCEL;
+}
+
+export class LoadHistoryForWorkflow implements Action {
+  readonly type = LOAD_HISTORY_FOR_WORKFLOW;
+  constructor(public payload: number) {}
+}
+
+export class LoadHistoryForWorkflowSuccess implements Action {
+  readonly type = LOAD_HISTORY_FOR_WORKFLOW_SUCCESS;
+  constructor(public payload: HistoryModel[]) {}
+}
+
+export class LoadHistoryForWorkflowFailure implements Action {
+  readonly type = LOAD_HISTORY_FOR_WORKFLOW_FAILURE;
+}
+
+export class LoadWorkflowsFromHistory implements Action {
+  readonly type = LOAD_WORKFLOWS_FROM_HISTORY;
+  constructor(public payload: { leftWorkflowHistoryId: number; rightWorkflowHistoryId: number }) {}
+}
+
+export class LoadWorkflowsFromHistorySuccess implements Action {
+  readonly type = LOAD_WORKFLOWS_FROM_HISTORY_SUCCESS;
+  constructor(
+    public payload: {
+      workflowFormParts: WorkflowFormPartsModel;
+      leftWorkflowHistoryData: WorkflowFormDataModel;
+      leftWorkflowHistory: HistoryModel;
+      rightWorkflowHistoryData: WorkflowFormDataModel;
+      rightWorkflowHistory: HistoryModel;
+    },
+  ) {}
+}
+
+export class LoadWorkflowsFromHistoryFailure implements Action {
+  readonly type = LOAD_WORKFLOWS_FROM_HISTORY_FAILURE;
+}
+
+export class ExportWorkflow implements Action {
+  readonly type = EXPORT_WORKFLOW;
+  constructor(public payload: number) {}
+}
+
+export class ExportWorkflowDone implements Action {
+  readonly type = EXPORT_WORKFLOW_DONE;
+}
+
+export class SetWorkflowFile implements Action {
+  readonly type = SET_WORKFLOW_FILE;
+  constructor(public payload: File) {}
+}
+
+export class ImportWorkflow implements Action {
+  readonly type = IMPORT_WORKFLOW;
+}
+
+export class ImportWorkflowFailure implements Action {
+  readonly type = IMPORT_WORKFLOW_FAILURE;
+}
+
 export type WorkflowsActions =
   | InitializeWorkflows
   | InitializeWorkflowsSuccess
@@ -249,15 +343,13 @@ export type WorkflowsActions =
   | WorkflowRemoveJob
   | WorkflowJobChanged
   | WorkflowJobTypeSwitched
+  | WorkflowJobsReorder
   | DeleteWorkflow
   | DeleteWorkflowSuccess
   | DeleteWorkflowFailure
   | SwitchWorkflowActiveState
   | SwitchWorkflowActiveStateSuccess
   | SwitchWorkflowActiveStateFailure
-  | RunWorkflow
-  | RunWorkflowSuccess
-  | RunWorkflowFailure
   | CreateWorkflow
   | CreateWorkflowSuccess
   | CreateWorkflowFailure
@@ -266,4 +358,20 @@ export type WorkflowsActions =
   | UpdateWorkflowFailure
   | RemoveBackendValidationError
   | SetWorkflowsSort
-  | SetWorkflowsFilters;
+  | SetWorkflowsFilters
+  | LoadJobsForRun
+  | LoadJobsForRunSuccess
+  | LoadJobsForRunFailure
+  | RunJobs
+  | RunJobsCancel
+  | LoadHistoryForWorkflow
+  | LoadHistoryForWorkflowSuccess
+  | LoadHistoryForWorkflowFailure
+  | LoadWorkflowsFromHistory
+  | LoadWorkflowsFromHistorySuccess
+  | LoadWorkflowsFromHistoryFailure
+  | ExportWorkflow
+  | ExportWorkflowDone
+  | SetWorkflowFile
+  | ImportWorkflow
+  | ImportWorkflowFailure;

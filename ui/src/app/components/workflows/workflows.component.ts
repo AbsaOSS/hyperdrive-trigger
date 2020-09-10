@@ -14,7 +14,6 @@
  */
 
 import { AfterViewInit, Component, OnDestroy } from '@angular/core';
-import { WorkflowModel } from '../../models/workflow.model';
 import { ProjectModel } from '../../models/project.model';
 import { Store } from '@ngrx/store';
 import { AppState, selectWorkflowState } from '../../stores/app.reducers';
@@ -32,7 +31,6 @@ export class WorkflowsComponent implements AfterViewInit, OnDestroy {
 
   loading = true;
   projects: ProjectModel[] = [];
-  workflows: WorkflowModel[] = [];
 
   absoluteRoutes = absoluteRoutes;
 
@@ -44,7 +42,6 @@ export class WorkflowsComponent implements AfterViewInit, OnDestroy {
     this.workflowsSubscription = this.store.select(selectWorkflowState).subscribe((state) => {
       this.loading = state.loading;
       this.projects = state.projects;
-      this.workflows = [].concat(...state.projects.map((project) => project.workflows));
     });
   }
 

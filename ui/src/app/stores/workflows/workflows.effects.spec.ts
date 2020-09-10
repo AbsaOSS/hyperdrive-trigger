@@ -14,7 +14,7 @@
  */
 
 import { TestBed } from '@angular/core/testing';
-import { Observable } from 'rxjs';
+import { EMPTY, Observable } from 'rxjs';
 import { provideMockActions } from '@ngrx/effects/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Actions } from '@ngrx/effects';
@@ -23,8 +23,12 @@ import * as WorkflowsActions from './workflows.actions';
 import {
   CreateWorkflow,
   DeleteWorkflow,
+  ExportWorkflow,
+  ImportWorkflow,
   InitializeWorkflows,
-  RunWorkflow,
+  LoadHistoryForWorkflow,
+  LoadJobsForRun,
+  RunJobs,
   StartWorkflowInitialization,
   SwitchWorkflowActiveState,
   UpdateWorkflow,
@@ -34,9 +38,11 @@ import { WorkflowsEffects } from './workflows.effects';
 import { WorkflowService } from '../../services/workflow/workflow.service';
 import { ProjectModelFactory } from '../../models/project.model';
 import { WorkflowModel, WorkflowModelFactory } from '../../models/workflow.model';
-import { provideMockStore } from '@ngrx/store/testing';
+import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import {
+  DynamicFormPart,
   DynamicFormPartFactory,
+  DynamicFormParts,
   DynamicFormPartsFactory,
   FormPartFactory,
   PartValidationFactory,
@@ -58,13 +64,19 @@ import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { texts } from '../../constants/texts.constants';
 import { Router } from '@angular/router';
 import { absoluteRoutes } from '../../constants/routes.constants';
-import { JobTypeFactory } from '../../models/jobInstance.model';
 import { ApiErrorModel, ApiErrorModelFactory } from '../../models/errors/apiError.model';
+import { WorkflowHistoryService } from '../../services/workflowHistory/workflow-history.service';
+import { HistoryModel, HistoryModelFactory } from '../../models/historyModel';
+import { JobForRunModelFactory } from '../../models/jobForRun.model';
+import { JobService } from '../../services/job/job.service';
 
 describe('WorkflowsEffects', () => {
   let underTest: WorkflowsEffects;
   let workflowService: WorkflowService;
+  let workflowHistoryService: WorkflowHistoryService;
+  let jobService: JobService;
   let mockActions: Observable<any>;
+  let mockStore: MockStore;
   let toastrService: ToastrService;
   let router: Router;
 
@@ -72,19 +84,20 @@ describe('WorkflowsEffects', () => {
     workflows: {
       workflowAction: {
         mode: workflowModes.CREATE,
-        workflowData: {
+        workflowFormData: {
           details: [{ property: 'detailProp', value: 'detailVal' }],
           sensor: [{ property: 'sensorProp', value: 'sensorVal' }],
           jobs: [{ jobId: 'jobId', order: 0, entries: [{ property: 'jobProp', value: 'jobVal' }] }],
         },
+        workflowFormParts: WorkflowFormPartsModelFactory.create(
+          workflowFormPartsSequences.allDetails,
+          workflowFormPartsConsts.SENSOR.SENSOR_TYPE,
+          workflowFormPartsConsts.JOB.JOB_NAME,
+          workflowFormPartsConsts.JOB.JOB_TEMPLATE_ID,
+          DynamicFormPartsFactory.create([], []),
+        ),
+        workflowFile: new File(['content'], 'filename.json'),
       },
-      workflowFormParts: WorkflowFormPartsModelFactory.create(
-        workflowFormPartsSequences.allDetails,
-        workflowFormPartsConsts.SENSOR.SENSOR_TYPE,
-        workflowFormPartsConsts.JOB.JOB_NAME,
-        workflowFormPartsConsts.JOB.JOB_TYPE,
-        DynamicFormPartsFactory.create([], []),
-      ),
     },
   };
 
@@ -93,6 +106,7 @@ describe('WorkflowsEffects', () => {
       providers: [
         WorkflowsEffects,
         WorkflowService,
+        JobService,
         provideMockActions(() => mockActions),
         provideMockStore({ initialState: initialAppState }),
         ToastrService,
@@ -101,7 +115,10 @@ describe('WorkflowsEffects', () => {
     });
     underTest = TestBed.inject(WorkflowsEffects);
     workflowService = TestBed.inject(WorkflowService);
+    workflowHistoryService = TestBed.inject(WorkflowHistoryService);
+    jobService = TestBed.inject(JobService);
     mockActions = TestBed.inject(Actions);
+    mockStore = TestBed.inject(MockStore);
     toastrService = TestBed.inject(ToastrService);
     router = TestBed.inject(Router);
   });
@@ -134,7 +151,7 @@ describe('WorkflowsEffects', () => {
         workflowFormPartsSequences.allDetails,
         workflowFormPartsConsts.SENSOR.SENSOR_TYPE,
         workflowFormPartsConsts.JOB.JOB_NAME,
-        workflowFormPartsConsts.JOB.JOB_TYPE,
+        workflowFormPartsConsts.JOB.JOB_TEMPLATE_ID,
         dynamicFormParts,
       );
 
@@ -226,7 +243,7 @@ describe('WorkflowsEffects', () => {
     });
 
     it('should initialize workflow', () => {
-      const jobDefinition = JobDefinitionModelFactory.create(10, 'name', JobTypeFactory.create('name'), undefined, 0, 10);
+      const jobDefinition = JobDefinitionModelFactory.create(10, 'name', '1', undefined, 0, 10);
       const workflow = WorkflowJoinedModelFactory.create(
         'name',
         true,
@@ -258,8 +275,8 @@ describe('WorkflowsEffects', () => {
                 order: 0,
                 entries: [
                   WorkflowEntryModelFactory.create(
-                    workflowFormParts.JOB.JOB_TYPE.property,
-                    workflow.dagDefinitionJoined.jobDefinitions[0].jobType.name,
+                    workflowFormParts.JOB.JOB_TEMPLATE_ID.property,
+                    workflow.dagDefinitionJoined.jobDefinitions[0].jobTemplateId,
                   ),
                   WorkflowEntryModelFactory.create(
                     workflowFormParts.JOB.JOB_NAME.property,
@@ -413,70 +430,6 @@ describe('WorkflowsEffects', () => {
     });
   });
 
-  describe('runWorkflow', () => {
-    it('should display success when service successfully runs workflow', () => {
-      const toastrServiceSpy = spyOn(toastrService, 'success');
-      const payload = 42;
-      const response = true;
-
-      const action = new RunWorkflow(payload);
-      mockActions = cold('-a', { a: action });
-
-      const runWorkflowResponse = cold('-a|', { a: response });
-      const expected = cold('--a', {
-        a: {
-          type: WorkflowsActions.RUN_WORKFLOW_SUCCESS,
-        },
-      });
-
-      spyOn(workflowService, 'runWorkflow').and.returnValue(runWorkflowResponse);
-
-      expect(underTest.workflowRun).toBeObservable(expected);
-      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
-      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.RUN_WORKFLOW_SUCCESS_NOTIFICATION);
-    });
-
-    it('should display failure when service fails to run workflow', () => {
-      const toastrServiceSpy = spyOn(toastrService, 'error');
-      const payload = 42;
-      const response = false;
-
-      const action = new RunWorkflow(payload);
-      mockActions = cold('-a', { a: action });
-
-      const runWorkflowResponse = cold('-a|', { a: response });
-      spyOn(workflowService, 'runWorkflow').and.returnValue(runWorkflowResponse);
-
-      const expected = cold('--a', {
-        a: {
-          type: WorkflowsActions.RUN_WORKFLOW_FAILURE,
-        },
-      });
-      expect(underTest.workflowRun).toBeObservable(expected);
-      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
-      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.RUN_WORKFLOW_FAILURE_NOTIFICATION);
-    });
-
-    it('should display failure when service throws an exception while running workflow', () => {
-      const toastrServiceSpy = spyOn(toastrService, 'error');
-      const payload = 42;
-      const action = new RunWorkflow(payload);
-      mockActions = cold('-a', { a: action });
-
-      const runWorkflowResponse = cold('-#|');
-      spyOn(workflowService, 'runWorkflow').and.returnValue(runWorkflowResponse);
-
-      const expected = cold('--a', {
-        a: {
-          type: WorkflowsActions.RUN_WORKFLOW_FAILURE,
-        },
-      });
-      expect(underTest.workflowRun).toBeObservable(expected);
-      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
-      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.RUN_WORKFLOW_FAILURE_NOTIFICATION);
-    });
-  });
-
   describe('workflowCreate', () => {
     it('should return create workflow failure with no backend validation errors when service fails to create workflow', () => {
       const toastrServiceSpy = spyOn(toastrService, 'error');
@@ -530,7 +483,7 @@ describe('WorkflowsEffects', () => {
         'project',
         undefined,
         SensorModelFactory.create(10, SensorTypeFactory.create('name'), undefined, 10),
-        DagDefinitionJoinedModelFactory.create(10, [JobDefinitionModelFactory.create(10, 'name', { name: 'name' }, undefined, 0, 10)], 10),
+        DagDefinitionJoinedModelFactory.create(10, [JobDefinitionModelFactory.create(10, 'name', '1', undefined, 0, 10)], 10),
         10,
       );
       const createWorkflowSuccessPayload: WorkflowModel = WorkflowModelFactory.create(
@@ -616,7 +569,7 @@ describe('WorkflowsEffects', () => {
         'project',
         undefined,
         SensorModelFactory.create(10, SensorTypeFactory.create('name'), undefined, 10),
-        DagDefinitionJoinedModelFactory.create(10, [JobDefinitionModelFactory.create(10, 'name', { name: 'name' }, undefined, 0, 10)], 10),
+        DagDefinitionJoinedModelFactory.create(10, [JobDefinitionModelFactory.create(10, 'name', '1', undefined, 0, 10)], 10),
         10,
       );
       const updateWorkflowSuccessPayload: WorkflowModel = WorkflowModelFactory.create(
@@ -650,6 +603,78 @@ describe('WorkflowsEffects', () => {
     });
   });
 
+  describe('historyForWorkflowLoad', () => {
+    it('should successfully load history for workflow', () => {
+      const payload = 42;
+      const response: HistoryModel[] = [HistoryModelFactory.create(1, new Date(Date.now()), 'userName', { name: 'operation' })];
+
+      const action = new LoadHistoryForWorkflow(payload);
+      mockActions = cold('-a', { a: action });
+
+      const getHistoryForWorkflowResponse = cold('-a|', { a: response });
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowsActions.LOAD_HISTORY_FOR_WORKFLOW_SUCCESS,
+          payload: response,
+        },
+      });
+
+      spyOn(workflowHistoryService, 'getHistoryForWorkflow').and.returnValue(getHistoryForWorkflowResponse);
+
+      expect(underTest.historyForWorkflowLoad).toBeObservable(expected);
+    });
+
+    it('should display failure when service fails to load history for workflow', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'error');
+      const payload = 42;
+
+      const action = new LoadHistoryForWorkflow(payload);
+      mockActions = cold('-a', { a: action });
+
+      const getHistoryForWorkflowResponse = cold('-#|');
+      spyOn(workflowHistoryService, 'getHistoryForWorkflow').and.returnValue(getHistoryForWorkflowResponse);
+
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowsActions.LOAD_HISTORY_FOR_WORKFLOW_FAILURE,
+        },
+      });
+      expect(underTest.historyForWorkflowLoad).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.LOAD_HISTORY_FOR_WORKFLOW_FAILURE_NOTIFICATION);
+    });
+  });
+
+  describe('workflowsFromHistoryLoad', () => {
+    it('should load workflows from history', () => {
+      //TODO: Implement test. I need help from you guys. (Problem could be how we combine multiple observables in effects)
+    });
+
+    it('should display failure when service fails to load workflows from history', () => {
+      //TODO: Implement test. I need help from you guys. (Problem could be how we combine multiple observables in effects)
+    });
+  });
+
+  describe('getWorkflowFormParts', () => {
+    it('should return workflow form parts', () => {
+      const sensorDynamicPart: DynamicFormPart = DynamicFormPartFactory.create('sensorDynamicPart', [
+        FormPartFactory.create('name1', 'property1', 'type1', PartValidationFactory.create(true)),
+      ]);
+      const jobDynamicParts: DynamicFormPart = DynamicFormPartFactory.create('jobDynamicPart', [
+        FormPartFactory.create('name2', 'property2', 'type2', PartValidationFactory.create(true)),
+      ]);
+      const dynamicFormParts: DynamicFormParts = DynamicFormPartsFactory.create([sensorDynamicPart], [jobDynamicParts]);
+
+      const result = underTest.getWorkflowFormParts(dynamicFormParts);
+      expect(result).toBeDefined();
+      expect(result.dynamicParts).toBe(dynamicFormParts);
+      expect(result.detailsParts).toBe(workflowFormPartsSequences.allDetails);
+      expect(result.sensorSwitchPart).toBe(workflowFormPartsConsts.SENSOR.SENSOR_TYPE);
+      expect(result.staticJobPart).toBe(workflowFormPartsConsts.JOB.JOB_NAME);
+      expect(result.jobSwitchPart).toBe(workflowFormPartsConsts.JOB.JOB_TEMPLATE_ID);
+    });
+  });
+
   describe('isBackendValidationError', () => {
     it('should return false if string is passed', () => {
       const errorResponse = 'errorResponse';
@@ -680,6 +705,272 @@ describe('WorkflowsEffects', () => {
         ApiErrorModelFactory.create('message2', { name: 'validationError' }),
       ];
       expect(underTest.isBackendValidationError(errorResponse)).toBeTruthy();
+    });
+  });
+
+  describe('jobsForRunLoad', () => {
+    it('should successfully load workflows jobs for run', () => {
+      const response = [JobForRunModelFactory.create('name', 1, 1)];
+      const payload = 42;
+
+      const action = new LoadJobsForRun(payload);
+      mockActions = cold('-a', { a: action });
+
+      const getJobsForRunResponse = cold('-a|', { a: response });
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowsActions.LOAD_JOBS_FOR_RUN_SUCCESS,
+          payload: response,
+        },
+      });
+
+      spyOn(jobService, 'getJobsForRun').and.returnValue(getJobsForRunResponse);
+
+      expect(underTest.jobsForRunLoad).toBeObservable(expected);
+    });
+
+    it('should dispatch failure when service throws an exception while loading workflows jobs', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'error');
+      const payload = 42;
+
+      const action = new LoadJobsForRun(payload);
+      mockActions = cold('-a', { a: action });
+
+      const getJobsForRunResponse = cold('-#|');
+      spyOn(jobService, 'getJobsForRun').and.returnValue(getJobsForRunResponse);
+
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowsActions.LOAD_JOBS_FOR_RUN_FAILURE,
+        },
+      });
+      expect(underTest.jobsForRunLoad).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.LOAD_JOBS_FOR_RUN_FAILURE_NOTIFICATION);
+    });
+  });
+
+  describe('jobsRun', () => {
+    it('should display success when service successfully runs workflows jobs', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'success');
+      const workflowId = 42;
+      const jobIds = [1, 2, 3];
+      const response = true;
+
+      const action = new RunJobs({ workflowId: workflowId, jobs: jobIds });
+      mockActions = cold('-a', { a: action });
+
+      const runWorkflowJobsResponse = cold('-a|', { a: response });
+      const expected = cold('--a', {
+        a: {
+          type: EMPTY,
+        },
+      });
+
+      spyOn(workflowService, 'runWorkflowJobs').and.returnValue(runWorkflowJobsResponse);
+
+      expect(underTest.jobsRun).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.RUN_WORKFLOWS_JOBS_SUCCESS_NOTIFICATION);
+    });
+
+    it('display failure when service fails to run workflow jobs', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'error');
+      const workflowId = 42;
+      const jobIds = [1, 2, 3];
+      const response = false;
+
+      const action = new RunJobs({ workflowId: workflowId, jobs: jobIds });
+      mockActions = cold('-a', { a: action });
+
+      const runWorkflowJobsResponse = cold('-a|', { a: response });
+      const expected = cold('--a', {
+        a: {
+          type: EMPTY,
+        },
+      });
+
+      spyOn(workflowService, 'runWorkflowJobs').and.returnValue(runWorkflowJobsResponse);
+
+      expect(underTest.jobsRun).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.RUN_WORKFLOWS_JOBS_FAILURE_NOTIFICATION);
+    });
+
+    it('should display failure when service throws an exception while running workflows jobs', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'error');
+      const workflowId = 42;
+      const jobIds = [1, 2, 3];
+
+      const action = new RunJobs({ workflowId: workflowId, jobs: jobIds });
+      mockActions = cold('-a', { a: action });
+
+      const runWorkflowJobsResponse = cold('-#|');
+      spyOn(workflowService, 'runWorkflowJobs').and.returnValue(runWorkflowJobsResponse);
+
+      const expected = cold('--a', {
+        a: {
+          type: EMPTY,
+        },
+      });
+      expect(underTest.jobsRun).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.RUN_WORKFLOWS_JOBS_FAILURE_NOTIFICATION);
+    });
+  });
+
+  describe('workflowExport', () => {
+    it('should display success when service successfully exports workflow', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'success');
+      const aSpy = jasmine.createSpyObj('a', ['click', 'remove']);
+      spyOn(document, 'createElement').and.returnValue(aSpy);
+
+      const workflowId = 42;
+      const blob = new Blob(['hello', ' ', 'world'], { type: 'text/plain' });
+      const response = { blob: blob, fileName: 'fileName' };
+
+      const action = new ExportWorkflow(workflowId);
+      mockActions = cold('-a', { a: action });
+
+      const exportWorkflowResponse = cold('-a|', { a: response });
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowsActions.EXPORT_WORKFLOW_DONE,
+        },
+      });
+
+      spyOn(workflowService, 'exportWorkflow').and.returnValue(exportWorkflowResponse);
+
+      expect(underTest.workflowExport).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.EXPORT_WORKFLOW_SUCCESS_NOTIFICATION);
+      expect(aSpy.click).toHaveBeenCalledTimes(1);
+      expect(aSpy.click).toHaveBeenCalledWith();
+      expect(aSpy.remove).toHaveBeenCalledTimes(1);
+      expect(aSpy.remove).toHaveBeenCalledWith();
+    });
+
+    it('should display failure when service throws an exception while exporting workflow', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'error');
+      const workflowId = 42;
+
+      const action = new ExportWorkflow(workflowId);
+      mockActions = cold('-a', { a: action });
+
+      const exportWorkflowResponse = cold('-#|');
+      spyOn(workflowService, 'exportWorkflow').and.returnValue(exportWorkflowResponse);
+
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowsActions.EXPORT_WORKFLOW_DONE,
+        },
+      });
+      expect(underTest.workflowExport).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.EXPORT_WORKFLOW_FAILURE_NOTIFICATION);
+    });
+  });
+
+  describe('workflowImport', () => {
+    it('should import workflow', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'success');
+
+      const jobDefinition = JobDefinitionModelFactory.create(10, 'name', '1', undefined, 0, 10);
+      const workflow = WorkflowJoinedModelFactory.create(
+        'name',
+        true,
+        'project',
+        undefined,
+        SensorModelFactory.create(10, SensorTypeFactory.create('name'), undefined, 10),
+        DagDefinitionJoinedModelFactory.create(10, [jobDefinition], 10),
+        10,
+      );
+
+      const action = new ImportWorkflow();
+      mockActions = cold('-a', { a: action });
+
+      const importWorkflowResponse = cold('-a|', { a: workflow });
+
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowsActions.LOAD_WORKFLOW_SUCCESS,
+          payload: {
+            workflow: workflow,
+            detailsData: [
+              WorkflowEntryModelFactory.create(workflowFormParts.DETAILS.WORKFLOW_NAME.property, workflow.name),
+              WorkflowEntryModelFactory.create(workflowFormParts.DETAILS.PROJECT_NAME.property, workflow.project),
+              WorkflowEntryModelFactory.create(workflowFormParts.DETAILS.IS_ACTIVE.property, workflow.isActive),
+            ],
+            sensorData: [WorkflowEntryModelFactory.create(workflowFormParts.SENSOR.SENSOR_TYPE.property, workflow.sensor.sensorType.name)],
+            jobsData: [
+              jasmine.objectContaining({
+                order: 0,
+                entries: [
+                  WorkflowEntryModelFactory.create(
+                    workflowFormParts.JOB.JOB_TEMPLATE_ID.property,
+                    workflow.dagDefinitionJoined.jobDefinitions[0].jobTemplateId,
+                  ),
+                  WorkflowEntryModelFactory.create(
+                    workflowFormParts.JOB.JOB_NAME.property,
+                    workflow.dagDefinitionJoined.jobDefinitions[0].name,
+                  ),
+                ],
+              }),
+            ],
+          },
+        },
+      });
+
+      spyOn(workflowService, 'importWorkflow').and.returnValue(importWorkflowResponse);
+
+      expect(underTest.workflowImport).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.IMPORT_WORKFLOW_SUCCESS_NOTIFICATION);
+    });
+
+    it('should display failure when service throws an exception while importing workflow', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'error');
+      const routerSpy = spyOn(router, 'navigateByUrl');
+
+      const action = new ImportWorkflow();
+      mockActions = cold('-a', { a: action });
+
+      const importWorkflowResponse = cold('-#|');
+      spyOn(workflowService, 'importWorkflow').and.returnValue(importWorkflowResponse);
+
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowsActions.IMPORT_WORKFLOW_FAILURE,
+        },
+      });
+      expect(underTest.workflowImport).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.IMPORT_WORKFLOW_FAILURE_NOTIFICATION);
+      expect(routerSpy).toHaveBeenCalledTimes(1);
+      expect(routerSpy).toHaveBeenCalledWith(absoluteRoutes.WORKFLOWS);
+    });
+
+    it('should return import workflow failure when workflow file is not defined', () => {
+      mockStore.setState({
+        ...initialAppState,
+        workflows: { ...initialAppState.workflows, workflowAction: { ...initialAppState.workflows.workflowAction, workflowFile: null } },
+      });
+      const toastrServiceSpy = spyOn(toastrService, 'error');
+      const routerSpy = spyOn(router, 'navigateByUrl');
+
+      const action = new ImportWorkflow();
+      mockActions = cold('a', { a: action });
+      const expected = cold('a', {
+        a: {
+          type: WorkflowsActions.IMPORT_WORKFLOW_FAILURE,
+        },
+      });
+
+      expect(underTest.workflowImport).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.IMPORT_WORKFLOW_FAILURE_NOTIFICATION);
+      expect(routerSpy).toHaveBeenCalledTimes(1);
+      expect(routerSpy).toHaveBeenCalledWith(absoluteRoutes.WORKFLOWS);
     });
   });
 });

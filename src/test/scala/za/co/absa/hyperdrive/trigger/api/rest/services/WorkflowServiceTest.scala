@@ -16,141 +16,144 @@
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
 import java.time.LocalDateTime
-import java.util.concurrent.TimeUnit
 
 import org.mockito.ArgumentMatchers.{eq => eqTo, _}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, Matchers}
+import za.co.absa.hyperdrive.trigger.TestUtils.await
+import za.co.absa.hyperdrive.trigger.models._
+import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, DatabaseError, ValidationError}
-import za.co.absa.hyperdrive.trigger.models.{Project, Workflow, WorkflowJoined}
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, WorkflowRepository}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.{ExecutionContext, Future}
 
 class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar with BeforeAndAfter {
   private val workflowRepository = mock[WorkflowRepository]
   private val dagInstanceRepository = mock[DagInstanceRepository]
+  private val jobTemplateService = mock[JobTemplateService]
   private val workflowValidationService = mock[WorkflowValidationService]
+  private val userName = "fakeUserName"
+  private val underTest = new WorkflowServiceImpl(workflowRepository, dagInstanceRepository, jobTemplateService, workflowValidationService){
+    override private[services] def getUserName: () => String = () => userName
+  }
 
   before {
     reset(workflowRepository)
     reset(dagInstanceRepository)
+    reset(jobTemplateService)
     reset(workflowValidationService)
   }
 
   "WorkflowService.createWorkflow" should "should create a workflow" in {
     // given
-    val underTest = new WorkflowServiceImpl(workflowRepository, dagInstanceRepository, workflowValidationService)
     val workflowJoined = WorkflowFixture.createWorkflowJoined()
     when(workflowValidationService.validateOnInsert(eqTo(workflowJoined))(any[ExecutionContext])).thenReturn(Future{Seq.empty})
-    when(workflowRepository.insertWorkflow(eqTo(workflowJoined))(any[ExecutionContext])).thenReturn(Future{Right(workflowJoined.id)})
+    when(workflowRepository.insertWorkflow(eqTo(workflowJoined), eqTo(userName))(any[ExecutionContext])).thenReturn(Future{Right(workflowJoined.id)})
     when(workflowRepository.getWorkflow(eqTo(workflowJoined.id))(any[ExecutionContext])).thenReturn(Future{workflowJoined})
 
     // when
-    val result = Await.result(underTest.createWorkflow(workflowJoined), Duration(120, TimeUnit.SECONDS))
+    val result = await(underTest.createWorkflow(workflowJoined))
 
     // then
-    verify(workflowRepository).insertWorkflow(eqTo(workflowJoined))(any[ExecutionContext])
+    verify(workflowRepository).insertWorkflow(eqTo(workflowJoined), eqTo(userName))(any[ExecutionContext])
     result shouldBe Right(workflowJoined)
   }
 
   it should "should return with errors if validation failed and not attempt to insert to DB" in {
     // given
-    val underTest = new WorkflowServiceImpl(workflowRepository, dagInstanceRepository, workflowValidationService)
     val workflowJoined = WorkflowFixture.createWorkflowJoined()
     val errors: Seq[ApiError] = Seq(ValidationError("error"))
     when(workflowValidationService.validateOnInsert(eqTo(workflowJoined))(any[ExecutionContext]))
       .thenReturn(Future{errors})
 
     // when
-    val result = Await.result(underTest.createWorkflow(workflowJoined), Duration(120, TimeUnit.SECONDS))
+    val result = await(underTest.createWorkflow(workflowJoined))
 
     // then
-    verify(workflowRepository, never()).insertWorkflow(any[WorkflowJoined])(any[ExecutionContext])
+    verify(workflowRepository, never()).insertWorkflow(any[WorkflowJoined], any[String])(any[ExecutionContext])
     verify(workflowRepository, never()).getWorkflow(any[Long])(any[ExecutionContext])
     result shouldBe Left(errors)
   }
 
   it should "should return with errors if DB insert failed" in {
     // given
-    val underTest = new WorkflowServiceImpl(workflowRepository, dagInstanceRepository, workflowValidationService)
     val workflowJoined = WorkflowFixture.createWorkflowJoined()
     val error = DatabaseError("error")
     when(workflowValidationService.validateOnInsert(eqTo(workflowJoined))(any[ExecutionContext])).thenReturn(Future{Seq.empty})
-    when(workflowRepository.insertWorkflow(eqTo(workflowJoined))(any[ExecutionContext]))
+    when(workflowRepository.insertWorkflow(eqTo(workflowJoined), eqTo(userName))(any[ExecutionContext]))
       .thenReturn(Future{Left(error)})
 
     // when
-    val result = Await.result(underTest.createWorkflow(workflowJoined), Duration(120, TimeUnit.SECONDS))
+    val result = await(underTest.createWorkflow(workflowJoined))
 
     // then
-    verify(workflowRepository).insertWorkflow(eqTo(workflowJoined))(any[ExecutionContext])
+    verify(workflowRepository).insertWorkflow(eqTo(workflowJoined), eqTo(userName))(any[ExecutionContext])
     verify(workflowRepository, never()).getWorkflow(any[Long])(any[ExecutionContext])
     result shouldBe Left(Seq(error))
   }
 
   "WorkflowService.updateWorkflow" should "should update a workflow" in {
     // given
-    val underTest = new WorkflowServiceImpl(workflowRepository, dagInstanceRepository, workflowValidationService)
-    val workflowJoined = WorkflowFixture.createWorkflowJoined()
-    when(workflowValidationService.validateOnUpdate(eqTo(workflowJoined))(any[ExecutionContext])).thenReturn(Future{Seq.empty})
-    when(workflowRepository.updateWorkflow(any[WorkflowJoined])(any[ExecutionContext])).thenReturn(Future{Right((): Unit)})
-    when(workflowRepository.getWorkflow(eqTo(workflowJoined.id))(any[ExecutionContext])).thenReturn(Future{workflowJoined})
-    when(workflowRepository.getWorkflow(eqTo(workflowJoined.id))(any[ExecutionContext])).thenReturn(Future{workflowJoined})
+    val originalWorkflow = WorkflowFixture.createWorkflowJoined()
+    val updatedWorkflow = originalWorkflow.copy(name = "newName")
+
+    when(workflowRepository.getWorkflow(eqTo(originalWorkflow.id))(any[ExecutionContext])).thenReturn(Future{originalWorkflow}).thenReturn(Future{updatedWorkflow})
+    when(workflowValidationService.validateOnUpdate(eqTo(originalWorkflow), eqTo(updatedWorkflow))(any[ExecutionContext])).thenReturn(Future{Seq.empty})
+    when(workflowRepository.updateWorkflow(any[WorkflowJoined], any[String])(any[ExecutionContext])).thenReturn(Future{Right((): Unit)})
 
     // when
-    val result = Await.result(underTest.updateWorkflow(workflowJoined), Duration(120, TimeUnit.SECONDS))
+    val result = await(underTest.updateWorkflow(updatedWorkflow))
 
     // then
-    verify(workflowRepository).updateWorkflow(any[WorkflowJoined])(any[ExecutionContext])
-    result shouldBe Right(workflowJoined)
+    verify(workflowRepository).updateWorkflow(any[WorkflowJoined], any[String])(any[ExecutionContext])
+    result shouldBe Right(updatedWorkflow)
   }
 
   it should "should return with errors if validation failed and not attempt to update on DB" in {
     // given
-    val underTest = new WorkflowServiceImpl(workflowRepository, dagInstanceRepository, workflowValidationService)
-    val workflowJoined = WorkflowFixture.createWorkflowJoined()
+    val originalJoined = WorkflowFixture.createWorkflowJoined()
+    val workflowJoined = originalJoined.copy()
     val errors: Seq[ApiError] = Seq(ValidationError("error"))
-    when(workflowValidationService.validateOnUpdate(eqTo(workflowJoined))(any[ExecutionContext]))
+    when(workflowValidationService.validateOnUpdate(eqTo(workflowJoined), eqTo(originalJoined))(any[ExecutionContext]))
       .thenReturn(Future{errors})
     when(workflowRepository.getWorkflow(eqTo(workflowJoined.id))(any[ExecutionContext])).thenReturn(Future{workflowJoined})
 
     // when
-    val result = Await.result(underTest.updateWorkflow(workflowJoined), Duration(120, TimeUnit.SECONDS))
+    val result = await(underTest.updateWorkflow(workflowJoined))
 
     // then
-    verify(workflowRepository, never()).updateWorkflow(any[WorkflowJoined])(any[ExecutionContext])
+    verify(workflowRepository, never()).updateWorkflow(any[WorkflowJoined], any[String])(any[ExecutionContext])
     result shouldBe Left(errors)
   }
 
   it should "should return with errors if DB update failed" in {
     // given
-    val underTest = new WorkflowServiceImpl(workflowRepository, dagInstanceRepository, workflowValidationService)
-    val workflowJoined = WorkflowFixture.createWorkflowJoined()
+    val originalWorkflow = WorkflowFixture.createWorkflowJoined()
+    val updatedWorkflow = originalWorkflow.copy(project = "diff")
+
     val error = DatabaseError("error")
-    when(workflowValidationService.validateOnUpdate(eqTo(workflowJoined))(any[ExecutionContext])).thenReturn(Future{Seq.empty})
-    when(workflowRepository.getWorkflow(eqTo(workflowJoined.id))(any[ExecutionContext])).thenReturn(Future{workflowJoined})
-    when(workflowRepository.updateWorkflow(any[WorkflowJoined])(any[ExecutionContext]))
+    when(workflowRepository.getWorkflow(eqTo(originalWorkflow.id))(any[ExecutionContext])).thenReturn(Future{originalWorkflow})
+    when(workflowValidationService.validateOnUpdate(eqTo(originalWorkflow), eqTo(updatedWorkflow))(any[ExecutionContext])).thenReturn(Future{Seq.empty})
+    when(workflowRepository.updateWorkflow(any[WorkflowJoined], any[String])(any[ExecutionContext]))
       .thenReturn(Future{Left(error)})
 
     // when
-    val result = Await.result(underTest.updateWorkflow(workflowJoined), Duration(120, TimeUnit.SECONDS))
+    val result = await(underTest.updateWorkflow(updatedWorkflow))
 
     // then
-    verify(workflowRepository).updateWorkflow(any[WorkflowJoined])(any[ExecutionContext])
+    verify(workflowRepository).updateWorkflow(any[WorkflowJoined], any[String])(any[ExecutionContext])
     result shouldBe Left(Seq(error))
   }
 
   "WorkflowService.getProjects" should "should return no project on no workflows" in {
     // given
     when(workflowRepository.getWorkflows()(any[ExecutionContext])).thenReturn(Future{Seq()})
-    val underTest = new WorkflowServiceImpl(workflowRepository, dagInstanceRepository, workflowValidationService)
 
     // when
-    val result: Seq[Project] = Await.result(underTest.getProjects(), Duration(120, TimeUnit.SECONDS))
+    val result: Seq[Project] = await(underTest.getProjects())
 
     // then
     verify(workflowRepository, times(1)).getWorkflows()
@@ -179,14 +182,65 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
     )
     when(workflowRepository.getWorkflows()(any[ExecutionContext])).thenReturn(Future{worfklows})
 
-    val underTest = new WorkflowServiceImpl(workflowRepository, dagInstanceRepository, workflowValidationService)
-
     // when
-    val result: Seq[Project] = Await.result(underTest.getProjects(), Duration(120, TimeUnit.SECONDS))
+    val result: Seq[Project] = await(underTest.getProjects())
 
     // then
     verify(workflowRepository, times(1)).getWorkflows()
     result.length shouldBe 2
+  }
+
+  "WorkflowService.runWorkflowJobs" should "should insert joined dag instance when jobs ids exist in workflow" in {
+    // given
+    val workflowJoined = WorkflowFixture.createWorkflowJoined().copy()
+    val workflowId = workflowJoined.id
+    val jobIds = workflowJoined.dagDefinitionJoined.jobDefinitions.map(_.id)
+
+    val dagInstanceJoined = createDagInstanceJoined()
+    when(workflowRepository.getWorkflow(eqTo(workflowId))(any[ExecutionContext])).thenReturn(Future{workflowJoined})
+    when(jobTemplateService.resolveJobTemplate(any[DagDefinitionJoined], eqTo(userName))(any[ExecutionContext])).thenReturn(Future{dagInstanceJoined})
+    when(dagInstanceRepository.insertJoinedDagInstance(eqTo(dagInstanceJoined))(any[ExecutionContext])).thenReturn(Future{(): Unit})
+
+    // when
+    val result: Boolean = await(underTest.runWorkflowJobs(workflowId, jobIds))
+
+    // then
+    verify(workflowRepository, times(1)).getWorkflow(any[Long])(any[ExecutionContext])
+    verify(jobTemplateService, times(1)).resolveJobTemplate(any[DagDefinitionJoined], eqTo(userName))(any[ExecutionContext])
+    verify(dagInstanceRepository, times(1)).insertJoinedDagInstance(any[DagInstanceJoined])(any[ExecutionContext])
+    result shouldBe true
+  }
+
+  "WorkflowService.runWorkflowJobs" should "should not insert joined dag instance when jobs ids does not exist in workflow" in {
+    // given
+    val workflowJoined = WorkflowFixture.createWorkflowJoined().copy()
+    val workflowId = workflowJoined.id
+    val jobIds: Seq[Long] = Seq(9999, 8888)
+    val triggeredBy = "triggered by"
+
+    when(workflowRepository.getWorkflow(eqTo(workflowId))(any[ExecutionContext])).thenReturn(Future{workflowJoined})
+    when(dagInstanceRepository.insertJoinedDagInstance(any[DagInstanceJoined])(any[ExecutionContext])).thenReturn(Future{(): Unit})
+
+    // when
+    val result: Boolean = await(underTest.runWorkflowJobs(workflowId, jobIds))
+
+    // then
+    verify(workflowRepository, times(1)).getWorkflow(any[Long])(any[ExecutionContext])
+    verify(jobTemplateService, never).resolveJobTemplate(any[DagDefinitionJoined], eqTo(triggeredBy))(any[ExecutionContext])
+    verify(dagInstanceRepository, never).insertJoinedDagInstance(any[DagInstanceJoined])(any[ExecutionContext])
+    result shouldBe false
+  }
+
+  private def createDagInstanceJoined() = {
+    DagInstanceJoined(
+      status = DagInstanceStatuses.InQueue,
+      triggeredBy = userName,
+      workflowId = 2,
+      jobInstances = Seq(),
+      started = LocalDateTime.now(),
+      finished = None,
+      id = 3
+    )
   }
 
 }

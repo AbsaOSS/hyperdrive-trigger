@@ -83,6 +83,14 @@
         </app-multiple-status-filter>
       </clr-dg-filter>
     </clr-dg-column>
+    <clr-dg-column [clrDgField]="dagRunColumns.TRIGGERED_BY">
+      <ng-container *clrDgHideableColumn="{hidden: false}">Triggered by</ng-container>
+      <clr-dg-filter [clrDgFilter]="triggeredByFilter">
+        <app-string-filter #triggeredByFilter [property]="dagRunColumns.TRIGGERED_BY"
+                           [removeFiltersSubject]="removeFiltersSubject">
+        </app-string-filter>
+      </clr-dg-filter>
+    </clr-dg-column>
     <clr-dg-placeholder>We couldn't find any dag runs!</clr-dg-placeholder>
 
     <clr-dg-row *ngFor="let dagRun of dagRuns" [clrDgItem]="dagRun">
@@ -119,6 +127,7 @@
         </clr-icon>
         {{dagRun.status}}
       </clr-dg-cell>
+      <clr-dg-cell>{{dagRun.triggeredBy}}</clr-dg-cell>
     </clr-dg-row>
 
     <clr-dg-detail *clrIfDetail="let detail">
@@ -127,10 +136,11 @@
         <b>Project name: </b>{{detail.projectName}}<br/>
         <b>Started: </b>{{detail.started | date:'medium'}}<br/>
         <b>Finished: </b>{{detail.finished | date:'medium'}}<br/>
-        <b>Status: </b>{{detail.status}}
+        <b>Status: </b>{{detail.status}}<br/>
+        <b>Triggered by: </b>{{detail.triggeredBy}}
       </clr-dg-detail-header>
       <clr-dg-detail-body>
-        <app-run-detail [dagRunId]="detail.id"></app-run-detail>
+        <app-run-detail [dagRunId]="detail.id" [refreshSubject]="refreshSubject"></app-run-detail>
       </clr-dg-detail-body>
     </clr-dg-detail>
 
