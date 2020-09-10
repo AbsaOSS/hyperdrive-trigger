@@ -16,7 +16,13 @@
 <app-confirmation-dialog></app-confirmation-dialog>
 <app-login-dialog></app-login-dialog>
 
-<div class="main-container">
+<div class="loading" *ngIf="loading">
+    <span class="spinner spinner-inverse">
+        Loading...
+    </span>
+</div>
+
+<div class="main-container" *ngIf="!loading">
   <header class="header-6" *ngIf="isAuthenticated">
     <div class="branding">
       <a routerLink="{{routes.WORKFLOWS}}" class="nav-link">

@@ -15,9 +15,10 @@
 
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { AppState, selectAuthState } from '../../../stores/app.reducers';
+import { AppState, selectApplicationState, selectAuthState } from '../../../stores/app.reducers';
 import { Login } from '../../../stores/auth/auth.actions';
 import { Subscription } from 'rxjs';
+import { AppInfoModel } from '../../../models/appInfo.model';
 
 @Component({
   selector: 'app-login',
@@ -27,13 +28,18 @@ import { Subscription } from 'rxjs';
 export class LoginComponent implements OnInit, OnDestroy {
   @Input() styleClass = '';
   authStateSubscription: Subscription;
+  applicationStateSubscription: Subscription;
   authenticationFailed = false;
   username = 'hyperdriver-user';
   password = 'hyperdriver-password';
+  appInfo: AppInfoModel;
 
   constructor(private store: Store<AppState>) {}
 
   ngOnInit(): void {
+    this.applicationStateSubscription = this.store.select(selectApplicationState).subscribe((state) => {
+      this.appInfo = state.appInfo;
+    });
     this.authStateSubscription = this.store.select(selectAuthState).subscribe((state) => {
       this.authenticationFailed = state.authenticationFailed;
     });
@@ -41,6 +47,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     !!this.authStateSubscription && this.authStateSubscription.unsubscribe();
+    !!this.applicationStateSubscription && this.applicationStateSubscription.unsubscribe();
   }
 
   onSubmit() {
