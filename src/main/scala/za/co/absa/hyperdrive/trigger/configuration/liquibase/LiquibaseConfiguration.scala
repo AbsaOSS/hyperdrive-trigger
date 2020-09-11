@@ -35,7 +35,10 @@ class LiquibaseConfiguration(properties: LiquibaseProperties) extends SpringLiqu
     var liquibaseOpt: Option[Liquibase] = None
     try {
       liquibaseOpt = Option(createLiquibase(connection))
-      liquibaseOpt.foreach(liquibase => performLiquibaseOperations(liquibase))
+      liquibaseOpt match {
+        case Some(liquibase) => validateAllMigrationsApplied(liquibase)
+        case None => logger.error("Could not configure liquibase")
+      }
     } finally {
       liquibaseOpt.flatMap(liquibase => Option(liquibase.getDatabase)) match {
         case Some(database) => database.close()
@@ -44,7 +47,7 @@ class LiquibaseConfiguration(properties: LiquibaseProperties) extends SpringLiqu
     }
   }
 
-  private def performLiquibaseOperations(liquibase: Liquibase): Unit = {
+  private def validateAllMigrationsApplied(liquibase: Liquibase): Unit = {
     val unrunChangeSets = liquibase.listUnrunChangeSets(new Contexts(contexts), new LabelExpression(labels))
     if (!unrunChangeSets.isEmpty) {
       throw new IllegalStateException(s"Not all database changesets have been applied. Unrun changesets: $unrunChangeSets")
