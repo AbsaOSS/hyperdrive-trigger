@@ -7,8 +7,6 @@ pom.xml
 
 .gitignore
 .idea
-
-target
 logs
 src
 ui
