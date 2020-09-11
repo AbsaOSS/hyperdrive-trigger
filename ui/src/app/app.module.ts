@@ -34,6 +34,7 @@ import { AuthService } from './services/auth/auth.service';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { AuthEffects } from './stores/auth/auth.effects';
+import { ApplicationEffects } from './stores/application/application.effects';
 import { CsrfInterceptor } from './services/interceptors/csrf.interceptor';
 import { UnauthorizedInterceptor } from './services/interceptors/unauthorized.interceptor';
 import { AuthGuardService } from './services/guards/authGuard.service';
@@ -119,7 +120,7 @@ import { LoginDialogComponent } from './components/auth/login-dialog/login-dialo
       timeOut: 5000,
     }),
     StoreModule.forRoot(reducers),
-    EffectsModule.forRoot([AuthEffects, RunsEffects, WorkflowsEffects]),
+    EffectsModule.forRoot([ApplicationEffects, AuthEffects, RunsEffects, WorkflowsEffects]),
     StoreRouterConnectingModule.forRoot(),
     !environment.production ? StoreDevtoolsModule.instrument() : [],
   ],

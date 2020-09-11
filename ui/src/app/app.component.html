@@ -16,7 +16,13 @@
 <app-confirmation-dialog></app-confirmation-dialog>
 <app-login-dialog></app-login-dialog>
 
-<div class="main-container">
+<div class="loading" *ngIf="loading">
+    <span class="spinner spinner-inverse">
+        Loading...
+    </span>
+</div>
+
+<div class="main-container" *ngIf="!loading">
   <header class="header-6" *ngIf="isAuthenticated">
     <div class="branding">
       <a routerLink="{{routes.WORKFLOWS}}" class="nav-link">
@@ -36,6 +42,12 @@
         </button>
         <clr-dropdown-menu *clrIfOpen clrPosition="bottom-right">
           <a clrDropdownItem (click)="onLogOut()">Log out</a>
+          <div class="dropdown-divider"></div>
+          <div class="dropdown-item" style="cursor: default; pointer-events: none">
+            <strong>Environment:</strong> {{appInfo.environment}}
+            <br>
+            <strong>Version:</strong> {{appInfo.version}}
+          </div>
         </clr-dropdown-menu>
       </clr-dropdown>
     </div>

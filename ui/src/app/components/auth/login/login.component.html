@@ -33,6 +33,11 @@
         </clr-password-container>
         <div class="error" [ngClass]="{'active': authenticationFailed}">Invalid username or password</div>
         <button type="submit" class="btn btn-primary">Log in</button>
+        <h5 class="appInfo">
+          <strong>Environment:</strong> {{appInfo.environment}}
+          <br>
+          <strong>Version:</strong> {{appInfo.version}}
+        </h5>
       </div>
     </form>
   </div>

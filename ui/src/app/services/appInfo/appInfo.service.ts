@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright 2018 ABSA Group Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,8 +13,22 @@
  * limitations under the License.
  */
 
-.loading {
-  position: fixed;
-  top: 50%;
-  right: 50%;
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { api } from '../../constants/api.constants';
+import { map } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { AppInfoModel } from '../../models/appInfo.model';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class AppInfoService {
+  constructor(private httpClient: HttpClient) {}
+
+  getAppInfo(): Observable<AppInfoModel> {
+    return this.httpClient
+      .get<AppInfoModel>(api.APP_INFO, { observe: 'response' })
+      .pipe(map((response) => response.body));
+  }
 }
