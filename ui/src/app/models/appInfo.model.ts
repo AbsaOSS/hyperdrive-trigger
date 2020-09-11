@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright 2018 ABSA Group Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,8 +13,13 @@
  * limitations under the License.
  */
 
-.loading {
-  position: fixed;
-  top: 50%;
-  right: 50%;
+export type AppInfoModel = {
+  environment: string;
+  version: string;
+};
+
+export class AppInfoModelFactory {
+  static create(environment: string, version: string): AppInfoModel {
+    return { environment: environment, version: version };
+  }
 }

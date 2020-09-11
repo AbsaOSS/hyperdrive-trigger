@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright 2018 ABSA Group Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,8 +13,25 @@
  * limitations under the License.
  */
 
-.loading {
-  position: fixed;
-  top: 50%;
-  right: 50%;
+package za.co.absa.hyperdrive.trigger.api.rest.controllers
+
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.web.bind.annotation._
+import za.co.absa.hyperdrive.trigger.models.AppInfo
+
+@RestController 
+class AppInfoController {
+  @Value("${environment:Unknown}")
+  val environment: String = ""
+  @Value("${version:Unknown}")
+  val version: String = ""
+
+  @GetMapping(path = Array("/app/info"))
+  def appInfo(): AppInfo = {
+    AppInfo(
+      environment = environment,
+      version = version
+    )
+  }
+
 }

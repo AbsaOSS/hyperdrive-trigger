@@ -83,7 +83,8 @@ class WebSecurityConfig {
           "/runtime-es2015*.js",
           "/scripts*.js",
           "/styles*.css",
-          "/favicon.ico"
+          "/favicon.ico",
+          "/app/info"
         )
         .permitAll()
         .anyRequest()

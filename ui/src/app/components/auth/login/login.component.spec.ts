@@ -31,7 +31,16 @@ describe('LoginComponent', () => {
     showLoginDialog: false,
   };
 
+  const initialApplicationState = {
+    loading: true,
+    appInfo: {
+      environment: 'Undefined',
+      version: 'Undefined',
+    },
+  };
+
   const initialAppState = {
+    application: initialApplicationState,
     auth: initialAuthState,
     runs: {},
   };
