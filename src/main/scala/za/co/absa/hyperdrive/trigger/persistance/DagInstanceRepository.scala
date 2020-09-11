@@ -29,6 +29,8 @@ trait DagInstanceRepository extends Repository {
   def getDagsToRun(runningIds: Seq[Long], size: Int)(implicit executionContext: ExecutionContext): Future[Seq[DagInstance]]
 
   def update(dagInstance: DagInstance): Future[Unit]
+
+  def hasRunningDagInstance(workflowId: Long)(implicit executionContext: ExecutionContext): Future[Boolean]
 }
 
 @stereotype.Repository
@@ -71,5 +73,15 @@ class DagInstanceRepositoryImpl extends DagInstanceRepository {
   override def update(dagInstance: DagInstance): Future[Unit] = db.run(
     dagInstanceTable.filter(_.id === dagInstance.id).update(dagInstance).andThen(DBIO.successful((): Unit))
   )
+
+  override def hasRunningDagInstance(workflowId: Long)(implicit executionContext: ExecutionContext): Future[Boolean] = {
+    db.run(
+      dagInstanceTable.filter(
+        dagInstance =>
+          dagInstance.workflowId === workflowId && dagInstance.status.inSet(DagInstanceStatuses.nonFinalStatuses)
+      ).exists.result
+    )
+  }
+
 
 }

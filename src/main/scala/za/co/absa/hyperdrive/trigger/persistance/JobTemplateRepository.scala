@@ -26,7 +26,7 @@ import scala.util.{Failure, Success}
 trait JobTemplateRepository extends Repository {
   def insertJobTemplate(jobTemplate: JobTemplate)(implicit ec: ExecutionContext): Future[Either[ApiError, Long]]
   def getJobTemplatesByIds(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[JobTemplate]]
-  def getJobTemplateIdByName(name: String)(implicit ec: ExecutionContext): Future[Option[Long]]
+  def getJobTemplates()(implicit ec: ExecutionContext): Future[Seq[JobTemplate]]
 }
 
 @stereotype.Repository
@@ -53,17 +53,7 @@ class JobTemplateRepositoryImpl extends JobTemplateRepository {
     )
   }
 
-  override def getJobTemplateIdByName(name: String)(implicit ec: ExecutionContext): Future[Option[Long]] =
-    db.run(jobTemplateTable
-      .filter(_.name === name)
-      .map(_.id)
-      .take(1)
-      .result
-      .asTry.map {
-        case Success(value) => value.headOption
-        case Failure(ex) =>
-          logger.error(s"Unexpected error occurred for getJobTemplateIdByName. name:$name", ex)
-          throw ex
-      }
-    )
+  override def getJobTemplates()(implicit ec: ExecutionContext): Future[Seq[JobTemplate]] = db.run(
+    jobTemplateTable.result
+  )
 }

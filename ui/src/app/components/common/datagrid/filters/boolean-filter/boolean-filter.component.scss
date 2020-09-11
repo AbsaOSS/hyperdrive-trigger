@@ -1,4 +1,4 @@
-/*
+/*!
  * Copyright 2018 ABSA Group Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,19 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+ 
+.boolean-selectable {
+  cursor: pointer;
+  opacity: 0.3;
 
-package za.co.absa.hyperdrive.trigger.models.enums
-
-object SensorTypes {
-
-  sealed abstract class SensorType(val name: String) {
-    override def toString: String = name
+  &:hover,
+  &.boolean-selected {
+    opacity: 1;
   }
-
-  case object Kafka extends SensorType("Kafka")
-  case object AbsaKafka extends SensorType("Absa-Kafka")
-  case object Time extends SensorType("Time")
-  case object Recurring extends SensorType("Recurring")
-
-  val sensorTypes: Set[SensorType] = Set(Kafka, AbsaKafka, Time, Recurring)
 }

@@ -13,18 +13,8 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models.enums
+import { FilterAttributes } from './filterAttributes.model';
 
-object SensorTypes {
-
-  sealed abstract class SensorType(val name: String) {
-    override def toString: String = name
-  }
-
-  case object Kafka extends SensorType("Kafka")
-  case object AbsaKafka extends SensorType("Absa-Kafka")
-  case object Time extends SensorType("Time")
-  case object Recurring extends SensorType("Recurring")
-
-  val sensorTypes: Set[SensorType] = Set(Kafka, AbsaKafka, Time, Recurring)
+export class BooleanFilterAttributes implements FilterAttributes {
+  constructor(public field: string, public value: { isTrue: boolean; isFalse: boolean }) {}
 }

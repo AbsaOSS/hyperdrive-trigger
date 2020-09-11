@@ -143,7 +143,8 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
     if (this.filters) {
       filter = this.filters.find((filter) => filter.field == name);
     }
-    return filter ? filter.value : undefined;
+
+    return filter && filter.value ? filter.value : undefined;
   }
 
   getSort(name: string): any | undefined {

@@ -13,18 +13,14 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models.enums
+export type JobTemplateModel = {
+  id: number;
+  name: string;
+  formConfig: string;
+};
 
-object SensorTypes {
-
-  sealed abstract class SensorType(val name: String) {
-    override def toString: String = name
+export class JobTemplateModelFactory {
+  static create(id: number, name: string, formConfig: string): JobTemplateModel {
+    return { id: id, name: name, formConfig: formConfig };
   }
-
-  case object Kafka extends SensorType("Kafka")
-  case object AbsaKafka extends SensorType("Absa-Kafka")
-  case object Time extends SensorType("Time")
-  case object Recurring extends SensorType("Recurring")
-
-  val sensorTypes: Set[SensorType] = Set(Kafka, AbsaKafka, Time, Recurring)
 }
