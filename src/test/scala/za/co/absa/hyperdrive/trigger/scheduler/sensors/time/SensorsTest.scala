@@ -27,7 +27,7 @@ import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
 import za.co.absa.hyperdrive.trigger.TestUtils.await
 import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes
-import za.co.absa.hyperdrive.trigger.persistance.SensorRepository
+import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, SensorRepository}
 import za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.Sensors
 
@@ -38,6 +38,7 @@ class SensorsTest extends FlatSpec with MockitoSugar with Matchers with BeforeAn
     ExecutionContext.fromExecutor(concurrent.Executors.newSingleThreadExecutor())
   private val sensorRepository = mock[SensorRepository]
   private val eventProcessor = mock[EventProcessor]
+  private val dagInstanceRepository = mock[DagInstanceRepository]
 
   before {
     reset(sensorRepository)
@@ -54,7 +55,7 @@ class SensorsTest extends FlatSpec with MockitoSugar with Matchers with BeforeAn
     when(sensorRepository.getInactiveSensors(any())(any[ExecutionContext])).thenReturn(Future{Seq.empty})
     when(sensorRepository.getNewActiveSensors(any())(any[ExecutionContext])).thenReturn(Future{Seq(timeSensor)})
 
-    val underTest = new Sensors(eventProcessor, sensorRepository)
+    val underTest = new Sensors(eventProcessor, sensorRepository, dagInstanceRepository)
 
     // when
     underTest.prepareSensors()
@@ -84,7 +85,7 @@ class SensorsTest extends FlatSpec with MockitoSugar with Matchers with BeforeAn
       Future {Seq(timeSensor, timeSensor2)},
       Future {Seq.empty}
     )
-    val underTest = new Sensors(eventProcessor, sensorRepository)
+    val underTest = new Sensors(eventProcessor, sensorRepository, dagInstanceRepository)
 
     // when, then
     underTest.prepareSensors()
@@ -124,7 +125,7 @@ class SensorsTest extends FlatSpec with MockitoSugar with Matchers with BeforeAn
       Future {Seq(timeSensor3)},
       Future {Seq(timeSensor)}
     )
-    val underTest = new Sensors(eventProcessor, sensorRepository)
+    val underTest = new Sensors(eventProcessor, sensorRepository, dagInstanceRepository)
 
     // when, then
     underTest.prepareSensors()
@@ -165,7 +166,7 @@ class SensorsTest extends FlatSpec with MockitoSugar with Matchers with BeforeAn
       Future {Seq(timeSensor, timeSensor2)},
       Future {Seq(timeSensor)}
     )
-    val underTest = new Sensors(eventProcessor, sensorRepository)
+    val underTest = new Sensors(eventProcessor, sensorRepository, dagInstanceRepository)
 
     // when, then
     underTest.prepareSensors()

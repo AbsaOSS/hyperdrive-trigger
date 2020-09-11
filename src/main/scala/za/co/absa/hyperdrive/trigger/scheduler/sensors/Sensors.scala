@@ -21,9 +21,10 @@ import javax.inject.Inject
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes
-import za.co.absa.hyperdrive.trigger.persistance.SensorRepository
+import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, SensorRepository}
 import za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.kafka.KafkaSensor
+import za.co.absa.hyperdrive.trigger.scheduler.sensors.recurring.RecurringSensor
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.time.{TimeSensor, TimeSensorQuartzSchedulerManager}
 import za.co.absa.hyperdrive.trigger.scheduler.utilities.SensorsConfig
 
@@ -32,7 +33,7 @@ import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success, Try}
 
 @Component
-class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: SensorRepository) {
+class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: SensorRepository, dagInstanceRepository: DagInstanceRepository) {
   private val logger = LoggerFactory.getLogger(this.getClass)
 
   private implicit val executionContext: ExecutionContextExecutor =
@@ -111,6 +112,11 @@ class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: Sensor
       Try(TimeSensor(eventProcessor.eventProcessor(s"Sensor - ${sensor.sensorType.name}"), sensor, executionContext)) match {
         case Success(s) => sensors.put(sensor.id, s)
         case Failure(f) => logger.error(s"Couldn't create Time sensor for sensor (#${sensor.id}).", f)
+      }
+    case sensor if sensor.sensorType == SensorTypes.Recurring =>
+      Try(new RecurringSensor(eventProcessor.eventProcessor(s"Sensor - ${sensor.sensorType.name}"), sensor, executionContext, dagInstanceRepository)) match {
+        case Success(s) => sensors.put(sensor.id, s)
+        case Failure(f) => logger.error(s"Couldn't create Recurring sensor for sensor (#${sensor.id}).", f)
       }
     case _ =>
   }

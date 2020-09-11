@@ -70,7 +70,7 @@ class TimeSensorIntegrationTest extends FlatSpec with Matchers with BeforeAndAft
 
   it should "persist an event when the time sensor is fired" in {
     val processor = new EventProcessor(eventRepository, dagDefinitionRepository, dagInstanceRepository, jobTemplateService)
-    val sensors = new Sensors(processor, sensorRepository)
+    val sensors = new Sensors(processor, sensorRepository, dagInstanceRepository)
     val cronExpression = "0/3 * * * * ?"
 
     val sparkTemplate = JobTemplateFixture.GenericSparkJobTemplate
