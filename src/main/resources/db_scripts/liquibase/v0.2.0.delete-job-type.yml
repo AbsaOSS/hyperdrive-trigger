@@ -16,6 +16,7 @@
 databaseChangeLog:
   - changeSet:
       id: v0.2.0.delete-job-type
+      logicalFilePath: v0.2.0.delete-job-type
       author: kevin.wallimann@absa.africa
       context: default
       changes:

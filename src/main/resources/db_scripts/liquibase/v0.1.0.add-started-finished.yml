@@ -16,6 +16,7 @@
 databaseChangeLog:
   - changeSet:
       id: v0.1.0.add-started-finished
+      logicalFilePath: v0.1.0.add-started-finished
       author: kevin.wallimann@absa.africa
       context: default
       changes:

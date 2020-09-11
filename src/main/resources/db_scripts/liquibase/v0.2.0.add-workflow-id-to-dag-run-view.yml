@@ -16,6 +16,7 @@
 databaseChangeLog:
   - changeSet:
       id: v0.2.0.add-workflow-id-to-dag-run-view
+      logicalFilePath: v0.2.0.add-workflow-id-to-dag-run-view
       author: kevin.wallimann@absa.africa
       context: default
       changes:
