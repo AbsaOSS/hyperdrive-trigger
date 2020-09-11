@@ -19,7 +19,9 @@ import { Subscription } from 'rxjs';
 import * as AuthActions from './stores/auth/auth.actions';
 import * as fromApp from './stores/app.reducers';
 import { absoluteRoutes } from './constants/routes.constants';
-import { selectAuthState } from './stores/app.reducers';
+import { selectAuthState, selectApplicationState } from './stores/app.reducers';
+import { AppInfoModel } from './models/appInfo.model';
+import { LoadAppInfo } from './stores/application/application.actions';
 
 @Component({
   selector: 'app-root',
@@ -29,12 +31,21 @@ import { selectAuthState } from './stores/app.reducers';
 export class AppComponent implements OnInit, OnDestroy {
   routes = absoluteRoutes;
   authStateSubscription: Subscription;
+  applicationStateSubscription: Subscription;
+  loading: boolean;
   isAuthenticated: boolean;
   username: string;
+  appInfo: AppInfoModel;
 
-  constructor(private store: Store<fromApp.AppState>) {}
+  constructor(private store: Store<fromApp.AppState>) {
+    this.store.dispatch(new LoadAppInfo());
+  }
 
   ngOnInit(): void {
+    this.applicationStateSubscription = this.store.select(selectApplicationState).subscribe((state) => {
+      this.loading = state.loading;
+      this.appInfo = state.appInfo;
+    });
     this.authStateSubscription = this.store.select(selectAuthState).subscribe((state) => {
       this.isAuthenticated = state.isAuthenticated;
       this.username = state.username;
@@ -43,6 +54,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     !!this.authStateSubscription && this.authStateSubscription.unsubscribe();
+    !!this.applicationStateSubscription && this.applicationStateSubscription.unsubscribe();
   }
 
   onLogOut() {

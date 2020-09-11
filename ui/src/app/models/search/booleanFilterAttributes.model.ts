@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright 2018 ABSA Group Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-.loading {
-  position: fixed;
-  top: 50%;
-  right: 50%;
+import { FilterAttributes } from './filterAttributes.model';
+
+export class BooleanFilterAttributes implements FilterAttributes {
+  constructor(public field: string, public value: { isTrue: boolean; isFalse: boolean }) {}
 }

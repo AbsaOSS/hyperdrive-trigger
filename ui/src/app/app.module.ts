@@ -34,6 +34,7 @@ import { AuthService } from './services/auth/auth.service';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { AuthEffects } from './stores/auth/auth.effects';
+import { ApplicationEffects } from './stores/application/application.effects';
 import { CsrfInterceptor } from './services/interceptors/csrf.interceptor';
 import { UnauthorizedInterceptor } from './services/interceptors/unauthorized.interceptor';
 import { AuthGuardService } from './services/guards/authGuard.service';
@@ -68,6 +69,7 @@ import { WorkflowComparisonComponent } from './components/workflows/workflow-his
 import { WorkflowFormComponent } from './components/workflows/workflow-form/workflow-form.component';
 import { HistoryDetailComponent } from './components/workflows/workflow-history/workflow-comparison/history-detail/history-detail.component';
 import { WorkflowRunComponent } from './components/workflows/workflow-run/workflow-run.component';
+import { BooleanFilterComponent } from './components/common/datagrid/filters/boolean-filter/boolean-filter.component';
 import { WelcomeComponent } from './components/auth/welcome/welcome.component';
 import { LoginDialogComponent } from './components/auth/login-dialog/login-dialog.component';
 
@@ -103,6 +105,7 @@ import { LoginDialogComponent } from './components/auth/login-dialog/login-dialo
     WorkflowFormComponent,
     HistoryDetailComponent,
     WorkflowRunComponent,
+    BooleanFilterComponent,
     WelcomeComponent,
     LoginDialogComponent,
   ],
@@ -117,7 +120,7 @@ import { LoginDialogComponent } from './components/auth/login-dialog/login-dialo
       timeOut: 5000,
     }),
     StoreModule.forRoot(reducers),
-    EffectsModule.forRoot([AuthEffects, RunsEffects, WorkflowsEffects]),
+    EffectsModule.forRoot([ApplicationEffects, AuthEffects, RunsEffects, WorkflowsEffects]),
     StoreRouterConnectingModule.forRoot(),
     !environment.production ? StoreDevtoolsModule.instrument() : [],
   ],

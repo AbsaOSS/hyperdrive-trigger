@@ -14,6 +14,7 @@
  */
 
 export const api = {
+  APP_INFO: '/app/info',
   USER_INFO: '/user/info',
   LOGIN: '/login',
   LOGOUT: '/logout',
@@ -34,7 +35,7 @@ export const api = {
   GET_WORKFLOWS_FROM_HISTORY: '/workflowsFromHistory',
   GET_JOBS_FOR_RUN: '/jobsForRun',
 
-  GET_JOB_TEMPLATE_ID: '/jobTemplateId',
+  GET_JOB_TEMPLATES: '/jobTemplates',
 
   GET_QUARTZ_DETAIL: '/util/quartzDetail',
 };

@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright 2018 ABSA Group Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-.loading {
-  position: fixed;
-  top: 50%;
-  right: 50%;
-}
+alter table "job_template"
+add "form_config" VARCHAR NOT NULL DEFAULT 'unknown';
+
+update "job_template" set "form_config" = 'Spark' where "job_type" = 'Spark';
+update "job_template" set "form_config" = 'Shell' where "job_type" = 'Shell';

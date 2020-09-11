@@ -12,9 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+ 
+.boolean-selectable {
+  cursor: pointer;
+  opacity: 0.3;
 
-.loading {
-  position: fixed;
-  top: 50%;
-  right: 50%;
+  &:hover,
+  &.boolean-selected {
+    opacity: 1;
+  }
 }

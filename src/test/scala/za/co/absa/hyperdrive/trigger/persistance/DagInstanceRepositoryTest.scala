@@ -76,4 +76,16 @@ class DagInstanceRepositoryTest extends FlatSpec with Matchers with BeforeAndAft
     result.size shouldBe 1
   }
 
+  "dagInstanceRepository.hasRunningDagInstance" should "return true when workflow with running instance exists" in {
+    createTestData()
+    val result = await(dagInstanceRepository.hasRunningDagInstance(TestData.w1.id))
+    result shouldBe true
+  }
+
+  "dagInstanceRepository.hasRunningDagInstance" should "return false when workflow with running instance does not exist" in {
+    createTestData()
+    val result = await(dagInstanceRepository.hasRunningDagInstance(TestData.w3.id))
+    result shouldBe false
+  }
+
 }

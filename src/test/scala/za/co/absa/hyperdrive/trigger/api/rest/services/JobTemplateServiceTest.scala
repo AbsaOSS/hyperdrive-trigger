@@ -54,14 +54,15 @@ class JobTemplateServiceTest extends AsyncFlatSpec with Matchers with MockitoSug
     jobInstances(1).jobType shouldBe JobTypes.Shell
   }
 
-  "getJobTemplateId" should "get the job template id" in {
+  "getJobTemplates" should "return all job templates" in {
     // given
-    when(jobTemplateRepository.getJobTemplateIdByName(eqTo("some-template"))(any[ExecutionContext])).thenReturn(Future{Some(42L)})
+    val jobTemplates = Seq(GenericShellJobTemplate, GenericSparkJobTemplate)
+    when(jobTemplateRepository.getJobTemplates()).thenReturn(Future{jobTemplates})
 
     // when
-    val result = await(underTest.getJobTemplateId("some-template"))
+    val result = await(underTest.getJobTemplates())
 
     // then
-    result.get shouldBe 42L
+    result should contain theSameElementsAs(jobTemplates)
   }
 }
