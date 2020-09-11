@@ -19,6 +19,7 @@ package za.co.absa.hyperdrive.trigger.configuration.liquibase
 import liquibase.integration.spring.SpringLiquibase
 import liquibase.{Contexts, LabelExpression, Liquibase}
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Configuration
@@ -28,6 +29,8 @@ import za.co.absa.hyperdrive.trigger.persistance.Repository
 @EnableConfigurationProperties(Array(classOf[LiquibaseProperties] ) )
 class LiquibaseConfiguration(properties: LiquibaseProperties) extends SpringLiquibase with Repository {
   private val logger = LoggerFactory.getLogger(this.getClass)
+  @Value("${db.ignore.outdated.schema}")
+  val ignoreOutdatedSchema: Boolean = false
 
   override def afterPropertiesSet(): Unit = {
     applyProperties(properties)
@@ -50,7 +53,12 @@ class LiquibaseConfiguration(properties: LiquibaseProperties) extends SpringLiqu
   private def validateAllMigrationsApplied(liquibase: Liquibase): Unit = {
     val unrunChangeSets = liquibase.listUnrunChangeSets(new Contexts(contexts), new LabelExpression(labels))
     if (!unrunChangeSets.isEmpty) {
-      throw new IllegalStateException(s"Not all database changesets have been applied. Unrun changesets: $unrunChangeSets")
+      val message = s"Not all database changesets have been applied. Unrun changesets: $unrunChangeSets"
+      if (ignoreOutdatedSchema) {
+        logger.warn(message)
+      } else {
+        throw new IllegalStateException(message)
+      }
     } else {
       logger.debug("Database schema is up-to-date")
     }
