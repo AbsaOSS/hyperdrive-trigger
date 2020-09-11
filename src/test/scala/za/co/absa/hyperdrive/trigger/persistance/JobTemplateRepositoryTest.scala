@@ -42,16 +42,9 @@ class JobTemplateRepositoryTest extends FlatSpec with Matchers with BeforeAndAft
     result.head.id shouldBe 100
   }
 
-  "getJobTemplateIdByName" should "return the job template id" in {
+  "getJobTemplates" should "return all job templates" in {
     insertJobTemplates()
-    val result = await(jobTemplateRepository.getJobTemplateIdByName("jobTemplate1"))
-    result.get shouldBe 100
+    val result = await(jobTemplateRepository.getJobTemplates())
+    result should contain theSameElementsAs TestData.jobTemplates
   }
-
-  "getJobTemplateIdByName" should "return None if the job template name doesn't exist" in {
-    insertJobTemplates()
-    val result = await(jobTemplateRepository.getJobTemplateIdByName("non-existent"))
-    result shouldBe None
-  }
-
 }

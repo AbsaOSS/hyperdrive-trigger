@@ -21,5 +21,6 @@ case class JobTemplate(
   name: String,
   jobType: JobType,
   jobParameters: JobParameters,
-  id: Long = 0
+  id: Long = 0,
+  formConfig: String
 )
