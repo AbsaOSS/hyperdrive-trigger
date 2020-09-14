@@ -19,7 +19,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.2.0</version>
     <groupId>za.co.absa</groupId>
     <artifactId>hyperdrive-trigger</artifactId>
     <packaging>jar</packaging>
@@ -43,6 +43,7 @@
         <connection>scm:git:git://github.com/AbsaOSS/hyperdrive-trigger.git</connection>
         <developerConnection>scm:git:ssh://github.com:AbsaOSS/hyperdrive-trigger.git</developerConnection>
         <url>https://github.com/AbsaOSS/hyperdrive-trigger/tree/master</url>
+        <tag>v0.2.0</tag>
     </scm>
 
     <licenses>
