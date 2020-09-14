@@ -38,3 +38,6 @@ databaseChangeLog:
   - include:
       relativeToChangelogFile: true
       file: v0.2.0.add-triggered-by.yml
+  - include:
+      relativeToChangelogFile: true
+      file: v0.2.0.add-form-config.yml
