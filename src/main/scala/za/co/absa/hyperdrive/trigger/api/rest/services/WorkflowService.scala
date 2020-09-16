@@ -188,7 +188,7 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
     val oldIdNameMap = workflowImport.jobTemplates.map(jobTemplate => jobTemplate.id -> jobTemplate.name).toMap
     jobTemplateService.getJobTemplateIdsByNames(jobTemplatesNames).flatMap(
       newNameIdMap => {
-        val missingTemplates = jobTemplatesNames.toSet.intersect(newNameIdMap.keySet)
+        val missingTemplates = jobTemplatesNames.toSet.diff(newNameIdMap.keySet)
         if (missingTemplates.nonEmpty) {
           Future{Left(Seq(ImportError(s"The following Job Templates don't exist yet and have to be created before importing" +
             s" this workflow: ${missingTemplates}")))}
