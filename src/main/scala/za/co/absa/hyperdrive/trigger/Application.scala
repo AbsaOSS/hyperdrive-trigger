@@ -22,7 +22,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.context.annotation.{Bean, ComponentScan, Configuration}
+import org.springframework.context.annotation.{Bean, Configuration}
 import org.springframework.scheduling.annotation.EnableAsync
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.JobStatus
@@ -44,23 +44,12 @@ class Application() {
   }
 
   @Bean
-  def objectMapper(): ObjectMapper = {
-    val module = new SimpleModule()
-      .addDeserializer(classOf[SensorType], new SensorTypesDeserializer)
-      .addDeserializer(classOf[JobStatus], new JobStatusesDeserializer)
-      .addDeserializer(classOf[JobType], new JobTypesDeserializer)
+  def objectMapper(): ObjectMapper = ObjectMapperSingleton.getObjectMapper
 
-    new ObjectMapper()
-      .registerModule(DefaultScalaModule)
-      .registerModule(new JavaTimeModule())
-      .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-      .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-      .configure(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES, false)
-      .configure(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES, true)
-      .registerModule(module)
-  }
+}
 
-  class SensorTypesDeserializer extends JsonDeserializer[SensorType] {
+object ObjectMapperSingleton {
+  private class SensorTypesDeserializer extends JsonDeserializer[SensorType] {
     override def deserialize(p: JsonParser, ctxt: DeserializationContext): SensorType = {
       val node = p.getCodec.readTree[JsonNode](p)
       val value = node.get("name").textValue()
@@ -68,7 +57,7 @@ class Application() {
     }
   }
 
-  class JobStatusesDeserializer extends JsonDeserializer[JobStatus] {
+  private class JobStatusesDeserializer extends JsonDeserializer[JobStatus] {
     override def deserialize(p: JsonParser, ctxt: DeserializationContext): JobStatus = {
       val node = p.getCodec.readTree[JsonNode](p)
       val value = node.get("name").textValue()
@@ -76,7 +65,7 @@ class Application() {
     }
   }
 
-  class JobTypesDeserializer extends JsonDeserializer[JobType] {
+  private class JobTypesDeserializer extends JsonDeserializer[JobType] {
     override def deserialize(p: JsonParser, ctxt: DeserializationContext): JobType = {
       val node = p.getCodec.readTree[JsonNode](p)
       val value = node.get("name").textValue()
@@ -84,4 +73,19 @@ class Application() {
     }
   }
 
+  private val module = new SimpleModule()
+    .addDeserializer(classOf[SensorType], new SensorTypesDeserializer)
+    .addDeserializer(classOf[JobStatus], new JobStatusesDeserializer)
+    .addDeserializer(classOf[JobType], new JobTypesDeserializer)
+
+  private val objectMapper = new ObjectMapper()
+    .registerModule(DefaultScalaModule)
+    .registerModule(new JavaTimeModule())
+    .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+    .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+    .configure(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES, false)
+    .configure(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES, true)
+    .registerModule(module)
+
+  def getObjectMapper: ObjectMapper = objectMapper
 }

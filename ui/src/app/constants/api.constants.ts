@@ -14,6 +14,7 @@
  */
 
 export const api = {
+  APP_INFO: '/app/info',
   USER_INFO: '/user/info',
   LOGIN: '/login',
   LOGOUT: '/logout',
@@ -24,10 +25,17 @@ export const api = {
   GET_PROJECTS: '/workflows/projects',
   GET_WORKFLOW: '/workflow',
   DELETE_WORKFLOW: '/workflows',
+  EXPORT_WORKFLOW: '/workflow/export',
+  IMPORT_WORKFLOW: '/workflow/import',
   SWITCH_WORKFLOW_ACTIVE_STATE: '/workflows/{id}/switchActiveState',
-  RUN_WORKFLOW: '/workflow/run',
+  RUN_WORKFLOWS_JOBS: '/workflow/jobs/run',
   CREATE_WORKFLOW: '/workflow',
   UPDATE_WORKFLOW: '/workflows',
+  GET_HISTORY_FOR_WORKFLOW: '/workflowHistory',
+  GET_WORKFLOWS_FROM_HISTORY: '/workflowsFromHistory',
+  GET_JOBS_FOR_RUN: '/jobsForRun',
+
+  GET_JOB_TEMPLATES: '/jobTemplates',
 
   GET_QUARTZ_DETAIL: '/util/quartzDetail',
 };

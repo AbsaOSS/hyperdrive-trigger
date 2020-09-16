@@ -18,11 +18,13 @@ package za.co.absa.hyperdrive.trigger.models.dagRuns
 import java.time.LocalDateTime
 
 case class DagRun(
+  workflowId: Long,
   workflowName: String,
   projectName: String,
   jobCount: Int,
   started: LocalDateTime,
   finished: Option[LocalDateTime],
   status: String,
+  triggeredBy: String,
   id: Long = 0
 )

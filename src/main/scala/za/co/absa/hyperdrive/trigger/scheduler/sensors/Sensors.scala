@@ -21,9 +21,10 @@ import javax.inject.Inject
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes
-import za.co.absa.hyperdrive.trigger.persistance.SensorRepository
+import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, SensorRepository}
 import za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.kafka.KafkaSensor
+import za.co.absa.hyperdrive.trigger.scheduler.sensors.recurring.RecurringSensor
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.time.{TimeSensor, TimeSensorQuartzSchedulerManager}
 import za.co.absa.hyperdrive.trigger.scheduler.utilities.SensorsConfig
 
@@ -32,7 +33,7 @@ import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success, Try}
 
 @Component
-class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: SensorRepository) {
+class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: SensorRepository, dagInstanceRepository: DagInstanceRepository) {
   private val logger = LoggerFactory.getLogger(this.getClass)
 
   private implicit val executionContext: ExecutionContextExecutor =
@@ -44,6 +45,7 @@ class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: Sensor
     logger.debug(s"Processing events. Sensors: ${sensors.keys}")
     val fut = for {
       _ <- removeInactiveSensors()
+      _ <- updateChangedSensors()
       _ <- addNewSensors()
       _ <- pollEvents()
     } yield {
@@ -71,35 +73,52 @@ class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: Sensor
     TimeSensorQuartzSchedulerManager.stop()
   }
 
+  private def updateChangedSensors(): Future[Unit] = {
+    sensorRepository.getChangedSensors(sensors.values.map(_.sensorDefinition).toSeq).map(
+      _.foreach { sensor =>
+        stopSensor(sensor.id)
+        startSensor(sensor)
+      }
+    )
+  }
+
   private def removeInactiveSensors(): Future[Unit] = {
     val activeSensors = sensors.keys.toSeq
     sensorRepository.getInactiveSensors(activeSensors).map(
-      _.foreach{
-        id =>
-          sensors.get(id).foreach(_.close())
-          sensors.remove(id)
-      }
+      _.foreach(id => stopSensor(id))
     )
+  }
+
+  private def stopSensor(id: Long) = {
+    sensors.get(id).foreach(_.close())
+    sensors.remove(id)
   }
 
   private def addNewSensors(): Future[Unit] = {
     val activeSensors = sensors.keys.toSeq
     sensorRepository.getNewActiveSensors(activeSensors).map {
-      _.foreach {
-        case sensor if sensor.sensorType == SensorTypes.Kafka || sensor.sensorType == SensorTypes.AbsaKafka =>
-
-          Try(new KafkaSensor(eventProcessor.eventProcessor, sensor.properties, executionContext)) match {
-            case Success(s) => sensors.put(sensor.id, s)
-            case Failure(f) => logger.error(s"Couldn't create Kafka sensor for sensor (#${sensor.id}).", f)
-          }
-        case sensor if sensor.sensorType == SensorTypes.Time =>
-          Try(TimeSensor(eventProcessor.eventProcessor, sensor.properties, executionContext)) match {
-            case Success(s) => sensors.put(sensor.id, s)
-            case Failure(f) => logger.error(s"Couldn't create Time sensor for sensor (#${sensor.id}).", f)
-          }
-        case _ => None
-      }
+      _.foreach(sensor => startSensor(sensor))
     }
+  }
+
+  private def startSensor(sensor: za.co.absa.hyperdrive.trigger.models.Sensor) = sensor match {
+    case sensor if sensor.sensorType == SensorTypes.Kafka || sensor.sensorType == SensorTypes.AbsaKafka =>
+
+      Try(new KafkaSensor(eventProcessor.eventProcessor(s"Sensor - ${sensor.sensorType.name}"), sensor, executionContext)) match {
+        case Success(s) => sensors.put(sensor.id, s)
+        case Failure(f) => logger.error(s"Couldn't create Kafka sensor for sensor (#${sensor.id}).", f)
+      }
+    case sensor if sensor.sensorType == SensorTypes.Time =>
+      Try(TimeSensor(eventProcessor.eventProcessor(s"Sensor - ${sensor.sensorType.name}"), sensor, executionContext)) match {
+        case Success(s) => sensors.put(sensor.id, s)
+        case Failure(f) => logger.error(s"Couldn't create Time sensor for sensor (#${sensor.id}).", f)
+      }
+    case sensor if sensor.sensorType == SensorTypes.Recurring =>
+      Try(new RecurringSensor(eventProcessor.eventProcessor(s"Sensor - ${sensor.sensorType.name}"), sensor, executionContext, dagInstanceRepository)) match {
+        case Success(s) => sensors.put(sensor.id, s)
+        case Failure(f) => logger.error(s"Couldn't create Recurring sensor for sensor (#${sensor.id}).", f)
+      }
+    case _ =>
   }
 
   private def pollEvents(): Future[Seq[Unit]] = {

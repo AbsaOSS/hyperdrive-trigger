@@ -17,16 +17,24 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { WorkflowsHomeComponent } from './workflows-home.component';
 import { provideMockStore } from '@ngrx/store/testing';
-import { ProjectModel, ProjectModelFactory } from '../../../models/project.model';
-import { WorkflowModel, WorkflowModelFactory } from '../../../models/workflow.model';
+import { ProjectModelFactory } from '../../../models/project.model';
+import { WorkflowModelFactory } from '../../../models/workflow.model';
 import { ConfirmationDialogService } from '../../../services/confirmation-dialog/confirmation-dialog.service';
 import { Store } from '@ngrx/store';
 import { AppState } from '../../../stores/app.reducers';
 import { Subject } from 'rxjs';
-import { DeleteWorkflow, RunWorkflow, SwitchWorkflowActiveState } from '../../../stores/workflows/workflows.actions';
 import { RouterTestingModule } from '@angular/router/testing';
 import { Router } from '@angular/router';
 import { absoluteRoutes } from '../../../constants/routes.constants';
+import { ClrDatagridStateInterface } from '@clr/angular';
+import {
+  DeleteWorkflow,
+  SwitchWorkflowActiveState,
+  SetWorkflowsSort,
+  LoadJobsForRun,
+  ExportWorkflow,
+  SetWorkflowFile,
+} from '../../../stores/workflows/workflows.actions';
 
 describe('WorkflowsHomeComponent', () => {
   let fixture: ComponentFixture<WorkflowsHomeComponent>;
@@ -46,6 +54,8 @@ describe('WorkflowsHomeComponent', () => {
         ]),
       ],
     },
+    workflowsSort: undefined,
+    workflowsFilters: undefined,
   };
 
   beforeEach(async(() => {
@@ -72,6 +82,96 @@ describe('WorkflowsHomeComponent', () => {
     fixture.detectChanges();
     fixture.whenStable().then(() => {
       expect(underTest.workflows).toEqual([].concat(...initialAppState.workflows.projects.map((project) => project.workflows)));
+      expect(underTest.sort).toEqual(initialAppState.workflowsSort);
+      expect(underTest.filters).toBeUndefined();
+    });
+  }));
+
+  it('exportWorkflow() should dispatch workflow export', async(() => {
+    const id = 42;
+    const storeSpy = spyOn(store, 'dispatch');
+
+    underTest.exportWorkflow(id);
+
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(storeSpy).toHaveBeenCalledWith(new ExportWorkflow(id));
+    });
+  }));
+
+  it('importWorkflow() should set is workflow import variable to true', async(() => {
+    expect(underTest.isWorkflowImportOpen).toBeFalsy();
+    underTest.importWorkflow();
+
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(underTest.isWorkflowImportOpen).toBeTruthy();
+    });
+  }));
+
+  it('setWorkflowFile() should set workflow file', async(() => {
+    const dataTransfer = new DataTransfer();
+    const file: File = new File(['content'], 'filename.jpg');
+    dataTransfer.items.add(file);
+    const fileList: FileList = dataTransfer.files;
+
+    expect(underTest.workflowFile).toBeUndefined();
+    underTest.setWorkflowFile(fileList);
+
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(underTest.workflowFile).toBeDefined();
+    });
+  }));
+
+  it('closeWorkflowImport() should close modal and remove workflow file when is submitted is false', async(() => {
+    const isSubmitted = false;
+    const file: File = new File(['content'], 'filename.jpg');
+    const storeSpy = spyOn(store, 'dispatch');
+
+    underTest.isWorkflowImportOpen = true;
+    underTest.workflowFile = file;
+
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(underTest.workflowFile).toBeDefined();
+      expect(underTest.isWorkflowImportOpen).toBeTruthy();
+
+      underTest.closeWorkflowImport(isSubmitted);
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(underTest.workflowFile).toBeUndefined();
+        expect(underTest.isWorkflowImportOpen).toBeFalsy();
+        expect(storeSpy).toHaveBeenCalledTimes(0);
+      });
+    });
+  }));
+
+  it('closeWorkflowImport() should close modal, remove workflow file and dispatch and navigate to import when is submitted is true', async(() => {
+    const isSubmitted = true;
+    const file: File = new File(['content'], 'filename.jpg');
+    const storeSpy = spyOn(store, 'dispatch');
+    const routerSpy = spyOn(router, 'navigate');
+
+    underTest.isWorkflowImportOpen = true;
+    underTest.workflowFile = file;
+
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(underTest.workflowFile).toBeDefined();
+      expect(underTest.isWorkflowImportOpen).toBeTruthy();
+
+      underTest.closeWorkflowImport(isSubmitted);
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(underTest.workflowFile).toBeUndefined();
+        expect(underTest.isWorkflowImportOpen).toBeFalsy();
+
+        expect(routerSpy).toHaveBeenCalledTimes(1);
+        expect(routerSpy).toHaveBeenCalledWith([absoluteRoutes.IMPORT_WORKFLOW]);
+        expect(storeSpy).toHaveBeenCalled();
+        expect(storeSpy).toHaveBeenCalledWith(new SetWorkflowFile(file));
+      });
     });
   }));
 
@@ -86,6 +186,7 @@ describe('WorkflowsHomeComponent', () => {
     subject.next(true);
 
     fixture.detectChanges();
+    expect(underTest.ignoreRefresh).toBeTrue();
     fixture.whenStable().then(() => {
       expect(storeSpy).toHaveBeenCalled();
       expect(storeSpy).toHaveBeenCalledWith(new DeleteWorkflow(id));
@@ -103,6 +204,7 @@ describe('WorkflowsHomeComponent', () => {
     subject.next(false);
 
     fixture.detectChanges();
+    expect(underTest.ignoreRefresh).toBeTrue();
     fixture.whenStable().then(() => {
       expect(storeSpy).toHaveBeenCalledTimes(0);
     });
@@ -120,6 +222,7 @@ describe('WorkflowsHomeComponent', () => {
     subject.next(true);
 
     fixture.detectChanges();
+    expect(underTest.ignoreRefresh).toBeTrue();
     fixture.whenStable().then(() => {
       expect(storeSpy).toHaveBeenCalled();
       expect(storeSpy).toHaveBeenCalledWith(new SwitchWorkflowActiveState({ id: id, currentActiveState: currentActiveState }));
@@ -138,42 +241,21 @@ describe('WorkflowsHomeComponent', () => {
     subject.next(false);
 
     fixture.detectChanges();
+    expect(underTest.ignoreRefresh).toBeFalse();
     fixture.whenStable().then(() => {
       expect(storeSpy).toHaveBeenCalledTimes(0);
     });
   }));
 
-  it('runWorkflow() should dispatch switch run workflow', async(() => {
+  it('runWorkflow() should dispatch load jobs for run', async(() => {
     const id = 42;
-    const subject = new Subject<boolean>();
     const storeSpy = spyOn(store, 'dispatch');
 
-    spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
-
     underTest.runWorkflow(id);
-    underTest.ngOnInit();
-    subject.next(true);
 
     fixture.detectChanges();
     fixture.whenStable().then(() => {
-      expect(storeSpy).toHaveBeenCalled();
-      expect(storeSpy).toHaveBeenCalledWith(new RunWorkflow(id));
-    });
-  }));
-
-  it('runWorkflow() should not dispatch run workflow when dialog is not confirmed', async(() => {
-    const id = 42;
-    const subject = new Subject<boolean>();
-    const storeSpy = spyOn(store, 'dispatch');
-
-    spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
-
-    underTest.runWorkflow(id);
-    subject.next(false);
-
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(storeSpy).toHaveBeenCalledTimes(0);
+      expect(storeSpy).toHaveBeenCalledWith(new LoadJobsForRun(id));
     });
   }));
 
@@ -186,4 +268,42 @@ describe('WorkflowsHomeComponent', () => {
     expect(routerSpy).toHaveBeenCalledTimes(1);
     expect(routerSpy).toHaveBeenCalledWith([absoluteRoutes.SHOW_WORKFLOW, id]);
   }));
+
+  describe('onClarityDgRefresh', () => {
+    it('should dispatch SetWorkflowsSort when ignoreRefresh is false', async(() => {
+      underTest.ignoreRefresh = false;
+
+      const subject = new Subject<boolean>();
+      const storeSpy = spyOn(store, 'dispatch');
+      const state: ClrDatagridStateInterface = {};
+
+      underTest.onClarityDgRefresh(state);
+      subject.next(true);
+
+      fixture.detectChanges();
+      expect(underTest.ignoreRefresh).toBeFalse();
+      expect(underTest.sort).toBeUndefined();
+      expect(underTest.filters).toBeUndefined();
+
+      fixture.whenStable().then(() => {
+        expect(storeSpy).toHaveBeenCalled();
+        expect(storeSpy).toHaveBeenCalledWith(new SetWorkflowsSort(underTest.sort));
+      });
+    }));
+
+    it('onClarityDgRefresh() should not dispatch SetWorkflowsSort and SetWorkflowsFilters when ignoreRefresh is true', async(() => {
+      underTest.ignoreRefresh = true;
+
+      const subject = new Subject<boolean>();
+      const storeSpy = spyOn(store, 'dispatch');
+      const state: ClrDatagridStateInterface = {};
+
+      underTest.onClarityDgRefresh(state);
+      subject.next(true);
+
+      fixture.detectChanges();
+      expect(underTest.ignoreRefresh).toBeTrue();
+      expect(storeSpy).not.toHaveBeenCalled();
+    }));
+  });
 });

@@ -59,7 +59,7 @@ export class RunsEffects {
           return [
             {
               type: RunActions.GET_DAG_RUN_DETAIL_SUCCESS,
-              payload: jobInstance,
+              payload: jobInstance.sort((jobInstanceA, jobInstanceB) => jobInstanceA.order - jobInstanceB.order),
             },
           ];
         }),

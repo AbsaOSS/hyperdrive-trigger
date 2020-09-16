@@ -14,19 +14,22 @@
  */
 
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams, HttpResponse } from '@angular/common/http';
 import { api } from '../../constants/api.constants';
-import { catchError, map } from 'rxjs/operators';
+import { jobTemplateFormConfigs } from '../../constants/jobTemplates.constants';
+import { catchError, map, mergeMap } from 'rxjs/operators';
 import { ProjectModel } from '../../models/project.model';
-import { Observable, of, throwError } from 'rxjs';
+import { combineLatest, Observable, of, throwError } from 'rxjs';
 import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
 import {
+  DynamicFormPart,
   DynamicFormPartFactory,
   DynamicFormParts,
   DynamicFormPartsFactory,
   FormPartFactory,
   PartValidationFactory,
 } from '../../models/workflowFormParts.model';
+import { JobTemplateModel } from '../../models/jobTemplate.model';
 
 @Injectable({
   providedIn: 'root',
@@ -60,6 +63,42 @@ export class WorkflowService {
     return this.httpClient.post<boolean>(api.SWITCH_WORKFLOW_ACTIVE_STATE.replace('{id}', id.toString()), { observe: 'response' });
   }
 
+  exportWorkflow(id: number): Observable<{ blob: Blob; fileName: string }> {
+    const params = new HttpParams().set('id', id.toString());
+
+    return this.httpClient.get(api.EXPORT_WORKFLOW, { params: params, observe: 'response', responseType: 'blob' }).pipe(
+      map((response: HttpResponse<Blob>) => {
+        const contentDisposition = response.headers.get('content-disposition') || '';
+        const matches = /filename=([^;]+)/gi.exec(contentDisposition);
+        const fileName = matches[1] || `workflow-${id}`;
+
+        return {
+          blob: response.body,
+          fileName: fileName,
+        };
+      }),
+      catchError((errorResponse: HttpErrorResponse) => {
+        return throwError(errorResponse.error);
+      }),
+    );
+  }
+
+  importWorkflow(workflowFile: File): Observable<WorkflowJoinedModel> {
+    const formData: FormData = new FormData();
+    formData.append('file', workflowFile, workflowFile.name);
+
+    return this.httpClient
+      .post<WorkflowJoinedModel>(api.IMPORT_WORKFLOW, formData, { observe: 'response' })
+      .pipe(
+        map((_) => {
+          return _.body;
+        }),
+        catchError((errorResponse: HttpErrorResponse) => {
+          return throwError(errorResponse.error);
+        }),
+      );
+  }
+
   createWorkflow(workflowRequest: WorkflowJoinedModel): Observable<WorkflowJoinedModel> {
     return this.httpClient
       .put<WorkflowJoinedModel>(api.CREATE_WORKFLOW, workflowRequest, { observe: 'response' })
@@ -86,110 +125,180 @@ export class WorkflowService {
       );
   }
 
-  runWorkflow(id: number): Observable<boolean> {
-    const params = new HttpParams().set('workflowId', id.toString());
+  runWorkflowJobs(workflowId: number, jobIds: number[]): Observable<boolean> {
+    const params = new HttpParams().set('workflowId', workflowId.toString());
     return this.httpClient
-      .put<boolean>(api.RUN_WORKFLOW, null, { params: params, observe: 'response' })
+      .put<boolean>(api.RUN_WORKFLOWS_JOBS, { jobIds: jobIds }, { params: params, observe: 'response' })
       .pipe(map((_) => _.body));
   }
 
   getWorkflowDynamicFormParts(): Observable<DynamicFormParts> {
-    return of(
-      DynamicFormPartsFactory.create(
-        [
-          DynamicFormPartFactory.create('Kafka', [
-            FormPartFactory.create(
-              'Topic',
-              'properties.settings.variables.topic',
-              'string-field',
-              PartValidationFactory.create(true, undefined, 1),
-            ),
-            FormPartFactory.create(
-              'Kafka servers',
-              'properties.settings.maps.servers',
-              'set-field',
-              PartValidationFactory.create(true, undefined, 1),
-            ),
-            FormPartFactory.create(
-              'Match properties',
-              'properties.matchProperties',
-              'key-value-field',
-              PartValidationFactory.create(false, undefined, 1),
-            ),
-          ]),
-          DynamicFormPartFactory.create('Absa-Kafka', [
-            FormPartFactory.create(
-              'Topic',
-              'properties.settings.variables.topic',
-              'string-field',
-              PartValidationFactory.create(true, undefined, 1),
-            ),
-            FormPartFactory.create(
-              'Kafka servers',
-              'properties.settings.maps.servers',
-              'set-field',
-              PartValidationFactory.create(true, undefined, 1),
-            ),
-            FormPartFactory.create(
-              'Ingestion token',
-              'properties.matchProperties.ingestionToken',
-              'guid-field',
-              PartValidationFactory.create(true, 36, 36),
-            ),
-          ]),
-          DynamicFormPartFactory.create('Time', [
-            FormPartFactory.create(
-              'Run at',
-              'properties.settings.variables.cronExpression',
-              'cron-quartz-field',
-              PartValidationFactory.create(true),
-            ),
-          ]),
-        ],
-        [
-          DynamicFormPartFactory.create('Spark', [
-            FormPartFactory.create(
-              'Job jar',
-              'jobParameters.variables.jobJar',
-              'string-field',
-              PartValidationFactory.create(true, undefined, 1),
-            ),
-            FormPartFactory.create(
-              'Main class',
-              'jobParameters.variables.mainClass',
-              'string-field',
-              PartValidationFactory.create(true, undefined, 1),
-            ),
-            FormPartFactory.create(
-              'Deployment mode',
-              'jobParameters.variables.deploymentMode',
-              'select-field',
-              PartValidationFactory.create(true),
-              ['cluster', 'client'],
-            ),
-            FormPartFactory.create(
-              'Additional jars',
-              'jobParameters.maps.additionalJars',
-              'set-field',
-              PartValidationFactory.create(false, undefined, 1),
-            ),
-            FormPartFactory.create(
-              'App arguments',
-              'jobParameters.maps.appArguments',
-              'set-field',
-              PartValidationFactory.create(false, undefined, 1),
-            ),
-          ]),
-          DynamicFormPartFactory.create('Shell', [
-            FormPartFactory.create(
-              'Script location',
-              'jobParameters.variables.scriptLocation',
-              'string-field',
-              PartValidationFactory.create(true, undefined, 1),
-            ),
-          ]),
-        ],
-      ),
+    return this.getJobTemplates().pipe(
+      mergeMap((jobTemplates) => {
+        const sensorParts = WorkflowService.getSensorDynamicFormParts();
+        const jobParts = jobTemplates.map((jobTemplate) => {
+          return WorkflowService.getJobDynamicFormPart(jobTemplate);
+        });
+        return of(DynamicFormPartsFactory.create(sensorParts, jobParts));
+      }),
     );
+  }
+
+  private getJobTemplates(): Observable<JobTemplateModel[]> {
+    return this.httpClient
+      .get<JobTemplateModel[]>(api.GET_JOB_TEMPLATES, { observe: 'response' })
+      .pipe(map((response) => response.body));
+  }
+
+  private static getSensorDynamicFormParts(): DynamicFormPart[] {
+    return [
+      DynamicFormPartFactory.create('Kafka', [
+        FormPartFactory.create(
+          'Topic',
+          'properties.settings.variables.topic',
+          'string-field',
+          PartValidationFactory.create(true, undefined, 1),
+        ),
+        FormPartFactory.create(
+          'Kafka servers',
+          'properties.settings.maps.servers',
+          'set-field',
+          PartValidationFactory.create(true, undefined, 1),
+        ),
+        FormPartFactory.create(
+          'Match properties',
+          'properties.matchProperties',
+          'key-value-field',
+          PartValidationFactory.create(false, undefined, 1),
+        ),
+      ]),
+      DynamicFormPartFactory.create('Absa-Kafka', [
+        FormPartFactory.create(
+          'Topic',
+          'properties.settings.variables.topic',
+          'string-field',
+          PartValidationFactory.create(true, undefined, 1),
+        ),
+        FormPartFactory.create(
+          'Kafka servers',
+          'properties.settings.maps.servers',
+          'set-field',
+          PartValidationFactory.create(true, undefined, 1),
+        ),
+        FormPartFactory.create(
+          'Ingestion token',
+          'properties.matchProperties.ingestionToken',
+          'guid-field',
+          PartValidationFactory.create(true, 36, 36),
+        ),
+      ]),
+      DynamicFormPartFactory.create('Time', [
+        FormPartFactory.create(
+          'Run at',
+          'properties.settings.variables.cronExpression',
+          'cron-quartz-field',
+          PartValidationFactory.create(true),
+        ),
+      ]),
+      DynamicFormPartFactory.create('Recurring', []),
+    ];
+  }
+
+  private static getJobDynamicFormPart(jobTemplate: JobTemplateModel): DynamicFormPart {
+    if (jobTemplate.formConfig === jobTemplateFormConfigs.SPARK) {
+      return this.getSparkDynamicFormParts(jobTemplate.id.toString(), jobTemplate.name);
+    }
+    if (jobTemplate.formConfig === jobTemplateFormConfigs.SHELL) {
+      return this.getShellDynamicFormParts(jobTemplate.id.toString(), jobTemplate.name);
+    }
+    if (jobTemplate.formConfig === jobTemplateFormConfigs.HYPERDRIVE) {
+      return this.getHyperConformanceDynamicFormParts(jobTemplate.id.toString(), jobTemplate.name);
+    }
+  }
+
+  private static getSparkDynamicFormParts(templateId: string, templateName: string): DynamicFormPart {
+    return DynamicFormPartFactory.createWithLabel(templateId, templateName, [
+      FormPartFactory.create('Job jar', 'jobParameters.variables.jobJar', 'string-field', PartValidationFactory.create(true, undefined, 1)),
+      FormPartFactory.create(
+        'Main class',
+        'jobParameters.variables.mainClass',
+        'string-field',
+        PartValidationFactory.create(true, undefined, 1),
+      ),
+      FormPartFactory.create(
+        'Deployment mode',
+        'jobParameters.variables.deploymentMode',
+        'select-field',
+        PartValidationFactory.create(true),
+        new Map([
+          ['cluster', 'cluster'],
+          ['client', 'client'],
+        ]),
+      ),
+      FormPartFactory.create(
+        'Additional jars',
+        'jobParameters.maps.additionalJars',
+        'set-field',
+        PartValidationFactory.create(false, undefined, 1),
+      ),
+      FormPartFactory.create(
+        'Additional files',
+        'jobParameters.maps.additionalFiles',
+        'set-field',
+        PartValidationFactory.create(false, undefined, 1),
+      ),
+      FormPartFactory.create(
+        'Additional Spark Config',
+        'jobParameters.keyValuePairs.additionalSparkConfig',
+        'key-value-field',
+        PartValidationFactory.create(false, undefined, 1),
+      ),
+      FormPartFactory.create(
+        'App arguments',
+        'jobParameters.maps.appArguments',
+        'set-field',
+        PartValidationFactory.create(false, undefined, 1),
+      ),
+    ]);
+  }
+
+  private static getShellDynamicFormParts(templateId: string, templateName: string): DynamicFormPart {
+    return DynamicFormPartFactory.createWithLabel(templateId, templateName, [
+      FormPartFactory.create(
+        'Script location',
+        'jobParameters.variables.scriptLocation',
+        'string-field',
+        PartValidationFactory.create(true, undefined, 1),
+      ),
+    ]);
+  }
+
+  private static getHyperConformanceDynamicFormParts(templateId: string, templateName: string): DynamicFormPart {
+    return DynamicFormPartFactory.createWithLabel(templateId, templateName, [
+      FormPartFactory.create(
+        'Additional jars',
+        'jobParameters.maps.additionalJars',
+        'set-field',
+        PartValidationFactory.create(false, undefined, 1),
+      ),
+      FormPartFactory.create(
+        'Additional files',
+        'jobParameters.maps.additionalFiles',
+        'set-field',
+        PartValidationFactory.create(false, undefined, 1),
+      ),
+      FormPartFactory.create(
+        'Additional Spark Config',
+        'jobParameters.keyValuePairs.additionalSparkConfig',
+        'key-value-field',
+        PartValidationFactory.create(false, undefined, 1),
+      ),
+      FormPartFactory.create(
+        'App arguments',
+        'jobParameters.maps.appArguments',
+        'set-field',
+        PartValidationFactory.create(false, undefined, 1),
+      ),
+    ]);
   }
 }

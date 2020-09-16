@@ -1,0 +1,37 @@
+<!--
+  ~ Copyright 2018 ABSA Group Limited
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="boolean-selectable" [class.boolean-selected]="true" (change)="toggleTrue()">
+  <clr-checkbox-container>
+    <clr-checkbox-wrapper>
+      <input type="checkbox" clrCheckbox [checked]="value?.isTrue"/>
+      <label>
+        <clr-icon class="is-solid" [attr.shape]="'circle'" [style.color]="'green'" [textContent]="'Yes'"></clr-icon>
+        Yes
+      </label>
+    </clr-checkbox-wrapper>
+  </clr-checkbox-container>
+</div>
+  <div class="boolean-selectable" [class.boolean-selected]="true" (change)="toggleFalse()">
+  <clr-checkbox-container>
+    <clr-checkbox-wrapper>
+      <input type="checkbox" clrCheckbox [checked]="value?.isFalse"/>
+      <label>
+        <clr-icon class="is-solid" [attr.shape]="'circle'" [style.color]="'red'" [textContent]="'No'"></clr-icon>
+        No
+      </label>
+    </clr-checkbox-wrapper>
+  </clr-checkbox-container>
+</div>

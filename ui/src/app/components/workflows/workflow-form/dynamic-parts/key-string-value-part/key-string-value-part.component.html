@@ -1,0 +1,88 @@
+<!--
+  ~ Copyright 2018 ABSA Group Limited
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div *ngIf="!isShow">
+  <div *ngFor="let val of mapOfValues; let i = index; trackBy: trackByFn;">
+    <clr-control-container>
+      <label *ngIf="i == 0">{{name}}</label>
+      <input
+        clrControl
+        type="text"
+        [id]="name+i+0+uiid"
+        [ngModel]="val[0]"
+        (ngModelChange)="ngModelChanged($event, i,0)"
+        required
+        [minlength]="partValidation.minLength"
+        [maxlength]="partValidation.maxLength"
+      />
+      <clr-control-helper>Key {{i+1}}</clr-control-helper>
+      <clr-control-error *clrIfError="'required'">{{texts.FORM_VALIDATION_MUST_BE_FILLED(name)}}</clr-control-error>
+      <clr-control-error *clrIfError="'minlength'">{{texts.FORM_VALIDATION_MIN_LENGTH(name, partValidationSafe.minLength)}}</clr-control-error>
+      <clr-control-error *clrIfError="'maxlength'">{{texts.FORM_VALIDATION_MAX_LENGTH(name, partValidationSafe.maxLength)}}</clr-control-error>
+    </clr-control-container>
+
+
+    <clr-control-container>
+      <input
+        clrControl
+        type="text"
+        [id]="name+i+1+uiid"
+        [ngModel]="val[1]"
+        (ngModelChange)="ngModelChanged($event, i,1)"
+        required
+        [minlength]="partValidation.minLength"
+        [maxlength]="partValidation.maxLength"
+      />
+      <clr-control-helper>Value {{i+1}}</clr-control-helper>
+      <clr-control-error *clrIfError="'required'">{{texts.FORM_VALIDATION_MUST_BE_FILLED(name)}}</clr-control-error>
+      <clr-control-error *clrIfError="'minlength'">{{texts.FORM_VALIDATION_MIN_LENGTH(name, partValidationSafe.minLength)}}</clr-control-error>
+      <clr-control-error *clrIfError="'maxlength'">{{texts.FORM_VALIDATION_MAX_LENGTH(name, partValidationSafe.maxLength)}}</clr-control-error>
+      <button type="button" class="btn btn-link" (click)="onDelete(i)">
+        <clr-icon shape="trash"></clr-icon>
+      </button>
+      <button type="button" class="btn btn-link" *ngIf="mapOfValues.length - 1 === i" (click)="onAdd()">
+        <clr-icon shape="plus"></clr-icon>
+      </button>
+    </clr-control-container>
+  </div>
+</div>
+
+<clr-control-container *ngIf="mapOfValues.length == 0 && !isShow">
+  <label>{{name}}</label>
+  <input [name]="name" clrControl [ngModel]="undefined" [required]="partValidationSafe.isRequired" type="hidden"/>
+  <clr-control-error *clrIfError="'required'">{{texts.FORM_VALIDATION_AT_LEAST_ONE_DEFINED}}</clr-control-error>
+
+  <button type="button" class="btn btn-link" (click)="onAdd()">
+    <clr-icon shape="plus"></clr-icon>
+  </button>
+</clr-control-container>
+
+<div *ngIf="isShow">
+  <div *ngFor="let val of mapOfValues; let i = index; trackBy: trackByFn;">
+    <div class="clr-form-control clr-row">
+      <label class="clr-control-label clr-col-12 clr-col-md-2" *ngIf="i == 0">{{name}}</label>
+      <label class="clr-control-label clr-col-12 clr-col-md-2" *ngIf="i != 0"></label>
+      <span class="clr-control-container clr-col-md-10 clr-col-12 breakableSpan">
+        Key {{i+1}}: {{val[0]}}
+      </span>
+    </div>
+    <div class="clr-form-control clr-row">
+      <label class="clr-control-label clr-col-12 clr-col-md-2"></label>
+      <span class="clr-control-container clr-col-md-10 clr-col-12 breakableSpan">
+        Value {{i+1}}: {{val[1]}}
+      </span>
+    </div>
+  </div>
+</div>

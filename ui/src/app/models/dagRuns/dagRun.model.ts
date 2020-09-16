@@ -18,6 +18,7 @@ export type DagRunModel = {
   projectName: string;
   jobCount: number;
   status: string;
+  triggeredBy: string;
   started: Date;
   finished: Date;
   id: number;
@@ -29,6 +30,7 @@ export class DagRunModelFactory {
     projectName: string,
     jobCount: number,
     status: string,
+    triggeredBy: string,
     started: Date,
     finished: Date,
     id: number,
@@ -38,6 +40,7 @@ export class DagRunModelFactory {
       projectName: projectName,
       jobCount: jobCount,
       status: status,
+      triggeredBy: triggeredBy,
       started: started,
       finished: finished,
       id: id,

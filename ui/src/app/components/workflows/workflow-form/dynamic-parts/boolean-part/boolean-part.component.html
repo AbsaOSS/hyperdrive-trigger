@@ -1,0 +1,30 @@
+<!--
+  ~ Copyright 2018 ABSA Group Limited
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div *ngIf="!isShow">
+  <clr-checkbox-container>
+    <label [for]="name+uiid">{{name}}</label>
+    <clr-checkbox-wrapper>
+      <input [id]="name+uiid" [name]="name+uiid" clrToggle type="checkbox" [(ngModel)]="value" (ngModelChange)="modelChanged($event)">
+    </clr-checkbox-wrapper>
+  </clr-checkbox-container>
+</div>
+
+<div *ngIf="isShow" class="clr-form-control clr-row">
+  <label class="clr-control-label clr-col-12 clr-col-md-2">{{name}}</label>
+  <span class="clr-control-container clr-col-md-10 clr-col-12 breakableSpan">
+    {{value ? 'Yes' : 'No'}}
+  </span>
+</div>

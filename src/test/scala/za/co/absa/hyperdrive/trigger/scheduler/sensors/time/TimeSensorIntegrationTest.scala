@@ -21,8 +21,9 @@ import java.time.LocalDateTime
 import org.quartz.JobKey
 import org.quartz.impl.matchers.GroupMatcher
 import org.scalatest._
+import za.co.absa.hyperdrive.trigger.api.rest.services.{JobTemplateFixture, JobTemplateService, JobTemplateServiceImpl}
 import za.co.absa.hyperdrive.trigger.models._
-import za.co.absa.hyperdrive.trigger.models.enums.{JobTypes, SensorTypes}
+import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes
 import za.co.absa.hyperdrive.trigger.persistance._
 import za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.Sensors
@@ -34,7 +35,10 @@ class TimeSensorIntegrationTest extends FlatSpec with Matchers with BeforeAndAft
   private val sensorRepository: SensorRepositoryImpl = new SensorRepositoryImpl {
     override val profile = h2Profile
   }
-  private val workflowRepository: WorkflowRepositoryImpl = new WorkflowRepositoryImpl {
+  private val workflowHistoryRepository: WorkflowHistoryRepositoryImpl = new WorkflowHistoryRepositoryImpl {
+    override val profile = h2Profile
+  }
+  private val workflowRepository: WorkflowRepositoryImpl = new WorkflowRepositoryImpl(workflowHistoryRepository) {
     override val profile = h2Profile
   }
   private val eventRepository: EventRepositoryImpl = new EventRepositoryImpl {
@@ -46,6 +50,11 @@ class TimeSensorIntegrationTest extends FlatSpec with Matchers with BeforeAndAft
   private val dagInstanceRepository: DagInstanceRepositoryImpl = new DagInstanceRepositoryImpl {
     override val profile = h2Profile
   }
+  private val jobTemplateRepository: JobTemplateRepositoryImpl = new JobTemplateRepositoryImpl {
+    override val profile = h2Profile
+  }
+
+  private val jobTemplateService: JobTemplateService = new JobTemplateServiceImpl(jobTemplateRepository)
 
   override def beforeAll: Unit = {
     h2SchemaSetup()
@@ -60,22 +69,26 @@ class TimeSensorIntegrationTest extends FlatSpec with Matchers with BeforeAndAft
   }
 
   it should "persist an event when the time sensor is fired" in {
-    val processor = new EventProcessor(eventRepository, dagDefinitionRepository, dagInstanceRepository)
-    val sensors = new Sensors(processor, sensorRepository)
+    val processor = new EventProcessor(eventRepository, dagDefinitionRepository, dagInstanceRepository, jobTemplateService)
+    val sensors = new Sensors(processor, sensorRepository, dagInstanceRepository)
     val cronExpression = "0/3 * * * * ?"
+
+    val sparkTemplate = JobTemplateFixture.GenericSparkJobTemplate
+    val sparkTemplateId = await(jobTemplateRepository.insertJobTemplate(sparkTemplate)).right.get
 
     // Persist workflow, sensor and dagDefinition
     val properties = Properties(-1L, Settings(Map("cronExpression" -> cronExpression), Map.empty), Map.empty)
     val sensor = Sensor(-1L, SensorTypes.Time, properties)
 
     val jobParameters1 = JobParameters(Map("deploymentMode" -> "client", "jobJar" -> "spark-job.jar", "mainClass" -> "TheMainClass"), Map.empty)
-    val jobDefinition1 = JobDefinition(-1L, "Time-Sensor Job 1", JobTypes.Spark, jobParameters1, 1)
+    val jobDefinition1 = JobDefinition(-1L, sparkTemplateId, "Time-Sensor Job 1", jobParameters1, 1)
     val jobParameters2 = JobParameters(Map("deploymentMode" -> "client", "jobJar" -> "spark-job-2.jar", "mainClass" -> "TheMainClass"), Map.empty)
-    val jobDefinition2 = JobDefinition(-1L, "Time-Sensor Job 2", JobTypes.Spark, jobParameters2, 2)
+    val jobDefinition2 = JobDefinition(-1L, sparkTemplateId, "Time-Sensor Job 2", jobParameters2, 2)
 
     val dagDefinitionJoined = DagDefinitionJoined(-1L, Seq(jobDefinition1, jobDefinition2))
     val workflowJoined = WorkflowJoined("Time-Sensor Workflow", true, "some-project", LocalDateTime.now(), None, sensor, dagDefinitionJoined)
-    val workflowId = await(workflowRepository.insertWorkflow(workflowJoined)).right.get
+    val userName = "fakeUserName"
+    val workflowId = await(workflowRepository.insertWorkflow(workflowJoined, userName)).right.get
     val insertedWorkflow = await(workflowRepository.getWorkflow(workflowId))
 
     // Start Quartz and register sensor
@@ -99,7 +112,7 @@ class TimeSensorIntegrationTest extends FlatSpec with Matchers with BeforeAndAft
 
     // Check that inactive sensor is removed from quartz
     val workflow = await(workflowRepository.getWorkflows()).head
-    await(workflowRepository.switchWorkflowActiveState(workflow.id))
+    await(workflowRepository.switchWorkflowActiveState(workflow.id, userName))
     await(sensors.processEvents().map(
       _ => {
         val scheduler = TimeSensorQuartzSchedulerManager.getScheduler

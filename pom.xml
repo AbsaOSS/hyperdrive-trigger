@@ -14,10 +14,12 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <version>0.1.3-SNAPSHOT</version>
+    <version>0.2.1-SNAPSHOT</version>
     <groupId>za.co.absa</groupId>
     <artifactId>hyperdrive-trigger</artifactId>
     <packaging>war</packaging>
@@ -95,10 +97,6 @@
         <jackson-module.version>2.11.0</jackson-module.version>
         <spring-boot-starter-tomcat.version>2.0.0.RELEASE</spring-boot-starter-tomcat.version>
         <alchim31>3.2.0</alchim31>
-        <openui5.version>1.60.2</openui5.version>
-        <lodash.version>4.17.10</lodash.version>
-        <momentjs.version>2.22.2</momentjs.version>
-        <webjars.locator.version>0.35</webjars.locator.version>
         <spring.version>2.0.0.RELEASE</spring.version>
         <quartz.version>2.3.2</quartz.version>
         <log4j.version>2.11.1</log4j.version>
@@ -117,6 +115,8 @@
         <scalatest-maven-plugin.version>2.0.0</scalatest-maven-plugin.version>
         <frontend.maven.plugin.version>1.9.0</frontend.maven.plugin.version>
         <maven.war.plugin.version>2.6</maven.war.plugin.version>
+        <commons.lang3.version>3.11</commons.lang3.version>
+        <buildnumber.maven.plugin.version>1.4</buildnumber.maven.plugin.version>
 
 
         <!-- Deployment -->
@@ -216,27 +216,12 @@
             <artifactId>cron-utils</artifactId>
             <version>${cronutils.version}</version>
         </dependency>
-        <!-- WebJars -->
         <dependency>
-            <groupId>org.webjars</groupId>
-            <artifactId>openui5</artifactId>
-            <version>${openui5.version}</version>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commons.lang3.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.webjars.bower</groupId>
-            <artifactId>lodash</artifactId>
-            <version>${lodash.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.webjars</groupId>
-            <artifactId>momentjs</artifactId>
-            <version>${momentjs.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.webjars</groupId>
-            <artifactId>webjars-locator-core</artifactId>
-            <version>${webjars.locator.version}</version>
-        </dependency>
+
         <!--TESTS-->
         <dependency>
             <groupId>org.scalatest</groupId>
@@ -258,6 +243,12 @@
         </dependency>
     </dependencies>
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -274,6 +265,19 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <App-Version>${project.version}</App-Version>
+                            <Build-Number>${buildNumber}</Build-Number>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>net.alchim31.maven</groupId>
                 <artifactId>scala-maven-plugin</artifactId>
@@ -414,6 +418,22 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>buildnumber-maven-plugin</artifactId>
+                <version>${buildnumber.maven.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>create</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <shortRevisionLength>8</shortRevisionLength>
+                </configuration>
             </plugin>
         </plugins>
 

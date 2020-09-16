@@ -16,6 +16,7 @@
 import { AfterViewInit, Component, OnDestroy, QueryList, ViewChildren } from '@angular/core';
 import { DagRunModel } from '../../models/dagRuns/dagRun.model';
 import { ClrDatagridColumn, ClrDatagridStateInterface } from '@clr/angular';
+import { ClrDatagridSortOrder } from '@clr/angular';
 import { Store } from '@ngrx/store';
 import { AppState, selectRunState } from '../../stores/app.reducers';
 import { GetDagRuns } from '../../stores/runs/runs.actions';
@@ -29,6 +30,9 @@ import { IntRangeFilterAttributes } from '../../models/search/intRangeFilterAttr
 import { DateTimeRangeFilterAttributes } from '../../models/search/dateTimeRangeFilterAttributes.model';
 import { SortAttributesModel } from '../../models/search/sortAttributes.model';
 import { EqualsMultipleFilterAttributes } from '../../models/search/equalsMultipleFilterAttributes.model';
+import { ActivatedRoute } from '@angular/router';
+import { StartWorkflowInitialization } from '../../stores/workflows/workflows.actions';
+import { LongFilterAttributes } from '../../models/search/longFilterAttributes.model';
 
 @Component({
   selector: 'app-runs',
@@ -39,6 +43,9 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
   @ViewChildren(ClrDatagridColumn) columns: QueryList<ClrDatagridColumn>;
 
   runsSubscription: Subscription = null;
+  paramsSubscription: Subscription = null;
+  workflowId?: number;
+
   page = 1;
   pageFrom = 0;
   pageSize = 0;
@@ -51,11 +58,15 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
 
   dagRunColumns = dagRunColumns;
   dagInstanceStatuses = dagInstanceStatuses;
+  descSort = ClrDatagridSortOrder.DESC;
 
   removeFiltersSubject: Subject<any> = new Subject();
+  refreshSubject: Subject<boolean> = new Subject<boolean>();
 
-  constructor(private store: Store<AppState>) {
-    // do nothing
+  constructor(private store: Store<AppState>, route: ActivatedRoute) {
+    this.paramsSubscription = route.params.subscribe((parameters) => {
+      this.workflowId = parameters.workflowId;
+    });
   }
 
   ngAfterViewInit(): void {
@@ -71,6 +82,7 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
 
   ngOnDestroy(): void {
     !!this.runsSubscription && this.runsSubscription.unsubscribe();
+    !!this.paramsSubscription && this.paramsSubscription.unsubscribe();
   }
 
   onClarityDgRefresh(state: ClrDatagridStateInterface) {
@@ -90,10 +102,12 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
       containsFilterAttributes: this.filters.filter((f) => f instanceof ContainsFilterAttributes),
       intRangeFilterAttributes: this.filters.filter((f) => f instanceof IntRangeFilterAttributes),
       dateTimeRangeFilterAttributes: this.filters.filter((f) => f instanceof DateTimeRangeFilterAttributes),
+      longFilterAttributes: !!this.workflowId ? [new LongFilterAttributes('workflowId', this.workflowId)] : [],
       equalsMultipleFilterAttributes: this.filters.filter((f) => f instanceof EqualsMultipleFilterAttributes),
     };
 
     this.store.dispatch(new GetDagRuns(searchRequestModel));
+    this.refreshSubject.next(true);
   }
 
   clearFilters() {

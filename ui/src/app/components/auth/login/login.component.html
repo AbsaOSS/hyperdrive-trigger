@@ -1,0 +1,44 @@
+<!--
+  ~ Copyright 2018 ABSA Group Limited
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div [class]="styleClass">
+  <div class="login-wrapper">
+    <form class="login" clrForm (ngSubmit)="onSubmit()">
+      <section class="title">
+        <h3 class="welcome">Please login to</h3>
+        Hyperdrive
+      </section>
+      <div class="login-group">
+        <clr-input-container>
+          <label class="clr-sr-only">Username</label>
+          <input type="text" placeholder="Username" name="username" clrInput required [(ngModel)]="username"/>
+          <clr-control-error>Username is required!</clr-control-error>
+        </clr-input-container>
+        <clr-password-container>
+          <label class="clr-sr-only">Password</label>
+          <input type="password" placeholder="Password" name="password" clrPassword required [(ngModel)]="password"/>
+          <clr-control-error>Password is required!</clr-control-error>
+        </clr-password-container>
+        <div class="error" [ngClass]="{'active': authenticationFailed}">Invalid username or password</div>
+        <button type="submit" class="btn btn-primary">Log in</button>
+        <h5 class="appInfo">
+          <strong>Environment:</strong> {{appInfo.environment}}
+          <br>
+          <strong>Version:</strong> {{appInfo.version}}
+        </h5>
+      </div>
+    </form>
+  </div>
+</div>

@@ -27,9 +27,19 @@ describe('AppComponent', () => {
     username: 'test-user',
     isAuthenticated: true,
     authenticationFailed: false,
+    showLoginDialog: false,
+  };
+
+  const initialApplicationState = {
+    loading: false,
+    appInfo: {
+      environment: 'Undefined',
+      version: 'Undefined',
+    },
   };
 
   const initialAppState = {
+    application: initialApplicationState,
     auth: initialAuthState,
     runs: {},
   };

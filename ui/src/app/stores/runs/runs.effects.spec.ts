@@ -51,6 +51,7 @@ describe('RunsEffects', () => {
         'projectName',
         2,
         'Status',
+        'Triggered by',
         new Date(Date.now()),
         new Date(Date.now()),
         0,
@@ -90,24 +91,40 @@ describe('RunsEffects', () => {
   describe('runDetailGet', () => {
     it('should return dag run detail', () => {
       const id = 0;
-      const jobInstances: JobInstanceModel[] = [
-        JobInstanceModelFactory.create(
-          id,
-          'jobName0',
-          JobTypeFactory.create('JobType'),
-          new Date(Date.now()),
-          new Date(Date.now()),
-          JobStatusFactory.create('Status'),
-        ),
-      ];
-
+      const jobInstanceA: JobInstanceModel = JobInstanceModelFactory.create(
+        id,
+        'jobName0',
+        JobTypeFactory.create('JobType'),
+        new Date(Date.now()),
+        new Date(Date.now()),
+        JobStatusFactory.create('Status'),
+        1,
+      );
+      const jobInstanceB: JobInstanceModel = JobInstanceModelFactory.create(
+        id,
+        'jobName1',
+        JobTypeFactory.create('JobType1'),
+        new Date(Date.now()),
+        new Date(Date.now()),
+        JobStatusFactory.create('Status'),
+        2,
+      );
+      const jobInstanceC: JobInstanceModel = JobInstanceModelFactory.create(
+        id,
+        'jobName2',
+        JobTypeFactory.create('JobType2'),
+        new Date(Date.now()),
+        new Date(Date.now()),
+        JobStatusFactory.create('Status'),
+        3,
+      );
       const action = new GetDagRunDetail(id);
       mockActions = cold('-a', { a: action });
-      const dagRunDetailResponse = cold('-a|', { a: jobInstances });
+      const dagRunDetailResponse = cold('-a|', { a: [jobInstanceC, jobInstanceB, jobInstanceA] });
       const expected = cold('--a', {
         a: {
           type: RunsActions.GET_DAG_RUN_DETAIL_SUCCESS,
-          payload: jobInstances,
+          payload: [jobInstanceA, jobInstanceB, jobInstanceC],
         },
       });
 

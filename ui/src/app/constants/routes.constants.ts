@@ -17,22 +17,35 @@ import { workflowModes } from '../models/enums/workflowModes.constants';
 
 export const routeNames = {
   DEFAULT: '',
-  LOGIN: 'login',
+  WELCOME: 'welcome',
   WORKFLOWS: 'workflows',
   WORKFLOWS_HOME: '',
   WORKFLOW_ACTION: ':mode',
   WORKFLOW_ACTION_WITH_ID: ':mode/:id',
+  WORKFLOW_HISTORY: 'show/:id/history',
+  WORKFLOW_HISTORY_COMPARISON: 'workflows/show/:id/history/:historyIdLeft/compareWith/:historyIdRight',
   RUNS: 'runs',
+  RUNS_WITH_WORKFLOW_ID: 'runs/:workflowId',
 };
 
 export const absoluteRoutes = {
   DEFAULT: `/${routeNames.DEFAULT}`,
-  LOGIN: `/${routeNames.LOGIN}`,
+  WELCOME: `/${routeNames.WELCOME}`,
   WORKFLOWS: `/${routeNames.WORKFLOWS}`,
   WORKFLOWS_HOME: `/${routeNames.WORKFLOWS}`,
   SHOW_WORKFLOW: `/${routeNames.WORKFLOWS}/${workflowModes.SHOW}`,
   CREATE_WORKFLOW: `/${routeNames.WORKFLOWS}/${workflowModes.CREATE}`,
   EDIT_WORKFLOW: `/${routeNames.WORKFLOWS}/${workflowModes.EDIT}`,
   COPY_WORKFLOW: `/${routeNames.WORKFLOWS}/${workflowModes.COPY}`,
+  IMPORT_WORKFLOW: `/${routeNames.WORKFLOWS}/${workflowModes.IMPORT}`,
   RUNS: `/${routeNames.RUNS}`,
+  RUNS_WITH_WORKFLOW_ID(workflowId: number): string {
+    return `/runs/${workflowId}`;
+  },
+  WORKFLOW_HISTORY(id: number): string {
+    return `/${routeNames.WORKFLOWS}/${workflowModes.SHOW}/${id}/history`;
+  },
+  WORKFLOW_HISTORY_COMPARISON(workflowId: number, historyIdFirst: number, historyIdSecond: number): string {
+    return `/${routeNames.WORKFLOWS}/${workflowModes.SHOW}/${workflowId}/history/${historyIdFirst}/compareWith/${historyIdSecond}`;
+  },
 };

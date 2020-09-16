@@ -17,29 +17,38 @@ package za.co.absa.hyperdrive.trigger.scheduler.eventProcessor
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
+import za.co.absa.hyperdrive.trigger.api.rest.services.JobTemplateService
 import za.co.absa.hyperdrive.trigger.models.{Event, Properties}
 import za.co.absa.hyperdrive.trigger.persistance._
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Component
-class EventProcessor(eventRepository: EventRepository, dagDefinitionRepository: DagDefinitionRepository, dagInstanceRepository: DagInstanceRepository) {
+class EventProcessor(eventRepository: EventRepository,
+  dagDefinitionRepository: DagDefinitionRepository,
+  dagInstanceRepository: DagInstanceRepository,
+  jobTemplateService: JobTemplateService) {
   private val logger = LoggerFactory.getLogger(this.getClass)
 
-  def eventProcessor(events: Seq[Event], properties: Properties)(implicit ec: ExecutionContext): Future[Boolean] = {
-    val fut = processEvents(events, properties)
+  def eventProcessor(triggeredBy: String)(events: Seq[Event], properties: Properties)(implicit ec: ExecutionContext): Future[Boolean] = {
+    val fut = processEvents(events, properties, triggeredBy)
     logger.debug(s"Processing events. Sensor id: ${properties.sensorId}. Events: ${events.map(_.id)}")
     fut
   }
 
-  private def processEvents(events: Seq[Event], properties: Properties)(implicit ec: ExecutionContext): Future[Boolean] = {
+  private def processEvents(events: Seq[Event], properties: Properties, triggeredBy: String)(implicit ec: ExecutionContext): Future[Boolean] = {
     eventRepository.getExistEvents(events.map(_.sensorEventId)).flatMap { eventsIdsInDB =>
       val newEvents = events.filter(e => !eventsIdsInDB.contains(e.sensorEventId))
       if (newEvents.nonEmpty) {
         dagDefinitionRepository.getJoinedDagDefinition(properties.sensorId).flatMap {
           case Some(joinedDagDefinition) =>
-            val dagInstancesJoined = newEvents.map(event => (joinedDagDefinition.toDagInstanceJoined(), event))
-            dagInstanceRepository.insertJoinedDagInstances(dagInstancesJoined).map(_ => true)
+            for {
+              dagInstanceJoined <- jobTemplateService.resolveJobTemplate(joinedDagDefinition, triggeredBy)
+              dagInstanceJoinedEvents = newEvents.map(event => (dagInstanceJoined, event))
+              _ <- dagInstanceRepository.insertJoinedDagInstances(dagInstanceJoinedEvents)
+            } yield {
+              true
+            }
           case None =>
             Future.successful(true)
         }

@@ -1,0 +1,33 @@
+<!--
+  ~ Copyright 2018 ABSA Group Limited
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<form clrForm class="clr-row">
+  <clr-date-container class="clr-col">
+    <input clrDate type="date" name="from" placeholder="from" readonly="readonly"
+           [max]="value.to | date:'yyyy-MM-dd'"
+           [(clrDate)]="value.from" (clrDateChange)='modelChanged($event)'>
+  </clr-date-container>
+  <clr-date-container class="clr-col">
+    <input clrDate type="date" name="to" placeholder="to" readonly="readonly"
+           [min]="value.from | date:'yyyy-MM-dd'"
+           [(clrDate)]="value.to" (clrDateChange)='modelChanged($event)'>
+  </clr-date-container>
+
+  <div class="clr-col">
+    <button type="button" class="btn btn-link btn-icon" (click)="onRemoveFilter()" [disabled]="!isActive()">
+      <clr-icon shape="trash"></clr-icon>
+    </button>
+  </div>
+</form>
