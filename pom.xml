@@ -43,8 +43,8 @@
         <connection>scm:git:git://github.com/AbsaOSS/hyperdrive-trigger.git</connection>
         <developerConnection>scm:git:ssh://github.com/AbsaOSS/hyperdrive-trigger.git</developerConnection>
         <url>https://github.com/AbsaOSS/hyperdrive-trigger/tree/master</url>
-      <tag>HEAD</tag>
-  </scm>
+        <tag>HEAD</tag>
+    </scm>
 
     <licenses>
         <license>
@@ -265,18 +265,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <archive>
-                        <manifestEntries>
-                            <App-Version>${project.version}</App-Version>
-                            <Build-Number>${buildNumber}</Build-Number>
-                        </manifestEntries>
-                    </archive>
-                </configuration>
-            </plugin>
 
             <plugin>
                 <groupId>net.alchim31.maven</groupId>
@@ -347,6 +335,10 @@
                     </webResources>
                     <packagingExcludes>META-INF/*.SF, META-INF/*.DSA, META-INF/*.RSA</packagingExcludes>
                     <archive>
+                        <manifestEntries>
+                            <App-Version>${project.version}</App-Version>
+                            <Build-Number>${buildNumber}</Build-Number>
+                        </manifestEntries>
                         <manifest>
                             <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                         </manifest>
