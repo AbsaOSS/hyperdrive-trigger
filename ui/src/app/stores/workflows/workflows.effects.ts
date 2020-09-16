@@ -39,6 +39,7 @@ import { WorkflowHistoryService } from '../../services/workflowHistory/workflow-
 import { JobService } from '../../services/job/job.service';
 import { JobForRunModel } from '../../models/jobForRun.model';
 import { EMPTY } from 'rxjs';
+import { ApiErrorModel } from '../../models/errors/apiError.model';
 
 @Injectable()
 export class WorkflowsEffects {
@@ -505,7 +506,12 @@ export class WorkflowsEffects {
             ];
           }),
           catchError((errorResponse) => {
-            this.toastrService.error(texts.IMPORT_WORKFLOW_FAILURE_NOTIFICATION);
+            if (this.isApiError(errorResponse)) {
+              const message = (errorResponse as ApiErrorModel[]).map((apiError) => apiError.message).reduce((a, b) => `${a}\n${b}`);
+              this.toastrService.error(message);
+            } else {
+              this.toastrService.error(texts.IMPORT_WORKFLOW_FAILURE_NOTIFICATION);
+            }
             this.router.navigateByUrl(absoluteRoutes.WORKFLOWS);
             return [
               {
@@ -525,11 +531,15 @@ export class WorkflowsEffects {
       }
     }),
   );
+  isApiError(errorResponse: any): boolean {
+    return Array.isArray(errorResponse) && errorResponse.every((err) => this.isInstanceOfApiError(err));
+  }
 
-  isBackendValidationError(errorResponse: any): boolean {
-    return (
-      errorResponse instanceof Array &&
-      errorResponse.every((err) => !!err.message && !!err.errorType && !!err.errorType.name && err.errorType.name == 'validationError')
-    );
+  isInstanceOfApiError(object: any): object is ApiErrorModel {
+    return 'message' in object;
+  }
+
+  isBackendValidationError(errorResponse: ApiErrorModel[]): boolean {
+    return errorResponse.every((err) => err.errorType.name == 'validationError');
   }
 }

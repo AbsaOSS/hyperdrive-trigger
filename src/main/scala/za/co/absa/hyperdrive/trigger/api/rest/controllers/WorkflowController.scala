@@ -104,7 +104,7 @@ class WorkflowController @Inject()(workflowService: WorkflowService) {
   def exportWorkflow(@RequestParam id: Long): CompletableFuture[ResponseEntity[ByteArrayResource]] = {
     workflowService.exportWorkflow(id).map { workflowExport =>
       val resource = new ByteArrayResource(
-        ObjectMapperSingleton.getObjectMapper.writeValueAsBytes(workflowExport)
+        ObjectMapperSingleton.getObjectMapper.writerWithDefaultPrettyPrinter.writeValueAsBytes(workflowExport)
       )
 
       ResponseEntity.ok()
