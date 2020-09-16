@@ -30,8 +30,8 @@ export class LoginComponent implements OnInit, OnDestroy {
   authStateSubscription: Subscription;
   applicationStateSubscription: Subscription;
   authenticationFailed = false;
-  username = 'hyperdriver-user';
-  password = 'hyperdriver-password';
+  username = '';
+  password = '';
   appInfo: AppInfoModel;
 
   constructor(private store: Store<AppState>) {}
