@@ -11,6 +11,7 @@ ___
 - [Requirements](#requirements)
 - [How to build](#how-to-build)
 - [How to run](#how-to-run)
+- [User Interface](#user-interface)
 - [How to contribute](#how-to-contribute)
 - [Documentation](#documentation)
 <!-- tocstop -->
@@ -31,4 +32,11 @@ ___
 
 
 ## How to run
+
+## User Interface
+
+## How to contribute
+
+## Documentation
+
 
