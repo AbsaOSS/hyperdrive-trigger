@@ -280,6 +280,25 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         },
       };
     }
+    case WorkflowsActions.WORKFLOW_COPY_JOB: {
+      const copyIndex: number = state.workflowAction.workflowFormData.jobs.findIndex((job) => job.jobId === action.payload);
+
+      const copiedJobData = JobEntryModelFactory.createWithUuid(
+        state.workflowAction.workflowFormData.jobs.length,
+        copyIndex !== null && copyIndex !== undefined ? state.workflowAction.workflowFormData.jobs[copyIndex].entries : [],
+      );
+      const jobs = [...state.workflowAction.workflowFormData.jobs, copiedJobData];
+      return {
+        ...state,
+        workflowAction: {
+          ...state.workflowAction,
+          workflowFormData: {
+            ...state.workflowAction.workflowFormData,
+            jobs: [...jobs],
+          },
+        },
+      };
+    }
     case WorkflowsActions.WORKFLOW_JOB_CHANGED: {
       const oldJob = state.workflowAction.workflowFormData.jobs.find((job) => job.jobId === action.payload.jobId);
       const filteredOldJobData = oldJob.entries.filter((jobEntry) => jobEntry.property !== action.payload.jobEntry.property);

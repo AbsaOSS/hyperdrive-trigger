@@ -41,6 +41,7 @@ export const WORKFLOW_SENSOR_CHANGED = 'WORKFLOW_SENSOR_CHANGED';
 export const WORKFLOW_SENSOR_TYPE_SWITCHED = 'WORKFLOW_SENSOR_TYPE_SWITCHED';
 export const WORKFLOW_ADD_EMPTY_JOB = 'WORKFLOW_ADD_EMPTY_JOB';
 export const WORKFLOW_REMOVE_JOB = 'WORKFLOW_REMOVE_JOB';
+export const WORKFLOW_COPY_JOB = 'WORKFLOW_COPY_JOB';
 export const WORKFLOW_JOB_CHANGED = 'WORKFLOW_JOB_CHANGED';
 export const WORKFLOW_JOB_TYPE_SWITCHED = 'WORKFLOW_JOB_TYPE_SWITCHED';
 export const WORKFLOW_JOBS_REORDER = 'WORKFLOW_JOBS_REORDER';
@@ -156,6 +157,11 @@ export class WorkflowAddEmptyJob implements Action {
 
 export class WorkflowRemoveJob implements Action {
   readonly type = WORKFLOW_REMOVE_JOB;
+  constructor(public payload: string) {}
+}
+
+export class WorkflowCopyJob implements Action {
+  readonly type = WORKFLOW_COPY_JOB;
   constructor(public payload: string) {}
 }
 
@@ -341,6 +347,7 @@ export type WorkflowsActions =
   | WorkflowSensorTypeSwitched
   | WorkflowAddEmptyJob
   | WorkflowRemoveJob
+  | WorkflowCopyJob
   | WorkflowJobChanged
   | WorkflowJobTypeSwitched
   | WorkflowJobsReorder
