@@ -38,7 +38,7 @@ services:
     environment:
       - JAVA_OPTS=-Ddb.user=postgres -Ddb.url=jdbc:postgresql://postgres_container:5432/testdb -Ddb.password=password
     ports:
-      - 7123:7123
+      - 8082:8080
 
 volumes:
   postgres-data:

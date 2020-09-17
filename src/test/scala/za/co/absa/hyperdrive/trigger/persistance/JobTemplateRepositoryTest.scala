@@ -35,7 +35,7 @@ class JobTemplateRepositoryTest extends FlatSpec with Matchers with BeforeAndAft
     clearData()
   }
 
-  "getJobTemplate" should "return a job template by id" in {
+  "getJobTemplatesByIds" should "return a job template by id" in {
     insertJobTemplates()
     val result = await(jobTemplateRepository.getJobTemplatesByIds(Seq(100)))
     result should have size 1
@@ -46,5 +46,13 @@ class JobTemplateRepositoryTest extends FlatSpec with Matchers with BeforeAndAft
     insertJobTemplates()
     val result = await(jobTemplateRepository.getJobTemplates())
     result should contain theSameElementsAs TestData.jobTemplates
+  }
+
+  "getJobTemplateIdsByNames" should "return a mapping from names to template ids" in {
+    insertJobTemplates()
+    val result = await(jobTemplateRepository.getJobTemplateIdsByNames(Seq("jobTemplate1", "jobTemplate2")))
+
+    val expected = Map("jobTemplate1" -> 100L, "jobTemplate2" -> 101L)
+    result should contain theSameElementsAs expected
   }
 }

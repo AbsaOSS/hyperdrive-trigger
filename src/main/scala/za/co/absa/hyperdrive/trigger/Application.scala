@@ -89,8 +89,3 @@ object ObjectMapperSingleton {
 
   def getObjectMapper: ObjectMapper = objectMapper
 }
-
-object Application extends App {
-  val context = SpringApplication.run(classOf[Application], args: _*)
-  context.getBean(classOf[HyperDriverManager]).startManager
-}
