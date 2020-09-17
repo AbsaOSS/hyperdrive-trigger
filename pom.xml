@@ -22,7 +22,7 @@
     <version>0.2.1-SNAPSHOT</version>
     <groupId>za.co.absa</groupId>
     <artifactId>hyperdrive-trigger</artifactId>
-    <packaging>jar</packaging>
+    <packaging>war</packaging>
 
     <name>hyperdrive-trigger</name>
     <description>Hyperdrive-Trigger is a scheduler and GUI for hyperdrive.</description>
@@ -114,6 +114,7 @@
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
         <scalatest-maven-plugin.version>2.0.0</scalatest-maven-plugin.version>
         <frontend.maven.plugin.version>1.9.0</frontend.maven.plugin.version>
+        <maven.war.plugin.version>2.6</maven.war.plugin.version>
         <commons.lang3.version>3.11</commons.lang3.version>
         <buildnumber.maven.plugin.version>1.4</buildnumber.maven.plugin.version>
 
@@ -203,6 +204,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
             <version>${spring-boot-starter-tomcat.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
