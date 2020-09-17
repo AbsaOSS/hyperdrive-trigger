@@ -18,8 +18,8 @@ package za.co.absa.hyperdrive.trigger.api.rest.services
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
-import za.co.absa.hyperdrive.trigger.models.errors.ApiError
-import za.co.absa.hyperdrive.trigger.models.{Project, ProjectInfo, Workflow, WorkflowJoined}
+import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, ImportError}
+import za.co.absa.hyperdrive.trigger.models.{Project, ProjectInfo, Workflow, WorkflowImportExportWrapper, WorkflowJoined}
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, WorkflowRepository}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -42,6 +42,8 @@ trait WorkflowService {
   def getProjectsInfo()(implicit ec: ExecutionContext): Future[Seq[ProjectInfo]]
   def runWorkflow(workflowId: Long)(implicit ec: ExecutionContext): Future[Boolean]
   def runWorkflowJobs(workflowId: Long, jobIds: Seq[Long])(implicit ec: ExecutionContext): Future[Boolean]
+  def exportWorkflow(workflowId: Long)(implicit ec: ExecutionContext): Future[WorkflowImportExportWrapper]
+  def importWorkflow(workflowImport: WorkflowImportExportWrapper)(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], WorkflowJoined]]
 }
 
 @Service
@@ -173,6 +175,47 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
     })
   }
 
+  override def exportWorkflow(workflowId: Long)(implicit ec: ExecutionContext): Future[WorkflowImportExportWrapper] = {
+    for {
+      workflow <- getWorkflow(workflowId)
+      jobTemplateIds = workflow.dagDefinitionJoined.jobDefinitions.map(_.jobTemplateId).distinct
+      jobTemplates <- jobTemplateService.getJobTemplatesByIds(jobTemplateIds)
+    } yield WorkflowImportExportWrapper(workflow, jobTemplates)
+  }
+
+  override def importWorkflow(workflowImport: WorkflowImportExportWrapper)(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], WorkflowJoined]] = {
+    val jobTemplatesNames = workflowImport.jobTemplates.map(_.name)
+    val oldIdNameMap = workflowImport.jobTemplates.map(jobTemplate => jobTemplate.id -> jobTemplate.name).toMap
+    jobTemplateService.getJobTemplateIdsByNames(jobTemplatesNames).flatMap(
+      newNameIdMap => {
+        val missingTemplates = jobTemplatesNames.toSet.diff(newNameIdMap.keySet)
+        if (missingTemplates.nonEmpty) {
+          Future{Left(Seq(ImportError(s"The following Job Templates don't exist yet and have to be created before importing" +
+            s" this workflow: ${missingTemplates.reduce(_ + ", " + _)}")))}
+        } else {
+          def getNewId(oldTemplateId: Long) = {
+            val name = oldIdNameMap.get(oldTemplateId) match {
+              case Some(x) => x
+              case None => throw new IllegalArgumentException(s"Template Id $oldTemplateId is not referenced in $oldIdNameMap")
+            }
+            newNameIdMap.get(name) match {
+              case Some(x) => x
+              case None =>
+                // should never happen
+                throw new IllegalArgumentException(s"Template name $name is not reference in $newNameIdMap")
+            }
+          }
+          val workflowWithResolvedJobTemplateIds = workflowImport.workflowJoined
+            .copy(dagDefinitionJoined = workflowImport.workflowJoined.dagDefinitionJoined
+              .copy(jobDefinitions = workflowImport.workflowJoined.dagDefinitionJoined.jobDefinitions
+                .map(jobDefinition => jobDefinition.copy(jobTemplateId = getNewId(jobDefinition.jobTemplateId)))))
+
+          Future{Right(workflowWithResolvedJobTemplateIds)}
+        }
+      }
+    )
+  }
+
   private def doIf[T](validationErrors: Seq[ApiError], future: () => Future[Either[ApiError, T]])(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], T]] = {
     if (validationErrors.isEmpty) {
       future.apply().map {
@@ -187,5 +230,4 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
   private[services] def getUserName: () => String = {
     SecurityContextHolder.getContext.getAuthentication.getPrincipal.asInstanceOf[UserDetails].getUsername
   }
-
 }
