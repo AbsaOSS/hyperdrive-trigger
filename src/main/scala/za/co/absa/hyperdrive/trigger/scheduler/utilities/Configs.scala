@@ -76,6 +76,8 @@ object SchedulerConfig {
     Configs.conf.getInt("scheduler.heart.beat")
   def getMaxParallelJobs: Int =
     Configs.conf.getInt("scheduler.jobs.parallel.number")
+  def isAutostart: Boolean =
+    Try(Configs.conf.getBoolean("scheduler.autostart")).getOrElse(true)
 }
 
 object ExecutorsConfig {
