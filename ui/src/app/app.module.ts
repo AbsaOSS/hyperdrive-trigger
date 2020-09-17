@@ -72,7 +72,6 @@ import { WorkflowRunComponent } from './components/workflows/workflow-run/workfl
 import { BooleanFilterComponent } from './components/common/datagrid/filters/boolean-filter/boolean-filter.component';
 import { WelcomeComponent } from './components/auth/welcome/welcome.component';
 import { LoginDialogComponent } from './components/auth/login-dialog/login-dialog.component';
-import { BaseUrlInterceptor } from './services/interceptors/baseurl.interceptor';
 
 @NgModule({
   declarations: [
@@ -131,7 +130,6 @@ import { BaseUrlInterceptor } from './services/interceptors/baseurl.interceptor'
     LogInGuardService,
     PreviousRouteService,
     { provide: HTTP_INTERCEPTORS, useClass: CsrfInterceptor, multi: true },
-    { provide: HTTP_INTERCEPTORS, useClass: BaseUrlInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: UnauthorizedInterceptor, multi: true },
   ],
   bootstrap: [AppComponent],
