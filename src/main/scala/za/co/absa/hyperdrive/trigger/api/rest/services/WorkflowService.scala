@@ -191,7 +191,7 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
         val missingTemplates = jobTemplatesNames.toSet.diff(newNameIdMap.keySet)
         if (missingTemplates.nonEmpty) {
           Future{Left(Seq(ImportError(s"The following Job Templates don't exist yet and have to be created before importing" +
-            s" this workflow: ${missingTemplates}")))}
+            s" this workflow: ${missingTemplates.reduce(_ + ", " + _)}")))}
         } else {
           def getNewId(oldTemplateId: Long) = {
             val name = oldIdNameMap.get(oldTemplateId) match {
@@ -200,7 +200,9 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
             }
             newNameIdMap.get(name) match {
               case Some(x) => x
-              case None => throw new IllegalArgumentException(s"Template name $name is not reference in $newNameIdMap")
+              case None =>
+                // should never happen
+                throw new IllegalArgumentException(s"Template name $name is not reference in $newNameIdMap")
             }
           }
           val workflowWithResolvedJobTemplateIds = workflowImport.workflowJoined
