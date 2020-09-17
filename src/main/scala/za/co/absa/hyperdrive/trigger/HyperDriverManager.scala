@@ -15,20 +15,30 @@
 
 package za.co.absa.hyperdrive.trigger
 
+import javax.annotation.PostConstruct
 import javax.inject.Inject
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import za.co.absa.hyperdrive.trigger.scheduler.JobScheduler
+import za.co.absa.hyperdrive.trigger.scheduler.utilities.{Configs, SchedulerConfig}
 
 import scala.concurrent.Future
 
 @Component
 class HyperDriverManager @Inject() (jobScheduler: JobScheduler) {
-  
+
+  @PostConstruct
+  def init(): Unit = {
+    if (SchedulerConfig.isAutostart) {
+      startManager()
+    }
+  }
+
   def isManagerRunning: Boolean = {
     jobScheduler.isManagerRunning
   }
 
-  def startManager: Unit = {
+  def startManager(): Unit = {
     jobScheduler.startManager()
   }
 
