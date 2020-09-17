@@ -531,6 +531,7 @@ export class WorkflowsEffects {
       }
     }),
   );
+
   isApiError(errorResponse: any): boolean {
     return Array.isArray(errorResponse) && errorResponse.every((err) => this.isInstanceOfApiError(err));
   }
@@ -539,7 +540,7 @@ export class WorkflowsEffects {
     return 'message' in object;
   }
 
-  isBackendValidationError(errorResponse: ApiErrorModel[]): boolean {
-    return errorResponse.every((err) => err.errorType.name == 'validationError');
+  isBackendValidationError(errorResponse: any): boolean {
+    return this.isApiError(errorResponse) && errorResponse.every((err) => err.errorType.name == 'validationError');
   }
 }
