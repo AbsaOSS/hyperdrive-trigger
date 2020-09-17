@@ -65,4 +65,29 @@ class JobTemplateServiceTest extends AsyncFlatSpec with Matchers with MockitoSug
     // then
     result should contain theSameElementsAs(jobTemplates)
   }
+
+  "getJobTemplatesByIds" should "return job templates by ids" in {
+    // given
+    val jobTemplates = Seq(GenericShellJobTemplate, GenericSparkJobTemplate)
+    when(jobTemplateRepository.getJobTemplatesByIds(eqTo(Seq(1,2)))(any[ExecutionContext])).thenReturn(Future{jobTemplates})
+
+    // when
+    val result = await(underTest.getJobTemplatesByIds(Seq(1,2)))
+
+    // then
+    result should contain theSameElementsAs jobTemplates
+  }
+
+  "getJobTemplateIdsByNames" should "return a mapping from names to template ids" in {
+    // given
+    val jobTemplateNames = Seq("Template A", "Template B")
+    val jobTemplateIdNameMap = Map("Template A" -> 11L, "Template B" -> 12L)
+    when(jobTemplateRepository.getJobTemplateIdsByNames(eqTo(jobTemplateNames))(any[ExecutionContext])).thenReturn(Future{jobTemplateIdNameMap})
+
+    // when
+    val result = await(underTest.getJobTemplateIdsByNames(jobTemplateNames))
+
+    // then
+    result should contain theSameElementsAs jobTemplateIdNameMap
+  }
 }

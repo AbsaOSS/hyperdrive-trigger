@@ -102,22 +102,22 @@ class WorkflowController @Inject()(workflowService: WorkflowService) {
 
   @GetMapping(path = Array("/workflow/export"))
   def exportWorkflow(@RequestParam id: Long): CompletableFuture[ResponseEntity[ByteArrayResource]] = {
-    workflowService.getWorkflow(id).map { workflow =>
+    workflowService.exportWorkflow(id).map { workflowExport =>
       val resource = new ByteArrayResource(
-        ObjectMapperSingleton.getObjectMapper.writeValueAsBytes(workflow)
+        ObjectMapperSingleton.getObjectMapper.writerWithDefaultPrettyPrinter.writeValueAsBytes(workflowExport)
       )
 
       ResponseEntity.ok()
         .contentType(MediaType.parseMediaType("application/json"))
-        .header(HttpHeaders.CONTENT_DISPOSITION, s"attachment; filename=${workflow.name}.json")
+        .header(HttpHeaders.CONTENT_DISPOSITION, s"attachment; filename=${workflowExport.workflowJoined.name}.json")
         .body(resource)
     }.toJava.toCompletableFuture
   }
 
   @PostMapping(path = Array("/workflow/import"))
   def importWorkflow(@RequestPart("file") file: MultipartFile): CompletableFuture[WorkflowJoined] = {
-    val workflow = ObjectMapperSingleton.getObjectMapper.readValue(file.getBytes, classOf[WorkflowJoined])
-    Future.successful(workflow).toJava.toCompletableFuture
+    val workflowImport = ObjectMapperSingleton.getObjectMapper.readValue(file.getBytes, classOf[WorkflowImportExportWrapper])
+    workflowService.importWorkflow(workflowImport)
   }
 
 }

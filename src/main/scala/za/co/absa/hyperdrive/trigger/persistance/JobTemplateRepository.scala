@@ -27,6 +27,7 @@ trait JobTemplateRepository extends Repository {
   def insertJobTemplate(jobTemplate: JobTemplate)(implicit ec: ExecutionContext): Future[Either[ApiError, Long]]
   def getJobTemplatesByIds(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[JobTemplate]]
   def getJobTemplates()(implicit ec: ExecutionContext): Future[Seq[JobTemplate]]
+  def getJobTemplateIdsByNames(names: Seq[String])(implicit ec: ExecutionContext): Future[Map[String, Long]]
 }
 
 @stereotype.Repository
@@ -56,4 +57,11 @@ class JobTemplateRepositoryImpl extends JobTemplateRepository {
   override def getJobTemplates()(implicit ec: ExecutionContext): Future[Seq[JobTemplate]] = db.run(
     jobTemplateTable.result
   )
+
+  override def getJobTemplateIdsByNames(names: Seq[String])(implicit ec: ExecutionContext): Future[Map[String, Long]] = db.run(
+    jobTemplateTable
+      .filter(_.name inSetBind names)
+      .map(jobTemplate => jobTemplate.name -> jobTemplate.id)
+      .result
+  ).flatMap(seq => Future{seq.toMap})
 }

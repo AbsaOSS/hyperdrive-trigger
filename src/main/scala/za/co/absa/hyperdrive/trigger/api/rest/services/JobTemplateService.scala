@@ -27,6 +27,8 @@ trait JobTemplateService {
 
   def resolveJobTemplate(dagDefinition: DagDefinitionJoined, triggeredBy: String)(implicit ec: ExecutionContext): Future[DagInstanceJoined]
   def getJobTemplates()(implicit ec: ExecutionContext): Future[Seq[JobTemplate]]
+  def getJobTemplatesByIds(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[JobTemplate]]
+  def getJobTemplateIdsByNames(names: Seq[String])(implicit ec: ExecutionContext): Future[Map[String, Long]]
 }
 
 @Service
@@ -41,4 +43,9 @@ class JobTemplateServiceImpl(override val jobTemplateRepository: JobTemplateRepo
   override def getJobTemplates()(implicit ec: ExecutionContext): Future[Seq[JobTemplate]] =
     jobTemplateRepository.getJobTemplates()
 
+  override def getJobTemplatesByIds(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[JobTemplate]] =
+    jobTemplateRepository.getJobTemplatesByIds(ids)
+
+  override def getJobTemplateIdsByNames(names: Seq[String])(implicit ec: ExecutionContext): Future[Map[String, Long]] =
+    jobTemplateRepository.getJobTemplateIdsByNames(names)
 }
