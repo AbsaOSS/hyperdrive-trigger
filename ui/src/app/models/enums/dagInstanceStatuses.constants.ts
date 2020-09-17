@@ -20,6 +20,7 @@ export const dagInstanceStatuses = {
   RUNNING: new StatusModel('Running', 'blue', 'play'),
   SUCCEEDED: new StatusModel('Succeeded', 'green', 'success-standard'),
   FAILED: new StatusModel('Failed', 'red', 'error-standard'),
+  SKIPPED: new StatusModel('Skipped', 'grey', 'fast-forward'),
 
   getStatuses(): StatusModel[] {
     return [this.IN_QUEUE, this.RUNNING, this.SUCCEEDED, this.FAILED];
