@@ -22,7 +22,7 @@
     <version>0.2.1-SNAPSHOT</version>
     <groupId>za.co.absa</groupId>
     <artifactId>hyperdrive-trigger</artifactId>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
 
     <name>hyperdrive-trigger</name>
     <description>Hyperdrive-Trigger is a scheduler and GUI for hyperdrive.</description>
@@ -114,7 +114,6 @@
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
         <scalatest-maven-plugin.version>2.0.0</scalatest-maven-plugin.version>
         <frontend.maven.plugin.version>1.9.0</frontend.maven.plugin.version>
-        <maven.war.plugin.version>2.6</maven.war.plugin.version>
         <commons.lang3.version>3.11</commons.lang3.version>
         <buildnumber.maven.plugin.version>1.4</buildnumber.maven.plugin.version>
 
@@ -204,7 +203,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
             <version>${spring-boot-starter-tomcat.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
@@ -322,18 +320,8 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>${maven.war.plugin.version}</version>
+                <artifactId>maven-jar-plugin</artifactId>
                 <configuration>
-                    <failOnMissingWebXml>false</failOnMissingWebXml>
-                    <webResources>
-                        <resource>
-                            <directory>target/classes/ui</directory>
-                            <targetPath>/</targetPath>
-                            <filtering>false</filtering>
-                        </resource>
-                    </webResources>
-                    <packagingExcludes>META-INF/*.SF, META-INF/*.DSA, META-INF/*.RSA</packagingExcludes>
                     <archive>
                         <manifestEntries>
                             <App-Version>${project.version}</App-Version>

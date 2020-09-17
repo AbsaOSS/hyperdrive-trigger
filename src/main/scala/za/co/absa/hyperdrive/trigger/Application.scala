@@ -89,3 +89,7 @@ object ObjectMapperSingleton {
 
   def getObjectMapper: ObjectMapper = objectMapper
 }
+
+object Application extends App {
+  SpringApplication.run(classOf[Application], args: _*)
+}
