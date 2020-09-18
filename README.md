@@ -46,6 +46,35 @@ Tested with:
 > Note: Docker is not required.
 
 # How to build and run
+## A
+
+## Embedded Tomcat
+#### Tested with :
+ - **Maven 3.5.4+**
+ - **NPM 6.14.4**
+ - **Angular CLI 9.0.3**
+ - **OpenJDK 1.8.0_25**
+ 
+For development purposes, hyperdrive-trigger can be executed as a application with embedded tomcat. Embedded tomcat version can be found in **feature/embedded-tomcat-2** branch with latest dev changes.
+
+To build executable jar and execute it use following commands:
+- Package jar: `mvn clean package` or without tests `mvn clean package -DskipTests`
+- Execute it: `java -jar ./target/hyperdrive-trigger-<VERSION>.jar`
+
+Access the application at 
+```
+http://localhost:7123/#
+```
+
+For fast, local and iterative front end development you can run ui separatly using following commands: 
+- Install required packages: `cd ui & npm install`
+- Strat front end application: `cd ui & ng serve` or `cd ui & npm start`
+
+Access the application at 
+```
+http://localhost:4200/#
+```
+ 
 ## Docker image
 For development purposes, hyperdrive-trigger can be executed as a docker image.
 The provided docker composition consists of one container for the hyperdrive-trigger application and a container for the Postgres database. 
@@ -85,6 +114,7 @@ This removes stopped containers and volumes that are not referenced by any conta
 ## Web Application Archive
 #### Tested with :
  - **Tomcat 9.0.24+**
+ - **Maven 3.5.4+**
  
 Hyperdrive-trigger can be packaged as a Web Application Archive and executed in web server.  
 
