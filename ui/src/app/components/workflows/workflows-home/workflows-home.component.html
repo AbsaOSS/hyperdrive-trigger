@@ -43,7 +43,7 @@
   </div>
 </clr-modal>
 
-<clr-datagrid (clrDgRefresh)="onClarityDgRefresh($event)">
+<clr-datagrid [(clrDgSelected)]="selected" [clrDgPreserveSelection]="true" (clrDgRefresh)="onClarityDgRefresh($event)">
 
   <clr-dg-action-bar>
     <div class="btn-group">
@@ -62,6 +62,19 @@
       <button type="button" class="btn btn-sm btn-secondary" (click)="clearSort()">
         <clr-icon shape="trash"></clr-icon>
         Clear sort
+      </button>
+    </div>
+  </clr-dg-action-bar>
+
+  <clr-dg-action-bar>
+    <div class="btn-group">
+      <button type="button" class="btn btn-sm btn-secondary" [disabled]="isBulkActivateButtonDisabled(selected)" (click)="clearSort()">
+        <!--        <clr-icon shape="plus"></clr-icon>-->
+        Activate
+      </button>
+      <button type="button" class="btn btn-sm btn-secondary" [disabled]="isBulkDeactivateButtonDisabled(selected)" (click)="clearSort()">
+<!--        <clr-icon shape="plus"></clr-icon>-->
+        Deactivate
       </button>
     </div>
   </clr-dg-action-bar>

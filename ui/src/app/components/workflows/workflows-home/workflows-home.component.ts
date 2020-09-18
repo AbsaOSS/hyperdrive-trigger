@@ -51,6 +51,7 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
   workflows: WorkflowModel[] = [];
   absoluteRoutes = absoluteRoutes;
   workflowsHomeColumns = workflowsHomeColumns;
+  selected: WorkflowModel[] = [];
 
   removeWorkflowFilterSubject: Subject<any> = new Subject();
   sort: SortAttributesModel = undefined;
@@ -157,6 +158,14 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
 
   clearSort() {
     !!this.sort ? (this.columns.find((_) => _.field == this.sort.by).sortOrder = 0) : undefined;
+  }
+
+  isBulkActivateButtonDisabled(selected: WorkflowModel[]) {
+    return selected.length == 0 || selected.some((workflow) => workflow.isActive);
+  }
+
+  isBulkDeactivateButtonDisabled(selected: WorkflowModel[]) {
+    return selected.length == 0 || selected.some((workflow) => !workflow.isActive);
   }
 
   ngOnDestroy(): void {
