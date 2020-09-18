@@ -15,10 +15,6 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.utils
 
-import java.time.LocalDateTime
-
-import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
-import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.InQueue
 import za.co.absa.hyperdrive.trigger.models._
 
 import scala.collection.immutable.SortedMap
@@ -27,35 +23,23 @@ import scala.util.{Failure, Success, Try}
 
 object JobTemplateResolutionUtil {
 
-  def resolveDagDefinitionJoined(dagDefinitionJoined: DagDefinitionJoined, jobTemplates: Seq[JobTemplate], triggeredBy: String): DagInstanceJoined = {
+  def resolveDagDefinitionJoined(dagDefinitionJoined: DagDefinitionJoined, jobTemplates: Seq[JobTemplate]): Seq[ResolvedJobDefinition] = {
     val jobTemplatesLookup = jobTemplates.map(t => t.id -> t).toMap
-    DagInstanceJoined(
-      status = DagInstanceStatuses.InQueue,
-      triggeredBy = triggeredBy,
-      workflowId = dagDefinitionJoined.workflowId,
-      jobInstances = dagDefinitionJoined.jobDefinitions.map(jd => {
-        val jobTemplate = Try(jobTemplatesLookup(jd.jobTemplateId)) match {
-          case Success(value) => value
-          case Failure(_) => throw new NoSuchElementException(s"Couldn't find template with id ${jd.jobTemplateId}")
-        }
-        resolveJobDefinition(jd, jobTemplate)
-      }),
-      started = LocalDateTime.now(),
-      finished = None
-    )
+    dagDefinitionJoined.jobDefinitions.map(jd => {
+      val jobTemplate = Try(jobTemplatesLookup(jd.jobTemplateId)) match {
+        case Success(value) => value
+        case Failure(_) => throw new NoSuchElementException(s"Couldn't find template with id ${jd.jobTemplateId}")
+      }
+      resolveJobDefinition2(jd, jobTemplate)
+    })
   }
 
-  private def resolveJobDefinition(jobDefinition: JobDefinition, jobTemplate: JobTemplate): JobInstance = {
-    JobInstance(
-      jobName = jobDefinition.name,
+  private def resolveJobDefinition2(jobDefinition: JobDefinition, jobTemplate: JobTemplate): ResolvedJobDefinition = {
+    ResolvedJobDefinition(
       jobType = jobTemplate.jobType,
+      name = jobDefinition.name,
       jobParameters = mergeJobParameters(jobDefinition.jobParameters, jobTemplate.jobParameters),
-      jobStatus = InQueue,
-      executorJobId = None,
-      created = LocalDateTime.now(),
-      updated = None,
-      order = jobDefinition.order,
-      dagInstanceId = 0
+      order = jobDefinition.order
     )
   }
 
