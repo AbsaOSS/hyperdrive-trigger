@@ -23,6 +23,6 @@ export const dagInstanceStatuses = {
   SKIPPED: new StatusModel('Skipped', 'grey', 'fast-forward'),
 
   getStatuses(): StatusModel[] {
-    return [this.IN_QUEUE, this.RUNNING, this.SUCCEEDED, this.FAILED];
+    return [this.IN_QUEUE, this.RUNNING, this.SUCCEEDED, this.FAILED, this.SKIPPED];
   },
 };
