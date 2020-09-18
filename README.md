@@ -205,6 +205,8 @@ Hyperdrive-trigger can be packaged as a Web Application Archive and executed in 
 - With unit tests: `mvn clean package`
 
 # User Interface
+- **Workflows**: Overview of all workflows.
+![](/docs/img/all_workflows.png)
 
 # How to contribute
 Please see our [**Contribution Guidelines**](CONTRIBUTING.md).
