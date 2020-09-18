@@ -46,7 +46,90 @@ Tested with:
 > Note: Docker is not required.
 
 # How to build and run
-## A
+## Application properties
+Before building application, update of application properties is required. Application properties templeate file could be find at `src/main/resources/application.properties`. Application properties that could be adjusted: 
+
+```
+# Version of application. 
+version=@project.version@
+# Enviroment where application will be running
+environment=Local
+```
+```
+# How will users authenticate. Available options: inmemory, ldap
+auth.mechanism=inmemory
+# INMEMORY authentication: username and password defined here will be used for authentication.
+auth.inmemory.user=user
+auth.inmemory.password=password
+# LDAP authentication: props template that has to be defined in case of LDAP authentication
+auth.ad.domain=
+auth.ad.server=
+auth.ldap.search.base=
+auth.ldap.search.filter=
+```
+```
+# Unique app id, for easier application identification
+appUniqueId=
+```
+```
+# Core properties.
+# How many threads to use for each part of the "scheduler".
+# Heart beat interval in milliseconds.
+scheduler.thread.pool.size=10
+scheduler.sensors.thread.pool.size=20
+scheduler.executors.thread.pool.size=30
+scheduler.jobs.parallel.number=100
+scheduler.heart.beat=5000
+```
+```
+#Kafka sensor properties. Not all are required. Adjust according to your use case.
+kafkaSource.group.id=hyper_drive_${appUniqueId}
+kafkaSource.key.deserializer=org.apache.kafka.common.serialization.StringDeserializer
+kafkaSource.value.deserializer=org.apache.kafka.common.serialization.StringDeserializer
+kafkaSource.poll.duration=500
+kafkaSource.max.poll.records=3
+kafkaSource.properties.enable.auto.commit=false
+kafkaSource.properties.auto.offset.reset=latest
+kafkaSource.properties.security.protocol=
+kafkaSource.properties.ssl.truststore.location=
+kafkaSource.properties.ssl.truststore.password=
+kafkaSource.properties.ssl.keystore.location=
+kafkaSource.properties.ssl.keystore.password=
+kafkaSource.properties.ssl.key.password=
+kafkaSource.properties.sasl.kerberos.service.name=
+kafkaSource.properties.sasl.mechanism=
+kafkaSource.properties.sasl.jaas.config=
+```
+```
+#Spark yarn sink properties. Properties used to deploy and run Spark job in Yarn. Not all are required. Adjust according to your use case.
+sparkYarnSink.hadoopResourceManagerUrlBase=
+sparkYarnSink.hadoopConfDir=
+sparkYarnSink.sparkHome=
+sparkYarnSink.master=yarn
+sparkYarnSink.submitTimeout=160000
+sparkYarnSink.filesToDeploy=
+sparkYarnSink.additionalConfs.spark.ui.port=
+sparkYarnSink.additionalConfs.spark.executor.extraJavaOptions=
+sparkYarnSink.additionalConfs.spark.driver.extraJavaOptions=
+sparkYarnSink.additionalConfs.spark.driver.memory=2g
+sparkYarnSink.additionalConfs.spark.executor.instances=2
+sparkYarnSink.additionalConfs.spark.executor.cores=2
+sparkYarnSink.additionalConfs.spark.executor.memory=2g
+sparkYarnSink.additionalConfs.spark.yarn.keytab=
+sparkYarnSink.additionalConfs.spark.yarn.principal=
+sparkYarnSink.additionalConfs.spark.shuffle.service.enabled=true
+sparkYarnSink.additionalConfs.spark.dynamicAllocation.enabled=true
+```
+```
+#Postgresql properties for connection to trigger metastore
+db.driver=org.postgresql.Driver
+db.url=jdbc:postgresql://
+db.user=
+db.password=
+db.keepAliveConnection=true
+db.connectionPool=HikariCP
+db.numThreads=4
+```
 
 ## Embedded Tomcat
 #### Tested with :
@@ -55,7 +138,7 @@ Tested with:
  - **Angular CLI 9.0.3**
  - **OpenJDK 1.8.0_25**
  
-For development purposes, hyperdrive-trigger can be executed as a application with embedded tomcat. Embedded tomcat version can be found in **feature/embedded-tomcat-2** branch with latest dev changes.
+For development purposes, hyperdrive-trigger can be executed as a application with embedded tomcat. Embedded tomcat version can be found in **feature/embedded-tomcat-2** branch with latest changes from develop branch.
 
 To build executable jar and execute it use following commands:
 - Package jar: `mvn clean package` or without tests `mvn clean package -DskipTests`
