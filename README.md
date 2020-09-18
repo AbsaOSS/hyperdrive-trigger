@@ -7,7 +7,7 @@
 ___
 
 <!-- toc -->
-- [What is Hyperdrive-trigger?](#what-is-enceladus)
+- [What is Hyperdrive-trigger?](#what-is-hyperdive-trigger)
 - [Requirements](#requirements)
 - [How to build](#how-to-build)
 - [How to run](#how-to-run)
@@ -17,7 +17,7 @@ ___
 <!-- tocstop -->
 
 ## What is Hyperdrive-trigger?
-**Hyperdrive-trigger** is a **Bla bla** bla bla bla.
+**Hyperdrive-trigger** is a **Event based workflow manager and scheduler**.
 
 ## Requirements
 |              | Dev version (0.2.0)    |
