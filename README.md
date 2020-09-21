@@ -12,7 +12,7 @@ ___
 - [How to build and run](#how-to-build-and-run)
     - [Application properties](#application-properties)
     - [Embedded Tomcat](#embedded-tomcat)
-    - # [Docker image](#docker-image)
+    - [Docker image](#docker-image)
     - [Web Application Archive](#web-application-archive)
 - [User Interface](#user-interface)
 - [How to contribute](#how-to-contribute)

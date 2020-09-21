@@ -18,7 +18,12 @@ import { workflowModes } from '../../../../models/enums/workflowModes.constants'
 import { Subject, Subscription } from 'rxjs';
 import { Action } from '@ngrx/store';
 import { WorkflowFormPartsModel } from '../../../../models/workflowFormParts.model';
-import { WorkflowAddEmptyJob, WorkflowJobsReorder, WorkflowRemoveJob } from '../../../../stores/workflows/workflows.actions';
+import {
+  WorkflowAddEmptyJob,
+  WorkflowCopyJob,
+  WorkflowJobsReorder,
+  WorkflowRemoveJob,
+} from '../../../../stores/workflows/workflows.actions';
 import { JobEntryModel } from '../../../../models/jobEntry.model';
 
 @Component({
@@ -77,6 +82,10 @@ export class JobsComponent implements OnDestroy, OnInit, AfterViewChecked {
 
   removeJob(jobId: string): void {
     this.changes.next(new WorkflowRemoveJob(jobId));
+  }
+
+  copyJob(jobId: string): void {
+    this.changes.next(new WorkflowCopyJob(jobId));
   }
 
   getJobName(jobId: string) {
