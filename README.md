@@ -32,7 +32,6 @@ User interface also provide nice visualization of running workflow with ability 
 
 # Requirements
 Tested with:
-|              | version                |
 | ------------ | ---------------------- | 
 | OpenJDK      | 1.8.0_25               |
 | Scala        | 2.11                   |
@@ -42,6 +41,8 @@ Tested with:
 | Hadoop Yarn  | 2.6.4.0+               | 
 | Tomcat       | 9.0.24+                | 
 | Docker       | 2.3.0.5                | 
+| NPM          | 6.14.4                 | 
+| Angular CLI  | 9.0.3                  | 
 
 > Note: Docker is not required.
 
