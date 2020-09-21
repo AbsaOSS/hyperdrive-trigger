@@ -30,11 +30,11 @@ object JobTemplateResolutionUtil {
         case Success(value) => value
         case Failure(_) => throw new NoSuchElementException(s"Couldn't find template with id ${jd.jobTemplateId}")
       }
-      resolveJobDefinition2(jd, jobTemplate)
+      resolveJobDefinition(jd, jobTemplate)
     })
   }
 
-  private def resolveJobDefinition2(jobDefinition: JobDefinition, jobTemplate: JobTemplate): ResolvedJobDefinition = {
+  private def resolveJobDefinition(jobDefinition: JobDefinition, jobTemplate: JobTemplate): ResolvedJobDefinition = {
     ResolvedJobDefinition(
       jobType = jobTemplate.jobType,
       name = jobDefinition.name,

@@ -61,7 +61,7 @@ class EventProcessorTest extends FlatSpec with MockitoSugar with Matchers with B
     val dagInstanceJoined = createDagInstanceJoined()
     when(eventRepository.getExistEvents(any())(any[ExecutionContext])).thenReturn(Future{Seq()})
     when(dagDefinitionRepository.getJoinedDagDefinition(eqTo(sensorId))(any[ExecutionContext])).thenReturn(Future{Some(dagDefinition)})
-    when(dagInstanceRepository.hasRunningDagInstance(any())(any[ExecutionContext])).thenReturn(Future{false})
+    when(dagInstanceRepository.hasInQueueDagInstance(any())(any[ExecutionContext])).thenReturn(Future{false})
     when(dagInstanceService.createDagInstance(any(), eqTo(triggeredBy), any())(any[ExecutionContext])).thenReturn(Future{dagInstanceJoined})
     when(dagInstanceRepository.insertJoinedDagInstances(any())(any[ExecutionContext])).thenReturn(Future{(): Unit})
 

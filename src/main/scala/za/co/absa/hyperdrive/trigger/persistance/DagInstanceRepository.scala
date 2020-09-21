@@ -17,6 +17,7 @@ package za.co.absa.hyperdrive.trigger.persistance
 
 import org.springframework.stereotype
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
+import za.co.absa.hyperdrive.trigger.models.tables.JdbcTypeMapper
 import za.co.absa.hyperdrive.trigger.models.{DagInstance, DagInstanceJoined, Event}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -31,10 +32,12 @@ trait DagInstanceRepository extends Repository {
   def update(dagInstance: DagInstance): Future[Unit]
 
   def hasRunningDagInstance(workflowId: Long)(implicit executionContext: ExecutionContext): Future[Boolean]
+
+  def hasInQueueDagInstance(workflowId: Long)(implicit executionContext: ExecutionContext): Future[Boolean]
 }
 
 @stereotype.Repository
-class DagInstanceRepositoryImpl extends DagInstanceRepository {
+class DagInstanceRepositoryImpl extends DagInstanceRepository with JdbcTypeMapper {
   import profile.api._
 
   override def insertJoinedDagInstances(dagInstancesJoined: Seq[(DagInstanceJoined, Event)])(implicit executionContext: ExecutionContext): Future[Unit] = db.run(
@@ -83,5 +86,12 @@ class DagInstanceRepositoryImpl extends DagInstanceRepository {
     )
   }
 
+  override def hasInQueueDagInstance(workflowId: Long)(implicit executionContext: ExecutionContext): Future[Boolean] = {
+    db.run(
+      dagInstanceTable.filter(dagInstance =>
+        dagInstance.workflowId === workflowId && dagInstance.status.inSetBind(Set(DagInstanceStatuses.InQueue))
+      ).exists.result
+    )
+  }
 
 }
