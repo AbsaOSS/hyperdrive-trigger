@@ -7,9 +7,13 @@
 ___
 
 <!-- toc -->
-- [What is Hyperdrive-trigger?](#what-is-hyperdive-trigger)
+- [What is Hyperdrive-trigger?](#what-is-hyperdrive-trigger)
 - [Requirements](#requirements)
-- [How to build](#how-to-build)
+- [How to build and run](#how-to-build-and-run)
+    - [Application properties](#application-properties)
+    - [Embedded Tomcat](#embedded-tomcat)
+    - [Docker image](#docker-image)
+    - [Web Application Archive](#web-application-archive)
 - [User Interface](#user-interface)
 - [How to contribute](#how-to-contribute)
 - [Documentation](#documentation)
@@ -222,7 +226,7 @@ Hyperdrive-trigger can be packaged as a Web Application Archive and executed in 
 - **Runs**: Overview of all workflow's runs.
 ![](/docs/img/all_runs.png)
 
-- **Run Detail**.
+- **Run Detail**
 ![](/docs/img/run_detail.png)
 
 
