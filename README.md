@@ -208,6 +208,22 @@ Hyperdrive-trigger can be packaged as a Web Application Archive and executed in 
 - **Workflows**: Overview of all workflows.
 ![](/docs/img/all_workflows.png)
 
+- **Show workflow**
+![](/docs/img/create_workflow.png)
+
+- **Create workflow**
+![](/docs/img/create_workflow.png)
+
+- **Workflow history comparison**
+![](/docs/img/history_comparison.png)
+
+- **Runs**: Overview of all workflow's runs.
+![](/docs/img/all_runs.png)
+
+- **Run Detail**.
+![](/docs/img/run_detail.png)
+
+
 # How to contribute
 Please see our [**Contribution Guidelines**](CONTRIBUTING.md).
 
