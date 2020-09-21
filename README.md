@@ -32,6 +32,7 @@ User interface also provide nice visualization of running workflow with ability 
 
 # Requirements
 Tested with:
+|              |                        |
 | ------------ | ---------------------- | 
 | OpenJDK      | 1.8.0_25               |
 | Scala        | 2.11                   |
