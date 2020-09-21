@@ -12,11 +12,10 @@ ___
 - [How to build and run](#how-to-build-and-run)
     - [Application properties](#application-properties)
     - [Embedded Tomcat](#embedded-tomcat)
-    - [Docker image](#docker-image)
+    - # [Docker image](#docker-image)
     - [Web Application Archive](#web-application-archive)
 - [User Interface](#user-interface)
 - [How to contribute](#how-to-contribute)
-- [Documentation](#documentation)
 <!-- tocstop -->
 
 # What is Hyperdrive-trigger?
@@ -232,7 +231,3 @@ Hyperdrive-trigger can be packaged as a Web Application Archive and executed in 
 
 # How to contribute
 Please see our [**Contribution Guidelines**](CONTRIBUTING.md).
-
-# Documentation
-Please see the [documentation pages](https://page/).
-
