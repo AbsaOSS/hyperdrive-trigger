@@ -19,6 +19,9 @@ import java.time.LocalDateTime
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype
+import slick.dbio
+import slick.dbio.Effect
+import slick.sql.FixedSqlAction
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, GenericDatabaseError}
 import za.co.absa.hyperdrive.trigger.models.{ProjectInfo, _}
 
@@ -37,6 +40,8 @@ trait WorkflowRepository extends Repository {
   def deleteWorkflow(id: Long, user: String)(implicit ec: ExecutionContext): Future[Unit]
   def updateWorkflow(workflow: WorkflowJoined, user: String)(implicit ec: ExecutionContext): Future[Either[ApiError, Unit]]
   def switchWorkflowActiveState(id: Long, user: String)(implicit ec: ExecutionContext): Future[Unit]
+  def activateWorkflows(ids: Seq[Long], user: String)(implicit ec: ExecutionContext): Future[Unit]
+  def deactivateWorkflows(ids: Seq[Long], user: String)(implicit ec: ExecutionContext): Future[Unit]
   def getProjects()(implicit ec: ExecutionContext): Future[Seq[String]]
   def getProjectsInfo()(implicit ec: ExecutionContext): Future[Seq[ProjectInfo]]
 }
@@ -173,7 +178,7 @@ class WorkflowRepositoryImpl(override val workflowHistoryRepository: WorkflowHis
 
   override def switchWorkflowActiveState(id: Long, user: String)(implicit ec: ExecutionContext): Future[Unit] = {
     val workflowQuery = workflowTable.filter(_.id === id).map(workflow => (workflow.isActive, workflow.updated))
-    val resultAction = for {
+    val resultAction: DBIOAction[Int, NoStream, Effect.Read with Effect.Write] = for {
       workflowOpt <- workflowQuery.result.headOption
       workflowUpdatedActionOpt = workflowOpt.map(
         workflowValue =>
@@ -187,7 +192,11 @@ class WorkflowRepositoryImpl(override val workflowHistoryRepository: WorkflowHis
     db.run(
       resultAction.flatMap(
         result => getWorkflowJoined(id).map(
-          workflow => workflowHistoryRepository.update(workflow, user)
+          workflow => {
+            //workflowHistoryRepository.update(workflow, user)
+            val a: DBIO[Long] = DBIO.failed(new RuntimeException("Error"))
+            a
+          }
         ).flatMap(_.map(_ => result))
       ).flatMap(result => {
         if (result == 1) {
@@ -198,6 +207,29 @@ class WorkflowRepositoryImpl(override val workflowHistoryRepository: WorkflowHis
       }).transactionally
     )
   }
+
+  override def activateWorkflows(ids: Seq[Long], user: String)(implicit ec: ExecutionContext): Future[Unit] = {
+    val resultAction = workflowTable.filter(_.id inSetBind ids)
+      .map(workflow => (workflow.isActive, workflow.updated))
+      .update((true, Option(LocalDateTime.now())))
+
+    db.run(
+      resultAction.flatMap(
+        result => ids.map(id => getWorkflowJoined(id).map(
+            workflow => workflowHistoryRepository.update(workflow, user)
+          )
+        ).flatten
+      ).flatMap(result => {
+        if (result == 1) {
+          DBIO.successful((): Unit)
+        } else {
+          DBIO.failed(new Exception("Update workflow exception"))
+        }
+      }).transactionally
+    )
+  }
+
+  override def deactivateWorkflows(ids: Seq[Long], user: String)(implicit ec: ExecutionContext): Future[Unit] = ???
 
   override def getProjects()(implicit ec: ExecutionContext): Future[Seq[String]] = db.run(
     workflowTable.map(_.project).distinct.sortBy(_.value).result
