@@ -13,16 +13,13 @@
  * limitations under the License.
  */
 
-import { StatusModel } from '../status.model';
+package za.co.absa.hyperdrive.trigger.models
 
-export const dagInstanceStatuses = {
-  IN_QUEUE: new StatusModel('InQueue', 'darkmagenta', 'clock'),
-  RUNNING: new StatusModel('Running', 'blue', 'play'),
-  SUCCEEDED: new StatusModel('Succeeded', 'green', 'success-standard'),
-  FAILED: new StatusModel('Failed', 'red', 'error-standard'),
-  SKIPPED: new StatusModel('Skipped', 'grey', 'fast-forward'),
+import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
 
-  getStatuses(): StatusModel[] {
-    return [this.IN_QUEUE, this.RUNNING, this.SUCCEEDED, this.FAILED, this.SKIPPED];
-  },
-};
+case class ResolvedJobDefinition(
+  jobType: JobType,
+  name: String,
+  jobParameters: JobParameters,
+  order: Int
+)

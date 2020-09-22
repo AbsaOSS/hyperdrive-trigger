@@ -21,7 +21,7 @@ import java.time.LocalDateTime
 import org.quartz.JobKey
 import org.quartz.impl.matchers.GroupMatcher
 import org.scalatest._
-import za.co.absa.hyperdrive.trigger.api.rest.services.{JobTemplateFixture, JobTemplateService, JobTemplateServiceImpl}
+import za.co.absa.hyperdrive.trigger.api.rest.services.{DagInstanceService, DagInstanceServiceImpl, JobTemplateFixture, JobTemplateService, JobTemplateServiceImpl}
 import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes
 import za.co.absa.hyperdrive.trigger.persistance._
@@ -56,6 +56,8 @@ class TimeSensorIntegrationTest extends FlatSpec with Matchers with BeforeAndAft
 
   private val jobTemplateService: JobTemplateService = new JobTemplateServiceImpl(jobTemplateRepository)
 
+  private val dagInstanceService: DagInstanceService = new DagInstanceServiceImpl(jobTemplateService)
+
   override def beforeAll: Unit = {
     h2SchemaSetup()
   }
@@ -69,7 +71,7 @@ class TimeSensorIntegrationTest extends FlatSpec with Matchers with BeforeAndAft
   }
 
   it should "persist an event when the time sensor is fired" in {
-    val processor = new EventProcessor(eventRepository, dagDefinitionRepository, dagInstanceRepository, jobTemplateService)
+    val processor = new EventProcessor(eventRepository, dagDefinitionRepository, dagInstanceRepository, dagInstanceService)
     val sensors = new Sensors(processor, sensorRepository, dagInstanceRepository)
     val cronExpression = "0/3 * * * * ?"
 
