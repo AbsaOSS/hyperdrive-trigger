@@ -26,7 +26,7 @@ A workflow is defined via the graphical interface and consists of three parts: *
 - **Sensor** - Definition of workflow trigger, describes when workflow will be executed. Sensors that could be used:
   - *Kafka* - waits for kafka message with specific message 
   - *Time* - time based trigger, cron-quartz expression or user friendly time recurring definition can be used
-  - *Recurring* - worklfow is triggered always when previous execution is finished 
+  - *Recurring* - workflow is triggered always when previous execution is finished 
 - **Jobs** - list of jobs. Supported job types: 
   - *Generic Spark Job* - spark job deployed to Apache Hadoop YARN
   - *Generic Shell Job* - job executing a user-defined shell script
