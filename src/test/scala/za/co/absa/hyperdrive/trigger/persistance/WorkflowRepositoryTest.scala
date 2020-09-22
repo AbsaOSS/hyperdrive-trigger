@@ -1,0 +1,86 @@
+/*
+ * Copyright 2018 ABSA Group Limited
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package za.co.absa.hyperdrive.trigger.persistance
+
+import org.mockito.ArgumentCaptor
+import org.mockito.ArgumentMatchers.{any, eq => eqTo}
+import org.mockito.Mockito._
+import org.scalatest.mockito.MockitoSugar
+import org.scalatest.{FlatSpec, _}
+import za.co.absa.hyperdrive.trigger.models.WorkflowJoined
+
+import scala.concurrent.ExecutionContext
+import scala.concurrent.ExecutionContext.Implicits.global
+
+class WorkflowRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach
+  with RepositoryTestBase with MockitoSugar {
+
+  val workflowHistoryRepository: WorkflowHistoryRepository = mock[WorkflowHistoryRepository]
+  val dagInstanceRepository: DagInstanceRepository = new DagInstanceRepositoryImpl { override val profile = h2Profile }
+
+  val workflowRepository: WorkflowRepository = new WorkflowRepositoryImpl(workflowHistoryRepository) {
+    override val profile = h2Profile
+  }
+
+  import h2Profile.api._
+
+  override def beforeAll: Unit = {
+    h2SchemaSetup()
+  }
+
+  override def afterAll: Unit = {
+    h2SchemaDrop()
+  }
+
+  override def afterEach: Unit = {
+    clearData()
+  }
+
+  "switchWorkflowActiveState " should "switch the active state and create a history entry" in {
+    createTestData()
+    val workflowId = TestData.w1.id
+    val isActiveBefore = TestData.w1.isActive
+    when(workflowHistoryRepository.update(any(), any())(any[ExecutionContext])).thenReturn(DBIO.successful(1L))
+
+    await(workflowRepository.switchWorkflowActiveState(workflowId, "testUser"))
+
+    val result = await(workflowRepository.getWorkflow(workflowId))
+    result.isActive shouldBe !isActiveBefore
+    val workflowCaptor: ArgumentCaptor[WorkflowJoined] = ArgumentCaptor.forClass(classOf[WorkflowJoined])
+    verify(workflowHistoryRepository, times(1)).update(workflowCaptor.capture(), eqTo("testUser"))(any[ExecutionContext])
+    workflowCaptor.getValue.id shouldBe workflowId
+    workflowCaptor.getValue.isActive shouldBe !isActiveBefore
+  }
+
+  it should "fail if the workflow doesn't exist" in {
+    when(workflowHistoryRepository.update(any(), any())(any[ExecutionContext])).thenReturn(DBIO.successful(1L))
+
+    val exception = the [Exception] thrownBy await(workflowRepository.switchWorkflowActiveState(42L, "testUser"))
+
+    exception.getMessage should include("42")
+  }
+
+  it should "fail if inserting the history entry fails" in {
+    createTestData()
+    val workflowId = TestData.w1.id
+    val isActiveBefore = TestData.w1.isActive
+    when(workflowHistoryRepository.update(any(), any())(any[ExecutionContext])).thenReturn(DBIO.failed(new Exception("Could not insert history entry")))
+
+    val exception = the [Exception] thrownBy await(workflowRepository.switchWorkflowActiveState(workflowId, "testUser"))
+
+    exception.getMessage shouldBe "Could not insert history entry"
+  }
+}
