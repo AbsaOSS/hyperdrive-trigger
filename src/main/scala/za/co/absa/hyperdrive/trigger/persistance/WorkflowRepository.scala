@@ -178,7 +178,7 @@ class WorkflowRepositoryImpl(override val workflowHistoryRepository: WorkflowHis
 
   override def switchWorkflowActiveState(id: Long, user: String)(implicit ec: ExecutionContext): Future[Unit] = {
     val workflowQuery = workflowTable.filter(_.id === id).map(workflow => (workflow.isActive, workflow.updated))
-    val resultAction: DBIOAction[Int, NoStream, Effect.Read with Effect.Write] = for {
+    val resultAction = for {
       workflowOpt <- workflowQuery.result.headOption
       workflowUpdatedActionOpt = workflowOpt.map(
         workflowValue =>
@@ -192,11 +192,7 @@ class WorkflowRepositoryImpl(override val workflowHistoryRepository: WorkflowHis
     db.run(
       resultAction.flatMap(
         result => getWorkflowJoined(id).map(
-          workflow => {
-            //workflowHistoryRepository.update(workflow, user)
-            val a: DBIO[Long] = DBIO.failed(new RuntimeException("Error"))
-            a
-          }
+          workflow => workflowHistoryRepository.update(workflow, user)
         ).flatMap(_.map(_ => result))
       ).flatMap(result => {
         if (result == 1) {
