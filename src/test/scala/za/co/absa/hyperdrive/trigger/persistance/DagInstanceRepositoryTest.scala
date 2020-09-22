@@ -88,4 +88,16 @@ class DagInstanceRepositoryTest extends FlatSpec with Matchers with BeforeAndAft
     result shouldBe false
   }
 
+  "dagInstanceRepository.hasInQueueDagInstance" should "return true when workflow with inQueue instance exists" in {
+    createTestData()
+    val result = await(dagInstanceRepository.hasInQueueDagInstance(TestData.w2.id))
+    result shouldBe true
+  }
+
+  it should "return false when workflow with inQueue instance does not exist" in {
+    createTestData()
+    val result = await(dagInstanceRepository.hasInQueueDagInstance(TestData.w3.id))
+    result shouldBe false
+  }
+
 }
