@@ -87,17 +87,14 @@ class WorkflowRepositoryImpl(override val workflowHistoryRepository: WorkflowHis
   )
 
   private def getWorkflowJoined(id: Long)(implicit ec: ExecutionContext): DBIO[WorkflowJoined] = {
-    val a = (for {
+    (for {
       w <- workflowTable if w.id === id
       s <- sensorTable if s.workflowId === id
       dd <- dagDefinitionTable if dd.workflowId === id
       jd <- jobDefinitionTable if jd.dagDefinitionId === dd.id
     } yield {
       (w, s, dd, jd)
-    }).result
-
-
-      a.map { wsddjd =>
+    }).result.map { wsddjd =>
       val workflowOption = wsddjd.headOption map {
         case (w,s,dd,_) =>
           WorkflowJoined(
@@ -192,6 +189,7 @@ class WorkflowRepositoryImpl(override val workflowHistoryRepository: WorkflowHis
       affected
     }
 
+
     db.run(
       resultAction.flatMap(
         result => getWorkflowJoined(id).map(
@@ -212,17 +210,17 @@ class WorkflowRepositoryImpl(override val workflowHistoryRepository: WorkflowHis
       .map(workflow => (workflow.isActive, workflow.updated))
       .update((true, Option(LocalDateTime.now())))
 
-    val initialAction: DBIO[Long] = DBIO.successful(1L)
-    val insertHistoryEntryActions = ids.aggregate(initialAction)(
-      (_, id: Long) => getWorkflowJoined(id).flatMap(workflow => workflowHistoryRepository.update(workflow, user)),
-      (action1, action2) => action1.flatMap(_ => action2))
+    val insertHistoryEntryActions = ids
+      .map(id => getWorkflowJoined(id).map(workflow => workflowHistoryRepository.update(workflow, user)))
+      .reduceLeftOption(_.andThen(_))
+      .getOrElse(DBIO.successful())
 
-    val wholeAction = updateIdsAction
-      .flatMap(_ => insertHistoryEntryActions)
-      .flatMap(_ => DBIO.successful())
-      .transactionally
-
-    db.run(wholeAction)
+    db.run(
+      updateIdsAction
+        .andThen(insertHistoryEntryActions)
+        .andThen(DBIO.successful())
+        .transactionally
+    )
   }
 
   override def deactivateWorkflows(ids: Seq[Long], user: String)(implicit ec: ExecutionContext): Future[Unit] = ???
