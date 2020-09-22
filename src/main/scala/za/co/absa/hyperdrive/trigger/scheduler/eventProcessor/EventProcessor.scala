@@ -43,8 +43,8 @@ class EventProcessor(eventRepository: EventRepository,
         dagDefinitionRepository.getJoinedDagDefinition(properties.sensorId).flatMap {
           case Some(joinedDagDefinition) =>
             for {
-              hasRunningDagInstance <- dagInstanceRepository.hasInQueueDagInstance(joinedDagDefinition.workflowId)
-              dagInstanceJoined <- dagInstanceService.createDagInstance(joinedDagDefinition, triggeredBy, hasRunningDagInstance)
+              hasInQueueDagInstance <- dagInstanceRepository.hasInQueueDagInstance(joinedDagDefinition.workflowId)
+              dagInstanceJoined <- dagInstanceService.createDagInstance(joinedDagDefinition, triggeredBy, hasInQueueDagInstance)
               dagInstanceJoinedEvents = newEvents.map(event => (dagInstanceJoined, event))
               _ <- dagInstanceRepository.insertJoinedDagInstances(dagInstanceJoinedEvents)
             } yield {
