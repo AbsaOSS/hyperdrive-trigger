@@ -145,11 +145,15 @@ trait RepositoryTestBase extends Repository {
 
     val dd1 = DagDefinition(workflowId = w1.id, id = 400)
     val dd2 = DagDefinition(workflowId = w2.id, id = 401)
-    val dagDefinitions = Seq(dd1, dd2)
+    val dd3 = DagDefinition(workflowId = w3.id, id = 402)
+    val dagDefinitions = Seq(dd1, dd2, dd3)
 
     val jd1dd1 = JobDefinition(dagDefinitionId = 400, jobTemplateId = 100, name = "jobDefinition1", jobParameters = JobParameters(Map(), Map(), Map()), order = 1, id = 501)
-    val jd2dd1 = JobDefinition(dagDefinitionId = 400, jobTemplateId = 101, name = "jobDefinition2", jobParameters = JobParameters(Map(), Map(), Map()), order = 1, id = 502)
-    val jobDefinitions = Seq(jd1dd1, jd2dd1)
+    val jd2dd1 = JobDefinition(dagDefinitionId = 400, jobTemplateId = 101, name = "jobDefinition2", jobParameters = JobParameters(Map(), Map(), Map()), order = 2, id = 502)
+    val jd1dd2 = JobDefinition(dagDefinitionId = 401, jobTemplateId = 101, name = "jobDefinition1", jobParameters = JobParameters(Map(), Map(), Map()), order = 1, id = 503)
+    val jd1dd3 = JobDefinition(dagDefinitionId = 402, jobTemplateId = 101, name = "jobDefinition1", jobParameters = JobParameters(Map(), Map(), Map()), order = 1, id = 504)
+
+    val jobDefinitions = Seq(jd1dd1, jd2dd1, jd1dd2, jd1dd3)
   }
 
   object TestSensors {
