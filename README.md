@@ -21,13 +21,13 @@ ___
 # What is Hyperdrive-trigger?
 **Hyperdrive-trigger** is a **Event based workflow manager and scheduler**.
 
-Workflow is defined via graphical interface and consists of three parts: **details**, **sensor** and **jobs**:
-- **details** - General workflow's information (workflow name, project name and whether is workflow active)
-- **sensor** - Definition of workflow trigger, describes when workflow will be executed. Sensors that could be used:
+A workflow is defined via the graphical interface and consists of three parts: **details**, **sensor** and **jobs**:
+- **Details** - General workflow's information (workflow name, project name and whether is workflow active)
+- **Sensor** - Definition of workflow trigger, describes when workflow will be executed. Sensors that could be used:
   - *Kafka* - waits for kafka message with specific message 
   - *Time* - time based trigger, cron-quartz expression or user friendly time recurring definition can be used
   - *Recurring* - worklfow is triggered always when previous execution is finished 
-- **jobs** - list of jobs, defined as a linear directed acyclic graph. Supported jobs types: 
+- **Jobs** - list of jobs. Supported job types: 
   - *Spark* - spark job deployed to Apache Hadoop YARN
   - *Shell* - shell job
 
@@ -155,8 +155,8 @@ http://localhost:7123/#
 ```
 
 For fast, local and iterative front end development you can run ui separatly using following commands: 
-- Install required packages: `cd ui & npm install`
-- Strat front end application: `cd ui & ng serve` or `cd ui & npm start`
+- Install required packages: `cd ui && npm install`
+- Start front end application: `cd ui && ng serve` or `cd ui && npm start`
 
 Access the application at 
 ```
@@ -204,7 +204,7 @@ This removes stopped containers and volumes that are not referenced by any conta
  - **Tomcat 9.0.24+**
  - **Maven 3.5.4+**
  
-Hyperdrive-trigger can be packaged as a Web Application Archive and executed in web server.  
+Hyperdrive-trigger can be packaged as a Web Application Archive and executed in a web server.  
 
 - Without tests: `mvn clean package -DskipTests`
 - With unit tests: `mvn clean package`
