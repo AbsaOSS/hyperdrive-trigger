@@ -28,10 +28,10 @@ A workflow is defined via the graphical interface and consists of three parts: *
   - *Time* - time based trigger, cron-quartz expression or user friendly time recurring definition can be used
   - *Recurring* - worklfow is triggered always when previous execution is finished 
 - **Jobs** - list of jobs. Supported job types: 
-  - *Spark* - spark job deployed to Apache Hadoop YARN
-  - *Shell* - shell job
+  - *Generic Spark Job* - spark job deployed to Apache Hadoop YARN
+  - *Generic Shell Job* - job executing a user-defined shell script
 
-User interface also provide nice visualization of running workflow with ability to monitor and troubleshoot execution.
+The user interface provides a visualization of running workflows with the ability to monitor and troubleshoot executions.
 
 # Requirements
 Tested with:
@@ -39,11 +39,11 @@ Tested with:
 | ------------ | ---------------------- | 
 | OpenJDK      | 1.8.0_25               |
 | Scala        | 2.11                   |
-| Maven        | 3.5.4+                 |
+| Maven        | 3.5.4                  |
 | PostgreSQL   | 12.2_1                 | 
 | Spark        | 2.4.4                  | 
-| Hadoop Yarn  | 2.6.4.0+               | 
-| Tomcat       | 9.0.24+                | 
+| Hadoop Yarn  | 2.6.4.0                | 
+| Tomcat       | 9.0.24                 | 
 | Docker       | 2.3.0.5                | 
 | NPM          | 6.14.4                 | 
 | Angular CLI  | 9.0.3                  | 
@@ -52,7 +52,7 @@ Tested with:
 
 # How to build and run
 ## Application properties
-Before building application, update of application properties is required. Application properties templeate file could be find at `src/main/resources/application.properties`. Application properties that could be adjusted: 
+Before building application, update of application properties is required. Application properties template file could be find at `src/main/resources/application.properties`. Application properties that could be adjusted: 
 
 ```
 # Version of application. 
@@ -126,7 +126,7 @@ sparkYarnSink.additionalConfs.spark.shuffle.service.enabled=true
 sparkYarnSink.additionalConfs.spark.dynamicAllocation.enabled=true
 ```
 ```
-#Postgresql properties for connection to trigger metastore
+#Postgresql properties for connection to trigger database
 db.driver=org.postgresql.Driver
 db.url=jdbc:postgresql://
 db.user=
@@ -138,14 +138,14 @@ db.numThreads=4
 
 ## Embedded Tomcat
 #### Tested with :
- - **Maven 3.5.4+**
+ - **Maven 3.5.4**
  - **NPM 6.14.4**
  - **Angular CLI 9.0.3**
  - **OpenJDK 1.8.0_25**
  
-For development purposes, hyperdrive-trigger can be executed as a application with embedded tomcat. Embedded tomcat version can be found in **feature/embedded-tomcat-2** branch with latest changes from develop branch.
+For development purposes, hyperdrive-trigger can be executed as an application with an embedded tomcat. Please check out branch **feature/embedded-tomcat-2** to use it.
 
-To build executable jar and execute it use following commands:
+To build an executable jar and execute it, use the following commands:
 - Package jar: `mvn clean package` or without tests `mvn clean package -DskipTests`
 - Execute it: `java -jar ./target/hyperdrive-trigger-<VERSION>.jar`
 
@@ -154,7 +154,7 @@ Access the application at
 http://localhost:7123/#
 ```
 
-For fast, local and iterative front end development you can run ui separatly using following commands: 
+For local and iterative front end development, the UI can be run using a live development server with the following commands: 
 - Install required packages: `cd ui && npm install`
 - Start front end application: `cd ui && ng serve` or `cd ui && npm start`
 
@@ -201,8 +201,8 @@ This removes stopped containers and volumes that are not referenced by any conta
 
 ## Web Application Archive
 #### Tested with :
- - **Tomcat 9.0.24+**
- - **Maven 3.5.4+**
+ - **Tomcat 9.0.24**
+ - **Maven 3.5.4**
  
 Hyperdrive-trigger can be packaged as a Web Application Archive and executed in a web server.  
 
