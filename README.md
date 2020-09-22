@@ -164,6 +164,11 @@ http://localhost:4200/#
 ```
  
 ## Docker image
+#### Tested with :
+ - **Maven 3.5.4**
+ - **OpenJDK 1.8.0_25**
+ - **Docker 2.3.0.5**
+ 
 For development purposes, hyperdrive-trigger can be executed as a docker image.
 The provided docker composition consists of one container for the hyperdrive-trigger application and a container for the Postgres database. 
 Additionally, there will be a persistent volume for the database.
@@ -203,6 +208,7 @@ This removes stopped containers and volumes that are not referenced by any conta
 #### Tested with :
  - **Tomcat 9.0.24**
  - **Maven 3.5.4**
+ - **OpenJDK 1.8.0_25**
  
 Hyperdrive-trigger can be packaged as a Web Application Archive and executed in a web server.  
 
