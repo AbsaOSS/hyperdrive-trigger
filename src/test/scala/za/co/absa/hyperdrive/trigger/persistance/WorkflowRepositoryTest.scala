@@ -49,7 +49,7 @@ class WorkflowRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterA
     clearData()
   }
 
-  "switchWorkflowActiveState " should "switch the active state and create a history entry" in {
+  "switchWorkflowActiveState" should "switch the active state and create a history entry" in {
     createTestData()
     val workflowId = TestData.w1.id
     val isActiveBefore = TestData.w1.isActive
@@ -76,11 +76,44 @@ class WorkflowRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterA
   it should "fail if inserting the history entry fails" in {
     createTestData()
     val workflowId = TestData.w1.id
-    val isActiveBefore = TestData.w1.isActive
     when(workflowHistoryRepository.update(any(), any())(any[ExecutionContext])).thenReturn(DBIO.failed(new Exception("Could not insert history entry")))
 
     val exception = the [Exception] thrownBy await(workflowRepository.switchWorkflowActiveState(workflowId, "testUser"))
 
     exception.getMessage shouldBe "Could not insert history entry"
+  }
+
+  "activateWorkflows" should "activate the workflows" in {
+    createTestData()
+    val workflowIds = TestData.workflows.map(_.id)
+
+    await(workflowRepository.activateWorkflows(workflowIds, "testUser"))
+
+    val result = await(workflowRepository.getWorkflows())
+    result.map(_.isActive) should contain only true
+  }
+
+  it should "not change the active state of any workflow if an exception is thrown" in {
+    createTestData()
+    val activeStateW1 = TestData.w1.isActive
+    val activeStateW2 = TestData.w2.isActive
+    val activeStateW3 = TestData.w3.isActive
+
+    val nonExistentWorkflowId = 9999L
+    val workflowIds = nonExistentWorkflowId +: TestData.workflows.map(_.id)
+    val exception = the [Exception] thrownBy workflowRepository.activateWorkflows(workflowIds, "testUser")
+
+    exception.getMessage should include("9999")
+    val workflow1 = await(workflowRepository.getWorkflow(TestData.w1.id))
+    val workflow2 = await(workflowRepository.getWorkflow(TestData.w2.id))
+    val workflow3 = await(workflowRepository.getWorkflow(TestData.w3.id))
+
+    workflow1.isActive shouldBe activeStateW1
+    workflow2.isActive shouldBe activeStateW2
+    workflow3.isActive shouldBe activeStateW3
+
+    workflow1.updated shouldBe None
+    workflow2.updated shouldBe None
+    workflow3.updated shouldBe None
   }
 }
