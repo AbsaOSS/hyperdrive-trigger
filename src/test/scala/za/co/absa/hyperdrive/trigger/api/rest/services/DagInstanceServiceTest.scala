@@ -51,6 +51,7 @@ class DagInstanceServiceTest extends AsyncFlatSpec with Matchers with MockitoSug
     dagInstance.triggeredBy shouldBe triggeredBy
     dagInstance.workflowId shouldBe dagDefinitionJoined.workflowId
     dagInstance.jobInstances should have size 2
+    dagInstance.started should not be None
     dagInstance.finished shouldBe None
 
     val jobInstance1 = dagInstance.jobInstances.head
@@ -60,6 +61,7 @@ class DagInstanceServiceTest extends AsyncFlatSpec with Matchers with MockitoSug
     jobInstance1.jobParameters shouldBe jobDefinition1.jobParameters
     jobInstance1.jobStatus shouldBe JobStatuses.InQueue
     jobInstance1.executorJobId shouldBe None
+    jobInstance1.created should not be None
     jobInstance1.updated shouldBe None
     jobInstance1.order shouldBe jobDefinition1.order
     jobInstance1.dagInstanceId shouldBe 0
@@ -84,8 +86,11 @@ class DagInstanceServiceTest extends AsyncFlatSpec with Matchers with MockitoSug
 
     // then
     dagInstance.status shouldBe DagInstanceStatuses.Skipped
+    dagInstance.finished.get shouldBe dagInstance.started
     dagInstance.jobInstances.head.jobStatus shouldBe JobStatuses.Skipped
     dagInstance.jobInstances(1).jobStatus shouldBe JobStatuses.Skipped
+    dagInstance.jobInstances(1).updated.get shouldBe dagInstance.jobInstances(1).created
+
   }
 
 

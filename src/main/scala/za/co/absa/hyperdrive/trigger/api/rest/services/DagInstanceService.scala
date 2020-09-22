@@ -33,6 +33,8 @@ class DagInstanceServiceImpl(override val jobTemplateService: JobTemplateService
 
   override def createDagInstance(dagDefinitionJoined: DagDefinitionJoined, triggeredBy: String, skip: Boolean)(implicit ec: ExecutionContext): Future[DagInstanceJoined] = {
     val initialDagInstanceStatus = if (skip) DagInstanceStatuses.Skipped else DagInstanceStatuses.InQueue
+    val now = LocalDateTime.now()
+    val finished = if (skip) Some(now) else None
     jobTemplateService.resolveJobTemplate(dagDefinitionJoined).flatMap(
       resolvedJobDefinitions => Future {
         DagInstanceJoined(
@@ -40,8 +42,8 @@ class DagInstanceServiceImpl(override val jobTemplateService: JobTemplateService
           triggeredBy = triggeredBy,
           workflowId = dagDefinitionJoined.workflowId,
           jobInstances = createJobInstances(resolvedJobDefinitions, skip),
-          started = LocalDateTime.now(),
-          finished = None
+          started = now,
+          finished = finished
         )
       }
     )
@@ -49,6 +51,8 @@ class DagInstanceServiceImpl(override val jobTemplateService: JobTemplateService
 
   private def createJobInstances(resolvedJobDefinitions: Seq[ResolvedJobDefinition], skip: Boolean): Seq[JobInstance] = {
     val initialJobStatus = if (skip) JobStatuses.Skipped else JobStatuses.InQueue
+    val now = LocalDateTime.now()
+    val finished = if (skip) Some(now) else None
     resolvedJobDefinitions.map(
       resolvedJobDefinition => JobInstance(
         jobName = resolvedJobDefinition.name,
@@ -56,8 +60,8 @@ class DagInstanceServiceImpl(override val jobTemplateService: JobTemplateService
         jobParameters = resolvedJobDefinition.jobParameters,
         jobStatus = initialJobStatus,
         executorJobId = None,
-        created = LocalDateTime.now(),
-        updated = None,
+        created = now,
+        updated = finished,
         order = resolvedJobDefinition.order,
         dagInstanceId = 0
       )

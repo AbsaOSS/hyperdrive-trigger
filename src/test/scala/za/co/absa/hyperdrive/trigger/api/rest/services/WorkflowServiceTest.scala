@@ -17,6 +17,7 @@ package za.co.absa.hyperdrive.trigger.api.rest.services
 
 import java.time.LocalDateTime
 
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{eq => eqTo, _}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
@@ -211,6 +212,31 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
     verify(workflowRepository, times(1)).getWorkflow(any[Long])(any[ExecutionContext])
     verify(dagInstanceService, times(1)).createDagInstance(any(), eqTo(userName), any())(any[ExecutionContext])
     verify(dagInstanceRepository, times(1)).insertJoinedDagInstance(any[DagInstanceJoined])(any[ExecutionContext])
+    result shouldBe true
+  }
+
+  it should "should insert only selected jobs ids of dag instance" in {
+    // given
+    val workflowJoined = WorkflowFixture.createWorkflowJoined().copy()
+    val workflowId = workflowJoined.id
+    val jobId = workflowJoined.dagDefinitionJoined.jobDefinitions.head.id
+    val jobIds = Seq(jobId)
+
+    val dagInstanceJoined = createDagInstanceJoined()
+    when(workflowRepository.getWorkflow(eqTo(workflowId))(any[ExecutionContext])).thenReturn(Future{workflowJoined})
+    when(dagInstanceService.createDagInstance(any(), eqTo(userName), any())(any[ExecutionContext])).thenReturn(Future{dagInstanceJoined})
+    when(dagInstanceRepository.insertJoinedDagInstance(eqTo(dagInstanceJoined))(any[ExecutionContext])).thenReturn(Future{(): Unit})
+
+    // when
+    val result: Boolean = await(underTest.runWorkflowJobs(workflowId, jobIds))
+
+    // then
+    val dagDefinitionCaptor: ArgumentCaptor[DagDefinitionJoined] = ArgumentCaptor.forClass(classOf[DagDefinitionJoined])
+    verify(workflowRepository, times(1)).getWorkflow(any[Long])(any[ExecutionContext])
+    verify(dagInstanceService, times(1)).createDagInstance(dagDefinitionCaptor.capture(), eqTo(userName), any())(any[ExecutionContext])
+    verify(dagInstanceRepository, times(1)).insertJoinedDagInstance(any[DagInstanceJoined])(any[ExecutionContext])
+    dagDefinitionCaptor.getValue.jobDefinitions.size shouldBe 1
+    dagDefinitionCaptor.getValue.jobDefinitions.head.id shouldBe jobId
     result shouldBe true
   }
 

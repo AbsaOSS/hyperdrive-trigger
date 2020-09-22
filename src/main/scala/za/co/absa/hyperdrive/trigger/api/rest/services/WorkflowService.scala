@@ -168,7 +168,7 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
           jobDefinitions = dagDefinitionJoined.jobDefinitions.filter(job => jobIds.contains(job.id))
         )
         for {
-          dagInstanceJoined <- dagInstanceService.createDagInstance(joinedWorkflow.dagDefinitionJoined, userName)
+          dagInstanceJoined <- dagInstanceService.createDagInstance(dagDefinitionWithFilteredJobs, userName)
           _ <- dagInstanceRepository.insertJoinedDagInstance(dagInstanceJoined)
         } yield {
           true
