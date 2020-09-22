@@ -52,7 +52,7 @@ Tested with:
 
 # How to build and run
 ## Application properties
-Before building application, update of application properties is required. Application properties template file could be find at `src/main/resources/application.properties`. Application properties that could be adjusted: 
+Adjusted application properties have to be provided. Application properties template file could be find at `src/main/resources/application.properties`. Application properties that could be adjusted: 
 
 ```
 # Version of application. 
