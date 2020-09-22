@@ -95,6 +95,18 @@ class WorkflowRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterA
 
     val result = await(workflowRepository.getWorkflows())
     result.map(_.isActive) should contain only true
+    val workflowCaptor: ArgumentCaptor[WorkflowJoined] = ArgumentCaptor.forClass(classOf[WorkflowJoined])
+    verify(workflowHistoryRepository, times(3)).update(workflowCaptor.capture(), eqTo("testUser"))(any[ExecutionContext])
+    import scala.collection.JavaConverters._
+    workflowCaptor.getAllValues.asScala.map(_.id) should contain theSameElementsAs workflowIds
+  }
+
+  it should "do nothing when called with an empty seq" in {
+    createTestData()
+
+    await(workflowRepository.activateWorkflows(Seq(), "testUser"))
+
+    verify(workflowHistoryRepository, never())
   }
 
   it should "not change the active state of any workflow if an exception is thrown" in {
@@ -106,10 +118,9 @@ class WorkflowRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterA
     val nonExistentWorkflowId = 9999L
     val workflowIds = nonExistentWorkflowId +: TestData.workflows.map(_.id)
     when(workflowHistoryRepository.update(any(), any())(any[ExecutionContext])).thenReturn(DBIO.successful(1L))
-    workflowRepository.activateWorkflows(workflowIds, "testUser")
-    //val exception = the [Exception] thrownBy workflowRepository.activateWorkflows(workflowIds, "testUser")
+    val exception = the [Exception] thrownBy await(workflowRepository.activateWorkflows(workflowIds, "testUser"))
 
-//    exception.getMessage should include("9999")
+    exception.getMessage should include("9999")
     val workflow1 = await(workflowRepository.getWorkflow(TestData.w1.id))
     val workflow2 = await(workflowRepository.getWorkflow(TestData.w2.id))
     val workflow3 = await(workflowRepository.getWorkflow(TestData.w3.id))
