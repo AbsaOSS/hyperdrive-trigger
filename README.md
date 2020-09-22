@@ -52,7 +52,7 @@ Tested with:
 
 # How to build and run
 ## Application properties
-Adjusted application properties have to be provided. Application properties template file could be find at `src/main/resources/application.properties`. Application properties that could be adjusted: 
+Adjusted application properties have to be provided. An application properties template file can be found at `src/main/resources/application.properties`. Application properties that can be adjusted: 
 
 ```
 # Version of application. 
@@ -137,12 +137,7 @@ db.numThreads=4
 ```
 
 ## Embedded Tomcat
-#### Tested with :
- - **Maven 3.5.4**
- - **NPM 6.14.4**
- - **Angular CLI 9.0.3**
- - **OpenJDK 1.8.0_25**
- 
+
 For development purposes, hyperdrive-trigger can be executed as an application with an embedded tomcat. Please check out branch **feature/embedded-tomcat-2** to use it.
 
 To build an executable jar and execute it, use the following commands:
@@ -164,11 +159,7 @@ http://localhost:4200/#
 ```
  
 ## Docker image
-#### Tested with :
- - **Maven 3.5.4**
- - **OpenJDK 1.8.0_25**
- - **Docker 2.3.0.5**
- 
+
 For development purposes, hyperdrive-trigger can be executed as a docker image.
 The provided docker composition consists of one container for the hyperdrive-trigger application and a container for the Postgres database. 
 Additionally, there will be a persistent volume for the database.
@@ -205,10 +196,6 @@ docker volume prune
 This removes stopped containers and volumes that are not referenced by any containers.
 
 ## Web Application Archive
-#### Tested with :
- - **Tomcat 9.0.24**
- - **Maven 3.5.4**
- - **OpenJDK 1.8.0_25**
  
 Hyperdrive-trigger can be packaged as a Web Application Archive and executed in a web server.  
 
