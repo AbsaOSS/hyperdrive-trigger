@@ -70,19 +70,14 @@ class WorkflowController @Inject()(workflowService: WorkflowService) {
     workflowService.updateWorkflow(workflow)
   }
 
-  @PostMapping(path = Array("/workflows/activate"))
-  def activateWorkflows(@RequestBody ids: Seq[Long]): CompletableFuture[Boolean] = {
-    workflowService.activateWorkflows(ids).toJava.toCompletableFuture
-  }
-
-  @PostMapping(path = Array("/workflows/deactivate"))
-  def deactivateWorkflows(@RequestBody ids: Seq[Long]): CompletableFuture[Boolean] = {
-    workflowService.deactivateWorkflows(ids).toJava.toCompletableFuture
-  }
-
   @PostMapping(path = Array("/workflows/{id}/switchActiveState"))
   def switchWorkflowActiveState(@PathVariable id: Long): CompletableFuture[Boolean] = {
     workflowService.switchWorkflowActiveState(id).toJava.toCompletableFuture
+  }
+
+  @PostMapping(path = Array("/workflows/isActive"))
+  def updateWorkflowsIsActive(@RequestBody ids: Seq[Long], @RequestParam isActiveNewValue: Boolean): CompletableFuture[Boolean] = {
+    workflowService.updateWorkflowsIsActive(ids, isActiveNewValue).toJava.toCompletableFuture
   }
 
   @GetMapping(path = Array("/workflows/projectNames"))

@@ -40,8 +40,7 @@ trait WorkflowRepository extends Repository {
   def deleteWorkflow(id: Long, user: String)(implicit ec: ExecutionContext): Future[Unit]
   def updateWorkflow(workflow: WorkflowJoined, user: String)(implicit ec: ExecutionContext): Future[Either[ApiError, Unit]]
   def switchWorkflowActiveState(id: Long, user: String)(implicit ec: ExecutionContext): Future[Unit]
-  def activateWorkflows(ids: Seq[Long], user: String)(implicit ec: ExecutionContext): Future[Unit]
-  def deactivateWorkflows(ids: Seq[Long], user: String)(implicit ec: ExecutionContext): Future[Unit]
+  def updateWorkflowsIsActive(ids: Seq[Long], isActiveNewValue: Boolean, user: String)(implicit ec: ExecutionContext): Future[Unit]
   def getProjects()(implicit ec: ExecutionContext): Future[Seq[String]]
   def getProjectsInfo()(implicit ec: ExecutionContext): Future[Seq[ProjectInfo]]
 }
@@ -205,13 +204,7 @@ class WorkflowRepositoryImpl(override val workflowHistoryRepository: WorkflowHis
     )
   }
 
-  override def activateWorkflows(ids: Seq[Long], user: String)(implicit ec: ExecutionContext): Future[Unit] =
-    updateWorkflowsIsActive(ids, user, isActiveNewValue = true)
-
-  override def deactivateWorkflows(ids: Seq[Long], user: String)(implicit ec: ExecutionContext): Future[Unit] =
-    updateWorkflowsIsActive(ids, user, isActiveNewValue = false)
-
-  private def updateWorkflowsIsActive(ids: Seq[Long], user: String, isActiveNewValue: Boolean)(implicit ec: ExecutionContext): Future[Unit] = {
+  override def updateWorkflowsIsActive(ids: Seq[Long], isActiveNewValue: Boolean, user: String)(implicit ec: ExecutionContext): Future[Unit] = {
     val updateIdsAction = workflowTable.filter(_.id inSetBind ids)
       .map(workflow => (workflow.isActive, workflow.updated))
       .update((isActiveNewValue, Option(LocalDateTime.now())))
