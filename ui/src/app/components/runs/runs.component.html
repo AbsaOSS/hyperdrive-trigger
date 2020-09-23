@@ -120,6 +120,11 @@
                   [style.color]="dagInstanceStatuses.FAILED.color"
                   class="is-solid">
         </clr-icon>
+        <clr-icon *ngSwitchCase="dagInstanceStatuses.SKIPPED.name"
+                  [attr.shape]="dagInstanceStatuses.SKIPPED.shape"
+                  [style.color]="dagInstanceStatuses.SKIPPED.color"
+                  class="is-solid">
+        </clr-icon>
         <clr-icon *ngSwitchDefault
                   shape="help"
                   style="color: darkgoldenrod"
