@@ -98,7 +98,7 @@ class WorkflowRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterA
     val workflowIds = TestData.workflows.map(_.id)
     when(workflowHistoryRepositoryMock.update(any(), any())(any[ExecutionContext])).thenReturn(DBIO.successful(1L))
 
-    await(workflowRepository.activateWorkflows(workflowIds, "testUser"))
+    await(workflowRepository.updateWorkflowsIsActive(workflowIds, isActiveNewValue = true, "testUser"))
 
     val result = await(workflowRepository.getWorkflows())
     result.map(_.isActive) should contain only true
@@ -108,10 +108,25 @@ class WorkflowRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterA
     workflowCaptor.getAllValues.asScala.map(_.id) should contain theSameElementsAs workflowIds
   }
 
+  it should "deactivate the workflows" in {
+    createTestData()
+    val workflowIds = TestData.workflows.map(_.id)
+    when(workflowHistoryRepositoryMock.update(any(), any())(any[ExecutionContext])).thenReturn(DBIO.successful(1L))
+
+    await(workflowRepository.updateWorkflowsIsActive(workflowIds, isActiveNewValue = false, "testUser"))
+
+    val result = await(workflowRepository.getWorkflows())
+    result.map(_.isActive) should contain only false
+    val workflowCaptor: ArgumentCaptor[WorkflowJoined] = ArgumentCaptor.forClass(classOf[WorkflowJoined])
+    verify(workflowHistoryRepositoryMock, times(3)).update(workflowCaptor.capture(), eqTo("testUser"))(any[ExecutionContext])
+    import scala.collection.JavaConverters._
+    workflowCaptor.getAllValues.asScala.map(_.id) should contain theSameElementsAs workflowIds
+  }
+
   it should "do nothing when called with an empty seq" in {
     createTestData()
 
-    await(workflowRepository.activateWorkflows(Seq(), "testUser"))
+    await(workflowRepository.updateWorkflowsIsActive(Seq(), isActiveNewValue = true,"testUser"))
 
     val result = await(workflowRepository.getWorkflows())
     result.map(_.updated) should contain only None
@@ -129,7 +144,7 @@ class WorkflowRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterA
     val workflowIds = TestData.workflows.map(_.id) :+ nonExistentWorkflowId
 
     // when
-    val exception = the [Exception] thrownBy await(integratedWorkflowRepository.activateWorkflows(workflowIds, "testUser"))
+    val exception = the [Exception] thrownBy await(integratedWorkflowRepository.updateWorkflowsIsActive(workflowIds, isActiveNewValue = true, "testUser"))
 
     // then
     exception.getMessage should include("9999")
@@ -147,20 +162,5 @@ class WorkflowRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterA
 
     val historyEntries = await(db.run(workflowHistoryTable.result))
     historyEntries shouldBe empty
-  }
-
-  "deactivateWorkflows" should "deactivate the workflows" in {
-    createTestData()
-    val workflowIds = TestData.workflows.map(_.id)
-    when(workflowHistoryRepositoryMock.update(any(), any())(any[ExecutionContext])).thenReturn(DBIO.successful(1L))
-
-    await(workflowRepository.deactivateWorkflows(workflowIds, "testUser"))
-
-    val result = await(workflowRepository.getWorkflows())
-    result.map(_.isActive) should contain only false
-    val workflowCaptor: ArgumentCaptor[WorkflowJoined] = ArgumentCaptor.forClass(classOf[WorkflowJoined])
-    verify(workflowHistoryRepositoryMock, times(3)).update(workflowCaptor.capture(), eqTo("testUser"))(any[ExecutionContext])
-    import scala.collection.JavaConverters._
-    workflowCaptor.getAllValues.asScala.map(_.id) should contain theSameElementsAs workflowIds
   }
 }
