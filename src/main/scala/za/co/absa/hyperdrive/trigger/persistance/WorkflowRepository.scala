@@ -210,7 +210,7 @@ class WorkflowRepositoryImpl(override val workflowHistoryRepository: WorkflowHis
       .update((isActiveNewValue, Option(LocalDateTime.now())))
 
     val insertHistoryEntryActions = ids
-      .map(id => getWorkflowJoined(id).map(workflow => workflowHistoryRepository.update(workflow, user)))
+      .map(id => getWorkflowJoined(id).flatMap(workflow => workflowHistoryRepository.update(workflow, user)))
       .reduceLeftOption(_.andThen(_))
       .getOrElse(DBIO.successful())
 
