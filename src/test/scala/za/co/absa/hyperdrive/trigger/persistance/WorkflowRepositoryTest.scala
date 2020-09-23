@@ -20,7 +20,9 @@ import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{FlatSpec, _}
-import za.co.absa.hyperdrive.trigger.models.WorkflowJoined
+import slick.dbio.Effect
+import slick.sql.FixedSqlStreamingAction
+import za.co.absa.hyperdrive.trigger.models.{WorkflowHistory, WorkflowJoined}
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -28,9 +30,14 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class WorkflowRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach
   with RepositoryTestBase with MockitoSugar {
 
-  val workflowHistoryRepository: WorkflowHistoryRepository = mock[WorkflowHistoryRepository]
+  val workflowHistoryRepositoryMock: WorkflowHistoryRepository = mock[WorkflowHistoryRepository]
+  val workflowHistoryRepository: WorkflowHistoryRepository = new WorkflowHistoryRepositoryImpl
 
-  val workflowRepository: WorkflowRepository = new WorkflowRepositoryImpl(workflowHistoryRepository) {
+  val workflowRepository: WorkflowRepository = new WorkflowRepositoryImpl(workflowHistoryRepositoryMock) {
+    override val profile = h2Profile
+  }
+
+  val integratedWorkflowRepository: WorkflowRepository = new WorkflowRepositoryImpl(workflowHistoryRepository) {
     override val profile = h2Profile
   }
 
@@ -45,7 +52,7 @@ class WorkflowRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterA
   }
 
   override def beforeEach: Unit = {
-    reset(workflowHistoryRepository)
+    reset(workflowHistoryRepositoryMock)
   }
 
   override def afterEach: Unit = {
@@ -56,20 +63,20 @@ class WorkflowRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterA
     createTestData()
     val workflowId = TestData.w1.id
     val isActiveBefore = TestData.w1.isActive
-    when(workflowHistoryRepository.update(any(), any())(any[ExecutionContext])).thenReturn(DBIO.successful(1L))
+    when(workflowHistoryRepositoryMock.update(any(), any())(any[ExecutionContext])).thenReturn(DBIO.successful(1L))
 
     await(workflowRepository.switchWorkflowActiveState(workflowId, "testUser"))
 
     val result = await(workflowRepository.getWorkflow(workflowId))
     result.isActive shouldBe !isActiveBefore
     val workflowCaptor: ArgumentCaptor[WorkflowJoined] = ArgumentCaptor.forClass(classOf[WorkflowJoined])
-    verify(workflowHistoryRepository, times(1)).update(workflowCaptor.capture(), eqTo("testUser"))(any[ExecutionContext])
+    verify(workflowHistoryRepositoryMock, times(1)).update(workflowCaptor.capture(), eqTo("testUser"))(any[ExecutionContext])
     workflowCaptor.getValue.id shouldBe workflowId
     workflowCaptor.getValue.isActive shouldBe !isActiveBefore
   }
 
   it should "fail if the workflow doesn't exist" in {
-    when(workflowHistoryRepository.update(any(), any())(any[ExecutionContext])).thenReturn(DBIO.successful(1L))
+    when(workflowHistoryRepositoryMock.update(any(), any())(any[ExecutionContext])).thenReturn(DBIO.successful(1L))
 
     val exception = the [Exception] thrownBy await(workflowRepository.switchWorkflowActiveState(42L, "testUser"))
 
@@ -79,7 +86,7 @@ class WorkflowRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterA
   it should "fail if inserting the history entry fails" in {
     createTestData()
     val workflowId = TestData.w1.id
-    when(workflowHistoryRepository.update(any(), any())(any[ExecutionContext])).thenReturn(DBIO.failed(new Exception("Could not insert history entry")))
+    when(workflowHistoryRepositoryMock.update(any(), any())(any[ExecutionContext])).thenReturn(DBIO.failed(new Exception("Could not insert history entry")))
 
     val exception = the [Exception] thrownBy await(workflowRepository.switchWorkflowActiveState(workflowId, "testUser"))
 
@@ -89,14 +96,14 @@ class WorkflowRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterA
   "activateWorkflows" should "activate the workflows" in {
     createTestData()
     val workflowIds = TestData.workflows.map(_.id)
-    when(workflowHistoryRepository.update(any(), any())(any[ExecutionContext])).thenReturn(DBIO.successful(1L))
+    when(workflowHistoryRepositoryMock.update(any(), any())(any[ExecutionContext])).thenReturn(DBIO.successful(1L))
 
     await(workflowRepository.activateWorkflows(workflowIds, "testUser"))
 
     val result = await(workflowRepository.getWorkflows())
     result.map(_.isActive) should contain only true
     val workflowCaptor: ArgumentCaptor[WorkflowJoined] = ArgumentCaptor.forClass(classOf[WorkflowJoined])
-    verify(workflowHistoryRepository, times(3)).update(workflowCaptor.capture(), eqTo("testUser"))(any[ExecutionContext])
+    verify(workflowHistoryRepositoryMock, times(3)).update(workflowCaptor.capture(), eqTo("testUser"))(any[ExecutionContext])
     import scala.collection.JavaConverters._
     workflowCaptor.getAllValues.asScala.map(_.id) should contain theSameElementsAs workflowIds
   }
@@ -106,20 +113,25 @@ class WorkflowRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterA
 
     await(workflowRepository.activateWorkflows(Seq(), "testUser"))
 
-    verify(workflowHistoryRepository, never())
+    val result = await(workflowRepository.getWorkflows())
+    result.map(_.updated) should contain only None
+    verify(workflowHistoryRepositoryMock, never()).update(any(), any())(any[ExecutionContext])
   }
 
-  it should "not change the active state of any workflow if an exception is thrown" in {
+  it should "not change the active state of any workflow and not create history entries if an exception is thrown" in {
+    // given
     createTestData()
     val activeStateW1 = TestData.w1.isActive
     val activeStateW2 = TestData.w2.isActive
     val activeStateW3 = TestData.w3.isActive
 
     val nonExistentWorkflowId = 9999L
-    val workflowIds = nonExistentWorkflowId +: TestData.workflows.map(_.id)
-    when(workflowHistoryRepository.update(any(), any())(any[ExecutionContext])).thenReturn(DBIO.successful(1L))
-    val exception = the [Exception] thrownBy await(workflowRepository.activateWorkflows(workflowIds, "testUser"))
+    val workflowIds = TestData.workflows.map(_.id) :+ nonExistentWorkflowId
 
+    // when
+    val exception = the [Exception] thrownBy await(integratedWorkflowRepository.activateWorkflows(workflowIds, "testUser"))
+
+    // then
     exception.getMessage should include("9999")
     val workflow1 = await(workflowRepository.getWorkflow(TestData.w1.id))
     val workflow2 = await(workflowRepository.getWorkflow(TestData.w2.id))
@@ -132,5 +144,23 @@ class WorkflowRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterA
     workflow1.updated shouldBe None
     workflow2.updated shouldBe None
     workflow3.updated shouldBe None
+
+    val historyEntries = await(db.run(workflowHistoryTable.result))
+    historyEntries shouldBe empty
+  }
+
+  "deactivateWorkflows" should "deactivate the workflows" in {
+    createTestData()
+    val workflowIds = TestData.workflows.map(_.id)
+    when(workflowHistoryRepositoryMock.update(any(), any())(any[ExecutionContext])).thenReturn(DBIO.successful(1L))
+
+    await(workflowRepository.deactivateWorkflows(workflowIds, "testUser"))
+
+    val result = await(workflowRepository.getWorkflows())
+    result.map(_.isActive) should contain only false
+    val workflowCaptor: ArgumentCaptor[WorkflowJoined] = ArgumentCaptor.forClass(classOf[WorkflowJoined])
+    verify(workflowHistoryRepositoryMock, times(3)).update(workflowCaptor.capture(), eqTo("testUser"))(any[ExecutionContext])
+    import scala.collection.JavaConverters._
+    workflowCaptor.getAllValues.asScala.map(_.id) should contain theSameElementsAs workflowIds
   }
 }

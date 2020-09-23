@@ -205,10 +205,16 @@ class WorkflowRepositoryImpl(override val workflowHistoryRepository: WorkflowHis
     )
   }
 
-  override def activateWorkflows(ids: Seq[Long], user: String)(implicit ec: ExecutionContext): Future[Unit] = {
+  override def activateWorkflows(ids: Seq[Long], user: String)(implicit ec: ExecutionContext): Future[Unit] =
+    updateWorkflowsIsActive(ids, user, isActiveNewValue = true)
+
+  override def deactivateWorkflows(ids: Seq[Long], user: String)(implicit ec: ExecutionContext): Future[Unit] =
+    updateWorkflowsIsActive(ids, user, isActiveNewValue = false)
+
+  private def updateWorkflowsIsActive(ids: Seq[Long], user: String, isActiveNewValue: Boolean)(implicit ec: ExecutionContext): Future[Unit] = {
     val updateIdsAction = workflowTable.filter(_.id inSetBind ids)
       .map(workflow => (workflow.isActive, workflow.updated))
-      .update((true, Option(LocalDateTime.now())))
+      .update((isActiveNewValue, Option(LocalDateTime.now())))
 
     val insertHistoryEntryActions = ids
       .map(id => getWorkflowJoined(id).map(workflow => workflowHistoryRepository.update(workflow, user)))
@@ -222,8 +228,6 @@ class WorkflowRepositoryImpl(override val workflowHistoryRepository: WorkflowHis
         .transactionally
     )
   }
-
-  override def deactivateWorkflows(ids: Seq[Long], user: String)(implicit ec: ExecutionContext): Future[Unit] = ???
 
   override def getProjects()(implicit ec: ExecutionContext): Future[Seq[String]] = db.run(
     workflowTable.map(_.project).distinct.sortBy(_.value).result

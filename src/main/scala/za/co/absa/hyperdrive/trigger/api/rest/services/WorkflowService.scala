@@ -125,10 +125,15 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
     workflowRepository.switchWorkflowActiveState(id, userName).map(_ => true)
   }
 
-  override def activateWorkflows(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Boolean] = ???
+  override def activateWorkflows(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Boolean] = {
+    val userName = getUserName.apply()
+    workflowRepository.activateWorkflows(ids, userName).map(_ => true)
+  }
 
-  override def deactivateWorkflows(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Boolean] = ???
-
+  override def deactivateWorkflows(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Boolean] = {
+    val userName = getUserName.apply()
+    workflowRepository.deactivateWorkflows(ids, userName).map(_ => true)
+  }
 
   override def getProjectNames()(implicit ec: ExecutionContext): Future[Set[String]] = {
     workflowRepository.getProjects().map(_.toSet)
