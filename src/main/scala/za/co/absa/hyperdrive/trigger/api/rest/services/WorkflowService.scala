@@ -27,6 +27,7 @@ import scala.concurrent.{ExecutionContext, Future}
 trait WorkflowService {
   val workflowRepository: WorkflowRepository
   val dagInstanceRepository: DagInstanceRepository
+  val dagInstanceService: DagInstanceService
   val jobTemplateService: JobTemplateService
   val workflowValidationService: WorkflowValidationService
 
@@ -50,6 +51,7 @@ trait WorkflowService {
 @Service
 class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
                           override val dagInstanceRepository: DagInstanceRepository,
+                          override val dagInstanceService: DagInstanceService,
                           override val jobTemplateService: JobTemplateService,
                           override val workflowValidationService: WorkflowValidationService) extends WorkflowService {
 
@@ -150,7 +152,7 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
 
     for {
       joinedWorkflow <- workflowRepository.getWorkflow(workflowId)
-      dagInstanceJoined <- jobTemplateService.resolveJobTemplate(joinedWorkflow.dagDefinitionJoined, userName)
+      dagInstanceJoined <- dagInstanceService.createDagInstance(joinedWorkflow.dagDefinitionJoined, userName)
       _ <- dagInstanceRepository.insertJoinedDagInstance(dagInstanceJoined)
     } yield {
       true
@@ -172,7 +174,7 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
           jobDefinitions = dagDefinitionJoined.jobDefinitions.filter(job => jobIds.contains(job.id))
         )
         for {
-          dagInstanceJoined <- jobTemplateService.resolveJobTemplate(dagDefinitionWithFilteredJobs, userName)
+          dagInstanceJoined <- dagInstanceService.createDagInstance(dagDefinitionWithFilteredJobs, userName)
           _ <- dagInstanceRepository.insertJoinedDagInstance(dagInstanceJoined)
         } yield {
           true
