@@ -205,6 +205,41 @@ export class WorkflowsEffects {
   );
 
   @Effect({ dispatch: true })
+  updateWorkflowsIsActive = this.actions.pipe(
+    ofType(WorkflowActions.UPDATE_WORKFLOWS_IS_ACTIVE),
+    switchMap((action: WorkflowActions.UpdateWorkflowsIsActive) => {
+      return this.workflowService.updateWorkflowsIsActive(action.payload.ids, action.payload.isActiveNewValue).pipe(
+        mergeMap((result: boolean) => {
+          if (result) {
+            this.toastrService.success(texts.UPDATE_WORKFLOWS_IS_ACTIVE_SUCCESS_NOTIFICATION(action.payload.isActiveNewValue));
+            return [
+              {
+                type: WorkflowActions.UPDATE_WORKFLOWS_IS_ACTIVE_SUCCESS,
+                payload: action.payload,
+              },
+            ];
+          } else {
+            this.toastrService.error(texts.UPDATE_WORKFLOWS_IS_ACTIVE_FAILURE_NOTIFICATION);
+            return [
+              {
+                type: WorkflowActions.UPDATE_WORKFLOWS_IS_ACTIVE_FAILURE,
+              },
+            ];
+          }
+        }),
+        catchError(() => {
+          this.toastrService.error(texts.UPDATE_WORKFLOWS_IS_ACTIVE_FAILURE_NOTIFICATION);
+          return [
+            {
+              type: WorkflowActions.UPDATE_WORKFLOWS_IS_ACTIVE_FAILURE,
+            },
+          ];
+        }),
+      );
+    }),
+  );
+
+  @Effect({ dispatch: true })
   workflowCreate = this.actions.pipe(
     ofType(WorkflowActions.CREATE_WORKFLOW),
     withLatestFrom(this.store.select(selectWorkflowState)),

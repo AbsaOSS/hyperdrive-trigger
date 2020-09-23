@@ -68,12 +68,12 @@
 
   <clr-dg-action-bar>
     <div class="btn-group">
-      <button type="button" class="btn btn-sm btn-secondary" [disabled]="isBulkActivateButtonDisabled(selected)" (click)="clearSort()">
-        <!--        <clr-icon shape="plus"></clr-icon>-->
+      <button type="button" class="btn btn-sm btn-secondary" [disabled]="isActivateSelectedWorkflowsDisabled(selected)" (click)="activateSelectedWorkflows(selected)">
+        <clr-icon shape="power"></clr-icon>
         Activate
       </button>
-      <button type="button" class="btn btn-sm btn-secondary" [disabled]="isBulkDeactivateButtonDisabled(selected)" (click)="clearSort()">
-<!--        <clr-icon shape="plus"></clr-icon>-->
+      <button type="button" class="btn btn-sm btn-secondary" [disabled]="isDeactivateSelectedWorkflowsDisabled(selected)" (click)="deactivateSelectedWorkflows(selected)">
+        <clr-icon shape="power"></clr-icon>
         Deactivate
       </button>
     </div>

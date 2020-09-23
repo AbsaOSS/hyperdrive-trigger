@@ -25,6 +25,7 @@ import {
   SetWorkflowFile,
   SetWorkflowsFilters,
   SetWorkflowsSort,
+  UpdateWorkflowsIsActive,
 } from '../../../stores/workflows/workflows.actions';
 import { ConfirmationDialogTypes } from '../../../constants/confirmationDialogTypes.constants';
 import { DeleteWorkflow, SwitchWorkflowActiveState } from '../../../stores/workflows/workflows.actions';
@@ -160,12 +161,36 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
     !!this.sort ? (this.columns.find((_) => _.field == this.sort.by).sortOrder = 0) : undefined;
   }
 
-  isBulkActivateButtonDisabled(selected: WorkflowModel[]) {
+  isActivateSelectedWorkflowsDisabled(selected: WorkflowModel[]) {
     return selected.length == 0 || selected.some((workflow) => workflow.isActive);
   }
 
-  isBulkDeactivateButtonDisabled(selected: WorkflowModel[]) {
+  isDeactivateSelectedWorkflowsDisabled(selected: WorkflowModel[]) {
     return selected.length == 0 || selected.some((workflow) => !workflow.isActive);
+  }
+
+  activateSelectedWorkflows(selected: WorkflowModel[]) {
+    this.updateSelectedWorkflowsIsActive(selected, true);
+  }
+
+  deactivateSelectedWorkflows(selected: WorkflowModel[]) {
+    this.updateSelectedWorkflowsIsActive(selected, false);
+  }
+
+  updateSelectedWorkflowsIsActive(selected: WorkflowModel[], isActiveNewValue: boolean) {
+    const ids = selected.map((workflow) => workflow.id);
+    this.confirmationDialogService
+      .confirm(
+        ConfirmationDialogTypes.YesOrNo,
+        texts.UPDATE_WORKFLOWS_IS_ACTIVE_TITLE(isActiveNewValue),
+        texts.UPDATE_WORKFLOWS_IS_ACTIVE_CONTENT(isActiveNewValue),
+      )
+      .subscribe((confirmed) => {
+        if (confirmed) {
+          this.ignoreRefresh = true;
+          this.store.dispatch(new UpdateWorkflowsIsActive({ ids: ids, isActiveNewValue: isActiveNewValue }));
+        }
+      });
   }
 
   ngOnDestroy(): void {
