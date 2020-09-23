@@ -19,9 +19,6 @@ import java.time.LocalDateTime
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype
-import slick.dbio
-import slick.dbio.Effect
-import slick.sql.{FixedSqlAction, FixedSqlStreamingAction}
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, GenericDatabaseError}
 import za.co.absa.hyperdrive.trigger.models.{ProjectInfo, _}
 
@@ -187,7 +184,6 @@ class WorkflowRepositoryImpl(override val workflowHistoryRepository: WorkflowHis
     } yield {
       affected
     }
-
 
     db.run(
       resultAction.flatMap(
