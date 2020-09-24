@@ -15,15 +15,13 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
-import org.mockito.ArgumentMatchers.{eq => eqTo, _}
+import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, Matchers}
 import za.co.absa.hyperdrive.trigger.TestUtils.await
-import za.co.absa.hyperdrive.trigger.api.rest.services.JobTemplateFixture.{GenericShellJobTemplate, GenericSparkJobTemplate}
-import za.co.absa.hyperdrive.trigger.models.{JobParameters, ResolvedJobDefinition}
 import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobStatuses, JobTypes}
-import za.co.absa.hyperdrive.trigger.persistance.JobTemplateRepository
+import za.co.absa.hyperdrive.trigger.models.{JobParameters, ResolvedJobDefinition}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
