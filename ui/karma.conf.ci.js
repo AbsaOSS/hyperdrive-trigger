@@ -21,7 +21,9 @@ const puppeteer = require('puppeteer');
 // due to missing shared libraries. (https://github.com/puppeteer/puppeteer/issues/765)
 if (process.env.CHROMIUM_BIN == null) {
   process.env.CHROMIUM_BIN = puppeteer.executablePath();
+  console.log('Using bundled chromium');
 }
+console.log('Chromium bin path: ' + process.env.CHROMIUM_BIN);
 
 const baseConfig = require('./karma.conf.js');
 module.exports = function (config) {
@@ -31,6 +33,6 @@ module.exports = function (config) {
     autoWatch: false,
     browsers: ['ChromiumHeadless'],
     singleRun: true,
-    restartOnFileChange: false
+    restartOnFileChange: false,
   });
 };
