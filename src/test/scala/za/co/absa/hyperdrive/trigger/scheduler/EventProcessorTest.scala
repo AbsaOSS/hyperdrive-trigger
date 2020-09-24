@@ -22,10 +22,10 @@ import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito.{never, reset, verify, when}
 import org.scalatest.mockito.MockitoSugar
-import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
+import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, Matchers}
 import play.api.libs.json.JsObject
 import za.co.absa.hyperdrive.trigger.TestUtils.await
-import za.co.absa.hyperdrive.trigger.api.rest.services.{DagInstanceService, JobTemplateService}
+import za.co.absa.hyperdrive.trigger.api.rest.services.DagInstanceService
 import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
 import za.co.absa.hyperdrive.trigger.persistance.{DagDefinitionRepository, DagInstanceRepository, EventRepository}
@@ -34,7 +34,7 @@ import za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
-class EventProcessorTest extends FlatSpec with MockitoSugar with Matchers with BeforeAndAfter {
+class EventProcessorTest extends AsyncFlatSpec with MockitoSugar with Matchers with BeforeAndAfter {
   private val eventRepository = mock[EventRepository]
   private val dagDefinitionRepository = mock[DagDefinitionRepository]
   private val dagInstanceRepository = mock[DagInstanceRepository]
@@ -102,6 +102,8 @@ class EventProcessorTest extends FlatSpec with MockitoSugar with Matchers with B
     verify(dagDefinitionRepository, never()).getJoinedDagDefinition(any())(any[ExecutionContext])
     verify(dagInstanceService, never).createDagInstance(any(), eqTo(triggeredBy), any())(any[ExecutionContext])
     verify(dagInstanceRepository, never()).insertJoinedDagInstances(any())(any[ExecutionContext])
+
+    1 shouldBe 1
   }
 
   "EventProcessor.eventProcessor" should "not persist a dag instance if there is no dag definition for event" in {
@@ -119,6 +121,8 @@ class EventProcessorTest extends FlatSpec with MockitoSugar with Matchers with B
     verify(dagDefinitionRepository).getJoinedDagDefinition(eqTo(sensorId))(any[ExecutionContext])
     verify(dagInstanceService, never).createDagInstance(any(), eqTo(triggeredBy), any())(any[ExecutionContext])
     verify(dagInstanceRepository, never()).insertJoinedDagInstances(any())(any[ExecutionContext])
+
+    1 shouldBe 1
   }
 
   private def createEvent(sensorId: Long) = {
