@@ -39,19 +39,16 @@ class JobTemplateServiceTest extends AsyncFlatSpec with Matchers with MockitoSug
     // given
     val dagDefinitionJoined = WorkflowFixture.createWorkflowJoined().dagDefinitionJoined
     val jobTemplates = Seq(GenericShellJobTemplate, GenericSparkJobTemplate)
-    val triggeredBy = "triggered by"
 
     when(jobTemplateRepository.getJobTemplatesByIds(any())(any[ExecutionContext])).thenReturn(Future{jobTemplates})
 
     // when
-    val dagInstanceJoined = await(underTest.resolveJobTemplate(dagDefinitionJoined, triggeredBy))
+    val resolvedJobDefinitions = await(underTest.resolveJobTemplate(dagDefinitionJoined))
 
     // then
-    val jobInstances = dagInstanceJoined.jobInstances
-    dagInstanceJoined.triggeredBy shouldBe triggeredBy
-    jobInstances should have size 2
-    jobInstances.head.jobType shouldBe JobTypes.Spark
-    jobInstances(1).jobType shouldBe JobTypes.Shell
+    resolvedJobDefinitions should have size 2
+    resolvedJobDefinitions.head.jobType shouldBe JobTypes.Spark
+    resolvedJobDefinitions(1).jobType shouldBe JobTypes.Shell
   }
 
   "getJobTemplates" should "return all job templates" in {
@@ -64,5 +61,30 @@ class JobTemplateServiceTest extends AsyncFlatSpec with Matchers with MockitoSug
 
     // then
     result should contain theSameElementsAs(jobTemplates)
+  }
+
+  "getJobTemplatesByIds" should "return job templates by ids" in {
+    // given
+    val jobTemplates = Seq(GenericShellJobTemplate, GenericSparkJobTemplate)
+    when(jobTemplateRepository.getJobTemplatesByIds(eqTo(Seq(1,2)))(any[ExecutionContext])).thenReturn(Future{jobTemplates})
+
+    // when
+    val result = await(underTest.getJobTemplatesByIds(Seq(1,2)))
+
+    // then
+    result should contain theSameElementsAs jobTemplates
+  }
+
+  "getJobTemplateIdsByNames" should "return a mapping from names to template ids" in {
+    // given
+    val jobTemplateNames = Seq("Template A", "Template B")
+    val jobTemplateIdNameMap = Map("Template A" -> 11L, "Template B" -> 12L)
+    when(jobTemplateRepository.getJobTemplateIdsByNames(eqTo(jobTemplateNames))(any[ExecutionContext])).thenReturn(Future{jobTemplateIdNameMap})
+
+    // when
+    val result = await(underTest.getJobTemplateIdsByNames(jobTemplateNames))
+
+    // then
+    result should contain theSameElementsAs jobTemplateIdNameMap
   }
 }
