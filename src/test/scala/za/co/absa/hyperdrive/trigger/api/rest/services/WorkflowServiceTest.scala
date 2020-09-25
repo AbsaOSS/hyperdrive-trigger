@@ -17,6 +17,7 @@ package za.co.absa.hyperdrive.trigger.api.rest.services
 
 import java.time.LocalDateTime
 
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{eq => eqTo, _}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
@@ -24,6 +25,7 @@ import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, Matchers}
 import za.co.absa.hyperdrive.trigger.TestUtils.await
 import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
+import za.co.absa.hyperdrive.trigger.models.errors.ApiErrorTypes.ImportErrorType
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, DatabaseError, ValidationError}
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, WorkflowRepository}
 
@@ -33,16 +35,18 @@ import scala.concurrent.{ExecutionContext, Future}
 class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar with BeforeAndAfter {
   private val workflowRepository = mock[WorkflowRepository]
   private val dagInstanceRepository = mock[DagInstanceRepository]
+  private val dagInstanceService = mock[DagInstanceService]
   private val jobTemplateService = mock[JobTemplateService]
   private val workflowValidationService = mock[WorkflowValidationService]
   private val userName = "fakeUserName"
-  private val underTest = new WorkflowServiceImpl(workflowRepository, dagInstanceRepository, jobTemplateService, workflowValidationService){
+  private val underTest = new WorkflowServiceImpl(workflowRepository, dagInstanceRepository, dagInstanceService, jobTemplateService, workflowValidationService){
     override private[services] def getUserName: () => String = () => userName
   }
 
   before {
     reset(workflowRepository)
     reset(dagInstanceRepository)
+    reset(dagInstanceService)
     reset(jobTemplateService)
     reset(workflowValidationService)
   }
@@ -198,7 +202,7 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
 
     val dagInstanceJoined = createDagInstanceJoined()
     when(workflowRepository.getWorkflow(eqTo(workflowId))(any[ExecutionContext])).thenReturn(Future{workflowJoined})
-    when(jobTemplateService.resolveJobTemplate(any[DagDefinitionJoined], eqTo(userName))(any[ExecutionContext])).thenReturn(Future{dagInstanceJoined})
+    when(dagInstanceService.createDagInstance(any(), eqTo(userName), any())(any[ExecutionContext])).thenReturn(Future{dagInstanceJoined})
     when(dagInstanceRepository.insertJoinedDagInstance(eqTo(dagInstanceJoined))(any[ExecutionContext])).thenReturn(Future{(): Unit})
 
     // when
@@ -206,8 +210,33 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
 
     // then
     verify(workflowRepository, times(1)).getWorkflow(any[Long])(any[ExecutionContext])
-    verify(jobTemplateService, times(1)).resolveJobTemplate(any[DagDefinitionJoined], eqTo(userName))(any[ExecutionContext])
+    verify(dagInstanceService, times(1)).createDagInstance(any(), eqTo(userName), any())(any[ExecutionContext])
     verify(dagInstanceRepository, times(1)).insertJoinedDagInstance(any[DagInstanceJoined])(any[ExecutionContext])
+    result shouldBe true
+  }
+
+  it should "should insert only selected jobs ids of dag instance" in {
+    // given
+    val workflowJoined = WorkflowFixture.createWorkflowJoined().copy()
+    val workflowId = workflowJoined.id
+    val jobId = workflowJoined.dagDefinitionJoined.jobDefinitions.head.id
+    val jobIds = Seq(jobId)
+
+    val dagInstanceJoined = createDagInstanceJoined()
+    when(workflowRepository.getWorkflow(eqTo(workflowId))(any[ExecutionContext])).thenReturn(Future{workflowJoined})
+    when(dagInstanceService.createDagInstance(any(), eqTo(userName), any())(any[ExecutionContext])).thenReturn(Future{dagInstanceJoined})
+    when(dagInstanceRepository.insertJoinedDagInstance(eqTo(dagInstanceJoined))(any[ExecutionContext])).thenReturn(Future{(): Unit})
+
+    // when
+    val result: Boolean = await(underTest.runWorkflowJobs(workflowId, jobIds))
+
+    // then
+    val dagDefinitionCaptor: ArgumentCaptor[DagDefinitionJoined] = ArgumentCaptor.forClass(classOf[DagDefinitionJoined])
+    verify(workflowRepository, times(1)).getWorkflow(any[Long])(any[ExecutionContext])
+    verify(dagInstanceService, times(1)).createDagInstance(dagDefinitionCaptor.capture(), eqTo(userName), any())(any[ExecutionContext])
+    verify(dagInstanceRepository, times(1)).insertJoinedDagInstance(any[DagInstanceJoined])(any[ExecutionContext])
+    dagDefinitionCaptor.getValue.jobDefinitions.size shouldBe 1
+    dagDefinitionCaptor.getValue.jobDefinitions.head.id shouldBe jobId
     result shouldBe true
   }
 
@@ -226,9 +255,54 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
 
     // then
     verify(workflowRepository, times(1)).getWorkflow(any[Long])(any[ExecutionContext])
-    verify(jobTemplateService, never).resolveJobTemplate(any[DagDefinitionJoined], eqTo(triggeredBy))(any[ExecutionContext])
+    verify(dagInstanceService, never).createDagInstance(any[DagDefinitionJoined], eqTo(triggeredBy), any())(any[ExecutionContext])
     verify(dagInstanceRepository, never).insertJoinedDagInstance(any[DagInstanceJoined])(any[ExecutionContext])
     result shouldBe false
+  }
+
+  "WorkflowService.exportWorkflow" should "export workflow with referenced job templates" in {
+    val workflowJoined = WorkflowFixture.createWorkflowJoined().copy()
+
+    val jobTemplates = Seq(JobTemplateFixture.GenericShellJobTemplate, JobTemplateFixture.GenericSparkJobTemplate)
+    when(workflowRepository.getWorkflow(eqTo(workflowJoined.id))(any[ExecutionContext])).thenReturn(Future{workflowJoined})
+    when(jobTemplateService.getJobTemplatesByIds(any())(any[ExecutionContext])).thenReturn(Future{jobTemplates})
+
+    val result = await(underTest.exportWorkflow(workflowJoined.id))
+
+    result shouldBe WorkflowImportExportWrapper(workflowJoined, jobTemplates)
+  }
+
+  "WorkflowService.importWorkflow" should "match existing job templates by name and update job template ids" in {
+    val workflowJoined = WorkflowFixture.createWorkflowJoined().copy()
+    val oldJobTemplates = Seq(JobTemplateFixture.GenericSparkJobTemplate, JobTemplateFixture.GenericShellJobTemplate)
+    val workflowImport = WorkflowImportExportWrapper(workflowJoined, oldJobTemplates)
+    val newJobTemplates = Seq(
+      JobTemplateFixture.GenericSparkJobTemplate.copy(id = 11),
+      JobTemplateFixture.GenericShellJobTemplate.copy(id = 12)
+    )
+    val newJobTemplatesIdMap = newJobTemplates.map(t => t.name -> t.id).toMap
+    when(jobTemplateService.getJobTemplateIdsByNames(any())(any[ExecutionContext])).thenReturn(Future{newJobTemplatesIdMap})
+
+    val result = await(underTest.importWorkflow(workflowImport))
+
+    result.isRight shouldBe true
+    result.right.get.dagDefinitionJoined.jobDefinitions.head.jobTemplateId shouldBe 11
+    result.right.get.dagDefinitionJoined.jobDefinitions(1).jobTemplateId shouldBe 12
+  }
+
+  it should "return an import error if the given job template doesn't exist" in {
+    val workflowJoined = WorkflowFixture.createWorkflowJoined().copy()
+    val oldJobTemplates = Seq(JobTemplateFixture.GenericSparkJobTemplate, JobTemplateFixture.GenericShellJobTemplate)
+    val workflowImport = WorkflowImportExportWrapper(workflowJoined, oldJobTemplates)
+
+    when(jobTemplateService.getJobTemplateIdsByNames(any())(any[ExecutionContext])).thenReturn(Future{Map[String, Long]()})
+
+    val result = await(underTest.importWorkflow(workflowImport))
+
+    result.isLeft shouldBe true
+    result.left.get.head.errorType shouldBe ImportErrorType
+    result.left.get.head.message should include(JobTemplateFixture.GenericSparkJobTemplate.name)
+    result.left.get.head.message should include(JobTemplateFixture.GenericShellJobTemplate.name)
   }
 
   private def createDagInstanceJoined() = {

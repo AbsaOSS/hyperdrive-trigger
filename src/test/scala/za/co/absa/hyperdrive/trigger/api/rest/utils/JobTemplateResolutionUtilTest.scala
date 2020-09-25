@@ -24,26 +24,20 @@ import scala.collection.immutable.SortedMap
 
 class JobTemplateResolutionUtilTest extends FlatSpec with Matchers {
 
-  "resolveDagDefinition" should "return a DagInstance with the same jobType as in the template" in {
+  "resolveDagDefinition" should "return a ResolvedJobDefinition with the same jobType as in the template" in {
     // given
     val jobTemplate = GenericSparkJobTemplate
     val jobDefinition = createJobDefinition().copy(jobTemplateId = jobTemplate.id)
     val dagDefinitionJoined = createDagDefinitionJoined(jobDefinition)
-    val triggeredBy = "triggered by"
 
     // when
-    val dagInstanceJoined = JobTemplateResolutionUtil.resolveDagDefinitionJoined(dagDefinitionJoined, Seq(jobTemplate), triggeredBy)
+    val resolvedJobDefinitions = JobTemplateResolutionUtil.resolveDagDefinitionJoined(dagDefinitionJoined, Seq(jobTemplate))
     
     // then
-    dagInstanceJoined.status shouldBe DagInstanceStatuses.InQueue
-    dagInstanceJoined.triggeredBy shouldBe triggeredBy
-    val jobInstance = dagInstanceJoined.jobInstances.head
-    jobInstance.dagInstanceId shouldBe 0
-    jobInstance.jobStatus shouldBe JobStatuses.InQueue
-    jobInstance.jobName shouldBe "JobDefinition0"
-    jobInstance.jobType shouldBe JobTypes.Spark
-    jobInstance.order shouldBe 2
-    jobInstance.id shouldBe 0
+    val resolvedJobDefinition = resolvedJobDefinitions.head
+    resolvedJobDefinition.name shouldBe "JobDefinition0"
+    resolvedJobDefinition.jobType shouldBe JobTypes.Spark
+    resolvedJobDefinition.order shouldBe 2
   }
 
   it should "resolve templates for multiple JobDefinitions" in {
@@ -58,19 +52,15 @@ class JobTemplateResolutionUtilTest extends FlatSpec with Matchers {
 
     val dagDefinitionJoined = DagDefinitionJoined(jobDefinitions = Seq(jobDefinition1, jobDefinition2))
 
-    val triggeredBy = "triggered by"
-
     // when
-    val dagInstanceJoined = JobTemplateResolutionUtil.resolveDagDefinitionJoined(dagDefinitionJoined, Seq(jobTemplate1, jobTemplate2), triggeredBy)
+    val resolvedJobDefinitions = JobTemplateResolutionUtil.resolveDagDefinitionJoined(dagDefinitionJoined, Seq(jobTemplate1, jobTemplate2))
 
     // then
-    dagInstanceJoined.triggeredBy shouldBe triggeredBy
-    val jobInstances = dagInstanceJoined.jobInstances
-    jobInstances should have size 2
-    jobInstances.head.jobType shouldBe JobTypes.Spark
-    jobInstances.head.jobParameters.variables should contain theSameElementsAs Map("key1" -> "value1")
-    jobInstances(1).jobType shouldBe JobTypes.Shell
-    jobInstances(1).jobParameters.variables should contain theSameElementsAs Map("key2" -> "value2")
+    resolvedJobDefinitions should have size 2
+    resolvedJobDefinitions.head.jobType shouldBe JobTypes.Spark
+    resolvedJobDefinitions.head.jobParameters.variables should contain theSameElementsAs Map("key1" -> "value1")
+    resolvedJobDefinitions(1).jobType shouldBe JobTypes.Shell
+    resolvedJobDefinitions(1).jobParameters.variables should contain theSameElementsAs Map("key2" -> "value2")
   }
   
   it should "merge variables, overwriting template-specified by user-specified in case of key-conflicts" in {
@@ -91,15 +81,12 @@ class JobTemplateResolutionUtilTest extends FlatSpec with Matchers {
     val jobDefinition = createJobDefinition().copy(jobTemplateId = jobTemplate.id, jobParameters = userParameters)
     val dagDefinitionJoined = createDagDefinitionJoined(jobDefinition)
 
-    val triggeredBy = "triggered by"
-
     // when
-    val dagInstanceJoined = JobTemplateResolutionUtil.resolveDagDefinitionJoined(dagDefinitionJoined, Seq(jobTemplate), triggeredBy)
+    val resolvedJobDefinitions = JobTemplateResolutionUtil.resolveDagDefinitionJoined(dagDefinitionJoined, Seq(jobTemplate))
 
     // then
-    dagInstanceJoined.triggeredBy shouldBe triggeredBy
-    val jobInstance = dagInstanceJoined.jobInstances.head
-    jobInstance.jobParameters.variables should contain theSameElementsAs Map(
+    val resolvedJobDefinition = resolvedJobDefinitions.head
+    resolvedJobDefinition.jobParameters.variables should contain theSameElementsAs Map(
       "userKey1" -> "userValue1",
       "userKey2" -> "userValue2",
       "templateKey1" -> "templateValue1",
@@ -126,14 +113,13 @@ class JobTemplateResolutionUtilTest extends FlatSpec with Matchers {
     val jobTemplate = GenericSparkJobTemplate.copy(jobParameters = templateParameters)
     val jobDefinition = createJobDefinition().copy(jobTemplateId = jobTemplate.id, jobParameters = userParameters)
     val dagDefinitionJoined = createDagDefinitionJoined(jobDefinition)
-    val triggeredBy = "triggered by"
 
     // when
-    val dagInstanceJoined = JobTemplateResolutionUtil.resolveDagDefinitionJoined(dagDefinitionJoined, Seq(jobTemplate), triggeredBy)
+    val resolvedJobDefinitions = JobTemplateResolutionUtil.resolveDagDefinitionJoined(dagDefinitionJoined, Seq(jobTemplate))
 
     // then
-    val jobInstance = dagInstanceJoined.jobInstances.head
-    jobInstance.jobParameters.maps should contain theSameElementsAs Map(
+    val resolvedJobDefinition = resolvedJobDefinitions.head
+    resolvedJobDefinition.jobParameters.maps should contain theSameElementsAs Map(
       "userKey1" -> List("value1ForUserKey1", "value2ForUserKey1"),
       "userKey2" -> List("value1ForUserKey2", "value2ForUserKey2"),
       "templateKey1" -> List("value1ForTemplateKey1", "value2ForTemplateKey1"),
@@ -160,14 +146,13 @@ class JobTemplateResolutionUtilTest extends FlatSpec with Matchers {
     val jobTemplate = GenericSparkJobTemplate.copy(jobParameters = templateParameters)
     val jobDefinition = createJobDefinition().copy(jobTemplateId = jobTemplate.id, jobParameters = userParameters)
     val dagDefinitionJoined = createDagDefinitionJoined(jobDefinition)
-    val triggeredBy = "triggered by"
 
     // when
-    val dagInstanceJoined = JobTemplateResolutionUtil.resolveDagDefinitionJoined(dagDefinitionJoined, Seq(jobTemplate), triggeredBy)
+    val resolvedJobDefinitions = JobTemplateResolutionUtil.resolveDagDefinitionJoined(dagDefinitionJoined, Seq(jobTemplate))
 
     // then
-    val jobInstance = dagInstanceJoined.jobInstances.head
-    jobInstance.jobParameters.keyValuePairs should contain theSameElementsAs Map(
+    val resolvedJobDefinition = resolvedJobDefinitions.head
+    resolvedJobDefinition.jobParameters.keyValuePairs should contain theSameElementsAs Map(
       "userKey1" -> SortedMap("userKey11" -> "valueForUserKey11", "userKey12" -> "valueForUserKey12"),
       "userKey2" -> SortedMap("userKey21" -> "valueForUserKey21", "userKey22" -> "valueForUserKey22"),
       "templateKey1" -> SortedMap("templateKey11" -> "valueForUserKey11", "userKey12" -> "valueForUserKey12"),
@@ -189,10 +174,9 @@ class JobTemplateResolutionUtilTest extends FlatSpec with Matchers {
     // given
     val jobDefinition = createJobDefinition().copy(jobTemplateId = 1)
     val dagDefinitionJoined = createDagDefinitionJoined(jobDefinition)
-    val triggeredBy = "triggered by"
 
     // when
-    val result = intercept[NoSuchElementException](JobTemplateResolutionUtil.resolveDagDefinitionJoined(dagDefinitionJoined, Seq.empty, triggeredBy))
+    val result = intercept[NoSuchElementException](JobTemplateResolutionUtil.resolveDagDefinitionJoined(dagDefinitionJoined, Seq.empty))
 
     // then
     result.getMessage should include("template with id 1")

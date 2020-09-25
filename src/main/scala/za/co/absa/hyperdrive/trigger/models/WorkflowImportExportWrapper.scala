@@ -13,22 +13,9 @@
  * limitations under the License.
  */
 
-// Karma configuration file, see link for more information
-// https://karma-runner.github.io/1.0/config/configuration-file.html
+package za.co.absa.hyperdrive.trigger.models
 
-const puppeteer = require('puppeteer');
-
-process.env.CHROMIUM_BIN = puppeteer.executablePath();
-console.log('Chromium bin path: ' + process.env.CHROMIUM_BIN);
-
-const baseConfig = require('./karma.conf.js');
-module.exports = function (config) {
-  baseConfig(config);
-  config.set({
-    colors: false,
-    autoWatch: false,
-    browsers: ['ChromiumHeadless'],
-    singleRun: true,
-    restartOnFileChange: false
-  });
-};
+case class WorkflowImportExportWrapper(
+  workflowJoined: WorkflowJoined,
+  jobTemplates: Seq[JobTemplate]
+)

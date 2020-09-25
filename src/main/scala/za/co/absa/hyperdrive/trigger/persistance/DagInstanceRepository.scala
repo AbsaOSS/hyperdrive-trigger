@@ -31,6 +31,8 @@ trait DagInstanceRepository extends Repository {
   def update(dagInstance: DagInstance): Future[Unit]
 
   def hasRunningDagInstance(workflowId: Long)(implicit executionContext: ExecutionContext): Future[Boolean]
+
+  def hasInQueueDagInstance(workflowId: Long)(implicit executionContext: ExecutionContext): Future[Boolean]
 }
 
 @stereotype.Repository
@@ -83,5 +85,12 @@ class DagInstanceRepositoryImpl extends DagInstanceRepository {
     )
   }
 
+  override def hasInQueueDagInstance(workflowId: Long)(implicit executionContext: ExecutionContext): Future[Boolean] = {
+    db.run(
+      dagInstanceTable.filter(dagInstance =>
+        dagInstance.workflowId === workflowId && dagInstance.status.inSetBind(Set(DagInstanceStatuses.InQueue))
+      ).exists.result
+    )
+  }
 
 }

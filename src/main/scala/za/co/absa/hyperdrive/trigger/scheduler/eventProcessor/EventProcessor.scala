@@ -17,7 +17,7 @@ package za.co.absa.hyperdrive.trigger.scheduler.eventProcessor
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
-import za.co.absa.hyperdrive.trigger.api.rest.services.JobTemplateService
+import za.co.absa.hyperdrive.trigger.api.rest.services.{DagInstanceService, JobTemplateService}
 import za.co.absa.hyperdrive.trigger.models.{Event, Properties}
 import za.co.absa.hyperdrive.trigger.persistance._
 
@@ -27,7 +27,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class EventProcessor(eventRepository: EventRepository,
   dagDefinitionRepository: DagDefinitionRepository,
   dagInstanceRepository: DagInstanceRepository,
-  jobTemplateService: JobTemplateService) {
+  dagInstanceService: DagInstanceService) {
   private val logger = LoggerFactory.getLogger(this.getClass)
 
   def eventProcessor(triggeredBy: String)(events: Seq[Event], properties: Properties)(implicit ec: ExecutionContext): Future[Boolean] = {
@@ -43,7 +43,8 @@ class EventProcessor(eventRepository: EventRepository,
         dagDefinitionRepository.getJoinedDagDefinition(properties.sensorId).flatMap {
           case Some(joinedDagDefinition) =>
             for {
-              dagInstanceJoined <- jobTemplateService.resolveJobTemplate(joinedDagDefinition, triggeredBy)
+              hasInQueueDagInstance <- dagInstanceRepository.hasInQueueDagInstance(joinedDagDefinition.workflowId)
+              dagInstanceJoined <- dagInstanceService.createDagInstance(joinedDagDefinition, triggeredBy, hasInQueueDagInstance)
               dagInstanceJoinedEvents = newEvents.map(event => (dagInstanceJoined, event))
               _ <- dagInstanceRepository.insertJoinedDagInstances(dagInstanceJoinedEvents)
             } yield {

@@ -17,7 +17,7 @@ package za.co.absa.hyperdrive.trigger.api.rest.services
 
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.api.rest.utils.JobTemplateResolutionUtil
-import za.co.absa.hyperdrive.trigger.models.{DagDefinitionJoined, DagInstanceJoined, JobTemplate}
+import za.co.absa.hyperdrive.trigger.models.{DagDefinitionJoined, JobTemplate, ResolvedJobDefinition}
 import za.co.absa.hyperdrive.trigger.persistance.JobTemplateRepository
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -25,20 +25,27 @@ import scala.concurrent.{ExecutionContext, Future}
 trait JobTemplateService {
   val jobTemplateRepository: JobTemplateRepository
 
-  def resolveJobTemplate(dagDefinition: DagDefinitionJoined, triggeredBy: String)(implicit ec: ExecutionContext): Future[DagInstanceJoined]
+  def resolveJobTemplate(dagDefinition: DagDefinitionJoined)(implicit ec: ExecutionContext): Future[Seq[ResolvedJobDefinition]]
   def getJobTemplates()(implicit ec: ExecutionContext): Future[Seq[JobTemplate]]
+  def getJobTemplatesByIds(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[JobTemplate]]
+  def getJobTemplateIdsByNames(names: Seq[String])(implicit ec: ExecutionContext): Future[Map[String, Long]]
 }
 
 @Service
 class JobTemplateServiceImpl(override val jobTemplateRepository: JobTemplateRepository) extends JobTemplateService {
-  override def resolveJobTemplate(dagDefinitionJoined: DagDefinitionJoined, triggeredBy: String)(implicit ec: ExecutionContext): Future[DagInstanceJoined] = {
+  override def resolveJobTemplate(dagDefinitionJoined: DagDefinitionJoined)(implicit ec: ExecutionContext): Future[Seq[ResolvedJobDefinition]] = {
     val jobTemplateIds = dagDefinitionJoined.jobDefinitions.map(_.jobTemplateId)
     jobTemplateRepository.getJobTemplatesByIds(jobTemplateIds).map(
-      jobTemplates => JobTemplateResolutionUtil.resolveDagDefinitionJoined(dagDefinitionJoined, jobTemplates, triggeredBy)
+      jobTemplates => JobTemplateResolutionUtil.resolveDagDefinitionJoined(dagDefinitionJoined, jobTemplates)
     )
   }
 
   override def getJobTemplates()(implicit ec: ExecutionContext): Future[Seq[JobTemplate]] =
     jobTemplateRepository.getJobTemplates()
 
+  override def getJobTemplatesByIds(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[JobTemplate]] =
+    jobTemplateRepository.getJobTemplatesByIds(ids)
+
+  override def getJobTemplateIdsByNames(names: Seq[String])(implicit ec: ExecutionContext): Future[Map[String, Long]] =
+    jobTemplateRepository.getJobTemplateIdsByNames(names)
 }
