@@ -25,7 +25,7 @@ import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
 import play.api.libs.json.JsObject
 import za.co.absa.hyperdrive.trigger.TestUtils.await
-import za.co.absa.hyperdrive.trigger.api.rest.services.JobTemplateService
+import za.co.absa.hyperdrive.trigger.api.rest.services.{DagInstanceService, JobTemplateService}
 import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
 import za.co.absa.hyperdrive.trigger.persistance.{DagDefinitionRepository, DagInstanceRepository, EventRepository}
@@ -38,14 +38,14 @@ class EventProcessorTest extends FlatSpec with MockitoSugar with Matchers with B
   private val eventRepository = mock[EventRepository]
   private val dagDefinitionRepository = mock[DagDefinitionRepository]
   private val dagInstanceRepository = mock[DagInstanceRepository]
-  private val jobTemplateService = mock[JobTemplateService]
-  private val underTest = new EventProcessor(eventRepository, dagDefinitionRepository, dagInstanceRepository, jobTemplateService)
+  private val dagInstanceService = mock[DagInstanceService]
+  private val underTest = new EventProcessor(eventRepository, dagDefinitionRepository, dagInstanceRepository, dagInstanceService)
 
   before {
     reset(eventRepository)
     reset(dagDefinitionRepository)
     reset(dagInstanceRepository)
-    reset(jobTemplateService)
+    reset(dagInstanceService)
   }
 
   "EventProcessor.eventProcessor" should "persist a dag instances for each event" in {
@@ -61,13 +61,18 @@ class EventProcessorTest extends FlatSpec with MockitoSugar with Matchers with B
     val dagInstanceJoined = createDagInstanceJoined()
     when(eventRepository.getExistEvents(any())(any[ExecutionContext])).thenReturn(Future{Seq()})
     when(dagDefinitionRepository.getJoinedDagDefinition(eqTo(sensorId))(any[ExecutionContext])).thenReturn(Future{Some(dagDefinition)})
-    when(jobTemplateService.resolveJobTemplate(any[DagDefinitionJoined], eqTo(triggeredBy))(any[ExecutionContext])).thenReturn(Future{dagInstanceJoined})
+    when(dagInstanceRepository.hasInQueueDagInstance(any())(any[ExecutionContext])).thenReturn(Future{false})
+    when(dagInstanceService.createDagInstance(any(), eqTo(triggeredBy), any())(any[ExecutionContext])).thenReturn(Future{dagInstanceJoined})
     when(dagInstanceRepository.insertJoinedDagInstances(any())(any[ExecutionContext])).thenReturn(Future{(): Unit})
 
     // when
     await(underTest.eventProcessor(triggeredBy)(Seq(event), Properties(sensorId, Settings(Map.empty, Map.empty), Map.empty)))
 
     // then
+    val booleanCaptor: ArgumentCaptor[Boolean] = ArgumentCaptor.forClass(classOf[Boolean])
+    verify(dagInstanceService).createDagInstance(any[DagDefinitionJoined], any(), booleanCaptor.capture())(any[ExecutionContext])
+    booleanCaptor.getValue shouldBe false
+
     val dagInstanceCaptor = ArgumentCaptor.forClass(classOf[Seq[(DagInstanceJoined, Event)]])
     verify(dagInstanceRepository).insertJoinedDagInstances(dagInstanceCaptor.capture())(any[ExecutionContext])
 
@@ -95,7 +100,7 @@ class EventProcessorTest extends FlatSpec with MockitoSugar with Matchers with B
 
     // then
     verify(dagDefinitionRepository, never()).getJoinedDagDefinition(any())(any[ExecutionContext])
-    verify(jobTemplateService, never).resolveJobTemplate(any[DagDefinitionJoined], eqTo(triggeredBy))(any[ExecutionContext])
+    verify(dagInstanceService, never).createDagInstance(any(), eqTo(triggeredBy), any())(any[ExecutionContext])
     verify(dagInstanceRepository, never()).insertJoinedDagInstances(any())(any[ExecutionContext])
   }
 
@@ -112,7 +117,7 @@ class EventProcessorTest extends FlatSpec with MockitoSugar with Matchers with B
     await(underTest.eventProcessor(triggeredBy)(Seq(event), Properties(sensorId, Settings(Map.empty, Map.empty), Map.empty)))
     // then
     verify(dagDefinitionRepository).getJoinedDagDefinition(eqTo(sensorId))(any[ExecutionContext])
-    verify(jobTemplateService, never).resolveJobTemplate(any[DagDefinitionJoined], eqTo(triggeredBy))(any[ExecutionContext])
+    verify(dagInstanceService, never).createDagInstance(any(), eqTo(triggeredBy), any())(any[ExecutionContext])
     verify(dagInstanceRepository, never()).insertJoinedDagInstances(any())(any[ExecutionContext])
   }
 
