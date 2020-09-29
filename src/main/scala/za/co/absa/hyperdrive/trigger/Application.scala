@@ -85,7 +85,6 @@ object ObjectMapperSingleton {
     .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
     .configure(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES, false)
     .configure(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES, true)
-    .configure(DeserializationFeature.USE_LONG_FOR_INTS, true)
     .registerModule(module)
 
   def getObjectMapper: ObjectMapper = objectMapper

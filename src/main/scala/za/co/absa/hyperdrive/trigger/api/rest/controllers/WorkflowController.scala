@@ -17,6 +17,7 @@ package za.co.absa.hyperdrive.trigger.api.rest.controllers
 
 import java.util.concurrent.CompletableFuture
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import javax.inject.Inject
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.http.{HttpHeaders, MediaType, ResponseEntity}
@@ -76,8 +77,8 @@ class WorkflowController @Inject()(workflowService: WorkflowService) {
   }
 
   @PostMapping(path = Array("/workflows/isActive"))
-  def updateWorkflowsIsActive(@RequestBody ids: Seq[Long], @RequestParam isActiveNewValue: Boolean): CompletableFuture[Boolean] = {
-    workflowService.updateWorkflowsIsActive(ids, isActiveNewValue).toJava.toCompletableFuture
+  def updateWorkflowsIsActive(@RequestBody jobIdsWrapper: JobIdsWrapper, @RequestParam isActiveNewValue: Boolean): CompletableFuture[Boolean] = {
+    workflowService.updateWorkflowsIsActive(jobIdsWrapper.jobIds, isActiveNewValue).toJava.toCompletableFuture
   }
 
   @GetMapping(path = Array("/workflows/projectNames"))
@@ -101,8 +102,8 @@ class WorkflowController @Inject()(workflowService: WorkflowService) {
   }
 
   @PutMapping(path = Array("/workflow/jobs/run"))
-  def runWorkflowJobs(@RequestParam workflowId: Long, @RequestBody jobsToRun: JobsToRun): CompletableFuture[Boolean] = {
-    workflowService.runWorkflowJobs(workflowId, jobsToRun.jobIds).toJava.toCompletableFuture
+  def runWorkflowJobs(@RequestParam workflowId: Long, @RequestBody jobIdsWrapper: JobIdsWrapper): CompletableFuture[Boolean] = {
+    workflowService.runWorkflowJobs(workflowId, jobIdsWrapper.jobIds).toJava.toCompletableFuture
   }
 
   @GetMapping(path = Array("/workflow/export"))

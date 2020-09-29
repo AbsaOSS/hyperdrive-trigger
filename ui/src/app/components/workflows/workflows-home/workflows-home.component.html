@@ -52,12 +52,12 @@
         <clr-icon shape="caret down"></clr-icon>
       </button>
       <clr-dropdown-menu clrPosition="bottom-left" *clrIfOpen>
-        <div aria-label="Activate" clrDropdownItem [disabled]="isActivateSelectedWorkflowsDisabled(selected)" (click)="activateSelectedWorkflows(selected)">
+        <div aria-label="Activate" clrDropdownItem [clrDisabled]="isActivateSelectedWorkflowsDisabled(selected)" (click)="activateSelectedWorkflows(selected)">
           <clr-icon shape="power"></clr-icon>
           Activate
         </div>
-        <div aria-label="Deactivate" clrDropdownItem [disabled]="isDeactivateSelectedWorkflowsDisabled(selected)" (click)="deactivateSelectedWorkflows(selected)">
-          <clr-icon shape="power"></clr-icon>
+        <div aria-label="Deactivate" clrDropdownItem [clrDisabled]="isDeactivateSelectedWorkflowsDisabled(selected)" (click)="deactivateSelectedWorkflows(selected)">
+          <clr-icon shape="power" class="has-badge"></clr-icon>
           Deactivate
         </div>
       </clr-dropdown-menu>
