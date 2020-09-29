@@ -66,7 +66,7 @@ export class WorkflowService {
   updateWorkflowsIsActive(ids: number[], isActiveNewValue: boolean): Observable<boolean> {
     const params = new HttpParams().set('isActiveNewValue', isActiveNewValue.toString());
     return this.httpClient
-      .post<boolean>(api.UPDATE_WORKFLOWS_IS_ACTIVE, ids, { params: params, observe: 'response' })
+      .post<boolean>(api.UPDATE_WORKFLOWS_IS_ACTIVE, { jobIds: ids }, { params: params, observe: 'response' })
       .pipe(map((_) => _.body));
   }
 
