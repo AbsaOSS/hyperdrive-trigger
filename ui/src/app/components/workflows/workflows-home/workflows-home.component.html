@@ -127,7 +127,7 @@
         Show
       </button>
       <button type="button" class="action-item" (click)="switchWorkflowActiveState(workflow.id, workflow.isActive)">
-        <clr-icon shape="power"></clr-icon>
+        <clr-icon shape="power" [class]="workflow.isActive ? 'has-badge' : ''"></clr-icon>
         {{workflow.isActive ? 'Deactivate' : 'Activate'}}
       </button>
       <button type="button" class="action-item" (click)="runWorkflow(workflow.id)">
