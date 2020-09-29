@@ -418,6 +418,41 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         },
         loading: false,
       };
+    case WorkflowsActions.UPDATE_WORKFLOWS_IS_ACTIVE:
+      return {
+        ...state,
+        workflowAction: {
+          ...state.workflowAction,
+        },
+        loading: true,
+      };
+    case WorkflowsActions.UPDATE_WORKFLOWS_IS_ACTIVE_SUCCESS: {
+      const updatedProjects = state.projects.map((project) => {
+        return ProjectModelFactory.create(
+          project.name,
+          project.workflows.map((workflow) => {
+            return action.payload.ids.includes(workflow.id) ? { ...workflow, isActive: action.payload.isActiveNewValue } : workflow;
+          }),
+        );
+      });
+      const sortedUpdatedProjects = sortProjectsAndWorkflows([...updatedProjects]);
+      return {
+        ...state,
+        projects: [...sortedUpdatedProjects],
+        workflowAction: {
+          ...state.workflowAction,
+        },
+        loading: false,
+      };
+    }
+    case WorkflowsActions.UPDATE_WORKFLOWS_IS_ACTIVE_FAILURE:
+      return {
+        ...state,
+        workflowAction: {
+          ...state.workflowAction,
+        },
+        loading: false,
+      };
     case WorkflowsActions.CREATE_WORKFLOW:
       return {
         ...state,

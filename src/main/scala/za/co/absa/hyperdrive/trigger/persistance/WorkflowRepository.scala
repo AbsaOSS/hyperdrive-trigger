@@ -37,6 +37,7 @@ trait WorkflowRepository extends Repository {
   def deleteWorkflow(id: Long, user: String)(implicit ec: ExecutionContext): Future[Unit]
   def updateWorkflow(workflow: WorkflowJoined, user: String)(implicit ec: ExecutionContext): Future[Either[ApiError, Unit]]
   def switchWorkflowActiveState(id: Long, user: String)(implicit ec: ExecutionContext): Future[Unit]
+  def updateWorkflowsIsActive(ids: Seq[Long], isActiveNewValue: Boolean, user: String)(implicit ec: ExecutionContext): Future[Unit]
   def getProjects()(implicit ec: ExecutionContext): Future[Seq[String]]
   def getProjectsInfo()(implicit ec: ExecutionContext): Future[Seq[ProjectInfo]]
 }
@@ -107,7 +108,7 @@ class WorkflowRepositoryImpl(override val workflowHistoryRepository: WorkflowHis
             id = w.id
           )
       }
-      workflowOption.getOrElse(throw new Exception(s"Workflow with ${id} does not exist."));
+      workflowOption.getOrElse(throw new Exception(s"Workflow with id ${id} does not exist."));
     }
   }
 
@@ -196,6 +197,24 @@ class WorkflowRepositoryImpl(override val workflowHistoryRepository: WorkflowHis
           DBIO.failed(new Exception("Update workflow exception"))
         }
       }).transactionally
+    )
+  }
+
+  override def updateWorkflowsIsActive(ids: Seq[Long], isActiveNewValue: Boolean, user: String)(implicit ec: ExecutionContext): Future[Unit] = {
+    val updateIdsAction = workflowTable.filter(_.id inSetBind ids)
+      .map(workflow => (workflow.isActive, workflow.updated))
+      .update((isActiveNewValue, Option(LocalDateTime.now())))
+
+    val insertHistoryEntryActions = ids
+      .map(id => getWorkflowJoined(id).flatMap(workflow => workflowHistoryRepository.update(workflow, user)))
+      .reduceLeftOption(_.andThen(_))
+      .getOrElse(DBIO.successful())
+
+    db.run(
+      updateIdsAction
+        .andThen(insertHistoryEntryActions)
+        .andThen(DBIO.successful())
+        .transactionally
     )
   }
 
