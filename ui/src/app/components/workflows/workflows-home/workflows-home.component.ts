@@ -162,11 +162,11 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
   }
 
   isActivateSelectedWorkflowsDisabled(selected: WorkflowModel[]) {
-    return selected.length == 0 || selected.some((workflow) => workflow.isActive);
+    return selected.length == 0 || selected.every((workflow) => workflow.isActive);
   }
 
   isDeactivateSelectedWorkflowsDisabled(selected: WorkflowModel[]) {
-    return selected.length == 0 || selected.some((workflow) => !workflow.isActive);
+    return selected.length == 0 || selected.every((workflow) => !workflow.isActive);
   }
 
   activateSelectedWorkflows(selected: WorkflowModel[]) {
