@@ -32,6 +32,7 @@ import {
   StartWorkflowInitialization,
   SwitchWorkflowActiveState,
   UpdateWorkflow,
+  UpdateWorkflowsIsActive,
 } from './workflows.actions';
 
 import { WorkflowsEffects } from './workflows.effects';
@@ -427,6 +428,72 @@ describe('WorkflowsEffects', () => {
       expect(underTest.workflowActiveStateSwitch).toBeObservable(expected);
       expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
       expect(toastrServiceSpy).toHaveBeenCalledWith(texts.SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE_NOTIFICATION);
+    });
+  });
+
+  describe('updateWorkflowsIsActive', () => {
+    it('should dispatch success action when service successfully updates isActive', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'success');
+      const payload = { ids: [21, 22], isActiveNewValue: true };
+      const response = true;
+
+      const action = new UpdateWorkflowsIsActive(payload);
+      mockActions = cold('-a', { a: action });
+
+      const updateWorkflowsIsActiveResponse = cold('-a|', { a: response });
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowsActions.UPDATE_WORKFLOWS_IS_ACTIVE_SUCCESS,
+          payload: payload,
+        },
+      });
+
+      spyOn(workflowService, 'updateWorkflowsIsActive').and.returnValue(updateWorkflowsIsActiveResponse);
+
+      expect(underTest.updateWorkflowsIsActive).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.UPDATE_WORKFLOWS_IS_ACTIVE_SUCCESS_NOTIFICATION(payload.isActiveNewValue));
+    });
+
+    it('should dispatch failure action when service fails to update isActive', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'error');
+      const payload = { ids: [21, 22], isActiveNewValue: true };
+      const response = false;
+
+      const action = new UpdateWorkflowsIsActive(payload);
+      mockActions = cold('-a', { a: action });
+
+      const updateWorkflowsIsActiveResponse = cold('-a|', { a: response });
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowsActions.UPDATE_WORKFLOWS_IS_ACTIVE_FAILURE,
+        },
+      });
+
+      spyOn(workflowService, 'updateWorkflowsIsActive').and.returnValue(updateWorkflowsIsActiveResponse);
+
+      expect(underTest.updateWorkflowsIsActive).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.UPDATE_WORKFLOWS_IS_ACTIVE_FAILURE_NOTIFICATION);
+    });
+
+    it('should dispatch failure action when service throws exception while updating isActive', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'error');
+      const payload = { ids: [21, 22], isActiveNewValue: true };
+      const action = new UpdateWorkflowsIsActive(payload);
+      mockActions = cold('-a', { a: action });
+
+      const errorResponse = cold('-#|');
+      spyOn(workflowService, 'updateWorkflowsIsActive').and.returnValue(errorResponse);
+
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowsActions.UPDATE_WORKFLOWS_IS_ACTIVE_FAILURE,
+        },
+      });
+      expect(underTest.updateWorkflowsIsActive).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.UPDATE_WORKFLOWS_IS_ACTIVE_FAILURE_NOTIFICATION);
     });
   });
 
