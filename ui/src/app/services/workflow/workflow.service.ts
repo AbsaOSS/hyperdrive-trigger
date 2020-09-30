@@ -63,6 +63,13 @@ export class WorkflowService {
     return this.httpClient.post<boolean>(api.SWITCH_WORKFLOW_ACTIVE_STATE.replace('{id}', id.toString()), { observe: 'response' });
   }
 
+  updateWorkflowsIsActive(ids: number[], isActiveNewValue: boolean): Observable<boolean> {
+    const params = new HttpParams().set('isActiveNewValue', isActiveNewValue.toString());
+    return this.httpClient
+      .post<boolean>(api.UPDATE_WORKFLOWS_IS_ACTIVE, { jobIds: ids }, { params: params, observe: 'response' })
+      .pipe(map((_) => _.body));
+  }
+
   exportWorkflow(id: number): Observable<{ blob: Blob; fileName: string }> {
     const params = new HttpParams().set('id', id.toString());
 

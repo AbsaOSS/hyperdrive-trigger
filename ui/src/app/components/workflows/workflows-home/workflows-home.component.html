@@ -43,9 +43,26 @@
   </div>
 </clr-modal>
 
-<clr-datagrid (clrDgRefresh)="onClarityDgRefresh($event)">
+<clr-datagrid [(clrDgSelected)]="selected" (clrDgRefresh)="onClarityDgRefresh($event)">
 
   <clr-dg-action-bar>
+    <clr-dropdown>
+      <button type="button" class="btn btn-sm btn-secondary" [disabled]="selected.length <= 0" clrDropdownTrigger>
+        Bulk Actions
+        <clr-icon shape="caret down"></clr-icon>
+      </button>
+      <clr-dropdown-menu clrPosition="bottom-left" *clrIfOpen>
+        <div aria-label="Activate" clrDropdownItem [clrDisabled]="isActivateSelectedWorkflowsDisabled(selected)" (click)="activateSelectedWorkflows(selected)">
+          <clr-icon shape="power"></clr-icon>
+          Activate
+        </div>
+        <div aria-label="Deactivate" clrDropdownItem [clrDisabled]="isDeactivateSelectedWorkflowsDisabled(selected)" (click)="deactivateSelectedWorkflows(selected)">
+          <clr-icon shape="power" class="has-badge"></clr-icon>
+          Deactivate
+        </div>
+      </clr-dropdown-menu>
+    </clr-dropdown>
+
     <div class="btn-group">
       <button type="button" class="btn btn-sm btn-secondary" [routerLink]="[absoluteRoutes.CREATE_WORKFLOW]">
         <clr-icon shape="plus"></clr-icon>
@@ -110,7 +127,7 @@
         Show
       </button>
       <button type="button" class="action-item" (click)="switchWorkflowActiveState(workflow.id, workflow.isActive)">
-        <clr-icon shape="power"></clr-icon>
+        <clr-icon shape="power" [class]="workflow.isActive ? 'has-badge' : ''"></clr-icon>
         {{workflow.isActive ? 'Deactivate' : 'Activate'}}
       </button>
       <button type="button" class="action-item" (click)="runWorkflow(workflow.id)">
