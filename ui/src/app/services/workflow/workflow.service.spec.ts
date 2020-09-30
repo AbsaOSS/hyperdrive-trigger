@@ -101,6 +101,20 @@ describe('WorkflowService', () => {
     req.flush(new Boolean(true));
   });
 
+  it('updateWorkflowsIsActive() should update workflows isActive', () => {
+    const ids = [1, 2];
+    const isActiveNewValue = true;
+    const response = true;
+    underTest.updateWorkflowsIsActive(ids, isActiveNewValue).subscribe(
+      (data) => expect(data).toEqual(response),
+      (error) => fail(error),
+    );
+
+    const req = httpTestingController.expectOne(api.UPDATE_WORKFLOWS_IS_ACTIVE + `?isActiveNewValue=${isActiveNewValue}`);
+    expect(req.request.method).toEqual('POST');
+    req.flush(new Boolean(true));
+  });
+
   it('exportWorkflow() should return workflow blob', () => {
     const content = '{"workflowId":"1"}';
     const blob = new Blob([content], { type: 'application/json' });

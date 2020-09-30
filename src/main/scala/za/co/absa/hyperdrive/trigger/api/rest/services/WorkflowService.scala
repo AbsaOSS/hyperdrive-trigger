@@ -38,6 +38,7 @@ trait WorkflowService {
   def deleteWorkflow(id: Long)(implicit ec: ExecutionContext): Future[Boolean]
   def updateWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], WorkflowJoined]]
   def switchWorkflowActiveState(id: Long)(implicit ec: ExecutionContext): Future[Boolean]
+  def updateWorkflowsIsActive(ids: Seq[Long], isActiveNewValue: Boolean)(implicit ec: ExecutionContext): Future[Boolean]
   def getProjectNames()(implicit ec: ExecutionContext): Future[Set[String]]
   def getProjects()(implicit ec: ExecutionContext): Future[Seq[Project]]
   def getProjectsInfo()(implicit ec: ExecutionContext): Future[Seq[ProjectInfo]]
@@ -123,6 +124,11 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
   override def switchWorkflowActiveState(id: Long)(implicit ec: ExecutionContext): Future[Boolean] = {
     val userName = getUserName.apply();
     workflowRepository.switchWorkflowActiveState(id, userName).map(_ => true)
+  }
+
+  override def updateWorkflowsIsActive(ids: Seq[Long], isActiveNewValue: Boolean)(implicit ec: ExecutionContext): Future[Boolean] = {
+    val userName = getUserName.apply()
+    workflowRepository.updateWorkflowsIsActive(ids, isActiveNewValue, userName).map(_ => true)
   }
 
   override def getProjectNames()(implicit ec: ExecutionContext): Future[Set[String]] = {
