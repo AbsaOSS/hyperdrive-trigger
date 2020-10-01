@@ -28,6 +28,17 @@ export const texts = {
   },
   SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
 
+  UPDATE_WORKFLOWS_IS_ACTIVE_TITLE(isActiveNewValue: boolean): string {
+    return (isActiveNewValue ? 'Activate' : 'Deactivate') + ' workflows';
+  },
+  UPDATE_WORKFLOWS_IS_ACTIVE_CONTENT(isActiveNewValue: boolean): string {
+    return 'Are you sure you want to ' + (isActiveNewValue ? 'activate' : 'deactivate') + ' the selected workflows?';
+  },
+  UPDATE_WORKFLOWS_IS_ACTIVE_SUCCESS_NOTIFICATION(isActiveNewValue: boolean): string {
+    return 'The workflows have been ' + (isActiveNewValue ? 'activated' : 'deactivated');
+  },
+  UPDATE_WORKFLOWS_IS_ACTIVE_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
+
   RUN_WORKFLOWS_JOBS_SUCCESS_NOTIFICATION: 'Workflow has been submitted.',
   RUN_WORKFLOWS_JOBS_FAILURE_NOTIFICATION: "Sorry, jobs couldn't be submitted. Please try again.",
   LOAD_JOBS_FOR_RUN_FAILURE_NOTIFICATION: "Sorry, jobs couldn't be loaded. Please try again.",
@@ -46,7 +57,7 @@ export const texts = {
   EXPORT_WORKFLOW_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
 
   IMPORT_WORKFLOW_SUCCESS_NOTIFICATION: 'Workflow has been imported.',
-  IMPORT_WORKFLOW_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
+  IMPORT_WORKFLOW_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Please double-check the import file and try again.',
 
   LOAD_HISTORY_FOR_WORKFLOW_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
   LOAD_WORKFLOWS_FROM_HISTORY_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',

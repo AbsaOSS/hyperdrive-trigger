@@ -1,12 +1,6 @@
-docker-compose.yml
-Dockerfile
-Jenkinsfile
-LICENSE
-README.md
-pom.xml
+# Ignore everything
+**
 
-.gitignore
-.idea
-logs
-src
-ui
+# Allow files and directories
+!/Dockerfile
+!/target/*.war

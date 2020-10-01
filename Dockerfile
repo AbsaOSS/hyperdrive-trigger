@@ -12,7 +12,7 @@
 # limitations under the License.
 #
 
-FROM openjdk:8-jre-alpine
+FROM tomcat:9-jdk8-openjdk
 
 LABEL \
     vendor="ABSA" \
@@ -20,12 +20,5 @@ LABEL \
     license="Apache License, version 2.0" \
     name="Hyperdrive Workflow Manager"
 
-ARG JAR_FILE
-COPY ${JAR_FILE} /usr/src/hyperdrive/hyperdrive-trigger.jar
-COPY *.sh /usr/src/hyperdrive/
-ENV JAVA_OPTS=""
-WORKDIR /usr/src/hyperdrive
-VOLUME /usr/src/hyperdrive/logs
-EXPOSE 7123 5432
-RUN chmod +x -R /usr/src/hyperdrive
-ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} -jar hyperdrive-trigger.jar"]
+ARG WAR_FILE
+COPY ${WAR_FILE} /usr/local/tomcat/webapps/hyperdrive_trigger.war

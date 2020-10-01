@@ -17,6 +17,7 @@ package za.co.absa.hyperdrive.trigger.api.rest.controllers
 
 import java.util.concurrent.CompletableFuture
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import javax.inject.Inject
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.http.{HttpHeaders, MediaType, ResponseEntity}
@@ -75,6 +76,11 @@ class WorkflowController @Inject()(workflowService: WorkflowService) {
     workflowService.switchWorkflowActiveState(id).toJava.toCompletableFuture
   }
 
+  @PostMapping(path = Array("/workflows/isActive"))
+  def updateWorkflowsIsActive(@RequestBody jobIdsWrapper: JobIdsWrapper, @RequestParam isActiveNewValue: Boolean): CompletableFuture[Boolean] = {
+    workflowService.updateWorkflowsIsActive(jobIdsWrapper.jobIds, isActiveNewValue).toJava.toCompletableFuture
+  }
+
   @GetMapping(path = Array("/workflows/projectNames"))
   def getProjectNames(): CompletableFuture[Set[String]] = {
     workflowService.getProjectNames.toJava.toCompletableFuture
@@ -96,28 +102,28 @@ class WorkflowController @Inject()(workflowService: WorkflowService) {
   }
 
   @PutMapping(path = Array("/workflow/jobs/run"))
-  def runWorkflowJobs(@RequestParam workflowId: Long, @RequestBody jobsToRun: JobsToRun): CompletableFuture[Boolean] = {
-    workflowService.runWorkflowJobs(workflowId, jobsToRun.jobIds).toJava.toCompletableFuture
+  def runWorkflowJobs(@RequestParam workflowId: Long, @RequestBody jobIdsWrapper: JobIdsWrapper): CompletableFuture[Boolean] = {
+    workflowService.runWorkflowJobs(workflowId, jobIdsWrapper.jobIds).toJava.toCompletableFuture
   }
 
   @GetMapping(path = Array("/workflow/export"))
   def exportWorkflow(@RequestParam id: Long): CompletableFuture[ResponseEntity[ByteArrayResource]] = {
-    workflowService.getWorkflow(id).map { workflow =>
+    workflowService.exportWorkflow(id).map { workflowExport =>
       val resource = new ByteArrayResource(
-        ObjectMapperSingleton.getObjectMapper.writeValueAsBytes(workflow)
+        ObjectMapperSingleton.getObjectMapper.writerWithDefaultPrettyPrinter.writeValueAsBytes(workflowExport)
       )
 
       ResponseEntity.ok()
         .contentType(MediaType.parseMediaType("application/json"))
-        .header(HttpHeaders.CONTENT_DISPOSITION, s"attachment; filename=${workflow.name}.json")
+        .header(HttpHeaders.CONTENT_DISPOSITION, s"attachment; filename=${workflowExport.workflowJoined.name}.json")
         .body(resource)
     }.toJava.toCompletableFuture
   }
 
   @PostMapping(path = Array("/workflow/import"))
   def importWorkflow(@RequestPart("file") file: MultipartFile): CompletableFuture[WorkflowJoined] = {
-    val workflow = ObjectMapperSingleton.getObjectMapper.readValue(file.getBytes, classOf[WorkflowJoined])
-    Future.successful(workflow).toJava.toCompletableFuture
+    val workflowImport = ObjectMapperSingleton.getObjectMapper.readValue(file.getBytes, classOf[WorkflowImportExportWrapper])
+    workflowService.importWorkflow(workflowImport)
   }
 
 }

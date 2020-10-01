@@ -280,6 +280,25 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         },
       };
     }
+    case WorkflowsActions.WORKFLOW_COPY_JOB: {
+      const copyIndex: number = state.workflowAction.workflowFormData.jobs.findIndex((job) => job.jobId === action.payload);
+
+      const copiedJobData = JobEntryModelFactory.createWithUuid(
+        state.workflowAction.workflowFormData.jobs.length,
+        copyIndex !== null && copyIndex !== undefined ? state.workflowAction.workflowFormData.jobs[copyIndex].entries : [],
+      );
+      const jobs = [...state.workflowAction.workflowFormData.jobs, copiedJobData];
+      return {
+        ...state,
+        workflowAction: {
+          ...state.workflowAction,
+          workflowFormData: {
+            ...state.workflowAction.workflowFormData,
+            jobs: [...jobs],
+          },
+        },
+      };
+    }
     case WorkflowsActions.WORKFLOW_JOB_CHANGED: {
       const oldJob = state.workflowAction.workflowFormData.jobs.find((job) => job.jobId === action.payload.jobId);
       const filteredOldJobData = oldJob.entries.filter((jobEntry) => jobEntry.property !== action.payload.jobEntry.property);
@@ -392,6 +411,41 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         loading: false,
       };
     case WorkflowsActions.SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE:
+      return {
+        ...state,
+        workflowAction: {
+          ...state.workflowAction,
+        },
+        loading: false,
+      };
+    case WorkflowsActions.UPDATE_WORKFLOWS_IS_ACTIVE:
+      return {
+        ...state,
+        workflowAction: {
+          ...state.workflowAction,
+        },
+        loading: true,
+      };
+    case WorkflowsActions.UPDATE_WORKFLOWS_IS_ACTIVE_SUCCESS: {
+      const updatedProjects = state.projects.map((project) => {
+        return ProjectModelFactory.create(
+          project.name,
+          project.workflows.map((workflow) => {
+            return action.payload.ids.includes(workflow.id) ? { ...workflow, isActive: action.payload.isActiveNewValue } : workflow;
+          }),
+        );
+      });
+      const sortedUpdatedProjects = sortProjectsAndWorkflows([...updatedProjects]);
+      return {
+        ...state,
+        projects: [...sortedUpdatedProjects],
+        workflowAction: {
+          ...state.workflowAction,
+        },
+        loading: false,
+      };
+    }
+    case WorkflowsActions.UPDATE_WORKFLOWS_IS_ACTIVE_FAILURE:
       return {
         ...state,
         workflowAction: {

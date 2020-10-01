@@ -34,6 +34,7 @@ import { AuthService } from './services/auth/auth.service';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { AuthEffects } from './stores/auth/auth.effects';
+import { ApplicationEffects } from './stores/application/application.effects';
 import { CsrfInterceptor } from './services/interceptors/csrf.interceptor';
 import { UnauthorizedInterceptor } from './services/interceptors/unauthorized.interceptor';
 import { AuthGuardService } from './services/guards/authGuard.service';
@@ -71,6 +72,7 @@ import { WorkflowRunComponent } from './components/workflows/workflow-run/workfl
 import { BooleanFilterComponent } from './components/common/datagrid/filters/boolean-filter/boolean-filter.component';
 import { WelcomeComponent } from './components/auth/welcome/welcome.component';
 import { LoginDialogComponent } from './components/auth/login-dialog/login-dialog.component';
+import { BaseUrlInterceptor } from './services/interceptors/baseurl.interceptor';
 
 @NgModule({
   declarations: [
@@ -119,7 +121,7 @@ import { LoginDialogComponent } from './components/auth/login-dialog/login-dialo
       timeOut: 5000,
     }),
     StoreModule.forRoot(reducers),
-    EffectsModule.forRoot([AuthEffects, RunsEffects, WorkflowsEffects]),
+    EffectsModule.forRoot([ApplicationEffects, AuthEffects, RunsEffects, WorkflowsEffects]),
     StoreRouterConnectingModule.forRoot(),
     !environment.production ? StoreDevtoolsModule.instrument() : [],
   ],
@@ -129,6 +131,7 @@ import { LoginDialogComponent } from './components/auth/login-dialog/login-dialo
     LogInGuardService,
     PreviousRouteService,
     { provide: HTTP_INTERCEPTORS, useClass: CsrfInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: BaseUrlInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: UnauthorizedInterceptor, multi: true },
   ],
   bootstrap: [AppComponent],

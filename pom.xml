@@ -14,15 +14,13 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.2.3-SNAPSHOT</version>
     <groupId>za.co.absa</groupId>
     <artifactId>hyperdrive-trigger</artifactId>
-    <packaging>jar</packaging>
+    <packaging>war</packaging>
 
     <name>hyperdrive-trigger</name>
     <description>Hyperdrive-Trigger is a scheduler and GUI for hyperdrive.</description>
@@ -41,8 +39,9 @@
 
     <scm>
         <connection>scm:git:git://github.com/AbsaOSS/hyperdrive-trigger.git</connection>
-        <developerConnection>scm:git:ssh://github.com:AbsaOSS/hyperdrive-trigger.git</developerConnection>
+        <developerConnection>scm:git:ssh://github.com/AbsaOSS/hyperdrive-trigger.git</developerConnection>
         <url>https://github.com/AbsaOSS/hyperdrive-trigger/tree/master</url>
+        <tag>HEAD</tag>
     </scm>
 
     <licenses>
@@ -98,7 +97,6 @@
         <alchim31>3.2.0</alchim31>
         <spring.version>2.0.0.RELEASE</spring.version>
         <quartz.version>2.3.2</quartz.version>
-        <maven.war.version>2.2</maven.war.version>
         <log4j.version>2.11.1</log4j.version>
         <slf4j.log4j2.version>1.7.26</slf4j.log4j2.version>
         <spring.ldap.version>5.0.3.RELEASE</spring.ldap.version>
@@ -113,8 +111,8 @@
         <maven.ant.plugin.version>1.8</maven.ant.plugin.version>
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
         <scalatest-maven-plugin.version>2.0.0</scalatest-maven-plugin.version>
-        <dockerfile-maven.version>1.4.13</dockerfile-maven.version>
         <frontend.maven.plugin.version>1.9.0</frontend.maven.plugin.version>
+        <maven.war.plugin.version>2.6</maven.war.plugin.version>
         <commons.lang3.version>3.11</commons.lang3.version>
         <buildnumber.maven.plugin.version>1.4</buildnumber.maven.plugin.version>
 
@@ -124,9 +122,8 @@
         <nexus.staging.plugin.version>1.6.8</nexus.staging.plugin.version>
         <maven.release.plugin.version>2.5.3</maven.release.plugin.version>
 
-        <skip.docker>true</skip.docker>
         <skipNpmTests>${skipTests}</skipNpmTests>
-        <scalatest.suites/>
+        <scalatest.suites />
         <scalatest.tagsToExclude>za.co.absa.hyperdrive.trigger.testdata.PersistingData</scalatest.tagsToExclude>
     </properties>
 
@@ -205,6 +202,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
             <version>${spring-boot-starter-tomcat.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
@@ -243,6 +241,12 @@
         </dependency>
     </dependencies>
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -258,18 +262,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <archive>
-                        <manifestEntries>
-                            <App-Version>${project.version}</App-Version>
-                            <Build-Number>${buildNumber}</Build-Number>
-                        </manifestEntries>
-                    </archive>
-                </configuration>
             </plugin>
 
             <plugin>
@@ -327,26 +319,28 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>com.spotify</groupId>
-                <artifactId>dockerfile-maven-plugin</artifactId>
-                <version>${dockerfile-maven.version}</version>
-                <executions>
-                    <execution>
-                        <id>default</id>
-                        <goals>
-                            <goal>build</goal>
-                            <goal>push</goal>
-                        </goals>
-                    </execution>
-                </executions>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>${maven.war.plugin.version}</version>
                 <configuration>
-                    <skip>${skip.docker}</skip>
-                    <repository>bigdatarnd-hyperdrive-trigger</repository>
-                    <tag>latest</tag>
-                    <buildArgs>
-                        <JAR_FILE>target/${project.build.finalName}.jar</JAR_FILE>
-                    </buildArgs>
-                    <noCache>true</noCache>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                    <webResources>
+                        <resource>
+                            <directory>target/classes/ui</directory>
+                            <targetPath>/</targetPath>
+                            <filtering>false</filtering>
+                        </resource>
+                    </webResources>
+                    <packagingExcludes>META-INF/*.SF, META-INF/*.DSA, META-INF/*.RSA</packagingExcludes>
+                    <archive>
+                        <manifestEntries>
+                            <App-Version>${project.version}</App-Version>
+                            <Build-Number>${buildNumber}</Build-Number>
+                        </manifestEntries>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                        </manifest>
+                    </archive>
                 </configuration>
             </plugin>
             <!-- Deployment-->
@@ -437,12 +431,6 @@
 
     <profiles>
         <profile>
-            <id>docker</id>
-            <properties>
-                <skip.docker>false</skip.docker>
-            </properties>
-        </profile>
-        <profile>
             <id>deploy</id>
             <build>
                 <plugins>
@@ -506,7 +494,7 @@
             <id>testdata</id>
             <properties>
                 <scalatest.suites>za.co.absa.hyperdrive.trigger.testdata.TestDataGeneratorLocal</scalatest.suites>
-                <scalatest.tagsToExclude/>
+                <scalatest.tagsToExclude />
                 <skip.npm>true</skip.npm>
                 <skip.installnodenpm>true</skip.installnodenpm>
             </properties>

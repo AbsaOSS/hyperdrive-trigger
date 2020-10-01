@@ -18,4 +18,5 @@ export const jobStatuses = {
   RUNNING: 'Running',
   SUCCEEDED: 'Succeeded',
   FAILED: 'Failed',
+  SKIPPED: 'Skipped',
 };

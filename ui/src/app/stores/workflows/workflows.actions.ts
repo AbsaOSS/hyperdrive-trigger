@@ -41,6 +41,7 @@ export const WORKFLOW_SENSOR_CHANGED = 'WORKFLOW_SENSOR_CHANGED';
 export const WORKFLOW_SENSOR_TYPE_SWITCHED = 'WORKFLOW_SENSOR_TYPE_SWITCHED';
 export const WORKFLOW_ADD_EMPTY_JOB = 'WORKFLOW_ADD_EMPTY_JOB';
 export const WORKFLOW_REMOVE_JOB = 'WORKFLOW_REMOVE_JOB';
+export const WORKFLOW_COPY_JOB = 'WORKFLOW_COPY_JOB';
 export const WORKFLOW_JOB_CHANGED = 'WORKFLOW_JOB_CHANGED';
 export const WORKFLOW_JOB_TYPE_SWITCHED = 'WORKFLOW_JOB_TYPE_SWITCHED';
 export const WORKFLOW_JOBS_REORDER = 'WORKFLOW_JOBS_REORDER';
@@ -52,6 +53,10 @@ export const DELETE_WORKFLOW_FAILURE = 'DELETE_WORKFLOW_FAILURE';
 export const SWITCH_WORKFLOW_ACTIVE_STATE = 'SWITCH_WORKFLOW_ACTIVE_STATE';
 export const SWITCH_WORKFLOW_ACTIVE_STATE_SUCCESS = 'SWITCH_WORKFLOW_ACTIVE_STATE_SUCCESS';
 export const SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE = 'SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE';
+
+export const UPDATE_WORKFLOWS_IS_ACTIVE = 'UPDATE_WORKFLOWS_IS_ACTIVE';
+export const UPDATE_WORKFLOWS_IS_ACTIVE_SUCCESS = 'UPDATE_WORKFLOWS_IS_ACTIVE_SUCCESS';
+export const UPDATE_WORKFLOWS_IS_ACTIVE_FAILURE = 'UPDATE_WORKFLOWS_IS_ACTIVE_FAILURE';
 
 export const CREATE_WORKFLOW = 'CREATE_WORKFLOW';
 export const CREATE_WORKFLOW_SUCCESS = 'CREATE_WORKFLOW_SUCCESS';
@@ -159,6 +164,11 @@ export class WorkflowRemoveJob implements Action {
   constructor(public payload: string) {}
 }
 
+export class WorkflowCopyJob implements Action {
+  readonly type = WORKFLOW_COPY_JOB;
+  constructor(public payload: string) {}
+}
+
 export class WorkflowJobChanged implements Action {
   readonly type = WORKFLOW_JOB_CHANGED;
   constructor(public payload: { jobId: string; jobEntry: WorkflowEntryModel }) {}
@@ -200,6 +210,20 @@ export class SwitchWorkflowActiveStateSuccess implements Action {
 
 export class SwitchWorkflowActiveStateFailure implements Action {
   readonly type = SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE;
+}
+
+export class UpdateWorkflowsIsActive implements Action {
+  readonly type = UPDATE_WORKFLOWS_IS_ACTIVE;
+  constructor(public payload: { ids: number[]; isActiveNewValue: boolean }) {}
+}
+
+export class UpdateWorkflowsIsActiveSuccess implements Action {
+  readonly type = UPDATE_WORKFLOWS_IS_ACTIVE_SUCCESS;
+  constructor(public payload: { ids: number[]; isActiveNewValue: boolean }) {}
+}
+
+export class UpdateWorkflowsIsActiveFailure implements Action {
+  readonly type = UPDATE_WORKFLOWS_IS_ACTIVE_FAILURE;
 }
 
 export class CreateWorkflow implements Action {
@@ -341,6 +365,7 @@ export type WorkflowsActions =
   | WorkflowSensorTypeSwitched
   | WorkflowAddEmptyJob
   | WorkflowRemoveJob
+  | WorkflowCopyJob
   | WorkflowJobChanged
   | WorkflowJobTypeSwitched
   | WorkflowJobsReorder
@@ -350,6 +375,9 @@ export type WorkflowsActions =
   | SwitchWorkflowActiveState
   | SwitchWorkflowActiveStateSuccess
   | SwitchWorkflowActiveStateFailure
+  | UpdateWorkflowsIsActive
+  | UpdateWorkflowsIsActiveSuccess
+  | UpdateWorkflowsIsActiveFailure
   | CreateWorkflow
   | CreateWorkflowSuccess
   | CreateWorkflowFailure

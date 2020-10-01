@@ -39,6 +39,7 @@ import { WorkflowHistoryService } from '../../services/workflowHistory/workflow-
 import { JobService } from '../../services/job/job.service';
 import { JobForRunModel } from '../../models/jobForRun.model';
 import { EMPTY } from 'rxjs';
+import { ApiErrorModel } from '../../models/errors/apiError.model';
 
 @Injectable()
 export class WorkflowsEffects {
@@ -196,6 +197,41 @@ export class WorkflowsEffects {
           return [
             {
               type: WorkflowActions.SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE,
+            },
+          ];
+        }),
+      );
+    }),
+  );
+
+  @Effect({ dispatch: true })
+  updateWorkflowsIsActive = this.actions.pipe(
+    ofType(WorkflowActions.UPDATE_WORKFLOWS_IS_ACTIVE),
+    switchMap((action: WorkflowActions.UpdateWorkflowsIsActive) => {
+      return this.workflowService.updateWorkflowsIsActive(action.payload.ids, action.payload.isActiveNewValue).pipe(
+        mergeMap((result: boolean) => {
+          if (result) {
+            this.toastrService.success(texts.UPDATE_WORKFLOWS_IS_ACTIVE_SUCCESS_NOTIFICATION(action.payload.isActiveNewValue));
+            return [
+              {
+                type: WorkflowActions.UPDATE_WORKFLOWS_IS_ACTIVE_SUCCESS,
+                payload: action.payload,
+              },
+            ];
+          } else {
+            this.toastrService.error(texts.UPDATE_WORKFLOWS_IS_ACTIVE_FAILURE_NOTIFICATION);
+            return [
+              {
+                type: WorkflowActions.UPDATE_WORKFLOWS_IS_ACTIVE_FAILURE,
+              },
+            ];
+          }
+        }),
+        catchError(() => {
+          this.toastrService.error(texts.UPDATE_WORKFLOWS_IS_ACTIVE_FAILURE_NOTIFICATION);
+          return [
+            {
+              type: WorkflowActions.UPDATE_WORKFLOWS_IS_ACTIVE_FAILURE,
             },
           ];
         }),
@@ -505,7 +541,12 @@ export class WorkflowsEffects {
             ];
           }),
           catchError((errorResponse) => {
-            this.toastrService.error(texts.IMPORT_WORKFLOW_FAILURE_NOTIFICATION);
+            if (this.isApiError(errorResponse)) {
+              const message = (errorResponse as ApiErrorModel[]).map((apiError) => apiError.message).reduce((a, b) => `${a}\n${b}`);
+              this.toastrService.error(message);
+            } else {
+              this.toastrService.error(texts.IMPORT_WORKFLOW_FAILURE_NOTIFICATION);
+            }
             this.router.navigateByUrl(absoluteRoutes.WORKFLOWS);
             return [
               {
@@ -526,10 +567,15 @@ export class WorkflowsEffects {
     }),
   );
 
+  isApiError(errorResponse: any): boolean {
+    return Array.isArray(errorResponse) && errorResponse.every((err) => this.isInstanceOfApiError(err));
+  }
+
+  isInstanceOfApiError(object: any): object is ApiErrorModel {
+    return 'message' in object;
+  }
+
   isBackendValidationError(errorResponse: any): boolean {
-    return (
-      errorResponse instanceof Array &&
-      errorResponse.every((err) => !!err.message && !!err.errorType && !!err.errorType.name && err.errorType.name == 'validationError')
-    );
+    return this.isApiError(errorResponse) && errorResponse.every((err) => err.errorType.name == 'validationError');
   }
 }
