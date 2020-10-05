@@ -119,15 +119,15 @@ describe('WorkflowService', () => {
     const content = '{"workflowId":"1"}';
     const blob = new Blob([content], { type: 'application/json' });
     const filename = 'filename.json';
-    const id = [1];
-    underTest.exportWorkflows(id).subscribe(
+    const ids = [1, 2];
+    underTest.exportWorkflows(ids).subscribe(
       (data) => {
         expect(data.fileName).toEqual(filename);
         expect(data.blob).toEqual(blob);
       },
       (error) => fail(error),
     );
-    const req = httpTestingController.expectOne(api.EXPORT_WORKFLOWS + `?id=${id}`);
+    const req = httpTestingController.expectOne(api.EXPORT_WORKFLOWS + `?jobIds=${ids.join(',')}`);
     expect(req.request.method).toEqual('GET');
     req.flush(blob, {
       headers: { 'Content-Disposition': `attachment; filename=${filename}` },
