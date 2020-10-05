@@ -911,7 +911,7 @@ describe('WorkflowsEffects', () => {
       const blob = new Blob(['hello', ' ', 'world'], { type: 'text/plain' });
       const response = { blob: blob, fileName: 'fileName' };
 
-      const action = new ExportWorkflow(workflowId);
+      const action = new ExportWorkflow([workflowId]);
       mockActions = cold('-a', { a: action });
 
       const exportWorkflowResponse = cold('-a|', { a: response });
@@ -936,7 +936,7 @@ describe('WorkflowsEffects', () => {
       const toastrServiceSpy = spyOn(toastrService, 'error');
       const workflowId = 42;
 
-      const action = new ExportWorkflow(workflowId);
+      const action = new ExportWorkflow([workflowId]);
       mockActions = cold('-a', { a: action });
 
       const exportWorkflowResponse = cold('-#|');

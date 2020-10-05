@@ -206,7 +206,7 @@ describe('WorkflowFormComponent', () => {
     fixture.detectChanges();
     fixture.whenStable().then(() => {
       expect(storeSpy).toHaveBeenCalled();
-      expect(storeSpy).toHaveBeenCalledWith(new ExportWorkflow(id));
+      expect(storeSpy).toHaveBeenCalledWith(new ExportWorkflow([id]));
     });
   }));
 

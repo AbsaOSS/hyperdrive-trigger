@@ -15,9 +15,13 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
+import java.io.ByteArrayOutputStream
+import java.util.zip.{ZipEntry, ZipOutputStream}
+
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
+import za.co.absa.hyperdrive.trigger.ObjectMapperSingleton
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, ImportError}
 import za.co.absa.hyperdrive.trigger.models.{Project, ProjectInfo, Workflow, WorkflowImportExportWrapper, WorkflowJoined}
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, WorkflowRepository}
@@ -45,6 +49,7 @@ trait WorkflowService {
   def runWorkflow(workflowId: Long)(implicit ec: ExecutionContext): Future[Boolean]
   def runWorkflowJobs(workflowId: Long, jobIds: Seq[Long])(implicit ec: ExecutionContext): Future[Boolean]
   def exportWorkflow(workflowId: Long)(implicit ec: ExecutionContext): Future[WorkflowImportExportWrapper]
+  def exportWorkflowsAsZip(workflowIds: Seq[Long])(implicit ec: ExecutionContext): Future[ByteArrayOutputStream]
   def importWorkflow(workflowImport: WorkflowImportExportWrapper)(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], WorkflowJoined]]
 }
 
@@ -189,6 +194,26 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
       jobTemplateIds = workflow.dagDefinitionJoined.jobDefinitions.map(_.jobTemplateId).distinct
       jobTemplates <- jobTemplateService.getJobTemplatesByIds(jobTemplateIds)
     } yield WorkflowImportExportWrapper(workflow, jobTemplates)
+  }
+
+  override def exportWorkflowsAsZip(workflowIds: Seq[Long])(implicit ec: ExecutionContext): Future[ByteArrayOutputStream] = {
+    val workflowExportsFut = Future.sequence(workflowIds.map(exportWorkflow(_)))
+    workflowExportsFut.map {
+      val baos = new ByteArrayOutputStream()
+      val zos = new ZipOutputStream(baos)
+      workflowExports =>
+        workflowExports.foreach(workflowExport => {
+          val byteArray = ObjectMapperSingleton.getObjectMapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(workflowExport)
+          val zipEntry = new ZipEntry(s"${workflowExport.workflowJoined.name}.json")
+          zos.putNextEntry(zipEntry)
+          zos.write(byteArray, 0, byteArray.size)
+          zos.closeEntry()
+        })
+
+        zos.close()
+        baos.close()
+        baos
+    }
   }
 
   override def importWorkflow(workflowImport: WorkflowImportExportWrapper)(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], WorkflowJoined]] = {

@@ -151,7 +151,7 @@ export class WorkflowFormComponent implements OnDestroy {
   }
 
   exportWorkflow(id: number) {
-    this.store.dispatch(new ExportWorkflow(id));
+    this.store.dispatch(new ExportWorkflow([id]));
   }
 
   deleteWorkflow(id: number) {

@@ -119,7 +119,7 @@ describe('WorkflowService', () => {
     const content = '{"workflowId":"1"}';
     const blob = new Blob([content], { type: 'application/json' });
     const filename = 'filename.json';
-    const id = 1;
+    const id = [1];
     underTest.exportWorkflow(id).subscribe(
       (data) => {
         expect(data.fileName).toEqual(filename);

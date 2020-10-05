@@ -77,7 +77,12 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
   }
 
   exportWorkflow(id: number) {
-    this.store.dispatch(new ExportWorkflow(id));
+    this.store.dispatch(new ExportWorkflow([id]));
+  }
+
+  exportSelectedWorkflows(selected: WorkflowModel[]) {
+    const ids = selected.map((workflow) => workflow.id);
+    this.store.dispatch(new ExportWorkflow(ids));
   }
 
   importWorkflow() {

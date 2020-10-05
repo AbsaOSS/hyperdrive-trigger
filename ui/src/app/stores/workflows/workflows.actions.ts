@@ -330,7 +330,7 @@ export class LoadWorkflowsFromHistoryFailure implements Action {
 
 export class ExportWorkflow implements Action {
   readonly type = EXPORT_WORKFLOW;
-  constructor(public payload: number) {}
+  constructor(public payload: number[]) {}
 }
 
 export class ExportWorkflowDone implements Action {

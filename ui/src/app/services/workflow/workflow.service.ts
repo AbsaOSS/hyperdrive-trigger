@@ -70,14 +70,14 @@ export class WorkflowService {
       .pipe(map((_) => _.body));
   }
 
-  exportWorkflow(id: number): Observable<{ blob: Blob; fileName: string }> {
-    const params = new HttpParams().set('id', id.toString());
+  exportWorkflow(ids: number[]): Observable<{ blob: Blob; fileName: string }> {
+    const params = new HttpParams().set('jobIds', ids.toString());
 
     return this.httpClient.get(api.EXPORT_WORKFLOW, { params: params, observe: 'response', responseType: 'blob' }).pipe(
       map((response: HttpResponse<Blob>) => {
         const contentDisposition = response.headers.get('content-disposition') || '';
         const matches = /filename=([^;]+)/gi.exec(contentDisposition);
-        const fileName = matches[1] || `workflow-${id}`;
+        const fileName = matches[1] || `workflow`;
 
         return {
           blob: response.body,

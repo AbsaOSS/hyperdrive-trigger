@@ -17,16 +17,16 @@ package za.co.absa.hyperdrive.trigger.api.rest.controllers
 
 import java.util.concurrent.CompletableFuture
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import javax.inject.Inject
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.http.{HttpHeaders, MediaType, ResponseEntity}
 import org.springframework.web.bind.annotation._
 import org.springframework.web.multipart.MultipartFile
 import za.co.absa.hyperdrive.trigger.ObjectMapperSingleton
 import za.co.absa.hyperdrive.trigger.api.rest.services.WorkflowService
-import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, ApiException}
 import za.co.absa.hyperdrive.trigger.models._
+import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, ApiException}
 
 import scala.compat.java8.FutureConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -34,6 +34,9 @@ import scala.concurrent.Future
 
 @RestController
 class WorkflowController @Inject()(workflowService: WorkflowService) {
+
+  @Value("${environment:}")
+  val environment: String = ""
 
   implicit def eitherToCompletableFutureOrException[T](response: Future[Either[Seq[ApiError], T]]): CompletableFuture[T] =
     response.map {
@@ -106,18 +109,28 @@ class WorkflowController @Inject()(workflowService: WorkflowService) {
     workflowService.runWorkflowJobs(workflowId, jobIdsWrapper.jobIds).toJava.toCompletableFuture
   }
 
-  @GetMapping(path = Array("/workflow/export"))
-  def exportWorkflow(@RequestParam id: Long): CompletableFuture[ResponseEntity[ByteArrayResource]] = {
-    workflowService.exportWorkflow(id).map { workflowExport =>
-      val resource = new ByteArrayResource(
-        ObjectMapperSingleton.getObjectMapper.writerWithDefaultPrettyPrinter.writeValueAsBytes(workflowExport)
-      )
-
-      ResponseEntity.ok()
-        .contentType(MediaType.parseMediaType("application/json"))
-        .header(HttpHeaders.CONTENT_DISPOSITION, s"attachment; filename=${workflowExport.workflowJoined.name}.json")
-        .body(resource)
-    }.toJava.toCompletableFuture
+  @GetMapping(path = Array("/workflows/export"))
+  def exportWorkflows(@RequestParam jobIds: Array[Int]): CompletableFuture[ResponseEntity[ByteArrayResource]] = {
+    val jobIdsLong = jobIds.map(_.toLong).toSeq
+    if (jobIdsLong.size > 1) {
+      workflowService.exportWorkflowsAsZip(jobIdsLong).map(baos =>
+        ResponseEntity.ok()
+          .contentType(MediaType.parseMediaType("application/zip"))
+          .header(HttpHeaders.CONTENT_DISPOSITION, s"attachment; filename=workflows${environment}.zip")
+          .body(new ByteArrayResource(baos.toByteArray))
+      ).toJava.toCompletableFuture
+    } else {
+      val id = jobIdsLong.head
+      workflowService.exportWorkflow(id).map { workflowExport =>
+        val resource = new ByteArrayResource(
+          ObjectMapperSingleton.getObjectMapper.writerWithDefaultPrettyPrinter.writeValueAsBytes(workflowExport)
+        )
+        ResponseEntity.ok()
+          .contentType(MediaType.parseMediaType("application/json"))
+          .header(HttpHeaders.CONTENT_DISPOSITION, s"attachment; filename=${workflowExport.workflowJoined.name}.json")
+          .body(resource)
+      }.toJava.toCompletableFuture
+    }
   }
 
   @PostMapping(path = Array("/workflow/import"))

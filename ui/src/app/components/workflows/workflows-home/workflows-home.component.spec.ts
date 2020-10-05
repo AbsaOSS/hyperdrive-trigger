@@ -95,7 +95,7 @@ describe('WorkflowsHomeComponent', () => {
 
     fixture.detectChanges();
     fixture.whenStable().then(() => {
-      expect(storeSpy).toHaveBeenCalledWith(new ExportWorkflow(id));
+      expect(storeSpy).toHaveBeenCalledWith(new ExportWorkflow([id]));
     });
   }));
 
