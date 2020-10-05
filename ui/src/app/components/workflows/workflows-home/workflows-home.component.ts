@@ -20,7 +20,7 @@ import { WorkflowModel } from '../../../models/workflow.model';
 import { Store } from '@ngrx/store';
 import { absoluteRoutes } from '../../../constants/routes.constants';
 import {
-  ExportWorkflow,
+  ExportWorkflows,
   LoadJobsForRun,
   SetWorkflowFile,
   SetWorkflowsFilters,
@@ -77,12 +77,12 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
   }
 
   exportWorkflow(id: number) {
-    this.store.dispatch(new ExportWorkflow([id]));
+    this.store.dispatch(new ExportWorkflows([id]));
   }
 
   exportSelectedWorkflows(selected: WorkflowModel[]) {
     const ids = selected.map((workflow) => workflow.id);
-    this.store.dispatch(new ExportWorkflow(ids));
+    this.store.dispatch(new ExportWorkflows(ids));
   }
 
   importWorkflow() {

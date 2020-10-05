@@ -25,7 +25,7 @@ export const api = {
   GET_PROJECTS: '/workflows/projects',
   GET_WORKFLOW: '/workflow',
   DELETE_WORKFLOW: '/workflows',
-  EXPORT_WORKFLOW: '/workflows/export',
+  EXPORT_WORKFLOWS: '/workflows/export',
   IMPORT_WORKFLOW: '/workflow/import',
   SWITCH_WORKFLOW_ACTIVE_STATE: '/workflows/{id}/switchActiveState',
   UPDATE_WORKFLOWS_IS_ACTIVE: '/workflows/isActive',

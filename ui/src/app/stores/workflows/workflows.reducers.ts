@@ -654,12 +654,12 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
           isOpen: false,
         },
       };
-    case WorkflowsActions.EXPORT_WORKFLOW:
+    case WorkflowsActions.EXPORT_WORKFLOWS:
       return {
         ...state,
         loading: true,
       };
-    case WorkflowsActions.EXPORT_WORKFLOW_DONE:
+    case WorkflowsActions.EXPORT_WORKFLOWS_DONE:
       return {
         ...state,
         loading: false,

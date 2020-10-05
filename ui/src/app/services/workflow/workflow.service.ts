@@ -70,10 +70,10 @@ export class WorkflowService {
       .pipe(map((_) => _.body));
   }
 
-  exportWorkflow(ids: number[]): Observable<{ blob: Blob; fileName: string }> {
+  exportWorkflows(ids: number[]): Observable<{ blob: Blob; fileName: string }> {
     const params = new HttpParams().set('jobIds', ids.toString());
 
-    return this.httpClient.get(api.EXPORT_WORKFLOW, { params: params, observe: 'response', responseType: 'blob' }).pipe(
+    return this.httpClient.get(api.EXPORT_WORKFLOWS, { params: params, observe: 'response', responseType: 'blob' }).pipe(
       map((response: HttpResponse<Blob>) => {
         const contentDisposition = response.headers.get('content-disposition') || '';
         const matches = /filename=([^;]+)/gi.exec(contentDisposition);

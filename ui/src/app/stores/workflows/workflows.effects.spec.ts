@@ -23,7 +23,7 @@ import * as WorkflowsActions from './workflows.actions';
 import {
   CreateWorkflow,
   DeleteWorkflow,
-  ExportWorkflow,
+  ExportWorkflows,
   ImportWorkflow,
   InitializeWorkflows,
   LoadHistoryForWorkflow,
@@ -911,21 +911,21 @@ describe('WorkflowsEffects', () => {
       const blob = new Blob(['hello', ' ', 'world'], { type: 'text/plain' });
       const response = { blob: blob, fileName: 'fileName' };
 
-      const action = new ExportWorkflow([workflowId]);
+      const action = new ExportWorkflows([workflowId]);
       mockActions = cold('-a', { a: action });
 
       const exportWorkflowResponse = cold('-a|', { a: response });
       const expected = cold('--a', {
         a: {
-          type: WorkflowsActions.EXPORT_WORKFLOW_DONE,
+          type: WorkflowsActions.EXPORT_WORKFLOWS_DONE,
         },
       });
 
-      spyOn(workflowService, 'exportWorkflow').and.returnValue(exportWorkflowResponse);
+      spyOn(workflowService, 'exportWorkflows').and.returnValue(exportWorkflowResponse);
 
       expect(underTest.workflowExport).toBeObservable(expected);
       expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
-      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.EXPORT_WORKFLOW_SUCCESS_NOTIFICATION);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.EXPORT_WORKFLOWS_SUCCESS_NOTIFICATION);
       expect(aSpy.click).toHaveBeenCalledTimes(1);
       expect(aSpy.click).toHaveBeenCalledWith();
       expect(aSpy.remove).toHaveBeenCalledTimes(1);
@@ -936,20 +936,20 @@ describe('WorkflowsEffects', () => {
       const toastrServiceSpy = spyOn(toastrService, 'error');
       const workflowId = 42;
 
-      const action = new ExportWorkflow([workflowId]);
+      const action = new ExportWorkflows([workflowId]);
       mockActions = cold('-a', { a: action });
 
       const exportWorkflowResponse = cold('-#|');
-      spyOn(workflowService, 'exportWorkflow').and.returnValue(exportWorkflowResponse);
+      spyOn(workflowService, 'exportWorkflows').and.returnValue(exportWorkflowResponse);
 
       const expected = cold('--a', {
         a: {
-          type: WorkflowsActions.EXPORT_WORKFLOW_DONE,
+          type: WorkflowsActions.EXPORT_WORKFLOWS_DONE,
         },
       });
       expect(underTest.workflowExport).toBeObservable(expected);
       expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
-      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.EXPORT_WORKFLOW_FAILURE_NOTIFICATION);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.EXPORT_WORKFLOWS_FAILURE_NOTIFICATION);
     });
   });
 
