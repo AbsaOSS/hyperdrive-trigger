@@ -15,16 +15,13 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
-import java.io.ByteArrayInputStream
 import java.time.LocalDateTime
-import java.util.zip.ZipInputStream
 
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{eq => eqTo, _}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, Matchers}
-import za.co.absa.hyperdrive.trigger.ObjectMapperSingleton
 import za.co.absa.hyperdrive.trigger.TestUtils.await
 import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
@@ -263,58 +260,24 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
     result shouldBe false
   }
 
-  "WorkflowService.exportWorkflow" should "export workflow with referenced job templates" in {
-    val workflowJoined = WorkflowFixture.createWorkflowJoined().copy()
-
-    val jobTemplates = Seq(JobTemplateFixture.GenericShellJobTemplate, JobTemplateFixture.GenericSparkJobTemplate)
-    when(workflowRepository.getWorkflow(eqTo(workflowJoined.id))(any[ExecutionContext])).thenReturn(Future{workflowJoined})
-    when(jobTemplateService.getJobTemplatesByIds(any())(any[ExecutionContext])).thenReturn(Future{jobTemplates})
-
-    val result = await(underTest.exportWorkflow(workflowJoined.id))
-
-    result shouldBe WorkflowImportExportWrapper(workflowJoined, jobTemplates)
-  }
-
-  "WorkflowService.exportWorkflowsAsZip" should "export the workflows as a zip file" in {
-    def readEntry(zis: ZipInputStream, size: Int) = {
-      val byteArray = new Array[Byte](size)
-      var i = 0
-      val chunkSize = 10
-      while(zis.read(byteArray, i, chunkSize) > 0) {
-        i += chunkSize
-      }
-      byteArray
-    }
-
+  "WorkflowService.exportWorkflows" should "export workflow with referenced job templates" in {
     // given
     val workflowJoined1 = WorkflowFixture.createWorkflowJoined().copy()
     val workflowJoined2 = WorkflowFixture.createTimeBasedShellScriptWorkflow("project").copy()
+    val jobTemplates1 = Seq(JobTemplateFixture.GenericSparkJobTemplate, JobTemplateFixture.GenericShellJobTemplate)
+    val jobTemplates2 = Seq(JobTemplateFixture.GenericShellJobTemplate)
+    val jobTemplates = (jobTemplates1 ++ jobTemplates2).distinct
 
-    val jobTemplates = Seq(JobTemplateFixture.GenericShellJobTemplate, JobTemplateFixture.GenericSparkJobTemplate)
-    when(workflowRepository.getWorkflow(eqTo(workflowJoined1.id))(any[ExecutionContext])).thenReturn(Future{workflowJoined1})
-    when(workflowRepository.getWorkflow(eqTo(workflowJoined2.id))(any[ExecutionContext])).thenReturn(Future{workflowJoined2})
+    when(workflowRepository.getWorkflows(any())(any())).thenReturn(Future{Seq(workflowJoined1, workflowJoined2)})
     when(jobTemplateService.getJobTemplatesByIds(any())(any[ExecutionContext])).thenReturn(Future{jobTemplates})
 
     // when
-    val result = await(underTest.exportWorkflowsAsZip(Seq(workflowJoined1.id, workflowJoined2.id)))
+    val result = await(underTest.exportWorkflows(Seq(workflowJoined1.id, workflowJoined2.id)))
 
-    // then
-    val bais = new ByteArrayInputStream(result.toByteArray)
-    val zis = new ZipInputStream(bais)
-    val zipEntry1 = zis.getNextEntry
-    zipEntry1.getName shouldBe "testWorkflow.json"
-    val workflow1Bytes = readEntry(zis, 3000)
-    val workflowWrapper1 = ObjectMapperSingleton.getObjectMapper.readValue(workflow1Bytes, classOf[WorkflowImportExportWrapper])
-    workflowWrapper1.workflowJoined shouldBe workflowJoined1
-    workflowWrapper1.jobTemplates shouldBe jobTemplates
-
-    val zipEntry2 = zis.getNextEntry
-    zipEntry2.getName should startWith("Time")
-    zipEntry2.getName should endWith(".json")
-    val workflow2Bytes = readEntry(zis, 3000)
-    val workflowWrapper2 = ObjectMapperSingleton.getObjectMapper.readValue(workflow2Bytes, classOf[WorkflowImportExportWrapper])
-    workflowWrapper2.workflowJoined shouldBe workflowJoined2
-    workflowWrapper2.jobTemplates shouldBe jobTemplates
+    result should contain theSameElementsAs Seq(
+      WorkflowImportExportWrapper(workflowJoined1, jobTemplates1),
+      WorkflowImportExportWrapper(workflowJoined2, jobTemplates2)
+    )
   }
 
   "WorkflowService.importWorkflow" should "match existing job templates by name and update job template ids" in {

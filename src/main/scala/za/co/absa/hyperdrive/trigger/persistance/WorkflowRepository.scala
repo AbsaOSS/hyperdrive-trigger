@@ -32,6 +32,7 @@ trait WorkflowRepository extends Repository {
   def existsWorkflow(name: String)(implicit ec: ExecutionContext): Future[Boolean]
   def existsOtherWorkflow(name: String, id: Long)(implicit ec: ExecutionContext): Future[Boolean]
   def getWorkflow(id: Long)(implicit ec: ExecutionContext): Future[WorkflowJoined]
+  def getWorkflows(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[WorkflowJoined]]
   def getWorkflows()(implicit ec: ExecutionContext): Future[Seq[Workflow]]
   def getWorkflowsByProjectName(projectName: String)(implicit ec: ExecutionContext): Future[Seq[Workflow]]
   def deleteWorkflow(id: Long, user: String)(implicit ec: ExecutionContext): Future[Unit]
@@ -59,7 +60,7 @@ class WorkflowRepositoryImpl(override val workflowHistoryRepository: WorkflowHis
       } yield {
         workflowId
       }).flatMap(id => {
-        getWorkflowJoined(id).map(
+        getSingleWorkflowJoined(id).map(
           workflowUpdated => workflowHistoryRepository.create(workflowUpdated, user)
         ).flatMap(_.map(_ => id))
       }).transactionally.asTry.map {
@@ -82,38 +83,50 @@ class WorkflowRepositoryImpl(override val workflowHistoryRepository: WorkflowHis
       .result
   )
 
-  private def getWorkflowJoined(id: Long)(implicit ec: ExecutionContext): DBIO[WorkflowJoined] = {
+  private def getWorkflowJoineds(ids: Seq[Long])(implicit ec: ExecutionContext): DBIO[Seq[WorkflowJoined]] = {
     (for {
-      w <- workflowTable if w.id === id
-      s <- sensorTable if s.workflowId === id
-      dd <- dagDefinitionTable if dd.workflowId === id
+      w <- workflowTable if w.id inSetBind ids
+      s <- sensorTable if s.workflowId === w.id
+      dd <- dagDefinitionTable if dd.workflowId === w.id
       jd <- jobDefinitionTable if jd.dagDefinitionId === dd.id
     } yield {
       (w, s, dd, jd)
-    }).result.map { wsddjd =>
-      val workflowOption = wsddjd.headOption map {
-        case (w,s,dd,_) =>
-          WorkflowJoined(
-            name = w.name,
-            isActive = w.isActive,
-            project = w.project,
-            created = w.created,
-            updated = w.updated,
-            sensor = s,
-            dagDefinitionJoined = DagDefinitionJoined(
-              workflowId = dd.workflowId,
-              jobDefinitions = wsddjd.map(_._4),
-              id = dd.id
-            ),
-            id = w.id
-          )
-      }
-      workflowOption.getOrElse(throw new Exception(s"Workflow with id ${id} does not exist."));
+    }).result.map {
+      allWsddjd => allWsddjd.groupBy(_._1.id).map(wsddjdGroup => {
+        val wsddjd = wsddjdGroup._2
+        val w = wsddjd.head._1
+        val s = wsddjd.head._2
+        val dd = wsddjd.head._3
+        WorkflowJoined(
+          name = w.name,
+          isActive = w.isActive,
+          project = w.project,
+          created = w.created,
+          updated = w.updated,
+          sensor = s,
+          dagDefinitionJoined = DagDefinitionJoined(
+            workflowId = dd.workflowId,
+            jobDefinitions = wsddjd.map(_._4),
+            id = dd.id
+          ),
+          id = w.id
+        )
+      }).toSeq
     }
   }
 
+  private def getSingleWorkflowJoined(id: Long)(implicit ec: ExecutionContext): DBIO[WorkflowJoined] = {
+    getWorkflowJoineds(Seq(id)).map(workflowJoineds => {
+      workflowJoineds.headOption.getOrElse(throw new Exception(s"Workflow with id ${id} does not exist."));
+    })
+  }
+
   override def getWorkflow(id: Long)(implicit ec: ExecutionContext): Future[WorkflowJoined] = {
-    db.run(getWorkflowJoined(id))
+    db.run(getSingleWorkflowJoined(id))
+  }
+
+  override def getWorkflows(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[WorkflowJoined]] = {
+    db.run(getWorkflowJoineds(ids))
   }
 
   override def getWorkflows()(implicit ec: ExecutionContext): Future[Seq[Workflow]] = db.run(
@@ -133,7 +146,7 @@ class WorkflowRepositoryImpl(override val workflowHistoryRepository: WorkflowHis
     val deleteJobIns = jobInstanceTable.filter(_.dagInstanceId in deleteDagIns.map(_.id))
     val deleteWorkflow = workflowTable.filter(_.id === id)
 
-    db.run(getWorkflowJoined(id).flatMap(
+    db.run(getSingleWorkflowJoined(id).flatMap(
       workflow => {
         workflowHistoryRepository.delete(workflow, user)
       }
@@ -160,7 +173,7 @@ class WorkflowRepositoryImpl(override val workflowHistoryRepository: WorkflowHis
       } yield {
         w
       }).flatMap(
-        result => getWorkflowJoined(workflow.id).map(
+        result => getSingleWorkflowJoined(workflow.id).map(
           workflowUpdated => workflowHistoryRepository.update(workflowUpdated, user)
         ).flatMap(_.map(_ => result))
       ).transactionally.asTry.map {
@@ -187,7 +200,7 @@ class WorkflowRepositoryImpl(override val workflowHistoryRepository: WorkflowHis
 
     db.run(
       resultAction.flatMap(
-        result => getWorkflowJoined(id).map(
+        result => getSingleWorkflowJoined(id).map(
           workflow => workflowHistoryRepository.update(workflow, user)
         ).flatMap(_.map(_ => result))
       ).flatMap(result => {
@@ -206,7 +219,7 @@ class WorkflowRepositoryImpl(override val workflowHistoryRepository: WorkflowHis
       .update((isActiveNewValue, Option(LocalDateTime.now())))
 
     val insertHistoryEntryActions = ids
-      .map(id => getWorkflowJoined(id).flatMap(workflow => workflowHistoryRepository.update(workflow, user)))
+      .map(id => getSingleWorkflowJoined(id).flatMap(workflow => workflowHistoryRepository.update(workflow, user)))
       .reduceLeftOption(_.andThen(_))
       .getOrElse(DBIO.successful())
 

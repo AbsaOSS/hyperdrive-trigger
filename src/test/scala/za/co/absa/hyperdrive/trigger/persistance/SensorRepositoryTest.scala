@@ -37,7 +37,7 @@ class SensorRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll
     clearData()
   }
 
-  "sensorRepository.getNewActiveSensors" should "return sensors with active workflows, expect sensors excluded by id" in {
+  "sensorRepository.getNewActiveSensors" should "return sensors with active workflows, except sensors excluded by id" in {
     // prepare
     val idsToExclude = Seq(activeTimeW100, activeAbsaKafka).map{case (sensor, _) => sensor.id}
     insertSensors(allSensors)

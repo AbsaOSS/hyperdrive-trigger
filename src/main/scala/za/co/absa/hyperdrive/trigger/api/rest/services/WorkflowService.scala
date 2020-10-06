@@ -48,8 +48,7 @@ trait WorkflowService {
   def getProjectsInfo()(implicit ec: ExecutionContext): Future[Seq[ProjectInfo]]
   def runWorkflow(workflowId: Long)(implicit ec: ExecutionContext): Future[Boolean]
   def runWorkflowJobs(workflowId: Long, jobIds: Seq[Long])(implicit ec: ExecutionContext): Future[Boolean]
-  def exportWorkflow(workflowId: Long)(implicit ec: ExecutionContext): Future[WorkflowImportExportWrapper]
-  def exportWorkflowsAsZip(workflowIds: Seq[Long])(implicit ec: ExecutionContext): Future[ByteArrayOutputStream]
+  def exportWorkflows(workflowIds: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[WorkflowImportExportWrapper]]
   def importWorkflow(workflowImport: WorkflowImportExportWrapper)(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], WorkflowJoined]]
 }
 
@@ -188,31 +187,17 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
     })
   }
 
-  override def exportWorkflow(workflowId: Long)(implicit ec: ExecutionContext): Future[WorkflowImportExportWrapper] = {
+  override def exportWorkflows(workflowIds: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[WorkflowImportExportWrapper]] = {
     for {
-      workflow <- getWorkflow(workflowId)
-      jobTemplateIds = workflow.dagDefinitionJoined.jobDefinitions.map(_.jobTemplateId).distinct
-      jobTemplates <- jobTemplateService.getJobTemplatesByIds(jobTemplateIds)
-    } yield WorkflowImportExportWrapper(workflow, jobTemplates)
-  }
-
-  override def exportWorkflowsAsZip(workflowIds: Seq[Long])(implicit ec: ExecutionContext): Future[ByteArrayOutputStream] = {
-    val workflowExportsFut = Future.sequence(workflowIds.map(exportWorkflow(_)))
-    workflowExportsFut.map {
-      val baos = new ByteArrayOutputStream()
-      val zos = new ZipOutputStream(baos)
-      workflowExports =>
-        workflowExports.foreach(workflowExport => {
-          val byteArray = ObjectMapperSingleton.getObjectMapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(workflowExport)
-          val zipEntry = new ZipEntry(s"${workflowExport.workflowJoined.name}.json")
-          zos.putNextEntry(zipEntry)
-          zos.write(byteArray, 0, byteArray.size)
-          zos.closeEntry()
-        })
-
-        zos.close()
-        baos.close()
-        baos
+      workflows <- workflowRepository.getWorkflows(workflowIds)
+      allJobTemplateIds = workflows.flatMap(_.dagDefinitionJoined.jobDefinitions.map(_.jobTemplateId)).distinct
+      allJobTemplates <- jobTemplateService.getJobTemplatesByIds(allJobTemplateIds)
+    } yield {
+      workflows.map(workflow => {
+        val jobTemplateIds = workflow.dagDefinitionJoined.jobDefinitions.map(_.jobTemplateId).distinct
+        val jobTemplates = allJobTemplates.filter(jobTemplate => jobTemplateIds.contains(jobTemplate.id))
+        WorkflowImportExportWrapper(workflow, jobTemplates)
+      })
     }
   }
 
