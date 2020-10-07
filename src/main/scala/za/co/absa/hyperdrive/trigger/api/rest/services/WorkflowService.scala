@@ -15,10 +15,14 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
+import java.io.ByteArrayOutputStream
+import java.util.zip.{ZipEntry, ZipOutputStream}
+
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
-import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, ImportError}
+import za.co.absa.hyperdrive.trigger.ObjectMapperSingleton
+import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, GenericError}
 import za.co.absa.hyperdrive.trigger.models.{Project, ProjectInfo, Workflow, WorkflowImportExportWrapper, WorkflowJoined}
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, WorkflowRepository}
 
@@ -44,7 +48,7 @@ trait WorkflowService {
   def getProjectsInfo()(implicit ec: ExecutionContext): Future[Seq[ProjectInfo]]
   def runWorkflow(workflowId: Long)(implicit ec: ExecutionContext): Future[Boolean]
   def runWorkflowJobs(workflowId: Long, jobIds: Seq[Long])(implicit ec: ExecutionContext): Future[Boolean]
-  def exportWorkflow(workflowId: Long)(implicit ec: ExecutionContext): Future[WorkflowImportExportWrapper]
+  def exportWorkflows(workflowIds: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[WorkflowImportExportWrapper]]
   def importWorkflow(workflowImport: WorkflowImportExportWrapper)(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], WorkflowJoined]]
 }
 
@@ -183,12 +187,18 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
     })
   }
 
-  override def exportWorkflow(workflowId: Long)(implicit ec: ExecutionContext): Future[WorkflowImportExportWrapper] = {
+  override def exportWorkflows(workflowIds: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[WorkflowImportExportWrapper]] = {
     for {
-      workflow <- getWorkflow(workflowId)
-      jobTemplateIds = workflow.dagDefinitionJoined.jobDefinitions.map(_.jobTemplateId).distinct
-      jobTemplates <- jobTemplateService.getJobTemplatesByIds(jobTemplateIds)
-    } yield WorkflowImportExportWrapper(workflow, jobTemplates)
+      workflows <- workflowRepository.getWorkflows(workflowIds)
+      allJobTemplateIds = workflows.flatMap(_.dagDefinitionJoined.jobDefinitions.map(_.jobTemplateId)).distinct
+      allJobTemplates <- jobTemplateService.getJobTemplatesByIds(allJobTemplateIds)
+    } yield {
+      workflows.map(workflow => {
+        val jobTemplateIds = workflow.dagDefinitionJoined.jobDefinitions.map(_.jobTemplateId).distinct
+        val jobTemplates = allJobTemplates.filter(jobTemplate => jobTemplateIds.contains(jobTemplate.id))
+        WorkflowImportExportWrapper(workflow, jobTemplates)
+      })
+    }
   }
 
   override def importWorkflow(workflowImport: WorkflowImportExportWrapper)(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], WorkflowJoined]] = {
@@ -198,7 +208,7 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
       newNameIdMap => {
         val missingTemplates = jobTemplatesNames.toSet.diff(newNameIdMap.keySet)
         if (missingTemplates.nonEmpty) {
-          Future{Left(Seq(ImportError(s"The following Job Templates don't exist yet and have to be created before importing" +
+          Future{Left(Seq(GenericError(s"The following Job Templates don't exist yet and have to be created before importing" +
             s" this workflow: ${missingTemplates.reduce(_ + ", " + _)}")))}
         } else {
           def getNewId(oldTemplateId: Long) = {

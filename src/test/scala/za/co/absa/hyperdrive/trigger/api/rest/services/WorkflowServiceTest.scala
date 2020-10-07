@@ -25,7 +25,7 @@ import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, Matchers}
 import za.co.absa.hyperdrive.trigger.TestUtils.await
 import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
-import za.co.absa.hyperdrive.trigger.models.errors.ApiErrorTypes.ImportErrorType
+import za.co.absa.hyperdrive.trigger.models.errors.ApiErrorTypes.GenericErrorType
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, DatabaseError, ValidationError}
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, WorkflowRepository}
 
@@ -260,16 +260,24 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
     result shouldBe false
   }
 
-  "WorkflowService.exportWorkflow" should "export workflow with referenced job templates" in {
-    val workflowJoined = WorkflowFixture.createWorkflowJoined().copy()
+  "WorkflowService.exportWorkflows" should "export workflow with referenced job templates" in {
+    // given
+    val workflowJoined1 = WorkflowFixture.createWorkflowJoined().copy()
+    val workflowJoined2 = WorkflowFixture.createTimeBasedShellScriptWorkflow("project").copy()
+    val jobTemplates1 = Seq(JobTemplateFixture.GenericSparkJobTemplate, JobTemplateFixture.GenericShellJobTemplate)
+    val jobTemplates2 = Seq(JobTemplateFixture.GenericShellJobTemplate)
+    val jobTemplates = (jobTemplates1 ++ jobTemplates2).distinct
 
-    val jobTemplates = Seq(JobTemplateFixture.GenericShellJobTemplate, JobTemplateFixture.GenericSparkJobTemplate)
-    when(workflowRepository.getWorkflow(eqTo(workflowJoined.id))(any[ExecutionContext])).thenReturn(Future{workflowJoined})
+    when(workflowRepository.getWorkflows(any())(any())).thenReturn(Future{Seq(workflowJoined1, workflowJoined2)})
     when(jobTemplateService.getJobTemplatesByIds(any())(any[ExecutionContext])).thenReturn(Future{jobTemplates})
 
-    val result = await(underTest.exportWorkflow(workflowJoined.id))
+    // when
+    val result = await(underTest.exportWorkflows(Seq(workflowJoined1.id, workflowJoined2.id)))
 
-    result shouldBe WorkflowImportExportWrapper(workflowJoined, jobTemplates)
+    result should contain theSameElementsAs Seq(
+      WorkflowImportExportWrapper(workflowJoined1, jobTemplates1),
+      WorkflowImportExportWrapper(workflowJoined2, jobTemplates2)
+    )
   }
 
   "WorkflowService.importWorkflow" should "match existing job templates by name and update job template ids" in {
@@ -300,7 +308,7 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
     val result = await(underTest.importWorkflow(workflowImport))
 
     result.isLeft shouldBe true
-    result.left.get.head.errorType shouldBe ImportErrorType
+    result.left.get.head.errorType shouldBe GenericErrorType
     result.left.get.head.message should include(JobTemplateFixture.GenericSparkJobTemplate.name)
     result.left.get.head.message should include(JobTemplateFixture.GenericShellJobTemplate.name)
   }
