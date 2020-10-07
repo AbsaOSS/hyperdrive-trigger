@@ -57,6 +57,35 @@ class WorkflowRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterA
     clearData()
   }
 
+  "getWorkflow" should "return the workflow" in {
+    createTestData()
+    val expectedWorkflow = TestDataJoined.wj1
+
+    val actualWorkflow = await(workflowRepository.getWorkflow(expectedWorkflow.id))
+
+    actualWorkflow shouldBe expectedWorkflow
+  }
+
+  it should "throw an exception if the workflow doesn't exist" in {
+    val exception = the [Exception] thrownBy await(workflowRepository.getWorkflow(42))
+    exception.getMessage should include("42")
+  }
+
+  "getWorkflows" should "return the workflows" in {
+    createTestData()
+    val expectedWorkflows = Seq(TestDataJoined.wj1, TestDataJoined.wj2)
+    val ids = expectedWorkflows.map(_.id)
+    val actualWorkflows = await(workflowRepository.getWorkflows(ids))
+
+    actualWorkflows should contain theSameElementsAs expectedWorkflows
+  }
+
+  it should "return an empty seq if no workflows are found" in {
+    val actualWorkflows = await(workflowRepository.getWorkflows(Seq(42)))
+    actualWorkflows shouldBe empty
+  }
+
+
   "switchWorkflowActiveState" should "switch the active state and create a history entry" in {
     createTestData()
     val workflowId = TestData.w1.id
@@ -97,7 +126,7 @@ class WorkflowRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterA
     val actualWorkflows = await(workflowRepository.getWorkflows())
     actualWorkflows.map(_.isActive) should contain only true
     val actualHistoryEntries = await(db.run(workflowHistoryTable.result))
-    actualHistoryEntries should have size 3
+    actualHistoryEntries should have size TestData.workflows.size
     actualHistoryEntries.map(_.workflowId) should contain theSameElementsAs workflowIds
   }
 
@@ -110,7 +139,7 @@ class WorkflowRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterA
     val actualWorkflows = await(workflowRepository.getWorkflows())
     actualWorkflows.map(_.isActive) should contain only false
     val actualHistoryEntries = await(db.run(workflowHistoryTable.result))
-    actualHistoryEntries should have size 3
+    actualHistoryEntries should have size TestData.workflows.size
     actualHistoryEntries.map(_.workflowId) should contain theSameElementsAs workflowIds
   }
 

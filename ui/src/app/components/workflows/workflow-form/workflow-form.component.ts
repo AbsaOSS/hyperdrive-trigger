@@ -24,7 +24,7 @@ import { texts } from '../../../constants/texts.constants';
 import {
   CreateWorkflow,
   DeleteWorkflow,
-  ExportWorkflow,
+  ExportWorkflows,
   LoadJobsForRun,
   RemoveBackendValidationError,
   SwitchWorkflowActiveState,
@@ -151,7 +151,7 @@ export class WorkflowFormComponent implements OnDestroy {
   }
 
   exportWorkflow(id: number) {
-    this.store.dispatch(new ExportWorkflow(id));
+    this.store.dispatch(new ExportWorkflows([id]));
   }
 
   deleteWorkflow(id: number) {
