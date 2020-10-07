@@ -28,7 +28,7 @@ import org.springframework.web.multipart.MultipartFile
 import za.co.absa.hyperdrive.trigger.ObjectMapperSingleton
 import za.co.absa.hyperdrive.trigger.api.rest.services.WorkflowService
 import za.co.absa.hyperdrive.trigger.models._
-import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, ApiException}
+import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, ApiException, GenericError}
 
 import scala.compat.java8.FutureConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -114,7 +114,11 @@ class WorkflowController @Inject()(workflowService: WorkflowService) {
   @GetMapping(path = Array("/workflows/export"))
   def exportWorkflows(@RequestParam jobIds: Array[Long]): CompletableFuture[ResponseEntity[ByteArrayResource]] = {
     workflowService.exportWorkflows(jobIds).map { exportItems =>
-      if (exportItems.size == 1) {
+      if (exportItems.isEmpty) {
+        val jobIdsString = jobIds.map(_.toString).reduce(_ + ", " + _)
+        throw new ApiException(GenericError(s"The requested workflows with ids $jobIdsString don't exist."))
+      }
+      else if (exportItems.size == 1) {
         exportWorkflowAsJson(exportItems.head)
       } else {
         exportWorkflowsAsZip(exportItems)

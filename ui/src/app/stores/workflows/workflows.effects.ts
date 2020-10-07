@@ -506,8 +506,13 @@ export class WorkflowsEffects {
             },
           ];
         }),
-        catchError(() => {
-          this.toastrService.error(texts.EXPORT_WORKFLOWS_FAILURE_NOTIFICATION);
+        catchError((errorResponse) => {
+          if (this.isApiError(errorResponse)) {
+            const message = this.concatenateApiErrors(errorResponse as ApiErrorModel[]);
+            this.toastrService.error(message);
+          } else {
+            this.toastrService.error(texts.EXPORT_WORKFLOWS_FAILURE_NOTIFICATION);
+          }
           return [
             {
               type: WorkflowActions.EXPORT_WORKFLOWS_DONE,
@@ -542,7 +547,7 @@ export class WorkflowsEffects {
           }),
           catchError((errorResponse) => {
             if (this.isApiError(errorResponse)) {
-              const message = (errorResponse as ApiErrorModel[]).map((apiError) => apiError.message).reduce((a, b) => `${a}\n${b}`);
+              const message = this.concatenateApiErrors(errorResponse as ApiErrorModel[]);
               this.toastrService.error(message);
             } else {
               this.toastrService.error(texts.IMPORT_WORKFLOW_FAILURE_NOTIFICATION);
@@ -566,6 +571,10 @@ export class WorkflowsEffects {
       }
     }),
   );
+
+  concatenateApiErrors(apiErrors: ApiErrorModel[]): string {
+    return apiErrors.map((apiError) => apiError.message).reduce((a, b) => `${a}\n${b}`);
+  }
 
   isApiError(errorResponse: any): boolean {
     return Array.isArray(errorResponse) && errorResponse.every((err) => this.isInstanceOfApiError(err));

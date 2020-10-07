@@ -25,7 +25,7 @@ import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, Matchers}
 import za.co.absa.hyperdrive.trigger.TestUtils.await
 import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
-import za.co.absa.hyperdrive.trigger.models.errors.ApiErrorTypes.ImportErrorType
+import za.co.absa.hyperdrive.trigger.models.errors.ApiErrorTypes.GenericErrorType
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, DatabaseError, ValidationError}
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, WorkflowRepository}
 
@@ -308,7 +308,7 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
     val result = await(underTest.importWorkflow(workflowImport))
 
     result.isLeft shouldBe true
-    result.left.get.head.errorType shouldBe ImportErrorType
+    result.left.get.head.errorType shouldBe GenericErrorType
     result.left.get.head.message should include(JobTemplateFixture.GenericSparkJobTemplate.name)
     result.left.get.head.message should include(JobTemplateFixture.GenericShellJobTemplate.name)
   }

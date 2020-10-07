@@ -20,4 +20,8 @@ class ApiException(val apiErrors: Seq[ApiError]) extends RuntimeException {
   def this() {
     this(Seq())
   }
+
+  def this(apiError: ApiError) {
+    this(Seq(apiError))
+  }
 }

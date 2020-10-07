@@ -24,5 +24,5 @@ object ApiErrorTypes {
 
   case object DatabaseErrorType extends ApiErrorType("databaseError")
   case object ValidationErrorType extends ApiErrorType("validationError")
-  case object ImportErrorType extends ApiErrorType("importError")
+  case object GenericErrorType extends ApiErrorType("genericError")
 }

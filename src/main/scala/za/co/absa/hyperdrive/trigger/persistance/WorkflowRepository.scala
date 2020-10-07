@@ -117,7 +117,7 @@ class WorkflowRepositoryImpl(override val workflowHistoryRepository: WorkflowHis
 
   private def getSingleWorkflowJoined(id: Long)(implicit ec: ExecutionContext): DBIO[WorkflowJoined] = {
     getWorkflowJoineds(Seq(id)).map(workflowJoineds => {
-      workflowJoineds.headOption.getOrElse(throw new Exception(s"Workflow with id ${id} does not exist."));
+      workflowJoineds.headOption.getOrElse(throw new Exception(s"Workflow with id ${id} does not exist."))
     })
   }
 

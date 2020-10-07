@@ -22,7 +22,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.ObjectMapperSingleton
-import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, ImportError}
+import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, GenericError}
 import za.co.absa.hyperdrive.trigger.models.{Project, ProjectInfo, Workflow, WorkflowImportExportWrapper, WorkflowJoined}
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, WorkflowRepository}
 
@@ -208,7 +208,7 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
       newNameIdMap => {
         val missingTemplates = jobTemplatesNames.toSet.diff(newNameIdMap.keySet)
         if (missingTemplates.nonEmpty) {
-          Future{Left(Seq(ImportError(s"The following Job Templates don't exist yet and have to be created before importing" +
+          Future{Left(Seq(GenericError(s"The following Job Templates don't exist yet and have to be created before importing" +
             s" this workflow: ${missingTemplates.reduce(_ + ", " + _)}")))}
         } else {
           def getNewId(oldTemplateId: Long) = {

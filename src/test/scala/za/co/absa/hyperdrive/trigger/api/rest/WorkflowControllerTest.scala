@@ -27,6 +27,7 @@ import za.co.absa.hyperdrive.trigger.ObjectMapperSingleton
 import za.co.absa.hyperdrive.trigger.api.rest.controllers.WorkflowController
 import za.co.absa.hyperdrive.trigger.api.rest.services.{JobTemplateFixture, WorkflowFixture, WorkflowService}
 import za.co.absa.hyperdrive.trigger.models.WorkflowImportExportWrapper
+import za.co.absa.hyperdrive.trigger.models.errors.ApiException
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -99,6 +100,16 @@ class WorkflowControllerTest extends AsyncFlatSpec with Matchers with MockitoSug
   }
 
   it should "throw an exception if the result set is empty" in {
-    // TODO
+    // given
+    when(workflowService.exportWorkflows(any())(any())).thenReturn(Future {Seq()})
+
+    // when
+    val exception = the [Exception] thrownBy underTest.exportWorkflows(Array(21L, 22L)).get()
+
+    // then
+    exception.getCause shouldBe a[ApiException]
+    val apiException = exception.getCause.asInstanceOf[ApiException]
+    apiException.apiErrors should have size 1
+    apiException.apiErrors.head.message should include("21, 22")
   }
 }
