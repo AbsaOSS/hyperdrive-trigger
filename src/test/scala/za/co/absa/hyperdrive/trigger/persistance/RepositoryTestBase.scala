@@ -158,14 +158,14 @@ trait RepositoryTestBase extends Repository {
     val dagDefinitions = Seq(dd1, dd2, dd3, dd4, dd5, dd6, dd7)
 
     val genericJd = JobDefinition(dagDefinitionId = -1, jobTemplateId = -1, name = "generic", jobParameters = JobParameters(Map(), Map(), Map()), order = 1, id = -1)
-    val jd1dd1 = genericJd.copy(dagDefinitionId = 400, jobTemplateId = 100, name = "jobDefinition1", order = 1, id = 501)
-    val jd2dd1 = genericJd.copy(dagDefinitionId = 400, jobTemplateId = 101, name = "jobDefinition2", order = 2, id = 502)
-    val jd1dd2 = genericJd.copy(dagDefinitionId = 401, jobTemplateId = 101, name = "jobDefinition1", order = 1, id = 503)
-    val jd1dd3 = genericJd.copy(dagDefinitionId = 402, jobTemplateId = 101, name = "jobDefinition1", order = 1, id = 504)
-    val jd1dd4 = genericJd.copy(dagDefinitionId = 403, jobTemplateId = 101, name = "jobDefinition1", order = 1, id = 505)
-    val jd1dd5 = genericJd.copy(dagDefinitionId = 404, jobTemplateId = 101, name = "jobDefinition1", order = 1, id = 506)
-    val jd1dd6 = genericJd.copy(dagDefinitionId = 405, jobTemplateId = 101, name = "jobDefinition1", order = 1, id = 507)
-    val jd1dd7 = genericJd.copy(dagDefinitionId = 406, jobTemplateId = 101, name = "jobDefinition1", order = 1, id = 508)
+    val jd1dd1 = genericJd.copy(dagDefinitionId = 400, jobTemplateId = 100, name = "jd1dd1", order = 1, id = 501)
+    val jd2dd1 = genericJd.copy(dagDefinitionId = 400, jobTemplateId = 101, name = "jd2dd1", order = 2, id = 502)
+    val jd1dd2 = genericJd.copy(dagDefinitionId = 401, jobTemplateId = 101, name = "jd1dd2", order = 1, id = 503)
+    val jd1dd3 = genericJd.copy(dagDefinitionId = 402, jobTemplateId = 101, name = "jd1dd3", order = 1, id = 504)
+    val jd1dd4 = genericJd.copy(dagDefinitionId = 403, jobTemplateId = 101, name = "jd1dd4", order = 1, id = 505)
+    val jd1dd5 = genericJd.copy(dagDefinitionId = 404, jobTemplateId = 101, name = "jd1dd5", order = 1, id = 506)
+    val jd1dd6 = genericJd.copy(dagDefinitionId = 405, jobTemplateId = 101, name = "jd1dd6", order = 1, id = 507)
+    val jd1dd7 = genericJd.copy(dagDefinitionId = 406, jobTemplateId = 101, name = "jd1dd7", order = 1, id = 508)
 
     val jobDefinitions = Seq(jd1dd1, jd2dd1, jd1dd2, jd1dd3, jd1dd4, jd1dd5, jd1dd6, jd1dd7)
   }

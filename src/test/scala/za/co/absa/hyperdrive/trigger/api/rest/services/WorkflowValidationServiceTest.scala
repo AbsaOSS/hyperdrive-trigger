@@ -38,7 +38,7 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
     // given
     val underTest = new WorkflowValidationServiceImpl(workflowRepository)
     val workflowJoined = WorkflowFixture.createWorkflowJoined()
-    when(workflowRepository.existsWorkflow(eqTo(workflowJoined.name))(any[ExecutionContext])).thenReturn(Future{false})
+    when(workflowRepository.existsWorkflows(eqTo(Seq(workflowJoined.name)))(any[ExecutionContext])).thenReturn(Future{Seq()})
 
     // when
     await(underTest.validateOnInsert(workflowJoined))
@@ -52,7 +52,7 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
     // given
     val underTest = new WorkflowValidationServiceImpl(workflowRepository)
     val workflow = WorkflowFixture.createWorkflowJoined()
-    when(workflowRepository.existsWorkflow(eqTo(workflow.name))(any[ExecutionContext])).thenReturn(Future{true})
+    when(workflowRepository.existsWorkflows(eqTo(Seq(workflow.name)))(any[ExecutionContext])).thenReturn(Future{Seq(workflow.name)})
 
     // when
     val result = the [ApiException] thrownBy await(underTest.validateOnInsert(workflow))
@@ -67,7 +67,7 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
     val underTest = new WorkflowValidationServiceImpl(workflowRepository)
     val workflow = WorkflowFixture.createWorkflowJoined()
     val invalidWorkflow = workflow.copy(project = "")
-    when(workflowRepository.existsWorkflow(eqTo(invalidWorkflow.name))(any[ExecutionContext])).thenReturn(Future{false})
+    when(workflowRepository.existsWorkflows(eqTo(Seq(invalidWorkflow.name)))(any[ExecutionContext])).thenReturn(Future{Seq()})
 
     // when
     val result = the [ApiException] thrownBy await(underTest.validateOnInsert(invalidWorkflow))
@@ -82,7 +82,7 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
     val underTest = new WorkflowValidationServiceImpl(workflowRepository)
     val workflow = WorkflowFixture.createWorkflowJoined()
     val invalidWorkflow = workflow.copy(project = null)
-    when(workflowRepository.existsWorkflow(eqTo(invalidWorkflow.name))(any[ExecutionContext])).thenReturn(Future{false})
+    when(workflowRepository.existsWorkflows(eqTo(Seq(invalidWorkflow.name)))(any[ExecutionContext])).thenReturn(Future{Seq()})
 
     // when
     val result = the [ApiException] thrownBy await(underTest.validateOnInsert(invalidWorkflow))

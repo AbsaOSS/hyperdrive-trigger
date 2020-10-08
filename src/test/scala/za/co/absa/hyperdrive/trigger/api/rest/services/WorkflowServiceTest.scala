@@ -25,7 +25,7 @@ import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, Matchers}
 import za.co.absa.hyperdrive.trigger.TestUtils.await
 import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
-import za.co.absa.hyperdrive.trigger.models.errors.ApiErrorTypes.GenericErrorType
+import za.co.absa.hyperdrive.trigger.models.errors.ApiErrorTypes.{BulkOperationErrorType, GenericErrorType}
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, ApiException, DatabaseError, ValidationError}
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, WorkflowRepository}
 
@@ -282,7 +282,59 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
     )
   }
 
-  "WorkflowService.importWorkflow" should "match existing job templates by name and update job template ids" in {
+  "WorkflowService.importWorkflows" should "import workflows" in {
+    // given
+    val workflowJoined1 = WorkflowFixture.createWorkflowJoined().copy()
+    val workflowJoined2 = WorkflowFixture.createTimeBasedShellScriptWorkflow("project").copy()
+    val jobTemplates1 = Seq(JobTemplateFixture.GenericSparkJobTemplate, JobTemplateFixture.GenericShellJobTemplate)
+    val jobTemplates2 = Seq(JobTemplateFixture.GenericShellJobTemplate)
+    val workflowImports = Seq(
+      WorkflowImportExportWrapper(workflowJoined1, jobTemplates1),
+      WorkflowImportExportWrapper(workflowJoined2, jobTemplates2)
+    )
+
+    val newJobTemplates = Seq(
+      JobTemplateFixture.GenericSparkJobTemplate.copy(id = 11),
+      JobTemplateFixture.GenericShellJobTemplate.copy(id = 12)
+    )
+    val newJobTemplatesIdMap = newJobTemplates.map(t => t.name -> t.id).toMap
+
+    when(jobTemplateService.getJobTemplateIdsByNames(any())(any[ExecutionContext])).thenReturn(Future{newJobTemplatesIdMap})
+    when(workflowValidationService.validateOnInsert(any[Seq[WorkflowJoined]])(any())).thenReturn(Future{})
+    when(workflowRepository.insertWorkflows(any(), any())(any())).thenReturn(Future { Seq(21L, 22L) })
+
+    // when
+    val result = await(underTest.importWorkflows(workflowImports))
+
+    // then
+    result shouldBe true
+    val stringsCaptor: ArgumentCaptor[Seq[String]] = ArgumentCaptor.forClass(classOf[Seq[String]])
+    verify(jobTemplateService).getJobTemplateIdsByNames(stringsCaptor.capture())(any())
+    stringsCaptor.getValue should contain theSameElementsAs workflowImports.flatMap(_.jobTemplates.map(_.name)).distinct
+
+    val validateOnInsertCaptor: ArgumentCaptor[Seq[WorkflowJoined]] = ArgumentCaptor.forClass(classOf[Seq[WorkflowJoined]])
+    verify(workflowValidationService).validateOnInsert(validateOnInsertCaptor.capture())(any())
+    val convertedWorkflows = validateOnInsertCaptor.getValue
+    convertedWorkflows.head.dagDefinitionJoined.jobDefinitions.map(_.jobTemplateId) should contain theSameElementsInOrderAs Seq(11, 12)
+    convertedWorkflows(1).dagDefinitionJoined.jobDefinitions.head.jobTemplateId shouldBe 12
+
+    val insertWorkflowsCaptor: ArgumentCaptor[Seq[WorkflowJoined]] = ArgumentCaptor.forClass(classOf[Seq[WorkflowJoined]])
+    verify(workflowRepository).insertWorkflows(insertWorkflowsCaptor.capture(), eqTo(userName))(any())
+    val workflowsToInsert = insertWorkflowsCaptor.getValue
+    workflowsToInsert should have size workflowImports.size
+    workflowsToInsert.map(_.name) should contain theSameElementsAs workflowImports.map(_.workflowJoined.name)
+    workflowsToInsert.map(_.isActive) should contain only false
+  }
+
+//  it should "fail with all job template conversion errors" in {
+//
+//  }
+//
+//  it should "fail with all validation errors" in {
+//
+//  }
+
+  "WorkflowService.convertToWorkflowJoined" should "match existing job templates by name and update job template ids" in {
     val workflowJoined = WorkflowFixture.createWorkflowJoined().copy()
     val oldJobTemplates = Seq(JobTemplateFixture.GenericSparkJobTemplate, JobTemplateFixture.GenericShellJobTemplate)
     val workflowImport = WorkflowImportExportWrapper(workflowJoined, oldJobTemplates)
@@ -293,7 +345,7 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
     val newJobTemplatesIdMap = newJobTemplates.map(t => t.name -> t.id).toMap
     when(jobTemplateService.getJobTemplateIdsByNames(any())(any[ExecutionContext])).thenReturn(Future{newJobTemplatesIdMap})
 
-    val result = await(underTest.importWorkflow(workflowImport))
+    val result = await(underTest.convertToWorkflowJoined(workflowImport))
 
     result.dagDefinitionJoined.jobDefinitions.head.jobTemplateId shouldBe 11
     result.dagDefinitionJoined.jobDefinitions(1).jobTemplateId shouldBe 12
@@ -306,9 +358,10 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
 
     when(jobTemplateService.getJobTemplateIdsByNames(any())(any[ExecutionContext])).thenReturn(Future{Map[String, Long]()})
 
-    val result = the [ApiException] thrownBy await(underTest.importWorkflow(workflowImport))
+    val result = the [ApiException] thrownBy await(underTest.convertToWorkflowJoined(workflowImport))
 
-    result.apiErrors.head.errorType shouldBe GenericErrorType
+    result.apiErrors.head.errorType shouldBe BulkOperationErrorType
+    result.apiErrors.head.message should include(workflowJoined.name)
     result.apiErrors.head.message should include(JobTemplateFixture.GenericSparkJobTemplate.name)
     result.apiErrors.head.message should include(JobTemplateFixture.GenericShellJobTemplate.name)
   }

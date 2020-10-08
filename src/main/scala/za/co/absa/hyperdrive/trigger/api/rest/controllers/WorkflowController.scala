@@ -153,7 +153,7 @@ class WorkflowController @Inject()(workflowService: WorkflowService) {
   @PostMapping(path = Array("/workflow/import"))
   def importWorkflow(@RequestPart("file") file: MultipartFile): CompletableFuture[WorkflowJoined] = {
     val workflowImport = ObjectMapperSingleton.getObjectMapper.readValue(file.getBytes, classOf[WorkflowImportExportWrapper])
-    workflowService.importWorkflow(workflowImport).toJava.toCompletableFuture
+    workflowService.convertToWorkflowJoined(workflowImport).toJava.toCompletableFuture
   }
 
 }
