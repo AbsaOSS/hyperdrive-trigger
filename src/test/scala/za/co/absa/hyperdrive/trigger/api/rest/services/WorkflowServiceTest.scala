@@ -63,7 +63,7 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
 
     // then
     verify(workflowRepository).insertWorkflow(eqTo(workflowJoined), eqTo(userName))(any[ExecutionContext])
-    result shouldBe Right(workflowJoined)
+    result shouldBe workflowJoined
   }
 
   it should "should return with errors if validation failed and not attempt to insert to DB" in {
@@ -114,7 +114,7 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
 
     // then
     verify(workflowRepository).updateWorkflow(any[WorkflowJoined], any[String])(any[ExecutionContext])
-    result shouldBe Right(updatedWorkflow)
+    result shouldBe updatedWorkflow
   }
 
   it should "should return with errors if validation failed and not attempt to update on DB" in {
@@ -295,9 +295,8 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
 
     val result = await(underTest.importWorkflow(workflowImport))
 
-    result.isRight shouldBe true
-    result.right.get.dagDefinitionJoined.jobDefinitions.head.jobTemplateId shouldBe 11
-    result.right.get.dagDefinitionJoined.jobDefinitions(1).jobTemplateId shouldBe 12
+    result.dagDefinitionJoined.jobDefinitions.head.jobTemplateId shouldBe 11
+    result.dagDefinitionJoined.jobDefinitions(1).jobTemplateId shouldBe 12
   }
 
   it should "return an import error if the given job template doesn't exist" in {
@@ -307,12 +306,11 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
 
     when(jobTemplateService.getJobTemplateIdsByNames(any())(any[ExecutionContext])).thenReturn(Future{Map[String, Long]()})
 
-    val result = await(underTest.importWorkflow(workflowImport))
+    val result = the [ApiException] thrownBy await(underTest.importWorkflow(workflowImport))
 
-    result.isLeft shouldBe true
-    result.left.get.head.errorType shouldBe GenericErrorType
-    result.left.get.head.message should include(JobTemplateFixture.GenericSparkJobTemplate.name)
-    result.left.get.head.message should include(JobTemplateFixture.GenericShellJobTemplate.name)
+    result.apiErrors.head.errorType shouldBe GenericErrorType
+    result.apiErrors.head.message should include(JobTemplateFixture.GenericSparkJobTemplate.name)
+    result.apiErrors.head.message should include(JobTemplateFixture.GenericShellJobTemplate.name)
   }
 
   private def createDagInstanceJoined() = {

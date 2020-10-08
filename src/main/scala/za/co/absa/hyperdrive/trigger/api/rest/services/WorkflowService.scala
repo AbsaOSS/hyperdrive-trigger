@@ -18,8 +18,8 @@ package za.co.absa.hyperdrive.trigger.api.rest.services
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
-import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, GenericError}
 import za.co.absa.hyperdrive.trigger.models._
+import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, GenericError}
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, WorkflowRepository}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -31,12 +31,12 @@ trait WorkflowService {
   val jobTemplateService: JobTemplateService
   val workflowValidationService: WorkflowValidationService
 
-  def createWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], WorkflowJoined]]
+  def createWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[WorkflowJoined]
   def getWorkflow(id: Long)(implicit ec: ExecutionContext): Future[WorkflowJoined]
   def getWorkflows()(implicit ec: ExecutionContext): Future[Seq[Workflow]]
   def getWorkflowsByProjectName(projectName: String)(implicit ec: ExecutionContext): Future[Seq[Workflow]]
   def deleteWorkflow(id: Long)(implicit ec: ExecutionContext): Future[Boolean]
-  def updateWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], WorkflowJoined]]
+  def updateWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[WorkflowJoined]
   def switchWorkflowActiveState(id: Long)(implicit ec: ExecutionContext): Future[Boolean]
   def updateWorkflowsIsActive(ids: Seq[Long], isActiveNewValue: Boolean)(implicit ec: ExecutionContext): Future[Boolean]
   def getProjectNames()(implicit ec: ExecutionContext): Future[Set[String]]
@@ -45,7 +45,7 @@ trait WorkflowService {
   def runWorkflow(workflowId: Long)(implicit ec: ExecutionContext): Future[Boolean]
   def runWorkflowJobs(workflowId: Long, jobIds: Seq[Long])(implicit ec: ExecutionContext): Future[Boolean]
   def exportWorkflows(workflowIds: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[WorkflowImportExportWrapper]]
-  def importWorkflow(workflowImport: WorkflowImportExportWrapper)(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], WorkflowJoined]]
+  def importWorkflow(workflowImport: WorkflowImportExportWrapper)(implicit ec: ExecutionContext): Future[WorkflowJoined]
 }
 
 @Service
@@ -55,14 +55,14 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
                           override val jobTemplateService: JobTemplateService,
                           override val workflowValidationService: WorkflowValidationService) extends WorkflowService {
 
-  def createWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], WorkflowJoined]] = {
+  def createWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[WorkflowJoined] = {
     val userName = getUserName.apply()
     for {
       _ <- workflowValidationService.validateOnInsert(workflow)
       workflowId <- workflowRepository.insertWorkflow(workflow, userName)
       workflowJoined <- getWorkflow(workflowId)
     } yield {
-      Right(workflowJoined)
+      workflowJoined
     }
   }
 
@@ -83,7 +83,7 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
     workflowRepository.deleteWorkflow(id, userName).map(_ => true)
   }
 
-  override def updateWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], WorkflowJoined]] = {
+  override def updateWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[WorkflowJoined] = {
     val userName = getUserName.apply()
 
     for {
@@ -93,7 +93,7 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
       _ <- workflowRepository.updateWorkflow(mergedWorkflow, userName)
       updatedWorkflow <- getWorkflow(workflow.id)
     } yield {
-      Right(updatedWorkflow)
+      updatedWorkflow
     }
   }
 
@@ -192,15 +192,17 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
     }
   }
 
-  override def importWorkflow(workflowImport: WorkflowImportExportWrapper)(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], WorkflowJoined]] = {
+  override def importWorkflow(workflowImport: WorkflowImportExportWrapper)(implicit ec: ExecutionContext): Future[WorkflowJoined] = {
     val jobTemplatesNames = workflowImport.jobTemplates.map(_.name)
     val oldIdNameMap = workflowImport.jobTemplates.map(jobTemplate => jobTemplate.id -> jobTemplate.name).toMap
     jobTemplateService.getJobTemplateIdsByNames(jobTemplatesNames).flatMap(
       newNameIdMap => {
         val missingTemplates = jobTemplatesNames.toSet.diff(newNameIdMap.keySet)
         if (missingTemplates.nonEmpty) {
-          Future{Left(Seq(GenericError(s"The following Job Templates don't exist yet and have to be created before importing" +
-            s" this workflow: ${missingTemplates.reduce(_ + ", " + _)}")))}
+          Future.failed(new ApiException(
+            GenericError(s"The following Job Templates don't exist yet and have to be created before importing" +
+              s" this workflow: ${missingTemplates.reduce(_ + ", " + _)}")
+          ))
         } else {
           def getNewId(oldTemplateId: Long) = {
             val name = oldIdNameMap.get(oldTemplateId) match {
@@ -219,21 +221,10 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
               .copy(jobDefinitions = workflowImport.workflowJoined.dagDefinitionJoined.jobDefinitions
                 .map(jobDefinition => jobDefinition.copy(jobTemplateId = getNewId(jobDefinition.jobTemplateId)))))
 
-          Future{Right(workflowWithResolvedJobTemplateIds)}
+          Future{ workflowWithResolvedJobTemplateIds }
         }
       }
     )
-  }
-
-  private def doIf[T](validationErrors: Seq[ApiError], future: () => Future[Either[ApiError, T]])(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], T]] = {
-    if (validationErrors.isEmpty) {
-      future.apply().map {
-        case Left(error) => Left(Seq(error))
-        case Right(result) => Right(result)
-      }
-    } else {
-      Future.successful(Left(validationErrors))
-    }
   }
 
   private[services] def getUserName: () => String = {
