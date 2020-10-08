@@ -15,15 +15,11 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
-import java.io.ByteArrayOutputStream
-import java.util.zip.{ZipEntry, ZipOutputStream}
-
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
-import za.co.absa.hyperdrive.trigger.ObjectMapperSingleton
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, GenericError}
-import za.co.absa.hyperdrive.trigger.models.{Project, ProjectInfo, Workflow, WorkflowImportExportWrapper, WorkflowJoined}
+import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, WorkflowRepository}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -60,17 +56,13 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
                           override val workflowValidationService: WorkflowValidationService) extends WorkflowService {
 
   def createWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], WorkflowJoined]] = {
-    val userName = getUserName.apply();
+    val userName = getUserName.apply()
     for {
-      validationErrors <- workflowValidationService.validateOnInsert(workflow)
-      result <- doIf(validationErrors, () => {
-        workflowRepository.insertWorkflow(workflow, userName).flatMap {
-          case Left(error) => Future.successful(Left(error))
-          case Right(workflowId) => getWorkflow(workflowId).map(Right(_))
-        }
-      })
+      _ <- workflowValidationService.validateOnInsert(workflow)
+      workflowId <- workflowRepository.insertWorkflow(workflow, userName)
+      workflowJoined <- getWorkflow(workflowId)
     } yield {
-      result
+      Right(workflowJoined)
     }
   }
 
@@ -87,46 +79,45 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
   }
 
   def deleteWorkflow(id: Long)(implicit ec: ExecutionContext): Future[Boolean] = {
-    val userName = getUserName.apply();
+    val userName = getUserName.apply()
     workflowRepository.deleteWorkflow(id, userName).map(_ => true)
   }
 
   override def updateWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Either[Seq[ApiError], WorkflowJoined]] = {
-    val userName = getUserName.apply();
+    val userName = getUserName.apply()
 
     for {
       originalWorkflow <- getWorkflow(workflow.id)
-      validationErrors <- workflowValidationService.validateOnUpdate(originalWorkflow, workflow)
-      result <- doIf(validationErrors, () => {
-        val updatedWorkflow = workflow.copy(
-          id = originalWorkflow.id,
-          created = originalWorkflow.created,
-          updated = originalWorkflow.updated,
-          sensor = workflow.sensor.copy(
-            id = originalWorkflow.sensor.id,
-            workflowId = originalWorkflow.id,
-            properties = workflow.sensor.properties.copy(
-              sensorId = originalWorkflow.sensor.properties.sensorId
-            )
-          ),
-          dagDefinitionJoined = workflow.dagDefinitionJoined.copy(
-            id = originalWorkflow.dagDefinitionJoined.id,
-            workflowId = originalWorkflow.id
-          )
-        )
-
-        workflowRepository.updateWorkflow(updatedWorkflow, userName).flatMap {
-          case Left(error) => Future.successful(Left(error))
-          case Right(_) => getWorkflow(workflow.id).map(Right(_))
-        }
-      })
+      _ <- workflowValidationService.validateOnUpdate(originalWorkflow, workflow)
+      mergedWorkflow = mergeWithOriginalWorkflow(originalWorkflow, workflow)
+      _ <- workflowRepository.updateWorkflow(mergedWorkflow, userName)
+      updatedWorkflow <- getWorkflow(workflow.id)
     } yield {
-      result
+      Right(updatedWorkflow)
     }
   }
 
+  private def mergeWithOriginalWorkflow(originalWorkflow: WorkflowJoined, workflow: WorkflowJoined) = {
+    workflow.copy(
+      id = originalWorkflow.id,
+      created = originalWorkflow.created,
+      updated = originalWorkflow.updated,
+      sensor = workflow.sensor.copy(
+        id = originalWorkflow.sensor.id,
+        workflowId = originalWorkflow.id,
+        properties = workflow.sensor.properties.copy(
+          sensorId = originalWorkflow.sensor.properties.sensorId
+        )
+      ),
+      dagDefinitionJoined = workflow.dagDefinitionJoined.copy(
+        id = originalWorkflow.dagDefinitionJoined.id,
+        workflowId = originalWorkflow.id
+      )
+    )
+  }
+
   override def switchWorkflowActiveState(id: Long)(implicit ec: ExecutionContext): Future[Boolean] = {
-    val userName = getUserName.apply();
+    val userName = getUserName.apply()
     workflowRepository.switchWorkflowActiveState(id, userName).map(_ => true)
   }
 
@@ -164,7 +155,7 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
   }
 
   override def runWorkflowJobs(workflowId: Long, jobIds: Seq[Long])(implicit ec: ExecutionContext): Future[Boolean] = {
-    val userName = getUserName.apply();
+    val userName = getUserName.apply()
 
     workflowRepository.getWorkflow(workflowId).flatMap(joinedWorkflow => {
       val dagDefinitionJoined = joinedWorkflow.dagDefinitionJoined

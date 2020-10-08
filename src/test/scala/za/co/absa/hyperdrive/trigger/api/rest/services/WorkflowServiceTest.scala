@@ -26,7 +26,7 @@ import za.co.absa.hyperdrive.trigger.TestUtils.await
 import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
 import za.co.absa.hyperdrive.trigger.models.errors.ApiErrorTypes.GenericErrorType
-import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, DatabaseError, ValidationError}
+import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, ApiException, DatabaseError, ValidationError}
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, WorkflowRepository}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -54,8 +54,8 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
   "WorkflowService.createWorkflow" should "should create a workflow" in {
     // given
     val workflowJoined = WorkflowFixture.createWorkflowJoined()
-    when(workflowValidationService.validateOnInsert(eqTo(workflowJoined))(any[ExecutionContext])).thenReturn(Future{Seq.empty})
-    when(workflowRepository.insertWorkflow(eqTo(workflowJoined), eqTo(userName))(any[ExecutionContext])).thenReturn(Future{Right(workflowJoined.id)})
+    when(workflowValidationService.validateOnInsert(eqTo(workflowJoined))(any[ExecutionContext])).thenReturn(Future{(): Unit})
+    when(workflowRepository.insertWorkflow(eqTo(workflowJoined), eqTo(userName))(any[ExecutionContext])).thenReturn(Future{workflowJoined.id})
     when(workflowRepository.getWorkflow(eqTo(workflowJoined.id))(any[ExecutionContext])).thenReturn(Future{workflowJoined})
 
     // when
@@ -71,32 +71,33 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
     val workflowJoined = WorkflowFixture.createWorkflowJoined()
     val errors: Seq[ApiError] = Seq(ValidationError("error"))
     when(workflowValidationService.validateOnInsert(eqTo(workflowJoined))(any[ExecutionContext]))
-      .thenReturn(Future{errors})
+      .thenReturn(Future.failed(new ApiException(errors)))
 
     // when
-    val result = await(underTest.createWorkflow(workflowJoined))
+    val result = the [ApiException] thrownBy await(underTest.createWorkflow(workflowJoined))
 
     // then
     verify(workflowRepository, never()).insertWorkflow(any[WorkflowJoined], any[String])(any[ExecutionContext])
     verify(workflowRepository, never()).getWorkflow(any[Long])(any[ExecutionContext])
-    result shouldBe Left(errors)
+    result.apiErrors should contain theSameElementsAs errors
   }
 
   it should "should return with errors if DB insert failed" in {
     // given
     val workflowJoined = WorkflowFixture.createWorkflowJoined()
     val error = DatabaseError("error")
-    when(workflowValidationService.validateOnInsert(eqTo(workflowJoined))(any[ExecutionContext])).thenReturn(Future{Seq.empty})
+    when(workflowValidationService.validateOnInsert(eqTo(workflowJoined))(any[ExecutionContext])).thenReturn(Future{(): Unit})
     when(workflowRepository.insertWorkflow(eqTo(workflowJoined), eqTo(userName))(any[ExecutionContext]))
-      .thenReturn(Future{Left(error)})
+      .thenReturn(Future.failed(new ApiException(error)))
 
     // when
-    val result = await(underTest.createWorkflow(workflowJoined))
+    val result = the [ApiException] thrownBy await(underTest.createWorkflow(workflowJoined))
 
     // then
     verify(workflowRepository).insertWorkflow(eqTo(workflowJoined), eqTo(userName))(any[ExecutionContext])
     verify(workflowRepository, never()).getWorkflow(any[Long])(any[ExecutionContext])
-    result shouldBe Left(Seq(error))
+    result.apiErrors should have size 1
+    result.apiErrors.head shouldBe error
   }
 
   "WorkflowService.updateWorkflow" should "should update a workflow" in {
@@ -105,8 +106,8 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
     val updatedWorkflow = originalWorkflow.copy(name = "newName")
 
     when(workflowRepository.getWorkflow(eqTo(originalWorkflow.id))(any[ExecutionContext])).thenReturn(Future{originalWorkflow}).thenReturn(Future{updatedWorkflow})
-    when(workflowValidationService.validateOnUpdate(eqTo(originalWorkflow), eqTo(updatedWorkflow))(any[ExecutionContext])).thenReturn(Future{Seq.empty})
-    when(workflowRepository.updateWorkflow(any[WorkflowJoined], any[String])(any[ExecutionContext])).thenReturn(Future{Right((): Unit)})
+    when(workflowValidationService.validateOnUpdate(eqTo(originalWorkflow), eqTo(updatedWorkflow))(any[ExecutionContext])).thenReturn(Future{})
+    when(workflowRepository.updateWorkflow(any[WorkflowJoined], any[String])(any[ExecutionContext])).thenReturn(Future{(): Unit})
 
     // when
     val result = await(underTest.updateWorkflow(updatedWorkflow))
@@ -122,15 +123,15 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
     val workflowJoined = originalJoined.copy()
     val errors: Seq[ApiError] = Seq(ValidationError("error"))
     when(workflowValidationService.validateOnUpdate(eqTo(workflowJoined), eqTo(originalJoined))(any[ExecutionContext]))
-      .thenReturn(Future{errors})
+      .thenReturn(Future.failed(new ApiException(errors)))
     when(workflowRepository.getWorkflow(eqTo(workflowJoined.id))(any[ExecutionContext])).thenReturn(Future{workflowJoined})
 
     // when
-    val result = await(underTest.updateWorkflow(workflowJoined))
+    val result = the [ApiException] thrownBy await(underTest.updateWorkflow(workflowJoined))
 
     // then
     verify(workflowRepository, never()).updateWorkflow(any[WorkflowJoined], any[String])(any[ExecutionContext])
-    result shouldBe Left(errors)
+    result.apiErrors should contain theSameElementsAs errors
   }
 
   it should "should return with errors if DB update failed" in {
@@ -140,16 +141,17 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
 
     val error = DatabaseError("error")
     when(workflowRepository.getWorkflow(eqTo(originalWorkflow.id))(any[ExecutionContext])).thenReturn(Future{originalWorkflow})
-    when(workflowValidationService.validateOnUpdate(eqTo(originalWorkflow), eqTo(updatedWorkflow))(any[ExecutionContext])).thenReturn(Future{Seq.empty})
+    when(workflowValidationService.validateOnUpdate(eqTo(originalWorkflow), eqTo(updatedWorkflow))(any[ExecutionContext])).thenReturn(Future{})
     when(workflowRepository.updateWorkflow(any[WorkflowJoined], any[String])(any[ExecutionContext]))
-      .thenReturn(Future{Left(error)})
+      .thenReturn(Future.failed(new ApiException(error)))
 
     // when
-    val result = await(underTest.updateWorkflow(updatedWorkflow))
+    val result = the [ApiException] thrownBy await(underTest.updateWorkflow(updatedWorkflow))
 
     // then
     verify(workflowRepository).updateWorkflow(any[WorkflowJoined], any[String])(any[ExecutionContext])
-    result shouldBe Left(Seq(error))
+    result.apiErrors should have size 1
+    result.apiErrors.head shouldBe error
   }
 
   "WorkflowService.getProjects" should "should return no project on no workflows" in {
