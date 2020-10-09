@@ -28,11 +28,11 @@ import org.springframework.web.multipart.MultipartFile
 import za.co.absa.hyperdrive.trigger.ObjectMapperSingleton
 import za.co.absa.hyperdrive.trigger.api.rest.services.WorkflowService
 import za.co.absa.hyperdrive.trigger.models._
-import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, ApiException, GenericError}
+import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, GenericError}
 
 import scala.compat.java8.FutureConverters._
+import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{ExecutionContext, Future}
 
 @RestController
 class WorkflowController @Inject()(workflowService: WorkflowService) {
@@ -40,15 +40,9 @@ class WorkflowController @Inject()(workflowService: WorkflowService) {
   @Value("${environment:}")
   val environment: String = ""
 
-  implicit def eitherToCompletableFutureOrException[T](response: Future[Either[Seq[ApiError], T]]): CompletableFuture[T] =
-    response.map {
-      case Left(apiErrors) => throw new ApiException(apiErrors)
-      case Right(result) => result
-    }.toJava.toCompletableFuture
-
   @PutMapping(path = Array("/workflow"))
   def createWorkflow(@RequestBody workflow: WorkflowJoined): CompletableFuture[WorkflowJoined] = {
-    workflowService.createWorkflow(workflow)
+    workflowService.createWorkflow(workflow).toJava.toCompletableFuture
   }
 
   @GetMapping(path = Array("/workflow"))
@@ -73,7 +67,7 @@ class WorkflowController @Inject()(workflowService: WorkflowService) {
 
   @PostMapping(path = Array("/workflows"))
   def updateWorkflow(@RequestBody workflow: WorkflowJoined): CompletableFuture[WorkflowJoined] = {
-    workflowService.updateWorkflow(workflow)
+    workflowService.updateWorkflow(workflow).toJava.toCompletableFuture
   }
 
   @PostMapping(path = Array("/workflows/{id}/switchActiveState"))
@@ -159,7 +153,7 @@ class WorkflowController @Inject()(workflowService: WorkflowService) {
   @PostMapping(path = Array("/workflow/import"))
   def importWorkflow(@RequestPart("file") file: MultipartFile): CompletableFuture[WorkflowJoined] = {
     val workflowImport = ObjectMapperSingleton.getObjectMapper.readValue(file.getBytes, classOf[WorkflowImportExportWrapper])
-    workflowService.importWorkflow(workflowImport)
+    workflowService.importWorkflow(workflowImport).toJava.toCompletableFuture
   }
 
 }

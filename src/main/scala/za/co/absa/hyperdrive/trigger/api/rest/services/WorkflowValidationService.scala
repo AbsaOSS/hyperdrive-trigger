@@ -19,7 +19,7 @@ package za.co.absa.hyperdrive.trigger.api.rest.services
 import javax.inject.Inject
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.models.WorkflowJoined
-import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, ValidationError}
+import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, ApiException, ValidationError}
 import za.co.absa.hyperdrive.trigger.persistance.WorkflowRepository
 
 import scala.collection.immutable.SortedMap
@@ -28,15 +28,15 @@ import scala.concurrent.{ExecutionContext, Future}
 trait WorkflowValidationService {
   val workflowRepository: WorkflowRepository
 
-  def validateOnInsert(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Seq[ApiError]]
+  def validateOnInsert(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Unit]
 
-  def validateOnUpdate(originalWorkflow: WorkflowJoined, updatedWorkflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Seq[ApiError]]
+  def validateOnUpdate(originalWorkflow: WorkflowJoined, updatedWorkflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Unit]
 }
 
 @Service
 class WorkflowValidationServiceImpl @Inject()(override val workflowRepository: WorkflowRepository)
   extends WorkflowValidationService {
-  override def validateOnInsert(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Seq[ApiError]] = {
+  override def validateOnInsert(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Unit] = {
     val validators = Seq(
       validateWorkflowNotExists(workflow),
       validateProjectIsNotEmpty(workflow)
@@ -44,7 +44,7 @@ class WorkflowValidationServiceImpl @Inject()(override val workflowRepository: W
     combine(validators)
   }
 
-  override def validateOnUpdate(originalWorkflow: WorkflowJoined, updatedWorkflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Seq[ApiError]] = {
+  override def validateOnUpdate(originalWorkflow: WorkflowJoined, updatedWorkflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Unit] = {
     val validators = Seq(
       validateWorkflowIsUnique(updatedWorkflow),
       validateProjectIsNotEmpty(updatedWorkflow),
@@ -54,7 +54,9 @@ class WorkflowValidationServiceImpl @Inject()(override val workflowRepository: W
   }
 
   private def combine(validators: Seq[Future[Seq[ApiError]]])(implicit ec: ExecutionContext) = {
-    val combinedValidators = Future.fold(validators)(Seq.empty[ApiError])(_ ++ _)
+    val combinedValidators = Future
+      .reduce(validators)(_ ++ _)
+      .transform(apiErrors => if (apiErrors.nonEmpty) throw new ApiException(apiErrors), identity)
     combinedValidators
   }
 

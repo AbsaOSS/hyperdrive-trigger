@@ -19,7 +19,7 @@ import java.time.LocalDateTime
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype
-import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, GenericDatabaseError}
+import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, ApiException, GenericDatabaseError}
 import za.co.absa.hyperdrive.trigger.models.{ProjectInfo, _}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -28,7 +28,7 @@ import scala.util.{Failure, Success}
 trait WorkflowRepository extends Repository {
   val workflowHistoryRepository: WorkflowHistoryRepository
 
-  def insertWorkflow(workflow: WorkflowJoined, user: String)(implicit ec: ExecutionContext): Future[Either[ApiError, Long]]
+  def insertWorkflow(workflow: WorkflowJoined, user: String)(implicit ec: ExecutionContext): Future[Long]
   def existsWorkflow(name: String)(implicit ec: ExecutionContext): Future[Boolean]
   def existsOtherWorkflow(name: String, id: Long)(implicit ec: ExecutionContext): Future[Boolean]
   def getWorkflow(id: Long)(implicit ec: ExecutionContext): Future[WorkflowJoined]
@@ -36,7 +36,7 @@ trait WorkflowRepository extends Repository {
   def getWorkflows()(implicit ec: ExecutionContext): Future[Seq[Workflow]]
   def getWorkflowsByProjectName(projectName: String)(implicit ec: ExecutionContext): Future[Seq[Workflow]]
   def deleteWorkflow(id: Long, user: String)(implicit ec: ExecutionContext): Future[Unit]
-  def updateWorkflow(workflow: WorkflowJoined, user: String)(implicit ec: ExecutionContext): Future[Either[ApiError, Unit]]
+  def updateWorkflow(workflow: WorkflowJoined, user: String)(implicit ec: ExecutionContext): Future[Unit]
   def switchWorkflowActiveState(id: Long, user: String)(implicit ec: ExecutionContext): Future[Unit]
   def updateWorkflowsIsActive(ids: Seq[Long], isActiveNewValue: Boolean, user: String)(implicit ec: ExecutionContext): Future[Unit]
   def getProjects()(implicit ec: ExecutionContext): Future[Seq[String]]
@@ -50,7 +50,7 @@ class WorkflowRepositoryImpl(override val workflowHistoryRepository: WorkflowHis
 
   private val logger = LoggerFactory.getLogger(this.getClass)
 
-  override def insertWorkflow(workflow: WorkflowJoined, user: String)(implicit ec: ExecutionContext): Future[Either[ApiError, Long]] = {
+  override def insertWorkflow(workflow: WorkflowJoined, user: String)(implicit ec: ExecutionContext): Future[Long] = {
     db.run(
       (for {
         workflowId <- workflowTable returning workflowTable.map(_.id) += workflow.toWorkflow.copy(created = LocalDateTime.now())
@@ -64,10 +64,10 @@ class WorkflowRepositoryImpl(override val workflowHistoryRepository: WorkflowHis
           workflowUpdated => workflowHistoryRepository.create(workflowUpdated, user)
         ).flatMap(_.map(_ => id))
       }).transactionally.asTry.map {
-        case Success(workflowId) => Right(workflowId)
+        case Success(workflowId) => workflowId
         case Failure(ex) =>
           logger.error(s"Unexpected error occurred when inserting workflow $workflow", ex)
-          Left(GenericDatabaseError)
+          throw new ApiException(GenericDatabaseError)
       }
     )
   }
@@ -162,7 +162,7 @@ class WorkflowRepositoryImpl(override val workflowHistoryRepository: WorkflowHis
     )).transactionally)
   }
 
-  override def updateWorkflow(workflow: WorkflowJoined, user: String)(implicit ec: ExecutionContext): Future[Either[ApiError, Unit]] = {
+  override def updateWorkflow(workflow: WorkflowJoined, user: String)(implicit ec: ExecutionContext): Future[Unit] = {
     db.run(
       (for {
         w <- workflowTable.filter(_.id === workflow.id).update(workflow.toWorkflow.copy(updated = Option(LocalDateTime.now())))
@@ -177,10 +177,10 @@ class WorkflowRepositoryImpl(override val workflowHistoryRepository: WorkflowHis
           workflowUpdated => workflowHistoryRepository.update(workflowUpdated, user)
         ).flatMap(_.map(_ => result))
       ).transactionally.asTry.map {
-        case Success(_) => Right((): Unit)
+        case Success(_) => (): Unit
         case Failure(ex) =>
           logger.error(s"Unexpected error occurred when updating workflow $workflow", ex)
-          Left(GenericDatabaseError)
+          throw new ApiException(GenericDatabaseError)
       }
     )
   }
