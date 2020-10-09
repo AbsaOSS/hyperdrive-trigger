@@ -217,13 +217,13 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
       })
   }
 
-  def convertToWorkflowJoineds(workflowImports: Seq[WorkflowImportExportWrapper])(implicit ec: ExecutionContext): Future[Seq[WorkflowJoined]] = {
+  private def convertToWorkflowJoineds(workflowImports: Seq[WorkflowImportExportWrapper])(implicit ec: ExecutionContext): Future[Seq[WorkflowJoined]] = {
     val jobTemplatesNames = workflowImports.flatMap(_.jobTemplates.map(_.name)).distinct
     jobTemplateService.getJobTemplateIdsByNames(jobTemplatesNames).flatMap {
       newNameIdMap =>
         val workflowJoinedsEit = workflowImports.map { workflowImport =>
           val oldIdNameMap = workflowImport.jobTemplates.map(jobTemplate => jobTemplate.id -> jobTemplate.name).toMap
-          val missingTemplates = jobTemplatesNames.toSet.diff(newNameIdMap.keySet)
+          val missingTemplates = oldIdNameMap.values.toSet.diff(newNameIdMap.keySet)
           if (missingTemplates.nonEmpty) {
             Left(
               BulkOperationError(workflowImport.workflowJoined,

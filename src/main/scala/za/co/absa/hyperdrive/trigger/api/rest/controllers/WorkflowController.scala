@@ -188,8 +188,10 @@ class WorkflowController @Inject()(workflowService: WorkflowService) {
     val zipEntries = ArrayBuffer[(String, Array[Byte])]()
     var entry = zis.getNextEntry
     while (entry != null) {
-      val byteArray = readEntry(zis)
-      zipEntries += (entry.getName -> byteArray)
+      if (!entry.getName.startsWith("__MACOSX/")) {
+        val byteArray = readEntry(zis)
+        zipEntries += (entry.getName -> byteArray)
+      }
       zis.closeEntry()
       entry = zis.getNextEntry
     }
@@ -200,7 +202,7 @@ class WorkflowController @Inject()(workflowService: WorkflowService) {
   }
 
   private def readEntry(zis: ZipInputStream) = {
-    val byteArray = new Array[Byte](10)
+    val byteArray = new Array[Byte](1)
     val baos = new ByteArrayOutputStream()
     while(zis.read(byteArray) > 0) {
       baos.write(byteArray)

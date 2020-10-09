@@ -101,7 +101,7 @@ describe('WorkflowsHomeComponent', () => {
 
   it('importWorkflow() should set is workflow import variable to true', async(() => {
     expect(underTest.isWorkflowImportOpen).toBeFalsy();
-    underTest.importWorkflow();
+    underTest.openImportWorkflowModal();
 
     fixture.detectChanges();
     fixture.whenStable().then(() => {

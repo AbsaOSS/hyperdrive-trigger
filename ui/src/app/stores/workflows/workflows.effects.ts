@@ -572,6 +572,37 @@ export class WorkflowsEffects {
     }),
   );
 
+  @Effect({ dispatch: true })
+  workflowsImport = this.actions.pipe(
+    ofType(WorkflowActions.IMPORT_WORKFLOWS),
+    switchMap((action: WorkflowActions.ImportWorkflows) => {
+      return this.workflowService.importWorkflows(action.payload).pipe(
+        mergeMap((projects: ProjectModel[]) => {
+          this.toastrService.success(texts.IMPORT_WORKFLOWS_SUCCESS_NOTIFICATION);
+          return [
+            {
+              type: WorkflowActions.IMPORT_WORKFLOWS_SUCCESS,
+              payload: projects,
+            },
+          ];
+        }),
+        catchError((errorResponse) => {
+          if (this.isApiError(errorResponse)) {
+            const message = this.concatenateApiErrors(errorResponse as ApiErrorModel[]);
+            this.toastrService.error(message);
+          } else {
+            this.toastrService.error(texts.IMPORT_WORKFLOWS_FAILURE_NOTIFICATION);
+          }
+          return [
+            {
+              type: WorkflowActions.IMPORT_WORKFLOWS_FAILURE,
+            },
+          ];
+        }),
+      );
+    }),
+  );
+
   concatenateApiErrors(apiErrors: ApiErrorModel[]): string {
     return apiErrors.map((apiError) => apiError.message).reduce((a, b) => `${a}\n${b}`);
   }

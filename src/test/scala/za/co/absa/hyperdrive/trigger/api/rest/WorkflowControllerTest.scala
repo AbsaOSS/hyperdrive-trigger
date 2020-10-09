@@ -116,8 +116,9 @@ class WorkflowControllerTest extends AsyncFlatSpec with Matchers with MockitoSug
       WorkflowImportExportWrapper(w1, jobTemplates1),
       WorkflowImportExportWrapper(w2, jobTemplates2)
     )
-    val zipEntries = workflowWrappers.map(w => w.workflowJoined.name ->
-      ObjectMapperSingleton.getObjectMapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(w)).toMap
+    val zipEntries = Map("__MACOSX/abc" -> new Array[Byte](1)) ++
+      workflowWrappers.map(w => w.workflowJoined.name ->
+        ObjectMapperSingleton.getObjectMapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(w)).toMap
     val byteArray = createZip(zipEntries)
     val zip = new MockMultipartFile("the.zip", byteArray)
 
