@@ -15,11 +15,12 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.controllers
 
-import java.io.ByteArrayOutputStream
+import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 import java.util.concurrent.CompletableFuture
-import java.util.zip.{ZipEntry, ZipOutputStream}
+import java.util.zip.{ZipEntry, ZipInputStream, ZipOutputStream}
 
 import javax.inject.Inject
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.http.{HttpHeaders, MediaType, ResponseEntity}
@@ -28,14 +29,17 @@ import org.springframework.web.multipart.MultipartFile
 import za.co.absa.hyperdrive.trigger.ObjectMapperSingleton
 import za.co.absa.hyperdrive.trigger.api.rest.services.WorkflowService
 import za.co.absa.hyperdrive.trigger.models._
-import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, GenericError}
+import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, BulkOperationError, GenericError}
 
+import scala.collection.mutable.ArrayBuffer
 import scala.compat.java8.FutureConverters._
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.Try
 
 @RestController
 class WorkflowController @Inject()(workflowService: WorkflowService) {
+  private val logger = LoggerFactory.getLogger(this.getClass)
 
   @Value("${environment:}")
   val environment: String = ""
@@ -156,4 +160,51 @@ class WorkflowController @Inject()(workflowService: WorkflowService) {
     workflowService.convertToWorkflowJoined(workflowImport).toJava.toCompletableFuture
   }
 
+  @PostMapping(path = Array("/workflows/import"))
+  def importWorkflows(@RequestPart("file") file: MultipartFile): CompletableFuture[Seq[Project]] = {
+    val zipEntries = extractZipEntries(file.getBytes)
+    val workflowImports = zipEntries.map {
+      case (entryName, byteArray) => entryName -> Try(
+        ObjectMapperSingleton.getObjectMapper.readValue(byteArray, classOf[WorkflowImportExportWrapper])
+      )
+    }
+
+    val parsingErrors = workflowImports
+      .filter { case (_, readTry) => readTry.isFailure }
+      .map { case (entryName, readTry) =>
+        logger.error(s"Could not parse $entryName", readTry.failed.get)
+        BulkOperationError(entryName, GenericError("An error occurred while parsing this entry."))
+      }
+    if (parsingErrors.nonEmpty) {
+      throw new ApiException(parsingErrors)
+    }
+
+    workflowService.importWorkflows(workflowImports.map(_._2.get)).toJava.toCompletableFuture
+  }
+
+  private def extractZipEntries(zipByteArray: Array[Byte]) = {
+    val bais = new ByteArrayInputStream(zipByteArray)
+    val zis = new ZipInputStream(bais)
+    val zipEntries = ArrayBuffer[(String, Array[Byte])]()
+    var entry = zis.getNextEntry
+    while (entry != null) {
+      val byteArray = readEntry(zis)
+      zipEntries += (entry.getName -> byteArray)
+      zis.closeEntry()
+      entry = zis.getNextEntry
+    }
+    zis.close()
+    bais.close()
+
+    zipEntries
+  }
+
+  private def readEntry(zis: ZipInputStream) = {
+    val byteArray = new Array[Byte](10)
+    val baos = new ByteArrayOutputStream()
+    while(zis.read(byteArray) > 0) {
+      baos.write(byteArray)
+    }
+    baos.toByteArray
+  }
 }

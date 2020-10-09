@@ -41,12 +41,17 @@ case class GenericError(
 ) extends ApiError
 
 case class BulkOperationError(
-  workflowJoined: WorkflowJoined,
+  workflowIdentifier: String,
   innerError: ApiError
 ) extends ApiError {
-  override val message: String = s"${workflowJoined.name}: ${innerError.message}"
+  override val message: String = s"${workflowIdentifier}: ${innerError.message}"
   override val errorType: ApiErrorType = BulkOperationErrorType
   override def unwrapError(): ApiError = innerError
+}
+object BulkOperationError {
+  def apply(workflowJoined: WorkflowJoined, innerError: ApiError): BulkOperationError = {
+    BulkOperationError(workflowJoined.name, innerError)
+  }
 }
 
 object GenericDatabaseError extends DatabaseError("Unexpected error occurred")

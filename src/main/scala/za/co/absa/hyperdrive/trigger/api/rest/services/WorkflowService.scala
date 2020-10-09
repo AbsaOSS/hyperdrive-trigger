@@ -45,7 +45,7 @@ trait WorkflowService {
   def runWorkflow(workflowId: Long)(implicit ec: ExecutionContext): Future[Boolean]
   def runWorkflowJobs(workflowId: Long, jobIds: Seq[Long])(implicit ec: ExecutionContext): Future[Boolean]
   def exportWorkflows(workflowIds: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[WorkflowImportExportWrapper]]
-  def importWorkflows(workflowImports: Seq[WorkflowImportExportWrapper])(implicit ec: ExecutionContext): Future[Boolean]
+  def importWorkflows(workflowImports: Seq[WorkflowImportExportWrapper])(implicit ec: ExecutionContext): Future[Seq[Project]]
   def convertToWorkflowJoined(workflowImport: WorkflowImportExportWrapper)(implicit ec: ExecutionContext): Future[WorkflowJoined]
 }
 
@@ -193,15 +193,16 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
     }
   }
 
-  override def importWorkflows(workflowImports: Seq[WorkflowImportExportWrapper])(implicit ec: ExecutionContext): Future[Boolean] = {
+  override def importWorkflows(workflowImports: Seq[WorkflowImportExportWrapper])(implicit ec: ExecutionContext): Future[Seq[Project]] = {
     val userName = getUserName.apply()
     for {
       workflowJoineds <- convertToWorkflowJoineds(workflowImports)
       deactivatedWorkflows = workflowJoineds.map(workflowJoined => workflowJoined.copy(isActive = false))
       _ <- workflowValidationService.validateOnInsert(deactivatedWorkflows)
       _ <- workflowRepository.insertWorkflows(deactivatedWorkflows, userName)
+      projects <- getProjects()
     } yield {
-      true
+      projects
     }
   }
 

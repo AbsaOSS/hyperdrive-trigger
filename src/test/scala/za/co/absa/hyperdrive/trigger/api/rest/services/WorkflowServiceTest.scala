@@ -168,9 +168,9 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
 
   "WorkflowService.getProjects" should "should return projects on some workflows" in {
     // given
-    val worfklows = Seq(
+    val workflows = Seq(
       Workflow(
-        name = "worfklowA",
+        name = "workflowA",
         isActive = true,
         project = "projectA",
         created = LocalDateTime.now(),
@@ -178,7 +178,7 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
         id = 0
       ),
       Workflow(
-        name = "worfklowB",
+        name = "workflowB",
         isActive = false,
         project = "projectB",
         created = LocalDateTime.now(),
@@ -186,7 +186,7 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
         id = 1
       )
     )
-    when(workflowRepository.getWorkflows()(any[ExecutionContext])).thenReturn(Future{worfklows})
+    when(workflowRepository.getWorkflows()(any[ExecutionContext])).thenReturn(Future{workflows})
 
     // when
     val result: Seq[Project] = await(underTest.getProjects())
@@ -282,7 +282,7 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
     )
   }
 
-  "WorkflowService.importWorkflows" should "import workflows" in {
+  "WorkflowService.importWorkflows" should "import workflows and return projects" in {
     // given
     val workflowJoined1 = WorkflowFixture.createWorkflowJoined().copy()
     val workflowJoined2 = WorkflowFixture.createTimeBasedShellScriptWorkflow("project").copy()
@@ -298,15 +298,21 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
     )
     val newJobTemplatesIdMap = newJobTemplates.map(t => t.name -> t.id).toMap
 
+    val workflows = workflowImports.map(_.workflowJoined.toWorkflow)
+    val expectedProjects = Seq(
+      Project(workflowJoined1.project, Seq(workflowJoined1.toWorkflow)),
+      Project(workflowJoined2.project, Seq(workflowJoined2.toWorkflow))
+    )
     when(jobTemplateService.getJobTemplateIdsByNames(any())(any[ExecutionContext])).thenReturn(Future{newJobTemplatesIdMap})
     when(workflowValidationService.validateOnInsert(any[Seq[WorkflowJoined]])(any())).thenReturn(Future{})
     when(workflowRepository.insertWorkflows(any(), any())(any())).thenReturn(Future { Seq(21L, 22L) })
+    when(workflowRepository.getWorkflows()(any[ExecutionContext])).thenReturn(Future{workflows})
 
     // when
-    val result = await(underTest.importWorkflows(workflowImports))
+    val actualProjects = await(underTest.importWorkflows(workflowImports))
 
     // then
-    result shouldBe true
+    actualProjects should contain theSameElementsAs expectedProjects
     val stringsCaptor: ArgumentCaptor[Seq[String]] = ArgumentCaptor.forClass(classOf[Seq[String]])
     verify(jobTemplateService).getJobTemplateIdsByNames(stringsCaptor.capture())(any())
     stringsCaptor.getValue should contain theSameElementsAs workflowImports.flatMap(_.jobTemplates.map(_.name)).distinct
