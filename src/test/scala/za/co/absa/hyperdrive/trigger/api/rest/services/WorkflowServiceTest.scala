@@ -292,7 +292,6 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
       WorkflowImportExportWrapper(workflowJoined1, jobTemplates1),
       WorkflowImportExportWrapper(workflowJoined2, jobTemplates2)
     )
-
     val newJobTemplates = Seq(
       JobTemplateFixture.GenericSparkJobTemplate.copy(id = 11),
       JobTemplateFixture.GenericShellJobTemplate.copy(id = 12)
@@ -326,13 +325,63 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
     workflowsToInsert.map(_.isActive) should contain only false
   }
 
-//  it should "fail with all job template conversion errors" in {
-//
-//  }
-//
-//  it should "fail with all validation errors" in {
-//
-//  }
+  it should "fail with all job template conversion errors" in {
+    // given
+    val workflowJoined1 = WorkflowFixture.createWorkflowJoined().copy()
+    val workflowJoined2 = WorkflowFixture.createTimeBasedShellScriptWorkflow("project").copy()
+    val jobTemplates1 = Seq(JobTemplateFixture.GenericSparkJobTemplate, JobTemplateFixture.GenericShellJobTemplate)
+    val jobTemplates2 = Seq(JobTemplateFixture.GenericShellJobTemplate)
+    val workflowImports = Seq(
+      WorkflowImportExportWrapper(workflowJoined1, jobTemplates1),
+      WorkflowImportExportWrapper(workflowJoined2, jobTemplates2)
+    )
+
+    when(jobTemplateService.getJobTemplateIdsByNames(any())(any[ExecutionContext])).thenReturn(Future{Map[String, Long]()})
+
+    // when
+    val result = the [ApiException] thrownBy await(underTest.importWorkflows(workflowImports))
+
+    // then
+    result.apiErrors should have size 2
+    result.apiErrors.head.errorType shouldBe BulkOperationErrorType
+    result.apiErrors.head.message should include(workflowJoined1.name)
+    result.apiErrors.head.message should include(JobTemplateFixture.GenericSparkJobTemplate.name)
+    result.apiErrors.head.message should include(JobTemplateFixture.GenericShellJobTemplate.name)
+
+    result.apiErrors(1).errorType shouldBe BulkOperationErrorType
+    result.apiErrors(1).message should include(workflowJoined2.name)
+    result.apiErrors(1).message should include(JobTemplateFixture.GenericShellJobTemplate.name)
+  }
+
+  it should "fail in case of validation errors" in {
+    // given
+    val workflowJoined1 = WorkflowFixture.createWorkflowJoined().copy()
+    val workflowJoined2 = WorkflowFixture.createTimeBasedShellScriptWorkflow("project").copy()
+    val jobTemplates1 = Seq(JobTemplateFixture.GenericSparkJobTemplate, JobTemplateFixture.GenericShellJobTemplate)
+    val jobTemplates2 = Seq(JobTemplateFixture.GenericShellJobTemplate)
+    val workflowImports = Seq(
+      WorkflowImportExportWrapper(workflowJoined1, jobTemplates1),
+      WorkflowImportExportWrapper(workflowJoined2, jobTemplates2)
+    )
+
+    val newJobTemplates = Seq(
+      JobTemplateFixture.GenericSparkJobTemplate.copy(id = 11),
+      JobTemplateFixture.GenericShellJobTemplate.copy(id = 12)
+    )
+    val newJobTemplatesIdMap = newJobTemplates.map(t => t.name -> t.id).toMap
+
+    val error = Seq(ValidationError("validationError"), ValidationError("validationError2"))
+
+    when(jobTemplateService.getJobTemplateIdsByNames(any())(any[ExecutionContext])).thenReturn(Future{newJobTemplatesIdMap})
+    when(workflowValidationService.validateOnInsert(any[Seq[WorkflowJoined]])(any()))
+      .thenReturn(Future.failed(new ApiException(error)))
+
+    // when
+    val result = the [ApiException] thrownBy await(underTest.importWorkflows(workflowImports))
+
+    // then
+    result.apiErrors should contain theSameElementsAs error
+  }
 
   "WorkflowService.convertToWorkflowJoined" should "match existing job templates by name and update job template ids" in {
     val workflowJoined = WorkflowFixture.createWorkflowJoined().copy()
@@ -360,8 +409,7 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
 
     val result = the [ApiException] thrownBy await(underTest.convertToWorkflowJoined(workflowImport))
 
-    result.apiErrors.head.errorType shouldBe BulkOperationErrorType
-    result.apiErrors.head.message should include(workflowJoined.name)
+    result.apiErrors.head.errorType shouldBe GenericErrorType
     result.apiErrors.head.message should include(JobTemplateFixture.GenericSparkJobTemplate.name)
     result.apiErrors.head.message should include(JobTemplateFixture.GenericShellJobTemplate.name)
   }

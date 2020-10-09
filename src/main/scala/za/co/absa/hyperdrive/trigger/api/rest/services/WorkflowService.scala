@@ -211,7 +211,9 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
         workflowJoineds.head
       } else {
         throw new RuntimeException(s"Expected size 1, got ${workflowJoineds.size}")
-      }, identity)
+      }, {
+        case ex: ApiException => new ApiException(ex.apiErrors.map(_.unwrapError()))
+      })
   }
 
   def convertToWorkflowJoineds(workflowImports: Seq[WorkflowImportExportWrapper])(implicit ec: ExecutionContext): Future[Seq[WorkflowJoined]] = {

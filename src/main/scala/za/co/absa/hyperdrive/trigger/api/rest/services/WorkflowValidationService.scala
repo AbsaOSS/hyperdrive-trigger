@@ -38,7 +38,9 @@ trait WorkflowValidationService {
 class WorkflowValidationServiceImpl @Inject()(override val workflowRepository: WorkflowRepository)
   extends WorkflowValidationService {
   override def validateOnInsert(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Unit] = {
-    validateOnInsert(Seq(workflow))
+    validateOnInsert(Seq(workflow)).transform(identity, {
+      case ex: ApiException => new ApiException(ex.apiErrors.map(_.unwrapError()))
+    })
   }
 
   override def validateOnInsert(workflows: Seq[WorkflowJoined])(implicit ec: ExecutionContext): Future[Unit] = {
@@ -55,7 +57,9 @@ class WorkflowValidationServiceImpl @Inject()(override val workflowRepository: W
       validateProjectIsNotEmpty(updatedWorkflow),
       validateWorkflowData(originalWorkflow, updatedWorkflow)
     )
-    combine(validators)
+    combine(validators).transform(identity, {
+      case ex: ApiException => new ApiException(ex.apiErrors.map(_.unwrapError()))
+    })
   }
 
   private def combine(validators: Seq[Future[Seq[ApiError]]])(implicit ec: ExecutionContext) = {
