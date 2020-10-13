@@ -46,7 +46,7 @@ alter column "job_template_id" SET NOT NULL;
 
 -- delete later to enable simple rollback
 alter table "job_definition"
-rename column "job_type" to "deprecated_job_type"
+rename column "job_type" to "deprecated_job_type";
 
 alter table "job_definition"
 alter column "deprecated_job_type" drop not null;

@@ -15,4 +15,4 @@
 
 
 alter table "job_definition"
-drop column "deprecated_job_type"
+drop column "deprecated_job_type";
