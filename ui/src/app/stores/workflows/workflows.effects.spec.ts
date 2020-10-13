@@ -33,6 +33,7 @@ import {
   SwitchWorkflowActiveState,
   UpdateWorkflow,
   UpdateWorkflowsIsActive,
+  ImportWorkflows,
 } from './workflows.actions';
 
 import { WorkflowsEffects } from './workflows.effects';
@@ -1053,6 +1054,55 @@ describe('WorkflowsEffects', () => {
       expect(toastrServiceSpy).toHaveBeenCalledWith(texts.IMPORT_WORKFLOW_FAILURE_NOTIFICATION);
       expect(routerSpy).toHaveBeenCalledTimes(1);
       expect(routerSpy).toHaveBeenCalledWith(absoluteRoutes.WORKFLOWS);
+    });
+  });
+
+  describe('workflowsImport', () => {
+    it('should import multiple workflows', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'success');
+      const w1 = WorkflowModelFactory.create('w1', true, 'p1', new Date(Date.now()), new Date(Date.now()), 1);
+      const w2 = WorkflowModelFactory.create('w2', true, 'p1', new Date(Date.now()), new Date(Date.now()), 2);
+      const w3 = WorkflowModelFactory.create('w3', true, 'p2', new Date(Date.now()), new Date(Date.now()), 3);
+      const projects = [ProjectModelFactory.create('p1', [w1, w2]), ProjectModelFactory.create('p2', [w3])];
+
+      const file: File = new File(['content'], 'workflows.zip');
+      const action = new ImportWorkflows(file);
+      mockActions = cold('-a', { a: action });
+
+      const importWorkflowResponse = cold('-a|', { a: projects });
+
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowsActions.IMPORT_WORKFLOWS_SUCCESS,
+          payload: projects,
+        },
+      });
+
+      spyOn(workflowService, 'importWorkflows').and.returnValue(importWorkflowResponse);
+
+      expect(underTest.workflowsImport).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.IMPORT_WORKFLOWS_SUCCESS_NOTIFICATION);
+    });
+
+    it('should display failure when service throws an exception while importing workflow', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'error');
+      const file: File = new File(['content'], 'workflows.zip');
+
+      const action = new ImportWorkflows(file);
+      mockActions = cold('-a', { a: action });
+
+      const importWorkflowResponse = cold('-#|');
+      spyOn(workflowService, 'importWorkflows').and.returnValue(importWorkflowResponse);
+
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowsActions.IMPORT_WORKFLOWS_FAILURE,
+        },
+      });
+      expect(underTest.workflowsImport).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.IMPORT_WORKFLOWS_FAILURE_NOTIFICATION);
     });
   });
 });
