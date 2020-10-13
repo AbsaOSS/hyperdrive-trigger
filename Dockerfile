@@ -12,7 +12,7 @@
 # limitations under the License.
 #
 
-FROM tomcat:9-jdk8-openjdk
+FROM openjdk:8-jre-alpine
 
 LABEL \
     vendor="ABSA" \
@@ -20,5 +20,35 @@ LABEL \
     license="Apache License, version 2.0" \
     name="Hyperdrive Workflow Manager"
 
+ENV TOMCAT_MAJOR=9 \
+    TOMCAT_VERSION=9.0.37 \
+    TOMCAT_HOME=/opt/tomcat \
+    CATALINA_HOME=/opt/tomcat
+
+ENV PATH $CATALINA_HOME/bin:$PATH
+
+EXPOSE 8080
+
 ARG WAR_FILE
-COPY ${WAR_FILE} /usr/local/tomcat/webapps/hyperdrive_trigger.war
+
+RUN apk upgrade --update && \
+    apk add --update curl && \
+    apk add --no-cache krb5-pkinit krb5-dev krb5 && \
+    curl -jksSL -o /tmp/apache-tomcat.tar.gz http://archive.apache.org/dist/tomcat/tomcat-${TOMCAT_MAJOR}/v${TOMCAT_VERSION}/bin/apache-tomcat-${TOMCAT_VERSION}.tar.gz && \
+    gunzip /tmp/apache-tomcat.tar.gz && \
+    tar -C /opt -xf /tmp/apache-tomcat.tar && \
+    ln -s /opt/apache-tomcat-${TOMCAT_VERSION} ${TOMCAT_HOME} && \
+    rm -rf ${TOMCAT_HOME}/webapps/* && \
+    apk del curl && \
+    rm -rf /tmp/* /var/cache/apk/*
+
+COPY ${WAR_FILE} ${TOMCAT_HOME}/webapps/hyperdrive_trigger.war
+COPY files/* /opt/tomcat/
+COPY files/* /hyperdrive/
+COPY files/* /opt/hyperdrive/
+
+RUN chmod 755 -R /opt/hyperdrive/
+
+RUN /opt/hyperdrive/kinit.sh
+
+CMD ["catalina.sh", "run"]

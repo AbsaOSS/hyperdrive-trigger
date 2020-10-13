@@ -4,3 +4,4 @@
 # Allow files and directories
 !/Dockerfile
 !/target/*.war
+!/files/
