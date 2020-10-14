@@ -40,6 +40,9 @@ import { JobService } from '../../services/job/job.service';
 import { JobForRunModel } from '../../models/jobForRun.model';
 import { EMPTY } from 'rxjs';
 import { ApiErrorModel } from '../../models/errors/apiError.model';
+import { BulkOperationErrorModel } from '../../models/errors/bulkOperationError.model';
+import { UtilService } from '../../services/util/util.service';
+import groupBy from 'lodash/groupBy';
 
 @Injectable()
 export class WorkflowsEffects {
@@ -51,7 +54,7 @@ export class WorkflowsEffects {
     private store: Store<AppState>,
     private router: Router,
     private toastrService: ToastrService,
-    private route: ActivatedRoute,
+    private utilService: UtilService,
   ) {}
 
   @Effect({ dispatch: true })
@@ -587,9 +590,24 @@ export class WorkflowsEffects {
           ];
         }),
         catchError((errorResponse) => {
-          if (this.isApiError(errorResponse)) {
-            const message = this.concatenateApiErrors(errorResponse as ApiErrorModel[]);
-            this.toastrService.error(message);
+          if (this.isBulkOperationError(errorResponse)) {
+            const errorGroups: { [key: string]: BulkOperationErrorModel[] } = groupBy(
+              errorResponse as BulkOperationErrorModel[],
+              'workflowIdentifier',
+            );
+            const errorMessageGroups: { [key: string]: string[] } = {};
+            for (const [key, value] of Object.entries(errorGroups)) {
+              errorMessageGroups[key] = value.map((bulkOperationError) => bulkOperationError.innerError.message);
+            }
+
+            const message = this.utilService.generateBulkErrorMessage(errorMessageGroups);
+            this.toastrService.error(message, texts.IMPORT_MULTI_WORKFLOWS_FAILURE_NOTIFICATION, {
+              closeButton: true,
+              disableTimeOut: true,
+              tapToDismiss: false,
+              enableHtml: true,
+              toastClass: 'toastr-multi-import-error ngx-toastr',
+            });
           } else {
             this.toastrService.error(texts.IMPORT_WORKFLOWS_FAILURE_NOTIFICATION);
           }
@@ -613,6 +631,14 @@ export class WorkflowsEffects {
 
   isInstanceOfApiError(object: any): object is ApiErrorModel {
     return 'message' in object;
+  }
+
+  isBulkOperationError(errorResponse: any): boolean {
+    return Array.isArray(errorResponse) && errorResponse.every((err) => this.isInstanceOfBulkOperationError(err));
+  }
+
+  isInstanceOfBulkOperationError(object: any): object is BulkOperationErrorModel {
+    return 'innerError' in object;
   }
 
   isBackendValidationError(errorResponse: any): boolean {

@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright 2018 ABSA Group Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,12 +13,17 @@
  * limitations under the License.
  */
 
-@import "../node_modules/ngx-toastr/toastr.css";
-.toastr-multi-import-error {
-  width: 400px !important;
-}
+import { ApiErrorModel } from './apiError.model';
 
-ng-deep, .clr-popover-content.datepicker{
+export type BulkOperationErrorModel = {
+  workflowIdentifier: string;
+  innerError: ApiErrorModel;
+  message: string;
+  errorType: { name: string };
+};
 
-  z-index: 9000
+export class BulkOperationErrorModelFactory {
+  static create(workflowIdentifier: string, innerError: ApiErrorModel): BulkOperationErrorModel {
+    return { workflowIdentifier: workflowIdentifier, innerError: innerError, message: innerError.message, errorType: innerError.errorType };
+  }
 }

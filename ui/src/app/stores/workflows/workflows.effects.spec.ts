@@ -71,6 +71,8 @@ import { WorkflowHistoryService } from '../../services/workflowHistory/workflow-
 import { HistoryModel, HistoryModelFactory } from '../../models/historyModel';
 import { JobForRunModelFactory } from '../../models/jobForRun.model';
 import { JobService } from '../../services/job/job.service';
+import { UtilService } from 'src/app/services/util/util.service';
+import { BulkOperationErrorModelFactory } from 'src/app/models/errors/bulkOperationError.model';
 
 describe('WorkflowsEffects', () => {
   let underTest: WorkflowsEffects;
@@ -80,6 +82,7 @@ describe('WorkflowsEffects', () => {
   let mockActions: Observable<any>;
   let mockStore: MockStore;
   let toastrService: ToastrService;
+  let utilService: UtilService;
   let router: Router;
 
   const initialAppState = {
@@ -122,6 +125,7 @@ describe('WorkflowsEffects', () => {
     mockActions = TestBed.inject(Actions);
     mockStore = TestBed.inject(MockStore);
     toastrService = TestBed.inject(ToastrService);
+    utilService = TestBed.inject(UtilService);
     router = TestBed.inject(Router);
   });
 
@@ -1103,6 +1107,38 @@ describe('WorkflowsEffects', () => {
       expect(underTest.workflowsImport).toBeObservable(expected);
       expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
       expect(toastrServiceSpy).toHaveBeenCalledWith(texts.IMPORT_WORKFLOWS_FAILURE_NOTIFICATION);
+    });
+
+    it('should display bulk operation errors grouped by workflow', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'error');
+      const utilServiceSpy = spyOn(utilService, 'generateBulkErrorMessage').and.returnValue('sometext');
+      const file: File = new File(['content'], 'workflows.zip');
+
+      const action = new ImportWorkflows(file);
+      mockActions = cold('-a', { a: action });
+
+      const errorResponse = [
+        BulkOperationErrorModelFactory.create('workflow1', ApiErrorModelFactory.create('message11', { name: 'wrongName' })),
+        BulkOperationErrorModelFactory.create('workflow2', ApiErrorModelFactory.create('message21', { name: 'wrongName' })),
+        BulkOperationErrorModelFactory.create('workflow1', ApiErrorModelFactory.create('message12', { name: 'wrongName' })),
+        BulkOperationErrorModelFactory.create('workflow2', ApiErrorModelFactory.create('message22', { name: 'wrongName' })),
+      ];
+      const importWorkflowResponse = cold('-#|', null, errorResponse);
+      spyOn(workflowService, 'importWorkflows').and.returnValue(importWorkflowResponse);
+
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowsActions.IMPORT_WORKFLOWS_FAILURE,
+        },
+      });
+      expect(underTest.workflowsImport).toBeObservable(expected);
+      const expectedErrorMessagesGroup = {
+        workflow1: ['message11', 'message12'],
+        workflow2: ['message21', 'message22'],
+      };
+      expect(utilServiceSpy).toHaveBeenCalledWith(expectedErrorMessagesGroup);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith('sometext', texts.IMPORT_MULTI_WORKFLOWS_FAILURE_NOTIFICATION, jasmine.anything());
     });
   });
 });
