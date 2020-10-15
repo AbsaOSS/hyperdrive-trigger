@@ -1138,7 +1138,7 @@ describe('WorkflowsEffects', () => {
       };
       expect(utilServiceSpy).toHaveBeenCalledWith(expectedErrorMessagesGroup);
       expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
-      expect(toastrServiceSpy).toHaveBeenCalledWith('sometext', texts.IMPORT_MULTI_WORKFLOWS_FAILURE_NOTIFICATION, jasmine.anything());
+      expect(toastrServiceSpy).toHaveBeenCalledWith('sometext', texts.IMPORT_WORKFLOWS_BULK_FAILURE_TITLE, jasmine.anything());
     });
   });
 });

@@ -601,7 +601,7 @@ export class WorkflowsEffects {
             }
 
             const message = this.utilService.generateBulkErrorMessage(errorMessageGroups);
-            this.toastrService.error(message, texts.IMPORT_MULTI_WORKFLOWS_FAILURE_NOTIFICATION, {
+            this.toastrService.error(message, texts.IMPORT_WORKFLOWS_BULK_FAILURE_TITLE, {
               closeButton: true,
               disableTimeOut: true,
               tapToDismiss: false,
