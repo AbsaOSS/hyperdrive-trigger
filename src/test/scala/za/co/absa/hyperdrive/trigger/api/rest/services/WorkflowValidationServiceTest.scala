@@ -15,12 +15,13 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{eq => eqTo, _}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, Matchers}
 import za.co.absa.hyperdrive.trigger.TestUtils.await
-import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, ApiException, ValidationError}
+import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, ApiException, BulkOperationError, ValidationError}
 import za.co.absa.hyperdrive.trigger.persistance.WorkflowRepository
 
 import scala.collection.immutable.SortedMap
@@ -38,7 +39,7 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
     // given
     val underTest = new WorkflowValidationServiceImpl(workflowRepository)
     val workflowJoined = WorkflowFixture.createWorkflowJoined()
-    when(workflowRepository.existsWorkflow(eqTo(workflowJoined.name))(any[ExecutionContext])).thenReturn(Future{false})
+    when(workflowRepository.existsWorkflows(eqTo(Seq(workflowJoined.name)))(any[ExecutionContext])).thenReturn(Future{Seq()})
 
     // when
     await(underTest.validateOnInsert(workflowJoined))
@@ -48,48 +49,71 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
     1 shouldBe 1
   }
 
-  it should "fail if the workflow name already exists" in {
+  "validateOnInsert" should "return None if all entities are valid" in {
     // given
     val underTest = new WorkflowValidationServiceImpl(workflowRepository)
-    val workflow = WorkflowFixture.createWorkflowJoined()
-    when(workflowRepository.existsWorkflow(eqTo(workflow.name))(any[ExecutionContext])).thenReturn(Future{true})
+    val workflows = Seq(WorkflowFixture.createWorkflowJoined(), WorkflowFixture.createTimeBasedShellScriptWorkflow("p"))
+    when(workflowRepository.existsWorkflows(any())(any[ExecutionContext])).thenReturn(Future{Seq()})
 
     // when
-    val result = the [ApiException] thrownBy await(underTest.validateOnInsert(workflow))
+    await(underTest.validateOnInsert(workflows))
+
+    // then
+    val stringsCaptor: ArgumentCaptor[Seq[String]] = ArgumentCaptor.forClass(classOf[Seq[String]])
+    verify(workflowRepository).existsWorkflows(stringsCaptor.capture())(any())
+    stringsCaptor.getValue should contain theSameElementsAs workflows.map(_.name)
+  }
+
+  it should "fail if one of the workflow names already exists" in {
+    // given
+    val underTest = new WorkflowValidationServiceImpl(workflowRepository)
+    val workflow1 = WorkflowFixture.createWorkflowJoined()
+    val workflows = Seq(workflow1, WorkflowFixture.createTimeBasedShellScriptWorkflow("p"))
+    when(workflowRepository.existsWorkflows(any())(any[ExecutionContext])).thenReturn(Future{Seq(workflow1.name)})
+
+    // when
+    val result = the [ApiException] thrownBy await(underTest.validateOnInsert(workflows))
 
     // then
     result.apiErrors should have size 1
-    result.apiErrors.head shouldBe ValidationError("Workflow name already exists")
+    result.apiErrors.head shouldBe BulkOperationError(workflow1, ValidationError("Workflow name already exists"))
   }
 
-  it should "fail if the project name is empty" in {
+  it should "fail if one of the project names is empty" in {
     // given
     val underTest = new WorkflowValidationServiceImpl(workflowRepository)
     val workflow = WorkflowFixture.createWorkflowJoined()
     val invalidWorkflow = workflow.copy(project = "")
-    when(workflowRepository.existsWorkflow(eqTo(invalidWorkflow.name))(any[ExecutionContext])).thenReturn(Future{false})
+    val workflows = Seq(workflow, invalidWorkflow)
+    when(workflowRepository.existsWorkflows(any())(any[ExecutionContext])).thenReturn(Future{Seq()})
 
     // when
-    val result = the [ApiException] thrownBy await(underTest.validateOnInsert(invalidWorkflow))
+    val result = the [ApiException] thrownBy await(underTest.validateOnInsert(workflows))
 
     // then
     result.apiErrors should have size 1
-    result.apiErrors.head shouldBe ValidationError("Project must not be empty")
+    result.apiErrors.head shouldBe BulkOperationError(invalidWorkflow, ValidationError("Project must not be empty"))
   }
 
-  it should "fail if the project name is not defined" in {
+  it should "fail and report all errors" in {
     // given
     val underTest = new WorkflowValidationServiceImpl(workflowRepository)
-    val workflow = WorkflowFixture.createWorkflowJoined()
-    val invalidWorkflow = workflow.copy(project = null)
-    when(workflowRepository.existsWorkflow(eqTo(invalidWorkflow.name))(any[ExecutionContext])).thenReturn(Future{false})
+    val workflow = WorkflowFixture.createWorkflowJoined().copy(name = "workflow")
+    val invalidWorkflow = workflow.copy(name = "invalidWorkflow", project = null)
+    val invalidWorkflow2 = workflow.copy(name = "invalidWorkflow2", project = "")
+    when(workflowRepository.existsWorkflows(any())(any[ExecutionContext])).thenReturn(Future{Seq(invalidWorkflow2.name)})
 
     // when
-    val result = the [ApiException] thrownBy await(underTest.validateOnInsert(invalidWorkflow))
+    val workflows = Seq(workflow, invalidWorkflow, invalidWorkflow2)
+    val result = the [ApiException] thrownBy await(underTest.validateOnInsert(workflows))
 
     // then
-    result.apiErrors should have size 1
-    result.apiErrors.head shouldBe ValidationError("Project must be set")
+    result.apiErrors should have size 3
+    result.apiErrors should contain theSameElementsAs Seq(
+      BulkOperationError(invalidWorkflow, ValidationError("Project must be set")),
+      BulkOperationError(invalidWorkflow2, ValidationError("Project must not be empty")),
+      BulkOperationError(invalidWorkflow2, ValidationError("Workflow name already exists"))
+    )
   }
 
   "validateOnUpdate" should "return None if entity is valid" in {

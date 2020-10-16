@@ -33,4 +33,17 @@ export class UtilService {
       .get<QuartzExpressionDetailModel>(api.GET_QUARTZ_DETAIL, { params: params, observe: 'response' })
       .pipe(map((_) => _.body));
   }
+
+  generateBulkErrorMessage(errorMessagesGroups: { [key: string]: string[] }): string {
+    let bulkErrorMessage = '<ul>';
+    for (const [groupName, messages] of Object.entries(errorMessagesGroups)) {
+      bulkErrorMessage += `<li>${groupName}<ul>`;
+      for (const errorMessage of messages) {
+        bulkErrorMessage += `<li>${errorMessage}</li>`;
+      }
+      bulkErrorMessage += '</ul></li>';
+    }
+    bulkErrorMessage += '</ul>';
+    return bulkErrorMessage;
+  }
 }

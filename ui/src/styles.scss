@@ -14,6 +14,9 @@
  */
 
 @import "../node_modules/ngx-toastr/toastr.css";
+.toastr-multi-import-error {
+  width: 400px !important;
+}
 
 ng-deep, .clr-popover-content.datepicker{
 
