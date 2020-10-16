@@ -116,7 +116,7 @@ class WorkflowControllerTest extends AsyncFlatSpec with Matchers with MockitoSug
       WorkflowImportExportWrapper(w1, jobTemplates1),
       WorkflowImportExportWrapper(w2, jobTemplates2)
     )
-    val zipEntries = Map("__MACOSX/abc" -> new Array[Byte](1)) ++
+    val zipEntries = Map("__MACOSX/abc" -> new Array[Byte](1), "somedir/" -> new Array[Byte](1)) ++
       workflowWrappers.map(w => w.workflowJoined.name ->
         ObjectMapperSingleton.getObjectMapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(w)).toMap
     val byteArray = createZip(zipEntries)
@@ -155,6 +155,18 @@ class WorkflowControllerTest extends AsyncFlatSpec with Matchers with MockitoSug
     result.apiErrors should have size 2
     result.apiErrors.head.message should include("name1")
     result.apiErrors(1).message should include("name2")
+  }
+
+  it should "throw an exception if the zip didn't contain any workflow" in {
+    // given
+    val invalidZip = new MockMultipartFile("the.zip", new Array[Byte](1))
+
+    // when
+    val result = the [ApiException] thrownBy underTest.importWorkflows(invalidZip).get()
+
+    // then
+    result.apiErrors should have size 1
+    result.apiErrors.head.message should include ("The given zip file does not contain any workflows")
   }
 
   private def readEntry(zis: ZipInputStream) = {

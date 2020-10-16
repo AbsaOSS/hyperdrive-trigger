@@ -163,6 +163,9 @@ class WorkflowController @Inject()(workflowService: WorkflowService) {
   @PostMapping(path = Array("/workflows/import"))
   def importWorkflows(@RequestPart("file") file: MultipartFile): CompletableFuture[Seq[Project]] = {
     val zipEntries = extractZipEntries(file.getBytes)
+    if (zipEntries.isEmpty) {
+      throw new ApiException(GenericError("The given zip file does not contain any workflows"))
+    }
     val workflowImports = zipEntries.map {
       case (entryName, byteArray) => entryName -> Try(
         ObjectMapperSingleton.getObjectMapper.readValue(byteArray, classOf[WorkflowImportExportWrapper])
@@ -188,9 +191,11 @@ class WorkflowController @Inject()(workflowService: WorkflowService) {
     val zipEntries = ArrayBuffer[(String, Array[Byte])]()
     var entry = zis.getNextEntry
     while (entry != null) {
-      if (!entry.getName.startsWith("__MACOSX/")) {
-        val byteArray = readEntry(zis)
-        zipEntries += (entry.getName -> byteArray)
+      if (!entry.isDirectory) {
+        if (!entry.getName.startsWith("__MACOSX/")) {
+          val byteArray = readEntry(zis)
+          zipEntries += (entry.getName -> byteArray)
+        }
       }
       zis.closeEntry()
       entry = zis.getNextEntry
