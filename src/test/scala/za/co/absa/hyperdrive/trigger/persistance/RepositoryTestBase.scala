@@ -119,8 +119,13 @@ trait RepositoryTestBase extends Repository {
 
     val w1 = Workflow(name = "workflow1", isActive = true, project = "project1", created = LocalDateTime.now(), updated = None, id = 100)
     val w2 = Workflow(name = "workflow2", isActive = true, project = "project1", created = LocalDateTime.now(), updated = None, id = 101)
-    val w3 = Workflow(name = "workflow3", isActive = false, project = "project2", created = LocalDateTime.now(), updated = None, id = 102)
-    val workflows: Seq[Workflow] = Seq(w1, w2, w3)
+    val w3 = Workflow(name = "workflow3", isActive = true, project = "project2", created = LocalDateTime.now(), updated = None, id = 102)
+    val w4 = Workflow(name = "workflow4", isActive = true, project = "project2", created = LocalDateTime.now(), updated = None, id = 103)
+    val w5 = Workflow(name = "workflow5", isActive = false, project = "project2", created = LocalDateTime.now(), updated = None, id = 104)
+    val w6 = Workflow(name = "workflow6", isActive = false, project = "project2", created = LocalDateTime.now(), updated = None, id = 105)
+    val w7 = Workflow(name = "workflow7", isActive = false, project = "project2", created = LocalDateTime.now(), updated = None, id = 106)
+
+    val workflows: Seq[Workflow] = Seq(w1, w2, w3, w4, w5, w6, w7)
 
     val w1di1 = DagInstance(status = DagInstanceStatuses.InQueue, triggeredBy = triggeredBy, started = LocalDateTime.now(), finished = None, workflowId = w1.id, id = 200)
     val w1di2 = DagInstance(status = DagInstanceStatuses.InQueue, triggeredBy = triggeredBy, started = LocalDateTime.now(), finished = None, workflowId = w1.id, id = 201)
@@ -146,26 +151,52 @@ trait RepositoryTestBase extends Repository {
     val dd1 = DagDefinition(workflowId = w1.id, id = 400)
     val dd2 = DagDefinition(workflowId = w2.id, id = 401)
     val dd3 = DagDefinition(workflowId = w3.id, id = 402)
-    val dagDefinitions = Seq(dd1, dd2, dd3)
+    val dd4 = DagDefinition(workflowId = w4.id, id = 403)
+    val dd5 = DagDefinition(workflowId = w5.id, id = 404)
+    val dd6 = DagDefinition(workflowId = w6.id, id = 405)
+    val dd7 = DagDefinition(workflowId = w7.id, id = 406)
+    val dagDefinitions = Seq(dd1, dd2, dd3, dd4, dd5, dd6, dd7)
 
-    val jd1dd1 = JobDefinition(dagDefinitionId = 400, jobTemplateId = 100, name = "jobDefinition1", jobParameters = JobParameters(Map(), Map(), Map()), order = 1, id = 501)
-    val jd2dd1 = JobDefinition(dagDefinitionId = 400, jobTemplateId = 101, name = "jobDefinition2", jobParameters = JobParameters(Map(), Map(), Map()), order = 2, id = 502)
-    val jd1dd2 = JobDefinition(dagDefinitionId = 401, jobTemplateId = 101, name = "jobDefinition1", jobParameters = JobParameters(Map(), Map(), Map()), order = 1, id = 503)
-    val jd1dd3 = JobDefinition(dagDefinitionId = 402, jobTemplateId = 101, name = "jobDefinition1", jobParameters = JobParameters(Map(), Map(), Map()), order = 1, id = 504)
+    val genericJd = JobDefinition(dagDefinitionId = -1, jobTemplateId = -1, name = "generic", jobParameters = JobParameters(Map(), Map(), Map()), order = 1, id = -1)
+    val jd1dd1 = genericJd.copy(dagDefinitionId = 400, jobTemplateId = 100, name = "jobDefinition1", order = 1, id = 501)
+    val jd2dd1 = genericJd.copy(dagDefinitionId = 400, jobTemplateId = 101, name = "jobDefinition2", order = 2, id = 502)
+    val jd1dd2 = genericJd.copy(dagDefinitionId = 401, jobTemplateId = 101, name = "jobDefinition1", order = 1, id = 503)
+    val jd1dd3 = genericJd.copy(dagDefinitionId = 402, jobTemplateId = 101, name = "jobDefinition1", order = 1, id = 504)
+    val jd1dd4 = genericJd.copy(dagDefinitionId = 403, jobTemplateId = 101, name = "jobDefinition1", order = 1, id = 505)
+    val jd1dd5 = genericJd.copy(dagDefinitionId = 404, jobTemplateId = 101, name = "jobDefinition1", order = 1, id = 506)
+    val jd1dd6 = genericJd.copy(dagDefinitionId = 405, jobTemplateId = 101, name = "jobDefinition1", order = 1, id = 507)
+    val jd1dd7 = genericJd.copy(dagDefinitionId = 406, jobTemplateId = 101, name = "jobDefinition1", order = 1, id = 508)
 
-    val jobDefinitions = Seq(jd1dd1, jd2dd1, jd1dd2, jd1dd3)
+    val jobDefinitions = Seq(jd1dd1, jd2dd1, jd1dd2, jd1dd3, jd1dd4, jd1dd5, jd1dd6, jd1dd7)
   }
 
   object TestSensors {
     val activeTimeW100: (Sensor, Workflow) = (Sensor(TestData.w1.id, SensorTypes.Time, Properties(100L, Settings(Map.empty, Map.empty), Map.empty), 100), TestData.w1)
-    val activeAbsaKafka: (Sensor, Workflow) = (Sensor(TestData.w1.id, SensorTypes.AbsaKafka, Properties(101L, Settings(Map.empty, Map.empty), Map.empty), 101), TestData.w1)
-    val activeKafka: (Sensor, Workflow) = (Sensor(TestData.w2.id, SensorTypes.Kafka, Properties(102L, Settings(Map.empty, Map.empty), Map.empty), 102), TestData.w2)
-    val activeTimeW101: (Sensor, Workflow) = (Sensor(TestData.w2.id, SensorTypes.Time, Properties(103L, Settings(Map.empty, Map.empty), Map.empty), 103), TestData.w2)
-    val inactiveTime: (Sensor, Workflow) = (Sensor(TestData.w3.id, SensorTypes.Time, Properties(104L, Settings(Map.empty, Map.empty), Map.empty), 104), TestData.w3)
-    val inactiveAbsaKafka: (Sensor, Workflow) = (Sensor(TestData.w3.id, SensorTypes.AbsaKafka, Properties(105L, Settings(Map.empty, Map.empty), Map.empty), 105), TestData.w3)
-    val inactiveKafka: (Sensor, Workflow) = (Sensor(TestData.w3.id, SensorTypes.Kafka, Properties(106L, Settings(Map.empty, Map.empty), Map.empty), 106), TestData.w3)
+    val activeAbsaKafka: (Sensor, Workflow) = (Sensor(TestData.w2.id, SensorTypes.AbsaKafka, Properties(101L, Settings(Map.empty, Map.empty), Map.empty), 101), TestData.w2)
+    val activeKafka: (Sensor, Workflow) = (Sensor(TestData.w3.id, SensorTypes.Kafka, Properties(102L, Settings(Map.empty, Map.empty), Map.empty), 102), TestData.w3)
+    val activeTimeW101: (Sensor, Workflow) = (Sensor(TestData.w4.id, SensorTypes.Time, Properties(103L, Settings(Map.empty, Map.empty), Map.empty), 103), TestData.w4)
+    val inactiveTime: (Sensor, Workflow) = (Sensor(TestData.w5.id, SensorTypes.Time, Properties(104L, Settings(Map.empty, Map.empty), Map.empty), 104), TestData.w5)
+    val inactiveAbsaKafka: (Sensor, Workflow) = (Sensor(TestData.w6.id, SensorTypes.AbsaKafka, Properties(105L, Settings(Map.empty, Map.empty), Map.empty), 105), TestData.w6)
+    val inactiveKafka: (Sensor, Workflow) = (Sensor(TestData.w7.id, SensorTypes.Kafka, Properties(106L, Settings(Map.empty, Map.empty), Map.empty), 106), TestData.w7)
 
     val allSensors: Seq[(Sensor, Workflow)] = Seq(activeTimeW100, activeAbsaKafka, activeKafka, activeTimeW101, inactiveTime, inactiveAbsaKafka, inactiveKafka)
   }
 
+  object TestDataJoined {
+    val wj1 = createWorkflowJoined(TestData.w1, TestSensors.activeTimeW100._1, TestData.dd1, Seq(TestData.jd1dd1, TestData.jd2dd1))
+    val wj2 = createWorkflowJoined(TestData.w2, TestSensors.activeAbsaKafka._1, TestData.dd2, Seq(TestData.jd1dd2))
+
+    private def createWorkflowJoined(workflow: Workflow, sensor: Sensor, dagDefinition: DagDefinition, jobDefinitions: Seq[JobDefinition]) = {
+      val dagDefinitionJoined = DagDefinitionJoined(dagDefinition, jobDefinitions)
+      WorkflowJoined(
+        workflow.name,
+        workflow.isActive,
+        workflow.project,
+        workflow.created,
+        workflow.updated,
+        sensor,
+        dagDefinitionJoined,
+        workflow.id)
+    }
+  }
 }

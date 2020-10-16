@@ -60,7 +60,7 @@ class TestDataGeneratorLocal extends FlatSpec with Matchers with SpringIntegrati
     } yield {
       val workflow = WorkflowFixture.createKafkaOffloadingWorkflow(s"Project $i")
       val result = await(workflowService.createWorkflow(workflow))
-      result.isRight shouldBe true
+      result.name shouldBe workflow.name
     }
   }
 
@@ -73,7 +73,7 @@ class TestDataGeneratorLocal extends FlatSpec with Matchers with SpringIntegrati
     } yield {
       val workflow = WorkflowFixture.createTimeBasedShellScriptWorkflow(s"Project $i")
       val result = await(workflowService.createWorkflow(workflow))
-      result.isRight shouldBe true
+      result.name shouldBe workflow.name
     }
   }
 

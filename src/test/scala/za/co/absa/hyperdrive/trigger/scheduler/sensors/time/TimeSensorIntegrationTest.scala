@@ -90,7 +90,7 @@ class TimeSensorIntegrationTest extends FlatSpec with Matchers with BeforeAndAft
     val dagDefinitionJoined = DagDefinitionJoined(-1L, Seq(jobDefinition1, jobDefinition2))
     val workflowJoined = WorkflowJoined("Time-Sensor Workflow", true, "some-project", LocalDateTime.now(), None, sensor, dagDefinitionJoined)
     val userName = "fakeUserName"
-    val workflowId = await(workflowRepository.insertWorkflow(workflowJoined, userName)).right.get
+    val workflowId = await(workflowRepository.insertWorkflow(workflowJoined, userName))
     val insertedWorkflow = await(workflowRepository.getWorkflow(workflowId))
 
     // Start Quartz and register sensor
