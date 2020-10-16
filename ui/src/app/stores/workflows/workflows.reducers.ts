@@ -691,6 +691,25 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
           loading: false,
         },
       };
+    case WorkflowsActions.IMPORT_WORKFLOWS:
+      return {
+        ...state,
+        loading: true,
+      };
+    case WorkflowsActions.IMPORT_WORKFLOWS_SUCCESS: {
+      let sortedProjects = [...action.payload];
+      sortedProjects = sortProjectsAndWorkflows(sortedProjects);
+      return {
+        ...state,
+        loading: false,
+        projects: sortedProjects,
+      };
+    }
+    case WorkflowsActions.IMPORT_WORKFLOWS_FAILURE:
+      return {
+        ...state,
+        loading: false,
+      };
     default:
       return state;
   }

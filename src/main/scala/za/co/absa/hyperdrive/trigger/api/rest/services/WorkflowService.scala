@@ -18,8 +18,8 @@ package za.co.absa.hyperdrive.trigger.api.rest.services
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
-import za.co.absa.hyperdrive.trigger.models._
-import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, GenericError}
+import za.co.absa.hyperdrive.trigger.models.{Project, ProjectInfo, Workflow, WorkflowImportExportWrapper, WorkflowJoined}
+import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, BulkOperationError, GenericError}
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, WorkflowRepository}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -45,7 +45,8 @@ trait WorkflowService {
   def runWorkflow(workflowId: Long)(implicit ec: ExecutionContext): Future[Boolean]
   def runWorkflowJobs(workflowId: Long, jobIds: Seq[Long])(implicit ec: ExecutionContext): Future[Boolean]
   def exportWorkflows(workflowIds: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[WorkflowImportExportWrapper]]
-  def importWorkflow(workflowImport: WorkflowImportExportWrapper)(implicit ec: ExecutionContext): Future[WorkflowJoined]
+  def importWorkflows(workflowImports: Seq[WorkflowImportExportWrapper])(implicit ec: ExecutionContext): Future[Seq[Project]]
+  def convertToWorkflowJoined(workflowImport: WorkflowImportExportWrapper)(implicit ec: ExecutionContext): Future[WorkflowJoined]
 }
 
 @Service
@@ -192,39 +193,74 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
     }
   }
 
-  override def importWorkflow(workflowImport: WorkflowImportExportWrapper)(implicit ec: ExecutionContext): Future[WorkflowJoined] = {
-    val jobTemplatesNames = workflowImport.jobTemplates.map(_.name)
-    val oldIdNameMap = workflowImport.jobTemplates.map(jobTemplate => jobTemplate.id -> jobTemplate.name).toMap
-    jobTemplateService.getJobTemplateIdsByNames(jobTemplatesNames).flatMap(
-      newNameIdMap => {
-        val missingTemplates = jobTemplatesNames.toSet.diff(newNameIdMap.keySet)
-        if (missingTemplates.nonEmpty) {
-          Future.failed(new ApiException(
-            GenericError(s"The following Job Templates don't exist yet and have to be created before importing" +
-              s" this workflow: ${missingTemplates.reduce(_ + ", " + _)}")
-          ))
-        } else {
-          def getNewId(oldTemplateId: Long) = {
-            val name = oldIdNameMap.get(oldTemplateId) match {
-              case Some(x) => x
-              case None => throw new IllegalArgumentException(s"Template Id $oldTemplateId is not referenced in $oldIdNameMap")
-            }
-            newNameIdMap.get(name) match {
-              case Some(x) => x
-              case None =>
-                // should never happen
-                throw new IllegalArgumentException(s"Template name $name is not reference in $newNameIdMap")
-            }
-          }
-          val workflowWithResolvedJobTemplateIds = workflowImport.workflowJoined
-            .copy(dagDefinitionJoined = workflowImport.workflowJoined.dagDefinitionJoined
-              .copy(jobDefinitions = workflowImport.workflowJoined.dagDefinitionJoined.jobDefinitions
-                .map(jobDefinition => jobDefinition.copy(jobTemplateId = getNewId(jobDefinition.jobTemplateId)))))
+  override def importWorkflows(workflowImports: Seq[WorkflowImportExportWrapper])(implicit ec: ExecutionContext): Future[Seq[Project]] = {
+    val userName = getUserName.apply()
+    for {
+      workflowJoineds <- convertToWorkflowJoineds(workflowImports)
+      deactivatedWorkflows = workflowJoineds.map(workflowJoined => workflowJoined.copy(isActive = false))
+      _ <- workflowValidationService.validateOnInsert(deactivatedWorkflows)
+      _ <- workflowRepository.insertWorkflows(deactivatedWorkflows, userName)
+      projects <- getProjects()
+    } yield {
+      projects
+    }
+  }
 
-          Future{ workflowWithResolvedJobTemplateIds }
+  override def convertToWorkflowJoined(workflowImport: WorkflowImportExportWrapper)(implicit ec: ExecutionContext): Future[WorkflowJoined] = {
+    convertToWorkflowJoineds(Seq(workflowImport)).transform(workflowJoineds =>
+      if (workflowJoineds.size == 1) {
+        workflowJoineds.head
+      } else {
+        throw new RuntimeException(s"Expected size 1, got ${workflowJoineds.size}")
+      }, {
+        case ex: ApiException => new ApiException(ex.apiErrors.map(_.unwrapError()))
+      })
+  }
+
+  private def convertToWorkflowJoineds(workflowImports: Seq[WorkflowImportExportWrapper])(implicit ec: ExecutionContext): Future[Seq[WorkflowJoined]] = {
+    val jobTemplatesNames = workflowImports.flatMap(_.jobTemplates.map(_.name)).distinct
+    jobTemplateService.getJobTemplateIdsByNames(jobTemplatesNames).flatMap {
+      newNameIdMap =>
+        val workflowJoinedsEit = workflowImports.map { workflowImport =>
+          val oldIdNameMap = workflowImport.jobTemplates.map(jobTemplate => jobTemplate.id -> jobTemplate.name).toMap
+          val missingTemplates = oldIdNameMap.values.toSet.diff(newNameIdMap.keySet)
+          if (missingTemplates.nonEmpty) {
+            Left(
+              BulkOperationError(workflowImport.workflowJoined,
+                GenericError(s"The following Job Templates don't exist yet and have to be created before importing" +
+              s" this workflow: ${missingTemplates.reduce(_ + ", " + _)}")))
+          } else {
+            def getNewId(oldTemplateId: Long) = {
+              val name = oldIdNameMap.get(oldTemplateId) match {
+                case Some(x) => x
+                case None => throw new IllegalArgumentException(s"Template Id $oldTemplateId is not referenced in $oldIdNameMap")
+              }
+              newNameIdMap.get(name) match {
+                case Some(x) => x
+                case None =>
+                  // should never happen
+                  throw new IllegalArgumentException(s"Template name $name is not reference in $newNameIdMap")
+              }
+            }
+
+            val workflowWithResolvedJobTemplateIds = workflowImport.workflowJoined
+              .copy(dagDefinitionJoined = workflowImport.workflowJoined.dagDefinitionJoined
+                .copy(jobDefinitions = workflowImport.workflowJoined.dagDefinitionJoined.jobDefinitions
+                  .map(jobDefinition => jobDefinition.copy(jobTemplateId = getNewId(jobDefinition.jobTemplateId)))))
+
+            Right(workflowWithResolvedJobTemplateIds)
+          }
         }
-      }
-    )
+
+        if (workflowJoinedsEit.forall(_.isRight)) {
+          Future { workflowJoinedsEit.map(_.right.get) }
+        } else {
+          val allErrors = workflowJoinedsEit
+            .filter(_.isLeft)
+            .map(_.left.get)
+          Future.failed(new ApiException(allErrors))
+        }
+    }
   }
 
   private[services] def getUserName: () => String = {

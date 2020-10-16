@@ -92,6 +92,10 @@ export const SET_WORKFLOW_FILE = 'SET_WORKFLOW_FILE';
 export const IMPORT_WORKFLOW = 'IMPORT_WORKFLOW';
 export const IMPORT_WORKFLOW_FAILURE = 'IMPORT_WORKFLOW_FAILURE';
 
+export const IMPORT_WORKFLOWS = 'IMPORT_WORKFLOWS';
+export const IMPORT_WORKFLOWS_SUCCESS = 'IMPORT_WORKFLOWS_SUCCESS';
+export const IMPORT_WORKFLOWS_FAILURE = 'IMPORT_WORKFLOWS_FAILURE';
+
 export class InitializeWorkflows implements Action {
   readonly type = INITIALIZE_WORKFLOWS;
 }
@@ -350,6 +354,20 @@ export class ImportWorkflowFailure implements Action {
   readonly type = IMPORT_WORKFLOW_FAILURE;
 }
 
+export class ImportWorkflows implements Action {
+  readonly type = IMPORT_WORKFLOWS;
+  constructor(public payload: File) {}
+}
+
+export class ImportWorkflowsSuccess implements Action {
+  readonly type = IMPORT_WORKFLOWS_SUCCESS;
+  constructor(public payload: ProjectModel[]) {}
+}
+
+export class ImportWorkflowsFailure implements Action {
+  readonly type = IMPORT_WORKFLOWS_FAILURE;
+}
+
 export type WorkflowsActions =
   | InitializeWorkflows
   | InitializeWorkflowsSuccess
@@ -402,4 +420,7 @@ export type WorkflowsActions =
   | ExportWorkflowsDone
   | SetWorkflowFile
   | ImportWorkflow
-  | ImportWorkflowFailure;
+  | ImportWorkflowFailure
+  | ImportWorkflows
+  | ImportWorkflowsSuccess
+  | ImportWorkflowsFailure;

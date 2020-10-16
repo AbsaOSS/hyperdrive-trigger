@@ -21,6 +21,7 @@ import { Store } from '@ngrx/store';
 import { absoluteRoutes } from '../../../constants/routes.constants';
 import {
   ExportWorkflows,
+  ImportWorkflows,
   LoadJobsForRun,
   SetWorkflowFile,
   SetWorkflowsFilters,
@@ -60,7 +61,9 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
   ignoreRefresh = false;
 
   isWorkflowImportOpen = false;
+  isMultiWorkflowsImportOpen = false;
   workflowFile: File = undefined;
+  multiWorkflowsFile: File = undefined;
 
   constructor(private store: Store<AppState>, private confirmationDialogService: ConfirmationDialogService, private router: Router) {
     this.routerSubscription = router.events.pipe(filter((e) => e instanceof ResolveEnd)).subscribe((e: ResolveEnd) => {
@@ -85,12 +88,20 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
     this.store.dispatch(new ExportWorkflows(ids));
   }
 
-  importWorkflow() {
+  openImportWorkflowModal() {
     this.isWorkflowImportOpen = true;
+  }
+
+  openImportMultiWorkflowsModal() {
+    this.isMultiWorkflowsImportOpen = true;
   }
 
   setWorkflowFile(files: FileList) {
     this.workflowFile = files.item(0);
+  }
+
+  setMultiWorkflowsFile(files: FileList) {
+    this.multiWorkflowsFile = files.item(0);
   }
 
   closeWorkflowImport(isSubmit: boolean) {
@@ -101,6 +112,16 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
       }
       this.isWorkflowImportOpen = false;
       this.workflowFile = undefined;
+    }
+  }
+
+  closeMultiWorkflowsImport(isSubmit: boolean) {
+    if (this.isMultiWorkflowsImportOpen) {
+      if (isSubmit) {
+        this.store.dispatch(new ImportWorkflows(this.multiWorkflowsFile));
+      }
+      this.isMultiWorkflowsImportOpen = false;
+      this.multiWorkflowsFile = undefined;
     }
   }
 
