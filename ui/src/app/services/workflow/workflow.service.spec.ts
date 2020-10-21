@@ -148,6 +148,21 @@ describe('WorkflowService', () => {
     req.flush(workflow);
   });
 
+  it('importWorkflows() should return project list', () => {
+    const workflow = WorkflowModelFactory.create('workflowName', true, 'projectName', new Date(Date.now()), new Date(Date.now()), 0);
+    const projects = [ProjectModelFactory.create('newProject', [workflow])];
+    const file: File = new File(['content'], 'workflows.zip');
+
+    underTest.importWorkflows(file).subscribe(
+      (data) => expect(data).toEqual(projects),
+      (error) => fail(error),
+    );
+
+    const req = httpTestingController.expectOne(api.IMPORT_WORKFLOWS);
+    expect(req.request.method).toEqual('POST');
+    req.flush(projects);
+  });
+
   it('createWorkflow() should return created workflow', () => {
     const workflow = WorkflowJoinedModelFactory.create('name', true, 'project', undefined, undefined, undefined, 0);
 

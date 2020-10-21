@@ -27,7 +27,7 @@
             <input
               name="workflow-file-input"
               type="file"
-              id="basic-default"
+              id="single-upload"
               placeholder="Enter value here"
               accept=".json"
               (change)="setWorkflowFile($event.target.files)"
@@ -40,6 +40,36 @@
   <div class="modal-footer">
     <button type="button" class="btn btn-outline" (click)="closeWorkflowImport(false)">Cancel</button>
     <button type="button" class="btn btn-primary" [disabled]="!workflowFile" (click)="closeWorkflowImport(true)">Upload</button>
+  </div>
+</clr-modal>
+
+<clr-modal
+  [clrModalOpen]="isMultiWorkflowsImportOpen"
+  [clrModalClosable]="true"
+  [clrModalStaticBackdrop]="false"
+  (clrModalOpenChange)="closeMultiWorkflowsImport(false)">
+  <h3 class="modal-title">Upload workflow</h3>
+  <div class="modal-body">
+    <form class="clr-form">
+      <div class="clr-form-control">
+        <div class="clr-control-container">
+          <div class="clr-file-wrapper">
+            <input
+              name="multi-workflow-file-input"
+              type="file"
+              id="multi-upload"
+              placeholder="Enter value here"
+              accept=".zip"
+              (change)="setMultiWorkflowsFile($event.target.files)"
+            />
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline" (click)="closeMultiWorkflowsImport(false)">Cancel</button>
+    <button type="button" class="btn btn-primary" [disabled]="!multiWorkflowsFile" (click)="closeMultiWorkflowsImport(true)">Upload</button>
   </div>
 </clr-modal>
 
@@ -72,10 +102,22 @@
         <clr-icon shape="plus"></clr-icon>
         Create new workflow
       </button>
-      <button type="button" class="btn btn-sm btn-secondary" (click)="importWorkflow()">
-        <clr-icon shape="import"></clr-icon>
-        Import workflow
-      </button>
+      <clr-dropdown>
+        <button type="button" class="btn btn-sm btn-secondary" clrDropdownTrigger>
+          Import
+          <clr-icon shape="caret down"></clr-icon>
+        </button>
+        <clr-dropdown-menu clrPosition="bottom-left" *clrIfOpen>
+          <div aria-label="Single workflow (.json)" clrDropdownItem (click)="openImportWorkflowModal()">
+            <clr-icon shape="import"></clr-icon>
+            Single workflow (.json)
+          </div>
+          <div aria-label="Multiple workflows (.zip)" clrDropdownItem (click)="openImportMultiWorkflowsModal()">
+            <clr-icon shape="import" class="has-badge"></clr-icon>
+            Multiple workflows (.zip)
+          </div>
+        </clr-dropdown-menu>
+      </clr-dropdown>
       <button type="button" class="btn btn-sm btn-secondary" (click)="clearFilters()">
         <clr-icon shape="trash"></clr-icon>
         Clear filters

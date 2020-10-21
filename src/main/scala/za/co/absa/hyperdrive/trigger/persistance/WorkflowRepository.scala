@@ -19,7 +19,7 @@ import java.time.LocalDateTime
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype
-import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, ApiException, GenericDatabaseError}
+import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, GenericDatabaseError}
 import za.co.absa.hyperdrive.trigger.models.{ProjectInfo, _}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -29,7 +29,8 @@ trait WorkflowRepository extends Repository {
   val workflowHistoryRepository: WorkflowHistoryRepository
 
   def insertWorkflow(workflow: WorkflowJoined, user: String)(implicit ec: ExecutionContext): Future[Long]
-  def existsWorkflow(name: String)(implicit ec: ExecutionContext): Future[Boolean]
+  def insertWorkflows(workflow: Seq[WorkflowJoined], user: String)(implicit ec: ExecutionContext): Future[Seq[Long]]
+  def existsWorkflows(names: Seq[String])(implicit ec: ExecutionContext): Future[Seq[String]]
   def existsOtherWorkflow(name: String, id: Long)(implicit ec: ExecutionContext): Future[Boolean]
   def getWorkflow(id: Long)(implicit ec: ExecutionContext): Future[WorkflowJoined]
   def getWorkflows(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[WorkflowJoined]]
@@ -52,28 +53,48 @@ class WorkflowRepositoryImpl(override val workflowHistoryRepository: WorkflowHis
 
   override def insertWorkflow(workflow: WorkflowJoined, user: String)(implicit ec: ExecutionContext): Future[Long] = {
     db.run(
-      (for {
-        workflowId <- workflowTable returning workflowTable.map(_.id) += workflow.toWorkflow.copy(created = LocalDateTime.now())
-        sensorId <- sensorTable returning sensorTable.map(_.id) += workflow.sensor.copy(workflowId = workflowId)
-        dagId <- dagDefinitionTable returning dagDefinitionTable.map(_.id) += workflow.dagDefinitionJoined.toDag().copy(workflowId = workflowId)
-        jobId <- jobDefinitionTable returning jobDefinitionTable.map(_.id) ++= workflow.dagDefinitionJoined.jobDefinitions.map(_.copy(dagDefinitionId = dagId))
-      } yield {
-        workflowId
-      }).flatMap(id => {
-        getSingleWorkflowJoined(id).map(
-          workflowUpdated => workflowHistoryRepository.create(workflowUpdated, user)
-        ).flatMap(_.map(_ => id))
-      }).transactionally.asTry.map {
-        case Success(workflowId) => workflowId
-        case Failure(ex) =>
-          logger.error(s"Unexpected error occurred when inserting workflow $workflow", ex)
-          throw new ApiException(GenericDatabaseError)
-      }
+      insertWorkflowInternal(workflow, user)
+        .transactionally.asTry.map {
+          case Success(workflowId) => workflowId
+          case Failure(ex) =>
+            logger.error(s"Unexpected error occurred when inserting workflow $workflow", ex)
+            throw new ApiException(GenericDatabaseError)
+        }
     )
   }
 
-  override def existsWorkflow(name: String)(implicit ec: ExecutionContext): Future[Boolean] = db.run(
-    workflowTable.filter(_.name === name).exists.result
+  private def insertWorkflowInternal(workflow: WorkflowJoined, user: String)(implicit ec: ExecutionContext) = {
+    (for {
+      workflowId <- workflowTable returning workflowTable.map(_.id) += workflow.toWorkflow.copy(created = LocalDateTime.now())
+      _ <- sensorTable returning sensorTable.map(_.id) += workflow.sensor.copy(workflowId = workflowId)
+      dagId <- dagDefinitionTable returning dagDefinitionTable.map(_.id) += workflow.dagDefinitionJoined.toDag().copy(workflowId = workflowId)
+      _ <- jobDefinitionTable returning jobDefinitionTable.map(_.id) ++= workflow.dagDefinitionJoined.jobDefinitions.map(_.copy(dagDefinitionId = dagId))
+    } yield {
+      workflowId
+    }).flatMap(id => {
+      getSingleWorkflowJoined(id).map(
+        workflowUpdated => workflowHistoryRepository.create(workflowUpdated, user)
+      ).flatMap(_.map(_ => id))
+    })
+  }
+
+  override def insertWorkflows(workflows: Seq[WorkflowJoined], user: String)(implicit ec: ExecutionContext): Future[Seq[Long]] = {
+    db.run(
+      workflows
+        .map(workflow => insertWorkflowInternal(workflow, user).map(id => Seq(id)))
+        .reduceLeftOption(_.zipWith(_)(_ ++ _))
+        .getOrElse(DBIO.successful(Seq()))
+        .transactionally.asTry.map {
+          case Success(ids) => ids
+          case Failure(ex) =>
+            logger.error(s"Unexpected error occurred when inserting workflows $workflows", ex)
+            throw new ApiException(GenericDatabaseError)
+        }
+    )
+  }
+
+  override def existsWorkflows(names: Seq[String])(implicit ec: ExecutionContext): Future[Seq[String]] = db.run(
+    workflowTable.filter(_.name inSetBind names).map(_.name).result
   )
 
   override def existsOtherWorkflow(name: String, id: Long)(implicit ec: ExecutionContext): Future[Boolean] = db.run(
@@ -92,26 +113,27 @@ class WorkflowRepositoryImpl(override val workflowHistoryRepository: WorkflowHis
     } yield {
       (w, s, dd, jd)
     }).result.map {
-      allWsddjd => allWsddjd.groupBy(_._1.id).map(wsddjdGroup => {
-        val wsddjd = wsddjdGroup._2
-        val w = wsddjd.head._1
-        val s = wsddjd.head._2
-        val dd = wsddjd.head._3
-        WorkflowJoined(
-          name = w.name,
-          isActive = w.isActive,
-          project = w.project,
-          created = w.created,
-          updated = w.updated,
-          sensor = s,
-          dagDefinitionJoined = DagDefinitionJoined(
-            workflowId = dd.workflowId,
-            jobDefinitions = wsddjd.map(_._4),
-            id = dd.id
-          ),
-          id = w.id
-        )
-      }).toSeq
+      allWsddjd =>
+        allWsddjd.groupBy(_._1.id).map(wsddjdGroup => {
+          val wsddjd = wsddjdGroup._2
+          val w = wsddjd.head._1
+          val s = wsddjd.head._2
+          val dd = wsddjd.head._3
+          WorkflowJoined(
+            name = w.name,
+            isActive = w.isActive,
+            project = w.project,
+            created = w.created,
+            updated = w.updated,
+            sensor = s,
+            dagDefinitionJoined = DagDefinitionJoined(
+              workflowId = dd.workflowId,
+              jobDefinitions = wsddjd.map(_._4),
+              id = dd.id
+            ),
+            id = w.id
+          )
+        }).toSeq
     }
   }
 
