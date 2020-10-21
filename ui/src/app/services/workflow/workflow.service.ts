@@ -195,7 +195,7 @@ export class WorkflowService {
           PartValidationFactory.create(false, undefined, 1),
         ),
       ]),
-      DynamicFormPartFactory.create('Absa-Kafka', [
+      DynamicFormPartFactory.createWithLabel('Absa-Kafka', 'Kafka Ingestion Token', [
         FormPartFactory.create(
           'Topic',
           'properties.settings.variables.topic',
