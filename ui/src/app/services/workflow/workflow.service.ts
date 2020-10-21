@@ -106,6 +106,22 @@ export class WorkflowService {
       );
   }
 
+  importWorkflows(zipFile: File): Observable<ProjectModel[]> {
+    const formData: FormData = new FormData();
+    formData.append('file', zipFile, zipFile.name);
+
+    return this.httpClient
+      .post<ProjectModel[]>(api.IMPORT_WORKFLOWS, formData, { observe: 'response' })
+      .pipe(
+        map((_) => {
+          return _.body;
+        }),
+        catchError((errorResponse: HttpErrorResponse) => {
+          return throwError(errorResponse.error);
+        }),
+      );
+  }
+
   createWorkflow(workflowRequest: WorkflowJoinedModel): Observable<WorkflowJoinedModel> {
     return this.httpClient
       .put<WorkflowJoinedModel>(api.CREATE_WORKFLOW, workflowRequest, { observe: 'response' })
