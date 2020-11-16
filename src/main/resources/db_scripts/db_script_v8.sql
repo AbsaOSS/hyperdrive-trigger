@@ -95,7 +95,7 @@ create table "job_template" (
   "maps" VARCHAR NOT NULL,
   "key_value_pairs" VARCHAR NOT NULL,
   "id" BIGSERIAL NOT NULL PRIMARY KEY,
-  "form_config" VARCHAR NOT NULL DEFAULT 'unknown';
+  "form_config" VARCHAR NOT NULL DEFAULT 'unknown'
 );
 
 alter table "job_instance"

@@ -43,12 +43,5 @@ RUN apk upgrade --update && \
     rm -rf /tmp/* /var/cache/apk/*
 
 COPY ${WAR_FILE} ${TOMCAT_HOME}/webapps/hyperdrive_trigger.war
-COPY files/* /opt/tomcat/
-COPY files/* /hyperdrive/
-COPY files/* /opt/hyperdrive/
-
-RUN chmod 755 -R /opt/hyperdrive/
-
-RUN /opt/hyperdrive/kinit.sh
 
 CMD ["catalina.sh", "run"]

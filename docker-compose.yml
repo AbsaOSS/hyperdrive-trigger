@@ -12,14 +12,31 @@
 # limitations under the License.
 
 # This docker-compose script is only for development purposes! Passwords should never be stored in plaintext!
+
 version: "3"
 
 services:
+  postgres_container:
+    image: postgres:11
+    volumes:
+      - ./target/classes/db_scripts/db_script_v8.sql:/docker-entrypoint-initdb.d/db.sql
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=testdb
+
   hyperdrive-trigger:
     build: .  # Without build, docker-compose would search dockerhub for the image and fail.
-    image: bigdatarnd-hyperdrive-trigger:latest
+    image: absaoss/hyperdrive-trigger:latest
+    depends_on:
+      - postgres_container
     environment:
-      - JAVA_OPTS=
+      - JAVA_OPTS=-Ddb.user=postgres -Ddb.url=jdbc:postgresql://postgres_container:5432/testdb -Ddb.password=password
     ports:
-      - 7123:7123
-      - 5432:5432
+      - 8080:8080
+    volumes:
+      - /tmp/data/:/data/
+
+volumes:
+  postgres-data:
