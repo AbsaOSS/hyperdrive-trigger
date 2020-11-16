@@ -32,8 +32,9 @@ import {
   SwitchWorkflowActiveState,
   SetWorkflowsSort,
   LoadJobsForRun,
-  ExportWorkflow,
+  ExportWorkflows,
   SetWorkflowFile,
+  ImportWorkflows,
 } from '../../../stores/workflows/workflows.actions';
 
 describe('WorkflowsHomeComponent', () => {
@@ -95,13 +96,13 @@ describe('WorkflowsHomeComponent', () => {
 
     fixture.detectChanges();
     fixture.whenStable().then(() => {
-      expect(storeSpy).toHaveBeenCalledWith(new ExportWorkflow(id));
+      expect(storeSpy).toHaveBeenCalledWith(new ExportWorkflows([id]));
     });
   }));
 
-  it('importWorkflow() should set is workflow import variable to true', async(() => {
+  it('openImportWorkflowModal() should set is workflow import variable to true', async(() => {
     expect(underTest.isWorkflowImportOpen).toBeFalsy();
-    underTest.importWorkflow();
+    underTest.openImportWorkflowModal();
 
     fixture.detectChanges();
     fixture.whenStable().then(() => {
@@ -171,6 +172,79 @@ describe('WorkflowsHomeComponent', () => {
         expect(routerSpy).toHaveBeenCalledWith([absoluteRoutes.IMPORT_WORKFLOW]);
         expect(storeSpy).toHaveBeenCalled();
         expect(storeSpy).toHaveBeenCalledWith(new SetWorkflowFile(file));
+      });
+    });
+  }));
+
+  it('openImportMutliWorkflowsModal() should set isMultiWorkflowsImportOpen to true', async(() => {
+    expect(underTest.isMultiWorkflowsImportOpen).toBeFalsy();
+    underTest.openImportMultiWorkflowsModal();
+
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(underTest.isMultiWorkflowsImportOpen).toBeTruthy();
+    });
+  }));
+
+  it('setMultiWorkflowsFile() should set multiWorkflowsFile', async(() => {
+    const dataTransfer = new DataTransfer();
+    const file: File = new File(['content'], 'workflows.zip');
+    dataTransfer.items.add(file);
+    const fileList: FileList = dataTransfer.files;
+
+    expect(underTest.multiWorkflowsFile).toBeUndefined();
+    underTest.setMultiWorkflowsFile(fileList);
+
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(underTest.multiWorkflowsFile).toBeDefined();
+    });
+  }));
+
+  it('closeMultiWorkflowsImport() should close modal and remove multi workflow file when is submitted is false', async(() => {
+    const isSubmitted = false;
+    const file: File = new File(['content'], 'workflows.zip');
+    const storeSpy = spyOn(store, 'dispatch');
+
+    underTest.isMultiWorkflowsImportOpen = true;
+    underTest.multiWorkflowsFile = file;
+
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(underTest.multiWorkflowsFile).toBeDefined();
+      expect(underTest.isMultiWorkflowsImportOpen).toBeTruthy();
+
+      underTest.closeMultiWorkflowsImport(isSubmitted);
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(underTest.multiWorkflowsFile).toBeUndefined();
+        expect(underTest.isMultiWorkflowsImportOpen).toBeFalsy();
+        expect(storeSpy).toHaveBeenCalledTimes(0);
+      });
+    });
+  }));
+
+  it('closeMultiWorkflowsImport() should close modal, remove workflow file and dispatch and navigate to import when is submitted is true', async(() => {
+    const isSubmitted = true;
+    const file: File = new File(['content'], 'workflows.zip');
+    const storeSpy = spyOn(store, 'dispatch');
+
+    underTest.isMultiWorkflowsImportOpen = true;
+    underTest.multiWorkflowsFile = file;
+
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(underTest.multiWorkflowsFile).toBeDefined();
+      expect(underTest.isMultiWorkflowsImportOpen).toBeTruthy();
+
+      underTest.closeMultiWorkflowsImport(isSubmitted);
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(underTest.multiWorkflowsFile).toBeUndefined();
+        expect(underTest.isMultiWorkflowsImportOpen).toBeFalsy();
+
+        expect(storeSpy).toHaveBeenCalled();
+        expect(storeSpy).toHaveBeenCalledWith(new ImportWorkflows(file));
       });
     });
   }));

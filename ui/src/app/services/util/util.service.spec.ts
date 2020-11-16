@@ -49,4 +49,20 @@ describe('UtilService', () => {
     expect(req.request.method).toEqual('GET');
     req.flush(response);
   });
+
+  it('generateBulkErrorMessage() should return formatted error message', () => {
+    const errorMessages = {
+      workflow1: ['message11', 'message12'],
+      workflow2: ['message21', 'message22'],
+    };
+    const expected =
+      '<ul>' +
+      '<li>workflow1<ul><li>message11</li><li>message12</li></ul></li>' +
+      '<li>workflow2<ul><li>message21</li><li>message22</li></ul></li>' +
+      '</ul>';
+
+    const actual = underTest.generateBulkErrorMessage(errorMessages);
+
+    expect(actual).toEqual(expected);
+  });
 });

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -14,16 +13,17 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models.errors
+import { ApiErrorModel } from './apiError.model';
 
-object ApiErrorTypes {
+export type BulkOperationErrorModel = {
+  workflowIdentifier: string;
+  innerError: ApiErrorModel;
+  message: string;
+  errorType: { name: string };
+};
 
-  sealed abstract class ApiErrorType(val name: String) {
-    override def toString: String = name
+export class BulkOperationErrorModelFactory {
+  static create(workflowIdentifier: string, innerError: ApiErrorModel): BulkOperationErrorModel {
+    return { workflowIdentifier: workflowIdentifier, innerError: innerError, message: innerError.message, errorType: innerError.errorType };
   }
-
-  case object DatabaseErrorType extends ApiErrorType("databaseError")
-  case object ValidationErrorType extends ApiErrorType("validationError")
-  case object GenericErrorType extends ApiErrorType("genericError")
-  case object BulkOperationErrorType extends ApiErrorType("bulkOperationError")
 }

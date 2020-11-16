@@ -654,12 +654,12 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
           isOpen: false,
         },
       };
-    case WorkflowsActions.EXPORT_WORKFLOW:
+    case WorkflowsActions.EXPORT_WORKFLOWS:
       return {
         ...state,
         loading: true,
       };
-    case WorkflowsActions.EXPORT_WORKFLOW_DONE:
+    case WorkflowsActions.EXPORT_WORKFLOWS_DONE:
       return {
         ...state,
         loading: false,
@@ -690,6 +690,25 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
           workflowFile: undefined,
           loading: false,
         },
+      };
+    case WorkflowsActions.IMPORT_WORKFLOWS:
+      return {
+        ...state,
+        loading: true,
+      };
+    case WorkflowsActions.IMPORT_WORKFLOWS_SUCCESS: {
+      let sortedProjects = [...action.payload];
+      sortedProjects = sortProjectsAndWorkflows(sortedProjects);
+      return {
+        ...state,
+        loading: false,
+        projects: sortedProjects,
+      };
+    }
+    case WorkflowsActions.IMPORT_WORKFLOWS_FAILURE:
+      return {
+        ...state,
+        loading: false,
       };
     default:
       return state;

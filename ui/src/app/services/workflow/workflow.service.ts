@@ -70,14 +70,14 @@ export class WorkflowService {
       .pipe(map((_) => _.body));
   }
 
-  exportWorkflow(id: number): Observable<{ blob: Blob; fileName: string }> {
-    const params = new HttpParams().set('id', id.toString());
+  exportWorkflows(ids: number[]): Observable<{ blob: Blob; fileName: string }> {
+    const params = new HttpParams().set('jobIds', ids.toString());
 
-    return this.httpClient.get(api.EXPORT_WORKFLOW, { params: params, observe: 'response', responseType: 'blob' }).pipe(
+    return this.httpClient.get(api.EXPORT_WORKFLOWS, { params: params, observe: 'response', responseType: 'blob' }).pipe(
       map((response: HttpResponse<Blob>) => {
         const contentDisposition = response.headers.get('content-disposition') || '';
         const matches = /filename=([^;]+)/gi.exec(contentDisposition);
-        const fileName = matches[1] || `workflow-${id}`;
+        const fileName = matches[1] || `workflow`;
 
         return {
           blob: response.body,
@@ -96,6 +96,22 @@ export class WorkflowService {
 
     return this.httpClient
       .post<WorkflowJoinedModel>(api.IMPORT_WORKFLOW, formData, { observe: 'response' })
+      .pipe(
+        map((_) => {
+          return _.body;
+        }),
+        catchError((errorResponse: HttpErrorResponse) => {
+          return throwError(errorResponse.error);
+        }),
+      );
+  }
+
+  importWorkflows(zipFile: File): Observable<ProjectModel[]> {
+    const formData: FormData = new FormData();
+    formData.append('file', zipFile, zipFile.name);
+
+    return this.httpClient
+      .post<ProjectModel[]>(api.IMPORT_WORKFLOWS, formData, { observe: 'response' })
       .pipe(
         map((_) => {
           return _.body;
@@ -179,7 +195,7 @@ export class WorkflowService {
           PartValidationFactory.create(false, undefined, 1),
         ),
       ]),
-      DynamicFormPartFactory.create('Absa-Kafka', [
+      DynamicFormPartFactory.createWithLabel('Absa-Kafka', 'Kafka Ingestion Token', [
         FormPartFactory.create(
           'Topic',
           'properties.settings.variables.topic',
