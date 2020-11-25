@@ -16,12 +16,14 @@
 
 package za.co.absa.hyperdrive.trigger.configuration.liquibase
 
+import javax.annotation.PostConstruct
 import liquibase.integration.spring.SpringLiquibase
 import liquibase.{Contexts, LabelExpression, Liquibase}
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties
 import org.springframework.boot.context.properties.EnableConfigurationProperties
+import org.springframework.context.{ApplicationContext, ApplicationContextAware}
 import org.springframework.context.annotation.Configuration
 import za.co.absa.hyperdrive.trigger.persistance.Repository
 
@@ -29,7 +31,7 @@ import za.co.absa.hyperdrive.trigger.persistance.Repository
 @EnableConfigurationProperties(Array(classOf[LiquibaseProperties] ) )
 class LiquibaseConfiguration(properties: LiquibaseProperties) extends SpringLiquibase with Repository {
   private val logger = LoggerFactory.getLogger(this.getClass)
-  @Value("${db.ignore.outdated.schema}")
+  @Value("${db.ignore.outdated.schema:false}")
   val ignoreOutdatedSchema: Boolean = false
 
   override def afterPropertiesSet(): Unit = {
@@ -57,7 +59,7 @@ class LiquibaseConfiguration(properties: LiquibaseProperties) extends SpringLiqu
       if (ignoreOutdatedSchema) {
         logger.warn(message)
       } else {
-        throw new IllegalStateException(message)
+        liquibase.update(contexts)
       }
     } else {
       logger.debug("Database schema is up-to-date")
