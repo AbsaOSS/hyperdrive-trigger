@@ -33,7 +33,7 @@
   </clr-dg-action-bar>
 
   <clr-dg-column [clrDgField]="jobTemplateColumns.NAME" [clrFilterValue]>
-    <ng-container *clrDgHideableColumn="{hidden: false}">Template job name</ng-container>
+    <ng-container *clrDgHideableColumn="{hidden: false}">Job template name</ng-container>
     <clr-dg-filter [clrDgFilter]="templateNameFilter">
       <app-string-filter #templateNameFilter [property]="jobTemplateColumns.NAME"
                          [removeFiltersSubject]="removeFiltersSubject">
