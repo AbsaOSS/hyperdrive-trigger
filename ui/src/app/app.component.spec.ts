@@ -13,16 +13,21 @@
  * limitations under the License.
  */
 
-import { TestBed, async } from '@angular/core/testing';
+import { TestBed, async, ComponentFixture } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ClarityModule } from '@clr/angular';
 import { provideMockStore, MockStore } from '@ngrx/store/testing';
 import { AppComponent } from './app.component';
 import * as fromApp from './stores/app.reducers';
 import { selectAuthState } from './stores/app.reducers';
+import { Router } from '@angular/router';
 
 describe('AppComponent', () => {
+  let underTest: AppComponent;
+  let fixture: ComponentFixture<AppComponent>;
   let mockStore: MockStore<fromApp.AppState>;
+  let mockRouter: Router;
+
   const initialAuthState = {
     username: 'test-user',
     isAuthenticated: true,
@@ -52,6 +57,9 @@ describe('AppComponent', () => {
     }).compileComponents();
 
     mockStore = TestBed.inject(MockStore);
+    mockRouter = TestBed.inject(Router);
+    fixture = TestBed.createComponent(AppComponent);
+    underTest = fixture.componentInstance;
   }));
 
   it('should create the app', () => {
@@ -68,7 +76,7 @@ describe('AppComponent', () => {
 
     const compiled = fixture.nativeElement;
     expect(compiled.querySelector('.title').textContent).toBe('Hyperdrive');
-    expect(compiled.querySelector('.header-actions').textContent).toContain('test-user');
+    expect(compiled.querySelectorAll('.header-actions')[1].textContent).toContain('test-user');
   });
 
   it('should render neither the title nor the username if the user is not authenticated', () => {
@@ -80,5 +88,25 @@ describe('AppComponent', () => {
     const compiled = fixture.nativeElement;
     expect(compiled.querySelector('.title')).toBeFalsy();
     expect(compiled.querySelector('.header-actions')).toBeFalsy();
+  });
+
+  it('isActive(base) should return true if current rout contains base', () => {
+    const urlBase = 'urlBase';
+    const routerSpy = spyOnProperty(mockRouter, 'url', 'get').and.returnValue(`prefix/${urlBase}/suffix`);
+
+    const result = underTest.isActive(urlBase);
+
+    expect(routerSpy).toHaveBeenCalledTimes(1);
+    expect(result).toBeTrue();
+  });
+
+  it('isActive(base) should return false if current rout does not contain base', () => {
+    const urlBase = 'urlBase';
+    const routerSpy = spyOnProperty(mockRouter, 'url', 'get').and.returnValue(`prefix/suffix`);
+
+    const result = underTest.isActive(urlBase);
+
+    expect(routerSpy).toHaveBeenCalledTimes(1);
+    expect(result).toBeFalse();
   });
 });

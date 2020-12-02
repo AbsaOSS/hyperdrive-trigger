@@ -13,15 +13,8 @@
  * limitations under the License.
  */
 
-export type JobTemplateModel = {
-  id: number;
-  name: string;
-  formConfig: string;
-  jobType: { name: string };
+export const jobTemplateColumns = {
+  NAME: 'name',
+  FROM_CONFIG: 'formConfig',
+  JOB_TYPE: 'jobType',
 };
-
-export class JobTemplateModelFactory {
-  static create(id: number, name: string, formConfig: string, jobType: { name: string }): JobTemplateModel {
-    return { id: id, name: name, formConfig: formConfig, jobType: jobType };
-  }
-}

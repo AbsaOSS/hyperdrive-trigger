@@ -1,0 +1,89 @@
+<!--
+  ~ Copyright 2018 ABSA Group Limited
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<clr-datagrid (clrDgRefresh)="onClarityDgRefresh($event)" [clrDgLoading]="loading">
+
+  <clr-dg-action-bar>
+    <div class="btn-group">
+      <button type="button" class="btn btn-sm btn-secondary" (click)="clearFilters()">
+        <clr-icon shape="trash"></clr-icon>
+        Clear filters
+      </button>
+      <button type="button" class="btn btn-sm btn-secondary" (click)="clearSort()">
+        <clr-icon shape="trash"></clr-icon>
+        Clear sort
+      </button>
+      <button type="button" class="btn btn-sm btn-secondary" (click)="refresh()">
+        <clr-icon shape="refresh"></clr-icon>
+        Refresh
+      </button>
+    </div>
+  </clr-dg-action-bar>
+
+  <clr-dg-column [clrDgField]="jobTemplateColumns.NAME" [clrFilterValue]>
+    <ng-container *clrDgHideableColumn="{hidden: false}">Template job name</ng-container>
+    <clr-dg-filter [clrDgFilter]="templateNameFilter">
+      <app-string-filter #templateNameFilter [property]="jobTemplateColumns.NAME"
+                         [removeFiltersSubject]="removeFiltersSubject">
+      </app-string-filter>
+    </clr-dg-filter>
+  </clr-dg-column>
+  <clr-dg-column [clrDgField]="jobTemplateColumns.FROM_CONFIG">
+    <ng-container *clrDgHideableColumn="{hidden: false}">From config</ng-container>
+    <clr-dg-filter [clrDgFilter]="fromConfigFilter">
+      <app-string-filter #fromConfigFilter [property]="jobTemplateColumns.FROM_CONFIG"
+                         [removeFiltersSubject]="removeFiltersSubject">
+      </app-string-filter>
+    </clr-dg-filter>
+  </clr-dg-column>
+  <clr-dg-column [clrDgField]="jobTemplateColumns.JOB_TYPE">
+    <ng-container *clrDgHideableColumn="{hidden: false}">Job type</ng-container>
+    <clr-dg-filter [clrDgFilter]="jobTypeFilter">
+      <app-string-filter #jobTypeFilter [property]="jobTemplateColumns.JOB_TYPE"
+                         [removeFiltersSubject]="removeFiltersSubject">
+      </app-string-filter>
+    </clr-dg-filter>
+  </clr-dg-column>
+  <clr-dg-placeholder>We couldn't find any job templates!</clr-dg-placeholder>
+
+  <clr-dg-row *ngFor="let jobTemplate of jobTemplates" [clrDgItem]="jobTemplate">
+    <clr-dg-action-overflow>
+      <button type="button" class="action-item">
+        <clr-icon shape="eye"></clr-icon>
+        Show
+      </button>
+      <button type="button" class="action-item">
+        <clr-icon shape="pencil"></clr-icon>
+        Edit
+      </button>
+      <button type="button" class="action-item">
+        <clr-icon shape="close"></clr-icon>
+        Delete
+      </button>
+    </clr-dg-action-overflow>
+
+    <clr-dg-cell>{{jobTemplate.name}}</clr-dg-cell>
+    <clr-dg-cell>{{jobTemplate.formConfig}}</clr-dg-cell>
+    <clr-dg-cell>{{jobTemplate.jobType.name}}</clr-dg-cell>
+  </clr-dg-row>
+
+  <clr-dg-footer>
+    <clr-dg-pagination #pagination [clrDgPageSize]="50" [(clrDgPage)]="page"
+                       [clrDgTotalItems]="total"></clr-dg-pagination>
+    <clr-dg-page-size [clrPageSizeOptions]="[50,100,150,200,250]">Job templates per page</clr-dg-page-size>
+    {{pagination.firstItem + 1}} - {{pagination.lastItem + 1}}
+    of {{total}} job templates
+  </clr-dg-footer>
+</clr-datagrid>
