@@ -15,22 +15,22 @@
 
 <clr-datagrid (clrDgRefresh)="onClarityDgRefresh($event)" [clrDgLoading]="loading">
 
-  <clr-dg-action-bar>
-    <div class="btn-group">
-      <button type="button" class="btn btn-sm btn-secondary" (click)="clearFilters()">
-        <clr-icon shape="trash"></clr-icon>
-        Clear filters
-      </button>
-      <button type="button" class="btn btn-sm btn-secondary" (click)="clearSort()">
-        <clr-icon shape="trash"></clr-icon>
-        Clear sort
-      </button>
-      <button type="button" class="btn btn-sm btn-secondary" (click)="refresh()">
-        <clr-icon shape="refresh"></clr-icon>
-        Refresh
-      </button>
-    </div>
-  </clr-dg-action-bar>
+<!--  <clr-dg-action-bar>-->
+<!--    <div class="btn-group">-->
+<!--      <button type="button" class="btn btn-sm btn-secondary" (click)="clearFilters()">-->
+<!--        <clr-icon shape="trash"></clr-icon>-->
+<!--        Clear filters-->
+<!--      </button>-->
+<!--      <button type="button" class="btn btn-sm btn-secondary" (click)="clearSort()">-->
+<!--        <clr-icon shape="trash"></clr-icon>-->
+<!--        Clear sort-->
+<!--      </button>-->
+<!--      <button type="button" class="btn btn-sm btn-secondary" (click)="refresh()">-->
+<!--        <clr-icon shape="refresh"></clr-icon>-->
+<!--        Refresh-->
+<!--      </button>-->
+<!--    </div>-->
+<!--  </clr-dg-action-bar>-->
 
   <clr-dg-column [clrDgField]="jobTemplateColumns.NAME" [clrFilterValue]>
     <ng-container *clrDgHideableColumn="{hidden: false}">Template job name</ng-container>
