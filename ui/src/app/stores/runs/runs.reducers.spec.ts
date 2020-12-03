@@ -23,9 +23,10 @@ import {
   GetDagRunsSuccess,
 } from './runs.actions';
 import { DagRunModel, DagRunModelFactory } from '../../models/dagRuns/dagRun.model';
-import { JobInstanceModel, JobInstanceModelFactory, JobStatusFactory, JobTypeFactory } from '../../models/jobInstance.model';
+import { JobInstanceModel, JobInstanceModelFactory, JobStatusFactory } from '../../models/jobInstance.model';
 import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
 import { SortAttributesModel } from '../../models/search/sortAttributes.model';
+import { JobTypeFactory } from '../../models/jobType.model';
 
 describe('RunsReducers', () => {
   const initialState = {

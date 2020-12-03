@@ -63,15 +63,12 @@ describe('AppComponent', () => {
   }));
 
   it('should create the app', () => {
-    const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
 
-    const app = fixture.componentInstance;
-    expect(app).toBeTruthy();
+    expect(underTest).toBeTruthy();
   });
 
   it('should render the title and the username', () => {
-    const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement;
@@ -80,7 +77,6 @@ describe('AppComponent', () => {
   });
 
   it('should render neither the title nor the username if the user is not authenticated', () => {
-    const fixture = TestBed.createComponent(AppComponent);
     mockStore.overrideSelector(selectAuthState, { ...initialAuthState, isAuthenticated: false });
     mockStore.refreshState();
     fixture.detectChanges();
@@ -90,7 +86,7 @@ describe('AppComponent', () => {
     expect(compiled.querySelector('.header-actions')).toBeFalsy();
   });
 
-  it('isActive(base) should return true if current rout contains base', () => {
+  it('isActive(base) should return true if current route contains base', () => {
     const urlBase = 'urlBase';
     const routerSpy = spyOnProperty(mockRouter, 'url', 'get').and.returnValue(`prefix/${urlBase}/suffix`);
 
@@ -100,7 +96,7 @@ describe('AppComponent', () => {
     expect(result).toBeTrue();
   });
 
-  it('isActive(base) should return false if current rout does not contain base', () => {
+  it('isActive(base) should return false if current route does not contain base', () => {
     const urlBase = 'urlBase';
     const routerSpy = spyOnProperty(mockRouter, 'url', 'get').and.returnValue(`prefix/suffix`);
 

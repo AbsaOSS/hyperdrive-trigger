@@ -35,7 +35,7 @@ import { SearchJobTemplates } from '../../../../stores/job-templates/job-templat
   templateUrl: './job-templates-home.component.html',
   styleUrls: ['./job-templates-home.component.scss'],
 })
-export class JobTemplatesHomeComponent implements OnDestroy, AfterViewInit {
+export class JobTemplatesHomeComponent implements AfterViewInit, OnDestroy {
   @ViewChildren(ClrDatagridColumn) columns: QueryList<ClrDatagridColumn>;
 
   templatesSubscription: Subscription = null;
@@ -62,9 +62,11 @@ export class JobTemplatesHomeComponent implements OnDestroy, AfterViewInit {
       .select(selectJobTemplatesState)
       .pipe(skip(1))
       .subscribe((state) => {
-        this.jobTemplates = state.jobTemplates;
-        this.total = state.total;
-        this.loading = state.loading;
+        if (!!state) {
+          this.jobTemplates = state.jobTemplates;
+          this.total = state.total;
+          this.loading = state.loading;
+        }
       });
   }
 

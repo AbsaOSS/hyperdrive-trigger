@@ -40,10 +40,10 @@
       </app-string-filter>
     </clr-dg-filter>
   </clr-dg-column>
-  <clr-dg-column [clrDgField]="jobTemplateColumns.FROM_CONFIG">
-    <ng-container *clrDgHideableColumn="{hidden: false}">From config</ng-container>
+  <clr-dg-column [clrDgField]="jobTemplateColumns.FORM_CONFIG">
+    <ng-container *clrDgHideableColumn="{hidden: false}">Form config</ng-container>
     <clr-dg-filter [clrDgFilter]="fromConfigFilter">
-      <app-string-filter #fromConfigFilter [property]="jobTemplateColumns.FROM_CONFIG"
+      <app-string-filter #fromConfigFilter [property]="jobTemplateColumns.FORM_CONFIG"
                          [removeFiltersSubject]="removeFiltersSubject">
       </app-string-filter>
     </clr-dg-filter>
@@ -59,21 +59,6 @@
   <clr-dg-placeholder>We couldn't find any job templates!</clr-dg-placeholder>
 
   <clr-dg-row *ngFor="let jobTemplate of jobTemplates" [clrDgItem]="jobTemplate">
-<!--    <clr-dg-action-overflow>-->
-<!--      <button type="button" class="action-item">-->
-<!--        <clr-icon shape="eye"></clr-icon>-->
-<!--        Show-->
-<!--      </button>-->
-<!--      <button type="button" class="action-item">-->
-<!--        <clr-icon shape="pencil"></clr-icon>-->
-<!--        Edit-->
-<!--      </button>-->
-<!--      <button type="button" class="action-item">-->
-<!--        <clr-icon shape="close"></clr-icon>-->
-<!--        Delete-->
-<!--      </button>-->
-<!--    </clr-dg-action-overflow>-->
-
     <clr-dg-cell>{{jobTemplate.name}}</clr-dg-cell>
     <clr-dg-cell>{{jobTemplate.formConfig}}</clr-dg-cell>
     <clr-dg-cell>{{jobTemplate.jobType.name}}</clr-dg-cell>

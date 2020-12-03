@@ -15,6 +15,6 @@
 
 export const jobTemplateColumns = {
   NAME: 'name',
-  FROM_CONFIG: 'formConfig',
+  FORM_CONFIG: 'formConfig',
   JOB_TYPE: 'jobType',
 };

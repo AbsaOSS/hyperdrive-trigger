@@ -26,19 +26,24 @@ import { JobTemplateService } from '../../services/job-template/job-template.ser
 import { JobTemplateModel, JobTemplateModelFactory } from '../../models/jobTemplate.model';
 import { SearchJobTemplates } from './job-templates.actions';
 import * as JobTemplatesActions from './job-templates.actions';
+import { Spy, createSpyFromClass } from 'jasmine-auto-spies';
 
 describe('JobTemplatesEffects', () => {
   let underTest: JobTemplatesEffects;
-  let jobTemplateService: JobTemplateService;
+  let jobTemplateService: Spy<JobTemplateService>;
   let mockActions: Observable<any>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [JobTemplatesEffects, JobTemplateService, provideMockActions(() => mockActions)],
+      providers: [
+        JobTemplatesEffects,
+        { provide: JobTemplateService, useValue: createSpyFromClass(JobTemplateService) },
+        provideMockActions(() => mockActions),
+      ],
       imports: [HttpClientTestingModule],
     });
     underTest = TestBed.inject(JobTemplatesEffects);
-    jobTemplateService = TestBed.inject(JobTemplateService);
+    jobTemplateService = TestBed.inject<any>(JobTemplateService);
     mockActions = TestBed.inject(Actions);
   });
 
@@ -57,8 +62,7 @@ describe('JobTemplatesEffects', () => {
           payload: { jobTemplatesSearchResponse: searchResponse },
         },
       });
-
-      spyOn(jobTemplateService, 'searchJobTemplates').and.returnValue(searchJobTemplatesResponse);
+      jobTemplateService.searchJobTemplates.and.returnValue(searchJobTemplatesResponse);
 
       expect(underTest.jobTemplatesSearch).toBeObservable(expected);
     });
@@ -67,7 +71,7 @@ describe('JobTemplatesEffects', () => {
       const action = new SearchJobTemplates({ from: 0, size: 0, sort: new SortAttributesModel('', 0) });
       mockActions = cold('-a', { a: action });
       const errorResponse = cold('-#|');
-      spyOn(jobTemplateService, 'searchJobTemplates').and.returnValue(errorResponse);
+      jobTemplateService.searchJobTemplates.and.returnValue(errorResponse);
 
       const expected = cold('--a', {
         a: {

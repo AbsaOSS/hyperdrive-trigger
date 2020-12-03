@@ -35,7 +35,6 @@ export function jobTemplatesReducer(state: State = initialState, action: JobTemp
     case JobTemplatesActions.SEARCH_JOB_TEMPLATES:
       return { ...state, loading: true };
     case JobTemplatesActions.SEARCH_JOB_TEMPLATES_SUCCESS:
-      console.log('payload: ', action.payload);
       return {
         ...state,
         loading: false,
