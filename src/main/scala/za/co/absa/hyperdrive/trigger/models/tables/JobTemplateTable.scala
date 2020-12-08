@@ -21,11 +21,11 @@ import za.co.absa.hyperdrive.trigger.models.{JobParameters, JobTemplate}
 
 import scala.collection.immutable.SortedMap
 
-trait JobTemplateTable {
+trait JobTemplateTable extends SearchableTableQuery {
   this: Profile with JdbcTypeMapper =>
   import profile.api._
 
-  final class JobTemplateTable(tag: Tag) extends Table[JobTemplate](tag, _tableName = "job_template") {
+  final class JobTemplateTable(tag: Tag) extends Table[JobTemplate](tag, _tableName = "job_template") with SearchableTable {
 
     def name: Rep[String] = column[String]("name", O.Unique)
     def jobType: Rep[JobType] = column[JobType]("job_type")
@@ -59,8 +59,20 @@ trait JobTemplateTable {
           jobTemplate.formConfig
         )
     )
+
+    override def fieldMapping: Map[String, Rep[_]] = Map(
+      "name" -> this.name,
+      "jobType" -> this.jobType,
+      "variables" -> this.variables,
+      "maps" -> this.maps,
+      "keyValuePairs" -> this.keyValuePairs,
+      "id" -> this.id,
+      "formConfig" -> this.formConfig
+    )
+
+    override def defaultSortColumn: Rep[_] = id
   }
 
-  lazy val jobTemplateTable = TableQuery[JobTemplateTable]
+  lazy val jobTemplateTable: TableQuery[JobTemplateTable] = TableQuery[JobTemplateTable]
 
 }

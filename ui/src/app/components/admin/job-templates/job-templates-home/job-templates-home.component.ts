@@ -1,0 +1,109 @@
+/*
+ * Copyright 2018 ABSA Group Limited
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import { AfterViewInit, Component, OnDestroy, QueryList, ViewChildren } from '@angular/core';
+import { ClrDatagridColumn, ClrDatagridStateInterface } from '@clr/angular';
+import { SortAttributesModel } from '../../../../models/search/sortAttributes.model';
+import { TableSearchRequestModel } from '../../../../models/search/tableSearchRequest.model';
+import { ContainsFilterAttributes } from '../../../../models/search/containsFilterAttributes.model';
+import { IntRangeFilterAttributes } from '../../../../models/search/intRangeFilterAttributes.model';
+import { DateTimeRangeFilterAttributes } from '../../../../models/search/dateTimeRangeFilterAttributes.model';
+import { LongFilterAttributes } from '../../../../models/search/longFilterAttributes.model';
+import { EqualsMultipleFilterAttributes } from '../../../../models/search/equalsMultipleFilterAttributes.model';
+import { JobTemplateModel } from '../../../../models/jobTemplate.model';
+import { Subject, Subscription } from 'rxjs';
+import { Store } from '@ngrx/store';
+import { AppState, selectJobTemplatesState } from '../../../../stores/app.reducers';
+import { skip } from 'rxjs/operators';
+import { jobTemplateColumns } from '../../../../constants/jobTemplateColumns.constants';
+import { SearchJobTemplates } from '../../../../stores/job-templates/job-templates.actions';
+
+@Component({
+  selector: 'app-job-templates-home',
+  templateUrl: './job-templates-home.component.html',
+  styleUrls: ['./job-templates-home.component.scss'],
+})
+export class JobTemplatesHomeComponent implements AfterViewInit, OnDestroy {
+  @ViewChildren(ClrDatagridColumn) columns: QueryList<ClrDatagridColumn>;
+
+  templatesSubscription: Subscription = null;
+
+  page = 1;
+  pageFrom = 0;
+  pageSize = 0;
+  sort: SortAttributesModel = null;
+
+  jobTemplates: JobTemplateModel[] = [];
+  total = 0;
+  loading = true;
+  filters: any[] = [];
+
+  jobTemplateColumns = jobTemplateColumns;
+
+  removeFiltersSubject: Subject<any> = new Subject();
+  refreshSubject: Subject<boolean> = new Subject<boolean>();
+
+  constructor(private store: Store<AppState>) {}
+
+  ngAfterViewInit(): void {
+    this.templatesSubscription = this.store
+      .select(selectJobTemplatesState)
+      .pipe(skip(1))
+      .subscribe((state) => {
+        if (!!state) {
+          this.jobTemplates = state.jobTemplates;
+          this.total = state.total;
+          this.loading = state.loading;
+        }
+      });
+  }
+
+  onClarityDgRefresh(state: ClrDatagridStateInterface) {
+    this.sort = state.sort ? new SortAttributesModel(state.sort.by as string, state.sort.reverse ? -1 : 1) : undefined;
+    this.pageFrom = state.page.from < 0 ? 0 : state.page.from;
+    this.pageSize = state.page.size;
+    this.filters = state.filters ? state.filters : [];
+
+    this.refresh();
+  }
+
+  refresh() {
+    const searchRequestModel: TableSearchRequestModel = {
+      from: this.pageFrom,
+      size: this.pageSize,
+      sort: this.sort,
+      containsFilterAttributes: this.filters.filter((f) => f instanceof ContainsFilterAttributes),
+      intRangeFilterAttributes: this.filters.filter((f) => f instanceof IntRangeFilterAttributes),
+      dateTimeRangeFilterAttributes: this.filters.filter((f) => f instanceof DateTimeRangeFilterAttributes),
+      longFilterAttributes: this.filters.filter((f) => f instanceof LongFilterAttributes),
+      equalsMultipleFilterAttributes: this.filters.filter((f) => f instanceof EqualsMultipleFilterAttributes),
+    };
+
+    this.store.dispatch(new SearchJobTemplates(searchRequestModel));
+    this.refreshSubject.next(true);
+  }
+
+  clearFilters() {
+    this.removeFiltersSubject.next();
+  }
+
+  clearSort() {
+    !!this.sort ? (this.columns.find((_) => _.field == this.sort.by).sortOrder = 0) : undefined;
+  }
+
+  ngOnDestroy(): void {
+    !!this.templatesSubscription && this.templatesSubscription.unsubscribe();
+  }
+}

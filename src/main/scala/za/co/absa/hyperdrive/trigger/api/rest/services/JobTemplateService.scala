@@ -17,6 +17,7 @@ package za.co.absa.hyperdrive.trigger.api.rest.services
 
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.api.rest.utils.JobTemplateResolutionUtil
+import za.co.absa.hyperdrive.trigger.models.search.{TableSearchRequest, TableSearchResponse}
 import za.co.absa.hyperdrive.trigger.models.{DagDefinitionJoined, JobTemplate, ResolvedJobDefinition}
 import za.co.absa.hyperdrive.trigger.persistance.JobTemplateRepository
 
@@ -29,6 +30,7 @@ trait JobTemplateService {
   def getJobTemplates()(implicit ec: ExecutionContext): Future[Seq[JobTemplate]]
   def getJobTemplatesByIds(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[JobTemplate]]
   def getJobTemplateIdsByNames(names: Seq[String])(implicit ec: ExecutionContext): Future[Map[String, Long]]
+  def searchJobTemplates(searchRequest: TableSearchRequest)(implicit ec: ExecutionContext): Future[TableSearchResponse[JobTemplate]]
 }
 
 @Service
@@ -48,4 +50,8 @@ class JobTemplateServiceImpl(override val jobTemplateRepository: JobTemplateRepo
 
   override def getJobTemplateIdsByNames(names: Seq[String])(implicit ec: ExecutionContext): Future[Map[String, Long]] =
     jobTemplateRepository.getJobTemplateIdsByNames(names)
+
+  override def searchJobTemplates(searchRequest: TableSearchRequest)(implicit ec: ExecutionContext): Future[TableSearchResponse[JobTemplate]] = {
+    jobTemplateRepository.searchJobTemplates(searchRequest)
+  }
 }

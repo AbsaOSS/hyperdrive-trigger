@@ -73,6 +73,9 @@ import { BooleanFilterComponent } from './components/common/datagrid/filters/boo
 import { WelcomeComponent } from './components/auth/welcome/welcome.component';
 import { LoginDialogComponent } from './components/auth/login-dialog/login-dialog.component';
 import { BaseUrlInterceptor } from './services/interceptors/baseurl.interceptor';
+import { JobTemplatesComponent } from './components/admin/job-templates/job-templates.component';
+import { JobTemplatesEffects } from './stores/job-templates/job-templates.effects';
+import { JobTemplatesHomeComponent } from './components/admin/job-templates/job-templates-home/job-templates-home.component';
 
 @NgModule({
   declarations: [
@@ -109,6 +112,8 @@ import { BaseUrlInterceptor } from './services/interceptors/baseurl.interceptor'
     BooleanFilterComponent,
     WelcomeComponent,
     LoginDialogComponent,
+    JobTemplatesComponent,
+    JobTemplatesHomeComponent,
   ],
   imports: [
     BrowserModule,
@@ -121,7 +126,7 @@ import { BaseUrlInterceptor } from './services/interceptors/baseurl.interceptor'
       timeOut: 5000,
     }),
     StoreModule.forRoot(reducers),
-    EffectsModule.forRoot([ApplicationEffects, AuthEffects, RunsEffects, WorkflowsEffects]),
+    EffectsModule.forRoot([ApplicationEffects, AuthEffects, RunsEffects, WorkflowsEffects, JobTemplatesEffects]),
     StoreRouterConnectingModule.forRoot(),
     !environment.production ? StoreDevtoolsModule.instrument() : [],
   ],

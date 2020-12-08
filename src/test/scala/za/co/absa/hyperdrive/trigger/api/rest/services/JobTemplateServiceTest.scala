@@ -22,6 +22,7 @@ import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, Matchers}
 import za.co.absa.hyperdrive.trigger.TestUtils.await
 import za.co.absa.hyperdrive.trigger.api.rest.services.JobTemplateFixture.{GenericShellJobTemplate, GenericSparkJobTemplate}
 import za.co.absa.hyperdrive.trigger.models.enums.JobTypes
+import za.co.absa.hyperdrive.trigger.models.search.{TableSearchRequest, TableSearchResponse}
 import za.co.absa.hyperdrive.trigger.persistance.JobTemplateRepository
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -86,5 +87,21 @@ class JobTemplateServiceTest extends AsyncFlatSpec with Matchers with MockitoSug
 
     // then
     result should contain theSameElementsAs jobTemplateIdNameMap
+  }
+
+  "searchJobTemplates" should "return table search response with job templates which meet search criteria" in {
+    // given
+    val jobTemplates = Seq(GenericShellJobTemplate, GenericSparkJobTemplate)
+    val searchRequest = TableSearchRequest(sort = None, from = 0, size = 100)
+    val searchResponse = TableSearchResponse(items = jobTemplates, total = jobTemplates.length)
+
+    when(jobTemplateRepository.searchJobTemplates(eqTo(searchRequest))(any[ExecutionContext])).thenReturn(Future{searchResponse})
+
+    // when
+    val result = await(underTest.searchJobTemplates(searchRequest))
+
+    // then
+    result.items should contain theSameElementsAs jobTemplates
+    result.total shouldBe jobTemplates.length
   }
 }

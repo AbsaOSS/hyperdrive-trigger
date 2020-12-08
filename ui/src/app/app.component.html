@@ -33,6 +33,18 @@
     <div class="header-nav">
       <a routerLinkActive="active" routerLink="{{routes.WORKFLOWS}}" class="nav-link nav-text">Workflows</a>
       <a routerLinkActive="active" routerLink="{{routes.RUNS}}" class="nav-link nav-text">Runs</a>
+      <!-- Temporary solution clarity doesn't support dropdowns in header. Could be solved in https://github.com/vmware/clarity/issues/3844 -->
+      <a class="header-actions" [class.active-dropdown]="isActive(routes.ADMIN)">
+        <clr-dropdown>
+          <button class="nav-text" clrDropdownTrigger>
+            Admin
+            <clr-icon shape="caret down"></clr-icon>
+          </button>
+          <clr-dropdown-menu *clrIfOpen clrPosition="bottom-right">
+            <a clrDropdownItem routerLinkActive="active" routerLink="{{routes.JOB_TEMPLATES}}">Job templates</a>
+          </clr-dropdown-menu>
+        </clr-dropdown>
+      </a>
     </div>
     <div class="header-actions">
       <clr-dropdown>

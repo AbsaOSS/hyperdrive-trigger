@@ -22,6 +22,7 @@ import { absoluteRoutes } from './constants/routes.constants';
 import { selectAuthState, selectApplicationState } from './stores/app.reducers';
 import { AppInfoModel } from './models/appInfo.model';
 import { LoadAppInfo } from './stores/application/application.actions';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -37,7 +38,7 @@ export class AppComponent implements OnInit, OnDestroy {
   username: string;
   appInfo: AppInfoModel;
 
-  constructor(private store: Store<fromApp.AppState>) {
+  constructor(private store: Store<fromApp.AppState>, private router: Router) {
     this.store.dispatch(new LoadAppInfo());
   }
 
@@ -52,12 +53,16 @@ export class AppComponent implements OnInit, OnDestroy {
     });
   }
 
+  onLogOut() {
+    this.store.dispatch(new AuthActions.Logout());
+  }
+
+  public isActive(base: string): boolean {
+    return this.router.url.includes(base);
+  }
+
   ngOnDestroy(): void {
     !!this.authStateSubscription && this.authStateSubscription.unsubscribe();
     !!this.applicationStateSubscription && this.applicationStateSubscription.unsubscribe();
-  }
-
-  onLogOut() {
-    this.store.dispatch(new AuthActions.Logout());
   }
 }
