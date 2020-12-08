@@ -227,6 +227,6 @@ describe('WorkflowService', () => {
 
     const req = httpTestingController.expectOne(encodeURI(api.GET_JOB_TEMPLATES));
     expect(req.request.method).toEqual('GET');
-    req.flush([JobTemplateModelFactory.create(0, templateName, jobTemplateFormConfigs.SHELL)]);
+    req.flush([JobTemplateModelFactory.create(0, templateName, jobTemplateFormConfigs.SHELL, { name: 'Spark' })]);
   });
 });

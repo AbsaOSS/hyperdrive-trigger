@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, GenericDatabaseError}
 import za.co.absa.hyperdrive.trigger.models.JobTemplate
+import za.co.absa.hyperdrive.trigger.models.search.{TableSearchRequest, TableSearchResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
@@ -28,6 +29,7 @@ trait JobTemplateRepository extends Repository {
   def getJobTemplatesByIds(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[JobTemplate]]
   def getJobTemplates()(implicit ec: ExecutionContext): Future[Seq[JobTemplate]]
   def getJobTemplateIdsByNames(names: Seq[String])(implicit ec: ExecutionContext): Future[Map[String, Long]]
+  def searchJobTemplates(searchRequest: TableSearchRequest)(implicit ec: ExecutionContext): Future[TableSearchResponse[JobTemplate]]
 }
 
 @stereotype.Repository
@@ -64,4 +66,8 @@ class JobTemplateRepositoryImpl extends JobTemplateRepository {
       .map(jobTemplate => jobTemplate.name -> jobTemplate.id)
       .result
   ).flatMap(seq => Future{seq.toMap})
+
+  override def searchJobTemplates(searchRequest: TableSearchRequest)(implicit ec: ExecutionContext): Future[TableSearchResponse[JobTemplate]] = {
+    db.run(jobTemplateTable.search(searchRequest))
+  }
 }

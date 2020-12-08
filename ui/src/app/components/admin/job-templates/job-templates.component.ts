@@ -13,17 +13,15 @@
  * limitations under the License.
  */
 
-import { JobType } from './jobType.model';
+import { Component } from '@angular/core';
 
-export type JobTemplateModel = {
-  id: number;
-  name: string;
-  formConfig: string;
-  jobType: JobType;
-};
-
-export class JobTemplateModelFactory {
-  static create(id: number, name: string, formConfig: string, jobType: JobType): JobTemplateModel {
-    return { id: id, name: name, formConfig: formConfig, jobType: jobType };
+@Component({
+  selector: 'app-job-templates',
+  templateUrl: './job-templates.component.html',
+  styleUrls: ['./job-templates.component.scss'],
+})
+export class JobTemplatesComponent {
+  constructor() {
+    //do nothing
   }
 }
