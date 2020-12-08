@@ -49,7 +49,7 @@ describe('JobTemplatesEffects', () => {
 
   describe('jobTemplatesSearch', () => {
     it('should return job templates', () => {
-      const jobTemplate = JobTemplateModelFactory.create(0, 'templateName', 'fromConfig', { name: 'jobType' });
+      const jobTemplate = JobTemplateModelFactory.create(0, 'templateName', { name: 'jobType' });
 
       const searchResponse = new TableSearchResponseModel<JobTemplateModel>([jobTemplate], 1);
 

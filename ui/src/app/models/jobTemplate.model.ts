@@ -18,12 +18,11 @@ import { JobType } from './jobType.model';
 export type JobTemplateModel = {
   id: number;
   name: string;
-  formConfig: string;
   jobType: JobType;
 };
 
 export class JobTemplateModelFactory {
-  static create(id: number, name: string, formConfig: string, jobType: JobType): JobTemplateModel {
-    return { id: id, name: name, formConfig: formConfig, jobType: jobType };
+  static create(id: number, name: string, jobType: JobType): JobTemplateModel {
+    return { id: id, name: name, jobType: jobType };
   }
 }

@@ -16,10 +16,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpParams, HttpResponse } from '@angular/common/http';
 import { api } from '../../constants/api.constants';
-import { jobTemplateFormConfigs } from '../../constants/jobTemplates.constants';
 import { catchError, map, mergeMap } from 'rxjs/operators';
 import { ProjectModel } from '../../models/project.model';
-import { combineLatest, Observable, of, throwError } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
 import {
   DynamicFormPart,
@@ -228,14 +227,11 @@ export class WorkflowService {
   }
 
   private static getJobDynamicFormPart(jobTemplate: JobTemplateModel): DynamicFormPart {
-    if (jobTemplate.formConfig === jobTemplateFormConfigs.SPARK) {
+    if (jobTemplate.jobType.name === 'Spark') {
       return this.getSparkDynamicFormParts(jobTemplate.id.toString(), jobTemplate.name);
     }
-    if (jobTemplate.formConfig === jobTemplateFormConfigs.SHELL) {
+    if (jobTemplate.jobType.name === 'Shell') {
       return this.getShellDynamicFormParts(jobTemplate.id.toString(), jobTemplate.name);
-    }
-    if (jobTemplate.formConfig === jobTemplateFormConfigs.HYPERDRIVE) {
-      return this.getHyperConformanceDynamicFormParts(jobTemplate.id.toString(), jobTemplate.name);
     }
   }
 
@@ -292,35 +288,6 @@ export class WorkflowService {
         'jobParameters.variables.scriptLocation',
         'string-field',
         PartValidationFactory.create(true, undefined, 1),
-      ),
-    ]);
-  }
-
-  private static getHyperConformanceDynamicFormParts(templateId: string, templateName: string): DynamicFormPart {
-    return DynamicFormPartFactory.createWithLabel(templateId, templateName, [
-      FormPartFactory.create(
-        'Additional jars',
-        'jobParameters.maps.additionalJars',
-        'set-field',
-        PartValidationFactory.create(false, undefined, 1),
-      ),
-      FormPartFactory.create(
-        'Additional files',
-        'jobParameters.maps.additionalFiles',
-        'set-field',
-        PartValidationFactory.create(false, undefined, 1),
-      ),
-      FormPartFactory.create(
-        'Additional Spark Config',
-        'jobParameters.keyValuePairs.additionalSparkConfig',
-        'key-value-field',
-        PartValidationFactory.create(false, undefined, 1),
-      ),
-      FormPartFactory.create(
-        'App arguments',
-        'jobParameters.maps.appArguments',
-        'set-field',
-        PartValidationFactory.create(false, undefined, 1),
       ),
     ]);
   }

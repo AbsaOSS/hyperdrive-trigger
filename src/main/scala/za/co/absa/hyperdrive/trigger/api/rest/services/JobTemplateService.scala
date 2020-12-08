@@ -18,7 +18,7 @@ package za.co.absa.hyperdrive.trigger.api.rest.services
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.api.rest.utils.JobTemplateResolutionUtil
 import za.co.absa.hyperdrive.trigger.models.search.{TableSearchRequest, TableSearchResponse}
-import za.co.absa.hyperdrive.trigger.models.{DagDefinitionJoined, JobTemplate, ResolvedJobDefinition}
+import za.co.absa.hyperdrive.trigger.models.{DagDefinitionJoined, JobTemplate, ResolvedJobDefinition, WorkflowJoined}
 import za.co.absa.hyperdrive.trigger.persistance.JobTemplateRepository
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -26,6 +26,8 @@ import scala.concurrent.{ExecutionContext, Future}
 trait JobTemplateService {
   val jobTemplateRepository: JobTemplateRepository
 
+  def getJobTemplate(id: Long)(implicit ec: ExecutionContext): Future[JobTemplate]
+  def deleteJobTemplate(id: Long)(implicit ec: ExecutionContext): Future[Boolean]
   def resolveJobTemplate(dagDefinition: DagDefinitionJoined)(implicit ec: ExecutionContext): Future[Seq[ResolvedJobDefinition]]
   def getJobTemplates()(implicit ec: ExecutionContext): Future[Seq[JobTemplate]]
   def getJobTemplatesByIds(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[JobTemplate]]
@@ -35,6 +37,15 @@ trait JobTemplateService {
 
 @Service
 class JobTemplateServiceImpl(override val jobTemplateRepository: JobTemplateRepository) extends JobTemplateService {
+
+  override def getJobTemplate(id: Long)(implicit ec: ExecutionContext): Future[JobTemplate] = {
+    jobTemplateRepository.getJobTemplate(id)
+  }
+
+  override def deleteJobTemplate(id: Long)(implicit ec: ExecutionContext): Future[Boolean] = {
+    jobTemplateRepository.deleteJobTemplate(id).map(_ => true)
+  }
+
   override def resolveJobTemplate(dagDefinitionJoined: DagDefinitionJoined)(implicit ec: ExecutionContext): Future[Seq[ResolvedJobDefinition]] = {
     val jobTemplateIds = dagDefinitionJoined.jobDefinitions.map(_.jobTemplateId)
     jobTemplateRepository.getJobTemplatesByIds(jobTemplateIds).map(

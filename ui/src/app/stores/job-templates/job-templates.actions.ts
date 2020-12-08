@@ -21,6 +21,7 @@ import { JobTemplateModel } from '../../models/jobTemplate.model';
 export const SEARCH_JOB_TEMPLATES = 'SEARCH_JOB_TEMPLATES';
 export const SEARCH_JOB_TEMPLATES_SUCCESS = 'SEARCH_JOB_TEMPLATES_SUCCESS';
 export const SEARCH_JOB_TEMPLATES_FAILURE = 'SEARCH_JOB_TEMPLATES_FAILURE';
+export const START_JOB_TEMPLATE_INITIALIZATION = 'START_JOB_TEMPLATE_INITIALIZATION';
 
 export class SearchJobTemplates implements Action {
   readonly type = SEARCH_JOB_TEMPLATES;
@@ -36,4 +37,13 @@ export class SearchJobTemplatesFailure implements Action {
   readonly type = SEARCH_JOB_TEMPLATES_FAILURE;
 }
 
-export type JobTemplatesActions = SearchJobTemplates | SearchJobTemplatesSuccess | SearchJobTemplatesFailure;
+export class StartJobTemplateInitialization implements Action {
+  readonly type = START_JOB_TEMPLATE_INITIALIZATION;
+  constructor(public payload: { id?: number; mode: string }) {}
+}
+
+export type JobTemplatesActions =
+  | SearchJobTemplates
+  | SearchJobTemplatesSuccess
+  | SearchJobTemplatesFailure
+  | StartJobTemplateInitialization;

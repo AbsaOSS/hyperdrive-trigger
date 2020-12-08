@@ -144,9 +144,10 @@ trait RepositoryTestBase extends Repository {
     val dr5 = DagRun(workflowId = 5, workflowName = "workflowName5", projectName = "projectName3", jobCount = 2, started = LocalDateTime.now().plusDays(5), finished = None, status = DagInstanceStatuses.Running.name, triggeredBy = triggeredBy, id = 304)
     val dagRuns: Seq[DagRun] = Seq(dr1, dr2, dr3, dr4, dr5)
 
-    val jt1 = JobTemplate(name = "jobTemplate1", jobType = JobTypes.Spark, JobParameters(Map("key" -> "value"), Map("key" -> List("value1", "value2")), Map("key" -> SortedMap("subKey1" -> "value1"))), id = 100, formConfig = "Spark")
-    val jt2 = JobTemplate(name = "jobTemplate2", jobType = JobTypes.Shell, JobParameters(Map(), Map(), Map()), id = 101, formConfig = "Shell")
-    val jobTemplates = Seq(jt1, jt2)
+    val jt1 = JobTemplate(name = "jobTemplate1", jobType = JobTypes.Spark, JobParameters(Map("key" -> "value"), Map("key" -> List("value1", "value2")), Map("key" -> SortedMap("subKey1" -> "value1"))), id = 100)
+    val jt2 = JobTemplate(name = "jobTemplate2", jobType = JobTypes.Shell, JobParameters(Map(), Map(), Map()), id = 101)
+    val jt3NotUsed = JobTemplate(name = "jobTemplate3", jobType = JobTypes.Shell, JobParameters(Map(), Map(), Map()), id = 102)
+    val jobTemplates = Seq(jt1, jt2, jt3NotUsed)
 
     val dd1 = DagDefinition(workflowId = w1.id, id = 400)
     val dd2 = DagDefinition(workflowId = w2.id, id = 401)

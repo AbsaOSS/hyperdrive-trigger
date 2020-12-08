@@ -17,6 +17,7 @@ package za.co.absa.hyperdrive.trigger.persistance
 
 import org.scalatest.{FlatSpec, _}
 import za.co.absa.hyperdrive.trigger.models.JobTemplate
+import za.co.absa.hyperdrive.trigger.models.errors.ApiException
 import za.co.absa.hyperdrive.trigger.models.search.{ContainsFilterAttributes, SortAttributes, TableSearchRequest, TableSearchResponse}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -37,7 +38,7 @@ class JobTemplateRepositoryTest extends FlatSpec with Matchers with BeforeAndAft
     clearData()
   }
 
-  "getJobTemplatesByIds" should "return a job template by id" in {
+  "getJobTemplatesByIds" should "return a job template by ids" in {
     insertJobTemplates()
     val result = await(jobTemplateRepository.getJobTemplatesByIds(Seq(100)))
     result should have size 1
@@ -143,5 +144,53 @@ class JobTemplateRepositoryTest extends FlatSpec with Matchers with BeforeAndAft
     result.total should be > 0
     result.total shouldBe expected.size
     result.items should contain theSameElementsAs expected
+  }
+
+  "getJobTemplate" should "return a job template by id" in {
+    insertJobTemplates()
+    val jobTemplate = TestData.jobTemplates.head
+
+    val result = await(jobTemplateRepository.getJobTemplate(jobTemplate.id))
+
+    result shouldBe jobTemplate
+  }
+
+  "getJobTemplate" should "throw exception when job template does not exist" in {
+    insertJobTemplates()
+    val jobTemplateId = 999111
+
+    val exception = the [ApiException] thrownBy await(jobTemplateRepository.getJobTemplate(jobTemplateId))
+
+    exception.getMessage shouldBe "Job template does not exist!"
+  }
+
+  "deleteJobTemplate" should "should delete template if exists and is not used" in {
+    createTestData()
+    val jobTemplateId = TestData.jt3NotUsed.id
+
+    val deleteResult: Unit = await(jobTemplateRepository.deleteJobTemplate(jobTemplateId))
+    val exception = the [ApiException] thrownBy await(jobTemplateRepository.getJobTemplate(jobTemplateId))
+
+
+    deleteResult shouldBe (): Unit
+    exception.getMessage shouldBe "Job template does not exist!"
+  }
+
+  "deleteJobTemplate" should "throw exception when job template does not exist" in {
+    insertJobTemplates()
+    val jobTemplateId = 999111
+
+    val exception = the [ApiException] thrownBy await(jobTemplateRepository.deleteJobTemplate(jobTemplateId))
+
+    exception.getMessage shouldBe "Job template does not exist!"
+  }
+
+  "deleteJobTemplate" should "throw exception when job template is used" in {
+    createTestData()
+    val jobTemplateId = TestData.jobTemplates.head.id
+
+    val exception = the [ApiException] thrownBy await(jobTemplateRepository.deleteJobTemplate(jobTemplateId))
+
+    exception.getMessage shouldBe "Could not delete job template. Job template is used!"
   }
 }

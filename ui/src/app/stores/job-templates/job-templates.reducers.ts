@@ -21,6 +21,11 @@ export interface State {
   total: number;
   page: number;
   loading: boolean;
+  jobTemplateAction: {
+    id: number;
+    mode: string;
+    loading: boolean;
+  };
 }
 
 const initialState: State = {
@@ -28,6 +33,11 @@ const initialState: State = {
   total: 0,
   page: 1,
   loading: false,
+  jobTemplateAction: {
+    id: undefined,
+    mode: undefined,
+    loading: true,
+  },
 };
 
 export function jobTemplatesReducer(state: State = initialState, action: JobTemplatesActions.JobTemplatesActions) {
@@ -43,5 +53,17 @@ export function jobTemplatesReducer(state: State = initialState, action: JobTemp
       };
     case JobTemplatesActions.SEARCH_JOB_TEMPLATES_FAILURE:
       return { ...initialState, loading: false };
+    case JobTemplatesActions.START_JOB_TEMPLATE_INITIALIZATION:
+      return {
+        ...state,
+        jobTemplateAction: {
+          ...state.jobTemplateAction,
+          id: action.payload.id,
+          mode: action.payload.mode,
+          loading: true,
+        },
+      };
+    default:
+      return state;
   }
 }

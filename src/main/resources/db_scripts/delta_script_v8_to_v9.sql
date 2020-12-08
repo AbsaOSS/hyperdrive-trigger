@@ -13,7 +13,5 @@
  * limitations under the License.
  */
 
-export const jobTemplateColumns = {
-  NAME: 'name',
-  JOB_TYPE: 'jobType',
-};
+alter table "job_template";
+drop column "form_config";

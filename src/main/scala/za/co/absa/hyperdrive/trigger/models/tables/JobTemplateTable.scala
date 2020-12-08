@@ -33,9 +33,8 @@ trait JobTemplateTable extends SearchableTableQuery {
     def maps: Rep[Map[String, List[String]]] = column[Map[String, List[String]]]("maps")
     def keyValuePairs: Rep[Map[String, SortedMap[String, String]]] = column[Map[String, SortedMap[String, String]]]("key_value_pairs")
     def id: Rep[Long] = column[Long]("id", O.PrimaryKey, O.AutoInc, O.SqlType("BIGSERIAL"))
-    def formConfig: Rep[String] = column[String]("form_config")
 
-    def * : ProvenShape[JobTemplate] = (name, jobType, variables, maps, keyValuePairs, id, formConfig) <> (
+    def * : ProvenShape[JobTemplate] = (name, jobType, variables, maps, keyValuePairs, id) <> (
       jobTemplateTuple =>
         JobTemplate.apply(
           name = jobTemplateTuple._1,
@@ -45,8 +44,7 @@ trait JobTemplateTable extends SearchableTableQuery {
             maps = jobTemplateTuple._4,
             keyValuePairs = jobTemplateTuple._5
           ),
-          id = jobTemplateTuple._6,
-          formConfig = jobTemplateTuple._7
+          id = jobTemplateTuple._6
         ),
       (jobTemplate: JobTemplate) =>
         Option(
@@ -55,8 +53,7 @@ trait JobTemplateTable extends SearchableTableQuery {
           jobTemplate.jobParameters.variables,
           jobTemplate.jobParameters.maps,
           jobTemplate.jobParameters.keyValuePairs,
-          jobTemplate.id,
-          jobTemplate.formConfig
+          jobTemplate.id
         )
     )
 
@@ -66,8 +63,7 @@ trait JobTemplateTable extends SearchableTableQuery {
       "variables" -> this.variables,
       "maps" -> this.maps,
       "keyValuePairs" -> this.keyValuePairs,
-      "id" -> this.id,
-      "formConfig" -> this.formConfig
+      "id" -> this.id
     )
 
     override def defaultSortColumn: Rep[_] = id

@@ -14,7 +14,12 @@
  */
 
 import { SortAttributesModel } from '../../models/search/sortAttributes.model';
-import { SearchJobTemplates, SearchJobTemplatesFailure, SearchJobTemplatesSuccess } from './job-templates.actions';
+import {
+  SearchJobTemplates,
+  SearchJobTemplatesFailure,
+  SearchJobTemplatesSuccess,
+  StartJobTemplateInitialization,
+} from './job-templates.actions';
 import { State, jobTemplatesReducer } from './job-templates.reducers';
 import { JobTemplateModel, JobTemplateModelFactory } from '../../models/jobTemplate.model';
 import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
@@ -25,6 +30,11 @@ describe('JobTemplatesReducers', () => {
     total: 0,
     page: 1,
     loading: false,
+    jobTemplateAction: {
+      id: undefined,
+      mode: undefined,
+      loading: true,
+    },
   } as State;
 
   it('should set loading to true on search job templates', () => {
@@ -36,7 +46,7 @@ describe('JobTemplatesReducers', () => {
   });
 
   it('should set job templates, total and loading to false on search job templates success', () => {
-    const jobTemplate = JobTemplateModelFactory.create(0, 'templateName', 'fromConfig', { name: 'jobType' });
+    const jobTemplate = JobTemplateModelFactory.create(0, 'templateName', { name: 'jobType' });
 
     const jobTemplateSearchResult = new TableSearchResponseModel<JobTemplateModel>([jobTemplate], 1);
     const jobTemplatesAction = new SearchJobTemplatesSuccess({ jobTemplatesSearchResponse: jobTemplateSearchResult });
@@ -57,5 +67,24 @@ describe('JobTemplatesReducers', () => {
     const actual = jobTemplatesReducer(initialState, jobTemplatesAction);
 
     expect(actual).toEqual({ ...initialState, loading: false });
+  });
+
+  it('should set job template action on start job template initialization', () => {
+    const id = 10;
+    const mode = 'mode';
+
+    const jobTemplatesAction = new StartJobTemplateInitialization({ id: id, mode: mode });
+
+    const actual = jobTemplatesReducer(initialState, jobTemplatesAction);
+
+    expect(actual).toEqual({
+      ...initialState,
+      jobTemplateAction: {
+        ...initialState.jobTemplateAction,
+        id: id,
+        mode: mode,
+        loading: true,
+      },
+    });
   });
 });

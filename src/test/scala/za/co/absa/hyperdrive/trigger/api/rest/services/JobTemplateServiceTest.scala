@@ -104,4 +104,28 @@ class JobTemplateServiceTest extends AsyncFlatSpec with Matchers with MockitoSug
     result.items should contain theSameElementsAs jobTemplates
     result.total shouldBe jobTemplates.length
   }
+
+  "getJobTemplate" should "return job template by id" in {
+    // given
+    val jobTemplate = GenericShellJobTemplate
+    when(jobTemplateRepository.getJobTemplate(jobTemplate.id)).thenReturn(Future{jobTemplate})
+
+    // when
+    val result = await(underTest.getJobTemplate(jobTemplate.id))
+
+    // then
+    result shouldBe jobTemplate
+  }
+
+  "deleteJobTemplate" should "should return true on job template delete" in {
+    // given
+    val jobTemplate = GenericShellJobTemplate
+    when(jobTemplateRepository.deleteJobTemplate(jobTemplate.id)).thenReturn(Future{(): Unit})
+
+    // when
+    val result = await(underTest.deleteJobTemplate(jobTemplate.id))
+
+    // then
+    result shouldBe true
+  }
 }

@@ -13,7 +13,8 @@
  * limitations under the License.
  */
 
-export const jobTemplateColumns = {
-  NAME: 'name',
-  JOB_TYPE: 'jobType',
+export const jobTemplateModes = {
+  SHOW: 'show',
+  CREATE: 'create',
+  EDIT: 'edit',
 };
