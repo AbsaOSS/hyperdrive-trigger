@@ -29,6 +29,7 @@ import { AppState, selectJobTemplatesState } from '../../../../stores/app.reduce
 import { skip } from 'rxjs/operators';
 import { jobTemplateColumns } from '../../../../constants/jobTemplateColumns.constants';
 import { SearchJobTemplates } from '../../../../stores/job-templates/job-templates.actions';
+import { absoluteRoutes } from 'src/app/constants/routes.constants';
 
 @Component({
   selector: 'app-job-templates-home',
@@ -51,6 +52,7 @@ export class JobTemplatesHomeComponent implements AfterViewInit, OnDestroy {
   filters: any[] = [];
 
   jobTemplateColumns = jobTemplateColumns;
+  absoluteRoutes = absoluteRoutes;
 
   removeFiltersSubject: Subject<any> = new Subject();
   refreshSubject: Subject<boolean> = new Subject<boolean>();
@@ -62,11 +64,9 @@ export class JobTemplatesHomeComponent implements AfterViewInit, OnDestroy {
       .select(selectJobTemplatesState)
       .pipe(skip(1))
       .subscribe((state) => {
-        if (!!state) {
-          this.jobTemplates = state.jobTemplates;
-          this.total = state.total;
-          this.loading = state.loading;
-        }
+        this.jobTemplates = state.jobTemplates;
+        this.total = state.total;
+        this.loading = state.loading;
       });
   }
 
