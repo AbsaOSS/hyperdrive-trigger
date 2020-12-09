@@ -26,7 +26,6 @@ import { State, jobTemplatesReducer } from './job-templates.reducers';
 import { JobTemplateModel, JobTemplateModelFactory } from '../../models/jobTemplate.model';
 import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
 import { JobParametersModelFactory } from '../../models/jobParameters.model';
-import { JobTemplateFormEntryModel } from '../../models/jobTemplateFormEntry.model';
 
 describe('JobTemplatesReducers', () => {
   const initialState = {
