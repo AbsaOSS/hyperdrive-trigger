@@ -17,15 +17,17 @@ import { SortAttributesModel } from '../../models/search/sortAttributes.model';
 import {
   GetJobTemplateForForm,
   GetJobTemplateForFormFailure,
-  GetJobTemplateForFormSuccess,
   SearchJobTemplates,
   SearchJobTemplatesFailure,
   SearchJobTemplatesSuccess,
+  SetJobTemplateForFrom,
+  SetJobTemplatePartsForFrom,
 } from './job-templates.actions';
 import { State, jobTemplatesReducer } from './job-templates.reducers';
 import { JobTemplateModel, JobTemplateModelFactory } from '../../models/jobTemplate.model';
 import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
 import { JobParametersModelFactory } from '../../models/jobParameters.model';
+import { JobTemplateFormEntryModel } from '../../models/jobTemplateFormEntry.model';
 
 describe('JobTemplatesReducers', () => {
   const initialState = {
@@ -96,7 +98,7 @@ describe('JobTemplatesReducers', () => {
     });
   });
 
-  it('should set all job template action fields on get job template for form success', () => {
+  it('should set loading to true and job template on set job template for form', () => {
     const jobTemplate = JobTemplateModelFactory.create(
       0,
       'templateName',
@@ -104,12 +106,24 @@ describe('JobTemplatesReducers', () => {
       { name: 'jobType' },
       JobParametersModelFactory.createEmpty(),
     );
-    const jobTemplateFormEntries = [];
+    const jobTemplatesAction = new SetJobTemplateForFrom(jobTemplate);
 
-    const jobTemplatesAction = new GetJobTemplateForFormSuccess({
-      jobTemplate: jobTemplate,
-      jobTemplateFormEntries: jobTemplateFormEntries,
+    const actual = jobTemplatesReducer(initialState, jobTemplatesAction);
+
+    expect(actual).toEqual({
+      ...initialState,
+      jobTemplateAction: {
+        ...initialState.jobTemplateAction,
+        jobTemplate: jobTemplate,
+        loading: true,
+      },
     });
+  });
+
+  it('should set loading to false, successfully loaded to true and job template form entries on set job template parts for form', () => {
+    const jobTemplateFormEntries: JobTemplateFormEntryModel[] = [];
+
+    const jobTemplatesAction = new SetJobTemplatePartsForFrom(jobTemplateFormEntries);
 
     const actual = jobTemplatesReducer(initialState, jobTemplatesAction);
 
@@ -119,7 +133,6 @@ describe('JobTemplatesReducers', () => {
         ...initialState.jobTemplateAction,
         loading: false,
         isSuccessfullyLoaded: true,
-        jobTemplate: jobTemplate,
         jobTemplateFormEntries: jobTemplateFormEntries,
       },
     });

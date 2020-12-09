@@ -67,15 +67,23 @@ export function jobTemplatesReducer(state: State = initialState, action: JobTemp
           loading: true,
         },
       };
-    case JobTemplatesActions.GET_JOB_TEMPLATE_FOR_FORM_SUCCESS:
+    case JobTemplatesActions.SET_JOB_TEMPLATE_FOR_FORM:
+      return {
+        ...state,
+        jobTemplateAction: {
+          ...state.jobTemplateAction,
+          loading: true,
+          jobTemplate: action.payload,
+        },
+      };
+    case JobTemplatesActions.SET_JOB_TEMPLATE_PARTS_FOR_FORM:
       return {
         ...state,
         jobTemplateAction: {
           ...state.jobTemplateAction,
           loading: false,
           isSuccessfullyLoaded: true,
-          jobTemplate: action.payload.jobTemplate,
-          jobTemplateFormEntries: action.payload.jobTemplateFormEntries,
+          jobTemplateFormEntries: action.payload,
         },
       };
     case JobTemplatesActions.GET_JOB_TEMPLATE_FOR_FORM_FAILURE:
