@@ -14,7 +14,7 @@
  */
 
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { api } from '../../constants/api.constants';
 import { map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
@@ -38,5 +38,13 @@ export class JobTemplateService {
           return _.body;
         }),
       );
+  }
+
+  getJobTemplate(id: number): Observable<JobTemplateModel> {
+    const params = new HttpParams().set('id', id.toString());
+
+    return this.httpClient
+      .get<JobTemplateModel>(api.GET_JOB_TEMPLATE, { params: params, observe: 'response' })
+      .pipe(map((response) => response.body));
   }
 }
