@@ -14,10 +14,19 @@
  */
 
 import { SortAttributesModel } from '../../models/search/sortAttributes.model';
-import { SearchJobTemplates, SearchJobTemplatesFailure, SearchJobTemplatesSuccess } from './job-templates.actions';
+import {
+  GetJobTemplateForForm,
+  GetJobTemplateForFormFailure,
+  GetJobTemplateForFormSuccess,
+  SearchJobTemplates,
+  SearchJobTemplatesFailure,
+  SearchJobTemplatesSuccess,
+} from './job-templates.actions';
 import { State, jobTemplatesReducer } from './job-templates.reducers';
 import { JobTemplateModel, JobTemplateModelFactory } from '../../models/jobTemplate.model';
 import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
+import { JobParametersModelFactory } from '../../models/jobParameters.model';
+import { JobTemplateFormEntryModel } from '../../models/jobTemplateFormEntry.model';
 
 describe('JobTemplatesReducers', () => {
   const initialState = {
@@ -25,6 +34,13 @@ describe('JobTemplatesReducers', () => {
     total: 0,
     page: 1,
     loading: false,
+    jobTemplateAction: {
+      id: undefined,
+      loading: true,
+      isSuccessfullyLoaded: false,
+      jobTemplate: undefined,
+      jobTemplateFormEntries: [],
+    },
   } as State;
 
   it('should set loading to true on search job templates', () => {
@@ -36,7 +52,13 @@ describe('JobTemplatesReducers', () => {
   });
 
   it('should set job templates, total and loading to false on search job templates success', () => {
-    const jobTemplate = JobTemplateModelFactory.create(0, 'templateName', 'fromConfig', { name: 'jobType' });
+    const jobTemplate = JobTemplateModelFactory.create(
+      0,
+      'templateName',
+      'fromConfig',
+      { name: 'jobType' },
+      JobParametersModelFactory.createEmpty(),
+    );
 
     const jobTemplateSearchResult = new TableSearchResponseModel<JobTemplateModel>([jobTemplate], 1);
     const jobTemplatesAction = new SearchJobTemplatesSuccess({ jobTemplatesSearchResponse: jobTemplateSearchResult });
@@ -57,5 +79,65 @@ describe('JobTemplatesReducers', () => {
     const actual = jobTemplatesReducer(initialState, jobTemplatesAction);
 
     expect(actual).toEqual({ ...initialState, loading: false });
+  });
+
+  it('should set loading to true and job template id on get job template for form', () => {
+    const id = 999;
+    const jobTemplatesAction = new GetJobTemplateForForm(id);
+
+    const actual = jobTemplatesReducer(initialState, jobTemplatesAction);
+
+    expect(actual).toEqual({
+      ...initialState,
+      jobTemplateAction: {
+        ...initialState.jobTemplateAction,
+        id: id,
+        loading: true,
+      },
+    });
+  });
+
+  it('should set all job template action fields on get job template for form success', () => {
+    const jobTemplate = JobTemplateModelFactory.create(
+      0,
+      'templateName',
+      'fromConfig',
+      { name: 'jobType' },
+      JobParametersModelFactory.createEmpty(),
+    );
+    const jobTemplateFormEntries = [];
+
+    const jobTemplatesAction = new GetJobTemplateForFormSuccess({
+      jobTemplate: jobTemplate,
+      jobTemplateFormEntries: jobTemplateFormEntries,
+    });
+
+    const actual = jobTemplatesReducer(initialState, jobTemplatesAction);
+
+    expect(actual).toEqual({
+      ...initialState,
+      jobTemplateAction: {
+        ...initialState.jobTemplateAction,
+        loading: false,
+        isSuccessfullyLoaded: true,
+        jobTemplate: jobTemplate,
+        jobTemplateFormEntries: jobTemplateFormEntries,
+      },
+    });
+  });
+
+  it('should set loading and successfully loaded to false on get job template for form failure', () => {
+    const jobTemplatesAction = new GetJobTemplateForFormFailure();
+
+    const actual = jobTemplatesReducer(initialState, jobTemplatesAction);
+
+    expect(actual).toEqual({
+      ...initialState,
+      jobTemplateAction: {
+        ...initialState.jobTemplateAction,
+        loading: false,
+        isSuccessfullyLoaded: false,
+      },
+    });
   });
 });

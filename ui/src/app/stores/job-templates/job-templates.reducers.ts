@@ -15,12 +15,20 @@
 
 import * as JobTemplatesActions from './job-templates.actions';
 import { JobTemplateModel } from '../../models/jobTemplate.model';
+import { JobTemplateFormEntryModel } from '../../models/jobTemplateFormEntry.model';
 
 export interface State {
   jobTemplates: JobTemplateModel[];
   total: number;
   page: number;
   loading: boolean;
+  jobTemplateAction: {
+    id: number;
+    loading: boolean;
+    isSuccessfullyLoaded: boolean;
+    jobTemplate: JobTemplateModel;
+    jobTemplateFormEntries: JobTemplateFormEntryModel[];
+  };
 }
 
 const initialState: State = {
@@ -28,6 +36,13 @@ const initialState: State = {
   total: 0,
   page: 1,
   loading: false,
+  jobTemplateAction: {
+    id: undefined,
+    loading: true,
+    isSuccessfullyLoaded: false,
+    jobTemplate: undefined,
+    jobTemplateFormEntries: [],
+  },
 };
 
 export function jobTemplatesReducer(state: State = initialState, action: JobTemplatesActions.JobTemplatesActions) {
@@ -43,5 +58,36 @@ export function jobTemplatesReducer(state: State = initialState, action: JobTemp
       };
     case JobTemplatesActions.SEARCH_JOB_TEMPLATES_FAILURE:
       return { ...initialState, loading: false };
+    case JobTemplatesActions.GET_JOB_TEMPLATE_FOR_FORM:
+      return {
+        ...state,
+        jobTemplateAction: {
+          ...initialState.jobTemplateAction,
+          id: action.payload,
+          loading: true,
+        },
+      };
+    case JobTemplatesActions.GET_JOB_TEMPLATE_FOR_FORM_SUCCESS:
+      return {
+        ...state,
+        jobTemplateAction: {
+          ...state.jobTemplateAction,
+          loading: false,
+          isSuccessfullyLoaded: true,
+          jobTemplate: action.payload.jobTemplate,
+          jobTemplateFormEntries: action.payload.jobTemplateFormEntries,
+        },
+      };
+    case JobTemplatesActions.GET_JOB_TEMPLATE_FOR_FORM_FAILURE:
+      return {
+        ...state,
+        jobTemplateAction: {
+          ...initialState.jobTemplateAction,
+          loading: false,
+          isSuccessfullyLoaded: false,
+        },
+      };
+    default:
+      return state;
   }
 }
