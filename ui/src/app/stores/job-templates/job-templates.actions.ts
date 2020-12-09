@@ -23,7 +23,8 @@ export const SEARCH_JOB_TEMPLATES = 'SEARCH_JOB_TEMPLATES';
 export const SEARCH_JOB_TEMPLATES_SUCCESS = 'SEARCH_JOB_TEMPLATES_SUCCESS';
 export const SEARCH_JOB_TEMPLATES_FAILURE = 'SEARCH_JOB_TEMPLATES_FAILURE';
 export const GET_JOB_TEMPLATE_FOR_FORM = 'GET_JOB_TEMPLATE_FOR_FORM';
-export const GET_JOB_TEMPLATE_FOR_FORM_SUCCESS = 'GET_JOB_TEMPLATE_FOR_FORM_SUCCESS';
+export const SET_JOB_TEMPLATE_FOR_FORM = 'SET_JOB_TEMPLATE_FOR_FORM';
+export const SET_JOB_TEMPLATE_PARTS_FOR_FORM = 'SET_JOB_TEMPLATE_PARTS_FOR_FORM';
 export const GET_JOB_TEMPLATE_FOR_FORM_FAILURE = 'GET_JOB_TEMPLATE_FOR_FORM_FAILURE';
 
 export class SearchJobTemplates implements Action {
@@ -45,9 +46,14 @@ export class GetJobTemplateForForm implements Action {
   constructor(public payload: number) {}
 }
 
-export class GetJobTemplateForFormSuccess implements Action {
-  readonly type = GET_JOB_TEMPLATE_FOR_FORM_SUCCESS;
-  constructor(public payload: { jobTemplate: JobTemplateModel; jobTemplateFormEntries: JobTemplateFormEntryModel[] }) {}
+export class SetJobTemplateForFrom implements Action {
+  readonly type = SET_JOB_TEMPLATE_FOR_FORM;
+  constructor(public payload: JobTemplateModel) {}
+}
+
+export class SetJobTemplatePartsForFrom implements Action {
+  readonly type = SET_JOB_TEMPLATE_PARTS_FOR_FORM;
+  constructor(public payload: JobTemplateFormEntryModel[]) {}
 }
 
 export class GetJobTemplateForFormFailure implements Action {
@@ -59,5 +65,6 @@ export type JobTemplatesActions =
   | SearchJobTemplatesSuccess
   | SearchJobTemplatesFailure
   | GetJobTemplateForForm
-  | GetJobTemplateForFormSuccess
+  | SetJobTemplateForFrom
+  | SetJobTemplatePartsForFrom
   | GetJobTemplateForFormFailure;
