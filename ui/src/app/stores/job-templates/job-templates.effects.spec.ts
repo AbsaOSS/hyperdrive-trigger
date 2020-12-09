@@ -24,13 +24,17 @@ import { SortAttributesModel } from '../../models/search/sortAttributes.model';
 import { JobTemplatesEffects } from './job-templates.effects';
 import { JobTemplateService } from '../../services/job-template/job-template.service';
 import { JobTemplateModel, JobTemplateModelFactory } from '../../models/jobTemplate.model';
-import { SearchJobTemplates } from './job-templates.actions';
+import { GetJobTemplateForForm, SearchJobTemplates, SetJobTemplateForFrom } from './job-templates.actions';
 import * as JobTemplatesActions from './job-templates.actions';
 import { Spy, createSpyFromClass } from 'jasmine-auto-spies';
+import { JobParametersModelFactory } from '../../models/jobParameters.model';
+import { WorkflowService } from '../../services/workflow/workflow.service';
+import { DynamicFormPart } from '../../models/workflowFormParts.model';
 
 describe('JobTemplatesEffects', () => {
   let underTest: JobTemplatesEffects;
   let jobTemplateService: Spy<JobTemplateService>;
+  let workflowService: Spy<WorkflowService>;
   let mockActions: Observable<any>;
 
   beforeEach(() => {
@@ -38,18 +42,27 @@ describe('JobTemplatesEffects', () => {
       providers: [
         JobTemplatesEffects,
         { provide: JobTemplateService, useValue: createSpyFromClass(JobTemplateService) },
+        { provide: WorkflowService, useValue: createSpyFromClass(WorkflowService) },
         provideMockActions(() => mockActions),
       ],
       imports: [HttpClientTestingModule],
     });
+
     underTest = TestBed.inject(JobTemplatesEffects);
     jobTemplateService = TestBed.inject<any>(JobTemplateService);
+    workflowService = TestBed.inject<any>(WorkflowService);
     mockActions = TestBed.inject(Actions);
   });
 
   describe('jobTemplatesSearch', () => {
     it('should return job templates', () => {
-      const jobTemplate = JobTemplateModelFactory.create(0, 'templateName', 'fromConfig', { name: 'jobType' });
+      const jobTemplate = JobTemplateModelFactory.create(
+        0,
+        'templateName',
+        'fromConfig',
+        { name: 'jobType' },
+        JobParametersModelFactory.createEmpty(),
+      );
 
       const searchResponse = new TableSearchResponseModel<JobTemplateModel>([jobTemplate], 1);
 
@@ -79,6 +92,91 @@ describe('JobTemplatesEffects', () => {
         },
       });
       expect(underTest.jobTemplatesSearch).toBeObservable(expected);
+    });
+  });
+
+  describe('jobTemplateForFormGet', () => {
+    it('should return job template', () => {
+      const jobTemplate = JobTemplateModelFactory.create(
+        10,
+        'templateName',
+        'fromConfig',
+        { name: 'jobType' },
+        JobParametersModelFactory.createEmpty(),
+      );
+
+      const action = new GetJobTemplateForForm(jobTemplate.id);
+      mockActions = cold('-a', { a: action });
+      const getJobTemplateResponse = cold('-a|', { a: jobTemplate });
+      const expected = cold('--a', {
+        a: {
+          type: JobTemplatesActions.SET_JOB_TEMPLATE_FOR_FORM,
+          payload: jobTemplate,
+        },
+      });
+      jobTemplateService.getJobTemplate.and.returnValue(getJobTemplateResponse);
+
+      expect(underTest.jobTemplateForFormGet).toBeObservable(expected);
+    });
+
+    it('should return get job template failure if jobTemplateService.getJobTemplate responds with an error', () => {
+      const action = new GetJobTemplateForForm(10);
+      mockActions = cold('-a', { a: action });
+      const errorResponse = cold('-#|');
+      jobTemplateService.getJobTemplate.and.returnValue(errorResponse);
+
+      const expected = cold('--a', {
+        a: {
+          type: JobTemplatesActions.GET_JOB_TEMPLATE_FOR_FORM_FAILURE,
+        },
+      });
+      expect(underTest.jobTemplateForFormGet).toBeObservable(expected);
+    });
+  });
+
+  describe('jobTemplateForFormSet', () => {
+    it('should return get job template failure if workflowService.getJobDynamicFormParts responds empty array', () => {
+      const jobTemplate = JobTemplateModelFactory.create(
+        10,
+        'templateName',
+        'fromConfig',
+        { name: 'jobType' },
+        JobParametersModelFactory.createEmpty(),
+      );
+      const dynamicFormParts: DynamicFormPart[] = [];
+
+      const action = new SetJobTemplateForFrom(jobTemplate);
+      mockActions = cold('-a', { a: action });
+      const getJobDynamicFormPartsResponse = cold('-a|', { a: dynamicFormParts });
+      const expected = cold('--a', {
+        a: {
+          type: JobTemplatesActions.GET_JOB_TEMPLATE_FOR_FORM_FAILURE,
+        },
+      });
+      workflowService.getJobDynamicFormParts.and.returnValue(getJobDynamicFormPartsResponse);
+
+      expect(underTest.jobTemplateForFormSet).toBeObservable(expected);
+    });
+
+    it('should return get job template failure if workflowService.getJobDynamicFormParts responds with an error', () => {
+      const jobTemplate = JobTemplateModelFactory.create(
+        10,
+        'templateName',
+        'fromConfig',
+        { name: 'jobType' },
+        JobParametersModelFactory.createEmpty(),
+      );
+      const action = new SetJobTemplateForFrom(jobTemplate);
+      mockActions = cold('-a', { a: action });
+      const errorResponse = cold('-#|');
+      workflowService.getJobDynamicFormParts.and.returnValue(errorResponse);
+
+      const expected = cold('--a', {
+        a: {
+          type: JobTemplatesActions.GET_JOB_TEMPLATE_FOR_FORM_FAILURE,
+        },
+      });
+      expect(underTest.jobTemplateForFormSet).toBeObservable(expected);
     });
   });
 });

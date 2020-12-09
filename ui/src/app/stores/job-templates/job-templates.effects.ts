@@ -20,10 +20,16 @@ import { catchError, mergeMap, switchMap } from 'rxjs/operators';
 import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
 import { JobTemplateService } from '../../services/job-template/job-template.service';
 import { JobTemplateModel } from '../../models/jobTemplate.model';
+import { WorkflowService } from '../../services/workflow/workflow.service';
+
+import { DynamicFormPart } from '../../models/workflowFormParts.model';
+
+import get from 'lodash/get';
+import { JobTemplateFormEntryModel, JobTemplateFormEntryModelFactory } from '../../models/jobTemplateFormEntry.model';
 
 @Injectable()
 export class JobTemplatesEffects {
-  constructor(private actions: Actions, private jobTemplateService: JobTemplateService) {}
+  constructor(private actions: Actions, private jobTemplateService: JobTemplateService, private workflowService: WorkflowService) {}
 
   @Effect({ dispatch: true })
   jobTemplatesSearch = this.actions.pipe(
@@ -42,6 +48,70 @@ export class JobTemplatesEffects {
           return [
             {
               type: JobTemplatesActions.SEARCH_JOB_TEMPLATES_FAILURE,
+            },
+          ];
+        }),
+      );
+    }),
+  );
+
+  @Effect({ dispatch: true })
+  jobTemplateForFormGet = this.actions.pipe(
+    ofType(JobTemplatesActions.GET_JOB_TEMPLATE_FOR_FORM),
+    switchMap((action: JobTemplatesActions.GetJobTemplateForForm) => {
+      return this.jobTemplateService.getJobTemplate(action.payload).pipe(
+        mergeMap((jobTemplate: JobTemplateModel) => {
+          return [
+            {
+              type: JobTemplatesActions.SET_JOB_TEMPLATE_FOR_FORM,
+              payload: jobTemplate,
+            },
+          ];
+        }),
+        catchError(() => {
+          return [
+            {
+              type: JobTemplatesActions.GET_JOB_TEMPLATE_FOR_FORM_FAILURE,
+            },
+          ];
+        }),
+      );
+    }),
+  );
+
+  @Effect({ dispatch: true })
+  jobTemplateForFormSet = this.actions.pipe(
+    ofType(JobTemplatesActions.SET_JOB_TEMPLATE_FOR_FORM),
+    switchMap((action: JobTemplatesActions.SetJobTemplateForFrom) => {
+      return this.workflowService.getJobDynamicFormParts().pipe(
+        mergeMap((jobDynamicFormParts: DynamicFormPart[]) => {
+          const jobTemplate: JobTemplateModel = action.payload;
+          const jobDynamicPartOption = jobDynamicFormParts.find((part) => part.value == jobTemplate.jobType.name);
+          if (jobDynamicPartOption != undefined) {
+            const jobTemplateFormEntries: JobTemplateFormEntryModel[] = jobDynamicPartOption.parts
+              .map((part) => {
+                const value = get(jobTemplate, part.property);
+                return JobTemplateFormEntryModelFactory.create(part, value);
+              })
+              .filter((part) => !!part.value);
+            return [
+              {
+                type: JobTemplatesActions.SET_JOB_TEMPLATE_PARTS_FOR_FORM,
+                payload: jobTemplateFormEntries,
+              },
+            ];
+          } else {
+            return [
+              {
+                type: JobTemplatesActions.GET_JOB_TEMPLATE_FOR_FORM_FAILURE,
+              },
+            ];
+          }
+        }),
+        catchError(() => {
+          return [
+            {
+              type: JobTemplatesActions.GET_JOB_TEMPLATE_FOR_FORM_FAILURE,
             },
           ];
         }),
