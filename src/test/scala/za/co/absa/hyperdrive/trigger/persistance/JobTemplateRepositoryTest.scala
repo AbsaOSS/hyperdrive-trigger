@@ -161,6 +161,6 @@ class JobTemplateRepositoryTest extends FlatSpec with Matchers with BeforeAndAft
 
     val exception = the [ApiException] thrownBy await(jobTemplateRepository.getJobTemplate(jobTemplateId))
 
-    exception.getMessage shouldBe "Job template does not exist!"
+    exception.getMessage shouldBe s"Job template with id ${jobTemplateId} does not exist."
   }
 }

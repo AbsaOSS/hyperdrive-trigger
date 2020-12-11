@@ -40,7 +40,7 @@ class JobTemplateRepositoryImpl extends JobTemplateRepository {
 
   override def getJobTemplate(id: Long)(implicit ec: ExecutionContext): Future[JobTemplate] = db.run(
     jobTemplateTable.filter(_.id === id).result.map(_.headOption.getOrElse(
-      throw new ApiException(ValidationError("Job template does not exist!")))
+      throw new ApiException(ValidationError(s"Job template with id ${id} does not exist.")))
     )
   )
 
