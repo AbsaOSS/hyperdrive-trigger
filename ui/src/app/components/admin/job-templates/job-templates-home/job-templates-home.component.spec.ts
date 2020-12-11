@@ -16,13 +16,14 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { JobTemplatesHomeComponent } from './job-templates-home.component';
-import { MockStore, provideMockStore } from '@ngrx/store/testing';
-import * as fromApp from '../../../../stores/app.reducers';
+import { provideMockStore } from '@ngrx/store/testing';
+import { Router } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
 
 describe('JobTemplatesHomeComponent', () => {
-  let component: JobTemplatesHomeComponent;
+  let underTest: JobTemplatesHomeComponent;
   let fixture: ComponentFixture<JobTemplatesHomeComponent>;
-  let mockStore: MockStore<fromApp.AppState>;
+  let router: Router;
 
   const initialAppState = {};
 
@@ -30,16 +31,18 @@ describe('JobTemplatesHomeComponent', () => {
     TestBed.configureTestingModule({
       providers: [provideMockStore({ initialState: initialAppState })],
       declarations: [JobTemplatesHomeComponent],
+      imports: [RouterTestingModule.withRoutes([])],
     }).compileComponents();
+    router = TestBed.inject(Router);
   }));
 
   beforeEach(() => {
     fixture = TestBed.createComponent(JobTemplatesHomeComponent);
-    component = fixture.componentInstance;
+    underTest = fixture.componentInstance;
     fixture.detectChanges();
   });
 
   it('should create', () => {
-    expect(component).toBeTruthy();
+    expect(underTest).toBeTruthy();
   });
 });
