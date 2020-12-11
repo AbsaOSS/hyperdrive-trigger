@@ -20,7 +20,8 @@ import { JobTemplateService } from './job-template.service';
 import { api } from '../../constants/api.constants';
 import { TableSearchRequestModel } from '../../models/search/tableSearchRequest.model';
 import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
-import { JobTemplateModel } from '../../models/jobTemplate.model';
+import { JobTemplateModel, JobTemplateModelFactory } from '../../models/jobTemplate.model';
+import { JobParametersModelFactory } from '../../models/jobParameters.model';
 
 describe('JobTemplateService', () => {
   let underTest: JobTemplateService;
@@ -55,5 +56,18 @@ describe('JobTemplateService', () => {
     const req = httpTestingController.expectOne(api.SEARCH_JOB_TEMPLATES);
     expect(req.request.method).toEqual('POST');
     req.flush(response);
+  });
+
+  it('getJobTemplate() should return job template', () => {
+    const jobTemplate = JobTemplateModelFactory.create(1, 'name', 'formConfig', undefined, JobParametersModelFactory.createEmpty());
+
+    underTest.getJobTemplate(jobTemplate.id).subscribe(
+      (data) => expect(data).toEqual(jobTemplate),
+      (error) => fail(error),
+    );
+
+    const req = httpTestingController.expectOne(api.GET_JOB_TEMPLATE + `?id=${jobTemplate.id}`);
+    expect(req.request.method).toEqual('GET');
+    req.flush(jobTemplate);
   });
 });

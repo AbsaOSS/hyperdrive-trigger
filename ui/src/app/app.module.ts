@@ -76,6 +76,7 @@ import { BaseUrlInterceptor } from './services/interceptors/baseurl.interceptor'
 import { JobTemplatesComponent } from './components/admin/job-templates/job-templates.component';
 import { JobTemplatesEffects } from './stores/job-templates/job-templates.effects';
 import { JobTemplatesHomeComponent } from './components/admin/job-templates/job-templates-home/job-templates-home.component';
+import { JobTemplateShowComponent } from './components/admin/job-templates/job-template-show/job-template-show.component';
 
 @NgModule({
   declarations: [
@@ -114,6 +115,7 @@ import { JobTemplatesHomeComponent } from './components/admin/job-templates/job-
     LoginDialogComponent,
     JobTemplatesComponent,
     JobTemplatesHomeComponent,
+    JobTemplateShowComponent,
   ],
   imports: [
     BrowserModule,

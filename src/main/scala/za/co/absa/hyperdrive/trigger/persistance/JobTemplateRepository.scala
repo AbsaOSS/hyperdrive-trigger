@@ -17,7 +17,7 @@ package za.co.absa.hyperdrive.trigger.persistance
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype
-import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, GenericDatabaseError}
+import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, ApiException, GenericDatabaseError, ValidationError}
 import za.co.absa.hyperdrive.trigger.models.JobTemplate
 import za.co.absa.hyperdrive.trigger.models.search.{TableSearchRequest, TableSearchResponse}
 
@@ -25,6 +25,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
 trait JobTemplateRepository extends Repository {
+  def getJobTemplate(id: Long)(implicit ec: ExecutionContext): Future[JobTemplate]
   def insertJobTemplate(jobTemplate: JobTemplate)(implicit ec: ExecutionContext): Future[Either[ApiError, Long]]
   def getJobTemplatesByIds(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[JobTemplate]]
   def getJobTemplates()(implicit ec: ExecutionContext): Future[Seq[JobTemplate]]
@@ -36,6 +37,12 @@ trait JobTemplateRepository extends Repository {
 class JobTemplateRepositoryImpl extends JobTemplateRepository {
   import profile.api._
   private val logger = LoggerFactory.getLogger(this.getClass)
+
+  override def getJobTemplate(id: Long)(implicit ec: ExecutionContext): Future[JobTemplate] = db.run(
+    jobTemplateTable.filter(_.id === id).result.map(_.headOption.getOrElse(
+      throw new ApiException(ValidationError(s"Job template with id ${id} does not exist.")))
+    )
+  )
 
   override def getJobTemplatesByIds(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[JobTemplate]] = db.run(
     jobTemplateTable.filter(_.id inSetBind ids).result

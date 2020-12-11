@@ -13,19 +13,22 @@
  * limitations under the License.
  */
 
-import { JobType } from './jobType.model';
-import { JobParametersModel } from './jobParameters.model';
-
-export type JobTemplateModel = {
-  id: number;
-  name: string;
-  formConfig: string;
-  jobType: JobType;
-  jobParameters: JobParametersModel;
+export type JobParametersModel = {
+  variables: Map<string, string>;
+  maps: Map<string, Set<string>>;
+  keyValuePairs: Map<string, Map<string, string>>;
 };
 
-export class JobTemplateModelFactory {
-  static create(id: number, name: string, formConfig: string, jobType: JobType, jobParameters: JobParametersModel): JobTemplateModel {
-    return { id: id, name: name, formConfig: formConfig, jobType: jobType, jobParameters: jobParameters };
+export class JobParametersModelFactory {
+  static create(
+    variables: Map<string, string>,
+    maps: Map<string, Set<string>>,
+    keyValuePairs: Map<string, Map<string, string>>,
+  ): JobParametersModel {
+    return { variables: variables, maps: maps, keyValuePairs: keyValuePairs };
+  }
+
+  static createEmpty(): JobParametersModel {
+    return this.create(new Map(), new Map(), new Map());
   }
 }
