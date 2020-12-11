@@ -62,7 +62,7 @@
           Job Template
         </div>
         <div *ngIf="jobTemplateFormEntries.length == 0" [hidden]="isJobTemplateHidden" class="accordion-content">
-          <h3>Job template is empty!</h3>
+          <h6>Job template has no parameters.</h6>
         </div>
         <div *ngIf="jobTemplateFormEntries.length != 0" [hidden]="isJobTemplateHidden" class="accordion-content">
           <div *ngFor="let jobTemplateFormEntry of jobTemplateFormEntries">
