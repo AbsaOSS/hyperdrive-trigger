@@ -30,12 +30,18 @@ import { Spy, createSpyFromClass } from 'jasmine-auto-spies';
 import { JobParametersModelFactory } from '../../models/jobParameters.model';
 import { WorkflowService } from '../../services/workflow/workflow.service';
 import { DynamicFormPart } from '../../models/workflowFormParts.model';
+import { ToastrService } from 'ngx-toastr';
+import { Router } from '@angular/router';
+import { texts } from '../../constants/texts.constants';
+import { absoluteRoutes } from '../../constants/routes.constants';
 
 describe('JobTemplatesEffects', () => {
   let underTest: JobTemplatesEffects;
   let jobTemplateService: Spy<JobTemplateService>;
   let workflowService: Spy<WorkflowService>;
   let mockActions: Observable<any>;
+  let toastrServiceSpy: Spy<ToastrService>;
+  let routerSpy: Spy<Router>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -43,6 +49,8 @@ describe('JobTemplatesEffects', () => {
         JobTemplatesEffects,
         { provide: JobTemplateService, useValue: createSpyFromClass(JobTemplateService) },
         { provide: WorkflowService, useValue: createSpyFromClass(WorkflowService) },
+        { provide: ToastrService, useValue: createSpyFromClass(ToastrService) },
+        { provide: Router, useValue: createSpyFromClass(Router) },
         provideMockActions(() => mockActions),
       ],
       imports: [HttpClientTestingModule],
@@ -52,6 +60,8 @@ describe('JobTemplatesEffects', () => {
     jobTemplateService = TestBed.inject<any>(JobTemplateService);
     workflowService = TestBed.inject<any>(WorkflowService);
     mockActions = TestBed.inject(Actions);
+    toastrServiceSpy = TestBed.inject<any>(ToastrService);
+    routerSpy = TestBed.inject<any>(Router);
   });
 
   describe('jobTemplatesSearch', () => {
@@ -120,6 +130,9 @@ describe('JobTemplatesEffects', () => {
     });
 
     it('should return get job template failure if jobTemplateService.getJobTemplate responds with an error', () => {
+      const toastrServiceErrorSpy = toastrServiceSpy.error;
+      const routerNavigateByUrlSpy = routerSpy.navigateByUrl;
+
       const action = new GetJobTemplateForForm(10);
       mockActions = cold('-a', { a: action });
       const errorResponse = cold('-#|');
@@ -131,6 +144,8 @@ describe('JobTemplatesEffects', () => {
         },
       });
       expect(underTest.jobTemplateForFormGet).toBeObservable(expected);
+      expect(toastrServiceErrorSpy).toHaveBeenCalledWith(texts.LOAD_JOB_TEMPLATE_FAILURE_NOTIFICATION);
+      expect(routerNavigateByUrlSpy).toHaveBeenCalledWith(absoluteRoutes.JOB_TEMPLATES_HOME);
     });
   });
 

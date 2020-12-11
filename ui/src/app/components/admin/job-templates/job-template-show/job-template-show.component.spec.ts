@@ -30,7 +30,6 @@ describe('JobTemplateShow', () => {
       jobTemplateAction: {
         id: 10,
         loading: false,
-        isSuccessfullyLoaded: true,
         jobTemplate: JobTemplateModelFactory.create(
           0,
           'templateName',
@@ -66,7 +65,6 @@ describe('JobTemplateShow', () => {
       expect(underTest.loading).toBe(initialAppState.jobTemplates.jobTemplateAction.loading);
       expect(underTest.jobTemplate).toBe(initialAppState.jobTemplates.jobTemplateAction.jobTemplate);
       expect(underTest.jobTemplateFormEntries).toBe(initialAppState.jobTemplates.jobTemplateAction.jobTemplateFormEntries);
-      expect(underTest.isSuccessfullyLoaded).toBe(initialAppState.jobTemplates.jobTemplateAction.isSuccessfullyLoaded);
     });
   }));
 

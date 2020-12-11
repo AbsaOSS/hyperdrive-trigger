@@ -36,7 +36,6 @@ export class JobTemplateShowComponent implements OnInit, OnDestroy {
 
   jobTemplate: JobTemplateModel;
   jobTemplateFormEntries: JobTemplateFormEntryModel[] = [];
-  isSuccessfullyLoaded = false;
   loading = false;
 
   isShow = true;
@@ -56,7 +55,6 @@ export class JobTemplateShowComponent implements OnInit, OnDestroy {
       this.loading = state.jobTemplateAction.loading;
       this.jobTemplate = state.jobTemplateAction.jobTemplate;
       this.jobTemplateFormEntries = state.jobTemplateAction.jobTemplateFormEntries;
-      this.isSuccessfullyLoaded = state.jobTemplateAction.isSuccessfullyLoaded;
     });
   }
 

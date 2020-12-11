@@ -38,7 +38,6 @@ describe('JobTemplatesReducers', () => {
     jobTemplateAction: {
       id: undefined,
       loading: true,
-      isSuccessfullyLoaded: false,
       jobTemplate: undefined,
       jobTemplateFormEntries: [],
     },
@@ -132,7 +131,6 @@ describe('JobTemplatesReducers', () => {
       jobTemplateAction: {
         ...initialState.jobTemplateAction,
         loading: false,
-        isSuccessfullyLoaded: true,
         jobTemplateFormEntries: jobTemplateFormEntries,
       },
     });
@@ -148,7 +146,6 @@ describe('JobTemplatesReducers', () => {
       jobTemplateAction: {
         ...initialState.jobTemplateAction,
         loading: false,
-        isSuccessfullyLoaded: false,
       },
     });
   });

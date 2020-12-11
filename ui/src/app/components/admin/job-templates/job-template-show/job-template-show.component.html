@@ -19,7 +19,7 @@
     </span>
 </div>
 
-<div *ngIf="!loading && isSuccessfullyLoaded">
+<div *ngIf="!loading">
   <form clrForm novalidate>
     <div class="card">
       <div class="card-block">
@@ -136,7 +136,3 @@
     </div>
   </form>
 </div>
-
-<h3 *ngIf="!loading && !isSuccessfullyLoaded">
-  Sorry, something went wrong. Try again.
-</h3>

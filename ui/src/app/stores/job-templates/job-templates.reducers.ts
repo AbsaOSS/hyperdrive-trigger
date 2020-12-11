@@ -25,7 +25,6 @@ export interface State {
   jobTemplateAction: {
     id: number;
     loading: boolean;
-    isSuccessfullyLoaded: boolean;
     jobTemplate: JobTemplateModel;
     jobTemplateFormEntries: JobTemplateFormEntryModel[];
   };
@@ -39,7 +38,6 @@ const initialState: State = {
   jobTemplateAction: {
     id: undefined,
     loading: true,
-    isSuccessfullyLoaded: false,
     jobTemplate: undefined,
     jobTemplateFormEntries: [],
   },
@@ -82,7 +80,6 @@ export function jobTemplatesReducer(state: State = initialState, action: JobTemp
         jobTemplateAction: {
           ...state.jobTemplateAction,
           loading: false,
-          isSuccessfullyLoaded: true,
           jobTemplateFormEntries: action.payload,
         },
       };
@@ -92,7 +89,6 @@ export function jobTemplatesReducer(state: State = initialState, action: JobTemp
         jobTemplateAction: {
           ...initialState.jobTemplateAction,
           loading: false,
-          isSuccessfullyLoaded: false,
         },
       };
     default:

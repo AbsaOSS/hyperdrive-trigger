@@ -26,10 +26,20 @@ import { DynamicFormPart } from '../../models/workflowFormParts.model';
 
 import get from 'lodash/get';
 import { JobTemplateFormEntryModel, JobTemplateFormEntryModelFactory } from '../../models/jobTemplateFormEntry.model';
+import { ToastrService } from 'ngx-toastr';
+import { texts } from '../../constants/texts.constants';
+import { absoluteRoutes } from '../../constants/routes.constants';
+import { Router } from '@angular/router';
 
 @Injectable()
 export class JobTemplatesEffects {
-  constructor(private actions: Actions, private jobTemplateService: JobTemplateService, private workflowService: WorkflowService) {}
+  constructor(
+    private actions: Actions,
+    private jobTemplateService: JobTemplateService,
+    private workflowService: WorkflowService,
+    private toastrService: ToastrService,
+    private router: Router,
+  ) {}
 
   @Effect({ dispatch: true })
   jobTemplatesSearch = this.actions.pipe(
@@ -69,6 +79,8 @@ export class JobTemplatesEffects {
           ];
         }),
         catchError(() => {
+          this.toastrService.error(texts.LOAD_JOB_TEMPLATE_FAILURE_NOTIFICATION);
+          this.router.navigateByUrl(absoluteRoutes.JOB_TEMPLATES_HOME);
           return [
             {
               type: JobTemplatesActions.GET_JOB_TEMPLATE_FOR_FORM_FAILURE,
