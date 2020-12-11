@@ -59,9 +59,16 @@
   <clr-dg-placeholder>We couldn't find any job templates!</clr-dg-placeholder>
 
   <clr-dg-row *ngFor="let jobTemplate of jobTemplates" [clrDgItem]="jobTemplate">
-    <clr-dg-cell>{{jobTemplate.name}}</clr-dg-cell>
-    <clr-dg-cell>{{jobTemplate.formConfig}}</clr-dg-cell>
-    <clr-dg-cell>{{jobTemplate.jobType.name}}</clr-dg-cell>
+    <clr-dg-action-overflow>
+      <button type="button" class="action-item" [routerLink]="[absoluteRoutes.SHOW_JOB_TEMPLATE, jobTemplate.id]">
+        <clr-icon shape="eye"></clr-icon>
+        Show
+      </button>
+    </clr-dg-action-overflow>
+
+    <clr-dg-cell (dblclick)="showJobTemplate(jobTemplate.id)">{{jobTemplate.name}}</clr-dg-cell>
+    <clr-dg-cell (dblclick)="showJobTemplate(jobTemplate.id)">{{jobTemplate.formConfig}}</clr-dg-cell>
+    <clr-dg-cell (dblclick)="showJobTemplate(jobTemplate.id)">{{jobTemplate.jobType.name}}</clr-dg-cell>
   </clr-dg-row>
 
   <clr-dg-footer>

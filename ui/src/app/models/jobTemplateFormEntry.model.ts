@@ -13,19 +13,15 @@
  * limitations under the License.
  */
 
-import { JobType } from './jobType.model';
-import { JobParametersModel } from './jobParameters.model';
+import { FormPart } from './workflowFormParts.model';
 
-export type JobTemplateModel = {
-  id: number;
-  name: string;
-  formConfig: string;
-  jobType: JobType;
-  jobParameters: JobParametersModel;
+export type JobTemplateFormEntryModel = {
+  formPart: FormPart;
+  value: any;
 };
 
-export class JobTemplateModelFactory {
-  static create(id: number, name: string, formConfig: string, jobType: JobType, jobParameters: JobParametersModel): JobTemplateModel {
-    return { id: id, name: name, formConfig: formConfig, jobType: jobType, jobParameters: jobParameters };
+export class JobTemplateFormEntryModelFactory {
+  static create(formPart: FormPart, value: any): JobTemplateFormEntryModel {
+    return { formPart: formPart, value: value };
   }
 }

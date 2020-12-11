@@ -27,6 +27,7 @@ import { WorkflowComparisonComponent } from './components/workflows/workflow-his
 import { WelcomeComponent } from './components/auth/welcome/welcome.component';
 import { JobTemplatesComponent } from './components/admin/job-templates/job-templates.component';
 import { JobTemplatesHomeComponent } from './components/admin/job-templates/job-templates-home/job-templates-home.component';
+import { JobTemplateShowComponent } from './components/admin/job-templates/job-template-show/job-template-show.component';
 
 const routes: Routes = [
   { path: routeNames.DEFAULT, redirectTo: routeNames.WORKFLOWS, pathMatch: 'full', canActivate: [AuthGuardService] },
@@ -49,7 +50,10 @@ const routes: Routes = [
     path: routeNames.JOB_TEMPLATES,
     component: JobTemplatesComponent,
     canActivate: [AuthGuardService],
-    children: [{ path: routeNames.JOB_TEMPLATES_HOME, component: JobTemplatesHomeComponent, pathMatch: 'full' }],
+    children: [
+      { path: routeNames.JOB_TEMPLATES_HOME, component: JobTemplatesHomeComponent, pathMatch: 'full' },
+      { path: routeNames.JOB_TEMPLATE_SHOW, component: JobTemplateShowComponent },
+    ],
   },
 ];
 

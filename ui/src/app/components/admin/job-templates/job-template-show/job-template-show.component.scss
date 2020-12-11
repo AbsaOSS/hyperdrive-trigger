@@ -1,4 +1,4 @@
-/*
+/*!
  * Copyright 2018 ABSA Group Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,19 +13,10 @@
  * limitations under the License.
  */
 
-import { JobType } from './jobType.model';
-import { JobParametersModel } from './jobParameters.model';
+@import 'src/app/components/workflows/workflow-form/workflow-form.component';
 
-export type JobTemplateModel = {
-  id: number;
-  name: string;
-  formConfig: string;
-  jobType: JobType;
-  jobParameters: JobParametersModel;
-};
-
-export class JobTemplateModelFactory {
-  static create(id: number, name: string, formConfig: string, jobType: JobType, jobParameters: JobParametersModel): JobTemplateModel {
-    return { id: id, name: name, formConfig: formConfig, jobType: jobType, jobParameters: jobParameters };
-  }
+.loading {
+  position: fixed;
+  top: 50%;
+  right: 50%;
 }

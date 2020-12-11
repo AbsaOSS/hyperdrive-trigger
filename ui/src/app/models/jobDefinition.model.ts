@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+import { JobParametersModel, JobParametersModelFactory } from './jobParameters.model';
+
 export type JobDefinitionModel = {
   dagDefinitionId: number;
   name: string;
@@ -21,21 +23,6 @@ export type JobDefinitionModel = {
   order: number;
   id: number;
 };
-
-export type JobParametersModel = {
-  variables: Map<string, string>;
-  maps: Map<string, Set<string>>;
-};
-
-export class JobParametersModelFactory {
-  static create(variables: Map<string, string>, maps: Map<string, Set<string>>): JobParametersModel {
-    return { variables: variables, maps: maps };
-  }
-
-  static createEmpty(): JobParametersModel {
-    return this.create(new Map(), new Map());
-  }
-}
 
 export class JobDefinitionModelFactory {
   static create(
