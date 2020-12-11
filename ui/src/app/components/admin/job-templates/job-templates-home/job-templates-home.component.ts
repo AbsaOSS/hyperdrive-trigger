@@ -30,6 +30,7 @@ import { skip } from 'rxjs/operators';
 import { jobTemplateColumns } from '../../../../constants/jobTemplateColumns.constants';
 import { SearchJobTemplates } from '../../../../stores/job-templates/job-templates.actions';
 import { absoluteRoutes } from 'src/app/constants/routes.constants';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-job-templates-home',
@@ -57,7 +58,7 @@ export class JobTemplatesHomeComponent implements AfterViewInit, OnDestroy {
   removeFiltersSubject: Subject<any> = new Subject();
   refreshSubject: Subject<boolean> = new Subject<boolean>();
 
-  constructor(private store: Store<AppState>) {}
+  constructor(private store: Store<AppState>, private router: Router) {}
 
   ngAfterViewInit(): void {
     this.templatesSubscription = this.store
@@ -67,6 +68,7 @@ export class JobTemplatesHomeComponent implements AfterViewInit, OnDestroy {
         this.jobTemplates = state.jobTemplates;
         this.total = state.total;
         this.loading = state.loading;
+        this.page = state.page;
       });
   }
 
@@ -101,6 +103,10 @@ export class JobTemplatesHomeComponent implements AfterViewInit, OnDestroy {
 
   clearSort() {
     !!this.sort ? (this.columns.find((_) => _.field == this.sort.by).sortOrder = 0) : undefined;
+  }
+
+  showJobTemplate(id: number) {
+    this.router.navigate([absoluteRoutes.SHOW_JOB_TEMPLATE, id]);
   }
 
   ngOnDestroy(): void {
