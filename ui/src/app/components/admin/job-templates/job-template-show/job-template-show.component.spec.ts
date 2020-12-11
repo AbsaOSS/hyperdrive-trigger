@@ -77,8 +77,8 @@ describe('JobTemplateShow', () => {
   });
 
   it('toggleJobTemplateAccordion() should toggle job template accordion', () => {
-    expect(underTest.isJobTemplateHidden).toBeFalse();
-    underTest.toggleJobTemplateAccordion();
-    expect(underTest.isJobTemplateHidden).toBeTrue();
+    expect(underTest.isJobTemplateParametersHidden).toBeFalse();
+    underTest.toggleJobTemplateParametersAccordion();
+    expect(underTest.isJobTemplateParametersHidden).toBeTrue();
   });
 });

@@ -43,7 +43,7 @@ export class JobTemplateShowComponent implements OnInit, OnDestroy {
   partValidation: PartValidation = PartValidationFactory.create(true, 1000, 1);
 
   isJobTemplateInfoHidden = false;
-  isJobTemplateHidden = false;
+  isJobTemplateParametersHidden = false;
 
   constructor(private store: Store<AppState>, route: ActivatedRoute) {
     this.paramsSubscription = route.params.subscribe((parameters) => {
@@ -64,8 +64,8 @@ export class JobTemplateShowComponent implements OnInit, OnDestroy {
     this.isJobTemplateInfoHidden = !this.isJobTemplateInfoHidden;
   }
 
-  toggleJobTemplateAccordion() {
-    this.isJobTemplateHidden = !this.isJobTemplateHidden;
+  toggleJobTemplateParametersAccordion() {
+    this.isJobTemplateParametersHidden = !this.isJobTemplateParametersHidden;
   }
 
   ngOnDestroy(): void {

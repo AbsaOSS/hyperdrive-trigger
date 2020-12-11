@@ -57,14 +57,14 @@
     </div>
     <div class="card">
       <div class="card-block">
-        <div class="card-title notSelectable" (click)="toggleJobTemplateAccordion()">
-          <clr-icon shape="angle" [dir]="isJobTemplateHidden?'right':'down'"></clr-icon>
-          Job Template
+        <div class="card-title notSelectable" (click)="toggleJobTemplateParametersAccordion()">
+          <clr-icon shape="angle" [dir]="isJobTemplateParametersHidden?'right':'down'"></clr-icon>
+          Job Template Parameters
         </div>
-        <div *ngIf="jobTemplateFormEntries.length == 0" [hidden]="isJobTemplateHidden" class="accordion-content">
+        <div *ngIf="jobTemplateFormEntries.length == 0" [hidden]="isJobTemplateParametersHidden" class="accordion-content">
           <h6>Job template has no parameters.</h6>
         </div>
-        <div *ngIf="jobTemplateFormEntries.length != 0" [hidden]="isJobTemplateHidden" class="accordion-content">
+        <div *ngIf="jobTemplateFormEntries.length != 0" [hidden]="isJobTemplateParametersHidden" class="accordion-content">
           <div *ngFor="let jobTemplateFormEntry of jobTemplateFormEntries">
             <div [ngSwitch]="jobTemplateFormEntry.formPart.type">
               <app-string-part
