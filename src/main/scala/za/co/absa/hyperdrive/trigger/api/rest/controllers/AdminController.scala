@@ -17,9 +17,9 @@ package za.co.absa.hyperdrive.trigger.api.rest.controllers
 
 import java.util.concurrent.CompletableFuture
 
+import za.co.absa.hyperdrive.trigger.api.rest.services.AdminService
 import javax.inject.Inject
 import org.springframework.web.bind.annotation._
-import za.co.absa.hyperdrive.trigger.api.rest.services.AdminService
 
 import scala.compat.java8.FutureConverters._
 
