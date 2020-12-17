@@ -113,6 +113,7 @@
         <scalatest-maven-plugin.version>2.0.0</scalatest-maven-plugin.version>
         <frontend.maven.plugin.version>1.9.0</frontend.maven.plugin.version>
         <commons.lang3.version>3.11</commons.lang3.version>
+        <javamelody.spring.boot.starter.version>1.86.0</javamelody.spring.boot.starter.version>
         <buildnumber.maven.plugin.version>1.4</buildnumber.maven.plugin.version>
 
 
@@ -217,7 +218,11 @@
             <artifactId>commons-lang3</artifactId>
             <version>${commons.lang3.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>net.bull.javamelody</groupId>
+            <artifactId>javamelody-spring-boot-starter</artifactId>
+            <version>${javamelody.spring.boot.starter.version}</version>
+        </dependency>
         <!--TESTS-->
         <dependency>
             <groupId>org.scalatest</groupId>
