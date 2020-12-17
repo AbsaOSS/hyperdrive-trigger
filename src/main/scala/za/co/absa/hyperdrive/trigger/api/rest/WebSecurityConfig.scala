@@ -24,7 +24,7 @@ import org.springframework.context.annotation.{Bean, Configuration}
 import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
-import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.builders.{HttpSecurity, WebSecurity}
 import org.springframework.security.config.annotation.web.configuration.{EnableWebSecurity, WebSecurityConfigurerAdapter}
 import org.springframework.security.core.{Authentication, AuthenticationException}
 import org.springframework.security.web.AuthenticationEntryPoint
@@ -61,6 +61,11 @@ class WebSecurityConfig {
     authenticationFailureHandler: AuthenticationFailureHandler,
     logoutSuccessHandler: LogoutSuccessHandler
   ) extends WebSecurityConfigurerAdapter {
+
+    override def configure(web: WebSecurity): Unit = {
+      // Disable security for isManager endpoint
+      web.ignoring.antMatchers("/admin/isManager")
+    }
 
     override def configure(http: HttpSecurity) {
       http
