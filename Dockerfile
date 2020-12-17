@@ -42,6 +42,9 @@ RUN apk upgrade --update && \
     apk del curl && \
     rm -rf /tmp/* /var/cache/apk/*
 
+
+spark-here.
+
 COPY ${WAR_FILE} ${TOMCAT_HOME}/webapps/hyperdrive_trigger.war
 
 CMD ["catalina.sh", "run"]
