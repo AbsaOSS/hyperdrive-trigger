@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright 2018 ABSA Group Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,18 +13,15 @@
  * limitations under the License.
  */
 
-.loading {
-  position: fixed;
-  top: 50%;
-  right: 50%;
-}
+import { FormPart } from './workflowFormParts.model';
 
-.active-dropdown {
-  background: rgba(255, 255, 255, 0.15);
-  opacity: 1;
-  clr-dropdown {
-    button {
-      opacity: 1;
-    }
+export type JobTemplateFormEntryModel = {
+  formPart: FormPart;
+  value: any;
+};
+
+export class JobTemplateFormEntryModelFactory {
+  static create(formPart: FormPart, value: any): JobTemplateFormEntryModel {
+    return { formPart: formPart, value: value };
   }
 }

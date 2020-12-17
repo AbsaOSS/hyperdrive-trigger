@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright 2018 ABSA Group Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,18 +13,15 @@
  * limitations under the License.
  */
 
-.loading {
-  position: fixed;
-  top: 50%;
-  right: 50%;
-}
+import { Component } from '@angular/core';
 
-.active-dropdown {
-  background: rgba(255, 255, 255, 0.15);
-  opacity: 1;
-  clr-dropdown {
-    button {
-      opacity: 1;
-    }
+@Component({
+  selector: 'app-job-templates',
+  templateUrl: './job-templates.component.html',
+  styleUrls: ['./job-templates.component.scss'],
+})
+export class JobTemplatesComponent {
+  constructor() {
+    //do nothing
   }
 }

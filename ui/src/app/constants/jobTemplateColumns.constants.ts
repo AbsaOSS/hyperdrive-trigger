@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright 2018 ABSA Group Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,18 +13,8 @@
  * limitations under the License.
  */
 
-.loading {
-  position: fixed;
-  top: 50%;
-  right: 50%;
-}
-
-.active-dropdown {
-  background: rgba(255, 255, 255, 0.15);
-  opacity: 1;
-  clr-dropdown {
-    button {
-      opacity: 1;
-    }
-  }
-}
+export const jobTemplateColumns = {
+  NAME: 'name',
+  FORM_CONFIG: 'formConfig',
+  JOB_TYPE: 'jobType',
+};

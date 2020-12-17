@@ -14,6 +14,7 @@
  */
 
 import { workflowModes } from '../models/enums/workflowModes.constants';
+import { jobTemplateModes } from '../models/enums/jobTemplateModes.constants';
 
 export const routeNames = {
   DEFAULT: '',
@@ -26,6 +27,10 @@ export const routeNames = {
   WORKFLOW_HISTORY_COMPARISON: 'workflows/show/:id/history/:historyIdLeft/compareWith/:historyIdRight',
   RUNS: 'runs',
   RUNS_WITH_WORKFLOW_ID: 'runs/:workflowId',
+  ADMIN: 'admin',
+  JOB_TEMPLATES: 'admin/job-templates',
+  JOB_TEMPLATES_HOME: '',
+  JOB_TEMPLATE_SHOW: 'show/:id',
 };
 
 export const absoluteRoutes = {
@@ -39,6 +44,10 @@ export const absoluteRoutes = {
   COPY_WORKFLOW: `/${routeNames.WORKFLOWS}/${workflowModes.COPY}`,
   IMPORT_WORKFLOW: `/${routeNames.WORKFLOWS}/${workflowModes.IMPORT}`,
   RUNS: `/${routeNames.RUNS}`,
+  ADMIN: `/${routeNames.ADMIN}`,
+  JOB_TEMPLATES: `/${routeNames.JOB_TEMPLATES}`,
+  JOB_TEMPLATES_HOME: `/${routeNames.JOB_TEMPLATES}`,
+  SHOW_JOB_TEMPLATE: `/${routeNames.JOB_TEMPLATES}/${jobTemplateModes.SHOW}`,
   RUNS_WITH_WORKFLOW_ID(workflowId: number): string {
     return `/runs/${workflowId}`;
   },
