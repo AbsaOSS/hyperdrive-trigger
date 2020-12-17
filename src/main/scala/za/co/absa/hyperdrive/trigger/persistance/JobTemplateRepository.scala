@@ -17,23 +17,32 @@ package za.co.absa.hyperdrive.trigger.persistance
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype
-import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, GenericDatabaseError}
+import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, ApiException, GenericDatabaseError, ValidationError}
 import za.co.absa.hyperdrive.trigger.models.JobTemplate
+import za.co.absa.hyperdrive.trigger.models.search.{TableSearchRequest, TableSearchResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
 trait JobTemplateRepository extends Repository {
+  def getJobTemplate(id: Long)(implicit ec: ExecutionContext): Future[JobTemplate]
   def insertJobTemplate(jobTemplate: JobTemplate)(implicit ec: ExecutionContext): Future[Either[ApiError, Long]]
   def getJobTemplatesByIds(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[JobTemplate]]
   def getJobTemplates()(implicit ec: ExecutionContext): Future[Seq[JobTemplate]]
   def getJobTemplateIdsByNames(names: Seq[String])(implicit ec: ExecutionContext): Future[Map[String, Long]]
+  def searchJobTemplates(searchRequest: TableSearchRequest)(implicit ec: ExecutionContext): Future[TableSearchResponse[JobTemplate]]
 }
 
 @stereotype.Repository
 class JobTemplateRepositoryImpl extends JobTemplateRepository {
   import profile.api._
   private val logger = LoggerFactory.getLogger(this.getClass)
+
+  override def getJobTemplate(id: Long)(implicit ec: ExecutionContext): Future[JobTemplate] = db.run(
+    jobTemplateTable.filter(_.id === id).result.map(_.headOption.getOrElse(
+      throw new ApiException(ValidationError(s"Job template with id ${id} does not exist.")))
+    )
+  )
 
   override def getJobTemplatesByIds(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[JobTemplate]] = db.run(
     jobTemplateTable.filter(_.id inSetBind ids).result
@@ -64,4 +73,8 @@ class JobTemplateRepositoryImpl extends JobTemplateRepository {
       .map(jobTemplate => jobTemplate.name -> jobTemplate.id)
       .result
   ).flatMap(seq => Future{seq.toMap})
+
+  override def searchJobTemplates(searchRequest: TableSearchRequest)(implicit ec: ExecutionContext): Future[TableSearchResponse[JobTemplate]] = {
+    db.run(jobTemplateTable.search(searchRequest))
+  }
 }

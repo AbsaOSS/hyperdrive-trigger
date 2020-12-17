@@ -23,6 +23,7 @@ import { WorkflowModelFactory } from '../../models/workflow.model';
 import { WorkflowJoinedModelFactory } from '../../models/workflowJoined.model';
 import { jobTemplateFormConfigs } from '../../constants/jobTemplates.constants';
 import { JobTemplateModelFactory } from '../../models/jobTemplate.model';
+import { JobParametersModelFactory } from '../../models/jobParameters.model';
 
 describe('WorkflowService', () => {
   let underTest: WorkflowService;
@@ -227,6 +228,14 @@ describe('WorkflowService', () => {
 
     const req = httpTestingController.expectOne(encodeURI(api.GET_JOB_TEMPLATES));
     expect(req.request.method).toEqual('GET');
-    req.flush([JobTemplateModelFactory.create(0, templateName, jobTemplateFormConfigs.SHELL)]);
+    req.flush([
+      JobTemplateModelFactory.create(
+        0,
+        templateName,
+        jobTemplateFormConfigs.SHELL,
+        { name: 'Spark' },
+        JobParametersModelFactory.createEmpty(),
+      ),
+    ]);
   });
 });

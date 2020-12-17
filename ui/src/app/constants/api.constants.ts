@@ -38,6 +38,8 @@ export const api = {
   GET_JOBS_FOR_RUN: '/jobsForRun',
 
   GET_JOB_TEMPLATES: '/jobTemplates',
+  SEARCH_JOB_TEMPLATES: '/jobTemplates/search',
+  GET_JOB_TEMPLATE: '/jobTemplate',
 
   GET_QUARTZ_DETAIL: '/util/quartzDetail',
 };

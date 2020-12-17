@@ -85,4 +85,6 @@ export const texts = {
   },
   FORM_VALIDATION_QUARTZ_CRON: 'Quartz cron expression must be set correctly.',
   FORM_VALIDATION_QUARTZ_CRON_CLR_ERR: 'Incorrect expression!',
+
+  LOAD_JOB_TEMPLATE_FAILURE_NOTIFICATION: "Sorry, job template couldn't be loaded. Please try again.",
 };

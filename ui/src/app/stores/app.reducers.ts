@@ -18,21 +18,25 @@ import * as fromApplication from './application/application.reducers';
 import * as fromAuth from './auth/auth.reducers';
 import * as fromRuns from './runs/runs.reducers';
 import * as fromWorkflows from './workflows/workflows.reducers';
+import * as fromJobTemplates from './job-templates/job-templates.reducers';
 import { applicationReducer } from './application/application.reducers';
 import { authReducer } from './auth/auth.reducers';
 import { runsReducer } from './runs/runs.reducers';
 import { workflowsReducer } from './workflows/workflows.reducers';
+import { jobTemplatesReducer } from './job-templates/job-templates.reducers';
 
 export const applicationKey = 'application';
 export const authKey = 'auth';
 export const runsKey = 'runs';
 export const workflowsKey = 'workflows';
+export const jobTemplatesKey = 'jobTemplates';
 
 export interface AppState {
   [applicationKey]: fromApplication.State;
   [authKey]: fromAuth.State;
   [runsKey]: fromRuns.State;
   [workflowsKey]: fromWorkflows.State;
+  [jobTemplatesKey]: fromJobTemplates.State;
 }
 
 export const reducers: ActionReducerMap<AppState> = {
@@ -40,9 +44,11 @@ export const reducers: ActionReducerMap<AppState> = {
   [authKey]: authReducer,
   [runsKey]: runsReducer,
   [workflowsKey]: workflowsReducer,
+  [jobTemplatesKey]: jobTemplatesReducer,
 };
 
 export const selectApplicationState = createFeatureSelector<AppState, fromApplication.State>(applicationKey);
 export const selectAuthState = createFeatureSelector<AppState, fromAuth.State>(authKey);
 export const selectRunState = createFeatureSelector<AppState, fromRuns.State>(runsKey);
 export const selectWorkflowState = createFeatureSelector<AppState, fromWorkflows.State>(workflowsKey);
+export const selectJobTemplatesState = createFeatureSelector<AppState, fromJobTemplates.State>(jobTemplatesKey);

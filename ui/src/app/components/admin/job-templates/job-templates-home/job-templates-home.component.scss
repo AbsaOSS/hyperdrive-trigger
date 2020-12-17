@@ -13,18 +13,7 @@
  * limitations under the License.
  */
 
-.loading {
-  position: fixed;
-  top: 50%;
-  right: 50%;
-}
-
-.active-dropdown {
-  background: rgba(255, 255, 255, 0.15);
-  opacity: 1;
-  clr-dropdown {
-    button {
-      opacity: 1;
-    }
-  }
+clr-datagrid {
+  height: 100%;
+  width: 100%;
 }

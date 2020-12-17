@@ -21,6 +21,7 @@ import javax.inject.Inject
 import org.springframework.web.bind.annotation._
 import za.co.absa.hyperdrive.trigger.api.rest.services.JobTemplateService
 import za.co.absa.hyperdrive.trigger.models.JobTemplate
+import za.co.absa.hyperdrive.trigger.models.search.{TableSearchRequest, TableSearchResponse}
 
 import scala.compat.java8.FutureConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -28,9 +29,20 @@ import scala.concurrent.ExecutionContext.Implicits.global
 @RestController
 class JobTemplateController @Inject()(jobTemplateService: JobTemplateService) {
 
+  @GetMapping(path = Array("/jobTemplate"))
+  def getJobTemplate(@RequestParam id: Long): CompletableFuture[JobTemplate] = {
+    jobTemplateService.getJobTemplate(id).toJava.toCompletableFuture
+  }
+
   @GetMapping(path = Array("/jobTemplates"))
   def getJobTemplates: CompletableFuture[Seq[JobTemplate]] = {
     jobTemplateService.getJobTemplates().toJava.toCompletableFuture
   }
+
+  @PostMapping(path = Array("/jobTemplates/search"))
+  def searchJobTemplates(@RequestBody searchRequest: TableSearchRequest): CompletableFuture[TableSearchResponse[JobTemplate]] = {
+    jobTemplateService.searchJobTemplates(searchRequest).toJava.toCompletableFuture
+  }
+
 }
 
