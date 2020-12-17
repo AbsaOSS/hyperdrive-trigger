@@ -25,6 +25,9 @@ import { WorkflowComponent } from './components/workflows/workflow/workflow.comp
 import { WorkflowHistoryComponent } from './components/workflows/workflow-history/workflow-history.component';
 import { WorkflowComparisonComponent } from './components/workflows/workflow-history/workflow-comparison/workflow-comparison.component';
 import { WelcomeComponent } from './components/auth/welcome/welcome.component';
+import { JobTemplatesComponent } from './components/admin/job-templates/job-templates.component';
+import { JobTemplatesHomeComponent } from './components/admin/job-templates/job-templates-home/job-templates-home.component';
+import { JobTemplateShowComponent } from './components/admin/job-templates/job-template-show/job-template-show.component';
 
 const routes: Routes = [
   { path: routeNames.DEFAULT, redirectTo: routeNames.WORKFLOWS, pathMatch: 'full', canActivate: [AuthGuardService] },
@@ -43,6 +46,15 @@ const routes: Routes = [
   { path: routeNames.WORKFLOW_HISTORY_COMPARISON, component: WorkflowComparisonComponent, canActivate: [AuthGuardService] },
   { path: routeNames.RUNS, component: RunsComponent, canActivate: [AuthGuardService] },
   { path: routeNames.RUNS_WITH_WORKFLOW_ID, component: RunsComponent, canActivate: [AuthGuardService] },
+  {
+    path: routeNames.JOB_TEMPLATES,
+    component: JobTemplatesComponent,
+    canActivate: [AuthGuardService],
+    children: [
+      { path: routeNames.JOB_TEMPLATES_HOME, component: JobTemplatesHomeComponent, pathMatch: 'full' },
+      { path: routeNames.JOB_TEMPLATE_SHOW, component: JobTemplateShowComponent },
+    ],
+  },
 ];
 
 @NgModule({

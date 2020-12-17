@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright 2018 ABSA Group Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,18 +13,22 @@
  * limitations under the License.
  */
 
-.loading {
-  position: fixed;
-  top: 50%;
-  right: 50%;
-}
+export type JobParametersModel = {
+  variables: Map<string, string>;
+  maps: Map<string, Set<string>>;
+  keyValuePairs: Map<string, Map<string, string>>;
+};
 
-.active-dropdown {
-  background: rgba(255, 255, 255, 0.15);
-  opacity: 1;
-  clr-dropdown {
-    button {
-      opacity: 1;
-    }
+export class JobParametersModelFactory {
+  static create(
+    variables: Map<string, string>,
+    maps: Map<string, Set<string>>,
+    keyValuePairs: Map<string, Map<string, string>>,
+  ): JobParametersModel {
+    return { variables: variables, maps: maps, keyValuePairs: keyValuePairs };
+  }
+
+  static createEmpty(): JobParametersModel {
+    return this.create(new Map(), new Map(), new Map());
   }
 }

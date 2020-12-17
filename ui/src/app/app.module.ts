@@ -72,6 +72,10 @@ import { WorkflowRunComponent } from './components/workflows/workflow-run/workfl
 import { BooleanFilterComponent } from './components/common/datagrid/filters/boolean-filter/boolean-filter.component';
 import { WelcomeComponent } from './components/auth/welcome/welcome.component';
 import { LoginDialogComponent } from './components/auth/login-dialog/login-dialog.component';
+import { JobTemplatesComponent } from './components/admin/job-templates/job-templates.component';
+import { JobTemplatesEffects } from './stores/job-templates/job-templates.effects';
+import { JobTemplatesHomeComponent } from './components/admin/job-templates/job-templates-home/job-templates-home.component';
+import { JobTemplateShowComponent } from './components/admin/job-templates/job-template-show/job-template-show.component';
 
 @NgModule({
   declarations: [
@@ -108,6 +112,9 @@ import { LoginDialogComponent } from './components/auth/login-dialog/login-dialo
     BooleanFilterComponent,
     WelcomeComponent,
     LoginDialogComponent,
+    JobTemplatesComponent,
+    JobTemplatesHomeComponent,
+    JobTemplateShowComponent,
   ],
   imports: [
     BrowserModule,
@@ -120,7 +127,7 @@ import { LoginDialogComponent } from './components/auth/login-dialog/login-dialo
       timeOut: 5000,
     }),
     StoreModule.forRoot(reducers),
-    EffectsModule.forRoot([ApplicationEffects, AuthEffects, RunsEffects, WorkflowsEffects]),
+    EffectsModule.forRoot([ApplicationEffects, AuthEffects, RunsEffects, WorkflowsEffects, JobTemplatesEffects]),
     StoreRouterConnectingModule.forRoot(),
     !environment.production ? StoreDevtoolsModule.instrument() : [],
   ],
