@@ -16,11 +16,13 @@
 
 package za.co.absa.hyperdrive.trigger.models.errors
 
+import za.co.absa.hyperdrive.trigger.models.WorkflowJoined
 import za.co.absa.hyperdrive.trigger.models.errors.ApiErrorTypes._
 
 trait ApiError {
   val message: String
   val errorType: ApiErrorType
+  def unwrapError(): ApiError = this
 }
 
 case class ValidationError(
@@ -33,9 +35,23 @@ case class DatabaseError(
   override val errorType: ApiErrorType = DatabaseErrorType
 ) extends ApiError
 
-case class ImportError(
+case class GenericError(
   override val message: String,
-  override val errorType: ApiErrorType = ImportErrorType
+  override val errorType: ApiErrorType = GenericErrorType
 ) extends ApiError
+
+case class BulkOperationError(
+  workflowIdentifier: String,
+  innerError: ApiError
+) extends ApiError {
+  override val message: String = s"${workflowIdentifier}: ${innerError.message}"
+  override val errorType: ApiErrorType = BulkOperationErrorType
+  override def unwrapError(): ApiError = innerError
+}
+object BulkOperationError {
+  def apply(workflowJoined: WorkflowJoined, innerError: ApiError): BulkOperationError = {
+    BulkOperationError(workflowJoined.name, innerError)
+  }
+}
 
 object GenericDatabaseError extends DatabaseError("Unexpected error occurred")

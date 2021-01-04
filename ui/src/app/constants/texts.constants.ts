@@ -53,11 +53,15 @@ export const texts = {
   UPDATE_WORKFLOW_SUCCESS_NOTIFICATION: 'Workflow has been updated.',
   UPDATE_WORKFLOW_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
 
-  EXPORT_WORKFLOW_SUCCESS_NOTIFICATION: 'Workflow has been exported.',
-  EXPORT_WORKFLOW_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
+  EXPORT_WORKFLOWS_SUCCESS_NOTIFICATION: 'Export successful.',
+  EXPORT_WORKFLOWS_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
 
   IMPORT_WORKFLOW_SUCCESS_NOTIFICATION: 'Workflow has been imported.',
   IMPORT_WORKFLOW_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Please double-check the import file and try again.',
+
+  IMPORT_WORKFLOWS_SUCCESS_NOTIFICATION: 'Workflows have been imported.',
+  IMPORT_WORKFLOWS_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Please double-check the import file and try again.',
+  IMPORT_WORKFLOWS_BULK_FAILURE_TITLE: 'Import of workflows failed. Please check the following errors.',
 
   LOAD_HISTORY_FOR_WORKFLOW_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
   LOAD_WORKFLOWS_FROM_HISTORY_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
@@ -81,4 +85,6 @@ export const texts = {
   },
   FORM_VALIDATION_QUARTZ_CRON: 'Quartz cron expression must be set correctly.',
   FORM_VALIDATION_QUARTZ_CRON_CLR_ERR: 'Incorrect expression!',
+
+  LOAD_JOB_TEMPLATE_FAILURE_NOTIFICATION: "Sorry, job template couldn't be loaded. Please try again.",
 };

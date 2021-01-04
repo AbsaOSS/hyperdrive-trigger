@@ -85,12 +85,16 @@ export const LOAD_WORKFLOWS_FROM_HISTORY = 'LOAD_WORKFLOWS_FROM_HISTORY';
 export const LOAD_WORKFLOWS_FROM_HISTORY_SUCCESS = 'LOAD_WORKFLOWS_FROM_HISTORY_SUCCESS';
 export const LOAD_WORKFLOWS_FROM_HISTORY_FAILURE = 'LOAD_WORKFLOWS_FROM_HISTORY_FAILURE';
 
-export const EXPORT_WORKFLOW = 'EXPORT_WORKFLOW';
-export const EXPORT_WORKFLOW_DONE = 'EXPORT_WORKFLOW_DONE';
+export const EXPORT_WORKFLOWS = 'EXPORT_WORKFLOW';
+export const EXPORT_WORKFLOWS_DONE = 'EXPORT_WORKFLOW_DONE';
 
 export const SET_WORKFLOW_FILE = 'SET_WORKFLOW_FILE';
 export const IMPORT_WORKFLOW = 'IMPORT_WORKFLOW';
 export const IMPORT_WORKFLOW_FAILURE = 'IMPORT_WORKFLOW_FAILURE';
+
+export const IMPORT_WORKFLOWS = 'IMPORT_WORKFLOWS';
+export const IMPORT_WORKFLOWS_SUCCESS = 'IMPORT_WORKFLOWS_SUCCESS';
+export const IMPORT_WORKFLOWS_FAILURE = 'IMPORT_WORKFLOWS_FAILURE';
 
 export class InitializeWorkflows implements Action {
   readonly type = INITIALIZE_WORKFLOWS;
@@ -328,13 +332,13 @@ export class LoadWorkflowsFromHistoryFailure implements Action {
   readonly type = LOAD_WORKFLOWS_FROM_HISTORY_FAILURE;
 }
 
-export class ExportWorkflow implements Action {
-  readonly type = EXPORT_WORKFLOW;
-  constructor(public payload: number) {}
+export class ExportWorkflows implements Action {
+  readonly type = EXPORT_WORKFLOWS;
+  constructor(public payload: number[]) {}
 }
 
-export class ExportWorkflowDone implements Action {
-  readonly type = EXPORT_WORKFLOW_DONE;
+export class ExportWorkflowsDone implements Action {
+  readonly type = EXPORT_WORKFLOWS_DONE;
 }
 
 export class SetWorkflowFile implements Action {
@@ -348,6 +352,20 @@ export class ImportWorkflow implements Action {
 
 export class ImportWorkflowFailure implements Action {
   readonly type = IMPORT_WORKFLOW_FAILURE;
+}
+
+export class ImportWorkflows implements Action {
+  readonly type = IMPORT_WORKFLOWS;
+  constructor(public payload: File) {}
+}
+
+export class ImportWorkflowsSuccess implements Action {
+  readonly type = IMPORT_WORKFLOWS_SUCCESS;
+  constructor(public payload: ProjectModel[]) {}
+}
+
+export class ImportWorkflowsFailure implements Action {
+  readonly type = IMPORT_WORKFLOWS_FAILURE;
 }
 
 export type WorkflowsActions =
@@ -398,8 +416,11 @@ export type WorkflowsActions =
   | LoadWorkflowsFromHistory
   | LoadWorkflowsFromHistorySuccess
   | LoadWorkflowsFromHistoryFailure
-  | ExportWorkflow
-  | ExportWorkflowDone
+  | ExportWorkflows
+  | ExportWorkflowsDone
   | SetWorkflowFile
   | ImportWorkflow
-  | ImportWorkflowFailure;
+  | ImportWorkflowFailure
+  | ImportWorkflows
+  | ImportWorkflowsSuccess
+  | ImportWorkflowsFailure;

@@ -23,6 +23,7 @@ import { WorkflowModelFactory } from '../../models/workflow.model';
 import { WorkflowJoinedModelFactory } from '../../models/workflowJoined.model';
 import { jobTemplateFormConfigs } from '../../constants/jobTemplates.constants';
 import { JobTemplateModelFactory } from '../../models/jobTemplate.model';
+import { JobParametersModelFactory } from '../../models/jobParameters.model';
 
 describe('WorkflowService', () => {
   let underTest: WorkflowService;
@@ -119,15 +120,15 @@ describe('WorkflowService', () => {
     const content = '{"workflowId":"1"}';
     const blob = new Blob([content], { type: 'application/json' });
     const filename = 'filename.json';
-    const id = 1;
-    underTest.exportWorkflow(id).subscribe(
+    const ids = [1, 2];
+    underTest.exportWorkflows(ids).subscribe(
       (data) => {
         expect(data.fileName).toEqual(filename);
         expect(data.blob).toEqual(blob);
       },
       (error) => fail(error),
     );
-    const req = httpTestingController.expectOne(api.EXPORT_WORKFLOW + `?id=${id}`);
+    const req = httpTestingController.expectOne(api.EXPORT_WORKFLOWS + `?jobIds=${ids.join(',')}`);
     expect(req.request.method).toEqual('GET');
     req.flush(blob, {
       headers: { 'Content-Disposition': `attachment; filename=${filename}` },
@@ -146,6 +147,21 @@ describe('WorkflowService', () => {
     const req = httpTestingController.expectOne(api.IMPORT_WORKFLOW);
     expect(req.request.method).toEqual('POST');
     req.flush(workflow);
+  });
+
+  it('importWorkflows() should return project list', () => {
+    const workflow = WorkflowModelFactory.create('workflowName', true, 'projectName', new Date(Date.now()), new Date(Date.now()), 0);
+    const projects = [ProjectModelFactory.create('newProject', [workflow])];
+    const file: File = new File(['content'], 'workflows.zip');
+
+    underTest.importWorkflows(file).subscribe(
+      (data) => expect(data).toEqual(projects),
+      (error) => fail(error),
+    );
+
+    const req = httpTestingController.expectOne(api.IMPORT_WORKFLOWS);
+    expect(req.request.method).toEqual('POST');
+    req.flush(projects);
   });
 
   it('createWorkflow() should return created workflow', () => {
@@ -212,6 +228,14 @@ describe('WorkflowService', () => {
 
     const req = httpTestingController.expectOne(encodeURI(api.GET_JOB_TEMPLATES));
     expect(req.request.method).toEqual('GET');
-    req.flush([JobTemplateModelFactory.create(0, templateName, jobTemplateFormConfigs.SHELL)]);
+    req.flush([
+      JobTemplateModelFactory.create(
+        0,
+        templateName,
+        jobTemplateFormConfigs.SHELL,
+        { name: 'Spark' },
+        JobParametersModelFactory.createEmpty(),
+      ),
+    ]);
   });
 });

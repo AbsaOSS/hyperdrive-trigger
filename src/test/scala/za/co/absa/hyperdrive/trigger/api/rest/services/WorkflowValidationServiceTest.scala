@@ -15,19 +15,18 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
-import java.util.concurrent.TimeUnit
-
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{eq => eqTo, _}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, Matchers}
-import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, ValidationError}
+import za.co.absa.hyperdrive.trigger.TestUtils.await
+import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, ApiException, BulkOperationError, ValidationError}
 import za.co.absa.hyperdrive.trigger.persistance.WorkflowRepository
 
 import scala.collection.immutable.SortedMap
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.{ExecutionContext, Future}
 
 class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar with BeforeAndAfter {
   private val workflowRepository = mock[WorkflowRepository]
@@ -40,57 +39,81 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
     // given
     val underTest = new WorkflowValidationServiceImpl(workflowRepository)
     val workflowJoined = WorkflowFixture.createWorkflowJoined()
-    when(workflowRepository.existsWorkflow(eqTo(workflowJoined.name))(any[ExecutionContext])).thenReturn(Future{false})
+    when(workflowRepository.existsWorkflows(eqTo(Seq(workflowJoined.name)))(any[ExecutionContext])).thenReturn(Future{Seq()})
 
     // when
-    val result = Await.result(underTest.validateOnInsert(workflowJoined), Duration(120, TimeUnit.SECONDS))
+    await(underTest.validateOnInsert(workflowJoined))
 
     // then
-    result.isEmpty shouldBe true
+    // should not throw an exception
+    1 shouldBe 1
   }
 
-  it should "fail if the workflow name already exists" in {
+  "validateOnInsert" should "return None if all entities are valid" in {
     // given
     val underTest = new WorkflowValidationServiceImpl(workflowRepository)
-    val workflow = WorkflowFixture.createWorkflowJoined()
-    when(workflowRepository.existsWorkflow(eqTo(workflow.name))(any[ExecutionContext])).thenReturn(Future{true})
+    val workflows = Seq(WorkflowFixture.createWorkflowJoined(), WorkflowFixture.createTimeBasedShellScriptWorkflow("p"))
+    when(workflowRepository.existsWorkflows(any())(any[ExecutionContext])).thenReturn(Future{Seq()})
 
     // when
-    val result = Await.result(underTest.validateOnInsert(workflow), Duration(120, TimeUnit.SECONDS))
+    await(underTest.validateOnInsert(workflows))
 
     // then
-    result.nonEmpty shouldBe true
-    result should contain theSameElementsInOrderAs Seq(ValidationError("Workflow name already exists"))
+    val stringsCaptor: ArgumentCaptor[Seq[String]] = ArgumentCaptor.forClass(classOf[Seq[String]])
+    verify(workflowRepository).existsWorkflows(stringsCaptor.capture())(any())
+    stringsCaptor.getValue should contain theSameElementsAs workflows.map(_.name)
   }
 
-  it should "fail if the project name is empty" in {
+  it should "fail if one of the workflow names already exists" in {
+    // given
+    val underTest = new WorkflowValidationServiceImpl(workflowRepository)
+    val workflow1 = WorkflowFixture.createWorkflowJoined()
+    val workflows = Seq(workflow1, WorkflowFixture.createTimeBasedShellScriptWorkflow("p"))
+    when(workflowRepository.existsWorkflows(any())(any[ExecutionContext])).thenReturn(Future{Seq(workflow1.name)})
+
+    // when
+    val result = the [ApiException] thrownBy await(underTest.validateOnInsert(workflows))
+
+    // then
+    result.apiErrors should have size 1
+    result.apiErrors.head shouldBe BulkOperationError(workflow1, ValidationError("Workflow name already exists"))
+  }
+
+  it should "fail if one of the project names is empty" in {
     // given
     val underTest = new WorkflowValidationServiceImpl(workflowRepository)
     val workflow = WorkflowFixture.createWorkflowJoined()
     val invalidWorkflow = workflow.copy(project = "")
-    when(workflowRepository.existsWorkflow(eqTo(invalidWorkflow.name))(any[ExecutionContext])).thenReturn(Future{false})
+    val workflows = Seq(workflow, invalidWorkflow)
+    when(workflowRepository.existsWorkflows(any())(any[ExecutionContext])).thenReturn(Future{Seq()})
 
     // when
-    val result = Await.result(underTest.validateOnInsert(invalidWorkflow), Duration(120, TimeUnit.SECONDS))
+    val result = the [ApiException] thrownBy await(underTest.validateOnInsert(workflows))
 
     // then
-    result.nonEmpty shouldBe true
-    result should contain theSameElementsInOrderAs Seq(ValidationError("Project must not be empty"))
+    result.apiErrors should have size 1
+    result.apiErrors.head shouldBe BulkOperationError(invalidWorkflow, ValidationError("Project must not be empty"))
   }
 
-  it should "fail if the project name is not defined" in {
+  it should "fail and report all errors" in {
     // given
     val underTest = new WorkflowValidationServiceImpl(workflowRepository)
-    val workflow = WorkflowFixture.createWorkflowJoined()
-    val invalidWorkflow = workflow.copy(project = null)
-    when(workflowRepository.existsWorkflow(eqTo(invalidWorkflow.name))(any[ExecutionContext])).thenReturn(Future{false})
+    val workflow = WorkflowFixture.createWorkflowJoined().copy(name = "workflow")
+    val invalidWorkflow = workflow.copy(name = "invalidWorkflow", project = null)
+    val invalidWorkflow2 = workflow.copy(name = "invalidWorkflow2", project = "")
+    when(workflowRepository.existsWorkflows(any())(any[ExecutionContext])).thenReturn(Future{Seq(invalidWorkflow2.name)})
 
     // when
-    val result = Await.result(underTest.validateOnInsert(invalidWorkflow), Duration(120, TimeUnit.SECONDS))
+    val workflows = Seq(workflow, invalidWorkflow, invalidWorkflow2)
+    val result = the [ApiException] thrownBy await(underTest.validateOnInsert(workflows))
 
     // then
-    result.nonEmpty shouldBe true
-    result should contain theSameElementsInOrderAs Seq(ValidationError("Project must be set"))
+    result.apiErrors should have size 3
+    result.apiErrors should contain theSameElementsAs Seq(
+      BulkOperationError(invalidWorkflow, ValidationError("Project must be set")),
+      BulkOperationError(invalidWorkflow2, ValidationError("Project must not be empty")),
+      BulkOperationError(invalidWorkflow2, ValidationError("Workflow name already exists"))
+    )
   }
 
   "validateOnUpdate" should "return None if entity is valid" in {
@@ -101,10 +124,11 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
     when(workflowRepository.existsOtherWorkflow(eqTo(updatedWorkflow.name), eqTo(updatedWorkflow.id))(any[ExecutionContext])).thenReturn(Future{false})
 
     // when
-    val result = Await.result(underTest.validateOnUpdate(originalWorkflow, updatedWorkflow), Duration(120, TimeUnit.SECONDS))
+    await(underTest.validateOnUpdate(originalWorkflow, updatedWorkflow))
 
     // then
-    result.isEmpty shouldBe true
+    // should not throw an exception
+    1 shouldBe 1
   }
 
   it should "fail if the workflow name already exists in another entity" in {
@@ -115,11 +139,11 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
     when(workflowRepository.existsOtherWorkflow(eqTo(updatedWorkflow.name), eqTo(updatedWorkflow.id))(any[ExecutionContext])).thenReturn(Future{true})
 
     // when
-    val result = Await.result(underTest.validateOnUpdate(originalWorkflow, updatedWorkflow), Duration(120, TimeUnit.SECONDS))
+    val result = the [ApiException] thrownBy await(underTest.validateOnUpdate(originalWorkflow, updatedWorkflow))
 
     // then
-    result.nonEmpty shouldBe true
-    result should contain theSameElementsInOrderAs Seq(ValidationError("Workflow name already exists"))
+    result.apiErrors should have size 1
+    result.apiErrors.head shouldBe ValidationError("Workflow name already exists")
   }
 
   it should "fail if the project name is empty" in {
@@ -130,11 +154,11 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
     when(workflowRepository.existsOtherWorkflow(eqTo(updatedWorkflow.name), eqTo(updatedWorkflow.id))(any[ExecutionContext])).thenReturn(Future{false})
 
     // when
-    val result = Await.result(underTest.validateOnUpdate(originalWorkflow, updatedWorkflow), Duration(120, TimeUnit.SECONDS))
+    val result = the [ApiException] thrownBy await(underTest.validateOnUpdate(originalWorkflow, updatedWorkflow))
 
     // then
-    result.nonEmpty shouldBe true
-    result should contain theSameElementsInOrderAs Seq(ValidationError("Project must not be empty"))
+    result.apiErrors should have size 1
+    result.apiErrors.head shouldBe ValidationError("Project must not be empty")
   }
 
   "areMapsEqual" should "return true if maps contain same elements otherwise false" in {
@@ -202,9 +226,9 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
     val underTest = new WorkflowValidationServiceImpl(workflowRepository)
 
     // then
-    Await.result(underTest.validateWorkflowData(originalWorkflow, originalWorkflow.copy()), Duration(120, TimeUnit.SECONDS)) shouldBe Seq(ValidationError("Nothing to update"))
-    Await.result(underTest.validateWorkflowData(originalWorkflow, changeInDetails), Duration(120, TimeUnit.SECONDS)) shouldBe Seq.empty[ApiError]
-    Await.result(underTest.validateWorkflowData(originalWorkflow, changeInSensor), Duration(120, TimeUnit.SECONDS)) shouldBe Seq.empty[ApiError]
-    Await.result(underTest.validateWorkflowData(originalWorkflow, changeInJobs), Duration(120, TimeUnit.SECONDS)) shouldBe Seq.empty[ApiError]
+    await(underTest.validateWorkflowData(originalWorkflow, originalWorkflow.copy())) shouldBe Seq(ValidationError("Nothing to update"))
+    await(underTest.validateWorkflowData(originalWorkflow, changeInDetails)) shouldBe Seq.empty[ApiError]
+    await(underTest.validateWorkflowData(originalWorkflow, changeInSensor)) shouldBe Seq.empty[ApiError]
+    await(underTest.validateWorkflowData(originalWorkflow, changeInJobs)) shouldBe Seq.empty[ApiError]
   }
 }

@@ -23,7 +23,7 @@ import * as WorkflowsActions from './workflows.actions';
 import {
   CreateWorkflow,
   DeleteWorkflow,
-  ExportWorkflow,
+  ExportWorkflows,
   ImportWorkflow,
   InitializeWorkflows,
   LoadHistoryForWorkflow,
@@ -33,6 +33,7 @@ import {
   SwitchWorkflowActiveState,
   UpdateWorkflow,
   UpdateWorkflowsIsActive,
+  ImportWorkflows,
 } from './workflows.actions';
 
 import { WorkflowsEffects } from './workflows.effects';
@@ -70,6 +71,8 @@ import { WorkflowHistoryService } from '../../services/workflowHistory/workflow-
 import { HistoryModel, HistoryModelFactory } from '../../models/historyModel';
 import { JobForRunModelFactory } from '../../models/jobForRun.model';
 import { JobService } from '../../services/job/job.service';
+import { UtilService } from 'src/app/services/util/util.service';
+import { BulkOperationErrorModelFactory } from 'src/app/models/errors/bulkOperationError.model';
 
 describe('WorkflowsEffects', () => {
   let underTest: WorkflowsEffects;
@@ -79,6 +82,7 @@ describe('WorkflowsEffects', () => {
   let mockActions: Observable<any>;
   let mockStore: MockStore;
   let toastrService: ToastrService;
+  let utilService: UtilService;
   let router: Router;
 
   const initialAppState = {
@@ -121,6 +125,7 @@ describe('WorkflowsEffects', () => {
     mockActions = TestBed.inject(Actions);
     mockStore = TestBed.inject(MockStore);
     toastrService = TestBed.inject(ToastrService);
+    utilService = TestBed.inject(UtilService);
     router = TestBed.inject(Router);
   });
 
@@ -911,21 +916,21 @@ describe('WorkflowsEffects', () => {
       const blob = new Blob(['hello', ' ', 'world'], { type: 'text/plain' });
       const response = { blob: blob, fileName: 'fileName' };
 
-      const action = new ExportWorkflow(workflowId);
+      const action = new ExportWorkflows([workflowId]);
       mockActions = cold('-a', { a: action });
 
       const exportWorkflowResponse = cold('-a|', { a: response });
       const expected = cold('--a', {
         a: {
-          type: WorkflowsActions.EXPORT_WORKFLOW_DONE,
+          type: WorkflowsActions.EXPORT_WORKFLOWS_DONE,
         },
       });
 
-      spyOn(workflowService, 'exportWorkflow').and.returnValue(exportWorkflowResponse);
+      spyOn(workflowService, 'exportWorkflows').and.returnValue(exportWorkflowResponse);
 
       expect(underTest.workflowExport).toBeObservable(expected);
       expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
-      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.EXPORT_WORKFLOW_SUCCESS_NOTIFICATION);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.EXPORT_WORKFLOWS_SUCCESS_NOTIFICATION);
       expect(aSpy.click).toHaveBeenCalledTimes(1);
       expect(aSpy.click).toHaveBeenCalledWith();
       expect(aSpy.remove).toHaveBeenCalledTimes(1);
@@ -936,20 +941,20 @@ describe('WorkflowsEffects', () => {
       const toastrServiceSpy = spyOn(toastrService, 'error');
       const workflowId = 42;
 
-      const action = new ExportWorkflow(workflowId);
+      const action = new ExportWorkflows([workflowId]);
       mockActions = cold('-a', { a: action });
 
       const exportWorkflowResponse = cold('-#|');
-      spyOn(workflowService, 'exportWorkflow').and.returnValue(exportWorkflowResponse);
+      spyOn(workflowService, 'exportWorkflows').and.returnValue(exportWorkflowResponse);
 
       const expected = cold('--a', {
         a: {
-          type: WorkflowsActions.EXPORT_WORKFLOW_DONE,
+          type: WorkflowsActions.EXPORT_WORKFLOWS_DONE,
         },
       });
       expect(underTest.workflowExport).toBeObservable(expected);
       expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
-      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.EXPORT_WORKFLOW_FAILURE_NOTIFICATION);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.EXPORT_WORKFLOWS_FAILURE_NOTIFICATION);
     });
   });
 
@@ -1053,6 +1058,87 @@ describe('WorkflowsEffects', () => {
       expect(toastrServiceSpy).toHaveBeenCalledWith(texts.IMPORT_WORKFLOW_FAILURE_NOTIFICATION);
       expect(routerSpy).toHaveBeenCalledTimes(1);
       expect(routerSpy).toHaveBeenCalledWith(absoluteRoutes.WORKFLOWS);
+    });
+  });
+
+  describe('workflowsImport', () => {
+    it('should import multiple workflows', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'success');
+      const w1 = WorkflowModelFactory.create('w1', true, 'p1', new Date(Date.now()), new Date(Date.now()), 1);
+      const w2 = WorkflowModelFactory.create('w2', true, 'p1', new Date(Date.now()), new Date(Date.now()), 2);
+      const w3 = WorkflowModelFactory.create('w3', true, 'p2', new Date(Date.now()), new Date(Date.now()), 3);
+      const projects = [ProjectModelFactory.create('p1', [w1, w2]), ProjectModelFactory.create('p2', [w3])];
+
+      const file: File = new File(['content'], 'workflows.zip');
+      const action = new ImportWorkflows(file);
+      mockActions = cold('-a', { a: action });
+
+      const importWorkflowResponse = cold('-a|', { a: projects });
+
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowsActions.IMPORT_WORKFLOWS_SUCCESS,
+          payload: projects,
+        },
+      });
+
+      spyOn(workflowService, 'importWorkflows').and.returnValue(importWorkflowResponse);
+
+      expect(underTest.workflowsImport).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.IMPORT_WORKFLOWS_SUCCESS_NOTIFICATION);
+    });
+
+    it('should display failure when service throws an exception while importing workflow', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'error');
+      const file: File = new File(['content'], 'workflows.zip');
+
+      const action = new ImportWorkflows(file);
+      mockActions = cold('-a', { a: action });
+
+      const importWorkflowResponse = cold('-#|');
+      spyOn(workflowService, 'importWorkflows').and.returnValue(importWorkflowResponse);
+
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowsActions.IMPORT_WORKFLOWS_FAILURE,
+        },
+      });
+      expect(underTest.workflowsImport).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.IMPORT_WORKFLOWS_FAILURE_NOTIFICATION);
+    });
+
+    it('should display bulk operation errors grouped by workflow', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'error');
+      const utilServiceSpy = spyOn(utilService, 'generateBulkErrorMessage').and.returnValue('sometext');
+      const file: File = new File(['content'], 'workflows.zip');
+
+      const action = new ImportWorkflows(file);
+      mockActions = cold('-a', { a: action });
+
+      const errorResponse = [
+        BulkOperationErrorModelFactory.create('workflow1', ApiErrorModelFactory.create('message11', { name: 'wrongName' })),
+        BulkOperationErrorModelFactory.create('workflow2', ApiErrorModelFactory.create('message21', { name: 'wrongName' })),
+        BulkOperationErrorModelFactory.create('workflow1', ApiErrorModelFactory.create('message12', { name: 'wrongName' })),
+        BulkOperationErrorModelFactory.create('workflow2', ApiErrorModelFactory.create('message22', { name: 'wrongName' })),
+      ];
+      const importWorkflowResponse = cold('-#|', null, errorResponse);
+      spyOn(workflowService, 'importWorkflows').and.returnValue(importWorkflowResponse);
+
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowsActions.IMPORT_WORKFLOWS_FAILURE,
+        },
+      });
+      expect(underTest.workflowsImport).toBeObservable(expected);
+      const expectedErrorMessagesGroup = {
+        workflow1: ['message11', 'message12'],
+        workflow2: ['message21', 'message22'],
+      };
+      expect(utilServiceSpy).toHaveBeenCalledWith(expectedErrorMessagesGroup);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith('sometext', texts.IMPORT_WORKFLOWS_BULK_FAILURE_TITLE, jasmine.anything());
     });
   });
 });

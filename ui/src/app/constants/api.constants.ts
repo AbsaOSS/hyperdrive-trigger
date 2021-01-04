@@ -25,8 +25,9 @@ export const api = {
   GET_PROJECTS: '/workflows/projects',
   GET_WORKFLOW: '/workflow',
   DELETE_WORKFLOW: '/workflows',
-  EXPORT_WORKFLOW: '/workflow/export',
+  EXPORT_WORKFLOWS: '/workflows/export',
   IMPORT_WORKFLOW: '/workflow/import',
+  IMPORT_WORKFLOWS: '/workflows/import',
   SWITCH_WORKFLOW_ACTIVE_STATE: '/workflows/{id}/switchActiveState',
   UPDATE_WORKFLOWS_IS_ACTIVE: '/workflows/isActive',
   RUN_WORKFLOWS_JOBS: '/workflow/jobs/run',
@@ -37,6 +38,8 @@ export const api = {
   GET_JOBS_FOR_RUN: '/jobsForRun',
 
   GET_JOB_TEMPLATES: '/jobTemplates',
+  SEARCH_JOB_TEMPLATES: '/jobTemplates/search',
+  GET_JOB_TEMPLATE: '/jobTemplate',
 
   GET_QUARTZ_DETAIL: '/util/quartzDetail',
 };

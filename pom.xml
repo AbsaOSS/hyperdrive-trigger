@@ -17,7 +17,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <version>0.2.3-SNAPSHOT</version>
+    <version>0.3.3-SNAPSHOT</version>
     <groupId>za.co.absa</groupId>
     <artifactId>hyperdrive-trigger</artifactId>
     <packaging>war</packaging>
@@ -114,6 +114,7 @@
         <frontend.maven.plugin.version>1.9.0</frontend.maven.plugin.version>
         <maven.war.plugin.version>2.6</maven.war.plugin.version>
         <commons.lang3.version>3.11</commons.lang3.version>
+        <javamelody.spring.boot.starter.version>1.86.0</javamelody.spring.boot.starter.version>
         <buildnumber.maven.plugin.version>1.4</buildnumber.maven.plugin.version>
         <liquibase-maven-plugin.version>3.10.2</liquibase-maven-plugin.version>
         <snakeyaml.version>1.25</snakeyaml.version>
@@ -239,7 +240,11 @@
             <artifactId>commons-lang3</artifactId>
             <version>${commons.lang3.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>net.bull.javamelody</groupId>
+            <artifactId>javamelody-spring-boot-starter</artifactId>
+            <version>${javamelody.spring.boot.starter.version}</version>
+        </dependency>
         <!--TESTS-->
         <dependency>
             <groupId>org.scalatest</groupId>

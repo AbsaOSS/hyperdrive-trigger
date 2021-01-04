@@ -17,7 +17,29 @@
 package za.co.absa.hyperdrive.trigger.models.errors
 
 class ApiException(val apiErrors: Seq[ApiError]) extends RuntimeException {
+
+  def this(apiErrors: Seq[ApiError], cause: Throwable) {
+    this(apiErrors)
+    initCause(cause)
+  }
+
   def this() {
     this(Seq())
+  }
+
+  def this(cause: Throwable) {
+    this(Seq(), cause)
+  }
+
+  def this(apiError: ApiError) {
+    this(Seq(apiError))
+  }
+
+  def this(apiError: ApiError, cause: Throwable) {
+    this(Seq(apiError), cause)
+  }
+
+  override def getMessage: String = {
+    apiErrors.map(_.message).reduce(_ + ". " + _)
   }
 }
