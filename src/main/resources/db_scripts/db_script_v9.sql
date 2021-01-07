@@ -171,3 +171,6 @@ insert into "job_template" ("name", "job_type", "form_config", "variables", "map
 values ('Generic Spark Job', 'Spark', 'Spark', '{}', '{}', '{}');
 insert into "job_template" ("name", "job_type", "form_config", "variables", "maps", "key_value_pairs")
 values ('Generic Shell Job', 'Shell', 'Shell', '{}', '{}', '{}');
+
+CREATE INDEX job_instance_dag_instance_idx ON job_instance (dag_instance_id);
+CREATE INDEX dag_instance_workflow_id_idx ON dag_instance (workflow_id);
