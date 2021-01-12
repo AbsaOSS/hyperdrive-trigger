@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-create table "compute_instance" (
+create table "scheduler_instance" (
   "id" BIGSERIAL NOT NULL PRIMARY KEY,
   "status" VARCHAR NOT NULL,
   "last_ping" TIMESTAMP NOT NULL

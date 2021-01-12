@@ -18,31 +18,31 @@ package za.co.absa.hyperdrive.trigger.models.tables
 import java.time.LocalDateTime
 
 import slick.lifted.ProvenShape
-import za.co.absa.hyperdrive.trigger.models.ComputeInstance
-import za.co.absa.hyperdrive.trigger.models.enums.ComputeInstanceStatuses.ComputeInstanceStatus
+import za.co.absa.hyperdrive.trigger.models.SchedulerInstance
+import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses.SchedulerInstanceStatus
 
-trait ComputeInstanceTable {
+trait SchedulerInstanceTable {
   this: Profile with JdbcTypeMapper =>
   import profile.api._
 
-  final class ComputeInstanceTable(tag: Tag) extends Table[ComputeInstance](tag, _tableName = "compute_instance") {
+  final class SchedulerInstanceTable(tag: Tag) extends Table[SchedulerInstance](tag, _tableName = "scheduler_instance") {
 
     def id: Rep[Long] = column[Long]("id", O.PrimaryKey, O.AutoInc, O.SqlType("BIGSERIAL"))
-    def status: Rep[ComputeInstanceStatus] = column[ComputeInstanceStatus]("status")
+    def status: Rep[SchedulerInstanceStatus] = column[SchedulerInstanceStatus]("status")
     def lastPing: Rep[LocalDateTime] = column[LocalDateTime]("last_ping")
 
-    def * : ProvenShape[ComputeInstance] = (id, status, lastPing) <> (
+    def * : ProvenShape[SchedulerInstance] = (id, status, lastPing) <> (
       tuple =>
-        ComputeInstance.apply(
+        SchedulerInstance.apply(
           id = tuple._1,
           status = tuple._2,
           lastPing = tuple._3
         ),
-      ComputeInstance.unapply
+      SchedulerInstance.unapply
     )
 
   }
 
-  lazy val computeInstanceTable = TableQuery[ComputeInstanceTable]
+  lazy val schedulerInstanceTable = TableQuery[SchedulerInstanceTable]
 
 }

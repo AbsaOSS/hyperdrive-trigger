@@ -58,6 +58,7 @@ class DagInstanceRepositoryImpl extends DagInstanceRepository {
     } yield ()).transactionally
   ).map(_ => (): Unit)
 
+  // TODO: Filter only get dags from assigned workflows
   def getDagsToRun(runningIds: Seq[Long], size: Int)(implicit executionContext: ExecutionContext): Future[Seq[DagInstance]] = {
     val prefilteredResult = db.run(
       dagInstanceTable.filter { di =>

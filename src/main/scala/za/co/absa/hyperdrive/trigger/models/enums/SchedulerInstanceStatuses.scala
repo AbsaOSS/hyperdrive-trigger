@@ -13,14 +13,17 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models
+package za.co.absa.hyperdrive.trigger.models.enums
 
-import java.time.LocalDateTime
+object SchedulerInstanceStatuses {
 
-import za.co.absa.hyperdrive.trigger.models.enums.ComputeInstanceStatuses.ComputeInstanceStatus
+  sealed abstract class SchedulerInstanceStatus(val name: String) {
+    override def toString: String = name
+  }
 
-case class ComputeInstance(
-  id: Long = 0,
-  status: ComputeInstanceStatus,
-  lastPing: LocalDateTime
-)
+  case object Active extends SchedulerInstanceStatus("Active")
+  case object Deactivated extends SchedulerInstanceStatus("Deactivated")
+
+  val statuses: Set[SchedulerInstanceStatus] = Set(Active, Deactivated)
+
+}

@@ -22,7 +22,7 @@ import slick.jdbc.H2Profile
 import za.co.absa.hyperdrive.trigger.TestUtils
 import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.models.dagRuns.DagRun
-import za.co.absa.hyperdrive.trigger.models.enums.{ComputeInstanceStatuses, DagInstanceStatuses, JobTypes, SensorTypes}
+import za.co.absa.hyperdrive.trigger.models.enums.{SchedulerInstanceStatuses, DagInstanceStatuses, JobTypes, SensorTypes}
 
 import scala.collection.immutable.SortedMap
 import scala.concurrent.duration._
@@ -45,7 +45,7 @@ trait RepositoryTestBase extends Repository {
       jobInstanceTable.schema.create,
       eventTable.schema.create,
       dagRunTable.schema.create,
-      computeInstanceTable.schema.create
+      schedulerInstanceTable.schema.create
     )
     run(schema)
   }
@@ -62,7 +62,7 @@ trait RepositoryTestBase extends Repository {
       workflowTable.schema.drop,
       workflowHistoryTable.schema.drop,
       dagRunTable.schema.drop,
-      computeInstanceTable.schema.drop
+      schedulerInstanceTable.schema.drop
     )
     run(schema)
   }
@@ -79,7 +79,7 @@ trait RepositoryTestBase extends Repository {
       workflowTable.delete,
       workflowHistoryTable.delete,
       dagRunTable.delete,
-      computeInstanceTable.delete
+      schedulerInstanceTable.delete
     )
     run(schema)
   }

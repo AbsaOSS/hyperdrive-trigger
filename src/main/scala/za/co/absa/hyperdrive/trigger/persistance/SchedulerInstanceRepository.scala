@@ -18,35 +18,35 @@ package za.co.absa.hyperdrive.trigger.persistance
 import java.time.{Duration, LocalDateTime}
 
 import org.springframework.stereotype
-import za.co.absa.hyperdrive.trigger.models.ComputeInstance
-import za.co.absa.hyperdrive.trigger.models.enums.ComputeInstanceStatuses
-import za.co.absa.hyperdrive.trigger.models.enums.ComputeInstanceStatuses.ComputeInstanceStatus
+import za.co.absa.hyperdrive.trigger.models.SchedulerInstance
+import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses
+import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses.SchedulerInstanceStatus
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
-trait ComputeInstanceRepository extends Repository {
+trait SchedulerInstanceRepository extends Repository {
   def insertInstance()(implicit ec: ExecutionContext): Future[Long]
 
   def updatePing(id: Long)(implicit ec: ExecutionContext): Future[Int]
 
   def deactivateLaggingInstances(currentPing: LocalDateTime, lagTolerance: Duration)(implicit ec: ExecutionContext): Future[Int]
 
-  def getDeactivatedInstances()(implicit ec: ExecutionContext): Future[Seq[ComputeInstance]]
+  def getDeactivatedInstances()(implicit ec: ExecutionContext): Future[Seq[SchedulerInstance]]
 
-  def getActiveInstances()(implicit ec: ExecutionContext): Future[Seq[ComputeInstance]]
+  def getActiveInstances()(implicit ec: ExecutionContext): Future[Seq[SchedulerInstance]]
 }
 
 @stereotype.Repository
-class ComputeInstanceRepositoryImpl extends ComputeInstanceRepository {
+class SchedulerInstanceRepositoryImpl extends SchedulerInstanceRepository {
 
   import profile.api._
 
   override def insertInstance()(implicit ec: ExecutionContext): Future[Long] = {
     db.run {
-      val instance = ComputeInstance(status = ComputeInstanceStatuses.Active, lastPing = LocalDateTime.now())
+      val instance = SchedulerInstance(status = SchedulerInstanceStatuses.Active, lastPing = LocalDateTime.now())
       (for {
-        instanceId <- computeInstanceTable returning computeInstanceTable.map(_.id) += instance
+        instanceId <- schedulerInstanceTable returning schedulerInstanceTable.map(_.id) += instance
       } yield {
         instanceId
       }).transactionally.asTry.map {
@@ -58,26 +58,26 @@ class ComputeInstanceRepositoryImpl extends ComputeInstanceRepository {
   }
 
   override def updatePing(id: Long)(implicit ec: ExecutionContext): Future[Int] = db.run {
-    computeInstanceTable.filter(_.id === id)
-      .filter(_.status === LiteralColumn[ComputeInstanceStatus](ComputeInstanceStatuses.Active))
+    schedulerInstanceTable.filter(_.id === id)
+      .filter(_.status === LiteralColumn[SchedulerInstanceStatus](SchedulerInstanceStatuses.Active))
       .map(_.lastPing)
       .update(LocalDateTime.now())
   }
 
   override def deactivateLaggingInstances(currentPing: LocalDateTime, lagTolerance: Duration)(implicit ec: ExecutionContext): Future[Int] = db.run {
-    computeInstanceTable.filter(i => i.lastPing < currentPing.minusSeconds(lagTolerance.getSeconds))
-      .filter(_.status === LiteralColumn[ComputeInstanceStatus](ComputeInstanceStatuses.Active))
+    schedulerInstanceTable.filter(i => i.lastPing < currentPing.minusSeconds(lagTolerance.getSeconds))
+      .filter(_.status === LiteralColumn[SchedulerInstanceStatus](SchedulerInstanceStatuses.Active))
       .map(_.status)
-      .update(ComputeInstanceStatuses.Deactivated)
+      .update(SchedulerInstanceStatuses.Deactivated)
   }
 
-  override def getDeactivatedInstances()(implicit ec: ExecutionContext): Future[Seq[ComputeInstance]] = db.run {
-    computeInstanceTable.filter(_.status === LiteralColumn[ComputeInstanceStatus](ComputeInstanceStatuses.Deactivated))
+  override def getDeactivatedInstances()(implicit ec: ExecutionContext): Future[Seq[SchedulerInstance]] = db.run {
+    schedulerInstanceTable.filter(_.status === LiteralColumn[SchedulerInstanceStatus](SchedulerInstanceStatuses.Deactivated))
       .result
   }
 
-  override def getActiveInstances()(implicit ec: ExecutionContext): Future[Seq[ComputeInstance]] = db.run {
-    computeInstanceTable.filter(_.status === LiteralColumn[ComputeInstanceStatus](ComputeInstanceStatuses.Active))
+  override def getActiveInstances()(implicit ec: ExecutionContext): Future[Seq[SchedulerInstance]] = db.run {
+    schedulerInstanceTable.filter(_.status === LiteralColumn[SchedulerInstanceStatus](SchedulerInstanceStatuses.Active))
       .result
   }
 }
