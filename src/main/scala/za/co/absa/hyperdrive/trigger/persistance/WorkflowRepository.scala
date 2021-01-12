@@ -125,6 +125,7 @@ class WorkflowRepositoryImpl(override val workflowHistoryRepository: WorkflowHis
             project = w.project,
             created = w.created,
             updated = w.updated,
+            schedulerInstanceId = w.schedulerInstanceId,
             sensor = s,
             dagDefinitionJoined = DagDefinitionJoined(
               workflowId = dd.workflowId,

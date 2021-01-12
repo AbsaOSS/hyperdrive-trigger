@@ -197,6 +197,7 @@ trait RepositoryTestBase extends Repository {
         workflow.project,
         workflow.created,
         workflow.updated,
+        workflow.schedulerInstanceId,
         sensor,
         dagDefinitionJoined,
         workflow.id)
