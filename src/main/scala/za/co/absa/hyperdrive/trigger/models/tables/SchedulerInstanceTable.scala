@@ -29,14 +29,14 @@ trait SchedulerInstanceTable {
 
     def id: Rep[Long] = column[Long]("id", O.PrimaryKey, O.AutoInc, O.SqlType("BIGSERIAL"))
     def status: Rep[SchedulerInstanceStatus] = column[SchedulerInstanceStatus]("status")
-    def lastPing: Rep[LocalDateTime] = column[LocalDateTime]("last_ping")
+    def lastHeartbeat: Rep[LocalDateTime] = column[LocalDateTime]("last_heartbeat")
 
-    def * : ProvenShape[SchedulerInstance] = (id, status, lastPing) <> (
+    def * : ProvenShape[SchedulerInstance] = (id, status, lastHeartbeat) <> (
       tuple =>
         SchedulerInstance.apply(
           id = tuple._1,
           status = tuple._2,
-          lastPing = tuple._3
+          lastHeartbeat = tuple._3
         ),
       SchedulerInstance.unapply
     )

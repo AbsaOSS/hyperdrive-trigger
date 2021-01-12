@@ -28,9 +28,9 @@ import scala.util.{Failure, Success}
 trait SchedulerInstanceRepository extends Repository {
   def insertInstance()(implicit ec: ExecutionContext): Future[Long]
 
-  def updatePing(id: Long)(implicit ec: ExecutionContext): Future[Int]
+  def updateHeartbeat(id: Long)(implicit ec: ExecutionContext): Future[Int]
 
-  def deactivateLaggingInstances(currentPing: LocalDateTime, lagTolerance: Duration)(implicit ec: ExecutionContext): Future[Int]
+  def deactivateLaggingInstances(currentHeartbeat: LocalDateTime, lagTolerance: Duration)(implicit ec: ExecutionContext): Future[Int]
 
   def getDeactivatedInstances()(implicit ec: ExecutionContext): Future[Seq[SchedulerInstance]]
 
@@ -44,7 +44,7 @@ class SchedulerInstanceRepositoryImpl extends SchedulerInstanceRepository {
 
   override def insertInstance()(implicit ec: ExecutionContext): Future[Long] = {
     db.run {
-      val instance = SchedulerInstance(status = SchedulerInstanceStatuses.Active, lastPing = LocalDateTime.now())
+      val instance = SchedulerInstance(status = SchedulerInstanceStatuses.Active, lastHeartbeat = LocalDateTime.now())
       (for {
         instanceId <- schedulerInstanceTable returning schedulerInstanceTable.map(_.id) += instance
       } yield {
@@ -57,15 +57,15 @@ class SchedulerInstanceRepositoryImpl extends SchedulerInstanceRepository {
     }
   }
 
-  override def updatePing(id: Long)(implicit ec: ExecutionContext): Future[Int] = db.run {
+  override def updateHeartbeat(id: Long)(implicit ec: ExecutionContext): Future[Int] = db.run {
     schedulerInstanceTable.filter(_.id === id)
       .filter(_.status === LiteralColumn[SchedulerInstanceStatus](SchedulerInstanceStatuses.Active))
-      .map(_.lastPing)
+      .map(_.lastHeartbeat)
       .update(LocalDateTime.now())
   }
 
-  override def deactivateLaggingInstances(currentPing: LocalDateTime, lagTolerance: Duration)(implicit ec: ExecutionContext): Future[Int] = db.run {
-    schedulerInstanceTable.filter(i => i.lastPing < currentPing.minusSeconds(lagTolerance.getSeconds))
+  override def deactivateLaggingInstances(currentHeartbeat: LocalDateTime, lagTolerance: Duration)(implicit ec: ExecutionContext): Future[Int] = db.run {
+    schedulerInstanceTable.filter(i => i.lastHeartbeat < currentHeartbeat.minusSeconds(lagTolerance.getSeconds))
       .filter(_.status === LiteralColumn[SchedulerInstanceStatus](SchedulerInstanceStatuses.Active))
       .map(_.status)
       .update(SchedulerInstanceStatuses.Deactivated)

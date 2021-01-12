@@ -63,23 +63,23 @@ class SchedulerInstanceRepositoryTest extends FlatSpec with Matchers with Before
     newInstanceId shouldBe expectedId
     val newInstance = allInstances.find(_.id == expectedId).get
     newInstance.status shouldBe SchedulerInstanceStatuses.Active
-    newInstance.lastPing.isBefore(now) shouldBe false
+    newInstance.lastHeartbeat.isBefore(now) shouldBe false
 
     allInstances should have size schedulerInstances.size + 1
     allInstances should contain allElementsOf schedulerInstances
   }
 
-  "updatePing" should "update the last ping of an active instance" in {
+  "updateHeartbeat" should "update the last heartbeat of an active instance" in {
     val now = LocalDateTime.now()
-    val result = await(schedulerInstanceRepository.updatePing(11))
+    val result = await(schedulerInstanceRepository.updateHeartbeat(11))
     val updatedInstance = await(db.run(schedulerInstanceTable.filter(_.id === 11L).result.head))
 
     result shouldBe 1
-    updatedInstance.lastPing.isBefore(now) shouldBe false
+    updatedInstance.lastHeartbeat.isBefore(now) shouldBe false
   }
 
   it should "not update a deactivated instance" in {
-    val result = await(schedulerInstanceRepository.updatePing(31L))
+    val result = await(schedulerInstanceRepository.updateHeartbeat(31L))
     result shouldBe 0
   }
 

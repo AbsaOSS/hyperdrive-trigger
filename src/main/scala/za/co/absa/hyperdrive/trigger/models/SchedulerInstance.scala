@@ -22,5 +22,5 @@ import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses.Sche
 case class SchedulerInstance(
   id: Long = 0,
   status: SchedulerInstanceStatus,
-  lastPing: LocalDateTime
+  lastHeartbeat: LocalDateTime
 )
