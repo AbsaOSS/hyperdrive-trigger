@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -13,18 +14,6 @@
  * limitations under the License.
  */
 
-create table "scheduler_instance" (
-  "id" BIGSERIAL NOT NULL PRIMARY KEY,
-  "status" VARCHAR NOT NULL,
-  "last_heartbeat" TIMESTAMP NOT NULL
-);
+package za.co.absa.hyperdrive.trigger.scheduler.cluster
 
-alter table "workflow" add column "scheduler_instance_id" BIGINT,
-
-alter table "workflow"
-  add constraint "workflow_scheduler_instance_fk"
-  foreign key("scheduler_instance_id")
-  references "scheduler_instance"("id")
-  on update NO ACTION on delete NO ACTION;
-
-CREATE INDEX workflow_scheduler_inst_id_idx ON workflow (scheduler_instance_id);
+class SchedulerInstanceAlreadyDeactivatedException extends Exception

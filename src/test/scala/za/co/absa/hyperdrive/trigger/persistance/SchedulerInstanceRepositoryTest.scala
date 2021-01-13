@@ -28,15 +28,6 @@ class SchedulerInstanceRepositoryTest extends FlatSpec with Matchers with Before
 
   val schedulerInstanceRepository: SchedulerInstanceRepository = new SchedulerInstanceRepositoryImpl { override val profile = h2Profile }
 
-  val schedulerInstances = Seq(
-    SchedulerInstance(11L, SchedulerInstanceStatuses.Active, LocalDateTime.of(2020, 1, 1, 2, 30, 28)),
-    SchedulerInstance(12L, SchedulerInstanceStatuses.Active, LocalDateTime.of(2020, 1, 1, 2, 30, 31)),
-    SchedulerInstance(13L, SchedulerInstanceStatuses.Active, LocalDateTime.of(2020, 1, 1, 2, 30, 25)),
-    SchedulerInstance(21L, SchedulerInstanceStatuses.Active, LocalDateTime.of(2020, 1, 1, 2, 30, 5)),
-    SchedulerInstance(22L, SchedulerInstanceStatuses.Active, LocalDateTime.of(2020, 1, 1, 2, 29, 55)),
-    SchedulerInstance(31L, SchedulerInstanceStatuses.Deactivated, LocalDateTime.of(2020, 1, 1, 2, 29, 15))
-  )
-
   override def beforeAll: Unit = {
     h2SchemaSetup()
   }
@@ -46,7 +37,7 @@ class SchedulerInstanceRepositoryTest extends FlatSpec with Matchers with Before
   }
 
   override def beforeEach: Unit = {
-    insertSchedulerInstances()
+    run(schedulerInstanceTable.forceInsertAll(TestData.schedulerInstances))
   }
 
   override def afterEach: Unit = {
@@ -55,7 +46,7 @@ class SchedulerInstanceRepositoryTest extends FlatSpec with Matchers with Before
 
   "insertInstance" should "insert an instance in active state" in {
     val now = LocalDateTime.now()
-    val expectedId = schedulerInstances.map(_.id).max + 1
+    val expectedId = TestData.schedulerInstances.map(_.id).max + 1
 
     val newInstanceId = await(schedulerInstanceRepository.insertInstance())
     val allInstances = await(db.run(schedulerInstanceTable.result))
@@ -65,8 +56,8 @@ class SchedulerInstanceRepositoryTest extends FlatSpec with Matchers with Before
     newInstance.status shouldBe SchedulerInstanceStatuses.Active
     newInstance.lastHeartbeat.isBefore(now) shouldBe false
 
-    allInstances should have size schedulerInstances.size + 1
-    allInstances should contain allElementsOf schedulerInstances
+    allInstances should have size TestData.schedulerInstances.size + 1
+    allInstances should contain allElementsOf TestData.schedulerInstances
   }
 
   "updateHeartbeat" should "update the last heartbeat of an active instance" in {
@@ -96,17 +87,8 @@ class SchedulerInstanceRepositoryTest extends FlatSpec with Matchers with Before
       .map(_.id) should contain theSameElementsAs Seq(21L, 22L, 31L)
   }
 
-  "getDeactivatedInstances" should "return deactivated instances" in {
-    val result = await(schedulerInstanceRepository.getDeactivatedInstances())
-    result should contain theSameElementsAs schedulerInstances.filter(_.status == SchedulerInstanceStatuses.Deactivated)
-  }
-
-  "getActiveInstances" should "return active instances" in {
-    val result = await(schedulerInstanceRepository.getActiveInstances())
-    result should contain theSameElementsAs schedulerInstances.filter(_.status == SchedulerInstanceStatuses.Active)
-  }
-
-  def insertSchedulerInstances(): Unit = {
-    run(schedulerInstanceTable.forceInsertAll(schedulerInstances))
+  "getAllInstances" should "return all instances" in {
+    val result = await(schedulerInstanceRepository.getAllInstances())
+    result should contain theSameElementsAs TestData.schedulerInstances
   }
 }

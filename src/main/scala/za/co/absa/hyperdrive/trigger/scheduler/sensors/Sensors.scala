@@ -44,6 +44,7 @@ class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: Sensor
   def processEvents(): Future[Unit] = {
     logger.debug(s"Processing events. Sensors: ${sensors.keys}")
     val fut = for {
+      // TODO: stop sensors that are not part of assignedWorkflows
       _ <- removeInactiveSensors()
       _ <- updateChangedSensors()
       _ <- addNewSensors()
@@ -82,6 +83,7 @@ class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: Sensor
     )
   }
 
+  // remove inactive or given up sensors
   private def removeInactiveSensors(): Future[Unit] = {
     val activeSensors = sensors.keys.toSeq
     sensorRepository.getInactiveSensors(activeSensors).map(
@@ -96,6 +98,7 @@ class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: Sensor
 
   private def addNewSensors(): Future[Unit] = {
     val activeSensors = sensors.keys.toSeq
+    // TODO: Filter for assignedWorkflows here
     sensorRepository.getNewActiveSensors(activeSensors).map {
       _.foreach(sensor => startSensor(sensor))
     }

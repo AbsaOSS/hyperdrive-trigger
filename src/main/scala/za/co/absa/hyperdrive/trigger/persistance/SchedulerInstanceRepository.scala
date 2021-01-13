@@ -32,9 +32,7 @@ trait SchedulerInstanceRepository extends Repository {
 
   def deactivateLaggingInstances(currentHeartbeat: LocalDateTime, lagTolerance: Duration)(implicit ec: ExecutionContext): Future[Int]
 
-  def getDeactivatedInstances()(implicit ec: ExecutionContext): Future[Seq[SchedulerInstance]]
-
-  def getActiveInstances()(implicit ec: ExecutionContext): Future[Seq[SchedulerInstance]]
+  def getAllInstances()(implicit ec: ExecutionContext): Future[Seq[SchedulerInstance]]
 }
 
 @stereotype.Repository
@@ -49,7 +47,7 @@ class SchedulerInstanceRepositoryImpl extends SchedulerInstanceRepository {
         instanceId <- schedulerInstanceTable returning schedulerInstanceTable.map(_.id) += instance
       } yield {
         instanceId
-      }).transactionally.asTry.map {
+      }).asTry.map {
         case Success(instanceId) => instanceId
         case Failure(ex) =>
           throw new IllegalStateException(s"Unexpected error occurred when inserting instance $instance", ex)
@@ -71,13 +69,7 @@ class SchedulerInstanceRepositoryImpl extends SchedulerInstanceRepository {
       .update(SchedulerInstanceStatuses.Deactivated)
   }
 
-  override def getDeactivatedInstances()(implicit ec: ExecutionContext): Future[Seq[SchedulerInstance]] = db.run {
-    schedulerInstanceTable.filter(_.status === LiteralColumn[SchedulerInstanceStatus](SchedulerInstanceStatuses.Deactivated))
-      .result
-  }
-
-  override def getActiveInstances()(implicit ec: ExecutionContext): Future[Seq[SchedulerInstance]] = db.run {
-    schedulerInstanceTable.filter(_.status === LiteralColumn[SchedulerInstanceStatus](SchedulerInstanceStatuses.Active))
-      .result
+  override def getAllInstances()(implicit ec: ExecutionContext): Future[Seq[SchedulerInstance]] = db.run {
+    schedulerInstanceTable.result
   }
 }

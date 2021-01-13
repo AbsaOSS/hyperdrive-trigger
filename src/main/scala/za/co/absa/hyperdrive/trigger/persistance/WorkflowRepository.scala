@@ -19,6 +19,8 @@ import java.time.LocalDateTime
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype
+import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses
+import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses.SchedulerInstanceStatus
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, GenericDatabaseError}
 import za.co.absa.hyperdrive.trigger.models.{ProjectInfo, _}
 
@@ -42,6 +44,11 @@ trait WorkflowRepository extends Repository {
   def updateWorkflowsIsActive(ids: Seq[Long], isActiveNewValue: Boolean, user: String)(implicit ec: ExecutionContext): Future[Unit]
   def getProjects()(implicit ec: ExecutionContext): Future[Seq[String]]
   def getProjectsInfo()(implicit ec: ExecutionContext): Future[Seq[ProjectInfo]]
+  def dropWorkflowAssignmentsOfDeactivatedInstances()(implicit ec: ExecutionContext): Future[Int]
+  def dropWorkflowAssignments(workflowIds: Seq[Long], instanceId: Long)(implicit ec: ExecutionContext): Future[Int]
+  def acquireWorkflowAssignments(workflowIds: Seq[Long], instanceId: Long)(implicit ec: ExecutionContext): Future[Int]
+  def getWorkflowsBySchedulerInstance(instanceId: Long)(implicit ec: ExecutionContext): Future[Seq[Workflow]]
+  def getMaxWorkflowId(implicit ec: ExecutionContext): Future[Option[Long]]
 }
 
 @stereotype.Repository
@@ -262,4 +269,34 @@ class WorkflowRepositoryImpl(override val workflowHistoryRepository: WorkflowHis
     workflowTable.map(_.project).groupBy(_.value).map(e => (e._1, e._2.length)).sortBy(_._1).result.map(_.map((ProjectInfo.apply _).tupled(_)))
   )
 
+  override def dropWorkflowAssignmentsOfDeactivatedInstances()(implicit ec: ExecutionContext): Future[Int] = db.run(
+    workflowTable
+      .filter(w => schedulerInstanceTable
+        .filter(_.id === w.schedulerInstanceId)
+        .filter(_.status === LiteralColumn[SchedulerInstanceStatus](SchedulerInstanceStatuses.Deactivated)).exists)
+      .map(_.schedulerInstanceId)
+      .update(None)
+    )
+
+  override def dropWorkflowAssignments(workflowIds: Seq[Long], instanceId: Long)(implicit ec: ExecutionContext): Future[Int] = db.run(
+    workflowTable.filter(_.schedulerInstanceId === instanceId)
+      .filter(_.id inSetBind workflowIds)
+      .map(_.schedulerInstanceId)
+      .update(None)
+  )
+
+  override def acquireWorkflowAssignments(workflowIds: Seq[Long], instanceId: Long)(implicit ec: ExecutionContext): Future[Int] = db.run(
+    workflowTable.filter(_.schedulerInstanceId.isEmpty)
+      .filter(_.id inSetBind workflowIds)
+      .map(_.schedulerInstanceId)
+      .update(Some(instanceId))
+  )
+
+  override def getWorkflowsBySchedulerInstance(instanceId: Long)(implicit ec: ExecutionContext): Future[Seq[Workflow]] = db.run(
+    workflowTable.filter(_.schedulerInstanceId === instanceId).result
+  )
+
+  override def getMaxWorkflowId(implicit ec: ExecutionContext): Future[Option[Long]] = db.run(
+    workflowTable.map(_.id).max.result
+  )
 }

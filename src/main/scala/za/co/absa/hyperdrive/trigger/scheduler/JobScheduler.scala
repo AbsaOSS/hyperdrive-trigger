@@ -21,7 +21,9 @@ import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
+import za.co.absa.hyperdrive.trigger.models.Workflow
 import za.co.absa.hyperdrive.trigger.persistance._
+import za.co.absa.hyperdrive.trigger.scheduler.cluster.{SchedulerInstanceAlreadyDeactivatedException, WorkflowBalancer}
 import za.co.absa.hyperdrive.trigger.scheduler.executors.Executors
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.Sensors
 import za.co.absa.hyperdrive.trigger.scheduler.utilities.{SchedulerConfig, SensorsConfig}
@@ -31,7 +33,9 @@ import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success}
 
 @Component
-class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstanceRepository: DagInstanceRepository) {
+class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstanceRepository: DagInstanceRepository,
+                             workflowRebalancer: WorkflowBalancer) {
+  case class RunningDagsKey(dagId: Long, workflowId: Long)
   private val logger = LoggerFactory.getLogger(this.getClass)
 
   private val HEART_BEAT: Int = SchedulerConfig.getHeartBeat
@@ -44,7 +48,7 @@ class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstance
   private var runningScheduler: Future[Unit] = Future.successful((): Unit)
   private var runningSensors = Future.successful((): Unit)
   private var runningEnqueue = Future.successful((): Unit)
-  private val runningDags = mutable.Map.empty[Long, Future[Unit]]
+  private val runningDags = mutable.Map.empty[RunningDagsKey, Future[Unit]]
 
   def startManager(): Unit = {
     if(!isManagerRunningAtomic.get() && runningScheduler.isCompleted) {
@@ -54,10 +58,19 @@ class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstance
         Future {
           while (isManagerRunningAtomic.get()) {
             logger.debug("Running manager heart beat.")
-            removeFinishedDags()
-            processEvents()
-            enqueueDags()
-            Thread.sleep(HEART_BEAT)
+            val assignedWorkflowsFut = workflowRebalancer.getAssignedWorkflows(runningDags.keys.map(_.workflowId).toSeq)
+              .recover {
+                case e: SchedulerInstanceAlreadyDeactivatedException =>
+                  stopManager()
+                  throw e
+              }
+
+            assignedWorkflowsFut.map{ assignedWorkflows =>
+              removeFinishedDags()
+              processEvents(assignedWorkflows)
+              enqueueDags(assignedWorkflows)
+              Thread.sleep(HEART_BEAT)
+            }
           }
         }
       runningScheduler.onComplete {
@@ -72,6 +85,7 @@ class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstance
   def stopManager(): Future[Unit] = {
     isManagerRunningAtomic.set(false)
     sensors.cleanUpSensors()
+    workflowRebalancer.resetSchedulerInstanceId()
     runningScheduler
   }
 
@@ -79,11 +93,12 @@ class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstance
     !runningScheduler.isCompleted
   }
 
-  private def enqueueDags(emptySlotsSize: Int): Future[Unit] = {
-    dagInstanceRepository.getDagsToRun(runningDags.keys.toSeq, emptySlotsSize).map {
+  // TODO: only get dags for assigned workflows
+  private def enqueueDags(assignedWorkflows: Seq[Workflow], emptySlotsSize: Int): Future[Unit] = {
+    dagInstanceRepository.getDagsToRun(runningDags.keys.map(_.dagId).toSeq, emptySlotsSize).map {
       _.foreach { dag =>
         logger.debug(s"Deploying dag = ${dag.id}")
-        runningDags.put(dag.id, executors.executeDag(dag))
+        runningDags.put(RunningDagsKey(dag.id, dag.workflowId), executors.executeDag(dag))
       }
     }
   }
@@ -97,8 +112,9 @@ class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstance
     }
   }
 
-  private def processEvents(): Unit = {
+  private def processEvents(assignedWorkflows: Seq[Workflow]): Unit = {
     if(runningSensors.isCompleted){
+      // TODO: Only process sensors for assigned workflows
       runningSensors = sensors.processEvents()
       runningSensors.onComplete {
         case Success(_) =>
@@ -109,9 +125,9 @@ class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstance
     }
   }
 
-  private def enqueueDags(): Unit = {
+  private def enqueueDags(assignedWorkflows: Seq[Workflow]): Unit = {
     if(runningDags.size < NUM_OF_PAR_TASKS && runningEnqueue.isCompleted){
-      runningEnqueue = enqueueDags(Math.max(0, NUM_OF_PAR_TASKS - runningDags.size))
+      runningEnqueue = enqueueDags(assignedWorkflows, Math.max(0, NUM_OF_PAR_TASKS - runningDags.size))
       runningEnqueue.onComplete {
         case Success(_) =>
           logger.debug("Running enqueue finished successfully.")

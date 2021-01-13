@@ -48,6 +48,7 @@ class SensorRepositoryImpl extends SensorRepository {
     }).result
   }
 
+  // TODO: distribute
   override def getChangedSensors(originalSensors: Seq[Sensor])(implicit ec: ExecutionContext): Future[Seq[Sensor]] = db.run {(
     for {
       sensor <- sensorTable if originalSensors
