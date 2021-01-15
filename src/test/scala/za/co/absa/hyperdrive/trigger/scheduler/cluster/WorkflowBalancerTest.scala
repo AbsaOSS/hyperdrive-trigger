@@ -20,7 +20,7 @@ import java.time.{Duration, LocalDateTime}
 
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
-import org.mockito.Mockito.{reset, times, verify, when}
+import org.mockito.Mockito.{reset, times, verify, when, never}
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, Matchers}
 import za.co.absa.hyperdrive.trigger.TestUtils.await
@@ -187,6 +187,22 @@ class WorkflowBalancerTest extends AsyncFlatSpec with MockitoSugar with Matchers
 
     verify(workflowBalancingService, times(3)).getWorkflowsAssignment(
       eqTo(runningWorkflowIds), eqTo(instances), eqTo(instance1.id))(any())
+    succeed
+  }
+
+  it should "fail if updateSchedulerStatus fails" in {
+    // given
+    val underTest = new WorkflowBalancer(schedulerInstanceService, workflowBalancingService, lagThresholdMillis)
+    when(schedulerInstanceService.registerNewInstance()).thenReturn(Future{42L})
+    when(schedulerInstanceService.updateSchedulerStatus(any(), any())(any[ExecutionContext])).thenReturn(
+      Future.failed(new SchedulerInstanceAlreadyDeactivatedException))
+
+    // when
+    the[SchedulerInstanceAlreadyDeactivatedException] thrownBy await(underTest.getAssignedWorkflows(Seq()))
+
+    // then
+    verify(workflowBalancingService, never).getMaxWorkflowId()(any[ExecutionContext])
+    verify(workflowBalancingService, never).getWorkflowsAssignment(any(), any(), any())(any[ExecutionContext]())
     succeed
   }
 }

@@ -43,7 +43,7 @@ class WorkflowBalancer @Inject()(schedulerInstanceService: SchedulerInstanceServ
       isInstancesSteady = instances.diff(previousInstances).isEmpty
       maxWorkflowId <- workflowBalancingService.getMaxWorkflowId()
       isWorkflowsSteady = maxWorkflowId.isDefined && previousMaxWorkflowId == maxWorkflowId
-      (workflows, targetReachedNewValue) <- if (isInstancesSteady && isWorkflowsSteady && targetWorkflowAssignmentReached) {
+      (workflows, targetReachedValue) <- if (isInstancesSteady && isWorkflowsSteady && targetWorkflowAssignmentReached) {
         Future { (previousAssignedWorkflows, targetWorkflowAssignmentReached) }
       } else {
         workflowBalancingService.getWorkflowsAssignment(runningWorkflowIds, instances, instanceId)
@@ -51,7 +51,7 @@ class WorkflowBalancer @Inject()(schedulerInstanceService: SchedulerInstanceServ
     } yield {
       previousInstances = instances
       previousMaxWorkflowId = maxWorkflowId
-      targetWorkflowAssignmentReached = targetReachedNewValue
+      targetWorkflowAssignmentReached = targetReachedValue
       previousAssignedWorkflows = workflows
       workflows
     }

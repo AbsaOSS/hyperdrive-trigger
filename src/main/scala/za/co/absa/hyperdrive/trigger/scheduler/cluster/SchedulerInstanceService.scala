@@ -38,14 +38,12 @@ class SchedulerInstanceServiceImpl @Inject()(schedulerInstanceRepository: Schedu
 
   override def updateSchedulerStatus(instanceId: Long, lagThreshold: Duration)(implicit ec: ExecutionContext): Future[Seq[SchedulerInstance]] = {
     for {
-      _ <- schedulerInstanceRepository.updateHeartbeat(instanceId).flatMap(updatedCount =>
-        if (updatedCount == 0) {
-          Future.failed(new SchedulerInstanceAlreadyDeactivatedException)
-        } else {
-          Future {
-            updatedCount
-          }
-        })
+      updatedCount <- schedulerInstanceRepository.updateHeartbeat(instanceId)
+      _ <- if (updatedCount == 0) {
+        Future.failed(new SchedulerInstanceAlreadyDeactivatedException)
+      } else {
+        Future{}
+      }
       _ <- schedulerInstanceRepository.deactivateLaggingInstances(LocalDateTime.now(), lagThreshold)
       allInstances <- schedulerInstanceRepository.getAllInstances()
     } yield allInstances
