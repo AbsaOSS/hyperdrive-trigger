@@ -15,18 +15,16 @@
 
 package za.co.absa.hyperdrive.trigger.persistance
 
-import java.time.LocalDateTime
-
 import org.apache.commons.lang3.RandomStringUtils
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{FlatSpec, _}
-import za.co.absa.hyperdrive.trigger.models.{SchedulerInstance, Workflow}
+import za.co.absa.hyperdrive.trigger.models.Workflow
 import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, GenericDatabaseError}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class WorkflowRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach
@@ -407,13 +405,38 @@ class WorkflowRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterA
     updatedWorkflows.filter(_.id % 3 == 2).map(_.schedulerInstanceId) should contain only Some(instance2.id)
   }
 
+  it should "never double assign a workflow in interleaved executions" in {
+    val instances = TestData.schedulerInstances.filter(_.status == SchedulerInstanceStatuses.Active)
+    val baseWorkflow = TestData.workflows.head
+    val workflows = (1 to 50).map(i => baseWorkflow.copy(name = s"workflow$i", id = i))
+    run(workflowTable.forceInsertAll(workflows))
+
+    val targetWorkflows1 = Seq(1L, 2, 3, 11, 12, 13)
+    val targetWorkflows2 = Seq(1L, 2, 3, 21, 22, 23)
+    val targetWorkflows3 = Seq(1L, 2, 3, 31, 32, 33)
+    val acquire1Count = await(workflowRepository.acquireWorkflowAssignments(targetWorkflows1, instances(1).id))
+    val drop1Count = await(workflowRepository.dropWorkflowAssignments(targetWorkflows1, instances(2).id))
+    val drop2Count = await(workflowRepository.dropWorkflowAssignments(targetWorkflows1, instances(3).id))
+    val result1 = await(workflowRepository.getWorkflowsBySchedulerInstance(instances(1).id))
+    val acquire2Count = await(workflowRepository.acquireWorkflowAssignments(targetWorkflows2, instances(2).id))
+    val result2 = await(workflowRepository.getWorkflowsBySchedulerInstance(instances(2).id))
+    val acquire3Count = await(workflowRepository.acquireWorkflowAssignments(targetWorkflows3, instances(3).id))
+    val result3 = await(workflowRepository.getWorkflowsBySchedulerInstance(instances(3).id))
+
+    acquire1Count shouldBe 6
+    acquire2Count shouldBe 3
+    acquire3Count shouldBe 3
+    drop1Count shouldBe 0
+    drop2Count shouldBe 0
+    assertNoWorkflowIsDoubleAssigned(result1, result2, result3)
+  }
+
   "getWorkflowsBySchedulerInstance" should "return workflows by scheduler instance" in {
     // given
     val instance0 = TestData.schedulerInstances.head.copy(status = SchedulerInstanceStatuses.Active)
     val instance1 = TestData.schedulerInstances(1).copy(status = SchedulerInstanceStatuses.Active)
     val workflows = TestData.workflows.filter(_.id % 2 == 0).map(_.copy(schedulerInstanceId = Some(instance0.id))) ++
       TestData.workflows.filter(_.id % 2 == 1).map(_.copy(schedulerInstanceId = Some(instance1.id)))
-
     run(schedulerInstanceTable.forceInsertAll(Seq(instance0, instance1)))
     run(workflowTable.forceInsertAll(workflows))
 
@@ -425,17 +448,19 @@ class WorkflowRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterA
   }
 
   "getMaxWorkflowId" should "return the highest workflow id" in {
-    // given
     run(workflowTable.forceInsertAll(TestData.workflows))
 
-    // when
     val result = await(workflowRepository.getMaxWorkflowId)
 
-    // then
     result shouldBe Some(TestData.workflows.map(_.id).max)
   }
 
   it should "return None if there are no workflows" in {
     await(workflowRepository.getMaxWorkflowId) shouldBe None
+  }
+
+  private def assertNoWorkflowIsDoubleAssigned(workflows: Seq[Workflow]*) = {
+    val flatWorkflows = workflows.flatten
+    flatWorkflows.size shouldBe flatWorkflows.distinct.size
   }
 }

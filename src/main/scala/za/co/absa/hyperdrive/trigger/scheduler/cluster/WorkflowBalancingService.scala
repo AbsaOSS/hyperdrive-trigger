@@ -64,7 +64,7 @@ class WorkflowBalancingServiceImpl @Inject()(workflowRepository: WorkflowReposit
       .zipWithIndex
       .map { case (instance, index) => instance.id -> index }
       .toMap
-    idRankMap.getOrElse(myInstanceId, throw new IllegalArgumentException(s"Could not find instanceId $myInstanceId in $idRankMap"))
+    idRankMap.getOrElse(myInstanceId, throw new NoSuchElementException(s"Could not find instanceId $myInstanceId in $idRankMap"))
   }
 
 }
