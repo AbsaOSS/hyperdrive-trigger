@@ -19,6 +19,7 @@ package za.co.absa.hyperdrive.trigger.scheduler.cluster
 import java.time.Duration
 
 import javax.inject.Inject
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import za.co.absa.hyperdrive.trigger.models.{SchedulerInstance, Workflow}
@@ -29,6 +30,8 @@ import scala.concurrent.{ExecutionContext, Future}
 class WorkflowBalancer @Inject()(schedulerInstanceService: SchedulerInstanceService,
                                  workflowBalancingService: WorkflowBalancingService,
                                  @Value("${scheduler.lag.threshold:20000}") lagThresholdMillis: Long) {
+  private val logger = LoggerFactory.getLogger(this.getClass)
+
   private var schedulerInstanceId: Option[Long] = None
   private var previousInstances: Seq[SchedulerInstance] = Seq()
   private var previousAssignedWorkflows: Seq[Workflow] = Seq()
@@ -40,9 +43,11 @@ class WorkflowBalancer @Inject()(schedulerInstanceService: SchedulerInstanceServ
     for {
       instanceId <- getOrCreateInstance
       instances <- schedulerInstanceService.updateSchedulerStatus(instanceId, lagThreshold)
+      _ = logger.debug(s"Scheduler instance $instanceId observed all instance ids = ${instances.map(_.id).sorted}")
       isInstancesSteady = instances.diff(previousInstances).isEmpty
       maxWorkflowId <- workflowBalancingService.getMaxWorkflowId()
       isWorkflowsSteady = maxWorkflowId.isDefined && previousMaxWorkflowId == maxWorkflowId
+      _ = logger.debug(s"Scheduler instance $instanceId observed maxWorkflowId = $maxWorkflowId")
       (workflows, targetReachedValue) <- if (isInstancesSteady && isWorkflowsSteady && targetWorkflowAssignmentReached) {
         Future { (previousAssignedWorkflows, targetWorkflowAssignmentReached) }
       } else {
@@ -66,6 +71,7 @@ class WorkflowBalancer @Inject()(schedulerInstanceService: SchedulerInstanceServ
       case Some(id) => Future{id}
       case None => schedulerInstanceService.registerNewInstance()
         .map { id => schedulerInstanceId = Some(id)
+          logger.info(s"Registered new scheduler instance with id = $id")
           id
         }
     }

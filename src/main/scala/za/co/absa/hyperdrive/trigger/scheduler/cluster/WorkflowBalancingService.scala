@@ -16,6 +16,7 @@
 package za.co.absa.hyperdrive.trigger.scheduler.cluster
 
 import javax.inject.Inject
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.models.{SchedulerInstance, Workflow}
 import za.co.absa.hyperdrive.trigger.persistance.WorkflowRepository
@@ -32,11 +33,17 @@ trait WorkflowBalancingService {
 
 @Service
 class WorkflowBalancingServiceImpl @Inject()(workflowRepository: WorkflowRepository) extends WorkflowBalancingService {
+  private val logger = LoggerFactory.getLogger(this.getClass)
+
   override def getWorkflowsAssignment(runningWorkflowIds: Iterable[Long], instances: Seq[SchedulerInstance], myInstanceId: Long)
                                      (implicit ec: ExecutionContext): Future[(Seq[Workflow], Boolean)] = {
     val myRank = getRank(instances, myInstanceId)
+    logger.info(s"Rebalancing workflows on scheduler instance id = $myInstanceId, rank = $myRank, all instance ids = ${instances.map(_.id).sorted}")
     for {
-      _ <- workflowRepository.dropWorkflowAssignmentsOfDeactivatedInstances()
+      droppedWorkflowsCount <- workflowRepository.dropWorkflowAssignmentsOfDeactivatedInstances()
+      _ = if (droppedWorkflowsCount > 0) {
+        logger.info(s"Scheduler instance id = $myInstanceId dropped $droppedWorkflowsCount workflows of deactivated instances")
+      }
       allWorkflows <- workflowRepository.getWorkflows()
       targetWorkflowIds = allWorkflows.filter(_.id % instances.size == myRank).map(_.id)
       workflowIdsToAcquire = (targetWorkflowIds ++ runningWorkflowIds).distinct
@@ -50,6 +57,8 @@ class WorkflowBalancingServiceImpl @Inject()(workflowRepository: WorkflowReposit
       acquiredWorkflows <- workflowRepository.getWorkflowsBySchedulerInstance(myInstanceId)
     } yield {
       val targetWorkflowAssignmentReached = acquiredWorkflows.map(_.id).equals(targetWorkflowIds)
+      logger.debug(s"Scheduler instance id = $myInstanceId acquired workflow ids ${acquiredWorkflows.map(_.id).sorted}" +
+        s" with target workflow ids = ${targetWorkflowIds.sorted}")
       (acquiredWorkflows, targetWorkflowAssignmentReached)
     }
   }
