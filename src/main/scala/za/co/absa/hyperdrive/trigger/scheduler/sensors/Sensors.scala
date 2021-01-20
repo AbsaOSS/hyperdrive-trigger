@@ -20,6 +20,7 @@ import java.util.concurrent.Executors
 import javax.inject.Inject
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
+import za.co.absa.hyperdrive.trigger.models.Workflow
 import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, SensorRepository}
 import za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor
@@ -41,13 +42,13 @@ class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: Sensor
 
   private val sensors: mutable.Map[Long, Sensor] = mutable.Map.empty[Long, Sensor]
 
-  def processEvents(): Future[Unit] = {
+  def processEvents(assignedWorkflowIds: Seq[Long]): Future[Unit] = {
     logger.debug(s"Processing events. Sensors: ${sensors.keys}")
+    removeDroppedSensors(assignedWorkflowIds)
     val fut = for {
-      // TODO: stop sensors that are not part of assignedWorkflows
       _ <- removeInactiveSensors()
       _ <- updateChangedSensors()
-      _ <- addNewSensors()
+      _ <- addNewSensors(assignedWorkflowIds)
       _ <- pollEvents()
     } yield {
       (): Unit
@@ -83,7 +84,12 @@ class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: Sensor
     )
   }
 
-  // remove inactive or given up sensors
+  private def removeDroppedSensors(assignedWorkflowIds: Seq[Long]): Unit = {
+    val droppedWorkflowIds = sensors.values.map(_.sensorDefinition.workflowId).toSeq.diff(assignedWorkflowIds)
+    sensors.filter { case (_, value) => droppedWorkflowIds.contains(value.sensorDefinition.workflowId) }
+      .foreach { case (sensorId, _) => stopSensor(sensorId) }
+  }
+
   private def removeInactiveSensors(): Future[Unit] = {
     val activeSensors = sensors.keys.toSeq
     sensorRepository.getInactiveSensors(activeSensors).map(
@@ -96,10 +102,9 @@ class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: Sensor
     sensors.remove(id)
   }
 
-  private def addNewSensors(): Future[Unit] = {
+  private def addNewSensors(assignedWorkflowIds: Seq[Long]): Future[Unit] = {
     val activeSensors = sensors.keys.toSeq
-    // TODO: Filter for assignedWorkflows here
-    sensorRepository.getNewActiveSensors(activeSensors).map {
+    sensorRepository.getNewActiveAssignedSensors(activeSensors, assignedWorkflowIds).map {
       _.foreach(sensor => startSensor(sensor))
     }
   }

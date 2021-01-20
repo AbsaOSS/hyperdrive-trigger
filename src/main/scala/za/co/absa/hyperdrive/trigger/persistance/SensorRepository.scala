@@ -21,7 +21,7 @@ import za.co.absa.hyperdrive.trigger.models.Sensor
 import scala.concurrent.{ExecutionContext, Future}
 
 trait SensorRepository extends Repository {
-  def getNewActiveSensors(idsToFilter: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[Sensor]]
+  def getNewActiveAssignedSensors(idsToFilter: Seq[Long], assignedWorkflowIds: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[Sensor]]
   def getInactiveSensors(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[Long]]
   def getChangedSensors(originalSensors: Seq[Sensor])(implicit ec: ExecutionContext): Future[Seq[Sensor]]
 }
@@ -30,10 +30,12 @@ trait SensorRepository extends Repository {
 class SensorRepositoryImpl extends SensorRepository {
   import profile.api._
 
-  override def getNewActiveSensors(idsToFilter: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[Sensor]] = db.run {(
+  override def getNewActiveAssignedSensors(idsToFilter: Seq[Long], assignedWorkflowIds: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[Sensor]] = db.run {(
     for {
       sensor <- sensorTable if !(sensor.id inSet idsToFilter)
-      workflow <- workflowTable if workflow.id === sensor.workflowId && workflow.isActive
+      workflow <- workflowTable if(workflow.id === sensor.workflowId
+        && workflow.isActive
+        && (workflow.id inSetBind assignedWorkflowIds))
     } yield {
       sensor
     }).result
@@ -48,7 +50,6 @@ class SensorRepositoryImpl extends SensorRepository {
     }).result
   }
 
-  // TODO: distribute
   override def getChangedSensors(originalSensors: Seq[Sensor])(implicit ec: ExecutionContext): Future[Seq[Sensor]] = db.run {(
     for {
       sensor <- sensorTable if originalSensors
