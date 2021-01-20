@@ -87,7 +87,7 @@ class TestDataGeneratorLocal extends FlatSpec with Matchers with SpringIntegrati
       result shouldBe true
     })
 
-    val dagInstances = await(dagInstanceRepository.getDagsToRun(Seq.empty, 1000))
+    val dagInstances = await(dagInstanceRepository.getDagsToRun(Seq.empty, 1000, allWorkflowIds))
     dagInstances.foreach(dagInstance => {
       val finished = Some(dagInstance.started.plusSeconds(random.nextInt(86400)))
       val updatedDagInstance = random.nextInt(4) match {
