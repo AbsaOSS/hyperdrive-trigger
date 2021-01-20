@@ -57,57 +57,53 @@ class WorkflowBalancerIntegrationTest extends FlatSpec with Matchers with Before
 
   "WorkflowBalancer.getAssignedWorkflows" should "never double-assign a workflow and each workflow should be assigned " +
     "to exactly one scheduler after the steady state is reached. These conditions should hold, independent from any" +
-    "extra workflow ids" in {
+    " workflow ids that are retained from previous iterations (because dags may still be running)" in {
     val balancer0 = new WorkflowBalancer(schedulerInstanceService, workflowBalancingService, lagThresholdMillis)
     val balancer1 = new WorkflowBalancer(schedulerInstanceService, workflowBalancingService, lagThresholdMillis)
     val balancer2 = new WorkflowBalancer(schedulerInstanceService, workflowBalancingService, lagThresholdMillis)
     val workflowIds = 0L to 199L
     val workflows = workflowIds.map(i => baseWorkflow.copy(id = i, name = s"workflow$i"))
     run(workflowTable.forceInsertAll(workflows))
-    def getRandomExtraWorkflowIds = getRandomSelection(workflowIds, 3)
+    def getRetainedIds(workflows: Seq[Workflow]) = getRandomSelection(workflows.map(_.id))
 
     // T0: Add one instance
     val workflowsB0T0 = await(balancer0.getAssignedWorkflows(Seq()))
     assertNoWorkflowIsDoubleAssigned(workflowsB0T0)
 
     // T1: Add two more instances and add more workflows
-    val extraWorkflowIdsT1 = getRandomExtraWorkflowIds
-    val workflowsB1T1 = await(balancer1.getAssignedWorkflows(extraWorkflowIdsT1(1)))
+    val workflowsB1T1 = await(balancer1.getAssignedWorkflows(Seq()))
     assertNoWorkflowIsDoubleAssigned(workflowsB0T0, workflowsB1T1)
     run(workflowTable.forceInsert(baseWorkflow.copy(id = 1000, name = "workflow1000")))
-    val workflowsB0T1 = await(balancer0.getAssignedWorkflows(extraWorkflowIdsT1(0)))
+    val workflowsB0T1 = await(balancer0.getAssignedWorkflows(Seq()))
     assertNoWorkflowIsDoubleAssigned(workflowsB0T1, workflowsB1T1)
-    val workflowsB2T1 = await(balancer2.getAssignedWorkflows(extraWorkflowIdsT1(2)))
+    val workflowsB2T1 = await(balancer2.getAssignedWorkflows(Seq()))
     assertNoWorkflowIsDoubleAssigned(workflowsB0T1, workflowsB1T1, workflowsB2T1)
 
     // T2: No intermediate changes in workflows or scheduler instances
     run(workflowTable.forceInsert(baseWorkflow.copy(id = 1001, name = "workflow1001")))
-    val extraWorkflowIdsT2 = getRandomExtraWorkflowIds
-    val workflowsB2T2 = await(balancer2.getAssignedWorkflows(extraWorkflowIdsT2(2)))
+    val workflowsB2T2 = await(balancer2.getAssignedWorkflows(getRetainedIds(workflowsB2T1)))
     assertNoWorkflowIsDoubleAssigned(workflowsB0T1, workflowsB1T1, workflowsB2T2)
-    val workflowsB0T2 = await(balancer0.getAssignedWorkflows(extraWorkflowIdsT2(0)))
+    val workflowsB0T2 = await(balancer0.getAssignedWorkflows(getRetainedIds(workflowsB0T1)))
     assertNoWorkflowIsDoubleAssigned(workflowsB0T2, workflowsB1T1, workflowsB2T2)
-    val workflowsB1T2 = await(balancer1.getAssignedWorkflows(extraWorkflowIdsT2(1)))
+    val workflowsB1T2 = await(balancer1.getAssignedWorkflows(getRetainedIds(workflowsB1T1)))
     assertNoWorkflowIsDoubleAssigned(workflowsB0T2, workflowsB1T2, workflowsB2T2)
 
     // T3: Steady state reached (w.r.t scheduler instances and workflows) => All workflows should be assigned
-    val extraWorkflowIdsT3 = getRandomExtraWorkflowIds
-    val workflowsB0T3 = await(balancer0.getAssignedWorkflows(extraWorkflowIdsT3(0)))
+    val workflowsB0T3 = await(balancer0.getAssignedWorkflows(getRetainedIds(workflowsB0T2)))
     assertNoWorkflowIsDoubleAssigned(workflowsB0T3, workflowsB1T2, workflowsB2T2)
-    val workflowsB1T3 = await(balancer1.getAssignedWorkflows(extraWorkflowIdsT3(1)))
+    val workflowsB1T3 = await(balancer1.getAssignedWorkflows(getRetainedIds(workflowsB1T2)))
     assertNoWorkflowIsDoubleAssigned(workflowsB0T3, workflowsB1T3, workflowsB2T2)
-    val workflowsB2T3 = await(balancer2.getAssignedWorkflows(extraWorkflowIdsT3(2)))
+    val workflowsB2T3 = await(balancer2.getAssignedWorkflows(getRetainedIds(workflowsB2T2)))
     assertNoWorkflowIsDoubleAssigned(workflowsB0T3, workflowsB1T3, workflowsB2T3)
     assertNoWorkflowIsNotAssigned()
 
     // T3: Remove one instance
     val maxId = await(db.run(schedulerInstanceTable.map(_.id).max.result)).get
     run(schedulerInstanceTable.filter(_.id === maxId).map(_.status).update(SchedulerInstanceStatuses.Deactivated))
-    val extraWorkflowIdsT4 = getRandomExtraWorkflowIds
-    the [SchedulerInstanceAlreadyDeactivatedException] thrownBy await(balancer2.getAssignedWorkflows(extraWorkflowIdsT4(2)))
-    val workflowsB0T4 = await(balancer0.getAssignedWorkflows(extraWorkflowIdsT4(0)))
+    the [SchedulerInstanceAlreadyDeactivatedException] thrownBy await(balancer2.getAssignedWorkflows(getRetainedIds(workflowsB2T3)))
+    val workflowsB0T4 = await(balancer0.getAssignedWorkflows(getRetainedIds(workflowsB0T3)))
     assertNoWorkflowIsDoubleAssigned(workflowsB0T4, workflowsB1T3)
-    val workflowsB1T4 = await(balancer1.getAssignedWorkflows(extraWorkflowIdsT4(1)))
+    val workflowsB1T4 = await(balancer1.getAssignedWorkflows(getRetainedIds(workflowsB1T3)))
     assertNoWorkflowIsDoubleAssigned(workflowsB0T4, workflowsB1T4)
   }
 
@@ -130,6 +126,19 @@ class WorkflowBalancerIntegrationTest extends FlatSpec with Matchers with Before
     (0 +: sliceIndices).zip(sliceIndices :+ input.size)
       .map{ case (from, to) => selection.slice(from, to) }
   }
+
+  private def getRandomSelection[T](input: Seq[T]) = {
+    if (input.isEmpty) {
+      Seq()
+    } else {
+      val selectionSize = random.nextInt(input.size)
+      val selectionIndices = (0 to selectionSize).map(_ => random.nextInt(input.size))
+      input.zipWithIndex
+        .filter { case (_, index) => selectionIndices.contains(index) }
+        .map(_._1)
+    }
+  }
+
 
   private def assertNoWorkflowIsDoubleAssigned(workflows: Seq[Workflow]*) = {
     val flatWorkflows = workflows.flatten
