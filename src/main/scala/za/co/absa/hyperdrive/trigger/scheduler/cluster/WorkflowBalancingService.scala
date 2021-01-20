@@ -38,7 +38,8 @@ class WorkflowBalancingServiceImpl @Inject()(workflowRepository: WorkflowReposit
   override def getWorkflowsAssignment(runningWorkflowIds: Iterable[Long], instances: Seq[SchedulerInstance], myInstanceId: Long)
                                      (implicit ec: ExecutionContext): Future[(Seq[Workflow], Boolean)] = {
     val myRank = getRank(instances, myInstanceId)
-    logger.info(s"Rebalancing workflows on scheduler instance id = $myInstanceId, rank = $myRank, all instance ids = ${instances.map(_.id).sorted}")
+    logger.info(s"Rebalancing workflows on scheduler instance id = $myInstanceId, rank = $myRank," +
+      s" all instance ids = ${instances.map(_.id).sorted}, retaining workflow ids = ${runningWorkflowIds}")
     for {
       droppedWorkflowsCount <- workflowRepository.dropWorkflowAssignmentsOfDeactivatedInstances()
       _ = if (droppedWorkflowsCount > 0) {
