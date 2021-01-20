@@ -19,7 +19,7 @@ create table "scheduler_instance" (
   "last_heartbeat" TIMESTAMP NOT NULL
 );
 
-alter table "workflow" add column "scheduler_instance_id" BIGINT,
+alter table "workflow" add column "scheduler_instance_id" BIGINT;
 
 alter table "workflow"
   add constraint "workflow_scheduler_instance_fk"

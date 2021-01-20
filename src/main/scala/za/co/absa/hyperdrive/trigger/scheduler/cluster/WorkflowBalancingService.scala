@@ -57,9 +57,10 @@ class WorkflowBalancingServiceImpl @Inject()(workflowRepository: WorkflowReposit
       _ <- workflowRepository.acquireWorkflowAssignments(workflowIdsToAcquire, myInstanceId)
       acquiredWorkflows <- workflowRepository.getWorkflowsBySchedulerInstance(myInstanceId)
     } yield {
-      val targetWorkflowAssignmentReached = acquiredWorkflows.map(_.id).equals(targetWorkflowIds)
-      logger.debug(s"Scheduler instance id = $myInstanceId acquired workflow ids ${acquiredWorkflows.map(_.id).sorted}" +
-        s" with target workflow ids = ${targetWorkflowIds.sorted}")
+      val acquiredWorkflowIds = acquiredWorkflows.map(_.id)
+      val targetWorkflowAssignmentReached = acquiredWorkflowIds.toSet.equals(targetWorkflowIds.toSet)
+      logger.debug(s"Scheduler instance id = $myInstanceId acquired workflow ids ${acquiredWorkflowIds.sorted}" +
+        s" with missing target workflow ids = ${targetWorkflowIds.diff(acquiredWorkflowIds).sorted}")
       (acquiredWorkflows, targetWorkflowAssignmentReached)
     }
   }
