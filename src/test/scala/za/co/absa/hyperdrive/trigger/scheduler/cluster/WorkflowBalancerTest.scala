@@ -47,7 +47,10 @@ class WorkflowBalancerTest extends AsyncFlatSpec with MockitoSugar with Matchers
     val instance1 = SchedulerInstance(1, SchedulerInstanceStatuses.Active, LocalDateTime.now())
     val instance2 = SchedulerInstance(2, SchedulerInstanceStatuses.Active, LocalDateTime.now())
     val runningWorkflowIds = Seq(1L, 2L, 3L)
-    val instances = Seq(instance1, instance2)
+    val instancesT0 = Seq(instance1, instance2)
+    val instancesT1 = Seq(
+      instance1.copy(lastHeartbeat = LocalDateTime.now.plusSeconds(5L)),
+      instance2.copy(lastHeartbeat = LocalDateTime.now.plusSeconds(5L)))
     val assignedWorkflows = Seq(
       baseWorkflow.copy(id = 11, schedulerInstanceId = Some(instance1.id)),
       baseWorkflow.copy(id = 12, schedulerInstanceId = Some(instance1.id)),
@@ -56,7 +59,8 @@ class WorkflowBalancerTest extends AsyncFlatSpec with MockitoSugar with Matchers
     val underTest = new WorkflowBalancer(schedulerInstanceService, workflowBalancingService, lagThresholdMillis)
 
     when(schedulerInstanceService.registerNewInstance()).thenReturn(Future{instance1.id})
-    when(schedulerInstanceService.updateSchedulerStatus(any(), any())(any[ExecutionContext])).thenReturn(Future{instances})
+    when(schedulerInstanceService.updateSchedulerStatus(any(), any())(any[ExecutionContext])).thenReturn(
+      Future{instancesT0}, Future{instancesT1})
     when(workflowBalancingService.getMaxWorkflowId()(any[ExecutionContext])).thenReturn(Future{Some(42L)})
     when(workflowBalancingService.getWorkflowsAssignment(any(), any(), any())(any[ExecutionContext])).thenReturn(
       Future{(assignedWorkflows, true)}
@@ -70,11 +74,18 @@ class WorkflowBalancerTest extends AsyncFlatSpec with MockitoSugar with Matchers
     result1 should contain theSameElementsAs assignedWorkflows
     result2 should contain theSameElementsAs assignedWorkflows
 
+    val idsCaptor: ArgumentCaptor[Seq[Long]] = ArgumentCaptor.forClass(classOf[Seq[Long]])
+    val instancesCaptor: ArgumentCaptor[Seq[SchedulerInstance]] = ArgumentCaptor.forClass(classOf[Seq[SchedulerInstance]])
+    val idCaptor: ArgumentCaptor[Long] = ArgumentCaptor.forClass(classOf[Long])
+
     verify(schedulerInstanceService, times(1)).registerNewInstance()
     verify(schedulerInstanceService, times(2)).updateSchedulerStatus(eqTo(instance1.id), eqTo(lagThreshold))(any())
     verify(workflowBalancingService, times(2)).getMaxWorkflowId()
     verify(workflowBalancingService, times(1)).getWorkflowsAssignment(
-      eqTo(runningWorkflowIds), eqTo(instances), eqTo(instance1.id))(any())
+      idsCaptor.capture(), instancesCaptor.capture(), idCaptor.capture())(any())
+    idsCaptor.getValue shouldBe runningWorkflowIds
+    instancesCaptor.getValue shouldBe instancesT0
+    idCaptor.getValue shouldBe instance1.id
     succeed
   }
 

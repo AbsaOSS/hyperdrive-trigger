@@ -22,6 +22,7 @@ import javax.inject.Inject
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
+import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses.SchedulerInstanceStatus
 import za.co.absa.hyperdrive.trigger.models.{SchedulerInstance, Workflow}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -30,10 +31,11 @@ import scala.concurrent.{ExecutionContext, Future}
 class WorkflowBalancer @Inject()(schedulerInstanceService: SchedulerInstanceService,
                                  workflowBalancingService: WorkflowBalancingService,
                                  @Value("${scheduler.lag.threshold:20000}") lagThresholdMillis: Long) {
+  case class SchedulerIdStatus(id: Long, status: SchedulerInstanceStatus)
   private val logger = LoggerFactory.getLogger(this.getClass)
 
   private var schedulerInstanceId: Option[Long] = None
-  private var previousInstances: Seq[SchedulerInstance] = Seq()
+  private var previousInstancesIdStatus: Set[SchedulerIdStatus] = Set()
   private var previousAssignedWorkflows: Seq[Workflow] = Seq()
   private var targetWorkflowAssignmentReached = false
   private var previousMaxWorkflowId: Option[Long] = None
@@ -44,7 +46,8 @@ class WorkflowBalancer @Inject()(schedulerInstanceService: SchedulerInstanceServ
       instanceId <- getOrCreateInstance
       instances <- schedulerInstanceService.updateSchedulerStatus(instanceId, lagThreshold)
       _ = logger.debug(s"Scheduler instance $instanceId observed all instance ids = ${instances.map(_.id).sorted}")
-      isInstancesSteady = instances.diff(previousInstances).isEmpty
+      instancesIdStatus = instances.map(s => SchedulerIdStatus(s.id, s.status)).toSet
+      isInstancesSteady = instancesIdStatus == previousInstancesIdStatus
       maxWorkflowId <- workflowBalancingService.getMaxWorkflowId()
       isWorkflowsSteady = maxWorkflowId.isDefined && previousMaxWorkflowId == maxWorkflowId
       _ = logger.debug(s"Scheduler instance $instanceId observed maxWorkflowId = $maxWorkflowId")
@@ -54,7 +57,7 @@ class WorkflowBalancer @Inject()(schedulerInstanceService: SchedulerInstanceServ
         workflowBalancingService.getWorkflowsAssignment(runningWorkflowIds, instances, instanceId)
       }
     } yield {
-      previousInstances = instances
+      previousInstancesIdStatus = instancesIdStatus
       previousMaxWorkflowId = maxWorkflowId
       targetWorkflowAssignmentReached = targetReachedValue
       previousAssignedWorkflows = workflows
