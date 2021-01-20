@@ -18,6 +18,7 @@ package za.co.absa.hyperdrive.trigger.scheduler.cluster
 import javax.inject.Inject
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses
 import za.co.absa.hyperdrive.trigger.models.{SchedulerInstance, Workflow}
 import za.co.absa.hyperdrive.trigger.persistance.WorkflowRepository
 
@@ -37,16 +38,17 @@ class WorkflowBalancingServiceImpl @Inject()(workflowRepository: WorkflowReposit
 
   override def getWorkflowsAssignment(runningWorkflowIds: Iterable[Long], instances: Seq[SchedulerInstance], myInstanceId: Long)
                                      (implicit ec: ExecutionContext): Future[(Seq[Workflow], Boolean)] = {
-    val myRank = getRank(instances, myInstanceId)
+    val activeInstances = instances.filter(_.status == SchedulerInstanceStatuses.Active)
+    val myRank = getRank(activeInstances, myInstanceId)
     logger.info(s"Rebalancing workflows on scheduler instance id = $myInstanceId, rank = $myRank," +
-      s" all instance ids = ${instances.map(_.id).sorted}, retaining workflow ids = ${runningWorkflowIds}")
+      s" active instance ids = ${activeInstances.map(_.id).sorted}, retaining workflow ids = ${runningWorkflowIds}")
     for {
       droppedWorkflowsCount <- workflowRepository.dropWorkflowAssignmentsOfDeactivatedInstances()
       _ = if (droppedWorkflowsCount > 0) {
         logger.info(s"Scheduler instance id = $myInstanceId dropped $droppedWorkflowsCount workflows of deactivated instances")
       }
       allWorkflows <- workflowRepository.getWorkflows()
-      targetWorkflowIds = allWorkflows.filter(_.id % instances.size == myRank).map(_.id)
+      targetWorkflowIds = allWorkflows.filter(_.id % activeInstances.size == myRank).map(_.id)
       workflowIdsToAcquire = (targetWorkflowIds ++ runningWorkflowIds).distinct
       currentAssignedWorkflowIds = allWorkflows
         .filter(_.schedulerInstanceId.isDefined)

@@ -21,7 +21,7 @@ import java.time.LocalDateTime
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito.{reset, verify, when}
 import org.scalatest.mockito.MockitoSugar
-import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, FlatSpec, Matchers}
+import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
 import za.co.absa.hyperdrive.trigger.TestUtils.await
 import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses
@@ -30,7 +30,7 @@ import za.co.absa.hyperdrive.trigger.persistance.WorkflowRepository
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
-class WorkflowBalancingServiceTest extends AsyncFlatSpec with MockitoSugar with Matchers with BeforeAndAfter {
+class WorkflowBalancingServiceTest extends FlatSpec with MockitoSugar with Matchers with BeforeAndAfter {
   private val workflowRepository = mock[WorkflowRepository]
   private val underTest = new WorkflowBalancingServiceImpl(workflowRepository)
   private val baseWorkflow = Workflow(name = "workflow", isActive = true, project = "project", updated = None)
@@ -44,9 +44,10 @@ class WorkflowBalancingServiceTest extends AsyncFlatSpec with MockitoSugar with 
     val instance1 = SchedulerInstance(2, SchedulerInstanceStatuses.Active, LocalDateTime.now())
     val instance2 = SchedulerInstance(4, SchedulerInstanceStatuses.Active, LocalDateTime.now())
     val instance3 = SchedulerInstance(100, SchedulerInstanceStatuses.Active, LocalDateTime.now())
+    val instance4 = SchedulerInstance(101, SchedulerInstanceStatuses.Deactivated, LocalDateTime.now())
     val myInstanceId = instance1.id
     val runningWorkflowIds = Seq()
-    val instances = Seq(instance1, instance2, instance3)
+    val instances = Seq(instance1, instance2, instance3, instance4)
     val workflows = Seq(
       baseWorkflow.copy(id = 1, schedulerInstanceId = Some(myInstanceId)),
       baseWorkflow.copy(id = 2, schedulerInstanceId = Some(myInstanceId)),
@@ -76,16 +77,16 @@ class WorkflowBalancingServiceTest extends AsyncFlatSpec with MockitoSugar with 
     verify(workflowRepository).getWorkflows()(any())
     verify(workflowRepository).dropWorkflowAssignments(eqTo(Seq(1L, 2L)), eqTo(myInstanceId))(any())
     verify(workflowRepository).acquireWorkflowAssignments(eqTo(Seq(3L, 6L)), eqTo(myInstanceId))(any())
-    succeed
   }
 
   it should "not drop running workflows and then return false" in {
     // given
     val instance1 = SchedulerInstance(2, SchedulerInstanceStatuses.Active, LocalDateTime.now())
     val instance2 = SchedulerInstance(4, SchedulerInstanceStatuses.Active, LocalDateTime.now())
+    val instance3 = SchedulerInstance(6, SchedulerInstanceStatuses.Deactivated, LocalDateTime.now())
     val myInstanceId = instance2.id
     val runningWorkflowIds = Seq(4L, 5L)
-    val instances = Seq(instance1, instance2)
+    val instances = Seq(instance1, instance2, instance3)
     val workflows = Seq(
       baseWorkflow.copy(id = 1, schedulerInstanceId = None),
       baseWorkflow.copy(id = 2, schedulerInstanceId = Some(instance1.id)),
@@ -115,16 +116,16 @@ class WorkflowBalancingServiceTest extends AsyncFlatSpec with MockitoSugar with 
     verify(workflowRepository).getWorkflows()(any())
     verify(workflowRepository).dropWorkflowAssignments(eqTo(Seq(6L)), eqTo(myInstanceId))(any())
     verify(workflowRepository).acquireWorkflowAssignments(eqTo(Seq(1L, 3L, 5L, 4L)), eqTo(myInstanceId))(any())
-    succeed
   }
 
   it should "return false if not all target workflows could be acquired" in {
     // given
     val instance1 = SchedulerInstance(2, SchedulerInstanceStatuses.Active, LocalDateTime.now())
     val instance2 = SchedulerInstance(4, SchedulerInstanceStatuses.Active, LocalDateTime.now())
+    val instance3 = SchedulerInstance(6, SchedulerInstanceStatuses.Deactivated, LocalDateTime.now())
     val myInstanceId = instance1.id
     val runningWorkflowIds = Seq()
-    val instances = Seq(instance1, instance2)
+    val instances = Seq(instance1, instance2, instance3)
     val workflows = Seq(
       baseWorkflow.copy(id = 1, schedulerInstanceId = Some(myInstanceId)),
       baseWorkflow.copy(id = 2, schedulerInstanceId = Some(myInstanceId)),
@@ -153,6 +154,5 @@ class WorkflowBalancingServiceTest extends AsyncFlatSpec with MockitoSugar with 
     verify(workflowRepository).getWorkflows()(any())
     verify(workflowRepository).dropWorkflowAssignments(eqTo(Seq(1L, 3L)), eqTo(myInstanceId))(any())
     verify(workflowRepository).acquireWorkflowAssignments(eqTo(Seq(2L, 4L, 6L)), eqTo(myInstanceId))(any())
-    succeed
   }
 }

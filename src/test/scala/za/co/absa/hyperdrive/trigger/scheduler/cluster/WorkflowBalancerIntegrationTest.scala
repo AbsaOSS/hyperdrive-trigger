@@ -61,6 +61,7 @@ class WorkflowBalancerIntegrationTest extends FlatSpec with Matchers with Before
     val balancer0 = new WorkflowBalancer(schedulerInstanceService, workflowBalancingService, lagThresholdMillis)
     val balancer1 = new WorkflowBalancer(schedulerInstanceService, workflowBalancingService, lagThresholdMillis)
     val balancer2 = new WorkflowBalancer(schedulerInstanceService, workflowBalancingService, lagThresholdMillis)
+    val balancer3 = new WorkflowBalancer(schedulerInstanceService, workflowBalancingService, lagThresholdMillis)
     val workflowIds = 0L to 199L
     val workflows = workflowIds.map(i => baseWorkflow.copy(id = i, name = s"workflow$i"))
     run(workflowTable.forceInsertAll(workflows))
@@ -70,7 +71,7 @@ class WorkflowBalancerIntegrationTest extends FlatSpec with Matchers with Before
     val workflowsB0T0 = await(balancer0.getAssignedWorkflows(Seq()))
     assertNoWorkflowIsDoubleAssigned(workflowsB0T0)
 
-    // T1: Add two more instances and add more workflows
+    // T1: Add three more instances and add more workflows
     val workflowsB1T1 = await(balancer1.getAssignedWorkflows(Seq()))
     assertNoWorkflowIsDoubleAssigned(workflowsB0T0, workflowsB1T1)
     run(workflowTable.forceInsert(baseWorkflow.copy(id = 1000, name = "workflow1000")))
@@ -78,9 +79,15 @@ class WorkflowBalancerIntegrationTest extends FlatSpec with Matchers with Before
     assertNoWorkflowIsDoubleAssigned(workflowsB0T1, workflowsB1T1)
     val workflowsB2T1 = await(balancer2.getAssignedWorkflows(Seq()))
     assertNoWorkflowIsDoubleAssigned(workflowsB0T1, workflowsB1T1, workflowsB2T1)
+    val workflowsB3T1 = await(balancer3.getAssignedWorkflows(Seq()))
+    assertNoWorkflowIsDoubleAssigned(workflowsB0T1, workflowsB1T1, workflowsB2T1, workflowsB3T1)
 
-    // T2: No intermediate changes in workflows or scheduler instances
-    run(workflowTable.forceInsert(baseWorkflow.copy(id = 1001, name = "workflow1001")))
+    // T2: Remove an instance and a workflow
+    run(workflowTable.filter(_.id === 0L).delete)
+    val maxId = await(db.run(schedulerInstanceTable.map(_.id).max.result)).get
+    run(schedulerInstanceTable.filter(_.id === maxId).map(_.status).update(SchedulerInstanceStatuses.Deactivated))
+    the [SchedulerInstanceAlreadyDeactivatedException] thrownBy await(balancer3.getAssignedWorkflows(Seq()))
+
     val workflowsB2T2 = await(balancer2.getAssignedWorkflows(getRetainedIds(workflowsB2T1)))
     assertNoWorkflowIsDoubleAssigned(workflowsB0T1, workflowsB1T1, workflowsB2T2)
     val workflowsB0T2 = await(balancer0.getAssignedWorkflows(getRetainedIds(workflowsB0T1)))
@@ -96,35 +103,6 @@ class WorkflowBalancerIntegrationTest extends FlatSpec with Matchers with Before
     val workflowsB2T3 = await(balancer2.getAssignedWorkflows(getRetainedIds(workflowsB2T2)))
     assertNoWorkflowIsDoubleAssigned(workflowsB0T3, workflowsB1T3, workflowsB2T3)
     assertNoWorkflowIsNotAssigned()
-
-    // T3: Remove one instance
-    val maxId = await(db.run(schedulerInstanceTable.map(_.id).max.result)).get
-    run(schedulerInstanceTable.filter(_.id === maxId).map(_.status).update(SchedulerInstanceStatuses.Deactivated))
-    the [SchedulerInstanceAlreadyDeactivatedException] thrownBy await(balancer2.getAssignedWorkflows(getRetainedIds(workflowsB2T3)))
-    val workflowsB0T4 = await(balancer0.getAssignedWorkflows(getRetainedIds(workflowsB0T3)))
-    assertNoWorkflowIsDoubleAssigned(workflowsB0T4, workflowsB1T3)
-    val workflowsB1T4 = await(balancer1.getAssignedWorkflows(getRetainedIds(workflowsB1T3)))
-    assertNoWorkflowIsDoubleAssigned(workflowsB0T4, workflowsB1T4)
-  }
-
-  /**
-   *
-   * @param input an arbitrary sequence
-   * @param slices number of elements of the outer output sequence
-   * @return
-   * Example: input = (5, 3, 7, 9, 8, 6, 5) and slices = 3 could return
-   * ((5, 3), (), (7, 9, 8)) or ((5, 3, 7), (9, 8), (6)), etc.
-   */
-  private def getRandomSelection[T](input: Seq[T], slices: Int) = {
-    val selectionSize = random.nextInt(input.size)
-    val selectionIndices = (0 to selectionSize).map(_ => random.nextInt(input.size))
-    val selection = input.zipWithIndex
-      .filter{ case (_, index) => selectionIndices.contains(index) }
-      .map(_._1)
-
-    val sliceIndices = (0 until slices).map(_ => random.nextInt(input.size)).sorted
-    (0 +: sliceIndices).zip(sliceIndices :+ input.size)
-      .map{ case (from, to) => selection.slice(from, to) }
   }
 
   private def getRandomSelection[T](input: Seq[T]) = {
