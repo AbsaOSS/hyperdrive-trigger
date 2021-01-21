@@ -44,8 +44,8 @@ trait WorkflowRepository extends Repository {
   def updateWorkflowsIsActive(ids: Seq[Long], isActiveNewValue: Boolean, user: String)(implicit ec: ExecutionContext): Future[Unit]
   def getProjects()(implicit ec: ExecutionContext): Future[Seq[String]]
   def getProjectsInfo()(implicit ec: ExecutionContext): Future[Seq[ProjectInfo]]
-  def dropWorkflowAssignmentsOfDeactivatedInstances()(implicit ec: ExecutionContext): Future[(Int, Int)]
-  def dropWorkflowAssignments(workflowIds: Seq[Long], instanceId: Long)(implicit ec: ExecutionContext): Future[Int]
+  def releaseWorkflowAssignmentsOfDeactivatedInstances()(implicit ec: ExecutionContext): Future[(Int, Int)]
+  def releaseWorkflowAssignments(workflowIds: Seq[Long], instanceId: Long)(implicit ec: ExecutionContext): Future[Int]
   def acquireWorkflowAssignments(workflowIds: Seq[Long], instanceId: Long)(implicit ec: ExecutionContext): Future[Int]
   def getWorkflowsBySchedulerInstance(instanceId: Long)(implicit ec: ExecutionContext): Future[Seq[Workflow]]
   def getMaxWorkflowId(implicit ec: ExecutionContext): Future[Option[Long]]
@@ -269,7 +269,7 @@ class WorkflowRepositoryImpl(override val workflowHistoryRepository: WorkflowHis
     workflowTable.map(_.project).groupBy(_.value).map(e => (e._1, e._2.length)).sortBy(_._1).result.map(_.map((ProjectInfo.apply _).tupled(_)))
   )
 
-  override def dropWorkflowAssignmentsOfDeactivatedInstances()(implicit ec: ExecutionContext): Future[(Int, Int)] = db.run(
+  override def releaseWorkflowAssignmentsOfDeactivatedInstances()(implicit ec: ExecutionContext): Future[(Int, Int)] = db.run(
     (
       for {
         workflowUpdatedCount <- workflowTable
@@ -285,7 +285,7 @@ class WorkflowRepositoryImpl(override val workflowHistoryRepository: WorkflowHis
     ).transactionally
     )
 
-  override def dropWorkflowAssignments(workflowIds: Seq[Long], instanceId: Long)(implicit ec: ExecutionContext): Future[Int] = db.run(
+  override def releaseWorkflowAssignments(workflowIds: Seq[Long], instanceId: Long)(implicit ec: ExecutionContext): Future[Int] = db.run(
     workflowTable.filter(_.schedulerInstanceId === instanceId)
       .filter(_.id inSetBind workflowIds)
       .map(_.schedulerInstanceId)

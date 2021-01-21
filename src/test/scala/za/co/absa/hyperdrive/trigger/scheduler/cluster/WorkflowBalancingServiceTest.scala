@@ -58,9 +58,9 @@ class WorkflowBalancingServiceTest extends FlatSpec with MockitoSugar with Match
     )
     val myTargetWorkflows = workflows.filter(w => w.id == 3L || w.id == 6L)
 
-    when(workflowRepository.dropWorkflowAssignmentsOfDeactivatedInstances()(any[ExecutionContext])).thenReturn(Future{(0, 0)})
+    when(workflowRepository.releaseWorkflowAssignmentsOfDeactivatedInstances()(any[ExecutionContext])).thenReturn(Future{(0, 0)})
     when(workflowRepository.getWorkflows()(any[ExecutionContext])).thenReturn(Future{workflows})
-    when(workflowRepository.dropWorkflowAssignments(any(), any())(any[ExecutionContext])).thenReturn(Future{0})
+    when(workflowRepository.releaseWorkflowAssignments(any(), any())(any[ExecutionContext])).thenReturn(Future{0})
     when(workflowRepository.acquireWorkflowAssignments(any(), any())(any[ExecutionContext])).thenReturn(Future{0})
     when(workflowRepository.getWorkflowsBySchedulerInstance(eqTo(myInstanceId))(any[ExecutionContext])).thenReturn(
       Future{myTargetWorkflows}
@@ -73,13 +73,13 @@ class WorkflowBalancingServiceTest extends FlatSpec with MockitoSugar with Match
     result._1 should contain theSameElementsAs myTargetWorkflows
     result._2 shouldBe true
 
-    verify(workflowRepository).dropWorkflowAssignmentsOfDeactivatedInstances()
+    verify(workflowRepository).releaseWorkflowAssignmentsOfDeactivatedInstances()
     verify(workflowRepository).getWorkflows()(any())
-    verify(workflowRepository).dropWorkflowAssignments(eqTo(Seq(1L, 2L)), eqTo(myInstanceId))(any())
+    verify(workflowRepository).releaseWorkflowAssignments(eqTo(Seq(1L, 2L)), eqTo(myInstanceId))(any())
     verify(workflowRepository).acquireWorkflowAssignments(eqTo(Seq(3L, 6L)), eqTo(myInstanceId))(any())
   }
 
-  it should "not drop running workflows and then return false" in {
+  it should "not release running workflows and then return false" in {
     // given
     val instance1 = SchedulerInstance(2, SchedulerInstanceStatuses.Active, LocalDateTime.now())
     val instance2 = SchedulerInstance(4, SchedulerInstanceStatuses.Active, LocalDateTime.now())
@@ -97,9 +97,9 @@ class WorkflowBalancingServiceTest extends FlatSpec with MockitoSugar with Match
     )
     val myTargetWorkflows = workflows.filter(w => Seq(1L, 3L, 4L, 5L).contains(w.id))
 
-    when(workflowRepository.dropWorkflowAssignmentsOfDeactivatedInstances()(any[ExecutionContext])).thenReturn(Future{(0, 0)})
+    when(workflowRepository.releaseWorkflowAssignmentsOfDeactivatedInstances()(any[ExecutionContext])).thenReturn(Future{(0, 0)})
     when(workflowRepository.getWorkflows()(any[ExecutionContext])).thenReturn(Future{workflows})
-    when(workflowRepository.dropWorkflowAssignments(any(), any())(any[ExecutionContext])).thenReturn(Future{0})
+    when(workflowRepository.releaseWorkflowAssignments(any(), any())(any[ExecutionContext])).thenReturn(Future{0})
     when(workflowRepository.acquireWorkflowAssignments(any(), any())(any[ExecutionContext])).thenReturn(Future{0})
     when(workflowRepository.getWorkflowsBySchedulerInstance(eqTo(myInstanceId))(any[ExecutionContext])).thenReturn(
       Future{myTargetWorkflows}
@@ -112,9 +112,9 @@ class WorkflowBalancingServiceTest extends FlatSpec with MockitoSugar with Match
     result._1 should contain theSameElementsAs myTargetWorkflows
     result._2 shouldBe false
 
-    verify(workflowRepository).dropWorkflowAssignmentsOfDeactivatedInstances()
+    verify(workflowRepository).releaseWorkflowAssignmentsOfDeactivatedInstances()
     verify(workflowRepository).getWorkflows()(any())
-    verify(workflowRepository).dropWorkflowAssignments(eqTo(Seq(6L)), eqTo(myInstanceId))(any())
+    verify(workflowRepository).releaseWorkflowAssignments(eqTo(Seq(6L)), eqTo(myInstanceId))(any())
     verify(workflowRepository).acquireWorkflowAssignments(eqTo(Seq(1L, 3L, 5L, 4L)), eqTo(myInstanceId))(any())
   }
 
@@ -135,9 +135,9 @@ class WorkflowBalancingServiceTest extends FlatSpec with MockitoSugar with Match
       baseWorkflow.copy(id = 6, schedulerInstanceId = None)
     )
 
-    when(workflowRepository.dropWorkflowAssignmentsOfDeactivatedInstances()(any[ExecutionContext])).thenReturn(Future{(0, 0)})
+    when(workflowRepository.releaseWorkflowAssignmentsOfDeactivatedInstances()(any[ExecutionContext])).thenReturn(Future{(0, 0)})
     when(workflowRepository.getWorkflows()(any[ExecutionContext])).thenReturn(Future{workflows})
-    when(workflowRepository.dropWorkflowAssignments(any(), any())(any[ExecutionContext])).thenReturn(Future{0})
+    when(workflowRepository.releaseWorkflowAssignments(any(), any())(any[ExecutionContext])).thenReturn(Future{0})
     when(workflowRepository.acquireWorkflowAssignments(any(), any())(any[ExecutionContext])).thenReturn(Future{0})
     when(workflowRepository.getWorkflowsBySchedulerInstance(eqTo(myInstanceId))(any[ExecutionContext])).thenReturn(
       Future{workflows.filter(_.id == 2)}
@@ -150,9 +150,9 @@ class WorkflowBalancingServiceTest extends FlatSpec with MockitoSugar with Match
     result._1 should contain theSameElementsAs workflows.filter(_.id == 2)
     result._2 shouldBe false
 
-    verify(workflowRepository).dropWorkflowAssignmentsOfDeactivatedInstances()
+    verify(workflowRepository).releaseWorkflowAssignmentsOfDeactivatedInstances()
     verify(workflowRepository).getWorkflows()(any())
-    verify(workflowRepository).dropWorkflowAssignments(eqTo(Seq(1L, 3L)), eqTo(myInstanceId))(any())
+    verify(workflowRepository).releaseWorkflowAssignments(eqTo(Seq(1L, 3L)), eqTo(myInstanceId))(any())
     verify(workflowRepository).acquireWorkflowAssignments(eqTo(Seq(2L, 4L, 6L)), eqTo(myInstanceId))(any())
   }
 }

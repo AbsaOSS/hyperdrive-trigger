@@ -44,7 +44,7 @@ class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: Sensor
 
   def processEvents(assignedWorkflowIds: Seq[Long]): Future[Unit] = {
     logger.debug(s"Processing events. Sensors: ${sensors.keys}")
-    removeDroppedSensors(assignedWorkflowIds)
+    removeReleasedSensors(assignedWorkflowIds)
     val fut = for {
       _ <- removeInactiveSensors()
       _ <- updateChangedSensors()
@@ -84,9 +84,9 @@ class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: Sensor
     )
   }
 
-  private def removeDroppedSensors(assignedWorkflowIds: Seq[Long]): Unit = {
-    val droppedWorkflowIds = sensors.values.map(_.sensorDefinition.workflowId).toSeq.diff(assignedWorkflowIds)
-    sensors.filter { case (_, value) => droppedWorkflowIds.contains(value.sensorDefinition.workflowId) }
+  private def removeReleasedSensors(assignedWorkflowIds: Seq[Long]): Unit = {
+    val releasedWorkflowIds = sensors.values.map(_.sensorDefinition.workflowId).toSeq.diff(assignedWorkflowIds)
+    sensors.filter { case (_, value) => releasedWorkflowIds.contains(value.sensorDefinition.workflowId) }
       .foreach { case (sensorId, _) => stopSensor(sensorId) }
   }
 

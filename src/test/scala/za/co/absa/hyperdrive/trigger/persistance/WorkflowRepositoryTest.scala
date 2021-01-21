@@ -341,7 +341,7 @@ class WorkflowRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterA
   }
 
 
-  "dropWorkflowAssignmentsOfDeactivatedInstances" should "remove the instanceId for deactivated instances" in {
+  "releaseWorkflowAssignmentsOfDeactivatedInstances" should "remove the instanceId for deactivated instances" in {
     // given
     val instance0 = TestData.schedulerInstances.head.copy(status = SchedulerInstanceStatuses.Active)
     val instance1 = TestData.schedulerInstances(1).copy(status = SchedulerInstanceStatuses.Deactivated)
@@ -354,7 +354,7 @@ class WorkflowRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterA
     run(workflowTable.forceInsertAll(workflows))
 
     // when
-    await(workflowRepository.dropWorkflowAssignmentsOfDeactivatedInstances())
+    await(workflowRepository.releaseWorkflowAssignmentsOfDeactivatedInstances())
 
     // then
     val updatedWorkflows = await(db.run(workflowTable.result))
@@ -374,14 +374,14 @@ class WorkflowRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterA
     run(schedulerInstanceTable.forceInsertAll(Seq(instance0, instance1, instance2)))
 
     // when
-    await(workflowRepository.dropWorkflowAssignmentsOfDeactivatedInstances())
+    await(workflowRepository.releaseWorkflowAssignmentsOfDeactivatedInstances())
 
     // then
     val instances = await(db.run(schedulerInstanceTable.result))
     instances.map(_.status) should contain only SchedulerInstanceStatuses.Active
   }
 
-  "dropWorkflowAssignments" should "remove the instanceId if the workflow is owned by the instanceId" in {
+  "releaseWorkflowAssignments" should "remove the instanceId if the workflow is owned by the instanceId" in {
     // given
     val instance0 = TestData.schedulerInstances.head.copy(status = SchedulerInstanceStatuses.Active)
     val instance1 = TestData.schedulerInstances(1).copy(status = SchedulerInstanceStatuses.Active)
@@ -394,7 +394,7 @@ class WorkflowRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterA
     run(workflowTable.forceInsertAll(workflows))
 
     // when
-    await(workflowRepository.dropWorkflowAssignments(workflows.map(_.id), instance0.id))
+    await(workflowRepository.releaseWorkflowAssignments(workflows.map(_.id), instance0.id))
 
     // then
     val updatedWorkflows = await(db.run(workflowTable.result))
@@ -434,8 +434,8 @@ class WorkflowRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterA
     val targetWorkflows2 = Seq(1L, 2, 3, 21, 22, 23)
     val targetWorkflows3 = Seq(1L, 2, 3, 31, 32, 33)
     val acquire1Count = await(workflowRepository.acquireWorkflowAssignments(targetWorkflows1, instances(1).id))
-    val drop1Count = await(workflowRepository.dropWorkflowAssignments(targetWorkflows1, instances(2).id))
-    val drop2Count = await(workflowRepository.dropWorkflowAssignments(targetWorkflows1, instances(3).id))
+    val release1Count = await(workflowRepository.releaseWorkflowAssignments(targetWorkflows1, instances(2).id))
+    val release2Count = await(workflowRepository.releaseWorkflowAssignments(targetWorkflows1, instances(3).id))
     val result1 = await(workflowRepository.getWorkflowsBySchedulerInstance(instances(1).id))
     val acquire2Count = await(workflowRepository.acquireWorkflowAssignments(targetWorkflows2, instances(2).id))
     val result2 = await(workflowRepository.getWorkflowsBySchedulerInstance(instances(2).id))
@@ -445,8 +445,8 @@ class WorkflowRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterA
     acquire1Count shouldBe 6
     acquire2Count shouldBe 3
     acquire3Count shouldBe 3
-    drop1Count shouldBe 0
-    drop2Count shouldBe 0
+    release1Count shouldBe 0
+    release2Count shouldBe 0
     assertNoWorkflowIsDoubleAssigned(result1, result2, result3)
   }
 

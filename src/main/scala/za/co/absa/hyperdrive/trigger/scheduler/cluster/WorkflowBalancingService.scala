@@ -43,9 +43,9 @@ class WorkflowBalancingServiceImpl @Inject()(workflowRepository: WorkflowReposit
     logger.info(s"Rebalancing workflows on scheduler instance id = $myInstanceId, rank = $myRank," +
       s" active instance ids = ${activeInstances.map(_.id).sorted}, retaining workflow ids = ${runningWorkflowIds}")
     for {
-      (droppedWorkflowsCount, instancesDeletedCount) <- workflowRepository.dropWorkflowAssignmentsOfDeactivatedInstances()
-      _ = if (droppedWorkflowsCount > 0) {
-        logger.info(s"Scheduler instance id = $myInstanceId dropped $droppedWorkflowsCount workflows of " +
+      (releasedWorkflowsCount, instancesDeletedCount) <- workflowRepository.releaseWorkflowAssignmentsOfDeactivatedInstances()
+      _ = if (releasedWorkflowsCount > 0) {
+        logger.info(s"Scheduler instance id = $myInstanceId released $releasedWorkflowsCount workflows of " +
           s"$instancesDeletedCount deactivated instances")
       }
       allWorkflows <- workflowRepository.getWorkflows()
@@ -55,8 +55,8 @@ class WorkflowBalancingServiceImpl @Inject()(workflowRepository: WorkflowReposit
         .filter(_.schedulerInstanceId.isDefined)
         .filter(_.schedulerInstanceId.get == myInstanceId)
         .map(_.id)
-      workflowIdsToDrop = currentAssignedWorkflowIds.diff(workflowIdsToAcquire)
-      _ <- workflowRepository.dropWorkflowAssignments(workflowIdsToDrop, myInstanceId)
+      workflowIdsToRelease = currentAssignedWorkflowIds.diff(workflowIdsToAcquire)
+      _ <- workflowRepository.releaseWorkflowAssignments(workflowIdsToRelease, myInstanceId)
       _ <- workflowRepository.acquireWorkflowAssignments(workflowIdsToAcquire, myInstanceId)
       acquiredWorkflows <- workflowRepository.getWorkflowsBySchedulerInstance(myInstanceId)
     } yield {
