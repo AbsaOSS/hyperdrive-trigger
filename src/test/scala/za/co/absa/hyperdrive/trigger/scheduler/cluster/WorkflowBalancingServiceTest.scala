@@ -58,7 +58,7 @@ class WorkflowBalancingServiceTest extends FlatSpec with MockitoSugar with Match
     )
     val myTargetWorkflows = workflows.filter(w => w.id == 3L || w.id == 6L)
 
-    when(workflowRepository.dropWorkflowAssignmentsOfDeactivatedInstances()(any[ExecutionContext])).thenReturn(Future{0})
+    when(workflowRepository.dropWorkflowAssignmentsOfDeactivatedInstances()(any[ExecutionContext])).thenReturn(Future{(0, 0)})
     when(workflowRepository.getWorkflows()(any[ExecutionContext])).thenReturn(Future{workflows})
     when(workflowRepository.dropWorkflowAssignments(any(), any())(any[ExecutionContext])).thenReturn(Future{0})
     when(workflowRepository.acquireWorkflowAssignments(any(), any())(any[ExecutionContext])).thenReturn(Future{0})
@@ -97,7 +97,7 @@ class WorkflowBalancingServiceTest extends FlatSpec with MockitoSugar with Match
     )
     val myTargetWorkflows = workflows.filter(w => Seq(1L, 3L, 4L, 5L).contains(w.id))
 
-    when(workflowRepository.dropWorkflowAssignmentsOfDeactivatedInstances()(any[ExecutionContext])).thenReturn(Future{0})
+    when(workflowRepository.dropWorkflowAssignmentsOfDeactivatedInstances()(any[ExecutionContext])).thenReturn(Future{(0, 0)})
     when(workflowRepository.getWorkflows()(any[ExecutionContext])).thenReturn(Future{workflows})
     when(workflowRepository.dropWorkflowAssignments(any(), any())(any[ExecutionContext])).thenReturn(Future{0})
     when(workflowRepository.acquireWorkflowAssignments(any(), any())(any[ExecutionContext])).thenReturn(Future{0})
@@ -135,7 +135,7 @@ class WorkflowBalancingServiceTest extends FlatSpec with MockitoSugar with Match
       baseWorkflow.copy(id = 6, schedulerInstanceId = None)
     )
 
-    when(workflowRepository.dropWorkflowAssignmentsOfDeactivatedInstances()(any[ExecutionContext])).thenReturn(Future{0})
+    when(workflowRepository.dropWorkflowAssignmentsOfDeactivatedInstances()(any[ExecutionContext])).thenReturn(Future{(0, 0)})
     when(workflowRepository.getWorkflows()(any[ExecutionContext])).thenReturn(Future{workflows})
     when(workflowRepository.dropWorkflowAssignments(any(), any())(any[ExecutionContext])).thenReturn(Future{0})
     when(workflowRepository.acquireWorkflowAssignments(any(), any())(any[ExecutionContext])).thenReturn(Future{0})

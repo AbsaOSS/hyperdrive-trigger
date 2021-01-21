@@ -43,9 +43,10 @@ class WorkflowBalancingServiceImpl @Inject()(workflowRepository: WorkflowReposit
     logger.info(s"Rebalancing workflows on scheduler instance id = $myInstanceId, rank = $myRank," +
       s" active instance ids = ${activeInstances.map(_.id).sorted}, retaining workflow ids = ${runningWorkflowIds}")
     for {
-      droppedWorkflowsCount <- workflowRepository.dropWorkflowAssignmentsOfDeactivatedInstances()
+      (droppedWorkflowsCount, instancesDeletedCount) <- workflowRepository.dropWorkflowAssignmentsOfDeactivatedInstances()
       _ = if (droppedWorkflowsCount > 0) {
-        logger.info(s"Scheduler instance id = $myInstanceId dropped $droppedWorkflowsCount workflows of deactivated instances")
+        logger.info(s"Scheduler instance id = $myInstanceId dropped $droppedWorkflowsCount workflows of " +
+          s"$instancesDeletedCount deactivated instances")
       }
       allWorkflows <- workflowRepository.getWorkflows()
       targetWorkflowIds = allWorkflows.filter(_.id % activeInstances.size == myRank).map(_.id)

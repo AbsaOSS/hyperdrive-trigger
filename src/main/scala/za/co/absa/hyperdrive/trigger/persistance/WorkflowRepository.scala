@@ -44,7 +44,7 @@ trait WorkflowRepository extends Repository {
   def updateWorkflowsIsActive(ids: Seq[Long], isActiveNewValue: Boolean, user: String)(implicit ec: ExecutionContext): Future[Unit]
   def getProjects()(implicit ec: ExecutionContext): Future[Seq[String]]
   def getProjectsInfo()(implicit ec: ExecutionContext): Future[Seq[ProjectInfo]]
-  def dropWorkflowAssignmentsOfDeactivatedInstances()(implicit ec: ExecutionContext): Future[Int]
+  def dropWorkflowAssignmentsOfDeactivatedInstances()(implicit ec: ExecutionContext): Future[(Int, Int)]
   def dropWorkflowAssignments(workflowIds: Seq[Long], instanceId: Long)(implicit ec: ExecutionContext): Future[Int]
   def acquireWorkflowAssignments(workflowIds: Seq[Long], instanceId: Long)(implicit ec: ExecutionContext): Future[Int]
   def getWorkflowsBySchedulerInstance(instanceId: Long)(implicit ec: ExecutionContext): Future[Seq[Workflow]]
@@ -269,13 +269,20 @@ class WorkflowRepositoryImpl(override val workflowHistoryRepository: WorkflowHis
     workflowTable.map(_.project).groupBy(_.value).map(e => (e._1, e._2.length)).sortBy(_._1).result.map(_.map((ProjectInfo.apply _).tupled(_)))
   )
 
-  override def dropWorkflowAssignmentsOfDeactivatedInstances()(implicit ec: ExecutionContext): Future[Int] = db.run(
-    workflowTable
-      .filter(w => schedulerInstanceTable
-        .filter(_.id === w.schedulerInstanceId)
-        .filter(_.status === LiteralColumn[SchedulerInstanceStatus](SchedulerInstanceStatuses.Deactivated)).exists)
-      .map(_.schedulerInstanceId)
-      .update(None)
+  override def dropWorkflowAssignmentsOfDeactivatedInstances()(implicit ec: ExecutionContext): Future[(Int, Int)] = db.run(
+    (
+      for {
+        workflowUpdatedCount <- workflowTable
+          .filter(w => schedulerInstanceTable
+            .filter(_.id === w.schedulerInstanceId)
+            .filter(_.status === LiteralColumn[SchedulerInstanceStatus](SchedulerInstanceStatuses.Deactivated)).exists)
+          .map(_.schedulerInstanceId)
+          .update(None)
+        instancesDeletedCount <- schedulerInstanceTable
+          .filter(_.status === LiteralColumn[SchedulerInstanceStatus](SchedulerInstanceStatuses.Deactivated))
+          .delete
+      } yield (workflowUpdatedCount, instancesDeletedCount)
+    ).transactionally
     )
 
   override def dropWorkflowAssignments(workflowIds: Seq[Long], instanceId: Long)(implicit ec: ExecutionContext): Future[Int] = db.run(

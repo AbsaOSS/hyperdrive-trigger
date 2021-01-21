@@ -360,6 +360,25 @@ class WorkflowRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterA
     val updatedWorkflows = await(db.run(workflowTable.result))
     updatedWorkflows.filter(_.id % 3 == 0).map(_.schedulerInstanceId) should contain only Some(instance0.id)
     updatedWorkflows.filter(_.id % 3 != 0).map(_.schedulerInstanceId) should contain only None
+
+    val instances = await(db.run(schedulerInstanceTable.result))
+    instances.map(_.status) should contain only SchedulerInstanceStatuses.Active
+  }
+
+  it should "delete deactivated instances" in {
+    // given
+    val instance0 = TestData.schedulerInstances.head.copy(status = SchedulerInstanceStatuses.Active)
+    val instance1 = TestData.schedulerInstances(1).copy(status = SchedulerInstanceStatuses.Deactivated)
+    val instance2 = TestData.schedulerInstances(2).copy(status = SchedulerInstanceStatuses.Deactivated)
+
+    run(schedulerInstanceTable.forceInsertAll(Seq(instance0, instance1, instance2)))
+
+    // when
+    await(workflowRepository.dropWorkflowAssignmentsOfDeactivatedInstances())
+
+    // then
+    val instances = await(db.run(schedulerInstanceTable.result))
+    instances.map(_.status) should contain only SchedulerInstanceStatuses.Active
   }
 
   "dropWorkflowAssignments" should "remove the instanceId if the workflow is owned by the instanceId" in {
