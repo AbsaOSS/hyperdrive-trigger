@@ -33,7 +33,7 @@ import scala.util.{Failure, Success}
 
 @Component
 class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstanceRepository: DagInstanceRepository,
-                             workflowRebalancer: WorkflowBalancer) {
+                             workflowBalancer: WorkflowBalancer) {
 
   case class RunningDagsKey(dagId: Long, workflowId: Long)
 
@@ -59,7 +59,7 @@ class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstance
         Future {
           while (isManagerRunningAtomic.get()) {
             logger.debug("Running manager heart beat.")
-            val assignedWorkflowsFut = workflowRebalancer.getAssignedWorkflows(runningDags.keys.map(_.workflowId).toSeq)
+            val assignedWorkflowsFut = workflowBalancer.getAssignedWorkflows(runningDags.keys.map(_.workflowId).toSeq)
               .map(_.map(_.id))
               .recover {
                 case e: SchedulerInstanceAlreadyDeactivatedException =>
@@ -87,7 +87,7 @@ class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstance
   def stopManager(): Future[Unit] = {
     isManagerRunningAtomic.set(false)
     sensors.cleanUpSensors()
-    workflowRebalancer.resetSchedulerInstanceId()
+    workflowBalancer.resetSchedulerInstanceId()
     runningScheduler
   }
 

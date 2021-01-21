@@ -37,7 +37,6 @@ trait DagInstanceRepository extends Repository {
 
 @stereotype.Repository
 class DagInstanceRepositoryImpl extends DagInstanceRepository {
-
   import profile.api._
 
   override def insertJoinedDagInstances(dagInstancesJoined: Seq[(DagInstanceJoined, Event)])(implicit executionContext: ExecutionContext): Future[Unit] = db.run(

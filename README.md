@@ -80,11 +80,13 @@ appUniqueId=
 # Core properties.
 # How many threads to use for each part of the "scheduler".
 # Heart beat interval in milliseconds.
+# Lag threshold, before instance is deactivated by another instance.
 scheduler.thread.pool.size=10
 scheduler.sensors.thread.pool.size=20
 scheduler.executors.thread.pool.size=30
 scheduler.jobs.parallel.number=100
 scheduler.heart.beat=5000
+scheduler.lag.threshold=20000
 ```
 ```
 #Kafka sensor properties. Not all are required. Adjust according to your use case.
