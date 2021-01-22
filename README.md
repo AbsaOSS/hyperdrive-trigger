@@ -15,6 +15,7 @@ ___
     - [Docker image](#docker-image)
     - [Web Application Archive](#web-application-archive)
 - [User Interface](#user-interface)
+- [Development](#development)
 - [How to contribute](#how-to-contribute)
 <!-- tocstop -->
 
@@ -221,6 +222,22 @@ Hyperdrive-trigger can be packaged as a Web Application Archive and executed in 
 - **Run Detail**
 ![](/docs/img/run_detail.png)
 
+# Development
+## Liquibase
+The liquibase maven plugin may be used to issue liquibase commands. To use it, three environment variables have to be defined
+- `HYP_DB_URL`: The connection url to the db, starting with `jdbc://postgresql`
+- `HYP_DB_USER`: The database user
+- `HYP_DB_PASSWORD`: The password for the database user
+
+Then, the liquibase maven plugin can be executed, e.g.
+`mvn liquibase:status`
+
+The docker-compose file creates a container for liquibase. To access it, find its container id with `docker ps`, and log into the container
+using `docker exec -it <container-id> sh`. The liquibase binary is located under `/liquibase/liquibase`. To execute a command,
+simply type e.g. `/liquibase/liquibase history`
+
+## Testdata
+`mvn test -Ptestdata` creates testdata in `localhost:5432/hyperdriver`, assuming the DB-user `hyperdriver` exists.
 
 # How to contribute
 Please see our [**Contribution Guidelines**](CONTRIBUTING.md).

@@ -116,7 +116,13 @@
         <commons.lang3.version>3.11</commons.lang3.version>
         <javamelody.spring.boot.starter.version>1.86.0</javamelody.spring.boot.starter.version>
         <buildnumber.maven.plugin.version>1.4</buildnumber.maven.plugin.version>
+        <liquibase-maven-plugin.version>3.10.2</liquibase-maven-plugin.version>
+        <snakeyaml.version>1.25</snakeyaml.version>
 
+        <database.driver>org.postgresql.Driver</database.driver>
+        <database.url>${env.HYP_DB_URL}</database.url>
+        <database.user>${env.HYP_DB_USER}</database.user>
+        <database.password>${env.HYP_DB_PASSWORD}</database.password>
 
         <!-- Deployment -->
         <gpg.plugin.version>1.6</gpg.plugin.version>
@@ -215,6 +221,20 @@
             <artifactId>cron-utils</artifactId>
             <version>${cronutils.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-maven-plugin</artifactId>
+            <version>${liquibase-maven-plugin.version}</version>
+        </dependency>
+        <!-- For Liquibase yaml -->
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>${snakeyaml.version}</version>
+        </dependency>
+
+
+        <!-- WebJars -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
@@ -348,6 +368,26 @@
                     </archive>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-maven-plugin</artifactId>
+                <version>${liquibase-maven-plugin.version}</version>
+                <configuration>
+                    <changeLogFile>src/main/resources/db_scripts/liquibase/db.changelog.yml</changeLogFile>
+                    <driver>${database.driver}</driver>
+                    <url>${database.url}</url>
+                    <username>${database.user}</username>
+                    <password>${database.password}</password>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.postgresql</groupId>
+                        <artifactId>postgresql</artifactId>
+                        <version>${postgresql}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+
             <!-- Deployment-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

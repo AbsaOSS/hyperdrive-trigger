@@ -12,17 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# How will users authenticate. Available options: inmemory, ldap
-auth.mechanism=inmemory
-# INMEMORY authentication: username and password defined here will be used for authentication.
-auth.inmemory.user=user
-auth.inmemory.password=password
 
-appUniqueId=9c282190-4078-4380-8960-ce52f43b94fg
-
-
-db.connectionPool=disabled
-db.url=jdbc:h2:mem:hyperdriver;DATABASE_TO_UPPER=false
-db.driver=org.h2.Driver
-db.keepAliveConnection=true
-spring.liquibase.change-log=classpath:/db_scripts/liquibase/db.changelog.yml
+databaseChangeLog:
+  - changeSet:
+      id: v0.2.0.add-workflow-history
+      logicalFilePath: v0.2.0.add-workflow-history
+      author: kevin.wallimann@absa.africa
+      context: default
+      changes:
+        - sqlFile:
+            relativeToChangelogFile: true
+            path: v0.2.0.add-workflow-history.sql
