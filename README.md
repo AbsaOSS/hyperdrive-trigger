@@ -135,6 +135,7 @@ db.password=
 db.keepAliveConnection=true
 db.connectionPool=HikariCP
 db.numThreads=4
+db.skip.schema.update=false
 ```
 
 ## Embedded Tomcat
@@ -224,10 +225,8 @@ Hyperdrive-trigger can be packaged as a Web Application Archive and executed in 
 
 # Development
 ## Liquibase
-The liquibase maven plugin may be used to issue liquibase commands. To use it, three environment variables have to be defined
-- `HYP_DB_URL`: The connection url to the db, starting with `jdbc://postgresql`
-- `HYP_DB_USER`: The database user
-- `HYP_DB_PASSWORD`: The password for the database user
+The liquibase maven plugin may be used to issue liquibase commands. To use it, copy 
+`/etc/liquibase/liquibase-maven-plugin.properties.template` to `/etc/liquibase/liquibase-maven-plugin.properties` and modify it as needed.
 
 Then, the liquibase maven plugin can be executed, e.g.
 `mvn liquibase:status`

@@ -29,8 +29,8 @@ import za.co.absa.hyperdrive.trigger.persistance.Repository
 @EnableConfigurationProperties(Array(classOf[LiquibaseProperties] ) )
 class LiquibaseConfiguration(properties: LiquibaseProperties) extends SpringLiquibase with Repository {
   private val logger = LoggerFactory.getLogger(this.getClass)
-  @Value("${db.ignore.outdated.schema:false}")
-  val ignoreOutdatedSchema: Boolean = false
+  @Value("${db.skip.schema.update:false}")
+  val skipSchemaUpdate: Boolean = false
 
   @Bean
   // used to reference this class in the @DependsOn annotation
@@ -57,9 +57,8 @@ class LiquibaseConfiguration(properties: LiquibaseProperties) extends SpringLiqu
   private def validateAllMigrationsApplied(liquibase: Liquibase): Unit = {
     val unrunChangeSets = liquibase.listUnrunChangeSets(new Contexts(contexts), new LabelExpression(labels))
     if (!unrunChangeSets.isEmpty) {
-      val message = s"Not all database changesets have been applied. Unrun changesets: $unrunChangeSets"
-      if (ignoreOutdatedSchema) {
-        logger.warn(message)
+      if (skipSchemaUpdate) {
+        logger.warn(s"Skipping database schema update. Unrun changesets: $unrunChangeSets")
       } else {
         liquibase.update(contexts)
       }
