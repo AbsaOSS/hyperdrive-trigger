@@ -16,8 +16,8 @@
 # Copy this file to liquibase-maven-plugin.properties with your local settings
 # Then, execute mvn:liquibase status to test connection the setup
 
-driver=net.bull.javamelody.JdbcDriver
-url=jdbc:postgresql://localhost:5432/hyperdriver?driver=org.postgresql.Driver
+driver=org.postgresql.Driver
+url=jdbc:postgresql://localhost:5432/hyperdriver
 user=hyperdriver
 password=
 changeLogFile=src/main/resources/db_scripts/liquibase/db.changelog.yml

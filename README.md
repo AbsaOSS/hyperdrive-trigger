@@ -204,6 +204,13 @@ Hyperdrive-trigger can be packaged as a Web Application Archive and executed in 
 - Without tests: `mvn clean package -DskipTests`
 - With unit tests: `mvn clean package`
 
+## Liquibase
+The liquibase maven plugin may be used to issue liquibase commands. To use it, copy 
+`/etc/liquibase/liquibase-maven-plugin.properties.template` to `/etc/liquibase/liquibase-maven-plugin.properties` and modify it as needed.
+
+Then, the liquibase maven plugin can be executed, e.g.
+`mvn liquibase:status`
+
 # User Interface
 - **Workflows**: Overview of all workflows.
 ![](/docs/img/all_workflows.png)
@@ -223,13 +230,6 @@ Hyperdrive-trigger can be packaged as a Web Application Archive and executed in 
 - **Run Detail**
 ![](/docs/img/run_detail.png)
 
-# Development
-## Liquibase
-The liquibase maven plugin may be used to issue liquibase commands. To use it, copy 
-`/etc/liquibase/liquibase-maven-plugin.properties.template` to `/etc/liquibase/liquibase-maven-plugin.properties` and modify it as needed.
-
-Then, the liquibase maven plugin can be executed, e.g.
-`mvn liquibase:status`
 
 # How to contribute
 Please see our [**Contribution Guidelines**](CONTRIBUTING.md).
