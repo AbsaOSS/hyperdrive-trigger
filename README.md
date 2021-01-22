@@ -231,12 +231,5 @@ The liquibase maven plugin may be used to issue liquibase commands. To use it, c
 Then, the liquibase maven plugin can be executed, e.g.
 `mvn liquibase:status`
 
-The docker-compose file creates a container for liquibase. To access it, find its container id with `docker ps`, and log into the container
-using `docker exec -it <container-id> sh`. The liquibase binary is located under `/liquibase/liquibase`. To execute a command,
-simply type e.g. `/liquibase/liquibase history`
-
-## Testdata
-`mvn test -Ptestdata` creates testdata in `localhost:5432/hyperdriver`, assuming the DB-user `hyperdriver` exists.
-
 # How to contribute
 Please see our [**Contribution Guidelines**](CONTRIBUTING.md).

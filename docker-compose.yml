@@ -24,12 +24,6 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_DB=testdb
 
-  liquibase_container:
-    image: liquibase/liquibase:latest
-    volumes:
-      - ./src/main/resources/db_scripts/liquibase:/liquibase/changelog
-    entrypoint: bash -c "printf \"changeLogFile=/liquibase/changelog/db.changelog.yml\nurl=jdbc:postgresql://postgres_container:5432/testdb\nusername=postgres\npassword=password\" > liquibase.properties && /liquibase/liquibase update && tail -f /dev/null"
-
   hyperdrive-trigger:
     build: .  # Without build, docker-compose would search dockerhub for the image and fail.
     image: absaoss/hyperdrive-trigger:latest
