@@ -26,24 +26,32 @@ import org.springframework.context.annotation.{Bean, Configuration}
 import za.co.absa.hyperdrive.trigger.persistance.Repository
 
 @Configuration
-@EnableConfigurationProperties(Array(classOf[LiquibaseProperties] ) )
+@EnableConfigurationProperties(Array(classOf[LiquibaseProperties]))
 class LiquibaseConfiguration(properties: LiquibaseProperties) extends SpringLiquibase with Repository {
   private val logger = LoggerFactory.getLogger(this.getClass)
-  @Value("${db.skip.schema.update:false}")
-  val skipSchemaUpdate: Boolean = false
+  @Value("${db.skip.liquibase:false}")
+  val skipLiquibase: Boolean = false
 
   @Bean
   // used to reference this class in the @DependsOn annotation
   def liquibaseConfigurationMarker(): Boolean = true
 
   override def afterPropertiesSet(): Unit = {
+    if (!skipLiquibase) {
+      logger.info("Skipping Liquibase")
+      configureLiquibase()
+    }
+  }
+
+  private def configureLiquibase(): Unit = {
+    logger.info("Configuring Liquibase")
     applyProperties(properties)
     val connection = db.source.createConnection()
     var liquibaseOpt: Option[Liquibase] = None
     try {
       liquibaseOpt = Option(createLiquibase(connection))
       liquibaseOpt match {
-        case Some(liquibase) => validateAllMigrationsApplied(liquibase)
+        case Some(liquibase) => updateMigrations(liquibase)
         case None => logger.error("Could not configure liquibase")
       }
     } finally {
@@ -54,14 +62,10 @@ class LiquibaseConfiguration(properties: LiquibaseProperties) extends SpringLiqu
     }
   }
 
-  private def validateAllMigrationsApplied(liquibase: Liquibase): Unit = {
+  private def updateMigrations(liquibase: Liquibase): Unit = {
     val unrunChangeSets = liquibase.listUnrunChangeSets(new Contexts(contexts), new LabelExpression(labels))
     if (!unrunChangeSets.isEmpty) {
-      if (skipSchemaUpdate) {
-        logger.warn(s"Skipping database schema update. Unrun changesets: $unrunChangeSets")
-      } else {
-        liquibase.update(contexts)
-      }
+      liquibase.update(contexts)
     } else {
       logger.debug("Database schema is up-to-date")
     }

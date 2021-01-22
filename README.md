@@ -135,7 +135,7 @@ db.password=
 db.keepAliveConnection=true
 db.connectionPool=HikariCP
 db.numThreads=4
-db.skip.schema.update=false
+db.skip.liquibase=false
 ```
 
 ## Embedded Tomcat

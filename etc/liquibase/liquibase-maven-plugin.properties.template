@@ -18,6 +18,6 @@
 
 driver=org.postgresql.Driver
 url=jdbc:postgresql://localhost:5432/hyperdriver
-user=hyperdriver
+username=hyperdriver
 password=
 changeLogFile=src/main/resources/db_scripts/liquibase/db.changelog.yml
