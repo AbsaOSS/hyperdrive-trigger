@@ -41,3 +41,6 @@ databaseChangeLog:
   - include:
       relativeToChangelogFile: true
       file: v0.2.0.add-form-config.yml
+  - include:
+      relativeToChangelogFile: true
+      file: v0.3.3.add-indexes.yml
