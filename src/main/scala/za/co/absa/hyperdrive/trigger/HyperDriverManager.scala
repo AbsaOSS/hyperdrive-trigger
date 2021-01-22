@@ -18,6 +18,7 @@ package za.co.absa.hyperdrive.trigger
 import javax.annotation.PostConstruct
 import javax.inject.Inject
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.DependsOn
 import org.springframework.stereotype.Component
 import za.co.absa.hyperdrive.trigger.scheduler.JobScheduler
 import za.co.absa.hyperdrive.trigger.scheduler.utilities.{Configs, SchedulerConfig}
@@ -25,6 +26,7 @@ import za.co.absa.hyperdrive.trigger.scheduler.utilities.{Configs, SchedulerConf
 import scala.concurrent.Future
 
 @Component
+@DependsOn(Array("liquibaseConfigurationMarker"))
 class HyperDriverManager @Inject() (jobScheduler: JobScheduler) {
 
   @PostConstruct
