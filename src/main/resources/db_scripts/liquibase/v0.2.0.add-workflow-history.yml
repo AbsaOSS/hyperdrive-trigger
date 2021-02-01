@@ -17,7 +17,7 @@ databaseChangeLog:
   - changeSet:
       id: v0.2.0.add-workflow-history
       logicalFilePath: v0.2.0.add-workflow-history
-      author: kevin.wallimann@absa.africa
+      author: HyperdriveDevTeam@absa.africa
       context: default
       changes:
         - sqlFile:

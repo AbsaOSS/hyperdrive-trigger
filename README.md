@@ -209,7 +209,9 @@ The liquibase maven plugin may be used to issue liquibase commands. To use it, c
 `/etc/liquibase/liquibase-maven-plugin.properties.template` to `/etc/liquibase/liquibase-maven-plugin.properties` and modify it as needed.
 
 Then, the liquibase maven plugin can be executed, e.g.
-`mvn liquibase:status`
+- `mvn liquibase:status` to view the status
+- `mvn liquibase:dropAll` to drop all tables, views etc.
+- `mvn liquibase:update` to apply all pending changesets
 
 # User Interface
 - **Workflows**: Overview of all workflows.

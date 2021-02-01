@@ -17,7 +17,7 @@ databaseChangeLog:
   - changeSet:
       id: v0.3.3.add-indexes
       logicalFilePath: v0.3.3.add-indexes
-      author: kevin.wallimann@absa.africa
+      author: HyperdriveDevTeam@absa.africa
       context: default
       changes:
         - sqlFile:

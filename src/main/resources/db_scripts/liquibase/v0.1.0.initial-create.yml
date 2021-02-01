@@ -17,7 +17,7 @@ databaseChangeLog:
   - changeSet:
       id: v0.1.0.initial-create
       logicalFilePath: v0.1.0.initial-create
-      author: kevin.wallimann@absa.africa
+      author: HyperdriveDevTeam@absa.africa
       context: default
       changes:
         - sqlFile:

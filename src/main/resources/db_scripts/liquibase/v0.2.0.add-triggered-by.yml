@@ -17,7 +17,7 @@ databaseChangeLog:
   - changeSet:
       id: v0.2.0.add-triggered-by
       logicalFilePath: v0.2.0.add-triggered-by
-      author: kevin.wallimann@absa.africa
+      author: HyperdriveDevTeam@absa.africa
       context: default
       changes:
         - sqlFile:
