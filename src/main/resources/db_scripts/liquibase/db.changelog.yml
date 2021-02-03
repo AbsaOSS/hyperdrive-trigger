@@ -47,3 +47,4 @@ databaseChangeLog:
   - include:
       relativeToChangelogFile: true
       file: v0.3.3.add-scheduler-instances.yml
+

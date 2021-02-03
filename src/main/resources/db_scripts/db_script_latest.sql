@@ -188,3 +188,4 @@ values ('Generic Shell Job', 'Shell', 'Shell', '{}', '{}', '{}');
 CREATE INDEX job_instance_dag_instance_idx ON job_instance (dag_instance_id);
 CREATE INDEX dag_instance_workflow_id_idx ON dag_instance (workflow_id);
 CREATE INDEX workflow_scheduler_inst_id_idx ON workflow (scheduler_instance_id);
+
