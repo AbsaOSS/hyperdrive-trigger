@@ -35,6 +35,7 @@ trait RepositoryTestBase extends Repository {
 
   def h2SchemaSetup(): Unit = {
     val schema = DBIO.seq(
+      schedulerInstanceTable.schema.create,
       workflowTable.schema.create,
       workflowHistoryTable.schema.create,
       dagDefinitionTable.schema.create,
@@ -44,8 +45,7 @@ trait RepositoryTestBase extends Repository {
       dagInstanceTable.schema.create,
       jobInstanceTable.schema.create,
       eventTable.schema.create,
-      dagRunTable.schema.create,
-      schedulerInstanceTable.schema.create
+      dagRunTable.schema.create
     )
     run(schema)
   }
@@ -103,6 +103,10 @@ trait RepositoryTestBase extends Repository {
 
   def insertJobTemplates(): Unit = {
     run(jobTemplateTable.forceInsertAll(TestData.jobTemplates))
+  }
+
+  def insertSchedulerInstances(): Unit = {
+    run(schedulerInstanceTable.forceInsertAll(TestData.schedulerInstances))
   }
 
   def run[R](action: DBIO[R]): Unit = {

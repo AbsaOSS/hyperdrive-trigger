@@ -73,7 +73,13 @@ class WorkflowRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterA
     val actualWorkflows = await(db.run(workflowTable.result))
     actualWorkflows should have size 1
     actualWorkflows.head.id shouldBe workflowId
+    actualWorkflows.head.schedulerInstanceId shouldBe None
     actualWorkflows.head.name shouldBe workflowToInsert.name
+
+    val actualSensors = await(db.run(sensorTable.result))
+    actualSensors should have size 1
+    actualSensors.head.id shouldBe workflowId
+    actualSensors.head.sensorType shouldBe workflowToInsert.sensor.sensorType
 
     val actualDagDefinitions = await(db.run(dagDefinitionTable.result))
     actualDagDefinitions should have size 1
@@ -171,6 +177,83 @@ class WorkflowRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterA
     actualJobDefinitions shouldBe empty
     val actualHistoryEntries = await(db.run(workflowHistoryTable.result))
     actualHistoryEntries shouldBe empty
+  }
+
+  "updateWorkflow" should "update a workflow, but not created time" in {
+    // given
+    insertJobTemplates()
+    val workflowV1 = TestDataJoined.wj1
+    val workflowId = await(workflowRepository.insertWorkflow(workflowV1, "the-user"))
+    val createdTime = await(db.run(workflowTable.result)).head.created
+    val sensorId = await(db.run(sensorTable.result)).head.id
+    val dagDefinitionId = await(db.run(dagDefinitionTable.result)).head.id
+    val workflowV2 = TestDataJoined.wj2.copy(
+      id = workflowId,
+      sensor = TestDataJoined.wj2.sensor.copy(id = sensorId, workflowId = workflowId),
+      dagDefinitionJoined = TestDataJoined.wj2.dagDefinitionJoined.copy(
+        id = dagDefinitionId,
+        workflowId = workflowId)
+    )
+
+    // when
+    await(workflowRepository.updateWorkflow(workflowV2, "the-user"))
+
+    // then
+    val allWorkflows = await(db.run(workflowTable.result))
+    allWorkflows should have size 1
+    val actualWorkflow = allWorkflows.head
+    actualWorkflow.name shouldBe workflowV2.name
+    actualWorkflow.isActive shouldBe workflowV2.isActive
+    actualWorkflow.project shouldBe workflowV2.project
+    actualWorkflow.created shouldBe createdTime
+
+    val actualSensors = await(db.run(sensorTable.result))
+    actualSensors should have size 1
+    actualSensors.head.id shouldBe workflowId
+    actualSensors.head.sensorType shouldBe workflowV2.sensor.sensorType
+
+    val actualJobDefinitions = await(db.run(jobDefinitionTable.result))
+    actualJobDefinitions should have size workflowV2.dagDefinitionJoined.jobDefinitions.size
+    actualJobDefinitions.map(_.name) should contain theSameElementsAs workflowV2.dagDefinitionJoined.jobDefinitions.map(_.name)
+
+    val actualHistoryEntries = await(db.run(workflowHistoryTable.result))
+    actualHistoryEntries should have size 2
+    actualHistoryEntries.head.workflowId shouldBe workflowId
+    actualHistoryEntries.head.history.changedBy shouldBe "the-user"
+  }
+
+  it should "throw an ApiException if the update fails" in {
+    // given
+    insertJobTemplates()
+    val workflowV1 = TestDataJoined.wj1
+    val workflowId = await(workflowRepository.insertWorkflow(workflowV1, "the-user"))
+
+    val tooLongWorkflowName = RandomStringUtils.randomAlphanumeric(100)
+    val workflowV2 = TestDataJoined.wj2.copy(name = tooLongWorkflowName, id = workflowId)
+
+    // when
+    val result = the [ApiException] thrownBy await(workflowRepository.updateWorkflow(workflowV2, "the-user"))
+
+    // then
+    result.apiErrors should contain only GenericDatabaseError
+  }
+
+  it should "not update the scheduler instance id" in {
+    // given
+    insertJobTemplates()
+    insertSchedulerInstances()
+    val assignedScheduler = TestData.schedulerInstances.head.id
+    val workflowToInsert = TestDataJoined.wj1
+    val workflowId = await(workflowRepository.insertWorkflow(workflowToInsert, "the-user"))
+    await(workflowRepository.acquireWorkflowAssignments(Seq(workflowId), assignedScheduler))
+    val workflowJoined = await(workflowRepository.getWorkflow(workflowId)).copy(schedulerInstanceId = None)
+
+    // when
+    await(workflowRepository.updateWorkflow(workflowJoined, "the-user"))
+
+    // then
+    val actualWorkflow = await(db.run(workflowTable.result)).head
+    actualWorkflow.schedulerInstanceId shouldBe Some(assignedScheduler)
   }
 
   "existsOtherWorkflow" should "return the already existing workflow names" in {
@@ -429,6 +512,7 @@ class WorkflowRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterA
     val baseWorkflow = TestData.workflows.head
     val workflows = (1 to 50).map(i => baseWorkflow.copy(name = s"workflow$i", id = i))
     run(workflowTable.forceInsertAll(workflows))
+    run(schedulerInstanceTable.forceInsertAll(instances))
 
     val targetWorkflows1 = Seq(1L, 2, 3, 11, 12, 13)
     val targetWorkflows2 = Seq(1L, 2, 3, 21, 22, 23)

@@ -61,12 +61,12 @@ class SchedulerInstanceRepositoryTest extends FlatSpec with Matchers with Before
   }
 
   "updateHeartbeat" should "update the last heartbeat of an active instance" in {
-    val now = LocalDateTime.now()
+    val nowMinusOne = LocalDateTime.now().minusNanos(1L)
     val result = await(schedulerInstanceRepository.updateHeartbeat(11))
     val updatedInstance = await(db.run(schedulerInstanceTable.filter(_.id === 11L).result.head))
 
     result shouldBe 1
-    updatedInstance.lastHeartbeat.isBefore(now) shouldBe false
+    updatedInstance.lastHeartbeat.isAfter(nowMinusOne) shouldBe true
   }
 
   it should "not update a deactivated instance" in {

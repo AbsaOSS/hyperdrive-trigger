@@ -17,11 +17,11 @@ package za.co.absa.hyperdrive.trigger.models.tables
 
 import java.time.LocalDateTime
 
-import slick.lifted.ProvenShape
-import za.co.absa.hyperdrive.trigger.models.Workflow
+import slick.lifted.{ForeignKeyQuery, ProvenShape}
+import za.co.absa.hyperdrive.trigger.models.{SchedulerInstance, Workflow}
 
 trait WorkflowTable {
-  this: Profile =>
+  this: Profile with SchedulerInstanceTable =>
   import  profile.api._
 
   final class WorkflowTable(tag: Tag) extends Table[Workflow](tag, _tableName = "workflow") {
@@ -32,6 +32,9 @@ trait WorkflowTable {
     def updated: Rep[Option[LocalDateTime]] = column[Option[LocalDateTime]]("updated")
     def schedulerInstanceId: Rep[Option[Long]] = column[Option[Long]]("scheduler_instance_id")
     def id: Rep[Long] = column[Long]("id", O.PrimaryKey, O.AutoInc, O.SqlType("BIGSERIAL"))
+
+    def schedulerInstance_fk: ForeignKeyQuery[SchedulerInstanceTable, SchedulerInstance] =
+      foreignKey("workflow_scheduler_instance_fk", schedulerInstanceId, TableQuery[SchedulerInstanceTable])(_.id)
 
     def * : ProvenShape[Workflow] = (name, isActive, project, created, updated, schedulerInstanceId, id) <> (
       workflowTuple =>
