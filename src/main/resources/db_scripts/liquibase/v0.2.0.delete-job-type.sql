@@ -12,9 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-alter table "job_instance"
-add "key_value_pairs" VARCHAR NOT NULL DEFAULT '{}';
+-- copy of db_scripts/delta_script_v5_to_v6.sql
 
 alter table "job_definition"
-add "key_value_pairs" VARCHAR NOT NULL DEFAULT '{}';
+drop column "deprecated_job_type"

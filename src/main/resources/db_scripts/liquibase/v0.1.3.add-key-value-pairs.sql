@@ -13,6 +13,10 @@
  * limitations under the License.
  */
 
+-- copy of db_scripts/delta_script_v1_to_v2.sql
+
+alter table "job_instance"
+add "key_value_pairs" VARCHAR NOT NULL DEFAULT '{}';
 
 alter table "job_definition"
-drop column "deprecated_job_type";
+add "key_value_pairs" VARCHAR NOT NULL DEFAULT '{}';
