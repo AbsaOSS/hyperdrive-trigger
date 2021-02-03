@@ -52,6 +52,7 @@ trait RepositoryTestBase extends Repository {
 
   def h2SchemaDrop(): Unit = {
     val schema = DBIO.seq(
+      dagRunTable.schema.drop,
       eventTable.schema.drop,
       jobInstanceTable.schema.drop,
       dagInstanceTable.schema.drop,
@@ -61,7 +62,6 @@ trait RepositoryTestBase extends Repository {
       dagDefinitionTable.schema.drop,
       workflowTable.schema.drop,
       workflowHistoryTable.schema.drop,
-      dagRunTable.schema.drop,
       schedulerInstanceTable.schema.drop
     )
     run(schema)

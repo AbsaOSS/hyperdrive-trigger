@@ -12,28 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+-- copy of db_scripts/delta_script_v3_to_v4.sql
 
-alter table "dag_instance"
-add "started" TIMESTAMP NOT NULL DEFAULT NOW();
-
-alter table "dag_instance"
-add "finished" TIMESTAMP;
-
-update dag_instance
-set "finished" = (
-    select MAX(job_instance.updated)
-    from job_instance
-    where dag_instance.id = job_instance.dag_instance_id
-);
-
-update dag_instance
-set "started" = (
-    select MIN(job_instance.created)
-    from job_instance
-    where dag_instance.id = job_instance.dag_instance_id
-);
-
-create view "dag_run_view" AS
+create or replace view "dag_run_view" AS
 select
     dag_instance.id as "id",
     workflow.name as "workflow_name",
@@ -41,7 +22,8 @@ select
     COALESCE(jobInstanceCount.count, 0) as "job_count",
     dag_instance.started as "started",
     dag_instance.finished as "finished",
-    dag_instance.status as "status"
+    dag_instance.status as "status",
+    workflow.id as "workflow_id"
 from dag_instance
 left join (
     select job_instance.dag_instance_id, count(1) as "count"
