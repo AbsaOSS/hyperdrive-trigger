@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+-- copied from delta_script_v7_to_v8.sql
+
 alter table "job_template"
 add "form_config" VARCHAR NOT NULL DEFAULT 'unknown';
 
