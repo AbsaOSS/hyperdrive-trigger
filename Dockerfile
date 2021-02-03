@@ -31,19 +31,49 @@ EXPOSE 8080
 
 ARG WAR_FILE
 
-RUN apk upgrade --update && \
-    apk add --update curl && \
-    apk add --no-cache krb5-pkinit krb5-dev krb5 && \
-    curl -jksSL -o /tmp/apache-tomcat.tar.gz http://archive.apache.org/dist/tomcat/tomcat-${TOMCAT_MAJOR}/v${TOMCAT_VERSION}/bin/apache-tomcat-${TOMCAT_VERSION}.tar.gz && \
-    gunzip /tmp/apache-tomcat.tar.gz && \
-    tar -C /opt -xf /tmp/apache-tomcat.tar && \
-    ln -s /opt/apache-tomcat-${TOMCAT_VERSION} ${TOMCAT_HOME} && \
-    rm -rf ${TOMCAT_HOME}/webapps/* && \
-    apk del curl && \
-    rm -rf /tmp/* /var/cache/apk/*
+# TOMCAT
+#RUN apk upgrade --update && \
+#    apk add --update curl && \
+#    apk add --no-cache krb5-pkinit krb5-dev krb5 && \
+#    curl -jksSL -o /tmp/apache-tomcat.tar.gz http://archive.apache.org/dist/tomcat/tomcat-${TOMCAT_MAJOR}/v${TOMCAT_VERSION}/bin/apache-tomcat-${TOMCAT_VERSION}.tar.gz && \
+#    gunzip /tmp/apache-tomcat.tar.gz && \
+#    tar -C /opt -xf /tmp/apache-tomcat.tar && \
+#    ln -s /opt/apache-tomcat-${TOMCAT_VERSION} ${TOMCAT_HOME} && \
+#    rm -rf ${TOMCAT_HOME}/webapps/* && \
+#    apk del curl && \
+#    rm -rf /tmp/* /var/cache/apk/*
 
 
-spark-here.
+# SPARK HADOOP DIRECTORIES
+RUN mkdir -p /var/aws/emr/ && \
+    mkdir -p /etc/hadoop/conf && \
+    mkdir -p /etc/spark/conf && \
+    mkdir -p /var/log/spark/user/ && \
+    mkdir -p /var/aws/emr/ && \
+    chmod 777 -R /var/log/spark/
+
+# REPO FILES
+COPY install/repo/emr-apps.repo /etc/yum.repos.d/ \
+     install/repo/repoPublicKey.txt /var/aws/emr/
+
+# SPARK HADOOP BINARIES
+#RUN yum install -y hadoop-client && \
+#    yum install -y hadoop-hdfs && \
+#    yum install -y spark-core && \
+#    yum install -y java-1.8.0-openjdk && \
+#    yum install -y krb5-workstation krb5-libs && \
+#    rm -f /etc/krb5.conf && \
+#    cp install/krb/krb5.conf /etc/
+
+# HADOOP USER
+RUN hdfs dfs –mkdir /user/fargate-user && \
+    hdfs dfs –mkdir /user/root && \
+    hdfs dfs -chown fargate-user:fargate-user /user/fargate-user && \
+    hdfs dfs -chown root:root /user/root
+
+# SPARK HADOOP CONFIGS
+COPY install/hadoop/conf/ /etc/hadoop/conf/ \
+     install/spark/conf/ /etc/spark/conf/
 
 COPY ${WAR_FILE} ${TOMCAT_HOME}/webapps/hyperdrive_trigger.war
 

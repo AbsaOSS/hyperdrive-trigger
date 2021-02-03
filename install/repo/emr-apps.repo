@@ -1,0 +1,8 @@
+# Created by cloud-init on Tue, 19 Jan 2021 16:20:07 +0000
+[emr-apps]
+name = EMR Application Repository
+gpgkey = file:///var/aws/emr/repoPublicKey.txt
+enabled = 1
+baseurl = https://s3.af-south-1.amazonaws.com/repo.af-south-1.emr.amazonaws.com/apps-repository/emr-6.2.0/e7df57ec-992d-40a2-bc1f-0d5492fc9adc
+priority = 5
+gpgcheck = 1
