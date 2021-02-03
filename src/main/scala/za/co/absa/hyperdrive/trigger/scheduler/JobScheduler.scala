@@ -49,6 +49,7 @@ class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstance
   private var runningScheduler: Future[Unit] = Future.successful((): Unit)
   private var runningSensors = Future.successful((): Unit)
   private var runningEnqueue = Future.successful((): Unit)
+  private var runningAssignWorkflows = Future.successful((): Unit)
   private val runningDags = mutable.Map.empty[RunningDagsKey, Future[Unit]]
 
   def startManager(): Unit = {
@@ -59,19 +60,7 @@ class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstance
         Future {
           while (isManagerRunningAtomic.get()) {
             logger.debug("Running manager heart beat.")
-            val assignedWorkflowsFut = workflowBalancer.getAssignedWorkflows(runningDags.keys.map(_.workflowId).toSeq)
-              .map(_.map(_.id))
-              .recover {
-                case e: SchedulerInstanceAlreadyDeactivatedException =>
-                  stopManager()
-                  throw e
-              }
-
-            assignedWorkflowsFut.map { assignedWorkflows =>
-              removeFinishedDags()
-              processEvents(assignedWorkflows)
-              enqueueDags(assignedWorkflows)
-            }
+            assignWorkflows()
             Thread.sleep(HEART_BEAT)
           }
         }
@@ -93,6 +82,23 @@ class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstance
 
   def isManagerRunning: Boolean = {
     !runningScheduler.isCompleted
+  }
+
+  private def assignWorkflows(): Unit = {
+    if (runningAssignWorkflows.isCompleted) {
+      runningAssignWorkflows = workflowBalancer.getAssignedWorkflows(runningDags.keys.map(_.workflowId).toSeq)
+        .recover {
+          case e: SchedulerInstanceAlreadyDeactivatedException =>
+            stopManager()
+            throw e
+        }
+        .map(_.map(_.id))
+        .map { assignedWorkflowIds =>
+          removeFinishedDags()
+          processEvents(assignedWorkflowIds)
+          enqueueDags(assignedWorkflowIds)
+        }
+    }
   }
 
   private def enqueueDags(assignedWorkflowIds: Seq[Long], emptySlotsSize: Int): Future[Unit] = {
