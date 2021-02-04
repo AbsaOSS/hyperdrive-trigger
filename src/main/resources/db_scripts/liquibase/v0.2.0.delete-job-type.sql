@@ -12,12 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+-- copy of db_scripts/delta_script_v5_to_v6.sql
 
-create table "workflow_history" (
-  "id" BIGSERIAL NOT NULL PRIMARY KEY,
-  "changed_on" TIMESTAMP NOT NULL,
-  "changed_by" VARCHAR NOT NULL,
-  "operation" VARCHAR NOT NULL,
-  "workflow_id" BIGINT NOT NULL,
-  "workflow" VARCHAR NOT NULL
-);
+alter table "job_definition"
+drop column "deprecated_job_type"

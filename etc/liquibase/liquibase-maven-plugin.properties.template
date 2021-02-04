@@ -12,17 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# How will users authenticate. Available options: inmemory, ldap
-auth.mechanism=inmemory
-# INMEMORY authentication: username and password defined here will be used for authentication.
-auth.inmemory.user=user
-auth.inmemory.password=password
 
-appUniqueId=9c282190-4078-4380-8960-ce52f43b94fg
+# Copy this file to liquibase-maven-plugin.properties with your local settings
+# Then, execute mvn:liquibase status to test connection the setup
 
-
-db.connectionPool=disabled
-db.url=jdbc:h2:mem:hyperdriver;DATABASE_TO_UPPER=false
-db.driver=org.h2.Driver
-db.keepAliveConnection=true
-spring.liquibase.change-log=classpath:/db_scripts/liquibase/db.changelog.yml
+driver=org.postgresql.Driver
+url=jdbc:postgresql://localhost:5432/hyperdriver
+username=hyperdriver
+password=
+changeLogFile=src/main/resources/db_scripts/liquibase/db.changelog.yml
