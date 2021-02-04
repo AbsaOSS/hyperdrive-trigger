@@ -13,8 +13,13 @@
  * limitations under the License.
  */
 
-alter table "job_instance"
-add "key_value_pairs" VARCHAR NOT NULL DEFAULT '{}';
+-- copy of db_scripts/delta_script_v2_to_v3.sql
 
-alter table "job_definition"
-add "key_value_pairs" VARCHAR NOT NULL DEFAULT '{}';
+create table "workflow_history" (
+  "id" BIGSERIAL NOT NULL PRIMARY KEY,
+  "changed_on" TIMESTAMP NOT NULL,
+  "changed_by" VARCHAR NOT NULL,
+  "operation" VARCHAR NOT NULL,
+  "workflow_id" BIGINT NOT NULL,
+  "workflow" VARCHAR NOT NULL
+);

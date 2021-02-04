@@ -47,6 +47,7 @@ class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstance
   private val runningDags = mutable.Map.empty[Long, Future[Unit]]
 
   def startManager(): Unit = {
+    logger.info("Starting Manager")
     if(!isManagerRunningAtomic.get() && runningScheduler.isCompleted) {
       sensors.prepareSensors()
       isManagerRunningAtomic.set(true)
@@ -70,6 +71,7 @@ class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstance
   }
 
   def stopManager(): Future[Unit] = {
+    logger.info("Stopping Manager")
     isManagerRunningAtomic.set(false)
     sensors.cleanUpSensors()
     runningScheduler

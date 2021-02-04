@@ -15,6 +15,7 @@ ___
     - [Docker image](#docker-image)
     - [Web Application Archive](#web-application-archive)
 - [User Interface](#user-interface)
+- [Development](#development)
 - [How to contribute](#how-to-contribute)
 <!-- tocstop -->
 
@@ -134,6 +135,7 @@ db.password=
 db.keepAliveConnection=true
 db.connectionPool=HikariCP
 db.numThreads=4
+db.skip.liquibase=false
 ```
 
 ## Embedded Tomcat
@@ -201,6 +203,15 @@ Hyperdrive-trigger can be packaged as a Web Application Archive and executed in 
 
 - Without tests: `mvn clean package -DskipTests`
 - With unit tests: `mvn clean package`
+
+## Liquibase
+The liquibase maven plugin may be used to issue liquibase commands. To use it, copy 
+`/etc/liquibase/liquibase-maven-plugin.properties.template` to `/etc/liquibase/liquibase-maven-plugin.properties` and modify it as needed.
+
+Then, the liquibase maven plugin can be executed, e.g.
+- `mvn liquibase:status` to view the status
+- `mvn liquibase:dropAll` to drop all tables, views etc.
+- `mvn liquibase:update` to apply all pending changesets
 
 # User Interface
 - **Workflows**: Overview of all workflows.

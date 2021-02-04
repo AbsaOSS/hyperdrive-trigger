@@ -12,9 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+-- copy of db_scripts/delta_script_v8_to_v9.sql
 
-alter table "job_template"
-add "form_config" VARCHAR NOT NULL DEFAULT 'unknown';
-
-update "job_template" set "form_config" = 'Spark' where "job_type" = 'Spark';
-update "job_template" set "form_config" = 'Shell' where "job_type" = 'Shell';
+CREATE INDEX job_instance_dag_instance_idx ON job_instance (dag_instance_id);
+CREATE INDEX dag_instance_workflow_id_idx ON dag_instance (workflow_id);

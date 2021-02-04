@@ -13,6 +13,10 @@
  * limitations under the License.
  */
 
+-- copied from delta_script_v7_to_v8.sql
 
-alter table "job_definition"
-drop column "deprecated_job_type";
+alter table "job_template"
+add "form_config" VARCHAR NOT NULL DEFAULT 'unknown';
+
+update "job_template" set "form_config" = 'Spark' where "job_type" = 'Spark';
+update "job_template" set "form_config" = 'Shell' where "job_type" = 'Shell';

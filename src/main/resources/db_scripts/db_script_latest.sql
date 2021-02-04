@@ -41,7 +41,6 @@ create table "job_definition" (
   "dag_definition_id" BIGINT NOT NULL,
   "job_template_id" BIGINT NOT NULL,
   "name" VARCHAR NOT NULL,
-  "deprecated_job_type" VARCHAR,
   "variables" VARCHAR NOT NULL,
   "maps" VARCHAR NOT NULL,
   "key_value_pairs" VARCHAR NOT NULL,
@@ -73,6 +72,7 @@ create table "dag_definition" (
 
 create table "dag_instance" (
   "status" VARCHAR NOT NULL,
+  "triggered_by" VARCHAR NOT NULL,
   "workflow_id" BIGINT NOT NULL,
   "started" TIMESTAMP NOT NULL,
   "finished" TIMESTAMP,
@@ -94,7 +94,8 @@ create table "job_template" (
   "variables" VARCHAR NOT NULL,
   "maps" VARCHAR NOT NULL,
   "key_value_pairs" VARCHAR NOT NULL,
-  "id" BIGSERIAL NOT NULL PRIMARY KEY
+  "id" BIGSERIAL NOT NULL PRIMARY KEY,
+  "form_config" VARCHAR NOT NULL DEFAULT 'unknown'
 );
 
 alter table "job_instance"
@@ -154,6 +155,7 @@ select
     dag_instance.started as "started",
     dag_instance.finished as "finished",
     dag_instance.status as "status",
+    dag_instance.triggered_by as "triggered_by",
     workflow.id as "workflow_id"
 from dag_instance
 left join (
@@ -165,7 +167,10 @@ left join (
 left join workflow
     on workflow.id = dag_instance.workflow_id;
 
-insert into "job_template" ("name", "job_type", "variables", "maps", "key_value_pairs")
-values ('Generic Spark Job', 'Spark', '{}', '{}', '{}');
-insert into "job_template" ("name", "job_type", "variables", "maps", "key_value_pairs")
-values ('Generic Shell Job', 'Shell', '{}', '{}', '{}');
+insert into "job_template" ("name", "job_type", "form_config", "variables", "maps", "key_value_pairs")
+values ('Generic Spark Job', 'Spark', 'Spark', '{}', '{}', '{}');
+insert into "job_template" ("name", "job_type", "form_config", "variables", "maps", "key_value_pairs")
+values ('Generic Shell Job', 'Shell', 'Shell', '{}', '{}', '{}');
+
+CREATE INDEX job_instance_dag_instance_idx ON job_instance (dag_instance_id);
+CREATE INDEX dag_instance_workflow_id_idx ON dag_instance (workflow_id);
