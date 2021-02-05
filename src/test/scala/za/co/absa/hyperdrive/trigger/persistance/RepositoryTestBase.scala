@@ -22,7 +22,7 @@ import slick.jdbc.H2Profile
 import za.co.absa.hyperdrive.trigger.TestUtils
 import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.models.dagRuns.DagRun
-import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobTypes, SensorTypes}
+import za.co.absa.hyperdrive.trigger.models.enums.{SchedulerInstanceStatuses, DagInstanceStatuses, JobTypes, SensorTypes}
 
 import scala.collection.immutable.SortedMap
 import scala.concurrent.duration._
@@ -35,6 +35,7 @@ trait RepositoryTestBase extends Repository {
 
   def h2SchemaSetup(): Unit = {
     val schema = DBIO.seq(
+      schedulerInstanceTable.schema.create,
       workflowTable.schema.create,
       workflowHistoryTable.schema.create,
       dagDefinitionTable.schema.create,
@@ -60,7 +61,8 @@ trait RepositoryTestBase extends Repository {
       sensorTable.schema.drop,
       dagDefinitionTable.schema.drop,
       workflowTable.schema.drop,
-      workflowHistoryTable.schema.drop
+      workflowHistoryTable.schema.drop,
+      schedulerInstanceTable.schema.drop
     )
     run(schema)
   }
@@ -76,7 +78,8 @@ trait RepositoryTestBase extends Repository {
       dagDefinitionTable.delete,
       workflowTable.delete,
       workflowHistoryTable.delete,
-      dagRunTable.delete
+      dagRunTable.delete,
+      schedulerInstanceTable.delete
     )
     run(schema)
   }
@@ -100,6 +103,10 @@ trait RepositoryTestBase extends Repository {
 
   def insertJobTemplates(): Unit = {
     run(jobTemplateTable.forceInsertAll(TestData.jobTemplates))
+  }
+
+  def insertSchedulerInstances(): Unit = {
+    run(schedulerInstanceTable.forceInsertAll(TestData.schedulerInstances))
   }
 
   def run[R](action: DBIO[R]): Unit = {
@@ -168,6 +175,15 @@ trait RepositoryTestBase extends Repository {
     val jd1dd7 = genericJd.copy(dagDefinitionId = 406, jobTemplateId = 101, name = "jd1dd7", order = 1, id = 508)
 
     val jobDefinitions = Seq(jd1dd1, jd2dd1, jd1dd2, jd1dd3, jd1dd4, jd1dd5, jd1dd6, jd1dd7)
+
+    val schedulerInstances = Seq(
+      SchedulerInstance(11L, SchedulerInstanceStatuses.Active, LocalDateTime.of(2020, 1, 1, 2, 30, 28)),
+      SchedulerInstance(12L, SchedulerInstanceStatuses.Active, LocalDateTime.of(2020, 1, 1, 2, 30, 31)),
+      SchedulerInstance(13L, SchedulerInstanceStatuses.Active, LocalDateTime.of(2020, 1, 1, 2, 30, 25)),
+      SchedulerInstance(21L, SchedulerInstanceStatuses.Active, LocalDateTime.of(2020, 1, 1, 2, 30, 5)),
+      SchedulerInstance(22L, SchedulerInstanceStatuses.Active, LocalDateTime.of(2020, 1, 1, 2, 29, 55)),
+      SchedulerInstance(31L, SchedulerInstanceStatuses.Deactivated, LocalDateTime.of(2020, 1, 1, 2, 29, 15))
+    )
   }
 
   object TestSensors {
@@ -194,6 +210,7 @@ trait RepositoryTestBase extends Repository {
         workflow.project,
         workflow.created,
         workflow.updated,
+        workflow.schedulerInstanceId,
         sensor,
         dagDefinitionJoined,
         workflow.id)

@@ -20,6 +20,8 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{FlatSpec, _}
+import za.co.absa.hyperdrive.trigger.models.Workflow
+import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, GenericDatabaseError}
 
 import scala.concurrent.ExecutionContext
@@ -71,7 +73,13 @@ class WorkflowRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterA
     val actualWorkflows = await(db.run(workflowTable.result))
     actualWorkflows should have size 1
     actualWorkflows.head.id shouldBe workflowId
+    actualWorkflows.head.schedulerInstanceId shouldBe None
     actualWorkflows.head.name shouldBe workflowToInsert.name
+
+    val actualSensors = await(db.run(sensorTable.result))
+    actualSensors should have size 1
+    actualSensors.head.id shouldBe workflowId
+    actualSensors.head.sensorType shouldBe workflowToInsert.sensor.sensorType
 
     val actualDagDefinitions = await(db.run(dagDefinitionTable.result))
     actualDagDefinitions should have size 1
@@ -169,6 +177,83 @@ class WorkflowRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterA
     actualJobDefinitions shouldBe empty
     val actualHistoryEntries = await(db.run(workflowHistoryTable.result))
     actualHistoryEntries shouldBe empty
+  }
+
+  "updateWorkflow" should "update a workflow, but not created time" in {
+    // given
+    insertJobTemplates()
+    val workflowV1 = TestDataJoined.wj1
+    val workflowId = await(workflowRepository.insertWorkflow(workflowV1, "the-user"))
+    val createdTime = await(db.run(workflowTable.result)).head.created
+    val sensorId = await(db.run(sensorTable.result)).head.id
+    val dagDefinitionId = await(db.run(dagDefinitionTable.result)).head.id
+    val workflowV2 = TestDataJoined.wj2.copy(
+      id = workflowId,
+      sensor = TestDataJoined.wj2.sensor.copy(id = sensorId, workflowId = workflowId),
+      dagDefinitionJoined = TestDataJoined.wj2.dagDefinitionJoined.copy(
+        id = dagDefinitionId,
+        workflowId = workflowId)
+    )
+
+    // when
+    await(workflowRepository.updateWorkflow(workflowV2, "the-user"))
+
+    // then
+    val allWorkflows = await(db.run(workflowTable.result))
+    allWorkflows should have size 1
+    val actualWorkflow = allWorkflows.head
+    actualWorkflow.name shouldBe workflowV2.name
+    actualWorkflow.isActive shouldBe workflowV2.isActive
+    actualWorkflow.project shouldBe workflowV2.project
+    actualWorkflow.created shouldBe createdTime
+
+    val actualSensors = await(db.run(sensorTable.result))
+    actualSensors should have size 1
+    actualSensors.head.id shouldBe workflowId
+    actualSensors.head.sensorType shouldBe workflowV2.sensor.sensorType
+
+    val actualJobDefinitions = await(db.run(jobDefinitionTable.result))
+    actualJobDefinitions should have size workflowV2.dagDefinitionJoined.jobDefinitions.size
+    actualJobDefinitions.map(_.name) should contain theSameElementsAs workflowV2.dagDefinitionJoined.jobDefinitions.map(_.name)
+
+    val actualHistoryEntries = await(db.run(workflowHistoryTable.result))
+    actualHistoryEntries should have size 2
+    actualHistoryEntries.head.workflowId shouldBe workflowId
+    actualHistoryEntries.head.history.changedBy shouldBe "the-user"
+  }
+
+  it should "throw an ApiException if the update fails" in {
+    // given
+    insertJobTemplates()
+    val workflowV1 = TestDataJoined.wj1
+    val workflowId = await(workflowRepository.insertWorkflow(workflowV1, "the-user"))
+
+    val tooLongWorkflowName = RandomStringUtils.randomAlphanumeric(100)
+    val workflowV2 = TestDataJoined.wj2.copy(name = tooLongWorkflowName, id = workflowId)
+
+    // when
+    val result = the [ApiException] thrownBy await(workflowRepository.updateWorkflow(workflowV2, "the-user"))
+
+    // then
+    result.apiErrors should contain only GenericDatabaseError
+  }
+
+  it should "not update the scheduler instance id" in {
+    // given
+    insertJobTemplates()
+    insertSchedulerInstances()
+    val assignedScheduler = TestData.schedulerInstances.head.id
+    val workflowToInsert = TestDataJoined.wj1
+    val workflowId = await(workflowRepository.insertWorkflow(workflowToInsert, "the-user"))
+    await(workflowRepository.acquireWorkflowAssignments(Seq(workflowId), assignedScheduler))
+    val workflowJoined = await(workflowRepository.getWorkflow(workflowId)).copy(schedulerInstanceId = None)
+
+    // when
+    await(workflowRepository.updateWorkflow(workflowJoined, "the-user"))
+
+    // then
+    val actualWorkflow = await(db.run(workflowTable.result)).head
+    actualWorkflow.schedulerInstanceId shouldBe Some(assignedScheduler)
   }
 
   "existsOtherWorkflow" should "return the already existing workflow names" in {
@@ -336,5 +421,149 @@ class WorkflowRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterA
 
     val historyEntries = await(db.run(workflowHistoryTable.result))
     historyEntries shouldBe empty
+  }
+
+
+  "releaseWorkflowAssignmentsOfDeactivatedInstances" should "remove the instanceId for deactivated instances" in {
+    // given
+    val instance0 = TestData.schedulerInstances.head.copy(status = SchedulerInstanceStatuses.Active)
+    val instance1 = TestData.schedulerInstances(1).copy(status = SchedulerInstanceStatuses.Deactivated)
+    val instance2 = TestData.schedulerInstances(2).copy(status = SchedulerInstanceStatuses.Deactivated)
+    val workflows = TestData.workflows.filter(_.id % 3 == 0).map(_.copy(schedulerInstanceId = Some(instance0.id))) ++
+      TestData.workflows.filter(_.id % 3 == 1).map(_.copy(schedulerInstanceId = Some(instance1.id))) ++
+      TestData.workflows.filter(_.id % 3 == 2).map(_.copy(schedulerInstanceId = Some(instance2.id)))
+
+    run(schedulerInstanceTable.forceInsertAll(Seq(instance0, instance1, instance2)))
+    run(workflowTable.forceInsertAll(workflows))
+
+    // when
+    await(workflowRepository.releaseWorkflowAssignmentsOfDeactivatedInstances())
+
+    // then
+    val updatedWorkflows = await(db.run(workflowTable.result))
+    updatedWorkflows.filter(_.id % 3 == 0).map(_.schedulerInstanceId) should contain only Some(instance0.id)
+    updatedWorkflows.filter(_.id % 3 != 0).map(_.schedulerInstanceId) should contain only None
+
+    val instances = await(db.run(schedulerInstanceTable.result))
+    instances.map(_.status) should contain only SchedulerInstanceStatuses.Active
+  }
+
+  it should "delete deactivated instances" in {
+    // given
+    val instance0 = TestData.schedulerInstances.head.copy(status = SchedulerInstanceStatuses.Active)
+    val instance1 = TestData.schedulerInstances(1).copy(status = SchedulerInstanceStatuses.Deactivated)
+    val instance2 = TestData.schedulerInstances(2).copy(status = SchedulerInstanceStatuses.Deactivated)
+
+    run(schedulerInstanceTable.forceInsertAll(Seq(instance0, instance1, instance2)))
+
+    // when
+    await(workflowRepository.releaseWorkflowAssignmentsOfDeactivatedInstances())
+
+    // then
+    val instances = await(db.run(schedulerInstanceTable.result))
+    instances.map(_.status) should contain only SchedulerInstanceStatuses.Active
+  }
+
+  "releaseWorkflowAssignments" should "remove the instanceId if the workflow is owned by the instanceId" in {
+    // given
+    val instance0 = TestData.schedulerInstances.head.copy(status = SchedulerInstanceStatuses.Active)
+    val instance1 = TestData.schedulerInstances(1).copy(status = SchedulerInstanceStatuses.Active)
+    val instance2 = TestData.schedulerInstances(2).copy(status = SchedulerInstanceStatuses.Deactivated)
+    val workflows = TestData.workflows.filter(_.id % 3 == 0).map(_.copy(schedulerInstanceId = Some(instance0.id))) ++
+      TestData.workflows.filter(_.id % 3 == 1).map(_.copy(schedulerInstanceId = Some(instance1.id))) ++
+      TestData.workflows.filter(_.id % 3 == 2).map(_.copy(schedulerInstanceId = Some(instance2.id)))
+
+    run(schedulerInstanceTable.forceInsertAll(Seq(instance0, instance1, instance2)))
+    run(workflowTable.forceInsertAll(workflows))
+
+    // when
+    await(workflowRepository.releaseWorkflowAssignments(workflows.map(_.id), instance0.id))
+
+    // then
+    val updatedWorkflows = await(db.run(workflowTable.result))
+    updatedWorkflows.filter(_.id % 3 == 0).map(_.schedulerInstanceId) should contain only None
+    updatedWorkflows.filter(_.id % 3 == 1).map(_.schedulerInstanceId) should contain only Some(instance1.id)
+    updatedWorkflows.filter(_.id % 3 == 2).map(_.schedulerInstanceId) should contain only Some(instance2.id)
+  }
+
+  "acquireWorkflowAssignments" should "set the instanceId if the workflow is owned by no instance" in {
+    // given
+    val instance0 = TestData.schedulerInstances.head.copy(status = SchedulerInstanceStatuses.Active)
+    val instance1 = TestData.schedulerInstances(1).copy(status = SchedulerInstanceStatuses.Active)
+    val instance2 = TestData.schedulerInstances(2).copy(status = SchedulerInstanceStatuses.Deactivated)
+    val workflows = TestData.workflows.filter(_.id % 3 == 0).map(_.copy(schedulerInstanceId = Some(instance0.id))) ++
+      TestData.workflows.filter(_.id % 3 == 1).map(_.copy(schedulerInstanceId = None)) ++
+      TestData.workflows.filter(_.id % 3 == 2).map(_.copy(schedulerInstanceId = Some(instance2.id)))
+
+    run(schedulerInstanceTable.forceInsertAll(Seq(instance0, instance1, instance2)))
+    run(workflowTable.forceInsertAll(workflows))
+
+    // when
+    await(workflowRepository.acquireWorkflowAssignments(workflows.map(_.id), instance0.id))
+
+    // then
+    val updatedWorkflows = await(db.run(workflowTable.result))
+    updatedWorkflows.filter(_.id % 3 != 2).map(_.schedulerInstanceId) should contain only Some(instance0.id)
+    updatedWorkflows.filter(_.id % 3 == 2).map(_.schedulerInstanceId) should contain only Some(instance2.id)
+  }
+
+  it should "never double assign a workflow in interleaved executions" in {
+    val instances = TestData.schedulerInstances.filter(_.status == SchedulerInstanceStatuses.Active)
+    val baseWorkflow = TestData.workflows.head
+    val workflows = (1 to 50).map(i => baseWorkflow.copy(name = s"workflow$i", id = i))
+    run(workflowTable.forceInsertAll(workflows))
+    run(schedulerInstanceTable.forceInsertAll(instances))
+
+    val targetWorkflows1 = Seq(1L, 2, 3, 11, 12, 13)
+    val targetWorkflows2 = Seq(1L, 2, 3, 21, 22, 23)
+    val targetWorkflows3 = Seq(1L, 2, 3, 31, 32, 33)
+    val acquire1Count = await(workflowRepository.acquireWorkflowAssignments(targetWorkflows1, instances(1).id))
+    val release1Count = await(workflowRepository.releaseWorkflowAssignments(targetWorkflows1, instances(2).id))
+    val release2Count = await(workflowRepository.releaseWorkflowAssignments(targetWorkflows1, instances(3).id))
+    val result1 = await(workflowRepository.getWorkflowsBySchedulerInstance(instances(1).id))
+    val acquire2Count = await(workflowRepository.acquireWorkflowAssignments(targetWorkflows2, instances(2).id))
+    val result2 = await(workflowRepository.getWorkflowsBySchedulerInstance(instances(2).id))
+    val acquire3Count = await(workflowRepository.acquireWorkflowAssignments(targetWorkflows3, instances(3).id))
+    val result3 = await(workflowRepository.getWorkflowsBySchedulerInstance(instances(3).id))
+
+    acquire1Count shouldBe 6
+    acquire2Count shouldBe 3
+    acquire3Count shouldBe 3
+    release1Count shouldBe 0
+    release2Count shouldBe 0
+    assertNoWorkflowIsDoubleAssigned(result1, result2, result3)
+  }
+
+  "getWorkflowsBySchedulerInstance" should "return workflows by scheduler instance" in {
+    // given
+    val instance0 = TestData.schedulerInstances.head.copy(status = SchedulerInstanceStatuses.Active)
+    val instance1 = TestData.schedulerInstances(1).copy(status = SchedulerInstanceStatuses.Active)
+    val workflows = TestData.workflows.filter(_.id % 2 == 0).map(_.copy(schedulerInstanceId = Some(instance0.id))) ++
+      TestData.workflows.filter(_.id % 2 == 1).map(_.copy(schedulerInstanceId = Some(instance1.id)))
+    run(schedulerInstanceTable.forceInsertAll(Seq(instance0, instance1)))
+    run(workflowTable.forceInsertAll(workflows))
+
+    // when
+    val result = await(workflowRepository.getWorkflowsBySchedulerInstance(instance0.id))
+
+    // then
+    result should contain theSameElementsAs workflows.filter(_.id % 2 == 0)
+  }
+
+  "getMaxWorkflowId" should "return the highest workflow id" in {
+    run(workflowTable.forceInsertAll(TestData.workflows))
+
+    val result = await(workflowRepository.getMaxWorkflowId)
+
+    result shouldBe Some(TestData.workflows.map(_.id).max)
+  }
+
+  it should "return None if there are no workflows" in {
+    await(workflowRepository.getMaxWorkflowId) shouldBe None
+  }
+
+  private def assertNoWorkflowIsDoubleAssigned(workflows: Seq[Workflow]*) = {
+    val flatWorkflows = workflows.flatten
+    flatWorkflows.size shouldBe flatWorkflows.distinct.size
   }
 }

@@ -29,6 +29,7 @@ trait Repository
     with DagRunTable
     with WorkflowHistoryTable
     with JobTemplateTable
+    with SchedulerInstanceTable
     with Profile with JdbcTypeMapper {
 
   val profile: JdbcProfile = PostgresDB.profile

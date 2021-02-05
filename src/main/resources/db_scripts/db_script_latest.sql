@@ -19,6 +19,7 @@ create table "workflow" (
   "project" VARCHAR NOT NULL,
   "created" TIMESTAMP NOT NULL,
   "updated" TIMESTAMP,
+  "scheduler_instance_id" BIGINT,
   "id" BIGSERIAL NOT NULL PRIMARY KEY
 );
 
@@ -98,6 +99,12 @@ create table "job_template" (
   "form_config" VARCHAR NOT NULL DEFAULT 'unknown'
 );
 
+create table "scheduler_instance" (
+  "id" BIGSERIAL NOT NULL PRIMARY KEY,
+  "status" VARCHAR NOT NULL,
+  "last_heartbeat" TIMESTAMP NOT NULL
+);
+
 alter table "job_instance"
   add constraint "job_instance_dag_instance_fk"
   foreign key("dag_instance_id")
@@ -146,6 +153,12 @@ alter table "dag_instance"
   references "workflow"("id")
   on update NO ACTION on delete NO ACTION;
 
+alter table "workflow"
+  add constraint "workflow_scheduler_instance_fk"
+  foreign key("scheduler_instance_id")
+  references "scheduler_instance"("id")
+  on update NO ACTION on delete NO ACTION;
+
 create view "dag_run_view" AS
 select
     dag_instance.id as "id",
@@ -174,3 +187,5 @@ values ('Generic Shell Job', 'Shell', 'Shell', '{}', '{}', '{}');
 
 CREATE INDEX job_instance_dag_instance_idx ON job_instance (dag_instance_id);
 CREATE INDEX dag_instance_workflow_id_idx ON dag_instance (workflow_id);
+CREATE INDEX workflow_scheduler_inst_id_idx ON workflow (scheduler_instance_id);
+

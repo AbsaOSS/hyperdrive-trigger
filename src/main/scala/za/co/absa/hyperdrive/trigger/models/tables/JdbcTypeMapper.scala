@@ -17,7 +17,7 @@ package za.co.absa.hyperdrive.trigger.models.tables
 
 import java.io.StringWriter
 
-import za.co.absa.hyperdrive.trigger.models.enums.{DBOperation, DagInstanceStatuses, JobStatuses, JobTypes, SensorTypes}
+import za.co.absa.hyperdrive.trigger.models.enums.{DBOperation, DagInstanceStatuses, SchedulerInstanceStatuses, JobStatuses, JobTypes, SensorTypes}
 import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes.SensorType
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.JobStatus
 import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
@@ -27,6 +27,7 @@ import za.co.absa.hyperdrive.trigger.ObjectMapperSingleton
 import za.co.absa.hyperdrive.trigger.models.WorkflowJoined
 import za.co.absa.hyperdrive.trigger.models.enums.DBOperation.DBOperation
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses.DagInstanceStatus
+import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses.SchedulerInstanceStatus
 
 import scala.collection.immutable.SortedMap
 import scala.util.Try
@@ -81,6 +82,14 @@ trait JdbcTypeMapper {
       status => status.name,
       statusName => DagInstanceStatuses.statuses.find(_.name == statusName).getOrElse(
         throw new Exception(s"Couldn't find DagInstanceStatus: $statusName")
+      )
+    )
+
+  implicit lazy val instanceStatusMapper: JdbcType[SchedulerInstanceStatus] =
+    MappedColumnType.base[SchedulerInstanceStatus, String](
+      status => status.name,
+      statusName => SchedulerInstanceStatuses.statuses.find(_.name == statusName).getOrElse(
+        throw new Exception(s"Couldn't find SchedulerInstanceStatus: $statusName")
       )
     )
 
