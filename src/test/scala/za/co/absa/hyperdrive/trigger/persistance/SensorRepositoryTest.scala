@@ -37,13 +37,13 @@ class SensorRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll
     clearData()
   }
 
-  "sensorRepository.getNewActiveSensors" should "return sensors with active workflows, except sensors excluded by id" in {
+  "sensorRepository.getNewActiveAssignedSensors" should "return sensors with active workflows, except sensors excluded by id" in {
     // prepare
     val idsToExclude = Seq(activeTimeW100, activeAbsaKafka).map{case (sensor, _) => sensor.id}
     insertSensors(allSensors)
 
     // execute
-    val result = await(sensorRepository.getNewActiveSensors(idsToExclude))
+    val result = await(sensorRepository.getNewActiveAssignedSensors(idsToExclude, TestData.workflows.map(_.id)))
 
     // verify
     result.size shouldBe 2
@@ -53,10 +53,22 @@ class SensorRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll
   it should "given an empty seq, return all active sensors" in {
     insertSensors(allSensors)
 
-    val result = await(sensorRepository.getNewActiveSensors(Seq.empty))
+    val result = await(sensorRepository.getNewActiveAssignedSensors(Seq.empty, TestData.workflows.map(_.id)))
 
     result should contain theSameElementsAs allSensors
       .filter{ case (_, workflow) => workflow.isActive }
+      .map{ case (sensor, _) => sensor }
+  }
+
+  it should "only return sensors of assigned workflows" in {
+    insertSensors(allSensors)
+
+    val assignedWorkflowId = TestData.workflows.head.id
+    val result = await(sensorRepository.getNewActiveAssignedSensors(Seq.empty, Seq(assignedWorkflowId)))
+
+    result should not be empty
+    result should contain theSameElementsAs allSensors
+      .filter{ case (_, workflow) => workflow.isActive && workflow.id == assignedWorkflowId }
       .map{ case (sensor, _) => sensor }
   }
 
