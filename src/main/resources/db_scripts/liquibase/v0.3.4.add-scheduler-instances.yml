@@ -15,11 +15,11 @@
 
 databaseChangeLog:
   - changeSet:
-      id: v0.3.3.add-scheduler-instances
-      logicalFilePath: v0.3.3.add-scheduler-instances
+      id: v0.3.4.add-scheduler-instances
+      logicalFilePath: v0.3.4.add-scheduler-instances
       author: HyperdriveDevTeam@absa.africa
       context: default
       changes:
         - sqlFile:
             relativeToChangelogFile: true
-            path: v0.3.3.add-scheduler-instances.sql
+            path: v0.3.4.add-scheduler-instances.sql
