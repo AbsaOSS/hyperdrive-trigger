@@ -170,7 +170,7 @@ class WorkflowControllerTest extends AsyncFlatSpec with Matchers with MockitoSug
   }
 
   private def readEntry(zis: ZipInputStream) = {
-    val byteArray = new Array[Byte](10)
+    val byteArray = new Array[Byte](1)
     val baos = new ByteArrayOutputStream()
     while(zis.read(byteArray) > 0) {
       baos.write(byteArray)

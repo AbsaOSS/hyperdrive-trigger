@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+import { JobType } from './jobType.model';
+
 export type JobInstanceModel = {
   id: number;
   jobName: string;
@@ -24,10 +26,6 @@ export type JobInstanceModel = {
 };
 
 export type JobStatus = {
-  name: string;
-};
-
-export type JobType = {
   name: string;
 };
 
@@ -47,12 +45,6 @@ export class JobInstanceModelFactory {
 
 export class JobStatusFactory {
   static create(name: string): JobStatus {
-    return { name: name };
-  }
-}
-
-export class JobTypeFactory {
-  static create(name: string): JobType {
     return { name: name };
   }
 }

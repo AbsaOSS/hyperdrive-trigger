@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory
 
 object SparkExecutor extends Executor {
   private val wsClient = StandaloneAhcWSClient()(ActorMaterializer()(ActorSystem()))
+  private val keysToMerge = Set("spark.executor.extraJavaOptions", "spark.driver.extraJavaOptions")
 
   override def execute(jobInstance: JobInstance, updateJob: JobInstance => Future[Unit])
                       (implicit executionContext: ExecutionContext): Future[Unit] = {
@@ -91,8 +92,18 @@ object SparkExecutor extends Executor {
     sparkParameters.additionalJars.foreach(additionalJar => sparkLauncher.addJar(additionalJar))
     sparkParameters.additionalFiles.foreach(additionalFile => sparkLauncher.addFile(additionalFile))
     sparkParameters.additionalSparkConfig.foreach(conf => sparkLauncher.setConf(conf._1, conf._2))
+    mergeAdditionalSparkConfig(SparkExecutorConfig.getAdditionalConfs, sparkParameters.additionalSparkConfig, keysToMerge)
+        .foreach(conf => sparkLauncher.setConf(conf._1, conf._2))
+
     sparkLauncher
   }
+
+  private def mergeAdditionalSparkConfig(globalConfig: Map[String, String], jobConfig: Map[String, String], keysToMerge: Set[String]) =
+    keysToMerge.map(key => {
+      val globalValue = globalConfig.getOrElse(key, "")
+      val jobValue = jobConfig.getOrElse(key, "")
+      key -> s"$globalValue $jobValue".trim
+    }).toMap
 
   private def getStatusUrl(executorJobId: String): String = {
     s"${SparkExecutorConfig.getHadoopResourceManagerUrlBase}/ws/v1/cluster/apps?applicationTags=$executorJobId"
