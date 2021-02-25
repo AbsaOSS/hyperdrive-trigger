@@ -17,11 +17,11 @@ package za.co.absa.hyperdrive.trigger.models.tables
 
 import java.time.LocalDateTime
 
-import slick.lifted.ProvenShape
-import za.co.absa.hyperdrive.trigger.models.Workflow
+import slick.lifted.{ForeignKeyQuery, ProvenShape}
+import za.co.absa.hyperdrive.trigger.models.{SchedulerInstance, Workflow}
 
 trait WorkflowTable {
-  this: Profile =>
+  this: Profile with SchedulerInstanceTable =>
   import  profile.api._
 
   final class WorkflowTable(tag: Tag) extends Table[Workflow](tag, _tableName = "workflow") {
@@ -30,9 +30,13 @@ trait WorkflowTable {
     def project: Rep[String] = column[String]("project")
     def created: Rep[LocalDateTime] = column[LocalDateTime]("created")
     def updated: Rep[Option[LocalDateTime]] = column[Option[LocalDateTime]]("updated")
+    def schedulerInstanceId: Rep[Option[Long]] = column[Option[Long]]("scheduler_instance_id")
     def id: Rep[Long] = column[Long]("id", O.PrimaryKey, O.AutoInc, O.SqlType("BIGSERIAL"))
 
-    def * : ProvenShape[Workflow] = (name, isActive, project, created, updated, id) <> (
+    def schedulerInstance_fk: ForeignKeyQuery[SchedulerInstanceTable, SchedulerInstance] =
+      foreignKey("workflow_scheduler_instance_fk", schedulerInstanceId, TableQuery[SchedulerInstanceTable])(_.id)
+
+    def * : ProvenShape[Workflow] = (name, isActive, project, created, updated, schedulerInstanceId, id) <> (
       workflowTuple =>
         Workflow.apply(
           name = workflowTuple._1,
@@ -40,7 +44,8 @@ trait WorkflowTable {
           project = workflowTuple._3,
           created = workflowTuple._4,
           updated = workflowTuple._5,
-          id = workflowTuple._6
+          schedulerInstanceId = workflowTuple._6,
+          id = workflowTuple._7
         ),
       Workflow.unapply
     )

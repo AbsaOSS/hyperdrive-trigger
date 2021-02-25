@@ -19,6 +19,7 @@ create table "workflow" (
   "project" VARCHAR NOT NULL,
   "created" TIMESTAMP NOT NULL,
   "updated" TIMESTAMP,
+  "scheduler_instance_id" BIGINT,
   "id" BIGSERIAL NOT NULL PRIMARY KEY
 );
 
@@ -39,8 +40,8 @@ create table "job_instance" (
 
 create table "job_definition" (
   "dag_definition_id" BIGINT NOT NULL,
+  "job_template_id" BIGINT NOT NULL,
   "name" VARCHAR NOT NULL,
-  "job_type" VARCHAR NOT NULL,
   "variables" VARCHAR NOT NULL,
   "maps" VARCHAR NOT NULL,
   "key_value_pairs" VARCHAR NOT NULL,
@@ -72,6 +73,7 @@ create table "dag_definition" (
 
 create table "dag_instance" (
   "status" VARCHAR NOT NULL,
+  "triggered_by" VARCHAR NOT NULL,
   "workflow_id" BIGINT NOT NULL,
   "started" TIMESTAMP NOT NULL,
   "finished" TIMESTAMP,
@@ -87,6 +89,22 @@ create table "workflow_history" (
   "workflow" VARCHAR NOT NULL
 );
 
+create table "job_template" (
+  "name" VARCHAR NOT NULL UNIQUE,
+  "job_type" VARCHAR NOT NULL,
+  "variables" VARCHAR NOT NULL,
+  "maps" VARCHAR NOT NULL,
+  "key_value_pairs" VARCHAR NOT NULL,
+  "id" BIGSERIAL NOT NULL PRIMARY KEY,
+  "form_config" VARCHAR NOT NULL DEFAULT 'unknown'
+);
+
+create table "scheduler_instance" (
+  "id" BIGSERIAL NOT NULL PRIMARY KEY,
+  "status" VARCHAR NOT NULL,
+  "last_heartbeat" TIMESTAMP NOT NULL
+);
+
 alter table "job_instance"
   add constraint "job_instance_dag_instance_fk"
   foreign key("dag_instance_id")
@@ -98,6 +116,12 @@ alter table "job_definition"
   foreign key("dag_definition_id")
   references "dag_definition"("id")
   on update NO ACTION on delete NO ACTION;
+
+alter table "job_definition"
+add constraint "job_definition_job_template_fk"
+foreign key("job_template_id")
+references "job_template"("id")
+on update NO ACTION on delete NO ACTION;
 
 alter table "sensor"
   add constraint "sensor_workflow_fk"
@@ -129,6 +153,12 @@ alter table "dag_instance"
   references "workflow"("id")
   on update NO ACTION on delete NO ACTION;
 
+alter table "workflow"
+  add constraint "workflow_scheduler_instance_fk"
+  foreign key("scheduler_instance_id")
+  references "scheduler_instance"("id")
+  on update NO ACTION on delete NO ACTION;
+
 create view "dag_run_view" AS
 select
     dag_instance.id as "id",
@@ -137,7 +167,9 @@ select
     COALESCE(jobInstanceCount.count, 0) as "job_count",
     dag_instance.started as "started",
     dag_instance.finished as "finished",
-    dag_instance.status as "status"
+    dag_instance.status as "status",
+    dag_instance.triggered_by as "triggered_by",
+    workflow.id as "workflow_id"
 from dag_instance
 left join (
     select job_instance.dag_instance_id, count(1) as "count"
@@ -147,3 +179,13 @@ left join (
     on jobInstanceCount.dag_instance_id = dag_instance.id
 left join workflow
     on workflow.id = dag_instance.workflow_id;
+
+insert into "job_template" ("name", "job_type", "form_config", "variables", "maps", "key_value_pairs")
+values ('Generic Spark Job', 'Spark', 'Spark', '{}', '{}', '{}');
+insert into "job_template" ("name", "job_type", "form_config", "variables", "maps", "key_value_pairs")
+values ('Generic Shell Job', 'Shell', 'Shell', '{}', '{}', '{}');
+
+CREATE INDEX job_instance_dag_instance_idx ON job_instance (dag_instance_id);
+CREATE INDEX dag_instance_workflow_id_idx ON dag_instance (workflow_id);
+CREATE INDEX workflow_scheduler_inst_id_idx ON workflow (scheduler_instance_id);
+

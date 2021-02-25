@@ -18,12 +18,14 @@ package za.co.absa.hyperdrive.trigger.scheduler.sensors.time
 
 import java.util.concurrent
 
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, when}
+import org.mockito.Mockito.{reset, times, verify, when}
+import org.quartz.impl.matchers.GroupMatcher
 import org.quartz.impl.triggers.CronTriggerImpl
 import org.quartz.{JobKey, TriggerKey}
 import org.scalatest.mockito.MockitoSugar
-import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
+import org.scalatest.{Assertion, BeforeAndAfter, FlatSpec, Matchers}
 import za.co.absa.hyperdrive.trigger.TestUtils.await
 import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes
@@ -49,17 +51,18 @@ class SensorsTest extends FlatSpec with MockitoSugar with Matchers with BeforeAn
     // given
     val sensorId = 1
     val cronExpression = "0 10 * ? * * *" // every hour at xx:10
-    val timeSensor = createTimeSensor(sensorId, cronExpression)
+    val workflowId = 101L
+    val timeSensor = createTimeSensor(sensorId, workflowId, cronExpression)
 
     when(sensorRepository.getChangedSensors(any())(any[ExecutionContext])).thenReturn(Future{Seq.empty})
     when(sensorRepository.getInactiveSensors(any())(any[ExecutionContext])).thenReturn(Future{Seq.empty})
-    when(sensorRepository.getNewActiveSensors(any())(any[ExecutionContext])).thenReturn(Future{Seq(timeSensor)})
+    when(sensorRepository.getNewActiveAssignedSensors(any(), any())(any[ExecutionContext])).thenReturn(Future{Seq(timeSensor)})
 
     val underTest = new Sensors(eventProcessor, sensorRepository, dagInstanceRepository)
 
     // when
     underTest.prepareSensors()
-    await(underTest.processEvents())
+    await(underTest.processEvents(Seq(workflowId)))
 
     verifyQuartzJobExists(sensorId, cronExpression)
 
@@ -70,18 +73,20 @@ class SensorsTest extends FlatSpec with MockitoSugar with Matchers with BeforeAn
     // given
     val sensorId = 1L
     val cronExpression = "0 10 * ? * * *" // every hour at xx:10
-    val timeSensor = createTimeSensor(sensorId, cronExpression)
+    val workflowId = 101L
+    val timeSensor = createTimeSensor(sensorId, workflowId, cronExpression)
 
     val sensorId2 = 2L
     val cronExpression2 = "0 0/10 * ? * * *" // every hour every 10 minutes
-    val timeSensor2 = createTimeSensor(sensorId2, cronExpression2)
+    val workflowId2 = 102L
+    val timeSensor2 = createTimeSensor(sensorId2, workflowId2, cronExpression2)
 
     when(sensorRepository.getChangedSensors(any())(any[ExecutionContext])).thenReturn(Future{Seq.empty})
     when(sensorRepository.getInactiveSensors(any())(any[ExecutionContext])).thenReturn(
       Future {Seq.empty[Long]},
       Future {Seq(sensorId)}
     )
-    when(sensorRepository.getNewActiveSensors(any())(any[ExecutionContext])).thenReturn(
+    when(sensorRepository.getNewActiveAssignedSensors(any(), any())(any[ExecutionContext])).thenReturn(
       Future {Seq(timeSensor, timeSensor2)},
       Future {Seq.empty}
     )
@@ -89,11 +94,11 @@ class SensorsTest extends FlatSpec with MockitoSugar with Matchers with BeforeAn
 
     // when, then
     underTest.prepareSensors()
-    await(underTest.processEvents())
+    await(underTest.processEvents(Seq(workflowId, workflowId2)))
     verifyQuartzJobExists(sensorId, cronExpression)
     verifyQuartzJobExists(sensorId2, cronExpression2)
 
-    await(underTest.processEvents())
+    await(underTest.processEvents(Seq(workflowId, workflowId2)))
     verifyQuartzJobNotExists(sensorId)
     verifyQuartzJobExists(sensorId2, cronExpression2)
 
@@ -104,15 +109,18 @@ class SensorsTest extends FlatSpec with MockitoSugar with Matchers with BeforeAn
     // given
     val sensorId = 1L
     val cronExpression = "0 10 * ? * * *" // every hour at xx:10
-    val timeSensor = createTimeSensor(sensorId, cronExpression)
+    val workflowId = 101L
+    val timeSensor = createTimeSensor(sensorId, workflowId, cronExpression)
 
     val sensorId2 = 2L
     val cronExpression2 = "0 0/10 * ? * * *" // every hour every 10 minutes
-    val timeSensor2 = createTimeSensor(sensorId2, cronExpression2)
+    val workflowId2 = 102L
+    val timeSensor2 = createTimeSensor(sensorId2, workflowId2, cronExpression2)
 
     val sensorId3 = 3L
     val cronExpression3 = "0 0 18 ? * * *" // every day at 18:00
-    val timeSensor3 = createTimeSensor(sensorId3, cronExpression3)
+    val workflowId3 = 103L
+    val timeSensor3 = createTimeSensor(sensorId3, workflowId3, cronExpression3)
 
     when(sensorRepository.getChangedSensors(any())(any[ExecutionContext])).thenReturn(Future{Seq.empty})
     when(sensorRepository.getInactiveSensors(any())(any[ExecutionContext])).thenReturn(
@@ -120,7 +128,7 @@ class SensorsTest extends FlatSpec with MockitoSugar with Matchers with BeforeAn
       Future {Seq(sensorId, sensorId2)},
       Future {Seq(sensorId3)}
     )
-    when(sensorRepository.getNewActiveSensors(any())(any[ExecutionContext])).thenReturn(
+    when(sensorRepository.getNewActiveAssignedSensors(any(), any())(any[ExecutionContext])).thenReturn(
       Future {Seq(timeSensor, timeSensor2)},
       Future {Seq(timeSensor3)},
       Future {Seq(timeSensor)}
@@ -129,15 +137,15 @@ class SensorsTest extends FlatSpec with MockitoSugar with Matchers with BeforeAn
 
     // when, then
     underTest.prepareSensors()
-    await(underTest.processEvents())
+    await(underTest.processEvents(Seq(workflowId, workflowId2, workflowId3)))
     verifyQuartzJobExists(sensorId, cronExpression)
     verifyQuartzJobExists(sensorId2, cronExpression2)
-    await(underTest.processEvents())
+    await(underTest.processEvents(Seq(workflowId, workflowId2, workflowId3)))
     verifyQuartzJobNotExists(sensorId)
     verifyQuartzJobNotExists(sensorId2)
     verifyQuartzJobExists(sensorId3, cronExpression3)
 
-    await(underTest.processEvents())
+    await(underTest.processEvents(Seq(workflowId, workflowId2, workflowId3)))
     verifyQuartzJobExists(sensorId, cronExpression)
     verifyQuartzJobNotExists(sensorId3)
 
@@ -148,21 +156,23 @@ class SensorsTest extends FlatSpec with MockitoSugar with Matchers with BeforeAn
     // given
     val sensorId = 1L
     val cronExpression = "0 10 * ? * * *" // every hour at xx:10
-    val timeSensor = createTimeSensor(sensorId, cronExpression)
+    val workflowId = 101L
+    val timeSensor = createTimeSensor(sensorId, workflowId, cronExpression)
 
     val changedCronExpression = "0 0 18 ? * * *" // every day at 18:00
-    val changedTimeSensor = createTimeSensor(sensorId, changedCronExpression)
+    val changedTimeSensor = createTimeSensor(sensorId, workflowId, changedCronExpression)
 
     val sensorId2 = 2L
     val cronExpression2 = "0 0/10 * ? * * *" // every hour every 10 minutes
-    val timeSensor2 = createTimeSensor(sensorId2, cronExpression2)
+    val workflowId2 = 102L
+    val timeSensor2 = createTimeSensor(sensorId2, workflowId2, cronExpression2)
 
     when(sensorRepository.getChangedSensors(any())(any[ExecutionContext])).thenReturn(
       Future{Seq.empty},
       Future{Seq(changedTimeSensor)}
     )
     when(sensorRepository.getInactiveSensors(any())(any[ExecutionContext])).thenReturn(Future {Seq.empty})
-    when(sensorRepository.getNewActiveSensors(any())(any[ExecutionContext])).thenReturn(
+    when(sensorRepository.getNewActiveAssignedSensors(any(), any())(any[ExecutionContext])).thenReturn(
       Future {Seq(timeSensor, timeSensor2)},
       Future {Seq(timeSensor)}
     )
@@ -170,23 +180,91 @@ class SensorsTest extends FlatSpec with MockitoSugar with Matchers with BeforeAn
 
     // when, then
     underTest.prepareSensors()
-    await(underTest.processEvents())
+    await(underTest.processEvents(Seq(workflowId, workflowId2)))
     verifyQuartzJobExists(sensorId, cronExpression)
     verifyQuartzJobExists(sensorId2, cronExpression2)
-    await(underTest.processEvents())
+    await(underTest.processEvents(Seq(workflowId, workflowId2)))
     verifyQuartzJobExists(sensorId, changedCronExpression)
     verifyQuartzJobExists(sensorId2, cronExpression2)
 
     underTest.cleanUpSensors()
   }
 
-  private def verifyQuartzJobExists(sensorId: Long, cronExpression: String)  = {
+  it should "never query sensors of unassigned workflows" in {
+    val baseSensor = createTimeSensor(0L, 0L, "0 0/10 * ? * * *")
+    val assignedSensorsT0 = (0 to 49).map(i => baseSensor.copy(id = i, workflowId = 100 + i, properties = baseSensor.properties.copy(sensorId = i)))
+    val assignedSensorsT1 = assignedSensorsT0.filter(_.id <= 29)
+    val assignedSensorsT2 = assignedSensorsT0.filter(_.id <= 39)
+    val assignedWorkflowIdsT0 = assignedSensorsT0.map(_.workflowId)
+    val assignedWorkflowIdsT1 = assignedSensorsT1.map(_.workflowId)
+    val assignedWorkflowIdsT2 = assignedSensorsT2.map(_.workflowId)
+
+    when(sensorRepository.getChangedSensors(any())(any[ExecutionContext])).thenReturn(Future{Seq.empty})
+    when(sensorRepository.getInactiveSensors(any())(any[ExecutionContext])).thenReturn(Future {Seq.empty})
+    when(sensorRepository.getNewActiveAssignedSensors(any(), any())(any[ExecutionContext])).thenReturn(
+      Future {assignedSensorsT0},
+      Future {Seq.empty},
+      Future {assignedSensorsT2.diff(assignedSensorsT1)}
+    )
+    val underTest = new Sensors(eventProcessor, sensorRepository, dagInstanceRepository)
+
+    underTest.prepareSensors()
+    await(underTest.processEvents(assignedWorkflowIdsT0))
+    assignedSensorsT0.map(_.id).foreach(verifyQuartzJobExists)
+    verifyExactlyNQuartzJobsExist(assignedSensorsT0.size)
+
+    await(underTest.processEvents(assignedWorkflowIdsT1))
+    assignedSensorsT1.map(_.id).foreach(verifyQuartzJobExists)
+    verifyExactlyNQuartzJobsExist(assignedSensorsT1.size)
+
+    await(underTest.processEvents(assignedWorkflowIdsT2))
+    assignedSensorsT2.map(_.id).foreach(verifyQuartzJobExists)
+    verifyExactlyNQuartzJobsExist(assignedSensorsT2.size)
+    underTest.cleanUpSensors()
+
+    val sensorsCaptor: ArgumentCaptor[Seq[Sensor]] = ArgumentCaptor.forClass(classOf[Seq[Sensor]])
+    verify(sensorRepository, times(3)).getChangedSensors(sensorsCaptor.capture())(any())
+    sensorsCaptor.getAllValues.get(0) shouldBe Seq()
+    sensorsCaptor.getAllValues.get(1) should contain theSameElementsAs assignedSensorsT1
+    sensorsCaptor.getAllValues.get(2) should contain theSameElementsAs assignedSensorsT1
+
+    val idsCaptor: ArgumentCaptor[Seq[Long]] = ArgumentCaptor.forClass(classOf[Seq[Long]])
+    verify(sensorRepository, times(3)).getInactiveSensors(idsCaptor.capture())(any())
+    idsCaptor.getAllValues.get(0) shouldBe Seq()
+    idsCaptor.getAllValues.get(1) should contain theSameElementsAs assignedSensorsT1.map(_.id)
+    idsCaptor.getAllValues.get(2) should contain theSameElementsAs assignedSensorsT1.map(_.id)
+
+    val idsToFilterCaptor: ArgumentCaptor[Seq[Long]] = ArgumentCaptor.forClass(classOf[Seq[Long]])
+    val workflowIdsCaptor: ArgumentCaptor[Seq[Long]] = ArgumentCaptor.forClass(classOf[Seq[Long]])
+    verify(sensorRepository, times(3)).getNewActiveAssignedSensors(idsToFilterCaptor.capture(), workflowIdsCaptor.capture())(any())
+    idsToFilterCaptor.getAllValues.get(0) shouldBe Seq()
+    idsToFilterCaptor.getAllValues.get(1) should contain theSameElementsAs assignedSensorsT1.map(_.id)
+    idsToFilterCaptor.getAllValues.get(2) should contain theSameElementsAs assignedSensorsT1.map(_.id)
+    workflowIdsCaptor.getAllValues.get(0) should contain theSameElementsAs assignedWorkflowIdsT0
+    workflowIdsCaptor.getAllValues.get(1) should contain theSameElementsAs assignedWorkflowIdsT1
+    workflowIdsCaptor.getAllValues.get(2) should contain theSameElementsAs assignedWorkflowIdsT2
+  }
+
+  private def verifyExactlyNQuartzJobsExist(expectedSize: Int) = {
+    val scheduler = TimeSensorQuartzSchedulerManager.getScheduler
+    val jobKeys = scheduler.getJobKeys(GroupMatcher.groupEquals[JobKey](TimeSensor.JOB_GROUP_NAME))
+    jobKeys.size() shouldBe expectedSize
+  }
+
+  private def verifyQuartzJobExists(sensorId: Long): Assertion = {
     val jobKey = new JobKey(sensorId.toString, TimeSensor.JOB_GROUP_NAME)
     val triggerKey = new TriggerKey(jobKey.getName, TimeSensor.JOB_TRIGGER_GROUP_NAME)
     val scheduler = TimeSensorQuartzSchedulerManager.getScheduler
     scheduler.checkExists(jobKey) shouldBe true
     scheduler.checkExists(triggerKey) shouldBe true
     scheduler.getTrigger(triggerKey) shouldBe a[CronTriggerImpl]
+  }
+
+  private def verifyQuartzJobExists(sensorId: Long, cronExpression: String): Assertion = {
+    verifyQuartzJobExists(sensorId)
+    val jobKey = new JobKey(sensorId.toString, TimeSensor.JOB_GROUP_NAME)
+    val triggerKey = new TriggerKey(jobKey.getName, TimeSensor.JOB_TRIGGER_GROUP_NAME)
+    val scheduler = TimeSensorQuartzSchedulerManager.getScheduler
     scheduler.getTrigger(triggerKey).asInstanceOf[CronTriggerImpl].getCronExpression shouldBe cronExpression
   }
 
@@ -198,8 +276,9 @@ class SensorsTest extends FlatSpec with MockitoSugar with Matchers with BeforeAn
     scheduler.checkExists(triggerKey) shouldBe false
   }
 
-  private def createTimeSensor(sensorId: Long, cronExpression: String)  = {
+  private def createTimeSensor(sensorId: Long, workflowId: Long, cronExpression: String)  = {
     Sensor(
+      workflowId = workflowId,
       sensorType = SensorTypes.Time,
       properties = Properties(
         settings = Settings(

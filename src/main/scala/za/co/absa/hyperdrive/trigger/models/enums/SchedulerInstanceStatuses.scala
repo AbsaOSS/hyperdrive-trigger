@@ -13,8 +13,17 @@
  * limitations under the License.
  */
 
-alter table "job_instance"
-add "key_value_pairs" VARCHAR NOT NULL DEFAULT '{}';
+package za.co.absa.hyperdrive.trigger.models.enums
 
-alter table "job_definition"
-add "key_value_pairs" VARCHAR NOT NULL DEFAULT '{}';
+object SchedulerInstanceStatuses {
+
+  sealed abstract class SchedulerInstanceStatus(val name: String) {
+    override def toString: String = name
+  }
+
+  case object Active extends SchedulerInstanceStatus("Active")
+  case object Deactivated extends SchedulerInstanceStatus("Deactivated")
+
+  val statuses: Set[SchedulerInstanceStatus] = Set(Active, Deactivated)
+
+}

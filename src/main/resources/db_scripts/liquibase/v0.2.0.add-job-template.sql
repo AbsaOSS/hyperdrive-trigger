@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+-- copy of db_scripts/delta_script_v4_to_v5.sql
 
 create table "job_template" (
   "name" VARCHAR NOT NULL UNIQUE,

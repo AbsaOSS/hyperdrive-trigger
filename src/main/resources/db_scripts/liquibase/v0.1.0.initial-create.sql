@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+-- copy of db_scripts/db_script_v0.sql
+
 create table "workflow" (
   "name" VARCHAR(45) NOT NULL UNIQUE,
   "is_active" BOOLEAN NOT NULL,
@@ -27,7 +29,6 @@ create table "job_instance" (
   "job_type" VARCHAR NOT NULL,
   "variables" VARCHAR NOT NULL,
   "maps" VARCHAR NOT NULL,
-  "key_value_pairs" VARCHAR NOT NULL,
   "job_status" VARCHAR NOT NULL,
   "executor_job_id" VARCHAR,
   "created" TIMESTAMP NOT NULL,
@@ -39,12 +40,10 @@ create table "job_instance" (
 
 create table "job_definition" (
   "dag_definition_id" BIGINT NOT NULL,
-  "job_template_id" BIGINT NOT NULL,
   "name" VARCHAR NOT NULL,
-  "deprecated_job_type" VARCHAR,
+  "job_type" VARCHAR NOT NULL,
   "variables" VARCHAR NOT NULL,
   "maps" VARCHAR NOT NULL,
-  "key_value_pairs" VARCHAR NOT NULL,
   "order" INTEGER NOT NULL,
   "id" BIGSERIAL NOT NULL PRIMARY KEY
 );
@@ -74,26 +73,6 @@ create table "dag_definition" (
 create table "dag_instance" (
   "status" VARCHAR NOT NULL,
   "workflow_id" BIGINT NOT NULL,
-  "started" TIMESTAMP NOT NULL,
-  "finished" TIMESTAMP,
-  "id" BIGSERIAL NOT NULL PRIMARY KEY
-);
-
-create table "workflow_history" (
-  "id" BIGSERIAL NOT NULL PRIMARY KEY,
-  "changed_on" TIMESTAMP NOT NULL,
-  "changed_by" VARCHAR NOT NULL,
-  "operation" VARCHAR NOT NULL,
-  "workflow_id" BIGINT NOT NULL,
-  "workflow" VARCHAR NOT NULL
-);
-
-create table "job_template" (
-  "name" VARCHAR NOT NULL UNIQUE,
-  "job_type" VARCHAR NOT NULL,
-  "variables" VARCHAR NOT NULL,
-  "maps" VARCHAR NOT NULL,
-  "key_value_pairs" VARCHAR NOT NULL,
   "id" BIGSERIAL NOT NULL PRIMARY KEY
 );
 
@@ -108,12 +87,6 @@ alter table "job_definition"
   foreign key("dag_definition_id")
   references "dag_definition"("id")
   on update NO ACTION on delete NO ACTION;
-
-alter table "job_definition"
-add constraint "job_definition_job_template_fk"
-foreign key("job_template_id")
-references "job_template"("id")
-on update NO ACTION on delete NO ACTION;
 
 alter table "sensor"
   add constraint "sensor_workflow_fk"
@@ -144,28 +117,3 @@ alter table "dag_instance"
   foreign key("workflow_id")
   references "workflow"("id")
   on update NO ACTION on delete NO ACTION;
-
-create view "dag_run_view" AS
-select
-    dag_instance.id as "id",
-    workflow.name as "workflow_name",
-    workflow.project as "project_name",
-    COALESCE(jobInstanceCount.count, 0) as "job_count",
-    dag_instance.started as "started",
-    dag_instance.finished as "finished",
-    dag_instance.status as "status",
-    workflow.id as "workflow_id"
-from dag_instance
-left join (
-    select job_instance.dag_instance_id, count(1) as "count"
-    from job_instance
-    group by dag_instance_id
-) as jobInstanceCount
-    on jobInstanceCount.dag_instance_id = dag_instance.id
-left join workflow
-    on workflow.id = dag_instance.workflow_id;
-
-insert into "job_template" ("name", "job_type", "variables", "maps", "key_value_pairs")
-values ('Generic Spark Job', 'Spark', '{}', '{}', '{}');
-insert into "job_template" ("name", "job_type", "variables", "maps", "key_value_pairs")
-values ('Generic Shell Job', 'Shell', '{}', '{}', '{}');

@@ -13,11 +13,14 @@
  * limitations under the License.
  */
 
-create table "workflow_history" (
-  "id" BIGSERIAL NOT NULL PRIMARY KEY,
-  "changed_on" TIMESTAMP NOT NULL,
-  "changed_by" VARCHAR NOT NULL,
-  "operation" VARCHAR NOT NULL,
-  "workflow_id" BIGINT NOT NULL,
-  "workflow" VARCHAR NOT NULL
-);
+package za.co.absa.hyperdrive.trigger.models
+
+import java.time.LocalDateTime
+
+import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses.SchedulerInstanceStatus
+
+case class SchedulerInstance(
+  id: Long = 0,
+  status: SchedulerInstanceStatus,
+  lastHeartbeat: LocalDateTime
+)

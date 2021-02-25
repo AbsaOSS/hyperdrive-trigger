@@ -17,7 +17,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <version>0.3.3-SNAPSHOT</version>
+    <version>0.3.4-SNAPSHOT</version>
     <groupId>za.co.absa</groupId>
     <artifactId>hyperdrive-trigger</artifactId>
     <packaging>war</packaging>
@@ -116,7 +116,8 @@
         <commons.lang3.version>3.11</commons.lang3.version>
         <javamelody.spring.boot.starter.version>1.86.0</javamelody.spring.boot.starter.version>
         <buildnumber.maven.plugin.version>1.4</buildnumber.maven.plugin.version>
-
+        <liquibase-maven-plugin.version>3.10.2</liquibase-maven-plugin.version>
+        <snakeyaml.version>1.25</snakeyaml.version>
 
         <!-- Deployment -->
         <gpg.plugin.version>1.6</gpg.plugin.version>
@@ -215,6 +216,20 @@
             <artifactId>cron-utils</artifactId>
             <version>${cronutils.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-maven-plugin</artifactId>
+            <version>${liquibase-maven-plugin.version}</version>
+        </dependency>
+        <!-- For Liquibase yaml -->
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>${snakeyaml.version}</version>
+        </dependency>
+
+
+        <!-- WebJars -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
@@ -348,6 +363,22 @@
                     </archive>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-maven-plugin</artifactId>
+                <version>${liquibase-maven-plugin.version}</version>
+                <configuration>
+                    <propertyFile>etc/liquibase/liquibase-maven-plugin.properties</propertyFile>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.postgresql</groupId>
+                        <artifactId>postgresql</artifactId>
+                        <version>${postgresql}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+
             <!-- Deployment-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

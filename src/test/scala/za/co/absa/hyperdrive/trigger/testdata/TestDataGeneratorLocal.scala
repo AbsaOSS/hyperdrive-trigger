@@ -78,7 +78,8 @@ class TestDataGeneratorLocal extends FlatSpec with Matchers with SpringIntegrati
   }
 
   it should "insert job runs for active sensors" taggedAs PersistingData in {
-    val sensors = await(sensorRepository.getNewActiveSensors(Seq.empty))
+    val allWorkflowIds = await(workflowService.getWorkflows()).map(_.id)
+    val sensors = await(sensorRepository.getNewActiveAssignedSensors(Seq.empty, allWorkflowIds))
     sensors.foreach(sensor => {
       val event = Event(UUID.randomUUID().toString, sensor.id, JsObject.empty)
       val properties = Properties(sensor.id, Settings(Map.empty, Map.empty), Map.empty)
@@ -86,7 +87,7 @@ class TestDataGeneratorLocal extends FlatSpec with Matchers with SpringIntegrati
       result shouldBe true
     })
 
-    val dagInstances = await(dagInstanceRepository.getDagsToRun(Seq.empty, 1000))
+    val dagInstances = await(dagInstanceRepository.getDagsToRun(Seq.empty, 1000, allWorkflowIds))
     dagInstances.foreach(dagInstance => {
       val finished = Some(dagInstance.started.plusSeconds(random.nextInt(86400)))
       val updatedDagInstance = random.nextInt(4) match {
