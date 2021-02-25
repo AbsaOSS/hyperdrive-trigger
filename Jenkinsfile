@@ -8,6 +8,9 @@ pipeline {
     agent {
         label "${hyperdriveTriggerSlaveLabel}"
     }
+    triggers {
+        cron(env.BRANCH_NAME == 'develop' ? 'H H(0-5) * * 0' : '')
+    }
     tools {
         jdk "${toolVersionJava}"
         maven "${toolVersionMaven}"
