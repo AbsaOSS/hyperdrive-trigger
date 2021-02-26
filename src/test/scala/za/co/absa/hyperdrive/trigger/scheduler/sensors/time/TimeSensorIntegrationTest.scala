@@ -88,14 +88,14 @@ class TimeSensorIntegrationTest extends FlatSpec with Matchers with BeforeAndAft
     val jobDefinition2 = JobDefinition(-1L, sparkTemplateId, "Time-Sensor Job 2", jobParameters2, 2)
 
     val dagDefinitionJoined = DagDefinitionJoined(-1L, Seq(jobDefinition1, jobDefinition2))
-    val workflowJoined = WorkflowJoined("Time-Sensor Workflow", true, "some-project", LocalDateTime.now(), None, sensor, dagDefinitionJoined)
+    val workflowJoined = WorkflowJoined("Time-Sensor Workflow", true, "some-project", LocalDateTime.now(), None, None, sensor, dagDefinitionJoined)
     val userName = "fakeUserName"
     val workflowId = await(workflowRepository.insertWorkflow(workflowJoined, userName))
     val insertedWorkflow = await(workflowRepository.getWorkflow(workflowId))
 
     // Start Quartz and register sensor
     sensors.prepareSensors()
-    await(sensors.processEvents())
+    await(sensors.processEvents(Seq(workflowId)))
 
     // Check that event was persisted
     Thread.sleep(5000)
@@ -104,7 +104,7 @@ class TimeSensorIntegrationTest extends FlatSpec with Matchers with BeforeAndAft
 
     // Check that the same time sensor is created exactly once
     val jobKey = insertedWorkflow.sensor.id.toString
-    await(sensors.processEvents().map(
+    await(sensors.processEvents(Seq(workflowId)).map(
       _ => {
         val scheduler = TimeSensorQuartzSchedulerManager.getScheduler
         val jobKeys = scheduler.getJobKeys(GroupMatcher.groupEquals[JobKey](TimeSensor.JOB_GROUP_NAME))
@@ -115,7 +115,7 @@ class TimeSensorIntegrationTest extends FlatSpec with Matchers with BeforeAndAft
     // Check that inactive sensor is removed from quartz
     val workflow = await(workflowRepository.getWorkflows()).head
     await(workflowRepository.switchWorkflowActiveState(workflow.id, userName))
-    await(sensors.processEvents().map(
+    await(sensors.processEvents(Seq(workflowId)).map(
       _ => {
         val scheduler = TimeSensorQuartzSchedulerManager.getScheduler
         val jobKeysAfterClose = scheduler.getJobKeys(GroupMatcher.groupEquals[JobKey](TimeSensor.JOB_GROUP_NAME))
