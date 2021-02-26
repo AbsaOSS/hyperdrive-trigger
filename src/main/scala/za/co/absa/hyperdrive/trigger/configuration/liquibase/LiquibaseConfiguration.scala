@@ -38,8 +38,9 @@ class LiquibaseConfiguration(properties: LiquibaseProperties) extends SpringLiqu
 
   override def afterPropertiesSet(): Unit = {
     if (!skipLiquibase) {
-      logger.info("Skipping Liquibase")
       configureLiquibase()
+    } else {
+      logger.info("Skipping Liquibase")
     }
   }
 

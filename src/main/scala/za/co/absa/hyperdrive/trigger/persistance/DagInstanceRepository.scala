@@ -26,7 +26,7 @@ trait DagInstanceRepository extends Repository {
 
   def insertJoinedDagInstance(dagInstanceJoined: DagInstanceJoined)(implicit executionContext: ExecutionContext): Future[Unit]
 
-  def getDagsToRun(runningIds: Seq[Long], size: Int)(implicit executionContext: ExecutionContext): Future[Seq[DagInstance]]
+  def getDagsToRun(runningIds: Seq[Long], size: Int, assignedWorkflowIds: Seq[Long])(implicit executionContext: ExecutionContext): Future[Seq[DagInstance]]
 
   def update(dagInstance: DagInstance): Future[Unit]
 
@@ -58,13 +58,16 @@ class DagInstanceRepositoryImpl extends DagInstanceRepository {
     } yield ()).transactionally
   ).map(_ => (): Unit)
 
-  def getDagsToRun(runningIds: Seq[Long], size: Int)(implicit executionContext: ExecutionContext): Future[Seq[DagInstance]] = {
+  def getDagsToRun(runningIds: Seq[Long], size: Int, assignedWorkflowIds: Seq[Long])(implicit executionContext: ExecutionContext): Future[Seq[DagInstance]] = {
     val prefilteredResult = db.run(
       dagInstanceTable.filter { di =>
         !di.workflowId.in(
           dagInstanceTable.filter(_.id.inSet(runningIds)).map(_.workflowId)
-        ) && di.status.inSet(DagInstanceStatuses.nonFinalStatuses)
-      }.result
+        )
+      }
+        .filter(_.status.inSet(DagInstanceStatuses.nonFinalStatuses))
+        .filter(_.workflowId inSetBind assignedWorkflowIds)
+        .result
     )
 
     prefilteredResult.map(di =>

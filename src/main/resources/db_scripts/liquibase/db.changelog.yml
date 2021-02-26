@@ -44,3 +44,7 @@ databaseChangeLog:
   - include:
       relativeToChangelogFile: true
       file: v0.3.3.add-indexes.yml
+  - include:
+      relativeToChangelogFile: true
+      file: v0.3.4.add-scheduler-instances.yml
+

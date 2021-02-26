@@ -27,7 +27,6 @@ import scala.concurrent.{ExecutionContext, Future}
 trait JobInstanceRepository extends Repository {
   def updateJob(job: JobInstance)(implicit ec: ExecutionContext): Future[Unit]
   def updateJobsStatus(ids: Seq[Long], status: JobStatus)(implicit ec: ExecutionContext): Future[Unit]
-  def getNewActiveJobs(jobsIdToFilter: Seq[Long], size: Int)(implicit ec: ExecutionContext): Future[Seq[JobInstance]]
   def getJobInstances(dagInstanceId: Long)(implicit ec: ExecutionContext): Future[Seq[JobInstance]]
 }
 
@@ -42,13 +41,6 @@ class JobInstanceRepositoryImpl extends JobInstanceRepository {
   def updateJobsStatus(ids: Seq[Long], status: JobStatus)(implicit ec: ExecutionContext): Future[Unit] = db.run(
     jobInstanceTable.filter(_.id inSet ids).map(ji => (ji.jobStatus, ji.updated)).update((status, Option(LocalDateTime.now()))).transactionally
   ).map(_ => (): Unit)
-
-  override def getNewActiveJobs(idsToFilter: Seq[Long], size: Int)(implicit ec: ExecutionContext): Future[Seq[JobInstance]] = db.run(
-    jobInstanceTable.filter(
-      ji =>
-        !ji.id.inSet(idsToFilter) && ji.jobStatus.inSet(JobStatuses.finalStatuses)
-    ).take(size).result
-  )
 
   override def getJobInstances(dagInstanceId: Long)(implicit ec: ExecutionContext): Future[Seq[JobInstance]] = db.run(
     jobInstanceTable.filter(_.dagInstanceId === dagInstanceId).sortBy(_.id).result

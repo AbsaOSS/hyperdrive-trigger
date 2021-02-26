@@ -23,6 +23,7 @@ case class Workflow(
   project: String,
   created: LocalDateTime = LocalDateTime.now(),
   updated: Option[LocalDateTime],
+  schedulerInstanceId: Option[Long] = None,
   id: Long = 0
 )
 
@@ -36,6 +37,7 @@ case class WorkflowJoined(
   project: String,
   created: LocalDateTime = LocalDateTime.now(),
   updated: Option[LocalDateTime],
+  schedulerInstanceId: Option[Long] = None,
   sensor: Sensor,
   dagDefinitionJoined: DagDefinitionJoined,
   id: Long = 0
@@ -47,6 +49,7 @@ case class WorkflowJoined(
       project = this.project,
       created = this.created,
       updated = this.updated,
+      schedulerInstanceId = this.schedulerInstanceId,
       id = this.id
     )
   }
