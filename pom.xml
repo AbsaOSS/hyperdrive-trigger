@@ -535,5 +535,37 @@
                 <skip.installnodenpm>true</skip.installnodenpm>
             </properties>
         </profile>
+        <profile>
+            <id>license-check</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.rat</groupId>
+                        <artifactId>apache-rat-plugin</artifactId>
+                        <version>0.13</version>
+                        <executions>
+                            <execution>
+                                <phase>validate</phase>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <excludes>
+                                <exclude>**/node/**</exclude>
+                                <exclude>**/node_modules/**</exclude>
+                                <exclude>**/*.json</exclude>
+                                <exclude>**/build.yml</exclude>
+                                <exclude>**/.editorconfig</exclude>
+                                <exclude>.dockerignore</exclude>
+                                <exclude>**/.gitkeep</exclude>
+                                <exclude>src/main/resources/banner.txt</exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 </project>
