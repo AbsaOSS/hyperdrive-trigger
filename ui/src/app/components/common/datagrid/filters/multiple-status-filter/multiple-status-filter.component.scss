@@ -1,4 +1,4 @@
-/*
+/*!
  * Copyright 2018 ABSA Group Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,11 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
  .status-selectable {
     cursor: pointer;
     opacity: 0.5;
-  
+
     &:hover,
     &.status-selected {
       opacity: 1;
