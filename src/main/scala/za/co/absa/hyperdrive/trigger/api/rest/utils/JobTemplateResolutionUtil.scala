@@ -22,6 +22,8 @@ import scala.util.{Failure, Success, Try}
 
 
 object JobTemplateResolutionUtil {
+  private val keysToMerge = Set("spark.executor.extraJavaOptions", "spark.driver.extraJavaOptions")
+  private val separator = " "
 
   def resolveDagDefinitionJoined(dagDefinitionJoined: DagDefinitionJoined, jobTemplates: Seq[JobTemplate]): Seq[ResolvedJobDefinition] = {
     val jobTemplatesLookup = jobTemplates.map(t => t.id -> t).toMap
@@ -55,18 +57,29 @@ object JobTemplateResolutionUtil {
     secondary ++ primary
 
   private def mergeMapsOfLists(primary: Map[String, List[String]], secondary: Map[String, List[String]]) =
-    mergeMapsOfIterables(primary, secondary, (first: List[String], second: List[String]) => second ++ first)
+    mergeMaps(primary, secondary, (_: String, first: List[String], second: List[String]) => second ++ first)
 
-  private def mergeMapsOfSortedMaps(primary: Map[String, SortedMap[String, String]],
-    secondary: Map[String, SortedMap[String, String]]) =
-    mergeMapsOfIterables(primary, secondary,
-      (first: SortedMap[String, String], second: SortedMap[String, String]) => second ++ first)
+  private type KeyValueMap = SortedMap[String, String]
+  private def mergeMapsOfSortedMaps(primary: Map[String, KeyValueMap], secondary: Map[String, KeyValueMap]) =
+    mergeMaps(primary, secondary, (_: String, first: KeyValueMap, second: KeyValueMap) => {
+      val mergedMap = mergeMaps(first, second, mergeSortedMapEntries)
+      SortedMap(mergedMap.toArray: _*)
+    })
 
-  private def mergeMapsOfIterables[T <: Iterable[_]](primary: Map[String, T], secondary: Map[String, T], mergeFn: (T, T) => T) = {
+  private def mergeSortedMapEntries(key: String, firstValue: String, secondValue: String) = {
+    if (keysToMerge.contains(key)) {
+      secondValue + separator + firstValue
+    } else {
+      firstValue
+    }
+  }
+
+  private def mergeMaps[T](primary: Map[String, T], secondary: Map[String, T], mergeFn: (String, T, T) => T) = {
     val sharedKeys = primary.keySet.intersect(secondary.keySet)
     primary.filterKeys(key => !sharedKeys.contains(key)) ++
     secondary.filterKeys(key => !sharedKeys.contains(key)) ++
     primary.filterKeys(key => sharedKeys.contains(key))
-        .map{ case (key, iterable) => key -> mergeFn.apply(iterable, secondary(key)) }
+        .map{ case (key, value) => key -> mergeFn.apply(key, value, secondary(key))}
+
   }
 }
