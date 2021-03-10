@@ -21,4 +21,4 @@ target
 node
 node_modules
 logs
-install
+install/*
