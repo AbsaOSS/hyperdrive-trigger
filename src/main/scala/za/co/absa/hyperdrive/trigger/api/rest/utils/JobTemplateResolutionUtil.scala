@@ -16,14 +16,13 @@
 package za.co.absa.hyperdrive.trigger.api.rest.utils
 
 import za.co.absa.hyperdrive.trigger.models._
+import za.co.absa.hyperdrive.trigger.scheduler.utilities.JobDefinitionConfig.{KeysToMerge, MergedValuesSeparator}
 
 import scala.collection.immutable.SortedMap
 import scala.util.{Failure, Success, Try}
 
 
 object JobTemplateResolutionUtil {
-  private val keysToMerge = Set("spark.executor.extraJavaOptions", "spark.driver.extraJavaOptions")
-  private val separator = " "
 
   def resolveDagDefinitionJoined(dagDefinitionJoined: DagDefinitionJoined, jobTemplates: Seq[JobTemplate]): Seq[ResolvedJobDefinition] = {
     val jobTemplatesLookup = jobTemplates.map(t => t.id -> t).toMap
@@ -67,8 +66,8 @@ object JobTemplateResolutionUtil {
     })
 
   private def mergeSortedMapEntries(key: String, firstValue: String, secondValue: String) = {
-    if (keysToMerge.contains(key)) {
-      secondValue + separator + firstValue
+    if (KeysToMerge.contains(key)) {
+      s"$secondValue$MergedValuesSeparator$firstValue".trim
     } else {
       firstValue
     }
