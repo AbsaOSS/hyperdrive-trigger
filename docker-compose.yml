@@ -35,7 +35,7 @@ services:
     ports:
       - 8080:8080
     volumes:
-      - /tmp/data/:/data/
+      - /tmp/data/:/hyperdrive/
 
 volumes:
   postgres-data:

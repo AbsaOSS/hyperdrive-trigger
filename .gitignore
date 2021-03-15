@@ -13,6 +13,7 @@ syntax: glob
 # idea
 .idea
 *.iml
+*.yml
 
 # building
 target
@@ -21,4 +22,4 @@ target
 node
 node_modules
 logs
-install/*
+install

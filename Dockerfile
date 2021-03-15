@@ -26,11 +26,12 @@ ENV TOMCAT_MAJOR=9 \
     TOMCAT_HOME=/opt/tomcat \
     CATALINA_HOME=/opt/tomcat \
     JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk/jre \
-    HADOOP_HOME=/opt/hadoop \
-    HADOOP_CONF_DIR=/opt/hadoop/etc/hadoop \
-    SPARK_HOME=/opt/spark \
-    SPARK_CONF_DIR=/opt/spark/conf \
-    KRB_HOME=/etc/
+    HADOOP_HOME=/hyperdrive/hadoop \
+    HADOOP_CONF_DIR=/hyperdrive/hadoop/etc/hadoop \
+    SPARK_HOME=/hyperdrive/spark \
+    SPARK_CONF_DIR=/hyperdrive/spark/conf \
+    KRB_FILE=/etc/krb5.conf
+
 
 ENV PATH $CATALINA_HOME/bin:$HADOOP_HOME/bin:$HADOOP_HOME/sbin:$SPARK_HOME/bin:$PATH
 
@@ -54,32 +55,14 @@ RUN apk upgrade --update && \
 # USE ROOT USER
 USER 0
 
-# COPY SPARK AND HADOOP BINARIES CPT
-COPY --chown=0:0 install/hadoop-3.2.1 ${HADOOP_HOME}
-COPY --chown=0:0 install/spark-3.0.1-bin-hadoop3.2 ${SPARK_HOME}
-
-# REMOVE DEFAULT CONFIG FILES
-RUN rm -rf /etc/krb5.conf && \
-    rm -rf ${HADOOP_CONF_DIR}/* && \
-    rm -rf ${SPARK_CONF_DIR}/*
-
-# COPY REGION CONFIG FILES
-COPY install/krb/krb5.conf ${KRB_HOME}
-COPY install/hadoop/conf-ire/ ${HADOOP_CONF_DIR}
-COPY install/spark/conf-ire/ ${SPARK_CONF_DIR}
-
-# SPARK-HADOOP MISSING LIBRARIES - LINKS
-RUN ln -s ${HADOOP_HOME}/share/hadoop/tools/lib/*aws* ${SPARK_HOME}/jars/ && \
-    ln -s ${HADOOP_HOME}/share/hadoop/tools/lib/*aws* ${HADOOP_HOME}/share/hadoop/common/lib/ && \
-    rm -rf ${SPARK_HOME}/jars/guava-14.0.1.jar && \
-    cp ${HADOOP_HOME}/share/hadoop/hdfs/lib/guava-27.0-jre.jar ${SPARK_HOME}/jars/
-
-# SPARK-CONF LINK TO etc dir.
+# SPARK-CONF AND KRB S LINKS.
 RUN mkdir -p /etc/spark/ && \
-    ln -s ${SPARK_CONF_DIR} /etc/spark
+    ln -s ${SPARK_CONF_DIR} /etc/spark && \
+    rm -rf ${KRB_FILE} && \
+    ln -s /hyperdrive/config/krb5.conf ${KRB_FILE}
 
 # TRIGGER APPLICATION: WEB ARCHIVE.
 COPY ${WAR_FILE} ${TOMCAT_HOME}/webapps/hyperdrive_trigger.war
-
+#
 # START THE APPLICATION AT START UP.
 CMD ["catalina.sh", "run"]
