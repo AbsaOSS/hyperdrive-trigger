@@ -170,6 +170,35 @@ class JobTemplateResolutionUtilTest extends FlatSpec with Matchers {
     )
   }
 
+  it should "in key-value pairs, concatenate the values if the key is extraJavaOptions" in {
+    // given
+    val userParameters = JobParameters(Map(), Map(), Map(
+      "additionalSparkConfig" -> SortedMap(
+        "spark.driver.extraJavaOptions" -> "-user.prop=userDriver",
+        "spark.executor.extraJavaOptions" -> "-user.prop=userExecutor")
+    ))
+    val templateParameters = JobParameters(Map(), Map(), Map(
+      "additionalSparkConfig" -> SortedMap(
+        "spark.driver.extraJavaOptions" -> "-template.prop=templateDriver",
+        "spark.executor.extraJavaOptions" -> "-template.prop=templateExecutor")
+    ))
+
+    val jobTemplate = GenericSparkJobTemplate.copy(jobParameters = templateParameters)
+    val jobDefinition = createJobDefinition().copy(jobTemplateId = jobTemplate.id, jobParameters = userParameters)
+    val dagDefinitionJoined = createDagDefinitionJoined(jobDefinition)
+
+    // when
+    val resolvedJobDefinitions = JobTemplateResolutionUtil.resolveDagDefinitionJoined(dagDefinitionJoined, Seq(jobTemplate))
+
+    // then
+    val resolvedJobDefinition = resolvedJobDefinitions.head
+    resolvedJobDefinition.jobParameters.keyValuePairs should contain theSameElementsAs Map(
+      "additionalSparkConfig" -> SortedMap(
+        "spark.driver.extraJavaOptions" -> "-template.prop=templateDriver -user.prop=userDriver",
+        "spark.executor.extraJavaOptions" -> "-template.prop=templateExecutor -user.prop=userExecutor"
+    ))
+  }
+
   it should "throw an error if the jobTemplate doesn't exist" in {
     // given
     val jobDefinition = createJobDefinition().copy(jobTemplateId = 1)
