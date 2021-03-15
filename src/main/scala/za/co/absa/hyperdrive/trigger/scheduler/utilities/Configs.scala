@@ -101,3 +101,8 @@ object SparkExecutorConfig {
   def getAdditionalConfs: Map[String, String] =
     Configs.getMapFromConf("sparkYarnSink.additionalConfs")
 }
+
+object JobDefinitionConfig {
+  val KeysToMerge = Set("spark.executor.extraJavaOptions", "spark.driver.extraJavaOptions")
+  val MergedValuesSeparator = " "
+}
