@@ -15,6 +15,8 @@
 
 package za.co.absa.hyperdrive.trigger.models
 
+import java.time.LocalDateTime
+
 import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes.SensorType
 
 case class Sensor(
@@ -33,4 +35,9 @@ case class Properties(
 case class Settings(
   variables: Map[String, String],
   maps: Map[String, List[String]]
+)
+
+case class SensorWithUpdated(
+  sensor: Sensor,
+  updated: Option[LocalDateTime]
 )

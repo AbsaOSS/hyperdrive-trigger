@@ -15,12 +15,13 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.sensors
 
+import java.time.LocalDateTime
 import java.util.concurrent.Executors
 
 import javax.inject.Inject
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
-import za.co.absa.hyperdrive.trigger.models.Workflow
+import za.co.absa.hyperdrive.trigger.models.SensorWithUpdated
 import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, SensorRepository}
 import za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor
@@ -40,7 +41,8 @@ class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: Sensor
   private implicit val executionContext: ExecutionContextExecutor =
     ExecutionContext.fromExecutor(Executors.newFixedThreadPool(SensorsConfig.getThreadPoolSize))
 
-  private val sensors: mutable.Map[Long, Sensor] = mutable.Map.empty[Long, Sensor]
+  private case class SensorInstanceWithUpdated(sensorInstance: Sensor, updated: Option[LocalDateTime])
+  private val sensors: mutable.Map[Long, SensorInstanceWithUpdated] = mutable.Map.empty[Long, SensorInstanceWithUpdated]
 
   def processEvents(assignedWorkflowIds: Seq[Long]): Future[Unit] = {
     logger.debug(s"Processing events. Sensors: ${sensors.keys}")
@@ -69,24 +71,25 @@ class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: Sensor
   }
 
   def cleanUpSensors(): Unit = {
-    sensors.values.foreach(_.close())
+    sensors.values.foreach(_.sensorInstance.close())
     sensors.clear()
 
     TimeSensorQuartzSchedulerManager.stop()
   }
 
   private def updateChangedSensors(): Future[Unit] = {
-    sensorRepository.getChangedSensors(sensors.values.map(_.sensorDefinition).toSeq).map(
-      _.foreach { sensor =>
-        stopSensor(sensor.id)
-        startSensor(sensor)
+    sensorRepository.getChangedSensors(
+      sensors.values.map(sensor => SensorWithUpdated(sensor.sensorInstance.sensorDefinition, sensor.updated)).toSeq
+    ).map { _.foreach { sensorWithUpdated =>
+        stopSensor(sensorWithUpdated.sensor.id)
+        startSensor(sensorWithUpdated)
       }
-    )
+    }
   }
 
   private def removeReleasedSensors(assignedWorkflowIds: Seq[Long]): Unit = {
-    val releasedWorkflowIds = sensors.values.map(_.sensorDefinition.workflowId).toSeq.diff(assignedWorkflowIds)
-    sensors.filter { case (_, value) => releasedWorkflowIds.contains(value.sensorDefinition.workflowId) }
+    val releasedWorkflowIds = sensors.values.map(_.sensorInstance.sensorDefinition.workflowId).toSeq.diff(assignedWorkflowIds)
+    sensors.filter { case (_, value) => releasedWorkflowIds.contains(value.sensorInstance.sensorDefinition.workflowId) }
       .foreach { case (sensorId, _) => stopSensor(sensorId) }
   }
 
@@ -98,7 +101,7 @@ class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: Sensor
   }
 
   private def stopSensor(id: Long) = {
-    sensors.get(id).foreach(_.close())
+    sensors.get(id).foreach(_.sensorInstance.close())
     sensors.remove(id)
   }
 
@@ -109,31 +112,29 @@ class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: Sensor
     }
   }
 
-  private def startSensor(sensor: za.co.absa.hyperdrive.trigger.models.Sensor) = sensor match {
-    case sensor if sensor.sensorType == SensorTypes.Kafka || sensor.sensorType == SensorTypes.AbsaKafka =>
-
+  private def startSensor(sensor: SensorWithUpdated) = sensor match {
+    case SensorWithUpdated(sensor, updated) if sensor.sensorType == SensorTypes.Kafka || sensor.sensorType == SensorTypes.AbsaKafka =>
       Try(new KafkaSensor(eventProcessor.eventProcessor(s"Sensor - ${sensor.sensorType.name}"), sensor, executionContext)) match {
-        case Success(s) => sensors.put(sensor.id, s)
+        case Success(s) => sensors.put(sensor.id, SensorInstanceWithUpdated(s, updated))
         case Failure(f) => logger.error(s"Couldn't create Kafka sensor for sensor (#${sensor.id}).", f)
       }
-    case sensor if sensor.sensorType == SensorTypes.Time =>
+    case SensorWithUpdated(sensor, updated)  if sensor.sensorType == SensorTypes.Time =>
       Try(TimeSensor(eventProcessor.eventProcessor(s"Sensor - ${sensor.sensorType.name}"), sensor, executionContext)) match {
-        case Success(s) => sensors.put(sensor.id, s)
+        case Success(s) => sensors.put(sensor.id, SensorInstanceWithUpdated(s, updated))
         case Failure(f) => logger.error(s"Couldn't create Time sensor for sensor (#${sensor.id}).", f)
       }
-    case sensor if sensor.sensorType == SensorTypes.Recurring =>
+    case SensorWithUpdated(sensor, updated)  if sensor.sensorType == SensorTypes.Recurring =>
       Try(new RecurringSensor(eventProcessor.eventProcessor(s"Sensor - ${sensor.sensorType.name}"), sensor, executionContext, dagInstanceRepository)) match {
-        case Success(s) => sensors.put(sensor.id, s)
+        case Success(s) => sensors.put(sensor.id, SensorInstanceWithUpdated(s, updated))
         case Failure(f) => logger.error(s"Couldn't create Recurring sensor for sensor (#${sensor.id}).", f)
       }
-    case _ =>
+    case _ => None
   }
 
   private def pollEvents(): Future[Seq[Unit]] = {
-    Future.sequence(sensors.flatMap {
-      case (_, sensor: PollSensor) => Option(sensor.poll())
+    Future.sequence(sensors.values.flatMap {
+      case SensorInstanceWithUpdated(sensor: PollSensor, _)=> Option(sensor.poll())
       case _ => None
     }.toSeq)
   }
-
 }

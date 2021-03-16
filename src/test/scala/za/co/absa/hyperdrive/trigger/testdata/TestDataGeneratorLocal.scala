@@ -76,27 +76,27 @@ class TestDataGeneratorLocal extends FlatSpec with Matchers with SpringIntegrati
       result.name shouldBe workflow.name
     }
   }
-
-  it should "insert job runs for active sensors" taggedAs PersistingData in {
-    val allWorkflowIds = await(workflowService.getWorkflows()).map(_.id)
-    val sensors = await(sensorRepository.getNewActiveAssignedSensors(Seq.empty, allWorkflowIds))
-    sensors.foreach(sensor => {
-      val event = Event(UUID.randomUUID().toString, sensor.id, JsObject.empty)
-      val properties = Properties(sensor.id, Settings(Map.empty, Map.empty), Map.empty)
-      val result = await(eventProcessor.eventProcessor("triggered by")(Seq(event), properties))
-      result shouldBe true
-    })
-
-    val dagInstances = await(dagInstanceRepository.getDagsToRun(Seq.empty, 1000, allWorkflowIds))
-    dagInstances.foreach(dagInstance => {
-      val finished = Some(dagInstance.started.plusSeconds(random.nextInt(86400)))
-      val updatedDagInstance = random.nextInt(4) match {
-        case 1 => dagInstance.copy(status = DagInstanceStatuses.Running)
-        case 2 => dagInstance.copy(status = DagInstanceStatuses.Succeeded, finished = finished)
-        case 3 => dagInstance.copy(status = DagInstanceStatuses.Failed, finished = finished)
-        case _ => dagInstance
-      }
-      await(dagInstanceRepository.update(updatedDagInstance))
-    })
-  }
+//
+//  it should "insert job runs for active sensors" taggedAs PersistingData in {
+//    val allWorkflowIds = await(workflowService.getWorkflows()).map(_.id)
+//    val sensors = await(sensorRepository.getNewActiveAssignedSensors(Seq.empty, allWorkflowIds))
+//    sensors.foreach(sensor => {
+//      val event = Event(UUID.randomUUID().toString, sensor.id, JsObject.empty)
+//      val properties = Properties(sensor.id, Settings(Map.empty, Map.empty), Map.empty)
+//      val result = await(eventProcessor.eventProcessor("triggered by")(Seq(event), properties))
+//      result shouldBe true
+//    })
+//
+//    val dagInstances = await(dagInstanceRepository.getDagsToRun(Seq.empty, 1000, allWorkflowIds))
+//    dagInstances.foreach(dagInstance => {
+//      val finished = Some(dagInstance.started.plusSeconds(random.nextInt(86400)))
+//      val updatedDagInstance = random.nextInt(4) match {
+//        case 1 => dagInstance.copy(status = DagInstanceStatuses.Running)
+//        case 2 => dagInstance.copy(status = DagInstanceStatuses.Succeeded, finished = finished)
+//        case 3 => dagInstance.copy(status = DagInstanceStatuses.Failed, finished = finished)
+//        case _ => dagInstance
+//      }
+//      await(dagInstanceRepository.update(updatedDagInstance))
+//    })
+//  }
 }

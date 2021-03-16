@@ -15,31 +15,33 @@
 
 package za.co.absa.hyperdrive.trigger.persistance
 
+import java.time.LocalDateTime
+
 import org.springframework.stereotype
-import za.co.absa.hyperdrive.trigger.models.Sensor
+import za.co.absa.hyperdrive.trigger.models.SensorWithUpdated
 
 import scala.concurrent.{ExecutionContext, Future}
 
 trait SensorRepository extends Repository {
-  def getNewActiveAssignedSensors(idsToFilter: Seq[Long], assignedWorkflowIds: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[Sensor]]
+  def getNewActiveAssignedSensors(idsToFilter: Seq[Long], assignedWorkflowIds: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[SensorWithUpdated]]
   def getInactiveSensors(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[Long]]
-  def getChangedSensors(originalSensors: Seq[Sensor])(implicit ec: ExecutionContext): Future[Seq[Sensor]]
+  def getChangedSensors(originalSensors: Seq[SensorWithUpdated])(implicit ec: ExecutionContext): Future[Seq[SensorWithUpdated]]
 }
 
 @stereotype.Repository
 class SensorRepositoryImpl extends SensorRepository {
   import profile.api._
 
-  override def getNewActiveAssignedSensors(idsToFilter: Seq[Long], assignedWorkflowIds: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[Sensor]] = db.run {(
+  override def getNewActiveAssignedSensors(idsToFilter: Seq[Long], assignedWorkflowIds: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[SensorWithUpdated]] = db.run {(
     for {
       sensor <- sensorTable if !(sensor.id inSet idsToFilter)
       workflow <- workflowTable if(workflow.id === sensor.workflowId
         && workflow.isActive
         && (workflow.id inSetBind assignedWorkflowIds))
     } yield {
-      sensor
+      (sensor, workflow.updated)
     }).result
-  }
+  }.map(_.map(result => SensorWithUpdated(result._1, result._2)))
 
   override def getInactiveSensors(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[Long]] = db.run {(
     for {
@@ -50,22 +52,23 @@ class SensorRepositoryImpl extends SensorRepository {
     }).result
   }
 
-  override def getChangedSensors(originalSensors: Seq[Sensor])(implicit ec: ExecutionContext): Future[Seq[Sensor]] = db.run {(
-    for {
-      sensor <- sensorTable if originalSensors
-        .map(originalSensor => sensorIsDifferent(sensor, originalSensor))
-        .reduceLeftOption(_ || _)
-        .getOrElse(false: Rep[Boolean])
-    } yield {
-      sensor
-    }).result
+  override def getChangedSensors(originalSensors: Seq[SensorWithUpdated])(implicit ec: ExecutionContext): Future[Seq[SensorWithUpdated]] = {
+    val sensorIds = originalSensors.map(_.sensor.id)
+    db.run {(
+        for {
+          sensor <- sensorTable if sensor.id inSet sensorIds
+          workflow <- workflowTable if workflow.id === sensor.workflowId && workflow.isActive && originalSensors
+            .map(originalSensor => workflowIsUpdated(workflow, originalSensor))
+            .reduceLeftOption(_ || _)
+            .getOrElse(false: Rep[Boolean])
+        } yield {
+          (sensor, workflow.updated)
+        }).result
+    }.map(_.map(result => SensorWithUpdated(result._1, result._2)))
   }
 
-  private def sensorIsDifferent(sensor: SensorTable, originalSensor: Sensor): Rep[Boolean] = {
-    sensor.id === originalSensor.id &&
-      (sensor.sensorType =!= originalSensor.sensorType ||
-      sensor.variables =!= originalSensor.properties.settings.variables ||
-      sensor.maps =!= originalSensor.properties.settings.maps ||
-      sensor.matchProperties =!= originalSensor.properties.matchProperties)
+  private def workflowIsUpdated(workflow: WorkflowTable, sensorWithUpdate: SensorWithUpdated): Rep[Boolean] = {
+    val start = LocalDateTime.MIN
+    workflow.id === sensorWithUpdate.sensor.workflowId && (workflow.updated.getOrElse(start) =!= sensorWithUpdate.updated.getOrElse(start))
   }
 }
