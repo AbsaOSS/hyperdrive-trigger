@@ -16,8 +16,9 @@
 package za.co.absa.hyperdrive.trigger.persistance
 
 import org.scalatest.{FlatSpec, _}
-
+import za.co.absa.hyperdrive.trigger.models.Sensor
 import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes
+
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class SensorRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryTestBase {
@@ -120,6 +121,25 @@ class SensorRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll
     result should contain theSameElementsAs allSensors
       .filter { case (sensor, _) => changedSensors.map(_.id).contains(sensor.id) }
       .map { case (sensor, _) => sensor }
+  }
+
+  "sensorRepository.getChangedSensors" should "not fail on large number of sensors" in {
+    // prepare
+    insertSensors(allSensors)
+
+    val changedSensor = activeTimeW100._1.copy(
+      properties = activeTimeW100._1.properties.copy(
+        settings = activeTimeW100._1.properties.settings.copy(variables = Map("cronExpression" -> "0 0 1 ? * * *"))
+      ))
+
+    val numberOfChangedSensors = 10000
+    val changedSensors: Seq[Sensor] = Range(0, numberOfChangedSensors).map(_ => changedSensor)
+
+    // execute
+    val result = await(sensorRepository.getChangedSensors(changedSensors))
+
+    // verify
+    result.size shouldBe numberOfChangedSensors / 100
   }
 
   it should "given an empty seq, return an empty seq" in {
