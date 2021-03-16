@@ -54,7 +54,7 @@ class SensorRepositoryImpl extends SensorRepository {
     Future.sequence(originalSensors.grouped(100).toSeq.map(group => getChangedSensorsInternal(group))).map(_.flatten)
   }
 
-  def getChangedSensorsInternal(originalSensors: Seq[Sensor])(implicit ec: ExecutionContext): Future[Seq[Sensor]] = db.run {(
+  private def getChangedSensorsInternal(originalSensors: Seq[Sensor])(implicit ec: ExecutionContext): Future[Seq[Sensor]] = db.run {(
     for {
       sensor <- sensorTable if originalSensors
         .map(originalSensor => sensorIsDifferent(sensor, originalSensor))
