@@ -17,6 +17,7 @@ package za.co.absa.hyperdrive.trigger.persistance
 
 import org.springframework.stereotype
 import za.co.absa.hyperdrive.trigger.models.Sensor
+import za.co.absa.hyperdrive.trigger.scheduler.utilities.SensorsConfig
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -51,7 +52,9 @@ class SensorRepositoryImpl extends SensorRepository {
   }
 
   override def getChangedSensors(originalSensors: Seq[Sensor])(implicit ec: ExecutionContext): Future[Seq[Sensor]] = {
-    Future.sequence(originalSensors.grouped(100).toSeq.map(group => getChangedSensorsInternal(group))).map(_.flatten)
+    Future.sequence(
+      originalSensors.grouped(SensorsConfig.getChangedSensorsMinimalChunkQuerySize).toSeq.map(group => getChangedSensorsInternal(group))
+    ).map(_.flatten)
   }
 
   private def getChangedSensorsInternal(originalSensors: Seq[Sensor])(implicit ec: ExecutionContext): Future[Seq[Sensor]] = db.run {(

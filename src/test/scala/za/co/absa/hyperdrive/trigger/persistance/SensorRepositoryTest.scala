@@ -139,7 +139,7 @@ class SensorRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll
     val result = await(sensorRepository.getChangedSensors(changedSensors))
 
     // verify
-    result.size shouldBe numberOfChangedSensors / 100
+    result.distinct.size shouldBe 1
   }
 
   it should "given an empty seq, return an empty seq" in {
