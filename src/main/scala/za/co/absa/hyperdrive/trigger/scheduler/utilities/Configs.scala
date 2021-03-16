@@ -83,6 +83,8 @@ object SchedulerConfig {
 object ExecutorsConfig {
   def getThreadPoolSize: Int =
     Configs.conf.getInt("scheduler.executors.thread.pool.size")
+  def getExecutablesFolder: String =
+    Configs.conf.getString("scheduler.executors.executablesFolder")
 }
 
 object SparkExecutorConfig {

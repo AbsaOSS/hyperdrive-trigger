@@ -15,7 +15,10 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.executors.spark
 
+import java.nio.file.Paths
+
 import za.co.absa.hyperdrive.trigger.models.JobParameters
+import za.co.absa.hyperdrive.trigger.scheduler.utilities.ExecutorsConfig
 
 import scala.util.Try
 
@@ -35,12 +38,12 @@ case class SparkParameters(
 object SparkParameters {
   def apply(jobParameters: JobParameters): SparkParameters = {
     SparkParameters(
-      jobJar = jobParameters.variables("jobJar"),
+      jobJar = Paths.get(ExecutorsConfig.getExecutablesFolder, jobParameters.variables("jobJar")).toString,
       mainClass = jobParameters.variables("mainClass"),
       deploymentMode = jobParameters.variables("deploymentMode"),
       appArguments = Try(jobParameters.maps("appArguments")).getOrElse(List.empty[String]),
-      additionalJars = Try(jobParameters.maps("additionalJars")).getOrElse(List.empty[String]),
-      additionalFiles = Try(jobParameters.maps("additionalFiles")).getOrElse(List.empty[String]),
+      additionalJars = Try(jobParameters.maps("additionalJars")).getOrElse(List.empty[String]).map(jar => Paths.get(ExecutorsConfig.getExecutablesFolder, jar).toString),
+      additionalFiles = Try(jobParameters.maps("additionalFiles")).getOrElse(List.empty[String]).map(file => Paths.get(ExecutorsConfig.getExecutablesFolder, file).toString),
       additionalSparkConfig = Try(jobParameters.keyValuePairs("additionalSparkConfig")).getOrElse(Map.empty[String, String])
     )
   }
