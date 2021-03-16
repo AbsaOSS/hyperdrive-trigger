@@ -78,7 +78,7 @@ class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: Sensor
   }
 
   private def updateChangedSensors(): Future[Unit] = {
-    sensorRepository.getChangedSensorsV2(
+    sensorRepository.getChangedSensors(
       sensors.values.map(sensor => SensorWithUpdated(sensor.sensorInstance.sensorDefinition, sensor.updated)).toSeq
     ).map { xxx =>
       println("Sensors = " + sensors.values.map(zzz => (zzz.sensorInstance.sensorDefinition, zzz.updated)))

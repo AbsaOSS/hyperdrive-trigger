@@ -26,8 +26,6 @@ trait SensorRepository extends Repository {
   def getNewActiveAssignedSensors(idsToFilter: Seq[Long], assignedWorkflowIds: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[SensorWithUpdated]]
   def getInactiveSensors(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[Long]]
   def getChangedSensors(originalSensors: Seq[SensorWithUpdated])(implicit ec: ExecutionContext): Future[Seq[SensorWithUpdated]]
-  def getChangedSensorsV2(originalSensors: Seq[SensorWithUpdated])(implicit ec: ExecutionContext): Future[Seq[SensorWithUpdated]]
-
 }
 
 @stereotype.Repository
@@ -55,6 +53,10 @@ class SensorRepositoryImpl extends SensorRepository {
   }
 
   override def getChangedSensors(originalSensors: Seq[SensorWithUpdated])(implicit ec: ExecutionContext): Future[Seq[SensorWithUpdated]] = {
+    Future.sequence(originalSensors.grouped(100).toSeq.map(group => getChangedSensorsInternal(group))).map(_.flatten)
+  }
+
+  private def getChangedSensorsInternal(originalSensors: Seq[SensorWithUpdated])(implicit ec: ExecutionContext): Future[Seq[SensorWithUpdated]] = {
     val sensorIds = originalSensors.map(_.sensor.id)
     db.run {(
         for {
@@ -67,22 +69,6 @@ class SensorRepositoryImpl extends SensorRepository {
           (sensor, workflow.updated)
         }).result
     }.map(_.map(result => SensorWithUpdated(result._1, result._2)))
-  }
-
- override def getChangedSensorsV2(originalSensors: Seq[SensorWithUpdated])(implicit ec: ExecutionContext): Future[Seq[SensorWithUpdated]] = {
-    val start = LocalDateTime.MIN
-    val ppp = DBIO.sequence(originalSensors.map { sensorWithUpdated =>
-      val xxx = (for {
-        sensor <- sensorTable if sensor.id === sensorWithUpdated.sensor.id
-        workflow <- workflowTable if workflow.id === sensor.workflowId && workflow.isActive && workflow.updated.getOrElse(start) =!= sensorWithUpdated.updated.getOrElse(start)
-      } yield {
-        (sensor, workflow.updated)
-      })
-      val zzz = xxx.result.headOption.map(_.map(asd => SensorWithUpdated(asd._1, asd._2)))
-      zzz
-    })
-    val result = ppp.map(xxxxx => xxxxx.flatten)
-    db.run(result)
   }
 
   private def workflowIsUpdated(workflow: WorkflowTable, sensorWithUpdate: SensorWithUpdated): Rep[Boolean] = {
