@@ -53,7 +53,7 @@ class SensorRepositoryImpl extends SensorRepository {
 
   override def getChangedSensors(originalSensors: Seq[Sensor])(implicit ec: ExecutionContext): Future[Seq[Sensor]] = {
     Future.sequence(
-      originalSensors.grouped(SensorsConfig.getChangedSensorsMinimalChunkQuerySize).toSeq.map(group => getChangedSensorsInternal(group))
+      originalSensors.grouped(SensorsConfig.getChangedSensorsChunkQuerySize).toSeq.map(group => getChangedSensorsInternal(group))
     ).map(_.flatten)
   }
 
