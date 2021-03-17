@@ -69,8 +69,8 @@ object KafkaConfig {
 object SensorsConfig {
   val getThreadPoolSize: Int =
     Configs.conf.getInt("scheduler.sensors.thread.pool.size")
-  val getChangedSensorsMinimalChunkQuerySize: Int =
-    Configs.conf.getInt("scheduler.sensors.changedSensorsMinimalChunkQuerySize")
+  val getChangedSensorsChunkQuerySize: Int =
+    Configs.conf.getInt("scheduler.sensors.changedSensorsChunkQuerySize")
 }
 
 object SchedulerConfig {
