@@ -62,45 +62,45 @@ object KafkaConfig {
     properties
   }
 
-  def getPollDuration: Long =
+  val getPollDuration: Long =
     Configs.conf.getLong("kafkaSource.poll.duration")
 }
 
 object SensorsConfig {
-  def getThreadPoolSize: Int =
+  val getThreadPoolSize: Int =
     Configs.conf.getInt("scheduler.sensors.thread.pool.size")
-  def getChangedSensorsMinimalChunkQuerySize: Int =
+  val getChangedSensorsMinimalChunkQuerySize: Int =
     Configs.conf.getInt("scheduler.sensors.changedSensorsMinimalChunkQuerySize")
 }
 
 object SchedulerConfig {
-  def getHeartBeat: Int =
+  val getHeartBeat: Int =
     Configs.conf.getInt("scheduler.heart.beat")
-  def getMaxParallelJobs: Int =
+  val getMaxParallelJobs: Int =
     Configs.conf.getInt("scheduler.jobs.parallel.number")
-  def isAutostart: Boolean =
+  val isAutostart: Boolean =
     Try(Configs.conf.getBoolean("scheduler.autostart")).getOrElse(true)
 }
 
 object ExecutorsConfig {
-  def getThreadPoolSize: Int =
+  val getThreadPoolSize: Int =
     Configs.conf.getInt("scheduler.executors.thread.pool.size")
 }
 
 object SparkExecutorConfig {
-  def getSubmitTimeOut: Int =
+  val getSubmitTimeOut: Int =
     Configs.conf.getInt("sparkYarnSink.submitTimeout")
-  def getHadoopConfDir: String =
+  val getHadoopConfDir: String =
     Configs.conf.getString("sparkYarnSink.hadoopConfDir")
-  def getMaster: String =
+  val getMaster: String =
     Configs.conf.getString("sparkYarnSink.master")
-  def getSparkHome: String =
+  val getSparkHome: String =
     Configs.conf.getString("sparkYarnSink.sparkHome")
-  def getHadoopResourceManagerUrlBase: String =
+  val getHadoopResourceManagerUrlBase: String =
     Configs.conf.getString("sparkYarnSink.hadoopResourceManagerUrlBase")
-  def getFilesToDeploy: Seq[String] =
+  val getFilesToDeploy: Seq[String] =
     Try(Configs.conf.getString("sparkYarnSink.filesToDeploy").split(",").toSeq).getOrElse(Seq.empty[String])
-  def getAdditionalConfs: Map[String, String] =
+  val getAdditionalConfs: Map[String, String] =
     Configs.getMapFromConf("sparkYarnSink.additionalConfs")
 }
 
