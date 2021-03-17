@@ -333,7 +333,7 @@ export class WorkflowService {
   private static getShellFormParts(): FormPart[] {
     return [
       FormPartFactory.create(
-        'Script location',
+        'Script',
         'jobParameters.variables.scriptLocation',
         'string-field',
         PartValidationFactory.create(true, undefined, 1),
