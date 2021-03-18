@@ -35,7 +35,7 @@ class ShellExecutorTest extends FlatSpec with Matchers with BeforeAndAfterAll wi
 
   private val updateJobStub: JobInstance => Future[Unit] = mock[JobInstance => Future[Unit]]
 
-  private val testScriptLocation = "src/test/resources/testShellScript.sh"
+  private val testScriptLocation = "testShellScript.sh"
   private val testJobInstance = JobInstance(
     jobName = "jobName",
     jobType = Shell,
