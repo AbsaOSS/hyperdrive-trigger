@@ -284,7 +284,7 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
 
   "WorkflowService.importWorkflows" should "import workflows and return projects" in {
     // given
-    val workflowJoined1 = WorkflowFixture.createWorkflowJoined().copy()
+    val workflowJoined1 = WorkflowFixture.createWorkflowJoined().copy(schedulerInstanceId = Some(42))
     val workflowJoined2 = WorkflowFixture.createTimeBasedShellScriptWorkflow("project").copy()
     val jobTemplates1 = Seq(JobTemplateFixture.GenericSparkJobTemplate, JobTemplateFixture.GenericShellJobTemplate)
     val jobTemplates2 = Seq(JobTemplateFixture.GenericShellJobTemplate)
@@ -329,6 +329,7 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
     workflowsToInsert should have size workflowImports.size
     workflowsToInsert.map(_.name) should contain theSameElementsAs workflowImports.map(_.workflowJoined.name)
     workflowsToInsert.map(_.isActive) should contain only false
+    workflowsToInsert.map(_.schedulerInstanceId) should contain only None
   }
 
   it should "fail with all job template conversion errors" in {
@@ -417,7 +418,7 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
   }
 
   "WorkflowService.convertToWorkflowJoined" should "match existing job templates by name and update job template ids" in {
-    val workflowJoined = WorkflowFixture.createWorkflowJoined().copy()
+    val workflowJoined = WorkflowFixture.createWorkflowJoined().copy(schedulerInstanceId = Some(98))
     val oldJobTemplates = Seq(JobTemplateFixture.GenericSparkJobTemplate, JobTemplateFixture.GenericShellJobTemplate)
     val workflowImport = WorkflowImportExportWrapper(workflowJoined, oldJobTemplates)
     val newJobTemplates = Seq(
@@ -431,6 +432,7 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
 
     result.dagDefinitionJoined.jobDefinitions.head.jobTemplateId shouldBe 11
     result.dagDefinitionJoined.jobDefinitions(1).jobTemplateId shouldBe 12
+    result.schedulerInstanceId shouldBe None
   }
 
   it should "return an import error if the given job template doesn't exist" in {

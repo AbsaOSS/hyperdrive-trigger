@@ -218,6 +218,11 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
   }
 
   private def convertToWorkflowJoineds(workflowImports: Seq[WorkflowImportExportWrapper])(implicit ec: ExecutionContext): Future[Seq[WorkflowJoined]] = {
+    resolveJobTemplates(workflowImports)
+      .map(resetSchedulerInstanceId)
+  }
+
+  private def resolveJobTemplates(workflowImports: Seq[WorkflowImportExportWrapper])(implicit ec: ExecutionContext): Future[Seq[WorkflowJoined]] = {
     val jobTemplatesNames = workflowImports.flatMap(_.jobTemplates.map(_.name)).distinct
     jobTemplateService.getJobTemplateIdsByNames(jobTemplatesNames).flatMap {
       newNameIdMap =>
@@ -261,6 +266,10 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
           Future.failed(new ApiException(allErrors))
         }
     }
+  }
+
+  private def resetSchedulerInstanceId(workflowJoineds: Seq[WorkflowJoined]): Seq[WorkflowJoined] = {
+    workflowJoineds.map(_.copy(schedulerInstanceId = None))
   }
 
   private[services] def getUserName: () => String = {
