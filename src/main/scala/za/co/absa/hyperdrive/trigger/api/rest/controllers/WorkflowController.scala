@@ -157,7 +157,8 @@ class WorkflowController @Inject()(workflowService: WorkflowService) {
   @PostMapping(path = Array("/workflow/import"))
   def importWorkflow(@RequestPart("file") file: MultipartFile): CompletableFuture[WorkflowJoined] = {
     val workflowImport = ObjectMapperSingleton.getObjectMapper.readValue(file.getBytes, classOf[WorkflowImportExportWrapper])
-    workflowService.convertToWorkflowJoined(workflowImport).toJava.toCompletableFuture
+    val workflowWithoutSchedulerInstanceId = workflowImport.copy(workflowJoined = workflowImport.workflowJoined.copy(schedulerInstanceId = None))
+    workflowService.convertToWorkflowJoined(workflowWithoutSchedulerInstanceId).toJava.toCompletableFuture
   }
 
   @PostMapping(path = Array("/workflows/import"))
@@ -167,9 +168,10 @@ class WorkflowController @Inject()(workflowService: WorkflowService) {
       throw new ApiException(GenericError("The given zip file does not contain any workflows"))
     }
     val workflowImports = zipEntries.map {
-      case (entryName, byteArray) => entryName -> Try(
-        ObjectMapperSingleton.getObjectMapper.readValue(byteArray, classOf[WorkflowImportExportWrapper])
-      )
+      case (entryName, byteArray) => entryName -> Try{
+        val workflow = ObjectMapperSingleton.getObjectMapper.readValue(byteArray, classOf[WorkflowImportExportWrapper])
+        workflow.copy(workflowJoined = workflow.workflowJoined.copy(schedulerInstanceId = None))
+      }
     }
 
     val parsingErrors = workflowImports
