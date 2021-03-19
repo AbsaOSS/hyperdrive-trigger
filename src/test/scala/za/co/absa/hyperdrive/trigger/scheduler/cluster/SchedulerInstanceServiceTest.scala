@@ -61,7 +61,7 @@ class SchedulerInstanceServiceTest extends AsyncFlatSpec with MockitoSugar with 
       SchedulerInstance(23, SchedulerInstanceStatuses.Active, LocalDateTime.now()),
       SchedulerInstance(24, SchedulerInstanceStatuses.Active, LocalDateTime.now())
     )
-    when(schedulerInstanceRepository.updateHeartbeat(any())(any[ExecutionContext])).thenReturn(Future{1})
+    when(schedulerInstanceRepository.updateHeartbeat(any(), any())(any[ExecutionContext])).thenReturn(Future{1})
     when(schedulerInstanceRepository.getAllInstances()(any[ExecutionContext])).thenReturn(Future{instances})
     when(schedulerInstanceRepository.deactivateLaggingInstances(any(), any())(any[ExecutionContext])).thenReturn(Future{0})
 
@@ -70,7 +70,7 @@ class SchedulerInstanceServiceTest extends AsyncFlatSpec with MockitoSugar with 
 
     // then
     result shouldBe instances
-    verify(schedulerInstanceRepository, times(1)).updateHeartbeat(eqTo(23L))(any())
+    verify(schedulerInstanceRepository, times(1)).updateHeartbeat(eqTo(23L), any())(any())
     verify(schedulerInstanceRepository, times(1)).deactivateLaggingInstances(any(), eqTo(lagThreshold))(any())
     succeed
   }
@@ -78,7 +78,7 @@ class SchedulerInstanceServiceTest extends AsyncFlatSpec with MockitoSugar with 
   it should "throw an exception if the heartbeat could not be updated" in {
     // given
     val lagThreshold = Duration.ofSeconds(5L)
-    when(schedulerInstanceRepository.updateHeartbeat(any())(any[ExecutionContext])).thenReturn(Future{0})
+    when(schedulerInstanceRepository.updateHeartbeat(any(), any())(any[ExecutionContext])).thenReturn(Future{0})
 
     // when
     the [SchedulerInstanceAlreadyDeactivatedException] thrownBy await(underTest.updateSchedulerStatus(23L, lagThreshold))
