@@ -63,7 +63,7 @@ class SchedulerInstanceServiceTest extends AsyncFlatSpec with MockitoSugar with 
     )
     when(schedulerInstanceRepository.updateHeartbeat(any(), any())(any[ExecutionContext])).thenReturn(Future{1})
     when(schedulerInstanceRepository.getAllInstances()(any[ExecutionContext])).thenReturn(Future{instances})
-    when(schedulerInstanceRepository.deactivateLaggingInstances(any(), any())(any[ExecutionContext])).thenReturn(Future{0})
+    when(schedulerInstanceRepository.deactivateLaggingInstances(any(), any(), any())(any[ExecutionContext])).thenReturn(Future{0})
 
     // when
     val result = await(underTest.updateSchedulerStatus(23L, lagThreshold))
@@ -71,7 +71,7 @@ class SchedulerInstanceServiceTest extends AsyncFlatSpec with MockitoSugar with 
     // then
     result shouldBe instances
     verify(schedulerInstanceRepository, times(1)).updateHeartbeat(eqTo(23L), any())(any())
-    verify(schedulerInstanceRepository, times(1)).deactivateLaggingInstances(any(), eqTo(lagThreshold))(any())
+    verify(schedulerInstanceRepository, times(1)).deactivateLaggingInstances(eqTo(23L), any(), eqTo(lagThreshold))(any())
     succeed
   }
 
@@ -84,7 +84,7 @@ class SchedulerInstanceServiceTest extends AsyncFlatSpec with MockitoSugar with 
     the [SchedulerInstanceAlreadyDeactivatedException] thrownBy await(underTest.updateSchedulerStatus(23L, lagThreshold))
 
     // then
-    verify(schedulerInstanceRepository, never).deactivateLaggingInstances(any(), any())(any())
+    verify(schedulerInstanceRepository, never).deactivateLaggingInstances(any(), any(), any())(any())
     verify(schedulerInstanceRepository, never).getAllInstances()(any())
     succeed
   }

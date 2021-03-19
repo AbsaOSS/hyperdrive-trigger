@@ -45,7 +45,7 @@ class SchedulerInstanceServiceImpl @Inject()(schedulerInstanceRepository: Schedu
       } else {
         Future{}
       }
-      _ <- schedulerInstanceRepository.deactivateLaggingInstances(currentHeartbeat, lagThreshold)
+      _ <- schedulerInstanceRepository.deactivateLaggingInstances(instanceId, currentHeartbeat, lagThreshold)
       allInstances <- schedulerInstanceRepository.getAllInstances()
     } yield allInstances
   }

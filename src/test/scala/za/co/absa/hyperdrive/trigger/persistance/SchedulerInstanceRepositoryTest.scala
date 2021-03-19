@@ -75,17 +75,17 @@ class SchedulerInstanceRepositoryTest extends FlatSpec with Matchers with Before
     result shouldBe 0
   }
 
-  "deactivateLaggingInstances" should "deactivate lagging instances" in {
+  "deactivateLaggingInstances" should "deactivate lagging instances, except own instance" in {
     val localTime = LocalDateTime.of(2020, 1, 1, 2, 30, 28)
     val lagTolerance = Duration.ofSeconds(20L)
 
-    val result = await(schedulerInstanceRepository.deactivateLaggingInstances(localTime, lagTolerance))
+    val result = await(schedulerInstanceRepository.deactivateLaggingInstances(21L, localTime, lagTolerance))
     val allInstances = await(db.run(schedulerInstanceTable.result))
 
-    result shouldBe 2
+    result shouldBe 1
     allInstances
       .filter(_.status == SchedulerInstanceStatuses.Deactivated)
-      .map(_.id) should contain theSameElementsAs Seq(21L, 22L, 31L)
+      .map(_.id) should contain theSameElementsAs Seq(22L, 31L)
   }
 
   "getAllInstances" should "return all instances" in {

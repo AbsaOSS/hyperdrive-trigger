@@ -30,7 +30,7 @@ trait SchedulerInstanceRepository extends Repository {
 
   def updateHeartbeat(id: Long, newHeartbeat: LocalDateTime)(implicit ec: ExecutionContext): Future[Int]
 
-  def deactivateLaggingInstances(currentHeartbeat: LocalDateTime, lagTolerance: Duration)(implicit ec: ExecutionContext): Future[Int]
+  def deactivateLaggingInstances(instanceId: Long, currentHeartbeat: LocalDateTime, lagTolerance: Duration)(implicit ec: ExecutionContext): Future[Int]
 
   def getAllInstances()(implicit ec: ExecutionContext): Future[Seq[SchedulerInstance]]
 }
@@ -62,9 +62,10 @@ class SchedulerInstanceRepositoryImpl extends SchedulerInstanceRepository {
       .update(newHeartbeat)
   }
 
-  override def deactivateLaggingInstances(currentHeartbeat: LocalDateTime, lagTolerance: Duration)(implicit ec: ExecutionContext): Future[Int] = db.run {
+  override def deactivateLaggingInstances(instanceId: Long, currentHeartbeat: LocalDateTime, lagTolerance: Duration)(implicit ec: ExecutionContext): Future[Int] = db.run {
     schedulerInstanceTable.filter(i => i.lastHeartbeat < currentHeartbeat.minusSeconds(lagTolerance.getSeconds))
       .filter(_.status === LiteralColumn[SchedulerInstanceStatus](SchedulerInstanceStatuses.Active))
+      .filter(_.id =!= instanceId)
       .map(_.status)
       .update(SchedulerInstanceStatuses.Deactivated)
   }
