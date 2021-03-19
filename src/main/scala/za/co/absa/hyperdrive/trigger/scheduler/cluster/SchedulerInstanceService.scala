@@ -15,8 +15,9 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.cluster
 
-import java.time.{Duration, LocalDateTime}
+import org.slf4j.LoggerFactory
 
+import java.time.{Duration, LocalDateTime}
 import javax.inject.Inject
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.models.SchedulerInstance
@@ -33,6 +34,7 @@ trait SchedulerInstanceService {
 
 @Service
 class SchedulerInstanceServiceImpl @Inject()(schedulerInstanceRepository: SchedulerInstanceRepository) extends SchedulerInstanceService {
+  private val logger = LoggerFactory.getLogger(this.getClass)
 
   override def registerNewInstance()(implicit ec: ExecutionContext): Future[Long] = schedulerInstanceRepository.insertInstance()
 
@@ -45,7 +47,8 @@ class SchedulerInstanceServiceImpl @Inject()(schedulerInstanceRepository: Schedu
       } else {
         Future{}
       }
-      _ <- schedulerInstanceRepository.deactivateLaggingInstances(instanceId, currentHeartbeat, lagThreshold)
+      deactivatedCount <- schedulerInstanceRepository.deactivateLaggingInstances(instanceId, currentHeartbeat, lagThreshold)
+      _ = if (deactivatedCount != 0) logger.debug(s"Deactivated $deactivatedCount instances at current heartbeat $currentHeartbeat")
       allInstances <- schedulerInstanceRepository.getAllInstances()
     } yield allInstances
   }
