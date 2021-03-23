@@ -15,8 +15,9 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.cluster
 
-import java.time.{Duration, LocalDateTime}
+import org.slf4j.LoggerFactory
 
+import java.time.{Duration, LocalDateTime}
 import javax.inject.Inject
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.models.SchedulerInstance
@@ -33,18 +34,21 @@ trait SchedulerInstanceService {
 
 @Service
 class SchedulerInstanceServiceImpl @Inject()(schedulerInstanceRepository: SchedulerInstanceRepository) extends SchedulerInstanceService {
+  private val logger = LoggerFactory.getLogger(this.getClass)
 
   override def registerNewInstance()(implicit ec: ExecutionContext): Future[Long] = schedulerInstanceRepository.insertInstance()
 
   override def updateSchedulerStatus(instanceId: Long, lagThreshold: Duration)(implicit ec: ExecutionContext): Future[Seq[SchedulerInstance]] = {
+    val currentHeartbeat = LocalDateTime.now()
     for {
-      updatedCount <- schedulerInstanceRepository.updateHeartbeat(instanceId)
+      updatedCount <- schedulerInstanceRepository.updateHeartbeat(instanceId, currentHeartbeat)
       _ <- if (updatedCount == 0) {
         Future.failed(new SchedulerInstanceAlreadyDeactivatedException)
       } else {
         Future{}
       }
-      _ <- schedulerInstanceRepository.deactivateLaggingInstances(LocalDateTime.now(), lagThreshold)
+      deactivatedCount <- schedulerInstanceRepository.deactivateLaggingInstances(instanceId, currentHeartbeat, lagThreshold)
+      _ = if (deactivatedCount != 0) logger.debug(s"Deactivated $deactivatedCount instances at current heartbeat $currentHeartbeat")
       allInstances <- schedulerInstanceRepository.getAllInstances()
     } yield allInstances
   }
