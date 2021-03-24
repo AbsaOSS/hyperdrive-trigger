@@ -61,30 +61,31 @@ class SchedulerInstanceRepositoryTest extends FlatSpec with Matchers with Before
   }
 
   "updateHeartbeat" should "update the last heartbeat of an active instance" in {
-    val nowMinusOne = LocalDateTime.now().minusNanos(1L)
-    val result = await(schedulerInstanceRepository.updateHeartbeat(11))
+    val newHeartbeat = LocalDateTime.now()
+    val result = await(schedulerInstanceRepository.updateHeartbeat(11, newHeartbeat))
     val updatedInstance = await(db.run(schedulerInstanceTable.filter(_.id === 11L).result.head))
 
     result shouldBe 1
-    updatedInstance.lastHeartbeat.isAfter(nowMinusOne) shouldBe true
+    updatedInstance.lastHeartbeat shouldBe newHeartbeat
   }
 
   it should "not update a deactivated instance" in {
-    val result = await(schedulerInstanceRepository.updateHeartbeat(31L))
+    val newHeartbeat = LocalDateTime.now()
+    val result = await(schedulerInstanceRepository.updateHeartbeat(31L, newHeartbeat))
     result shouldBe 0
   }
 
-  "deactivateLaggingInstances" should "deactivate lagging instances" in {
+  "deactivateLaggingInstances" should "deactivate lagging instances, except own instance" in {
     val localTime = LocalDateTime.of(2020, 1, 1, 2, 30, 28)
     val lagTolerance = Duration.ofSeconds(20L)
 
-    val result = await(schedulerInstanceRepository.deactivateLaggingInstances(localTime, lagTolerance))
+    val result = await(schedulerInstanceRepository.deactivateLaggingInstances(21L, localTime, lagTolerance))
     val allInstances = await(db.run(schedulerInstanceTable.result))
 
-    result shouldBe 2
+    result shouldBe 1
     allInstances
       .filter(_.status == SchedulerInstanceStatuses.Deactivated)
-      .map(_.id) should contain theSameElementsAs Seq(21L, 22L, 31L)
+      .map(_.id) should contain theSameElementsAs Seq(22L, 31L)
   }
 
   "getAllInstances" should "return all instances" in {
