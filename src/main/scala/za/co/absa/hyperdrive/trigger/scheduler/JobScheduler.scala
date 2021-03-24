@@ -91,6 +91,7 @@ class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstance
       runningAssignWorkflows = workflowBalancer.getAssignedWorkflows(runningDags.keys.map(_.workflowId).toSeq)
         .recover {
           case e: SchedulerInstanceAlreadyDeactivatedException =>
+            logger.error("Stopping scheduler because the instance has already been deactivated", e)
             stopManager()
             throw e
         }
