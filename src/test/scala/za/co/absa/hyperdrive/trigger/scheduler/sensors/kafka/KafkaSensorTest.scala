@@ -45,17 +45,40 @@ class KafkaSensorTest extends FlatSpec with MockitoSugar with Matchers with Befo
     System.setProperty("kafkaSource.max.poll.records", "20")
   }
 
-  it should "consume notifications and invoke the eventProcessor" in {
+  it should "consume matching notifications and invoke the eventProcessor once" in {
     val ingestionToken = "95fce3e7-2468-46fa-9456-74919497528c"
     val notificationMessage = raw"""{"$matchPropertyKey": "$ingestionToken"}"""
     val otherMessage = raw"""{"$matchPropertyKey": "some-other-message"}"""
     executeTestCase(
       ingestionToken,
       Seq(),
-      Seq(otherMessage, notificationMessage, otherMessage),
+      Seq(otherMessage, notificationMessage, notificationMessage, otherMessage),
       Some(notificationMessage)
     )
   }
+
+  it should "not invoke the eventProcessor when consuming only non-matching notifications" in {
+    val ingestionToken = "95fce3e7-2468-46fa-9456-74919497528c"
+    val otherMessage = raw"""{"$matchPropertyKey": "some-other-message"}"""
+    executeTestCase(
+      ingestionToken,
+      Seq(),
+      Seq(otherMessage, otherMessage),
+      None
+    )
+  }
+
+  it should "not invoke the eventProcessor when messages are sent before subscription" in {
+    val ingestionToken = "95fce3e7-2468-46fa-9456-74919497528c"
+    val notificationMessage = raw"""{"$matchPropertyKey": "$ingestionToken"}"""
+    executeTestCase(
+      ingestionToken,
+      Seq(notificationMessage),
+      Seq(),
+      None
+    )
+  }
+
 
   private def executeTestCase(
     matchPropertyValue: String,

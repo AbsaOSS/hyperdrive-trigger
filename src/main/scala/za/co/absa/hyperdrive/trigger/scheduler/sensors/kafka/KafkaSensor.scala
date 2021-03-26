@@ -77,9 +77,12 @@ class KafkaSensor(
           }
         }
       }
-      eventsProcessor.apply(matchedEvents, properties).map(_ => (): Unit)
-    } else
+      matchedEvents.headOption.map(matchedEvent => {
+        eventsProcessor.apply(Seq(matchedEvent), properties).map(_ => (): Unit)
+      }).getOrElse(Future.successful((): Unit))
+    } else {
       Future.successful((): Unit)
+    }
   }
 
   private def recordToEvent[A](record: ConsumerRecord[A, String]): Event = {
