@@ -47,10 +47,10 @@ private object Configs {
 }
 
 object KafkaConfig {
-  def getConsumerProperties(kafkaSettings: KafkaSettings): Properties = {
+  def getConsumerProperties(kafkaSettings: KafkaSettings, sensorId: String): Properties = {
     val properties = new Properties()
     properties.put("bootstrap.servers", kafkaSettings.servers.mkString(","))
-    properties.put("group.id", randomUUID().toString)
+    properties.put("group.id", Configs.conf.getString("kafkaSource.group.id") + sensorId)
     properties.put("key.deserializer", Configs.conf.getString("kafkaSource.key.deserializer"))
     properties.put("value.deserializer", Configs.conf.getString("kafkaSource.value.deserializer"))
     properties.put("max.poll.records", Configs.conf.getString("kafkaSource.max.poll.records"))

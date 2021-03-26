@@ -15,24 +15,25 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.sensors.kafka
 
-import java.time.Duration
-import java.util.Collections
-
-import org.apache.kafka.clients.consumer.{ConsumerRecord, KafkaConsumer}
+import org.apache.kafka.clients.consumer.{ConsumerRebalanceListener, ConsumerRecord, KafkaConsumer}
+import org.apache.kafka.common.TopicPartition
+import org.slf4j.LoggerFactory
 import play.api.libs.json.{JsError, JsSuccess, Json}
 import za.co.absa.hyperdrive.trigger.models.{Event, Properties, Sensor}
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.PollSensor
 import za.co.absa.hyperdrive.trigger.scheduler.utilities.KafkaConfig
-
-import scala.concurrent.{ExecutionContext, Future}
 import za.co.absa.hyperdrive.trigger.scheduler.utilities.KafkaRichConsumer._
-import org.slf4j.LoggerFactory
 
+import java.time.Duration
+import java.util
+import java.util.Collections
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
 class KafkaSensor(
   eventsProcessor: (Seq[Event], Properties) => Future[Boolean],
   sensorDefinition: Sensor,
+  consumeFromLatest: Boolean = false,
   executionContext: ExecutionContext
 ) extends PollSensor(eventsProcessor, sensorDefinition, executionContext) {
 
@@ -41,10 +42,21 @@ class KafkaSensor(
   private val logMsgPrefix = s"Sensor id = ${properties.sensorId}."
   private val kafkaSettings = KafkaSettings(properties.settings)
 
-  private val consumer = new KafkaConsumer[String, String](KafkaConfig.getConsumerProperties(kafkaSettings))
+  // TODO: Make this better
+  private val consumer = new KafkaConsumer[String, String](KafkaConfig.getConsumerProperties(kafkaSettings, properties.sensorId.toString))
 
   try {
-    consumer.subscribe(Collections.singletonList(kafkaSettings.topic))
+    consumer.subscribe(Collections.singletonList(kafkaSettings.topic), new ConsumerRebalanceListener {
+      override def onPartitionsRevoked(partitions: util.Collection[TopicPartition]): Unit = {
+        // no-op
+      }
+
+      override def onPartitionsAssigned(partitions: util.Collection[TopicPartition]): Unit = {
+        if (consumeFromLatest) {
+          consumer.seekToEnd(partitions)
+        }
+      }
+    })
   } catch {
     case e: Exception => logger.debug(s"$logMsgPrefix. Exception during subscribe.", e)
   }

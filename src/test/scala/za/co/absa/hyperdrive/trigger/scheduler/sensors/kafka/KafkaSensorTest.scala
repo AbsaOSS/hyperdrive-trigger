@@ -37,6 +37,7 @@ import scala.concurrent.Future
 
 class KafkaSensorTest extends FlatSpec with MockitoSugar with Matchers with BeforeAndAfter {
   private val matchPropertyKey = "ingestionToken"
+  private val ingestionToken = "95fce3e7-2468-46fa-9456-74919497528c"
   private val kafkaPort = 12345
   private val kafkaUrl = s"localhost:${kafkaPort}"
 
@@ -45,59 +46,133 @@ class KafkaSensorTest extends FlatSpec with MockitoSugar with Matchers with Befo
     System.setProperty("kafkaSource.max.poll.records", "20")
   }
 
-  it should "consume matching notifications and invoke the eventProcessor once" in {
-    val ingestionToken = "95fce3e7-2468-46fa-9456-74919497528c"
+  "KafkaSensor.poll" should "consume matching notifications and invoke the eventProcessor once" in {
     val notificationMessage = raw"""{"$matchPropertyKey": "$ingestionToken"}"""
     val otherMessage = raw"""{"$matchPropertyKey": "some-other-message"}"""
     executeTestCase(
-      ingestionToken,
+      consumeFromLatest = false,
+      Seq(),
       Seq(),
       Seq(otherMessage, notificationMessage, notificationMessage, otherMessage),
       Some(notificationMessage)
     )
   }
 
+  it should "not invoke the eventProcessor when messages have already been consumed" in {
+    val notificationMessage = raw"""{"$matchPropertyKey": "$ingestionToken"}"""
+    executeTestCase(
+      consumeFromLatest = false,
+      Seq(notificationMessage),
+      Seq(),
+      Seq(),
+      None
+    )
+  }
+
+  it should "invoke the eventProcessor when messages are sent while consumer is unsubscribed" in {
+    val notificationMessage = raw"""{"$matchPropertyKey": "$ingestionToken"}"""
+    executeTestCase(
+      consumeFromLatest = false,
+      Seq(),
+      Seq(notificationMessage),
+      Seq(),
+      Some(notificationMessage)
+    )
+  }
+
   it should "not invoke the eventProcessor when consuming only non-matching notifications" in {
-    val ingestionToken = "95fce3e7-2468-46fa-9456-74919497528c"
     val otherMessage = raw"""{"$matchPropertyKey": "some-other-message"}"""
     executeTestCase(
-      ingestionToken,
+      consumeFromLatest = false,
+      Seq(),
       Seq(),
       Seq(otherMessage, otherMessage),
       None
     )
   }
 
-  it should "not invoke the eventProcessor when messages are sent before subscription" in {
-    val ingestionToken = "95fce3e7-2468-46fa-9456-74919497528c"
+  "KafkaSensor.poll with consumeFromLatest=true" should "not invoke the eventProcessor when messages are sent while consumer is unsubscribed" in {
     val notificationMessage = raw"""{"$matchPropertyKey": "$ingestionToken"}"""
     executeTestCase(
-      ingestionToken,
+      consumeFromLatest = true,
+      Seq(),
       Seq(notificationMessage),
       Seq(),
       None
     )
   }
 
+  "KafkaSensor.poll" should "have a separate group id for each sensor" in {
+    // given
+    implicit val config: EmbeddedKafkaConfig = EmbeddedKafkaConfig(kafkaPort = kafkaPort, zooKeeperPort = 12346)
+    val notificationTopic = "notifications"
+    val eventProcessor1 = mock[EventProcessor]
+    val eventProcessor2 = mock[EventProcessor]
+    when(eventProcessor1.eventProcessor(any())(any(), any())(any())).thenReturn(Future {true})
+    when(eventProcessor2.eventProcessor(any())(any(), any())(any())).thenReturn(Future {true})
+    val sensor1 = Sensor(id = 42, sensorType = SensorTypes.AbsaKafka, properties = SensorProperties(
+      sensorId = 42,
+      settings = Settings(
+        Map(KafkaSettings.Topic -> notificationTopic),
+        Map(KafkaSettings.Servers -> List(kafkaUrl))),
+      matchProperties = Map(
+        matchPropertyKey -> "match-property-value-42"
+      )))
+    val sensor2 = Sensor(id = 43, sensorType = SensorTypes.AbsaKafka, properties = SensorProperties(
+      sensorId = 43,
+      settings = Settings(
+        Map(KafkaSettings.Topic -> notificationTopic),
+        Map(KafkaSettings.Servers -> List(kafkaUrl))),
+      matchProperties = Map(
+        matchPropertyKey -> "match-property-value-43"
+      )))
+    val messages = Seq(
+      raw"""{"$matchPropertyKey": "match-property-value-42"}""",
+      raw"""{"$matchPropertyKey": "match-property-value-43"}"""
+    )
+    val maxPollRetries = 10
+
+    withRunningKafka {
+      val producer = createProducer()
+      val kafkaSensor1 = new KafkaSensor(eventProcessor1.eventProcessor("test"), sensor1, consumeFromLatest = true, global)
+      for (_ <- 0 to maxPollRetries){ // hope that consumer will have been assigned partition and is ready to poll
+        await(kafkaSensor1.poll())
+      }
+      val kafkaSensor2 = new KafkaSensor(eventProcessor2.eventProcessor("test"), sensor2, consumeFromLatest = true, global)
+      for (_ <- 0 to maxPollRetries){ // hope that consumer will have been assigned partition and is ready to poll
+        await(kafkaSensor2.poll())
+      }
+      publishToKafka(producer, notificationTopic, messages)
+
+      await(kafkaSensor1.poll())
+      await(kafkaSensor2.poll())
+
+      verify(eventProcessor1).eventProcessor(eqTo("test"))(any(), any())(any())
+      verify(eventProcessor2).eventProcessor(eqTo("test"))(any(), any())(any())
+    }
+  }
 
   private def executeTestCase(
-    matchPropertyValue: String,
-    messagesBeforeSubscription: Seq[String],
-    messagesAfterSubscription: Seq[String],
+    consumeFromLatest: Boolean,
+    messagesBeforeUnsubscription: Seq[String],
+    messagesWhileUnsubscribed: Seq[String],
+    messagesAfterResubscription: Seq[String],
     expectedPayloadOpt: Option[String]) = {
     // given
     implicit val config: EmbeddedKafkaConfig = EmbeddedKafkaConfig(kafkaPort = kafkaPort, zooKeeperPort = 12346)
     val notificationTopic = "notifications"
-    val eventProcessor = mock[EventProcessor]
+    val eventProcessor1 = mock[EventProcessor]
+    val eventProcessor2 = mock[EventProcessor]
 
-    when(eventProcessor.eventProcessor(any())(any(), any())(any())).thenReturn(Future {true})
+    when(eventProcessor1.eventProcessor(any())(any(), any())(any())).thenReturn(Future {true})
+    when(eventProcessor2.eventProcessor(any())(any(), any())(any())).thenReturn(Future {true})
     val sensor = Sensor(id = 42, sensorType = SensorTypes.AbsaKafka, properties = SensorProperties(
       sensorId = 42,
       settings = Settings(
         Map(KafkaSettings.Topic -> notificationTopic),
         Map(KafkaSettings.Servers -> List(kafkaUrl))),
       matchProperties = Map(
-        matchPropertyKey -> matchPropertyValue
+        matchPropertyKey -> ingestionToken
       )))
 
     val maxPollRetries = 10
@@ -105,14 +180,22 @@ class KafkaSensorTest extends FlatSpec with MockitoSugar with Matchers with Befo
       val producer = createProducer()
       // when
 
-      publishToKafka(producer, notificationTopic, messagesBeforeSubscription)
-      val kafkaSensor = new KafkaSensor(eventProcessor.eventProcessor("test"), sensor, global)
+      val kafkaSensor1 = new KafkaSensor(eventProcessor1.eventProcessor("test"), sensor, consumeFromLatest, global)
       for (_ <- 0 to maxPollRetries){ // hope that consumer will have been assigned partition and is ready to poll
-        await(kafkaSensor.poll())
+        await(kafkaSensor1.poll())
       }
-      publishToKafka(producer, notificationTopic, messagesAfterSubscription)
+      publishToKafka(producer, notificationTopic, messagesBeforeUnsubscription)
+      await(kafkaSensor1.poll())
+      kafkaSensor1.closeInternal()
 
-      await(kafkaSensor.poll())
+      publishToKafka(producer, notificationTopic, messagesWhileUnsubscribed)
+
+      val kafkaSensor2 = new KafkaSensor(eventProcessor2.eventProcessor("test"), sensor, consumeFromLatest, global)
+      for (_ <- 0 to maxPollRetries){ // hope that consumer will have been assigned partition and is ready to poll
+        await(kafkaSensor2.poll())
+      }
+      publishToKafka(producer, notificationTopic, messagesAfterResubscription)
+      await(kafkaSensor2.poll())
 
       // then
       val eventsCaptor: ArgumentCaptor[Seq[Event]] = ArgumentCaptor.forClass(classOf[Seq[Event]])
@@ -121,7 +204,7 @@ class KafkaSensorTest extends FlatSpec with MockitoSugar with Matchers with Befo
         case Some(_) => 1
         case None => 0
       }
-      verify(eventProcessor, times(invocations)).eventProcessor(eqTo("test"))(eventsCaptor.capture(), propertiesCaptor.capture())(any())
+      verify(eventProcessor2, times(invocations)).eventProcessor(eqTo("test"))(eventsCaptor.capture(), propertiesCaptor.capture())(any())
       expectedPayloadOpt.map(expectedPayload => {
         eventsCaptor.getValue.size shouldBe 1
         val event = eventsCaptor.getValue.head
@@ -139,7 +222,7 @@ class KafkaSensorTest extends FlatSpec with MockitoSugar with Matchers with Befo
     new KafkaProducer(props, serializer, serializer)
   }
 
-  private def publishToKafka(producer: KafkaProducer[String, String], topic: String, messages: Seq[String]) = {
+  private def publishToKafka(producer: KafkaProducer[String, String], topic: String, messages: Seq[String]): Unit = {
     messages.foreach(message => {
       val record = new ProducerRecord[String, String](topic, message)
       producer.send(record)
