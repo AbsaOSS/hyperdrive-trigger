@@ -46,12 +46,15 @@ private object Configs {
 }
 
 object KafkaConfig {
+  private val keyDeserializer = Configs.conf.getString("kafkaSource.key.deserializer")
+  private val valueDeserializer = Configs.conf.getString("kafkaSource.value.deserializer")
+  private val maxPollRecords = Configs.conf.getString("kafkaSource.max.poll.records")
   def getConsumerProperties(kafkaSettings: KafkaSettings): Properties = {
     val properties = new Properties()
     properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaSettings.servers.mkString(","))
-    properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, Configs.conf.getString("kafkaSource.key.deserializer"))
-    properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, Configs.conf.getString("kafkaSource.value.deserializer"))
-    properties.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, Configs.conf.getString("kafkaSource.max.poll.records"))
+    properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, keyDeserializer)
+    properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, valueDeserializer)
+    properties.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords)
 
     Configs.getMapFromConf("kafkaSource.properties").foreach { case (key, value)  =>
       properties.put(key, value)
@@ -60,7 +63,8 @@ object KafkaConfig {
     properties
   }
 
-  val getBaseGroupId: String = Configs.conf.getString("kafkaSource.group.id")
+  val getBaseGroupId: String =
+    s"${Configs.conf.getString("kafkaSource.group.id.prefix")}_${Configs.conf.getString("appUniqueId")}"
   val getPollDuration: Long =
     Configs.conf.getLong("kafkaSource.poll.duration")
 }
