@@ -15,14 +15,13 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.sensors.kafka
 
-import org.apache.kafka.clients.consumer.{ConsumerRebalanceListener, ConsumerRecord, KafkaConsumer}
+import org.apache.kafka.clients.consumer.{ConsumerConfig, ConsumerRebalanceListener, ConsumerRecord, KafkaConsumer}
 import org.apache.kafka.common.TopicPartition
 import org.slf4j.LoggerFactory
 import play.api.libs.json.{JsError, JsSuccess, Json}
 import za.co.absa.hyperdrive.trigger.models.{Event, Properties, Sensor}
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.PollSensor
 import za.co.absa.hyperdrive.trigger.scheduler.utilities.KafkaConfig
-import za.co.absa.hyperdrive.trigger.scheduler.utilities.KafkaRichConsumer._
 
 import java.time.Duration
 import java.util
@@ -42,8 +41,13 @@ class KafkaSensor(
   private val logMsgPrefix = s"Sensor id = ${properties.sensorId}."
   private val kafkaSettings = KafkaSettings(properties.settings)
 
-  // TODO: Make this better
-  private val consumer = new KafkaConsumer[String, String](KafkaConfig.getConsumerProperties(kafkaSettings, properties.sensorId.toString))
+  private val consumer = {
+    val consumerProperties = KafkaConfig.getConsumerProperties(kafkaSettings)
+    val groupId = s"${KafkaConfig.getBaseGroupId}-${properties.sensorId}"
+    consumerProperties.put(ConsumerConfig.GROUP_ID_CONFIG, groupId)
+
+    new KafkaConsumer[String, String](consumerProperties)
+  }
 
   try {
     consumer.subscribe(Collections.singletonList(kafkaSettings.topic), new ConsumerRebalanceListener {
@@ -62,9 +66,10 @@ class KafkaSensor(
   }
 
   override def poll(): Future[Unit] = {
+    import scala.collection.JavaConverters._
     logger.debug(s"$logMsgPrefix. Polling new events.")
     val fut = Future {
-      consumer.pollAsScala(Duration.ofMillis(KafkaConfig.getPollDuration))
+      consumer.poll(Duration.ofMillis(KafkaConfig.getPollDuration)).asScala
     } flatMap processRecords map (_ => consumer.commitSync())
 
     fut.onComplete {
