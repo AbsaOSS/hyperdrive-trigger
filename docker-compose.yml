@@ -12,7 +12,6 @@
 # limitations under the License.
 
 # This docker-compose script is only for development purposes! Passwords should never be stored in plaintext!
-
 version: "3"
 
 services:
