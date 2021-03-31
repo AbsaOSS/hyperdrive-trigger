@@ -17,6 +17,7 @@ package za.co.absa.hyperdrive.trigger.scheduler.sensors.time
 
 import org.quartz.CronScheduleBuilder.cronSchedule
 import org.quartz._
+import org.slf4j.LoggerFactory
 import za.co.absa.hyperdrive.trigger.models.{Event, TimeSensorProperties}
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.PushSensor
 import za.co.absa.hyperdrive.trigger.models.{Sensor => SensorDefition}
@@ -29,6 +30,7 @@ class TimeSensor(
   scheduler: Scheduler
 )(implicit executionContext: ExecutionContext)
     extends PushSensor[TimeSensorProperties](eventsProcessor, sensorDefinition, executionContext) {
+  import TimeSensor._
   val jobKey: JobKey = new JobKey(sensorDefinition.id.toString, TimeSensor.JOB_GROUP_NAME)
   val jobTriggerKey: TriggerKey = new TriggerKey(jobKey.getName, TimeSensor.JOB_TRIGGER_GROUP_NAME)
 
@@ -41,7 +43,16 @@ class TimeSensor(
   def launchQuartzJob(cronExpression: CronExpression, sensorId: Long): Unit = {
     val jobDetail = buildJobDetail(sensorId)
     val trigger = buildJobTrigger(jobDetail, cronExpression)
-    scheduler.scheduleJob(jobDetail, trigger)
+    val firstFireTime = scheduler.scheduleJob(jobDetail, trigger)
+    logger.trace(
+      "First execution of (SensorId=%d) for (WorkflowId=%d)" +
+        " with (JobDetail=%s) and (JobTrigger=%s) is scheduled to: %s",
+      sensorId,
+      sensorDefinition.workflowId,
+      jobDetail,
+      trigger,
+      firstFireTime
+    )
   }
 
   private def buildJobDetail(sensorId: Long): JobDetail = {
@@ -75,6 +86,8 @@ object TimeSensor {
   val JOB_GROUP_NAME: String = "time-sensor-job-group"
   val JOB_TRIGGER_GROUP_NAME: String = "time-sensor-job-trigger-group"
 
+  private val logger = LoggerFactory.getLogger(classOf[TimeSensor])
+
   def apply(
     eventsProcessor: (Seq[Event], Long) => Future[Boolean],
     sensorDefinition: SensorDefition[TimeSensorProperties]
@@ -85,6 +98,12 @@ object TimeSensor {
     validateJobKeys(sensor.jobKey, sensor.jobTriggerKey, quartzScheduler, sensorDefinition.id)
     validateCronExpression(sensorDefinition.properties.cronExpression, sensorDefinition.id)
 
+    logger.debug(
+      "Launching QuartzJob (CronExpression=%s) within TimeSensor (SensorId=%d) for workflow (WorkflowId=%d)",
+      sensorDefinition.properties.cronExpression,
+      sensorDefinition.id,
+      sensorDefinition.workflowId
+    )
     sensor.launchQuartzJob(new CronExpression(sensorDefinition.properties.cronExpression), sensorDefinition.id)
     sensor
   }

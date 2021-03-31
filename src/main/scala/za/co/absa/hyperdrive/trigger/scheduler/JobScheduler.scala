@@ -26,6 +26,7 @@ import za.co.absa.hyperdrive.trigger.scheduler.cluster.{SchedulerInstanceAlready
 import za.co.absa.hyperdrive.trigger.scheduler.executors.Executors
 import za.co.absa.hyperdrive.trigger.scheduler.notifications.NotificationSender
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.Sensors
+import za.co.absa.hyperdrive.trigger.scheduler.utilities.logging.LazyToStr
 
 import scala.collection.mutable
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
@@ -119,17 +120,21 @@ class JobScheduler @Inject() (
       .getDagsToRun(runningDags.keys.map(_.workflowId).toSeq.distinct, emptySlotsSize, assignedWorkflowIds)
       .map {
         _.foreach { dag =>
-          logger.debug(s"Deploying dag = ${dag.id}")
+          logger.debug("Deploying dag (DagId=%d)", dag.id)
           runningDags.put(RunningDagsKey(dag.id, dag.workflowId), executors.executeDag(dag))
         }
       }
 
   private def removeFinishedDags(): Unit =
     if (runningEnqueue.isCompleted) {
-      runningDags.foreach {
-        case (id, fut) if fut.isCompleted => runningDags.remove(id)
-        case _                            => ()
-      }
+      val finishedDags = runningDags.flatMap {
+        case (key, dagCompletion) if dagCompletion.isCompleted => Some(key)
+        case _                                                 => None
+      }.toSeq
+      logger.debug("Removing finished DAGs for workflows %s",
+        new LazyToStr(finishedDags.map(key => s"(DagId=${key.dagId}; WorkflowId=${key.workflowId})"))
+      )
+      runningDags --= finishedDags
     }
 
   private def processEvents(assignedWorkflowIds: Seq[Long]): Unit =

@@ -65,8 +65,10 @@ class WorkflowBalancer @Inject() (
       workflows
     }
 
-  def resetSchedulerInstanceId(): Unit =
+  def resetSchedulerInstanceId(): Unit = {
+    logger.trace("Resetting scheduler instance id (SchedulerId=%s) -> None", schedulerInstanceId)
     schedulerInstanceId = None
+  }
 
   private def getOrCreateInstance()(implicit ec: ExecutionContext) =
     schedulerInstanceId match {

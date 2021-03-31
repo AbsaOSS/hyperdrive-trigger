@@ -79,8 +79,9 @@ class Executors @Inject() (
         } yield {}
         fut.onComplete {
           case Failure(exception) =>
-            logger.error(s"Updating status failed for failed run. Dag instance id = ${dagInstance.id}", exception)
+            logger.error(s"Updating status failed for failed run. (DagId=${dagInstance.id})", exception)
           case _ =>
+            logger.info("Updating status succeeded for failed run. (DagId=%d)", dagInstance.id)
         }
         fut
       case jobInstances
@@ -92,8 +93,9 @@ class Executors @Inject() (
         } yield {}
         fut.onComplete {
           case Failure(exception) =>
-            logger.error(s"Updating status failed for skipped run. Dag instance id = ${dagInstance.id}", exception)
+            logger.error(s"Updating status failed for skipped run. (DagId=${dagInstance.id})", exception)
           case _ =>
+            logger.info("Updating status succeeded for skipped run. (DagId=%d)", dagInstance.id)
         }
         fut
       case jobInstances if jobInstances.forall(ji => ji.jobStatus.isFinalStatus && !ji.jobStatus.isFailed) =>
@@ -105,8 +107,9 @@ class Executors @Inject() (
         } yield {}
         fut.onComplete {
           case Failure(exception) =>
-            logger.error(s"Updating status failed for successful run. Dag instance id = ${dagInstance.id}", exception)
+            logger.error(s"Updating status failed for successful run. (DagId=${dagInstance.id})", exception)
           case _ =>
+            logger.info("Updating status succeeded for successful run. (DagId=%d)", dagInstance.id)
         }
         fut
       case jobInstances =>
@@ -127,16 +130,20 @@ class Executors @Inject() (
           }
         }
         fut.onComplete {
-          case Success(_) => logger.debug(s"Executing job. Job instance = $jobInstance")
+          case Success(_) => logger.debug(s"Executing job. (JobId=%d)", jobInstance)
           case Failure(exception) =>
-            logger.error(s"Executing job failed. Job instance id = $jobInstance.", exception)
+            logger.error(s"Executing job failed. (JobId=$jobInstance).", exception)
         }
         fut
     }
 
   private def updateJob(jobInstance: JobInstance): Future[Unit] = {
     logger.info(
-      s"Job updated. ID = ${jobInstance.id} STATUS = ${jobInstance.jobStatus} EXECUTOR_ID = ${jobInstance.executorJobId}"
+      "(JobId=%d). Job updated. ID = %d STATUS = %s EXECUTOR_ID = %s",
+      jobInstance.id,
+      jobInstance.id,
+      jobInstance.jobStatus,
+      jobInstance.executorJobId
     )
     jobInstanceRepository.updateJob(jobInstance)
   }

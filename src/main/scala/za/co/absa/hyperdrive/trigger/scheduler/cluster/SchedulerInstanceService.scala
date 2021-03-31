@@ -60,7 +60,12 @@ class SchedulerInstanceServiceImpl @Inject() (schedulerInstanceRepository: Sched
         lagThreshold
       )
       _ = if (deactivatedCount != 0)
-        logger.info(s"Deactivated $deactivatedCount instances at current heartbeat $currentHeartbeat")
+        logger.info(
+          "Deactivated %d instances at current heartbeat %s by (SchedulerId=%d)",
+          deactivatedCount,
+          currentHeartbeat,
+          instanceId
+        )
       allInstances <- schedulerInstanceRepository.getAllInstances()
     } yield allInstances
   }

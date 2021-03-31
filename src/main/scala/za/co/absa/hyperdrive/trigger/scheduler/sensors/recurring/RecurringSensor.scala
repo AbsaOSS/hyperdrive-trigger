@@ -36,15 +36,14 @@ class RecurringSensor(
     extends PollSensor[RecurringSensorProperties](eventsProcessor, sensorDefinition, executionContext) {
   private val eventDateFormatter: DateTimeFormatter = DateTimeFormatter.ISO_INSTANT
   private val logger = LoggerFactory.getLogger(this.getClass)
-  private val logMsgPrefix = s"Sensor id = ${sensorDefinition.id}."
 
   override def poll(): Future[Unit] = {
-    logger.debug(s"$logMsgPrefix. Polling new events.")
+    logger.debug("(SensorId=%d). Polling new events.", sensorDefinition.id)
 
     val fut =
       dagInstanceRepository.hasRunningDagInstance(sensorDefinition.workflowId).flatMap { hasRunningDagInstance =>
         if (hasRunningDagInstance) {
-          logger.debug(s"$logMsgPrefix. Workflow is running.")
+          logger.debug("(SensorId=%d). Workflow is running.", sensorDefinition.id)
           Future.successful((): Unit)
         } else {
           val cutOffTime = LocalDateTime.now().minus(recurringSensorConfig.duration)
@@ -53,13 +52,23 @@ class RecurringSensor(
             .flatMap { count =>
               if (count >= recurringSensorConfig.maxJobsPerDuration) {
                 logger.warn(
-                  s"Skipping dag instance creation, because $count dag instances have been created since" +
-                    s" $cutOffTime, but the allowed maximum is ${recurringSensorConfig.maxJobsPerDuration} "
+                  "(SensorId=%d). Skipping dag instance creation," +
+                    " because %d dag instances have been created since %s," +
+                    " but the allowed maximum is %d",
+                  sensorDefinition.id,
+                  count,
+                  cutOffTime,
+                  recurringSensorConfig.maxJobsPerDuration
                 )
                 Future.successful((): Unit)
               } else {
                 val sourceEventId = s"sid=${sensorDefinition.id};t=${eventDateFormatter.format(Instant.now())}"
                 val event = Event(sourceEventId, sensorDefinition.id, JsObject.empty)
+                logger.trace(
+                  "(SensorId=%d). Polling source event (SourceEventId=%s).",
+                  sensorDefinition.id,
+                  sourceEventId
+                )
                 eventsProcessor.apply(Seq(event), sensorDefinition.id).map(_ => (): Unit)
               }
             }
@@ -67,8 +76,8 @@ class RecurringSensor(
       }
 
     fut.onComplete {
-      case Success(_)         => logger.debug(s"$logMsgPrefix. Polling successful")
-      case Failure(exception) => logger.debug(s"$logMsgPrefix. Polling failed.", exception)
+      case Success(_)         => logger.debug("(SensorId=%d). Polling successful.", sensorDefinition.id)
+      case Failure(exception) => logger.warn(s"(SensorId=${sensorDefinition.id}). Polling failed.", exception)
     }
     fut
   }

@@ -29,6 +29,7 @@ import java.util.Collections
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 import za.co.absa.hyperdrive.trigger.models.{Sensor => SensorDefition}
+import za.co.absa.hyperdrive.trigger.scheduler.utilities.logging.LazyToStr
 
 class KafkaSensor(
   eventsProcessor: (Seq[Event], Long) => Future[Boolean],
@@ -37,7 +38,6 @@ class KafkaSensor(
     extends PollSensor[KafkaSensorProperties](eventsProcessor, sensorDefinition, executionContext) {
 
   private val logger = LoggerFactory.getLogger(this.getClass)
-  private val logMsgPrefix = s"Sensor id = ${sensorDefinition.id}."
 
   private val consumer = {
     val consumerProperties = kafkaConfig.properties
@@ -64,27 +64,27 @@ class KafkaSensor(
       }
     )
   } catch {
-    case e: Exception => logger.error(s"$logMsgPrefix. Exception during subscribe.", e)
+    case e: Exception => logger.error(s"(SensorId=${sensorDefinition.id}). Exception during subscribe.", e)
   }
 
   override def poll(): Future[Unit] = {
     import scala.collection.JavaConverters._
-    logger.debug(s"$logMsgPrefix. Polling new events.")
+    logger.debug("(SensorId=%d). Polling new events.", sensorDefinition.id)
     val fut = Future {
       consumer.poll(Duration.ofMillis(kafkaConfig.pollDuration)).asScala
     } flatMap processRecords map (_ => consumer.commitSync())
 
     fut.onComplete {
-      case Success(_) => logger.debug(s"$logMsgPrefix. Polling successful")
+      case Success(_) => logger.debug("(SensorId=%d). Polling successful", sensorDefinition.id)
       case Failure(exception) =>
-        logger.debug(s"$logMsgPrefix. Polling failed.", exception)
+        logger.warn(s"(SensorId=${sensorDefinition.id}). Polling failed.", exception)
     }
 
     fut
   }
 
   private def processRecords[A](records: Iterable[ConsumerRecord[A, String]]): Future[Unit] = {
-    logger.debug(s"$logMsgPrefix. Messages received = ${records.map(_.value())}")
+    logger.debug(s"(SensorId=%d). Messages received = %s", sensorDefinition.id, new LazyToStr(records.map(_.value())))
     if (records.nonEmpty) {
       val events = records.map(recordToEvent).toSeq
       val matchedEvents = events.filter { event =>
@@ -106,7 +106,7 @@ class KafkaSensor(
   private def recordToEvent[A](record: ConsumerRecord[A, String]): Event = {
     val sourceEventId = sensorDefinition.id + "kafka" + record.topic() + record.partition() + record.offset()
     val payload = Try(Json.parse(record.value())).getOrElse {
-      logger.error(s"$logMsgPrefix. Invalid message.")
+      logger.error(s"(SensorId=%d). Invalid message.", sensorDefinition.id)
       Json.parse(s"""{"errorMessage": "${record.value()}"}""")
     }
     Event(sourceEventId, sensorDefinition.id, payload)

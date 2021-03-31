@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses
 import za.co.absa.hyperdrive.trigger.models.{SchedulerInstance, Workflow}
 import za.co.absa.hyperdrive.trigger.persistance.WorkflowRepository
+import za.co.absa.hyperdrive.trigger.scheduler.utilities.logging.LazyToStr
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -45,16 +46,22 @@ class WorkflowBalancingServiceImpl @Inject() (workflowRepository: WorkflowReposi
     val activeInstances = instances.filter(_.status == SchedulerInstanceStatuses.Active)
     val myRank = getRank(activeInstances, myInstanceId)
     logger.info(
-      s"Rebalancing workflows on scheduler instance id = $myInstanceId, rank = $myRank," +
-        s" active instance ids = ${activeInstances.map(_.id).sorted}, retaining workflow ids = $runningWorkflowIds"
+      "Rebalancing workflows on scheduler instance (SchedulerId=%d), rank = %d," +
+      " active instances %s, retaining workflows %s",
+      myInstanceId,
+      myRank,
+      new LazyToStr(activeInstances.map(_.id).sorted.map(id => s"InstanceId=$id")),
+      new LazyToStr(runningWorkflowIds.map(id => s"WorkflowId=$id"))
     )
     for {
       (releasedWorkflowsCount, instancesDeletedCount) <- workflowRepository
         .releaseWorkflowAssignmentsOfDeactivatedInstances()
       _ = if (releasedWorkflowsCount > 0) {
         logger.info(
-          s"Scheduler instance id = $myInstanceId released $releasedWorkflowsCount workflows of " +
-            s"$instancesDeletedCount deactivated instances"
+          "Scheduler instance (SchedulerId=%d) released %d workflows of %d deactivated instances",
+          myInstanceId,
+          releasedWorkflowsCount,
+          instancesDeletedCount
         )
       }
       allWorkflows <- workflowRepository.getWorkflows()
@@ -72,8 +79,10 @@ class WorkflowBalancingServiceImpl @Inject() (workflowRepository: WorkflowReposi
       val acquiredWorkflowIds = acquiredWorkflows.map(_.id)
       val targetWorkflowAssignmentReached = acquiredWorkflowIds.toSet == targetWorkflowIds.toSet
       logger.debug(
-        s"Scheduler instance id = $myInstanceId acquired workflow ids ${acquiredWorkflowIds.sorted}" +
-          s" with missing target workflow ids = ${targetWorkflowIds.diff(acquiredWorkflowIds).sorted}"
+        "Scheduler instance (SchedulerId=%d) acquired workflows %s with missing target workflows %s",
+        myInstanceId,
+        new LazyToStr(acquiredWorkflowIds.sorted.map(id => s"WorkflowId=$id")),
+        new LazyToStr(targetWorkflowIds.diff(acquiredWorkflowIds).sorted.map(id => s"WorkflowId=$id"))
       )
       (acquiredWorkflows, targetWorkflowAssignmentReached)
     }
