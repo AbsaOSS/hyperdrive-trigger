@@ -26,6 +26,7 @@ const initialState: State = {
   appInfo: {
     environment: 'Unknown',
     version: 'Unknown',
+    resourceManagerUrl: 'Unknown',
   },
 };
 

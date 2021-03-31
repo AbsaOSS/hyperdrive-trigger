@@ -19,6 +19,7 @@
     <clr-dg-column>Created</clr-dg-column>
     <clr-dg-column>Updated</clr-dg-column>
     <clr-dg-column>Status</clr-dg-column>
+    <clr-dg-column>Logs</clr-dg-column>
 
     <clr-dg-placeholder>We couldn't find any jobs run!</clr-dg-placeholder>
 
@@ -37,6 +38,13 @@
         <clr-icon *ngSwitchCase="jobStatuses.SUBMISSION_TIMEOUT" shape="clock" class="has-badge is-solid" style="color: orangered"></clr-icon>
         <clr-icon *ngSwitchDefault shape="help" class="is-solid" style="color: darkgoldenrod"></clr-icon>
         {{jobInstance.jobStatus.name}}
+      </clr-dg-cell>
+      <clr-dg-cell>
+        <span *ngIf="jobInstance.applicationId">
+          <a href="{{ getApplicationIdUrl(appInfo.resourceManagerUrl, jobInstance.applicationId) }}" target="_blank"
+             style="margin-right: 2px">Logs</a>
+          <clr-icon shape="pop-out"></clr-icon>
+        </span>
       </clr-dg-cell>
     </clr-dg-row>
   </clr-datagrid>
