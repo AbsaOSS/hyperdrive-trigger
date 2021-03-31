@@ -20,5 +20,5 @@ export const jobStatuses = {
   SUCCEEDED: 'Succeeded',
   FAILED: 'Failed',
   SKIPPED: 'Skipped',
-  SUBMISSION_TIMEOUT: 'SubmissionTimeout',
+  SUBMISSION_TIMEOUT: 'Submission timeout',
 };

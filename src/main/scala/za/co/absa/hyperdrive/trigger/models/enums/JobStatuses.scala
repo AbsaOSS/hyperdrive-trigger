@@ -28,7 +28,7 @@ object JobStatuses {
   case object Succeeded extends JobStatus("Succeeded", true, false, false)
   case object Failed extends JobStatus("Failed", true, true, false)
   case object Killed extends JobStatus("Killed", true, true, false)
-  case object SubmissionTimeout extends JobStatus("SubmissionTimeout", true, true, false)
+  case object SubmissionTimeout extends JobStatus("Submission timeout", true, true, false)
   case object InvalidExecutor extends JobStatus("InvalidExecutor", true, true, false)
   case object FailedPreviousJob extends JobStatus("FailedPreviousJob", true, true, false)
   case object Skipped extends JobStatus("Skipped", true, false, false)
