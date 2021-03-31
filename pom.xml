@@ -88,6 +88,7 @@
         <slick-hikaricp.version>3.3.1</slick-hikaricp.version>
         <postgresql>42.2.6</postgresql>
         <kafka.version>2.2.0</kafka.version>
+        <embedded.kafka.version>2.2.0</embedded.kafka.version>
         <play-json.version>2.7.3</play-json.version>
         <play-ws-standalone.version>2.0.3</play-ws-standalone.version>
         <play-ahc-ws-standalone.version>2.0.2</play-ahc-ws-standalone.version>
@@ -257,6 +258,12 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.github.embeddedkafka</groupId>
+            <artifactId>embedded-kafka_2.11</artifactId>
+            <version>${embedded.kafka.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

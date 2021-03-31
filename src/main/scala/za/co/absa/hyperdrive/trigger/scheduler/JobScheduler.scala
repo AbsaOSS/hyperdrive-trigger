@@ -55,13 +55,15 @@ class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstance
   def startManager(): Unit = {
     logger.info("Starting Manager")
     if (!isManagerRunningAtomic.get() && runningScheduler.isCompleted) {
-      sensors.prepareSensors()
       isManagerRunningAtomic.set(true)
+      sensors.prepareSensors()
+      var firstIteration = true
       runningScheduler =
         Future {
           while (isManagerRunningAtomic.get()) {
             logger.debug("Running manager heart beat.")
-            assignWorkflows()
+            assignWorkflows(firstIteration)
+            firstIteration = false
             Thread.sleep(HEART_BEAT)
           }
         }
@@ -86,7 +88,7 @@ class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstance
     !runningScheduler.isCompleted
   }
 
-  private def assignWorkflows(): Unit = {
+  private def assignWorkflows(firstIteration: Boolean): Unit = {
     if (runningAssignWorkflows.isCompleted) {
       runningAssignWorkflows = workflowBalancer.getAssignedWorkflows(runningDags.keys.map(_.workflowId).toSeq)
         .recover {
@@ -98,7 +100,7 @@ class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstance
         .map(_.map(_.id))
         .map { assignedWorkflowIds =>
           removeFinishedDags()
-          processEvents(assignedWorkflowIds)
+          processEvents(assignedWorkflowIds, firstIteration)
           enqueueDags(assignedWorkflowIds)
         }
     }
@@ -122,9 +124,9 @@ class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstance
     }
   }
 
-  private def processEvents(assignedWorkflowIds: Seq[Long]): Unit = {
+  private def processEvents(assignedWorkflowIds: Seq[Long], firstIteration: Boolean): Unit = {
     if (runningSensors.isCompleted) {
-      runningSensors = sensors.processEvents(assignedWorkflowIds)
+      runningSensors = sensors.processEvents(assignedWorkflowIds, firstIteration)
       runningSensors.onComplete {
         case Success(_) =>
           logger.debug("Running sensors finished successfully.")
