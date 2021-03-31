@@ -89,7 +89,8 @@ class WebSecurityConfig {
           "/scripts*.js",
           "/styles*.css",
           "/favicon.ico",
-          "/app/info"
+          "/app/info",
+          "/admin/health"
         )
         .permitAll()
         .anyRequest()
