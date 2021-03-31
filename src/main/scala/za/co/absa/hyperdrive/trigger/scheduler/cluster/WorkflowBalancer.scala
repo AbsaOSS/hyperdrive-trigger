@@ -41,10 +41,9 @@ class WorkflowBalancer @Inject()(schedulerInstanceService: SchedulerInstanceServ
   private var previousMaxWorkflowId: Option[Long] = None
 
   def getAssignedWorkflows(runningWorkflowIds: Iterable[Long])(implicit ec: ExecutionContext): Future[Seq[Workflow]] = {
-    val lagThreshold = Duration.ofMillis(lagThresholdMillis)
     for {
       instanceId <- getOrCreateInstance
-      instances <- schedulerInstanceService.updateSchedulerStatus(instanceId, lagThreshold)
+      instances <- schedulerInstanceService.getAllInstances()
       _ = logger.debug(s"Scheduler instance $instanceId observed all instance ids = ${instances.map(_.id).sorted}")
       instancesIdStatus = instances.map(s => SchedulerIdStatus(s.id, s.status)).toSet
       isInstancesSteady = instancesIdStatus == previousInstancesIdStatus
@@ -69,7 +68,17 @@ class WorkflowBalancer @Inject()(schedulerInstanceService: SchedulerInstanceServ
     schedulerInstanceId = None
   }
 
-  private def getOrCreateInstance()(implicit ec: ExecutionContext) = {
+  def updateSchedulerStatus()(implicit ec: ExecutionContext): Future[Unit] = {
+    val lagThreshold = Duration.ofMillis(lagThresholdMillis)
+    schedulerInstanceId match {
+      case Some(instanceId) => schedulerInstanceService.updateSchedulerStatus(instanceId, lagThreshold)
+      case None =>
+        logger.info(s"Scheduler instance is not registered yet")
+        Future((): Unit)
+    }
+  }
+
+  private def getOrCreateInstance()(implicit ec: ExecutionContext): Future[Long] = {
     schedulerInstanceId match {
       case Some(id) => Future{id}
       case None => schedulerInstanceService.registerNewInstance()

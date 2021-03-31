@@ -27,18 +27,24 @@ import scala.concurrent.{ExecutionContext, Future}
 
 trait SchedulerInstanceService {
 
+  def getAllInstances()(implicit ec: ExecutionContext): Future[Seq[SchedulerInstance]]
+
   def registerNewInstance()(implicit ec: ExecutionContext): Future[Long]
 
-  def updateSchedulerStatus(instanceId: Long, lagThreshold: Duration)(implicit ec: ExecutionContext): Future[Seq[SchedulerInstance]]
+  def updateSchedulerStatus(instanceId: Long, lagThreshold: Duration)(implicit ec: ExecutionContext): Future[Unit]
 }
 
 @Service
 class SchedulerInstanceServiceImpl @Inject()(schedulerInstanceRepository: SchedulerInstanceRepository) extends SchedulerInstanceService {
   private val logger = LoggerFactory.getLogger(this.getClass)
 
+  override def getAllInstances()(implicit ec: ExecutionContext): Future[Seq[SchedulerInstance]] = {
+    schedulerInstanceRepository.getAllInstances()
+  }
+
   override def registerNewInstance()(implicit ec: ExecutionContext): Future[Long] = schedulerInstanceRepository.insertInstance()
 
-  override def updateSchedulerStatus(instanceId: Long, lagThreshold: Duration)(implicit ec: ExecutionContext): Future[Seq[SchedulerInstance]] = {
+  override def updateSchedulerStatus(instanceId: Long, lagThreshold: Duration)(implicit ec: ExecutionContext): Future[Unit] = {
     val currentHeartbeat = LocalDateTime.now()
     for {
       updatedCount <- schedulerInstanceRepository.updateHeartbeat(instanceId, currentHeartbeat)
@@ -49,7 +55,6 @@ class SchedulerInstanceServiceImpl @Inject()(schedulerInstanceRepository: Schedu
       }
       deactivatedCount <- schedulerInstanceRepository.deactivateLaggingInstances(instanceId, currentHeartbeat, lagThreshold)
       _ = if (deactivatedCount != 0) logger.debug(s"Deactivated $deactivatedCount instances at current heartbeat $currentHeartbeat")
-      allInstances <- schedulerInstanceRepository.getAllInstances()
-    } yield allInstances
+    } yield (): Unit
   }
 }

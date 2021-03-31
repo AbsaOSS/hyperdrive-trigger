@@ -50,6 +50,7 @@ class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstance
   private var runningSensors = Future.successful((): Unit)
   private var runningEnqueue = Future.successful((): Unit)
   private var runningAssignWorkflows = Future.successful((): Unit)
+  private var runningSchedulerUpdate = Future.successful((): Unit)
   private val runningDags = mutable.Map.empty[RunningDagsKey, Future[Unit]]
 
   def startManager(): Unit = {
@@ -63,6 +64,7 @@ class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstance
           while (isManagerRunningAtomic.get()) {
             logger.debug("Running manager heart beat.")
             assignWorkflows(firstIteration)
+            updateSchedulerStatus()
             firstIteration = false
             Thread.sleep(HEART_BEAT)
           }
@@ -91,18 +93,23 @@ class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstance
   private def assignWorkflows(firstIteration: Boolean): Unit = {
     if (runningAssignWorkflows.isCompleted) {
       runningAssignWorkflows = workflowBalancer.getAssignedWorkflows(runningDags.keys.map(_.workflowId).toSeq)
-        .recover {
-          case e: SchedulerInstanceAlreadyDeactivatedException =>
-            logger.error("Stopping scheduler because the instance has already been deactivated", e)
-            stopManager()
-            throw e
-        }
         .map(_.map(_.id))
         .map { assignedWorkflowIds =>
           removeFinishedDags()
           processEvents(assignedWorkflowIds, firstIteration)
           enqueueDags(assignedWorkflowIds)
         }
+    }
+  }
+
+  private def updateSchedulerStatus(): Unit = {
+    if (runningSchedulerUpdate.isCompleted) {
+      runningSchedulerUpdate = workflowBalancer.updateSchedulerStatus().recover {
+        case e: SchedulerInstanceAlreadyDeactivatedException =>
+          logger.error("Stopping scheduler because the instance has already been deactivated", e)
+          stopManager()
+          throw e
+      }
     }
   }
 
