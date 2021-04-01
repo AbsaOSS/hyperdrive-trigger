@@ -15,13 +15,12 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.utilities
 
-import java.io.File
-import java.util.UUID.randomUUID
-import java.util.Properties
-
 import com.typesafe.config.{Config, ConfigFactory}
+import org.apache.kafka.clients.consumer.ConsumerConfig
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.kafka.KafkaSettings
 
+import java.io.File
+import java.util.Properties
 import scala.collection.JavaConverters._
 import scala.util.Try
 
@@ -47,13 +46,15 @@ private object Configs {
 }
 
 object KafkaConfig {
+  private val keyDeserializer = Configs.conf.getString("kafkaSource.key.deserializer")
+  private val valueDeserializer = Configs.conf.getString("kafkaSource.value.deserializer")
+  private val maxPollRecords = Configs.conf.getString("kafkaSource.max.poll.records")
   def getConsumerProperties(kafkaSettings: KafkaSettings): Properties = {
     val properties = new Properties()
-    properties.put("bootstrap.servers", kafkaSettings.servers.mkString(","))
-    properties.put("group.id", randomUUID().toString)
-    properties.put("key.deserializer", Configs.conf.getString("kafkaSource.key.deserializer"))
-    properties.put("value.deserializer", Configs.conf.getString("kafkaSource.value.deserializer"))
-    properties.put("max.poll.records", Configs.conf.getString("kafkaSource.max.poll.records"))
+    properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaSettings.servers.mkString(","))
+    properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, keyDeserializer)
+    properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, valueDeserializer)
+    properties.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords)
 
     Configs.getMapFromConf("kafkaSource.properties").foreach { case (key, value)  =>
       properties.put(key, value)
@@ -62,6 +63,8 @@ object KafkaConfig {
     properties
   }
 
+  val getBaseGroupId: String =
+    s"${Configs.conf.getString("kafkaSource.group.id.prefix")}_${Configs.conf.getString("appUniqueId")}"
   val getPollDuration: Long =
     Configs.conf.getLong("kafkaSource.poll.duration")
 }
@@ -85,8 +88,11 @@ object SchedulerConfig {
 object ExecutorsConfig {
   val getThreadPoolSize: Int =
     Configs.conf.getInt("scheduler.executors.thread.pool.size")
+}
+
+object ShellExecutorConfig {
   val getExecutablesFolder: String =
-    Configs.conf.getString("scheduler.executors.executablesFolder")
+    Configs.conf.getString("shellExecutor.executablesFolder")
 }
 
 object SparkExecutorConfig {
@@ -104,6 +110,8 @@ object SparkExecutorConfig {
     Try(Configs.conf.getString("sparkYarnSink.filesToDeploy").split(",").toSeq).getOrElse(Seq.empty[String])
   val getAdditionalConfs: Map[String, String] =
     Configs.getMapFromConf("sparkYarnSink.additionalConfs")
+  val getExecutablesFolder: String =
+    Configs.conf.getString("sparkYarnSink.executablesFolder")
 }
 
 object JobDefinitionConfig {
