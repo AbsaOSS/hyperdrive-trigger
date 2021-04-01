@@ -28,11 +28,12 @@ object JobStatuses {
   case object Succeeded extends JobStatus("Succeeded", true, false, false)
   case object Failed extends JobStatus("Failed", true, true, false)
   case object Killed extends JobStatus("Killed", true, true, false)
+  case object SubmissionTimeout extends JobStatus("Submission timeout", true, true, false)
   case object InvalidExecutor extends JobStatus("InvalidExecutor", true, true, false)
   case object FailedPreviousJob extends JobStatus("FailedPreviousJob", true, true, false)
   case object Skipped extends JobStatus("Skipped", true, false, false)
 
-  val statuses: Set[JobStatus] = Set(InQueue,Submitting,Running,Lost,Succeeded,Failed,Killed,InvalidExecutor,FailedPreviousJob,Skipped)
+  val statuses: Set[JobStatus] = Set(InQueue,Submitting,Running,Lost,Succeeded,Failed,Killed,SubmissionTimeout,InvalidExecutor,FailedPreviousJob,Skipped)
   val finalStatuses: Set[JobStatus] = statuses.filter(!_.isFinalStatus)
   val nonFinalStatuses: Set[JobStatus] = statuses.filter(_.isFinalStatus)
 }
