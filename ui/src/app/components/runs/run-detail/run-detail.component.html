@@ -40,11 +40,14 @@
         {{jobInstance.jobStatus.name}}
       </clr-dg-cell>
       <clr-dg-cell>
-        <span *ngIf="jobInstance.applicationId">
+        <ng-template [ngIf]="jobInstance.applicationId" [ngIfElse]="noApplicationId">
           <a href="{{ getApplicationIdUrl(appInfo.resourceManagerUrl, jobInstance.applicationId) }}" target="_blank"
              style="margin-right: 2px">Logs</a>
           <clr-icon shape="pop-out"></clr-icon>
-        </span>
+        </ng-template>
+        <ng-template #noApplicationId>
+          N/A
+        </ng-template>
       </clr-dg-cell>
     </clr-dg-row>
   </clr-datagrid>
