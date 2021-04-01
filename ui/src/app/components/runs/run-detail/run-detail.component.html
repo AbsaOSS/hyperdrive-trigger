@@ -42,7 +42,7 @@
       <clr-dg-cell>
         <ng-template [ngIf]="jobInstance.applicationId" [ngIfElse]="noApplicationId">
           <a href="{{ getApplicationIdUrl(appInfo.resourceManagerUrl, jobInstance.applicationId) }}" target="_blank"
-             style="margin-right: 2px">Logs</a>
+             style="margin-right: 2px" rel=noopener>Logs</a>
           <clr-icon shape="pop-out"></clr-icon>
         </ng-template>
         <ng-template #noApplicationId>
