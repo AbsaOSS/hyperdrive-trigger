@@ -88,8 +88,11 @@ object SchedulerConfig {
 object ExecutorsConfig {
   val getThreadPoolSize: Int =
     Configs.conf.getInt("scheduler.executors.thread.pool.size")
+}
+
+object ShellExecutorConfig {
   val getExecutablesFolder: String =
-    Configs.conf.getString("scheduler.executors.executablesFolder")
+    Configs.conf.getString("shellExecutor.executablesFolder")
 }
 
 object SparkExecutorConfig {
@@ -107,6 +110,8 @@ object SparkExecutorConfig {
     Try(Configs.conf.getString("sparkYarnSink.filesToDeploy").split(",").toSeq).getOrElse(Seq.empty[String])
   val getAdditionalConfs: Map[String, String] =
     Configs.getMapFromConf("sparkYarnSink.additionalConfs")
+  val getExecutablesFolder: String =
+    Configs.conf.getString("sparkYarnSink.executablesFolder")
 }
 
 object JobDefinitionConfig {
