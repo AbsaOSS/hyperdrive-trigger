@@ -19,6 +19,7 @@ import { ClarityModule } from '@clr/angular';
 import { FormsModule } from '@angular/forms';
 import { LoginComponent } from './login.component';
 import * as fromApp from '../../../stores/app.reducers';
+import { AppInfoModelFactory } from '../../../models/appInfo.model';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
@@ -33,10 +34,7 @@ describe('LoginComponent', () => {
 
   const initialApplicationState = {
     loading: true,
-    appInfo: {
-      environment: 'Undefined',
-      version: 'Undefined',
-    },
+    appInfo: AppInfoModelFactory.create('Undefined', 'Undefined', 'Undefined'),
   };
 
   const initialAppState = {

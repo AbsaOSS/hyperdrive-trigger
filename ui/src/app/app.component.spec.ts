@@ -21,6 +21,7 @@ import { AppComponent } from './app.component';
 import * as fromApp from './stores/app.reducers';
 import { selectAuthState } from './stores/app.reducers';
 import { Router } from '@angular/router';
+import { AppInfoModelFactory } from './models/appInfo.model';
 
 describe('AppComponent', () => {
   let underTest: AppComponent;
@@ -37,10 +38,7 @@ describe('AppComponent', () => {
 
   const initialApplicationState = {
     loading: false,
-    appInfo: {
-      environment: 'Undefined',
-      version: 'Undefined',
-    },
+    appInfo: AppInfoModelFactory.create('Undefined', 'Undefined', 'Undefined'),
   };
 
   const initialAppState = {

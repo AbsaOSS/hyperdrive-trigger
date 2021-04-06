@@ -33,10 +33,7 @@ describe('ApplicationEffects', () => {
 
   const initialAppState = {
     loading: true,
-    appInfo: {
-      environment: 'Undefined',
-      version: 'Undefined',
-    },
+    appInfo: AppInfoModelFactory.create('Undefined', 'Undefined', 'Undefined'),
   };
 
   beforeEach(() => {
@@ -56,7 +53,7 @@ describe('ApplicationEffects', () => {
 
   describe('appInfoLoad', () => {
     it('should return app info when service returns success', () => {
-      const response = AppInfoModelFactory.create('environment', 'version');
+      const response = AppInfoModelFactory.create('environment', 'version', 'localhost:8088');
 
       const action = new LoadAppInfo();
       mockActions = cold('-a', { a: action });
