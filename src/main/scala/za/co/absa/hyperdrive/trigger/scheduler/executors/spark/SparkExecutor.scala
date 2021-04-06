@@ -64,7 +64,9 @@ object SparkExecutor extends Executor {
         case Some(asd) => asd.apps.app
         case None => Seq.empty
       }) match {
-        case Seq(first) => updateJob(jobInstance.copy(jobStatus = getStatus(first.finalStatus)))
+        case Seq(first) => updateJob(jobInstance.copy(
+          applicationId = Some(first.id),
+          jobStatus = getStatus(first.finalStatus)))
         case _ if jobInstance.jobStatus == Submitting => updateJob(jobInstance.copy(jobStatus = SubmissionTimeout))
         case _ => updateJob(jobInstance.copy(jobStatus = Lost))
       }

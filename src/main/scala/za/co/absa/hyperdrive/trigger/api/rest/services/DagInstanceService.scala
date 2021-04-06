@@ -60,6 +60,7 @@ class DagInstanceServiceImpl(override val jobTemplateService: JobTemplateService
         jobParameters = resolvedJobDefinition.jobParameters,
         jobStatus = initialJobStatus,
         executorJobId = None,
+        applicationId = None,
         created = now,
         updated = finished,
         order = resolvedJobDefinition.order,

@@ -42,7 +42,7 @@ describe('AppInfoService', () => {
   });
 
   it('getAppInfo() should return app info', () => {
-    const appInfo = AppInfoModelFactory.create('environment', 'version');
+    const appInfo = AppInfoModelFactory.create('environment', 'version', 'localhost:8088');
 
     underTest.getAppInfo().subscribe(
       (data) => expect(data).toEqual(appInfo),

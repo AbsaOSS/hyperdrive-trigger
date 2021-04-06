@@ -13,14 +13,4 @@
  * limitations under the License.
  */
 
-export type AppInfoModel = {
-  environment: string;
-  version: string;
-  resourceManagerUrl: string;
-};
-
-export class AppInfoModelFactory {
-  static create(environment: string, version: string, resourceManagerUrl: string): AppInfoModel {
-    return { environment: environment, version: version, resourceManagerUrl: resourceManagerUrl };
-  }
-}
+alter table "job_instance" add column "application_id" VARCHAR;
