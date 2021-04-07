@@ -23,13 +23,15 @@ describe('ConfirmationDialogComponent', () => {
   let fixture: ComponentFixture<ConfirmationDialogComponent>;
   let confirmationDialogService: ConfirmationDialogService;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      providers: [ConfirmationDialogService],
-      declarations: [ConfirmationDialogComponent],
-    }).compileComponents();
-    confirmationDialogService = TestBed.inject(ConfirmationDialogService);
-  }));
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        providers: [ConfirmationDialogService],
+        declarations: [ConfirmationDialogComponent],
+      }).compileComponents();
+      confirmationDialogService = TestBed.inject(ConfirmationDialogService);
+    }),
+  );
 
   beforeEach(() => {
     fixture = TestBed.createComponent(ConfirmationDialogComponent);

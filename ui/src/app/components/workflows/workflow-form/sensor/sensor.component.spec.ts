@@ -64,11 +64,13 @@ describe('SensorComponent', () => {
     ),
   );
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      declarations: [SensorComponent],
-    }).compileComponents();
-  }));
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        declarations: [SensorComponent],
+      }).compileComponents();
+    }),
+  );
 
   beforeEach(() => {
     fixture = TestBed.createComponent(SensorComponent);
@@ -84,80 +86,101 @@ describe('SensorComponent', () => {
     expect(underTest).toBeTruthy();
   });
 
-  it('should dispatch workflow sensor change when value is received', waitForAsync(() => {
-    const usedWorkflowEntry = WorkflowEntryModelFactory.create('property', 'value');
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      const storeSpy = spyOn(underTest.changes, 'next');
-      underTest.sensorChanges.next(usedWorkflowEntry);
+  it(
+    'should dispatch workflow sensor change when value is received',
+    waitForAsync(() => {
+      const usedWorkflowEntry = WorkflowEntryModelFactory.create('property', 'value');
       fixture.detectChanges();
-
       fixture.whenStable().then(() => {
-        expect(storeSpy).toHaveBeenCalledTimes(1);
-        expect(storeSpy).toHaveBeenCalledWith(new WorkflowSensorChanged(usedWorkflowEntry));
+        const storeSpy = spyOn(underTest.changes, 'next');
+        underTest.sensorChanges.next(usedWorkflowEntry);
+        fixture.detectChanges();
+
+        fixture.whenStable().then(() => {
+          expect(storeSpy).toHaveBeenCalledTimes(1);
+          expect(storeSpy).toHaveBeenCalledWith(new WorkflowSensorChanged(usedWorkflowEntry));
+        });
       });
-    });
-  }));
+    }),
+  );
 
-  it('should dispatch workflow sensor type switch when value for switch is received', waitForAsync(() => {
-    const usedWorkflowEntry = WorkflowEntryModelFactory.create(workflowFormParts.sensorSwitchPart.property, 'value');
+  it(
+    'should dispatch workflow sensor type switch when value for switch is received',
+    waitForAsync(() => {
+      const usedWorkflowEntry = WorkflowEntryModelFactory.create(workflowFormParts.sensorSwitchPart.property, 'value');
 
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      const storeSpy = spyOn(underTest.changes, 'next');
-      underTest.sensorChanges.next(usedWorkflowEntry);
       fixture.detectChanges();
-
       fixture.whenStable().then(() => {
-        expect(storeSpy).toHaveBeenCalledTimes(1);
-        expect(storeSpy).toHaveBeenCalledWith(new WorkflowSensorTypeSwitched(usedWorkflowEntry));
+        const storeSpy = spyOn(underTest.changes, 'next');
+        underTest.sensorChanges.next(usedWorkflowEntry);
+        fixture.detectChanges();
+
+        fixture.whenStable().then(() => {
+          expect(storeSpy).toHaveBeenCalledTimes(1);
+          expect(storeSpy).toHaveBeenCalledWith(new WorkflowSensorTypeSwitched(usedWorkflowEntry));
+        });
       });
-    });
-  }));
+    }),
+  );
 
-  it('getSensorTypes() should return sensor types', waitForAsync(() => {
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      const result = underTest.getSensorTypes();
-      expect(result).toEqual(workflowFormParts.sensorSwitchPart.options);
-    });
-  }));
+  it(
+    'getSensorTypes() should return sensor types',
+    waitForAsync(() => {
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        const result = underTest.getSensorTypes();
+        expect(result).toEqual(workflowFormParts.sensorSwitchPart.options);
+      });
+    }),
+  );
 
-  it('getSelectedSensorComponent() should return first dynamic parts when no sensor is selected', waitForAsync(() => {
-    underTest.sensorData = [];
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      const resultLeft = underTest.getSelectedSensorComponent();
-      const resultRight = workflowFormParts.dynamicParts.sensorDynamicParts[0].parts;
+  it(
+    'getSelectedSensorComponent() should return first dynamic parts when no sensor is selected',
+    waitForAsync(() => {
+      underTest.sensorData = [];
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        const resultLeft = underTest.getSelectedSensorComponent();
+        const resultRight = workflowFormParts.dynamicParts.sensorDynamicParts[0].parts;
 
-      expect(resultLeft).toEqual(resultRight);
-    });
-  }));
+        expect(resultLeft).toEqual(resultRight);
+      });
+    }),
+  );
 
-  it('getSelectedSensorComponent() should return dynamic parts when sensor is selected', waitForAsync(() => {
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      const resultLeft = underTest.getSelectedSensorComponent();
-      const resultRight = workflowFormParts.dynamicParts.sensorDynamicParts[1].parts;
+  it(
+    'getSelectedSensorComponent() should return dynamic parts when sensor is selected',
+    waitForAsync(() => {
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        const resultLeft = underTest.getSelectedSensorComponent();
+        const resultRight = workflowFormParts.dynamicParts.sensorDynamicParts[1].parts;
 
-      expect(resultLeft).toEqual(resultRight);
-    });
-  }));
+        expect(resultLeft).toEqual(resultRight);
+      });
+    }),
+  );
 
-  it('getValue() should return value when property exists', waitForAsync(() => {
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      const queriedDetail = sensorData[0];
-      expect(underTest.getValue(queriedDetail.property)).toBe(queriedDetail.value);
-    });
-  }));
+  it(
+    'getValue() should return value when property exists',
+    waitForAsync(() => {
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        const queriedDetail = sensorData[0];
+        expect(underTest.getValue(queriedDetail.property)).toBe(queriedDetail.value);
+      });
+    }),
+  );
 
-  it('getValue() should return undefined when property does not exist', waitForAsync(() => {
-    const undefinedProperty = 'undefinedProperty';
+  it(
+    'getValue() should return undefined when property does not exist',
+    waitForAsync(() => {
+      const undefinedProperty = 'undefinedProperty';
 
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(underTest.getValue(undefinedProperty)).toBe(undefined);
-    });
-  }));
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(underTest.getValue(undefinedProperty)).toBe(undefined);
+      });
+    }),
+  );
 });

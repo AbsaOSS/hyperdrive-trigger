@@ -37,15 +37,17 @@ describe('WelcomeComponent', () => {
     runs: {},
   };
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      providers: [provideMockStore({ initialState: initialAppState })],
-      declarations: [WelcomeComponent],
-      imports: [RouterTestingModule, ClarityModule, FormsModule],
-    }).compileComponents();
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        providers: [provideMockStore({ initialState: initialAppState })],
+        declarations: [WelcomeComponent],
+        imports: [RouterTestingModule, ClarityModule, FormsModule],
+      }).compileComponents();
 
-    mockStore = TestBed.inject(MockStore);
-  }));
+      mockStore = TestBed.inject(MockStore);
+    }),
+  );
 
   beforeEach(() => {
     fixture = TestBed.createComponent(WelcomeComponent);

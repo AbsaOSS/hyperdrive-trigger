@@ -21,11 +21,13 @@ import { DagRunModelFactory } from '../../../../../models/dagRuns/dagRun.model';
 describe('NumberRangeFilterComponent', () => {
   let fixture: ComponentFixture<NumberRangeFilterComponent>;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      declarations: [NumberRangeFilterComponent],
-    }).compileComponents();
-  }));
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        declarations: [NumberRangeFilterComponent],
+      }).compileComponents();
+    }),
+  );
 
   beforeEach(() => {
     fixture = TestBed.createComponent(NumberRangeFilterComponent);

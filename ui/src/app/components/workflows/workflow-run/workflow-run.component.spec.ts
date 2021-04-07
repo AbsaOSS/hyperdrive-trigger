@@ -37,13 +37,15 @@ describe('WorkflowRunComponent', () => {
     },
   };
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      declarations: [WorkflowRunComponent],
-      providers: [provideMockStore({ initialState: initialAppState })],
-    }).compileComponents();
-    store = TestBed.inject(Store);
-  }));
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        declarations: [WorkflowRunComponent],
+        providers: [provideMockStore({ initialState: initialAppState })],
+      }).compileComponents();
+      store = TestBed.inject(Store);
+    }),
+  );
 
   beforeEach(() => {
     fixture = TestBed.createComponent(WorkflowRunComponent);
@@ -54,16 +56,19 @@ describe('WorkflowRunComponent', () => {
     expect(underTest).toBeTruthy();
   });
 
-  it('should set properties during on init', waitForAsync(() => {
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      const sortedJobs = [...initialAppState.workflows.jobsForRun.jobs].sort((left, right) => left.order - right.order);
-      expect(underTest.isOpen).toBe(initialAppState.workflows.jobsForRun.isOpen);
-      expect(underTest.workflowId).toBe(initialAppState.workflows.jobsForRun.workflowId);
-      expect(underTest.jobs).toEqual(sortedJobs);
-      expect(underTest.selectedJobs).toEqual(sortedJobs.map((job) => job.id));
-    });
-  }));
+  it(
+    'should set properties during on init',
+    waitForAsync(() => {
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        const sortedJobs = [...initialAppState.workflows.jobsForRun.jobs].sort((left, right) => left.order - right.order);
+        expect(underTest.isOpen).toBe(initialAppState.workflows.jobsForRun.isOpen);
+        expect(underTest.workflowId).toBe(initialAppState.workflows.jobsForRun.workflowId);
+        expect(underTest.jobs).toEqual(sortedJobs);
+        expect(underTest.selectedJobs).toEqual(sortedJobs.map((job) => job.id));
+      });
+    }),
+  );
 
   it('changeSelection() should insert or remove selected job', () => {
     const selectedJobs = [];

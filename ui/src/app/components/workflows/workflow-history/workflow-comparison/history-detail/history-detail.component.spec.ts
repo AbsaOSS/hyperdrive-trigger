@@ -21,11 +21,13 @@ describe('HistoryDetailComponent', () => {
   let underTest: HistoryDetailComponent;
   let fixture: ComponentFixture<HistoryDetailComponent>;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      declarations: [HistoryDetailComponent],
-    }).compileComponents();
-  }));
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        declarations: [HistoryDetailComponent],
+      }).compileComponents();
+    }),
+  );
 
   beforeEach(() => {
     fixture = TestBed.createComponent(HistoryDetailComponent);
@@ -36,11 +38,14 @@ describe('HistoryDetailComponent', () => {
     expect(underTest).toBeTruthy();
   });
 
-  it('toggleHistoryDetailAccordion() should toggle a history detail', waitForAsync(() => {
-    expect(underTest.isHistoryDetailHidden).toBeFalsy();
-    underTest.toggleHistoryDetailAccordion();
-    expect(underTest.isHistoryDetailHidden).toBeTruthy();
-    underTest.toggleHistoryDetailAccordion();
-    expect(underTest.isHistoryDetailHidden).toBeFalsy();
-  }));
+  it(
+    'toggleHistoryDetailAccordion() should toggle a history detail',
+    waitForAsync(() => {
+      expect(underTest.isHistoryDetailHidden).toBeFalsy();
+      underTest.toggleHistoryDetailAccordion();
+      expect(underTest.isHistoryDetailHidden).toBeTruthy();
+      underTest.toggleHistoryDetailAccordion();
+      expect(underTest.isHistoryDetailHidden).toBeFalsy();
+    }),
+  );
 });

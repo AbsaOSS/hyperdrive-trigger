@@ -21,11 +21,13 @@ describe('JobTemplatesComponent', () => {
   let component: JobTemplatesComponent;
   let fixture: ComponentFixture<JobTemplatesComponent>;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      declarations: [JobTemplatesComponent],
-    }).compileComponents();
-  }));
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        declarations: [JobTemplatesComponent],
+      }).compileComponents();
+    }),
+  );
 
   beforeEach(() => {
     fixture = TestBed.createComponent(JobTemplatesComponent);

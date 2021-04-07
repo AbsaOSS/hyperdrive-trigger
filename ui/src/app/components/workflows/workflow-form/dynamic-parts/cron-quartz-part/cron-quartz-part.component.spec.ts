@@ -35,15 +35,17 @@ describe('CronQuartzPartComponent', () => {
   let toastrService: ToastrService;
   let utilService: UtilService;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      providers: [UtilService, CronQuartzPartComponent],
-      imports: [HttpClientTestingModule, ToastrModule.forRoot()],
-    }).compileComponents();
-    underTest = TestBed.inject(CronQuartzPartComponent);
-    toastrService = TestBed.inject(ToastrService);
-    utilService = TestBed.inject(UtilService);
-  }));
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        providers: [UtilService, CronQuartzPartComponent],
+        imports: [HttpClientTestingModule, ToastrModule.forRoot()],
+      }).compileComponents();
+      underTest = TestBed.inject(CronQuartzPartComponent);
+      toastrService = TestBed.inject(ToastrService);
+      utilService = TestBed.inject(UtilService);
+    }),
+  );
 
   it('should create', () => {
     expect(underTest).toBeTruthy();

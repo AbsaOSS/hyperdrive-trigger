@@ -44,11 +44,13 @@ describe('JobsComponent', () => {
   );
   const changes: Subject<Action> = new Subject<Action>();
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      declarations: [JobsComponent],
-    }).compileComponents();
-  }));
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        declarations: [JobsComponent],
+      }).compileComponents();
+    }),
+  );
 
   beforeEach(() => {
     fixture = TestBed.createComponent(JobsComponent);
@@ -65,111 +67,141 @@ describe('JobsComponent', () => {
     expect(underTest).toBeTruthy();
   });
 
-  it('when jobsUnfold event is received it should clear hidden jobs', waitForAsync(() => {
-    const hiddenJobs = new Set<string>().add('abcd');
-    underTest.hiddenJobs = hiddenJobs;
+  it(
+    'when jobsUnfold event is received it should clear hidden jobs',
+    waitForAsync(() => {
+      const hiddenJobs = new Set<string>().add('abcd');
+      underTest.hiddenJobs = hiddenJobs;
 
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(underTest.hiddenJobs.size).toEqual(hiddenJobs.size);
-      underTest.jobsUnfold.next();
       fixture.detectChanges();
       fixture.whenStable().then(() => {
-        expect(underTest.hiddenJobs.size).toEqual(0);
+        expect(underTest.hiddenJobs.size).toEqual(hiddenJobs.size);
+        underTest.jobsUnfold.next();
+        fixture.detectChanges();
+        fixture.whenStable().then(() => {
+          expect(underTest.hiddenJobs.size).toEqual(0);
+        });
       });
-    });
-  }));
+    }),
+  );
 
-  it('toggleJob() should toggle a job', waitForAsync(() => {
-    expect(underTest.hiddenJobs.size).toEqual(0);
-    underTest.toggleJob('abcd');
-    expect(underTest.hiddenJobs.size).toEqual(1);
-    expect(underTest.hiddenJobs).toContain('abcd');
-    underTest.toggleJob('abcd');
-    expect(underTest.hiddenJobs.size).toEqual(0);
-  }));
+  it(
+    'toggleJob() should toggle a job',
+    waitForAsync(() => {
+      expect(underTest.hiddenJobs.size).toEqual(0);
+      underTest.toggleJob('abcd');
+      expect(underTest.hiddenJobs.size).toEqual(1);
+      expect(underTest.hiddenJobs).toContain('abcd');
+      underTest.toggleJob('abcd');
+      expect(underTest.hiddenJobs.size).toEqual(0);
+    }),
+  );
 
-  it('isJobHidden() should return whether is job hidden', waitForAsync(() => {
-    underTest.hiddenJobs = new Set<string>().add('abcd');
+  it(
+    'isJobHidden() should return whether is job hidden',
+    waitForAsync(() => {
+      underTest.hiddenJobs = new Set<string>().add('abcd');
 
-    expect(underTest.isJobHidden('abcd')).toBeTrue();
-    expect(underTest.isJobHidden('9999')).toBeFalse();
-  }));
+      expect(underTest.isJobHidden('abcd')).toBeTrue();
+      expect(underTest.isJobHidden('9999')).toBeFalse();
+    }),
+  );
 
-  it('getJobName() should return job name', waitForAsync(() => {
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(underTest.getJobName(uuid)).toBe('value');
-    });
-  }));
+  it(
+    'getJobName() should return job name',
+    waitForAsync(() => {
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(underTest.getJobName(uuid)).toBe('value');
+      });
+    }),
+  );
 
-  it('getJobName() should return empty string when job is not found', waitForAsync(() => {
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(underTest.getJobName('9999')).toBe('');
-    });
-  }));
+  it(
+    'getJobName() should return empty string when job is not found',
+    waitForAsync(() => {
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(underTest.getJobName('9999')).toBe('');
+      });
+    }),
+  );
 
-  it('addJob() add job actions should be dispatched', waitForAsync(() => {
-    const changesSpy = spyOn(underTest.changes, 'next');
+  it(
+    'addJob() add job actions should be dispatched',
+    waitForAsync(() => {
+      const changesSpy = spyOn(underTest.changes, 'next');
 
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      underTest.addJob();
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        underTest.addJob();
 
-      expect(changesSpy).toHaveBeenCalledTimes(1);
-      expect(changesSpy).toHaveBeenCalledWith(new WorkflowAddEmptyJob(jobsData.length));
-    });
-  }));
+        expect(changesSpy).toHaveBeenCalledTimes(1);
+        expect(changesSpy).toHaveBeenCalledWith(new WorkflowAddEmptyJob(jobsData.length));
+      });
+    }),
+  );
 
-  it('removeJob() remove job actions should be dispatched', waitForAsync(() => {
-    const changesSpy = spyOn(underTest.changes, 'next');
+  it(
+    'removeJob() remove job actions should be dispatched',
+    waitForAsync(() => {
+      const changesSpy = spyOn(underTest.changes, 'next');
 
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      underTest.removeJob('abcdef');
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        underTest.removeJob('abcdef');
 
-      expect(changesSpy).toHaveBeenCalledTimes(1);
-      expect(changesSpy).toHaveBeenCalledWith(new WorkflowRemoveJob('abcdef'));
-    });
-  }));
+        expect(changesSpy).toHaveBeenCalledTimes(1);
+        expect(changesSpy).toHaveBeenCalledWith(new WorkflowRemoveJob('abcdef'));
+      });
+    }),
+  );
 
-  it('copyJob() copy job action should be dispatched', waitForAsync(() => {
-    const changesSpy = spyOn(underTest.changes, 'next');
+  it(
+    'copyJob() copy job action should be dispatched',
+    waitForAsync(() => {
+      const changesSpy = spyOn(underTest.changes, 'next');
 
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      underTest.copyJob('abcdef');
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        underTest.copyJob('abcdef');
 
-      expect(changesSpy).toHaveBeenCalledTimes(1);
-      expect(changesSpy).toHaveBeenCalledWith(new WorkflowCopyJob('abcdef'));
-    });
-  }));
+        expect(changesSpy).toHaveBeenCalledTimes(1);
+        expect(changesSpy).toHaveBeenCalledWith(new WorkflowCopyJob('abcdef'));
+      });
+    }),
+  );
 
-  it('reorderJobs() reorder jobs actions should be dispatched when positions are not equal', waitForAsync(() => {
-    const initialJobPosition = 1;
-    const updatedJobPosition = 5;
-    const changesSpy = spyOn(underTest.changes, 'next');
+  it(
+    'reorderJobs() reorder jobs actions should be dispatched when positions are not equal',
+    waitForAsync(() => {
+      const initialJobPosition = 1;
+      const updatedJobPosition = 5;
+      const changesSpy = spyOn(underTest.changes, 'next');
 
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      underTest.reorderJobs(initialJobPosition, updatedJobPosition);
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        underTest.reorderJobs(initialJobPosition, updatedJobPosition);
 
-      expect(changesSpy).toHaveBeenCalledTimes(1);
-      expect(changesSpy).toHaveBeenCalledWith(new WorkflowJobsReorder({ initialJobPosition, updatedJobPosition }));
-    });
-  }));
+        expect(changesSpy).toHaveBeenCalledTimes(1);
+        expect(changesSpy).toHaveBeenCalledWith(new WorkflowJobsReorder({ initialJobPosition, updatedJobPosition }));
+      });
+    }),
+  );
 
-  it('reorderJobs() reorder jobs actions should not be dispatched when positions are equal', waitForAsync(() => {
-    const initialJobPosition = 5;
-    const updatedJobPosition = 5;
-    const changesSpy = spyOn(underTest.changes, 'next');
+  it(
+    'reorderJobs() reorder jobs actions should not be dispatched when positions are equal',
+    waitForAsync(() => {
+      const initialJobPosition = 5;
+      const updatedJobPosition = 5;
+      const changesSpy = spyOn(underTest.changes, 'next');
 
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      underTest.reorderJobs(initialJobPosition, updatedJobPosition);
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        underTest.reorderJobs(initialJobPosition, updatedJobPosition);
 
-      expect(changesSpy).toHaveBeenCalledTimes(0);
-    });
-  }));
+        expect(changesSpy).toHaveBeenCalledTimes(0);
+      });
+    }),
+  );
 });

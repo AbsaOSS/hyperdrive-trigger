@@ -21,11 +21,13 @@ import { DagRunModelFactory } from '../../../../../models/dagRuns/dagRun.model';
 describe('MultipleStatusFilterComponent', () => {
   let fixture: ComponentFixture<MultipleStatusFilterComponent>;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      declarations: [MultipleStatusFilterComponent],
-    }).compileComponents();
-  }));
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        declarations: [MultipleStatusFilterComponent],
+      }).compileComponents();
+    }),
+  );
 
   beforeEach(() => {
     fixture = TestBed.createComponent(MultipleStatusFilterComponent);

@@ -47,18 +47,20 @@ describe('AppComponent', () => {
     runs: {},
   };
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      imports: [RouterTestingModule, ClarityModule],
-      providers: [provideMockStore({ initialState: initialAppState })],
-      declarations: [AppComponent],
-    }).compileComponents();
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        imports: [RouterTestingModule, ClarityModule],
+        providers: [provideMockStore({ initialState: initialAppState })],
+        declarations: [AppComponent],
+      }).compileComponents();
 
-    mockStore = TestBed.inject(MockStore);
-    mockRouter = TestBed.inject(Router);
-    fixture = TestBed.createComponent(AppComponent);
-    underTest = fixture.componentInstance;
-  }));
+      mockStore = TestBed.inject(MockStore);
+      mockRouter = TestBed.inject(Router);
+      fixture = TestBed.createComponent(AppComponent);
+      underTest = fixture.componentInstance;
+    }),
+  );
 
   it('should create the app', () => {
     fixture.detectChanges();

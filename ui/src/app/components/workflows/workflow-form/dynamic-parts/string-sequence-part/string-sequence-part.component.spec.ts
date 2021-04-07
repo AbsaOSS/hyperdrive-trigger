@@ -29,13 +29,15 @@ describe('StringSequencePartComponent', () => {
 
   const inputSelector: Predicate<DebugElement> = By.css('input[type="text"]');
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      declarations: [StringSequencePartComponent],
-      imports: [FormsModule],
-      providers: [NgForm],
-    }).compileComponents();
-  }));
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        declarations: [StringSequencePartComponent],
+        imports: [FormsModule],
+        providers: [NgForm],
+      }).compileComponents();
+    }),
+  );
 
   beforeEach(() => {
     fixture = TestBed.createComponent(StringSequencePartComponent);
@@ -80,97 +82,106 @@ describe('StringSequencePartComponent', () => {
     });
   });
 
-  it('should change value and publish change on user input', waitForAsync(() => {
-    const oldItem = 'two';
-    const newItem = 'changed';
-    const oldValue = ['one', oldItem, 'three'];
-    const newValue = ['one', newItem, 'three'];
-    const propertyName = 'property';
-    const testedSubject = new Subject<WorkflowEntryModel>();
-    const subjectSpy = spyOn(testedSubject, 'next');
-    const partValidation = PartValidationFactory.create(true, 5, 50);
+  it(
+    'should change value and publish change on user input',
+    waitForAsync(() => {
+      const oldItem = 'two';
+      const newItem = 'changed';
+      const oldValue = ['one', oldItem, 'three'];
+      const newValue = ['one', newItem, 'three'];
+      const propertyName = 'property';
+      const testedSubject = new Subject<WorkflowEntryModel>();
+      const subjectSpy = spyOn(testedSubject, 'next');
+      const partValidation = PartValidationFactory.create(true, 5, 50);
 
-    underTest.isShow = false;
-    underTest.name = 'name';
-    underTest.value = oldValue;
-    underTest.property = propertyName;
-    underTest.valueChanges = testedSubject;
-    underTest.partValidation = partValidation;
-
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      const inputElement = fixture.debugElement.queryAll(inputSelector)[1];
-
-      inputElement.nativeElement.value = newItem;
-      inputElement.nativeElement.dispatchEvent(new Event('input'));
+      underTest.isShow = false;
+      underTest.name = 'name';
+      underTest.value = oldValue;
+      underTest.property = propertyName;
+      underTest.valueChanges = testedSubject;
+      underTest.partValidation = partValidation;
 
       fixture.detectChanges();
       fixture.whenStable().then(() => {
-        const testedValue = fixture.debugElement.queryAll(inputSelector)[1].nativeElement.value;
-        expect(testedValue).toBe(newItem);
-        expect(subjectSpy).toHaveBeenCalled();
-        expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValue));
+        const inputElement = fixture.debugElement.queryAll(inputSelector)[1];
+
+        inputElement.nativeElement.value = newItem;
+        inputElement.nativeElement.dispatchEvent(new Event('input'));
+
+        fixture.detectChanges();
+        fixture.whenStable().then(() => {
+          const testedValue = fixture.debugElement.queryAll(inputSelector)[1].nativeElement.value;
+          expect(testedValue).toBe(newItem);
+          expect(subjectSpy).toHaveBeenCalled();
+          expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValue));
+        });
       });
-    });
-  }));
+    }),
+  );
 
-  it('onDeleteValue() should remove element from value and publish change', waitForAsync(() => {
-    const oldValue = ['one', 'two', 'three'];
-    const newValue = ['one', 'three'];
-    const propertyName = 'property';
-    const testedSubject = new Subject<WorkflowEntryModel>();
-    const subjectSpy = spyOn(testedSubject, 'next');
-    const partValidation = PartValidationFactory.create(true, 5, 50);
+  it(
+    'onDeleteValue() should remove element from value and publish change',
+    waitForAsync(() => {
+      const oldValue = ['one', 'two', 'three'];
+      const newValue = ['one', 'three'];
+      const propertyName = 'property';
+      const testedSubject = new Subject<WorkflowEntryModel>();
+      const subjectSpy = spyOn(testedSubject, 'next');
+      const partValidation = PartValidationFactory.create(true, 5, 50);
 
-    underTest.isShow = false;
-    underTest.name = 'name';
-    underTest.value = oldValue;
-    underTest.property = propertyName;
-    underTest.valueChanges = testedSubject;
-    underTest.partValidation = partValidation;
-
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      underTest.onDeleteValue(1);
+      underTest.isShow = false;
+      underTest.name = 'name';
+      underTest.value = oldValue;
+      underTest.property = propertyName;
+      underTest.valueChanges = testedSubject;
+      underTest.partValidation = partValidation;
 
       fixture.detectChanges();
       fixture.whenStable().then(() => {
-        const testedValue = fixture.debugElement.queryAll(inputSelector);
-        const result = testedValue.map((element) => element.nativeElement.value);
-        expect(result).toEqual(newValue);
-        expect(subjectSpy).toHaveBeenCalled();
-        expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValue));
+        underTest.onDeleteValue(1);
+
+        fixture.detectChanges();
+        fixture.whenStable().then(() => {
+          const testedValue = fixture.debugElement.queryAll(inputSelector);
+          const result = testedValue.map((element) => element.nativeElement.value);
+          expect(result).toEqual(newValue);
+          expect(subjectSpy).toHaveBeenCalled();
+          expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValue));
+        });
       });
-    });
-  }));
+    }),
+  );
 
-  it('onAddValue() should add empty string to value and publish change', waitForAsync(() => {
-    const oldValue = ['one', 'two'];
-    const newValue = ['one', 'two', ''];
-    const propertyName = 'property';
-    const testedSubject = new Subject<WorkflowEntryModel>();
-    const subjectSpy = spyOn(testedSubject, 'next');
-    const partValidation = PartValidationFactory.create(true, 5, 50);
+  it(
+    'onAddValue() should add empty string to value and publish change',
+    waitForAsync(() => {
+      const oldValue = ['one', 'two'];
+      const newValue = ['one', 'two', ''];
+      const propertyName = 'property';
+      const testedSubject = new Subject<WorkflowEntryModel>();
+      const subjectSpy = spyOn(testedSubject, 'next');
+      const partValidation = PartValidationFactory.create(true, 5, 50);
 
-    underTest.isShow = false;
-    underTest.name = 'name';
-    underTest.value = oldValue;
-    underTest.property = propertyName;
-    underTest.valueChanges = testedSubject;
-    underTest.partValidation = partValidation;
-
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      underTest.onAddValue();
+      underTest.isShow = false;
+      underTest.name = 'name';
+      underTest.value = oldValue;
+      underTest.property = propertyName;
+      underTest.valueChanges = testedSubject;
+      underTest.partValidation = partValidation;
 
       fixture.detectChanges();
       fixture.whenStable().then(() => {
-        const testedValue = fixture.debugElement.queryAll(inputSelector);
-        const result = testedValue.map((element) => element.nativeElement.value);
-        expect(result).toEqual(newValue);
-        expect(subjectSpy).toHaveBeenCalled();
-        expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValue));
+        underTest.onAddValue();
+
+        fixture.detectChanges();
+        fixture.whenStable().then(() => {
+          const testedValue = fixture.debugElement.queryAll(inputSelector);
+          const result = testedValue.map((element) => element.nativeElement.value);
+          expect(result).toEqual(newValue);
+          expect(subjectSpy).toHaveBeenCalled();
+          expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValue));
+        });
       });
-    });
-  }));
+    }),
+  );
 });

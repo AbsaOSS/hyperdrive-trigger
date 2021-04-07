@@ -19,12 +19,14 @@ import { CronQuartzExpressionValidator } from './cron-quartz-expression.validato
 describe('CronQuartzExpressionValidator', () => {
   let underTest: CronQuartzExpressionValidator;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      providers: [CronQuartzExpressionValidator],
-    }).compileComponents();
-    underTest = TestBed.inject(CronQuartzExpressionValidator);
-  }));
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        providers: [CronQuartzExpressionValidator],
+      }).compileComponents();
+      underTest = TestBed.inject(CronQuartzExpressionValidator);
+    }),
+  );
 
   it('should be created', () => {
     expect(underTest).toBeTruthy();

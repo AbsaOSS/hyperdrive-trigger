@@ -36,15 +36,17 @@ describe('WelcomeComponent', () => {
     runs: {},
   };
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      providers: [provideMockStore({ initialState: initialAppState })],
-      declarations: [LoginDialogComponent],
-      imports: [ClarityModule, FormsModule],
-    }).compileComponents();
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        providers: [provideMockStore({ initialState: initialAppState })],
+        declarations: [LoginDialogComponent],
+        imports: [ClarityModule, FormsModule],
+      }).compileComponents();
 
-    mockStore = TestBed.inject(MockStore);
-  }));
+      mockStore = TestBed.inject(MockStore);
+    }),
+  );
 
   beforeEach(() => {
     fixture = TestBed.createComponent(LoginDialogComponent);

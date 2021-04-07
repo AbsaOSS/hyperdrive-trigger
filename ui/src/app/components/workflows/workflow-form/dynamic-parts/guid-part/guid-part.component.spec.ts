@@ -29,13 +29,15 @@ describe('GuidPartComponent', () => {
 
   const buttonSelector: Predicate<DebugElement> = By.css('button[type="button"]');
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      declarations: [GuidPartComponent],
-      imports: [FormsModule],
-      providers: [NgForm],
-    }).compileComponents();
-  }));
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        declarations: [GuidPartComponent],
+        imports: [FormsModule],
+        providers: [NgForm],
+      }).compileComponents();
+    }),
+  );
 
   beforeEach(() => {
     fixture = TestBed.createComponent(GuidPartComponent);
@@ -78,38 +80,41 @@ describe('GuidPartComponent', () => {
     });
   });
 
-  it('should change value and publish change on user input', waitForAsync(() => {
-    const propertyName = 'property';
-    const testedSubject = new Subject<WorkflowEntryModel>();
-    const subjectSpy = spyOn(testedSubject, 'next');
-    const partValidation = PartValidationFactory.create(true, 5, 50);
+  it(
+    'should change value and publish change on user input',
+    waitForAsync(() => {
+      const propertyName = 'property';
+      const testedSubject = new Subject<WorkflowEntryModel>();
+      const subjectSpy = spyOn(testedSubject, 'next');
+      const partValidation = PartValidationFactory.create(true, 5, 50);
 
-    underTest.isShow = false;
-    underTest.name = 'name';
-    underTest.value = null;
-    underTest.property = propertyName;
-    underTest.valueChanges = testedSubject;
-    underTest.partValidation = partValidation;
-
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      const oldValue = underTest.value;
-
-      expect(oldValue.length).toBe(36);
-      expect(subjectSpy).toHaveBeenCalled();
-      expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, oldValue));
-
-      const buttonElement = fixture.debugElement.query(buttonSelector).nativeElement;
-      buttonElement.click();
+      underTest.isShow = false;
+      underTest.name = 'name';
+      underTest.value = null;
+      underTest.property = propertyName;
+      underTest.valueChanges = testedSubject;
+      underTest.partValidation = partValidation;
 
       fixture.detectChanges();
       fixture.whenStable().then(() => {
-        const testedValue = underTest.value;
-        expect(testedValue.length).toBe(36);
-        expect(oldValue != testedValue).toBeTrue();
+        const oldValue = underTest.value;
+
+        expect(oldValue.length).toBe(36);
         expect(subjectSpy).toHaveBeenCalled();
-        expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, testedValue));
+        expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, oldValue));
+
+        const buttonElement = fixture.debugElement.query(buttonSelector).nativeElement;
+        buttonElement.click();
+
+        fixture.detectChanges();
+        fixture.whenStable().then(() => {
+          const testedValue = underTest.value;
+          expect(testedValue.length).toBe(36);
+          expect(oldValue != testedValue).toBeTrue();
+          expect(subjectSpy).toHaveBeenCalled();
+          expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, testedValue));
+        });
       });
-    });
-  }));
+    }),
+  );
 });

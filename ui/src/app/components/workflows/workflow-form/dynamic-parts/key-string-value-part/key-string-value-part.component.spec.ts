@@ -30,13 +30,15 @@ describe('KeyStringValuePartComponent', () => {
 
   const inputSelector: Predicate<DebugElement> = By.css('input[type="text"]');
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      declarations: [KeyStringValuePartComponent],
-      imports: [FormsModule],
-      providers: [NgForm],
-    }).compileComponents();
-  }));
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        declarations: [KeyStringValuePartComponent],
+        imports: [FormsModule],
+        providers: [NgForm],
+      }).compileComponents();
+    }),
+  );
 
   beforeEach(() => {
     fixture = TestBed.createComponent(KeyStringValuePartComponent);
@@ -85,159 +87,171 @@ describe('KeyStringValuePartComponent', () => {
     });
   });
 
-  it('should change key and publish change on user input', waitForAsync(() => {
-    const oldItemKey = 'oldKey';
-    const oldItemValue = 'oldValue';
-    const newItemKey = 'newKey';
+  it(
+    'should change key and publish change on user input',
+    waitForAsync(() => {
+      const oldItemKey = 'oldKey';
+      const oldItemValue = 'oldValue';
+      const newItemKey = 'newKey';
 
-    const oldValueObject = {};
-    set(oldValueObject, 'keyOne', 'valueOne');
-    set(oldValueObject, oldItemKey, oldItemValue);
-    set(oldValueObject, 'keyThree', 'valueThree');
+      const oldValueObject = {};
+      set(oldValueObject, 'keyOne', 'valueOne');
+      set(oldValueObject, oldItemKey, oldItemValue);
+      set(oldValueObject, 'keyThree', 'valueThree');
 
-    const newValueObject = {};
-    set(newValueObject, 'keyOne', 'valueOne');
-    set(newValueObject, newItemKey, oldItemValue);
-    set(newValueObject, 'keyThree', 'valueThree');
+      const newValueObject = {};
+      set(newValueObject, 'keyOne', 'valueOne');
+      set(newValueObject, newItemKey, oldItemValue);
+      set(newValueObject, 'keyThree', 'valueThree');
 
-    const propertyName = 'property';
-    const partValidation = PartValidationFactory.create(true, 5, 50);
-    const testedSubject = new Subject<WorkflowEntryModel>();
-    const subjectSpy = spyOn(testedSubject, 'next');
+      const propertyName = 'property';
+      const partValidation = PartValidationFactory.create(true, 5, 50);
+      const testedSubject = new Subject<WorkflowEntryModel>();
+      const subjectSpy = spyOn(testedSubject, 'next');
 
-    underTest.isShow = false;
-    underTest.name = 'name';
-    underTest.value = oldValueObject;
-    underTest.property = propertyName;
-    underTest.valueChanges = testedSubject;
-    underTest.partValidation = partValidation;
-
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      const inputElement = fixture.debugElement.queryAll(inputSelector)[2];
-
-      inputElement.nativeElement.value = newItemKey;
-      inputElement.nativeElement.dispatchEvent(new Event('input'));
+      underTest.isShow = false;
+      underTest.name = 'name';
+      underTest.value = oldValueObject;
+      underTest.property = propertyName;
+      underTest.valueChanges = testedSubject;
+      underTest.partValidation = partValidation;
 
       fixture.detectChanges();
       fixture.whenStable().then(() => {
-        const testedValue = fixture.debugElement.queryAll(inputSelector)[2].nativeElement.value;
-        expect(testedValue).toBe(newItemKey);
-        expect(subjectSpy).toHaveBeenCalled();
-        expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValueObject));
+        const inputElement = fixture.debugElement.queryAll(inputSelector)[2];
+
+        inputElement.nativeElement.value = newItemKey;
+        inputElement.nativeElement.dispatchEvent(new Event('input'));
+
+        fixture.detectChanges();
+        fixture.whenStable().then(() => {
+          const testedValue = fixture.debugElement.queryAll(inputSelector)[2].nativeElement.value;
+          expect(testedValue).toBe(newItemKey);
+          expect(subjectSpy).toHaveBeenCalled();
+          expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValueObject));
+        });
       });
-    });
-  }));
+    }),
+  );
 
-  it('should change value and publish change on user input', waitForAsync(() => {
-    const oldItemKey = 'oldKey';
-    const oldItemValue = 'oldValue';
-    const newItemValue = 'newValue';
+  it(
+    'should change value and publish change on user input',
+    waitForAsync(() => {
+      const oldItemKey = 'oldKey';
+      const oldItemValue = 'oldValue';
+      const newItemValue = 'newValue';
 
-    const oldValueObject = {};
-    set(oldValueObject, 'keyOne', 'valueOne');
-    set(oldValueObject, oldItemKey, oldItemValue);
-    set(oldValueObject, 'keyThree', 'valueThree');
+      const oldValueObject = {};
+      set(oldValueObject, 'keyOne', 'valueOne');
+      set(oldValueObject, oldItemKey, oldItemValue);
+      set(oldValueObject, 'keyThree', 'valueThree');
 
-    const newValueObject = {};
-    set(newValueObject, 'keyOne', 'valueOne');
-    set(newValueObject, oldItemKey, newItemValue);
-    set(newValueObject, 'keyThree', 'valueThree');
+      const newValueObject = {};
+      set(newValueObject, 'keyOne', 'valueOne');
+      set(newValueObject, oldItemKey, newItemValue);
+      set(newValueObject, 'keyThree', 'valueThree');
 
-    const propertyName = 'property';
-    const partValidation = PartValidationFactory.create(true, 5, 50);
-    const testedSubject = new Subject<WorkflowEntryModel>();
-    const subjectSpy = spyOn(testedSubject, 'next');
+      const propertyName = 'property';
+      const partValidation = PartValidationFactory.create(true, 5, 50);
+      const testedSubject = new Subject<WorkflowEntryModel>();
+      const subjectSpy = spyOn(testedSubject, 'next');
 
-    underTest.isShow = false;
-    underTest.name = 'name';
-    underTest.value = oldValueObject;
-    underTest.property = propertyName;
-    underTest.valueChanges = testedSubject;
-    underTest.partValidation = partValidation;
-
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      const inputElement = fixture.debugElement.queryAll(inputSelector)[3];
-
-      inputElement.nativeElement.value = newItemValue;
-      inputElement.nativeElement.dispatchEvent(new Event('input'));
+      underTest.isShow = false;
+      underTest.name = 'name';
+      underTest.value = oldValueObject;
+      underTest.property = propertyName;
+      underTest.valueChanges = testedSubject;
+      underTest.partValidation = partValidation;
 
       fixture.detectChanges();
       fixture.whenStable().then(() => {
-        const testedValue = fixture.debugElement.queryAll(inputSelector)[3].nativeElement.value;
-        expect(testedValue).toBe(newItemValue);
-        expect(subjectSpy).toHaveBeenCalled();
-        expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValueObject));
+        const inputElement = fixture.debugElement.queryAll(inputSelector)[3];
+
+        inputElement.nativeElement.value = newItemValue;
+        inputElement.nativeElement.dispatchEvent(new Event('input'));
+
+        fixture.detectChanges();
+        fixture.whenStable().then(() => {
+          const testedValue = fixture.debugElement.queryAll(inputSelector)[3].nativeElement.value;
+          expect(testedValue).toBe(newItemValue);
+          expect(subjectSpy).toHaveBeenCalled();
+          expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValueObject));
+        });
       });
-    });
-  }));
+    }),
+  );
 
-  it('onDelete() should remove element from value and publish change', waitForAsync(() => {
-    const oldValueObject = {};
-    set(oldValueObject, 'keyOne', 'valueOne');
-    set(oldValueObject, 'keyTwo', 'valueTwo');
-    set(oldValueObject, 'keyThree', 'valueThree');
+  it(
+    'onDelete() should remove element from value and publish change',
+    waitForAsync(() => {
+      const oldValueObject = {};
+      set(oldValueObject, 'keyOne', 'valueOne');
+      set(oldValueObject, 'keyTwo', 'valueTwo');
+      set(oldValueObject, 'keyThree', 'valueThree');
 
-    const newValueObject = {};
-    set(newValueObject, 'keyOne', 'valueOne');
-    set(newValueObject, 'keyThree', 'valueThree');
+      const newValueObject = {};
+      set(newValueObject, 'keyOne', 'valueOne');
+      set(newValueObject, 'keyThree', 'valueThree');
 
-    const propertyName = 'property';
-    const partValidation = PartValidationFactory.create(true, 5, 50);
-    const testedSubject = new Subject<WorkflowEntryModel>();
-    const subjectSpy = spyOn(testedSubject, 'next');
+      const propertyName = 'property';
+      const partValidation = PartValidationFactory.create(true, 5, 50);
+      const testedSubject = new Subject<WorkflowEntryModel>();
+      const subjectSpy = spyOn(testedSubject, 'next');
 
-    underTest.isShow = false;
-    underTest.name = 'name';
-    underTest.value = oldValueObject;
-    underTest.property = propertyName;
-    underTest.valueChanges = testedSubject;
-    underTest.partValidation = partValidation;
-
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      underTest.onDelete(1);
+      underTest.isShow = false;
+      underTest.name = 'name';
+      underTest.value = oldValueObject;
+      underTest.property = propertyName;
+      underTest.valueChanges = testedSubject;
+      underTest.partValidation = partValidation;
 
       fixture.detectChanges();
       fixture.whenStable().then(() => {
-        expect(subjectSpy).toHaveBeenCalled();
-        expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValueObject));
+        underTest.onDelete(1);
+
+        fixture.detectChanges();
+        fixture.whenStable().then(() => {
+          expect(subjectSpy).toHaveBeenCalled();
+          expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValueObject));
+        });
       });
-    });
-  }));
+    }),
+  );
 
-  it('onAdd() should add empty string key value element to value and publish change', waitForAsync(() => {
-    const oldValueObject = {};
-    set(oldValueObject, 'keyOne', 'valueOne');
-    set(oldValueObject, 'keyTwo', 'valueTwo');
+  it(
+    'onAdd() should add empty string key value element to value and publish change',
+    waitForAsync(() => {
+      const oldValueObject = {};
+      set(oldValueObject, 'keyOne', 'valueOne');
+      set(oldValueObject, 'keyTwo', 'valueTwo');
 
-    const newValueObject = {};
-    set(newValueObject, 'keyOne', 'valueOne');
-    set(newValueObject, 'keyTwo', 'valueTwo');
-    set(newValueObject, '', '');
+      const newValueObject = {};
+      set(newValueObject, 'keyOne', 'valueOne');
+      set(newValueObject, 'keyTwo', 'valueTwo');
+      set(newValueObject, '', '');
 
-    const propertyName = 'property';
-    const partValidation = PartValidationFactory.create(true, 5, 50);
-    const testedSubject = new Subject<WorkflowEntryModel>();
-    const subjectSpy = spyOn(testedSubject, 'next');
+      const propertyName = 'property';
+      const partValidation = PartValidationFactory.create(true, 5, 50);
+      const testedSubject = new Subject<WorkflowEntryModel>();
+      const subjectSpy = spyOn(testedSubject, 'next');
 
-    underTest.isShow = false;
-    underTest.name = 'name';
-    underTest.value = oldValueObject;
-    underTest.property = propertyName;
-    underTest.valueChanges = testedSubject;
-    underTest.partValidation = partValidation;
-
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      underTest.onAdd();
+      underTest.isShow = false;
+      underTest.name = 'name';
+      underTest.value = oldValueObject;
+      underTest.property = propertyName;
+      underTest.valueChanges = testedSubject;
+      underTest.partValidation = partValidation;
 
       fixture.detectChanges();
       fixture.whenStable().then(() => {
-        expect(subjectSpy).toHaveBeenCalled();
-        expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValueObject));
+        underTest.onAdd();
+
+        fixture.detectChanges();
+        fixture.whenStable().then(() => {
+          expect(subjectSpy).toHaveBeenCalled();
+          expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValueObject));
+        });
       });
-    });
-  }));
+    }),
+  );
 });

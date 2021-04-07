@@ -21,12 +21,14 @@ import { DagRunModelFactory } from '../../../../../models/dagRuns/dagRun.model';
 describe('StringFilterComponent', () => {
   let fixture: ComponentFixture<StringFilterComponent>;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      providers: [],
-      declarations: [StringFilterComponent],
-    }).compileComponents();
-  }));
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        providers: [],
+        declarations: [StringFilterComponent],
+      }).compileComponents();
+    }),
+  );
 
   beforeEach(() => {
     fixture = TestBed.createComponent(StringFilterComponent);

@@ -59,16 +59,18 @@ describe('WorkflowsHomeComponent', () => {
     workflowsFilters: undefined,
   };
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      providers: [ConfirmationDialogService, provideMockStore({ initialState: initialAppState })],
-      declarations: [WorkflowsHomeComponent],
-      imports: [RouterTestingModule.withRoutes([])],
-    }).compileComponents();
-    confirmationDialogService = TestBed.inject(ConfirmationDialogService);
-    store = TestBed.inject(Store);
-    router = TestBed.inject(Router);
-  }));
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        providers: [ConfirmationDialogService, provideMockStore({ initialState: initialAppState })],
+        declarations: [WorkflowsHomeComponent],
+        imports: [RouterTestingModule.withRoutes([])],
+      }).compileComponents();
+      confirmationDialogService = TestBed.inject(ConfirmationDialogService);
+      store = TestBed.inject(Store);
+      router = TestBed.inject(Router);
+    }),
+  );
 
   beforeEach(() => {
     fixture = TestBed.createComponent(WorkflowsHomeComponent);
@@ -79,305 +81,359 @@ describe('WorkflowsHomeComponent', () => {
     expect(underTest).toBeTruthy();
   });
 
-  it('should after view init set component properties', waitForAsync(() => {
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(underTest.workflows).toEqual([].concat(...initialAppState.workflows.projects.map((project) => project.workflows)));
-      expect(underTest.sort).toEqual(initialAppState.workflowsSort);
-      expect(underTest.filters).toBeUndefined();
-    });
-  }));
-
-  it('exportWorkflow() should dispatch workflow export', waitForAsync(() => {
-    const id = 42;
-    const storeSpy = spyOn(store, 'dispatch');
-
-    underTest.exportWorkflow(id);
-
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(storeSpy).toHaveBeenCalledWith(new ExportWorkflows([id]));
-    });
-  }));
-
-  it('openImportWorkflowModal() should set is workflow import variable to true', waitForAsync(() => {
-    expect(underTest.isWorkflowImportOpen).toBeFalsy();
-    underTest.openImportWorkflowModal();
-
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(underTest.isWorkflowImportOpen).toBeTruthy();
-    });
-  }));
-
-  it('setWorkflowFile() should set workflow file', waitForAsync(() => {
-    const dataTransfer = new DataTransfer();
-    const file: File = new File(['content'], 'filename.jpg');
-    dataTransfer.items.add(file);
-    const fileList: FileList = dataTransfer.files;
-
-    expect(underTest.workflowFile).toBeUndefined();
-    underTest.setWorkflowFile(fileList);
-
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(underTest.workflowFile).toBeDefined();
-    });
-  }));
-
-  it('closeWorkflowImport() should close modal and remove workflow file when is submitted is false', waitForAsync(() => {
-    const isSubmitted = false;
-    const file: File = new File(['content'], 'filename.jpg');
-    const storeSpy = spyOn(store, 'dispatch');
-
-    underTest.isWorkflowImportOpen = true;
-    underTest.workflowFile = file;
-
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(underTest.workflowFile).toBeDefined();
-      expect(underTest.isWorkflowImportOpen).toBeTruthy();
-
-      underTest.closeWorkflowImport(isSubmitted);
+  it(
+    'should after view init set component properties',
+    waitForAsync(() => {
       fixture.detectChanges();
       fixture.whenStable().then(() => {
-        expect(underTest.workflowFile).toBeUndefined();
-        expect(underTest.isWorkflowImportOpen).toBeFalsy();
-        expect(storeSpy).toHaveBeenCalledTimes(0);
+        expect(underTest.workflows).toEqual([].concat(...initialAppState.workflows.projects.map((project) => project.workflows)));
+        expect(underTest.sort).toEqual(initialAppState.workflowsSort);
+        expect(underTest.filters).toBeUndefined();
       });
-    });
-  }));
+    }),
+  );
 
-  it('closeWorkflowImport() should close modal, remove workflow file and dispatch and navigate to import when is submitted is true', waitForAsync(() => {
-    const isSubmitted = true;
-    const file: File = new File(['content'], 'filename.jpg');
-    const storeSpy = spyOn(store, 'dispatch');
-    const routerSpy = spyOn(router, 'navigate');
+  it(
+    'exportWorkflow() should dispatch workflow export',
+    waitForAsync(() => {
+      const id = 42;
+      const storeSpy = spyOn(store, 'dispatch');
 
-    underTest.isWorkflowImportOpen = true;
-    underTest.workflowFile = file;
+      underTest.exportWorkflow(id);
 
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(underTest.workflowFile).toBeDefined();
-      expect(underTest.isWorkflowImportOpen).toBeTruthy();
-
-      underTest.closeWorkflowImport(isSubmitted);
       fixture.detectChanges();
       fixture.whenStable().then(() => {
-        expect(underTest.workflowFile).toBeUndefined();
-        expect(underTest.isWorkflowImportOpen).toBeFalsy();
-
-        expect(routerSpy).toHaveBeenCalledTimes(1);
-        expect(routerSpy).toHaveBeenCalledWith([absoluteRoutes.IMPORT_WORKFLOW]);
-        expect(storeSpy).toHaveBeenCalled();
-        expect(storeSpy).toHaveBeenCalledWith(new SetWorkflowFile(file));
+        expect(storeSpy).toHaveBeenCalledWith(new ExportWorkflows([id]));
       });
-    });
-  }));
+    }),
+  );
 
-  it('openImportMutliWorkflowsModal() should set isMultiWorkflowsImportOpen to true', waitForAsync(() => {
-    expect(underTest.isMultiWorkflowsImportOpen).toBeFalsy();
-    underTest.openImportMultiWorkflowsModal();
+  it(
+    'openImportWorkflowModal() should set is workflow import variable to true',
+    waitForAsync(() => {
+      expect(underTest.isWorkflowImportOpen).toBeFalsy();
+      underTest.openImportWorkflowModal();
 
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(underTest.isMultiWorkflowsImportOpen).toBeTruthy();
-    });
-  }));
-
-  it('setMultiWorkflowsFile() should set multiWorkflowsFile', waitForAsync(() => {
-    const dataTransfer = new DataTransfer();
-    const file: File = new File(['content'], 'workflows.zip');
-    dataTransfer.items.add(file);
-    const fileList: FileList = dataTransfer.files;
-
-    expect(underTest.multiWorkflowsFile).toBeUndefined();
-    underTest.setMultiWorkflowsFile(fileList);
-
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(underTest.multiWorkflowsFile).toBeDefined();
-    });
-  }));
-
-  it('closeMultiWorkflowsImport() should close modal and remove multi workflow file when is submitted is false', waitForAsync(() => {
-    const isSubmitted = false;
-    const file: File = new File(['content'], 'workflows.zip');
-    const storeSpy = spyOn(store, 'dispatch');
-
-    underTest.isMultiWorkflowsImportOpen = true;
-    underTest.multiWorkflowsFile = file;
-
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(underTest.multiWorkflowsFile).toBeDefined();
-      expect(underTest.isMultiWorkflowsImportOpen).toBeTruthy();
-
-      underTest.closeMultiWorkflowsImport(isSubmitted);
       fixture.detectChanges();
       fixture.whenStable().then(() => {
-        expect(underTest.multiWorkflowsFile).toBeUndefined();
-        expect(underTest.isMultiWorkflowsImportOpen).toBeFalsy();
-        expect(storeSpy).toHaveBeenCalledTimes(0);
+        expect(underTest.isWorkflowImportOpen).toBeTruthy();
       });
-    });
-  }));
+    }),
+  );
 
-  it('closeMultiWorkflowsImport() should close modal, remove workflow file and dispatch and navigate to import when is submitted is true', waitForAsync(() => {
-    const isSubmitted = true;
-    const file: File = new File(['content'], 'workflows.zip');
-    const storeSpy = spyOn(store, 'dispatch');
+  it(
+    'setWorkflowFile() should set workflow file',
+    waitForAsync(() => {
+      const dataTransfer = new DataTransfer();
+      const file: File = new File(['content'], 'filename.jpg');
+      dataTransfer.items.add(file);
+      const fileList: FileList = dataTransfer.files;
 
-    underTest.isMultiWorkflowsImportOpen = true;
-    underTest.multiWorkflowsFile = file;
+      expect(underTest.workflowFile).toBeUndefined();
+      underTest.setWorkflowFile(fileList);
 
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(underTest.multiWorkflowsFile).toBeDefined();
-      expect(underTest.isMultiWorkflowsImportOpen).toBeTruthy();
-
-      underTest.closeMultiWorkflowsImport(isSubmitted);
       fixture.detectChanges();
       fixture.whenStable().then(() => {
-        expect(underTest.multiWorkflowsFile).toBeUndefined();
-        expect(underTest.isMultiWorkflowsImportOpen).toBeFalsy();
-
-        expect(storeSpy).toHaveBeenCalled();
-        expect(storeSpy).toHaveBeenCalledWith(new ImportWorkflows(file));
+        expect(underTest.workflowFile).toBeDefined();
       });
-    });
-  }));
+    }),
+  );
 
-  it('deleteWorkflow() should dispatch delete workflow action with id when dialog is confirmed', waitForAsync(() => {
-    const id = 1;
-    const subject = new Subject<boolean>();
-    const storeSpy = spyOn(store, 'dispatch');
+  it(
+    'closeWorkflowImport() should close modal and remove workflow file when is submitted is false',
+    waitForAsync(() => {
+      const isSubmitted = false;
+      const file: File = new File(['content'], 'filename.jpg');
+      const storeSpy = spyOn(store, 'dispatch');
 
-    spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
+      underTest.isWorkflowImportOpen = true;
+      underTest.workflowFile = file;
 
-    underTest.deleteWorkflow(id);
-    subject.next(true);
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(underTest.workflowFile).toBeDefined();
+        expect(underTest.isWorkflowImportOpen).toBeTruthy();
 
-    fixture.detectChanges();
-    expect(underTest.ignoreRefresh).toBeTrue();
-    fixture.whenStable().then(() => {
-      expect(storeSpy).toHaveBeenCalled();
-      expect(storeSpy).toHaveBeenCalledWith(new DeleteWorkflow(id));
-    });
-  }));
+        underTest.closeWorkflowImport(isSubmitted);
+        fixture.detectChanges();
+        fixture.whenStable().then(() => {
+          expect(underTest.workflowFile).toBeUndefined();
+          expect(underTest.isWorkflowImportOpen).toBeFalsy();
+          expect(storeSpy).toHaveBeenCalledTimes(0);
+        });
+      });
+    }),
+  );
 
-  it('deleteWorkflow() should not dispatch delete workflow action when dialog is not confirmed', waitForAsync(() => {
-    const id = 1;
-    const subject = new Subject<boolean>();
-    const storeSpy = spyOn(store, 'dispatch');
+  it(
+    'closeWorkflowImport() should close modal, remove workflow file and dispatch and navigate to import when is submitted is true',
+    waitForAsync(() => {
+      const isSubmitted = true;
+      const file: File = new File(['content'], 'filename.jpg');
+      const storeSpy = spyOn(store, 'dispatch');
+      const routerSpy = spyOn(router, 'navigate');
 
-    spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
+      underTest.isWorkflowImportOpen = true;
+      underTest.workflowFile = file;
 
-    underTest.deleteWorkflow(id);
-    subject.next(false);
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(underTest.workflowFile).toBeDefined();
+        expect(underTest.isWorkflowImportOpen).toBeTruthy();
 
-    fixture.detectChanges();
-    expect(underTest.ignoreRefresh).toBeTrue();
-    fixture.whenStable().then(() => {
-      expect(storeSpy).toHaveBeenCalledTimes(0);
-    });
-  }));
+        underTest.closeWorkflowImport(isSubmitted);
+        fixture.detectChanges();
+        fixture.whenStable().then(() => {
+          expect(underTest.workflowFile).toBeUndefined();
+          expect(underTest.isWorkflowImportOpen).toBeFalsy();
 
-  it('switchWorkflowActiveState() should dispatch switch workflow active state with id and old value when dialog is confirmed', waitForAsync(() => {
-    const id = 1;
-    const currentActiveState = true;
-    const subject = new Subject<boolean>();
-    const storeSpy = spyOn(store, 'dispatch');
+          expect(routerSpy).toHaveBeenCalledTimes(1);
+          expect(routerSpy).toHaveBeenCalledWith([absoluteRoutes.IMPORT_WORKFLOW]);
+          expect(storeSpy).toHaveBeenCalled();
+          expect(storeSpy).toHaveBeenCalledWith(new SetWorkflowFile(file));
+        });
+      });
+    }),
+  );
 
-    spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
+  it(
+    'openImportMutliWorkflowsModal() should set isMultiWorkflowsImportOpen to true',
+    waitForAsync(() => {
+      expect(underTest.isMultiWorkflowsImportOpen).toBeFalsy();
+      underTest.openImportMultiWorkflowsModal();
 
-    underTest.switchWorkflowActiveState(id, currentActiveState);
-    subject.next(true);
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(underTest.isMultiWorkflowsImportOpen).toBeTruthy();
+      });
+    }),
+  );
 
-    fixture.detectChanges();
-    expect(underTest.ignoreRefresh).toBeTrue();
-    fixture.whenStable().then(() => {
-      expect(storeSpy).toHaveBeenCalled();
-      expect(storeSpy).toHaveBeenCalledWith(new SwitchWorkflowActiveState({ id: id, currentActiveState: currentActiveState }));
-    });
-  }));
+  it(
+    'setMultiWorkflowsFile() should set multiWorkflowsFile',
+    waitForAsync(() => {
+      const dataTransfer = new DataTransfer();
+      const file: File = new File(['content'], 'workflows.zip');
+      dataTransfer.items.add(file);
+      const fileList: FileList = dataTransfer.files;
 
-  it('switchWorkflowActiveState() should not dispatch switch workflow active state when dialog is not confirmed', waitForAsync(() => {
-    const id = 1;
-    const currentActiveState = false;
-    const subject = new Subject<boolean>();
-    const storeSpy = spyOn(store, 'dispatch');
+      expect(underTest.multiWorkflowsFile).toBeUndefined();
+      underTest.setMultiWorkflowsFile(fileList);
 
-    spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(underTest.multiWorkflowsFile).toBeDefined();
+      });
+    }),
+  );
 
-    underTest.switchWorkflowActiveState(id, currentActiveState);
-    subject.next(false);
+  it(
+    'closeMultiWorkflowsImport() should close modal and remove multi workflow file when is submitted is false',
+    waitForAsync(() => {
+      const isSubmitted = false;
+      const file: File = new File(['content'], 'workflows.zip');
+      const storeSpy = spyOn(store, 'dispatch');
 
-    fixture.detectChanges();
-    expect(underTest.ignoreRefresh).toBeFalse();
-    fixture.whenStable().then(() => {
-      expect(storeSpy).toHaveBeenCalledTimes(0);
-    });
-  }));
+      underTest.isMultiWorkflowsImportOpen = true;
+      underTest.multiWorkflowsFile = file;
 
-  it('runWorkflow() should dispatch load jobs for run', waitForAsync(() => {
-    const id = 42;
-    const storeSpy = spyOn(store, 'dispatch');
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(underTest.multiWorkflowsFile).toBeDefined();
+        expect(underTest.isMultiWorkflowsImportOpen).toBeTruthy();
 
-    underTest.runWorkflow(id);
+        underTest.closeMultiWorkflowsImport(isSubmitted);
+        fixture.detectChanges();
+        fixture.whenStable().then(() => {
+          expect(underTest.multiWorkflowsFile).toBeUndefined();
+          expect(underTest.isMultiWorkflowsImportOpen).toBeFalsy();
+          expect(storeSpy).toHaveBeenCalledTimes(0);
+        });
+      });
+    }),
+  );
 
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(storeSpy).toHaveBeenCalledWith(new LoadJobsForRun(id));
-    });
-  }));
+  it(
+    'closeMultiWorkflowsImport() should close modal, remove workflow file and dispatch and navigate to import when is submitted is true',
+    waitForAsync(() => {
+      const isSubmitted = true;
+      const file: File = new File(['content'], 'workflows.zip');
+      const storeSpy = spyOn(store, 'dispatch');
 
-  it('showWorkflow() should navigate to show workflow page', waitForAsync(() => {
-    const id = 42;
-    const routerSpy = spyOn(router, 'navigate');
+      underTest.isMultiWorkflowsImportOpen = true;
+      underTest.multiWorkflowsFile = file;
 
-    underTest.showWorkflow(id);
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(underTest.multiWorkflowsFile).toBeDefined();
+        expect(underTest.isMultiWorkflowsImportOpen).toBeTruthy();
 
-    expect(routerSpy).toHaveBeenCalledTimes(1);
-    expect(routerSpy).toHaveBeenCalledWith([absoluteRoutes.SHOW_WORKFLOW, id]);
-  }));
+        underTest.closeMultiWorkflowsImport(isSubmitted);
+        fixture.detectChanges();
+        fixture.whenStable().then(() => {
+          expect(underTest.multiWorkflowsFile).toBeUndefined();
+          expect(underTest.isMultiWorkflowsImportOpen).toBeFalsy();
 
-  describe('onClarityDgRefresh', () => {
-    it('should dispatch SetWorkflowsSort when ignoreRefresh is false', waitForAsync(() => {
-      underTest.ignoreRefresh = false;
+          expect(storeSpy).toHaveBeenCalled();
+          expect(storeSpy).toHaveBeenCalledWith(new ImportWorkflows(file));
+        });
+      });
+    }),
+  );
 
+  it(
+    'deleteWorkflow() should dispatch delete workflow action with id when dialog is confirmed',
+    waitForAsync(() => {
+      const id = 1;
       const subject = new Subject<boolean>();
       const storeSpy = spyOn(store, 'dispatch');
-      const state: ClrDatagridStateInterface = {};
 
-      underTest.onClarityDgRefresh(state);
-      subject.next(true);
+      spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
 
-      fixture.detectChanges();
-      expect(underTest.ignoreRefresh).toBeFalse();
-      expect(underTest.sort).toBeUndefined();
-      expect(underTest.filters).toBeUndefined();
-
-      fixture.whenStable().then(() => {
-        expect(storeSpy).toHaveBeenCalled();
-        expect(storeSpy).toHaveBeenCalledWith(new SetWorkflowsSort(underTest.sort));
-      });
-    }));
-
-    it('onClarityDgRefresh() should not dispatch SetWorkflowsSort and SetWorkflowsFilters when ignoreRefresh is true', waitForAsync(() => {
-      underTest.ignoreRefresh = true;
-
-      const subject = new Subject<boolean>();
-      const storeSpy = spyOn(store, 'dispatch');
-      const state: ClrDatagridStateInterface = {};
-
-      underTest.onClarityDgRefresh(state);
+      underTest.deleteWorkflow(id);
       subject.next(true);
 
       fixture.detectChanges();
       expect(underTest.ignoreRefresh).toBeTrue();
-      expect(storeSpy).not.toHaveBeenCalled();
-    }));
+      fixture.whenStable().then(() => {
+        expect(storeSpy).toHaveBeenCalled();
+        expect(storeSpy).toHaveBeenCalledWith(new DeleteWorkflow(id));
+      });
+    }),
+  );
+
+  it(
+    'deleteWorkflow() should not dispatch delete workflow action when dialog is not confirmed',
+    waitForAsync(() => {
+      const id = 1;
+      const subject = new Subject<boolean>();
+      const storeSpy = spyOn(store, 'dispatch');
+
+      spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
+
+      underTest.deleteWorkflow(id);
+      subject.next(false);
+
+      fixture.detectChanges();
+      expect(underTest.ignoreRefresh).toBeTrue();
+      fixture.whenStable().then(() => {
+        expect(storeSpy).toHaveBeenCalledTimes(0);
+      });
+    }),
+  );
+
+  it(
+    'switchWorkflowActiveState() should dispatch switch workflow active state with id and old value when dialog is confirmed',
+    waitForAsync(() => {
+      const id = 1;
+      const currentActiveState = true;
+      const subject = new Subject<boolean>();
+      const storeSpy = spyOn(store, 'dispatch');
+
+      spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
+
+      underTest.switchWorkflowActiveState(id, currentActiveState);
+      subject.next(true);
+
+      fixture.detectChanges();
+      expect(underTest.ignoreRefresh).toBeTrue();
+      fixture.whenStable().then(() => {
+        expect(storeSpy).toHaveBeenCalled();
+        expect(storeSpy).toHaveBeenCalledWith(new SwitchWorkflowActiveState({ id: id, currentActiveState: currentActiveState }));
+      });
+    }),
+  );
+
+  it(
+    'switchWorkflowActiveState() should not dispatch switch workflow active state when dialog is not confirmed',
+    waitForAsync(() => {
+      const id = 1;
+      const currentActiveState = false;
+      const subject = new Subject<boolean>();
+      const storeSpy = spyOn(store, 'dispatch');
+
+      spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
+
+      underTest.switchWorkflowActiveState(id, currentActiveState);
+      subject.next(false);
+
+      fixture.detectChanges();
+      expect(underTest.ignoreRefresh).toBeFalse();
+      fixture.whenStable().then(() => {
+        expect(storeSpy).toHaveBeenCalledTimes(0);
+      });
+    }),
+  );
+
+  it(
+    'runWorkflow() should dispatch load jobs for run',
+    waitForAsync(() => {
+      const id = 42;
+      const storeSpy = spyOn(store, 'dispatch');
+
+      underTest.runWorkflow(id);
+
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(storeSpy).toHaveBeenCalledWith(new LoadJobsForRun(id));
+      });
+    }),
+  );
+
+  it(
+    'showWorkflow() should navigate to show workflow page',
+    waitForAsync(() => {
+      const id = 42;
+      const routerSpy = spyOn(router, 'navigate');
+
+      underTest.showWorkflow(id);
+
+      expect(routerSpy).toHaveBeenCalledTimes(1);
+      expect(routerSpy).toHaveBeenCalledWith([absoluteRoutes.SHOW_WORKFLOW, id]);
+    }),
+  );
+
+  describe('onClarityDgRefresh', () => {
+    it(
+      'should dispatch SetWorkflowsSort when ignoreRefresh is false',
+      waitForAsync(() => {
+        underTest.ignoreRefresh = false;
+
+        const subject = new Subject<boolean>();
+        const storeSpy = spyOn(store, 'dispatch');
+        const state: ClrDatagridStateInterface = {};
+
+        underTest.onClarityDgRefresh(state);
+        subject.next(true);
+
+        fixture.detectChanges();
+        expect(underTest.ignoreRefresh).toBeFalse();
+        expect(underTest.sort).toBeUndefined();
+        expect(underTest.filters).toBeUndefined();
+
+        fixture.whenStable().then(() => {
+          expect(storeSpy).toHaveBeenCalled();
+          expect(storeSpy).toHaveBeenCalledWith(new SetWorkflowsSort(underTest.sort));
+        });
+      }),
+    );
+
+    it(
+      'onClarityDgRefresh() should not dispatch SetWorkflowsSort and SetWorkflowsFilters when ignoreRefresh is true',
+      waitForAsync(() => {
+        underTest.ignoreRefresh = true;
+
+        const subject = new Subject<boolean>();
+        const storeSpy = spyOn(store, 'dispatch');
+        const state: ClrDatagridStateInterface = {};
+
+        underTest.onClarityDgRefresh(state);
+        subject.next(true);
+
+        fixture.detectChanges();
+        expect(underTest.ignoreRefresh).toBeTrue();
+        expect(storeSpy).not.toHaveBeenCalled();
+      }),
+    );
   });
 });

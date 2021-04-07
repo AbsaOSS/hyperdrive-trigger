@@ -54,23 +54,25 @@ describe('WorkflowComparisonComponent', () => {
     },
   };
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      providers: [
-        provideMockStore({ initialState: initialAppState }),
-        {
-          provide: ActivatedRoute,
-          useValue: {
-            params: of({
-              leftWorkflowHistoryId: '0',
-              rightWorkflowHistoryId: '1',
-            }),
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        providers: [
+          provideMockStore({ initialState: initialAppState }),
+          {
+            provide: ActivatedRoute,
+            useValue: {
+              params: of({
+                leftWorkflowHistoryId: '0',
+                rightWorkflowHistoryId: '1',
+              }),
+            },
           },
-        },
-      ],
-      declarations: [WorkflowComparisonComponent],
-    }).compileComponents();
-  }));
+        ],
+        declarations: [WorkflowComparisonComponent],
+      }).compileComponents();
+    }),
+  );
 
   beforeEach(() => {
     fixture = TestBed.createComponent(WorkflowComparisonComponent);
@@ -81,30 +83,39 @@ describe('WorkflowComparisonComponent', () => {
     expect(underTest).toBeTruthy();
   });
 
-  it('should set properties during on init', waitForAsync(() => {
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(underTest.loading).toBe(initialAppState.workflows.history.loading);
-      expect(underTest.workflowFormParts).toBe(initialAppState.workflows.history.workflowFormParts);
-      expect(underTest.workflowDataLeft).toBe(initialAppState.workflows.history.leftWorkflowHistoryData);
-      expect(underTest.workflowDataRight).toBe(initialAppState.workflows.history.rightWorkflowHistoryData);
-      expect(underTest.workflowHistoryLeft).toBe(initialAppState.workflows.history.leftWorkflowHistory);
-      expect(underTest.workflowHistoryRight).toBe(initialAppState.workflows.history.rightWorkflowHistory);
-    });
-  }));
+  it(
+    'should set properties during on init',
+    waitForAsync(() => {
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(underTest.loading).toBe(initialAppState.workflows.history.loading);
+        expect(underTest.workflowFormParts).toBe(initialAppState.workflows.history.workflowFormParts);
+        expect(underTest.workflowDataLeft).toBe(initialAppState.workflows.history.leftWorkflowHistoryData);
+        expect(underTest.workflowDataRight).toBe(initialAppState.workflows.history.rightWorkflowHistoryData);
+        expect(underTest.workflowHistoryLeft).toBe(initialAppState.workflows.history.leftWorkflowHistory);
+        expect(underTest.workflowHistoryRight).toBe(initialAppState.workflows.history.rightWorkflowHistory);
+      });
+    }),
+  );
 
-  it('isLoadedSuccessfully() should return true when is successfully loaded', waitForAsync(() => {
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(underTest.isLoadedSuccessfully()).toBeTruthy();
-    });
-  }));
+  it(
+    'isLoadedSuccessfully() should return true when is successfully loaded',
+    waitForAsync(() => {
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(underTest.isLoadedSuccessfully()).toBeTruthy();
+      });
+    }),
+  );
 
-  it('isLoadedSuccessfully() should return false when at least one prop is undefined', waitForAsync(() => {
-    fixture.detectChanges();
-    underTest.workflowHistoryRight = undefined;
-    fixture.whenStable().then(() => {
-      expect(underTest.isLoadedSuccessfully()).toBeFalsy();
-    });
-  }));
+  it(
+    'isLoadedSuccessfully() should return false when at least one prop is undefined',
+    waitForAsync(() => {
+      fixture.detectChanges();
+      underTest.workflowHistoryRight = undefined;
+      fixture.whenStable().then(() => {
+        expect(underTest.isLoadedSuccessfully()).toBeFalsy();
+      });
+    }),
+  );
 });

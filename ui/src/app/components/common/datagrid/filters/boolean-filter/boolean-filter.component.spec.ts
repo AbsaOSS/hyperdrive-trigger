@@ -20,12 +20,14 @@ import { WorkflowModelFactory } from '../../../../../models/workflow.model';
 describe('BooleanFilterComponent', () => {
   let fixture: ComponentFixture<BooleanFilterComponent>;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      providers: [],
-      declarations: [BooleanFilterComponent],
-    }).compileComponents();
-  }));
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        providers: [],
+        declarations: [BooleanFilterComponent],
+      }).compileComponents();
+    }),
+  );
 
   beforeEach(() => {
     fixture = TestBed.createComponent(BooleanFilterComponent);

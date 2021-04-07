@@ -37,12 +37,14 @@ describe('WorkflowsComponent', () => {
     },
   };
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      providers: [provideMockStore({ initialState: initialAppState })],
-      declarations: [WorkflowsComponent],
-    }).compileComponents();
-  }));
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        providers: [provideMockStore({ initialState: initialAppState })],
+        declarations: [WorkflowsComponent],
+      }).compileComponents();
+    }),
+  );
 
   beforeEach(() => {
     fixture = TestBed.createComponent(WorkflowsComponent);
@@ -53,11 +55,14 @@ describe('WorkflowsComponent', () => {
     expect(underTest).toBeTruthy();
   });
 
-  it('should after view init set component properties', waitForAsync(() => {
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(underTest.loading).toBe(initialAppState.workflows.loading);
-      expect(underTest.projects).toBeDefined();
-    });
-  }));
+  it(
+    'should after view init set component properties',
+    waitForAsync(() => {
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(underTest.loading).toBe(initialAppState.workflows.loading);
+        expect(underTest.projects).toBeDefined();
+      });
+    }),
+  );
 });

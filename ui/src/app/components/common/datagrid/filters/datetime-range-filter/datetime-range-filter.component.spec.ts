@@ -21,11 +21,13 @@ import { DagRunModelFactory } from '../../../../../models/dagRuns/dagRun.model';
 describe('DatetimeRangeFilterComponent', () => {
   let fixture: ComponentFixture<DatetimeRangeFilterComponent>;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      declarations: [DatetimeRangeFilterComponent],
-    }).compileComponents();
-  }));
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        declarations: [DatetimeRangeFilterComponent],
+      }).compileComponents();
+    }),
+  );
 
   beforeEach(() => {
     fixture = TestBed.createComponent(DatetimeRangeFilterComponent);
