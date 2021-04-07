@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { StringPartComponent } from './string-part.component';
 import { Subject } from 'rxjs';
@@ -29,7 +29,7 @@ describe('StringPartComponent', () => {
 
   const inputSelector: Predicate<DebugElement> = By.css('input[type="text"]');
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [StringPartComponent],
       imports: [FormsModule],
@@ -52,7 +52,7 @@ describe('StringPartComponent', () => {
     parameters.forEach((parameter) => {
       it(
         'should pass with ' + parameter + ' value',
-        async(() => {
+        waitForAsync(() => {
           const oldValue = parameter;
           const newValue = '';
           const propertyName = 'property';
@@ -79,7 +79,7 @@ describe('StringPartComponent', () => {
     });
   });
 
-  it('should change value and publish change on user input', async(() => {
+  it('should change value and publish change on user input', waitForAsync(() => {
     const oldValue = 'oldValue';
     const newValue = 'newValue';
     const propertyName = 'property';

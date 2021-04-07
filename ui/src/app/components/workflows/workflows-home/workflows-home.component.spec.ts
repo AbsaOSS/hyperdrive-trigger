@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { WorkflowsHomeComponent } from './workflows-home.component';
 import { provideMockStore } from '@ngrx/store/testing';
@@ -59,7 +59,7 @@ describe('WorkflowsHomeComponent', () => {
     workflowsFilters: undefined,
   };
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       providers: [ConfirmationDialogService, provideMockStore({ initialState: initialAppState })],
       declarations: [WorkflowsHomeComponent],
@@ -79,7 +79,7 @@ describe('WorkflowsHomeComponent', () => {
     expect(underTest).toBeTruthy();
   });
 
-  it('should after view init set component properties', async(() => {
+  it('should after view init set component properties', waitForAsync(() => {
     fixture.detectChanges();
     fixture.whenStable().then(() => {
       expect(underTest.workflows).toEqual([].concat(...initialAppState.workflows.projects.map((project) => project.workflows)));
@@ -88,7 +88,7 @@ describe('WorkflowsHomeComponent', () => {
     });
   }));
 
-  it('exportWorkflow() should dispatch workflow export', async(() => {
+  it('exportWorkflow() should dispatch workflow export', waitForAsync(() => {
     const id = 42;
     const storeSpy = spyOn(store, 'dispatch');
 
@@ -100,7 +100,7 @@ describe('WorkflowsHomeComponent', () => {
     });
   }));
 
-  it('openImportWorkflowModal() should set is workflow import variable to true', async(() => {
+  it('openImportWorkflowModal() should set is workflow import variable to true', waitForAsync(() => {
     expect(underTest.isWorkflowImportOpen).toBeFalsy();
     underTest.openImportWorkflowModal();
 
@@ -110,7 +110,7 @@ describe('WorkflowsHomeComponent', () => {
     });
   }));
 
-  it('setWorkflowFile() should set workflow file', async(() => {
+  it('setWorkflowFile() should set workflow file', waitForAsync(() => {
     const dataTransfer = new DataTransfer();
     const file: File = new File(['content'], 'filename.jpg');
     dataTransfer.items.add(file);
@@ -125,7 +125,7 @@ describe('WorkflowsHomeComponent', () => {
     });
   }));
 
-  it('closeWorkflowImport() should close modal and remove workflow file when is submitted is false', async(() => {
+  it('closeWorkflowImport() should close modal and remove workflow file when is submitted is false', waitForAsync(() => {
     const isSubmitted = false;
     const file: File = new File(['content'], 'filename.jpg');
     const storeSpy = spyOn(store, 'dispatch');
@@ -148,7 +148,7 @@ describe('WorkflowsHomeComponent', () => {
     });
   }));
 
-  it('closeWorkflowImport() should close modal, remove workflow file and dispatch and navigate to import when is submitted is true', async(() => {
+  it('closeWorkflowImport() should close modal, remove workflow file and dispatch and navigate to import when is submitted is true', waitForAsync(() => {
     const isSubmitted = true;
     const file: File = new File(['content'], 'filename.jpg');
     const storeSpy = spyOn(store, 'dispatch');
@@ -176,7 +176,7 @@ describe('WorkflowsHomeComponent', () => {
     });
   }));
 
-  it('openImportMutliWorkflowsModal() should set isMultiWorkflowsImportOpen to true', async(() => {
+  it('openImportMutliWorkflowsModal() should set isMultiWorkflowsImportOpen to true', waitForAsync(() => {
     expect(underTest.isMultiWorkflowsImportOpen).toBeFalsy();
     underTest.openImportMultiWorkflowsModal();
 
@@ -186,7 +186,7 @@ describe('WorkflowsHomeComponent', () => {
     });
   }));
 
-  it('setMultiWorkflowsFile() should set multiWorkflowsFile', async(() => {
+  it('setMultiWorkflowsFile() should set multiWorkflowsFile', waitForAsync(() => {
     const dataTransfer = new DataTransfer();
     const file: File = new File(['content'], 'workflows.zip');
     dataTransfer.items.add(file);
@@ -201,7 +201,7 @@ describe('WorkflowsHomeComponent', () => {
     });
   }));
 
-  it('closeMultiWorkflowsImport() should close modal and remove multi workflow file when is submitted is false', async(() => {
+  it('closeMultiWorkflowsImport() should close modal and remove multi workflow file when is submitted is false', waitForAsync(() => {
     const isSubmitted = false;
     const file: File = new File(['content'], 'workflows.zip');
     const storeSpy = spyOn(store, 'dispatch');
@@ -224,7 +224,7 @@ describe('WorkflowsHomeComponent', () => {
     });
   }));
 
-  it('closeMultiWorkflowsImport() should close modal, remove workflow file and dispatch and navigate to import when is submitted is true', async(() => {
+  it('closeMultiWorkflowsImport() should close modal, remove workflow file and dispatch and navigate to import when is submitted is true', waitForAsync(() => {
     const isSubmitted = true;
     const file: File = new File(['content'], 'workflows.zip');
     const storeSpy = spyOn(store, 'dispatch');
@@ -249,7 +249,7 @@ describe('WorkflowsHomeComponent', () => {
     });
   }));
 
-  it('deleteWorkflow() should dispatch delete workflow action with id when dialog is confirmed', async(() => {
+  it('deleteWorkflow() should dispatch delete workflow action with id when dialog is confirmed', waitForAsync(() => {
     const id = 1;
     const subject = new Subject<boolean>();
     const storeSpy = spyOn(store, 'dispatch');
@@ -267,7 +267,7 @@ describe('WorkflowsHomeComponent', () => {
     });
   }));
 
-  it('deleteWorkflow() should not dispatch delete workflow action when dialog is not confirmed', async(() => {
+  it('deleteWorkflow() should not dispatch delete workflow action when dialog is not confirmed', waitForAsync(() => {
     const id = 1;
     const subject = new Subject<boolean>();
     const storeSpy = spyOn(store, 'dispatch');
@@ -284,7 +284,7 @@ describe('WorkflowsHomeComponent', () => {
     });
   }));
 
-  it('switchWorkflowActiveState() should dispatch switch workflow active state with id and old value when dialog is confirmed', async(() => {
+  it('switchWorkflowActiveState() should dispatch switch workflow active state with id and old value when dialog is confirmed', waitForAsync(() => {
     const id = 1;
     const currentActiveState = true;
     const subject = new Subject<boolean>();
@@ -303,7 +303,7 @@ describe('WorkflowsHomeComponent', () => {
     });
   }));
 
-  it('switchWorkflowActiveState() should not dispatch switch workflow active state when dialog is not confirmed', async(() => {
+  it('switchWorkflowActiveState() should not dispatch switch workflow active state when dialog is not confirmed', waitForAsync(() => {
     const id = 1;
     const currentActiveState = false;
     const subject = new Subject<boolean>();
@@ -321,7 +321,7 @@ describe('WorkflowsHomeComponent', () => {
     });
   }));
 
-  it('runWorkflow() should dispatch load jobs for run', async(() => {
+  it('runWorkflow() should dispatch load jobs for run', waitForAsync(() => {
     const id = 42;
     const storeSpy = spyOn(store, 'dispatch');
 
@@ -333,7 +333,7 @@ describe('WorkflowsHomeComponent', () => {
     });
   }));
 
-  it('showWorkflow() should navigate to show workflow page', async(() => {
+  it('showWorkflow() should navigate to show workflow page', waitForAsync(() => {
     const id = 42;
     const routerSpy = spyOn(router, 'navigate');
 
@@ -344,7 +344,7 @@ describe('WorkflowsHomeComponent', () => {
   }));
 
   describe('onClarityDgRefresh', () => {
-    it('should dispatch SetWorkflowsSort when ignoreRefresh is false', async(() => {
+    it('should dispatch SetWorkflowsSort when ignoreRefresh is false', waitForAsync(() => {
       underTest.ignoreRefresh = false;
 
       const subject = new Subject<boolean>();
@@ -365,7 +365,7 @@ describe('WorkflowsHomeComponent', () => {
       });
     }));
 
-    it('onClarityDgRefresh() should not dispatch SetWorkflowsSort and SetWorkflowsFilters when ignoreRefresh is true', async(() => {
+    it('onClarityDgRefresh() should not dispatch SetWorkflowsSort and SetWorkflowsFilters when ignoreRefresh is true', waitForAsync(() => {
       underTest.ignoreRefresh = true;
 
       const subject = new Subject<boolean>();

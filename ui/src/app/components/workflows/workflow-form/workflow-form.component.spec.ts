@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { provideMockStore } from '@ngrx/store/testing';
 import { Router } from '@angular/router';
@@ -60,7 +60,7 @@ describe('WorkflowFormComponent', () => {
     },
   };
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       providers: [ConfirmationDialogService, provideMockStore({ initialState: initialAppState }), PreviousRouteService],
       imports: [RouterTestingModule.withRoutes([]), FormsModule],
@@ -111,7 +111,7 @@ describe('WorkflowFormComponent', () => {
     expect(underTest.isJobsAccordionHidden).toBeTrue();
   });
 
-  it('deleteWorkflow() should dispatch delete workflow action with id when dialog is confirmed', async(() => {
+  it('deleteWorkflow() should dispatch delete workflow action with id when dialog is confirmed', waitForAsync(() => {
     const id = 1;
     const subject = new Subject<boolean>();
     const storeSpy = spyOn(store, 'dispatch');
@@ -129,7 +129,7 @@ describe('WorkflowFormComponent', () => {
     });
   }));
 
-  it('deleteWorkflow() should not dispatch delete workflow action when dialog is not confirmed', async(() => {
+  it('deleteWorkflow() should not dispatch delete workflow action when dialog is not confirmed', waitForAsync(() => {
     const id = 1;
     const subject = new Subject<boolean>();
     const storeSpy = spyOn(store, 'dispatch');
@@ -146,7 +146,7 @@ describe('WorkflowFormComponent', () => {
     });
   }));
 
-  it('switchWorkflowActiveState() should dispatch switch workflow active state with id and old value when dialog is confirmed', async(() => {
+  it('switchWorkflowActiveState() should dispatch switch workflow active state with id and old value when dialog is confirmed', waitForAsync(() => {
     const id = 1;
     const subject = new Subject<boolean>();
     const storeSpy = spyOn(store, 'dispatch');
@@ -167,7 +167,7 @@ describe('WorkflowFormComponent', () => {
     });
   }));
 
-  it('switchWorkflowActiveState() should not dispatch switch workflow active state when dialog is not confirmed', async(() => {
+  it('switchWorkflowActiveState() should not dispatch switch workflow active state when dialog is not confirmed', waitForAsync(() => {
     const id = 1;
     const subject = new Subject<boolean>();
     const storeSpy = spyOn(store, 'dispatch');
@@ -184,7 +184,7 @@ describe('WorkflowFormComponent', () => {
     });
   }));
 
-  it('runWorkflow() should dispatch load jobs for run', async(() => {
+  it('runWorkflow() should dispatch load jobs for run', waitForAsync(() => {
     const id = 42;
     const storeSpy = spyOn(store, 'dispatch');
 
@@ -197,7 +197,7 @@ describe('WorkflowFormComponent', () => {
     });
   }));
 
-  it('exportWorkflow() should dispatch workflow export', async(() => {
+  it('exportWorkflow() should dispatch workflow export', waitForAsync(() => {
     const id = 42;
     const storeSpy = spyOn(store, 'dispatch');
 
@@ -210,7 +210,7 @@ describe('WorkflowFormComponent', () => {
     });
   }));
 
-  it('createWorkflow() should dispatch create workflow when dialog is confirmed', async(() => {
+  it('createWorkflow() should dispatch create workflow when dialog is confirmed', waitForAsync(() => {
     underTest.workflowForm = { form: { valid: true } };
 
     const subject = new Subject<boolean>();
@@ -230,7 +230,7 @@ describe('WorkflowFormComponent', () => {
     });
   }));
 
-  it('createWorkflow() should not dispatch create workflow when dialog is not confirmed', async(() => {
+  it('createWorkflow() should not dispatch create workflow when dialog is not confirmed', waitForAsync(() => {
     const id = 1;
     underTest.workflowForm = { form: { valid: true } };
     const subject = new Subject<boolean>();
@@ -248,7 +248,7 @@ describe('WorkflowFormComponent', () => {
     });
   }));
 
-  it('hasWorkflowChanged() should return false if workflowData has not changed', async(() => {
+  it('hasWorkflowChanged() should return false if workflowData has not changed', waitForAsync(() => {
     underTest.initialWorkflowData = {
       details: [],
       sensor: [],
@@ -258,7 +258,7 @@ describe('WorkflowFormComponent', () => {
     expect(underTest.hasWorkflowChanged()).toBeFalse();
   }));
 
-  it('hasWorkflowChanged() should return true if workflowData has changed', async(() => {
+  it('hasWorkflowChanged() should return true if workflowData has changed', waitForAsync(() => {
     const detail = [WorkflowEntryModelFactory.create('projectX', 'project')];
     const sensors = [WorkflowEntryModelFactory.create('properties.settings.variables.cronExpression', '0 0/30 * ? * * *')];
     const job = [JobEntryModelFactory.create('uis99', 1, [WorkflowEntryModelFactory.create('name', 'workflowName')])];
@@ -272,11 +272,11 @@ describe('WorkflowFormComponent', () => {
     expect(underTest.hasWorkflowChanged()).toBeTrue();
   }));
 
-  it('areWorkflowEntriesEqual() should return true if entries are empty', async(() => {
+  it('areWorkflowEntriesEqual() should return true if entries are empty', waitForAsync(() => {
     expect(underTest.areWorkflowEntriesEqual([], [])).toBeTrue();
   }));
 
-  it('areWorkflowEntriesEqual() should return true if entries are equal', async(() => {
+  it('areWorkflowEntriesEqual() should return true if entries are equal', waitForAsync(() => {
     const firstEntry = WorkflowEntryModelFactory.create('first', 'first');
     const secondEntry = WorkflowEntryModelFactory.create('second', 'second');
     const thirdEntry = WorkflowEntryModelFactory.create('third', 'third');
@@ -285,7 +285,7 @@ describe('WorkflowFormComponent', () => {
     expect(underTest.areWorkflowEntriesEqual([firstEntry, secondEntry, thirdEntry], [secondEntry, firstEntry, thirdEntry])).toBeTrue();
   }));
 
-  it('areWorkflowEntriesEqual() should return false if entries are not equal', async(() => {
+  it('areWorkflowEntriesEqual() should return false if entries are not equal', waitForAsync(() => {
     const firstEntry = WorkflowEntryModelFactory.create('first', 'first');
     const secondEntry = WorkflowEntryModelFactory.create('second', 'second');
 
@@ -293,11 +293,11 @@ describe('WorkflowFormComponent', () => {
     expect(underTest.areWorkflowEntriesEqual([firstEntry, secondEntry], [firstEntry])).toBeFalsy();
   }));
 
-  it('areJobsEqual() should return true if entries are empty', async(() => {
+  it('areJobsEqual() should return true if entries are empty', waitForAsync(() => {
     expect(underTest.areJobsEqual([], [])).toBeTrue();
   }));
 
-  it('areJobsEqual() should return true if entries are equal', async(() => {
+  it('areJobsEqual() should return true if entries are equal', waitForAsync(() => {
     const firstEntry = WorkflowEntryModelFactory.create('first', 'first');
     const secondEntry = WorkflowEntryModelFactory.create('second', 'second');
     const thirdEntry = WorkflowEntryModelFactory.create('third', 'third');
@@ -316,7 +316,7 @@ describe('WorkflowFormComponent', () => {
     ).toBeTrue();
   }));
 
-  it('areJobsEqual() should return false if entries differ in length', async(() => {
+  it('areJobsEqual() should return false if entries differ in length', waitForAsync(() => {
     const firstEntry = WorkflowEntryModelFactory.create('first', 'first');
     const secondEntry = WorkflowEntryModelFactory.create('second', 'second');
     const thirdEntry = WorkflowEntryModelFactory.create('third', 'third');
@@ -325,7 +325,7 @@ describe('WorkflowFormComponent', () => {
     expect(underTest.areJobsEqual([], [JobEntryModelFactory.createWithUuid(0, [firstEntry, secondEntry, thirdEntry])])).toBeFalsy();
   }));
 
-  it('areJobsEqual() should return false if entries are not equal', async(() => {
+  it('areJobsEqual() should return false if entries are not equal', waitForAsync(() => {
     const firstEntry = WorkflowEntryModelFactory.create('first', 'first');
     const secondEntry = WorkflowEntryModelFactory.create('second', 'second');
 
@@ -343,7 +343,7 @@ describe('WorkflowFormComponent', () => {
     ).toBeFalsy();
   }));
 
-  it('updateWorkflow() should dispatch update workflow when dialog is confirmed', async(() => {
+  it('updateWorkflow() should dispatch update workflow when dialog is confirmed', waitForAsync(() => {
     underTest.workflowForm = { form: { valid: true } };
 
     const subject = new Subject<boolean>();
@@ -363,7 +363,7 @@ describe('WorkflowFormComponent', () => {
     });
   }));
 
-  it('updateWorkflow() should not dispatch update workflow when dialog is not confirmed', async(() => {
+  it('updateWorkflow() should not dispatch update workflow when dialog is not confirmed', waitForAsync(() => {
     const id = 1;
     underTest.workflowForm = { form: { valid: true } };
     const subject = new Subject<boolean>();
@@ -415,7 +415,7 @@ describe('WorkflowFormComponent', () => {
     expect(jobsUnfoldSpy).toHaveBeenCalledTimes(1);
   });
 
-  it('removeBackendValidationError() should dispatch remove backend validation error action', async(() => {
+  it('removeBackendValidationError() should dispatch remove backend validation error action', waitForAsync(() => {
     const index = 2;
 
     const storeSpy = spyOn(store, 'dispatch');
@@ -429,7 +429,7 @@ describe('WorkflowFormComponent', () => {
     });
   }));
 
-  it('getJobsData() should return jobs data ordered by order number', async(() => {
+  it('getJobsData() should return jobs data ordered by order number', waitForAsync(() => {
     const jobOne = JobEntryModelFactory.create('1', 1, undefined);
     const jobTwo = JobEntryModelFactory.create('2', 2, undefined);
 

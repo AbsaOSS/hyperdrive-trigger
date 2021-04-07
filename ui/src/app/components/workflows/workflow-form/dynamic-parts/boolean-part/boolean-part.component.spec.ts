@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { BooleanPartComponent } from './boolean-part.component';
 import { DebugElement, Predicate } from '@angular/core';
@@ -28,7 +28,7 @@ describe('BooleanPartComponent', () => {
 
   const inputSelector: Predicate<DebugElement> = By.css('input[type="checkbox"]');
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [BooleanPartComponent],
       imports: [FormsModule],
@@ -51,7 +51,7 @@ describe('BooleanPartComponent', () => {
     parameters.forEach((parameter) => {
       it(
         'should pass with ' + parameter + ' value',
-        async(() => {
+        waitForAsync(() => {
           const oldValue = parameter;
           const newValue = false;
           const propertyName = 'property';
@@ -76,7 +76,7 @@ describe('BooleanPartComponent', () => {
     });
   });
 
-  it('should change value and publish change on user input', async(() => {
+  it('should change value and publish change on user input', waitForAsync(() => {
     const oldValue = false;
     const newValue = true;
     const propertyName = 'property';

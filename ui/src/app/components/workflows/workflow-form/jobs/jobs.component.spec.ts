@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { JobsComponent } from './jobs.component';
 import { FormPartFactory, PartValidationFactory, WorkflowFormPartsModelFactory } from '../../../../models/workflowFormParts.model';
@@ -44,7 +44,7 @@ describe('JobsComponent', () => {
   );
   const changes: Subject<Action> = new Subject<Action>();
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [JobsComponent],
     }).compileComponents();
@@ -65,7 +65,7 @@ describe('JobsComponent', () => {
     expect(underTest).toBeTruthy();
   });
 
-  it('when jobsUnfold event is received it should clear hidden jobs', async(() => {
+  it('when jobsUnfold event is received it should clear hidden jobs', waitForAsync(() => {
     const hiddenJobs = new Set<string>().add('abcd');
     underTest.hiddenJobs = hiddenJobs;
 
@@ -80,7 +80,7 @@ describe('JobsComponent', () => {
     });
   }));
 
-  it('toggleJob() should toggle a job', async(() => {
+  it('toggleJob() should toggle a job', waitForAsync(() => {
     expect(underTest.hiddenJobs.size).toEqual(0);
     underTest.toggleJob('abcd');
     expect(underTest.hiddenJobs.size).toEqual(1);
@@ -89,28 +89,28 @@ describe('JobsComponent', () => {
     expect(underTest.hiddenJobs.size).toEqual(0);
   }));
 
-  it('isJobHidden() should return whether is job hidden', async(() => {
+  it('isJobHidden() should return whether is job hidden', waitForAsync(() => {
     underTest.hiddenJobs = new Set<string>().add('abcd');
 
     expect(underTest.isJobHidden('abcd')).toBeTrue();
     expect(underTest.isJobHidden('9999')).toBeFalse();
   }));
 
-  it('getJobName() should return job name', async(() => {
+  it('getJobName() should return job name', waitForAsync(() => {
     fixture.detectChanges();
     fixture.whenStable().then(() => {
       expect(underTest.getJobName(uuid)).toBe('value');
     });
   }));
 
-  it('getJobName() should return empty string when job is not found', async(() => {
+  it('getJobName() should return empty string when job is not found', waitForAsync(() => {
     fixture.detectChanges();
     fixture.whenStable().then(() => {
       expect(underTest.getJobName('9999')).toBe('');
     });
   }));
 
-  it('addJob() add job actions should be dispatched', async(() => {
+  it('addJob() add job actions should be dispatched', waitForAsync(() => {
     const changesSpy = spyOn(underTest.changes, 'next');
 
     fixture.detectChanges();
@@ -122,7 +122,7 @@ describe('JobsComponent', () => {
     });
   }));
 
-  it('removeJob() remove job actions should be dispatched', async(() => {
+  it('removeJob() remove job actions should be dispatched', waitForAsync(() => {
     const changesSpy = spyOn(underTest.changes, 'next');
 
     fixture.detectChanges();
@@ -134,7 +134,7 @@ describe('JobsComponent', () => {
     });
   }));
 
-  it('copyJob() copy job action should be dispatched', async(() => {
+  it('copyJob() copy job action should be dispatched', waitForAsync(() => {
     const changesSpy = spyOn(underTest.changes, 'next');
 
     fixture.detectChanges();
@@ -146,7 +146,7 @@ describe('JobsComponent', () => {
     });
   }));
 
-  it('reorderJobs() reorder jobs actions should be dispatched when positions are not equal', async(() => {
+  it('reorderJobs() reorder jobs actions should be dispatched when positions are not equal', waitForAsync(() => {
     const initialJobPosition = 1;
     const updatedJobPosition = 5;
     const changesSpy = spyOn(underTest.changes, 'next');
@@ -160,7 +160,7 @@ describe('JobsComponent', () => {
     });
   }));
 
-  it('reorderJobs() reorder jobs actions should not be dispatched when positions are equal', async(() => {
+  it('reorderJobs() reorder jobs actions should not be dispatched when positions are equal', waitForAsync(() => {
     const initialJobPosition = 5;
     const updatedJobPosition = 5;
     const changesSpy = spyOn(underTest.changes, 'next');

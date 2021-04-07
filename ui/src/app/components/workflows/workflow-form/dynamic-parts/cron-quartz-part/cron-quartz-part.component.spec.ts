@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { async, TestBed } from '@angular/core/testing';
+import { TestBed, waitForAsync } from '@angular/core/testing';
 import { Subject } from 'rxjs';
 
 import { CronQuartzPartComponent } from './cron-quartz-part.component';
@@ -35,7 +35,7 @@ describe('CronQuartzPartComponent', () => {
   let toastrService: ToastrService;
   let utilService: UtilService;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       providers: [UtilService, CronQuartzPartComponent],
       imports: [HttpClientTestingModule, ToastrModule.forRoot()],

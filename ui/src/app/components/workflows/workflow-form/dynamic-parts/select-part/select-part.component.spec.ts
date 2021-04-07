@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { SelectPartComponent } from './select-part.component';
 import { DebugElement, Predicate } from '@angular/core';
@@ -29,7 +29,7 @@ describe('SelectPartComponent', () => {
 
   const inputSelector: Predicate<DebugElement> = By.css('select');
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [SelectPartComponent],
       imports: [FormsModule],
@@ -52,7 +52,7 @@ describe('SelectPartComponent', () => {
     parameters.forEach((parameter) => {
       it(
         'should pass with ' + parameter + ' value',
-        async(() => {
+        waitForAsync(() => {
           const oldValue = parameter;
           const newValue = 'oneValue';
           const propertyName = 'property';
@@ -85,7 +85,7 @@ describe('SelectPartComponent', () => {
     });
   });
 
-  it('should change value and publish change on user input', async(() => {
+  it('should change value and publish change on user input', waitForAsync(() => {
     const oldValue = 'oneValue';
     const newValue = 'threeValue';
     const propertyName = 'property';

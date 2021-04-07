@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { WorkflowRunComponent } from './workflow-run.component';
 import { provideMockStore } from '@ngrx/store/testing';
@@ -37,7 +37,7 @@ describe('WorkflowRunComponent', () => {
     },
   };
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [WorkflowRunComponent],
       providers: [provideMockStore({ initialState: initialAppState })],
@@ -54,7 +54,7 @@ describe('WorkflowRunComponent', () => {
     expect(underTest).toBeTruthy();
   });
 
-  it('should set properties during on init', async(() => {
+  it('should set properties during on init', waitForAsync(() => {
     fixture.detectChanges();
     fixture.whenStable().then(() => {
       const sortedJobs = [...initialAppState.workflows.jobsForRun.jobs].sort((left, right) => left.order - right.order);

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { WorkflowDetailsComponent } from './workflow-details.component';
 import { WorkflowEntryModelFactory } from '../../../../models/workflowEntry.model';
@@ -31,7 +31,7 @@ describe('WorkflowDetailsComponent', () => {
   ];
   const parts = [];
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [WorkflowDetailsComponent],
     }).compileComponents();
@@ -51,7 +51,7 @@ describe('WorkflowDetailsComponent', () => {
     expect(underTest).toBeTruthy();
   });
 
-  it('should dispatch workflow details change when value is received', async(() => {
+  it('should dispatch workflow details change when value is received', waitForAsync(() => {
     const usedWorkflowEntry = WorkflowEntryModelFactory.create('property', 'value');
     fixture.detectChanges();
     fixture.whenStable().then(() => {
@@ -66,7 +66,7 @@ describe('WorkflowDetailsComponent', () => {
     });
   }));
 
-  it('getValue() should return value when property exists', async(() => {
+  it('getValue() should return value when property exists', waitForAsync(() => {
     fixture.detectChanges();
     fixture.whenStable().then(() => {
       const queriedDetail = sensorData[0];
@@ -74,7 +74,7 @@ describe('WorkflowDetailsComponent', () => {
     });
   }));
 
-  it('getValue() should return undefined when property does not exist', async(() => {
+  it('getValue() should return undefined when property does not exist', waitForAsync(() => {
     const undefinedProperty = 'undefinedProperty';
 
     fixture.detectChanges();

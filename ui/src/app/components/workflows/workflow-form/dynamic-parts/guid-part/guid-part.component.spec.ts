@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { GuidPartComponent } from './guid-part.component';
 import { DebugElement, Predicate } from '@angular/core';
@@ -29,7 +29,7 @@ describe('GuidPartComponent', () => {
 
   const buttonSelector: Predicate<DebugElement> = By.css('button[type="button"]');
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [GuidPartComponent],
       imports: [FormsModule],
@@ -52,7 +52,7 @@ describe('GuidPartComponent', () => {
     parameters.forEach((parameter) => {
       it(
         'should pass with ' + parameter + ' value',
-        async(() => {
+        waitForAsync(() => {
           const oldValue = parameter;
           const propertyName = 'property';
           const testedSubject = new Subject<WorkflowEntryModel>();
@@ -78,7 +78,7 @@ describe('GuidPartComponent', () => {
     });
   });
 
-  it('should change value and publish change on user input', async(() => {
+  it('should change value and publish change on user input', waitForAsync(() => {
     const propertyName = 'property';
     const testedSubject = new Subject<WorkflowEntryModel>();
     const subjectSpy = spyOn(testedSubject, 'next');

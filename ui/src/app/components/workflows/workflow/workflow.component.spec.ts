@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { WorkflowComponent } from './workflow.component';
 import { provideMockStore } from '@ngrx/store/testing';
@@ -62,7 +62,7 @@ describe('WorkflowComponent', () => {
     },
   };
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       providers: [
         ConfirmationDialogService,
@@ -96,7 +96,7 @@ describe('WorkflowComponent', () => {
     expect(underTest).toBeTruthy();
   });
 
-  it('should set properties during on init', async(() => {
+  it('should set properties during on init', waitForAsync(() => {
     fixture.detectChanges();
     fixture.whenStable().then(() => {
       expect(underTest.loading).toBe(initialAppState.workflows.workflowAction.loading);
@@ -109,7 +109,7 @@ describe('WorkflowComponent', () => {
     });
   }));
 
-  it('when changes is dispatched from child component it should propagate action to store', async(() => {
+  it('when changes is dispatched from child component it should propagate action to store', waitForAsync(() => {
     const usedAction = new StartWorkflowInitialization({ id: 1, mode: 'mode' });
     fixture.detectChanges();
     fixture.whenStable().then(() => {

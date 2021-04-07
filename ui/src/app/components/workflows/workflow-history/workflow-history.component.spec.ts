@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { WorkflowHistoryComponent } from './workflow-history.component';
 import { provideMockStore } from '@ngrx/store/testing';
@@ -38,7 +38,7 @@ describe('WorkflowHistoryComponent', () => {
     },
   };
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       providers: [provideMockStore({ initialState: initialAppState })],
       declarations: [WorkflowHistoryComponent],
@@ -55,7 +55,7 @@ describe('WorkflowHistoryComponent', () => {
     expect(underTest).toBeTruthy();
   });
 
-  it('should set properties during on init', async(() => {
+  it('should set properties during on init', waitForAsync(() => {
     fixture.detectChanges();
     fixture.whenStable().then(() => {
       expect(underTest.loading).toBe(initialAppState.workflows.history.loading);
@@ -63,7 +63,7 @@ describe('WorkflowHistoryComponent', () => {
     });
   }));
 
-  it('isSelectable() should return false when 2 history records are selected', async(() => {
+  it('isSelectable() should return false when 2 history records are selected', waitForAsync(() => {
     underTest.workflowHistory = [historyRecordOne, historyRecordTwo, historyRecordThree];
     underTest.selected = [historyRecordOne, historyRecordTwo];
 
@@ -73,7 +73,7 @@ describe('WorkflowHistoryComponent', () => {
     });
   }));
 
-  it('isSelectable() should return true when 0 history records are selected', async(() => {
+  it('isSelectable() should return true when 0 history records are selected', waitForAsync(() => {
     underTest.workflowHistory = [historyRecordOne, historyRecordTwo, historyRecordThree];
     underTest.selected = [];
 
@@ -83,7 +83,7 @@ describe('WorkflowHistoryComponent', () => {
     });
   }));
 
-  it('isSelectable() should return true when 2 history records are selected and on input is already selected record', async(() => {
+  it('isSelectable() should return true when 2 history records are selected and on input is already selected record', waitForAsync(() => {
     underTest.workflowHistory = [historyRecordOne, historyRecordTwo, historyRecordThree];
     underTest.selected = [historyRecordOne, historyRecordTwo];
 

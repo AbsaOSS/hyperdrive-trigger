@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { DynamicPartsComponent } from './dynamic-parts.component';
 import { Subject } from 'rxjs';
@@ -23,7 +23,7 @@ describe('DynamicPartsComponent', () => {
   let fixture: ComponentFixture<DynamicPartsComponent>;
   let underTest: DynamicPartsComponent;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [DynamicPartsComponent],
     }).compileComponents();
@@ -38,7 +38,7 @@ describe('DynamicPartsComponent', () => {
     expect(underTest).toBeTruthy();
   });
 
-  it('getValue() should return value when property exists', async(() => {
+  it('getValue() should return value when property exists', waitForAsync(() => {
     const workflowEntryOne = WorkflowEntryModelFactory.create('propertyOne', 'valueOne');
     const workflowEntryTwo = WorkflowEntryModelFactory.create('propertyTwo', 'valueTwo');
     const testedSubject = new Subject<WorkflowEntryModel>();
@@ -56,7 +56,7 @@ describe('DynamicPartsComponent', () => {
     });
   }));
 
-  it('getValue() should return undefined when property does not exist', async(() => {
+  it('getValue() should return undefined when property does not exist', waitForAsync(() => {
     const workflowEntryOne = WorkflowEntryModelFactory.create('propertyOne', 'valueOne');
     const workflowEntryTwo = WorkflowEntryModelFactory.create('propertyTwo', 'valueTwo');
     const undefinedProperty = 'undefinedProperty';

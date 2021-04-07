@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { SensorComponent } from './sensor.component';
 import {
@@ -64,7 +64,7 @@ describe('SensorComponent', () => {
     ),
   );
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [SensorComponent],
     }).compileComponents();
@@ -84,7 +84,7 @@ describe('SensorComponent', () => {
     expect(underTest).toBeTruthy();
   });
 
-  it('should dispatch workflow sensor change when value is received', async(() => {
+  it('should dispatch workflow sensor change when value is received', waitForAsync(() => {
     const usedWorkflowEntry = WorkflowEntryModelFactory.create('property', 'value');
     fixture.detectChanges();
     fixture.whenStable().then(() => {
@@ -99,7 +99,7 @@ describe('SensorComponent', () => {
     });
   }));
 
-  it('should dispatch workflow sensor type switch when value for switch is received', async(() => {
+  it('should dispatch workflow sensor type switch when value for switch is received', waitForAsync(() => {
     const usedWorkflowEntry = WorkflowEntryModelFactory.create(workflowFormParts.sensorSwitchPart.property, 'value');
 
     fixture.detectChanges();
@@ -115,7 +115,7 @@ describe('SensorComponent', () => {
     });
   }));
 
-  it('getSensorTypes() should return sensor types', async(() => {
+  it('getSensorTypes() should return sensor types', waitForAsync(() => {
     fixture.detectChanges();
     fixture.whenStable().then(() => {
       const result = underTest.getSensorTypes();
@@ -123,7 +123,7 @@ describe('SensorComponent', () => {
     });
   }));
 
-  it('getSelectedSensorComponent() should return first dynamic parts when no sensor is selected', async(() => {
+  it('getSelectedSensorComponent() should return first dynamic parts when no sensor is selected', waitForAsync(() => {
     underTest.sensorData = [];
     fixture.detectChanges();
     fixture.whenStable().then(() => {
@@ -134,7 +134,7 @@ describe('SensorComponent', () => {
     });
   }));
 
-  it('getSelectedSensorComponent() should return dynamic parts when sensor is selected', async(() => {
+  it('getSelectedSensorComponent() should return dynamic parts when sensor is selected', waitForAsync(() => {
     fixture.detectChanges();
     fixture.whenStable().then(() => {
       const resultLeft = underTest.getSelectedSensorComponent();
@@ -144,7 +144,7 @@ describe('SensorComponent', () => {
     });
   }));
 
-  it('getValue() should return value when property exists', async(() => {
+  it('getValue() should return value when property exists', waitForAsync(() => {
     fixture.detectChanges();
     fixture.whenStable().then(() => {
       const queriedDetail = sensorData[0];
@@ -152,7 +152,7 @@ describe('SensorComponent', () => {
     });
   }));
 
-  it('getValue() should return undefined when property does not exist', async(() => {
+  it('getValue() should return undefined when property does not exist', waitForAsync(() => {
     const undefinedProperty = 'undefinedProperty';
 
     fixture.detectChanges();

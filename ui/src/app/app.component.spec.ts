@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { TestBed, async, ComponentFixture } from '@angular/core/testing';
+import { TestBed, ComponentFixture, waitForAsync } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ClarityModule } from '@clr/angular';
 import { provideMockStore, MockStore } from '@ngrx/store/testing';
@@ -47,7 +47,7 @@ describe('AppComponent', () => {
     runs: {},
   };
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [RouterTestingModule, ClarityModule],
       providers: [provideMockStore({ initialState: initialAppState })],

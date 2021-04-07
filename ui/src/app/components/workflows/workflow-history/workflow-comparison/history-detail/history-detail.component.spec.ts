@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { HistoryDetailComponent } from './history-detail.component';
 
@@ -21,7 +21,7 @@ describe('HistoryDetailComponent', () => {
   let underTest: HistoryDetailComponent;
   let fixture: ComponentFixture<HistoryDetailComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [HistoryDetailComponent],
     }).compileComponents();
@@ -36,7 +36,7 @@ describe('HistoryDetailComponent', () => {
     expect(underTest).toBeTruthy();
   });
 
-  it('toggleHistoryDetailAccordion() should toggle a history detail', async(() => {
+  it('toggleHistoryDetailAccordion() should toggle a history detail', waitForAsync(() => {
     expect(underTest.isHistoryDetailHidden).toBeFalsy();
     underTest.toggleHistoryDetailAccordion();
     expect(underTest.isHistoryDetailHidden).toBeTruthy();

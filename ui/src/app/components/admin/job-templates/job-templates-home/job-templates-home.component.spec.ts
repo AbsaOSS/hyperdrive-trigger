@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { JobTemplatesHomeComponent } from './job-templates-home.component';
 import { provideMockStore } from '@ngrx/store/testing';
@@ -43,7 +43,7 @@ describe('JobTemplatesHomeComponent', () => {
     },
   };
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       providers: [provideMockStore({ initialState: initialAppState })],
       declarations: [JobTemplatesHomeComponent],
@@ -63,7 +63,7 @@ describe('JobTemplatesHomeComponent', () => {
     expect(underTest).toBeTruthy();
   });
 
-  it('onClarityDgRefresh() should dispatch SearchJobTemplates action', async(() => {
+  it('onClarityDgRefresh() should dispatch SearchJobTemplates action', waitForAsync(() => {
     const storeSpy = spyOn(store, 'dispatch');
     const removeFiltersSubjectSpy = spyOn(underTest.refreshSubject, 'next');
     const clrDatagridState: ClrDatagridStateInterface = {
@@ -86,7 +86,7 @@ describe('JobTemplatesHomeComponent', () => {
     expect(storeSpy).toHaveBeenCalledTimes(1);
   }));
 
-  it('refresh() should dispatch SearchJobTemplates action', async(() => {
+  it('refresh() should dispatch SearchJobTemplates action', waitForAsync(() => {
     const storeSpy = spyOn(store, 'dispatch');
     const removeFiltersSubjectSpy = spyOn(underTest.refreshSubject, 'next');
 
@@ -96,7 +96,7 @@ describe('JobTemplatesHomeComponent', () => {
     expect(storeSpy).toHaveBeenCalledTimes(1);
   }));
 
-  it('clearFilters() should call next on removeFiltersSubject', async(() => {
+  it('clearFilters() should call next on removeFiltersSubject', waitForAsync(() => {
     const removeFiltersSubjectSpy = spyOn(underTest.removeFiltersSubject, 'next');
 
     underTest.clearFilters();
@@ -104,7 +104,7 @@ describe('JobTemplatesHomeComponent', () => {
     expect(removeFiltersSubjectSpy).toHaveBeenCalledTimes(1);
   }));
 
-  it('showJobTemplate() should navigate to show job template page', async(() => {
+  it('showJobTemplate() should navigate to show job template page', waitForAsync(() => {
     const id = 42;
     const routerSpy = spyOn(router, 'navigate');
 

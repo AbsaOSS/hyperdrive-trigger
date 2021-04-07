@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { WorkflowComparisonComponent } from './workflow-comparison.component';
 import { DynamicFormPartsFactory, WorkflowFormPartsModelFactory } from '../../../../models/workflowFormParts.model';
@@ -54,7 +54,7 @@ describe('WorkflowComparisonComponent', () => {
     },
   };
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       providers: [
         provideMockStore({ initialState: initialAppState }),
@@ -81,7 +81,7 @@ describe('WorkflowComparisonComponent', () => {
     expect(underTest).toBeTruthy();
   });
 
-  it('should set properties during on init', async(() => {
+  it('should set properties during on init', waitForAsync(() => {
     fixture.detectChanges();
     fixture.whenStable().then(() => {
       expect(underTest.loading).toBe(initialAppState.workflows.history.loading);
@@ -93,14 +93,14 @@ describe('WorkflowComparisonComponent', () => {
     });
   }));
 
-  it('isLoadedSuccessfully() should return true when is successfully loaded', async(() => {
+  it('isLoadedSuccessfully() should return true when is successfully loaded', waitForAsync(() => {
     fixture.detectChanges();
     fixture.whenStable().then(() => {
       expect(underTest.isLoadedSuccessfully()).toBeTruthy();
     });
   }));
 
-  it('isLoadedSuccessfully() should return false when at least one prop is undefined', async(() => {
+  it('isLoadedSuccessfully() should return false when at least one prop is undefined', waitForAsync(() => {
     fixture.detectChanges();
     underTest.workflowHistoryRight = undefined;
     fixture.whenStable().then(() => {

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { WorkflowsComponent } from './workflows.component';
 import { provideMockStore } from '@ngrx/store/testing';
 import { ProjectModelFactory } from '../../models/project.model';
@@ -37,7 +37,7 @@ describe('WorkflowsComponent', () => {
     },
   };
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       providers: [provideMockStore({ initialState: initialAppState })],
       declarations: [WorkflowsComponent],
@@ -53,7 +53,7 @@ describe('WorkflowsComponent', () => {
     expect(underTest).toBeTruthy();
   });
 
-  it('should after view init set component properties', async(() => {
+  it('should after view init set component properties', waitForAsync(() => {
     fixture.detectChanges();
     fixture.whenStable().then(() => {
       expect(underTest.loading).toBe(initialAppState.workflows.loading);

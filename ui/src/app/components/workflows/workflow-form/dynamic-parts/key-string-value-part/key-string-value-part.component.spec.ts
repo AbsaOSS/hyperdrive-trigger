@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { KeyStringValuePartComponent } from './key-string-value-part.component';
 import { DebugElement, Predicate } from '@angular/core';
@@ -30,7 +30,7 @@ describe('KeyStringValuePartComponent', () => {
 
   const inputSelector: Predicate<DebugElement> = By.css('input[type="text"]');
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [KeyStringValuePartComponent],
       imports: [FormsModule],
@@ -53,7 +53,7 @@ describe('KeyStringValuePartComponent', () => {
     parameters.forEach((parameter) => {
       it(
         'should pass with ' + parameter + ' value',
-        async(() => {
+        waitForAsync(() => {
           const oldValue = parameter;
           const newKey = '';
           const newValue = '';
@@ -85,7 +85,7 @@ describe('KeyStringValuePartComponent', () => {
     });
   });
 
-  it('should change key and publish change on user input', async(() => {
+  it('should change key and publish change on user input', waitForAsync(() => {
     const oldItemKey = 'oldKey';
     const oldItemValue = 'oldValue';
     const newItemKey = 'newKey';
@@ -129,7 +129,7 @@ describe('KeyStringValuePartComponent', () => {
     });
   }));
 
-  it('should change value and publish change on user input', async(() => {
+  it('should change value and publish change on user input', waitForAsync(() => {
     const oldItemKey = 'oldKey';
     const oldItemValue = 'oldValue';
     const newItemValue = 'newValue';
@@ -173,7 +173,7 @@ describe('KeyStringValuePartComponent', () => {
     });
   }));
 
-  it('onDelete() should remove element from value and publish change', async(() => {
+  it('onDelete() should remove element from value and publish change', waitForAsync(() => {
     const oldValueObject = {};
     set(oldValueObject, 'keyOne', 'valueOne');
     set(oldValueObject, 'keyTwo', 'valueTwo');
@@ -207,7 +207,7 @@ describe('KeyStringValuePartComponent', () => {
     });
   }));
 
-  it('onAdd() should add empty string key value element to value and publish change', async(() => {
+  it('onAdd() should add empty string key value element to value and publish change', waitForAsync(() => {
     const oldValueObject = {};
     set(oldValueObject, 'keyOne', 'valueOne');
     set(oldValueObject, 'keyTwo', 'valueTwo');

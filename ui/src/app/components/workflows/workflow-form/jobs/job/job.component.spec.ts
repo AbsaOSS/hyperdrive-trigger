@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { JobComponent } from './job.component';
 import {
@@ -73,7 +73,7 @@ describe('JobComponent', () => {
   const mode = 'mode';
   const jobId: string = jobsData[0].jobId;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [JobComponent],
     }).compileComponents();
@@ -95,7 +95,7 @@ describe('JobComponent', () => {
     expect(underTest).toBeTruthy();
   });
 
-  it('should dispatch change action when jobChanges receives WorkflowEntryModel event', async(() => {
+  it('should dispatch change action when jobChanges receives WorkflowEntryModel event', waitForAsync(() => {
     const property = 'property';
     const value = 'value';
 
@@ -112,7 +112,7 @@ describe('JobComponent', () => {
     });
   }));
 
-  it('should dispatch change action when jobChanges receives switch part event', async(() => {
+  it('should dispatch change action when jobChanges receives switch part event', waitForAsync(() => {
     const property = workflowFormParts.jobSwitchPart.property;
     const value = 'value';
 
@@ -129,7 +129,7 @@ describe('JobComponent', () => {
     });
   }));
 
-  it('getJobTypes() should return job types', async(() => {
+  it('getJobTypes() should return job types', waitForAsync(() => {
     fixture.detectChanges();
     fixture.whenStable().then(() => {
       const result = underTest.getJobTypes();
@@ -137,7 +137,7 @@ describe('JobComponent', () => {
     });
   }));
 
-  it('getSelectedJobComponent() should return first dynamic parts when no job is selected', async(() => {
+  it('getSelectedJobComponent() should return first dynamic parts when no job is selected', waitForAsync(() => {
     underTest.jobId = undefined;
     fixture.detectChanges();
     fixture.whenStable().then(() => {
@@ -148,7 +148,7 @@ describe('JobComponent', () => {
     });
   }));
 
-  it('getSelectedJobComponent() should return dynamic parts when sensor is selected', async(() => {
+  it('getSelectedJobComponent() should return dynamic parts when sensor is selected', waitForAsync(() => {
     fixture.detectChanges();
     fixture.whenStable().then(() => {
       const resultLeft = underTest.getSelectedJobComponent();
@@ -158,7 +158,7 @@ describe('JobComponent', () => {
     });
   }));
 
-  it('getJobData() should return return job data', async(() => {
+  it('getJobData() should return return job data', waitForAsync(() => {
     fixture.detectChanges();
     fixture.whenStable().then(() => {
       const result = underTest.getJobData();
@@ -167,7 +167,7 @@ describe('JobComponent', () => {
     });
   }));
 
-  it('getJobData() should return empty array when job data does not exist for job with defined id', async(() => {
+  it('getJobData() should return empty array when job data does not exist for job with defined id', waitForAsync(() => {
     underTest.jobId = '999';
     fixture.detectChanges();
     fixture.whenStable().then(() => {
@@ -177,7 +177,7 @@ describe('JobComponent', () => {
     });
   }));
 
-  it('getSelectedJob() should return selected job', async(() => {
+  it('getSelectedJob() should return selected job', waitForAsync(() => {
     underTest.jobId = jobId;
     fixture.detectChanges();
     fixture.whenStable().then(() => {
@@ -187,7 +187,7 @@ describe('JobComponent', () => {
     });
   }));
 
-  it('getSelectedJob() should return undefined when job does not exist', async(() => {
+  it('getSelectedJob() should return undefined when job does not exist', waitForAsync(() => {
     underTest.jobId = '999';
     fixture.detectChanges();
     fixture.whenStable().then(() => {
@@ -197,7 +197,7 @@ describe('JobComponent', () => {
     });
   }));
 
-  it('getValue() should return value when property exists', async(() => {
+  it('getValue() should return value when property exists', waitForAsync(() => {
     fixture.detectChanges();
     fixture.whenStable().then(() => {
       const queriedDetail = jobsData[0].entries[0];
@@ -205,7 +205,7 @@ describe('JobComponent', () => {
     });
   }));
 
-  it('getValue() should return undefined when property does not exist', async(() => {
+  it('getValue() should return undefined when property does not exist', waitForAsync(() => {
     const undefinedProperty = 'undefinedProperty';
 
     fixture.detectChanges();

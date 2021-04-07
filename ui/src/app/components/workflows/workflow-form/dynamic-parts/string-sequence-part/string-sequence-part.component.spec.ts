@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { StringSequencePartComponent } from './string-sequence-part.component';
 import { DebugElement, Predicate } from '@angular/core';
@@ -29,7 +29,7 @@ describe('StringSequencePartComponent', () => {
 
   const inputSelector: Predicate<DebugElement> = By.css('input[type="text"]');
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [StringSequencePartComponent],
       imports: [FormsModule],
@@ -52,7 +52,7 @@ describe('StringSequencePartComponent', () => {
     parameters.forEach((parameter) => {
       it(
         'should pass with ' + parameter + ' value',
-        async(() => {
+        waitForAsync(() => {
           const oldValue = parameter;
           const newValue = [''];
           const propertyName = 'property';
@@ -80,7 +80,7 @@ describe('StringSequencePartComponent', () => {
     });
   });
 
-  it('should change value and publish change on user input', async(() => {
+  it('should change value and publish change on user input', waitForAsync(() => {
     const oldItem = 'two';
     const newItem = 'changed';
     const oldValue = ['one', oldItem, 'three'];
@@ -114,7 +114,7 @@ describe('StringSequencePartComponent', () => {
     });
   }));
 
-  it('onDeleteValue() should remove element from value and publish change', async(() => {
+  it('onDeleteValue() should remove element from value and publish change', waitForAsync(() => {
     const oldValue = ['one', 'two', 'three'];
     const newValue = ['one', 'three'];
     const propertyName = 'property';
@@ -144,7 +144,7 @@ describe('StringSequencePartComponent', () => {
     });
   }));
 
-  it('onAddValue() should add empty string to value and publish change', async(() => {
+  it('onAddValue() should add empty string to value and publish change', waitForAsync(() => {
     const oldValue = ['one', 'two'];
     const newValue = ['one', 'two', ''];
     const propertyName = 'property';

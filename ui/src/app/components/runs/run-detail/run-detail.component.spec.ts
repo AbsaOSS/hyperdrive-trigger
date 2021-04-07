@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { RunDetailComponent } from './run-detail.component';
 import { provideMockStore } from '@ngrx/store/testing';
@@ -41,7 +41,7 @@ describe('RunDetailComponent', () => {
     },
   };
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       providers: [provideMockStore({ initialState: initialAppState })],
       declarations: [RunDetailComponent],
@@ -59,7 +59,7 @@ describe('RunDetailComponent', () => {
     expect(underTest).toBeTruthy();
   });
 
-  it('onInit should set component properties', async(() => {
+  it('onInit should set component properties', waitForAsync(() => {
     fixture.detectChanges();
     fixture.whenStable().then(() => {
       expect(underTest.loading).toBe(initialAppState.runs.detail.loading);
@@ -67,7 +67,7 @@ describe('RunDetailComponent', () => {
     });
   }));
 
-  it('onRefresh() should dispatch GetDagRunDetail', async(() => {
+  it('onRefresh() should dispatch GetDagRunDetail', waitForAsync(() => {
     underTest.dagRunId = 42;
     underTest.refreshSubject = new Subject<boolean>();
     const subject = new Subject<boolean>();
@@ -83,7 +83,7 @@ describe('RunDetailComponent', () => {
     });
   }));
 
-  it('getApplicationId() should return a valid url ', async(() => {
+  it('getApplicationId() should return a valid url ', waitForAsync(() => {
     const expectedUrl = 'http://localhost:8088/cluster/app/applicationId_1234';
     const url1 = underTest.getApplicationIdUrl('http://localhost:8088', 'applicationId_1234');
     expect(url1).toBe(expectedUrl);
