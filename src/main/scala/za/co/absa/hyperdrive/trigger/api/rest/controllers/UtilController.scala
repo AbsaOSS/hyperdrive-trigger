@@ -16,11 +16,13 @@
 package za.co.absa.hyperdrive.trigger.api.rest.controllers
 
 import java.util.Locale
-
 import com.cronutils.descriptor.CronDescriptor
 import com.cronutils.model.CronType
 import com.cronutils.model.definition.CronDefinitionBuilder
 import com.cronutils.parser.CronParser
+import it.burning.cron.CronExpressionParser.CronExpressionParseException
+import net.redhogs.cronparser.{CronExpressionDescriptor, Options}
+import it.burning.cron.{CronExpressionDescriptor => CronExpressionDescriptor2}
 import org.springframework.web.bind.annotation._
 import za.co.absa.hyperdrive.trigger.models.QuartzExpressionDetail
 
@@ -49,4 +51,42 @@ class UtilController {
     }
   }
 
+  def getQuartzDetail2(@RequestParam expression: String): QuartzExpressionDetail = {
+    try {
+      val description = CronExpressionDescriptor.getDescription(expression, Options.twentyFourHour(), Locale.UK)
+      QuartzExpressionDetail(
+        expression = expression,
+        isValid = true,
+        explained = description
+      )
+    } catch {
+      case e: java.text.ParseException => {
+        QuartzExpressionDetail(
+          expression = expression,
+          isValid = false,
+          explained = e.getMessage
+        )
+      }
+    }
+  }
+
+  def getQuartzDetail3(@RequestParam expression: String): QuartzExpressionDetail = {
+    try {
+      CronExpressionDescriptor2.setDefaultLocale(Locale.UK.toString)
+      val description = CronExpressionDescriptor2.getDescription(expression)
+      QuartzExpressionDetail(
+        expression = expression,
+        isValid = true,
+        explained = description
+      )
+    } catch {
+      case e: CronExpressionParseException => {
+        QuartzExpressionDetail(
+          expression = expression,
+          isValid = false,
+          explained = e.getMessage
+        )
+      }
+    }
+  }
 }
