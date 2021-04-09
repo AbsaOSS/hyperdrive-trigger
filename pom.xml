@@ -104,8 +104,6 @@
         <scalatest.version>3.0.5</scalatest.version>
         <h2database.version>1.4.200</h2database.version>
         <mockito.version>2.25.0</mockito.version>
-        <cronutils.version>9.1.5</cronutils.version>
-        <cron-parser-core.version>3.5</cron-parser-core.version>
         <cron-expression-descriptor.version>1.2</cron-expression-descriptor.version>
         <node.version>12.14.1</node.version>
         <npm.version>6.13.4</npm.version>
@@ -213,16 +211,6 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-ldap</artifactId>
             <version>${spring.ldap.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.cronutils</groupId>
-            <artifactId>cron-utils</artifactId>
-            <version>${cronutils.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>net.redhogs.cronparser</groupId>
-            <artifactId>cron-parser-core</artifactId>
-            <version>${cron-parser-core.version}</version>
         </dependency>
         <dependency>
             <groupId>it.burning</groupId>

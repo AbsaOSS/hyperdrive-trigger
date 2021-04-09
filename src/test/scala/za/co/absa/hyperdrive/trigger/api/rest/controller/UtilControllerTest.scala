@@ -28,7 +28,7 @@ class UtilControllerTest extends FlatSpec with Matchers with MockitoSugar with B
     val expression = "0 0 2 2 * ?"
 
     // when
-    val result = underTest.getQuartzDetail3(expression)
+    val result = underTest.getQuartzDetail(expression)
 
     // then
     result.expression shouldBe expression
@@ -41,7 +41,7 @@ class UtilControllerTest extends FlatSpec with Matchers with MockitoSugar with B
     val expression = "0 0 2 2 * MON"
 
     // when
-    val result = underTest.getQuartzDetail3(expression)
+    val result = underTest.getQuartzDetail(expression)
 
     // then
     result.expression shouldBe expression
