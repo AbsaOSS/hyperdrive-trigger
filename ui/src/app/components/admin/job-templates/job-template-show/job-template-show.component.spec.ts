@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { JobTemplateShowComponent } from './job-template-show.component';
 import { provideMockStore } from '@ngrx/store/testing';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -42,13 +42,15 @@ describe('JobTemplateShow', () => {
     },
   };
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      providers: [provideMockStore({ initialState: initialAppState })],
-      declarations: [JobTemplateShowComponent],
-      imports: [RouterTestingModule.withRoutes([]), FormsModule],
-    }).compileComponents();
-  }));
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        providers: [provideMockStore({ initialState: initialAppState })],
+        declarations: [JobTemplateShowComponent],
+        imports: [RouterTestingModule.withRoutes([]), FormsModule],
+      }).compileComponents();
+    }),
+  );
 
   beforeEach(() => {
     fixture = TestBed.createComponent(JobTemplateShowComponent);
@@ -59,14 +61,17 @@ describe('JobTemplateShow', () => {
     expect(underTest).toBeTruthy();
   });
 
-  it('should set properties during on init', async(() => {
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(underTest.loading).toBe(initialAppState.jobTemplates.jobTemplateAction.loading);
-      expect(underTest.jobTemplate).toBe(initialAppState.jobTemplates.jobTemplateAction.jobTemplate);
-      expect(underTest.jobTemplateFormEntries).toBe(initialAppState.jobTemplates.jobTemplateAction.jobTemplateFormEntries);
-    });
-  }));
+  it(
+    'should set properties during on init',
+    waitForAsync(() => {
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(underTest.loading).toBe(initialAppState.jobTemplates.jobTemplateAction.loading);
+        expect(underTest.jobTemplate).toBe(initialAppState.jobTemplates.jobTemplateAction.jobTemplate);
+        expect(underTest.jobTemplateFormEntries).toBe(initialAppState.jobTemplates.jobTemplateAction.jobTemplateFormEntries);
+      });
+    }),
+  );
 
   it('toggleJobTemplateInfoAccordion() should toggle job template info accordion', () => {
     expect(underTest.isJobTemplateInfoHidden).toBeFalse();

@@ -30,7 +30,7 @@ import { JobTemplatesHomeComponent } from './components/admin/job-templates/job-
 import { JobTemplateShowComponent } from './components/admin/job-templates/job-template-show/job-template-show.component';
 
 const routes: Routes = [
-  { path: routeNames.DEFAULT, redirectTo: routeNames.WORKFLOWS, pathMatch: 'full', canActivate: [AuthGuardService] },
+  { path: routeNames.DEFAULT, redirectTo: routeNames.WORKFLOWS, pathMatch: 'full' },
   { path: routeNames.WELCOME, component: WelcomeComponent, canActivate: [LogInGuardService] },
   {
     path: routeNames.WORKFLOWS,
@@ -58,7 +58,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes, { useHash: true })],
+  imports: [RouterModule.forRoot(routes, { useHash: true, relativeLinkResolution: 'legacy' })],
   exports: [RouterModule],
 })
 export class AppRoutingModule {}

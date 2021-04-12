@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { WorkflowComponent } from './workflow.component';
 import { provideMockStore } from '@ngrx/store/testing';
@@ -62,30 +62,32 @@ describe('WorkflowComponent', () => {
     },
   };
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      providers: [
-        ConfirmationDialogService,
-        provideMockStore({ initialState: initialAppState }),
-        {
-          provide: ActivatedRoute,
-          useValue: {
-            params: of({
-              id: 0,
-              mode: 'mode',
-            }),
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        providers: [
+          ConfirmationDialogService,
+          provideMockStore({ initialState: initialAppState }),
+          {
+            provide: ActivatedRoute,
+            useValue: {
+              params: of({
+                id: 0,
+                mode: 'mode',
+              }),
+            },
           },
-        },
-        PreviousRouteService,
-      ],
-      imports: [RouterTestingModule.withRoutes([])],
-      declarations: [WorkflowComponent],
-    }).compileComponents();
-    previousRouteService = TestBed.inject(PreviousRouteService);
-    router = TestBed.inject(Router);
-    confirmationDialogService = TestBed.inject(ConfirmationDialogService);
-    store = TestBed.inject(Store);
-  }));
+          PreviousRouteService,
+        ],
+        imports: [RouterTestingModule.withRoutes([])],
+        declarations: [WorkflowComponent],
+      }).compileComponents();
+      previousRouteService = TestBed.inject(PreviousRouteService);
+      router = TestBed.inject(Router);
+      confirmationDialogService = TestBed.inject(ConfirmationDialogService);
+      store = TestBed.inject(Store);
+    }),
+  );
 
   beforeEach(() => {
     fixture = TestBed.createComponent(WorkflowComponent);
@@ -96,31 +98,37 @@ describe('WorkflowComponent', () => {
     expect(underTest).toBeTruthy();
   });
 
-  it('should set properties during on init', async(() => {
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(underTest.loading).toBe(initialAppState.workflows.workflowAction.loading);
-      expect(underTest.mode).toBe(initialAppState.workflows.workflowAction.mode);
-      expect(underTest.id).toBe(initialAppState.workflows.workflowAction.id);
-      expect(underTest.isWorkflowActive).toBe(initialAppState.workflows.workflowAction.workflow.isActive);
-      expect(underTest.backendValidationErrors).toBe(initialAppState.workflows.workflowAction.backendValidationErrors);
-      expect(underTest.workflowFormParts).toBe(initialAppState.workflows.workflowAction.workflowFormParts);
-      expect(underTest.workflowData).toBe(initialAppState.workflows.workflowAction.workflowFormData);
-    });
-  }));
-
-  it('when changes is dispatched from child component it should propagate action to store', async(() => {
-    const usedAction = new StartWorkflowInitialization({ id: 1, mode: 'mode' });
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      const storeSpy = spyOn(store, 'dispatch');
-      underTest.changes.next(usedAction);
+  it(
+    'should set properties during on init',
+    waitForAsync(() => {
       fixture.detectChanges();
-
       fixture.whenStable().then(() => {
-        expect(storeSpy).toHaveBeenCalledTimes(1);
-        expect(storeSpy).toHaveBeenCalledWith(usedAction);
+        expect(underTest.loading).toBe(initialAppState.workflows.workflowAction.loading);
+        expect(underTest.mode).toBe(initialAppState.workflows.workflowAction.mode);
+        expect(underTest.id).toBe(initialAppState.workflows.workflowAction.id);
+        expect(underTest.isWorkflowActive).toBe(initialAppState.workflows.workflowAction.workflow.isActive);
+        expect(underTest.backendValidationErrors).toBe(initialAppState.workflows.workflowAction.backendValidationErrors);
+        expect(underTest.workflowFormParts).toBe(initialAppState.workflows.workflowAction.workflowFormParts);
+        expect(underTest.workflowData).toBe(initialAppState.workflows.workflowAction.workflowFormData);
       });
-    });
-  }));
+    }),
+  );
+
+  it(
+    'when changes is dispatched from child component it should propagate action to store',
+    waitForAsync(() => {
+      const usedAction = new StartWorkflowInitialization({ id: 1, mode: 'mode' });
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        const storeSpy = spyOn(store, 'dispatch');
+        underTest.changes.next(usedAction);
+        fixture.detectChanges();
+
+        fixture.whenStable().then(() => {
+          expect(storeSpy).toHaveBeenCalledTimes(1);
+          expect(storeSpy).toHaveBeenCalledWith(usedAction);
+        });
+      });
+    }),
+  );
 });

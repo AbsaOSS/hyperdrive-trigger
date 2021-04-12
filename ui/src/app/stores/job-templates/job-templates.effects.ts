@@ -24,7 +24,7 @@ import { WorkflowService } from '../../services/workflow/workflow.service';
 
 import { DynamicFormPart } from '../../models/workflowFormParts.model';
 
-import get from 'lodash/get';
+import get from 'lodash-es/get';
 import { JobTemplateFormEntryModel, JobTemplateFormEntryModelFactory } from '../../models/jobTemplateFormEntry.model';
 import { ToastrService } from 'ngx-toastr';
 import { texts } from '../../constants/texts.constants';

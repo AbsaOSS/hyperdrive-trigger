@@ -42,7 +42,7 @@ import { EMPTY } from 'rxjs';
 import { ApiErrorModel } from '../../models/errors/apiError.model';
 import { BulkOperationErrorModel } from '../../models/errors/bulkOperationError.model';
 import { UtilService } from '../../services/util/util.service';
-import groupBy from 'lodash/groupBy';
+import groupBy from 'lodash-es/groupBy';
 
 @Injectable()
 export class WorkflowsEffects {

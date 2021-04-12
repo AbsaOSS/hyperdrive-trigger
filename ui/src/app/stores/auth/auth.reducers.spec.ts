@@ -24,7 +24,7 @@ describe('AuthReducers', () => {
     authenticationFailed: null,
   } as State;
 
-  function toState(dict: {}) {
+  function toState(dict: unknown) {
     return dict as State;
   }
 
