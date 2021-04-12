@@ -25,12 +25,15 @@ class AppInfoController {
   val environment: String = ""
   @Value("${version:Unknown}")
   val version: String = ""
+  @Value("${sparkYarnSink.hadoopResourceManagerUrlBase:Unknown}")
+  val resourceManagerUrl: String = ""
 
   @GetMapping(path = Array("/app/info"))
   def appInfo(): AppInfo = {
     AppInfo(
       environment = environment,
-      version = version
+      version = version,
+      resourceManagerUrl = resourceManagerUrl
     )
   }
 

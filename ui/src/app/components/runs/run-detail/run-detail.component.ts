@@ -17,9 +17,10 @@ import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { jobStatuses } from '../../../models/enums/jobStatuses.constants';
 import { JobInstanceModel } from '../../../models/jobInstance.model';
 import { Store } from '@ngrx/store';
-import { AppState, selectRunState } from '../../../stores/app.reducers';
+import { AppState, selectApplicationState, selectRunState } from '../../../stores/app.reducers';
 import { GetDagRunDetail } from '../../../stores/runs/runs.actions';
 import { Subject, Subscription } from 'rxjs';
+import { AppInfoModel } from '../../../models/appInfo.model';
 
 @Component({
   selector: 'app-run-detail',
@@ -31,8 +32,11 @@ export class RunDetailComponent implements OnInit, OnDestroy {
   @Input() refreshSubject: Subject<boolean> = new Subject<boolean>();
   runDetailSubscription: Subscription;
   refreshSubscription: Subscription;
+  applicationStateSubscription: Subscription;
 
   jobInstances: JobInstanceModel[];
+  appInfo: AppInfoModel;
+
   loading = true;
 
   jobStatuses = jobStatuses;
@@ -52,6 +56,10 @@ export class RunDetailComponent implements OnInit, OnDestroy {
         this.onRefresh();
       }
     });
+
+    this.applicationStateSubscription = this.store.select(selectApplicationState).subscribe((state) => {
+      this.appInfo = state.appInfo;
+    });
   }
 
   onRefresh() {
@@ -61,5 +69,19 @@ export class RunDetailComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     !!this.runDetailSubscription && this.runDetailSubscription.unsubscribe();
     !!this.refreshSubscription && this.refreshSubscription.unsubscribe();
+    !!this.applicationStateSubscription && this.applicationStateSubscription.unsubscribe();
+  }
+
+  getApplicationIdUrl(resourceManagerUrl: string, applicationId: string): string {
+    let url = resourceManagerUrl;
+    if (!url.endsWith('/')) {
+      url += '/';
+    }
+    url += 'cluster/app';
+    if (!applicationId.startsWith('/')) {
+      url += '/';
+    }
+    url += applicationId;
+    return url;
   }
 }

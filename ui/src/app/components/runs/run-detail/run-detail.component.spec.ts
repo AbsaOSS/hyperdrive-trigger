@@ -22,6 +22,7 @@ import { AppState } from '../../../stores/app.reducers';
 import { Store } from '@ngrx/store';
 import { Subject } from 'rxjs';
 import { GetDagRunDetail } from '../../../stores/runs/runs.actions';
+import { AppInfoModelFactory } from '../../../models/appInfo.model';
 
 describe('RunDetailComponent', () => {
   let underTest: RunDetailComponent;
@@ -29,6 +30,9 @@ describe('RunDetailComponent', () => {
   let store: Store<AppState>;
 
   const initialAppState = {
+    application: {
+      appInfo: AppInfoModelFactory.create('Undefined', 'Undefined', 'Undefined'),
+    },
     runs: {
       detail: {
         loading: true,
@@ -77,5 +81,15 @@ describe('RunDetailComponent', () => {
       expect(storeSpy).toHaveBeenCalled();
       expect(storeSpy).toHaveBeenCalledWith(new GetDagRunDetail(underTest.dagRunId));
     });
+  }));
+
+  it('getApplicationId() should return a valid url ', async(() => {
+    const expectedUrl = 'http://localhost:8088/cluster/app/applicationId_1234';
+    const url1 = underTest.getApplicationIdUrl('http://localhost:8088', 'applicationId_1234');
+    expect(url1).toBe(expectedUrl);
+    const url2 = underTest.getApplicationIdUrl('http://localhost:8088/', 'applicationId_1234');
+    expect(url2).toBe(expectedUrl);
+    const url3 = underTest.getApplicationIdUrl('http://localhost:8088', '/applicationId_1234');
+    expect(url3).toBe(expectedUrl);
   }));
 });

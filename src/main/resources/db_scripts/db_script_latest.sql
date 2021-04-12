@@ -31,6 +31,7 @@ create table "job_instance" (
   "key_value_pairs" VARCHAR NOT NULL,
   "job_status" VARCHAR NOT NULL,
   "executor_job_id" VARCHAR,
+  "application_id" VARCHAR,
   "created" TIMESTAMP NOT NULL,
   "updated" TIMESTAMP,
   "order" INTEGER NOT NULL,

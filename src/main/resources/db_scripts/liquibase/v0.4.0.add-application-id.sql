@@ -13,12 +13,4 @@
  * limitations under the License.
  */
 
-export const jobStatuses = {
-  IN_QUEUE: 'InQueue',
-  SUBMITTING: 'Submitting',
-  RUNNING: 'Running',
-  SUCCEEDED: 'Succeeded',
-  FAILED: 'Failed',
-  SKIPPED: 'Skipped',
-  SUBMISSION_TIMEOUT: 'Submission timeout',
-};
+alter table "job_instance" add column "application_id" VARCHAR;

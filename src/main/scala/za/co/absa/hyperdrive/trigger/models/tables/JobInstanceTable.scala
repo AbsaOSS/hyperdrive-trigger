@@ -37,6 +37,7 @@ trait JobInstanceTable {
     def keyValuePairs: Rep[Map[String, SortedMap[String, String]]] = column[Map[String, SortedMap[String, String]]]("key_value_pairs")
     def jobStatus: Rep[JobStatus] = column[JobStatus]("job_status")
     def executorJobId: Rep[Option[String]] = column[Option[String]]("executor_job_id")
+    def applicationId: Rep[Option[String]] = column[Option[String]]("application_id")
     def created: Rep[LocalDateTime] = column[LocalDateTime]("created")
     def updated: Rep[Option[LocalDateTime]] = column[Option[LocalDateTime]]("updated")
     def order: Rep[Int] = column[Int]("order")
@@ -54,6 +55,7 @@ trait JobInstanceTable {
       keyValuePairs,
       jobStatus,
       executorJobId,
+      applicationId,
       created,
       updated,
       order,
@@ -71,11 +73,12 @@ trait JobInstanceTable {
           ),
           jobStatus = jobInstanceTuple._6,
           executorJobId = jobInstanceTuple._7,
-          created = jobInstanceTuple._8,
-          updated = jobInstanceTuple._9,
-          order = jobInstanceTuple._10,
-          dagInstanceId = jobInstanceTuple._11,
-          id = jobInstanceTuple._12
+          applicationId = jobInstanceTuple._8,
+          created = jobInstanceTuple._9,
+          updated = jobInstanceTuple._10,
+          order = jobInstanceTuple._11,
+          dagInstanceId = jobInstanceTuple._12,
+          id = jobInstanceTuple._13
         ),
       (jobInstance: JobInstance) =>
         Option(
@@ -86,6 +89,7 @@ trait JobInstanceTable {
           jobInstance.jobParameters.keyValuePairs,
           jobInstance.jobStatus,
           jobInstance.executorJobId,
+          jobInstance.applicationId,
           jobInstance.created,
           jobInstance.updated,
           jobInstance.order,

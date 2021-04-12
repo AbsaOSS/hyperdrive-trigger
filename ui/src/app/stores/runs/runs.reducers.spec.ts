@@ -95,6 +95,7 @@ describe('RunsReducers', () => {
         0,
         'jobName0',
         JobTypeFactory.create('JobType'),
+        'applicationId',
         new Date(Date.now()),
         new Date(Date.now()),
         JobStatusFactory.create('Status'),

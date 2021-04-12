@@ -17,7 +17,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <version>0.3.6</version>
+    <version>0.4.0</version>
     <groupId>za.co.absa</groupId>
     <artifactId>hyperdrive-trigger</artifactId>
     <packaging>jar</packaging>
@@ -41,7 +41,7 @@
         <connection>scm:git:git://github.com/AbsaOSS/hyperdrive-trigger.git</connection>
         <developerConnection>scm:git:ssh://github.com/AbsaOSS/hyperdrive-trigger.git</developerConnection>
         <url>https://github.com/AbsaOSS/hyperdrive-trigger/tree/master</url>
-        <tag>v0.3.6</tag>
+        <tag>v0.4.0</tag>
     </scm>
 
     <licenses>
@@ -88,6 +88,7 @@
         <slick-hikaricp.version>3.3.1</slick-hikaricp.version>
         <postgresql>42.2.6</postgresql>
         <kafka.version>2.2.0</kafka.version>
+        <embedded.kafka.version>2.2.0</embedded.kafka.version>
         <play-json.version>2.7.3</play-json.version>
         <play-ws-standalone.version>2.0.3</play-ws-standalone.version>
         <play-ahc-ws-standalone.version>2.0.2</play-ahc-ws-standalone.version>
@@ -255,6 +256,12 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.github.embeddedkafka</groupId>
+            <artifactId>embedded-kafka_2.11</artifactId>
+            <version>${embedded.kafka.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

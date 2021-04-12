@@ -15,24 +15,24 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.sensors.kafka
 
-import java.time.Duration
-import java.util.Collections
-
-import org.apache.kafka.clients.consumer.{ConsumerRecord, KafkaConsumer}
+import org.apache.kafka.clients.consumer.{ConsumerConfig, ConsumerRebalanceListener, ConsumerRecord, KafkaConsumer}
+import org.apache.kafka.common.TopicPartition
+import org.slf4j.LoggerFactory
 import play.api.libs.json.{JsError, JsSuccess, Json}
 import za.co.absa.hyperdrive.trigger.models.{Event, Properties, Sensor}
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.PollSensor
 import za.co.absa.hyperdrive.trigger.scheduler.utilities.KafkaConfig
 
+import java.time.Duration
+import java.util
+import java.util.Collections
 import scala.concurrent.{ExecutionContext, Future}
-import za.co.absa.hyperdrive.trigger.scheduler.utilities.KafkaRichConsumer._
-import org.slf4j.LoggerFactory
-
 import scala.util.{Failure, Success, Try}
 
 class KafkaSensor(
   eventsProcessor: (Seq[Event], Properties) => Future[Boolean],
   sensorDefinition: Sensor,
+  consumeFromLatest: Boolean = false,
   executionContext: ExecutionContext
 ) extends PollSensor(eventsProcessor, sensorDefinition, executionContext) {
 
@@ -41,18 +41,35 @@ class KafkaSensor(
   private val logMsgPrefix = s"Sensor id = ${properties.sensorId}."
   private val kafkaSettings = KafkaSettings(properties.settings)
 
-  private val consumer = new KafkaConsumer[String, String](KafkaConfig.getConsumerProperties(kafkaSettings))
+  private val consumer = {
+    val consumerProperties = KafkaConfig.getConsumerProperties(kafkaSettings)
+    val groupId = s"${KafkaConfig.getBaseGroupId}-${properties.sensorId}"
+    consumerProperties.put(ConsumerConfig.GROUP_ID_CONFIG, groupId)
+
+    new KafkaConsumer[String, String](consumerProperties)
+  }
 
   try {
-    consumer.subscribe(Collections.singletonList(kafkaSettings.topic))
+    consumer.subscribe(Collections.singletonList(kafkaSettings.topic), new ConsumerRebalanceListener {
+      override def onPartitionsRevoked(partitions: util.Collection[TopicPartition]): Unit = {
+        // no-op
+      }
+
+      override def onPartitionsAssigned(partitions: util.Collection[TopicPartition]): Unit = {
+        if (consumeFromLatest) {
+          consumer.seekToEnd(partitions)
+        }
+      }
+    })
   } catch {
     case e: Exception => logger.debug(s"$logMsgPrefix. Exception during subscribe.", e)
   }
 
   override def poll(): Future[Unit] = {
+    import scala.collection.JavaConverters._
     logger.debug(s"$logMsgPrefix. Polling new events.")
     val fut = Future {
-      consumer.pollAsScala(Duration.ofMillis(KafkaConfig.getPollDuration))
+      consumer.poll(Duration.ofMillis(KafkaConfig.getPollDuration)).asScala
     } flatMap processRecords map (_ => consumer.commitSync())
 
     fut.onComplete {
@@ -77,9 +94,12 @@ class KafkaSensor(
           }
         }
       }
-      eventsProcessor.apply(matchedEvents, properties).map(_ => (): Unit)
-    } else
+      matchedEvents.headOption.map(matchedEvent => {
+        eventsProcessor.apply(Seq(matchedEvent), properties).map(_ => (): Unit)
+      }).getOrElse(Future.successful((): Unit))
+    } else {
       Future.successful((): Unit)
+    }
   }
 
   private def recordToEvent[A](record: ConsumerRecord[A, String]): Event = {

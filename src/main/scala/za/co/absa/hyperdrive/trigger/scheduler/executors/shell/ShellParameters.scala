@@ -18,7 +18,7 @@ package za.co.absa.hyperdrive.trigger.scheduler.executors.shell
 import java.nio.file.Paths
 
 import za.co.absa.hyperdrive.trigger.models.JobParameters
-import za.co.absa.hyperdrive.trigger.scheduler.utilities.ExecutorsConfig
+import za.co.absa.hyperdrive.trigger.scheduler.utilities.ShellExecutorConfig
 
 case class ShellParameters(
   scriptLocation: String
@@ -26,6 +26,6 @@ case class ShellParameters(
 
 object ShellParameters {
   def apply(jobParameters: JobParameters): ShellParameters = new ShellParameters(
-    scriptLocation = Paths.get(ExecutorsConfig.getExecutablesFolder, jobParameters.variables("scriptLocation")).toString
+    scriptLocation = Paths.get(ShellExecutorConfig.getExecutablesFolder, jobParameters.variables("scriptLocation")).toString
   )
 }
