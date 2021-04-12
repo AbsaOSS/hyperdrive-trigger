@@ -42,6 +42,7 @@ class ShellExecutorTest extends FlatSpec with Matchers with BeforeAndAfterAll wi
     jobParameters = JobParameters(variables = Map.empty[String, String], maps = Map.empty[String, List[String]]),
     jobStatus = InQueue,
     executorJobId = None,
+    applicationId = None,
     created = LocalDateTime.now(),
     updated = None,
     order = 0,

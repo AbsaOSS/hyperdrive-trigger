@@ -19,6 +19,7 @@ export type JobInstanceModel = {
   id: number;
   jobName: string;
   jobType: JobType;
+  applicationId: string;
   created: Date;
   updated: Date;
   jobStatus: JobStatus;
@@ -34,12 +35,22 @@ export class JobInstanceModelFactory {
     id: number,
     jobName: string,
     jobType: JobType,
+    applicationId: string,
     created: Date,
     updated: Date,
     jobStatus: JobStatus,
     order: number,
   ): JobInstanceModel {
-    return { id: id, jobName: jobName, jobType: jobType, created: created, updated: updated, jobStatus: jobStatus, order: order };
+    return {
+      id: id,
+      jobName: jobName,
+      jobType: jobType,
+      applicationId: applicationId,
+      created: created,
+      updated: updated,
+      jobStatus: jobStatus,
+      order: order,
+    };
   }
 }
 

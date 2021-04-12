@@ -16,10 +16,11 @@
 export type AppInfoModel = {
   environment: string;
   version: string;
+  resourceManagerUrl: string;
 };
 
 export class AppInfoModelFactory {
-  static create(environment: string, version: string): AppInfoModel {
-    return { environment: environment, version: version };
+  static create(environment: string, version: string, resourceManagerUrl: string): AppInfoModel {
+    return { environment: environment, version: version, resourceManagerUrl: resourceManagerUrl };
   }
 }
