@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { DynamicPartsComponent } from './dynamic-parts.component';
 import { Subject } from 'rxjs';
@@ -23,11 +23,13 @@ describe('DynamicPartsComponent', () => {
   let fixture: ComponentFixture<DynamicPartsComponent>;
   let underTest: DynamicPartsComponent;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [DynamicPartsComponent],
-    }).compileComponents();
-  }));
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        declarations: [DynamicPartsComponent],
+      }).compileComponents();
+    }),
+  );
 
   beforeEach(() => {
     fixture = TestBed.createComponent(DynamicPartsComponent);
@@ -38,40 +40,46 @@ describe('DynamicPartsComponent', () => {
     expect(underTest).toBeTruthy();
   });
 
-  it('getValue() should return value when property exists', async(() => {
-    const workflowEntryOne = WorkflowEntryModelFactory.create('propertyOne', 'valueOne');
-    const workflowEntryTwo = WorkflowEntryModelFactory.create('propertyTwo', 'valueTwo');
-    const testedSubject = new Subject<WorkflowEntryModel>();
+  it(
+    'getValue() should return value when property exists',
+    waitForAsync(() => {
+      const workflowEntryOne = WorkflowEntryModelFactory.create('propertyOne', 'valueOne');
+      const workflowEntryTwo = WorkflowEntryModelFactory.create('propertyTwo', 'valueTwo');
+      const testedSubject = new Subject<WorkflowEntryModel>();
 
-    underTest.isShow = false;
-    underTest.formParts = [];
-    underTest.values = [workflowEntryOne, workflowEntryTwo];
-    underTest.valueChanges = testedSubject;
+      underTest.isShow = false;
+      underTest.formParts = [];
+      underTest.values = [workflowEntryOne, workflowEntryTwo];
+      underTest.valueChanges = testedSubject;
 
-    fixture.detectChanges();
+      fixture.detectChanges();
 
-    fixture.whenStable().then(() => {
-      const result = underTest.getValue(workflowEntryOne.property);
-      expect(result).toBe(workflowEntryOne.value);
-    });
-  }));
+      fixture.whenStable().then(() => {
+        const result = underTest.getValue(workflowEntryOne.property);
+        expect(result).toBe(workflowEntryOne.value);
+      });
+    }),
+  );
 
-  it('getValue() should return undefined when property does not exist', async(() => {
-    const workflowEntryOne = WorkflowEntryModelFactory.create('propertyOne', 'valueOne');
-    const workflowEntryTwo = WorkflowEntryModelFactory.create('propertyTwo', 'valueTwo');
-    const undefinedProperty = 'undefinedProperty';
-    const testedSubject = new Subject<WorkflowEntryModel>();
+  it(
+    'getValue() should return undefined when property does not exist',
+    waitForAsync(() => {
+      const workflowEntryOne = WorkflowEntryModelFactory.create('propertyOne', 'valueOne');
+      const workflowEntryTwo = WorkflowEntryModelFactory.create('propertyTwo', 'valueTwo');
+      const undefinedProperty = 'undefinedProperty';
+      const testedSubject = new Subject<WorkflowEntryModel>();
 
-    underTest.isShow = false;
-    underTest.formParts = [];
-    underTest.values = [workflowEntryOne, workflowEntryTwo];
-    underTest.valueChanges = testedSubject;
+      underTest.isShow = false;
+      underTest.formParts = [];
+      underTest.values = [workflowEntryOne, workflowEntryTwo];
+      underTest.valueChanges = testedSubject;
 
-    fixture.detectChanges();
+      fixture.detectChanges();
 
-    fixture.whenStable().then(() => {
-      const result = underTest.getValue(undefinedProperty);
-      expect(result).toBe(undefined);
-    });
-  }));
+      fixture.whenStable().then(() => {
+        const result = underTest.getValue(undefinedProperty);
+        expect(result).toBe(undefined);
+      });
+    }),
+  );
 });

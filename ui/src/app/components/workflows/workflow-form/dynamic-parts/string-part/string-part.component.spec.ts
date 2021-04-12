@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { StringPartComponent } from './string-part.component';
 import { Subject } from 'rxjs';
@@ -29,13 +29,15 @@ describe('StringPartComponent', () => {
 
   const inputSelector: Predicate<DebugElement> = By.css('input[type="text"]');
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [StringPartComponent],
-      imports: [FormsModule],
-      providers: [NgForm],
-    }).compileComponents();
-  }));
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        declarations: [StringPartComponent],
+        imports: [FormsModule],
+        providers: [NgForm],
+      }).compileComponents();
+    }),
+  );
 
   beforeEach(() => {
     fixture = TestBed.createComponent(StringPartComponent);
@@ -52,7 +54,7 @@ describe('StringPartComponent', () => {
     parameters.forEach((parameter) => {
       it(
         'should pass with ' + parameter + ' value',
-        async(() => {
+        waitForAsync(() => {
           const oldValue = parameter;
           const newValue = '';
           const propertyName = 'property';
@@ -79,35 +81,38 @@ describe('StringPartComponent', () => {
     });
   });
 
-  it('should change value and publish change on user input', async(() => {
-    const oldValue = 'oldValue';
-    const newValue = 'newValue';
-    const propertyName = 'property';
-    const testedSubject = new Subject<WorkflowEntryModel>();
-    const subjectSpy = spyOn(testedSubject, 'next');
-    const partValidation = PartValidationFactory.create(true, 5, 50);
+  it(
+    'should change value and publish change on user input',
+    waitForAsync(() => {
+      const oldValue = 'oldValue';
+      const newValue = 'newValue';
+      const propertyName = 'property';
+      const testedSubject = new Subject<WorkflowEntryModel>();
+      const subjectSpy = spyOn(testedSubject, 'next');
+      const partValidation = PartValidationFactory.create(true, 5, 50);
 
-    underTest.isShow = false;
-    underTest.name = 'name';
-    underTest.value = oldValue;
-    underTest.property = propertyName;
-    underTest.valueChanges = testedSubject;
-    underTest.partValidation = partValidation;
-
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      const inputElement = fixture.debugElement.query(inputSelector).nativeElement;
-
-      inputElement.value = newValue;
-      inputElement.dispatchEvent(new Event('input'));
+      underTest.isShow = false;
+      underTest.name = 'name';
+      underTest.value = oldValue;
+      underTest.property = propertyName;
+      underTest.valueChanges = testedSubject;
+      underTest.partValidation = partValidation;
 
       fixture.detectChanges();
       fixture.whenStable().then(() => {
-        const testedValue = fixture.debugElement.query(inputSelector).nativeElement.value;
-        expect(testedValue).toBe(newValue);
-        expect(subjectSpy).toHaveBeenCalled();
-        expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValue));
+        const inputElement = fixture.debugElement.query(inputSelector).nativeElement;
+
+        inputElement.value = newValue;
+        inputElement.dispatchEvent(new Event('input'));
+
+        fixture.detectChanges();
+        fixture.whenStable().then(() => {
+          const testedValue = fixture.debugElement.query(inputSelector).nativeElement.value;
+          expect(testedValue).toBe(newValue);
+          expect(subjectSpy).toHaveBeenCalled();
+          expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValue));
+        });
       });
-    });
-  }));
+    }),
+  );
 });

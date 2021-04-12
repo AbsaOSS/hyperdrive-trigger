@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { async, TestBed } from '@angular/core/testing';
+import { TestBed, waitForAsync } from '@angular/core/testing';
 import { Subject } from 'rxjs';
 
 import { CronQuartzPartComponent } from './cron-quartz-part.component';
@@ -35,15 +35,17 @@ describe('CronQuartzPartComponent', () => {
   let toastrService: ToastrService;
   let utilService: UtilService;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      providers: [UtilService, CronQuartzPartComponent],
-      imports: [HttpClientTestingModule, ToastrModule.forRoot()],
-    }).compileComponents();
-    underTest = TestBed.inject(CronQuartzPartComponent);
-    toastrService = TestBed.inject(ToastrService);
-    utilService = TestBed.inject(UtilService);
-  }));
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        providers: [UtilService, CronQuartzPartComponent],
+        imports: [HttpClientTestingModule, ToastrModule.forRoot()],
+      }).compileComponents();
+      underTest = TestBed.inject(CronQuartzPartComponent);
+      toastrService = TestBed.inject(ToastrService);
+      utilService = TestBed.inject(UtilService);
+    }),
+  );
 
   it('should create', () => {
     expect(underTest).toBeTruthy();
