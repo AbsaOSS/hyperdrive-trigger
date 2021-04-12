@@ -21,6 +21,7 @@
     "@angular/platform-browser": "~11.2.8",
     "@angular/platform-browser-dynamic": "~11.2.8",
     "@angular/router": "~11.2.8",
+    "@cds/core": "^5.0.0",
     "@clr/angular": "^5.1.1",
     "@clr/core": "^3.1.4",
     "@clr/icons": "5.1.1",
@@ -30,12 +31,11 @@
     "@ngrx/store": "^10.1.2",
     "@ngrx/store-devtools": "^10.1.2",
     "@webcomponents/webcomponentsjs": "^2.0.0",
-    "lodash": "^4.17.15",
+    "lodash-es": "^4.17.21",
     "ngx-toastr": "^12.0.1",
     "rxjs": "~6.5.4",
     "tslib": "^2.0.0",
-    "zone.js": "~0.10.3",
-    "@cds/core": "^5.0.0"
+    "zone.js": "~0.10.3"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "~0.1102.7",
