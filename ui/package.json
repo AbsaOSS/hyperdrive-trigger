@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --aot --open --base-href /hyperdrive_trigger/ --deploy-url /hyperdrive_trigger/",
+    "start": "ng serve --open",
     "build": "ng build --aot --prod --base-href /hyperdrive_trigger/",
     "test": "ng test",
     "test:ci": "ng test --karmaConfig=karma.conf.ci.js",
