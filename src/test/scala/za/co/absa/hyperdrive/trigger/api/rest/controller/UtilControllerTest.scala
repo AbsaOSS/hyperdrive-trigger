@@ -23,7 +23,7 @@ import za.co.absa.hyperdrive.trigger.api.rest.controllers.UtilController
 class UtilControllerTest extends FlatSpec with Matchers with MockitoSugar with BeforeAndAfter {
   private val underTest = new UtilController
 
-  "getQuartzDetail" should "return a human-readable description" in {
+  "getQuartzDetail" should "return a human-readable description, incl. month" in {
     // given
     val expression = "0 0 2 2 * ?"
 
@@ -34,6 +34,19 @@ class UtilControllerTest extends FlatSpec with Matchers with MockitoSugar with B
     result.expression shouldBe expression
     result.isValid shouldBe true
     result.explained shouldBe "At 02:00, on day 2 of the month"
+  }
+
+  it should "return a verbose human-readable description" in {
+    // given
+    val expression = "0 0/20 * ? * * *"
+
+    // when
+    val result = underTest.getQuartzDetail(expression)
+
+    // then
+    result.expression shouldBe expression
+    result.isValid shouldBe true
+    result.explained shouldBe "Every 20 minutes, every hour, every day"
   }
 
   it should "return an error description if the cron expression is malformed" in {

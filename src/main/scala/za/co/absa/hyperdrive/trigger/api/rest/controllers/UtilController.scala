@@ -30,6 +30,7 @@ class UtilController {
     try {
       val description = CronExpressionDescriptor.getDescription(expression, new Options() {{
         setLocale(Locale.UK)
+        setVerbose(true)
       }})
       QuartzExpressionDetail(
         expression = expression,
