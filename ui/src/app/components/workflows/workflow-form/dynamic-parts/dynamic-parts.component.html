@@ -24,6 +24,16 @@
       [property]="formPart.property"
       [partValidation]="formPart.partValidation">
     </app-string-part>
+    <app-string-with-suggestions-part
+      *ngSwitchCase="'string-with-suggestions-field'"
+      [isShow]="isShow"
+      [name]="formPart.name"
+      [valueChanges]="valueChanges"
+      [value]="getValue(formPart.property)"
+      [property]="formPart.property"
+      [options]="projects"
+      [partValidation]="formPart.partValidation">
+    </app-string-with-suggestions-part>
     <app-string-sequence-part
       *ngSwitchCase="'set-field'"
       [isShow]="isShow"
