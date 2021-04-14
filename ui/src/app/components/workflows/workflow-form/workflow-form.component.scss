@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-:host ::ng-deep label{
+:host ::ng-deep label {
   word-wrap: break-word;
 }
 
@@ -22,6 +22,10 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+}
+
+:host ::ng-deep .clr-input-group {
+  width: 80%;
 }
 
 :host ::ng-deep select {
