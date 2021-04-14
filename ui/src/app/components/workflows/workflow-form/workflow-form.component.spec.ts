@@ -50,8 +50,8 @@ describe('WorkflowFormComponent', () => {
   const initialAppState = {
     workflows: {
       projects: [
-        {name: 'projectA', workflows: []},
-        {name: 'projectB', workflows: []},
+        { name: 'projectA', workflows: [] },
+        { name: 'projectB', workflows: [] },
       ],
       workflowAction: {
         loading: true,
