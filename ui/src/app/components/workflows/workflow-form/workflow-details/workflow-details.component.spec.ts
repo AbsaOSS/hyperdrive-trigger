@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { WorkflowDetailsComponent } from './workflow-details.component';
 import { WorkflowEntryModelFactory } from '../../../../models/workflowEntry.model';
@@ -31,11 +31,13 @@ describe('WorkflowDetailsComponent', () => {
   ];
   const parts = [];
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [WorkflowDetailsComponent],
-    }).compileComponents();
-  }));
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        declarations: [WorkflowDetailsComponent],
+      }).compileComponents();
+    }),
+  );
 
   beforeEach(() => {
     fixture = TestBed.createComponent(WorkflowDetailsComponent);
@@ -51,35 +53,44 @@ describe('WorkflowDetailsComponent', () => {
     expect(underTest).toBeTruthy();
   });
 
-  it('should dispatch workflow details change when value is received', async(() => {
-    const usedWorkflowEntry = WorkflowEntryModelFactory.create('property', 'value');
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      const storeSpy = spyOn(underTest.changes, 'next');
-      underTest.detailsChanges.next(usedWorkflowEntry);
+  it(
+    'should dispatch workflow details change when value is received',
+    waitForAsync(() => {
+      const usedWorkflowEntry = WorkflowEntryModelFactory.create('property', 'value');
       fixture.detectChanges();
-
       fixture.whenStable().then(() => {
-        expect(storeSpy).toHaveBeenCalledTimes(1);
-        expect(storeSpy).toHaveBeenCalledWith(new WorkflowDetailsChanged(usedWorkflowEntry));
+        const storeSpy = spyOn(underTest.changes, 'next');
+        underTest.detailsChanges.next(usedWorkflowEntry);
+        fixture.detectChanges();
+
+        fixture.whenStable().then(() => {
+          expect(storeSpy).toHaveBeenCalledTimes(1);
+          expect(storeSpy).toHaveBeenCalledWith(new WorkflowDetailsChanged(usedWorkflowEntry));
+        });
       });
-    });
-  }));
+    }),
+  );
 
-  it('getValue() should return value when property exists', async(() => {
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      const queriedDetail = sensorData[0];
-      expect(underTest.getValue(queriedDetail.property)).toBe(queriedDetail.value);
-    });
-  }));
+  it(
+    'getValue() should return value when property exists',
+    waitForAsync(() => {
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        const queriedDetail = sensorData[0];
+        expect(underTest.getValue(queriedDetail.property)).toBe(queriedDetail.value);
+      });
+    }),
+  );
 
-  it('getValue() should return undefined when property does not exist', async(() => {
-    const undefinedProperty = 'undefinedProperty';
+  it(
+    'getValue() should return undefined when property does not exist',
+    waitForAsync(() => {
+      const undefinedProperty = 'undefinedProperty';
 
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(underTest.getValue(undefinedProperty)).toBe(undefined);
-    });
-  }));
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(underTest.getValue(undefinedProperty)).toBe(undefined);
+      });
+    }),
+  );
 });

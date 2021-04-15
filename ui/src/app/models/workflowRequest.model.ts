@@ -15,7 +15,7 @@
 
 import { WorkflowEntryModel } from './workflowEntry.model';
 import { JobEntryModel } from './jobEntry.model';
-import set from 'lodash/set';
+import set from 'lodash-es/set';
 import { WorkflowJoinedModel, WorkflowJoinedModelFactory } from './workflowJoined.model';
 import { SensorModel, SensorModelFactory } from './sensor.model';
 import { DagDefinitionJoinedModel, DagDefinitionJoinedModelFactory } from './dagDefinitionJoined.model';

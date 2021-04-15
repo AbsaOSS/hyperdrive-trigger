@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { JobTemplatesComponent } from './job-templates.component';
 
@@ -21,11 +21,13 @@ describe('JobTemplatesComponent', () => {
   let component: JobTemplatesComponent;
   let fixture: ComponentFixture<JobTemplatesComponent>;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [JobTemplatesComponent],
-    }).compileComponents();
-  }));
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        declarations: [JobTemplatesComponent],
+      }).compileComponents();
+    }),
+  );
 
   beforeEach(() => {
     fixture = TestBed.createComponent(JobTemplatesComponent);

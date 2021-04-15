@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { SelectPartComponent } from './select-part.component';
 import { DebugElement, Predicate } from '@angular/core';
@@ -29,13 +29,15 @@ describe('SelectPartComponent', () => {
 
   const inputSelector: Predicate<DebugElement> = By.css('select');
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [SelectPartComponent],
-      imports: [FormsModule],
-      providers: [NgForm],
-    }).compileComponents();
-  }));
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        declarations: [SelectPartComponent],
+        imports: [FormsModule],
+        providers: [NgForm],
+      }).compileComponents();
+    }),
+  );
 
   beforeEach(() => {
     fixture = TestBed.createComponent(SelectPartComponent);
@@ -52,7 +54,7 @@ describe('SelectPartComponent', () => {
     parameters.forEach((parameter) => {
       it(
         'should pass with ' + parameter + ' value',
-        async(() => {
+        waitForAsync(() => {
           const oldValue = parameter;
           const newValue = 'oneValue';
           const propertyName = 'property';
@@ -85,41 +87,44 @@ describe('SelectPartComponent', () => {
     });
   });
 
-  it('should change value and publish change on user input', async(() => {
-    const oldValue = 'oneValue';
-    const newValue = 'threeValue';
-    const propertyName = 'property';
-    const options = new Map([
-      [oldValue, 'oneLabel'],
-      ['two', 'two'],
-      [newValue, 'threeLabel'],
-    ]);
+  it(
+    'should change value and publish change on user input',
+    waitForAsync(() => {
+      const oldValue = 'oneValue';
+      const newValue = 'threeValue';
+      const propertyName = 'property';
+      const options = new Map([
+        [oldValue, 'oneLabel'],
+        ['two', 'two'],
+        [newValue, 'threeLabel'],
+      ]);
 
-    const testedSubject = new Subject<WorkflowEntryModel>();
-    const subjectSpy = spyOn(testedSubject, 'next');
-    const partValidation = PartValidationFactory.create(true);
+      const testedSubject = new Subject<WorkflowEntryModel>();
+      const subjectSpy = spyOn(testedSubject, 'next');
+      const partValidation = PartValidationFactory.create(true);
 
-    underTest.isShow = false;
-    underTest.name = 'name';
-    underTest.value = oldValue;
-    underTest.property = propertyName;
-    underTest.options = options;
-    underTest.valueChanges = testedSubject;
-    underTest.partValidation = partValidation;
-
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      const inputElement = fixture.debugElement.query(inputSelector).nativeElement;
-      inputElement.value = newValue;
-      inputElement.dispatchEvent(new Event('change'));
+      underTest.isShow = false;
+      underTest.name = 'name';
+      underTest.value = oldValue;
+      underTest.property = propertyName;
+      underTest.options = options;
+      underTest.valueChanges = testedSubject;
+      underTest.partValidation = partValidation;
 
       fixture.detectChanges();
       fixture.whenStable().then(() => {
-        const testedValue = fixture.debugElement.query(inputSelector).nativeElement.value;
-        expect(testedValue).toBe(newValue);
-        expect(subjectSpy).toHaveBeenCalled();
-        expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValue));
+        const inputElement = fixture.debugElement.query(inputSelector).nativeElement;
+        inputElement.value = newValue;
+        inputElement.dispatchEvent(new Event('change'));
+
+        fixture.detectChanges();
+        fixture.whenStable().then(() => {
+          const testedValue = fixture.debugElement.query(inputSelector).nativeElement.value;
+          expect(testedValue).toBe(newValue);
+          expect(subjectSpy).toHaveBeenCalled();
+          expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValue));
+        });
       });
-    });
-  }));
+    }),
+  );
 });

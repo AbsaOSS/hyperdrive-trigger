@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { WorkflowHistoryComponent } from './workflow-history.component';
 import { provideMockStore } from '@ngrx/store/testing';
@@ -38,13 +38,15 @@ describe('WorkflowHistoryComponent', () => {
     },
   };
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      providers: [provideMockStore({ initialState: initialAppState })],
-      declarations: [WorkflowHistoryComponent],
-      imports: [RouterTestingModule.withRoutes([]), FormsModule],
-    }).compileComponents();
-  }));
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        providers: [provideMockStore({ initialState: initialAppState })],
+        declarations: [WorkflowHistoryComponent],
+        imports: [RouterTestingModule.withRoutes([]), FormsModule],
+      }).compileComponents();
+    }),
+  );
 
   beforeEach(() => {
     fixture = TestBed.createComponent(WorkflowHistoryComponent);
@@ -55,41 +57,53 @@ describe('WorkflowHistoryComponent', () => {
     expect(underTest).toBeTruthy();
   });
 
-  it('should set properties during on init', async(() => {
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(underTest.loading).toBe(initialAppState.workflows.history.loading);
-      expect(underTest.workflowHistory).toBe(initialAppState.workflows.history.workflowHistory);
-    });
-  }));
+  it(
+    'should set properties during on init',
+    waitForAsync(() => {
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(underTest.loading).toBe(initialAppState.workflows.history.loading);
+        expect(underTest.workflowHistory).toBe(initialAppState.workflows.history.workflowHistory);
+      });
+    }),
+  );
 
-  it('isSelectable() should return false when 2 history records are selected', async(() => {
-    underTest.workflowHistory = [historyRecordOne, historyRecordTwo, historyRecordThree];
-    underTest.selected = [historyRecordOne, historyRecordTwo];
+  it(
+    'isSelectable() should return false when 2 history records are selected',
+    waitForAsync(() => {
+      underTest.workflowHistory = [historyRecordOne, historyRecordTwo, historyRecordThree];
+      underTest.selected = [historyRecordOne, historyRecordTwo];
 
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(underTest.isSelectable(historyRecordThree)).toBeFalsy();
-    });
-  }));
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(underTest.isSelectable(historyRecordThree)).toBeFalsy();
+      });
+    }),
+  );
 
-  it('isSelectable() should return true when 0 history records are selected', async(() => {
-    underTest.workflowHistory = [historyRecordOne, historyRecordTwo, historyRecordThree];
-    underTest.selected = [];
+  it(
+    'isSelectable() should return true when 0 history records are selected',
+    waitForAsync(() => {
+      underTest.workflowHistory = [historyRecordOne, historyRecordTwo, historyRecordThree];
+      underTest.selected = [];
 
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(underTest.isSelectable(historyRecordThree)).toBeTruthy();
-    });
-  }));
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(underTest.isSelectable(historyRecordThree)).toBeTruthy();
+      });
+    }),
+  );
 
-  it('isSelectable() should return true when 2 history records are selected and on input is already selected record', async(() => {
-    underTest.workflowHistory = [historyRecordOne, historyRecordTwo, historyRecordThree];
-    underTest.selected = [historyRecordOne, historyRecordTwo];
+  it(
+    'isSelectable() should return true when 2 history records are selected and on input is already selected record',
+    waitForAsync(() => {
+      underTest.workflowHistory = [historyRecordOne, historyRecordTwo, historyRecordThree];
+      underTest.selected = [historyRecordOne, historyRecordTwo];
 
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(underTest.isSelectable(historyRecordOne)).toBeTruthy();
-    });
-  }));
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(underTest.isSelectable(historyRecordOne)).toBeTruthy();
+      });
+    }),
+  );
 });
