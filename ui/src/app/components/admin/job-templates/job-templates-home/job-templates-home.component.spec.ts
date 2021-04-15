@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { JobTemplatesHomeComponent } from './job-templates-home.component';
 import { provideMockStore } from '@ngrx/store/testing';
@@ -43,15 +43,17 @@ describe('JobTemplatesHomeComponent', () => {
     },
   };
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      providers: [provideMockStore({ initialState: initialAppState })],
-      declarations: [JobTemplatesHomeComponent],
-      imports: [RouterTestingModule.withRoutes([])],
-    }).compileComponents();
-    router = TestBed.inject(Router);
-    store = TestBed.inject(Store);
-  }));
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        providers: [provideMockStore({ initialState: initialAppState })],
+        declarations: [JobTemplatesHomeComponent],
+        imports: [RouterTestingModule.withRoutes([])],
+      }).compileComponents();
+      router = TestBed.inject(Router);
+      store = TestBed.inject(Store);
+    }),
+  );
 
   beforeEach(() => {
     fixture = TestBed.createComponent(JobTemplatesHomeComponent);
@@ -63,54 +65,66 @@ describe('JobTemplatesHomeComponent', () => {
     expect(underTest).toBeTruthy();
   });
 
-  it('onClarityDgRefresh() should dispatch SearchJobTemplates action', async(() => {
-    const storeSpy = spyOn(store, 'dispatch');
-    const removeFiltersSubjectSpy = spyOn(underTest.refreshSubject, 'next');
-    const clrDatagridState: ClrDatagridStateInterface = {
-      page: {
-        from: 1,
-        to: 2,
-        size: 10,
-        current: 3,
-      },
-      sort: {
-        by: 'by',
-        reverse: false,
-      },
-      filters: [],
-    };
+  it(
+    'onClarityDgRefresh() should dispatch SearchJobTemplates action',
+    waitForAsync(() => {
+      const storeSpy = spyOn(store, 'dispatch');
+      const removeFiltersSubjectSpy = spyOn(underTest.refreshSubject, 'next');
+      const clrDatagridState: ClrDatagridStateInterface = {
+        page: {
+          from: 1,
+          to: 2,
+          size: 10,
+          current: 3,
+        },
+        sort: {
+          by: 'by',
+          reverse: false,
+        },
+        filters: [],
+      };
 
-    underTest.onClarityDgRefresh(clrDatagridState);
+      underTest.onClarityDgRefresh(clrDatagridState);
 
-    expect(removeFiltersSubjectSpy).toHaveBeenCalledTimes(1);
-    expect(storeSpy).toHaveBeenCalledTimes(1);
-  }));
+      expect(removeFiltersSubjectSpy).toHaveBeenCalledTimes(1);
+      expect(storeSpy).toHaveBeenCalledTimes(1);
+    }),
+  );
 
-  it('refresh() should dispatch SearchJobTemplates action', async(() => {
-    const storeSpy = spyOn(store, 'dispatch');
-    const removeFiltersSubjectSpy = spyOn(underTest.refreshSubject, 'next');
+  it(
+    'refresh() should dispatch SearchJobTemplates action',
+    waitForAsync(() => {
+      const storeSpy = spyOn(store, 'dispatch');
+      const removeFiltersSubjectSpy = spyOn(underTest.refreshSubject, 'next');
 
-    underTest.refresh();
+      underTest.refresh();
 
-    expect(removeFiltersSubjectSpy).toHaveBeenCalledTimes(1);
-    expect(storeSpy).toHaveBeenCalledTimes(1);
-  }));
+      expect(removeFiltersSubjectSpy).toHaveBeenCalledTimes(1);
+      expect(storeSpy).toHaveBeenCalledTimes(1);
+    }),
+  );
 
-  it('clearFilters() should call next on removeFiltersSubject', async(() => {
-    const removeFiltersSubjectSpy = spyOn(underTest.removeFiltersSubject, 'next');
+  it(
+    'clearFilters() should call next on removeFiltersSubject',
+    waitForAsync(() => {
+      const removeFiltersSubjectSpy = spyOn(underTest.removeFiltersSubject, 'next');
 
-    underTest.clearFilters();
+      underTest.clearFilters();
 
-    expect(removeFiltersSubjectSpy).toHaveBeenCalledTimes(1);
-  }));
+      expect(removeFiltersSubjectSpy).toHaveBeenCalledTimes(1);
+    }),
+  );
 
-  it('showJobTemplate() should navigate to show job template page', async(() => {
-    const id = 42;
-    const routerSpy = spyOn(router, 'navigate');
+  it(
+    'showJobTemplate() should navigate to show job template page',
+    waitForAsync(() => {
+      const id = 42;
+      const routerSpy = spyOn(router, 'navigate');
 
-    underTest.showJobTemplate(id);
+      underTest.showJobTemplate(id);
 
-    expect(routerSpy).toHaveBeenCalledTimes(1);
-    expect(routerSpy).toHaveBeenCalledWith([absoluteRoutes.SHOW_JOB_TEMPLATE, id]);
-  }));
+      expect(routerSpy).toHaveBeenCalledTimes(1);
+      expect(routerSpy).toHaveBeenCalledWith([absoluteRoutes.SHOW_JOB_TEMPLATE, id]);
+    }),
+  );
 });

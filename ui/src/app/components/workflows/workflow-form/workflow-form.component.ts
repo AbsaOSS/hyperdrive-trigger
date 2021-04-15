@@ -36,8 +36,8 @@ import { Subject, Subscription } from 'rxjs';
 import { ConfirmationDialogService } from '../../../services/confirmation-dialog/confirmation-dialog.service';
 import { PreviousRouteService } from '../../../services/previousRoute/previous-route.service';
 import { Router } from '@angular/router';
-import cloneDeep from 'lodash/cloneDeep';
-import isEqual from 'lodash/isEqual';
+import cloneDeep from 'lodash-es/cloneDeep';
+import isEqual from 'lodash-es/isEqual';
 import { WorkflowFormDataModel } from '../../../models/workflowFormData.model';
 
 @Component({

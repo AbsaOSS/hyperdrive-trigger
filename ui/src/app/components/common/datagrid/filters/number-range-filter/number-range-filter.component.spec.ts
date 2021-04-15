@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { NumberRangeFilterComponent } from './number-range-filter.component';
 import { DagRunModelFactory } from '../../../../../models/dagRuns/dagRun.model';
@@ -21,11 +21,13 @@ import { DagRunModelFactory } from '../../../../../models/dagRuns/dagRun.model';
 describe('NumberRangeFilterComponent', () => {
   let fixture: ComponentFixture<NumberRangeFilterComponent>;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [NumberRangeFilterComponent],
-    }).compileComponents();
-  }));
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        declarations: [NumberRangeFilterComponent],
+      }).compileComponents();
+    }),
+  );
 
   beforeEach(() => {
     fixture = TestBed.createComponent(NumberRangeFilterComponent);

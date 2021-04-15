@@ -13,18 +13,20 @@
  * limitations under the License.
  */
 
-import { async, TestBed } from '@angular/core/testing';
+import { TestBed, waitForAsync } from '@angular/core/testing';
 import { CronQuartzExpressionValidator } from './cron-quartz-expression.validator';
 
 describe('CronQuartzExpressionValidator', () => {
   let underTest: CronQuartzExpressionValidator;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      providers: [CronQuartzExpressionValidator],
-    }).compileComponents();
-    underTest = TestBed.inject(CronQuartzExpressionValidator);
-  }));
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        providers: [CronQuartzExpressionValidator],
+      }).compileComponents();
+      underTest = TestBed.inject(CronQuartzExpressionValidator);
+    }),
+  );
 
   it('should be created', () => {
     expect(underTest).toBeTruthy();
