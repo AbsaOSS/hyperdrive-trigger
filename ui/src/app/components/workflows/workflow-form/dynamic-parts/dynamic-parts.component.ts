@@ -28,6 +28,7 @@ export class DynamicPartsComponent {
   @Input() formParts: FormPart[];
   @Input() values: WorkflowEntryModel[];
   @Input() valueChanges: Subject<WorkflowEntryModel>;
+  @Input() projects: string[];
 
   constructor() {
     // do nothing

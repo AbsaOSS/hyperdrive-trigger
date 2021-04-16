@@ -18,7 +18,12 @@ import { FormPartFactory, PartValidationFactory } from '../models/workflowFormPa
 export const workflowFormParts = {
   DETAILS: {
     WORKFLOW_NAME: FormPartFactory.create('Workflow name', 'name', 'string-field', PartValidationFactory.create(true, 45, 1)),
-    PROJECT_NAME: FormPartFactory.create('Project name', 'project', 'string-field', PartValidationFactory.create(true, undefined, 1)),
+    PROJECT_NAME: FormPartFactory.create(
+      'Project name',
+      'project',
+      'string-with-suggestions-field',
+      PartValidationFactory.create(true, undefined, 1),
+    ),
     IS_ACTIVE: FormPartFactory.create('Is active', 'isActive', 'boolean-field', PartValidationFactory.create(true)),
   },
   SENSOR: {

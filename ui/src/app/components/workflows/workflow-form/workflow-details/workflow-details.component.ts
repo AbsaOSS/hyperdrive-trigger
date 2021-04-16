@@ -31,6 +31,7 @@ export class WorkflowDetailsComponent implements OnInit, OnDestroy {
   @Input() parts: FormPart[];
   @Input() data: WorkflowEntryModel[];
   @Input() changes: Subject<Action>;
+  @Input() projects: string[];
 
   workflowModes = workflowModes;
 
