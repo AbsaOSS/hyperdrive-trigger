@@ -31,7 +31,7 @@ import {
   UpdateWorkflow,
 } from '../../../stores/workflows/workflows.actions';
 import { Action, Store } from '@ngrx/store';
-import { AppState } from '../../../stores/app.reducers';
+import { AppState, selectWorkflowState } from '../../../stores/app.reducers';
 import { Subject, Subscription } from 'rxjs';
 import { ConfirmationDialogService } from '../../../services/confirmation-dialog/confirmation-dialog.service';
 import { PreviousRouteService } from '../../../services/previousRoute/previous-route.service';
@@ -45,7 +45,7 @@ import { WorkflowFormDataModel } from '../../../models/workflowFormData.model';
   templateUrl: './workflow-form.component.html',
   styleUrls: ['./workflow-form.component.scss'],
 })
-export class WorkflowFormComponent implements OnDestroy {
+export class WorkflowFormComponent implements OnInit, OnDestroy {
   @ViewChild('workflowForm') workflowForm;
   @Output() jobsUnfold: EventEmitter<any> = new EventEmitter();
   @Input() workflowData: WorkflowFormDataModel;
@@ -64,9 +64,12 @@ export class WorkflowFormComponent implements OnDestroy {
   isSensorAccordionHidden = false;
   isJobsAccordionHidden = false;
 
+  projects: string[] = [];
+
   paramsSubscription: Subscription;
   workflowSubscription: Subscription;
   confirmationDialogServiceSubscription: Subscription = null;
+  workflowsSubscription: Subscription = null;
 
   constructor(
     private store: Store<AppState>,
@@ -74,6 +77,12 @@ export class WorkflowFormComponent implements OnDestroy {
     private previousRouteService: PreviousRouteService,
     private router: Router,
   ) {}
+
+  ngOnInit(): void {
+    this.workflowsSubscription = this.store.select(selectWorkflowState).subscribe((state) => {
+      this.projects = state.projects.map((project) => project.name);
+    });
+  }
 
   hasWorkflowChanged(): boolean {
     return !(
@@ -203,5 +212,6 @@ export class WorkflowFormComponent implements OnDestroy {
     !!this.workflowSubscription && this.workflowSubscription.unsubscribe();
     !!this.paramsSubscription && this.paramsSubscription.unsubscribe();
     !!this.confirmationDialogServiceSubscription && this.confirmationDialogServiceSubscription.unsubscribe();
+    !!this.workflowsSubscription && this.workflowsSubscription.unsubscribe();
   }
 }
