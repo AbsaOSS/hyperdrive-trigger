@@ -13,31 +13,7 @@
  * limitations under the License.
  */
 
-:host ::ng-deep label {
-  word-wrap: break-word;
-}
-
 :host ::ng-deep input {
-  width:80%;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
+  width: 100%;
 }
 
-:host ::ng-deep .clr-input-group {
-  width: 80%;
-}
-
-:host ::ng-deep select {
-  width:100%;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
-}
-
-:host ::ng-deep .breakableSpan {
-  width:100%;
-  word-wrap: break-word;
-  font-size: .65rem;
-  color: var(--clr-forms-text-color, black);
-}
