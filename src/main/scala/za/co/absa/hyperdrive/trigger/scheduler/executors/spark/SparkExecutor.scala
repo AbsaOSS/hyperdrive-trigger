@@ -19,12 +19,13 @@ import za.co.absa.hyperdrive.trigger.models.{JobInstance, JobParameters}
 
 import scala.concurrent.{ExecutionContext, Future}
 import java.util.UUID.randomUUID
+import java.util.concurrent.{CountDownLatch, TimeUnit}
 
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 
 import scala.collection.JavaConverters._
-import org.apache.spark.launcher.SparkLauncher
+import org.apache.spark.launcher.{SparkAppHandle, SparkLauncher}
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.ahc.StandaloneAhcWSClient
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses._
@@ -51,9 +52,19 @@ object SparkExecutor extends Executor {
     val id = randomUUID().toString
     val ji = jobInstance.copy(executorJobId = Some(id), jobStatus = Submitting)
     updateJob(ji).map { _ =>
-      val running = getSparkLauncher(id, ji.jobName, ji.jobParameters).launch()
-      Thread.sleep(SparkExecutorConfig.getSubmitTimeOut)
-      running.destroyForcibly()
+      val submitTimeOut = SparkExecutorConfig.getSubmitTimeOut
+      val latch = new CountDownLatch(1)
+      val sparkAppHandle = getSparkLauncher(id, ji.jobName, ji.jobParameters).startApplication(new SparkAppHandle.Listener {
+        override def stateChanged(handle: SparkAppHandle): Unit =
+          if (handle.getState == SparkAppHandle.State.SUBMITTED) {
+            latch.countDown()
+          }
+        override def infoChanged(handle: SparkAppHandle): Unit = {
+          // do nothing
+        }
+      })
+      latch.await(submitTimeOut, TimeUnit.MILLISECONDS)
+      sparkAppHandle.kill()
     }
   }
 

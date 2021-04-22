@@ -76,6 +76,7 @@ import { JobTemplatesComponent } from './components/admin/job-templates/job-temp
 import { JobTemplatesEffects } from './stores/job-templates/job-templates.effects';
 import { JobTemplatesHomeComponent } from './components/admin/job-templates/job-templates-home/job-templates-home.component';
 import { JobTemplateShowComponent } from './components/admin/job-templates/job-template-show/job-template-show.component';
+import { StringWithSuggestionsPartComponent } from './components/workflows/workflow-form/dynamic-parts/string-with-suggestions-part/string-with-suggestions-part.component';
 
 @NgModule({
   declarations: [
@@ -95,6 +96,7 @@ import { JobTemplateShowComponent } from './components/admin/job-templates/job-t
     JobsComponent,
     JobComponent,
     StringPartComponent,
+    StringWithSuggestionsPartComponent,
     BooleanPartComponent,
     SelectPartComponent,
     StringSequencePartComponent,
