@@ -17,24 +17,23 @@ package za.co.absa.hyperdrive.trigger.models.tables
 
 import java.io.StringWriter
 
-import za.co.absa.hyperdrive.trigger.models.enums.{DBOperation, DagInstanceStatuses, SchedulerInstanceStatuses, JobStatuses, JobTypes, SensorTypes}
+import za.co.absa.hyperdrive.trigger.models.enums.{DBOperation, DagInstanceStatuses, JobStatuses, JobTypes, SchedulerInstanceStatuses, SensorTypes}
 import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes.SensorType
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.JobStatus
 import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
 import play.api.libs.json.{JsValue, Json}
 import slick.jdbc.JdbcType
 import za.co.absa.hyperdrive.trigger.ObjectMapperSingleton
-import za.co.absa.hyperdrive.trigger.models.WorkflowJoined
+import za.co.absa.hyperdrive.trigger.models.{JobInstanceJobParameters, ShellParameters, SparkParameters, WorkflowJoined}
 import za.co.absa.hyperdrive.trigger.models.enums.DBOperation.DBOperation
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses.DagInstanceStatus
 import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses.SchedulerInstanceStatus
 
 import scala.collection.immutable.SortedMap
-import scala.util.Try
 
 trait JdbcTypeMapper {
   this: Profile =>
-  import profile.api._
+  import api._
 
   implicit lazy val workflowJoinedMapper: JdbcType[WorkflowJoined] = MappedColumnType.base[WorkflowJoined, String](
     workflowJoined => {
@@ -93,14 +92,6 @@ trait JdbcTypeMapper {
       )
     )
 
-  implicit lazy val payloadMapper: JdbcType[JsValue] =
-    MappedColumnType.base[JsValue, String](
-      payload => payload.toString(),
-      payloadString => Try(Json.parse(payloadString)).getOrElse(
-        throw new Exception(s"Couldn't parse payload: $payloadString")
-      )
-    )
-
   //TEMPORARY MAPPING, SEPARATE TABLE WILL BE CREATED
   implicit lazy val mapMapper: JdbcType[Map[String, String]] =
     MappedColumnType.base[Map[String, String], String](
@@ -124,4 +115,11 @@ trait JdbcTypeMapper {
       }
     )
 
+  implicit lazy val jobParametersMapper: JdbcType[JobInstanceJobParameters] = MappedColumnType.base[JobInstanceJobParameters, JsValue](
+    {
+      case a: SparkParameters => Json.toJson(a)
+      case b: ShellParameters => Json.toJson(b)
+    },
+    column => column.as[JobInstanceJobParameters]
+  )
 }

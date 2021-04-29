@@ -26,9 +26,10 @@ create table "workflow" (
 create table "job_instance" (
   "job_name" VARCHAR NOT NULL,
   "job_type" VARCHAR NOT NULL,
-  "variables" VARCHAR NOT NULL,
-  "maps" VARCHAR NOT NULL,
-  "key_value_pairs" VARCHAR NOT NULL,
+  "variables" VARCHAR DEFAULT '{}',
+  "maps" VARCHAR DEFAULT '{}',
+  "key_value_pairs" VARCHAR DEFAULT '{}',
+  "job_parameters" JSONB NOT NULL DEFAULT '{}',
   "job_status" VARCHAR NOT NULL,
   "executor_job_id" VARCHAR,
   "application_id" VARCHAR,

@@ -21,7 +21,7 @@ import slick.lifted.{ForeignKeyQuery, ProvenShape}
 
 trait EventTable {
   this: Profile with JdbcTypeMapper with SensorTable with DagInstanceTable =>
-  import  profile.api._
+  import api._
 
   final class EventTable(tag: Tag) extends Table[Event](tag, _tableName = "event") {
 

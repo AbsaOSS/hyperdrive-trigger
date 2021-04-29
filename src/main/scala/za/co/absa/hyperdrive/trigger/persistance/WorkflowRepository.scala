@@ -54,9 +54,9 @@ trait WorkflowRepository extends Repository {
 @stereotype.Repository
 class WorkflowRepositoryImpl(override val workflowHistoryRepository: WorkflowHistoryRepository) extends WorkflowRepository {
 
-  import profile.api._
+  import api._
 
-  private val logger = LoggerFactory.getLogger(this.getClass)
+  private val repositoryLogger = LoggerFactory.getLogger(this.getClass)
 
   override def insertWorkflow(workflow: WorkflowJoined, user: String)(implicit ec: ExecutionContext): Future[Long] = {
     db.run(
@@ -64,7 +64,7 @@ class WorkflowRepositoryImpl(override val workflowHistoryRepository: WorkflowHis
         .transactionally.asTry.map {
           case Success(workflowId) => workflowId
           case Failure(ex) =>
-            logger.error(s"Unexpected error occurred when inserting workflow $workflow", ex)
+            repositoryLogger.error(s"Unexpected error occurred when inserting workflow $workflow", ex)
             throw new ApiException(GenericDatabaseError)
         }
     )
@@ -94,7 +94,7 @@ class WorkflowRepositoryImpl(override val workflowHistoryRepository: WorkflowHis
         .transactionally.asTry.map {
           case Success(ids) => ids
           case Failure(ex) =>
-            logger.error(s"Unexpected error occurred when inserting workflows $workflows", ex)
+            repositoryLogger.error(s"Unexpected error occurred when inserting workflows $workflows", ex)
             throw new ApiException(GenericDatabaseError)
         }
     )
@@ -212,7 +212,7 @@ class WorkflowRepositoryImpl(override val workflowHistoryRepository: WorkflowHis
       ).transactionally.asTry.map {
         case Success(_) => (): Unit
         case Failure(ex) =>
-          logger.error(s"Unexpected error occurred when updating workflow $workflow", ex)
+          repositoryLogger.error(s"Unexpected error occurred when updating workflow $workflow", ex)
           throw new ApiException(GenericDatabaseError)
       }
     )

@@ -18,8 +18,8 @@ package za.co.absa.hyperdrive.trigger.api.rest.services
 import java.time.LocalDateTime
 
 import org.springframework.stereotype.Service
-import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobStatuses}
-import za.co.absa.hyperdrive.trigger.models.{DagDefinitionJoined, DagInstanceJoined, JobInstance, ResolvedJobDefinition}
+import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobStatuses, JobTypes}
+import za.co.absa.hyperdrive.trigger.models.{DagDefinitionJoined, DagInstanceJoined, JobInstance, ResolvedJobDefinition, ShellParameters, SparkParameters}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -53,11 +53,15 @@ class DagInstanceServiceImpl(override val jobTemplateService: JobTemplateService
     val initialJobStatus = if (skip) JobStatuses.Skipped else JobStatuses.InQueue
     val now = LocalDateTime.now()
     val finished = if (skip) Some(now) else None
-    resolvedJobDefinitions.map(
-      resolvedJobDefinition => JobInstance(
+    resolvedJobDefinitions.map { resolvedJobDefinition =>
+      val jobParameters = resolvedJobDefinition.jobType match {
+        case JobTypes.Spark => SparkParameters(resolvedJobDefinition.jobParameters)
+        case JobTypes.Shell => ShellParameters(resolvedJobDefinition.jobParameters)
+      }
+      JobInstance(
         jobName = resolvedJobDefinition.name,
         jobType = resolvedJobDefinition.jobType,
-        jobParameters = resolvedJobDefinition.jobParameters,
+        jobParameters = jobParameters,
         jobStatus = initialJobStatus,
         executorJobId = None,
         applicationId = None,
@@ -66,6 +70,6 @@ class DagInstanceServiceImpl(override val jobTemplateService: JobTemplateService
         order = resolvedJobDefinition.order,
         dagInstanceId = 0
       )
-    )
+    }
   }
 }

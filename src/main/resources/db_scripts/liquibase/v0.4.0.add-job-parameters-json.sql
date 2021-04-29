@@ -13,19 +13,13 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.scheduler.executors.shell
+alter table job_instance alter column variables drop not null;
+alter table job_instance alter column variables set default '{}';
+alter table job_instance alter column maps drop not null;
+alter table job_instance alter column maps set default '{}';
+alter table job_instance alter column key_value_pairs drop not null;
+alter table job_instance alter column key_value_pairs set default '{}';
 
-import java.nio.file.Paths
-
-import za.co.absa.hyperdrive.trigger.models.JobParameters
-import za.co.absa.hyperdrive.trigger.scheduler.utilities.ShellExecutorConfig
-
-case class ShellParameters(
-  scriptLocation: String
-)
-
-object ShellParameters {
-  def apply(jobParameters: JobParameters): ShellParameters = new ShellParameters(
-    scriptLocation = Paths.get(ShellExecutorConfig.getExecutablesFolder, jobParameters.variables("scriptLocation")).toString
-  )
-}
+alter table job_instance add job_parameters jsonb not null default '{}';
+update job_instance
+set job_parameters = variables::jsonb || maps::jsonb || key_value_pairs::jsonb;
