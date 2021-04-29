@@ -15,31 +15,30 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.controllers
 
-import java.util.Locale
-
-import com.cronutils.descriptor.CronDescriptor
-import com.cronutils.model.CronType
-import com.cronutils.model.definition.CronDefinitionBuilder
-import com.cronutils.parser.CronParser
+import it.burning.cron.CronExpressionParser.{CronExpressionParseException, Options}
+import it.burning.cron.CronExpressionDescriptor
 import org.springframework.web.bind.annotation._
 import za.co.absa.hyperdrive.trigger.models.QuartzExpressionDetail
 
+import java.util.Locale
+
 @RestController
 class UtilController {
-  val parser: CronParser = new CronParser(CronDefinitionBuilder.instanceDefinitionFor(CronType.QUARTZ))
-  val descriptor: CronDescriptor = CronDescriptor.instance(Locale.UK)
 
   @GetMapping(path = Array("/util/quartzDetail"))
   def getQuartzDetail(@RequestParam expression: String): QuartzExpressionDetail = {
     try {
-      val expressionDescription = descriptor.describe(parser.parse(expression))
+      val description = CronExpressionDescriptor.getDescription(expression, new Options() {{
+        setLocale(Locale.UK)
+        setVerbose(true)
+      }})
       QuartzExpressionDetail(
         expression = expression,
         isValid = true,
-        explained = expressionDescription
+        explained = description
       )
     } catch {
-      case e: IllegalArgumentException => {
+      case e: CronExpressionParseException => {
         QuartzExpressionDetail(
           expression = expression,
           isValid = false,
@@ -48,5 +47,4 @@ class UtilController {
       }
     }
   }
-
 }

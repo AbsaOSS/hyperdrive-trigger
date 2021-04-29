@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { provideMockStore } from '@ngrx/store/testing';
 import { Router } from '@angular/router';
@@ -49,6 +49,10 @@ describe('WorkflowFormComponent', () => {
 
   const initialAppState = {
     workflows: {
+      projects: [
+        { name: 'projectA', workflows: [] },
+        { name: 'projectB', workflows: [] },
+      ],
       workflowAction: {
         loading: true,
         mode: 'mode',
@@ -60,17 +64,19 @@ describe('WorkflowFormComponent', () => {
     },
   };
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      providers: [ConfirmationDialogService, provideMockStore({ initialState: initialAppState }), PreviousRouteService],
-      imports: [RouterTestingModule.withRoutes([]), FormsModule],
-      declarations: [WorkflowFormComponent],
-    }).compileComponents();
-    previousRouteService = TestBed.inject(PreviousRouteService);
-    router = TestBed.inject(Router);
-    confirmationDialogService = TestBed.inject(ConfirmationDialogService);
-    store = TestBed.inject(Store);
-  }));
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        providers: [ConfirmationDialogService, provideMockStore({ initialState: initialAppState }), PreviousRouteService],
+        imports: [RouterTestingModule.withRoutes([]), FormsModule],
+        declarations: [WorkflowFormComponent],
+      }).compileComponents();
+      previousRouteService = TestBed.inject(PreviousRouteService);
+      router = TestBed.inject(Router);
+      confirmationDialogService = TestBed.inject(ConfirmationDialogService);
+      store = TestBed.inject(Store);
+    }),
+  );
 
   beforeEach(() => {
     fixture = TestBed.createComponent(WorkflowFormComponent);
@@ -111,275 +117,332 @@ describe('WorkflowFormComponent', () => {
     expect(underTest.isJobsAccordionHidden).toBeTrue();
   });
 
-  it('deleteWorkflow() should dispatch delete workflow action with id when dialog is confirmed', async(() => {
-    const id = 1;
-    const subject = new Subject<boolean>();
-    const storeSpy = spyOn(store, 'dispatch');
+  it(
+    'deleteWorkflow() should dispatch delete workflow action with id when dialog is confirmed',
+    waitForAsync(() => {
+      const id = 1;
+      const subject = new Subject<boolean>();
+      const storeSpy = spyOn(store, 'dispatch');
 
-    const dialogServiceSpy = spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
+      const dialogServiceSpy = spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
 
-    underTest.deleteWorkflow(id);
-    subject.next(true);
+      underTest.deleteWorkflow(id);
+      subject.next(true);
 
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(dialogServiceSpy).toHaveBeenCalled();
-      expect(storeSpy).toHaveBeenCalled();
-      expect(storeSpy).toHaveBeenCalledWith(new DeleteWorkflow(id));
-    });
-  }));
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(dialogServiceSpy).toHaveBeenCalled();
+        expect(storeSpy).toHaveBeenCalled();
+        expect(storeSpy).toHaveBeenCalledWith(new DeleteWorkflow(id));
+      });
+    }),
+  );
 
-  it('deleteWorkflow() should not dispatch delete workflow action when dialog is not confirmed', async(() => {
-    const id = 1;
-    const subject = new Subject<boolean>();
-    const storeSpy = spyOn(store, 'dispatch');
+  it(
+    'deleteWorkflow() should not dispatch delete workflow action when dialog is not confirmed',
+    waitForAsync(() => {
+      const id = 1;
+      const subject = new Subject<boolean>();
+      const storeSpy = spyOn(store, 'dispatch');
 
-    const dialogServiceSpy = spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
+      const dialogServiceSpy = spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
 
-    underTest.deleteWorkflow(id);
-    subject.next(false);
+      underTest.deleteWorkflow(id);
+      subject.next(false);
 
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(dialogServiceSpy).toHaveBeenCalled();
-      expect(storeSpy).toHaveBeenCalledTimes(0);
-    });
-  }));
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(dialogServiceSpy).toHaveBeenCalled();
+        expect(storeSpy).toHaveBeenCalledTimes(0);
+      });
+    }),
+  );
 
-  it('switchWorkflowActiveState() should dispatch switch workflow active state with id and old value when dialog is confirmed', async(() => {
-    const id = 1;
-    const subject = new Subject<boolean>();
-    const storeSpy = spyOn(store, 'dispatch');
+  it(
+    'switchWorkflowActiveState() should dispatch switch workflow active state with id and old value when dialog is confirmed',
+    waitForAsync(() => {
+      const id = 1;
+      const subject = new Subject<boolean>();
+      const storeSpy = spyOn(store, 'dispatch');
 
-    const dialogServiceSpy = spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
+      const dialogServiceSpy = spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
 
-    underTest.switchWorkflowActiveState(id);
+      underTest.switchWorkflowActiveState(id);
 
-    subject.next(true);
+      subject.next(true);
 
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(dialogServiceSpy).toHaveBeenCalled();
-      expect(storeSpy).toHaveBeenCalled();
-      expect(storeSpy).toHaveBeenCalledWith(
-        new SwitchWorkflowActiveState({ id: id, currentActiveState: initialAppState.workflows.workflowAction.workflow.isActive }),
-      );
-    });
-  }));
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(dialogServiceSpy).toHaveBeenCalled();
+        expect(storeSpy).toHaveBeenCalled();
+        expect(storeSpy).toHaveBeenCalledWith(
+          new SwitchWorkflowActiveState({ id: id, currentActiveState: initialAppState.workflows.workflowAction.workflow.isActive }),
+        );
+      });
+    }),
+  );
 
-  it('switchWorkflowActiveState() should not dispatch switch workflow active state when dialog is not confirmed', async(() => {
-    const id = 1;
-    const subject = new Subject<boolean>();
-    const storeSpy = spyOn(store, 'dispatch');
+  it(
+    'switchWorkflowActiveState() should not dispatch switch workflow active state when dialog is not confirmed',
+    waitForAsync(() => {
+      const id = 1;
+      const subject = new Subject<boolean>();
+      const storeSpy = spyOn(store, 'dispatch');
 
-    const dialogServiceSpy = spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
+      const dialogServiceSpy = spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
 
-    underTest.switchWorkflowActiveState(id);
-    subject.next(false);
+      underTest.switchWorkflowActiveState(id);
+      subject.next(false);
 
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(dialogServiceSpy).toHaveBeenCalled();
-      expect(storeSpy).toHaveBeenCalledTimes(0);
-    });
-  }));
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(dialogServiceSpy).toHaveBeenCalled();
+        expect(storeSpy).toHaveBeenCalledTimes(0);
+      });
+    }),
+  );
 
-  it('runWorkflow() should dispatch load jobs for run', async(() => {
-    const id = 42;
-    const storeSpy = spyOn(store, 'dispatch');
+  it(
+    'runWorkflow() should dispatch load jobs for run',
+    waitForAsync(() => {
+      const id = 42;
+      const storeSpy = spyOn(store, 'dispatch');
 
-    underTest.runWorkflow(id);
+      underTest.runWorkflow(id);
 
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(storeSpy).toHaveBeenCalled();
-      expect(storeSpy).toHaveBeenCalledWith(new LoadJobsForRun(id));
-    });
-  }));
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(storeSpy).toHaveBeenCalled();
+        expect(storeSpy).toHaveBeenCalledWith(new LoadJobsForRun(id));
+      });
+    }),
+  );
 
-  it('exportWorkflow() should dispatch workflow export', async(() => {
-    const id = 42;
-    const storeSpy = spyOn(store, 'dispatch');
+  it(
+    'exportWorkflow() should dispatch workflow export',
+    waitForAsync(() => {
+      const id = 42;
+      const storeSpy = spyOn(store, 'dispatch');
 
-    underTest.exportWorkflow(id);
+      underTest.exportWorkflow(id);
 
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(storeSpy).toHaveBeenCalled();
-      expect(storeSpy).toHaveBeenCalledWith(new ExportWorkflows([id]));
-    });
-  }));
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(storeSpy).toHaveBeenCalled();
+        expect(storeSpy).toHaveBeenCalledWith(new ExportWorkflows([id]));
+      });
+    }),
+  );
 
-  it('createWorkflow() should dispatch create workflow when dialog is confirmed', async(() => {
-    underTest.workflowForm = { form: { valid: true } };
+  it(
+    'createWorkflow() should dispatch create workflow when dialog is confirmed',
+    waitForAsync(() => {
+      underTest.workflowForm = { form: { valid: true } };
 
-    const subject = new Subject<boolean>();
-    const storeSpy = spyOn(store, 'dispatch');
+      const subject = new Subject<boolean>();
+      const storeSpy = spyOn(store, 'dispatch');
 
-    const dialogServiceSpy = spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
+      const dialogServiceSpy = spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
 
-    underTest.createWorkflow();
+      underTest.createWorkflow();
 
-    subject.next(true);
+      subject.next(true);
 
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(dialogServiceSpy).toHaveBeenCalled();
-      expect(storeSpy).toHaveBeenCalled();
-      expect(storeSpy).toHaveBeenCalledWith(new CreateWorkflow());
-    });
-  }));
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(dialogServiceSpy).toHaveBeenCalled();
+        expect(storeSpy).toHaveBeenCalled();
+        expect(storeSpy).toHaveBeenCalledWith(new CreateWorkflow());
+      });
+    }),
+  );
 
-  it('createWorkflow() should not dispatch create workflow when dialog is not confirmed', async(() => {
-    const id = 1;
-    underTest.workflowForm = { form: { valid: true } };
-    const subject = new Subject<boolean>();
-    const storeSpy = spyOn(store, 'dispatch');
+  it(
+    'createWorkflow() should not dispatch create workflow when dialog is not confirmed',
+    waitForAsync(() => {
+      const id = 1;
+      underTest.workflowForm = { form: { valid: true } };
+      const subject = new Subject<boolean>();
+      const storeSpy = spyOn(store, 'dispatch');
 
-    const dialogServiceSpy = spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
+      const dialogServiceSpy = spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
 
-    underTest.createWorkflow();
-    subject.next(false);
+      underTest.createWorkflow();
+      subject.next(false);
 
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(dialogServiceSpy).toHaveBeenCalled();
-      expect(storeSpy).toHaveBeenCalledTimes(0);
-    });
-  }));
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(dialogServiceSpy).toHaveBeenCalled();
+        expect(storeSpy).toHaveBeenCalledTimes(0);
+      });
+    }),
+  );
 
-  it('hasWorkflowChanged() should return false if workflowData has not changed', async(() => {
-    underTest.initialWorkflowData = {
-      details: [],
-      sensor: [],
-      jobs: [],
-    };
+  it(
+    'hasWorkflowChanged() should return false if workflowData has not changed',
+    waitForAsync(() => {
+      underTest.initialWorkflowData = {
+        details: [],
+        sensor: [],
+        jobs: [],
+      };
 
-    expect(underTest.hasWorkflowChanged()).toBeFalse();
-  }));
+      expect(underTest.hasWorkflowChanged()).toBeFalse();
+    }),
+  );
 
-  it('hasWorkflowChanged() should return true if workflowData has changed', async(() => {
-    const detail = [WorkflowEntryModelFactory.create('projectX', 'project')];
-    const sensors = [WorkflowEntryModelFactory.create('properties.settings.variables.cronExpression', '0 0/30 * ? * * *')];
-    const job = [JobEntryModelFactory.create('uis99', 1, [WorkflowEntryModelFactory.create('name', 'workflowName')])];
+  it(
+    'hasWorkflowChanged() should return true if workflowData has changed',
+    waitForAsync(() => {
+      const detail = [WorkflowEntryModelFactory.create('projectX', 'project')];
+      const sensors = [WorkflowEntryModelFactory.create('properties.settings.variables.cronExpression', '0 0/30 * ? * * *')];
+      const job = [JobEntryModelFactory.create('uis99', 1, [WorkflowEntryModelFactory.create('name', 'workflowName')])];
 
-    underTest.initialWorkflowData = {
-      details: detail,
-      sensor: sensors,
-      jobs: job,
-    };
+      underTest.initialWorkflowData = {
+        details: detail,
+        sensor: sensors,
+        jobs: job,
+      };
 
-    expect(underTest.hasWorkflowChanged()).toBeTrue();
-  }));
+      expect(underTest.hasWorkflowChanged()).toBeTrue();
+    }),
+  );
 
-  it('areWorkflowEntriesEqual() should return true if entries are empty', async(() => {
-    expect(underTest.areWorkflowEntriesEqual([], [])).toBeTrue();
-  }));
+  it(
+    'areWorkflowEntriesEqual() should return true if entries are empty',
+    waitForAsync(() => {
+      expect(underTest.areWorkflowEntriesEqual([], [])).toBeTrue();
+    }),
+  );
 
-  it('areWorkflowEntriesEqual() should return true if entries are equal', async(() => {
-    const firstEntry = WorkflowEntryModelFactory.create('first', 'first');
-    const secondEntry = WorkflowEntryModelFactory.create('second', 'second');
-    const thirdEntry = WorkflowEntryModelFactory.create('third', 'third');
+  it(
+    'areWorkflowEntriesEqual() should return true if entries are equal',
+    waitForAsync(() => {
+      const firstEntry = WorkflowEntryModelFactory.create('first', 'first');
+      const secondEntry = WorkflowEntryModelFactory.create('second', 'second');
+      const thirdEntry = WorkflowEntryModelFactory.create('third', 'third');
 
-    expect(underTest.areWorkflowEntriesEqual([firstEntry, secondEntry, thirdEntry], [firstEntry, secondEntry, thirdEntry])).toBeTrue();
-    expect(underTest.areWorkflowEntriesEqual([firstEntry, secondEntry, thirdEntry], [secondEntry, firstEntry, thirdEntry])).toBeTrue();
-  }));
+      expect(underTest.areWorkflowEntriesEqual([firstEntry, secondEntry, thirdEntry], [firstEntry, secondEntry, thirdEntry])).toBeTrue();
+      expect(underTest.areWorkflowEntriesEqual([firstEntry, secondEntry, thirdEntry], [secondEntry, firstEntry, thirdEntry])).toBeTrue();
+    }),
+  );
 
-  it('areWorkflowEntriesEqual() should return false if entries are not equal', async(() => {
-    const firstEntry = WorkflowEntryModelFactory.create('first', 'first');
-    const secondEntry = WorkflowEntryModelFactory.create('second', 'second');
+  it(
+    'areWorkflowEntriesEqual() should return false if entries are not equal',
+    waitForAsync(() => {
+      const firstEntry = WorkflowEntryModelFactory.create('first', 'first');
+      const secondEntry = WorkflowEntryModelFactory.create('second', 'second');
 
-    expect(underTest.areWorkflowEntriesEqual([firstEntry], [firstEntry, secondEntry])).toBeFalsy();
-    expect(underTest.areWorkflowEntriesEqual([firstEntry, secondEntry], [firstEntry])).toBeFalsy();
-  }));
+      expect(underTest.areWorkflowEntriesEqual([firstEntry], [firstEntry, secondEntry])).toBeFalsy();
+      expect(underTest.areWorkflowEntriesEqual([firstEntry, secondEntry], [firstEntry])).toBeFalsy();
+    }),
+  );
 
-  it('areJobsEqual() should return true if entries are empty', async(() => {
-    expect(underTest.areJobsEqual([], [])).toBeTrue();
-  }));
+  it(
+    'areJobsEqual() should return true if entries are empty',
+    waitForAsync(() => {
+      expect(underTest.areJobsEqual([], [])).toBeTrue();
+    }),
+  );
 
-  it('areJobsEqual() should return true if entries are equal', async(() => {
-    const firstEntry = WorkflowEntryModelFactory.create('first', 'first');
-    const secondEntry = WorkflowEntryModelFactory.create('second', 'second');
-    const thirdEntry = WorkflowEntryModelFactory.create('third', 'third');
+  it(
+    'areJobsEqual() should return true if entries are equal',
+    waitForAsync(() => {
+      const firstEntry = WorkflowEntryModelFactory.create('first', 'first');
+      const secondEntry = WorkflowEntryModelFactory.create('second', 'second');
+      const thirdEntry = WorkflowEntryModelFactory.create('third', 'third');
 
-    expect(
-      underTest.areJobsEqual(
-        [JobEntryModelFactory.createWithUuid(0, [firstEntry, secondEntry, thirdEntry])],
-        [JobEntryModelFactory.createWithUuid(1, [firstEntry, secondEntry, thirdEntry])],
-      ),
-    ).toBeTrue();
-    expect(
-      underTest.areJobsEqual(
-        [JobEntryModelFactory.createWithUuid(1, [firstEntry, secondEntry, thirdEntry])],
-        [JobEntryModelFactory.createWithUuid(0, [secondEntry, firstEntry, thirdEntry])],
-      ),
-    ).toBeTrue();
-  }));
+      expect(
+        underTest.areJobsEqual(
+          [JobEntryModelFactory.createWithUuid(0, [firstEntry, secondEntry, thirdEntry])],
+          [JobEntryModelFactory.createWithUuid(1, [firstEntry, secondEntry, thirdEntry])],
+        ),
+      ).toBeTrue();
+      expect(
+        underTest.areJobsEqual(
+          [JobEntryModelFactory.createWithUuid(1, [firstEntry, secondEntry, thirdEntry])],
+          [JobEntryModelFactory.createWithUuid(0, [secondEntry, firstEntry, thirdEntry])],
+        ),
+      ).toBeTrue();
+    }),
+  );
 
-  it('areJobsEqual() should return false if entries differ in length', async(() => {
-    const firstEntry = WorkflowEntryModelFactory.create('first', 'first');
-    const secondEntry = WorkflowEntryModelFactory.create('second', 'second');
-    const thirdEntry = WorkflowEntryModelFactory.create('third', 'third');
+  it(
+    'areJobsEqual() should return false if entries differ in length',
+    waitForAsync(() => {
+      const firstEntry = WorkflowEntryModelFactory.create('first', 'first');
+      const secondEntry = WorkflowEntryModelFactory.create('second', 'second');
+      const thirdEntry = WorkflowEntryModelFactory.create('third', 'third');
 
-    expect(underTest.areJobsEqual([JobEntryModelFactory.createWithUuid(0, [firstEntry, secondEntry, thirdEntry])], [])).toBeFalsy();
-    expect(underTest.areJobsEqual([], [JobEntryModelFactory.createWithUuid(0, [firstEntry, secondEntry, thirdEntry])])).toBeFalsy();
-  }));
+      expect(underTest.areJobsEqual([JobEntryModelFactory.createWithUuid(0, [firstEntry, secondEntry, thirdEntry])], [])).toBeFalsy();
+      expect(underTest.areJobsEqual([], [JobEntryModelFactory.createWithUuid(0, [firstEntry, secondEntry, thirdEntry])])).toBeFalsy();
+    }),
+  );
 
-  it('areJobsEqual() should return false if entries are not equal', async(() => {
-    const firstEntry = WorkflowEntryModelFactory.create('first', 'first');
-    const secondEntry = WorkflowEntryModelFactory.create('second', 'second');
+  it(
+    'areJobsEqual() should return false if entries are not equal',
+    waitForAsync(() => {
+      const firstEntry = WorkflowEntryModelFactory.create('first', 'first');
+      const secondEntry = WorkflowEntryModelFactory.create('second', 'second');
 
-    expect(
-      underTest.areJobsEqual(
-        [JobEntryModelFactory.createWithUuid(0, [firstEntry])],
-        [JobEntryModelFactory.createWithUuid(0, [firstEntry, secondEntry])],
-      ),
-    ).toBeFalsy();
-    expect(
-      underTest.areJobsEqual(
-        [JobEntryModelFactory.createWithUuid(0, [firstEntry, secondEntry])],
-        [JobEntryModelFactory.createWithUuid(0, [firstEntry])],
-      ),
-    ).toBeFalsy();
-  }));
+      expect(
+        underTest.areJobsEqual(
+          [JobEntryModelFactory.createWithUuid(0, [firstEntry])],
+          [JobEntryModelFactory.createWithUuid(0, [firstEntry, secondEntry])],
+        ),
+      ).toBeFalsy();
+      expect(
+        underTest.areJobsEqual(
+          [JobEntryModelFactory.createWithUuid(0, [firstEntry, secondEntry])],
+          [JobEntryModelFactory.createWithUuid(0, [firstEntry])],
+        ),
+      ).toBeFalsy();
+    }),
+  );
 
-  it('updateWorkflow() should dispatch update workflow when dialog is confirmed', async(() => {
-    underTest.workflowForm = { form: { valid: true } };
+  it(
+    'updateWorkflow() should dispatch update workflow when dialog is confirmed',
+    waitForAsync(() => {
+      underTest.workflowForm = { form: { valid: true } };
 
-    const subject = new Subject<boolean>();
-    const storeSpy = spyOn(store, 'dispatch');
+      const subject = new Subject<boolean>();
+      const storeSpy = spyOn(store, 'dispatch');
 
-    const dialogServiceSpy = spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
+      const dialogServiceSpy = spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
 
-    underTest.updateWorkflow();
+      underTest.updateWorkflow();
 
-    subject.next(true);
+      subject.next(true);
 
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(dialogServiceSpy).toHaveBeenCalled();
-      expect(storeSpy).toHaveBeenCalled();
-      expect(storeSpy).toHaveBeenCalledWith(new UpdateWorkflow());
-    });
-  }));
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(dialogServiceSpy).toHaveBeenCalled();
+        expect(storeSpy).toHaveBeenCalled();
+        expect(storeSpy).toHaveBeenCalledWith(new UpdateWorkflow());
+      });
+    }),
+  );
 
-  it('updateWorkflow() should not dispatch update workflow when dialog is not confirmed', async(() => {
-    const id = 1;
-    underTest.workflowForm = { form: { valid: true } };
-    const subject = new Subject<boolean>();
-    const storeSpy = spyOn(store, 'dispatch');
+  it(
+    'updateWorkflow() should not dispatch update workflow when dialog is not confirmed',
+    waitForAsync(() => {
+      const id = 1;
+      underTest.workflowForm = { form: { valid: true } };
+      const subject = new Subject<boolean>();
+      const storeSpy = spyOn(store, 'dispatch');
 
-    const dialogServiceSpy = spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
+      const dialogServiceSpy = spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
 
-    underTest.updateWorkflow();
-    subject.next(false);
+      underTest.updateWorkflow();
+      subject.next(false);
 
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(dialogServiceSpy).toHaveBeenCalled();
-      expect(storeSpy).toHaveBeenCalledTimes(0);
-    });
-  }));
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(dialogServiceSpy).toHaveBeenCalled();
+        expect(storeSpy).toHaveBeenCalledTimes(0);
+      });
+    }),
+  );
 
   it('cancelWorkflow() should navigate back when history is not empty', () => {
     const testUrl = 'test/url';
@@ -415,31 +478,37 @@ describe('WorkflowFormComponent', () => {
     expect(jobsUnfoldSpy).toHaveBeenCalledTimes(1);
   });
 
-  it('removeBackendValidationError() should dispatch remove backend validation error action', async(() => {
-    const index = 2;
+  it(
+    'removeBackendValidationError() should dispatch remove backend validation error action',
+    waitForAsync(() => {
+      const index = 2;
 
-    const storeSpy = spyOn(store, 'dispatch');
+      const storeSpy = spyOn(store, 'dispatch');
 
-    underTest.removeBackendValidationError(index);
+      underTest.removeBackendValidationError(index);
 
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(storeSpy).toHaveBeenCalled();
-      expect(storeSpy).toHaveBeenCalledWith(new RemoveBackendValidationError(index));
-    });
-  }));
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(storeSpy).toHaveBeenCalled();
+        expect(storeSpy).toHaveBeenCalledWith(new RemoveBackendValidationError(index));
+      });
+    }),
+  );
 
-  it('getJobsData() should return jobs data ordered by order number', async(() => {
-    const jobOne = JobEntryModelFactory.create('1', 1, undefined);
-    const jobTwo = JobEntryModelFactory.create('2', 2, undefined);
+  it(
+    'getJobsData() should return jobs data ordered by order number',
+    waitForAsync(() => {
+      const jobOne = JobEntryModelFactory.create('1', 1, undefined);
+      const jobTwo = JobEntryModelFactory.create('2', 2, undefined);
 
-    underTest.workflowData = {
-      details: [],
-      sensor: [],
-      jobs: [jobTwo, jobOne],
-    };
+      underTest.workflowData = {
+        details: [],
+        sensor: [],
+        jobs: [jobTwo, jobOne],
+      };
 
-    const jobsData = underTest.getJobsData();
-    expect(jobsData).toEqual([jobOne, jobTwo]);
-  }));
+      const jobsData = underTest.getJobsData();
+      expect(jobsData).toEqual([jobOne, jobTwo]);
+    }),
+  );
 });

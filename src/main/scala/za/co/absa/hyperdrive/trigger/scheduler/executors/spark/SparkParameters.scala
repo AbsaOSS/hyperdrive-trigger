@@ -18,14 +18,13 @@ package za.co.absa.hyperdrive.trigger.scheduler.executors.spark
 import java.nio.file.Paths
 
 import za.co.absa.hyperdrive.trigger.models.JobParameters
-import za.co.absa.hyperdrive.trigger.scheduler.utilities.ExecutorsConfig
+import za.co.absa.hyperdrive.trigger.scheduler.utilities.SparkExecutorConfig
 
 import scala.util.Try
 
 case class SparkParameters(
   jobJar: String,
   mainClass: String,
-  deploymentMode: String,
   appArguments: List[String],
   additionalJars: List[String],
   additionalFiles: List[String],
@@ -38,12 +37,11 @@ case class SparkParameters(
 object SparkParameters {
   def apply(jobParameters: JobParameters): SparkParameters = {
     SparkParameters(
-      jobJar = Paths.get(ExecutorsConfig.getExecutablesFolder, jobParameters.variables("jobJar")).toString,
+      jobJar = Paths.get(SparkExecutorConfig.getExecutablesFolder, jobParameters.variables("jobJar")).toString,
       mainClass = jobParameters.variables("mainClass"),
-      deploymentMode = jobParameters.variables("deploymentMode"),
       appArguments = Try(jobParameters.maps("appArguments")).getOrElse(List.empty[String]),
-      additionalJars = Try(jobParameters.maps("additionalJars")).getOrElse(List.empty[String]).map(jar => Paths.get(ExecutorsConfig.getExecutablesFolder, jar).toString),
-      additionalFiles = Try(jobParameters.maps("additionalFiles")).getOrElse(List.empty[String]).map(file => Paths.get(ExecutorsConfig.getExecutablesFolder, file).toString),
+      additionalJars = Try(jobParameters.maps("additionalJars")).getOrElse(List.empty[String]).map(jar => Paths.get(SparkExecutorConfig.getExecutablesFolder, jar).toString),
+      additionalFiles = Try(jobParameters.maps("additionalFiles")).getOrElse(List.empty[String]).map(file => Paths.get(SparkExecutorConfig.getExecutablesFolder, file).toString),
       additionalSparkConfig = Try(jobParameters.keyValuePairs("additionalSparkConfig")).getOrElse(Map.empty[String, String])
     )
   }

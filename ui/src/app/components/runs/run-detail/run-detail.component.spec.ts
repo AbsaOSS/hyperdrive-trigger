@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { RunDetailComponent } from './run-detail.component';
 import { provideMockStore } from '@ngrx/store/testing';
@@ -22,6 +22,7 @@ import { AppState } from '../../../stores/app.reducers';
 import { Store } from '@ngrx/store';
 import { Subject } from 'rxjs';
 import { GetDagRunDetail } from '../../../stores/runs/runs.actions';
+import { AppInfoModelFactory } from '../../../models/appInfo.model';
 
 describe('RunDetailComponent', () => {
   let underTest: RunDetailComponent;
@@ -29,6 +30,9 @@ describe('RunDetailComponent', () => {
   let store: Store<AppState>;
 
   const initialAppState = {
+    application: {
+      appInfo: AppInfoModelFactory.create('Undefined', 'Undefined', 'Undefined'),
+    },
     runs: {
       detail: {
         loading: true,
@@ -37,14 +41,16 @@ describe('RunDetailComponent', () => {
     },
   };
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      providers: [provideMockStore({ initialState: initialAppState })],
-      declarations: [RunDetailComponent],
-      imports: [HttpClientTestingModule],
-    }).compileComponents();
-    store = TestBed.inject(Store);
-  }));
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        providers: [provideMockStore({ initialState: initialAppState })],
+        declarations: [RunDetailComponent],
+        imports: [HttpClientTestingModule],
+      }).compileComponents();
+      store = TestBed.inject(Store);
+    }),
+  );
 
   beforeEach(() => {
     fixture = TestBed.createComponent(RunDetailComponent);
@@ -55,27 +61,46 @@ describe('RunDetailComponent', () => {
     expect(underTest).toBeTruthy();
   });
 
-  it('onInit should set component properties', async(() => {
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(underTest.loading).toBe(initialAppState.runs.detail.loading);
-      expect(underTest.jobInstances).toBe(initialAppState.runs.detail.jobInstances);
-    });
-  }));
+  it(
+    'onInit should set component properties',
+    waitForAsync(() => {
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(underTest.loading).toBe(initialAppState.runs.detail.loading);
+        expect(underTest.jobInstances).toBe(initialAppState.runs.detail.jobInstances);
+      });
+    }),
+  );
 
-  it('onRefresh() should dispatch GetDagRunDetail', async(() => {
-    underTest.dagRunId = 42;
-    underTest.refreshSubject = new Subject<boolean>();
-    const subject = new Subject<boolean>();
-    const storeSpy = spyOn(store, 'dispatch');
+  it(
+    'onRefresh() should dispatch GetDagRunDetail',
+    waitForAsync(() => {
+      underTest.dagRunId = 42;
+      underTest.refreshSubject = new Subject<boolean>();
+      const subject = new Subject<boolean>();
+      const storeSpy = spyOn(store, 'dispatch');
 
-    underTest.onRefresh();
-    subject.next(true);
+      underTest.onRefresh();
+      subject.next(true);
 
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
-      expect(storeSpy).toHaveBeenCalled();
-      expect(storeSpy).toHaveBeenCalledWith(new GetDagRunDetail(underTest.dagRunId));
-    });
-  }));
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(storeSpy).toHaveBeenCalled();
+        expect(storeSpy).toHaveBeenCalledWith(new GetDagRunDetail(underTest.dagRunId));
+      });
+    }),
+  );
+
+  it(
+    'getApplicationId() should return a valid url ',
+    waitForAsync(() => {
+      const expectedUrl = 'http://localhost:8088/cluster/app/applicationId_1234';
+      const url1 = underTest.getApplicationIdUrl('http://localhost:8088', 'applicationId_1234');
+      expect(url1).toBe(expectedUrl);
+      const url2 = underTest.getApplicationIdUrl('http://localhost:8088/', 'applicationId_1234');
+      expect(url2).toBe(expectedUrl);
+      const url3 = underTest.getApplicationIdUrl('http://localhost:8088', '/applicationId_1234');
+      expect(url3).toBe(expectedUrl);
+    }),
+  );
 });

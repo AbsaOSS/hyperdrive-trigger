@@ -15,12 +15,8 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.sensors
 
-import java.util.concurrent.Executors
-
-import javax.inject.Inject
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
-import za.co.absa.hyperdrive.trigger.models.Workflow
 import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, SensorRepository}
 import za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor
@@ -29,6 +25,8 @@ import za.co.absa.hyperdrive.trigger.scheduler.sensors.recurring.RecurringSensor
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.time.{TimeSensor, TimeSensorQuartzSchedulerManager}
 import za.co.absa.hyperdrive.trigger.scheduler.utilities.SensorsConfig
 
+import java.util.concurrent.Executors
+import javax.inject.Inject
 import scala.collection.mutable
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success, Try}
@@ -42,13 +40,13 @@ class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: Sensor
 
   private val sensors: mutable.Map[Long, Sensor] = mutable.Map.empty[Long, Sensor]
 
-  def processEvents(assignedWorkflowIds: Seq[Long]): Future[Unit] = {
+  def processEvents(assignedWorkflowIds: Seq[Long], firstIteration: Boolean): Future[Unit] = {
     logger.debug(s"Processing events. Sensors: ${sensors.keys}")
     removeReleasedSensors(assignedWorkflowIds)
     val fut = for {
       _ <- removeInactiveSensors()
       _ <- updateChangedSensors()
-      _ <- addNewSensors(assignedWorkflowIds)
+      _ <- addNewSensors(assignedWorkflowIds, firstIteration)
       _ <- pollEvents()
     } yield {
       (): Unit
@@ -65,10 +63,12 @@ class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: Sensor
   }
 
   def prepareSensors(): Unit = {
+    logger.info("Preparing sensors")
     TimeSensorQuartzSchedulerManager.start()
   }
 
   def cleanUpSensors(): Unit = {
+    logger.info("Cleaning up sensors")
     sensors.values.foreach(_.close())
     sensors.clear()
 
@@ -76,10 +76,12 @@ class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: Sensor
   }
 
   private def updateChangedSensors(): Future[Unit] = {
+    val kafkaSensorConsumeFromLatest = false // by construction, this query never returns sensor that changed its
+    // activation state, therefore the consumer never has to consume from the latest
     sensorRepository.getChangedSensors(sensors.values.map(_.sensorDefinition).toSeq).map(
       _.foreach { sensor =>
         stopSensor(sensor.id)
-        startSensor(sensor)
+        startSensor(sensor, kafkaSensorConsumeFromLatest)
       }
     )
   }
@@ -102,17 +104,18 @@ class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: Sensor
     sensors.remove(id)
   }
 
-  private def addNewSensors(assignedWorkflowIds: Seq[Long]): Future[Unit] = {
+  private def addNewSensors(assignedWorkflowIds: Seq[Long], firstIteration: Boolean): Future[Unit] = {
     val activeSensors = sensors.keys.toSeq
     sensorRepository.getNewActiveAssignedSensors(activeSensors, assignedWorkflowIds).map {
-      _.foreach(sensor => startSensor(sensor))
+      _.foreach(sensor => startSensor(sensor, kafkaSensorConsumeFromLatest = !firstIteration))
     }
   }
 
-  private def startSensor(sensor: za.co.absa.hyperdrive.trigger.models.Sensor) = sensor match {
+  private def startSensor(sensor: za.co.absa.hyperdrive.trigger.models.Sensor, kafkaSensorConsumeFromLatest: Boolean) = sensor match {
     case sensor if sensor.sensorType == SensorTypes.Kafka || sensor.sensorType == SensorTypes.AbsaKafka =>
 
-      Try(new KafkaSensor(eventProcessor.eventProcessor(s"Sensor - ${sensor.sensorType.name}"), sensor, executionContext)) match {
+      Try(new KafkaSensor(eventProcessor.eventProcessor(s"Sensor - ${sensor.sensorType.name}"), sensor,
+        kafkaSensorConsumeFromLatest, executionContext)) match {
         case Success(s) => sensors.put(sensor.id, s)
         case Failure(f) => logger.error(s"Couldn't create Kafka sensor for sensor (#${sensor.id}).", f)
       }

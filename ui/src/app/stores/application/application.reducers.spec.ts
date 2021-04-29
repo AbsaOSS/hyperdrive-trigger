@@ -20,10 +20,7 @@ import { AppInfoModel, AppInfoModelFactory } from '../../models/appInfo.model';
 describe('ApplicationReducers', () => {
   const initialState: State = {
     loading: true,
-    appInfo: {
-      environment: 'Undefined',
-      version: 'Undefined',
-    },
+    appInfo: AppInfoModelFactory.create('Undefined', 'Undefined', 'Undefined'),
   } as State;
 
   it('should set loading to true on load app info', () => {
@@ -35,7 +32,7 @@ describe('ApplicationReducers', () => {
   });
 
   it('should set loading to false and app info on load app info success', () => {
-    const appInfo: AppInfoModel = AppInfoModelFactory.create('environment', 'version');
+    const appInfo: AppInfoModel = AppInfoModelFactory.create('environment', 'version', 'localhost:8088');
     const applicationAction = new LoadAppInfoSuccess(appInfo);
 
     const actual = applicationReducer(initialState, applicationAction);

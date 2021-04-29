@@ -17,7 +17,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <version>0.3.7-SNAPSHOT</version>
+    <version>0.4.2-SNAPSHOT</version>
     <groupId>za.co.absa</groupId>
     <artifactId>hyperdrive-trigger</artifactId>
     <packaging>war</packaging>
@@ -88,6 +88,7 @@
         <slick-hikaricp.version>3.3.1</slick-hikaricp.version>
         <postgresql>42.2.6</postgresql>
         <kafka.version>2.2.0</kafka.version>
+        <embedded.kafka.version>2.2.0</embedded.kafka.version>
         <play-json.version>2.7.3</play-json.version>
         <play-ws-standalone.version>2.0.3</play-ws-standalone.version>
         <play-ahc-ws-standalone.version>2.0.2</play-ahc-ws-standalone.version>
@@ -103,7 +104,7 @@
         <scalatest.version>3.0.5</scalatest.version>
         <h2database.version>1.4.200</h2database.version>
         <mockito.version>2.25.0</mockito.version>
-        <cronutils.version>9.1.3</cronutils.version>
+        <cron-expression-descriptor.version>1.2</cron-expression-descriptor.version>
         <node.version>12.14.1</node.version>
         <npm.version>6.13.4</npm.version>
         <scala-maven-plugin.version>3.2.1</scala-maven-plugin.version>
@@ -212,9 +213,9 @@
             <version>${spring.ldap.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.cronutils</groupId>
-            <artifactId>cron-utils</artifactId>
-            <version>${cronutils.version}</version>
+            <groupId>it.burning</groupId>
+            <artifactId>cron-expression-descriptor</artifactId>
+            <version>${cron-expression-descriptor.version}</version>
         </dependency>
         <dependency>
             <groupId>org.liquibase</groupId>
@@ -257,6 +258,12 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.github.embeddedkafka</groupId>
+            <artifactId>embedded-kafka_2.11</artifactId>
+            <version>${embedded.kafka.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -521,6 +528,7 @@
                             <serverId>ossrh</serverId>
                             <nexusUrl>https://oss.sonatype.org/</nexusUrl>
                             <autoReleaseAfterClose>false</autoReleaseAfterClose>
+                            <stagingProgressTimeoutMinutes>15</stagingProgressTimeoutMinutes>
                         </configuration>
                     </plugin>
                 </plugins>

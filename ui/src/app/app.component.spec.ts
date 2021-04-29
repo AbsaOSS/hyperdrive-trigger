@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { TestBed, async, ComponentFixture } from '@angular/core/testing';
+import { TestBed, ComponentFixture, waitForAsync } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ClarityModule } from '@clr/angular';
 import { provideMockStore, MockStore } from '@ngrx/store/testing';
@@ -21,6 +21,7 @@ import { AppComponent } from './app.component';
 import * as fromApp from './stores/app.reducers';
 import { selectAuthState } from './stores/app.reducers';
 import { Router } from '@angular/router';
+import { AppInfoModelFactory } from './models/appInfo.model';
 
 describe('AppComponent', () => {
   let underTest: AppComponent;
@@ -37,10 +38,7 @@ describe('AppComponent', () => {
 
   const initialApplicationState = {
     loading: false,
-    appInfo: {
-      environment: 'Undefined',
-      version: 'Undefined',
-    },
+    appInfo: AppInfoModelFactory.create('Undefined', 'Undefined', 'Undefined'),
   };
 
   const initialAppState = {
@@ -49,18 +47,20 @@ describe('AppComponent', () => {
     runs: {},
   };
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      imports: [RouterTestingModule, ClarityModule],
-      providers: [provideMockStore({ initialState: initialAppState })],
-      declarations: [AppComponent],
-    }).compileComponents();
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        imports: [RouterTestingModule, ClarityModule],
+        providers: [provideMockStore({ initialState: initialAppState })],
+        declarations: [AppComponent],
+      }).compileComponents();
 
-    mockStore = TestBed.inject(MockStore);
-    mockRouter = TestBed.inject(Router);
-    fixture = TestBed.createComponent(AppComponent);
-    underTest = fixture.componentInstance;
-  }));
+      mockStore = TestBed.inject(MockStore);
+      mockRouter = TestBed.inject(Router);
+      fixture = TestBed.createComponent(AppComponent);
+      underTest = fixture.componentInstance;
+    }),
+  );
 
   it('should create the app', () => {
     fixture.detectChanges();
