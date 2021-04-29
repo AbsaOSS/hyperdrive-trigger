@@ -20,7 +20,8 @@ import org.springframework.boot.actuate.health.{Health, HealthIndicator}
 import org.springframework.stereotype.Component
 import za.co.absa.hyperdrive.trigger.scheduler.utilities.{HealthConfig, SparkExecutorConfig}
 
-import java.net.{HttpURLConnection, URL}
+import java.net.{HttpURLConnection, MalformedURLException, URL}
+import scala.util.{Failure, Success, Try}
 
 @Component
 class YarnConnectionHealthIndicator extends HealthIndicator {
@@ -29,17 +30,20 @@ class YarnConnectionHealthIndicator extends HealthIndicator {
   override protected def health(): Health = {
     val yarnBaseUrl = SparkExecutorConfig.getHadoopResourceManagerUrlBase.stripSuffix("/")
     val yarnTestEndpoint = HealthConfig.yarnConnectionTestEndpoint.stripPrefix("/")
-    if (yarnBaseUrl.isEmpty) {
-      Health.unknown().build()
-    } else {
-      val testUrl = s"$yarnBaseUrl/$yarnTestEndpoint"
-      val url = new URL(testUrl)
-      val connection = url.openConnection().asInstanceOf[HttpURLConnection]
-      if (connection.getResponseCode == successCode) {
-        Health.up().build()
+
+    Try(new URL(s"$yarnBaseUrl/$yarnTestEndpoint")).flatMap(url =>
+      Try({
+        val connection = url.openConnection().asInstanceOf[HttpURLConnection]
+        connection.getResponseCode == successCode
+      })
+    ) match {
+      case Success(healthy) => if (healthy) {
+        Health.up.build()
       } else {
         Health.down().build()
       }
+      case Failure(ex: MalformedURLException) => Health.unknown().withException(ex).build()
+      case Failure(ex) => Health.down().withException(ex).build()
     }
   }
 }
