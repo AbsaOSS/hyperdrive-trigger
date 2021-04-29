@@ -98,15 +98,12 @@ create table "job_template" (
   "key_value_pairs" VARCHAR NOT NULL,
   "id" BIGSERIAL NOT NULL PRIMARY KEY,
   "form_config" VARCHAR NOT NULL DEFAULT 'unknown'
-<<<<<<< HEAD:src/main/resources/db_scripts/db_script_v8.sql
-=======
 );
 
 create table "scheduler_instance" (
   "id" BIGSERIAL NOT NULL PRIMARY KEY,
   "status" VARCHAR NOT NULL,
   "last_heartbeat" TIMESTAMP NOT NULL
->>>>>>> develop:src/main/resources/db_scripts/db_script_latest.sql
 );
 
 alter table "job_instance"
