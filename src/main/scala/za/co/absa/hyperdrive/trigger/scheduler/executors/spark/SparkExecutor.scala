@@ -92,7 +92,7 @@ object SparkExecutor extends Executor {
       "SPARK_PRINT_LAUNCH_COMMAND" -> "1"
     ).asJava)
       .setMaster(SparkExecutorConfig.getMaster)
-      .setDeployMode(sparkParameters.deploymentMode)
+      .setDeployMode("cluster")
       .setMainClass(sparkParameters.mainClass)
       .setAppResource(sparkParameters.jobJar)
       .setSparkHome(SparkExecutorConfig.getSparkHome)

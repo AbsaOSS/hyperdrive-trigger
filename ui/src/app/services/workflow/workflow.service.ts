@@ -294,16 +294,6 @@ export class WorkflowService {
         PartValidationFactory.create(true, undefined, 1),
       ),
       FormPartFactory.create(
-        'Deployment mode',
-        'jobParameters.variables.deploymentMode',
-        'select-field',
-        PartValidationFactory.create(true),
-        new Map([
-          ['cluster', 'cluster'],
-          ['client', 'client'],
-        ]),
-      ),
-      FormPartFactory.create(
         'Additional jars',
         'jobParameters.maps.additionalJars',
         'set-field',
