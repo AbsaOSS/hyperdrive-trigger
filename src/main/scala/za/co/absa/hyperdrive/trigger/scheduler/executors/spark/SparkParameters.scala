@@ -25,7 +25,6 @@ import scala.util.Try
 case class SparkParameters(
   jobJar: String,
   mainClass: String,
-  deploymentMode: String,
   appArguments: List[String],
   additionalJars: List[String],
   additionalFiles: List[String],
@@ -40,7 +39,6 @@ object SparkParameters {
     SparkParameters(
       jobJar = Paths.get(SparkExecutorConfig.getExecutablesFolder, jobParameters.variables("jobJar")).toString,
       mainClass = jobParameters.variables("mainClass"),
-      deploymentMode = jobParameters.variables("deploymentMode"),
       appArguments = Try(jobParameters.maps("appArguments")).getOrElse(List.empty[String]),
       additionalJars = Try(jobParameters.maps("additionalJars")).getOrElse(List.empty[String]).map(jar => Paths.get(SparkExecutorConfig.getExecutablesFolder, jar).toString),
       additionalFiles = Try(jobParameters.maps("additionalFiles")).getOrElse(List.empty[String]).map(file => Paths.get(SparkExecutorConfig.getExecutablesFolder, file).toString),
