@@ -67,6 +67,7 @@ object SparkExecutor extends Executor[SparkParameters] {
       sparkAppHandle.kill()
     }
   }
+
   private def updateJobStatus(executorJobId: String, jobInstance: JobInstance, updateJob: JobInstance => Future[Unit])
                              (implicit executionContext: ExecutionContext): Future[Unit] = {
     wsClient.url(getStatusUrl(executorJobId)).get().map { response =>
@@ -89,7 +90,7 @@ object SparkExecutor extends Executor[SparkParameters] {
       "SPARK_PRINT_LAUNCH_COMMAND" -> "1"
     ).asJava)
       .setMaster(SparkExecutorConfig.getMaster)
-      .setDeployMode(jobParameters.deploymentMode)
+      .setDeployMode("cluster")
       .setMainClass(jobParameters.mainClass)
       .setAppResource(jobParameters.jobJar)
       .setSparkHome(SparkExecutorConfig.getSparkHome)

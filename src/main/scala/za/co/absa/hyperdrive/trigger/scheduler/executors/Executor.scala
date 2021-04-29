@@ -15,10 +15,10 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.executors
 
-import za.co.absa.hyperdrive.trigger.models.{JobInstance, JobInstanceJobParameters}
+import za.co.absa.hyperdrive.trigger.models.{JobInstance, JobInstanceParameters}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait Executor[T <: JobInstanceJobParameters] {
+trait Executor[T <: JobInstanceParameters] {
   def execute(jobInstance: JobInstance, jobParameters: T, updateJob: JobInstance => Future[Unit])(implicit executionContext: ExecutionContext): Future[Unit]
 }

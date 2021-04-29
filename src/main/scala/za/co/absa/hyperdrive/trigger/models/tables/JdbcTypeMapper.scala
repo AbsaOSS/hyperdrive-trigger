@@ -24,7 +24,7 @@ import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
 import play.api.libs.json.{JsValue, Json}
 import slick.jdbc.JdbcType
 import za.co.absa.hyperdrive.trigger.ObjectMapperSingleton
-import za.co.absa.hyperdrive.trigger.models.{JobInstanceJobParameters, ShellParameters, SparkParameters, WorkflowJoined}
+import za.co.absa.hyperdrive.trigger.models.{JobInstanceParameters, ShellParameters, SparkParameters, WorkflowJoined}
 import za.co.absa.hyperdrive.trigger.models.enums.DBOperation.DBOperation
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses.DagInstanceStatus
 import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses.SchedulerInstanceStatus
@@ -115,11 +115,11 @@ trait JdbcTypeMapper {
       }
     )
 
-  implicit lazy val jobParametersMapper: JdbcType[JobInstanceJobParameters] = MappedColumnType.base[JobInstanceJobParameters, JsValue](
+  implicit lazy val jobParametersMapper: JdbcType[JobInstanceParameters] = MappedColumnType.base[JobInstanceParameters, JsValue](
     {
       case a: SparkParameters => Json.toJson(a)
       case b: ShellParameters => Json.toJson(b)
     },
-    column => column.as[JobInstanceJobParameters]
+    column => column.as[JobInstanceParameters]
   )
 }

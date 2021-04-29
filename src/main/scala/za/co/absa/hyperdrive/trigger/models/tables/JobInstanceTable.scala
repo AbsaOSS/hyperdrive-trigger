@@ -30,7 +30,7 @@ trait JobInstanceTable {
 
     def jobName: Rep[String] = column[String]("job_name")
     def jobType: Rep[JobType] = column[JobType]("job_type")
-    def jobParameters: Rep[JobInstanceJobParameters] = column[JobInstanceJobParameters]("job_parameters", O.SqlType("JSON"))
+    def jobParameters: Rep[JobInstanceParameters] = column[JobInstanceParameters]("job_parameters", O.SqlType("JSON"))
     def jobStatus: Rep[JobStatus] = column[JobStatus]("job_status")
     def executorJobId: Rep[Option[String]] = column[Option[String]]("executor_job_id")
     def applicationId: Rep[Option[String]] = column[Option[String]]("application_id")

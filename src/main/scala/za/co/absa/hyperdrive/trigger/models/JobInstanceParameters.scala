@@ -7,21 +7,20 @@ import za.co.absa.hyperdrive.trigger.scheduler.utilities.{ShellExecutorConfig, S
 
 import scala.util.Try
 
-sealed trait JobInstanceJobParameters
+sealed trait JobInstanceParameters
 
 case class SparkParameters(
   jobJar: String,
   mainClass: String,
-  deploymentMode: String,
   appArguments: List[String] = List.empty[String],
   additionalJars: List[String] = List.empty[String],
   additionalFiles: List[String] = List.empty[String],
   additionalSparkConfig: Map[String, String] = Map.empty[String, String]
-) extends JobInstanceJobParameters
+) extends JobInstanceParameters
 
 case class ShellParameters(
   scriptLocation: String
-) extends JobInstanceJobParameters
+) extends JobInstanceParameters
 
 object SparkParameters {
   implicit val sparkFormat: OFormat[SparkParameters] = Json.using[Json.WithDefaultValues].format[SparkParameters]
@@ -30,7 +29,6 @@ object SparkParameters {
     SparkParameters(
       jobJar = Paths.get(SparkExecutorConfig.getExecutablesFolder, jobParameters.variables("jobJar")).toString,
       mainClass = jobParameters.variables("mainClass"),
-      deploymentMode = jobParameters.variables("deploymentMode"),
       appArguments = Try(jobParameters.maps("appArguments")).getOrElse(List.empty[String]),
       additionalJars = Try(jobParameters.maps("additionalJars")).getOrElse(List.empty[String]).map(jar => Paths.get(SparkExecutorConfig.getExecutablesFolder, jar).toString),
       additionalFiles = Try(jobParameters.maps("additionalFiles")).getOrElse(List.empty[String]).map(file => Paths.get(SparkExecutorConfig.getExecutablesFolder, file).toString),
@@ -47,13 +45,13 @@ object ShellParameters {
   )
 }
 
-object JobInstanceJobParameters {
-  implicit val jobParametersFormat: Format[JobInstanceJobParameters] = new Format[JobInstanceJobParameters] {
-    override def writes(o: JobInstanceJobParameters): JsValue = o match {
+object JobInstanceParameters {
+  implicit val jobParametersFormat: Format[JobInstanceParameters] = new Format[JobInstanceParameters] {
+    override def writes(o: JobInstanceParameters): JsValue = o match {
       case spark: SparkParameters => Json.toJson(spark)
       case shell: ShellParameters => Json.toJson(shell)
     }
-    override def reads(json: JsValue): JsResult[JobInstanceJobParameters] =
+    override def reads(json: JsValue): JsResult[JobInstanceParameters] =
       SparkParameters.sparkFormat.reads(json).orElse(
         ShellParameters.shellFormat.reads(json))
   }
