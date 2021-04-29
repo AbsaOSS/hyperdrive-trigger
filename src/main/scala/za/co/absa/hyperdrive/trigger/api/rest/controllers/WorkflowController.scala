@@ -16,6 +16,7 @@
 package za.co.absa.hyperdrive.trigger.api.rest.controllers
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
+import java.time.LocalDateTime
 import java.util.concurrent.CompletableFuture
 import java.util.zip.{ZipEntry, ZipInputStream, ZipOutputStream}
 
@@ -26,16 +27,19 @@ import org.springframework.core.io.ByteArrayResource
 import org.springframework.http.{HttpHeaders, MediaType, ResponseEntity}
 import org.springframework.web.bind.annotation._
 import org.springframework.web.multipart.MultipartFile
+import play.api.libs.json.Json
 import za.co.absa.hyperdrive.trigger.ObjectMapperSingleton
 import za.co.absa.hyperdrive.trigger.api.rest.services.WorkflowService
 import za.co.absa.hyperdrive.trigger.models._
+import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, BulkOperationError, GenericError}
 
+import scala.collection.immutable.SortedMap
 import scala.collection.mutable.ArrayBuffer
 import scala.compat.java8.FutureConverters._
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.Try
+import scala.util.{Random, Try}
 
 @RestController
 class WorkflowController @Inject()(workflowService: WorkflowService) {

@@ -19,7 +19,7 @@ export type JobDefinitionModel = {
   dagDefinitionId: number;
   name: string;
   jobTemplateId: string;
-  jobParameters: JobParametersModel;
+  jobParameters: any;
   order: number;
   id: number;
 };
@@ -29,7 +29,7 @@ export class JobDefinitionModelFactory {
     dagDefinitionId = 0,
     name: string,
     jobTemplateId: string,
-    jobParameters: JobParametersModel,
+    jobParameters: any,
     order: number,
     id: number,
   ): JobDefinitionModel {

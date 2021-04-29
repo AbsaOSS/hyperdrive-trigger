@@ -52,14 +52,15 @@ class WorkflowValidationServiceImpl @Inject()(override val workflowRepository: W
   }
 
   override def validateOnUpdate(originalWorkflow: WorkflowJoined, updatedWorkflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Unit] = {
-    val validators = Seq(
-      validateWorkflowIsUnique(updatedWorkflow),
-      validateProjectIsNotEmpty(updatedWorkflow),
-      validateWorkflowData(originalWorkflow, updatedWorkflow)
-    )
-    combine(validators).transform(identity, {
-      case ex: ApiException => new ApiException(ex.apiErrors.map(_.unwrapError()))
-    })
+    Future.successful((): Unit)
+    //    val validators = Seq(
+//      validateWorkflowIsUnique(updatedWorkflow),
+//      validateProjectIsNotEmpty(updatedWorkflow),
+//      validateWorkflowData(originalWorkflow, updatedWorkflow)
+//    )
+//    combine(validators).transform(identity, {
+//      case ex: ApiException => new ApiException(ex.apiErrors.map(_.unwrapError()))
+//    })
   }
 
   private def combine(validators: Seq[Future[Seq[ApiError]]])(implicit ec: ExecutionContext) = {
@@ -118,20 +119,20 @@ class WorkflowValidationServiceImpl @Inject()(override val workflowRepository: W
 
     val workflowJobsVerification = Seq(
       Seq(originalWorkflow.dagDefinitionJoined.jobDefinitions.length == updatedWorkflow.dagDefinitionJoined.jobDefinitions.length),
-      Seq(originalWorkflow.dagDefinitionJoined.jobDefinitions.map(_.order).equals(updatedWorkflow.dagDefinitionJoined.jobDefinitions.map(_.order))),
-      originalWorkflow.dagDefinitionJoined.jobDefinitions.flatMap(originalJob => {
-        val updatedJobOption = updatedWorkflow.dagDefinitionJoined.jobDefinitions.find(_.order == originalJob.order)
-        updatedJobOption.map(updatedJob =>
-          Seq(
-            originalJob.name == updatedJob.name,
-            originalJob.jobTemplateId == updatedJob.jobTemplateId,
-            originalJob.order == updatedJob.order,
-            originalJob.jobParameters.variables.equals(updatedJob.jobParameters.variables),
-            areMapsEqual(originalJob.jobParameters.maps, updatedJob.jobParameters.maps),
-            areMapsOfMapsEqual(originalJob.jobParameters.keyValuePairs, updatedJob.jobParameters.keyValuePairs)
-          )
-        ).getOrElse(Seq(false))
-      })
+      Seq(originalWorkflow.dagDefinitionJoined.jobDefinitions.map(_.order).equals(updatedWorkflow.dagDefinitionJoined.jobDefinitions.map(_.order)))
+//      originalWorkflow.dagDefinitionJoined.jobDefinitions.flatMap(originalJob => {
+//        val updatedJobOption = updatedWorkflow.dagDefinitionJoined.jobDefinitions.find(_.order == originalJob.order)
+//        updatedJobOption.map(updatedJob =>
+//          Seq(
+//            originalJob.name == updatedJob.name,
+//            originalJob.jobTemplateId == updatedJob.jobTemplateId,
+//            originalJob.order == updatedJob.order,
+//            originalJob.jobParameters.variables.equals(updatedJob.jobParameters.variables),
+//            areMapsEqual(originalJob.jobParameters.maps, updatedJob.jobParameters.maps),
+//            areMapsOfMapsEqual(originalJob.jobParameters.keyValuePairs, updatedJob.jobParameters.keyValuePairs)
+//          )
+//        ).getOrElse(Seq(false))
+//      })
     ).flatten
 
     if((workflowDetailsVerification ++ workflowSensorVerification ++ workflowJobsVerification).contains(false)) {
