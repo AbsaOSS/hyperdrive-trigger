@@ -54,9 +54,9 @@ trait WorkflowRepository extends Repository {
 @stereotype.Repository
 class WorkflowRepositoryImpl(override val workflowHistoryRepository: WorkflowHistoryRepository) extends WorkflowRepository {
 
-  import profile.api._
+  import api._
 
-  private val logger = LoggerFactory.getLogger(this.getClass)
+//  private val logger = LoggerFactory.getLogger(this.getClass)
 
   override def insertWorkflow(workflow: WorkflowJoined, user: String)(implicit ec: ExecutionContext): Future[Long] = {
     db.run(

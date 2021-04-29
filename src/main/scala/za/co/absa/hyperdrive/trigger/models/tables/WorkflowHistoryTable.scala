@@ -24,7 +24,7 @@ import za.co.absa.hyperdrive.trigger.models.{History, WorkflowHistory, WorkflowJ
 trait WorkflowHistoryTable {
   this: Profile with JdbcTypeMapper =>
 
-  import profile.api._
+  import api._
 
   final class WorkflowHistoryTable(tag: Tag) extends Table[WorkflowHistory](tag, _tableName = "workflow_history") {
     def id: Rep[Long] = column[Long]("id", O.PrimaryKey, O.AutoInc, O.SqlType("BIGSERIAL"))

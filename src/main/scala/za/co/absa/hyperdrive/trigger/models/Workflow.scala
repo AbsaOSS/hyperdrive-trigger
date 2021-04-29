@@ -17,6 +17,10 @@ package za.co.absa.hyperdrive.trigger.models
 
 import java.time.LocalDateTime
 
+import play.api.libs.json.{Format, JsResult, JsValue, Json, OFormat}
+import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes
+import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes.{AbsaKafka, Kafka, Recurring, SensorType, Time}
+
 case class Workflow(
   name: String,
   isActive: Boolean,
@@ -54,3 +58,14 @@ case class WorkflowJoined(
     )
   }
 }
+
+//object WorkflowJoined {
+//  implicit val settingsFormat: OFormat[Settings] = Json.using[Json.WithDefaultValues].format[Settings]
+//  implicit val propertiesFormat: OFormat[Properties] = Json.using[Json.WithDefaultValues].format[Properties]
+//
+//
+//  implicit val sensorFormat: OFormat[Sensor] = Json.using[Json.WithDefaultValues].format[Sensor]
+//  implicit val jobDefinitionFormat: OFormat[JobDefinition] = Json.using[Json.WithDefaultValues].format[JobDefinition]
+//  implicit val dagDefinitionJoinedFormat: OFormat[DagDefinitionJoined] = Json.using[Json.WithDefaultValues].format[DagDefinitionJoined]
+//  implicit val workflowJoinedFormat: OFormat[WorkflowJoined] = Json.using[Json.WithDefaultValues].format[WorkflowJoined]
+//}

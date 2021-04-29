@@ -25,6 +25,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.context.annotation.{Bean, Configuration}
 import org.springframework.scheduling.annotation.EnableAsync
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
+import play.api.libs.json.{JsValue, Json}
+import za.co.absa.hyperdrive.trigger.models.{JobParameters, JobParametersTemplate}
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.JobStatus
 import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
 import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes.SensorType
@@ -73,10 +75,23 @@ object ObjectMapperSingleton {
     }
   }
 
+  private class JobParametersDeserializer extends JsonDeserializer[JobParameters] {
+    override def deserialize(p: JsonParser, ctxt: DeserializationContext): JobParameters = {
+      Json.parse(p.readValueAsTree().toString()).as[JobParameters]
+    }
+  }
+
+  private class JobParametersTemplateDeserializer extends JsonDeserializer[JobParametersTemplate] {
+    override def deserialize(p: JsonParser, ctxt: DeserializationContext): JobParametersTemplate = {
+      Json.parse(p.readValueAsTree().toString()).as[JobParametersTemplate]
+    }
+  }
   private val module = new SimpleModule()
     .addDeserializer(classOf[SensorType], new SensorTypesDeserializer)
     .addDeserializer(classOf[JobStatus], new JobStatusesDeserializer)
     .addDeserializer(classOf[JobType], new JobTypesDeserializer)
+    .addDeserializer(classOf[JobParameters], new JobParametersDeserializer)
+    .addDeserializer(classOf[JobParametersTemplate], new JobParametersTemplateDeserializer)
 
   private val objectMapper = new ObjectMapper()
     .registerModule(DefaultScalaModule)

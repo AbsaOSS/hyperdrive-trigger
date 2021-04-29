@@ -22,16 +22,14 @@ import scala.collection.immutable.SortedMap
 
 trait JobDefinitionTable {
   this: Profile with JdbcTypeMapper with DagDefinitionTable with JobTemplateTable =>
-  import profile.api._
+  import api._
 
   final class JobDefinitionTable(tag: Tag) extends Table[JobDefinition](tag, _tableName = "job_definition") {
 
     def dagDefinitionId: Rep[Long] = column[Long]("dag_definition_id")
     def jobTemplateId: Rep[Long] = column[Long]("job_template_id")
     def name: Rep[String] = column[String]("name")
-    def variables: Rep[Map[String, String]] = column[Map[String, String]]("variables")
-    def maps: Rep[Map[String, List[String]]] = column[Map[String, List[String]]]("maps")
-    def keyValuePairs: Rep[Map[String, SortedMap[String, String]]] = column[Map[String, SortedMap[String, String]]]("key_value_pairs")
+    def jobParameters: Rep[JobParameters] = column[JobParameters]("job_parameters", O.SqlType("JSON"))
     def order: Rep[Int] = column[Int]("order")
     def id: Rep[Long] = column[Long]("id", O.PrimaryKey, O.AutoInc, O.SqlType("BIGSERIAL"))
 
@@ -41,29 +39,22 @@ trait JobDefinitionTable {
     def jobTemplate_fk: ForeignKeyQuery[JobTemplateTable, JobTemplate] =
       foreignKey("job_definition_job_template_fk", jobTemplateId, TableQuery[JobTemplateTable])(_.id)
 
-    def * : ProvenShape[JobDefinition] = (dagDefinitionId, jobTemplateId, name, variables, maps, keyValuePairs,
-      order, id) <> (
+    def * : ProvenShape[JobDefinition] = (dagDefinitionId, jobTemplateId, name, jobParameters, order, id) <> (
       jobDefinitionTuple =>
         JobDefinition.apply(
           dagDefinitionId = jobDefinitionTuple._1,
           jobTemplateId = jobDefinitionTuple._2,
           name = jobDefinitionTuple._3,
-          jobParameters = JobParameters(
-            variables = jobDefinitionTuple._4,
-            maps = jobDefinitionTuple._5,
-            keyValuePairs = jobDefinitionTuple._6
-          ),
-          order = jobDefinitionTuple._7,
-          id = jobDefinitionTuple._8
+          jobParameters = jobDefinitionTuple._4,
+          order = jobDefinitionTuple._5,
+          id = jobDefinitionTuple._6
         ),
       (jobDefinition: JobDefinition) =>
         Option(
           jobDefinition.dagDefinitionId,
           jobDefinition.jobTemplateId,
           jobDefinition.name,
-          jobDefinition.jobParameters.variables,
-          jobDefinition.jobParameters.maps,
-          jobDefinition.jobParameters.keyValuePairs,
+          jobDefinition.jobParameters,
           jobDefinition.order,
           jobDefinition.id
         )

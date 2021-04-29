@@ -28,7 +28,7 @@ import za.co.absa.hyperdrive.trigger.persistance.Repository
 @Configuration
 @EnableConfigurationProperties(Array(classOf[LiquibaseProperties]))
 class LiquibaseConfiguration(properties: LiquibaseProperties) extends SpringLiquibase with Repository {
-  private val logger = LoggerFactory.getLogger(this.getClass)
+//  private val logger = LoggerFactory.getLogger(this.getClass)
   @Value("${db.skip.liquibase:false}")
   val skipLiquibase: Boolean = false
 

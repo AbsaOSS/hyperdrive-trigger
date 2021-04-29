@@ -15,10 +15,50 @@
 
 package za.co.absa.hyperdrive.trigger.models
 
-import scala.collection.immutable.SortedMap
+import play.api.libs.json.{Format, JsResult, JsValue, Json, OFormat}
 
-case class JobParameters(
-  variables: Map[String, String],
-  maps: Map[String, List[String]] = Map.empty[String, List[String]],
-  keyValuePairs: Map[String, SortedMap[String, String]] = Map.empty
-)
+sealed trait JobParameters
+
+case class Spark(
+  jobJar: String,
+  mainClass: String,
+  deploymentMode: String,
+  appArguments: List[String] = List.empty[String],
+  additionalJars: List[String] = List.empty[String],
+  additionalFiles: List[String] = List.empty[String],
+  additionalSparkConfig: Map[String, String] = Map.empty[String, String]
+) extends JobParameters
+
+case class HyperConformance(
+  appArguments: List[String] = List.empty[String],
+  additionalJars: List[String] = List.empty[String],
+  additionalFiles: List[String] = List.empty[String],
+  additionalSparkConfig: Map[String, String] = Map.empty[String, String]
+) extends JobParameters
+
+case class Shell(
+  scriptLocation: String
+) extends JobParameters
+
+object Spark {
+  implicit val sparkFormat: OFormat[Spark] = Json.format[Spark]
+}
+object HyperConformance {
+  implicit val hyperConformanceFormat: OFormat[HyperConformance] = Json.format[HyperConformance]
+}
+object Shell {
+  implicit val shellFormat: OFormat[Shell] = Json.format[Shell]
+}
+object JobParameters {
+  implicit val jobParametersFormat: Format[JobParameters] = new Format[JobParameters] {
+    override def writes(o: JobParameters): JsValue = o match {
+      case a: Spark => Json.toJson(a)
+      case a: Shell => Json.toJson(a)
+      case a: HyperConformance => Json.toJson(a)
+    }
+    override def reads(json: JsValue): JsResult[JobParameters] =
+      Spark.sparkFormat.reads(json).orElse(
+        HyperConformance.hyperConformanceFormat.reads(json)).orElse(
+        Shell.shellFormat.reads(json))
+  }
+}

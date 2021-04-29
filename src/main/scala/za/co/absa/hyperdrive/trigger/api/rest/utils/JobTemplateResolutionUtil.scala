@@ -44,12 +44,13 @@ object JobTemplateResolutionUtil {
     )
   }
 
-  private def mergeJobParameters(primary: JobParameters, secondary: JobParameters): JobParameters = {
-    JobParameters(
-      variables = mergeMapsOfStrings(primary.variables, secondary.variables),
-      maps = mergeMapsOfLists(primary.maps, secondary.maps),
-      keyValuePairs = mergeMapsOfSortedMaps(primary.keyValuePairs, secondary.keyValuePairs)
-    )
+  private def mergeJobParameters(primary: JobParameters, secondary: JobParametersTemplate): JobParameters = {
+    primary
+//    JobParameters(
+//      variables = mergeMapsOfStrings(primary.variables, secondary.variables),
+//      maps = mergeMapsOfLists(primary.maps, secondary.maps),
+//      keyValuePairs = mergeMapsOfSortedMaps(primary.keyValuePairs, secondary.keyValuePairs)
+//    )
   }
 
   private def mergeMapsOfStrings(primary: Map[String, String], secondary: Map[String, String]) =

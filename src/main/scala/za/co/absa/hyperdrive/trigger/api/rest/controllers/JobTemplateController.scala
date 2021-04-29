@@ -31,7 +31,10 @@ class JobTemplateController @Inject()(jobTemplateService: JobTemplateService) {
 
   @GetMapping(path = Array("/jobTemplate"))
   def getJobTemplate(@RequestParam id: Long): CompletableFuture[JobTemplate] = {
-    jobTemplateService.getJobTemplate(id).toJava.toCompletableFuture
+    jobTemplateService.getJobTemplate(id).map{ templ =>
+      println(templ)
+      templ
+    }.toJava.toCompletableFuture
   }
 
   @GetMapping(path = Array("/jobTemplates"))

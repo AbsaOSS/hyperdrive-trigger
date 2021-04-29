@@ -36,7 +36,7 @@ trait JobTemplateRepository extends Repository {
 @stereotype.Repository
 class JobTemplateRepositoryImpl extends JobTemplateRepository {
   import profile.api._
-  private val logger = LoggerFactory.getLogger(this.getClass)
+//  private val logger = LoggerFactory.getLogger(this.getClass)
 
   override def getJobTemplate(id: Long)(implicit ec: ExecutionContext): Future[JobTemplate] = db.run(
     jobTemplateTable.filter(_.id === id).result.map(_.headOption.getOrElse(

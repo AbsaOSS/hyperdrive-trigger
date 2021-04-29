@@ -15,33 +15,36 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.executors.shell
 
+import java.nio.file.Paths
+
 import org.slf4j.LoggerFactory
-import za.co.absa.hyperdrive.trigger.models.JobInstance
+import za.co.absa.hyperdrive.trigger.models.{JobInstance, Shell}
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses._
 import za.co.absa.hyperdrive.trigger.scheduler.executors.Executor
+import za.co.absa.hyperdrive.trigger.scheduler.utilities.ShellExecutorConfig
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.sys.process._
 import scala.util.Try
 
-object ShellExecutor extends Executor {
+object ShellExecutor extends Executor[Shell] {
   private val logger = LoggerFactory.getLogger(this.getClass)
 
-  override def execute(jobInstance: JobInstance, updateJob: JobInstance => Future[Unit])
+  override def execute(jobInstance: JobInstance, jobParameters: Shell, updateJob: JobInstance => Future[Unit])
                       (implicit executionContext: ExecutionContext): Future[Unit] = {
     jobInstance.jobStatus match {
-      case status if status == InQueue => executeJob(jobInstance, updateJob)
+      case status if status == InQueue => executeJob(jobInstance, jobParameters, updateJob)
       case status if status == Running => updateJob(jobInstance.copy(jobStatus = Failed))
       case _ => updateJob(jobInstance.copy(jobStatus = Lost))
     }
   }
 
-  private def executeJob(jobInstance: JobInstance, updateJob: JobInstance => Future[Unit])
+  private def executeJob(jobInstance: JobInstance, jobParameters: Shell, updateJob: JobInstance => Future[Unit])
                         (implicit executionContext: ExecutionContext): Future[Unit] = {
     updateJob(jobInstance.copy(jobStatus = Running)).map { _ =>
       Try {
-        val shellParameters = ShellParameters(jobInstance.jobParameters)
-        shellParameters.scriptLocation.!(new ProcessLogger {
+        val script = Paths.get(ShellExecutorConfig.getExecutablesFolder, jobParameters.scriptLocation).toString
+        script.!(new ProcessLogger {
           override def out(s: => String): Unit = logger.info(s)
           override def err(s: => String): Unit = logger.error(s)
           override def buffer[T](f: => T): T = f
