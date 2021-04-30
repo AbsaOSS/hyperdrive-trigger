@@ -31,7 +31,7 @@ import scala.concurrent.{Await, Future}
 trait RepositoryTestBase extends Repository {
   val h2Profile = H2Profile
   override val profile = h2Profile
-  import profile.api._
+  import api._
 
   def h2SchemaSetup(): Unit = {
     val schema = DBIO.seq(

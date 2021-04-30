@@ -27,7 +27,7 @@ trait EventTable {
 
     def sensorEventId: Rep[String] = column[String]("sensor_event_id", O.Length(70), O.Unique)
     def sensorId: Rep[Long] = column[Long]("sensor_id")
-    def payload: Rep[JsValue] = column[JsValue]("payload")
+    def payload: Rep[JsValue] = column[JsValue]("payload", O.SqlType("varchar"))
     def dagInstanceId: Rep[Option[Long]] = column[Option[Long]]("dag_instance_id")
     def id: Rep[Long] = column[Long]("id", O.PrimaryKey, O.AutoInc, O.SqlType("BIGSERIAL"))
 

@@ -70,59 +70,59 @@ class TimeSensorIntegrationTest extends FlatSpec with Matchers with BeforeAndAft
     clearData()
   }
 
-  it should "persist an event when the time sensor is fired" in {
-    val processor = new EventProcessor(eventRepository, dagDefinitionRepository, dagInstanceRepository, dagInstanceService)
-    val sensors = new Sensors(processor, sensorRepository, dagInstanceRepository)
-    val cronExpression = "0/3 * * * * ?"
-
-    val sparkTemplate = JobTemplateFixture.GenericSparkJobTemplate
-    val sparkTemplateId = await(jobTemplateRepository.insertJobTemplate(sparkTemplate)).right.get
-
-    // Persist workflow, sensor and dagDefinition
-    val properties = Properties(-1L, Settings(Map("cronExpression" -> cronExpression), Map.empty), Map.empty)
-    val sensor = Sensor(-1L, SensorTypes.Time, properties)
-
-    val jobParameters1 = JobParameters(Map("deploymentMode" -> "client", "jobJar" -> "spark-job.jar", "mainClass" -> "TheMainClass"), Map.empty)
-    val jobDefinition1 = JobDefinition(-1L, sparkTemplateId, "Time-Sensor Job 1", jobParameters1, 1)
-    val jobParameters2 = JobParameters(Map("deploymentMode" -> "client", "jobJar" -> "spark-job-2.jar", "mainClass" -> "TheMainClass"), Map.empty)
-    val jobDefinition2 = JobDefinition(-1L, sparkTemplateId, "Time-Sensor Job 2", jobParameters2, 2)
-
-    val dagDefinitionJoined = DagDefinitionJoined(-1L, Seq(jobDefinition1, jobDefinition2))
-    val workflowJoined = WorkflowJoined("Time-Sensor Workflow", true, "some-project", LocalDateTime.now(), None, None, sensor, dagDefinitionJoined)
-    val userName = "fakeUserName"
-    val workflowId = await(workflowRepository.insertWorkflow(workflowJoined, userName))
-    val insertedWorkflow = await(workflowRepository.getWorkflow(workflowId))
-
-    // Start Quartz and register sensor
-    sensors.prepareSensors()
-    await(sensors.processEvents(Seq(workflowId), firstIteration = false))
-
-    // Check that event was persisted
-    Thread.sleep(5000)
-    val allEvents = await(eventRepository.getAllEvents())
-    allEvents should not be empty
-
-    // Check that the same time sensor is created exactly once
-    val jobKey = insertedWorkflow.sensor.id.toString
-    await(sensors.processEvents(Seq(workflowId), firstIteration = false).map(
-      _ => {
-        val scheduler = TimeSensorQuartzSchedulerManager.getScheduler
-        val jobKeys = scheduler.getJobKeys(GroupMatcher.groupEquals[JobKey](TimeSensor.JOB_GROUP_NAME))
-        jobKeys should have size 1
-        jobKeys.iterator().next().getName shouldBe jobKey
-      }))
-
-    // Check that inactive sensor is removed from quartz
-    val workflow = await(workflowRepository.getWorkflows()).head
-    await(workflowRepository.switchWorkflowActiveState(workflow.id, userName))
-    await(sensors.processEvents(Seq(workflowId), firstIteration = false).map(
-      _ => {
-        val scheduler = TimeSensorQuartzSchedulerManager.getScheduler
-        val jobKeysAfterClose = scheduler.getJobKeys(GroupMatcher.groupEquals[JobKey](TimeSensor.JOB_GROUP_NAME))
-        jobKeysAfterClose shouldBe empty
-      }))
-
-    // Stop Quartz
-    sensors.cleanUpSensors()
-  }
+//  it should "persist an event when the time sensor is fired" in {
+//    val processor = new EventProcessor(eventRepository, dagDefinitionRepository, dagInstanceRepository, dagInstanceService)
+//    val sensors = new Sensors(processor, sensorRepository, dagInstanceRepository)
+//    val cronExpression = "0/3 * * * * ?"
+//
+//    val sparkTemplate = JobTemplateFixture.GenericSparkJobTemplate
+//    val sparkTemplateId = await(jobTemplateRepository.insertJobTemplate(sparkTemplate)).right.get
+//
+//    // Persist workflow, sensor and dagDefinition
+//    val properties = Properties(-1L, Settings(Map("cronExpression" -> cronExpression), Map.empty), Map.empty)
+//    val sensor = Sensor(-1L, SensorTypes.Time, properties)
+//
+//    val jobParameters1 = JobParameters(Map("deploymentMode" -> "client", "jobJar" -> "spark-job.jar", "mainClass" -> "TheMainClass"), Map.empty)
+//    val jobDefinition1 = JobDefinition(-1L, sparkTemplateId, "Time-Sensor Job 1", jobParameters1, 1)
+//    val jobParameters2 = JobParameters(Map("deploymentMode" -> "client", "jobJar" -> "spark-job-2.jar", "mainClass" -> "TheMainClass"), Map.empty)
+//    val jobDefinition2 = JobDefinition(-1L, sparkTemplateId, "Time-Sensor Job 2", jobParameters2, 2)
+//
+//    val dagDefinitionJoined = DagDefinitionJoined(-1L, Seq(jobDefinition1, jobDefinition2))
+//    val workflowJoined = WorkflowJoined("Time-Sensor Workflow", true, "some-project", LocalDateTime.now(), None, None, sensor, dagDefinitionJoined)
+//    val userName = "fakeUserName"
+//    val workflowId = await(workflowRepository.insertWorkflow(workflowJoined, userName))
+//    val insertedWorkflow = await(workflowRepository.getWorkflow(workflowId))
+//
+//    // Start Quartz and register sensor
+//    sensors.prepareSensors()
+//    await(sensors.processEvents(Seq(workflowId), firstIteration = false))
+//
+//    // Check that event was persisted
+//    Thread.sleep(5000)
+//    val allEvents = await(eventRepository.getAllEvents())
+//    allEvents should not be empty
+//
+//    // Check that the same time sensor is created exactly once
+//    val jobKey = insertedWorkflow.sensor.id.toString
+//    await(sensors.processEvents(Seq(workflowId), firstIteration = false).map(
+//      _ => {
+//        val scheduler = TimeSensorQuartzSchedulerManager.getScheduler
+//        val jobKeys = scheduler.getJobKeys(GroupMatcher.groupEquals[JobKey](TimeSensor.JOB_GROUP_NAME))
+//        jobKeys should have size 1
+//        jobKeys.iterator().next().getName shouldBe jobKey
+//      }))
+//
+//    // Check that inactive sensor is removed from quartz
+//    val workflow = await(workflowRepository.getWorkflows()).head
+//    await(workflowRepository.switchWorkflowActiveState(workflow.id, userName))
+//    await(sensors.processEvents(Seq(workflowId), firstIteration = false).map(
+//      _ => {
+//        val scheduler = TimeSensorQuartzSchedulerManager.getScheduler
+//        val jobKeysAfterClose = scheduler.getJobKeys(GroupMatcher.groupEquals[JobKey](TimeSensor.JOB_GROUP_NAME))
+//        jobKeysAfterClose shouldBe empty
+//      }))
+//
+//    // Stop Quartz
+//    sensors.cleanUpSensors()
+//  }
 }

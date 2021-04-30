@@ -15,6 +15,7 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.executors.shell
 
+import java.nio.file.Paths
 import java.time.LocalDateTime
 import java.util.concurrent.TimeUnit
 
@@ -26,6 +27,7 @@ import org.mockito.Mockito._
 import org.mockito.ArgumentMatchers._
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.{Failed, InQueue, Lost, Running, Submitting, Succeeded}
 import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.Shell
+import za.co.absa.hyperdrive.trigger.scheduler.utilities.ShellExecutorConfig
 
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration.Duration
@@ -55,7 +57,7 @@ class ShellExecutorTest extends FlatSpec with Matchers with BeforeAndAfterAll wi
 
   "ShellExecutor.execute" should "succeeded job when everything is set correctly" in {
     when(updateJobStub.apply(any[JobInstance])).thenReturn(Future.successful((): Unit))
-    val shellParameters = ShellParameters(scriptLocation = testScriptLocation)
+    val shellParameters = ShellParameters.apply(scriptLocation = Paths.get(ShellExecutorConfig.getExecutablesFolder, testScriptLocation).toString)
     val testInput = testJobInstance.copy(
       jobParameters = shellParameters
     )
