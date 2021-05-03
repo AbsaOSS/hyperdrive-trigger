@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+alter table event alter payload type jsonb USING payload::jsonb;
+
 alter table job_instance alter column variables drop not null;
 alter table job_instance alter column variables set default '{}';
 alter table job_instance alter column maps drop not null;

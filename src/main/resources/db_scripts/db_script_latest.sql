@@ -63,7 +63,7 @@ create table "sensor" (
 create table "event" (
   "sensor_event_id" VARCHAR(70) NOT NULL UNIQUE,
   "sensor_id" BIGINT NOT NULL,
-  "payload" VARCHAR NOT NULL,
+  "payload" JSONB NOT NULL,
   "dag_instance_id" BIGINT,
   "id" BIGSERIAL NOT NULL PRIMARY KEY
 );

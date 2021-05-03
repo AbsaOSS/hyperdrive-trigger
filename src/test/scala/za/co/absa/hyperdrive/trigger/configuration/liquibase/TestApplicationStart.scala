@@ -36,15 +36,15 @@ class TestApplicationStart extends FlatSpec with Matchers with SpringIntegration
     override val profile = h2Profile
   }
 
-//  it should "start the application, including sql migrations, and be able to insert and select from the DB" in {
-//    hyperDriverManager.isManagerRunning shouldBe true
-//    val workflowJoined = WorkflowFixture.createWorkflowJoined()
-//    await(workflowRepository.insertWorkflow(workflowJoined, "test-user"))
-//    val workflows = await(workflowRepository.getWorkflows())
-//    workflows.size shouldBe 1
-//    workflows.head.name shouldBe workflowJoined.name
-//
-//    // cleanup
-//    h2SchemaDrop()
-//  }
+  it should "start the application, including sql migrations, and be able to insert and select from the DB" in {
+    hyperDriverManager.isManagerRunning shouldBe true
+    val workflowJoined = WorkflowFixture.createWorkflowJoined()
+    await(workflowRepository.insertWorkflow(workflowJoined, "test-user"))
+    val workflows = await(workflowRepository.getWorkflows())
+    workflows.size shouldBe 1
+    workflows.head.name shouldBe workflowJoined.name
+
+    // cleanup
+    h2SchemaDrop()
+  }
 }
