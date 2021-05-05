@@ -18,15 +18,18 @@ package za.co.absa.hyperdrive.trigger.persistance
 import java.time.LocalDateTime
 import java.util.concurrent.TimeUnit
 
-import slick.jdbc.H2Profile
+import play.api.libs.json.{JsValue, Json}
+import slick.jdbc.{H2Profile, JdbcType}
 import za.co.absa.hyperdrive.trigger.TestUtils
 import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.models.dagRuns.DagRun
-import za.co.absa.hyperdrive.trigger.models.enums.{SchedulerInstanceStatuses, DagInstanceStatuses, JobTypes, SensorTypes}
+import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobTypes, SchedulerInstanceStatuses, SensorTypes}
+import za.co.absa.hyperdrive.trigger.models.tables.Profile
 
 import scala.collection.immutable.SortedMap
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
+import scala.util.Try
 
 trait RepositoryTestBase extends Repository {
   val h2Profile = H2Profile
@@ -215,5 +218,17 @@ trait RepositoryTestBase extends Repository {
         dagDefinitionJoined,
         workflow.id)
     }
+  }
+}
+
+trait H2Profile extends Profile {
+  override val api: MyAPI = new MyAPI {
+    override implicit val playJsonTypeMapper: JdbcType[JsValue] =
+      MappedColumnType.base[JsValue, String](
+        payload => payload.toString(),
+        payloadString => Try(Json.parse(payloadString)).getOrElse(
+          throw new Exception(s"Couldn't parse payload: $payloadString")
+        )
+      )
   }
 }

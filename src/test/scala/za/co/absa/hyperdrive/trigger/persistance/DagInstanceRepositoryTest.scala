@@ -26,7 +26,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class DagInstanceRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryTestBase {
 
-  import profile.api._
+  import api._
   val dagInstanceRepository: DagInstanceRepository = new DagInstanceRepositoryImpl { override val profile = h2Profile }
 
   override def beforeAll: Unit = {

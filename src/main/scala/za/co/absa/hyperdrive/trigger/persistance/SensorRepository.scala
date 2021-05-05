@@ -29,7 +29,7 @@ trait SensorRepository extends Repository {
 
 @stereotype.Repository
 class SensorRepositoryImpl extends SensorRepository {
-  import profile.api._
+  import api._
 
   override def getNewActiveAssignedSensors(idsToFilter: Seq[Long], assignedWorkflowIds: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[Sensor]] = db.run {(
     for {

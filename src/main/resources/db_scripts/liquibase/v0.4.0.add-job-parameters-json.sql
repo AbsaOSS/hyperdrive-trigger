@@ -32,3 +32,7 @@ alter table job_instance alter column key_value_pairs set default '{}';
 alter table job_instance add job_parameters jsonb not null default '{}';
 update job_instance
 set job_parameters = variables::jsonb || maps::jsonb || key_value_pairs::jsonb;
+
+alter table job_instance rename column variables to variables_old;
+alter table job_instance rename column maps to maps_old;
+alter table job_instance rename column key_value_pairs to key_value_pairs_old;

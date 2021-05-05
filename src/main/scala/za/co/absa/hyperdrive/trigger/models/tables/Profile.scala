@@ -15,12 +15,12 @@
 
 package za.co.absa.hyperdrive.trigger.models.tables
 
-import com.github.tminglei.slickpg.{ExPostgresProfile, PgPlayJsonSupport}
+import com.github.tminglei.slickpg.{ExPostgresProfile, PgDate2Support, PgPlayJsonSupport}
 
-trait Profile extends ExPostgresProfile with PgPlayJsonSupport {
-  def pgjson = "jsonb"
+trait Profile extends ExPostgresProfile with PgDate2Support with PgPlayJsonSupport {
+  override def pgjson = "jsonb"
 
-  override val api = MyAPI
+  override val api = new MyAPI
 
-  object MyAPI extends API with JsonImplicits
+  class MyAPI extends API with DateTimeImplicits with JsonImplicits
 }
