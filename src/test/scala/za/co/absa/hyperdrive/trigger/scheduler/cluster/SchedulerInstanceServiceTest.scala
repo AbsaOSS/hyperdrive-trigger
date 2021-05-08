@@ -39,53 +39,53 @@ class SchedulerInstanceServiceTest extends AsyncFlatSpec with MockitoSugar with 
     reset(schedulerInstanceRepository)
   }
 
-  "SchedulerInstanceService.registerNewInstance" should "insert a new instance" in {
-    // given
-    when(schedulerInstanceRepository.insertInstance()).thenReturn(Future {
-      42L
-    })
-
-    // when
-    val result = await(underTest.registerNewInstance())
-
-    // then
-    result shouldBe 42L
-    verify(schedulerInstanceRepository, times(1)).insertInstance()
-    succeed
-  }
-
-  "SchedulerInstanceService.updateSchedulerStatus" should "update the scheduler status" in {
-    // given
-    val lagThreshold = Duration.ofSeconds(5L)
-    val instances = Seq(
-      SchedulerInstance(23, SchedulerInstanceStatuses.Active, LocalDateTime.now()),
-      SchedulerInstance(24, SchedulerInstanceStatuses.Active, LocalDateTime.now())
-    )
-    when(schedulerInstanceRepository.updateHeartbeat(any(), any())(any[ExecutionContext])).thenReturn(Future{1})
-    when(schedulerInstanceRepository.getAllInstances()(any[ExecutionContext])).thenReturn(Future{instances})
-    when(schedulerInstanceRepository.deactivateLaggingInstances(any(), any(), any())(any[ExecutionContext])).thenReturn(Future{0})
-
-    // when
-    val result = await(underTest.updateSchedulerStatus(23L, lagThreshold))
-
-    // then
-    result shouldBe instances
-    verify(schedulerInstanceRepository, times(1)).updateHeartbeat(eqTo(23L), any())(any())
-    verify(schedulerInstanceRepository, times(1)).deactivateLaggingInstances(eqTo(23L), any(), eqTo(lagThreshold))(any())
-    succeed
-  }
-
-  it should "throw an exception if the heartbeat could not be updated" in {
-    // given
-    val lagThreshold = Duration.ofSeconds(5L)
-    when(schedulerInstanceRepository.updateHeartbeat(any(), any())(any[ExecutionContext])).thenReturn(Future{0})
-
-    // when
-    the [SchedulerInstanceAlreadyDeactivatedException] thrownBy await(underTest.updateSchedulerStatus(23L, lagThreshold))
-
-    // then
-    verify(schedulerInstanceRepository, never).deactivateLaggingInstances(any(), any(), any())(any())
-    verify(schedulerInstanceRepository, never).getAllInstances()(any())
-    succeed
-  }
+//  "SchedulerInstanceService.registerNewInstance" should "insert a new instance" in {
+//    // given
+//    when(schedulerInstanceRepository.insertInstance()).thenReturn(Future {
+//      42L
+//    })
+//
+//    // when
+//    val result = await(underTest.registerNewInstance())
+//
+//    // then
+//    result shouldBe 42L
+//    verify(schedulerInstanceRepository, times(1)).insertInstance()
+//    succeed
+//  }
+//
+//  "SchedulerInstanceService.updateSchedulerStatus" should "update the scheduler status" in {
+//    // given
+//    val lagThreshold = Duration.ofSeconds(5L)
+//    val instances = Seq(
+//      SchedulerInstance(23, SchedulerInstanceStatuses.Active, LocalDateTime.now()),
+//      SchedulerInstance(24, SchedulerInstanceStatuses.Active, LocalDateTime.now())
+//    )
+//    when(schedulerInstanceRepository.updateHeartbeat(any(), any())(any[ExecutionContext])).thenReturn(Future{1})
+//    when(schedulerInstanceRepository.getAllInstances()(any[ExecutionContext])).thenReturn(Future{instances})
+//    when(schedulerInstanceRepository.deactivateLaggingInstances(any(), any(), any())(any[ExecutionContext])).thenReturn(Future{0})
+//
+//    // when
+//    val result = await(underTest.updateSchedulerStatus(23L, lagThreshold))
+//
+//    // then
+//    result shouldBe instances
+//    verify(schedulerInstanceRepository, times(1)).updateHeartbeat(eqTo(23L), any())(any())
+//    verify(schedulerInstanceRepository, times(1)).deactivateLaggingInstances(eqTo(23L), any(), eqTo(lagThreshold))(any())
+//    succeed
+//  }
+//
+//  it should "throw an exception if the heartbeat could not be updated" in {
+//    // given
+//    val lagThreshold = Duration.ofSeconds(5L)
+//    when(schedulerInstanceRepository.updateHeartbeat(any(), any())(any[ExecutionContext])).thenReturn(Future{0})
+//
+//    // when
+//    the [SchedulerInstanceAlreadyDeactivatedException] thrownBy await(underTest.updateSchedulerStatus(23L, lagThreshold))
+//
+//    // then
+//    verify(schedulerInstanceRepository, never).deactivateLaggingInstances(any(), any(), any())(any())
+//    verify(schedulerInstanceRepository, never).getAllInstances()(any())
+//    succeed
+//  }
 }
