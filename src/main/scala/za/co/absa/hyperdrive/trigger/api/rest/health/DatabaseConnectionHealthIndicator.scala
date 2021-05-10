@@ -29,7 +29,7 @@ import scala.util.{Failure, Success, Try}
 
 @Component
 class DatabaseConnectionHealthIndicator extends HealthIndicator with Repository {
-  import profile.api._
+  import api._
   private val log = LoggerFactory.getLogger(this.getClass)
   val dbConnection: Duration = Duration(HealthConfig.databaseConnectionTimeoutMillis, TimeUnit.MILLISECONDS)
 
