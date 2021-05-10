@@ -35,9 +35,6 @@ ADD src/main/resources/docker/server.xml /tmp/server.xml
 RUN chmod +x conf/start_trigger.sh && \
     rm -rf webapps/*
 
-# USE ROOT USER
-#USER 0 comment me out, test me after
-
 # SPARK-CONF AND KRB S LINKS.
 RUN mkdir -p /etc/spark/ && \
     ln -s ${SPARK_CONF_DIR} /etc/spark && \
