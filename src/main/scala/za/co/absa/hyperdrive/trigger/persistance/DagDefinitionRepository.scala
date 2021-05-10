@@ -26,7 +26,7 @@ trait DagDefinitionRepository extends Repository {
 
 @stereotype.Repository
 class DagDefinitionRepositoryImpl extends DagDefinitionRepository {
-  import profile.api._
+  import api._
 
   def getJoinedDagDefinition(sensorId: Long)(implicit executionContext: ExecutionContext): Future[Option[DagDefinitionJoined]] = {
     db.run((

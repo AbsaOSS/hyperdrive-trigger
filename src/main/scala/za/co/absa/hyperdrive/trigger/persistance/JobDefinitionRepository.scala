@@ -27,7 +27,7 @@ trait JobDefinitionRepository extends Repository {
 
 @stereotype.Repository
 class JobDefinitionRepositoryImpl extends JobDefinitionRepository {
-  import profile.api._
+  import api._
 
   override def getJobsForRun(workflowId: Long)(implicit ec: ExecutionContext): Future[Seq[JobForRun]] = db.run {
     (for {
