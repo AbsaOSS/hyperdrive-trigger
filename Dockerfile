@@ -26,7 +26,7 @@ ENV JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk/jre \
     HADOOP_CONF_DIR=/hyperdrive/hadoop/etc/hadoop \
     SPARK_HOME=/hyperdrive/spark \
     SPARK_CONF_DIR=/hyperdrive/spark/conf \
-    KRB_FILE=/etc/krb5.conf
+    KRB_FILE=/hyperdrive/conf/krb5.conf
 
 ARG WAR_FILE
 
@@ -41,8 +41,8 @@ RUN chmod +x conf/start_trigger.sh && \
 # SPARK-CONF AND KRB S LINKS.
 RUN mkdir -p /etc/spark/ && \
     ln -s ${SPARK_CONF_DIR} /etc/spark && \
-    rm -rf ${KRB_FILE} && \
-    ln -s /hyperdrive/config/krb5.conf ${KRB_FILE}
+    rm -rf /etc/krb5.conf && \
+    ln -s ${KRB_FILE} /etc/krb5.conf
 
 # TRIGGER APPLICATION: WEB ARCHIVE.
 COPY ${WAR_FILE} webapps/hyperdrive_trigger.war
@@ -50,6 +50,4 @@ COPY ${WAR_FILE} webapps/hyperdrive_trigger.war
 EXPOSE 8080
 EXPOSE 8443
 EXPOSE 8009
-# Debug
-EXPOSE 5005
 CMD ["conf/start_trigger.sh"]
