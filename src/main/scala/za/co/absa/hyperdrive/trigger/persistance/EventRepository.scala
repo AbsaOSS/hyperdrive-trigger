@@ -28,7 +28,7 @@ trait EventRepository extends Repository {
 
 @stereotype.Repository
 class EventRepositoryImpl extends EventRepository {
-  import profile.api._
+  import api._
 
   override def getAllEvents()(implicit ec: ExecutionContext): Future[Seq[Event]] = db.run(
     eventTable.result

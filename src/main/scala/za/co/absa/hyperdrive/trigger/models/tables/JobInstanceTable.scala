@@ -22,19 +22,15 @@ import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
 import za.co.absa.hyperdrive.trigger.models._
 import slick.lifted.{ForeignKeyQuery, ProvenShape}
 
-import scala.collection.immutable.SortedMap
-
 trait JobInstanceTable {
   this: Profile with JdbcTypeMapper with DagInstanceTable =>
-  import profile.api._
+  import api._
 
   final class JobInstanceTable(tag: Tag) extends Table[JobInstance](tag, _tableName = "job_instance") {
 
     def jobName: Rep[String] = column[String]("job_name")
     def jobType: Rep[JobType] = column[JobType]("job_type")
-    def variables: Rep[Map[String, String]] = column[Map[String, String]]("variables")
-    def maps: Rep[Map[String, List[String]]] = column[Map[String, List[String]]]("maps")
-    def keyValuePairs: Rep[Map[String, SortedMap[String, String]]] = column[Map[String, SortedMap[String, String]]]("key_value_pairs")
+    def jobParameters: Rep[JobInstanceParameters] = column[JobInstanceParameters]("job_parameters", O.SqlType("JSONB"))
     def jobStatus: Rep[JobStatus] = column[JobStatus]("job_status")
     def executorJobId: Rep[Option[String]] = column[Option[String]]("executor_job_id")
     def applicationId: Rep[Option[String]] = column[Option[String]]("application_id")
@@ -50,9 +46,7 @@ trait JobInstanceTable {
     def * : ProvenShape[JobInstance] = (
       jobName,
       jobType,
-      variables,
-      maps,
-      keyValuePairs,
+      jobParameters,
       jobStatus,
       executorJobId,
       applicationId,
@@ -66,27 +60,21 @@ trait JobInstanceTable {
         JobInstance.apply(
           jobName = jobInstanceTuple._1,
           jobType = jobInstanceTuple._2,
-          jobParameters = JobParameters(
-            variables = jobInstanceTuple._3,
-            maps = jobInstanceTuple._4,
-            keyValuePairs = jobInstanceTuple._5
-          ),
-          jobStatus = jobInstanceTuple._6,
-          executorJobId = jobInstanceTuple._7,
-          applicationId = jobInstanceTuple._8,
-          created = jobInstanceTuple._9,
-          updated = jobInstanceTuple._10,
-          order = jobInstanceTuple._11,
-          dagInstanceId = jobInstanceTuple._12,
-          id = jobInstanceTuple._13
+          jobParameters = jobInstanceTuple._3,
+          jobStatus = jobInstanceTuple._4,
+          executorJobId = jobInstanceTuple._5,
+          applicationId = jobInstanceTuple._6,
+          created = jobInstanceTuple._7,
+          updated = jobInstanceTuple._8,
+          order = jobInstanceTuple._9,
+          dagInstanceId = jobInstanceTuple._10,
+          id = jobInstanceTuple._11
         ),
       (jobInstance: JobInstance) =>
         Option(
           jobInstance.jobName,
           jobInstance.jobType,
-          jobInstance.jobParameters.variables,
-          jobInstance.jobParameters.maps,
-          jobInstance.jobParameters.keyValuePairs,
+          jobInstance.jobParameters,
           jobInstance.jobStatus,
           jobInstance.executorJobId,
           jobInstance.applicationId,

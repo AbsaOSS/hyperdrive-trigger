@@ -32,7 +32,6 @@ trait Repository
     with SchedulerInstanceTable
     with Profile with JdbcTypeMapper {
 
-  val profile: JdbcProfile = PostgresDB.profile
   lazy val db = PostgresDB.db
 
 }

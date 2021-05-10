@@ -32,7 +32,7 @@ trait JobInstanceRepository extends Repository {
 
 @stereotype.Repository
 class JobInstanceRepositoryImpl extends JobInstanceRepository {
-  import profile.api._
+  import api._
 
   override def updateJob(job: JobInstance)(implicit ec: ExecutionContext): Future[Unit] = db.run {
     jobInstanceTable.filter(_.id === job.id).update(job.copy(updated = Option(LocalDateTime.now()))).andThen(DBIO.successful((): Unit))

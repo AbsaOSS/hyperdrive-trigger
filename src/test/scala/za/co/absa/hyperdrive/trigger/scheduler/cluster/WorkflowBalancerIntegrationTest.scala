@@ -25,7 +25,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 
 class WorkflowBalancerIntegrationTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryTestBase {
-  import h2Profile.api._
+  import api._
 
   private val schedulerInstanceRepository: SchedulerInstanceRepository = new SchedulerInstanceRepositoryImpl {
     override val profile = h2Profile

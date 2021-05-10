@@ -47,7 +47,7 @@ class TimeSensorIntegrationTest extends FlatSpec with Matchers with BeforeAndAft
   private val dagDefinitionRepository: DagDefinitionRepositoryImpl = new DagDefinitionRepositoryImpl {
     override val profile = h2Profile
   }
-  private val dagInstanceRepository: DagInstanceRepositoryImpl = new DagInstanceRepositoryImpl {
+  private val dagInstanceRepository: DagInstanceRepositoryImpl = new DagInstanceRepositoryImpl with H2Profile {
     override val profile = h2Profile
   }
   private val jobTemplateRepository: JobTemplateRepositoryImpl = new JobTemplateRepositoryImpl {

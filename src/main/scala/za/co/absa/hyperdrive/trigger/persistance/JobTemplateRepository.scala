@@ -35,8 +35,8 @@ trait JobTemplateRepository extends Repository {
 
 @stereotype.Repository
 class JobTemplateRepositoryImpl extends JobTemplateRepository {
-  import profile.api._
-  private val logger = LoggerFactory.getLogger(this.getClass)
+  import api._
+  private val repositoryLogger = LoggerFactory.getLogger(this.getClass)
 
   override def getJobTemplate(id: Long)(implicit ec: ExecutionContext): Future[JobTemplate] = db.run(
     jobTemplateTable.filter(_.id === id).result.map(_.headOption.getOrElse(
@@ -57,7 +57,7 @@ class JobTemplateRepositoryImpl extends JobTemplateRepository {
       }).transactionally.asTry.map {
         case Success(jobTemplateId) => Right(jobTemplateId)
         case Failure(ex) =>
-          logger.error(s"Unexpected error occurred when inserting jobTemplate $jobTemplate", ex)
+          repositoryLogger.error(s"Unexpected error occurred when inserting jobTemplate $jobTemplate", ex)
           Left(GenericDatabaseError)
       }
     )

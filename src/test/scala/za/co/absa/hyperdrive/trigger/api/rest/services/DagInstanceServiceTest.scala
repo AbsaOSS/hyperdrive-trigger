@@ -20,10 +20,8 @@ import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, Matchers}
 import za.co.absa.hyperdrive.trigger.TestUtils.await
-import za.co.absa.hyperdrive.trigger.api.rest.services.JobTemplateFixture.{GenericShellJobTemplate, GenericSparkJobTemplate}
-import za.co.absa.hyperdrive.trigger.models.{JobParameters, ResolvedJobDefinition}
+import za.co.absa.hyperdrive.trigger.models.{JobParameters, ResolvedJobDefinition, ShellParameters, SparkParameters}
 import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobStatuses, JobTypes}
-import za.co.absa.hyperdrive.trigger.persistance.JobTemplateRepository
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
@@ -58,7 +56,7 @@ class DagInstanceServiceTest extends AsyncFlatSpec with Matchers with MockitoSug
     val jobDefinition1 = resolvedJobDefinitions.head
     jobInstance1.jobType shouldBe jobDefinition1.jobType
     jobInstance1.jobName shouldBe jobDefinition1.name
-    jobInstance1.jobParameters shouldBe jobDefinition1.jobParameters
+    jobInstance1.jobParameters shouldBe SparkParameters(jobDefinition1.jobParameters)
     jobInstance1.jobStatus shouldBe JobStatuses.InQueue
     jobInstance1.executorJobId shouldBe None
     jobInstance1.created should not be None
@@ -70,7 +68,7 @@ class DagInstanceServiceTest extends AsyncFlatSpec with Matchers with MockitoSug
     val jobDefinition2 = resolvedJobDefinitions(1)
     jobInstance2.jobType shouldBe jobDefinition2.jobType
     jobInstance2.jobName shouldBe jobDefinition2.name
-    jobInstance2.jobParameters shouldBe jobDefinition2.jobParameters
+    jobInstance2.jobParameters shouldBe ShellParameters(jobDefinition2.jobParameters)
     jobInstance2.order shouldBe jobDefinition2.order
   }
 
@@ -112,10 +110,9 @@ class DagInstanceServiceTest extends AsyncFlatSpec with Matchers with MockitoSug
         jobType = JobTypes.Shell,
         name = "Shell Job",
         jobParameters = JobParameters(
-          variables = Map("jobJar" -> "/dir/driver.jar",
-            "mainClass" -> "aaa.bbb.TestClass"
-          ),
-          maps = Map("appArguments" -> List("--arg1=value1", "--arg2=value2"))
+          variables = Map(
+            "scriptLocation" -> "testShellScript.sh"
+          )
         ),
         order = 2
       )

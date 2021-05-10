@@ -84,7 +84,8 @@
 
         <scala.compat.version>2.11</scala.compat.version>
         <spark.version>2.4.4</spark.version>
-        <slick.version>3.3.2</slick.version>
+        <slick.version>3.3.3</slick.version>
+        <tminglei.version>0.19.6</tminglei.version>
         <slick-hikaricp.version>3.3.1</slick-hikaricp.version>
         <postgresql>42.2.6</postgresql>
         <kafka.version>2.2.0</kafka.version>
@@ -145,6 +146,16 @@
             <groupId>com.typesafe.slick</groupId>
             <artifactId>slick-hikaricp_${scala.compat.version}</artifactId>
             <version>${slick-hikaricp.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.tminglei</groupId>
+            <artifactId>slick-pg_${scala.compat.version}</artifactId>
+            <version>${tminglei.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.tminglei</groupId>
+            <artifactId>slick-pg_play-json_${scala.compat.version}</artifactId>
+            <version>${tminglei.version}</version>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>

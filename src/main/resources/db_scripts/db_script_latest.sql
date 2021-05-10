@@ -26,9 +26,10 @@ create table "workflow" (
 create table "job_instance" (
   "job_name" VARCHAR NOT NULL,
   "job_type" VARCHAR NOT NULL,
-  "variables" VARCHAR NOT NULL,
-  "maps" VARCHAR NOT NULL,
-  "key_value_pairs" VARCHAR NOT NULL,
+  "variables_old" VARCHAR DEFAULT '{}',
+  "maps_old" VARCHAR DEFAULT '{}',
+  "key_value_pairs_old" VARCHAR DEFAULT '{}',
+  "job_parameters" JSONB NOT NULL DEFAULT '{}',
   "job_status" VARCHAR NOT NULL,
   "executor_job_id" VARCHAR,
   "application_id" VARCHAR,
@@ -62,7 +63,7 @@ create table "sensor" (
 create table "event" (
   "sensor_event_id" VARCHAR(70) NOT NULL UNIQUE,
   "sensor_id" BIGINT NOT NULL,
-  "payload" VARCHAR NOT NULL,
+  "payload" JSONB NOT NULL,
   "dag_instance_id" BIGINT,
   "id" BIGSERIAL NOT NULL PRIMARY KEY
 );

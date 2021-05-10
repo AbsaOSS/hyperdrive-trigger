@@ -20,7 +20,7 @@ import za.co.absa.hyperdrive.trigger.models.{DagDefinition, Workflow}
 
 trait DagDefinitionTable {
   this: Profile with WorkflowTable =>
-  import  profile.api._
+  import  api._
 
   final class DagDefinitionTable(tag: Tag) extends Table[DagDefinition](tag, _tableName = "dag_definition") {
 

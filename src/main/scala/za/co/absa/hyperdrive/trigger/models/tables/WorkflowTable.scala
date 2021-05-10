@@ -22,7 +22,7 @@ import za.co.absa.hyperdrive.trigger.models.{SchedulerInstance, Workflow}
 
 trait WorkflowTable {
   this: Profile with SchedulerInstanceTable =>
-  import  profile.api._
+  import  api._
 
   final class WorkflowTable(tag: Tag) extends Table[Workflow](tag, _tableName = "workflow") {
     def name: Rep[String] = column[String]("name", O.Unique, O.Length(45))

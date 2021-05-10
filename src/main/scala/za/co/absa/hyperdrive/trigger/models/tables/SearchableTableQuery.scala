@@ -26,7 +26,7 @@ import scala.concurrent.ExecutionContext
 trait SearchableTableQuery {
   this: Profile with JdbcTypeMapper =>
 
-  import profile.api._
+  import api._
 
   implicit class TableQueryExtension[T <: SearchableTable with AbstractTable[_]](tableQuery: TableQuery[T]) {
 
