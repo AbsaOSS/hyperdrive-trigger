@@ -38,7 +38,7 @@ trait SchedulerInstanceRepository extends Repository {
 @stereotype.Repository
 class SchedulerInstanceRepositoryImpl extends SchedulerInstanceRepository {
 
-  import profile.api._
+  import api._
 
   override def insertInstance()(implicit ec: ExecutionContext): Future[Long] = {
     db.run {

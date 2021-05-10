@@ -19,9 +19,9 @@ import java.time.LocalDateTime
 import java.util.concurrent
 
 import javax.inject.Inject
-import za.co.absa.hyperdrive.trigger.models.{DagInstance, JobInstance}
+import za.co.absa.hyperdrive.trigger.models.{DagInstance, JobInstance, ShellParameters, SparkParameters}
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.InvalidExecutor
-import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobStatuses, JobTypes}
+import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobStatuses}
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, JobInstanceRepository}
 import za.co.absa.hyperdrive.trigger.scheduler.executors.spark.SparkExecutor
 import za.co.absa.hyperdrive.trigger.scheduler.utilities.ExecutorsConfig
@@ -51,9 +51,9 @@ class Executors @Inject()(dagInstanceRepository: DagInstanceRepository, jobInsta
         val jobInstance = jobInstances.filter(!_.jobStatus.isFinalStatus).sortBy(_.order).headOption
         val fut = dagInstanceRepository.update(dagInstance.copy(status = DagInstanceStatuses.Running)).flatMap { _ =>
           jobInstance match {
-            case Some(ji) => ji.jobType match {
-              case JobTypes.Spark => SparkExecutor.execute(ji, updateJob)
-              case JobTypes.Shell => ShellExecutor.execute(ji, updateJob)
+            case Some(ji) => ji.jobParameters match {
+              case spark: SparkParameters => SparkExecutor.execute(ji, spark, updateJob)
+              case shell: ShellParameters => ShellExecutor.execute(ji, shell, updateJob)
               case _ => updateJob(ji.copy(jobStatus = InvalidExecutor))
             }
             case None =>

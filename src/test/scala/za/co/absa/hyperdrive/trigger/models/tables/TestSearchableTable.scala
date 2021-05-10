@@ -24,7 +24,7 @@ import slick.lifted.ProvenShape
 trait TestSearchableTable extends SearchableTableQuery {
   this: Profile with JdbcTypeMapper =>
 
-  import profile.api._
+  import api._
 
   case class TestSearchableEntity(longValue: Long,
                                   stringValue: String,

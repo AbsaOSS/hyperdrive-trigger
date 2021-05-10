@@ -21,7 +21,7 @@ import slick.lifted.{ForeignKeyQuery, ProvenShape}
 
 trait SensorTable {
   this: Profile with JdbcTypeMapper with WorkflowTable =>
-  import profile.api._
+  import api._
 
   final class SensorTable(tag: Tag) extends Table[Sensor](tag, _tableName = "sensor") {
 
