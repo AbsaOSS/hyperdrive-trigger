@@ -152,9 +152,9 @@
     </ng-template>
 
     <clr-dg-footer>
-      <clr-dg-pagination [hidden]="openedDetail" #pagination [clrDgPageSize]="50" [(clrDgPage)]="page"
+      <clr-dg-pagination [hidden]="openedDetail" #pagination [clrDgPageSize]="150" [(clrDgPage)]="page"
                          [clrDgTotalItems]="total"></clr-dg-pagination>
-      <clr-dg-page-size [clrPageSizeOptions]="[50,100,150,200,250]">Dag runs per page</clr-dg-page-size>
+      <clr-dg-page-size [clrPageSizeOptions]="[100,150,200,250,300]">Dag runs per page</clr-dg-page-size>
       {{pagination.firstItem + 1}} - {{pagination.lastItem + 1}}
       of {{total}} dag runs
     </clr-dg-footer>
