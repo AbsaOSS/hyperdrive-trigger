@@ -31,8 +31,8 @@ import { DateTimeRangeFilterAttributes } from '../../models/search/dateTimeRange
 import { SortAttributesModel } from '../../models/search/sortAttributes.model';
 import { EqualsMultipleFilterAttributes } from '../../models/search/equalsMultipleFilterAttributes.model';
 import { ActivatedRoute } from '@angular/router';
-import { StartWorkflowInitialization } from '../../stores/workflows/workflows.actions';
 import { LongFilterAttributes } from '../../models/search/longFilterAttributes.model';
+import { JobInstanceModel } from '../../models/jobInstance.model';
 
 @Component({
   selector: 'app-runs',
@@ -59,6 +59,8 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
   dagRunColumns = dagRunColumns;
   dagInstanceStatuses = dagInstanceStatuses;
   descSort = ClrDatagridSortOrder.DESC;
+
+  openedDetail: JobInstanceModel = null;
 
   removeFiltersSubject: Subject<any> = new Subject();
   refreshSubject: Subject<boolean> = new Subject<boolean>();
@@ -94,20 +96,26 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
     this.refresh();
   }
 
-  refresh() {
-    const searchRequestModel: TableSearchRequestModel = {
-      from: this.pageFrom,
-      size: this.pageSize,
-      sort: this.sort,
-      containsFilterAttributes: this.filters.filter((f) => f instanceof ContainsFilterAttributes),
-      intRangeFilterAttributes: this.filters.filter((f) => f instanceof IntRangeFilterAttributes),
-      dateTimeRangeFilterAttributes: this.filters.filter((f) => f instanceof DateTimeRangeFilterAttributes),
-      longFilterAttributes: !!this.workflowId ? [new LongFilterAttributes('workflowId', this.workflowId)] : [],
-      equalsMultipleFilterAttributes: this.filters.filter((f) => f instanceof EqualsMultipleFilterAttributes),
-    };
+  onDetailOpenClose(event: JobInstanceModel) {
+    this.openedDetail = event;
+  }
 
-    this.store.dispatch(new GetDagRuns(searchRequestModel));
-    this.refreshSubject.next(true);
+  refresh() {
+    if (!this.openedDetail) {
+      const searchRequestModel: TableSearchRequestModel = {
+        from: this.pageFrom,
+        size: this.pageSize,
+        sort: this.sort,
+        containsFilterAttributes: this.filters.filter((f) => f instanceof ContainsFilterAttributes),
+        intRangeFilterAttributes: this.filters.filter((f) => f instanceof IntRangeFilterAttributes),
+        dateTimeRangeFilterAttributes: this.filters.filter((f) => f instanceof DateTimeRangeFilterAttributes),
+        longFilterAttributes: !!this.workflowId ? [new LongFilterAttributes('workflowId', this.workflowId)] : [],
+        equalsMultipleFilterAttributes: this.filters.filter((f) => f instanceof EqualsMultipleFilterAttributes),
+      };
+      this.store.dispatch(new GetDagRuns(searchRequestModel));
+    } else {
+      this.refreshSubject.next(true);
+    }
   }
 
   clearFilters() {

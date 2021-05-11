@@ -135,22 +135,24 @@
       <clr-dg-cell>{{dagRun.triggeredBy}}</clr-dg-cell>
     </clr-dg-row>
 
-    <clr-dg-detail *clrIfDetail="let detail">
-      <clr-dg-detail-header>
-        <b>Workflow name: </b>{{detail.workflowName}}<br/>
-        <b>Project name: </b>{{detail.projectName}}<br/>
-        <b>Started: </b>{{detail.started | date:'medium'}}<br/>
-        <b>Finished: </b>{{detail.finished | date:'medium'}}<br/>
-        <b>Status: </b>{{detail.status}}<br/>
-        <b>Triggered by: </b>{{detail.triggeredBy}}
-      </clr-dg-detail-header>
-      <clr-dg-detail-body>
-        <app-run-detail [dagRunId]="detail.id" [refreshSubject]="refreshSubject"></app-run-detail>
-      </clr-dg-detail-body>
-    </clr-dg-detail>
+    <ng-template clrIfDetail let-detail (clrIfDetailChange)="onDetailOpenClose($event)">
+      <clr-dg-detail>
+        <clr-dg-detail-header>
+          <b>Workflow name: </b>{{detail.workflowName}}<br/>
+          <b>Project name: </b>{{detail.projectName}}<br/>
+          <b>Started: </b>{{detail.started | date:'medium'}}<br/>
+          <b>Finished: </b>{{detail.finished | date:'medium'}}<br/>
+          <b>Status: </b>{{detail.status}}<br/>
+          <b>Triggered by: </b>{{detail.triggeredBy}}
+        </clr-dg-detail-header>
+        <clr-dg-detail-body>
+          <app-run-detail [dagRunId]="detail.id" [refreshSubject]="refreshSubject"></app-run-detail>
+        </clr-dg-detail-body>
+      </clr-dg-detail>
+    </ng-template>
 
     <clr-dg-footer>
-      <clr-dg-pagination #pagination [clrDgPageSize]="150" [(clrDgPage)]="page"
+      <clr-dg-pagination [hidden]="openedDetail" #pagination [clrDgPageSize]="150" [(clrDgPage)]="page"
                          [clrDgTotalItems]="total"></clr-dg-pagination>
       <clr-dg-page-size [clrPageSizeOptions]="[100,150,200,250,300]">Dag runs per page</clr-dg-page-size>
       {{pagination.firstItem + 1}} - {{pagination.lastItem + 1}}
