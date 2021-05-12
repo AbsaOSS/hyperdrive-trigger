@@ -16,17 +16,24 @@
 import { Injectable } from '@angular/core';
 import { HttpEvent, HttpInterceptor, HttpHandler, HttpRequest } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { SKIP_BASE_URL_INTERCEPTOR } from '../../constants/api.constants';
 
 @Injectable()
 export class BaseUrlInterceptor implements HttpInterceptor {
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    let baseUrl = window.location.pathname;
-    if (baseUrl[baseUrl.length - 1] === '/' && req.url[0] === '/') {
-      baseUrl = baseUrl.substring(0, baseUrl.length - 1);
-    } else if (baseUrl[baseUrl.length - 1] !== '/' && req.url[0] !== '/') {
-      baseUrl = baseUrl + '/';
+    if (req.headers.has(SKIP_BASE_URL_INTERCEPTOR)) {
+      const headers = req.headers.delete(SKIP_BASE_URL_INTERCEPTOR);
+      const newRequest = req.clone({ headers });
+      return next.handle(newRequest);
+    } else {
+      let baseUrl = window.location.pathname;
+      if (baseUrl[baseUrl.length - 1] === '/' && req.url[0] === '/') {
+        baseUrl = baseUrl.substring(0, baseUrl.length - 1);
+      } else if (baseUrl[baseUrl.length - 1] !== '/' && req.url[0] !== '/') {
+        baseUrl = baseUrl + '/';
+      }
+      const apiReq = req.clone({ url: `${baseUrl}${req.url}` });
+      return next.handle(apiReq);
     }
-    const apiReq = req.clone({ url: `${baseUrl}${req.url}` });
-    return next.handle(apiReq);
   }
 }
