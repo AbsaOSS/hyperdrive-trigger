@@ -16,7 +16,6 @@
 package za.co.absa.hyperdrive.trigger.models.tables
 
 import java.io.StringWriter
-
 import za.co.absa.hyperdrive.trigger.models.enums.{DBOperation, DagInstanceStatuses, JobStatuses, JobTypes, SchedulerInstanceStatuses, SensorTypes}
 import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes.SensorType
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.JobStatus
@@ -24,7 +23,7 @@ import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
 import play.api.libs.json.{JsValue, Json}
 import slick.jdbc.JdbcType
 import za.co.absa.hyperdrive.trigger.ObjectMapperSingleton
-import za.co.absa.hyperdrive.trigger.models.{JobInstanceParameters, ShellParameters, SparkParameters, WorkflowJoined}
+import za.co.absa.hyperdrive.trigger.models.{JobInstanceParameters, NotificationRule, ShellParameters, SparkParameters, WorkflowJoined}
 import za.co.absa.hyperdrive.trigger.models.enums.DBOperation.DBOperation
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses.DagInstanceStatus
 import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses.SchedulerInstanceStatus
@@ -121,5 +120,21 @@ trait JdbcTypeMapper {
       case b: ShellParameters => Json.toJson(b)
     },
     column => column.as[JobInstanceParameters]
+  )
+
+  implicit lazy val notificationRuleMapper: JdbcType[NotificationRule] = MappedColumnType.base[NotificationRule, JsValue](
+    {
+      n: NotificationRule => Json.toJson(n)
+    },
+    column => column.as[NotificationRule]
+  )
+
+  type Recipients = Seq[String]
+
+  implicit lazy val recipientsMapper: JdbcType[Recipients] = MappedColumnType.base[Recipients, JsValue](
+    {
+      e: Recipients => Json.toJson(e)
+    },
+    column => column.as[Recipients]
   )
 }

@@ -48,7 +48,9 @@ trait RepositoryTestBase extends Repository {
       dagInstanceTable.schema.create,
       jobInstanceTable.schema.create,
       eventTable.schema.create,
-      dagRunTable.schema.create
+      dagRunTable.schema.create,
+      notificationRuleTable.schema.create,
+      notificationRuleHistoryTable.schema.create
     )
     run(schema)
   }
@@ -65,7 +67,9 @@ trait RepositoryTestBase extends Repository {
       dagDefinitionTable.schema.drop,
       workflowTable.schema.drop,
       workflowHistoryTable.schema.drop,
-      schedulerInstanceTable.schema.drop
+      schedulerInstanceTable.schema.drop,
+      notificationRuleTable.schema.drop,
+      notificationRuleHistoryTable.schema.drop
     )
     run(schema)
   }
@@ -82,7 +86,9 @@ trait RepositoryTestBase extends Repository {
       workflowTable.delete,
       workflowHistoryTable.delete,
       dagRunTable.delete,
-      schedulerInstanceTable.delete
+      schedulerInstanceTable.delete,
+      notificationRuleTable.delete,
+      notificationRuleHistoryTable.delete
     )
     run(schema)
   }
