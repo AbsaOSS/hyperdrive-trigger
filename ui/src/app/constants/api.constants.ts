@@ -43,3 +43,5 @@ export const api = {
 
   GET_QUARTZ_DETAIL: '/util/quartzDetail',
 };
+
+export const SKIP_BASE_URL_INTERCEPTOR = 'Skip-base-url-interceptor';
