@@ -20,7 +20,7 @@ import { catchError, first, tap } from 'rxjs/operators';
 import { Store } from '@ngrx/store';
 import * as AuthActions from '../../stores/auth/auth.actions';
 import * as fromApp from '../../stores/app.reducers';
-import { api } from '../../constants/api.constants';
+import { api, SKIP_BASE_URL_INTERCEPTOR } from '../../constants/api.constants';
 import { selectAuthState } from '../../stores/app.reducers';
 
 @Injectable({
@@ -32,7 +32,11 @@ export class UnauthorizedInterceptor implements HttpInterceptor {
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return next.handle(request).pipe(
       catchError((response: any) => {
-        if (response instanceof HttpErrorResponse && response.status === 401 && !this.isLoginUrl(response.url)) {
+        if (
+          response instanceof HttpErrorResponse &&
+          (response.status === 401 || response.status === 403) &&
+          !this.isLoginUrl(response.url)
+        ) {
           this.store.dispatch(new AuthActions.LogoutWithoutRedirect());
           return this.createRetryAfterAuthenticatedObservable(request);
         }
@@ -42,13 +46,15 @@ export class UnauthorizedInterceptor implements HttpInterceptor {
   }
 
   createRetryAfterAuthenticatedObservable(request: HttpRequest<any>): Observable<HttpEvent<any>> {
+    const headers = request.headers.set(SKIP_BASE_URL_INTERCEPTOR, SKIP_BASE_URL_INTERCEPTOR);
+    const newRequest = request.clone({ headers });
     const requestRetrySubject: Subject<HttpEvent<any>> = new Subject<HttpEvent<any>>();
     this.store
       .select(selectAuthState)
       .pipe(first((state) => state.isAuthenticated))
       .subscribe(() => {
         this.httpClient
-          .request(request)
+          .request(newRequest)
           .pipe(tap((response) => requestRetrySubject.next(response)))
           .subscribe();
       });
