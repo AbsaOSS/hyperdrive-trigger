@@ -20,7 +20,7 @@ import za.co.absa.hyperdrive.trigger.models.NotificationRule
 
 import java.time.LocalDateTime
 
-trait NotificationRuleTable {
+trait NotificationRuleTable extends SearchableTableQuery {
   this: Profile with JdbcTypeMapper =>
   import api._
 
