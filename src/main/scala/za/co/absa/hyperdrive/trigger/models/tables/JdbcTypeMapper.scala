@@ -78,9 +78,7 @@ trait JdbcTypeMapper {
   implicit lazy val dagInstanceStatusMapper: JdbcType[DagInstanceStatus] =
     MappedColumnType.base[DagInstanceStatus, String](
       status => status.name,
-      statusName => DagInstanceStatuses.statuses.find(_.name == statusName).getOrElse(
-        throw new Exception(s"Couldn't find DagInstanceStatus: $statusName")
-      )
+      DagInstanceStatuses.convertStatusNameToDagInstanceStatus
     )
 
   implicit lazy val instanceStatusMapper: JdbcType[SchedulerInstanceStatus] =
@@ -123,18 +121,20 @@ trait JdbcTypeMapper {
   )
 
   implicit lazy val notificationRuleMapper: JdbcType[NotificationRule] = MappedColumnType.base[NotificationRule, JsValue](
-    {
-      n: NotificationRule => Json.toJson(n)
-    },
+    notificationRule => Json.toJson(notificationRule),
     column => column.as[NotificationRule]
   )
 
   type Recipients = Seq[String]
 
   implicit lazy val recipientsMapper: JdbcType[Recipients] = MappedColumnType.base[Recipients, JsValue](
-    {
-      e: Recipients => Json.toJson(e)
-    },
+    recipients => Json.toJson(recipients),
     column => column.as[Recipients]
   )
+
+  implicit lazy val seqDagInstanceStatusMapper: JdbcType[Seq[DagInstanceStatus]] =
+    MappedColumnType.base[Seq[DagInstanceStatus], JsValue](
+      statuses => Json.toJson(statuses),
+      column => column.as[Seq[DagInstanceStatus]]
+    )
 }

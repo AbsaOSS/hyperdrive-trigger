@@ -15,6 +15,10 @@
 
 package za.co.absa.hyperdrive.trigger.models.enums
 
+import play.api.libs.json.{Format, JsError, JsObject, JsPath, Json, OFormat, OWrites, Reads, Writes}
+import za.co.absa.hyperdrive.trigger.models.NotificationRule
+import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses.DagInstanceStatus
+
 object DagInstanceStatuses {
 
   sealed abstract class DagInstanceStatus(val name: String, val isFinalStatus: Boolean, val isFailed: Boolean, val isRunning: Boolean) {
@@ -30,4 +34,14 @@ object DagInstanceStatuses {
   val statuses: Set[DagInstanceStatus] = Set(InQueue,Running,Succeeded,Failed,Skipped)
   val nonFinalStatuses: Set[DagInstanceStatus] = statuses.filter(!_.isFinalStatus)
 
+  def convertStatusNameToDagInstanceStatus(statusName: String): DagInstanceStatus = {
+    DagInstanceStatuses.statuses.find(_.name == statusName).getOrElse(
+      throw new Exception(s"Couldn't find DagInstanceStatus: $statusName")
+    )
+  }
+
+  implicit val dagInstanceStatusFormat: OFormat[DagInstanceStatus] = OFormat[DagInstanceStatus](
+    (JsPath \ "name").read[String].map(convertStatusNameToDagInstanceStatus),
+    OWrites[DagInstanceStatus] { status => Json.obj("name" -> status.name)}
+  )
 }

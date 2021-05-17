@@ -18,6 +18,7 @@ create table "notification_rule" (
   "project" VARCHAR,
   "workflow_prefix" VARCHAR,
   "min_elapsed_secs_last_success" BIGINT,
+  "statuses" JSONB NOT NULL DEFAULT '{}',
   "recipients" JSONB NOT NULL DEFAULT '{}',
   "created" TIMESTAMP NOT NULL,
   "updated" TIMESTAMP,
@@ -30,5 +31,5 @@ create table "notification_rule_history" (
   "changed_by" VARCHAR NOT NULL,
   "operation" VARCHAR NOT NULL,
   "notification_rule_id" BIGINT NOT NULL,
-  "notification_rule" VARCHAR NOT NULL
+  "notification_rule" JSONB NOT NULL
 );

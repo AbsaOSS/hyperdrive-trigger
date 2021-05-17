@@ -16,6 +16,7 @@
 package za.co.absa.hyperdrive.trigger.models
 
 import play.api.libs.json.{Json, OFormat}
+import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses.DagInstanceStatus
 
 import java.time.LocalDateTime
 
@@ -24,6 +25,7 @@ case class NotificationRule(
   project: Option[String],
   workflowPrefix: Option[String],
   minElapsedSecondsSinceLastSuccess: Option[Long],
+  statuses: Seq[DagInstanceStatus],
   recipients: Seq[String],
   created: LocalDateTime = LocalDateTime.now(),
   updated: Option[LocalDateTime],
