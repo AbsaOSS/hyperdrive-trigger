@@ -93,8 +93,8 @@ class NotificationRuleRepositoryImpl(override val notificationRuleHistoryReposit
     val notificationRuleToInsert = notificationRule.copy(created = LocalDateTime.now())
     for {
       id <- notificationRuleTable returning notificationRuleTable.map(_.id) += notificationRuleToInsert
-//      notificationRuleWithId <- getNotificationRuleInternal(id)
-//      _ <- notificationRuleHistoryRepository.create(notificationRuleWithId, user)
+      notificationRuleWithId <- getNotificationRuleInternal(id)
+      _ <- notificationRuleHistoryRepository.create(notificationRuleWithId, user)
     } yield {
       id
     }

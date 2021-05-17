@@ -26,7 +26,8 @@ class NotificationRuleRepositoryTest extends FlatSpec with Matchers with BeforeA
   import api._
 
   val notificationRuleRepositoryMock: NotificationRuleHistoryRepository = mock[NotificationRuleHistoryRepository]
-  val notificationRuleRepository: NotificationRuleRepository = new NotificationRuleRepositoryImpl(notificationRuleRepositoryMock) { override val profile = h2Profile }
+  val notificationRuleRepository: NotificationRuleRepository = new NotificationRuleRepositoryImpl(notificationRuleRepositoryMock) with H2Profile
+  { override val profile = h2Profile }
 
   override def beforeAll: Unit = {
     h2SchemaSetup()
@@ -37,7 +38,7 @@ class NotificationRuleRepositoryTest extends FlatSpec with Matchers with BeforeA
   }
 
   override def beforeEach: Unit = {
-    run(notificationRuleTable.forceInsertAll(TestData.notificationRules))
+//    run(notificationRuleTable.forceInsertAll(TestData.notificationRules))
   }
 
   override def afterEach: Unit = {
@@ -51,11 +52,11 @@ class NotificationRuleRepositoryTest extends FlatSpec with Matchers with BeforeA
 //  def searchNotificationRules(tableSearchRequest: TableSearchRequest)(implicit ec: ExecutionContext): Future[TableSearchResponse[NotificationRule]]
 
   "insertNotificationRule" should "insert a notification rule" in {
-    val expected = NotificationRule(Some("project"), Some("ABC XYZ"), None, Seq(DagInstanceStatuses.Failed),
+    val expected = NotificationRule(Some("project"), Some("ABC XYZ"), None, Seq(DagInstanceStatuses.Succeeded),
       Seq("abc@xyz.com", "def@xyz.com"), updated = None, id = 11L)
 
     val id: Long = await(notificationRuleRepository.insertNotificationRule(expected, "test-user"))
-    val allRules = await(db.run(notificationRuleTable.result))
+    val allRules = await(notificationRuleRepository.getNotificationRules())
 
     allRules.size == 1
     val actual = allRules.head
@@ -64,7 +65,7 @@ class NotificationRuleRepositoryTest extends FlatSpec with Matchers with BeforeA
     actual.workflowPrefix shouldBe expected.workflowPrefix
     actual.minElapsedSecondsSinceLastSuccess shouldBe expected.minElapsedSecondsSinceLastSuccess
     actual.recipients shouldBe expected.recipients
-    actual.created shouldBe expected.created
+    actual.updated shouldBe None
 
     val actualHistoryEntries = await(db.run(notificationRuleHistoryTable.result))
     actualHistoryEntries should have size 1
