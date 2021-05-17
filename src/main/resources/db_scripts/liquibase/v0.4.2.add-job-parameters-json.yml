@@ -15,11 +15,11 @@
 
 databaseChangeLog:
   - changeSet:
-      id: v0.4.0.add-job-parameters-json
-      logicalFilePath: v0.4.0.add-job-parameters-json
+      id: v0.4.2.add-job-parameters-json
+      logicalFilePath: v0.4.2.add-job-parameters-json
       author: HyperdriveDevTeam@absa.africa
       context: default
       changes:
         - sqlFile:
             relativeToChangelogFile: true
-            path: v0.4.0.add-job-parameters-json.sql
+            path: v0.4.2.add-job-parameters-json.sql
