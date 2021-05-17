@@ -35,6 +35,7 @@ import {
   ExportWorkflows,
   SetWorkflowFile,
   ImportWorkflows,
+  RunWorkflows,
 } from '../../../stores/workflows/workflows.actions';
 
 describe('WorkflowsHomeComponent', () => {
@@ -376,6 +377,25 @@ describe('WorkflowsHomeComponent', () => {
       fixture.detectChanges();
       fixture.whenStable().then(() => {
         expect(storeSpy).toHaveBeenCalledWith(new LoadJobsForRun(id));
+      });
+    }),
+  );
+
+  it(
+    'runSelectedWorkflows() should dispatch run workflows',
+    waitForAsync(() => {
+      const workflows = [
+        WorkflowModelFactory.create('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 0),
+        WorkflowModelFactory.create('workflowName2', true, 'projectName2', new Date(Date.now()), new Date(Date.now()), 1),
+      ];
+      const workflowIds = workflows.map((workflow) => workflow.id);
+      const storeSpy = spyOn(store, 'dispatch');
+
+      underTest.runSelectedWorkflows(workflows);
+
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(storeSpy).toHaveBeenCalledWith(new RunWorkflows(workflowIds));
       });
     }),
   );

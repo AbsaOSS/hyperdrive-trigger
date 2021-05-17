@@ -23,6 +23,7 @@ import {
   ExportWorkflows,
   ImportWorkflows,
   LoadJobsForRun,
+  RunWorkflows,
   SetWorkflowFile,
   SetWorkflowsFilters,
   SetWorkflowsSort,
@@ -81,6 +82,11 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
 
   exportWorkflow(id: number) {
     this.store.dispatch(new ExportWorkflows([id]));
+  }
+
+  runSelectedWorkflows(selected: WorkflowModel[]) {
+    const ids = selected.map((workflow) => workflow.id);
+    this.store.dispatch(new RunWorkflows(ids));
   }
 
   exportSelectedWorkflows(selected: WorkflowModel[]) {

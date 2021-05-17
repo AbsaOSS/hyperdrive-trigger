@@ -196,6 +196,26 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
     result.length shouldBe 2
   }
 
+  "WorkflowService.runWorkflows" should "insert joined dag instance" in {
+    // given
+    val workflowJoineds = Seq(WorkflowFixture.createWorkflowJoined().copy())
+    val workflowIds = workflowJoineds.map(_.id)
+
+    val dagInstanceJoined = createDagInstanceJoined()
+    when(workflowRepository.getWorkflows(eqTo(workflowIds))(any[ExecutionContext])).thenReturn(Future{workflowJoineds})
+    when(dagInstanceService.createDagInstance(any(), eqTo(userName), any())(any[ExecutionContext])).thenReturn(Future{dagInstanceJoined})
+    when(dagInstanceRepository.insertJoinedDagInstances(eqTo(Seq(dagInstanceJoined)))(any[ExecutionContext])).thenReturn(Future{(): Unit})
+
+    // when
+    val result: Boolean = await(underTest.runWorkflows(workflowIds))
+
+    // then
+    verify(workflowRepository, times(1)).getWorkflows(any[Seq[Long]])(any[ExecutionContext])
+    verify(dagInstanceService, times(1)).createDagInstance(any(), eqTo(userName), any())(any[ExecutionContext])
+    verify(dagInstanceRepository, times(1)).insertJoinedDagInstances(any[Seq[DagInstanceJoined]])(any[ExecutionContext])
+    result shouldBe true
+  }
+
   "WorkflowService.runWorkflowJobs" should "should insert joined dag instance when jobs ids exist in workflow" in {
     // given
     val workflowJoined = WorkflowFixture.createWorkflowJoined().copy()

@@ -489,6 +489,40 @@ export class WorkflowsEffects {
     }),
   );
 
+  @Effect({ dispatch: false })
+  workflowsRun = this.actions.pipe(
+    ofType(WorkflowActions.RUN_WORKFLOWS),
+    switchMap((action: WorkflowActions.RunWorkflows) => {
+      return this.workflowService.runWorkflows(action.payload).pipe(
+        mergeMap((runWorkflowsSuccess) => {
+          if (runWorkflowsSuccess) {
+            this.toastrService.success(texts.RUN_WORKFLOWS_SUCCESS_NOTIFICATION);
+            return [
+              {
+                type: EMPTY,
+              },
+            ];
+          } else {
+            this.toastrService.error(texts.RUN_WORKFLOWS_FAILURE_NOTIFICATION);
+            return [
+              {
+                type: EMPTY,
+              },
+            ];
+          }
+        }),
+        catchError(() => {
+          this.toastrService.error(texts.RUN_WORKFLOWS_FAILURE_NOTIFICATION);
+          return [
+            {
+              type: EMPTY,
+            },
+          ];
+        }),
+      );
+    }),
+  );
+
   @Effect({ dispatch: true })
   workflowExport = this.actions.pipe(
     ofType(WorkflowActions.EXPORT_WORKFLOWS),

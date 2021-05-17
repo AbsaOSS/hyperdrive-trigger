@@ -31,6 +31,7 @@ export const api = {
   SWITCH_WORKFLOW_ACTIVE_STATE: '/workflows/{id}/switchActiveState',
   UPDATE_WORKFLOWS_IS_ACTIVE: '/workflows/isActive',
   RUN_WORKFLOWS_JOBS: '/workflow/jobs/run',
+  RUN_WORKFLOWS: '/workflows/run',
   CREATE_WORKFLOW: '/workflow',
   UPDATE_WORKFLOW: '/workflows',
   GET_HISTORY_FOR_WORKFLOW: '/workflowHistory',

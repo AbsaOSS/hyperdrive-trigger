@@ -90,6 +90,10 @@
           <clr-icon shape="power" class="has-badge"></clr-icon>
           Deactivate
         </div>
+        <div aria-label="Run" clrDropdownItem (click)="runSelectedWorkflows(selected)">
+          <clr-icon shape="play"></clr-icon>
+          Run
+        </div>
         <div aria-label="Export" clrDropdownItem (click)="exportSelectedWorkflows(selected)">
           <clr-icon shape="export"></clr-icon>
           Export

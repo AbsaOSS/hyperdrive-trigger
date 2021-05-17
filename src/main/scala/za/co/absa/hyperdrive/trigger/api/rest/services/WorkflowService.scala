@@ -42,7 +42,7 @@ trait WorkflowService {
   def getProjectNames()(implicit ec: ExecutionContext): Future[Set[String]]
   def getProjects()(implicit ec: ExecutionContext): Future[Seq[Project]]
   def getProjectsInfo()(implicit ec: ExecutionContext): Future[Seq[ProjectInfo]]
-  def runWorkflow(workflowId: Long)(implicit ec: ExecutionContext): Future[Boolean]
+  def runWorkflows(workflowIds: Seq[Long])(implicit ec: ExecutionContext): Future[Boolean]
   def runWorkflowJobs(workflowId: Long, jobIds: Seq[Long])(implicit ec: ExecutionContext): Future[Boolean]
   def exportWorkflows(workflowIds: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[WorkflowImportExportWrapper]]
   def importWorkflows(workflowImports: Seq[WorkflowImportExportWrapper])(implicit ec: ExecutionContext): Future[Seq[Project]]
@@ -143,13 +143,13 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
     workflowRepository.getProjectsInfo()
   }
 
-  override def runWorkflow(workflowId: Long)(implicit ec: ExecutionContext): Future[Boolean] = {
+  override def runWorkflows(workflowIds: Seq[Long])(implicit ec: ExecutionContext): Future[Boolean] = {
     val userName = getUserName.apply()
 
     for {
-      joinedWorkflow <- workflowRepository.getWorkflow(workflowId)
-      dagInstanceJoined <- dagInstanceService.createDagInstance(joinedWorkflow.dagDefinitionJoined, userName)
-      _ <- dagInstanceRepository.insertJoinedDagInstance(dagInstanceJoined)
+      joinedWorkflows <- workflowRepository.getWorkflows(workflowIds)
+      dagInstanceJoined <- Future.sequence(joinedWorkflows.map(joinedWorkflow => dagInstanceService.createDagInstance(joinedWorkflow.dagDefinitionJoined, userName)))
+      _ <- dagInstanceRepository.insertJoinedDagInstances(dagInstanceJoined)
     } yield {
       true
     }
