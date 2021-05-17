@@ -52,5 +52,5 @@ databaseChangeLog:
       file: v0.4.0.add-application-id.yml
   - include:
       relativeToChangelogFile: true
-      file: v0.4.0.add-job-parameters-json.yml
+      file: v0.4.2.add-job-parameters-json.yml
 
