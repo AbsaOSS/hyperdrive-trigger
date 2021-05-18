@@ -15,9 +15,7 @@
 
 package za.co.absa.hyperdrive.trigger.models.enums
 
-import play.api.libs.json.{Format, JsError, JsObject, JsPath, Json, OFormat, OWrites, Reads, Writes}
-import za.co.absa.hyperdrive.trigger.models.NotificationRule
-import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses.DagInstanceStatus
+import play.api.libs.json._
 
 object DagInstanceStatuses {
 
@@ -40,8 +38,8 @@ object DagInstanceStatuses {
     )
   }
 
-  implicit val dagInstanceStatusFormat: OFormat[DagInstanceStatus] = OFormat[DagInstanceStatus](
-    (JsPath \ "name").read[String].map(convertStatusNameToDagInstanceStatus),
-    OWrites[DagInstanceStatus] { status => Json.obj("name" -> status.name)}
+  implicit val dagInstanceStatusesFormat: Format[Seq[DagInstanceStatus]] = Format[Seq[DagInstanceStatus]](
+    JsPath.read[Seq[String]].map(_.map(convertStatusNameToDagInstanceStatus)),
+    Writes[Seq[DagInstanceStatus]] { statuses => JsArray(statuses.map(v => JsString(v.name)))}
   )
 }
