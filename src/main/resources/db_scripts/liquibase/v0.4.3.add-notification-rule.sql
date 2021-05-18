@@ -21,9 +21,8 @@ create table "notification_rule" (
   "statuses" JSONB NOT NULL DEFAULT '{}',
   "recipients" JSONB NOT NULL DEFAULT '{}',
   "created" TIMESTAMP NOT NULL,
-  "updated" TIMESTAMP,
-  "id" BIGSERIAL NOT NULL PRIMARY KEY
-)
+  "updated" TIMESTAMP
+);
 
 create table "notification_rule_history" (
   "id" BIGSERIAL NOT NULL PRIMARY KEY,

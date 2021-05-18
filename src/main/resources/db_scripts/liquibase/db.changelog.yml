@@ -53,4 +53,8 @@ databaseChangeLog:
   - include:
       relativeToChangelogFile: true
       file: v0.4.0.add-job-parameters-json.yml
+  - include:
+      relativeToChangelogFile: true
+      file: v0.4.3.add-notification-rule.yml
+
 
