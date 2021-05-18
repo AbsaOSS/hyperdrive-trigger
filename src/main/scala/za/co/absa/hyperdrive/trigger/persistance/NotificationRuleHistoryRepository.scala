@@ -15,13 +15,12 @@
 
 package za.co.absa.hyperdrive.trigger.persistance
 
-import java.time.LocalDateTime
-
 import org.springframework.stereotype
-import za.co.absa.hyperdrive.trigger.models.enums.DBOperation.{Create, DBOperation, Delete, Update}
 import za.co.absa.hyperdrive.trigger.models._
+import za.co.absa.hyperdrive.trigger.models.enums.DBOperation.{Create, DBOperation, Delete, Update}
 
-import scala.concurrent.{ExecutionContext, Future}
+import java.time.LocalDateTime
+import scala.concurrent.ExecutionContext
 
 trait NotificationRuleHistoryRepository extends Repository {
   import slick.dbio.DBIO

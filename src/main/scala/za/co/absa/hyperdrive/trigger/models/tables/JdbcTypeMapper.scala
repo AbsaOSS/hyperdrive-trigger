@@ -15,19 +15,19 @@
 
 package za.co.absa.hyperdrive.trigger.models.tables
 
-import java.io.StringWriter
-import za.co.absa.hyperdrive.trigger.models.enums.{DBOperation, DagInstanceStatuses, JobStatuses, JobTypes, SchedulerInstanceStatuses, SensorTypes}
-import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes.SensorType
-import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.JobStatus
-import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
 import play.api.libs.json.{JsValue, Json}
 import slick.jdbc.JdbcType
 import za.co.absa.hyperdrive.trigger.ObjectMapperSingleton
-import za.co.absa.hyperdrive.trigger.models.{JobInstanceParameters, NotificationRule, ShellParameters, SparkParameters, WorkflowJoined}
 import za.co.absa.hyperdrive.trigger.models.enums.DBOperation.DBOperation
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses.DagInstanceStatus
+import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.JobStatus
+import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
 import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses.SchedulerInstanceStatus
+import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes.SensorType
+import za.co.absa.hyperdrive.trigger.models.enums._
+import za.co.absa.hyperdrive.trigger.models._
 
+import java.io.StringWriter
 import scala.collection.immutable.SortedMap
 
 trait JdbcTypeMapper {

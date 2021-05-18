@@ -17,7 +17,7 @@ package za.co.absa.hyperdrive.trigger.models.tables
 
 import slick.lifted.ProvenShape
 import za.co.absa.hyperdrive.trigger.models.enums.DBOperation.DBOperation
-import za.co.absa.hyperdrive.trigger.models.{History, NotificationRule, NotificationRuleHistory, WorkflowHistory, WorkflowJoined}
+import za.co.absa.hyperdrive.trigger.models.{History, NotificationRule, NotificationRuleHistory}
 
 import java.time.LocalDateTime
 

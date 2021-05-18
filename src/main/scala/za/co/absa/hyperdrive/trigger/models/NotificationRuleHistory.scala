@@ -22,6 +22,6 @@ case class NotificationRuleHistory(
 )
 
 case class NotificationRuleFromHistory(
-  leftNotificationHistory: WorkflowHistory,
-  rightNotificationHistory: WorkflowHistory
+  leftNotificationHistory: NotificationRuleHistory,
+  rightNotificationHistory: NotificationRuleHistory
 )
