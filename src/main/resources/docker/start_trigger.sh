@@ -1,4 +1,5 @@
-#
+#!/bin/bash
+
 # Copyright 2018 ABSA Group Limited
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,13 +14,12 @@
 # limitations under the License.
 #
 
-databaseChangeLog:
-  - changeSet:
-      id: v0.4.0.add-job-parameters-json
-      logicalFilePath: v0.4.0.add-job-parameters-json
-      author: HyperdriveDevTeam@absa.africa
-      context: default
-      changes:
-        - sqlFile:
-            relativeToChangelogFile: true
-            path: v0.4.0.add-job-parameters-json.sql
+if [[ -n ${PRIVATE_KEY} && -n ${CERTIFICATE} && -n ${CA_CHAIN} ]]; then
+    echo "Certificate, chain and private key present, running secured version"
+    echo "${PRIVATE_KEY}" >> conf/private.pem
+    echo "${CERTIFICATE}" >> conf/certificate.pem
+    echo "${CA_CHAIN}" >> conf/cachain.pem
+    rm conf/server.xml
+    cp /tmp/server.xml conf/server.xml
+fi
+catalina.sh run
