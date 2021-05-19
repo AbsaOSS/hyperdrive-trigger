@@ -128,7 +128,7 @@ trait JdbcTypeMapper {
   type Recipients = Seq[String]
 
   implicit lazy val recipientsMapper: JdbcType[Recipients] = MappedColumnType.base[Recipients, JsValue](
-    recipients => Json.toJson(recipients),
+    recipients => Json.toJson(recipients.sorted),
     column => column.as[Recipients]
   )
 

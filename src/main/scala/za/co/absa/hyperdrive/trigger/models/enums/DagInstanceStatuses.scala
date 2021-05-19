@@ -40,6 +40,6 @@ object DagInstanceStatuses {
 
   implicit val dagInstanceStatusesFormat: Format[Seq[DagInstanceStatus]] = Format[Seq[DagInstanceStatus]](
     JsPath.read[Seq[String]].map(_.map(convertStatusNameToDagInstanceStatus)),
-    Writes[Seq[DagInstanceStatus]] { statuses => JsArray(statuses.map(v => JsString(v.name)))}
+    Writes[Seq[DagInstanceStatus]] { statuses => JsArray(statuses.map(_.name).sorted.map(JsString))}
   )
 }

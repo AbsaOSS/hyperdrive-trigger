@@ -193,6 +193,14 @@ trait RepositoryTestBase extends Repository {
       SchedulerInstance(22L, SchedulerInstanceStatuses.Active, LocalDateTime.of(2020, 1, 1, 2, 29, 55)),
       SchedulerInstance(31L, SchedulerInstanceStatuses.Deactivated, LocalDateTime.of(2020, 1, 1, 2, 29, 15))
     )
+
+    val nr1 = NotificationRule(Some("project"), Some("ABC XYZ"), None, Seq(DagInstanceStatuses.Failed, DagInstanceStatuses.Succeeded),
+      Seq("abc@xyz.com", "def@xyz.com"), updated = None, id = 11L)
+    val nr2 = NotificationRule(Some("project2"), Some("DEF_123"), None, Seq(DagInstanceStatuses.Failed, DagInstanceStatuses.Skipped),
+      Seq("ghi.jkl@xyz.com"), updated = None, id = 12L)
+    val nr3 = NotificationRule(Some("project"), Some("ABC XYZ"), None, Seq(DagInstanceStatuses.Skipped),
+      Seq("abc@xyz.com", "mno@xyz.com"), updated = None, id = 13L)
+    val notificationRules = Seq(nr1, nr2, nr3)
   }
 
   object TestSensors {

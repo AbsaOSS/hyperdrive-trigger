@@ -56,11 +56,21 @@ class NotificationRuleRepositoryImpl(override val notificationRuleHistoryReposit
   }
 
   override def getNotificationRule(id: Long)(implicit ec: ExecutionContext): Future[NotificationRule] = db.run(
-    getNotificationRuleInternal(id)
+    getNotificationRuleInternal(id).asTry.map {
+      case Success(value) => value
+      case Failure(ex) =>
+        repositoryLogger.error(s"Unexpected error occurred when getting notificationRule with id $id", ex)
+        throw new ApiException(GenericDatabaseError)
+    }
   )
 
   override def getNotificationRules()(implicit ec: ExecutionContext): Future[Seq[NotificationRule]] = db.run(
-    notificationRuleTable.result
+    notificationRuleTable.result.asTry.map {
+      case Success(value) => value
+      case Failure(ex) =>
+        repositoryLogger.error(s"Unexpected error occurred when getting notificationRules", ex)
+        throw new ApiException(GenericDatabaseError)
+    }
   )
 
   override def updateNotificationRule(notificationRule: NotificationRule, user: String)(implicit ec: ExecutionContext): Future[Unit] = {
