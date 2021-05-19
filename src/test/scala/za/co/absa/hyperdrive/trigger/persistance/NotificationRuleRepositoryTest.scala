@@ -39,6 +39,14 @@ class NotificationRuleRepositoryTest extends FlatSpec with Matchers with BeforeA
 
   private val h2NotificationRuleTable = h2NotificationRuleRepository.notificationRuleTable
 
+  private val testUser = "test-user"
+  private val insertUser = "insert-user"
+  private val updateUser = "update-user"
+  private val deleteUser = "delete-user"
+  private val emailAbc = "abc@xyz.com"
+  private val emailDef = "def@xyz.com"
+  private val emailGhi = "ghi@xyz.com"
+
   override def beforeAll: Unit = {
     h2SchemaSetup()
   }
@@ -54,7 +62,7 @@ class NotificationRuleRepositoryTest extends FlatSpec with Matchers with BeforeA
   "insertNotificationRule" should "insert a notification rule" in {
     val expected = TestData.nr1
 
-    val id: Long = await(h2NotificationRuleRepository.insertNotificationRule(expected, "test-user"))
+    val id: Long = await(h2NotificationRuleRepository.insertNotificationRule(expected, testUser))
     val allRules = await(db.run(h2NotificationRuleTable.result))
 
     allRules.size == 1
@@ -64,22 +72,22 @@ class NotificationRuleRepositoryTest extends FlatSpec with Matchers with BeforeA
     val actualHistoryEntries = await(db.run(h2NotificationRuleHistoryTable.result))
     actualHistoryEntries should have size 1
     actualHistoryEntries.head.notificationRuleId shouldBe id
-    actualHistoryEntries.head.history.changedBy shouldBe "test-user"
+    actualHistoryEntries.head.history.changedBy shouldBe testUser
   }
 
   it should "sort statuses and recipients" in {
     // given
     val rule = NotificationRule(Some("project"), Some("ABC XYZ"), None,
       Seq(DagInstanceStatuses.Skipped, DagInstanceStatuses.Succeeded, DagInstanceStatuses.Failed),
-      Seq("def@xyz.com", "ghi@xyz.com", "abc@xyz.com"), updated = None)
+      Seq(emailDef, emailGhi, emailAbc), updated = None)
 
     // when
-    await(h2NotificationRuleRepository.insertNotificationRule(rule, "test-user"))
+    await(h2NotificationRuleRepository.insertNotificationRule(rule, testUser))
 
     // then
     val insertedRule = await(db.run(h2NotificationRuleTable.result)).head
     insertedRule.statuses should contain theSameElementsInOrderAs Seq(DagInstanceStatuses.Failed, DagInstanceStatuses.Skipped, DagInstanceStatuses.Succeeded)
-    insertedRule.recipients should contain theSameElementsInOrderAs Seq("abc@xyz.com", "def@xyz.com", "ghi@xyz.com")
+    insertedRule.recipients should contain theSameElementsInOrderAs Seq(emailAbc, emailDef, emailGhi)
   }
 
   it should "throw an ApiException if the insert fails" in {
@@ -88,7 +96,7 @@ class NotificationRuleRepositoryTest extends FlatSpec with Matchers with BeforeA
 
     // when
     val result = the [ApiException] thrownBy await(h2NotificationRuleRepository.insertNotificationRule(
-      invalidNotificationRule, "test-user"))
+      invalidNotificationRule, testUser))
 
     // then
     result.apiErrors should contain only GenericDatabaseError
@@ -120,13 +128,13 @@ class NotificationRuleRepositoryTest extends FlatSpec with Matchers with BeforeA
 
   "updateNotificationRule" should "update the notification rule" in {
     // given
-    val id1 = await(h2NotificationRuleRepository.insertNotificationRule(TestData.nr1, "insert-user"))
-    val id2 = await(h2NotificationRuleRepository.insertNotificationRule(TestData.nr2, "insert-user"))
+    val id1 = await(h2NotificationRuleRepository.insertNotificationRule(TestData.nr1, insertUser))
+    val id2 = await(h2NotificationRuleRepository.insertNotificationRule(TestData.nr2, insertUser))
     val nr1 = await(h2NotificationRuleRepository.getNotificationRule(id1))
     val updated = nr1.copy(project = Some("NewProject"))
 
     // when
-    await(h2NotificationRuleRepository.updateNotificationRule(updated, "update-user"))
+    await(h2NotificationRuleRepository.updateNotificationRule(updated, updateUser))
 
     // then
     val allRules = await(db.run(h2NotificationRuleTable.result))
@@ -139,45 +147,45 @@ class NotificationRuleRepositoryTest extends FlatSpec with Matchers with BeforeA
     allHistoryEntries should have size 3
     val nr1HistoryEntries = allHistoryEntries.filter(_.notificationRuleId == id1).sortBy(_.history.id)
     nr1HistoryEntries should have size 2
-    nr1HistoryEntries.head.history.changedBy shouldBe "insert-user"
-    nr1HistoryEntries(1).history.changedBy shouldBe "update-user"
+    nr1HistoryEntries.head.history.changedBy shouldBe insertUser
+    nr1HistoryEntries(1).history.changedBy shouldBe updateUser
   }
 
   it should "sort statuses and recipients" in {
     // given
     val rule = NotificationRule(Some("project"), Some("ABC XYZ"), None,
       Seq(DagInstanceStatuses.Succeeded),
-      Seq("def@xyz.com"), updated = None)
+      Seq(emailDef), updated = None)
 
-    await(h2NotificationRuleRepository.insertNotificationRule(rule, "test-user"))
+    await(h2NotificationRuleRepository.insertNotificationRule(rule, testUser))
     val insertedRule = await(db.run(h2NotificationRuleTable.result)).head
     val ruleToUpdate = insertedRule.copy(
       statuses = Seq(DagInstanceStatuses.Skipped, DagInstanceStatuses.Succeeded, DagInstanceStatuses.Failed),
-      recipients = Seq("def@xyz.com", "ghi@xyz.com", "abc@xyz.com")
+      recipients = Seq(emailDef, emailGhi, emailAbc)
     )
 
     // when
-    await(h2NotificationRuleRepository.updateNotificationRule(ruleToUpdate, "update-user"))
+    await(h2NotificationRuleRepository.updateNotificationRule(ruleToUpdate, updateUser))
 
     // then
     val updatedRule = await(db.run(h2NotificationRuleTable.result)).head
     updatedRule.statuses should contain theSameElementsInOrderAs Seq(DagInstanceStatuses.Failed, DagInstanceStatuses.Skipped, DagInstanceStatuses.Succeeded)
-    updatedRule.recipients should contain theSameElementsInOrderAs Seq("abc@xyz.com", "def@xyz.com", "ghi@xyz.com")
+    updatedRule.recipients should contain theSameElementsInOrderAs Seq(emailAbc, emailDef, emailGhi)
   }
 
   it should "throw an exception if the notification rule doesn't exist" in {
     val exception = the [ApiException] thrownBy await(h2NotificationRuleRepository.updateNotificationRule(
-      TestData.nr1, "update-user"))
+      TestData.nr1, updateUser))
     exception.apiErrors should contain only GenericDatabaseError
   }
 
   "deleteNotificationRule" should "delete the notification rule" in {
     // given
-    val id1 = await(h2NotificationRuleRepository.insertNotificationRule(TestData.nr1, "insert-user"))
-    val id2 = await(h2NotificationRuleRepository.insertNotificationRule(TestData.nr2, "insert-user"))
+    val id1 = await(h2NotificationRuleRepository.insertNotificationRule(TestData.nr1, insertUser))
+    val id2 = await(h2NotificationRuleRepository.insertNotificationRule(TestData.nr2, insertUser))
 
     // when
-    await(h2NotificationRuleRepository.deleteNotificationRule(id2, "delete-user"))
+    await(h2NotificationRuleRepository.deleteNotificationRule(id2, deleteUser))
 
     // then
     val allRules = await(db.run(h2NotificationRuleTable.result))
@@ -188,13 +196,13 @@ class NotificationRuleRepositoryTest extends FlatSpec with Matchers with BeforeA
     allHistoryEntries should have size 3
     val nr2HistoryEntries = allHistoryEntries.filter(_.notificationRuleId == id2).sortBy(_.history.id)
     nr2HistoryEntries should have size 2
-    nr2HistoryEntries.head.history.changedBy shouldBe "insert-user"
-    nr2HistoryEntries(1).history.changedBy shouldBe "delete-user"
+    nr2HistoryEntries.head.history.changedBy shouldBe insertUser
+    nr2HistoryEntries(1).history.changedBy shouldBe deleteUser
   }
 
   it should "throw an exception if the notification rule doesn't exist" in {
     val exception = the [ApiException] thrownBy await(h2NotificationRuleRepository.deleteNotificationRule(
-      TestData.nr1.id, "delete-user"))
+      TestData.nr1.id, deleteUser))
     exception.apiErrors should contain only GenericDatabaseError
   }
 
