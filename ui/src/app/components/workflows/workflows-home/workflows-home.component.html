@@ -90,7 +90,7 @@
           <clr-icon shape="power" class="has-badge"></clr-icon>
           Deactivate
         </div>
-        <div aria-label="Run" clrDropdownItem (click)="runSelectedWorkflows(selected)">
+        <div aria-label="Run" clrDropdownItem [clrDisabled]="isRunSelectedWorkflowsDisabled(selected)" (click)="runSelectedWorkflows(selected)">
           <clr-icon shape="play"></clr-icon>
           Run
         </div>
