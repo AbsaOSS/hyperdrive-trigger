@@ -29,10 +29,15 @@ trait NotificationRuleRepository extends Repository {
   val notificationRuleHistoryRepository: NotificationRuleHistoryRepository
 
   def insertNotificationRule(notificationRule: NotificationRule, user: String)(implicit ec: ExecutionContext): Future[Long]
+
   def getNotificationRule(id: Long)(implicit ec: ExecutionContext): Future[NotificationRule]
+
   def getNotificationRules()(implicit ec: ExecutionContext): Future[Seq[NotificationRule]]
+
   def updateNotificationRule(notificationRule: NotificationRule, user: String)(implicit ec: ExecutionContext): Future[Unit]
+
   def deleteNotificationRule(id: Long, user: String)(implicit ec: ExecutionContext): Future[Unit]
+
   def searchNotificationRules(tableSearchRequest: TableSearchRequest)(implicit ec: ExecutionContext): Future[TableSearchResponse[NotificationRule]]
 }
 
@@ -43,61 +48,50 @@ class NotificationRuleRepositoryImpl(override val notificationRuleHistoryReposit
 
   private val repositoryLogger = LoggerFactory.getLogger(this.getClass)
 
-  override def insertNotificationRule(notificationRule: NotificationRule, user: String)(implicit ec: ExecutionContext): Future[Long] = {
-    db.run(
-      insertNotificationRuleInternal(notificationRule, user)
-        .transactionally.asTry.map {
-        case Success(id) => id
+  private implicit class DBIOActionOps[T](val action: api.DBIO[T]) {
+    def withErrorHandling(errorMessage: String)(implicit ec: ExecutionContext): DBIOAction[T, NoStream, Effect.All] = {
+      action.asTry.map {
+        case Success(value) => value
         case Failure(ex) =>
-          repositoryLogger.error(s"Unexpected error occurred when inserting notificationRule $notificationRule", ex)
+          repositoryLogger.error(errorMessage, ex)
           throw new ApiException(GenericDatabaseError)
       }
+    }
+  }
+
+  override def insertNotificationRule(notificationRule: NotificationRule, user: String)(implicit ec: ExecutionContext): Future[Long] = {
+    db.run(insertNotificationRuleInternal(notificationRule, user)
+      .transactionally
+      .withErrorHandling(s"Unexpected error occurred when inserting notificationRule $notificationRule")
     )
   }
 
-  override def getNotificationRule(id: Long)(implicit ec: ExecutionContext): Future[NotificationRule] = db.run(
-    getNotificationRuleInternal(id).asTry.map {
-      case Success(value) => value
-      case Failure(ex) =>
-        repositoryLogger.error(s"Unexpected error occurred when getting notificationRule with id $id", ex)
-        throw new ApiException(GenericDatabaseError)
-    }
-  )
+  override def getNotificationRule(id: Long)(implicit ec: ExecutionContext): Future[NotificationRule] =
+    db.run(getNotificationRuleInternal(id)
+      .withErrorHandling(s"Unexpected error occurred when getting notificationRule with id $id")
+    )
 
-  override def getNotificationRules()(implicit ec: ExecutionContext): Future[Seq[NotificationRule]] = db.run(
-    notificationRuleTable.result.asTry.map {
-      case Success(value) => value
-      case Failure(ex) =>
-        repositoryLogger.error(s"Unexpected error occurred when getting notificationRules", ex)
-        throw new ApiException(GenericDatabaseError)
-    }
-  )
+  override def getNotificationRules()(implicit ec: ExecutionContext): Future[Seq[NotificationRule]] =
+    db.run(notificationRuleTable.result
+      .withErrorHandling("Unexpected error occurred when getting notificationRules")
+    )
 
-  override def updateNotificationRule(notificationRule: NotificationRule, user: String)(implicit ec: ExecutionContext): Future[Unit] = {
+  override def updateNotificationRule(notificationRule: NotificationRule, user: String)(implicit ec: ExecutionContext): Future[Unit] =
     db.run(updateNotificationRuleInternal(notificationRule, user)
-      .transactionally.asTry.map {
-      case Success(_) => (): Unit
-      case Failure(ex) =>
-        repositoryLogger.error(s"Unexpected error occurred when updating notificationRule $notificationRule", ex)
-        throw new ApiException(GenericDatabaseError)
-    }
+      .transactionally
+      .withErrorHandling(s"Unexpected error occurred when updating notificationRule $notificationRule")
     )
-  }
 
-  override def deleteNotificationRule(id: Long, user: String)(implicit ec: ExecutionContext): Future[Unit] = {
+  override def deleteNotificationRule(id: Long, user: String)(implicit ec: ExecutionContext): Future[Unit] =
     db.run(deleteNotificationRuleInternal(id, user)
-      .transactionally.asTry.map {
-      case Success(_) => (): Unit
-      case Failure(ex) =>
-        repositoryLogger.error(s"Unexpected error occurred when deleting notificationRule with id $id", ex)
-        throw new ApiException(GenericDatabaseError)
-    }
+      .transactionally
+      .withErrorHandling(s"Unexpected error occurred when deleting notificationRule with id $id")
     )
-  }
 
-  override def searchNotificationRules(searchRequest: TableSearchRequest)(implicit ec: ExecutionContext): Future[TableSearchResponse[NotificationRule]] = {
-    db.run(notificationRuleTable.search(searchRequest))
-  }
+  override def searchNotificationRules(searchRequest: TableSearchRequest)(implicit ec: ExecutionContext): Future[TableSearchResponse[NotificationRule]] =
+    db.run(notificationRuleTable.search(searchRequest)
+      .withErrorHandling(s"Unexpected error occurred when searching notification rules with request ${searchRequest}")
+    )
 
   private def insertNotificationRuleInternal(notificationRule: NotificationRule, user: String)(implicit ec: ExecutionContext) = {
     val notificationRuleToInsert = notificationRule.copy(created = LocalDateTime.now())
