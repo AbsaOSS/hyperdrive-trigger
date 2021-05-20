@@ -32,7 +32,7 @@ trait NotificationRuleHistoryTable {
     def changedBy: Rep[String] = column[String]("changed_by")
     def operation: Rep[DBOperation] = column[DBOperation]("operation")
     def notificationRuleId: Rep[Long] = column[Long]("notification_rule_id")
-    def notificationRule: Rep[NotificationRule] = column[NotificationRule]("notification_rule")
+    def notificationRule: Rep[NotificationRule] = column[NotificationRule]("notification_rule", O.SqlType("JSONB"))
 
     def * : ProvenShape[NotificationRuleHistory] = (id, changedOn, changedBy, operation, notificationRuleId, notificationRule) <> (
       notificationRuleTuple =>

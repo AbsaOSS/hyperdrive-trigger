@@ -18,6 +18,7 @@ package za.co.absa.hyperdrive.trigger.models.tables
 import play.api.libs.json.{JsValue, Json}
 import slick.jdbc.JdbcType
 import za.co.absa.hyperdrive.trigger.ObjectMapperSingleton
+import za.co.absa.hyperdrive.trigger.models.NotificationRule.Recipients
 import za.co.absa.hyperdrive.trigger.models.enums.DBOperation.DBOperation
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses.DagInstanceStatus
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.JobStatus
@@ -124,8 +125,6 @@ trait JdbcTypeMapper {
     notificationRule => Json.toJson(notificationRule),
     column => column.as[NotificationRule]
   )
-
-  type Recipients = Seq[String]
 
   implicit lazy val recipientsMapper: JdbcType[Recipients] = MappedColumnType.base[Recipients, JsValue](
     recipients => Json.toJson(recipients.sorted),

@@ -16,6 +16,7 @@
 package za.co.absa.hyperdrive.trigger.models
 
 import play.api.libs.json.{Json, OFormat}
+import za.co.absa.hyperdrive.trigger.models.NotificationRule.Recipients
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses.DagInstanceStatus
 
 import java.time.LocalDateTime
@@ -26,12 +27,13 @@ case class NotificationRule(
   workflowPrefix: Option[String],
   minElapsedSecondsSinceLastSuccess: Option[Long],
   statuses: Seq[DagInstanceStatus],
-  recipients: Seq[String],
+  recipients: Recipients,
   created: LocalDateTime = LocalDateTime.now(),
   updated: Option[LocalDateTime],
   id: Long = 0
 )
 
 object NotificationRule {
+  type Recipients = Seq[String]
   implicit val notificationRuleFormat: OFormat[NotificationRule] = Json.using[Json.WithDefaultValues].format[NotificationRule]
 }
