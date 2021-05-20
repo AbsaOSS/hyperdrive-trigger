@@ -19,8 +19,10 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.models.{Project, ProjectInfo, Workflow, WorkflowImportExportWrapper, WorkflowJoined}
-import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, BulkOperationError, GenericError}
+import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, BulkOperationError, GenericError, ValidationError}
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, WorkflowRepository}
+import org.slf4j.LoggerFactory
+import za.co.absa.hyperdrive.trigger.scheduler.utilities.ApplicationConfig
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -32,20 +34,35 @@ trait WorkflowService {
   val workflowValidationService: WorkflowValidationService
 
   def createWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[WorkflowJoined]
+
   def getWorkflow(id: Long)(implicit ec: ExecutionContext): Future[WorkflowJoined]
+
   def getWorkflows()(implicit ec: ExecutionContext): Future[Seq[Workflow]]
+
   def getWorkflowsByProjectName(projectName: String)(implicit ec: ExecutionContext): Future[Seq[Workflow]]
+
   def deleteWorkflow(id: Long)(implicit ec: ExecutionContext): Future[Boolean]
+
   def updateWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[WorkflowJoined]
+
   def switchWorkflowActiveState(id: Long)(implicit ec: ExecutionContext): Future[Boolean]
+
   def updateWorkflowsIsActive(ids: Seq[Long], isActiveNewValue: Boolean)(implicit ec: ExecutionContext): Future[Boolean]
+
   def getProjectNames()(implicit ec: ExecutionContext): Future[Set[String]]
+
   def getProjects()(implicit ec: ExecutionContext): Future[Seq[Project]]
+
   def getProjectsInfo()(implicit ec: ExecutionContext): Future[Seq[ProjectInfo]]
+
   def runWorkflows(workflowIds: Seq[Long])(implicit ec: ExecutionContext): Future[Boolean]
+
   def runWorkflowJobs(workflowId: Long, jobIds: Seq[Long])(implicit ec: ExecutionContext): Future[Boolean]
+
   def exportWorkflows(workflowIds: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[WorkflowImportExportWrapper]]
+
   def importWorkflows(workflowImports: Seq[WorkflowImportExportWrapper])(implicit ec: ExecutionContext): Future[Seq[Project]]
+
   def convertToWorkflowJoined(workflowImport: WorkflowImportExportWrapper)(implicit ec: ExecutionContext): Future[WorkflowJoined]
 }
 
@@ -55,6 +72,8 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
                           override val dagInstanceService: DagInstanceService,
                           override val jobTemplateService: JobTemplateService,
                           override val workflowValidationService: WorkflowValidationService) extends WorkflowService {
+
+  private val serviceLogger = LoggerFactory.getLogger(this.getClass)
 
   def createWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[WorkflowJoined] = {
     val userName = getUserName.apply()
@@ -145,13 +164,22 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
 
   override def runWorkflows(workflowIds: Seq[Long])(implicit ec: ExecutionContext): Future[Boolean] = {
     val userName = getUserName.apply()
-
-    for {
-      joinedWorkflows <- workflowRepository.getWorkflows(workflowIds)
-      dagInstanceJoined <- Future.sequence(joinedWorkflows.map(joinedWorkflow => dagInstanceService.createDagInstance(joinedWorkflow.dagDefinitionJoined, userName)))
-      _ <- dagInstanceRepository.insertJoinedDagInstances(dagInstanceJoined)
-    } yield {
-      true
+    workflowIds.distinct.length match {
+      case numberOfWorkflows if numberOfWorkflows == 1 =>
+        throw new ApiException(GenericError(s"More than 1 workflow has to be triggered!"))
+      case numberOfWorkflows if numberOfWorkflows > ApplicationConfig.maximumNumberOfWorkflowsInBulkRun =>
+        throw new ApiException(GenericError(
+          s"Maximum number of workflows = ${ApplicationConfig.maximumNumberOfWorkflowsInBulkRun}, for bulk run has been exceeded!"
+        ))
+      case numberOfWorkflows =>
+        serviceLogger.debug(s"Bulk run workflows. ${numberOfWorkflows} workflows will be executed.")
+        for {
+          joinedWorkflows <- workflowRepository.getWorkflows(workflowIds.distinct)
+          dagInstanceJoined <- Future.sequence(joinedWorkflows.map(joinedWorkflow => dagInstanceService.createDagInstance(joinedWorkflow.dagDefinitionJoined, userName)))
+          _ <- dagInstanceRepository.insertJoinedDagInstances(dagInstanceJoined)
+        } yield {
+          true
+        }
     }
   }
 
@@ -163,7 +191,7 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
 
       val anyJobIdIsNotPartOfWorkflow = !jobIds.forall(id => dagDefinitionJoined.jobDefinitions.map(_.id).contains(id))
 
-      if(anyJobIdIsNotPartOfWorkflow) {
+      if (anyJobIdIsNotPartOfWorkflow) {
         Future.successful(false)
       } else {
         val dagDefinitionWithFilteredJobs = dagDefinitionJoined.copy(
@@ -213,8 +241,8 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
       } else {
         throw new RuntimeException(s"Expected size 1, got ${workflowJoineds.size}")
       }, {
-        case ex: ApiException => new ApiException(ex.apiErrors.map(_.unwrapError()))
-      })
+      case ex: ApiException => new ApiException(ex.apiErrors.map(_.unwrapError()))
+    })
   }
 
   private def convertToWorkflowJoineds(workflowImports: Seq[WorkflowImportExportWrapper])(implicit ec: ExecutionContext): Future[Seq[WorkflowJoined]] = {
@@ -233,7 +261,7 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
             Left(
               BulkOperationError(workflowImport.workflowJoined,
                 GenericError(s"The following Job Templates don't exist yet and have to be created before importing" +
-              s" this workflow: ${missingTemplates.reduce(_ + ", " + _)}")))
+                  s" this workflow: ${missingTemplates.reduce(_ + ", " + _)}")))
           } else {
             def getNewId(oldTemplateId: Long) = {
               val name = oldIdNameMap.get(oldTemplateId) match {
@@ -258,7 +286,9 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
         }
 
         if (workflowJoinedsEit.forall(_.isRight)) {
-          Future { workflowJoinedsEit.map(_.right.get) }
+          Future {
+            workflowJoinedsEit.map(_.right.get)
+          }
         } else {
           val allErrors = workflowJoinedsEit
             .filter(_.isLeft)

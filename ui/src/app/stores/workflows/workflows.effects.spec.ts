@@ -971,6 +971,29 @@ describe('WorkflowsEffects', () => {
       expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
       expect(toastrServiceSpy).toHaveBeenCalledWith(texts.RUN_WORKFLOWS_FAILURE_NOTIFICATION);
     });
+
+    it('should display failure when service throws an exception while running workflows', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'error');
+      const workflowId = 42;
+      const workflowIds = [1, 2, 3];
+      const error = ApiErrorModelFactory.create('Error from backend', { name: 'validationError' });
+
+      const action = new RunWorkflows(workflowIds);
+      mockActions = cold('-a', { a: action });
+
+      const runWorkflowsResponse = cold('-#|', null, [error]);
+
+      spyOn(workflowService, 'runWorkflows').and.returnValue(runWorkflowsResponse);
+
+      const expected = cold('--a', {
+        a: {
+          type: EMPTY,
+        },
+      });
+      expect(underTest.workflowsRun).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(error.message);
+    });
   });
 
   describe('workflowExport', () => {

@@ -511,8 +511,13 @@ export class WorkflowsEffects {
             ];
           }
         }),
-        catchError(() => {
-          this.toastrService.error(texts.RUN_WORKFLOWS_FAILURE_NOTIFICATION);
+        catchError((errorResponse) => {
+          if (this.isApiError(errorResponse)) {
+            const message = this.concatenateApiErrors(errorResponse as ApiErrorModel[]);
+            this.toastrService.error(message);
+          } else {
+            this.toastrService.error(texts.RUN_WORKFLOWS_FAILURE_NOTIFICATION);
+          }
           return [
             {
               type: EMPTY,

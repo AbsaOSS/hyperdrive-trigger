@@ -157,7 +157,12 @@ export class WorkflowService {
   }
 
   runWorkflows(workflowIds: number[]): Observable<boolean> {
-    return this.httpClient.put<boolean>(api.RUN_WORKFLOWS, { workflowIds: workflowIds }, { observe: 'response' }).pipe(map((_) => _.body));
+    return this.httpClient.put<boolean>(api.RUN_WORKFLOWS, { workflowIds: workflowIds }, { observe: 'response' }).pipe(
+      map((_) => _.body),
+      catchError((errorResponse: HttpErrorResponse) => {
+        return throwError(errorResponse.error);
+      }),
+    );
   }
 
   getWorkflowDynamicFormParts(): Observable<DynamicFormParts> {

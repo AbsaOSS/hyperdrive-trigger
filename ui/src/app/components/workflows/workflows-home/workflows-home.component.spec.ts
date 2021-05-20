@@ -389,6 +389,10 @@ describe('WorkflowsHomeComponent', () => {
   it(
     'runSelectedWorkflows() should dispatch run workflows',
     waitForAsync(() => {
+      const subject = new Subject<boolean>();
+      spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
+      subject.next(true);
+
       const workflows = [
         WorkflowModelFactory.create('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 0),
         WorkflowModelFactory.create('workflowName2', true, 'projectName2', new Date(Date.now()), new Date(Date.now()), 1),
@@ -397,10 +401,35 @@ describe('WorkflowsHomeComponent', () => {
       const storeSpy = spyOn(store, 'dispatch');
 
       underTest.runSelectedWorkflows(workflows);
+      subject.next(true);
 
       fixture.detectChanges();
       fixture.whenStable().then(() => {
         expect(storeSpy).toHaveBeenCalledWith(new RunWorkflows(workflowIds));
+      });
+    }),
+  );
+
+  it(
+    'runSelectedWorkflows() should not dispatch run workflows when confirmation dialog is not confirmed',
+    waitForAsync(() => {
+      const subject = new Subject<boolean>();
+      spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
+      subject.next(true);
+
+      const workflows = [
+        WorkflowModelFactory.create('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 0),
+        WorkflowModelFactory.create('workflowName2', true, 'projectName2', new Date(Date.now()), new Date(Date.now()), 1),
+      ];
+      const workflowIds = workflows.map((workflow) => workflow.id);
+      const storeSpy = spyOn(store, 'dispatch');
+
+      underTest.runSelectedWorkflows(workflows);
+      subject.next(false);
+
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(storeSpy).toHaveBeenCalledTimes(0);
       });
     }),
   );
@@ -463,7 +492,7 @@ describe('WorkflowsHomeComponent', () => {
   });
 
   describe('isRunSelectedWorkflowsDisabled', () => {
-    it('should return false when only workflows with the same project are passed', () => {
+    it('should return false when at least two workflows are selected', () => {
       const workflows = [
         WorkflowModelFactory.create('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 0),
         WorkflowModelFactory.create('workflowName2', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 1),
@@ -471,15 +500,12 @@ describe('WorkflowsHomeComponent', () => {
       expect(underTest.isRunSelectedWorkflowsDisabled(workflows)).toBeFalse();
     });
 
-    it('should return true when only workflows with different projects are passed', () => {
-      const workflows = [
-        WorkflowModelFactory.create('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 0),
-        WorkflowModelFactory.create('workflowName2', true, 'projectName2', new Date(Date.now()), new Date(Date.now()), 1),
-      ];
+    it('should return true when only one workflows is selected', () => {
+      const workflows = [WorkflowModelFactory.create('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 0)];
       expect(underTest.isRunSelectedWorkflowsDisabled(workflows)).toBeTrue();
     });
 
-    it('should return true when no workflow is passed', () => {
+    it('should return true when no workflow is selected', () => {
       const workflows = [];
       expect(underTest.isRunSelectedWorkflowsDisabled(workflows)).toBeTrue();
     });

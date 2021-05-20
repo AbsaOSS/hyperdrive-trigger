@@ -43,6 +43,11 @@ export const texts = {
   RUN_WORKFLOWS_JOBS_FAILURE_NOTIFICATION: "Sorry, jobs couldn't be submitted. Please try again.",
   LOAD_JOBS_FOR_RUN_FAILURE_NOTIFICATION: "Sorry, jobs couldn't be loaded. Please try again.",
 
+  BULK_RUN_WORKFLOWS_TITLE: 'Bulk run workflows',
+  BULK_RUN_WORKFLOWS_CONTENT(numberOfWorkflows: number): string {
+    return 'Are you sure you want to run ' + numberOfWorkflows + ' workflows?';
+  },
+
   RUN_WORKFLOWS_SUCCESS_NOTIFICATION: 'Workflows have been submitted.',
   RUN_WORKFLOWS_FAILURE_NOTIFICATION: "Sorry, workflows couldn't be submitted. Please try again.",
 
