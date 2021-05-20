@@ -46,12 +46,12 @@ class NotificationRuleController @Inject()(notificationRuleService: Notification
     notificationRuleService.getNotificationRules().toJava.toCompletableFuture
   }
 
-  @PostMapping(path = Array("/notificationRules"))
+  @PostMapping(path = Array("/notificationRule"))
   def updateNotificationRule(@RequestBody notificationRule: NotificationRule): CompletableFuture[NotificationRule] = {
     notificationRuleService.updateNotificationRule(notificationRule).toJava.toCompletableFuture
   }
 
-  @DeleteMapping(path = Array("/notificationRules"))
+  @DeleteMapping(path = Array("/notificationRule"))
   def deleteNotificationRule(@RequestParam id: Long): CompletableFuture[Boolean] = {
     notificationRuleService.deleteNotificationRule(id).toJava.toCompletableFuture
   }
