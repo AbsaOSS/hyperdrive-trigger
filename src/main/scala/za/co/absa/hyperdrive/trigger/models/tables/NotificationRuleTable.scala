@@ -17,6 +17,7 @@ package za.co.absa.hyperdrive.trigger.models.tables
 
 import slick.lifted.ProvenShape
 import za.co.absa.hyperdrive.trigger.models.NotificationRule
+import za.co.absa.hyperdrive.trigger.models.NotificationRule.Recipients
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses.DagInstanceStatus
 
 import java.time.LocalDateTime
