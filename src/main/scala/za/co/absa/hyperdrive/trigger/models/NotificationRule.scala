@@ -15,6 +15,7 @@
 
 package za.co.absa.hyperdrive.trigger.models
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import play.api.libs.json.{Json, OFormat}
 import za.co.absa.hyperdrive.trigger.models.NotificationRule.Recipients
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses.DagInstanceStatus
@@ -25,6 +26,7 @@ import java.time.LocalDateTime
 case class NotificationRule(
   project: Option[String],
   workflowPrefix: Option[String],
+  @JsonDeserialize(contentAs = classOf[java.lang.Long])
   minElapsedSecondsSinceLastSuccess: Option[Long],
   statuses: Seq[DagInstanceStatus],
   recipients: Recipients,

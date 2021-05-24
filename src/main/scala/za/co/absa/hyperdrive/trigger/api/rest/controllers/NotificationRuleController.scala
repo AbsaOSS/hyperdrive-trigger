@@ -24,7 +24,6 @@ import za.co.absa.hyperdrive.trigger.models.search.{TableSearchRequest, TableSea
 import java.util.concurrent.CompletableFuture
 import javax.inject.Inject
 import scala.compat.java8.FutureConverters._
-import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.Implicits.global
 
 @RestController
@@ -32,7 +31,7 @@ class NotificationRuleController @Inject()(notificationRuleService: Notification
   private val logger = LoggerFactory.getLogger(this.getClass)
 
   @PutMapping(path = Array("/notificationRule"))
-  def createNotificationRule(notificationRule: NotificationRule)(implicit ec: ExecutionContext): CompletableFuture[NotificationRule] = {
+  def createNotificationRule(@RequestBody notificationRule: NotificationRule): CompletableFuture[NotificationRule] = {
     notificationRuleService.createNotificationRule(notificationRule).toJava.toCompletableFuture
   }
 
