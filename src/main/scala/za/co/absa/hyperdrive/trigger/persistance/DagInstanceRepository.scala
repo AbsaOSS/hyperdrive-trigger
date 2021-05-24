@@ -55,21 +55,20 @@ class DagInstanceRepositoryImpl extends DagInstanceRepository {
 
   override def insertJoinedDagInstances(dagInstancesJoined: Seq[DagInstanceJoined])(implicit executionContext: ExecutionContext): Future[Unit] = db.run(
     DBIO.sequence {
-      dagInstancesJoined.map { dagInstanceJoined =>
-        for {
-          di <- dagInstanceTable returning dagInstanceTable.map(_.id) += dagInstanceJoined.toDagInstance
-          jis <- jobInstanceTable ++= dagInstanceJoined.jobInstances.map(_.copy(dagInstanceId = di))
-        } yield ()
-      }
+      dagInstancesJoined.map(dagInstanceJoined => insertJoinedDagInstanceInternal(dagInstanceJoined))
     }.transactionally
   ).map(_ => (): Unit)
 
   override def insertJoinedDagInstance(dagInstanceJoined: DagInstanceJoined)(implicit executionContext: ExecutionContext): Future[Unit] = db.run(
-    (for {
+    insertJoinedDagInstanceInternal(dagInstanceJoined).transactionally
+  ).map(_ => (): Unit)
+
+  private def insertJoinedDagInstanceInternal(dagInstanceJoined: DagInstanceJoined)(implicit executionContext: ExecutionContext): DBIOAction[Unit, NoStream, Effect.Write] = {
+    for {
       di <- dagInstanceTable returning dagInstanceTable.map(_.id) += dagInstanceJoined.toDagInstance
       jis <- jobInstanceTable ++= dagInstanceJoined.jobInstances.map(_.copy(dagInstanceId = di))
-    } yield ()).transactionally
-  ).map(_ => (): Unit)
+    } yield ()
+  }
 
   def getDagsToRun(runningIds: Seq[Long], size: Int, assignedWorkflowIds: Seq[Long])(implicit executionContext: ExecutionContext): Future[Seq[DagInstance]] = {
     val prefilteredResult = db.run(

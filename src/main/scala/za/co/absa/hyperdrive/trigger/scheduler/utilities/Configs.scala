@@ -127,6 +127,6 @@ object HealthConfig {
 }
 
 object ApplicationConfig {
-  lazy val maximumNumberOfWorkflowsInBulkRun: Int =
+  val maximumNumberOfWorkflowsInBulkRun: Int =
     Try(Configs.conf.getInt("application.maximumNumberOfWorkflowsInBulkRun")).getOrElse(10)
 }

@@ -421,7 +421,6 @@ describe('WorkflowsHomeComponent', () => {
         WorkflowModelFactory.create('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 0),
         WorkflowModelFactory.create('workflowName2', true, 'projectName2', new Date(Date.now()), new Date(Date.now()), 1),
       ];
-      const workflowIds = workflows.map((workflow) => workflow.id);
       const storeSpy = spyOn(store, 'dispatch');
 
       underTest.runSelectedWorkflows(workflows);

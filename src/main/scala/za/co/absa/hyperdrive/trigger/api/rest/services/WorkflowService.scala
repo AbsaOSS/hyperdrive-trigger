@@ -169,13 +169,17 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
         throw new ApiException(GenericError(s"More than 1 workflow has to be triggered!"))
       case numberOfWorkflows if numberOfWorkflows > ApplicationConfig.maximumNumberOfWorkflowsInBulkRun =>
         throw new ApiException(GenericError(
-          s"Maximum number of workflows = ${ApplicationConfig.maximumNumberOfWorkflowsInBulkRun}, for bulk run has been exceeded!"
+          s"Cannot trigger more than ${ApplicationConfig.maximumNumberOfWorkflowsInBulkRun} workflows!"
         ))
-      case numberOfWorkflows =>
-        serviceLogger.debug(s"Bulk run workflows. ${numberOfWorkflows} workflows will be executed.")
+      case _ =>
+        serviceLogger.debug(s"User: $userName called bulk run workflows. Workflows: $workflowIds will be executed.")
         for {
           joinedWorkflows <- workflowRepository.getWorkflows(workflowIds.distinct)
-          dagInstanceJoined <- Future.sequence(joinedWorkflows.map(joinedWorkflow => dagInstanceService.createDagInstance(joinedWorkflow.dagDefinitionJoined, userName)))
+          dagInstanceJoined <- Future.sequence(
+            joinedWorkflows.map(joinedWorkflow =>
+              dagInstanceService.createDagInstance(joinedWorkflow.dagDefinitionJoined, userName)
+            )
+          )
           _ <- dagInstanceRepository.insertJoinedDagInstances(dagInstanceJoined)
         } yield {
           true

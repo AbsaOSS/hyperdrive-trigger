@@ -974,7 +974,6 @@ describe('WorkflowsEffects', () => {
 
     it('should display failure when service throws an exception while running workflows', () => {
       const toastrServiceSpy = spyOn(toastrService, 'error');
-      const workflowId = 42;
       const workflowIds = [1, 2, 3];
       const error = ApiErrorModelFactory.create('Error from backend', { name: 'validationError' });
 
