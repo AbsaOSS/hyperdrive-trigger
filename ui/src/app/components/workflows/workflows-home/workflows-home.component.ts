@@ -89,7 +89,7 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
   }
 
   runSelectedWorkflows(selected: WorkflowModel[]) {
-    if (this.isActivateSelectedWorkflowsDisabled(selected)) {
+    if (this.isRunSelectedWorkflowsDisabled(selected)) {
       return;
     }
     this.confirmationDialogServiceSubscription = this.confirmationDialogService
