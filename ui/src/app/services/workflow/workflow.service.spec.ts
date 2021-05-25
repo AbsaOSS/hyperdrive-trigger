@@ -205,6 +205,20 @@ describe('WorkflowService', () => {
     req.flush(new Boolean(response));
   });
 
+  it('runWorkflows() should run selected workflows', () => {
+    const workflowIds = [1, 2, 3];
+    const response = true;
+
+    underTest.runWorkflows(workflowIds).subscribe(
+      (data) => expect(data).toEqual(response),
+      (error) => fail(error),
+    );
+
+    const req = httpTestingController.expectOne(api.RUN_WORKFLOWS);
+    expect(req.request.method).toEqual('PUT');
+    req.flush(new Boolean(response));
+  });
+
   it('getWorkflowDynamicFormParts() should return no form parts if no templates are present', () => {
     underTest.getWorkflowDynamicFormParts().subscribe(
       (data) => expect(data.jobDynamicParts.length).toEqual(0),

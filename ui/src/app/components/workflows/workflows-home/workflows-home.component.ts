@@ -23,6 +23,7 @@ import {
   ExportWorkflows,
   ImportWorkflows,
   LoadJobsForRun,
+  RunWorkflows,
   SetWorkflowFile,
   SetWorkflowsFilters,
   SetWorkflowsSort,
@@ -81,6 +82,22 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
 
   exportWorkflow(id: number) {
     this.store.dispatch(new ExportWorkflows([id]));
+  }
+
+  isRunSelectedWorkflowsDisabled(selectedWorkflows: WorkflowModel[]) {
+    return selectedWorkflows.length <= 1;
+  }
+
+  runSelectedWorkflows(selected: WorkflowModel[]) {
+    if (this.isRunSelectedWorkflowsDisabled(selected)) {
+      return;
+    }
+    this.confirmationDialogServiceSubscription = this.confirmationDialogService
+      .confirm(ConfirmationDialogTypes.YesOrNo, texts.BULK_RUN_WORKFLOWS_TITLE, texts.BULK_RUN_WORKFLOWS_CONTENT(selected.length))
+      .subscribe((confirmed) => {
+        this.ignoreRefresh = true;
+        if (confirmed) this.store.dispatch(new RunWorkflows(selected.map((workflow) => workflow.id)));
+      });
   }
 
   exportSelectedWorkflows(selected: WorkflowModel[]) {
