@@ -43,7 +43,7 @@ class WorkflowRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterA
     override val profile = h2Profile
   }
 
-  import h2Profile.api._
+  import api._
 
   override def beforeAll: Unit = {
     h2SchemaSetup()

@@ -156,6 +156,15 @@ export class WorkflowService {
       .pipe(map((_) => _.body));
   }
 
+  runWorkflows(workflowIds: number[]): Observable<boolean> {
+    return this.httpClient.put<boolean>(api.RUN_WORKFLOWS, { workflowIds: workflowIds }, { observe: 'response' }).pipe(
+      map((_) => _.body),
+      catchError((errorResponse: HttpErrorResponse) => {
+        return throwError(errorResponse.error);
+      }),
+    );
+  }
+
   getWorkflowDynamicFormParts(): Observable<DynamicFormParts> {
     return this.getJobTemplates().pipe(
       mergeMap((jobTemplates) => {
@@ -292,16 +301,6 @@ export class WorkflowService {
         'jobParameters.variables.mainClass',
         'string-field',
         PartValidationFactory.create(true, undefined, 1),
-      ),
-      FormPartFactory.create(
-        'Deployment mode',
-        'jobParameters.variables.deploymentMode',
-        'select-field',
-        PartValidationFactory.create(true),
-        new Map([
-          ['cluster', 'cluster'],
-          ['client', 'client'],
-        ]),
       ),
       FormPartFactory.create(
         'Additional jars',

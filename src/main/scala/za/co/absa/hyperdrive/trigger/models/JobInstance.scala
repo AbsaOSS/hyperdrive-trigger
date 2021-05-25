@@ -23,7 +23,7 @@ import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
 case class JobInstance(
   jobName: String,
   jobType: JobType,
-  jobParameters: JobParameters,
+  jobParameters: JobInstanceParameters,
   jobStatus: JobStatus,
   executorJobId: Option[String],
   applicationId: Option[String],
@@ -39,7 +39,7 @@ case class JobInstanceJoined(
   jobName: String,
   event: Event,
   jobType: JobType,
-  jobParameters: JobParameters,
+  jobParameters: JobInstanceParameters,
   jobStatus: JobStatus,
   executorJobId: Option[String],
   applicationId: Option[String],

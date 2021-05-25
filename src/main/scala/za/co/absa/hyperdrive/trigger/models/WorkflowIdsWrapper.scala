@@ -13,14 +13,10 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models.tables
+package za.co.absa.hyperdrive.trigger.models
 
-import com.github.tminglei.slickpg.{ExPostgresProfile, PgDate2Support, PgPlayJsonSupport}
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 
-trait Profile extends ExPostgresProfile with PgDate2Support with PgPlayJsonSupport {
-  override def pgjson = "jsonb"
-
-  override val api = new MyAPI
-
-  class MyAPI extends API with DateTimeImplicits with JsonImplicits
-}
+case class WorkflowIdsWrapper(
+   @JsonDeserialize(contentAs = classOf[java.lang.Long]) workflowIds: Seq[Long]
+)

@@ -22,7 +22,7 @@ import scala.collection.immutable.SortedMap
 
 trait JobDefinitionTable {
   this: Profile with JdbcTypeMapper with DagDefinitionTable with JobTemplateTable =>
-  import profile.api._
+  import api._
 
   final class JobDefinitionTable(tag: Tag) extends Table[JobDefinition](tag, _tableName = "job_definition") {
 

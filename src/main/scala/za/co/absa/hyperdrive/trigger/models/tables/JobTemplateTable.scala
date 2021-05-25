@@ -23,7 +23,7 @@ import scala.collection.immutable.SortedMap
 
 trait JobTemplateTable extends SearchableTableQuery {
   this: Profile with JdbcTypeMapper =>
-  import profile.api._
+  import api._
 
   final class JobTemplateTable(tag: Tag) extends Table[JobTemplate](tag, _tableName = "job_template") with SearchableTable {
 

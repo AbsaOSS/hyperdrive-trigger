@@ -23,7 +23,7 @@ import za.co.absa.hyperdrive.trigger.persistance.RepositoryTestBase
 
 trait TestSearchableRepositoryTestBase extends RepositoryTestBase with TestSearchableTable {
 
-  import h2Profile.api._
+  import api._
 
   def createSchema(): Unit = run(testSearchableTable.schema.create)
 

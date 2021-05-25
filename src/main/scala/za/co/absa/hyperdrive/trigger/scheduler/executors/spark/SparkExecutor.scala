@@ -15,7 +15,7 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.executors.spark
 
-import za.co.absa.hyperdrive.trigger.models.{JobInstance, JobParameters}
+import za.co.absa.hyperdrive.trigger.models.{JobInstance, SparkParameters}
 
 import scala.concurrent.{ExecutionContext, Future}
 import java.util.UUID.randomUUID
@@ -36,25 +36,25 @@ import play.api.libs.ws.JsonBodyReadables._
 import za.co.absa.hyperdrive.trigger.scheduler.executors.spark.{FinalStatuses => YarnFinalStatuses}
 import org.slf4j.LoggerFactory
 
-object SparkExecutor extends Executor {
+object SparkExecutor extends Executor[SparkParameters] {
   private val wsClient = StandaloneAhcWSClient()(ActorMaterializer()(ActorSystem()))
 
-  override def execute(jobInstance: JobInstance, updateJob: JobInstance => Future[Unit])
+  override def execute(jobInstance: JobInstance, jobParameters: SparkParameters, updateJob: JobInstance => Future[Unit])
                       (implicit executionContext: ExecutionContext): Future[Unit] = {
     jobInstance.executorJobId match {
-      case None => submitJob(jobInstance, updateJob)
+      case None => submitJob(jobInstance, jobParameters, updateJob)
       case Some(executorJobId) => updateJobStatus(executorJobId, jobInstance, updateJob)
     }
   }
 
-  private def submitJob(jobInstance: JobInstance, updateJob: JobInstance => Future[Unit])
+  private def submitJob(jobInstance: JobInstance, jobParameters: SparkParameters, updateJob: JobInstance => Future[Unit])
                        (implicit executionContext: ExecutionContext): Future[Unit] = {
     val id = randomUUID().toString
     val ji = jobInstance.copy(executorJobId = Some(id), jobStatus = Submitting)
     updateJob(ji).map { _ =>
       val submitTimeOut = SparkExecutorConfig.getSubmitTimeOut
       val latch = new CountDownLatch(1)
-      val sparkAppHandle = getSparkLauncher(id, ji.jobName, ji.jobParameters).startApplication(new SparkAppHandle.Listener {
+      val sparkAppHandle = getSparkLauncher(id, ji.jobName, jobParameters).startApplication(new SparkAppHandle.Listener {
         override def stateChanged(handle: SparkAppHandle): Unit =
           if (handle.getState == SparkAppHandle.State.SUBMITTED) {
             latch.countDown()
@@ -84,30 +84,28 @@ object SparkExecutor extends Executor {
     }
   }
 
-  private def getSparkLauncher(id: String, jobName: String, jobParameters: JobParameters): SparkLauncher = {
-    val sparkParameters = SparkParameters(jobParameters)
-
+  private def getSparkLauncher(id: String, jobName: String, jobParameters: SparkParameters): SparkLauncher = {
     val sparkLauncher = new SparkLauncher(Map(
       "HADOOP_CONF_DIR" -> SparkExecutorConfig.getHadoopConfDir,
       "SPARK_PRINT_LAUNCH_COMMAND" -> "1"
     ).asJava)
       .setMaster(SparkExecutorConfig.getMaster)
-      .setDeployMode(sparkParameters.deploymentMode)
-      .setMainClass(sparkParameters.mainClass)
-      .setAppResource(sparkParameters.jobJar)
+      .setDeployMode("cluster")
+      .setMainClass(jobParameters.mainClass)
+      .setAppResource(jobParameters.jobJar)
       .setSparkHome(SparkExecutorConfig.getSparkHome)
       .setAppName(jobName)
       .setConf("spark.yarn.tags", id)
-      .addAppArgs(sparkParameters.appArguments.toSeq:_*)
+      .addAppArgs(jobParameters.appArguments.toSeq:_*)
       .addSparkArg("--verbose")
       .redirectToLog(LoggerFactory.getLogger(s"SparkExecutor.executorJobId=$id").getName)
     SparkExecutorConfig.getFilesToDeploy.foreach(file => sparkLauncher.addFile(file))
     SparkExecutorConfig.getAdditionalConfs.foreach(conf => sparkLauncher.setConf(conf._1, conf._2))
-    sparkParameters.additionalJars.foreach(additionalJar => sparkLauncher.addJar(additionalJar))
-    sparkParameters.additionalFiles.foreach(additionalFile => sparkLauncher.addFile(additionalFile))
-    sparkParameters.additionalSparkConfig.foreach(conf => sparkLauncher.setConf(conf._1, conf._2))
-    mergeAdditionalSparkConfig(SparkExecutorConfig.getAdditionalConfs, sparkParameters.additionalSparkConfig)
-        .foreach(conf => sparkLauncher.setConf(conf._1, conf._2))
+    jobParameters.additionalJars.foreach(sparkLauncher.addJar)
+    jobParameters.additionalFiles.foreach(sparkLauncher.addFile)
+    jobParameters.additionalSparkConfig.foreach(conf => sparkLauncher.setConf(conf._1, conf._2))
+    mergeAdditionalSparkConfig(SparkExecutorConfig.getAdditionalConfs, jobParameters.additionalSparkConfig)
+      .foreach(conf => sparkLauncher.setConf(conf._1, conf._2))
 
     sparkLauncher
   }
@@ -132,5 +130,4 @@ object SparkExecutor extends Executor {
       case _ => Lost
     }
   }
-
 }

@@ -21,13 +21,13 @@ import slick.lifted.{ForeignKeyQuery, ProvenShape}
 
 trait EventTable {
   this: Profile with JdbcTypeMapper with SensorTable with DagInstanceTable =>
-  import  profile.api._
+  import api._
 
   final class EventTable(tag: Tag) extends Table[Event](tag, _tableName = "event") {
 
     def sensorEventId: Rep[String] = column[String]("sensor_event_id", O.Length(70), O.Unique)
     def sensorId: Rep[Long] = column[Long]("sensor_id")
-    def payload: Rep[JsValue] = column[JsValue]("payload")
+    def payload: Rep[JsValue] = column[JsValue]("payload", O.SqlType("JSONB"))
     def dagInstanceId: Rep[Option[Long]] = column[Option[Long]]("dag_instance_id")
     def id: Rep[Long] = column[Long]("id", O.PrimaryKey, O.AutoInc, O.SqlType("BIGSERIAL"))
 

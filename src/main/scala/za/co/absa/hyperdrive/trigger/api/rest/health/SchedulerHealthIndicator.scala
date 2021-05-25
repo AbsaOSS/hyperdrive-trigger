@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -13,19 +14,22 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.scheduler.executors.shell
+package za.co.absa.hyperdrive.trigger.api.rest.health
 
-import java.nio.file.Paths
+import org.springframework.boot.actuate.health.{Health, HealthIndicator}
+import org.springframework.stereotype.Component
+import za.co.absa.hyperdrive.trigger.HyperDriverManager
 
-import za.co.absa.hyperdrive.trigger.models.JobParameters
-import za.co.absa.hyperdrive.trigger.scheduler.utilities.ShellExecutorConfig
+import javax.inject.Inject
 
-case class ShellParameters(
-  scriptLocation: String
-)
+@Component
+class SchedulerHealthIndicator @Inject()(manager: HyperDriverManager) extends HealthIndicator {
 
-object ShellParameters {
-  def apply(jobParameters: JobParameters): ShellParameters = new ShellParameters(
-    scriptLocation = Paths.get(ShellExecutorConfig.getExecutablesFolder, jobParameters.variables("scriptLocation")).toString
-  )
+  override protected def health(): Health = {
+    if (manager.isManagerRunning) {
+      Health.up().build()
+    } else {
+      Health.down().build()
+    }
+  }
 }
