@@ -48,7 +48,9 @@ trait RepositoryTestBase extends Repository {
       dagInstanceTable.schema.create,
       jobInstanceTable.schema.create,
       eventTable.schema.create,
-      dagRunTable.schema.create
+      dagRunTable.schema.create,
+      notificationRuleTable.schema.create,
+      notificationRuleHistoryTable.schema.create
     )
     run(schema)
   }
@@ -65,7 +67,9 @@ trait RepositoryTestBase extends Repository {
       dagDefinitionTable.schema.drop,
       workflowTable.schema.drop,
       workflowHistoryTable.schema.drop,
-      schedulerInstanceTable.schema.drop
+      schedulerInstanceTable.schema.drop,
+      notificationRuleTable.schema.drop,
+      notificationRuleHistoryTable.schema.drop
     )
     run(schema)
   }
@@ -82,7 +86,9 @@ trait RepositoryTestBase extends Repository {
       workflowTable.delete,
       workflowHistoryTable.delete,
       dagRunTable.delete,
-      schedulerInstanceTable.delete
+      schedulerInstanceTable.delete,
+      notificationRuleTable.delete,
+      notificationRuleHistoryTable.delete
     )
     run(schema)
   }
@@ -187,6 +193,14 @@ trait RepositoryTestBase extends Repository {
       SchedulerInstance(22L, SchedulerInstanceStatuses.Active, LocalDateTime.of(2020, 1, 1, 2, 29, 55)),
       SchedulerInstance(31L, SchedulerInstanceStatuses.Deactivated, LocalDateTime.of(2020, 1, 1, 2, 29, 15))
     )
+
+    val nr1 = NotificationRule(Some("project"), Some("ABC XYZ"), None, Seq(DagInstanceStatuses.Failed, DagInstanceStatuses.Succeeded),
+      Seq("abc@xyz.com", "def@xyz.com"), created = LocalDateTime.now().plusDays(2), updated = None, id = 11L)
+    val nr2 = NotificationRule(Some("project2"), Some("DEF_123"), None, Seq(DagInstanceStatuses.Failed, DagInstanceStatuses.Skipped),
+      Seq("ghi.jkl@xyz.com"), created = LocalDateTime.now().plusDays(1), updated = None, id = 12L)
+    val nr3 = NotificationRule(Some("project3"), Some("ABC ABC"), None, Seq(DagInstanceStatuses.Skipped),
+      Seq("abc@xyz.com", "mno@xyz.com"), created = LocalDateTime.now(),updated = None, id = 13L)
+    val notificationRules = Seq(nr1, nr2, nr3)
   }
 
   object TestSensors {

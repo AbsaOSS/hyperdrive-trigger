@@ -107,6 +107,26 @@ create table "scheduler_instance" (
   "last_heartbeat" TIMESTAMP NOT NULL
 );
 
+create table "notification_rule" (
+  "id" BIGSERIAL NOT NULL PRIMARY KEY,
+  "project" VARCHAR,
+  "workflow_prefix" VARCHAR,
+  "min_elapsed_secs_last_success" BIGINT,
+  "statuses" JSONB NOT NULL DEFAULT '{}',
+  "recipients" JSONB NOT NULL DEFAULT '{}',
+  "created" TIMESTAMP NOT NULL,
+  "updated" TIMESTAMP
+);
+
+create table "notification_rule_history" (
+  "id" BIGSERIAL NOT NULL PRIMARY KEY,
+  "changed_on" TIMESTAMP NOT NULL,
+  "changed_by" VARCHAR NOT NULL,
+  "operation" VARCHAR NOT NULL,
+  "notification_rule_id" BIGINT NOT NULL,
+  "notification_rule" JSONB NOT NULL
+);
+
 alter table "job_instance"
   add constraint "job_instance_dag_instance_fk"
   foreign key("dag_instance_id")
