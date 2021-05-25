@@ -46,7 +46,7 @@ class EventProcessor(eventRepository: EventRepository,
               hasInQueueDagInstance <- dagInstanceRepository.hasInQueueDagInstance(joinedDagDefinition.workflowId)
               dagInstanceJoined <- dagInstanceService.createDagInstance(joinedDagDefinition, triggeredBy, hasInQueueDagInstance)
               dagInstanceJoinedEvents = newEvents.map(event => (dagInstanceJoined, event))
-              _ <- dagInstanceRepository.insertJoinedDagInstances(dagInstanceJoinedEvents)
+              _ <- dagInstanceRepository.insertJoinedDagInstancesWithEvents(dagInstanceJoinedEvents)
             } yield {
               true
             }

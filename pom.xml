@@ -17,7 +17,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <version>0.4.1</version>
+    <version>0.4.2</version>
     <groupId>za.co.absa</groupId>
     <artifactId>hyperdrive-trigger</artifactId>
     <packaging>jar</packaging>
@@ -41,7 +41,7 @@
         <connection>scm:git:git://github.com/AbsaOSS/hyperdrive-trigger.git</connection>
         <developerConnection>scm:git:ssh://github.com/AbsaOSS/hyperdrive-trigger.git</developerConnection>
         <url>https://github.com/AbsaOSS/hyperdrive-trigger/tree/master</url>
-        <tag>v0.4.1</tag>
+        <tag>v0.4.2</tag>
     </scm>
 
     <licenses>
@@ -84,7 +84,8 @@
 
         <scala.compat.version>2.11</scala.compat.version>
         <spark.version>2.4.4</spark.version>
-        <slick.version>3.3.2</slick.version>
+        <slick.version>3.3.3</slick.version>
+        <tminglei.version>0.19.6</tminglei.version>
         <slick-hikaricp.version>3.3.1</slick-hikaricp.version>
         <postgresql>42.2.6</postgresql>
         <kafka.version>2.2.0</kafka.version>
@@ -144,6 +145,16 @@
             <groupId>com.typesafe.slick</groupId>
             <artifactId>slick-hikaricp_${scala.compat.version}</artifactId>
             <version>${slick-hikaricp.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.tminglei</groupId>
+            <artifactId>slick-pg_${scala.compat.version}</artifactId>
+            <version>${tminglei.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.tminglei</groupId>
+            <artifactId>slick-pg_play-json_${scala.compat.version}</artifactId>
+            <version>${tminglei.version}</version>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>

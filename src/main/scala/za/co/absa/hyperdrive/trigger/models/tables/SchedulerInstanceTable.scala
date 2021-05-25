@@ -23,7 +23,7 @@ import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses.Sche
 
 trait SchedulerInstanceTable {
   this: Profile with JdbcTypeMapper =>
-  import profile.api._
+  import api._
 
   final class SchedulerInstanceTable(tag: Tag) extends Table[SchedulerInstance](tag, _tableName = "scheduler_instance") {
 

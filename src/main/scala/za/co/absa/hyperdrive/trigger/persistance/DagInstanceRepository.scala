@@ -22,7 +22,9 @@ import za.co.absa.hyperdrive.trigger.models.{DagInstance, DagInstanceJoined, Eve
 import scala.concurrent.{ExecutionContext, Future}
 
 trait DagInstanceRepository extends Repository {
-  def insertJoinedDagInstances(dagInstancesJoined: Seq[(DagInstanceJoined, Event)])(implicit executionContext: ExecutionContext): Future[Unit]
+  def insertJoinedDagInstancesWithEvents(dagInstancesJoined: Seq[(DagInstanceJoined, Event)])(implicit executionContext: ExecutionContext): Future[Unit]
+
+  def insertJoinedDagInstances(dagInstancesJoined: Seq[DagInstanceJoined])(implicit executionContext: ExecutionContext): Future[Unit]
 
   def insertJoinedDagInstance(dagInstanceJoined: DagInstanceJoined)(implicit executionContext: ExecutionContext): Future[Unit]
 
@@ -37,9 +39,9 @@ trait DagInstanceRepository extends Repository {
 
 @stereotype.Repository
 class DagInstanceRepositoryImpl extends DagInstanceRepository {
-  import profile.api._
+  import api._
 
-  override def insertJoinedDagInstances(dagInstancesJoined: Seq[(DagInstanceJoined, Event)])(implicit executionContext: ExecutionContext): Future[Unit] = db.run(
+  override def insertJoinedDagInstancesWithEvents(dagInstancesJoined: Seq[(DagInstanceJoined, Event)])(implicit executionContext: ExecutionContext): Future[Unit] = db.run(
     DBIO.sequence {
       dagInstancesJoined.map { dagInstanceJoined =>
         for {
@@ -51,12 +53,22 @@ class DagInstanceRepositoryImpl extends DagInstanceRepository {
     }.transactionally
   ).map(_ => (): Unit)
 
+  override def insertJoinedDagInstances(dagInstancesJoined: Seq[DagInstanceJoined])(implicit executionContext: ExecutionContext): Future[Unit] = db.run(
+    DBIO.sequence {
+      dagInstancesJoined.map(dagInstanceJoined => insertJoinedDagInstanceInternal(dagInstanceJoined))
+    }.transactionally
+  ).map(_ => (): Unit)
+
   override def insertJoinedDagInstance(dagInstanceJoined: DagInstanceJoined)(implicit executionContext: ExecutionContext): Future[Unit] = db.run(
-    (for {
+    insertJoinedDagInstanceInternal(dagInstanceJoined).transactionally
+  ).map(_ => (): Unit)
+
+  private def insertJoinedDagInstanceInternal(dagInstanceJoined: DagInstanceJoined)(implicit executionContext: ExecutionContext): DBIOAction[Unit, NoStream, Effect.Write] = {
+    for {
       di <- dagInstanceTable returning dagInstanceTable.map(_.id) += dagInstanceJoined.toDagInstance
       jis <- jobInstanceTable ++= dagInstanceJoined.jobInstances.map(_.copy(dagInstanceId = di))
-    } yield ()).transactionally
-  ).map(_ => (): Unit)
+    } yield ()
+  }
 
   def getDagsToRun(runningIds: Seq[Long], size: Int, assignedWorkflowIds: Seq[Long])(implicit executionContext: ExecutionContext): Future[Seq[DagInstance]] = {
     val prefilteredResult = db.run(

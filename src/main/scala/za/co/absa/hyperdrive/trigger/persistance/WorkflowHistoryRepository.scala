@@ -36,7 +36,7 @@ trait WorkflowHistoryRepository extends Repository {
 
 @stereotype.Repository
 class WorkflowHistoryRepositoryImpl extends WorkflowHistoryRepository {
-  import profile.api._
+  import api._
 
   private def insert(workflow: WorkflowJoined, user: String, operation: DBOperation)(implicit ec: ExecutionContext): DBIO[Long] = {
     val workflowHistory = WorkflowHistory(

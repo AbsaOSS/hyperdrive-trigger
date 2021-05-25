@@ -28,7 +28,7 @@ import za.co.absa.hyperdrive.trigger.persistance.Repository
 @Configuration
 @EnableConfigurationProperties(Array(classOf[LiquibaseProperties]))
 class LiquibaseConfiguration(properties: LiquibaseProperties) extends SpringLiquibase with Repository {
-  private val logger = LoggerFactory.getLogger(this.getClass)
+  private val configLogger = LoggerFactory.getLogger(this.getClass)
   @Value("${db.skip.liquibase:false}")
   val skipLiquibase: Boolean = false
 
@@ -40,12 +40,12 @@ class LiquibaseConfiguration(properties: LiquibaseProperties) extends SpringLiqu
     if (!skipLiquibase) {
       configureLiquibase()
     } else {
-      logger.info("Skipping Liquibase")
+      configLogger.info("Skipping Liquibase")
     }
   }
 
   private def configureLiquibase(): Unit = {
-    logger.info("Configuring Liquibase")
+    configLogger.info("Configuring Liquibase")
     applyProperties(properties)
     val connection = db.source.createConnection()
     var liquibaseOpt: Option[Liquibase] = None
@@ -53,7 +53,7 @@ class LiquibaseConfiguration(properties: LiquibaseProperties) extends SpringLiqu
       liquibaseOpt = Option(createLiquibase(connection))
       liquibaseOpt match {
         case Some(liquibase) => updateMigrations(liquibase)
-        case None => logger.error("Could not configure liquibase")
+        case None => configLogger.error("Could not configure liquibase")
       }
     } finally {
       liquibaseOpt.flatMap(liquibase => Option(liquibase.getDatabase)) match {
@@ -68,7 +68,7 @@ class LiquibaseConfiguration(properties: LiquibaseProperties) extends SpringLiqu
     if (!unrunChangeSets.isEmpty) {
       liquibase.update(contexts)
     } else {
-      logger.debug("Database schema is up-to-date")
+      configLogger.debug("Database schema is up-to-date")
     }
   }
 

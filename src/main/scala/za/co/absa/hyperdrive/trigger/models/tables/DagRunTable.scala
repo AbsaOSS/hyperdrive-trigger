@@ -23,7 +23,7 @@ import za.co.absa.hyperdrive.trigger.models.dagRuns.DagRun
 
 trait DagRunTable extends SearchableTableQuery {
   this: Profile with JdbcTypeMapper =>
-  import profile.api._
+  import api._
 
   final class DagRunTable(tag: Tag) extends Table[DagRun](tag, _tableName = "dag_run_view") with SearchableTable {
     def workflowId: Rep[Long] = column[Long]("workflow_id")
