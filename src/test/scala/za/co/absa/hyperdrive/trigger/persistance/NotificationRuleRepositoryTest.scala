@@ -206,14 +206,14 @@ class NotificationRuleRepositoryTest extends FlatSpec with Matchers with BeforeA
     exception.apiErrors should contain only GenericDatabaseError
   }
 
-  "searchJobTemplates" should "return notification rules sorted by status" in {
+  "searchJobTemplates" should "return notification rules sorted by workflow prefix" in {
     await(db.run(h2NotificationRuleTable.forceInsertAll(Seq(TestData.nr1, TestData.nr2, TestData.nr3))))
     val containsFilterAttributes = Option(Seq(
       ContainsFilterAttributes(field = "project", value = "proj")
     ))
     val searchRequest: TableSearchRequest = TableSearchRequest(
       containsFilterAttributes = containsFilterAttributes,
-      sort = Option(SortAttributes(by = "statuses", order = 1)),
+      sort = Option(SortAttributes(by = "workflowPrefix", order = 1)),
       from = 0,
       size = Integer.MAX_VALUE
     )
@@ -221,17 +221,17 @@ class NotificationRuleRepositoryTest extends FlatSpec with Matchers with BeforeA
     val result: TableSearchResponse[NotificationRule] = await(h2NotificationRuleRepository.searchNotificationRules(searchRequest))
     result.total shouldBe TestData.notificationRules.size
     result.items.size shouldBe TestData.notificationRules.size
-    result.items should contain theSameElementsInOrderAs Seq(TestData.nr2, TestData.nr1, TestData.nr3)
+    result.items should contain theSameElementsInOrderAs Seq(TestData.nr3, TestData.nr1, TestData.nr2)
   }
 
-  it should "return notification rules sorted by recipients" in {
+  it should "return notification rules sorted by created" in {
     await(db.run(h2NotificationRuleTable.forceInsertAll(Seq(TestData.nr1, TestData.nr2, TestData.nr3))))
     val containsFilterAttributes = Option(Seq(
       ContainsFilterAttributes(field = "project", value = "proj")
     ))
     val searchRequest: TableSearchRequest = TableSearchRequest(
       containsFilterAttributes = containsFilterAttributes,
-      sort = Option(SortAttributes(by = "recipients", order = 1)),
+      sort = Option(SortAttributes(by = "created", order = 1)),
       from = 0,
       size = Integer.MAX_VALUE
     )
@@ -239,7 +239,7 @@ class NotificationRuleRepositoryTest extends FlatSpec with Matchers with BeforeA
     val result: TableSearchResponse[NotificationRule] = await(h2NotificationRuleRepository.searchNotificationRules(searchRequest))
     result.total shouldBe TestData.notificationRules.size
     result.items.size shouldBe TestData.notificationRules.size
-    result.items should contain theSameElementsInOrderAs Seq(TestData.nr1, TestData.nr3, TestData.nr2)
+    result.items should contain theSameElementsInOrderAs Seq(TestData.nr3, TestData.nr2, TestData.nr1)
   }
 
   private def shouldBeEqualWithoutCreated(actual: NotificationRule, expected: NotificationRule) = {
