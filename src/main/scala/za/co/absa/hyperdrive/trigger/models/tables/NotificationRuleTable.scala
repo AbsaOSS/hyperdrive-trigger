@@ -55,8 +55,6 @@ trait NotificationRuleTable extends SearchableTableQuery {
       "project" -> this.project,
       "workflowPrefix" -> this.workflowPrefix,
       "minElapsedSecondsSinceLastSuccess" -> this.minElapsedSecondsSinceLastSuccess,
-      "statuses" -> this.statuses,
-      "recipients" -> this.recipients,
       "created" -> this.created,
       "updated" -> this.updated,
       "id" -> this.id
