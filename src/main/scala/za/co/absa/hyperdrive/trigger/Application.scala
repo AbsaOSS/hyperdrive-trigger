@@ -15,20 +15,20 @@
 
 package za.co.absa.hyperdrive.trigger
 
-import com.fasterxml.jackson.core.JsonParser
+import com.fasterxml.jackson.core.{JsonGenerator, JsonParser}
 import com.fasterxml.jackson.databind._
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
-import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.context.annotation.{Bean, Configuration}
 import org.springframework.scheduling.annotation.EnableAsync
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
+import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses.DagInstanceStatus
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.JobStatus
 import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
 import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes.SensorType
-import za.co.absa.hyperdrive.trigger.models.enums.{JobStatuses, JobTypes, SensorTypes}
+import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobStatuses, JobTypes, SensorTypes}
 
 @SpringBootApplication
 @EnableAsync
@@ -73,10 +73,26 @@ object ObjectMapperSingleton {
     }
   }
 
+  private class DagInstanceStatusesDeserializer extends JsonDeserializer[DagInstanceStatus] {
+    override def deserialize(p: JsonParser, ctxt: DeserializationContext): DagInstanceStatus = {
+      val node = p.getCodec.readTree[JsonNode](p)
+      val value = node.textValue()
+      DagInstanceStatuses.statuses.find(_.name == value).getOrElse(throw new Exception("Failed to find enum value"))
+    }
+  }
+
+  private class DagInstanceStatusesSerializer extends JsonSerializer[DagInstanceStatus] {
+    override def serialize(value: DagInstanceStatus, jsonGenerator: JsonGenerator, serializerProvider: SerializerProvider): Unit = {
+      jsonGenerator.writeString(value.name)
+    }
+  }
+
   private val module = new SimpleModule()
     .addDeserializer(classOf[SensorType], new SensorTypesDeserializer)
     .addDeserializer(classOf[JobStatus], new JobStatusesDeserializer)
     .addDeserializer(classOf[JobType], new JobTypesDeserializer)
+    .addDeserializer(classOf[DagInstanceStatus], new DagInstanceStatusesDeserializer)
+    .addSerializer(classOf[DagInstanceStatus], new DagInstanceStatusesSerializer)
 
   private val objectMapper = new ObjectMapper()
     .registerModule(DefaultScalaModule)
