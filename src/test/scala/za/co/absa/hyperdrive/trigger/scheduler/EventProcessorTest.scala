@@ -63,7 +63,7 @@ class EventProcessorTest extends FlatSpec with MockitoSugar with Matchers with B
     when(dagDefinitionRepository.getJoinedDagDefinition(eqTo(sensorId))(any[ExecutionContext])).thenReturn(Future{Some(dagDefinition)})
     when(dagInstanceRepository.hasInQueueDagInstance(any())(any[ExecutionContext])).thenReturn(Future{false})
     when(dagInstanceService.createDagInstance(any(), eqTo(triggeredBy), any())(any[ExecutionContext])).thenReturn(Future{dagInstanceJoined})
-    when(dagInstanceRepository.insertJoinedDagInstances(any())(any[ExecutionContext])).thenReturn(Future{(): Unit})
+    when(dagInstanceRepository.insertJoinedDagInstancesWithEvents(any())(any[ExecutionContext])).thenReturn(Future{(): Unit})
 
     // when
     await(underTest.eventProcessor(triggeredBy)(Seq(event), Properties(sensorId, Settings(Map.empty, Map.empty), Map.empty)))
@@ -74,7 +74,7 @@ class EventProcessorTest extends FlatSpec with MockitoSugar with Matchers with B
     booleanCaptor.getValue shouldBe false
 
     val dagInstanceCaptor = ArgumentCaptor.forClass(classOf[Seq[(DagInstanceJoined, Event)]])
-    verify(dagInstanceRepository).insertJoinedDagInstances(dagInstanceCaptor.capture())(any[ExecutionContext])
+    verify(dagInstanceRepository).insertJoinedDagInstancesWithEvents(dagInstanceCaptor.capture())(any[ExecutionContext])
 
     val insertedDagInstances: Seq[(DagInstanceJoined, Event)] = dagInstanceCaptor.getValue
     insertedDagInstances should have size 1
@@ -101,7 +101,7 @@ class EventProcessorTest extends FlatSpec with MockitoSugar with Matchers with B
     // then
     verify(dagDefinitionRepository, never()).getJoinedDagDefinition(any())(any[ExecutionContext])
     verify(dagInstanceService, never).createDagInstance(any(), eqTo(triggeredBy), any())(any[ExecutionContext])
-    verify(dagInstanceRepository, never()).insertJoinedDagInstances(any())(any[ExecutionContext])
+    verify(dagInstanceRepository, never()).insertJoinedDagInstancesWithEvents(any())(any[ExecutionContext])
   }
 
   "EventProcessor.eventProcessor" should "not persist a dag instance if there is no dag definition for event" in {
@@ -118,7 +118,7 @@ class EventProcessorTest extends FlatSpec with MockitoSugar with Matchers with B
     // then
     verify(dagDefinitionRepository).getJoinedDagDefinition(eqTo(sensorId))(any[ExecutionContext])
     verify(dagInstanceService, never).createDagInstance(any(), eqTo(triggeredBy), any())(any[ExecutionContext])
-    verify(dagInstanceRepository, never()).insertJoinedDagInstances(any())(any[ExecutionContext])
+    verify(dagInstanceRepository, never()).insertJoinedDagInstancesWithEvents(any())(any[ExecutionContext])
   }
 
   private def createEvent(sensorId: Long) = {

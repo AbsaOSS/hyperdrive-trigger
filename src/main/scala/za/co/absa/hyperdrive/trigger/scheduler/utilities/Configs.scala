@@ -125,3 +125,8 @@ object HealthConfig {
   lazy val yarnConnectionTestEndpoint: String =
     Configs.conf.getString("health.yarnConnection.testEndpoint")
 }
+
+object ApplicationConfig {
+  val maximumNumberOfWorkflowsInBulkRun: Int =
+    Try(Configs.conf.getInt("application.maximumNumberOfWorkflowsInBulkRun")).getOrElse(10)
+}

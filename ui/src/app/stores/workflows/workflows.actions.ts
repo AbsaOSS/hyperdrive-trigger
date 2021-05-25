@@ -77,6 +77,8 @@ export const LOAD_JOBS_FOR_RUN_FAILURE = 'LOAD_JOBS_FOR_RUN_FAILURE';
 export const RUN_JOBS = 'RUN_JOBS';
 export const RUN_JOBS_CANCEL = 'RUN_JOBS_CANCEL';
 
+export const RUN_WORKFLOWS = 'RUN_WORKFLOWS';
+
 export const LOAD_HISTORY_FOR_WORKFLOW = 'LOAD_HISTORY_FOR_WORKFLOW';
 export const LOAD_HISTORY_FOR_WORKFLOW_SUCCESS = 'LOAD_HISTORY_FOR_WORKFLOW_SUCCESS';
 export const LOAD_HISTORY_FOR_WORKFLOW_FAILURE = 'LOAD_HISTORY_FOR_WORKFLOW_FAILURE';
@@ -296,6 +298,11 @@ export class RunJobsCancel implements Action {
   readonly type = RUN_JOBS_CANCEL;
 }
 
+export class RunWorkflows implements Action {
+  readonly type = RUN_WORKFLOWS;
+  constructor(public payload: number[]) {}
+}
+
 export class LoadHistoryForWorkflow implements Action {
   readonly type = LOAD_HISTORY_FOR_WORKFLOW;
   constructor(public payload: number) {}
@@ -410,6 +417,7 @@ export type WorkflowsActions =
   | LoadJobsForRunFailure
   | RunJobs
   | RunJobsCancel
+  | RunWorkflows
   | LoadHistoryForWorkflow
   | LoadHistoryForWorkflowSuccess
   | LoadHistoryForWorkflowFailure
