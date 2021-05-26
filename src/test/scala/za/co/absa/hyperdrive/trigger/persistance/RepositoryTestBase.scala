@@ -17,9 +17,8 @@ package za.co.absa.hyperdrive.trigger.persistance
 
 import java.time.LocalDateTime
 import java.util.concurrent.TimeUnit
-
 import play.api.libs.json.{JsValue, Json}
-import slick.jdbc.{H2Profile, JdbcType}
+import slick.jdbc.JdbcType
 import za.co.absa.hyperdrive.trigger.TestUtils
 import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.models.dagRuns.DagRun
@@ -31,9 +30,14 @@ import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 import scala.util.Try
 
-trait RepositoryTestBase extends Repository {
+trait RepositoryTestBase extends RepositoryTestBaseBase {
+  import slick.jdbc.H2Profile
   val h2Profile = H2Profile
   override val profile = h2Profile
+}
+
+// TODO: Rename this to TestBase and the other to H2TestBase, rename h2SchemaSetup to schemaSetup etc.
+trait RepositoryTestBaseBase extends Repository {
   import api._
 
   def h2SchemaSetup(): Unit = {

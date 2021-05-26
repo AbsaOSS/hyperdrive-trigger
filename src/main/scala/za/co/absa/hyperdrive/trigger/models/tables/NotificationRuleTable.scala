@@ -15,6 +15,7 @@
 
 package za.co.absa.hyperdrive.trigger.models.tables
 
+import play.api.libs.json.{JsValue, Json}
 import slick.lifted.ProvenShape
 import za.co.absa.hyperdrive.trigger.models.NotificationRule
 import za.co.absa.hyperdrive.trigger.models.NotificationRule.Recipients
@@ -28,12 +29,19 @@ trait NotificationRuleTable extends SearchableTableQuery {
 
   final class NotificationRuleTable(tag: Tag) extends Table[NotificationRule](tag, _tableName = "notification_rule") with SearchableTable {
     def project: Rep[Option[String]] = column[Option[String]]("project")
+
     def workflowPrefix: Rep[Option[String]] = column[Option[String]]("workflow_prefix")
+
     def minElapsedSecondsSinceLastSuccess: Rep[Option[Long]] = column[Option[Long]]("min_elapsed_secs_last_success")
-    def statuses: Rep[Seq[DagInstanceStatus]] = column[Seq[DagInstanceStatus]]("statuses", O.SqlType("JSONB"))
+
+    def statuses: Rep[JsValue] = column[JsValue]("statuses", O.SqlType("JSONB"))
+
     def recipients: Rep[Recipients] = column[Recipients]("recipients", O.SqlType("JSONB"))
+
     def created: Rep[LocalDateTime] = column[LocalDateTime]("created")
+
     def updated: Rep[Option[LocalDateTime]] = column[Option[LocalDateTime]]("updated")
+
     def id: Rep[Long] = column[Long]("id", O.PrimaryKey, O.AutoInc, O.SqlType("BIGSERIAL"))
 
     def * : ProvenShape[NotificationRule] = (project, workflowPrefix, minElapsedSecondsSinceLastSuccess, statuses,
@@ -43,14 +51,15 @@ trait NotificationRuleTable extends SearchableTableQuery {
           project = notificationTuple._1,
           workflowPrefix = notificationTuple._2,
           minElapsedSecondsSinceLastSuccess = notificationTuple._3,
-          statuses = notificationTuple._4,
+          statuses = jsValue2DagInstanceStatus(notificationTuple._4),
           recipients = notificationTuple._5,
           created = notificationTuple._6,
           updated = notificationTuple._7,
           id = notificationTuple._8
         ),
-      NotificationRule.unapply
+      unapplyNotificationRule
     )
+
     override def fieldMapping: Map[String, Rep[_]] = Map(
       "project" -> this.project,
       "workflowPrefix" -> this.workflowPrefix,
@@ -61,8 +70,14 @@ trait NotificationRuleTable extends SearchableTableQuery {
     )
 
     override def defaultSortColumn: Rep[_] = id
-  }
 
+    private def dagInstanceStatus2JsValue(status: Seq[DagInstanceStatus]): JsValue = Json.toJson(status)
+
+    private def jsValue2DagInstanceStatus(jsValue: JsValue): Seq[DagInstanceStatus] = jsValue.as[Seq[DagInstanceStatus]]
+
+    private def unapplyNotificationRule(n: NotificationRule) =
+      NotificationRule.unapply(n).map(tuple => tuple.copy(_4 = dagInstanceStatus2JsValue(tuple._4)))
+  }
 
   lazy val notificationRuleTable = TableQuery[NotificationRuleTable]
 }

@@ -18,6 +18,7 @@ package za.co.absa.hyperdrive.trigger.persistance
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype
 import za.co.absa.hyperdrive.trigger.models._
+import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses.{DagInstanceStatus, dagInstanceStatus2String}
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, GenericDatabaseError, ValidationError}
 import za.co.absa.hyperdrive.trigger.models.search.{TableSearchRequest, TableSearchResponse}
 
@@ -39,6 +40,9 @@ trait NotificationRuleRepository extends Repository {
   def deleteNotificationRule(id: Long, user: String)(implicit ec: ExecutionContext): Future[Unit]
 
   def searchNotificationRules(tableSearchRequest: TableSearchRequest)(implicit ec: ExecutionContext): Future[TableSearchResponse[NotificationRule]]
+
+  def getMatchingNotificationRules(workflowId: Long, status: DagInstanceStatus, timestamp: LocalDateTime)(implicit ec: ExecutionContext): Future[Seq[NotificationRule]]
+
 }
 
 @stereotype.Repository
@@ -92,6 +96,10 @@ class NotificationRuleRepositoryImpl(override val notificationRuleHistoryReposit
     db.run(notificationRuleTable.search(searchRequest)
       .withErrorHandling(s"Unexpected error occurred when searching notification rules with request ${searchRequest}")
     )
+
+  override def getMatchingNotificationRules(workflowId: Long, status: DagInstanceStatus, timestamp: LocalDateTime)(implicit ec: ExecutionContext): Future[Seq[NotificationRule]] = {
+    db.run(notificationRuleTable.filter(_.statuses.??(dagInstanceStatus2String(status))).result)
+  }
 
   private def insertNotificationRuleInternal(notificationRule: NotificationRule, user: String)(implicit ec: ExecutionContext) = {
     val notificationRuleToInsert = notificationRule.copy(created = LocalDateTime.now())

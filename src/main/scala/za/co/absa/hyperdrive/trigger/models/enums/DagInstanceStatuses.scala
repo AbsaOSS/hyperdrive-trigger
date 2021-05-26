@@ -40,6 +40,8 @@ object DagInstanceStatuses {
 
   implicit val dagInstanceStatusesFormat: Format[Seq[DagInstanceStatus]] = Format[Seq[DagInstanceStatus]](
     JsPath.read[Seq[String]].map(_.map(convertStatusNameToDagInstanceStatus)),
-    Writes[Seq[DagInstanceStatus]] { statuses => JsArray(statuses.map(_.name).sorted.map(JsString))}
+    Writes[Seq[DagInstanceStatus]] { statuses => JsArray(statuses.map(dagInstanceStatus2String).sorted.map(JsString))}
   )
+
+  def dagInstanceStatus2String(status: DagInstanceStatus): String = status.name
 }
