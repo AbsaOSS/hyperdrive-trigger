@@ -41,7 +41,7 @@ trait NotificationRuleService {
 
   def searchNotificationRules(tableSearchRequest: TableSearchRequest)(implicit ec: ExecutionContext): Future[TableSearchResponse[NotificationRule]]
 
-  def getMatchingNotificationRules(workflowId: Long, status: DagInstanceStatus)(implicit ec: ExecutionContext): Future[Seq[(NotificationRule, Workflow)]]
+  def getMatchingNotificationRules(workflowId: Long, status: DagInstanceStatus)(implicit ec: ExecutionContext): Future[(Seq[NotificationRule], Workflow)]
 
 }
 
@@ -79,8 +79,7 @@ class NotificationRuleServiceImpl(override val notificationRuleRepository: Notif
     notificationRuleRepository.searchNotificationRules(tableSearchRequest)
   }
 
-  override def getMatchingNotificationRules(workflowId: Long, status: DagInstanceStatus)(implicit ec: ExecutionContext): Future[Seq[(NotificationRule, Workflow)]] = {
+  override def getMatchingNotificationRules(workflowId: Long, status: DagInstanceStatus)(implicit ec: ExecutionContext): Future[(Seq[NotificationRule], Workflow)] = {
     notificationRuleRepository.getMatchingNotificationRules(workflowId, status, LocalDateTime.now())
   }
-
 }

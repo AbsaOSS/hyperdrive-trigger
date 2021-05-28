@@ -15,12 +15,9 @@
 
 package za.co.absa.hyperdrive.trigger.persistance
 
-import org.scalatest.{FlatSpec, Matchers, BeforeAndAfterAll, BeforeAndAfterEach}
-import org.testcontainers.containers.PostgreSQLContainer
-import slick.jdbc.PostgresProfile
-import za.co.absa.hyperdrive.trigger.models.{DagInstance, NotificationRule, Workflow}
+import org.scalatest.{FlatSpec, Matchers}
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses._
-import za.co.absa.hyperdrive.trigger.models.search.{ContainsFilterAttributes, SortAttributes, TableSearchRequest, TableSearchResponse}
+import za.co.absa.hyperdrive.trigger.models.{DagInstance, NotificationRule, Workflow}
 
 import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -47,7 +44,8 @@ class NotificationRuleRepositoryPostgresTest extends FlatSpec with Matchers with
     await(db.run(notificationRuleTable.forceInsertAll(Seq(nr10, nr11, nr12, nr13, nr20))))
 
     val result = await(notificationRuleRepository.getMatchingNotificationRules(workflowId, Failed, LocalDateTime.now()))
-    result should contain theSameElementsAs Seq((nr10, w1), (nr11, w1), (nr12, w1), (nr13, w1))
+    result._1 should contain theSameElementsAs Seq(nr10, nr11, nr12, nr13)
+    result._2 shouldBe w1
   }
 
   it should "return rules matching the workflow name" in {
@@ -64,7 +62,8 @@ class NotificationRuleRepositoryPostgresTest extends FlatSpec with Matchers with
     await(db.run(notificationRuleTable.forceInsertAll(Seq(nr10, nr11, nr12, nr13, nr20))))
 
     val result = await(notificationRuleRepository.getMatchingNotificationRules(workflowId, Failed, LocalDateTime.now()))
-    result should contain theSameElementsAs Seq((nr10, w1), (nr11, w1), (nr12, w1), (nr13, w1))
+    result._1 should contain theSameElementsAs Seq(nr10, nr11, nr12, nr13)
+    result._2 shouldBe w1
   }
 
   it should "return rules matching the status" in {
@@ -80,7 +79,8 @@ class NotificationRuleRepositoryPostgresTest extends FlatSpec with Matchers with
     await(db.run(notificationRuleTable.forceInsertAll(Seq(nr10, nr11, nr20, nr21))))
 
     val result = await(notificationRuleRepository.getMatchingNotificationRules(workflowId, Failed, LocalDateTime.now()))
-    result should contain theSameElementsAs Seq((nr10, w1), (nr11, w1))
+    result._1 should contain theSameElementsAs Seq(nr10, nr11)
+    result._2 shouldBe w1
   }
 
   it should "return rules whose threshold for the time since the last success is lower than the actual time since last success" in {
@@ -103,7 +103,8 @@ class NotificationRuleRepositoryPostgresTest extends FlatSpec with Matchers with
     await(db.run(notificationRuleTable.forceInsertAll(Seq(nr10, nr11, nr12, nr20))))
 
     val result = await(notificationRuleRepository.getMatchingNotificationRules(workflowId, Failed, LocalDateTime.now()))
-    result should contain theSameElementsAs Seq((nr10, w1), (nr11, w1), (nr12, w1))
+    result._1 should contain theSameElementsAs Seq(nr10, nr11, nr12)
+    result._2 shouldBe w1
   }
 
   it should "return rules if no dag instances exist yet even if a threshold is set" in {
@@ -118,6 +119,7 @@ class NotificationRuleRepositoryPostgresTest extends FlatSpec with Matchers with
     await(db.run(notificationRuleTable.forceInsertAll(Seq(nr10, nr11, nr12))))
 
     val result = await(notificationRuleRepository.getMatchingNotificationRules(workflowId, Failed, LocalDateTime.now()))
-    result should contain theSameElementsAs Seq((nr10, w1), (nr11, w1), (nr12, w1))
+    result._1 should contain theSameElementsAs Seq(nr10, nr11, nr12)
+    result._2 shouldBe w1
   }
 }

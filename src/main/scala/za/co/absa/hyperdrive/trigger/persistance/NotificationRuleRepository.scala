@@ -23,7 +23,7 @@ import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses.{DagInstan
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, GenericDatabaseError, ValidationError}
 import za.co.absa.hyperdrive.trigger.models.search.{TableSearchRequest, TableSearchResponse}
 
-import java.time.{Duration, LocalDateTime}
+import java.time.LocalDateTime
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
@@ -42,7 +42,7 @@ trait NotificationRuleRepository extends Repository {
 
   def searchNotificationRules(tableSearchRequest: TableSearchRequest)(implicit ec: ExecutionContext): Future[TableSearchResponse[NotificationRule]]
 
-  def getMatchingNotificationRules(workflowId: Long, status: DagInstanceStatus, timestamp: LocalDateTime)(implicit ec: ExecutionContext): Future[Seq[(NotificationRule, Workflow)]]
+  def getMatchingNotificationRules(workflowId: Long, status: DagInstanceStatus, currentTime: LocalDateTime)(implicit ec: ExecutionContext): Future[(Seq[NotificationRule], Workflow)]
 
 }
 
@@ -98,9 +98,9 @@ class NotificationRuleRepositoryImpl(override val notificationRuleHistoryReposit
       .withErrorHandling(s"Unexpected error occurred when searching notification rules with request ${searchRequest}")
     )
 
-  override def getMatchingNotificationRules(workflowId: Long, status: DagInstanceStatus, currentTime: LocalDateTime)(implicit ec: ExecutionContext): Future[Seq[(NotificationRule, Workflow)]] = {
+  override def getMatchingNotificationRules(workflowId: Long, status: DagInstanceStatus, currentTime: LocalDateTime)(implicit ec: ExecutionContext): Future[(Seq[NotificationRule], Workflow)] = {
     val lastSucceededDagSubQuery = dagInstanceTable
-      .filter(_.status.inSetBind(Set(DagInstanceStatuses.Succeeded)))
+      .filter(_.status.inSet(Set(DagInstanceStatuses.Succeeded)))
       .filter(_.workflowId === LiteralColumn[Long](workflowId).bind)
       .filter(_.finished.isDefined)
       .sortBy(_.finished.desc)
@@ -123,6 +123,7 @@ class NotificationRuleRepositoryImpl(override val notificationRuleHistoryReposit
         }
         .map { case ((n, w), _) => (n, w)}
         .result
+        .map(notificationRuleWorkflows => (notificationRuleWorkflows.map(_._1), notificationRuleWorkflows.head._2))
     )
   }
 
