@@ -54,7 +54,6 @@ class DagInstanceServiceTest extends AsyncFlatSpec with Matchers with MockitoSug
 
     val jobInstance1 = dagInstance.jobInstances.head
     val jobDefinition1 = resolvedJobDefinitions.head
-    jobInstance1.jobType shouldBe jobDefinition1.jobType
     jobInstance1.jobName shouldBe jobDefinition1.name
     jobInstance1.jobParameters shouldBe SparkParameters(jobDefinition1.jobParameters)
     jobInstance1.jobStatus shouldBe JobStatuses.InQueue
@@ -66,7 +65,6 @@ class DagInstanceServiceTest extends AsyncFlatSpec with Matchers with MockitoSug
 
     val jobInstance2 = dagInstance.jobInstances(1)
     val jobDefinition2 = resolvedJobDefinitions(1)
-    jobInstance2.jobType shouldBe jobDefinition2.jobType
     jobInstance2.jobName shouldBe jobDefinition2.name
     jobInstance2.jobParameters shouldBe ShellParameters(jobDefinition2.jobParameters)
     jobInstance2.order shouldBe jobDefinition2.order

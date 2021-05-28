@@ -18,7 +18,7 @@ import { JobType } from './jobType.model';
 export type JobInstanceModel = {
   id: number;
   jobName: string;
-  jobType: JobType;
+  jobParameters: JobInstanceParametersModel;
   applicationId: string;
   created: Date;
   updated: Date;
@@ -34,7 +34,7 @@ export class JobInstanceModelFactory {
   static create(
     id: number,
     jobName: string,
-    jobType: JobType,
+    jobParameters: JobInstanceParametersModel,
     applicationId: string,
     created: Date,
     updated: Date,
@@ -44,7 +44,7 @@ export class JobInstanceModelFactory {
     return {
       id: id,
       jobName: jobName,
-      jobType: jobType,
+      jobParameters: jobParameters,
       applicationId: applicationId,
       created: created,
       updated: updated,
@@ -57,5 +57,17 @@ export class JobInstanceModelFactory {
 export class JobStatusFactory {
   static create(name: string): JobStatus {
     return { name: name };
+  }
+}
+
+export type JobInstanceParametersModel = {
+  jobType: JobType;
+};
+
+export class JobInstanceParametersModelFactory {
+  static create(jobType: JobType): JobInstanceParametersModel {
+    return {
+      jobType: jobType,
+    };
   }
 }

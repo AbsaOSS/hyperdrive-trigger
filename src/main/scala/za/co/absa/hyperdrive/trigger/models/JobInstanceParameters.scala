@@ -17,15 +17,19 @@
 package za.co.absa.hyperdrive.trigger.models
 
 import java.nio.file.Paths
-
 import play.api.libs.json.{Format, JsResult, JsValue, Json, OFormat}
+import za.co.absa.hyperdrive.trigger.models.enums.JobTypes
+import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
 import za.co.absa.hyperdrive.trigger.scheduler.utilities.{ShellExecutorConfig, SparkExecutorConfig}
 
 import scala.util.Try
 
-sealed trait JobInstanceParameters
+sealed trait JobInstanceParameters {
+  val jobType: JobType
+}
 
 case class SparkParameters(
+  jobType: JobType = JobTypes.Spark,
   jobJar: String,
   mainClass: String,
   appArguments: List[String] = List.empty[String],
@@ -35,6 +39,7 @@ case class SparkParameters(
 ) extends JobInstanceParameters
 
 case class ShellParameters(
+  jobType: JobType = JobTypes.Shell,
   scriptLocation: String
 ) extends JobInstanceParameters
 
@@ -62,13 +67,17 @@ object ShellParameters {
 }
 
 object JobInstanceParameters {
-  implicit val jobParametersFormat: Format[JobInstanceParameters] = new Format[JobInstanceParameters] {
-    override def writes(o: JobInstanceParameters): JsValue = o match {
-      case spark: SparkParameters => Json.toJson(spark)
-      case shell: ShellParameters => Json.toJson(shell)
+  implicit val jobParametersFormat = new Format[JobInstanceParameters] {
+    override def reads(json: JsValue): JsResult[JobInstanceParameters] = {
+      (json \ "jobType").as[String] match {
+        case JobTypes.Spark.name => SparkParameters.sparkFormat.reads(json)
+        case JobTypes.Shell.name => ShellParameters.shellFormat.reads(json)
+      }
     }
-    override def reads(json: JsValue): JsResult[JobInstanceParameters] =
-      SparkParameters.sparkFormat.reads(json).orElse(
-        ShellParameters.shellFormat.reads(json))
+
+    override def writes(jobInstanceParameters: JobInstanceParameters): JsValue = jobInstanceParameters match {
+      case sparkParameters: SparkParameters => SparkParameters.sparkFormat.writes(sparkParameters)
+      case shellParameters: ShellParameters => ShellParameters.shellFormat.writes(shellParameters)
+    }
   }
 }

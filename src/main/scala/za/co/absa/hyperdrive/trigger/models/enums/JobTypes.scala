@@ -15,6 +15,8 @@
 
 package za.co.absa.hyperdrive.trigger.models.enums
 
+import play.api.libs.json.{Format, JsPath, JsString, Writes}
+
 object JobTypes {
 
   sealed abstract class JobType(val name: String) {
@@ -26,4 +28,14 @@ object JobTypes {
 
   val jobTypes: Set[JobType] = Set(Spark, Shell)
 
+  def convertJobTypeNameToJobType(jobType: String): JobType = {
+    JobTypes.jobTypes.find(_.name == jobType).getOrElse(
+      throw new Exception(s"Couldn't find JobType: $jobType")
+    )
+  }
+
+  implicit val jobTypesFormat: Format[JobType] = Format[JobType](
+    JsPath.read[String].map(convertJobTypeNameToJobType),
+    Writes[JobType] { jobType => JsString(jobType.name) }
+  )
 }
