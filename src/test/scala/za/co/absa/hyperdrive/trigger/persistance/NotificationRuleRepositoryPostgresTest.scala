@@ -25,35 +25,13 @@ import za.co.absa.hyperdrive.trigger.models.search.{ContainsFilterAttributes, So
 import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class NotificationRuleRepositoryPostgresTest extends FlatSpec with Matchers with BeforeAndAfterAll
-  with BeforeAndAfterEach with RepositoryTestBaseBase {
+class NotificationRuleRepositoryPostgresTest extends FlatSpec with Matchers with RepositoryPostgresTestBase {
 
-  override val profile = PostgresProfile
   import api._
 
   private val notificationRuleHistoryRepository: NotificationRuleHistoryRepository = new NotificationRuleHistoryRepositoryImpl()
 
   private val notificationRuleRepository: NotificationRuleRepository = new NotificationRuleRepositoryImpl(notificationRuleHistoryRepository)
-
-  override def beforeAll: Unit = {
-    val postgresVersion = "12.7"
-    System.setProperty("db.driver", "org.testcontainers.jdbc.ContainerDatabaseDriver")
-    System.setProperty("db.url", s"jdbc:tc:postgresql:${postgresVersion}:///test")
-    System.setProperty("db.user", "test")
-    System.setProperty("db.password", "test")
-
-    new PostgreSQLContainer(s"postgres:${postgresVersion}")
-
-    h2SchemaSetup()
-  }
-
-  override def afterAll: Unit = {
-    h2SchemaDrop()
-  }
-
-  override def afterEach: Unit = {
-    clearData()
-  }
 
   "getMatchingNotificationRules" should "return rules matching the project name" in {
     val workflowId = 1L

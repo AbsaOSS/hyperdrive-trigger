@@ -16,8 +16,34 @@
 
 package za.co.absa.hyperdrive.trigger.persistance
 
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, Suite}
+import org.testcontainers.containers.PostgreSQLContainer
 import slick.jdbc.PostgresProfile
 
-trait RepositoryPostgresTestBase extends RepositoryTestBaseBase {
+trait RepositoryPostgresTestBase extends Suite with RepositoryTestBaseBase with BeforeAndAfterAll with BeforeAndAfterEach {
   override val profile = PostgresProfile
+
+  override def beforeAll: Unit = {
+    val postgresVersion = "12.7"
+    val defaultDatabaseName = "test"
+    val defaultUser = "test"
+    val defaultPassword = "test"
+    System.setProperty("db.driver", "org.testcontainers.jdbc.ContainerDatabaseDriver")
+    System.setProperty("db.url", s"jdbc:tc:postgresql:${postgresVersion}:///${defaultDatabaseName}")
+    System.setProperty("db.user", defaultUser)
+    System.setProperty("db.password", defaultPassword)
+
+    new PostgreSQLContainer(s"postgres:${postgresVersion}")
+
+    h2SchemaSetup()
+  }
+
+  override def afterAll: Unit = {
+    h2SchemaDrop()
+  }
+
+  override def afterEach: Unit = {
+    clearData()
+  }
+
 }
