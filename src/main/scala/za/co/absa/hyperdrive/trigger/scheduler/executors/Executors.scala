@@ -17,7 +17,6 @@ package za.co.absa.hyperdrive.trigger.scheduler.executors
 
 import java.time.LocalDateTime
 import java.util.concurrent
-
 import javax.inject.Inject
 import za.co.absa.hyperdrive.trigger.models.{DagInstance, JobInstance, ShellParameters, SparkParameters}
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.InvalidExecutor
@@ -28,12 +27,14 @@ import za.co.absa.hyperdrive.trigger.scheduler.utilities.ExecutorsConfig
 import org.slf4j.LoggerFactory
 import za.co.absa.hyperdrive.trigger.scheduler.executors.shell.ShellExecutor
 import org.springframework.stereotype.Component
+import za.co.absa.hyperdrive.trigger.scheduler.notifications.NotificationSender
 
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success}
 
 @Component
-class Executors @Inject()(dagInstanceRepository: DagInstanceRepository, jobInstanceRepository: JobInstanceRepository) {
+class Executors @Inject()(dagInstanceRepository: DagInstanceRepository, jobInstanceRepository: JobInstanceRepository,
+                          notificationSender: NotificationSender) {
   private val logger = LoggerFactory.getLogger(this.getClass)
 
   private implicit val executionContext: ExecutionContextExecutor =
@@ -42,11 +43,18 @@ class Executors @Inject()(dagInstanceRepository: DagInstanceRepository, jobInsta
   def executeDag(dagInstance: DagInstance): Future[Unit] = {
     jobInstanceRepository.getJobInstances(dagInstance.id).flatMap {
       case jobInstances if jobInstances.exists(_.jobStatus.isFailed) =>
-        jobInstanceRepository.updateJobsStatus(jobInstances.filter(!_.jobStatus.isFinalStatus).map(_.id), JobStatuses.FailedPreviousJob).flatMap(_=>
-          dagInstanceRepository.update(dagInstance.copy(status = DagInstanceStatuses.Failed, finished = Option(LocalDateTime.now())))
-        )
+        val updatedDagInstance = dagInstance.copy(status = DagInstanceStatuses.Failed, finished = Option(LocalDateTime.now()))
+        for {
+          _ <- jobInstanceRepository.updateJobsStatus(jobInstances.filter(!_.jobStatus.isFinalStatus).map(_.id), JobStatuses.FailedPreviousJob)
+          _ <- dagInstanceRepository.update(updatedDagInstance)
+          _ <- notificationSender.sendNotifications(updatedDagInstance, jobInstances)
+        } yield {}
       case jobInstances if jobInstances.forall(ji => ji.jobStatus.isFinalStatus && !ji.jobStatus.isFailed) =>
-        dagInstanceRepository.update(dagInstance.copy(status = DagInstanceStatuses.Succeeded, finished = Option(LocalDateTime.now())))
+        val updatedDagInstance = dagInstance.copy(status = DagInstanceStatuses.Succeeded, finished = Option(LocalDateTime.now()))
+        for {
+          _ <- dagInstanceRepository.update(updatedDagInstance)
+          _ <- notificationSender.sendNotifications(updatedDagInstance, jobInstances)
+        } yield {}
       case jobInstances =>
         val jobInstance = jobInstances.filter(!_.jobStatus.isFinalStatus).sortBy(_.order).headOption
         val fut = dagInstanceRepository.update(dagInstance.copy(status = DagInstanceStatuses.Running)).flatMap { _ =>
