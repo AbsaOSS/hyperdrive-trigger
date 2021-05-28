@@ -18,11 +18,12 @@ package za.co.absa.hyperdrive.trigger.persistance
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype
 import za.co.absa.hyperdrive.trigger.models._
+import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses.{DagInstanceStatus, dagInstanceStatus2String}
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, GenericDatabaseError, ValidationError}
 import za.co.absa.hyperdrive.trigger.models.search.{TableSearchRequest, TableSearchResponse}
 
-import java.time.LocalDateTime
+import java.time.{Duration, LocalDateTime}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
@@ -41,7 +42,7 @@ trait NotificationRuleRepository extends Repository {
 
   def searchNotificationRules(tableSearchRequest: TableSearchRequest)(implicit ec: ExecutionContext): Future[TableSearchResponse[NotificationRule]]
 
-  def getMatchingNotificationRules(workflowId: Long, status: DagInstanceStatus, timestamp: LocalDateTime)(implicit ec: ExecutionContext): Future[Seq[NotificationRule]]
+  def getMatchingNotificationRules(workflowId: Long, status: DagInstanceStatus, timestamp: LocalDateTime)(implicit ec: ExecutionContext): Future[Seq[(NotificationRule, Workflow)]]
 
 }
 
@@ -97,8 +98,32 @@ class NotificationRuleRepositoryImpl(override val notificationRuleHistoryReposit
       .withErrorHandling(s"Unexpected error occurred when searching notification rules with request ${searchRequest}")
     )
 
-  override def getMatchingNotificationRules(workflowId: Long, status: DagInstanceStatus, timestamp: LocalDateTime)(implicit ec: ExecutionContext): Future[Seq[NotificationRule]] = {
-    db.run(notificationRuleTable.filter(_.statuses.??(dagInstanceStatus2String(status))).result)
+  override def getMatchingNotificationRules(workflowId: Long, status: DagInstanceStatus, currentTime: LocalDateTime)(implicit ec: ExecutionContext): Future[Seq[(NotificationRule, Workflow)]] = {
+    val lastSucceededDagSubQuery = dagInstanceTable
+      .filter(_.status.inSetBind(Set(DagInstanceStatuses.Succeeded)))
+      .filter(_.workflowId === LiteralColumn[Long](workflowId).bind)
+      .filter(_.finished.isDefined)
+      .sortBy(_.finished.desc)
+      .take(1)
+      .map(_.finished)
+    db.run(
+      notificationRuleTable
+        .filter(_.statuses.??(LiteralColumn[String](dagInstanceStatus2String(status))))
+        .join(workflowTable).on((_, w) => w.id === LiteralColumn[Long](workflowId).bind)
+        .filter { case (n, w) => n.workflowPrefix.isEmpty ||
+          n.workflowPrefix.length === 0 ||
+          w.name.toLowerCase.like(n.workflowPrefix.toLowerCase ++ LiteralColumn[String]("%"))}
+        .filter { case (n, w) => n.project.isEmpty ||
+          n.project.length === 0 ||
+          w.project.toLowerCase === n.project.toLowerCase}
+        .joinLeft(lastSucceededDagSubQuery)
+        .filter { case ((n, _), lastSuccess) => lastSuccess.isEmpty ||
+            n.minElapsedSecondsSinceLastSuccess.isEmpty ||
+            (LiteralColumn[LocalDateTime](currentTime) - lastSuccess.flatten).part("epoch") >= n.minElapsedSecondsSinceLastSuccess.asColumnOf[Double]
+        }
+        .map { case ((n, w), _) => (n, w)}
+        .result
+    )
   }
 
   private def insertNotificationRuleInternal(notificationRule: NotificationRule, user: String)(implicit ec: ExecutionContext) = {
