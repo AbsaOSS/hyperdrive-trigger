@@ -24,17 +24,13 @@ import za.co.absa.hyperdrive.trigger.{HyperDriverManager, SpringIntegrationTest}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class TestApplicationStart extends FlatSpec with Matchers with SpringIntegrationTest with RepositoryH2TestBase {
+class TestApplicationStart extends FlatSpec with Matchers with SpringIntegrationTest with RepositoryPostgresTestBase {
 
   @Inject() var hyperDriverManager: HyperDriverManager = _
 
-  private val workflowHistoryRepository: WorkflowHistoryRepository = new WorkflowHistoryRepositoryImpl {
-    override val profile = h2Profile
-  }
+  private val workflowHistoryRepository: WorkflowHistoryRepository = new WorkflowHistoryRepositoryImpl()
 
-  private val workflowRepository: WorkflowRepository = new WorkflowRepositoryImpl(workflowHistoryRepository) {
-    override val profile = h2Profile
-  }
+  private val workflowRepository: WorkflowRepository = new WorkflowRepositoryImpl(workflowHistoryRepository)
 
   it should "start the application, including sql migrations, and be able to insert and select from the DB" in {
     hyperDriverManager.isManagerRunning shouldBe true
@@ -45,6 +41,6 @@ class TestApplicationStart extends FlatSpec with Matchers with SpringIntegration
     workflows.head.name shouldBe workflowJoined.name
 
     // cleanup
-    h2SchemaDrop()
+    dropDatabase()
   }
 }
