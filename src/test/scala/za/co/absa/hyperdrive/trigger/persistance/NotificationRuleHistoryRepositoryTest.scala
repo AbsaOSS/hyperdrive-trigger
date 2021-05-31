@@ -24,7 +24,7 @@ import za.co.absa.hyperdrive.trigger.models.enums.DBOperation.DBOperation
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class NotificationRuleHistoryRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryTestBase {
+class NotificationRuleHistoryRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryH2TestBase {
   import api._
 
   private val h2NotificationRuleHistoryRepository: NotificationRuleHistoryRepository =

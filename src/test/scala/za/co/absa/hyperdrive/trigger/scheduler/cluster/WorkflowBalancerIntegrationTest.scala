@@ -24,7 +24,7 @@ import za.co.absa.hyperdrive.trigger.persistance._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 
-class WorkflowBalancerIntegrationTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryTestBase {
+class WorkflowBalancerIntegrationTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryH2TestBase {
   import api._
 
   private val schedulerInstanceRepository: SchedulerInstanceRepository = new SchedulerInstanceRepositoryImpl {

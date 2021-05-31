@@ -28,7 +28,7 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class WorkflowRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach
-  with RepositoryTestBase with MockitoSugar {
+  with RepositoryH2TestBase with MockitoSugar {
 
   val workflowHistoryRepositoryMock: WorkflowHistoryRepository = mock[WorkflowHistoryRepository]
   val workflowHistoryRepository: WorkflowHistoryRepository = new WorkflowHistoryRepositoryImpl() {

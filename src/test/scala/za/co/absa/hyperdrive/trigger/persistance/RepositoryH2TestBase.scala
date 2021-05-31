@@ -31,7 +31,7 @@ import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 import scala.util.Try
 
-trait RepositoryTestBase extends Repository {
+trait RepositoryH2TestBase extends Repository {
   val h2Profile = H2Profile
   override val profile = h2Profile
   import api._

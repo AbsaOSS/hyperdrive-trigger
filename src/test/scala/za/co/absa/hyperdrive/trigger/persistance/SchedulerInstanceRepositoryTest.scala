@@ -23,7 +23,7 @@ import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class SchedulerInstanceRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryTestBase {
+class SchedulerInstanceRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryH2TestBase {
   import api._
 
   val schedulerInstanceRepository: SchedulerInstanceRepository = new SchedulerInstanceRepositoryImpl { override val profile = h2Profile }

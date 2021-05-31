@@ -19,9 +19,9 @@ package za.co.absa.hyperdrive.trigger.models.tables
 import java.time.LocalDateTime
 
 import slick.lifted.ProvenShape
-import za.co.absa.hyperdrive.trigger.persistance.RepositoryTestBase
+import za.co.absa.hyperdrive.trigger.persistance.RepositoryH2TestBase
 
-trait TestSearchableRepositoryTestBase extends RepositoryTestBase with TestSearchableTable {
+trait TestSearchableRepositoryTestBase extends RepositoryH2TestBase with TestSearchableTable {
 
   import api._
 
