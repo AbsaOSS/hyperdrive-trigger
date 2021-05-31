@@ -40,8 +40,5 @@ class ApplicationStartPostgresTest extends FlatSpec with Matchers with SpringInt
     val workflows = await(workflowRepository.getWorkflows())
     workflows.size shouldBe 1
     workflows.head.name shouldBe workflowJoined.name
-
-    // cleanup
-    dropDatabase()
   }
 }

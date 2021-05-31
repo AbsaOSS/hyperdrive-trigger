@@ -37,9 +37,4 @@ trait RepositoryPostgresTestBase extends RepositoryTestBase with BeforeAndAfterA
 
     super.beforeAll()
   }
-
-  def dropDatabase(): Unit = {
-    import api._
-    sql"drop database ${defaultDatabaseName}"
-  }
 }
