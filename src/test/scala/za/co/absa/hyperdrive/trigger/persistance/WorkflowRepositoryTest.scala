@@ -46,11 +46,11 @@ class WorkflowRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterA
   import api._
 
   override def beforeAll: Unit = {
-    h2SchemaSetup()
+    schemaSetup()
   }
 
   override def afterAll: Unit = {
-    h2SchemaDrop()
+    schemaDrop()
   }
 
   override def beforeEach: Unit = {

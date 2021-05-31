@@ -44,11 +44,11 @@ class WorkflowBalancerIntegrationTest extends FlatSpec with Matchers with Before
   private val baseWorkflow = Workflow(name = "workflow", isActive = true, project = "project", updated = None)
   private val random = new scala.util.Random(0)
   override def beforeAll: Unit = {
-    h2SchemaSetup()
+    schemaSetup()
   }
 
   override def afterAll: Unit = {
-    h2SchemaDrop()
+    schemaDrop()
   }
 
   override def afterEach: Unit = {

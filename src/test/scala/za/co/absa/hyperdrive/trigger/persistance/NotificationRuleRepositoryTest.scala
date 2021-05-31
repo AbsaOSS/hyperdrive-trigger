@@ -48,11 +48,11 @@ class NotificationRuleRepositoryTest extends FlatSpec with Matchers with BeforeA
   private val emailGhi = "ghi@xyz.com"
 
   override def beforeAll: Unit = {
-    h2SchemaSetup()
+    schemaSetup()
   }
 
   override def afterAll: Unit = {
-    h2SchemaDrop()
+    schemaDrop()
   }
 
   override def afterEach: Unit = {

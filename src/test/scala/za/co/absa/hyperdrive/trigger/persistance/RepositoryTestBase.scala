@@ -30,7 +30,7 @@ import scala.concurrent.duration.Duration
 trait RepositoryTestBase extends Repository {
 
   import api._
-  def h2SchemaSetup(): Unit = {
+  def schemaSetup(): Unit = {
     val schema = DBIO.seq(
       schedulerInstanceTable.schema.create,
       workflowTable.schema.create,
@@ -49,7 +49,7 @@ trait RepositoryTestBase extends Repository {
     run(schema)
   }
 
-  def h2SchemaDrop(): Unit = {
+  def schemaDrop(): Unit = {
     val schema = DBIO.seq(
       dagRunTable.schema.drop,
       eventTable.schema.drop,

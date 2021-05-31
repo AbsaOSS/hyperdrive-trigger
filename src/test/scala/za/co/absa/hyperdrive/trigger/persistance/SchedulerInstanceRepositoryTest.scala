@@ -29,11 +29,11 @@ class SchedulerInstanceRepositoryTest extends FlatSpec with Matchers with Before
   val schedulerInstanceRepository: SchedulerInstanceRepository = new SchedulerInstanceRepositoryImpl { override val profile = h2Profile }
 
   override def beforeAll: Unit = {
-    h2SchemaSetup()
+    schemaSetup()
   }
 
   override def afterAll: Unit = {
-    h2SchemaDrop()
+    schemaDrop()
   }
 
   override def beforeEach: Unit = {

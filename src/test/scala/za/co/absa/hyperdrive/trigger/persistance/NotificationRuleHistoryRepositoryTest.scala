@@ -35,11 +35,11 @@ class NotificationRuleHistoryRepositoryTest extends FlatSpec with Matchers with 
   private val h2NotificationRuleHistoryTable = h2NotificationRuleHistoryRepository.notificationRuleHistoryTable
 
   override def beforeAll: Unit = {
-    h2SchemaSetup()
+    schemaSetup()
   }
 
   override def afterAll: Unit = {
-    h2SchemaDrop()
+    schemaDrop()
   }
 
   override def afterEach: Unit = {

@@ -32,11 +32,11 @@ class WorkflowHistoryRepositoryTest extends FlatSpec with Matchers with BeforeAn
   }
 
   override def beforeAll: Unit = {
-    h2SchemaSetup()
+    schemaSetup()
   }
 
   override def afterAll: Unit = {
-    h2SchemaDrop()
+    schemaDrop()
   }
 
   override def afterEach: Unit = {
