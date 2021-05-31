@@ -132,8 +132,8 @@ object ApplicationConfig {
 }
 
 object NotificationConfig {
-  val notificationSenderAddress: String =
-    Configs.conf.getString("notification.sender.address")
+  val notificationEnabled: Boolean = Try(Configs.conf.getBoolean("notification.enabled")).getOrElse(false)
+  val notificationSenderAddress: String = Try(Configs.conf.getString("notification.sender.address")).getOrElse("")
 }
 
 object GeneralConfig {
