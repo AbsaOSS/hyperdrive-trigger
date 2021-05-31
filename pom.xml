@@ -130,6 +130,7 @@
         <skipNpmTests>${skipTests}</skipNpmTests>
         <scalatest.suites />
         <scalatest.tagsToExclude>za.co.absa.hyperdrive.trigger.testdata.PersistingData</scalatest.tagsToExclude>
+        <skip.postgres.tests>true</skip.postgres.tests>
     </properties>
 
     <dependencies>
@@ -352,13 +353,24 @@
                 </configuration>
                 <executions>
                     <execution>
-                        <id>test</id>
+                        <id>unit-tests</id>
                         <goals>
                             <goal>test</goal>
                         </goals>
                         <configuration>
+                            <suffixes>(?&lt;!PostgresTest)</suffixes>
                             <suites>${scalatest.suites}</suites>
                             <tagsToExclude>${scalatest.tagsToExclude}</tagsToExclude>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>postgres-tests</id>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <suffixes>(?&lt;=PostgresTest)</suffixes>
+                            <skipTests>${skip.postgres.tests}</skipTests>
                         </configuration>
                     </execution>
                 </executions>
@@ -592,6 +604,12 @@
                     </plugin>
                 </plugins>
             </build>
+        </profile>
+        <profile>
+            <id>all-tests</id>
+            <properties>
+                <skip.postgres.tests>false</skip.postgres.tests>
+            </properties>
         </profile>
     </profiles>
 </project>

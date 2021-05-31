@@ -24,7 +24,8 @@ import za.co.absa.hyperdrive.trigger.{HyperDriverManager, SpringIntegrationTest}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class TestApplicationStart extends FlatSpec with Matchers with SpringIntegrationTest with RepositoryPostgresTestBase {
+class ApplicationStartPostgresTest extends FlatSpec with Matchers with SpringIntegrationTest
+  with RepositoryPostgresTestBase {
 
   @Inject() var hyperDriverManager: HyperDriverManager = _
 
