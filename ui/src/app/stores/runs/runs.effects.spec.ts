@@ -25,7 +25,12 @@ import * as RunsActions from './runs.actions';
 import { GetDagRunDetail, GetDagRuns } from './runs.actions';
 
 import { DagRunModel, DagRunModelFactory } from '../../models/dagRuns/dagRun.model';
-import { JobInstanceModel, JobInstanceModelFactory, JobStatusFactory } from '../../models/jobInstance.model';
+import {
+  JobInstanceModel,
+  JobInstanceModelFactory,
+  JobInstanceParametersModelFactory,
+  JobStatusFactory,
+} from '../../models/jobInstance.model';
 import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
 import { SortAttributesModel } from '../../models/search/sortAttributes.model';
 import { JobTypeFactory } from '../../models/jobType.model';
@@ -95,7 +100,7 @@ describe('RunsEffects', () => {
       const jobInstanceA: JobInstanceModel = JobInstanceModelFactory.create(
         id,
         'jobName0',
-        JobTypeFactory.create('JobType'),
+        JobInstanceParametersModelFactory.create(JobTypeFactory.create('JobType')),
         'applicationId',
         new Date(Date.now()),
         new Date(Date.now()),
@@ -105,7 +110,7 @@ describe('RunsEffects', () => {
       const jobInstanceB: JobInstanceModel = JobInstanceModelFactory.create(
         id,
         'jobName1',
-        JobTypeFactory.create('JobType1'),
+        JobInstanceParametersModelFactory.create(JobTypeFactory.create('JobType1')),
         'applicationId',
         new Date(Date.now()),
         new Date(Date.now()),
@@ -115,7 +120,7 @@ describe('RunsEffects', () => {
       const jobInstanceC: JobInstanceModel = JobInstanceModelFactory.create(
         id,
         'jobName2',
-        JobTypeFactory.create('JobType2'),
+        JobInstanceParametersModelFactory.create(JobTypeFactory.create('JobType2')),
         'applicationId',
         new Date(Date.now()),
         new Date(Date.now()),

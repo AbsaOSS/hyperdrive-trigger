@@ -25,7 +25,7 @@
 
     <clr-dg-row *ngFor="let jobInstance of jobInstances">
       <clr-dg-cell>{{jobInstance.jobName}}</clr-dg-cell>
-      <clr-dg-cell>{{jobInstance.jobType.name}}</clr-dg-cell>
+      <clr-dg-cell>{{jobInstance.jobParameters.jobType.name}}</clr-dg-cell>
       <clr-dg-cell>{{jobInstance.created | date:'medium'}}</clr-dg-cell>
       <clr-dg-cell>{{jobInstance.updated | date:'medium'}}</clr-dg-cell>
       <clr-dg-cell [ngSwitch]="jobInstance.jobStatus.name">

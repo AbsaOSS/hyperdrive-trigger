@@ -26,7 +26,6 @@ import za.co.absa.hyperdrive.trigger.models.{JobInstance, ShellParameters}
 import org.mockito.Mockito._
 import org.mockito.ArgumentMatchers._
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.{Failed, InQueue, Lost, Running, Submitting, Succeeded}
-import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.Shell
 import za.co.absa.hyperdrive.trigger.scheduler.utilities.ShellExecutorConfig
 
 import scala.concurrent.{Await, Future}
@@ -40,7 +39,6 @@ class ShellExecutorTest extends FlatSpec with Matchers with BeforeAndAfterAll wi
   private val testScriptLocation = "testShellScript.sh"
   private val testJobInstance = JobInstance(
     jobName = "jobName",
-    jobType = Shell,
     jobParameters = ShellParameters(scriptLocation = ""),
     jobStatus = InQueue,
     executorJobId = None,
