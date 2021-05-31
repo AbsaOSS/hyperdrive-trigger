@@ -104,6 +104,7 @@
         <spring.ldap.version>5.0.3.RELEASE</spring.ldap.version>
         <scalatest.version>3.0.5</scalatest.version>
         <h2database.version>1.4.200</h2database.version>
+        <testcontainers.postgresql.version>1.15.3</testcontainers.postgresql.version>
         <mockito.version>2.25.0</mockito.version>
         <cron-expression-descriptor.version>1.2</cron-expression-descriptor.version>
         <node.version>12.14.1</node.version>
@@ -263,6 +264,12 @@
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <version>${h2database.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${testcontainers.postgresql.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
