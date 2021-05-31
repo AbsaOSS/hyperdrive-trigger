@@ -25,7 +25,7 @@ create table "workflow" (
 
 create table "job_instance" (
   "job_name" VARCHAR NOT NULL,
-  "job_type" VARCHAR NOT NULL,
+  "job_type_old" VARCHAR,
   "variables_old" VARCHAR DEFAULT '{}',
   "maps_old" VARCHAR DEFAULT '{}',
   "key_value_pairs_old" VARCHAR DEFAULT '{}',
