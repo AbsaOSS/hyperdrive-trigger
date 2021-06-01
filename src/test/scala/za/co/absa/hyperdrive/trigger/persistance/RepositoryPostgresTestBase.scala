@@ -27,11 +27,11 @@ trait RepositoryPostgresTestBase extends RepositoryTestBase with BeforeAndAfterA
   override def beforeAll(): Unit = {
     val postgresVersion = "12.7"
     val defaultUser = "test"
-    val defaultPassword = "test"
+    val defaultPass = "test"
     System.setProperty("db.driver", "org.testcontainers.jdbc.ContainerDatabaseDriver")
     System.setProperty("db.url", s"jdbc:tc:postgresql:${postgresVersion}:///${defaultDatabaseName}")
     System.setProperty("db.user", defaultUser)
-    System.setProperty("db.password", defaultPassword)
+    System.setProperty("db.password", defaultPass)
 
     new PostgreSQLContainer(s"postgres:${postgresVersion}")
 
