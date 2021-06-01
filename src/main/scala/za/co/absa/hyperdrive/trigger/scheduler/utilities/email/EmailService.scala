@@ -18,13 +18,13 @@ package za.co.absa.hyperdrive.trigger.scheduler.utilities.email
 
 import org.springframework.mail.SimpleMailMessage
 import org.springframework.mail.javamail.JavaMailSender
-import org.springframework.stereotype.Component
+import org.springframework.stereotype.{Component, Service}
 
 trait EmailService {
   def sendMessageToBccRecipients(sender: String, recipients: Seq[String], subject: String, text: String)
 }
 
-@Component
+@Service
 class EmailServiceImpl(mailSender: JavaMailSender) extends EmailService {
   override def sendMessageToBccRecipients(sender: String, recipients: Seq[String], subject: String, text: String): Unit = {
     if (recipients.nonEmpty) {
