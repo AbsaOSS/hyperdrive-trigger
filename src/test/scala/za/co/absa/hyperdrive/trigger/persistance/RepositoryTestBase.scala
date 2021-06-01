@@ -15,32 +15,21 @@
 
 package za.co.absa.hyperdrive.trigger.persistance
 
-import java.time.LocalDateTime
-import java.util.concurrent.TimeUnit
-import play.api.libs.json.{JsValue, Json}
-import slick.jdbc.JdbcType
 import za.co.absa.hyperdrive.trigger.TestUtils
-import za.co.absa.hyperdrive.trigger.models._
+import za.co.absa.hyperdrive.trigger.models.{DagDefinition, DagDefinitionJoined, DagInstance, JobDefinition, JobParameters, JobTemplate, NotificationRule, Properties, SchedulerInstance, Sensor, Settings, Workflow, WorkflowJoined}
 import za.co.absa.hyperdrive.trigger.models.dagRuns.DagRun
 import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobTypes, SchedulerInstanceStatuses, SensorTypes}
-import za.co.absa.hyperdrive.trigger.models.tables.Profile
 
+import java.time.LocalDateTime
+import java.util.concurrent.TimeUnit
 import scala.collection.immutable.SortedMap
-import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
-import scala.util.Try
+import scala.concurrent.duration.Duration
 
-trait RepositoryTestBase extends RepositoryTestBaseBase {
-  import slick.jdbc.H2Profile
-  val h2Profile = H2Profile
-  override val profile = h2Profile
-}
+trait RepositoryTestBase extends Repository {
 
-// TODO: Rename this to TestBase and the other to H2TestBase, rename h2SchemaSetup to schemaSetup etc.
-trait RepositoryTestBaseBase extends Repository {
   import api._
-
-  def h2SchemaSetup(): Unit = {
+  def schemaSetup(): Unit = {
     val schema = DBIO.seq(
       schedulerInstanceTable.schema.create,
       workflowTable.schema.create,
@@ -59,7 +48,7 @@ trait RepositoryTestBaseBase extends Repository {
     run(schema)
   }
 
-  def h2SchemaDrop(): Unit = {
+  def schemaDrop(): Unit = {
     val schema = DBIO.seq(
       dagRunTable.schema.drop,
       eventTable.schema.drop,
@@ -236,17 +225,5 @@ trait RepositoryTestBaseBase extends Repository {
         dagDefinitionJoined,
         workflow.id)
     }
-  }
-}
-
-trait H2Profile extends Profile {
-  override val api: MyAPI = new MyAPI {
-    override implicit val playJsonTypeMapper: JdbcType[JsValue] =
-      MappedColumnType.base[JsValue, String](
-        payload => payload.toString(),
-        payloadString => Try(Json.parse(payloadString)).getOrElse(
-          throw new Exception(s"Couldn't parse payload: $payloadString")
-        )
-      )
   }
 }

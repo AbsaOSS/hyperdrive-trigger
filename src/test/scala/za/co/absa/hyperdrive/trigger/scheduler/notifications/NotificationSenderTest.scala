@@ -131,7 +131,6 @@ class NotificationSenderTest extends FlatSpec with MockitoSugar with Matchers wi
   private def createJobInstance() = {
     JobInstance(
       jobName = "jobName",
-      jobType = Shell,
       jobParameters = ShellParameters(scriptLocation = ""),
       jobStatus = InQueue,
       executorJobId = None,

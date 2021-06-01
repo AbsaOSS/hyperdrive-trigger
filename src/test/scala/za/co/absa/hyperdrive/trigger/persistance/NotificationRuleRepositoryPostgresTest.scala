@@ -15,20 +15,34 @@
 
 package za.co.absa.hyperdrive.trigger.persistance
 
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FlatSpec, Matchers}
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses._
 import za.co.absa.hyperdrive.trigger.models.{DagInstance, NotificationRule, Workflow}
 
 import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class NotificationRuleRepositoryPostgresTest extends FlatSpec with Matchers with RepositoryPostgresTestBase {
+class NotificationRuleRepositoryPostgresTest extends FlatSpec with Matchers with BeforeAndAfterAll
+  with BeforeAndAfterEach with RepositoryPostgresTestBase {
 
   import api._
 
   private val notificationRuleHistoryRepository: NotificationRuleHistoryRepository = new NotificationRuleHistoryRepositoryImpl()
 
   private val notificationRuleRepository: NotificationRuleRepository = new NotificationRuleRepositoryImpl(notificationRuleHistoryRepository)
+
+  override def beforeAll: Unit = {
+    super.beforeAll()
+    schemaSetup()
+  }
+
+  override def afterAll: Unit = {
+    schemaDrop()
+  }
+
+  override def afterEach: Unit = {
+    clearData()
+  }
 
   "getMatchingNotificationRules" should "return rules matching the project name" in {
     val workflowId = 1L

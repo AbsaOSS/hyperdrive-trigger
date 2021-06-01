@@ -23,7 +23,7 @@ import za.co.absa.hyperdrive.trigger.models.search.{ContainsFilterAttributes, So
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class NotificationRuleRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryTestBase {
+class NotificationRuleRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryH2TestBase {
   import api._
   private val h2NotificationRuleHistoryRepository: NotificationRuleHistoryRepository =
     new NotificationRuleHistoryRepositoryImpl() with H2Profile  {
@@ -48,11 +48,11 @@ class NotificationRuleRepositoryTest extends FlatSpec with Matchers with BeforeA
   private val emailGhi = "ghi@xyz.com"
 
   override def beforeAll: Unit = {
-    h2SchemaSetup()
+    schemaSetup()
   }
 
   override def afterAll: Unit = {
-    h2SchemaDrop()
+    schemaDrop()
   }
 
   override def afterEach: Unit = {
