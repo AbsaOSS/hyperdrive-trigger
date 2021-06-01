@@ -24,17 +24,17 @@ import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class DagInstanceRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryTestBase {
+class DagInstanceRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryH2TestBase {
 
   import api._
   val dagInstanceRepository: DagInstanceRepository = new DagInstanceRepositoryImpl { override val profile = h2Profile }
 
   override def beforeAll: Unit = {
-    h2SchemaSetup()
+    schemaSetup()
   }
 
   override def afterAll: Unit = {
-    h2SchemaDrop()
+    schemaDrop()
   }
 
   override def afterEach: Unit = {
