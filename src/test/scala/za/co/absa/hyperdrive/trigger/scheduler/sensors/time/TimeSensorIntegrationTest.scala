@@ -31,7 +31,7 @@ import za.co.absa.hyperdrive.trigger.scheduler.sensors.Sensors
 import scala.concurrent.ExecutionContext.Implicits.global
 
 
-class TimeSensorIntegrationTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryTestBase {
+class TimeSensorIntegrationTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryH2TestBase {
   private val sensorRepository: SensorRepositoryImpl = new SensorRepositoryImpl {
     override val profile = h2Profile
   }
@@ -59,11 +59,11 @@ class TimeSensorIntegrationTest extends FlatSpec with Matchers with BeforeAndAft
   private val dagInstanceService: DagInstanceService = new DagInstanceServiceImpl(jobTemplateService)
 
   override def beforeAll: Unit = {
-    h2SchemaSetup()
+    schemaSetup()
   }
 
   override def afterAll: Unit = {
-    h2SchemaDrop()
+    schemaDrop()
   }
 
   override def afterEach: Unit = {

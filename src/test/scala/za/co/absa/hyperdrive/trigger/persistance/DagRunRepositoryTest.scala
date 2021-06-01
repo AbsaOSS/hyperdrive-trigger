@@ -21,16 +21,16 @@ import za.co.absa.hyperdrive.trigger.models.search.{IntRangeFilterAttributes, So
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class DagRunRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryTestBase {
+class DagRunRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryH2TestBase {
 
   val dagRunRepository: DagRunRepository = new DagRunRepositoryImpl { override val profile = h2Profile }
 
   override def beforeAll: Unit = {
-    h2SchemaSetup()
+    schemaSetup()
   }
 
   override def afterAll: Unit = {
-    h2SchemaDrop()
+    schemaDrop()
   }
 
   override def afterEach: Unit = {
