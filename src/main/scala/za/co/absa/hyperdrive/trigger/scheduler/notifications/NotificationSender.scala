@@ -53,7 +53,9 @@ class NotificationSenderImpl(notificationRuleService: NotificationRuleService, e
   private def createMessageAndSend(notificationRule: NotificationRule, workflow: Workflow, dagInstance: DagInstance,
                                    jobInstances: Seq[JobInstance]): Unit = {
     val subject = s"Hyperdrive ${environment}: Workflow ${workflow.name} ${dagInstance.status.name}"
+    val footer = "This message has been generated automatically. Please don't reply to it."
     val messageMap = mutable.LinkedHashMap(
+      "Environment" -> environment,
       "Project" -> workflow.project,
       "Workflow Name" -> workflow.name,
       "Started" -> dagInstance.started.format(dateTimeFormatter),
@@ -68,7 +70,7 @@ class NotificationSenderImpl(notificationRuleService: NotificationRuleService, e
       )
     )
     messageMap += ("Notification rule ID" -> notificationRule.id.toString)
-    val message = messageMap.map { case (key, value) => s"$key: $value"}.reduce(_ + "\n" + _)
+    val message = messageMap.map { case (key, value) => s"$key: $value"}.reduce(_ + "\n" + _) + "\n\n" + footer
 
     logger.debug(s"Sending message ${subject} from ${sender} to ${notificationRule.recipients}")
     try {

@@ -71,7 +71,8 @@ class NotificationSenderTest extends FlatSpec with MockitoSugar with Matchers wi
     val messagesCaptor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
     val expectedSubject = s"Hyperdrive ${environment}: Workflow ${w.name} ${di.status.name}"
     val expectedMessageBase =
-      raw"""Project: ${w.project}
+      raw"""Environment: TEST
+           |Project: ${w.project}
            |Workflow Name: ${w.name}
            |Started: 2020-03-02T12:30:00
            |Finished: 2020-03-02T14:30:00
@@ -88,7 +89,9 @@ class NotificationSenderTest extends FlatSpec with MockitoSugar with Matchers wi
 
     import scala.collection.JavaConverters._
     recipientsCaptor.getAllValues.asScala should contain theSameElementsAs Seq(nr1.recipients, nr2.recipients)
-    messagesCaptor.getAllValues.asScala should contain theSameElementsAs Seq(expectedMessage1, expectedMessage2)
+    val messages = messagesCaptor.getAllValues.asScala
+    messages.head should startWith(expectedMessage1)
+    messages(1) should startWith(expectedMessage2)
   }
 
   it should "add the application id of the last failed job instance" in {
