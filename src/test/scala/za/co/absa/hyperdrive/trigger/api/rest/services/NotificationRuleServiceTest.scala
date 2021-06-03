@@ -43,7 +43,7 @@ class NotificationRuleServiceTest extends AsyncFlatSpec with Matchers with Mocki
   }
 
   private def createNotificationRule() = {
-    NotificationRule(Some("project"), Some("ABC XYZ"), None,
+    NotificationRule(true, Some("project"), Some("ABC XYZ"), None,
       Seq(DagInstanceStatuses.Skipped, DagInstanceStatuses.Failed),
       Seq("abc.def@ghi.com"), updated = None)
   }

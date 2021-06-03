@@ -16,13 +16,13 @@
 package za.co.absa.hyperdrive.trigger.persistance
 
 import play.api.libs.json.{JsValue, Json}
-import slick.jdbc.{H2Profile, JdbcType}
+import slick.jdbc.JdbcType
 import za.co.absa.hyperdrive.trigger.models.tables.Profile
 
 import scala.util.Try
 
 trait RepositoryH2TestBase extends RepositoryTestBase {
-  val h2Profile = H2Profile
+  val h2Profile = slick.jdbc.H2Profile
   override val profile = h2Profile
 }
 

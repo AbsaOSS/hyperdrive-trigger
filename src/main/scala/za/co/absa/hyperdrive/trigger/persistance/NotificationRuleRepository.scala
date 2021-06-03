@@ -108,6 +108,7 @@ class NotificationRuleRepositoryImpl(override val notificationRuleHistoryReposit
       .map(_.finished)
     db.run(
       notificationRuleTable
+        .filter(_.isActive)
         .filter(_.statuses.??(LiteralColumn[String](dagInstanceStatus2String(status))))
         .join(workflowTable).on((_, w) => w.id === LiteralColumn[Long](workflowId).bind)
         .filter { case (n, w) => n.workflowPrefix.isEmpty ||

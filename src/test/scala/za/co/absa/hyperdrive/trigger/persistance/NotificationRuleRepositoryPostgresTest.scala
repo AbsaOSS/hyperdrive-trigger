@@ -16,6 +16,7 @@
 package za.co.absa.hyperdrive.trigger.persistance
 
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FlatSpec, Matchers}
+import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses._
 import za.co.absa.hyperdrive.trigger.models.{DagInstance, NotificationRule, Workflow}
 
@@ -31,7 +32,7 @@ class NotificationRuleRepositoryPostgresTest extends FlatSpec with Matchers with
 
   private val notificationRuleRepository: NotificationRuleRepository = new NotificationRuleRepositoryImpl(notificationRuleHistoryRepository)
 
-  override def beforeAll: Unit = {
+  override def beforeAll(): Unit = {
     super.beforeAll()
     schemaSetup()
   }
@@ -47,7 +48,7 @@ class NotificationRuleRepositoryPostgresTest extends FlatSpec with Matchers with
   "getMatchingNotificationRules" should "return rules matching the project name" in {
     val workflowId = 1L
     val w1 = Workflow(name = "workflow1", isActive = true, project = "project1", created = LocalDateTime.now(), updated = None, id = workflowId)
-    val nr = NotificationRule(None, None, None, Seq(Failed), Seq("abc@xyz.com"), created = LocalDateTime.now(), updated = None, id = -1L)
+    val nr = createDummyNotificationRule()
     val nr10 = nr.copy(project = Some("PROJECT1"), id = 10L)
     val nr11 = nr.copy(project = Some("project1"), id = 11L)
     val nr12 = nr.copy(project = Some(""), id = 12L)
@@ -65,7 +66,7 @@ class NotificationRuleRepositoryPostgresTest extends FlatSpec with Matchers with
   it should "return rules matching the workflow name" in {
     val workflowId = 1L
     val w1 = Workflow(name = "workflow1", isActive = true, project = "project1", created = LocalDateTime.now(), updated = None, id = workflowId)
-    val nr = NotificationRule(None, Some(""), None, Seq(Failed), Seq("abc@xyz.com"), created = LocalDateTime.now(), updated = None, id = -1L)
+    val nr = createDummyNotificationRule()
     val nr10 = nr.copy(workflowPrefix = Some("WORK"), id = 10L)
     val nr11 = nr.copy(workflowPrefix = Some("workflow1"), id = 11L)
     val nr12 = nr.copy(workflowPrefix = Some(""), id = 12L)
@@ -83,7 +84,7 @@ class NotificationRuleRepositoryPostgresTest extends FlatSpec with Matchers with
   it should "return rules matching the status" in {
     val workflowId = 1L
     val w1 = Workflow(name = "workflow1", isActive = true, project = "project1", created = LocalDateTime.now(), updated = None, id = workflowId)
-    val nr = NotificationRule(None, None, None, Seq(), Seq("abc@xyz.com"), created = LocalDateTime.now(), updated = None, id = -1L)
+    val nr = createDummyNotificationRule()
     val nr10 = nr.copy(statuses = Seq(Failed, Succeeded), id = 10L)
     val nr11 = nr.copy(statuses = Seq(Failed), id = 11L)
     val nr20 = nr.copy(statuses = Seq(), id = 20L)
@@ -106,7 +107,7 @@ class NotificationRuleRepositoryPostgresTest extends FlatSpec with Matchers with
     val di2 = DagInstance(status = Succeeded, triggeredBy = "user", started = startedTime, finished = None, workflowId = w1.id, id = 203)
     val di3 = DagInstance(status = Succeeded, triggeredBy = "user", started = startedTime, finished = Some(currentTime.minusMinutes(121)), workflowId = w1.id, id = 204)
     val di4 = DagInstance(status = Failed, triggeredBy = "user", started = startedTime, finished = Some(currentTime), workflowId = w1.id, id = 205)
-    val nr = NotificationRule(None, None, None, Seq(Failed), Seq("abc@xyz.com"), created = LocalDateTime.now(), updated = None, id = -1L)
+    val nr = createDummyNotificationRule()
     val nr10 = nr.copy(minElapsedSecondsSinceLastSuccess = Some(2 * 60 * 60), id = 10L)
     val nr11 = nr.copy(minElapsedSecondsSinceLastSuccess = None, id = 11L)
     val nr12 = nr.copy(minElapsedSecondsSinceLastSuccess = Some(-1), id = 12L)
@@ -124,7 +125,7 @@ class NotificationRuleRepositoryPostgresTest extends FlatSpec with Matchers with
   it should "return rules if no dag instances exist yet even if a threshold is set" in {
     val workflowId = 1L
     val w1 = Workflow(name = "workflow1", isActive = true, project = "project1", created = LocalDateTime.now(), updated = None, id = workflowId)
-    val nr = NotificationRule(None, None, None, Seq(Failed), Seq("abc@xyz.com"), created = LocalDateTime.now(), updated = None, id = -1L)
+    val nr = createDummyNotificationRule()
     val nr10 = nr.copy(minElapsedSecondsSinceLastSuccess = Some(2 * 60 * 60), id = 10L)
     val nr11 = nr.copy(minElapsedSecondsSinceLastSuccess = None, id = 11L)
     val nr12 = nr.copy(minElapsedSecondsSinceLastSuccess = Some(-1), id = 12L)
@@ -135,5 +136,27 @@ class NotificationRuleRepositoryPostgresTest extends FlatSpec with Matchers with
     val result = await(notificationRuleRepository.getMatchingNotificationRules(workflowId, Failed, LocalDateTime.now()))
     result._1 should contain theSameElementsAs Seq(nr10, nr11, nr12)
     result._2 shouldBe w1
+  }
+
+  it should "not return any inactive notification rules" in {
+    val workflowId = 1L
+    val w1 = Workflow(name = "workflow1", isActive = true, project = "project1", created = LocalDateTime.now(), updated = None, id = workflowId)
+    val nr = createDummyNotificationRule()
+    val nr10 = nr.copy(project = Some("PROJECT1"), id = 10L)
+    val nr11 = nr.copy(workflowPrefix = Some("work"), id = 11L)
+    val nr20 = nr.copy(isActive = false, project = Some("project1"), id = 20L)
+    val nr21 = nr.copy(isActive = false, workflowPrefix = Some("work"), id = 21L)
+
+    await(db.run(workflowTable.forceInsert(w1)))
+    await(db.run(notificationRuleTable.forceInsertAll(Seq(nr10, nr11, nr20, nr21))))
+
+    val result = await(notificationRuleRepository.getMatchingNotificationRules(workflowId, Failed, LocalDateTime.now()))
+    result._1 should contain theSameElementsAs Seq(nr10, nr11)
+    result._2 shouldBe w1
+  }
+
+  private def createDummyNotificationRule() = {
+    NotificationRule(isActive = true, None, None, None, Seq(DagInstanceStatuses.Failed), Seq("abc@xyz.com"),
+      created = LocalDateTime.now(), updated = None, id = -1L)
   }
 }

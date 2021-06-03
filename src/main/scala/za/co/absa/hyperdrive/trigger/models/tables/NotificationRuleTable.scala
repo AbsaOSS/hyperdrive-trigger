@@ -28,6 +28,8 @@ trait NotificationRuleTable extends SearchableTableQuery {
   import api._
 
   final class NotificationRuleTable(tag: Tag) extends Table[NotificationRule](tag, _tableName = "notification_rule") with SearchableTable {
+    def isActive: Rep[Boolean] = column[Boolean]("is_active")
+
     def project: Rep[Option[String]] = column[Option[String]]("project")
 
     def workflowPrefix: Rep[Option[String]] = column[Option[String]]("workflow_prefix")
@@ -44,23 +46,25 @@ trait NotificationRuleTable extends SearchableTableQuery {
 
     def id: Rep[Long] = column[Long]("id", O.PrimaryKey, O.AutoInc, O.SqlType("BIGSERIAL"))
 
-    def * : ProvenShape[NotificationRule] = (project, workflowPrefix, minElapsedSecondsSinceLastSuccess, statuses,
-      recipients, created, updated, id) <> (
+    def * : ProvenShape[NotificationRule] = (isActive, project, workflowPrefix, minElapsedSecondsSinceLastSuccess,
+      statuses, recipients, created, updated, id) <> (
       notificationTuple =>
         NotificationRule.apply(
-          project = notificationTuple._1,
-          workflowPrefix = notificationTuple._2,
-          minElapsedSecondsSinceLastSuccess = notificationTuple._3,
-          statuses = jsValue2DagInstanceStatus(notificationTuple._4),
-          recipients = notificationTuple._5,
-          created = notificationTuple._6,
-          updated = notificationTuple._7,
-          id = notificationTuple._8
+          isActive = notificationTuple._1,
+          project = notificationTuple._2,
+          workflowPrefix = notificationTuple._3,
+          minElapsedSecondsSinceLastSuccess = notificationTuple._4,
+          statuses = jsValue2DagInstanceStatus(notificationTuple._5),
+          recipients = notificationTuple._6,
+          created = notificationTuple._7,
+          updated = notificationTuple._8,
+          id = notificationTuple._9
         ),
       unapplyNotificationRule
     )
 
     override def fieldMapping: Map[String, Rep[_]] = Map(
+      "isActive" -> this.isActive,
       "project" -> this.project,
       "workflowPrefix" -> this.workflowPrefix,
       "minElapsedSecondsSinceLastSuccess" -> this.minElapsedSecondsSinceLastSuccess,
@@ -76,7 +80,7 @@ trait NotificationRuleTable extends SearchableTableQuery {
     private def jsValue2DagInstanceStatus(jsValue: JsValue): Seq[DagInstanceStatus] = jsValue.as[Seq[DagInstanceStatus]]
 
     private def unapplyNotificationRule(n: NotificationRule) =
-      NotificationRule.unapply(n).map(tuple => tuple.copy(_4 = dagInstanceStatus2JsValue(tuple._4)))
+      NotificationRule.unapply(n).map(tuple => tuple.copy(_5 = dagInstanceStatus2JsValue(tuple._5)))
   }
 
   lazy val notificationRuleTable = TableQuery[NotificationRuleTable]
