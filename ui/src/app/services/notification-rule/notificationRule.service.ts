@@ -19,6 +19,9 @@ import { api } from '../../constants/api.constants';
 import { catchError, map } from 'rxjs/operators';
 import { Observable, throwError } from 'rxjs';
 import { NotificationRuleModel } from '../../models/notificationRule.model';
+import {TableSearchRequestModel} from '../../models/search/tableSearchRequest.model';
+import {TableSearchResponseModel} from '../../models/search/tableSearchResponse.model';
+import {JobTemplateModel} from '../../models/jobTemplate.model';
 
 @Injectable({
   providedIn: 'root',
@@ -66,5 +69,17 @@ export class NotificationRuleService {
     return this.httpClient
       .delete<boolean>(api.DELETE_NOTIFICATION_RULE, { params: params, observe: 'response' })
       .pipe(map((_) => _.body));
+  }
+
+  searchNotificationRules(searchRequestModel: TableSearchRequestModel): Observable<TableSearchResponseModel<NotificationRuleModel>> {
+    return this.httpClient
+      .post<TableSearchResponseModel<NotificationRuleModel>>(api.SEARCH_NOTIFICATION_RULES, searchRequestModel, {
+        observe: 'response',
+      })
+      .pipe(
+        map((_) => {
+          return _.body;
+        }),
+      );
   }
 }

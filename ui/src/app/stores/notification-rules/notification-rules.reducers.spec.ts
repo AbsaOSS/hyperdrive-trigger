@@ -17,10 +17,10 @@ import { SortAttributesModel } from '../../models/search/sortAttributes.model';
 import {
   GetNotificationRule,
   GetNotificationRuleFailure,
+  GetNotificationRuleSuccess,
   SearchNotificationRules,
   SearchNotificationRulesFailure,
   SearchNotificationRulesSuccess,
-  SetNotificationRule,
 } from './notification-rules.actions';
 import { State, notificationRulesReducer } from './notification-rules.reducers';
 import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
@@ -88,10 +88,10 @@ describe('NotificationRulesReducers', () => {
     });
   });
 
-  it('should set loading to true and notification rule on set notification rule', () => {
+  it('should set loading to true and notification rule on get notification rule success', () => {
     const notificationRule = NotificationRuleFixture.create();
 
-    const notificationRulesAction = new SetNotificationRule(notificationRule);
+    const notificationRulesAction = new GetNotificationRuleSuccess(notificationRule);
 
     const actual = notificationRulesReducer(initialState, notificationRulesAction);
 

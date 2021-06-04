@@ -22,8 +22,8 @@ export const SEARCH_NOTIFICATION_RULES = 'SEARCH_NOTIFICATION_RULES';
 export const SEARCH_NOTIFICATION_RULES_SUCCESS = 'SEARCH_NOTIFICATION_RULES_SUCCESS';
 export const SEARCH_NOTIFICATION_RULES_FAILURE = 'SEARCH_NOTIFICATION_RULES_FAILURE';
 export const GET_NOTIFICATION_RULE = 'GET_NOTIFICATION_RULE';
+export const GET_NOTIFICATION_RULE_SUCCESS = 'GET_NOTIFICATION_RULE_SUCCESS';
 export const GET_NOTIFICATION_RULE_FAILURE = 'GET_NOTIFICATION_RULE_FAILURE';
-export const SET_NOTIFICATION_RULE = 'SET_NOTIFICATION_RULE';
 
 export class SearchNotificationRules implements Action {
   readonly type = SEARCH_NOTIFICATION_RULES;
@@ -44,13 +44,13 @@ export class GetNotificationRule implements Action {
   constructor(public payload: number) {}
 }
 
-export class GetNotificationRuleFailure implements Action {
-  readonly type = GET_NOTIFICATION_RULE_FAILURE;
+export class GetNotificationRuleSuccess implements Action {
+  readonly type = GET_NOTIFICATION_RULE_SUCCESS;
+  constructor(public payload: NotificationRuleModel) {}
 }
 
-export class SetNotificationRule implements Action {
-  readonly type = SET_NOTIFICATION_RULE;
-  constructor(public payload: NotificationRuleModel) {}
+export class GetNotificationRuleFailure implements Action {
+  readonly type = GET_NOTIFICATION_RULE_FAILURE;
 }
 
 export type NotificationRulesActions =
@@ -58,5 +58,5 @@ export type NotificationRulesActions =
   | SearchNotificationRulesSuccess
   | SearchNotificationRulesFailure
   | GetNotificationRule
-  | GetNotificationRuleFailure
-  | SetNotificationRule;
+  | GetNotificationRuleSuccess
+  | GetNotificationRuleFailure;

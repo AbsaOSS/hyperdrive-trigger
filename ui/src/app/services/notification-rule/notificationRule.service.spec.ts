@@ -20,6 +20,9 @@ import { api } from '../../constants/api.constants';
 import { NotificationRuleService } from './notificationRule.service';
 import { NotificationRuleModel, NotificationRuleModelFactory} from '../../models/notificationRule.model';
 import { dagInstanceStatuses } from '../../models/enums/dagInstanceStatuses.constants';
+import {TableSearchRequestModel} from '../../models/search/tableSearchRequest.model';
+import {TableSearchResponseModel} from '../../models/search/tableSearchResponse.model';
+import {JobTemplateModel} from '../../models/jobTemplate.model';
 
 describe('NotificationRuleService', () => {
   let underTest: NotificationRuleService;
@@ -92,6 +95,20 @@ describe('NotificationRuleService', () => {
     const req = httpTestingController.expectOne(api.DELETE_NOTIFICATION_RULE + `?id=${id}`);
     expect(req.request.method).toEqual('DELETE');
     req.flush(new Boolean(true));
+  });
+
+  it('searchNotificationRules() should search response with notification rules', () => {
+    const request: TableSearchRequestModel = new TableSearchRequestModel(1, 10);
+    const response: TableSearchResponseModel<NotificationRuleModel> = new TableSearchResponseModel<NotificationRuleModel>([], 1);
+
+    underTest.searchNotificationRules(request).subscribe(
+      (data) => expect(data).toEqual(response),
+      (error) => fail(error),
+    );
+
+    const req = httpTestingController.expectOne(api.SEARCH_NOTIFICATION_RULES);
+    expect(req.request.method).toEqual('POST');
+    req.flush(response);
   });
 });
 
