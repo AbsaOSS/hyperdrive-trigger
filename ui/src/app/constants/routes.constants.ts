@@ -15,6 +15,7 @@
 
 import { workflowModes } from '../models/enums/workflowModes.constants';
 import { jobTemplateModes } from '../models/enums/jobTemplateModes.constants';
+import { notificationRuleModes } from '../models/enums/notificationRuleModes.constants';
 
 export const routeNames = {
   DEFAULT: '',
@@ -31,6 +32,9 @@ export const routeNames = {
   JOB_TEMPLATES: 'admin/job-templates',
   JOB_TEMPLATES_HOME: '',
   JOB_TEMPLATE_SHOW: 'show/:id',
+  NOTIFICATION_RULES: 'admin/notification-rules',
+  NOTIFICATION_RULE_ACTION: ':mode',
+  NOTIFICATION_RULE_ACTION_WITH_ID: ':mode/:id',
 };
 
 export const absoluteRoutes = {
@@ -48,6 +52,9 @@ export const absoluteRoutes = {
   JOB_TEMPLATES: `/${routeNames.JOB_TEMPLATES}`,
   JOB_TEMPLATES_HOME: `/${routeNames.JOB_TEMPLATES}`,
   SHOW_JOB_TEMPLATE: `/${routeNames.JOB_TEMPLATES}/${jobTemplateModes.SHOW}`,
+  NOTIFICATION_RULES: `/${routeNames.NOTIFICATION_RULES}`,
+  SHOW_NOTIFICATION_RULES: `/${routeNames.NOTIFICATION_RULES}/${notificationRuleModes.SHOW}`,
+  EDIT_NOTIFICATION_RULES: `/${routeNames.NOTIFICATION_RULES}/${notificationRuleModes.EDIT}`,
   RUNS_WITH_WORKFLOW_ID(workflowId: number): string {
     return `/runs/${workflowId}`;
   },

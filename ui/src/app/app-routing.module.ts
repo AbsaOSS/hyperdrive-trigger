@@ -55,6 +55,16 @@ const routes: Routes = [
       { path: routeNames.JOB_TEMPLATE_SHOW, component: JobTemplateShowComponent },
     ],
   },
+  {
+    path: routeNames.NOTIFICATION_RULES,
+    component: ,
+    canActivate: [AuthGuardService],
+    children: [
+      { path: routeNames.NOTIFICATION_RULES, component: , pathMatch: 'full' },
+      { path: routeNames.NOTIFICATION_RULE_ACTION, component:  },
+      { path: routeNames.NOTIFICATION_RULE_ACTION_WITH_ID, component:  },
+    ],
+  },
 ];
 
 @NgModule({
