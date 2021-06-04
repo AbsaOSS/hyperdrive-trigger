@@ -47,8 +47,6 @@
         <appender-ref ref="FILE-ROLLING"/>
         <appender-ref ref="Console" />
     </logger>
-<!--    <logger name="slick.jdbc.JdbcBackend.statement" level="DEBUG" />-->
-<!--    <logger name="slick.jdbc.JdbcBackend.parameter" level="DEBUG" />-->
     <root level="info">
         <appender-ref ref="FILE-ROLLING"/>
         <appender-ref ref="Console" />

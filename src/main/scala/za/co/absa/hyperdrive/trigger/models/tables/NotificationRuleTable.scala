@@ -29,21 +29,13 @@ trait NotificationRuleTable extends SearchableTableQuery {
 
   final class NotificationRuleTable(tag: Tag) extends Table[NotificationRule](tag, _tableName = "notification_rule") with SearchableTable {
     def isActive: Rep[Boolean] = column[Boolean]("is_active")
-
     def project: Rep[Option[String]] = column[Option[String]]("project")
-
     def workflowPrefix: Rep[Option[String]] = column[Option[String]]("workflow_prefix")
-
     def minElapsedSecondsSinceLastSuccess: Rep[Option[Long]] = column[Option[Long]]("min_elapsed_secs_last_success")
-
     def statuses: Rep[JsValue] = column[JsValue]("statuses", O.SqlType("JSONB"))
-
     def recipients: Rep[Recipients] = column[Recipients]("recipients", O.SqlType("JSONB"))
-
     def created: Rep[LocalDateTime] = column[LocalDateTime]("created")
-
     def updated: Rep[Option[LocalDateTime]] = column[Option[LocalDateTime]]("updated")
-
     def id: Rep[Long] = column[Long]("id", O.PrimaryKey, O.AutoInc, O.SqlType("BIGSERIAL"))
 
     def * : ProvenShape[NotificationRule] = (isActive, project, workflowPrefix, minElapsedSecondsSinceLastSuccess,
