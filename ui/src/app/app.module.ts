@@ -81,6 +81,7 @@ import { StringWithSuggestionsPartComponent } from './components/workflows/workf
 import { NotificationRulesComponent } from './components/admin/notification-rules/notification-rules.component';
 import { NotificationRulesHomeComponent } from './components/admin/notification-rules/notification-rules-home/notification-rules-home.component';
 import { NotificationRulesCruComponent } from './components/admin/notification-rules/notification-rules-cru/notification-rules-cru.component';
+import { NotificationRulesEffects } from './stores/notification-rules/notification-rules.effects';
 
 @NgModule({
   declarations: [
@@ -136,7 +137,8 @@ import { NotificationRulesCruComponent } from './components/admin/notification-r
       timeOut: 5000,
     }),
     StoreModule.forRoot(reducers),
-    EffectsModule.forRoot([ApplicationEffects, AuthEffects, RunsEffects, WorkflowsEffects, JobTemplatesEffects]),
+    EffectsModule.forRoot([ApplicationEffects, AuthEffects, RunsEffects, WorkflowsEffects,
+      JobTemplatesEffects, NotificationRulesEffects]),
     StoreRouterConnectingModule.forRoot(),
     !environment.production ? StoreDevtoolsModule.instrument() : [],
   ],
