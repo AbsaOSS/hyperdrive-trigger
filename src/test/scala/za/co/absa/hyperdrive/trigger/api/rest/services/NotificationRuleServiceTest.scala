@@ -21,12 +21,13 @@ import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, Matchers}
 import za.co.absa.hyperdrive.trigger.TestUtils.await
 import za.co.absa.hyperdrive.trigger.api.rest.services.JobTemplateFixture.{GenericShellJobTemplate, GenericSparkJobTemplate}
-import za.co.absa.hyperdrive.trigger.models.NotificationRule
+import za.co.absa.hyperdrive.trigger.models.{NotificationRule, Workflow}
 import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobTypes}
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, DatabaseError}
 import za.co.absa.hyperdrive.trigger.models.search.{TableSearchRequest, TableSearchResponse}
 import za.co.absa.hyperdrive.trigger.persistance.{JobTemplateRepository, NotificationRuleRepository}
 
+import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -42,7 +43,7 @@ class NotificationRuleServiceTest extends AsyncFlatSpec with Matchers with Mocki
   }
 
   private def createNotificationRule() = {
-    NotificationRule(Some("project"), Some("ABC XYZ"), None,
+    NotificationRule(true, Some("project"), Some("ABC XYZ"), None,
       Seq(DagInstanceStatuses.Skipped, DagInstanceStatuses.Failed),
       Seq("abc.def@ghi.com"), updated = None)
   }
@@ -128,4 +129,20 @@ class NotificationRuleServiceTest extends AsyncFlatSpec with Matchers with Mocki
     // then
     result shouldBe searchResponse
   }
+
+  "getMatchingNotificationRules" should "return matching notification rules" in {
+    // given
+    val rule = createNotificationRule()
+    val workflow = Workflow("workflow1", isActive = true, "project1", LocalDateTime.now(), None, None, 42L)
+    val matchingRules = (Seq(rule), workflow)
+    when(notificationRuleRepository.getMatchingNotificationRules(eqTo(42L), eqTo(DagInstanceStatuses.Failed),
+      any[LocalDateTime]())(any[ExecutionContext])).thenReturn(Future{matchingRules})
+
+    // when
+    val result = await(underTest.getMatchingNotificationRules(42L, DagInstanceStatuses.Failed))
+
+    // then
+    result shouldBe matchingRules
+  }
+
 }

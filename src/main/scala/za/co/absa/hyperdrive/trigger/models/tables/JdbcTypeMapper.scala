@@ -130,10 +130,4 @@ trait JdbcTypeMapper {
     recipients => Json.toJson(recipients.sorted),
     column => column.as[Recipients]
   )
-
-  implicit lazy val seqDagInstanceStatusMapper: JdbcType[Seq[DagInstanceStatus]] =
-    MappedColumnType.base[Seq[DagInstanceStatus], JsValue](
-      statuses => Json.toJson(statuses),
-      column => column.as[Seq[DagInstanceStatus]]
-    )
 }

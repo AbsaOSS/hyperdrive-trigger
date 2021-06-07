@@ -18,10 +18,12 @@ package za.co.absa.hyperdrive.trigger.api.rest.services
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
-import za.co.absa.hyperdrive.trigger.models.NotificationRule
+import za.co.absa.hyperdrive.trigger.models.{NotificationRule, Workflow}
+import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses.DagInstanceStatus
 import za.co.absa.hyperdrive.trigger.models.search.{TableSearchRequest, TableSearchResponse}
 import za.co.absa.hyperdrive.trigger.persistance.NotificationRuleRepository
 
+import java.time.LocalDateTime
 import scala.concurrent.{ExecutionContext, Future}
 
 trait NotificationRuleService {
@@ -38,6 +40,9 @@ trait NotificationRuleService {
   def deleteNotificationRule(id: Long)(implicit ec: ExecutionContext): Future[Boolean]
 
   def searchNotificationRules(tableSearchRequest: TableSearchRequest)(implicit ec: ExecutionContext): Future[TableSearchResponse[NotificationRule]]
+
+  def getMatchingNotificationRules(workflowId: Long, status: DagInstanceStatus)(implicit ec: ExecutionContext): Future[(Seq[NotificationRule], Workflow)]
+
 }
 
 @Service
@@ -72,5 +77,9 @@ class NotificationRuleServiceImpl(override val notificationRuleRepository: Notif
 
   override def searchNotificationRules(tableSearchRequest: TableSearchRequest)(implicit ec: ExecutionContext): Future[TableSearchResponse[NotificationRule]] = {
     notificationRuleRepository.searchNotificationRules(tableSearchRequest)
+  }
+
+  override def getMatchingNotificationRules(workflowId: Long, status: DagInstanceStatus)(implicit ec: ExecutionContext): Future[(Seq[NotificationRule], Workflow)] = {
+    notificationRuleRepository.getMatchingNotificationRules(workflowId, status, LocalDateTime.now())
   }
 }

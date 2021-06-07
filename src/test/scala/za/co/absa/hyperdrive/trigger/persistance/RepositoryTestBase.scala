@@ -51,7 +51,7 @@ trait RepositoryTestBase extends Repository {
 
   def schemaDrop(): Unit = {
     val schema = DBIO.seq(
-      dagRunTable.schema.drop,
+      dagRunTable.schema.dropIfExists,
       eventTable.schema.drop,
       jobInstanceTable.schema.drop,
       dagInstanceTable.schema.drop,
@@ -188,11 +188,11 @@ trait RepositoryTestBase extends Repository {
       SchedulerInstance(31L, SchedulerInstanceStatuses.Deactivated, LocalDateTime.of(2020, 1, 1, 2, 29, 15))
     )
 
-    val nr1 = NotificationRule(Some("project"), Some("ABC XYZ"), None, Seq(DagInstanceStatuses.Failed, DagInstanceStatuses.Succeeded),
+    val nr1 = NotificationRule(isActive = true, Some("project"), Some("ABC XYZ"), None, Seq(DagInstanceStatuses.Failed, DagInstanceStatuses.Succeeded),
       Seq("abc@xyz.com", "def@xyz.com"), created = LocalDateTime.now().plusDays(2), updated = None, id = 11L)
-    val nr2 = NotificationRule(Some("project2"), Some("DEF_123"), None, Seq(DagInstanceStatuses.Failed, DagInstanceStatuses.Skipped),
+    val nr2 = NotificationRule(isActive = true, Some("project2"), Some("DEF_123"), None, Seq(DagInstanceStatuses.Failed, DagInstanceStatuses.Skipped),
       Seq("ghi.jkl@xyz.com"), created = LocalDateTime.now().plusDays(1), updated = None, id = 12L)
-    val nr3 = NotificationRule(Some("project3"), Some("ABC ABC"), None, Seq(DagInstanceStatuses.Skipped),
+    val nr3 = NotificationRule(isActive = true, Some("project3"), Some("ABC ABC"), None, Seq(DagInstanceStatuses.Skipped),
       Seq("abc@xyz.com", "mno@xyz.com"), created = LocalDateTime.now(),updated = None, id = 13L)
     val notificationRules = Seq(nr1, nr2, nr3)
   }
