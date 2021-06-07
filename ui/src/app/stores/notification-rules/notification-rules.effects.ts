@@ -18,7 +18,7 @@ import { Actions, Effect, ofType } from '@ngrx/effects';
 import * as NotificationRulesActions from './notification-rules.actions';
 import { catchError, mergeMap, switchMap } from 'rxjs/operators';
 import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
-import { NotificationRuleService } from '../../services/notification-rule/notificationRule.service';
+import { NotificationRuleService } from '../../services/notification-rule/notification-rule.service';
 import { NotificationRuleModel } from '../../models/notificationRule.model';
 
 import { ToastrService } from 'ngx-toastr';

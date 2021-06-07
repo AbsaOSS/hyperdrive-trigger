@@ -112,6 +112,5 @@ export const texts = {
   DELETE_NOTIFICATION_RULE_SUCCESS_NOTIFICATION: 'Notification rule has been deleted.',
   DELETE_NOTIFICATION_RULE_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
 
-  LOAD_NOTIFICATION_RULE_FAILURE_NOTIFICATION: "Sorry, job template couldn't be loaded. Please try again.",
-
+  LOAD_NOTIFICATION_RULE_FAILURE_NOTIFICATION: "Sorry, notification rule couldn't be loaded. Please try again.",
 };

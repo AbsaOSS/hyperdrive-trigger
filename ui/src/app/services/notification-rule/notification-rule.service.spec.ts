@@ -17,7 +17,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { api } from '../../constants/api.constants';
-import { NotificationRuleService } from './notificationRule.service';
+import { NotificationRuleService } from './notification-rule.service';
 import { NotificationRuleModel, NotificationRuleModelFactory} from '../../models/notificationRule.model';
 import { dagInstanceStatuses } from '../../models/enums/dagInstanceStatuses.constants';
 import {TableSearchRequestModel} from '../../models/search/tableSearchRequest.model';

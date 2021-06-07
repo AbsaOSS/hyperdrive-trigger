@@ -88,7 +88,7 @@ describe('NotificationRulesReducers', () => {
     });
   });
 
-  it('should set loading to true and notification rule on get notification rule success', () => {
+  it('should set loading to false and notification rule on get notification rule success', () => {
     const notificationRule = NotificationRuleFixture.create();
 
     const notificationRulesAction = new GetNotificationRuleSuccess(notificationRule);
@@ -100,7 +100,7 @@ describe('NotificationRulesReducers', () => {
       notificationRuleAction: {
         ...initialState.notificationRuleAction,
         notificationRule: notificationRule,
-        loading: true,
+        loading: false,
       },
     });
   });

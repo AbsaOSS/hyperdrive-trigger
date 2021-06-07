@@ -63,6 +63,15 @@ export function notificationRulesReducer(state: State = initialState, action: No
           loading: true,
         },
       };
+    case NotificationRulesActions.GET_NOTIFICATION_RULE_SUCCESS:
+      return {
+        ...state,
+        notificationRuleAction: {
+          ...state.notificationRuleAction,
+          loading: false,
+          notificationRule: action.payload,
+        },
+      };
     case NotificationRulesActions.GET_NOTIFICATION_RULE_FAILURE:
       return {
         ...state,
@@ -71,15 +80,7 @@ export function notificationRulesReducer(state: State = initialState, action: No
           loading: false,
         },
       };
-    case NotificationRulesActions.SET_NOTIFICATION_RULE:
-      return {
-        ...state,
-        notificationRuleAction: {
-          ...state.notificationRuleAction,
-          loading: true,
-          notificationRule: action.payload,
-        },
-      };
+
     default:
       return state;
   }
