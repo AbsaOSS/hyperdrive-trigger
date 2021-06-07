@@ -19,9 +19,9 @@ import { api } from '../../constants/api.constants';
 import { catchError, map } from 'rxjs/operators';
 import { Observable, throwError } from 'rxjs';
 import { NotificationRuleModel } from '../../models/notificationRule.model';
-import {TableSearchRequestModel} from '../../models/search/tableSearchRequest.model';
-import {TableSearchResponseModel} from '../../models/search/tableSearchResponse.model';
-import {JobTemplateModel} from '../../models/jobTemplate.model';
+import { TableSearchRequestModel } from '../../models/search/tableSearchRequest.model';
+import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
+import { JobTemplateModel } from '../../models/jobTemplate.model';
 
 @Injectable({
   providedIn: 'root',

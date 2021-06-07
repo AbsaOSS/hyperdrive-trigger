@@ -57,3 +57,4 @@ export const selectAuthState = createFeatureSelector<AppState, fromAuth.State>(a
 export const selectRunState = createFeatureSelector<AppState, fromRuns.State>(runsKey);
 export const selectWorkflowState = createFeatureSelector<AppState, fromWorkflows.State>(workflowsKey);
 export const selectJobTemplatesState = createFeatureSelector<AppState, fromJobTemplates.State>(jobTemplatesKey);
+export const selectNotificationRulesState = createFeatureSelector<AppState, fromNotificationRules.State>(notificationRulesKey);

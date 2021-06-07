@@ -78,6 +78,9 @@ import { JobTemplatesEffects } from './stores/job-templates/job-templates.effect
 import { JobTemplatesHomeComponent } from './components/admin/job-templates/job-templates-home/job-templates-home.component';
 import { JobTemplateShowComponent } from './components/admin/job-templates/job-template-show/job-template-show.component';
 import { StringWithSuggestionsPartComponent } from './components/workflows/workflow-form/dynamic-parts/string-with-suggestions-part/string-with-suggestions-part.component';
+import { NotificationRulesComponent } from './components/admin/notification-rules/notification-rules.component';
+import { NotificationRulesHomeComponent } from './components/admin/notification-rules/notification-rules-home/notification-rules-home.component';
+import { NotificationRulesCruComponent } from './components/admin/notification-rules/notification-rules-cru/notification-rules-cru.component';
 
 @NgModule({
   declarations: [
@@ -118,6 +121,9 @@ import { StringWithSuggestionsPartComponent } from './components/workflows/workf
     JobTemplatesComponent,
     JobTemplatesHomeComponent,
     JobTemplateShowComponent,
+    NotificationRulesComponent,
+    NotificationRulesHomeComponent,
+    NotificationRulesCruComponent,
   ],
   imports: [
     BrowserModule,
