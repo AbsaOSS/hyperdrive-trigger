@@ -130,3 +130,13 @@ object ApplicationConfig {
   val maximumNumberOfWorkflowsInBulkRun: Int =
     Try(Configs.conf.getInt("application.maximumNumberOfWorkflowsInBulkRun")).getOrElse(10)
 }
+
+object NotificationConfig {
+  val notificationEnabled: Boolean = Try(Configs.conf.getBoolean("notification.enabled")).getOrElse(false)
+  val notificationSenderAddress: String = Try(Configs.conf.getString("notification.sender.address")).getOrElse("")
+}
+
+object GeneralConfig {
+  val environment: String =
+    Try(Configs.conf.getString("environment")).getOrElse("Unknown")
+}

@@ -77,9 +77,10 @@ class NotificationRuleRepositoryTest extends FlatSpec with Matchers with BeforeA
 
   it should "sort statuses and recipients" in {
     // given
-    val rule = NotificationRule(Some("project"), Some("ABC XYZ"), None,
-      Seq(DagInstanceStatuses.Skipped, DagInstanceStatuses.Succeeded, DagInstanceStatuses.Failed),
-      Seq(emailDef, emailGhi, emailAbc), updated = None)
+    val rule = TestData.nr1.copy(
+      statuses = Seq(DagInstanceStatuses.Skipped, DagInstanceStatuses.Succeeded, DagInstanceStatuses.Failed),
+      recipients = Seq(emailDef, emailGhi, emailAbc)
+    )
 
     // when
     await(h2NotificationRuleRepository.insertNotificationRule(rule, testUser))
@@ -153,9 +154,10 @@ class NotificationRuleRepositoryTest extends FlatSpec with Matchers with BeforeA
 
   it should "sort statuses and recipients" in {
     // given
-    val rule = NotificationRule(Some("project"), Some("ABC XYZ"), None,
-      Seq(DagInstanceStatuses.Succeeded),
-      Seq(emailDef), updated = None)
+    val rule = TestData.nr1.copy(
+      statuses = Seq(DagInstanceStatuses.Succeeded),
+      recipients = Seq(emailDef)
+    )
 
     await(h2NotificationRuleRepository.insertNotificationRule(rule, testUser))
     val insertedRule = await(db.run(h2NotificationRuleTable.result)).head

@@ -15,6 +15,7 @@
 
 create table "notification_rule" (
   "id" BIGSERIAL NOT NULL PRIMARY KEY,
+  "is_active" BOOLEAN NOT NULL,
   "project" VARCHAR,
   "workflow_prefix" VARCHAR,
   "min_elapsed_secs_last_success" BIGINT,

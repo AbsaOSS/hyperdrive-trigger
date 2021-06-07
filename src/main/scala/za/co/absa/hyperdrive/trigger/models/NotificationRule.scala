@@ -24,6 +24,7 @@ import java.time.LocalDateTime
 
 
 case class NotificationRule(
+  isActive: Boolean,
   project: Option[String],
   workflowPrefix: Option[String],
   @JsonDeserialize(contentAs = classOf[java.lang.Long])
