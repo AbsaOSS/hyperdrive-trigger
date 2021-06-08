@@ -17,13 +17,13 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { provideMockStore } from '@ngrx/store/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { FormsModule } from '@angular/forms';
-import { NotificationRulesCruComponent } from './notification-rules-cru.component';
+import { NotificationRulesFormComponent } from './notification-rules-form.component';
 import { NotificationRuleModelFactory } from '../../../../models/notificationRule.model';
 import { dagInstanceStatuses } from '../../../../models/enums/dagInstanceStatuses.constants';
 
 describe('NotificationRulesCru', () => {
-  let underTest: NotificationRulesCruComponent;
-  let fixture: ComponentFixture<NotificationRulesCruComponent>;
+  let underTest: NotificationRulesFormComponent;
+  let fixture: ComponentFixture<NotificationRulesFormComponent>;
 
   const dummyNotificationRule = NotificationRuleModelFactory.create(
     true,
@@ -51,14 +51,14 @@ describe('NotificationRulesCru', () => {
     waitForAsync(() => {
       TestBed.configureTestingModule({
         providers: [provideMockStore({ initialState: initialAppState })],
-        declarations: [NotificationRulesCruComponent],
+        declarations: [NotificationRulesFormComponent],
         imports: [RouterTestingModule.withRoutes([]), FormsModule],
       }).compileComponents();
     }),
   );
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(NotificationRulesCruComponent);
+    fixture = TestBed.createComponent(NotificationRulesFormComponent);
     underTest = fixture.componentInstance;
   });
 

@@ -30,7 +30,7 @@ import { JobTemplatesHomeComponent } from './components/admin/job-templates/job-
 import { JobTemplateShowComponent } from './components/admin/job-templates/job-template-show/job-template-show.component';
 import { NotificationRulesComponent } from './components/admin/notification-rules/notification-rules.component';
 import { NotificationRulesHomeComponent } from './components/admin/notification-rules/notification-rules-home/notification-rules-home.component';
-import { NotificationRulesCruComponent } from './components/admin/notification-rules/notification-rules-cru/notification-rules-cru.component';
+import { NotificationRulesFormComponent } from './components/admin/notification-rules/notification-rules-form/notification-rules-form.component';
 
 const routes: Routes = [
   { path: routeNames.DEFAULT, redirectTo: routeNames.WORKFLOWS, pathMatch: 'full' },
@@ -64,8 +64,8 @@ const routes: Routes = [
     canActivate: [AuthGuardService],
     children: [
       { path: routeNames.NOTIFICATION_RULES_HOME, component: NotificationRulesHomeComponent, pathMatch: 'full' },
-      { path: routeNames.NOTIFICATION_RULE_ACTION, component: NotificationRulesCruComponent },
-      { path: routeNames.NOTIFICATION_RULE_ACTION_WITH_ID, component: NotificationRulesCruComponent },
+      { path: routeNames.NOTIFICATION_RULE_ACTION, component: NotificationRulesFormComponent },
+      { path: routeNames.NOTIFICATION_RULE_ACTION_WITH_ID, component: NotificationRulesFormComponent },
     ],
   },
 ];
