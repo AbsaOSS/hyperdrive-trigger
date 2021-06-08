@@ -16,7 +16,7 @@
 import { Injectable } from '@angular/core';
 import { Actions, Effect, ofType } from '@ngrx/effects';
 import * as NotificationRulesActions from './notification-rules.actions';
-import { catchError, mergeMap, switchMap } from 'rxjs/operators';
+import { catchError, mergeMap, switchMap, withLatestFrom } from 'rxjs/operators';
 import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
 import { NotificationRuleService } from '../../services/notification-rule/notification-rule.service';
 import { NotificationRuleModel } from '../../models/notificationRule.model';
@@ -25,6 +25,10 @@ import { ToastrService } from 'ngx-toastr';
 import { texts } from '../../constants/texts.constants';
 import { absoluteRoutes } from '../../constants/routes.constants';
 import { Router } from '@angular/router';
+import { AppState, selectNotificationRulesState } from '../app.reducers';
+import * as fromNotificationRules from './notification-rules.reducers';
+import { Store } from '@ngrx/store';
+import { ApiUtil } from '../../utils/api/api.util';
 
 @Injectable()
 export class NotificationRulesEffects {
@@ -33,6 +37,7 @@ export class NotificationRulesEffects {
     private notificationRuleService: NotificationRuleService,
     private toastrService: ToastrService,
     private router: Router,
+    private store: Store<AppState>,
   ) {}
 
   @Effect({ dispatch: true })
@@ -78,6 +83,120 @@ export class NotificationRulesEffects {
           return [
             {
               type: NotificationRulesActions.GET_NOTIFICATION_RULE_FAILURE,
+            },
+          ];
+        }),
+      );
+    }),
+  );
+
+  @Effect({ dispatch: true })
+  notificationRuleCreate = this.actions.pipe(
+    ofType(NotificationRulesActions.CREATE_NOTIFICATION_RULE),
+    withLatestFrom(this.store.select(selectNotificationRulesState)),
+    switchMap(([action, state]: [NotificationRulesActions.CreateNotificationRule, fromNotificationRules.State]) => {
+      return this.notificationRuleService.createNotificationRule(state.notificationRuleAction.notificationRule).pipe(
+        mergeMap((notificationRule: NotificationRuleModel) => {
+          this.toastrService.success(texts.CREATE_NOTIFICATION_RULE_SUCCESS_NOTIFICATION);
+          this.router.navigateByUrl(absoluteRoutes.SHOW_NOTIFICATION_RULE + '/' + notificationRule.id);
+
+          return [
+            {
+              type: NotificationRulesActions.CREATE_NOTIFICATION_RULE_SUCCESS,
+              payload: notificationRule,
+            },
+          ];
+        }),
+        catchError((errorResponse) => {
+          if (ApiUtil.isBackendValidationError(errorResponse)) {
+            return [
+              {
+                type: NotificationRulesActions.CREATE_NOTIFICATION_RULE_FAILURE,
+                payload: errorResponse.map((err) => err.message),
+              },
+            ];
+          } else {
+            this.toastrService.error(texts.CREATE_NOTIFICATION_RULE_FAILURE_NOTIFICATION);
+            return [
+              {
+                type: NotificationRulesActions.CREATE_NOTIFICATION_RULE_FAILURE,
+                payload: [],
+              },
+            ];
+          }
+        }),
+      );
+    }),
+  );
+
+  @Effect({ dispatch: true })
+  notificationRuleUpdate = this.actions.pipe(
+    ofType(NotificationRulesActions.UPDATE_NOTIFICATION_RULE),
+    withLatestFrom(this.store.select(selectNotificationRulesState)),
+    switchMap(([action, state]: [NotificationRulesActions.UpdateNotificationRule, fromNotificationRules.State]) => {
+      return this.notificationRuleService.updateNotificationRule(state.notificationRuleAction.notificationRule).pipe(
+        mergeMap((notificationRule: NotificationRuleModel) => {
+          this.toastrService.success(texts.UPDATE_NOTIFICATION_RULE_SUCCESS_NOTIFICATION);
+          this.router.navigateByUrl(absoluteRoutes.SHOW_NOTIFICATION_RULE + '/' + notificationRule.id);
+
+          return [
+            {
+              type: NotificationRulesActions.UPDATE_NOTIFICATION_RULE_SUCCESS,
+              payload: notificationRule,
+            },
+          ];
+        }),
+        catchError((errorResponse) => {
+          if (ApiUtil.isBackendValidationError(errorResponse)) {
+            return [
+              {
+                type: NotificationRulesActions.UPDATE_NOTIFICATION_RULE_FAILURE,
+                payload: errorResponse.map((err) => err.message),
+              },
+            ];
+          } else {
+            this.toastrService.error(texts.UPDATE_NOTIFICATION_RULE_FAILURE_NOTIFICATION);
+            return [
+              {
+                type: NotificationRulesActions.UPDATE_NOTIFICATION_RULE_FAILURE,
+                payload: [],
+              },
+            ];
+          }
+        }),
+      );
+    }),
+  );
+
+  @Effect({ dispatch: true })
+  notificationRuleDelete = this.actions.pipe(
+    ofType(NotificationRulesActions.DELETE_NOTIFICATION_RULE),
+    switchMap((action: NotificationRulesActions.DeleteNotificationRule) => {
+      return this.notificationRuleService.deleteNotificationRule(action.payload).pipe(
+        mergeMap((result: boolean) => {
+          if (result) {
+            this.router.navigateByUrl(absoluteRoutes.NOTIFICATION_RULES_HOME);
+            this.toastrService.success(texts.DELETE_NOTIFICATION_RULE_SUCCESS_NOTIFICATION);
+            return [
+              {
+                type: NotificationRulesActions.DELETE_NOTIFICATION_RULE_SUCCESS,
+                payload: action.payload,
+              },
+            ];
+          } else {
+            this.toastrService.error(texts.DELETE_NOTIFICATION_RULE_FAILURE_NOTIFICATION);
+            return [
+              {
+                type: NotificationRulesActions.DELETE_NOTIFICATION_RULE_FAILURE,
+              },
+            ];
+          }
+        }),
+        catchError(() => {
+          this.toastrService.error(texts.DELETE_NOTIFICATION_RULE_FAILURE_NOTIFICATION);
+          return [
+            {
+              type: NotificationRulesActions.DELETE_NOTIFICATION_RULE_FAILURE,
             },
           ];
         }),

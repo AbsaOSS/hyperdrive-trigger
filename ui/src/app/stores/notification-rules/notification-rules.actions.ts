@@ -17,13 +17,29 @@ import { Action } from '@ngrx/store';
 import { TableSearchRequestModel } from '../../models/search/tableSearchRequest.model';
 import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
 import { NotificationRuleModel } from '../../models/notificationRule.model';
+import { WorkflowEntryModel } from '../../models/workflowEntry.model';
 
 export const SEARCH_NOTIFICATION_RULES = 'SEARCH_NOTIFICATION_RULES';
 export const SEARCH_NOTIFICATION_RULES_SUCCESS = 'SEARCH_NOTIFICATION_RULES_SUCCESS';
 export const SEARCH_NOTIFICATION_RULES_FAILURE = 'SEARCH_NOTIFICATION_RULES_FAILURE';
+
 export const GET_NOTIFICATION_RULE = 'GET_NOTIFICATION_RULE';
 export const GET_NOTIFICATION_RULE_SUCCESS = 'GET_NOTIFICATION_RULE_SUCCESS';
 export const GET_NOTIFICATION_RULE_FAILURE = 'GET_NOTIFICATION_RULE_FAILURE';
+
+export const CREATE_NOTIFICATION_RULE = 'CREATE_NOTIFICATION_RULE';
+export const CREATE_NOTIFICATION_RULE_SUCCESS = 'CREATE_NOTIFICATION_RULE_SUCCESS';
+export const CREATE_NOTIFICATION_RULE_FAILURE = 'CREATE_NOTIFICATION_RULE_FAILURE';
+
+export const UPDATE_NOTIFICATION_RULE = 'UPDATE_NOTIFICATION_RULE';
+export const UPDATE_NOTIFICATION_RULE_SUCCESS = 'UPDATE_NOTIFICATION_RULE_SUCCESS';
+export const UPDATE_NOTIFICATION_RULE_FAILURE = 'UPDATE_NOTIFICATION_RULE_FAILURE';
+
+export const DELETE_NOTIFICATION_RULE = 'DELETE_NOTIFICATION_RULE';
+export const DELETE_NOTIFICATION_RULE_SUCCESS = 'DELETE_NOTIFICATION_RULE_SUCCESS';
+export const DELETE_NOTIFICATION_RULE_FAILURE = 'DELETE_NOTIFICATION_RULE_FAILURE';
+
+export const NOTIFICATION_RULE_CHANGED = 'NOTIFICATION_RULE_CHANGED';
 
 export class SearchNotificationRules implements Action {
   readonly type = SEARCH_NOTIFICATION_RULES;
@@ -53,10 +69,67 @@ export class GetNotificationRuleFailure implements Action {
   readonly type = GET_NOTIFICATION_RULE_FAILURE;
 }
 
+export class CreateNotificationRule implements Action {
+  readonly type = CREATE_NOTIFICATION_RULE;
+}
+
+export class CreateNotificationRuleSuccess implements Action {
+  readonly type = CREATE_NOTIFICATION_RULE_SUCCESS;
+  constructor(public payload: NotificationRuleModel) {}
+}
+
+export class CreateNotificationRuleFailure implements Action {
+  readonly type = CREATE_NOTIFICATION_RULE_FAILURE;
+  constructor(public payload: string[]) {}
+}
+
+export class UpdateNotificationRule implements Action {
+  readonly type = UPDATE_NOTIFICATION_RULE;
+}
+
+export class UpdateNotificationRuleSuccess implements Action {
+  readonly type = UPDATE_NOTIFICATION_RULE_SUCCESS;
+  constructor(public payload: NotificationRuleModel) {}
+}
+
+export class UpdateNotificationRuleFailure implements Action {
+  readonly type = UPDATE_NOTIFICATION_RULE_FAILURE;
+  constructor(public payload: string[]) {}
+}
+
+export class DeleteNotificationRule implements Action {
+  readonly type = DELETE_NOTIFICATION_RULE;
+  constructor(public payload: number) {}
+}
+
+export class DeleteNotificationRuleSuccess implements Action {
+  readonly type = DELETE_NOTIFICATION_RULE_SUCCESS;
+  constructor(public payload: number) {}
+}
+
+export class DeleteNotificationRuleFailure implements Action {
+  readonly type = DELETE_NOTIFICATION_RULE_FAILURE;
+}
+
+export class NotificationRuleChanged implements Action {
+  readonly type = NOTIFICATION_RULE_CHANGED;
+  constructor(public payload: WorkflowEntryModel) {}
+}
+
 export type NotificationRulesActions =
   | SearchNotificationRules
   | SearchNotificationRulesSuccess
   | SearchNotificationRulesFailure
+  | CreateNotificationRule
+  | CreateNotificationRuleSuccess
+  | CreateNotificationRuleFailure
   | GetNotificationRule
   | GetNotificationRuleSuccess
-  | GetNotificationRuleFailure;
+  | GetNotificationRuleFailure
+  | UpdateNotificationRule
+  | UpdateNotificationRuleSuccess
+  | UpdateNotificationRuleFailure
+  | DeleteNotificationRule
+  | DeleteNotificationRuleSuccess
+  | DeleteNotificationRuleFailure
+  | NotificationRuleChanged;

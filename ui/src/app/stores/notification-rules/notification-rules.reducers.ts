@@ -13,9 +13,8 @@
  * limitations under the License.
  */
 
-import * as NotificationRulesActions from './notification-rules.actions';
 import { NotificationRuleModel } from '../../models/notificationRule.model';
-import * as JobTemplatesActions from '../job-templates/job-templates.actions';
+import * as NotificationRulesActions from '../notification-rules/notification-rules.actions';
 
 export interface State {
   notificationRules: NotificationRuleModel[];
@@ -26,6 +25,7 @@ export interface State {
     id: number;
     loading: boolean;
     notificationRule: NotificationRuleModel;
+    backendValidationErrors: string[];
   };
 }
 
@@ -38,6 +38,7 @@ const initialState: State = {
     id: undefined,
     loading: true,
     notificationRule: undefined,
+    backendValidationErrors: undefined,
   },
 };
 
@@ -55,6 +56,7 @@ export function notificationRulesReducer(state: State = initialState, action: No
     case NotificationRulesActions.SEARCH_NOTIFICATION_RULES_FAILURE:
       return { ...initialState, loading: false };
     case NotificationRulesActions.GET_NOTIFICATION_RULE:
+    case NotificationRulesActions.DELETE_NOTIFICATION_RULE:
       return {
         ...state,
         notificationRuleAction: {
@@ -63,7 +65,18 @@ export function notificationRulesReducer(state: State = initialState, action: No
           loading: true,
         },
       };
+    case NotificationRulesActions.CREATE_NOTIFICATION_RULE:
+    case NotificationRulesActions.UPDATE_NOTIFICATION_RULE:
+      return {
+        ...state,
+        notificationRuleAction: {
+          ...state.notificationRuleAction,
+          loading: true,
+        },
+      };
     case NotificationRulesActions.GET_NOTIFICATION_RULE_SUCCESS:
+    case NotificationRulesActions.CREATE_NOTIFICATION_RULE_SUCCESS:
+    case NotificationRulesActions.UPDATE_NOTIFICATION_RULE_SUCCESS:
       return {
         ...state,
         notificationRuleAction: {
@@ -72,7 +85,17 @@ export function notificationRulesReducer(state: State = initialState, action: No
           notificationRule: action.payload,
         },
       };
+    case NotificationRulesActions.DELETE_NOTIFICATION_RULE_SUCCESS:
+      return {
+        ...state,
+        notificationRuleAction: {
+          ...state.notificationRuleAction,
+          loading: false,
+          id: action.payload,
+        },
+      };
     case NotificationRulesActions.GET_NOTIFICATION_RULE_FAILURE:
+    case NotificationRulesActions.DELETE_NOTIFICATION_RULE_FAILURE:
       return {
         ...state,
         notificationRuleAction: {
@@ -80,7 +103,24 @@ export function notificationRulesReducer(state: State = initialState, action: No
           loading: false,
         },
       };
-
+    case NotificationRulesActions.CREATE_NOTIFICATION_RULE_FAILURE:
+    case NotificationRulesActions.UPDATE_NOTIFICATION_RULE_FAILURE:
+      return {
+        ...state,
+        notificationRuleAction: {
+          ...state.notificationRuleAction,
+          backendValidationErrors: action.payload,
+          loading: false,
+        },
+      };
+    case NotificationRulesActions.NOTIFICATION_RULE_CHANGED:
+      return {
+        ...state,
+        notificationRuleAction: {
+          ...state.notificationRuleAction,
+          notificationRule: { ...state.notificationRuleAction.notificationRule, [action.payload.property]: action.payload.value },
+        },
+      };
     default:
       return state;
   }

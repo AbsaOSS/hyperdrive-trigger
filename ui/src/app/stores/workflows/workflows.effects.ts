@@ -43,6 +43,7 @@ import { ApiErrorModel } from '../../models/errors/apiError.model';
 import { BulkOperationErrorModel } from '../../models/errors/bulkOperationError.model';
 import { UtilService } from '../../services/util/util.service';
 import groupBy from 'lodash-es/groupBy';
+import { ApiUtil } from '../../utils/api/api.util';
 
 @Injectable()
 export class WorkflowsEffects {
@@ -274,7 +275,7 @@ export class WorkflowsEffects {
           ];
         }),
         catchError((errorResponse) => {
-          if (this.isBackendValidationError(errorResponse)) {
+          if (ApiUtil.isBackendValidationError(errorResponse)) {
             return [
               {
                 type: WorkflowActions.CREATE_WORKFLOW_FAILURE,
@@ -327,7 +328,7 @@ export class WorkflowsEffects {
           ];
         }),
         catchError((errorResponse) => {
-          if (this.isBackendValidationError(errorResponse)) {
+          if (ApiUtil.isBackendValidationError(errorResponse)) {
             return [
               {
                 type: WorkflowActions.UPDATE_WORKFLOW_FAILURE,
@@ -512,8 +513,8 @@ export class WorkflowsEffects {
           }
         }),
         catchError((errorResponse) => {
-          if (this.isApiError(errorResponse)) {
-            const message = this.concatenateApiErrors(errorResponse as ApiErrorModel[]);
+          if (ApiUtil.isApiError(errorResponse)) {
+            const message = ApiUtil.concatenateApiErrors(errorResponse as ApiErrorModel[]);
             this.toastrService.error(message);
           } else {
             this.toastrService.error(texts.RUN_WORKFLOWS_FAILURE_NOTIFICATION);
@@ -549,8 +550,8 @@ export class WorkflowsEffects {
           ];
         }),
         catchError((errorResponse) => {
-          if (this.isApiError(errorResponse)) {
-            const message = this.concatenateApiErrors(errorResponse as ApiErrorModel[]);
+          if (ApiUtil.isApiError(errorResponse)) {
+            const message = ApiUtil.concatenateApiErrors(errorResponse as ApiErrorModel[]);
             this.toastrService.error(message);
           } else {
             this.toastrService.error(texts.EXPORT_WORKFLOWS_FAILURE_NOTIFICATION);
@@ -588,8 +589,8 @@ export class WorkflowsEffects {
             ];
           }),
           catchError((errorResponse) => {
-            if (this.isApiError(errorResponse)) {
-              const message = this.concatenateApiErrors(errorResponse as ApiErrorModel[]);
+            if (ApiUtil.isApiError(errorResponse)) {
+              const message = ApiUtil.concatenateApiErrors(errorResponse as ApiErrorModel[]);
               this.toastrService.error(message);
             } else {
               this.toastrService.error(texts.IMPORT_WORKFLOW_FAILURE_NOTIFICATION);
@@ -629,7 +630,7 @@ export class WorkflowsEffects {
           ];
         }),
         catchError((errorResponse) => {
-          if (this.isBulkOperationError(errorResponse)) {
+          if (ApiUtil.isBulkOperationError(errorResponse)) {
             const errorGroups: { [key: string]: BulkOperationErrorModel[] } = groupBy(
               errorResponse as BulkOperationErrorModel[],
               'workflowIdentifier',
@@ -659,28 +660,4 @@ export class WorkflowsEffects {
       );
     }),
   );
-
-  concatenateApiErrors(apiErrors: ApiErrorModel[]): string {
-    return apiErrors.map((apiError) => apiError.message).reduce((a, b) => `${a}\n${b}`);
-  }
-
-  isApiError(errorResponse: any): boolean {
-    return Array.isArray(errorResponse) && errorResponse.every((err) => this.isInstanceOfApiError(err));
-  }
-
-  isInstanceOfApiError(object: any): object is ApiErrorModel {
-    return 'message' in object;
-  }
-
-  isBulkOperationError(errorResponse: any): boolean {
-    return Array.isArray(errorResponse) && errorResponse.every((err) => this.isInstanceOfBulkOperationError(err));
-  }
-
-  isInstanceOfBulkOperationError(object: any): object is BulkOperationErrorModel {
-    return 'innerError' in object;
-  }
-
-  isBackendValidationError(errorResponse: any): boolean {
-    return this.isApiError(errorResponse) && errorResponse.every((err) => err.errorType.name == 'validationError');
-  }
 }

@@ -22,52 +22,80 @@ import { cold } from 'jasmine-marbles';
 import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
 import { SortAttributesModel } from '../../models/search/sortAttributes.model';
 import { NotificationRulesEffects } from './notification-rules.effects';
-import { NotificationRuleService } from '../../services/notification-rule/notification-rule.service';
-import { NotificationRuleModel, NotificationRuleModelFactory } from '../../models/notificationRule.model';
-import * as NotificationRulesActions from './notification-rules.actions';
-import { GetNotificationRule, SearchNotificationRules } from './notification-rules.actions';
+import {
+  CreateNotificationRule,
+  DeleteNotificationRule,
+  GetNotificationRule,
+  SearchNotificationRules,
+  UpdateNotificationRule,
+} from './notification-rules.actions';
 import { createSpyFromClass, Spy } from 'jasmine-auto-spies';
-import { WorkflowService } from '../../services/workflow/workflow.service';
+import { NotificationRuleService } from '../../services/notification-rule/notification-rule.service';
 import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
 import { texts } from '../../constants/texts.constants';
 import { absoluteRoutes } from '../../constants/routes.constants';
 import { dagInstanceStatuses } from '../../models/enums/dagInstanceStatuses.constants';
+import * as NotificationRulesActions from '../notification-rules/notification-rules.actions';
+import { ApiErrorModelFactory } from '../../models/errors/apiError.model';
+import { NotificationRuleModel, NotificationRuleModelFactory } from '../../models/notificationRule.model';
+import { MockStore, provideMockStore } from '@ngrx/store/testing';
 
 describe('NotificationRulesEffects', () => {
   let underTest: NotificationRulesEffects;
-  let notificationRuleService: Spy<NotificationRuleService>;
-  let workflowService: Spy<WorkflowService>;
+  let notificationRuleServiceSpy: Spy<NotificationRuleService>;
   let mockActions: Observable<any>;
+  let mockStore: MockStore;
   let toastrServiceSpy: Spy<ToastrService>;
   let routerSpy: Spy<Router>;
+
+  const dummyNotificationRule = NotificationRuleModelFactory.create(
+    true,
+    'Project 1',
+    undefined,
+    7200,
+    [dagInstanceStatuses.SUCCEEDED, dagInstanceStatuses.FAILED],
+    ['abc@xyz.com'],
+    new Date(Date.now()),
+    undefined,
+    1,
+  );
+
+  const initialAppState = {
+    notificationRules: {
+      notificationRuleAction: {
+        id: 10,
+        loading: false,
+        notificationRule: dummyNotificationRule,
+      },
+    },
+  };
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
         NotificationRulesEffects,
         { provide: NotificationRuleService, useValue: createSpyFromClass(NotificationRuleService) },
-        { provide: WorkflowService, useValue: createSpyFromClass(WorkflowService) },
+        { provide: NotificationRuleService, useValue: createSpyFromClass(NotificationRuleService) },
         { provide: ToastrService, useValue: createSpyFromClass(ToastrService) },
         { provide: Router, useValue: createSpyFromClass(Router) },
+        provideMockStore({ initialState: initialAppState }),
         provideMockActions(() => mockActions),
       ],
       imports: [HttpClientTestingModule],
     });
 
     underTest = TestBed.inject(NotificationRulesEffects);
-    notificationRuleService = TestBed.inject<any>(NotificationRuleService);
-    workflowService = TestBed.inject<any>(WorkflowService);
+    notificationRuleServiceSpy = TestBed.inject<any>(NotificationRuleService);
     mockActions = TestBed.inject(Actions);
+    mockStore = TestBed.inject(MockStore);
     toastrServiceSpy = TestBed.inject<any>(ToastrService);
     routerSpy = TestBed.inject<any>(Router);
   });
 
   describe('notificationRulesSearch', () => {
     it('should return job templates', () => {
-      const notificationRule = NotificationRuleFixture.create();
-
-      const searchResponse = new TableSearchResponseModel<NotificationRuleModel>([notificationRule], 1);
+      const searchResponse = new TableSearchResponseModel<NotificationRuleModel>([dummyNotificationRule], 1);
 
       const action = new SearchNotificationRules({ from: 0, size: 0, sort: new SortAttributesModel('', 0) });
       mockActions = cold('-a', { a: action });
@@ -78,7 +106,7 @@ describe('NotificationRulesEffects', () => {
           payload: { notificationRulesSearchResponse: searchResponse },
         },
       });
-      notificationRuleService.searchNotificationRules.and.returnValue(searchNotificationRulesResponse);
+      notificationRuleServiceSpy.searchNotificationRules.and.returnValue(searchNotificationRulesResponse);
 
       expect(underTest.notificationRulesSearch).toBeObservable(expected);
     });
@@ -87,7 +115,7 @@ describe('NotificationRulesEffects', () => {
       const action = new SearchNotificationRules({ from: 0, size: 0, sort: new SortAttributesModel('', 0) });
       mockActions = cold('-a', { a: action });
       const errorResponse = cold('-#|');
-      notificationRuleService.searchNotificationRules.and.returnValue(errorResponse);
+      notificationRuleServiceSpy.searchNotificationRules.and.returnValue(errorResponse);
 
       const expected = cold('--a', {
         a: {
@@ -100,7 +128,7 @@ describe('NotificationRulesEffects', () => {
 
   describe('notificationRuleGet', () => {
     it('should return notification rule', () => {
-      const notificationRule = NotificationRuleFixture.create();
+      const notificationRule = dummyNotificationRule;
       const action = new GetNotificationRule(notificationRule.id);
       mockActions = cold('-a', { a: action });
       const getNotificationRuleResponse = cold('-a|', { a: notificationRule });
@@ -110,7 +138,7 @@ describe('NotificationRulesEffects', () => {
           payload: notificationRule,
         },
       });
-      notificationRuleService.getNotificationRule.and.returnValue(getNotificationRuleResponse);
+      notificationRuleServiceSpy.getNotificationRule.and.returnValue(getNotificationRuleResponse);
 
       expect(underTest.notificationRuleGet).toBeObservable(expected);
     });
@@ -122,7 +150,7 @@ describe('NotificationRulesEffects', () => {
       const action = new GetNotificationRule(10);
       mockActions = cold('-a', { a: action });
       const errorResponse = cold('-#|');
-      notificationRuleService.getNotificationRule.and.returnValue(errorResponse);
+      notificationRuleServiceSpy.getNotificationRule.and.returnValue(errorResponse);
 
       const expected = cold('--a', {
         a: {
@@ -134,20 +162,214 @@ describe('NotificationRulesEffects', () => {
       expect(routerNavigateByUrlSpy).toHaveBeenCalledWith(absoluteRoutes.NOTIFICATION_RULES);
     });
   });
-});
 
-class NotificationRuleFixture {
-  static create(): NotificationRuleModel {
-    return NotificationRuleModelFactory.create(
-      true,
-      'Project 1',
-      undefined,
-      7200,
-      [dagInstanceStatuses.SUCCEEDED, dagInstanceStatuses.FAILED],
-      ['abc@xyz.com'],
-      new Date(Date.now()),
-      undefined,
-      1,
-    );
-  }
-}
+  describe('notificationRuleCreate', () => {
+    it('should return create notificationRule failure with no backend validation errors when service fails to create notificationRule', () => {
+      const toastrServiceSpyError = toastrServiceSpy.error;
+
+      const action = new CreateNotificationRule();
+      mockActions = cold('-a', { a: action });
+      const createNotificationRuleResponse = cold('-#|', null, 'notValidationError');
+
+      const expected = cold('--a', {
+        a: {
+          type: NotificationRulesActions.CREATE_NOTIFICATION_RULE_FAILURE,
+          payload: [],
+        },
+      });
+
+      notificationRuleServiceSpy.createNotificationRule.and.returnValue(createNotificationRuleResponse);
+
+      expect(underTest.notificationRuleCreate).toBeObservable(expected);
+      expect(toastrServiceSpyError).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpyError).toHaveBeenCalledWith(texts.CREATE_NOTIFICATION_RULE_FAILURE_NOTIFICATION);
+    });
+
+    it('should return create notificationRule failure with backend validation errors when service fails to create notificationRule', () => {
+      const toastrServiceSpyError = toastrServiceSpy.error;
+      const error = ApiErrorModelFactory.create('error', { name: 'validationError' });
+
+      const action = new CreateNotificationRule();
+      mockActions = cold('-a', { a: action });
+      const createNotificationRuleResponse = cold('-#|', null, [error]);
+
+      const expected = cold('--a', {
+        a: {
+          type: NotificationRulesActions.CREATE_NOTIFICATION_RULE_FAILURE,
+          payload: [error.message],
+        },
+      });
+
+      notificationRuleServiceSpy.createNotificationRule.and.returnValue(createNotificationRuleResponse);
+
+      expect(underTest.notificationRuleCreate).toBeObservable(expected);
+      expect(toastrServiceSpyError).toHaveBeenCalledTimes(0);
+    });
+
+    it('should return create notificationRule success when service returns success creation', () => {
+      const toastrServiceSpySuccess = toastrServiceSpy.success;
+      const routerSpyNavigate = routerSpy.navigateByUrl;
+
+      const notificationRule = dummyNotificationRule;
+      const createNotificationRuleSuccessPayload: NotificationRuleModel = dummyNotificationRule;
+
+      const action = new CreateNotificationRule();
+      mockActions = cold('-a', { a: action });
+
+      const createNotificationRuleResponse = cold('-a|', { a: notificationRule });
+
+      const expected = cold('--a', {
+        a: {
+          type: NotificationRulesActions.CREATE_NOTIFICATION_RULE_SUCCESS,
+          payload: createNotificationRuleSuccessPayload,
+        },
+      });
+
+      notificationRuleServiceSpy.createNotificationRule.and.returnValue(createNotificationRuleResponse);
+
+      expect(underTest.notificationRuleCreate).toBeObservable(expected);
+      expect(toastrServiceSpySuccess).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpySuccess).toHaveBeenCalledWith(texts.CREATE_NOTIFICATION_RULE_SUCCESS_NOTIFICATION);
+      expect(routerSpyNavigate).toHaveBeenCalledTimes(1);
+      expect(routerSpyNavigate).toHaveBeenCalledWith(absoluteRoutes.SHOW_NOTIFICATION_RULE + '/' + notificationRule.id);
+    });
+  });
+
+  describe('notificationRuleUpdate', () => {
+    it('should return update notificationRule failure with no backend validation errors when service fails to update notificationRule', () => {
+      const toastrServiceSpyError = toastrServiceSpy.error;
+
+      const action = new UpdateNotificationRule();
+      mockActions = cold('-a', { a: action });
+      const updateNotificationRuleResponse = cold('-#|', null, 'notNotificationRuleValidation');
+
+      const expected = cold('--a', {
+        a: {
+          type: NotificationRulesActions.UPDATE_NOTIFICATION_RULE_FAILURE,
+          payload: [],
+        },
+      });
+
+      notificationRuleServiceSpy.updateNotificationRule.and.returnValue(updateNotificationRuleResponse);
+
+      expect(underTest.notificationRuleUpdate).toBeObservable(expected);
+      expect(toastrServiceSpyError).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpyError).toHaveBeenCalledWith(texts.UPDATE_NOTIFICATION_RULE_FAILURE_NOTIFICATION);
+    });
+
+    it('should return update notificationRule failure with backend validation errors when service fails to update notificationRule', () => {
+      const toastrServiceSpyError = toastrServiceSpy.error;
+      const error = ApiErrorModelFactory.create('error', { name: 'validationError' });
+      const action = new UpdateNotificationRule();
+      mockActions = cold('-a', { a: action });
+      const updateNotificationRuleResponse = cold('-#|', null, [error]);
+
+      const expected = cold('--a', {
+        a: {
+          type: NotificationRulesActions.UPDATE_NOTIFICATION_RULE_FAILURE,
+          payload: [error.message],
+        },
+      });
+
+      notificationRuleServiceSpy.updateNotificationRule.and.returnValue(updateNotificationRuleResponse);
+
+      expect(underTest.notificationRuleUpdate).toBeObservable(expected);
+      expect(toastrServiceSpyError).toHaveBeenCalledTimes(0);
+    });
+
+    it('should return create notificationRule success when service returns success creation', () => {
+      const toastrServiceSpySuccess = toastrServiceSpy.success;
+      const routerSpyNavigate = routerSpy.navigateByUrl;
+
+      const notificationRule = dummyNotificationRule;
+
+      const action = new UpdateNotificationRule();
+      mockActions = cold('-a', { a: action });
+
+      const updateNotificationRuleResponse = cold('-a|', { a: notificationRule });
+
+      const expected = cold('--a', {
+        a: {
+          type: NotificationRulesActions.UPDATE_NOTIFICATION_RULE_SUCCESS,
+          payload: notificationRule,
+        },
+      });
+
+      notificationRuleServiceSpy.updateNotificationRule.and.returnValue(updateNotificationRuleResponse);
+
+      expect(underTest.notificationRuleUpdate).toBeObservable(expected);
+      expect(toastrServiceSpySuccess).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpySuccess).toHaveBeenCalledWith(texts.UPDATE_NOTIFICATION_RULE_SUCCESS_NOTIFICATION);
+      expect(routerSpyNavigate).toHaveBeenCalledTimes(1);
+      expect(routerSpyNavigate).toHaveBeenCalledWith(absoluteRoutes.SHOW_NOTIFICATION_RULE + '/' + notificationRule.id);
+    });
+  });
+
+  describe('notificationRuleDelete', () => {
+    it('should return delete notificationRule success when service returns success deletion', () => {
+      const toastrServiceSpySuccess = toastrServiceSpy.success;
+      const routerSpyNavigate = routerSpy.navigateByUrl;
+      const payload = 10;
+      const response = true;
+
+      const action = new DeleteNotificationRule(payload);
+      mockActions = cold('-a', { a: action });
+
+      const deleteNotificationRuleResponse = cold('-a|', { a: response });
+      const expected = cold('--a', {
+        a: {
+          type: NotificationRulesActions.DELETE_NOTIFICATION_RULE_SUCCESS,
+          payload: payload,
+        },
+      });
+
+      notificationRuleServiceSpy.deleteNotificationRule.and.returnValue(deleteNotificationRuleResponse);
+
+      expect(underTest.notificationRuleDelete).toBeObservable(expected);
+      expect(toastrServiceSpySuccess).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpySuccess).toHaveBeenCalledWith(texts.DELETE_NOTIFICATION_RULE_SUCCESS_NOTIFICATION);
+      expect(routerSpyNavigate).toHaveBeenCalledTimes(1);
+      expect(routerSpyNavigate).toHaveBeenCalledWith(absoluteRoutes.NOTIFICATION_RULES_HOME);
+    });
+
+    it('should return delete notificationRule failure when service fails to delete notificationRule', () => {
+      const toastrServiceSpyError = toastrServiceSpy.error;
+      const payload = 10;
+      const response = false;
+
+      const action = new DeleteNotificationRule(payload);
+      mockActions = cold('-a', { a: action });
+
+      const deleteNotificationRuleResponse = cold('-a|', { a: response });
+      const expected = cold('--a', {
+        a: {
+          type: NotificationRulesActions.DELETE_NOTIFICATION_RULE_FAILURE,
+        },
+      });
+
+      notificationRuleServiceSpy.deleteNotificationRule.and.returnValue(deleteNotificationRuleResponse);
+
+      expect(underTest.notificationRuleDelete).toBeObservable(expected);
+      expect(toastrServiceSpyError).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpyError).toHaveBeenCalledWith(texts.DELETE_NOTIFICATION_RULE_FAILURE_NOTIFICATION);
+    });
+
+    it('should return delete notificationRule failure when service throws exception while deleting notificationRule', () => {
+      const toastrServiceSpyError = toastrServiceSpy.error;
+      const payload = 10;
+      const action = new DeleteNotificationRule(payload);
+      mockActions = cold('-a', { a: action });
+
+      const errorResponse = cold('-#|');
+      notificationRuleServiceSpy.deleteNotificationRule.and.returnValue(errorResponse);
+      const expected = cold('--a', {
+        a: {
+          type: NotificationRulesActions.DELETE_NOTIFICATION_RULE_FAILURE,
+        },
+      });
+      expect(underTest.notificationRuleDelete).toBeObservable(expected);
+      expect(toastrServiceSpyError).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpyError).toHaveBeenCalledWith(texts.DELETE_NOTIFICATION_RULE_FAILURE_NOTIFICATION);
+    });
+  });
+});

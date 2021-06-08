@@ -15,17 +15,28 @@
 
 import { SortAttributesModel } from '../../models/search/sortAttributes.model';
 import {
+  CreateNotificationRule,
+  CreateNotificationRuleFailure,
+  CreateNotificationRuleSuccess,
+  DeleteNotificationRule,
+  DeleteNotificationRuleFailure,
+  DeleteNotificationRuleSuccess,
   GetNotificationRule,
   GetNotificationRuleFailure,
   GetNotificationRuleSuccess,
+  NotificationRuleChanged,
   SearchNotificationRules,
   SearchNotificationRulesFailure,
   SearchNotificationRulesSuccess,
+  UpdateNotificationRule,
+  UpdateNotificationRuleFailure,
+  UpdateNotificationRuleSuccess,
 } from './notification-rules.actions';
 import { State, notificationRulesReducer } from './notification-rules.reducers';
 import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
 import { NotificationRuleModel, NotificationRuleModelFactory } from '../../models/notificationRule.model';
 import { dagInstanceStatuses } from '../../models/enums/dagInstanceStatuses.constants';
+import { WorkflowEntryModelFactory } from '../../models/workflowEntry.model';
 
 describe('NotificationRulesReducers', () => {
   const initialState = {
@@ -37,10 +48,11 @@ describe('NotificationRulesReducers', () => {
       id: undefined,
       loading: true,
       notificationRule: undefined,
+      backendValidationErrors: undefined,
     },
   } as State;
 
-  it('should set loading to true on search job templates', () => {
+  it('should set loading to true on search notification rules', () => {
     const notificationRulesAction = new SearchNotificationRules({ from: 0, size: 0, sort: new SortAttributesModel('', 0) });
 
     const actual = notificationRulesReducer(initialState, notificationRulesAction);
@@ -115,6 +127,168 @@ describe('NotificationRulesReducers', () => {
       notificationRuleAction: {
         ...initialState.notificationRuleAction,
         loading: false,
+      },
+    });
+  });
+
+  it('should set loading to true on create notification rule', () => {
+    const notificationRulesAction = new CreateNotificationRule();
+
+    const actual = notificationRulesReducer(initialState, notificationRulesAction);
+
+    expect(actual).toEqual({
+      ...initialState,
+      notificationRuleAction: {
+        ...initialState.notificationRuleAction,
+        loading: true,
+      },
+    });
+  });
+
+  it('should set loading to false and notification rule on create notification rule success', () => {
+    const notificationRule = NotificationRuleFixture.create();
+
+    const notificationRulesAction = new CreateNotificationRuleSuccess(notificationRule);
+
+    const actual = notificationRulesReducer(initialState, notificationRulesAction);
+
+    expect(actual).toEqual({
+      ...initialState,
+      notificationRuleAction: {
+        ...initialState.notificationRuleAction,
+        notificationRule: notificationRule,
+        loading: false,
+      },
+    });
+  });
+
+  it('should set loading to false and set validation errors on create notification rule failure', () => {
+    const apiErrors = ['error1', 'error2'];
+    const notificationRulesAction = new CreateNotificationRuleFailure(apiErrors);
+
+    const actual = notificationRulesReducer(initialState, notificationRulesAction);
+
+    expect(actual).toEqual({
+      ...initialState,
+      notificationRuleAction: {
+        ...initialState.notificationRuleAction,
+        backendValidationErrors: apiErrors,
+        loading: false,
+      },
+    });
+  });
+
+  it('should set loading to true on update notification rule', () => {
+    const notificationRulesAction = new UpdateNotificationRule();
+
+    const actual = notificationRulesReducer(initialState, notificationRulesAction);
+
+    expect(actual).toEqual({
+      ...initialState,
+      notificationRuleAction: {
+        ...initialState.notificationRuleAction,
+        loading: true,
+      },
+    });
+  });
+
+  it('should set loading to false and notification rule on update notification rule success', () => {
+    const notificationRule = NotificationRuleFixture.create();
+
+    const notificationRulesAction = new UpdateNotificationRuleSuccess(notificationRule);
+
+    const actual = notificationRulesReducer(initialState, notificationRulesAction);
+
+    expect(actual).toEqual({
+      ...initialState,
+      notificationRuleAction: {
+        ...initialState.notificationRuleAction,
+        notificationRule: notificationRule,
+        loading: false,
+      },
+    });
+  });
+
+  it('should set loading to false and set validation errors on update notification rule failure', () => {
+    const apiErrors = ['error1', 'error2'];
+    const notificationRulesAction = new UpdateNotificationRuleFailure(apiErrors);
+
+    const actual = notificationRulesReducer(initialState, notificationRulesAction);
+
+    expect(actual).toEqual({
+      ...initialState,
+      notificationRuleAction: {
+        ...initialState.notificationRuleAction,
+        backendValidationErrors: apiErrors,
+        loading: false,
+      },
+    });
+  });
+
+  it('should set loading to true on delete notification rule', () => {
+    const id = 42;
+    const notificationRulesAction = new DeleteNotificationRule(id);
+
+    const actual = notificationRulesReducer(initialState, notificationRulesAction);
+
+    expect(actual).toEqual({
+      ...initialState,
+      notificationRuleAction: {
+        ...initialState.notificationRuleAction,
+        id: id,
+        loading: true,
+      },
+    });
+  });
+
+  it('should set loading to false and notification rule id on delete notification rule success', () => {
+    const id = 42;
+    const notificationRulesAction = new DeleteNotificationRuleSuccess(id);
+
+    const actual = notificationRulesReducer(initialState, notificationRulesAction);
+
+    expect(actual).toEqual({
+      ...initialState,
+      notificationRuleAction: {
+        ...initialState.notificationRuleAction,
+        id: id,
+        loading: false,
+      },
+    });
+  });
+
+  it('should set loading to false on delete notification rule failure', () => {
+    const notificationRulesAction = new DeleteNotificationRuleFailure();
+
+    const actual = notificationRulesReducer(initialState, notificationRulesAction);
+
+    expect(actual).toEqual({
+      ...initialState,
+      notificationRuleAction: {
+        ...initialState.notificationRuleAction,
+        loading: false,
+      },
+    });
+  });
+
+  it('should update the notification rule on notification rule changed', () => {
+    const notificationRule = NotificationRuleFixture.create();
+    const notificationRulesAction = new NotificationRuleChanged(WorkflowEntryModelFactory.create('workflowPrefix', 'some-value'));
+
+    const previousState = {
+      ...initialState,
+      notificationRuleAction: {
+        ...initialState.notificationRuleAction,
+        notificationRule: notificationRule,
+      },
+    };
+    const actual = notificationRulesReducer(previousState, notificationRulesAction);
+
+    expect(actual).toEqual({
+      ...initialState,
+      notificationRuleAction: {
+        ...initialState.notificationRuleAction,
+        notificationRule: { ...notificationRule, workflowPrefix: 'some-value' },
       },
     });
   });

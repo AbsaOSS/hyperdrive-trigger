@@ -748,54 +748,6 @@ describe('WorkflowsEffects', () => {
     });
   });
 
-  describe('isApiError', () => {
-    it('should return false if string is passed', () => {
-      const errorResponse = 'errorResponse';
-      expect(underTest.isApiError(errorResponse)).toBeFalsy();
-    });
-
-    it('should return false if wrong object is passed', () => {
-      const errorResponse: Record<string, any> = { fieldOne: 'fieldOne', fieldTwo: true, fieldThree: { nestedField: 99 } };
-      expect(underTest.isApiError(errorResponse)).toBeFalsy();
-    });
-
-    it('should return false if array with wrong object is passed', () => {
-      const errorResponse: Array<any> = [{ fieldOne: 'fieldOne', fieldTwo: true, fieldThree: { nestedField: 99 } }];
-      expect(underTest.isApiError(errorResponse)).toBeFalsy();
-    });
-
-    it('should return true if array with any error type is passed', () => {
-      const errorResponse: ApiErrorModel[] = [
-        ApiErrorModelFactory.create('message1', { name: 'validationError' }),
-        ApiErrorModelFactory.create('message2', { name: 'someError' }),
-      ];
-      expect(underTest.isApiError(errorResponse)).toBeTruthy();
-    });
-  });
-
-  describe('isBackendValidationError', () => {
-    it('should return false if string is passed', () => {
-      const errorResponse = 'errorResponse';
-      expect(underTest.isBackendValidationError(errorResponse)).toBeFalsy();
-    });
-
-    it('should return false if correct object array is passed with incorrect error type', () => {
-      const errorResponse: ApiErrorModel[] = [
-        ApiErrorModelFactory.create('message1', { name: 'validationError' }),
-        ApiErrorModelFactory.create('message2', { name: 'wrongName' }),
-      ];
-      expect(underTest.isBackendValidationError(errorResponse)).toBeFalsy();
-    });
-
-    it('should return true if array with validation error is passed', () => {
-      const errorResponse: ApiErrorModel[] = [
-        ApiErrorModelFactory.create('message1', { name: 'validationError' }),
-        ApiErrorModelFactory.create('message2', { name: 'validationError' }),
-      ];
-      expect(underTest.isBackendValidationError(errorResponse)).toBeTruthy();
-    });
-  });
-
   describe('jobsForRunLoad', () => {
     it('should successfully load workflows jobs for run', () => {
       const response = [JobForRunModelFactory.create('name', 1, 1)];
