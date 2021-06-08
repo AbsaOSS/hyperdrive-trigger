@@ -66,6 +66,7 @@ describe('NotificationRulesEffects', () => {
       notificationRuleAction: {
         id: 10,
         loading: false,
+        mode: undefined,
         notificationRule: dummyNotificationRule,
       },
     },

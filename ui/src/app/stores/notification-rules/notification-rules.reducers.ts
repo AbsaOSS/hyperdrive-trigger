@@ -23,6 +23,7 @@ export interface State {
   loading: boolean;
   notificationRuleAction: {
     id: number;
+    mode: string;
     loading: boolean;
     notificationRule: NotificationRuleModel;
     backendValidationErrors: string[];
@@ -36,6 +37,7 @@ const initialState: State = {
   loading: false,
   notificationRuleAction: {
     id: undefined,
+    mode: undefined,
     loading: true,
     notificationRule: undefined,
     backendValidationErrors: undefined,
@@ -119,6 +121,14 @@ export function notificationRulesReducer(state: State = initialState, action: No
         notificationRuleAction: {
           ...state.notificationRuleAction,
           notificationRule: { ...state.notificationRuleAction.notificationRule, [action.payload.property]: action.payload.value },
+        },
+      };
+    case NotificationRulesActions.SET_EMPTY_NOTIFICATION_RULE:
+      return {
+        ...state,
+        notificationRuleAction: {
+          ...initialState.notificationRuleAction,
+          loading: false,
         },
       };
     default:

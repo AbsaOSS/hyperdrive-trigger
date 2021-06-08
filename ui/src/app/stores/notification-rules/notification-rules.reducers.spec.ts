@@ -28,6 +28,7 @@ import {
   SearchNotificationRules,
   SearchNotificationRulesFailure,
   SearchNotificationRulesSuccess,
+  SetEmptyNotificationRule,
   UpdateNotificationRule,
   UpdateNotificationRuleFailure,
   UpdateNotificationRuleSuccess,
@@ -46,6 +47,7 @@ describe('NotificationRulesReducers', () => {
     loading: false,
     notificationRuleAction: {
       id: undefined,
+      mode: undefined,
       loading: true,
       notificationRule: undefined,
       backendValidationErrors: undefined,
@@ -289,6 +291,28 @@ describe('NotificationRulesReducers', () => {
       notificationRuleAction: {
         ...initialState.notificationRuleAction,
         notificationRule: { ...notificationRule, workflowPrefix: 'some-value' },
+      },
+    });
+  });
+
+  it('should set the initial notification rule on set empty notification rule', () => {
+    const notificationRule = NotificationRuleFixture.create();
+    const notificationRulesAction = new SetEmptyNotificationRule();
+
+    const previousState = {
+      ...initialState,
+      notificationRuleAction: {
+        ...initialState.notificationRuleAction,
+        notificationRule: notificationRule,
+      },
+    };
+    const actual = notificationRulesReducer(previousState, notificationRulesAction);
+
+    expect(actual).toEqual({
+      ...initialState,
+      notificationRuleAction: {
+        ...initialState.notificationRuleAction,
+        loading: false,
       },
     });
   });

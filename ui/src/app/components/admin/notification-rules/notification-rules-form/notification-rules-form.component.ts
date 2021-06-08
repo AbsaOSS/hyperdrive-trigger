@@ -17,12 +17,13 @@ import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Subject, Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { AppState, selectNotificationRulesState } from '../../../../stores/app.reducers';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   CreateNotificationRule,
   DeleteNotificationRule,
   GetNotificationRule,
   NotificationRuleChanged,
+  SetEmptyNotificationRule,
   UpdateNotificationRule,
 } from '../../../../stores/notification-rules/notification-rules.actions';
 import { WorkflowEntryModel } from '../../../../models/workflowEntry.model';
@@ -31,6 +32,9 @@ import { NotificationRuleModel } from '../../../../models/notificationRule.model
 import { ConfirmationDialogTypes } from '../../../../constants/confirmationDialogTypes.constants';
 import { texts } from '../../../../constants/texts.constants';
 import { ConfirmationDialogService } from '../../../../services/confirmation-dialog/confirmation-dialog.service';
+import { notificationRuleModes } from '../../../../models/enums/notificationRuleModes.constants';
+import { absoluteRoutes } from '../../../../constants/routes.constants';
+import { PreviousRouteService } from '../../../../services/previousRoute/previous-route.service';
 
 @Component({
   selector: 'app-notification-rules-form',
@@ -39,6 +43,7 @@ import { ConfirmationDialogService } from '../../../../services/confirmation-dia
 })
 export class NotificationRulesFormComponent implements OnInit, OnDestroy {
   @ViewChild('notificationRulesForm') notificationRulesForm;
+  mode: string;
   paramsSubscription: Subscription;
   changesSubscription: Subscription;
   notificationRuleSubscription: Subscription = null;
@@ -47,13 +52,23 @@ export class NotificationRulesFormComponent implements OnInit, OnDestroy {
 
   notificationRule: NotificationRuleModel;
   loading = false;
-
-  isShow = true;
   partValidation: PartValidation = PartValidationFactory.create(true, 1000, 1);
+  notificationRuleModes = notificationRuleModes;
 
-  constructor(private store: Store<AppState>, private confirmationDialogService: ConfirmationDialogService, route: ActivatedRoute) {
+  constructor(
+    private store: Store<AppState>,
+    private confirmationDialogService: ConfirmationDialogService,
+    route: ActivatedRoute,
+    private previousRouteService: PreviousRouteService,
+    private router: Router,
+  ) {
     this.paramsSubscription = route.params.subscribe((parameters) => {
-      this.store.dispatch(new GetNotificationRule(parameters.id));
+      this.mode = parameters.mode;
+      if (parameters.mode == notificationRuleModes.CREATE) {
+        this.store.dispatch(new SetEmptyNotificationRule());
+      } else if (parameters.mode == notificationRuleModes.SHOW || parameters.mode == notificationRuleModes.EDIT) {
+        this.store.dispatch(new GetNotificationRule(parameters.id));
+      }
     });
     this.changesSubscription = this.changes.subscribe((state) => {
       this.store.dispatch(new NotificationRuleChanged(state));
@@ -111,5 +126,22 @@ export class NotificationRulesFormComponent implements OnInit, OnDestroy {
       .subscribe((confirmed) => {
         if (confirmed) this.store.dispatch(new DeleteNotificationRule(id));
       });
+  }
+
+  formHasChanged(): boolean {
+    return false;
+  }
+
+  cancel(): void {
+    const previousUrl = this.previousRouteService.getPreviousUrl();
+    const currentUrl = this.previousRouteService.getCurrentUrl();
+
+    !previousUrl || previousUrl === currentUrl
+      ? this.router.navigateByUrl(absoluteRoutes.NOTIFICATION_RULES_HOME)
+      : this.router.navigateByUrl(previousUrl);
+  }
+
+  isReadOnlyMode(): boolean {
+    return this.mode == notificationRuleModes.SHOW;
   }
 }

@@ -15,5 +15,6 @@
 
 export const notificationRuleModes = {
   SHOW: 'show',
+  CREATE: 'create',
   EDIT: 'edit',
 };

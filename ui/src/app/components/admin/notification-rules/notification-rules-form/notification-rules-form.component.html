@@ -20,7 +20,22 @@
 </div>
 
 <div *ngIf="!loading">
-  <form clrForm novalidate>
+  <form clrForm (ngSubmit)="mode != notificationRuleModes.EDIT ? createNotificationRule() : updateNotificationRule()"
+        #notificationRulesForm="ngForm" novalidate>
+    <div class="btn-group" *ngIf="mode != notificationRuleModes.SHOW"> <!--  && mode != notificationRuleModes.COMPARISON -->
+      <button type="submit" class="btn btn-sm btn-secondary" *ngIf="mode != notificationRuleModes.EDIT">
+        <clr-icon shape="check"></clr-icon>
+        Create new notification rule
+      </button>
+      <button type="submit" class="btn btn-sm btn-secondary" [disabled]="!formHasChanged()" *ngIf="mode == notificationRuleModes.EDIT">
+        <clr-icon shape="check"></clr-icon>
+        Update notification rule
+      </button>
+      <button type="button" class="btn btn-sm btn-secondary" (click)="cancel()">
+        <clr-icon shape="times"></clr-icon>
+        Cancel
+      </button>
+    </div>
     <div class="card">
       <div class="card-block">
         <div class="card-title notSelectable">
@@ -28,14 +43,14 @@
         </div>
         <div class="accordion-content">
           <app-boolean-part
-            [isShow]="isShow"
+            [isShow]="isReadOnlyMode()"
             [name]="'Is Active'"
             [valueChanges]="changes"
             [value]="notificationRule.isActive"
             [property]="'isActive'">
           </app-boolean-part>
           <app-string-part
-            [isShow]="isShow"
+            [isShow]="isReadOnlyMode()"
             [name]="'Project'"
             [valueChanges]="changes"
             [value]="notificationRule.project"
@@ -43,7 +58,7 @@
             [partValidation]="partValidation">
           </app-string-part>
           <app-string-part
-            [isShow]="isShow"
+            [isShow]="isReadOnlyMode()"
             [name]="'Workflow Prefix'"
             [valueChanges]="changes"
             [value]="notificationRule.workflowPrefix"

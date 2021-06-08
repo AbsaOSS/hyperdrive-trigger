@@ -20,10 +20,14 @@ import { FormsModule } from '@angular/forms';
 import { NotificationRulesFormComponent } from './notification-rules-form.component';
 import { NotificationRuleModelFactory } from '../../../../models/notificationRule.model';
 import { dagInstanceStatuses } from '../../../../models/enums/dagInstanceStatuses.constants';
+import { PreviousRouteService } from '../../../../services/previousRoute/previous-route.service';
+import { Router } from '@angular/router';
 
-describe('NotificationRulesCru', () => {
+describe('NotificationRulesForm', () => {
   let underTest: NotificationRulesFormComponent;
   let fixture: ComponentFixture<NotificationRulesFormComponent>;
+  let previousRouteService: PreviousRouteService;
+  let router;
 
   const dummyNotificationRule = NotificationRuleModelFactory.create(
     true,
@@ -50,10 +54,12 @@ describe('NotificationRulesCru', () => {
   beforeEach(
     waitForAsync(() => {
       TestBed.configureTestingModule({
-        providers: [provideMockStore({ initialState: initialAppState })],
+        providers: [provideMockStore({ initialState: initialAppState }), PreviousRouteService],
         declarations: [NotificationRulesFormComponent],
         imports: [RouterTestingModule.withRoutes([]), FormsModule],
       }).compileComponents();
+      previousRouteService = TestBed.inject(PreviousRouteService);
+      router = TestBed.inject(Router);
     }),
   );
 

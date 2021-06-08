@@ -40,6 +40,7 @@ export const DELETE_NOTIFICATION_RULE_SUCCESS = 'DELETE_NOTIFICATION_RULE_SUCCES
 export const DELETE_NOTIFICATION_RULE_FAILURE = 'DELETE_NOTIFICATION_RULE_FAILURE';
 
 export const NOTIFICATION_RULE_CHANGED = 'NOTIFICATION_RULE_CHANGED';
+export const SET_EMPTY_NOTIFICATION_RULE = 'SET_EMPTY_NOTIFICATION_RULE';
 
 export class SearchNotificationRules implements Action {
   readonly type = SEARCH_NOTIFICATION_RULES;
@@ -116,6 +117,10 @@ export class NotificationRuleChanged implements Action {
   constructor(public payload: WorkflowEntryModel) {}
 }
 
+export class SetEmptyNotificationRule implements Action {
+  readonly type = SET_EMPTY_NOTIFICATION_RULE;
+}
+
 export type NotificationRulesActions =
   | SearchNotificationRules
   | SearchNotificationRulesSuccess
@@ -132,4 +137,5 @@ export type NotificationRulesActions =
   | DeleteNotificationRule
   | DeleteNotificationRuleSuccess
   | DeleteNotificationRuleFailure
-  | NotificationRuleChanged;
+  | NotificationRuleChanged
+  | SetEmptyNotificationRule;
