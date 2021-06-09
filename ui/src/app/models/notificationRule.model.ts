@@ -51,4 +51,18 @@ export class NotificationRuleModelFactory {
       id: id,
     };
   }
+
+  static createEmpty(): NotificationRuleModel {
+    return {
+      isActive: false,
+      project: '',
+      workflowPrefix: '',
+      minElapsedSecondsSinceLastSuccess: undefined,
+      statuses: [],
+      recipients: [],
+      created: undefined,
+      updated: undefined,
+      id: undefined,
+    };
+  }
 }

@@ -19,6 +19,17 @@
     </span>
 </div>
 
+<div class="btn-group" *ngIf="mode == notificationRuleModes.SHOW">
+  <button type="button" class="btn btn-sm btn-secondary" [routerLink]="[absoluteRoutes.EDIT_NOTIFICATION_RULE, notificationRule?.id]">
+    <clr-icon shape="pencil"></clr-icon>
+    Edit
+  </button>
+  <button type="button" class="btn btn-sm btn-secondary" (click)="deleteNotificationRule(notificationRule?.id)">
+    <clr-icon shape="close"></clr-icon>
+    Delete
+  </button>
+</div>
+
 <div *ngIf="!loading">
   <form clrForm (ngSubmit)="mode != notificationRuleModes.EDIT ? createNotificationRule() : updateNotificationRule()"
         #notificationRulesForm="ngForm" novalidate>

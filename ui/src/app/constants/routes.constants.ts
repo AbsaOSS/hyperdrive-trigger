@@ -56,6 +56,7 @@ export const absoluteRoutes = {
   NOTIFICATION_RULES: `/${routeNames.NOTIFICATION_RULES}`,
   NOTIFICATION_RULES_HOME: `/${routeNames.NOTIFICATION_RULES}`,
   SHOW_NOTIFICATION_RULE: `/${routeNames.NOTIFICATION_RULES}/${notificationRuleModes.SHOW}`,
+  CREATE_NOTIFICATION_RULE: `/${routeNames.NOTIFICATION_RULES}/${notificationRuleModes.CREATE}`,
   EDIT_NOTIFICATION_RULE: `/${routeNames.NOTIFICATION_RULES}/${notificationRuleModes.EDIT}`,
   RUNS_WITH_WORKFLOW_ID(workflowId: number): string {
     return `/runs/${workflowId}`;

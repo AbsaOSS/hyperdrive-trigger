@@ -243,17 +243,24 @@ describe('NotificationRulesReducers', () => {
     });
   });
 
-  it('should set loading to false and notification rule id on delete notification rule success', () => {
-    const id = 42;
-    const notificationRulesAction = new DeleteNotificationRuleSuccess(id);
-
-    const actual = notificationRulesReducer(initialState, notificationRulesAction);
+  it('should set loading to false and delete the notification rule on delete notification rule success', () => {
+    const notificationRule = NotificationRuleFixture.create();
+    const notificationRulesAction = new DeleteNotificationRuleSuccess(notificationRule.id);
+    const previousState = {
+      ...initialState,
+      notificationRules: [notificationRule],
+      notificationRuleAction: {
+        ...initialState.notificationRuleAction,
+        notificationRule: notificationRule,
+      },
+    };
+    const actual = notificationRulesReducer(previousState, notificationRulesAction);
 
     expect(actual).toEqual({
       ...initialState,
       notificationRuleAction: {
         ...initialState.notificationRuleAction,
-        id: id,
+        id: notificationRule.id,
         loading: false,
       },
     });
@@ -297,6 +304,7 @@ describe('NotificationRulesReducers', () => {
 
   it('should set the initial notification rule on set empty notification rule', () => {
     const notificationRule = NotificationRuleFixture.create();
+    const emptyNotificationRule = NotificationRuleModelFactory.createEmpty();
     const notificationRulesAction = new SetEmptyNotificationRule();
 
     const previousState = {
@@ -312,6 +320,7 @@ describe('NotificationRulesReducers', () => {
       ...initialState,
       notificationRuleAction: {
         ...initialState.notificationRuleAction,
+        notificationRule: emptyNotificationRule,
         loading: false,
       },
     });

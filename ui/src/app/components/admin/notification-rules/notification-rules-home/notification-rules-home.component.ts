@@ -27,10 +27,13 @@ import { Store } from '@ngrx/store';
 import { AppState, selectNotificationRulesState } from '../../../../stores/app.reducers';
 import { skip } from 'rxjs/operators';
 import { notificationRuleColumns } from '../../../../constants/notificationRuleColumns.constants';
-import { SearchNotificationRules } from '../../../../stores/notification-rules/notification-rules.actions';
+import { DeleteNotificationRule, SearchNotificationRules } from '../../../../stores/notification-rules/notification-rules.actions';
 import { absoluteRoutes } from 'src/app/constants/routes.constants';
 import { Router } from '@angular/router';
 import { NotificationRuleModel } from '../../../../models/notificationRule.model';
+import { ConfirmationDialogTypes } from '../../../../constants/confirmationDialogTypes.constants';
+import { texts } from '../../../../constants/texts.constants';
+import { ConfirmationDialogService } from '../../../../services/confirmation-dialog/confirmation-dialog.service';
 
 @Component({
   selector: 'app-notification-rules-home',
@@ -41,6 +44,7 @@ export class NotificationRulesHomeComponent implements AfterViewInit, OnDestroy 
   @ViewChildren(ClrDatagridColumn) columns: QueryList<ClrDatagridColumn>;
 
   notificationRulesSubscription: Subscription = null;
+  confirmationDialogServiceSubscription: Subscription = null;
 
   page = 1;
   pageFrom = 0;
@@ -58,7 +62,7 @@ export class NotificationRulesHomeComponent implements AfterViewInit, OnDestroy 
   removeFiltersSubject: Subject<any> = new Subject();
   refreshSubject: Subject<boolean> = new Subject<boolean>();
 
-  constructor(private store: Store<AppState>, private router: Router) {}
+  constructor(private store: Store<AppState>, private router: Router, private confirmationDialogService: ConfirmationDialogService) {}
 
   ngAfterViewInit(): void {
     this.notificationRulesSubscription = this.store
@@ -109,7 +113,20 @@ export class NotificationRulesHomeComponent implements AfterViewInit, OnDestroy 
     this.router.navigate([absoluteRoutes.SHOW_NOTIFICATION_RULE, id]);
   }
 
+  deleteNotificationRule(id: number): void {
+    this.confirmationDialogServiceSubscription = this.confirmationDialogService
+      .confirm(
+        ConfirmationDialogTypes.Delete,
+        texts.DELETE_NOTIFICATION_RULE_CONFIRMATION_TITLE,
+        texts.DELETE_NOTIFICATION_RULE_CONFIRMATION_CONTENT,
+      )
+      .subscribe((confirmed) => {
+        if (confirmed) this.store.dispatch(new DeleteNotificationRule(id));
+      });
+  }
+
   ngOnDestroy(): void {
     !!this.notificationRulesSubscription && this.notificationRulesSubscription.unsubscribe();
+    !!this.confirmationDialogServiceSubscription && this.confirmationDialogServiceSubscription.unsubscribe();
   }
 }

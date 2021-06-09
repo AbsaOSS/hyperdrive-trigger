@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { NotificationRuleModel } from '../../models/notificationRule.model';
+import { NotificationRuleModel, NotificationRuleModelFactory } from '../../models/notificationRule.model';
 import * as NotificationRulesActions from '../notification-rules/notification-rules.actions';
 
 export interface State {
@@ -90,8 +90,10 @@ export function notificationRulesReducer(state: State = initialState, action: No
     case NotificationRulesActions.DELETE_NOTIFICATION_RULE_SUCCESS:
       return {
         ...state,
+        notificationRules: state.notificationRules.filter((notificationRule) => notificationRule.id != action.payload),
         notificationRuleAction: {
           ...state.notificationRuleAction,
+          notificationRule: undefined,
           loading: false,
           id: action.payload,
         },
@@ -128,6 +130,7 @@ export function notificationRulesReducer(state: State = initialState, action: No
         ...state,
         notificationRuleAction: {
           ...initialState.notificationRuleAction,
+          notificationRule: NotificationRuleModelFactory.createEmpty(),
           loading: false,
         },
       };

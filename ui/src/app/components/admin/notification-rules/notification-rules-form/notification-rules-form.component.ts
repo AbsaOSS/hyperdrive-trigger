@@ -54,6 +54,7 @@ export class NotificationRulesFormComponent implements OnInit, OnDestroy {
   loading = false;
   partValidation: PartValidation = PartValidationFactory.create(true, 1000, 1);
   notificationRuleModes = notificationRuleModes;
+  absoluteRoutes = absoluteRoutes;
 
   constructor(
     private store: Store<AppState>,
@@ -129,7 +130,7 @@ export class NotificationRulesFormComponent implements OnInit, OnDestroy {
   }
 
   formHasChanged(): boolean {
-    return false;
+    return true;
   }
 
   cancel(): void {
