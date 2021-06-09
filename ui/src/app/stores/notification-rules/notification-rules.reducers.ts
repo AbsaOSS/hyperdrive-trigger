@@ -25,6 +25,7 @@ export interface State {
     id: number;
     mode: string;
     loading: boolean;
+    initialNotificationRule: NotificationRuleModel;
     notificationRule: NotificationRuleModel;
     backendValidationErrors: string[];
   };
@@ -39,6 +40,7 @@ const initialState: State = {
     id: undefined,
     mode: undefined,
     loading: true,
+    initialNotificationRule: undefined,
     notificationRule: undefined,
     backendValidationErrors: undefined,
   },
@@ -77,6 +79,15 @@ export function notificationRulesReducer(state: State = initialState, action: No
         },
       };
     case NotificationRulesActions.GET_NOTIFICATION_RULE_SUCCESS:
+      return {
+        ...state,
+        notificationRuleAction: {
+          ...state.notificationRuleAction,
+          loading: false,
+          initialNotificationRule: action.payload,
+          notificationRule: action.payload,
+        },
+      };
     case NotificationRulesActions.CREATE_NOTIFICATION_RULE_SUCCESS:
     case NotificationRulesActions.UPDATE_NOTIFICATION_RULE_SUCCESS:
       return {

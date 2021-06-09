@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Subject, Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { AppState, selectNotificationRulesState } from '../../../../stores/app.reducers';
@@ -35,7 +35,7 @@ import { ConfirmationDialogService } from '../../../../services/confirmation-dia
 import { notificationRuleModes } from '../../../../models/enums/notificationRuleModes.constants';
 import { absoluteRoutes } from '../../../../constants/routes.constants';
 import { PreviousRouteService } from '../../../../services/previousRoute/previous-route.service';
-
+import * as deepEquals from 'fast-deep-equal';
 @Component({
   selector: 'app-notification-rules-form',
   templateUrl: './notification-rules-form.component.html',
@@ -50,6 +50,7 @@ export class NotificationRulesFormComponent implements OnInit, OnDestroy {
   confirmationDialogServiceSubscription: Subscription = null;
   changes: Subject<WorkflowEntryModel> = new Subject<WorkflowEntryModel>();
 
+  initialNotificationRule: NotificationRuleModel;
   notificationRule: NotificationRuleModel;
   loading = false;
   partValidation: PartValidation = PartValidationFactory.create(true, 1000, 1);
@@ -80,6 +81,7 @@ export class NotificationRulesFormComponent implements OnInit, OnDestroy {
     this.notificationRuleSubscription = this.store.select(selectNotificationRulesState).subscribe((state) => {
       this.loading = state.notificationRuleAction.loading;
       this.notificationRule = state.notificationRuleAction.notificationRule;
+      this.initialNotificationRule = state.notificationRuleAction.initialNotificationRule;
     });
   }
 
@@ -130,7 +132,7 @@ export class NotificationRulesFormComponent implements OnInit, OnDestroy {
   }
 
   formHasChanged(): boolean {
-    return true;
+    return !deepEquals(this.initialNotificationRule, this.notificationRule);
   }
 
   cancel(): void {

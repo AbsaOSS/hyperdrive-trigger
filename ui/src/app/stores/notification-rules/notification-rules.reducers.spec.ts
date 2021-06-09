@@ -49,6 +49,7 @@ describe('NotificationRulesReducers', () => {
       id: undefined,
       mode: undefined,
       loading: true,
+      initialNotificationRule: undefined,
       notificationRule: undefined,
       backendValidationErrors: undefined,
     },
@@ -113,6 +114,7 @@ describe('NotificationRulesReducers', () => {
       ...initialState,
       notificationRuleAction: {
         ...initialState.notificationRuleAction,
+        initialNotificationRule: notificationRule,
         notificationRule: notificationRule,
         loading: false,
       },
