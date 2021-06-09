@@ -23,6 +23,7 @@ import {
   DeleteNotificationRule,
   GetNotificationRule,
   NotificationRuleChanged,
+  RemoveNotificationRuleBackendValidationError,
   SetEmptyNotificationRule,
   UpdateNotificationRule,
 } from '../../../../stores/notification-rules/notification-rules.actions';
@@ -36,6 +37,7 @@ import { notificationRuleModes } from '../../../../models/enums/notificationRule
 import { absoluteRoutes } from '../../../../constants/routes.constants';
 import { PreviousRouteService } from '../../../../services/previousRoute/previous-route.service';
 import * as deepEquals from 'fast-deep-equal';
+import { RemoveBackendValidationError } from '../../../../stores/workflows/workflows.actions';
 @Component({
   selector: 'app-notification-rules-form',
   templateUrl: './notification-rules-form.component.html',
@@ -53,6 +55,7 @@ export class NotificationRulesFormComponent implements OnInit, OnDestroy {
   initialNotificationRule: NotificationRuleModel;
   notificationRule: NotificationRuleModel;
   loading = false;
+  backendValidationErrors: string[];
   partValidation: PartValidation = PartValidationFactory.create(true, 1000, 1);
   notificationRuleModes = notificationRuleModes;
   absoluteRoutes = absoluteRoutes;
@@ -82,6 +85,7 @@ export class NotificationRulesFormComponent implements OnInit, OnDestroy {
       this.loading = state.notificationRuleAction.loading;
       this.notificationRule = state.notificationRuleAction.notificationRule;
       this.initialNotificationRule = state.notificationRuleAction.initialNotificationRule;
+      this.backendValidationErrors = state.notificationRuleAction.backendValidationErrors;
     });
   }
 
@@ -142,6 +146,10 @@ export class NotificationRulesFormComponent implements OnInit, OnDestroy {
     !previousUrl || previousUrl === currentUrl
       ? this.router.navigateByUrl(absoluteRoutes.NOTIFICATION_RULES_HOME)
       : this.router.navigateByUrl(previousUrl);
+  }
+
+  removeBackendValidationError(index: number): void {
+    this.store.dispatch(new RemoveNotificationRuleBackendValidationError(index));
   }
 
   isReadOnlyMode(): boolean {

@@ -51,6 +51,20 @@
         Cancel
       </button>
     </div>
+    <div *ngFor="let error of backendValidationErrors; let index = index" class="alert alert-danger" role="alert">
+      <div class="alert-items">
+        <div class="alert-item static">
+          <div class="alert-icon-wrapper">
+            <clr-icon class="alert-icon" shape="exclamation-triangle"></clr-icon>
+          </div>
+          <span class="alert-text">{{error}} </span>
+        </div>
+      </div>
+      <button type="button" class="close" aria-label="Close" (click)="removeBackendValidationError(index)">
+        <clr-icon aria-hidden="true" shape="close"></clr-icon>
+      </button>
+    </div>
+
     <div class="card">
       <div class="card-block">
         <div class="card-title notSelectable">

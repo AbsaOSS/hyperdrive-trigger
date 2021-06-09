@@ -25,6 +25,7 @@ import {
   GetNotificationRuleFailure,
   GetNotificationRuleSuccess,
   NotificationRuleChanged,
+  RemoveNotificationRuleBackendValidationError,
   SearchNotificationRules,
   SearchNotificationRulesFailure,
   SearchNotificationRulesSuccess,
@@ -324,6 +325,27 @@ describe('NotificationRulesReducers', () => {
         ...initialState.notificationRuleAction,
         notificationRule: emptyNotificationRule,
         loading: false,
+      },
+    });
+  });
+
+  it('should remove the i-th backend validation error', () => {
+    const notificationRulesAction = new RemoveNotificationRuleBackendValidationError(1);
+
+    const previousState = {
+      ...initialState,
+      notificationRuleAction: {
+        ...initialState.notificationRuleAction,
+        backendValidationErrors: ['error0', 'error1', 'error2'],
+      },
+    };
+    const actual = notificationRulesReducer(previousState, notificationRulesAction);
+
+    expect(actual).toEqual({
+      ...initialState,
+      notificationRuleAction: {
+        ...initialState.notificationRuleAction,
+        backendValidationErrors: ['error0', 'error2'],
       },
     });
   });

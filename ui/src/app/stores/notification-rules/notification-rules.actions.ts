@@ -41,6 +41,7 @@ export const DELETE_NOTIFICATION_RULE_FAILURE = 'DELETE_NOTIFICATION_RULE_FAILUR
 
 export const NOTIFICATION_RULE_CHANGED = 'NOTIFICATION_RULE_CHANGED';
 export const SET_EMPTY_NOTIFICATION_RULE = 'SET_EMPTY_NOTIFICATION_RULE';
+export const REMOVE_NOTIFICATION_RULE_BACKEND_VALIDATION_ERROR = 'REMOVE_NOTIFICATION_RULE_BACKEND_VALIDATION_ERROR';
 
 export class SearchNotificationRules implements Action {
   readonly type = SEARCH_NOTIFICATION_RULES;
@@ -121,6 +122,11 @@ export class SetEmptyNotificationRule implements Action {
   readonly type = SET_EMPTY_NOTIFICATION_RULE;
 }
 
+export class RemoveNotificationRuleBackendValidationError implements Action {
+  readonly type = REMOVE_NOTIFICATION_RULE_BACKEND_VALIDATION_ERROR;
+  constructor(public payload: number) {}
+}
+
 export type NotificationRulesActions =
   | SearchNotificationRules
   | SearchNotificationRulesSuccess
@@ -138,4 +144,5 @@ export type NotificationRulesActions =
   | DeleteNotificationRuleSuccess
   | DeleteNotificationRuleFailure
   | NotificationRuleChanged
-  | SetEmptyNotificationRule;
+  | SetEmptyNotificationRule
+  | RemoveNotificationRuleBackendValidationError;

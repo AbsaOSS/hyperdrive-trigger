@@ -145,6 +145,17 @@ export function notificationRulesReducer(state: State = initialState, action: No
           loading: false,
         },
       };
+    case NotificationRulesActions.REMOVE_NOTIFICATION_RULE_BACKEND_VALIDATION_ERROR:
+      return {
+        ...state,
+        notificationRuleAction: {
+          ...initialState.notificationRuleAction,
+          backendValidationErrors: [
+            ...state.notificationRuleAction.backendValidationErrors.slice(0, action.payload),
+            ...state.notificationRuleAction.backendValidationErrors.slice(action.payload + 1),
+          ],
+        },
+      };
     default:
       return state;
   }
