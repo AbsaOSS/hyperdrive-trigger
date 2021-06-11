@@ -16,9 +16,6 @@
 package za.co.absa.hyperdrive.trigger.api.rest.utils
 
 import za.co.absa.hyperdrive.trigger.models._
-import za.co.absa.hyperdrive.trigger.scheduler.utilities.JobDefinitionConfig.{KeysToMerge, MergedValuesSeparator}
-
-import scala.collection.immutable.SortedMap
 import scala.util.{Failure, Success, Try}
 
 
@@ -37,48 +34,59 @@ object JobTemplateResolutionUtil {
 
   private def resolveJobDefinition(jobDefinition: JobDefinition, jobTemplate: JobTemplate): ResolvedJobDefinition = {
     ResolvedJobDefinition(
-      jobType = jobTemplate.jobType,
       name = jobDefinition.name,
       jobParameters = mergeJobParameters(jobDefinition.jobParameters, jobTemplate.jobParameters),
       order = jobDefinition.order
     )
   }
 
-  private def mergeJobParameters(primary: JobParameters, secondary: JobParameters): JobParameters = {
-    JobParameters(
-      variables = mergeMapsOfStrings(primary.variables, secondary.variables),
-      maps = mergeMapsOfLists(primary.maps, secondary.maps),
-      keyValuePairs = mergeMapsOfSortedMaps(primary.keyValuePairs, secondary.keyValuePairs)
-    )
-  }
-
-  private def mergeMapsOfStrings(primary: Map[String, String], secondary: Map[String, String]) =
-    secondary ++ primary
-
-  private def mergeMapsOfLists(primary: Map[String, List[String]], secondary: Map[String, List[String]]) =
-    mergeMaps(primary, secondary, (_: String, first: List[String], second: List[String]) => second ++ first)
-
-  private type KeyValueMap = SortedMap[String, String]
-  private def mergeMapsOfSortedMaps(primary: Map[String, KeyValueMap], secondary: Map[String, KeyValueMap]) =
-    mergeMaps(primary, secondary, (_: String, first: KeyValueMap, second: KeyValueMap) => {
-      val mergedMap = mergeMaps(first, second, mergeSortedMapEntries)
-      SortedMap(mergedMap.toArray: _*)
-    })
-
-  private def mergeSortedMapEntries(key: String, firstValue: String, secondValue: String) = {
-    if (KeysToMerge.contains(key)) {
-      s"$secondValue$MergedValuesSeparator$firstValue".trim
-    } else {
-      firstValue
+  private def mergeJobParameters(primary: JobDefinitionParameters, secondary: JobTemplateParameters): JobInstanceParameters = {
+    (primary, secondary) match {
+      case (definitionParams: SparkDefinitionParameters, templatePrams: SparkTemplateParameters) =>
+        mergeSparkParameters(definitionParams, templatePrams)
+      case (definitionParams: HyperdriveDefinitionParameters, templatePrams: SparkTemplateParameters) =>
+        mergeSparkAndHyperdriveParameters(definitionParams, templatePrams)
+      case (definitionParams: ShellDefinitionParameters, templatePrams: ShellTemplateParameters) =>
+        mergeShellParameters(definitionParams, templatePrams)
+      case _ =>
+        throw new IllegalArgumentException("Couldn't not mix different job types.")
     }
   }
 
-  private def mergeMaps[T](primary: Map[String, T], secondary: Map[String, T], mergeFn: (String, T, T) => T) = {
-    val sharedKeys = primary.keySet.intersect(secondary.keySet)
-    primary.filterKeys(key => !sharedKeys.contains(key)) ++
-    secondary.filterKeys(key => !sharedKeys.contains(key)) ++
-    primary.filterKeys(key => sharedKeys.contains(key))
-        .map{ case (key, value) => key -> mergeFn.apply(key, value, secondary(key))}
-
+  private def mergeSparkAndHyperdriveParameters(definitionParams: HyperdriveDefinitionParameters, templatePrams: SparkTemplateParameters): SparkInstanceParameters = {
+    SparkInstanceParameters(
+      jobJar = templatePrams.jobJar.getOrElse(""),
+      mainClass = templatePrams.mainClass.getOrElse(""),
+      appArguments = mergeLists(definitionParams.appArguments, templatePrams.appArguments),
+      additionalJars = mergeLists(definitionParams.additionalJars, templatePrams.additionalJars),
+      additionalFiles = mergeLists(definitionParams.additionalFiles, templatePrams.additionalFiles),
+      additionalSparkConfig = mergeMapsOfStrings(definitionParams.additionalSparkConfig, templatePrams.additionalSparkConfig)
+    )
   }
+
+  private def mergeSparkParameters(definitionParams: SparkDefinitionParameters, templatePrams: SparkTemplateParameters): SparkInstanceParameters = {
+    SparkInstanceParameters(
+      jobJar = mergeOptionStrings(definitionParams.jobJar, templatePrams.jobJar),
+      mainClass = mergeOptionStrings(definitionParams.mainClass, templatePrams.mainClass),
+      appArguments = mergeLists(definitionParams.appArguments, templatePrams.appArguments),
+      additionalJars = mergeLists(definitionParams.additionalJars, templatePrams.additionalJars),
+      additionalFiles = mergeLists(definitionParams.additionalFiles, templatePrams.additionalFiles),
+      additionalSparkConfig = mergeMapsOfStrings(definitionParams.additionalSparkConfig, templatePrams.additionalSparkConfig)
+    )
+  }
+
+  private def mergeShellParameters(definitionParams: ShellDefinitionParameters, templatePrams: ShellTemplateParameters): ShellInstanceParameters = {
+    ShellInstanceParameters(
+      scriptLocation = definitionParams.scriptLocation.getOrElse(templatePrams.scriptLocation.getOrElse(""))
+    )
+  }
+
+  private def mergeOptionStrings(primary: Option[String], secondary: Option[String]) =
+    primary.getOrElse(secondary.getOrElse(""))
+
+  private def mergeLists(primary: List[String], secondary: List[String]) =
+    secondary ++ primary
+
+  private def mergeMapsOfStrings(primary: Map[String, String], secondary: Map[String, String]) =
+    secondary ++ primary
 }

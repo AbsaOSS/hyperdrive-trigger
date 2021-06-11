@@ -18,7 +18,7 @@ package za.co.absa.hyperdrive.trigger.api.rest.services
 
 import javax.inject.Inject
 import org.springframework.stereotype.Service
-import za.co.absa.hyperdrive.trigger.models.WorkflowJoined
+import za.co.absa.hyperdrive.trigger.models.{HyperdriveDefinitionParameters, JobDefinitionParameters, ShellDefinitionParameters, SparkDefinitionParameters, WorkflowJoined}
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, ApiException, BulkOperationError, ValidationError}
 import za.co.absa.hyperdrive.trigger.persistance.WorkflowRepository
 
@@ -125,11 +125,8 @@ class WorkflowValidationServiceImpl @Inject()(override val workflowRepository: W
           Seq(
             originalJob.name == updatedJob.name,
             originalJob.jobTemplateId == updatedJob.jobTemplateId,
-            originalJob.order == updatedJob.order,
-            originalJob.jobParameters.variables.equals(updatedJob.jobParameters.variables),
-            areMapsEqual(originalJob.jobParameters.maps, updatedJob.jobParameters.maps),
-            areMapsOfMapsEqual(originalJob.jobParameters.keyValuePairs, updatedJob.jobParameters.keyValuePairs)
-          )
+            originalJob.order == updatedJob.order
+          ) ++ validateJobParameters(originalJob.jobParameters, updatedJob.jobParameters)
         ).getOrElse(Seq(false))
       })
     ).flatten
@@ -138,6 +135,30 @@ class WorkflowValidationServiceImpl @Inject()(override val workflowRepository: W
       Future.successful(Seq())
     } else {
       Future.successful(Seq(ValidationError("Nothing to update")))
+    }
+  }
+
+  private def validateJobParameters(originalJobParameters: JobDefinitionParameters, updatedJobParameters: JobDefinitionParameters): Seq[Boolean] = {
+    (originalJobParameters, updatedJobParameters) match {
+      case (original: SparkDefinitionParameters, updated: SparkDefinitionParameters) =>
+        Seq(
+          original.jobJar == updated.jobJar,
+          original.mainClass == updated.mainClass,
+          original.appArguments == updated.appArguments,
+          original.additionalJars == updated.additionalJars,
+          original.additionalFiles == updated.additionalFiles,
+          original.additionalSparkConfig == updated.additionalSparkConfig
+        )
+      case (original: HyperdriveDefinitionParameters, updated: HyperdriveDefinitionParameters) =>
+        Seq(
+          original.appArguments == updated.appArguments,
+          original.additionalJars == updated.additionalJars,
+          original.additionalFiles == updated.additionalFiles,
+          original.additionalSparkConfig == updated.additionalSparkConfig
+        )
+      case (original: ShellDefinitionParameters, updated: ShellDefinitionParameters) =>
+        Seq(original.scriptLocation == updated.scriptLocation)
+      case _ => Seq(false)
     }
   }
 

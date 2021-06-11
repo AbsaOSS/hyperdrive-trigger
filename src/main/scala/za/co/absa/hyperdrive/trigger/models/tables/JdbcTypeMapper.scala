@@ -41,7 +41,9 @@ trait JdbcTypeMapper {
       ObjectMapperSingleton.getObjectMapper.writeValue(stringWriter, workflowJoined)
       stringWriter.toString
     },
-    workflowJoinedString => ObjectMapperSingleton.getObjectMapper.readValue(workflowJoinedString, classOf[WorkflowJoined])
+    workflowJoinedString => {
+      ObjectMapperSingleton.getObjectMapper.readValue(workflowJoinedString, classOf[WorkflowJoined])
+    }
   )
 
   implicit lazy val dbOperationMapper: JdbcType[DBOperation] =
@@ -113,12 +115,29 @@ trait JdbcTypeMapper {
       }
     )
 
-  implicit lazy val jobParametersMapper: JdbcType[JobInstanceParameters] = MappedColumnType.base[JobInstanceParameters, JsValue](
+  implicit lazy val jobInstanceParametersMapper: JdbcType[JobInstanceParameters] = MappedColumnType.base[JobInstanceParameters, JsValue](
     {
-      case a: SparkParameters => Json.toJson(a)
-      case b: ShellParameters => Json.toJson(b)
+      case spark: SparkInstanceParameters => Json.toJson(spark)
+      case shell: ShellInstanceParameters => Json.toJson(shell)
     },
     column => column.as[JobInstanceParameters]
+  )
+
+  implicit lazy val jobTemplateParametersMapper: JdbcType[JobTemplateParameters] = MappedColumnType.base[JobTemplateParameters, JsValue](
+    {
+      case spark: SparkTemplateParameters => Json.toJson(spark)
+      case shell: ShellTemplateParameters => Json.toJson(shell)
+    },
+    column => column.as[JobTemplateParameters]
+  )
+
+  implicit lazy val jobDefinitionParametersMapper: JdbcType[JobDefinitionParameters] = MappedColumnType.base[JobDefinitionParameters, JsValue](
+    {
+      case spark: SparkDefinitionParameters => Json.toJson(spark)
+      case hyperdrive: HyperdriveDefinitionParameters => Json.toJson(hyperdrive)
+      case shell: ShellDefinitionParameters => Json.toJson(shell)
+    },
+    column => column.as[JobDefinitionParameters]
   )
 
   implicit lazy val notificationRuleMapper: JdbcType[NotificationRule] = MappedColumnType.base[NotificationRule, JsValue](

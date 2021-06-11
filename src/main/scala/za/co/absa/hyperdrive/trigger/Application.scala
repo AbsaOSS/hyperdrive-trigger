@@ -24,11 +24,14 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.context.annotation.{Bean, Configuration}
 import org.springframework.scheduling.annotation.EnableAsync
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
+import play.api.libs.json.Json
+import za.co.absa.hyperdrive.trigger.models.{JobDefinitionParameters, JobTemplateParameters}
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses.DagInstanceStatus
+import za.co.absa.hyperdrive.trigger.models.enums.FormConfigs.FormConfig
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.JobStatus
 import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
 import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes.SensorType
-import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobStatuses, JobTypes, SensorTypes}
+import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, FormConfigs, JobStatuses, JobTypes, SensorTypes}
 
 @SpringBootApplication
 @EnableAsync
@@ -87,12 +90,58 @@ object ObjectMapperSingleton {
     }
   }
 
+  private class JobDefinitionParametersDeserializer extends JsonDeserializer[JobDefinitionParameters] {
+    override def deserialize(p: JsonParser, ctxt: DeserializationContext): JobDefinitionParameters = {
+      val node = p.getCodec.readTree[JsonNode](p)
+      Json.parse(node.toString).as[JobDefinitionParameters]
+    }
+  }
+
+  private class JobDefinitionParametersSerializer extends JsonSerializer[JobDefinitionParameters] {
+    override def serialize(value: JobDefinitionParameters, jsonGenerator: JsonGenerator, serializerProvider: SerializerProvider): Unit = {
+      jsonGenerator.writeRawValue(Json.toJson(value).toString())
+    }
+  }
+
+  private class JobTemplateParametersDeserializer extends JsonDeserializer[JobTemplateParameters] {
+    override def deserialize(p: JsonParser, ctxt: DeserializationContext): JobTemplateParameters = {
+      val node = p.getCodec.readTree[JsonNode](p)
+      Json.parse(node.toString).as[JobTemplateParameters]
+    }
+  }
+
+  private class JobTemplateParametersSerializer extends JsonSerializer[JobTemplateParameters] {
+    override def serialize(value: JobTemplateParameters, jsonGenerator: JsonGenerator, serializerProvider: SerializerProvider): Unit = {
+      jsonGenerator.writeRawValue(Json.toJson(value).toString())
+    }
+  }
+
+  private class FormConfigDeserializer extends JsonDeserializer[FormConfig] {
+    override def deserialize(p: JsonParser, ctxt: DeserializationContext): FormConfig = {
+      val node = p.getCodec.readTree[JsonNode](p)
+      val value = node.textValue()
+      FormConfigs.formConfigs.find(_.name == value).getOrElse(throw new Exception("Failed to find enum value"))
+    }
+  }
+
+  private class FormConfigSerializer extends JsonSerializer[FormConfig] {
+    override def serialize(value: FormConfig, jsonGenerator: JsonGenerator, serializerProvider: SerializerProvider): Unit = {
+      jsonGenerator.writeString(value.name)
+    }
+  }
+
   private val module = new SimpleModule()
     .addDeserializer(classOf[SensorType], new SensorTypesDeserializer)
     .addDeserializer(classOf[JobStatus], new JobStatusesDeserializer)
     .addDeserializer(classOf[JobType], new JobTypesDeserializer)
     .addDeserializer(classOf[DagInstanceStatus], new DagInstanceStatusesDeserializer)
+    .addDeserializer(classOf[JobDefinitionParameters], new JobDefinitionParametersDeserializer)
+    .addSerializer(classOf[JobDefinitionParameters], new JobDefinitionParametersSerializer)
+    .addDeserializer(classOf[JobTemplateParameters], new JobTemplateParametersDeserializer)
+    .addSerializer(classOf[JobTemplateParameters], new JobTemplateParametersSerializer)
     .addSerializer(classOf[DagInstanceStatus], new DagInstanceStatusesSerializer)
+    .addDeserializer(classOf[FormConfig], new FormConfigDeserializer)
+    .addSerializer(classOf[FormConfig], new FormConfigSerializer)
 
   private val objectMapper = new ObjectMapper()
     .registerModule(DefaultScalaModule)

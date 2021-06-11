@@ -15,11 +15,8 @@
 
 package za.co.absa.hyperdrive.trigger.models
 
-import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
-
 case class ResolvedJobDefinition(
-  jobType: JobType,
   name: String,
-  jobParameters: JobParameters,
+  jobParameters: JobInstanceParameters,
   order: Int
 )
