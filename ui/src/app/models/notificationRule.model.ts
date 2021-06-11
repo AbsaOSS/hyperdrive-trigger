@@ -20,7 +20,7 @@ export type NotificationRuleModel = {
   project: string;
   workflowPrefix: string;
   minElapsedSecondsSinceLastSuccess: number;
-  statuses: StatusModel[];
+  statuses: string[];
   recipients: string[];
   created: Date;
   updated: Date;
@@ -33,7 +33,7 @@ export class NotificationRuleModelFactory {
     project: string,
     workflowPrefix: string,
     minElapsedSecondsSinceLastSuccess: number,
-    statuses: StatusModel[],
+    statuses: string[],
     recipients: string[],
     created: Date,
     updated: Date,

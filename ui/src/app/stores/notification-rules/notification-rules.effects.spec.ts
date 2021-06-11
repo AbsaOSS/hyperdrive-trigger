@@ -54,7 +54,7 @@ describe('NotificationRulesEffects', () => {
     'Project 1',
     undefined,
     7200,
-    [dagInstanceStatuses.SUCCEEDED, dagInstanceStatuses.FAILED],
+    [dagInstanceStatuses.SUCCEEDED.name, dagInstanceStatuses.FAILED.name],
     ['abc@xyz.com'],
     new Date(Date.now()),
     undefined,

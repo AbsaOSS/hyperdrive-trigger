@@ -34,7 +34,7 @@ describe('NotificationRulesForm', () => {
     'Project 1',
     undefined,
     7200,
-    [dagInstanceStatuses.SUCCEEDED, dagInstanceStatuses.FAILED],
+    [dagInstanceStatuses.SUCCEEDED.name, dagInstanceStatuses.FAILED.name],
     ['abc@xyz.com'],
     new Date(Date.now()),
     undefined,
@@ -48,6 +48,12 @@ describe('NotificationRulesForm', () => {
         loading: false,
         notificationRule: dummyNotificationRule,
       },
+    },
+    workflows: {
+      projects: [
+        { name: 'projectA', workflows: [] },
+        { name: 'projectB', workflows: [] },
+      ],
     },
   };
 

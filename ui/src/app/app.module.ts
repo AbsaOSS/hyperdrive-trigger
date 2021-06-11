@@ -82,6 +82,8 @@ import { NotificationRulesComponent } from './components/admin/notification-rule
 import { NotificationRulesHomeComponent } from './components/admin/notification-rules/notification-rules-home/notification-rules-home.component';
 import { NotificationRulesFormComponent } from './components/admin/notification-rules/notification-rules-form/notification-rules-form.component';
 import { NotificationRulesEffects } from './stores/notification-rules/notification-rules.effects';
+import { ComboboxPartComponent } from './components/workflows/workflow-form/dynamic-parts/combobox-part/combobox-part.component';
+import { DurationPartComponent } from './components/workflows/workflow-form/dynamic-parts/duration-part/duration-part.component';
 
 @NgModule({
   declarations: [
@@ -103,6 +105,8 @@ import { NotificationRulesEffects } from './stores/notification-rules/notificati
     StringPartComponent,
     StringWithSuggestionsPartComponent,
     BooleanPartComponent,
+    ComboboxPartComponent,
+    DurationPartComponent,
     SelectPartComponent,
     StringSequencePartComponent,
     KeyStringValuePartComponent,

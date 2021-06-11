@@ -16,7 +16,7 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Subject, Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
-import { AppState, selectNotificationRulesState } from '../../../../stores/app.reducers';
+import { AppState, selectNotificationRulesState, selectWorkflowState } from '../../../../stores/app.reducers';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   CreateNotificationRule,
@@ -37,7 +37,8 @@ import { notificationRuleModes } from '../../../../models/enums/notificationRule
 import { absoluteRoutes } from '../../../../constants/routes.constants';
 import { PreviousRouteService } from '../../../../services/previousRoute/previous-route.service';
 import * as deepEquals from 'fast-deep-equal';
-import { RemoveBackendValidationError } from '../../../../stores/workflows/workflows.actions';
+import { StatusModel } from '../../../../models/status.model';
+import { dagInstanceStatuses } from '../../../../models/enums/dagInstanceStatuses.constants';
 @Component({
   selector: 'app-notification-rules-form',
   templateUrl: './notification-rules-form.component.html',
@@ -49,16 +50,19 @@ export class NotificationRulesFormComponent implements OnInit, OnDestroy {
   paramsSubscription: Subscription;
   changesSubscription: Subscription;
   notificationRuleSubscription: Subscription = null;
+  workflowsSubscription: Subscription = null;
   confirmationDialogServiceSubscription: Subscription = null;
   changes: Subject<WorkflowEntryModel> = new Subject<WorkflowEntryModel>();
 
   initialNotificationRule: NotificationRuleModel;
   notificationRule: NotificationRuleModel;
+  notificationRuleStatuses: string[];
   loading = false;
   backendValidationErrors: string[];
   partValidation: PartValidation = PartValidationFactory.create(true, 1000, 1);
   notificationRuleModes = notificationRuleModes;
   absoluteRoutes = absoluteRoutes;
+  projects: string[] = [];
 
   constructor(
     private store: Store<AppState>,
@@ -84,8 +88,14 @@ export class NotificationRulesFormComponent implements OnInit, OnDestroy {
     this.notificationRuleSubscription = this.store.select(selectNotificationRulesState).subscribe((state) => {
       this.loading = state.notificationRuleAction.loading;
       this.notificationRule = state.notificationRuleAction.notificationRule;
+      if (this.notificationRule) {
+        this.notificationRuleStatuses = Object.assign([], state.notificationRuleAction.notificationRule.statuses);
+      }
       this.initialNotificationRule = state.notificationRuleAction.initialNotificationRule;
       this.backendValidationErrors = state.notificationRuleAction.backendValidationErrors;
+    });
+    this.workflowsSubscription = this.store.select(selectWorkflowState).subscribe((state) => {
+      this.projects = state.projects.map((project) => project.name);
     });
   }
 
@@ -93,6 +103,8 @@ export class NotificationRulesFormComponent implements OnInit, OnDestroy {
     !!this.paramsSubscription && this.paramsSubscription.unsubscribe();
     !!this.changesSubscription && this.changesSubscription.unsubscribe();
     !!this.notificationRuleSubscription && this.notificationRuleSubscription.unsubscribe();
+    !!this.workflowsSubscription && this.workflowsSubscription.unsubscribe();
+    !!this.confirmationDialogServiceSubscription && this.confirmationDialogServiceSubscription.unsubscribe();
   }
 
   createNotificationRule(): void {
@@ -154,5 +166,9 @@ export class NotificationRulesFormComponent implements OnInit, OnDestroy {
 
   isReadOnlyMode(): boolean {
     return this.mode == notificationRuleModes.SHOW;
+  }
+
+  getStatuses(): Map<string, string> {
+    return new Map([dagInstanceStatuses.SUCCEEDED, dagInstanceStatuses.FAILED].map((status) => [status.name, status.name]));
   }
 }

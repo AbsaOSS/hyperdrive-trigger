@@ -78,14 +78,15 @@
             [value]="notificationRule.isActive"
             [property]="'isActive'">
           </app-boolean-part>
-          <app-string-part
+          <app-string-with-suggestions-part
             [isShow]="isReadOnlyMode()"
             [name]="'Project'"
             [valueChanges]="changes"
             [value]="notificationRule.project"
             [property]="'project'"
+            [options]="projects"
             [partValidation]="partValidation">
-          </app-string-part>
+          </app-string-with-suggestions-part>
           <app-string-part
             [isShow]="isReadOnlyMode()"
             [name]="'Workflow Prefix'"
@@ -94,6 +95,31 @@
             [property]="'workflowPrefix'"
             [partValidation]="partValidation">
           </app-string-part>
+          <app-duration-part
+            [isShow]="isReadOnlyMode()"
+            [name]="'Waiting period after last successful run'"
+            [valueChanges]="changes"
+            [value]="notificationRule.minElapsedSecondsSinceLastSuccess"
+            [property]="'minElapsedSecondsSinceLastSuccess'"
+            [partValidation]="partValidation">
+          </app-duration-part>
+          <app-combobox-part
+            [isShow]="isReadOnlyMode()"
+            [name]="'Statuses'"
+            [valueChanges]="changes"
+            [value]="notificationRuleStatuses"
+            [property]="'statuses'"
+            [options]="getStatuses()"
+            [partValidation]="partValidation">
+          </app-combobox-part>
+          <app-string-sequence-part
+            [isShow]="isReadOnlyMode()"
+            [name]="'Recipients'"
+            [valueChanges]="changes"
+            [value]="notificationRule.recipients"
+            [property]="'recipients'"
+            [partValidation]="partValidation"> <!-- Todo: E-Mail validation -->
+          </app-string-sequence-part>
         </div>
       </div>
     </div>
