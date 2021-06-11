@@ -15,8 +15,8 @@
 
 <clr-control-container *ngIf="!isShow">
   <label>{{name}}</label>
-  <div class="clr-select-wrapper">
-    <input class="clr-input" clrControl
+  <div class="clr-input-wrapper duration-input">
+    <input class="clr-select" clrControl
            type="number"
            [id]="name+'days'+uuid"
            [name]="name+'days'+uuid"
@@ -29,8 +29,8 @@
   </div>
   <span>days</span>
 
-  <div class="clr-select-wrapper">
-    <input class="clr-input" clrControl
+  <div class="clr-input-wrapper duration-input">
+    <input class="clr-select" clrControl
          type="number"
          [id]="name+'hours'+uuid"
          [name]="name+'hours'+uuid"
@@ -44,8 +44,8 @@
   </div>
   <span>hours</span>
 
-  <div class="clr-select-wrapper">
-    <input class="clr-input" clrControl
+  <div class="clr-input-wrapper duration-input">
+    <input class="clr-select" clrControl
          type="number"
          [id]="name+'minutes'+uuid"
          [name]="name+'minutes'+uuid"
@@ -59,8 +59,8 @@
   </div>
   <span>minutes</span>
 
-  <div class="clr-select-wrapper">
-    <input class="clr-input" clrControl
+  <div class="clr-input-wrapper duration-input">
+    <input class="clr-select" clrControl
          type="number"
          [id]="name+'seconds'+uuid"
          [name]="name+'seconds'+uuid"

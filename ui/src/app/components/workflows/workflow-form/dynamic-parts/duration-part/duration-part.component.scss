@@ -16,3 +16,7 @@
 :host ::ng-deep input[type=number] {
   width:50px;
 }
+
+:host .duration-input {
+  display: inline-block;
+}
