@@ -27,8 +27,6 @@ describe('ComboboxPartComponent', () => {
   let fixture: ComponentFixture<ComboboxPartComponent>;
   let underTest: ComboboxPartComponent;
 
-  const inputSelector: Predicate<DebugElement> = By.css('clr-combobox');
-
   beforeEach(
     waitForAsync(() => {
       TestBed.configureTestingModule({
@@ -48,47 +46,19 @@ describe('ComboboxPartComponent', () => {
     expect(underTest).toBeTruthy();
   });
 
-  // directly test modelChanged method
-  // it(
-  //   'should change value and publish change on user input',
-  //   waitForAsync(() => {
-  //     const oldValue = 'oneValue';
-  //     const newValue1 = 'threeValue';
-  //     const newValue2 = 'fourValue';
-  //     const propertyName = 'property';
-  //     const options = new Map([
-  //       [oldValue, 'oneLabel'],
-  //       ['two', 'two'],
-  //       [newValue1, 'threeLabel'],
-  //       [newValue2, 'fourLabel'],
-  //     ]);
-  //
-  //     const testedSubject = new Subject<WorkflowEntryModel>();
-  //     const subjectSpy = spyOn(testedSubject, 'next');
-  //     const partValidation = PartValidationFactory.create(true);
-  //
-  //     underTest.isShow = false;
-  //     underTest.name = 'name';
-  //     underTest.value = [oldValue];
-  //     underTest.property = propertyName;
-  //     underTest.options = options;
-  //     underTest.valueChanges = testedSubject;
-  //     underTest.partValidation = partValidation;
-  //
-  //     fixture.detectChanges();
-  //     fixture.whenStable().then(() => {
-  //       const inputElement = fixture.debugElement.query(inputSelector).nativeElement;
-  //       inputElement.attributes['ng-reflect-model'] = [newValue1, newValue2];
-  //       inputElement.dispatchEvent(new Event('change'));
-  //
-  //       fixture.detectChanges();
-  //       fixture.whenStable().then(() => {
-  //         const testedValue = fixture.debugElement.query(inputSelector).nativeElement.attributes['ng-reflect-model'];
-  //         expect(testedValue).toEqual([newValue1, newValue2]);
-  //         expect(subjectSpy).toHaveBeenCalled();
-  //         expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, [newValue1, newValue2]));
-  //       });
-  //     });
-  //   }),
-  // );
+  it('should change value and publish change on user input', () => {
+    const newValue1 = 'threeValue';
+    const newValue2 = 'fourValue';
+    const propertyName = 'property';
+
+    const testedSubject = new Subject<WorkflowEntryModel>();
+    const subjectSpy = spyOn(testedSubject, 'next');
+
+    underTest.property = propertyName;
+    underTest.valueChanges = testedSubject;
+
+    underTest.modelChanged([newValue1, newValue2]);
+    expect(subjectSpy).toHaveBeenCalled();
+    expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, [newValue1, newValue2]));
+  });
 });

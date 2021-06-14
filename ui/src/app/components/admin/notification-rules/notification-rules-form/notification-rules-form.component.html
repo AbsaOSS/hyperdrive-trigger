@@ -85,7 +85,8 @@
             [value]="notificationRule.project"
             [property]="'project'"
             [options]="projects"
-            [partValidation]="partValidation">
+            [partValidation]="partValidation"
+            [helperText]="'Leave empty to match all projects. Don\'t use the asterisk (*)'">
           </app-string-with-suggestions-part>
           <app-string-part
             [isShow]="isReadOnlyMode()"
@@ -93,7 +94,8 @@
             [valueChanges]="changes"
             [value]="notificationRule.workflowPrefix"
             [property]="'workflowPrefix'"
-            [partValidation]="partValidation">
+            [partValidation]="partValidation"
+            [helperText]="'Leave empty to match all workflows. Don\'t use the asterisk (*)'">
           </app-string-part>
           <app-duration-part
             [isShow]="isReadOnlyMode()"
@@ -101,7 +103,8 @@
             [valueChanges]="changes"
             [value]="notificationRule.minElapsedSecondsSinceLastSuccess"
             [property]="'minElapsedSecondsSinceLastSuccess'"
-            [partValidation]="partValidation">
+            [partValidation]="partValidation"
+            [helperText]="'Don\'t send any notifications after a successful run during the waiting period, to avoid spurious notifications. Set to zero to ignore this feature'">
           </app-duration-part>
           <app-combobox-part
             [isShow]="isReadOnlyMode()"
@@ -118,7 +121,7 @@
             [valueChanges]="changes"
             [value]="notificationRule.recipients"
             [property]="'recipients'"
-            [partValidation]="partValidation"> <!-- Todo: E-Mail validation -->
+            [partValidation]="partValidation">
           </app-string-sequence-part>
         </div>
       </div>

@@ -39,6 +39,7 @@ import { PreviousRouteService } from '../../../../services/previousRoute/previou
 import * as deepEquals from 'fast-deep-equal';
 import { StatusModel } from '../../../../models/status.model';
 import { dagInstanceStatuses } from '../../../../models/enums/dagInstanceStatuses.constants';
+import { InitializeWorkflows } from '../../../../stores/workflows/workflows.actions';
 @Component({
   selector: 'app-notification-rules-form',
   templateUrl: './notification-rules-form.component.html',
@@ -82,6 +83,7 @@ export class NotificationRulesFormComponent implements OnInit, OnDestroy {
     this.changesSubscription = this.changes.subscribe((state) => {
       this.store.dispatch(new NotificationRuleChanged(state));
     });
+    this.store.dispatch(new InitializeWorkflows());
   }
 
   ngOnInit(): void {

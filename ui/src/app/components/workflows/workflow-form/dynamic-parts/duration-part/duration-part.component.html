@@ -73,12 +73,28 @@
     />
   </div>
   <span>seconds</span>
+  <clr-control-helper *ngIf="helperText">{{helperText}}</clr-control-helper>
   <clr-control-error *clrIfError="'required'">{{texts.FORM_VALIDATION_MUST_BE_FILLED(name)}}</clr-control-error>
 </clr-control-container>
 
 <div *ngIf="isShow" class="clr-form-control clr-row">
   <label class="clr-control-label clr-col-12 clr-col-md-2">{{name}}</label>
   <span class="clr-control-container clr-col-md-10 clr-col-12 breakableSpan">
-    {{days}} days, {{hours}} hours, {{minutes}} minutes, {{seconds}} seconds
+    <ng-container *ngIf="days != 0">
+      {{days}} days
+    </ng-container>
+    <ng-container *ngIf="hours != 0">
+      <ng-container *ngIf="days != 0">,</ng-container>
+      {{hours}} hours
+    </ng-container>
+    <ng-container *ngIf="minutes != 0">
+      <ng-container *ngIf="days != 0 || hours != 0">,</ng-container>
+      {{minutes}} minutes
+    </ng-container>
+    <ng-container *ngIf="seconds != 0">
+      <ng-container *ngIf="days != 0 || hours != 0 || minutes != 0">,</ng-container>
+      {{seconds}} seconds
+    </ng-container>
+    <ng-container *ngIf="value == 0">None</ng-container>
   </span>
 </div>

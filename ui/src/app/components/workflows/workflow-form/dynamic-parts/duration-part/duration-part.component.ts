@@ -36,6 +36,7 @@ export class DurationPartComponent implements OnInit {
   @Input() property: string;
   @Input() valueChanges: Subject<WorkflowEntryModel>;
   @Input() partValidation: PartValidation;
+  @Input() helperText: string;
   partValidationSafe: PartValidation;
   days: number;
   hours: number;
