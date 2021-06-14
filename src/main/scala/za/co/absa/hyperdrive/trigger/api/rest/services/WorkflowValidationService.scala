@@ -18,6 +18,7 @@ package za.co.absa.hyperdrive.trigger.api.rest.services
 
 import javax.inject.Inject
 import org.springframework.stereotype.Service
+import za.co.absa.hyperdrive.trigger.api.rest.utils.ValidationServiceUtil
 import za.co.absa.hyperdrive.trigger.models.WorkflowJoined
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, ApiException, BulkOperationError, ValidationError}
 import za.co.absa.hyperdrive.trigger.persistance.WorkflowRepository
@@ -48,7 +49,7 @@ class WorkflowValidationServiceImpl @Inject()(override val workflowRepository: W
       validateWorkflowNotExists(workflows),
       validateProjectIsNotEmpty(workflows)
     )
-    combine(validators)
+    ValidationServiceUtil.reduce(validators)
   }
 
   override def validateOnUpdate(originalWorkflow: WorkflowJoined, updatedWorkflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Unit] = {
@@ -57,16 +58,9 @@ class WorkflowValidationServiceImpl @Inject()(override val workflowRepository: W
       validateProjectIsNotEmpty(updatedWorkflow),
       validateWorkflowData(originalWorkflow, updatedWorkflow)
     )
-    combine(validators).transform(identity, {
+    ValidationServiceUtil.reduce(validators).transform(identity, {
       case ex: ApiException => new ApiException(ex.apiErrors.map(_.unwrapError()))
     })
-  }
-
-  private def combine(validators: Seq[Future[Seq[ApiError]]])(implicit ec: ExecutionContext) = {
-    val combinedValidators = Future
-      .reduce(validators)(_ ++ _)
-      .transform(apiErrors => if (apiErrors.nonEmpty) throw new ApiException(apiErrors), identity)
-    combinedValidators
   }
 
   private def validateWorkflowNotExists(workflows: Seq[WorkflowJoined])(implicit ec: ExecutionContext): Future[Seq[ApiError]] = {
