@@ -23,6 +23,8 @@ import { WorkflowEntryModel } from '../../../../models/workflowEntry.model';
 import { PartValidation, PartValidationFactory } from '../../../../models/workflowFormParts.model';
 import { JobTemplateFormEntryModel } from '../../../../models/jobTemplateFormEntry.model';
 import { JobTemplateModel } from '../../../../models/jobTemplate.model';
+import { jobTypes } from '../../../../constants/jobTypes.constants';
+import { ShellTemplateParametersModel, SparkTemplateParametersModel } from '../../../../models/jobTemplateParameters.model';
 
 @Component({
   selector: 'app-job-template-show',
@@ -64,6 +66,24 @@ export class JobTemplateShowComponent implements OnInit, OnDestroy {
 
   toggleJobTemplateParametersAccordion() {
     this.isJobTemplateParametersHidden = !this.isJobTemplateParametersHidden;
+  }
+
+  isJobTemplateEmpty() {
+    switch (this.jobTemplate.jobParameters.jobType.name) {
+      case jobTypes.SHELL:
+        const shellParameters: ShellTemplateParametersModel = <ShellTemplateParametersModel>this.jobTemplate.jobParameters;
+        return !shellParameters.scriptLocation;
+      case jobTypes.SPARK:
+        const sparkParameters: SparkTemplateParametersModel = <SparkTemplateParametersModel>this.jobTemplate.jobParameters;
+        return (
+          !sparkParameters.jobJar &&
+          !sparkParameters.mainClass &&
+          sparkParameters.appArguments.size == 0 &&
+          sparkParameters.additionalJars.size == 0 &&
+          sparkParameters.additionalFiles.size == 0 &&
+          sparkParameters.additionalSparkConfig.size == 0
+        );
+    }
   }
 
   ngOnDestroy(): void {

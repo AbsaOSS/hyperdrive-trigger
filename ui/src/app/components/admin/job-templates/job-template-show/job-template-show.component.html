@@ -48,7 +48,7 @@
             [isShow]="true"
             [name]="'Job type'"
             [valueChanges]="changes"
-            [value]="jobTemplate.jobType.name"
+            [value]="jobTemplate.jobParameters.jobType.name"
             [property]="'jobType.name'"
             [partValidation]="partValidation">
           </app-string-part>
@@ -61,10 +61,10 @@
           <clr-icon shape="angle" [dir]="isJobTemplateParametersHidden?'right':'down'"></clr-icon>
           Job Template Parameters
         </div>
-        <div *ngIf="jobTemplateFormEntries.length == 0" [hidden]="isJobTemplateParametersHidden" class="accordion-content">
+        <div *ngIf="isJobTemplateEmpty()" [hidden]="isJobTemplateParametersHidden" class="accordion-content">
           <h6>Job template has no parameters.</h6>
         </div>
-        <div *ngIf="jobTemplateFormEntries.length != 0" [hidden]="isJobTemplateParametersHidden" class="accordion-content">
+        <div *ngIf="!isJobTemplateEmpty()" [hidden]="isJobTemplateParametersHidden" class="accordion-content">
           <div *ngFor="let jobTemplateFormEntry of jobTemplateFormEntries">
             <div [ngSwitch]="jobTemplateFormEntry.formPart.type">
               <app-string-part

@@ -23,7 +23,7 @@ import { WorkflowModelFactory } from '../../models/workflow.model';
 import { WorkflowJoinedModelFactory } from '../../models/workflowJoined.model';
 import { jobTemplateFormConfigs } from '../../constants/jobTemplates.constants';
 import { JobTemplateModelFactory } from '../../models/jobTemplate.model';
-import { JobParametersModelFactory } from '../../models/jobParameters.model';
+import { SparkTemplateParametersModel } from '../../models/jobTemplateParameters.model';
 
 describe('WorkflowService', () => {
   let underTest: WorkflowService;
@@ -248,7 +248,7 @@ describe('WorkflowService', () => {
         templateName,
         jobTemplateFormConfigs.SHELL,
         { name: 'Spark' },
-        JobParametersModelFactory.createEmpty(),
+        SparkTemplateParametersModel.createEmpty(),
       ),
     ]);
   });

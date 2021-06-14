@@ -98,7 +98,7 @@ export class JobTemplatesEffects {
       return this.workflowService.getJobDynamicFormParts().pipe(
         mergeMap((jobDynamicFormParts: DynamicFormPart[]) => {
           const jobTemplate: JobTemplateModel = action.payload;
-          const jobDynamicPartOption = jobDynamicFormParts.find((part) => part.value == jobTemplate.jobType.name);
+          const jobDynamicPartOption = jobDynamicFormParts.find((part) => part.value == jobTemplate.jobParameters.jobType.name);
           if (jobDynamicPartOption != undefined) {
             const jobTemplateFormEntries: JobTemplateFormEntryModel[] = jobDynamicPartOption.parts
               .map((part) => {
