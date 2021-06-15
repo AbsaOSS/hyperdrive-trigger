@@ -150,6 +150,7 @@ export function notificationRulesReducer(state: State = initialState, action: No
         ...state,
         notificationRuleAction: {
           ...initialState.notificationRuleAction,
+          loading: false,
           backendValidationErrors: [
             ...state.notificationRuleAction.backendValidationErrors.slice(0, action.payload),
             ...state.notificationRuleAction.backendValidationErrors.slice(action.payload + 1),

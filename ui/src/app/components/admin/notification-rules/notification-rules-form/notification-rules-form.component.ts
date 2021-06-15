@@ -60,7 +60,8 @@ export class NotificationRulesFormComponent implements OnInit, OnDestroy {
   notificationRuleStatuses: string[];
   loading = false;
   backendValidationErrors: string[];
-  partValidation: PartValidation = PartValidationFactory.create(true, 1000, 1);
+  optional: PartValidation = PartValidationFactory.create(false, 1000, 1);
+  required: PartValidation = PartValidationFactory.create(true);
   notificationRuleModes = notificationRuleModes;
   absoluteRoutes = absoluteRoutes;
   projects: string[] = [];
