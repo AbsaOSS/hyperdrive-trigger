@@ -49,7 +49,7 @@ export class ComboboxPartComponent implements OnInit {
     if (!this.options) {
       this.options = new Map();
     }
-    this.partValidationSafe = PartValidationFactory.create(!!this.partValidation?.isRequired ? this.partValidation.isRequired : true);
+    this.partValidationSafe = PartValidationFactory.create(this.partValidation?.isRequired ?? true);
   }
 
   modelChanged(value: any[]): void {

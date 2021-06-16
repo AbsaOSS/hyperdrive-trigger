@@ -57,7 +57,7 @@ export class DurationPartComponent implements OnInit {
     } else {
       this.convertFromTotalSeconds(this.value);
     }
-    this.partValidationSafe = PartValidationFactory.create(!!this.partValidation.isRequired ? this.partValidation.isRequired : true);
+    this.partValidationSafe = PartValidationFactory.create(this.partValidation?.isRequired ?? true);
   }
 
   convertFromTotalSeconds(totalSeconds: number): void {
