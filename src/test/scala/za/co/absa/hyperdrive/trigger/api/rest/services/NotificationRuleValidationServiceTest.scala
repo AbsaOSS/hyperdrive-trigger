@@ -18,7 +18,7 @@ package za.co.absa.hyperdrive.trigger.api.rest.services
 import org.mockito.ArgumentMatchers.{eq => eqTo, _}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
-import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, Matchers}
+import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, FlatSpec, Matchers}
 import za.co.absa.hyperdrive.trigger.TestUtils.await
 import za.co.absa.hyperdrive.trigger.models.NotificationRule
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
@@ -36,7 +36,7 @@ class NotificationRuleValidationServiceTest extends AsyncFlatSpec with Matchers 
     reset(workflowRepository)
   }
 
-  "validate" should "return None if entity is valid" in {
+  "validate" should "succeed if entity is valid" in {
     // given
     val notificationRule = createNotificationRule()
     when(workflowRepository.existsProject(eqTo(notificationRule.project.get))(any[ExecutionContext])).thenReturn(Future{true})
@@ -51,7 +51,7 @@ class NotificationRuleValidationServiceTest extends AsyncFlatSpec with Matchers 
     succeed
   }
 
-  it should "return None if neither project nor workflowPrefix are specified" in {
+  it should "succeed if neither project nor workflowPrefix are specified" in {
     // given
     val notificationRule = createNotificationRule().copy(project = None, workflowPrefix = None)
 
@@ -59,7 +59,34 @@ class NotificationRuleValidationServiceTest extends AsyncFlatSpec with Matchers 
     await(underTest.validate(notificationRule))
 
     // then
-    verify(workflowRepository, never())
+    verify(workflowRepository, never()).existsProject(any())(any())
+    verify(workflowRepository, never()).existsWorkflowWithPrefix(any())(any())
+    succeed
+  }
+
+  it should "succeed if both project and workflowPrefix are empty" in {
+    // given
+    val notificationRule = createNotificationRule().copy(project = Some(""), workflowPrefix = Some(""))
+
+    // when
+    await(underTest.validate(notificationRule))
+
+    // then
+    verify(workflowRepository, never()).existsProject(any())(any())
+    verify(workflowRepository, never()).existsWorkflowWithPrefix(any())(any())
+    succeed
+  }
+
+  it should "succeed if minElapsedSeconds is > 0" in {
+    // given
+    val notificationRule = createNotificationRule().copy(minElapsedSecondsSinceLastSuccess = Some(123))
+    when(workflowRepository.existsProject(eqTo(notificationRule.project.get))(any[ExecutionContext])).thenReturn(Future{true})
+    when(workflowRepository.existsWorkflowWithPrefix(eqTo(notificationRule.workflowPrefix.get))(any[ExecutionContext])).thenReturn(Future{true})
+
+    // when
+    await(underTest.validate(notificationRule))
+
+    // then
     succeed
   }
 
@@ -106,6 +133,20 @@ class NotificationRuleValidationServiceTest extends AsyncFlatSpec with Matchers 
       ValidationError(s"Recipient abc@com is not a valid e-mail address"),
       ValidationError(s"Recipient abc.def.ghi is not a valid e-mail address")
     )
+  }
+
+  it should "fail if minElapsedSeconds is < 0" in {
+    // given
+    val notificationRule = createNotificationRule().copy(minElapsedSecondsSinceLastSuccess = Some(-1))
+    when(workflowRepository.existsProject(eqTo(notificationRule.project.get))(any[ExecutionContext])).thenReturn(Future{true})
+    when(workflowRepository.existsWorkflowWithPrefix(eqTo(notificationRule.workflowPrefix.get))(any[ExecutionContext])).thenReturn(Future{true})
+
+    // when
+    val result = the [ApiException] thrownBy await(underTest.validate(notificationRule))
+
+    // then
+    result.apiErrors should have size 1
+    result.apiErrors.head.message shouldBe "minElapsedSecondsSinceLastSuccess cannot be negative, is -1"
   }
 
   it should "return all validation errors" in {

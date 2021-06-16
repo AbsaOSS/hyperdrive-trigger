@@ -36,11 +36,26 @@ class NotificationRuleValidationServiceImpl (override val workflowRepository: Wo
 
   def validate(notificationRule: NotificationRule)(implicit ec: ExecutionContext): Future[Unit] = {
     val validators = Seq(
-      notificationRule.project.map(validateProjectExists).getOrElse(Future{Seq()}),
-      notificationRule.workflowPrefix.map(validateWorkflowsWithPrefixExists).getOrElse(Future{Seq()}),
-      validateEmailAddresses(notificationRule.recipients)
+      notificationRule.project
+        .flatMap(emptyStringToNone)
+        .map(validateProjectExists)
+        .getOrElse(Future{Seq()}),
+      notificationRule.workflowPrefix
+        .flatMap(emptyStringToNone)
+        .map(validateWorkflowsWithPrefixExists)
+        .getOrElse(Future{Seq()}),
+      validateEmailAddresses(notificationRule.recipients),
+      validateMinElapsedSeconds(notificationRule.minElapsedSecondsSinceLastSuccess)
     )
     ValidationServiceUtil.reduce(validators)
+  }
+
+  private def emptyStringToNone(str: String) = {
+    if(str.isEmpty) {
+      None
+    } else {
+      Some(str)
+    }
   }
 
   private def validateProjectExists(project: String)(implicit ec: ExecutionContext) = {
@@ -65,6 +80,15 @@ class NotificationRuleValidationServiceImpl (override val workflowRepository: Wo
     Future.successful(
       emailAddresses.filterNot(address => emailValidator.isValid(address))
         .map(address => ValidationError(s"Recipient $address is not a valid e-mail address"))
+    )
+  }
+
+  private def validateMinElapsedSeconds(minElapsedSeconds: Option[Long]) = {
+    Future.successful(
+      minElapsedSeconds
+        .filter(_ < 0)
+        .map(v => Seq(ValidationError(s"minElapsedSecondsSinceLastSuccess cannot be negative, is $v")))
+        .getOrElse(Seq())
     )
   }
 }
