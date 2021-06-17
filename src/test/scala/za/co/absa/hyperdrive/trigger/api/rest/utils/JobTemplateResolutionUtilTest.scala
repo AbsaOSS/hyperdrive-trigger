@@ -294,7 +294,7 @@ class JobTemplateResolutionUtilTest extends FlatSpec with Matchers {
     val result = intercept[IllegalArgumentException](JobTemplateResolutionUtil.resolveDagDefinitionJoined(dagDefinitionJoined, Seq(jobTemplate)))
 
     // then
-    result.getMessage should include("Couldn't not mix different job types.")
+    result.getMessage should include("Could not mix different job types.")
   }
 
   it should "throw an error if the jobTemplate doesn't exist" in {

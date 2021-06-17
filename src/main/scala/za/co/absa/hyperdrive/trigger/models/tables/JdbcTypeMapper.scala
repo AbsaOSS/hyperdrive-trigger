@@ -17,7 +17,7 @@ package za.co.absa.hyperdrive.trigger.models.tables
 
 import play.api.libs.json.{JsValue, Json}
 import slick.jdbc.JdbcType
-import za.co.absa.hyperdrive.trigger.ObjectMapperSingleton
+import za.co.absa.hyperdrive.trigger.api.rest.ObjectMapperSingleton
 import za.co.absa.hyperdrive.trigger.models.NotificationRule.Recipients
 import za.co.absa.hyperdrive.trigger.models.enums.DBOperation.DBOperation
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses.DagInstanceStatus

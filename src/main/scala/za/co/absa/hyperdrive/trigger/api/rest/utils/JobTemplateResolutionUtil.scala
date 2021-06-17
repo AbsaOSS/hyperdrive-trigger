@@ -42,42 +42,42 @@ object JobTemplateResolutionUtil {
 
   private def mergeJobParameters(primary: JobDefinitionParameters, secondary: JobTemplateParameters): JobInstanceParameters = {
     (primary, secondary) match {
-      case (definitionParams: SparkDefinitionParameters, templatePrams: SparkTemplateParameters) =>
-        mergeSparkParameters(definitionParams, templatePrams)
-      case (definitionParams: HyperdriveDefinitionParameters, templatePrams: SparkTemplateParameters) =>
-        mergeSparkAndHyperdriveParameters(definitionParams, templatePrams)
-      case (definitionParams: ShellDefinitionParameters, templatePrams: ShellTemplateParameters) =>
-        mergeShellParameters(definitionParams, templatePrams)
+      case (definitionParams: SparkDefinitionParameters, templateParams: SparkTemplateParameters) =>
+        mergeSparkParameters(definitionParams, templateParams)
+      case (definitionParams: HyperdriveDefinitionParameters, templateParams: SparkTemplateParameters) =>
+        mergeSparkAndHyperdriveParameters(definitionParams, templateParams)
+      case (definitionParams: ShellDefinitionParameters, templateParams: ShellTemplateParameters) =>
+        mergeShellParameters(definitionParams, templateParams)
       case _ =>
-        throw new IllegalArgumentException("Couldn't not mix different job types.")
+        throw new IllegalArgumentException("Could not mix different job types.")
     }
   }
 
-  private def mergeSparkAndHyperdriveParameters(definitionParams: HyperdriveDefinitionParameters, templatePrams: SparkTemplateParameters): SparkInstanceParameters = {
+  private def mergeSparkAndHyperdriveParameters(definitionParams: HyperdriveDefinitionParameters, templateParams: SparkTemplateParameters): SparkInstanceParameters = {
     SparkInstanceParameters(
-      jobJar = templatePrams.jobJar.getOrElse(""),
-      mainClass = templatePrams.mainClass.getOrElse(""),
-      appArguments = mergeLists(definitionParams.appArguments, templatePrams.appArguments),
-      additionalJars = mergeLists(definitionParams.additionalJars, templatePrams.additionalJars),
-      additionalFiles = mergeLists(definitionParams.additionalFiles, templatePrams.additionalFiles),
-      additionalSparkConfig = mergeMapsOfStrings(definitionParams.additionalSparkConfig, templatePrams.additionalSparkConfig)
+      jobJar = templateParams.jobJar.getOrElse(""),
+      mainClass = templateParams.mainClass.getOrElse(""),
+      appArguments = mergeLists(definitionParams.appArguments, templateParams.appArguments),
+      additionalJars = mergeLists(definitionParams.additionalJars, templateParams.additionalJars),
+      additionalFiles = mergeLists(definitionParams.additionalFiles, templateParams.additionalFiles),
+      additionalSparkConfig = mergeMapsOfStrings(definitionParams.additionalSparkConfig, templateParams.additionalSparkConfig)
     )
   }
 
-  private def mergeSparkParameters(definitionParams: SparkDefinitionParameters, templatePrams: SparkTemplateParameters): SparkInstanceParameters = {
+  private def mergeSparkParameters(definitionParams: SparkDefinitionParameters, templateParams: SparkTemplateParameters): SparkInstanceParameters = {
     SparkInstanceParameters(
-      jobJar = mergeOptionStrings(definitionParams.jobJar, templatePrams.jobJar),
-      mainClass = mergeOptionStrings(definitionParams.mainClass, templatePrams.mainClass),
-      appArguments = mergeLists(definitionParams.appArguments, templatePrams.appArguments),
-      additionalJars = mergeLists(definitionParams.additionalJars, templatePrams.additionalJars),
-      additionalFiles = mergeLists(definitionParams.additionalFiles, templatePrams.additionalFiles),
-      additionalSparkConfig = mergeMapsOfStrings(definitionParams.additionalSparkConfig, templatePrams.additionalSparkConfig)
+      jobJar = mergeOptionStrings(definitionParams.jobJar, templateParams.jobJar),
+      mainClass = mergeOptionStrings(definitionParams.mainClass, templateParams.mainClass),
+      appArguments = mergeLists(definitionParams.appArguments, templateParams.appArguments),
+      additionalJars = mergeLists(definitionParams.additionalJars, templateParams.additionalJars),
+      additionalFiles = mergeLists(definitionParams.additionalFiles, templateParams.additionalFiles),
+      additionalSparkConfig = mergeMapsOfStrings(definitionParams.additionalSparkConfig, templateParams.additionalSparkConfig)
     )
   }
 
-  private def mergeShellParameters(definitionParams: ShellDefinitionParameters, templatePrams: ShellTemplateParameters): ShellInstanceParameters = {
+  private def mergeShellParameters(definitionParams: ShellDefinitionParameters, templateParams: ShellTemplateParameters): ShellInstanceParameters = {
     ShellInstanceParameters(
-      scriptLocation = definitionParams.scriptLocation.getOrElse(templatePrams.scriptLocation.getOrElse(""))
+      scriptLocation = definitionParams.scriptLocation.getOrElse(templateParams.scriptLocation.getOrElse(""))
     )
   }
 

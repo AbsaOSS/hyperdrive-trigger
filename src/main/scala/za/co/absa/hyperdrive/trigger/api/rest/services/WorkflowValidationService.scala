@@ -125,8 +125,9 @@ class WorkflowValidationServiceImpl @Inject()(override val workflowRepository: W
           Seq(
             originalJob.name == updatedJob.name,
             originalJob.jobTemplateId == updatedJob.jobTemplateId,
-            originalJob.order == updatedJob.order
-          ) ++ validateJobParameters(originalJob.jobParameters, updatedJob.jobParameters)
+            originalJob.order == updatedJob.order,
+            validateJobParameters(originalJob.jobParameters, updatedJob.jobParameters)
+          )
         ).getOrElse(Seq(false))
       })
     ).flatten
@@ -138,27 +139,12 @@ class WorkflowValidationServiceImpl @Inject()(override val workflowRepository: W
     }
   }
 
-  private def validateJobParameters(originalJobParameters: JobDefinitionParameters, updatedJobParameters: JobDefinitionParameters): Seq[Boolean] = {
+  private def validateJobParameters(originalJobParameters: JobDefinitionParameters, updatedJobParameters: JobDefinitionParameters): Boolean = {
     (originalJobParameters, updatedJobParameters) match {
-      case (original: SparkDefinitionParameters, updated: SparkDefinitionParameters) =>
-        Seq(
-          original.jobJar == updated.jobJar,
-          original.mainClass == updated.mainClass,
-          original.appArguments == updated.appArguments,
-          original.additionalJars == updated.additionalJars,
-          original.additionalFiles == updated.additionalFiles,
-          original.additionalSparkConfig == updated.additionalSparkConfig
-        )
-      case (original: HyperdriveDefinitionParameters, updated: HyperdriveDefinitionParameters) =>
-        Seq(
-          original.appArguments == updated.appArguments,
-          original.additionalJars == updated.additionalJars,
-          original.additionalFiles == updated.additionalFiles,
-          original.additionalSparkConfig == updated.additionalSparkConfig
-        )
-      case (original: ShellDefinitionParameters, updated: ShellDefinitionParameters) =>
-        Seq(original.scriptLocation == updated.scriptLocation)
-      case _ => Seq(false)
+      case (original: SparkDefinitionParameters, updated: SparkDefinitionParameters) => original.equals(updated)
+      case (original: HyperdriveDefinitionParameters, updated: HyperdriveDefinitionParameters) => original.equals(updated)
+      case (original: ShellDefinitionParameters, updated: ShellDefinitionParameters) => original.equals(updated)
+      case _ => false
     }
   }
 

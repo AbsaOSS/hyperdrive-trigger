@@ -54,10 +54,7 @@ class DagInstanceServiceImpl(override val jobTemplateService: JobTemplateService
     val now = LocalDateTime.now()
     val finished = if (skip) Some(now) else None
     resolvedJobDefinitions.map { resolvedJobDefinition =>
-      val jobParameters = resolvedJobDefinition.jobParameters.jobType match {
-        case JobTypes.Spark => resolvedJobDefinition.jobParameters
-        case JobTypes.Shell => resolvedJobDefinition.jobParameters
-      }
+      val jobParameters = resolvedJobDefinition.jobParameters
       JobInstance(
         jobName = resolvedJobDefinition.name,
         jobParameters = jobParameters,
