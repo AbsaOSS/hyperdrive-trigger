@@ -36,14 +36,6 @@
     </div>
   </clr-dg-action-bar>
 
-  <clr-dg-column [clrDgField]="notificationRuleColumns.ID" [clrFilterValue]>
-    <ng-container *clrDgHideableColumn="{hidden: false}">Id</ng-container>
-    <clr-dg-filter [clrDgFilter]="templateNameFilter">
-      <app-string-filter #templateNameFilter [property]="notificationRuleColumns.ID"
-                         [removeFiltersSubject]="removeFiltersSubject">
-      </app-string-filter>
-    </clr-dg-filter>
-  </clr-dg-column>
   <clr-dg-column [clrDgField]="notificationRuleColumns.PROJECT">
     <ng-container *clrDgHideableColumn="{hidden: false}">Project</ng-container>
     <clr-dg-filter [clrDgFilter]="fromConfigFilter">
@@ -60,6 +52,23 @@
       </app-string-filter>
     </clr-dg-filter>
   </clr-dg-column>
+  <clr-dg-column>
+    <ng-container>Statuses</ng-container>
+  </clr-dg-column>
+  <clr-dg-column>
+    <ng-container>Recipients</ng-container>
+  </clr-dg-column>
+  <clr-dg-column
+    [clrDgField]="notificationRuleColumns.IS_ACTIVE">
+    <ng-container>Is active</ng-container>
+    <clr-dg-filter [clrDgFilter]="workflowIsActiveFilter">
+      <app-boolean-filter [removeFiltersSubject]="removeFiltersSubject"
+                          #workflowIsActiveFilter
+                          [property]="notificationRuleColumns.IS_ACTIVE">
+      </app-boolean-filter>
+    </clr-dg-filter>
+  </clr-dg-column>
+
   <clr-dg-placeholder>We couldn't find any notification rules!</clr-dg-placeholder>
 
   <clr-dg-row *ngFor="let notificationRule of notificationRules" [clrDgItem]="notificationRule">
@@ -78,9 +87,15 @@
       </button>
     </clr-dg-action-overflow>
 
-    <clr-dg-cell (dblclick)="showNotificationRule(notificationRule.id)">{{notificationRule.id}}</clr-dg-cell>
     <clr-dg-cell (dblclick)="showNotificationRule(notificationRule.id)">{{notificationRule.project}}</clr-dg-cell>
     <clr-dg-cell (dblclick)="showNotificationRule(notificationRule.id)">{{notificationRule.workflowPrefix}}</clr-dg-cell>
+    <clr-dg-cell (dblclick)="showNotificationRule(notificationRule.id)" style="text-overflow: ellipsis;">{{notificationRule.statuses.join(', ')}}</clr-dg-cell>
+    <clr-dg-cell (dblclick)="showNotificationRule(notificationRule.id)" style="text-overflow: ellipsis;">{{notificationRule.recipients.join(', ')}}</clr-dg-cell>
+    <clr-dg-cell (dblclick)="showNotificationRule(notificationRule.id)" [ngSwitch]="notificationRule.isActive">
+      <clr-icon *ngSwitchCase="true" shape="circle" class="is-solid" style="color: green"></clr-icon>
+      <clr-icon *ngSwitchCase="false" shape="circle" class="is-solid" style="color: red"></clr-icon>
+      {{notificationRule.isActive ? 'Yes' : 'No'}}
+    </clr-dg-cell>
   </clr-dg-row>
 
   <clr-dg-footer>

@@ -14,7 +14,9 @@
  */
 
 export const notificationRuleColumns = {
-  ID: 'id',
   PROJECT: 'project',
   WORKFLOW_PREFIX: 'workflowPrefix',
+  IS_ACTIVE: 'isActive',
+  STATUSES: 'statuses',
+  RECIPIENTS: 'recipients',
 };
