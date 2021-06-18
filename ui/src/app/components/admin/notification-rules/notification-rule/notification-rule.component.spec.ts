@@ -14,20 +14,24 @@
  */
 
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+
 import { provideMockStore } from '@ngrx/store/testing';
+import { ActivatedRoute, Router } from '@angular/router';
+import { of } from 'rxjs';
 import { RouterTestingModule } from '@angular/router/testing';
-import { FormsModule } from '@angular/forms';
-import { NotificationRulesFormComponent } from './notification-rules-form.component';
+import { Store } from '@ngrx/store';
 import { NotificationRuleModelFactory } from '../../../../models/notificationRule.model';
 import { dagInstanceStatuses } from '../../../../models/enums/dagInstanceStatuses.constants';
+import { NotificationRuleComponent } from './notification-rule.component';
+import { AppState } from '../../../../stores/app.reducers';
 import { PreviousRouteService } from '../../../../services/previousRoute/previous-route.service';
-import { Router } from '@angular/router';
 
-describe('NotificationRulesForm', () => {
-  let underTest: NotificationRulesFormComponent;
-  let fixture: ComponentFixture<NotificationRulesFormComponent>;
+describe('NotificationRuleComponent', () => {
+  let underTest: NotificationRuleComponent;
+  let fixture: ComponentFixture<NotificationRuleComponent>;
+  let router: Router;
+  let store: Store<AppState>;
   let previousRouteService: PreviousRouteService;
-  let router;
 
   const dummyNotificationRule = NotificationRuleModelFactory.create(
     true,
@@ -45,7 +49,9 @@ describe('NotificationRulesForm', () => {
     notificationRules: {
       notificationRuleAction: {
         id: 10,
+        backendValidationErrors: [],
         loading: false,
+        initialNotificationRule: NotificationRuleModelFactory.createEmpty(),
         notificationRule: dummyNotificationRule,
       },
     },
@@ -60,21 +66,50 @@ describe('NotificationRulesForm', () => {
   beforeEach(
     waitForAsync(() => {
       TestBed.configureTestingModule({
-        providers: [provideMockStore({ initialState: initialAppState }), PreviousRouteService],
-        declarations: [NotificationRulesFormComponent],
-        imports: [RouterTestingModule.withRoutes([]), FormsModule],
+        providers: [
+          PreviousRouteService,
+          provideMockStore({ initialState: initialAppState }),
+          {
+            provide: ActivatedRoute,
+            useValue: {
+              params: of({
+                id: 0,
+                mode: 'mode',
+              }),
+            },
+          },
+        ],
+        imports: [RouterTestingModule.withRoutes([])],
+        declarations: [NotificationRuleComponent],
       }).compileComponents();
       previousRouteService = TestBed.inject(PreviousRouteService);
       router = TestBed.inject(Router);
+      store = TestBed.inject(Store);
     }),
   );
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(NotificationRulesFormComponent);
+    fixture = TestBed.createComponent(NotificationRuleComponent);
     underTest = fixture.componentInstance;
   });
 
   it('should create', () => {
     expect(underTest).toBeTruthy();
   });
+
+  it(
+    'should set properties during on init',
+    waitForAsync(() => {
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(underTest.loading).toBe(initialAppState.notificationRules.notificationRuleAction.loading);
+        expect(underTest.backendValidationErrors).toBe(initialAppState.notificationRules.notificationRuleAction.backendValidationErrors);
+        expect(underTest.initialNotificationRule).toBe(initialAppState.notificationRules.notificationRuleAction.initialNotificationRule);
+        expect(underTest.notificationRule).toBe(initialAppState.notificationRules.notificationRuleAction.notificationRule);
+        expect(underTest.notificationRuleStatuses).toEqual(
+          initialAppState.notificationRules.notificationRuleAction.notificationRule.statuses,
+        );
+      });
+    }),
+  );
 });

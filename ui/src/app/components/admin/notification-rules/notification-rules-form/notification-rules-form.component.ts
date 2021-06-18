@@ -13,18 +13,15 @@
  * limitations under the License.
  */
 
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Subject, Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
-import { AppState, selectNotificationRulesState, selectWorkflowState } from '../../../../stores/app.reducers';
+import { AppState, selectWorkflowState } from '../../../../stores/app.reducers';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   CreateNotificationRule,
   DeleteNotificationRule,
-  GetNotificationRule,
-  NotificationRuleChanged,
   RemoveNotificationRuleBackendValidationError,
-  SetEmptyNotificationRule,
   UpdateNotificationRule,
 } from '../../../../stores/notification-rules/notification-rules.actions';
 import { WorkflowEntryModel } from '../../../../models/workflowEntry.model';
@@ -47,19 +44,17 @@ import { InitializeWorkflows } from '../../../../stores/workflows/workflows.acti
 })
 export class NotificationRulesFormComponent implements OnInit, OnDestroy {
   @ViewChild('notificationRulesForm') notificationRulesForm;
-  mode: string;
-  paramsSubscription: Subscription;
-  changesSubscription: Subscription;
-  notificationRuleSubscription: Subscription = null;
+  @Input() loading = true;
+  @Input() backendValidationErrors: string[];
+  @Input() initialNotificationRule: NotificationRuleModel;
+  @Input() notificationRule: NotificationRuleModel;
+  @Input() notificationRuleStatuses: string[];
+  @Input() mode: string;
+  @Input() changes: Subject<WorkflowEntryModel>;
+
   workflowsSubscription: Subscription = null;
   confirmationDialogServiceSubscription: Subscription = null;
-  changes: Subject<WorkflowEntryModel> = new Subject<WorkflowEntryModel>();
 
-  initialNotificationRule: NotificationRuleModel;
-  notificationRule: NotificationRuleModel;
-  notificationRuleStatuses: string[];
-  loading = false;
-  backendValidationErrors: string[];
   optional: PartValidation = PartValidationFactory.create(false, 1000, 1);
   required: PartValidation = PartValidationFactory.create(true);
   notificationRuleModes = notificationRuleModes;
@@ -73,39 +68,16 @@ export class NotificationRulesFormComponent implements OnInit, OnDestroy {
     private previousRouteService: PreviousRouteService,
     private router: Router,
   ) {
-    this.paramsSubscription = route.params.subscribe((parameters) => {
-      this.mode = parameters.mode;
-      if (parameters.mode == notificationRuleModes.CREATE) {
-        this.store.dispatch(new SetEmptyNotificationRule());
-      } else if (parameters.mode == notificationRuleModes.SHOW || parameters.mode == notificationRuleModes.EDIT) {
-        this.store.dispatch(new GetNotificationRule(parameters.id));
-      }
-    });
-    this.changesSubscription = this.changes.subscribe((state) => {
-      this.store.dispatch(new NotificationRuleChanged(state));
-    });
     this.store.dispatch(new InitializeWorkflows());
   }
 
   ngOnInit(): void {
-    this.notificationRuleSubscription = this.store.select(selectNotificationRulesState).subscribe((state) => {
-      this.loading = state.notificationRuleAction.loading;
-      this.notificationRule = state.notificationRuleAction.notificationRule;
-      if (this.notificationRule) {
-        this.notificationRuleStatuses = Object.assign([], state.notificationRuleAction.notificationRule.statuses);
-      }
-      this.initialNotificationRule = state.notificationRuleAction.initialNotificationRule;
-      this.backendValidationErrors = state.notificationRuleAction.backendValidationErrors;
-    });
     this.workflowsSubscription = this.store.select(selectWorkflowState).subscribe((state) => {
       this.projects = state.projects.map((project) => project.name);
     });
   }
 
   ngOnDestroy(): void {
-    !!this.paramsSubscription && this.paramsSubscription.unsubscribe();
-    !!this.changesSubscription && this.changesSubscription.unsubscribe();
-    !!this.notificationRuleSubscription && this.notificationRuleSubscription.unsubscribe();
     !!this.workflowsSubscription && this.workflowsSubscription.unsubscribe();
     !!this.confirmationDialogServiceSubscription && this.confirmationDialogServiceSubscription.unsubscribe();
   }

@@ -84,6 +84,7 @@ import { NotificationRulesFormComponent } from './components/admin/notification-
 import { NotificationRulesEffects } from './stores/notification-rules/notification-rules.effects';
 import { ComboboxPartComponent } from './components/workflows/workflow-form/dynamic-parts/combobox-part/combobox-part.component';
 import { DurationPartComponent } from './components/workflows/workflow-form/dynamic-parts/duration-part/duration-part.component';
+import { NotificationRuleComponent } from './components/admin/notification-rules/notification-rule/notification-rule.component';
 
 @NgModule({
   declarations: [
@@ -126,6 +127,7 @@ import { DurationPartComponent } from './components/workflows/workflow-form/dyna
     JobTemplatesComponent,
     JobTemplatesHomeComponent,
     JobTemplateShowComponent,
+    NotificationRuleComponent,
     NotificationRulesComponent,
     NotificationRulesHomeComponent,
     NotificationRulesFormComponent,

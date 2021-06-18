@@ -104,7 +104,7 @@
             [value]="notificationRule.minElapsedSecondsSinceLastSuccess"
             [property]="'minElapsedSecondsSinceLastSuccess'"
             [partValidation]="required"
-            [helperText]="'Don\'t send any notifications after a successful run during the waiting period, to avoid spurious notifications. Set to zero to ignore this feature'">
+            [helperText]="'After a successful run, no notifications are sent during the waiting period, to avoid spurious notifications. Set to zero to ignore this feature'">
           </app-duration-part>
           <app-combobox-part
             [isShow]="isReadOnlyMode()"
