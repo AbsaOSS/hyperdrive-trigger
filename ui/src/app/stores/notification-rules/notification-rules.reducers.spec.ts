@@ -346,6 +346,7 @@ describe('NotificationRulesReducers', () => {
       notificationRuleAction: {
         ...initialState.notificationRuleAction,
         backendValidationErrors: ['error0', 'error2'],
+        loading: false,
       },
     });
   });
