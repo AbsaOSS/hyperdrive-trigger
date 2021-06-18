@@ -37,9 +37,9 @@ import { notificationRuleModes } from '../../../../models/enums/notificationRule
 import { absoluteRoutes } from '../../../../constants/routes.constants';
 import { PreviousRouteService } from '../../../../services/previousRoute/previous-route.service';
 import * as deepEquals from 'fast-deep-equal';
-import { StatusModel } from '../../../../models/status.model';
 import { dagInstanceStatuses } from '../../../../models/enums/dagInstanceStatuses.constants';
 import { InitializeWorkflows } from '../../../../stores/workflows/workflows.actions';
+
 @Component({
   selector: 'app-notification-rules-form',
   templateUrl: './notification-rules-form.component.html',

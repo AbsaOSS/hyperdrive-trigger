@@ -28,7 +28,7 @@ import { AppState, selectWorkflowState } from '../app.reducers';
 import { Store } from '@ngrx/store';
 import * as fromWorkflows from './workflows.reducers';
 import { WorkflowDataModel } from '../../models/workflowData.model';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { absoluteRoutes } from '../../constants/routes.constants';
 import { ToastrService } from 'ngx-toastr';
 import { texts } from '../../constants/texts.constants';

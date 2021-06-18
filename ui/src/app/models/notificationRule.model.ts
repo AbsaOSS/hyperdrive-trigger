@@ -13,8 +13,6 @@
  * limitations under the License.
  */
 
-import { StatusModel } from './status.model';
-
 export type NotificationRuleModel = {
   isActive: boolean;
   project: string;

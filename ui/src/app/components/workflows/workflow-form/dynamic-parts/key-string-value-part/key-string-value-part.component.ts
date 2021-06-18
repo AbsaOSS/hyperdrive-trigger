@@ -17,7 +17,6 @@ import { Component, Input, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
 import cloneDeep from 'lodash-es/cloneDeep';
 import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
-import { ControlContainer, NgForm } from '@angular/forms';
 import { PartValidation, PartValidationFactory } from '../../../../../models/workflowFormParts.model';
 import { UuidUtil } from '../../../../../utils/uuid/uuid.util';
 import { texts } from 'src/app/constants/texts.constants';

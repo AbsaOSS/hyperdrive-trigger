@@ -20,8 +20,6 @@ import { ControlContainer, NgForm } from '@angular/forms';
 import { PartValidation, PartValidationFactory } from '../../../../../models/workflowFormParts.model';
 import { UuidUtil } from '../../../../../utils/uuid/uuid.util';
 import { texts } from 'src/app/constants/texts.constants';
-import { StatusModel } from '../../../../../models/status.model';
-import { dagInstanceStatuses } from '../../../../../models/enums/dagInstanceStatuses.constants';
 
 @Component({
   selector: 'app-combobox-part',

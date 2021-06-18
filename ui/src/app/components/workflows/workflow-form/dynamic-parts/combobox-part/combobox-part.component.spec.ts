@@ -16,12 +16,9 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { ComboboxPartComponent } from './combobox-part.component';
-import { DebugElement, Predicate } from '@angular/core';
-import { By } from '@angular/platform-browser';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
-import { PartValidationFactory } from '../../../../../models/workflowFormParts.model';
 
 describe('ComboboxPartComponent', () => {
   let fixture: ComponentFixture<ComboboxPartComponent>;
