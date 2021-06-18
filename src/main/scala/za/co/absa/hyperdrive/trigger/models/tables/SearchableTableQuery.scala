@@ -16,7 +16,6 @@
 package za.co.absa.hyperdrive.trigger.models.tables
 
 import java.time.LocalDateTime
-
 import slick.ast.BaseTypedType
 import slick.lifted.{AbstractTable, ColumnOrdered}
 import za.co.absa.hyperdrive.trigger.models.search.{ContainsFilterAttributes, DateTimeRangeFilterAttributes, EqualsMultipleFilterAttributes, IntRangeFilterAttributes, LongFilterAttributes, SortAttributes, TableSearchRequest, TableSearchResponse}
@@ -28,7 +27,7 @@ trait SearchableTableQuery {
 
   import api._
 
-  implicit class TableQueryExtension[T <: SearchableTable with AbstractTable[_]](tableQuery: TableQuery[T]) {
+  implicit class SearchableTableQueryExtension[T <: SearchableTable with AbstractTable[_]](tableQuery: TableQuery[T]) {
 
     def search(request: TableSearchRequest)(implicit ec: ExecutionContext): DBIOAction[TableSearchResponse[T#TableElementType], NoStream, Effect.Read] = {
       val initQuery: Query[T, T#TableElementType, Seq] = tableQuery

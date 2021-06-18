@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -13,10 +14,17 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models
+package za.co.absa.hyperdrive.trigger.models.tables
 
-case class NotificationRuleHistory(
-  history: History,
-  notificationRuleId: Long,
-  notificationRule: NotificationRule
-)
+import slick.lifted.Rep
+import za.co.absa.hyperdrive.trigger.models.enums.DBOperation.DBOperation
+
+import java.time.LocalDateTime
+
+trait HistoryTable {
+  def id: Rep[Long]
+  def changedOn: Rep[LocalDateTime]
+  def changedBy: Rep[String]
+  def operation: Rep[DBOperation]
+  def entityId: Rep[Long]
+}
