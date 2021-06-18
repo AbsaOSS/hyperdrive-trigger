@@ -18,6 +18,17 @@ import { TableSearchRequestModel } from '../../models/search/tableSearchRequest.
 import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
 import { NotificationRuleModel } from '../../models/notificationRule.model';
 import { WorkflowEntryModel } from '../../models/workflowEntry.model';
+import {HistoryModel} from '../../models/historyModel';
+import {WorkflowFormPartsModel} from '../../models/workflowFormParts.model';
+import {WorkflowFormDataModel} from '../../models/workflowFormData.model';
+import {
+  LOAD_HISTORY_FOR_WORKFLOW,
+  LOAD_HISTORY_FOR_WORKFLOW_FAILURE,
+  LOAD_HISTORY_FOR_WORKFLOW_SUCCESS,
+  LOAD_WORKFLOWS_FROM_HISTORY,
+  LOAD_WORKFLOWS_FROM_HISTORY_FAILURE,
+  LOAD_WORKFLOWS_FROM_HISTORY_SUCCESS
+} from '../workflows/workflows.actions';
 
 export const SEARCH_NOTIFICATION_RULES = 'SEARCH_NOTIFICATION_RULES';
 export const SEARCH_NOTIFICATION_RULES_SUCCESS = 'SEARCH_NOTIFICATION_RULES_SUCCESS';
@@ -42,6 +53,14 @@ export const DELETE_NOTIFICATION_RULE_FAILURE = 'DELETE_NOTIFICATION_RULE_FAILUR
 export const NOTIFICATION_RULE_CHANGED = 'NOTIFICATION_RULE_CHANGED';
 export const SET_EMPTY_NOTIFICATION_RULE = 'SET_EMPTY_NOTIFICATION_RULE';
 export const REMOVE_NOTIFICATION_RULE_BACKEND_VALIDATION_ERROR = 'REMOVE_NOTIFICATION_RULE_BACKEND_VALIDATION_ERROR';
+
+export const LOAD_HISTORY_FOR_NOTIFICATION_RULE = 'LOAD_HISTORY_FOR_NOTIFICATION_RULE';
+export const LOAD_HISTORY_FOR_NOTIFICATION_RULE_SUCCESS = 'LOAD_HISTORY_FOR_NOTIFICATION_RULE_SUCCESS';
+export const LOAD_HISTORY_FOR_NOTIFICATION_RULE_FAILURE = 'LOAD_HISTORY_FOR_NOTIFICATION_RULE_FAILURE';
+
+export const LOAD_NOTIFICATION_RULES_FROM_HISTORY = 'LOAD_NOTIFICATION_RULES_FROM_HISTORY';
+export const LOAD_NOTIFICATION_RULES_FROM_HISTORY_SUCCESS = 'LOAD_NOTIFICATION_RULES_FROM_HISTORY_SUCCESS';
+export const LOAD_NOTIFICATION_RULES_FROM_HISTORY_FAILURE = 'LOAD_NOTIFICATION_RULES_FROM_HISTORY_FAILURE';
 
 export class SearchNotificationRules implements Action {
   readonly type = SEARCH_NOTIFICATION_RULES;
@@ -127,6 +146,41 @@ export class RemoveNotificationRuleBackendValidationError implements Action {
   constructor(public payload: number) {}
 }
 
+export class LoadHistoryForNotificationRule implements Action {
+  readonly type = LOAD_HISTORY_FOR_NOTIFICATION_RULE;
+  constructor(public payload: number) {}
+}
+
+export class LoadHistoryForNotificationRuleSuccess implements Action {
+  readonly type = LOAD_HISTORY_FOR_NOTIFICATION_RULE_SUCCESS;
+  constructor(public payload: HistoryModel[]) {}
+}
+
+export class LoadHistoryForNotificationRuleFailure implements Action {
+  readonly type = LOAD_HISTORY_FOR_NOTIFICATION_RULE_FAILURE;
+}
+
+export class LoadNotificationRulesFromHistory implements Action {
+  readonly type = LOAD_NOTIFICATION_RULES_FROM_HISTORY;
+  constructor(public payload: { leftNotificationRuleHistoryId: number; rightNotificationRuleHistoryId: number }) {}
+}
+
+export class LoadNotificationRulesFromHistorySuccess implements Action {
+  readonly type = LOAD_NOTIFICATION_RULES_FROM_HISTORY_SUCCESS;
+  constructor(
+    public payload: {
+      leftHistoryData: NotificationRuleModel;
+      leftHistory: HistoryModel;
+      rightHistoryData: NotificationRuleModel;
+      rightHistory: HistoryModel;
+    },
+  ) {}
+}
+
+export class LoadNotificationRulesFromHistoryFailure implements Action {
+  readonly type = LOAD_NOTIFICATION_RULES_FROM_HISTORY_FAILURE;
+}
+
 export type NotificationRulesActions =
   | SearchNotificationRules
   | SearchNotificationRulesSuccess
@@ -145,4 +199,10 @@ export type NotificationRulesActions =
   | DeleteNotificationRuleFailure
   | NotificationRuleChanged
   | SetEmptyNotificationRule
-  | RemoveNotificationRuleBackendValidationError;
+  | RemoveNotificationRuleBackendValidationError
+  | LoadHistoryForNotificationRule
+  | LoadHistoryForNotificationRuleSuccess
+  | LoadHistoryForNotificationRuleFailure
+  | LoadNotificationRulesFromHistory
+  | LoadNotificationRulesFromHistorySuccess
+  | LoadNotificationRulesFromHistoryFailure;

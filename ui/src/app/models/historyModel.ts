@@ -37,6 +37,11 @@ export class HistoryModelFactory {
   }
 }
 
+export type HistoryPairModel<T> = {
+  leftHistory: T;
+  rightHistory: T;
+}
+
 export type WorkflowHistoryModel = {
   history: HistoryModel;
   workflowId: number;
