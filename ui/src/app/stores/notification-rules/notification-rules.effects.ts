@@ -29,12 +29,16 @@ import { AppState, selectNotificationRulesState } from '../app.reducers';
 import * as fromNotificationRules from './notification-rules.reducers';
 import { Store } from '@ngrx/store';
 import { ApiUtil } from '../../utils/api/api.util';
+import { HistoryModel, HistoryPairModel } from '../../models/historyModel';
+import { NotificationRuleHistoryService } from '../../services/notificationRuleHistory/notification-rule-history.service';
+import { NotificationRuleHistoryModel } from '../../models/notificationRuleHistoryModel';
 
 @Injectable()
 export class NotificationRulesEffects {
   constructor(
     private actions: Actions,
     private notificationRuleService: NotificationRuleService,
+    private notificationRuleHistoryService: NotificationRuleHistoryService,
     private toastrService: ToastrService,
     private router: Router,
     private store: Store<AppState>,
@@ -201,6 +205,61 @@ export class NotificationRulesEffects {
           ];
         }),
       );
+    }),
+  );
+
+  @Effect({ dispatch: true })
+  historyForNotificationRuleLoad = this.actions.pipe(
+    ofType(NotificationRulesActions.LOAD_HISTORY_FOR_NOTIFICATION_RULE),
+    switchMap((action: NotificationRulesActions.LoadHistoryForNotificationRule) => {
+      return this.notificationRuleHistoryService.getHistoryForNotificationRule(action.payload).pipe(
+        mergeMap((historyForNotificationRule: HistoryModel[]) => {
+          return [
+            {
+              type: NotificationRulesActions.LOAD_HISTORY_FOR_NOTIFICATION_RULE_SUCCESS,
+              payload: historyForNotificationRule.sort((left, right) => right.id - left.id),
+            },
+          ];
+        }),
+        catchError(() => {
+          this.toastrService.error(texts.LOAD_HISTORY_FOR_NOTIFICATION_RULE_FAILURE_NOTIFICATION);
+          return [
+            {
+              type: NotificationRulesActions.LOAD_HISTORY_FOR_NOTIFICATION_RULE_FAILURE,
+            },
+          ];
+        }),
+      );
+    }),
+  );
+
+  @Effect({ dispatch: true })
+  notificationRulesFromHistoryLoad = this.actions.pipe(
+    ofType(NotificationRulesActions.LOAD_NOTIFICATION_RULES_FROM_HISTORY),
+    switchMap((action: NotificationRulesActions.LoadNotificationRulesFromHistory) => {
+      return this.notificationRuleHistoryService
+        .getNotificationRulesFromHistory(action.payload.leftHistoryId, action.payload.rightHistoryId)
+        .pipe(
+          mergeMap((notificationRuleHistoryPair: HistoryPairModel<NotificationRuleHistoryModel>) => {
+            return [
+              {
+                type: NotificationRulesActions.LOAD_NOTIFICATION_RULES_FROM_HISTORY_SUCCESS,
+                payload: {
+                  leftHistory: notificationRuleHistoryPair.leftHistory,
+                  rightHistory: notificationRuleHistoryPair.rightHistory,
+                },
+              },
+            ];
+          }),
+          catchError(() => {
+            this.toastrService.error(texts.LOAD_NOTIFICATION_RULES_FROM_HISTORY_FAILURE_NOTIFICATION);
+            return [
+              {
+                type: NotificationRulesActions.LOAD_NOTIFICATION_RULES_FROM_HISTORY_FAILURE,
+              },
+            ];
+          }),
+        );
     }),
   );
 }

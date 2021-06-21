@@ -13,12 +13,6 @@
   ~ limitations under the License.
   -->
 
-<div class="loading" *ngIf="loading">
-    <span class="spinner spinner-inverse">
-        Loading...
-    </span>
-</div>
-
 <div class="btn-group" *ngIf="mode == notificationRuleModes.SHOW">
   <button type="button" class="btn btn-sm btn-secondary" [routerLink]="[absoluteRoutes.NOTIFICATION_RULES_HOME]">
     <clr-icon shape="caret left"></clr-icon>
@@ -32,99 +26,101 @@
     <clr-icon shape="close"></clr-icon>
     Delete
   </button>
+  <button type="button" class="btn btn-sm btn-secondary" [routerLink]="[absoluteRoutes.NOTIFICATION_RULE_HISTORY(notificationRule?.id)]">
+    <clr-icon shape="history"></clr-icon>
+    History
+  </button>
 </div>
 
-<div *ngIf="!loading">
-  <form clrForm (ngSubmit)="mode != notificationRuleModes.EDIT ? createNotificationRule() : updateNotificationRule()"
-        #notificationRulesForm="ngForm" novalidate>
-    <div class="btn-group" *ngIf="mode != notificationRuleModes.SHOW"> <!--  && mode != notificationRuleModes.COMPARISON -->
-      <button type="submit" class="btn btn-sm btn-secondary" *ngIf="mode != notificationRuleModes.EDIT">
-        <clr-icon shape="check"></clr-icon>
-        Create new notification rule
-      </button>
-      <button type="submit" class="btn btn-sm btn-secondary" [disabled]="!formHasChanged()" *ngIf="mode == notificationRuleModes.EDIT">
-        <clr-icon shape="check"></clr-icon>
-        Update notification rule
-      </button>
-      <button type="button" class="btn btn-sm btn-secondary" (click)="cancel()">
-        <clr-icon shape="times"></clr-icon>
-        Cancel
-      </button>
-    </div>
-    <div *ngFor="let error of backendValidationErrors; let index = index" class="alert alert-danger" role="alert">
-      <div class="alert-items">
-        <div class="alert-item static">
-          <div class="alert-icon-wrapper">
-            <clr-icon class="alert-icon" shape="exclamation-triangle"></clr-icon>
-          </div>
-          <span class="alert-text">{{error}} </span>
+<form clrForm (ngSubmit)="mode != notificationRuleModes.EDIT ? createNotificationRule() : updateNotificationRule()"
+      #notificationRulesForm="ngForm" novalidate>
+  <div class="btn-group" *ngIf="!isReadOnlyMode()">
+    <button type="submit" class="btn btn-sm btn-secondary" *ngIf="mode != notificationRuleModes.EDIT">
+      <clr-icon shape="check"></clr-icon>
+      Create new notification rule
+    </button>
+    <button type="submit" class="btn btn-sm btn-secondary" [disabled]="!formHasChanged()" *ngIf="mode == notificationRuleModes.EDIT">
+      <clr-icon shape="check"></clr-icon>
+      Update notification rule
+    </button>
+    <button type="button" class="btn btn-sm btn-secondary" (click)="cancel()">
+      <clr-icon shape="times"></clr-icon>
+      Cancel
+    </button>
+  </div>
+  <div *ngFor="let error of backendValidationErrors; let index = index" class="alert alert-danger" role="alert">
+    <div class="alert-items">
+      <div class="alert-item static">
+        <div class="alert-icon-wrapper">
+          <clr-icon class="alert-icon" shape="exclamation-triangle"></clr-icon>
         </div>
+        <span class="alert-text">{{error}} </span>
       </div>
-      <button type="button" class="close" aria-label="Close" (click)="removeBackendValidationError(index)">
-        <clr-icon aria-hidden="true" shape="close"></clr-icon>
-      </button>
     </div>
+    <button type="button" class="close" aria-label="Close" (click)="removeBackendValidationError(index)">
+      <clr-icon aria-hidden="true" shape="close"></clr-icon>
+    </button>
+  </div>
 
-    <div class="card">
-      <div class="card-block">
-        <div class="card-title notSelectable">
-          Notification rule
-        </div>
-        <div class="accordion-content">
-          <app-boolean-part
-            [isShow]="isReadOnlyMode()"
-            [name]="'Is Active'"
-            [valueChanges]="changes"
-            [value]="notificationRule.isActive"
-            [property]="'isActive'">
-          </app-boolean-part>
-          <app-string-with-suggestions-part
-            [isShow]="isReadOnlyMode()"
-            [name]="'Project'"
-            [valueChanges]="changes"
-            [value]="notificationRule.project"
-            [property]="'project'"
-            [options]="projects"
-            [partValidation]="optional"
-            [helperText]="'Leave empty to match all projects. Don\'t use the asterisk (*)'">
-          </app-string-with-suggestions-part>
-          <app-string-part
-            [isShow]="isReadOnlyMode()"
-            [name]="'Workflow Prefix'"
-            [valueChanges]="changes"
-            [value]="notificationRule.workflowPrefix"
-            [property]="'workflowPrefix'"
-            [partValidation]="optional"
-            [helperText]="'Leave empty to match all workflows. Don\'t use the asterisk (*)'">
-          </app-string-part>
-          <app-duration-part
-            [isShow]="isReadOnlyMode()"
-            [name]="'Waiting period after last successful run'"
-            [valueChanges]="changes"
-            [value]="notificationRule.minElapsedSecondsSinceLastSuccess"
-            [property]="'minElapsedSecondsSinceLastSuccess'"
-            [partValidation]="required"
-            [helperText]="'After a successful run, no notifications are sent during the waiting period, to avoid spurious notifications. Set to zero to ignore this feature'">
-          </app-duration-part>
-          <app-combobox-part
-            [isShow]="isReadOnlyMode()"
-            [name]="'Statuses'"
-            [valueChanges]="changes"
-            [value]="notificationRuleStatuses"
-            [property]="'statuses'"
-            [options]="getStatuses()"
-            [partValidation]="required">
-          </app-combobox-part>
-          <app-string-sequence-part
-            [isShow]="isReadOnlyMode()"
-            [name]="'Recipients'"
-            [valueChanges]="changes"
-            [value]="notificationRule.recipients"
-            [property]="'recipients'"
-            [partValidation]="required">
-          </app-string-sequence-part>
-        </div>
+  <div class="card">
+    <div class="card-block">
+      <div class="card-title notSelectable">
+        Notification rule
+      </div>
+      <div class="accordion-content">
+        <app-boolean-part
+          [isShow]="isReadOnlyMode()"
+          [name]="'Is Active'"
+          [valueChanges]="changes"
+          [value]="notificationRule.isActive"
+          [property]="'isActive'">
+        </app-boolean-part>
+        <app-string-with-suggestions-part
+          [isShow]="isReadOnlyMode()"
+          [name]="'Project'"
+          [valueChanges]="changes"
+          [value]="notificationRule.project"
+          [property]="'project'"
+          [options]="projects"
+          [partValidation]="optional"
+          [helperText]="'Leave empty to match all projects. Don\'t use the asterisk (*)'">
+        </app-string-with-suggestions-part>
+        <app-string-part
+          [isShow]="isReadOnlyMode()"
+          [name]="'Workflow Prefix'"
+          [valueChanges]="changes"
+          [value]="notificationRule.workflowPrefix"
+          [property]="'workflowPrefix'"
+          [partValidation]="optional"
+          [helperText]="'Leave empty to match all workflows. Don\'t use the asterisk (*)'">
+        </app-string-part>
+        <app-duration-part
+          [isShow]="isReadOnlyMode()"
+          [name]="'Waiting period after last successful run'"
+          [valueChanges]="changes"
+          [value]="notificationRule.minElapsedSecondsSinceLastSuccess"
+          [property]="'minElapsedSecondsSinceLastSuccess'"
+          [partValidation]="required"
+          [helperText]="'After a successful run, no notifications are sent during the waiting period, to avoid spurious notifications. Set to zero to ignore this feature'">
+        </app-duration-part>
+        <app-combobox-part
+          [isShow]="isReadOnlyMode()"
+          [name]="'Statuses'"
+          [valueChanges]="changes"
+          [value]="notificationRuleStatuses"
+          [property]="'statuses'"
+          [options]="getStatuses()"
+          [partValidation]="required">
+        </app-combobox-part>
+        <app-string-sequence-part
+          [isShow]="isReadOnlyMode()"
+          [name]="'Recipients'"
+          [valueChanges]="changes"
+          [value]="notificationRule.recipients"
+          [property]="'recipients'"
+          [partValidation]="required">
+        </app-string-sequence-part>
       </div>
     </div>
-  </form>
-</div>
+  </div>
+</form>

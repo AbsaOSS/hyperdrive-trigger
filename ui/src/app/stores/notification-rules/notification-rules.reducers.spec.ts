@@ -54,6 +54,12 @@ describe('NotificationRulesReducers', () => {
       notificationRule: undefined,
       backendValidationErrors: undefined,
     },
+    history: {
+      loading: true,
+      historyEntries: [],
+      leftHistory: undefined,
+      rightHistory: undefined,
+    },
   } as State;
 
   it('should set loading to true on search notification rules', () => {

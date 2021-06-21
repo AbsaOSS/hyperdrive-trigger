@@ -18,17 +18,8 @@ import { TableSearchRequestModel } from '../../models/search/tableSearchRequest.
 import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
 import { NotificationRuleModel } from '../../models/notificationRule.model';
 import { WorkflowEntryModel } from '../../models/workflowEntry.model';
-import {HistoryModel} from '../../models/historyModel';
-import {WorkflowFormPartsModel} from '../../models/workflowFormParts.model';
-import {WorkflowFormDataModel} from '../../models/workflowFormData.model';
-import {
-  LOAD_HISTORY_FOR_WORKFLOW,
-  LOAD_HISTORY_FOR_WORKFLOW_FAILURE,
-  LOAD_HISTORY_FOR_WORKFLOW_SUCCESS,
-  LOAD_WORKFLOWS_FROM_HISTORY,
-  LOAD_WORKFLOWS_FROM_HISTORY_FAILURE,
-  LOAD_WORKFLOWS_FROM_HISTORY_SUCCESS
-} from '../workflows/workflows.actions';
+import { HistoryModel } from '../../models/historyModel';
+import { NotificationRuleHistoryModel } from '../../models/notificationRuleHistoryModel';
 
 export const SEARCH_NOTIFICATION_RULES = 'SEARCH_NOTIFICATION_RULES';
 export const SEARCH_NOTIFICATION_RULES_SUCCESS = 'SEARCH_NOTIFICATION_RULES_SUCCESS';
@@ -162,17 +153,15 @@ export class LoadHistoryForNotificationRuleFailure implements Action {
 
 export class LoadNotificationRulesFromHistory implements Action {
   readonly type = LOAD_NOTIFICATION_RULES_FROM_HISTORY;
-  constructor(public payload: { leftNotificationRuleHistoryId: number; rightNotificationRuleHistoryId: number }) {}
+  constructor(public payload: { leftHistoryId: number; rightHistoryId: number }) {}
 }
 
 export class LoadNotificationRulesFromHistorySuccess implements Action {
   readonly type = LOAD_NOTIFICATION_RULES_FROM_HISTORY_SUCCESS;
   constructor(
     public payload: {
-      leftHistoryData: NotificationRuleModel;
-      leftHistory: HistoryModel;
-      rightHistoryData: NotificationRuleModel;
-      rightHistory: HistoryModel;
+      leftHistory: NotificationRuleHistoryModel;
+      rightHistory: NotificationRuleHistoryModel;
     },
   ) {}
 }

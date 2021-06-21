@@ -13,9 +13,19 @@
  * limitations under the License.
  */
 
-export const notificationRuleModes = {
-  SHOW: 'show',
-  CREATE: 'create',
-  EDIT: 'edit',
-  COMPARISON: 'comparison',
-};
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { NotificationRuleHistoryComponent } from './notification-rule-history.component';
+
+describe('NotificationRuleHistoryComponent', () => {
+  let underTest: NotificationRuleHistoryComponent;
+  let fixture: ComponentFixture<NotificationRuleHistoryComponent>;
+
+  beforeEach(() => {
+    fixture = TestBed.createComponent(NotificationRuleHistoryComponent);
+    underTest = fixture.componentInstance;
+  });
+
+  it('should create', () => {
+    expect(underTest).toBeTruthy();
+  });
+});

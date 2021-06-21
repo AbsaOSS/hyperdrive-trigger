@@ -85,6 +85,8 @@ import { NotificationRulesEffects } from './stores/notification-rules/notificati
 import { ComboboxPartComponent } from './components/workflows/workflow-form/dynamic-parts/combobox-part/combobox-part.component';
 import { DurationPartComponent } from './components/workflows/workflow-form/dynamic-parts/duration-part/duration-part.component';
 import { NotificationRuleComponent } from './components/admin/notification-rules/notification-rule/notification-rule.component';
+import { NotificationRuleComparisonComponent } from './components/admin/notification-rules/notification-rule-history/notification-rule-comparison/notification-rule-comparison.component';
+import { NotificationRuleHistoryComponent } from './components/admin/notification-rules/notification-rule-history/notification-rule-history.component';
 
 @NgModule({
   declarations: [
@@ -131,6 +133,8 @@ import { NotificationRuleComponent } from './components/admin/notification-rules
     NotificationRulesComponent,
     NotificationRulesHomeComponent,
     NotificationRulesFormComponent,
+    NotificationRuleComparisonComponent,
+    NotificationRuleHistoryComponent,
   ],
   imports: [
     BrowserModule,

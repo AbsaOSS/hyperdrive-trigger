@@ -36,6 +36,8 @@ export const routeNames = {
   NOTIFICATION_RULES_HOME: '',
   NOTIFICATION_RULE_ACTION: ':mode',
   NOTIFICATION_RULE_ACTION_WITH_ID: ':mode/:id',
+  NOTIFICATION_RULE_HISTORY: 'show/:id/history',
+  NOTIFICATION_RULE_HISTORY_COMPARISON: 'admin/notification-rules/show/:id/history/:historyIdLeft/compareWith/:historyIdRight',
 };
 
 export const absoluteRoutes = {
@@ -66,5 +68,11 @@ export const absoluteRoutes = {
   },
   WORKFLOW_HISTORY_COMPARISON(workflowId: number, historyIdFirst: number, historyIdSecond: number): string {
     return `/${routeNames.WORKFLOWS}/${workflowModes.SHOW}/${workflowId}/history/${historyIdFirst}/compareWith/${historyIdSecond}`;
+  },
+  NOTIFICATION_RULE_HISTORY(id: number): string {
+    return `/${routeNames.NOTIFICATION_RULES}/${notificationRuleModes.SHOW}/${id}/history`;
+  },
+  NOTIFICATION_RULE_HISTORY_COMPARISON(id: number, historyIdFirst: number, historyIdSecond: number): string {
+    return `/${routeNames.NOTIFICATION_RULES}/${notificationRuleModes.SHOW}/${id}/history/${historyIdFirst}/compareWith/${historyIdSecond}`;
   },
 };

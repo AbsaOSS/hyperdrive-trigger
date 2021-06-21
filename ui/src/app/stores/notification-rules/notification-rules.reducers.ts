@@ -15,6 +15,8 @@
 
 import { NotificationRuleModel, NotificationRuleModelFactory } from '../../models/notificationRule.model';
 import * as NotificationRulesActions from '../notification-rules/notification-rules.actions';
+import { HistoryModel } from '../../models/historyModel';
+import { NotificationRuleHistoryModel } from '../../models/notificationRuleHistoryModel';
 
 export interface State {
   notificationRules: NotificationRuleModel[];
@@ -28,6 +30,12 @@ export interface State {
     initialNotificationRule: NotificationRuleModel;
     notificationRule: NotificationRuleModel;
     backendValidationErrors: string[];
+  };
+  history: {
+    loading: boolean;
+    historyEntries: HistoryModel[];
+    leftHistory: NotificationRuleHistoryModel;
+    rightHistory: NotificationRuleHistoryModel;
   };
 }
 
@@ -43,6 +51,12 @@ const initialState: State = {
     initialNotificationRule: undefined,
     notificationRule: undefined,
     backendValidationErrors: undefined,
+  },
+  history: {
+    loading: true,
+    historyEntries: [],
+    leftHistory: undefined,
+    rightHistory: undefined,
   },
 };
 
@@ -155,6 +169,57 @@ export function notificationRulesReducer(state: State = initialState, action: No
             ...state.notificationRuleAction.backendValidationErrors.slice(0, action.payload),
             ...state.notificationRuleAction.backendValidationErrors.slice(action.payload + 1),
           ],
+        },
+      };
+    case NotificationRulesActions.LOAD_HISTORY_FOR_NOTIFICATION_RULE:
+      return {
+        ...state,
+        history: {
+          ...initialState.history,
+          loading: true,
+        },
+      };
+    case NotificationRulesActions.LOAD_HISTORY_FOR_NOTIFICATION_RULE_SUCCESS:
+      return {
+        ...state,
+        history: {
+          ...state.history,
+          loading: false,
+          historyEntries: action.payload,
+        },
+      };
+    case NotificationRulesActions.LOAD_HISTORY_FOR_NOTIFICATION_RULE_FAILURE:
+      return {
+        ...state,
+        history: {
+          ...initialState.history,
+          loading: false,
+        },
+      };
+    case NotificationRulesActions.LOAD_NOTIFICATION_RULES_FROM_HISTORY:
+      return {
+        ...state,
+        history: {
+          ...initialState.history,
+          loading: true,
+        },
+      };
+    case NotificationRulesActions.LOAD_NOTIFICATION_RULES_FROM_HISTORY_SUCCESS:
+      return {
+        ...state,
+        history: {
+          ...state.history,
+          loading: false,
+          leftHistory: action.payload.leftHistory,
+          rightHistory: action.payload.rightHistory,
+        },
+      };
+    case NotificationRulesActions.LOAD_NOTIFICATION_RULES_FROM_HISTORY_FAILURE:
+      return {
+        ...state,
+        history: {
+          ...initialState.history,
+          loading: false,
         },
       };
     default:

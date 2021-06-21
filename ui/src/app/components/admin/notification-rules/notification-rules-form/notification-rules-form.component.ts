@@ -44,7 +44,6 @@ import { InitializeWorkflows } from '../../../../stores/workflows/workflows.acti
 })
 export class NotificationRulesFormComponent implements OnInit, OnDestroy {
   @ViewChild('notificationRulesForm') notificationRulesForm;
-  @Input() loading = true;
   @Input() backendValidationErrors: string[];
   @Input() initialNotificationRule: NotificationRuleModel;
   @Input() notificationRule: NotificationRuleModel;
@@ -140,7 +139,7 @@ export class NotificationRulesFormComponent implements OnInit, OnDestroy {
   }
 
   isReadOnlyMode(): boolean {
-    return this.mode == notificationRuleModes.SHOW;
+    return this.mode == notificationRuleModes.SHOW || this.mode == notificationRuleModes.COMPARISON;
   }
 
   getStatuses(): Map<string, string> {

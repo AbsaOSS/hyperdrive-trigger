@@ -1,4 +1,4 @@
-/*
+/*!
  * Copyright 2018 ABSA Group Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,9 +13,21 @@
  * limitations under the License.
  */
 
-export const notificationRuleModes = {
-  SHOW: 'show',
-  CREATE: 'create',
-  EDIT: 'edit',
-  COMPARISON: 'comparison',
-};
+:host {
+  display: flex;
+}
+
+:host, .content-area {
+  height: 100%;
+  width: 100%;
+}
+
+.oneSideOfComparison {
+  width: 50%;
+}
+
+.loading {
+  position: fixed;
+  top: 50%;
+  right: 50%;
+}

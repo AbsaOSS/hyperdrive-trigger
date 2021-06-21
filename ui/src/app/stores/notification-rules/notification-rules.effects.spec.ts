@@ -26,6 +26,8 @@ import {
   CreateNotificationRule,
   DeleteNotificationRule,
   GetNotificationRule,
+  LoadHistoryForNotificationRule,
+  LoadNotificationRulesFromHistory,
   SearchNotificationRules,
   UpdateNotificationRule,
 } from './notification-rules.actions';
@@ -40,10 +42,14 @@ import * as NotificationRulesActions from '../notification-rules/notification-ru
 import { ApiErrorModelFactory } from '../../models/errors/apiError.model';
 import { NotificationRuleModel, NotificationRuleModelFactory } from '../../models/notificationRule.model';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
+import { HistoryModel, HistoryModelFactory, HistoryPairModel } from '../../models/historyModel';
+import { NotificationRuleHistoryService } from '../../services/notificationRuleHistory/notification-rule-history.service';
+import { NotificationRuleHistoryModel, NotificationRuleHistoryModelFactory } from '../../models/notificationRuleHistoryModel';
 
 describe('NotificationRulesEffects', () => {
   let underTest: NotificationRulesEffects;
   let notificationRuleServiceSpy: Spy<NotificationRuleService>;
+  let notificationRuleHistoryServiceSpy: Spy<NotificationRuleHistoryService>;
   let mockActions: Observable<any>;
   let mockStore: MockStore;
   let toastrServiceSpy: Spy<ToastrService>;
@@ -77,7 +83,7 @@ describe('NotificationRulesEffects', () => {
       providers: [
         NotificationRulesEffects,
         { provide: NotificationRuleService, useValue: createSpyFromClass(NotificationRuleService) },
-        { provide: NotificationRuleService, useValue: createSpyFromClass(NotificationRuleService) },
+        { provide: NotificationRuleHistoryService, useValue: createSpyFromClass(NotificationRuleHistoryService) },
         { provide: ToastrService, useValue: createSpyFromClass(ToastrService) },
         { provide: Router, useValue: createSpyFromClass(Router) },
         provideMockStore({ initialState: initialAppState }),
@@ -88,6 +94,7 @@ describe('NotificationRulesEffects', () => {
 
     underTest = TestBed.inject(NotificationRulesEffects);
     notificationRuleServiceSpy = TestBed.inject<any>(NotificationRuleService);
+    notificationRuleHistoryServiceSpy = TestBed.inject<any>(NotificationRuleHistoryService);
     mockActions = TestBed.inject(Actions);
     mockStore = TestBed.inject(MockStore);
     toastrServiceSpy = TestBed.inject<any>(ToastrService);
@@ -371,6 +378,112 @@ describe('NotificationRulesEffects', () => {
       expect(underTest.notificationRuleDelete).toBeObservable(expected);
       expect(toastrServiceSpyError).toHaveBeenCalledTimes(1);
       expect(toastrServiceSpyError).toHaveBeenCalledWith(texts.DELETE_NOTIFICATION_RULE_FAILURE_NOTIFICATION);
+    });
+  });
+
+  describe('historyForNotificationRuleLoad', () => {
+    it('should successfully load history for notificationRule', () => {
+      const payload = 42;
+      const response: HistoryModel[] = [HistoryModelFactory.create(1, new Date(Date.now()), 'userName', { name: 'operation' })];
+
+      const action = new LoadHistoryForNotificationRule(payload);
+      mockActions = cold('-a', { a: action });
+
+      const getHistoryForNotificationRuleResponse = cold('-a|', { a: response });
+      const expected = cold('--a', {
+        a: {
+          type: NotificationRulesActions.LOAD_HISTORY_FOR_NOTIFICATION_RULE_SUCCESS,
+          payload: response,
+        },
+      });
+
+      notificationRuleHistoryServiceSpy.getHistoryForNotificationRule.and.returnValue(getHistoryForNotificationRuleResponse);
+
+      expect(underTest.historyForNotificationRuleLoad).toBeObservable(expected);
+    });
+
+    it('should display failure when service fails to load history for notificationRule', () => {
+      const toastrServiceSpyError = toastrServiceSpy.error;
+      const payload = 42;
+
+      const action = new LoadHistoryForNotificationRule(payload);
+      mockActions = cold('-a', { a: action });
+
+      const getHistoryForNotificationRuleResponse = cold('-#|');
+      notificationRuleHistoryServiceSpy.getHistoryForNotificationRule.and.returnValue(getHistoryForNotificationRuleResponse);
+
+      const expected = cold('--a', {
+        a: {
+          type: NotificationRulesActions.LOAD_HISTORY_FOR_NOTIFICATION_RULE_FAILURE,
+        },
+      });
+      expect(underTest.historyForNotificationRuleLoad).toBeObservable(expected);
+      expect(toastrServiceSpyError).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpyError).toHaveBeenCalledWith(texts.LOAD_HISTORY_FOR_NOTIFICATION_RULE_FAILURE_NOTIFICATION);
+    });
+  });
+
+  describe('notificationRulesFromHistoryLoad', () => {
+    it('should load notificationRules from history', () => {
+      const payload = {
+        leftHistoryId: 1,
+        rightHistoryId: 2,
+      };
+      const leftHistory = NotificationRuleHistoryModelFactory.create(
+        HistoryModelFactory.create(1, new Date(Date.now()), 'userName', { name: 'operation' }),
+        1,
+        dummyNotificationRule,
+      );
+      const rightHistory = NotificationRuleHistoryModelFactory.create(
+        HistoryModelFactory.create(2, new Date(Date.now()), 'userName', { name: 'operation' }),
+        2,
+        dummyNotificationRule,
+      );
+      const serviceResponse: HistoryPairModel<NotificationRuleHistoryModel> = {
+        leftHistory: leftHistory,
+        rightHistory: rightHistory,
+      };
+      const effectResponse = {
+        leftHistory: leftHistory,
+        rightHistory: rightHistory,
+      };
+
+      const action = new LoadNotificationRulesFromHistory(payload);
+      mockActions = cold('-a', { a: action });
+      const getNotificationRulesFromHistoryResponse = cold('-a|', { a: serviceResponse });
+      const expected = cold('--a', {
+        a: {
+          type: NotificationRulesActions.LOAD_NOTIFICATION_RULES_FROM_HISTORY_SUCCESS,
+          payload: effectResponse,
+        },
+      });
+
+      notificationRuleHistoryServiceSpy.getNotificationRulesFromHistory.and.returnValue(getNotificationRulesFromHistoryResponse);
+
+      expect(underTest.notificationRulesFromHistoryLoad).toBeObservable(expected);
+    });
+
+    it('should display failure when service fails to load notificationRules from history', () => {
+      const toastrServiceSpyError = toastrServiceSpy.error;
+      const payload = {
+        leftHistoryId: 1,
+        rightHistoryId: 2,
+      };
+
+      const action = new LoadNotificationRulesFromHistory(payload);
+      mockActions = cold('-a', { a: action });
+
+      const getNotificationRulesFromHistoryResponse = cold('-#|');
+      notificationRuleHistoryServiceSpy.getNotificationRulesFromHistory.and.returnValue(getNotificationRulesFromHistoryResponse);
+
+      const expected = cold('--a', {
+        a: {
+          type: NotificationRulesActions.LOAD_NOTIFICATION_RULES_FROM_HISTORY_FAILURE,
+        },
+      });
+      expect(underTest.notificationRulesFromHistoryLoad).toBeObservable(expected);
+      expect(toastrServiceSpyError).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpyError).toHaveBeenCalledWith(texts.LOAD_NOTIFICATION_RULES_FROM_HISTORY_FAILURE_NOTIFICATION);
     });
   });
 });
