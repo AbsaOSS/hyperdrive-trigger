@@ -69,7 +69,7 @@ export class JobTemplateShowComponent implements OnInit, OnDestroy {
   }
 
   isJobTemplateEmpty() {
-    switch (this.jobTemplate.jobParameters.jobType.name) {
+    switch (this.jobTemplate.jobParameters.jobType) {
       case jobTypes.SHELL:
         const shellParameters: ShellTemplateParametersModel = <ShellTemplateParametersModel>this.jobTemplate.jobParameters;
         return !shellParameters.scriptLocation;
@@ -78,10 +78,10 @@ export class JobTemplateShowComponent implements OnInit, OnDestroy {
         return (
           !sparkParameters.jobJar &&
           !sparkParameters.mainClass &&
-          sparkParameters.appArguments.size == 0 &&
-          sparkParameters.additionalJars.size == 0 &&
-          sparkParameters.additionalFiles.size == 0 &&
-          sparkParameters.additionalSparkConfig.size == 0
+          (sparkParameters.appArguments?.size ?? 0) == 0 &&
+          (sparkParameters.additionalJars?.size ?? 0) == 0 &&
+          (sparkParameters.additionalFiles?.size ?? 0) == 0 &&
+          (sparkParameters.additionalSparkConfig?.size ?? 0) == 0
         );
     }
   }

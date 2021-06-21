@@ -16,6 +16,8 @@
 package za.co.absa.hyperdrive.trigger.api.rest.utils
 
 import za.co.absa.hyperdrive.trigger.models._
+import za.co.absa.hyperdrive.trigger.scheduler.utilities.JobDefinitionConfig.{KeysToMerge, MergedValuesSeparator}
+
 import scala.util.{Failure, Success, Try}
 
 
@@ -60,7 +62,7 @@ object JobTemplateResolutionUtil {
       appArguments = mergeLists(definitionParams.appArguments, templateParams.appArguments),
       additionalJars = mergeLists(definitionParams.additionalJars, templateParams.additionalJars),
       additionalFiles = mergeLists(definitionParams.additionalFiles, templateParams.additionalFiles),
-      additionalSparkConfig = mergeMapsOfStrings(definitionParams.additionalSparkConfig, templateParams.additionalSparkConfig)
+      additionalSparkConfig = mergeMaps(definitionParams.additionalSparkConfig, templateParams.additionalSparkConfig, mergeSortedMapEntries)
     )
   }
 
@@ -71,7 +73,7 @@ object JobTemplateResolutionUtil {
       appArguments = mergeLists(definitionParams.appArguments, templateParams.appArguments),
       additionalJars = mergeLists(definitionParams.additionalJars, templateParams.additionalJars),
       additionalFiles = mergeLists(definitionParams.additionalFiles, templateParams.additionalFiles),
-      additionalSparkConfig = mergeMapsOfStrings(definitionParams.additionalSparkConfig, templateParams.additionalSparkConfig)
+      additionalSparkConfig = mergeMaps(definitionParams.additionalSparkConfig, templateParams.additionalSparkConfig, mergeSortedMapEntries)
     )
   }
 
@@ -87,6 +89,19 @@ object JobTemplateResolutionUtil {
   private def mergeLists(primary: List[String], secondary: List[String]) =
     secondary ++ primary
 
-  private def mergeMapsOfStrings(primary: Map[String, String], secondary: Map[String, String]) =
-    secondary ++ primary
+  private def mergeSortedMapEntries(key: String, firstValue: String, secondValue: String) = {
+    if (KeysToMerge.contains(key)) {
+      s"$secondValue$MergedValuesSeparator$firstValue".trim
+    } else {
+      firstValue
+    }
+  }
+
+  private def mergeMaps[T](primary: Map[String, T], secondary: Map[String, T], mergeFn: (String, T, T) => T) = {
+    val sharedKeys = primary.keySet.intersect(secondary.keySet)
+    primary.filterKeys(key => !sharedKeys.contains(key)) ++
+    secondary.filterKeys(key => !sharedKeys.contains(key)) ++
+    primary.filterKeys(key => sharedKeys.contains(key))
+        .map{ case (key, value) => key -> mergeFn.apply(key, value, secondary(key))}
+  }
 }

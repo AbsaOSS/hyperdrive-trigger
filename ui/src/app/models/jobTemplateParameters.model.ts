@@ -13,14 +13,12 @@
  * limitations under the License.
  */
 
-import { JobType, JobTypeFactory } from './jobType.model';
-
 export interface JobTemplateParameters {
-  jobType: JobType;
+  jobType: string;
 }
 
 export class SparkTemplateParametersModel implements JobTemplateParameters {
-  jobType: JobType;
+  jobType: string;
   appArguments: Set<string>;
   additionalJars: Set<string>;
   additionalFiles: Set<string>;
@@ -30,7 +28,7 @@ export class SparkTemplateParametersModel implements JobTemplateParameters {
 
   static createEmpty(): SparkTemplateParametersModel {
     return {
-      jobType: JobTypeFactory.create('Spark'),
+      jobType: 'Spark',
       appArguments: new Set(),
       additionalJars: new Set(),
       additionalFiles: new Set(),
@@ -42,10 +40,10 @@ export class SparkTemplateParametersModel implements JobTemplateParameters {
 }
 
 export class ShellTemplateParametersModel implements JobTemplateParameters {
-  jobType: JobType;
+  jobType: string;
   scriptLocation?: string;
 
   static createEmpty(): ShellTemplateParametersModel {
-    return { jobType: JobTypeFactory.create('Shell'), scriptLocation: null };
+    return { jobType: 'Shell', scriptLocation: null };
   }
 }
