@@ -34,7 +34,7 @@ import { ToastrService } from 'ngx-toastr';
 import { texts } from '../../constants/texts.constants';
 import { WorkflowModel, WorkflowModelFactory } from '../../models/workflow.model';
 import { WorkflowRequestModel } from '../../models/workflowRequest.model';
-import { HistoryModel, WorkflowHistoriesForComparisonModel } from '../../models/historyModel';
+import { HistoryModel, HistoryPairModel, WorkflowHistoryModel} from '../../models/historyModel';
 import { WorkflowHistoryService } from '../../services/workflowHistory/workflow-history.service';
 import { JobService } from '../../services/job/job.service';
 import { JobForRunModel } from '../../models/jobForRun.model';
@@ -383,17 +383,14 @@ export class WorkflowsEffects {
         action.payload.rightWorkflowHistoryId,
       );
     }),
-    mergeMap((workflowHistForComparison: WorkflowHistoriesForComparisonModel) => {
+    mergeMap((workflowHistForComparison: HistoryPairModel<WorkflowHistoryModel>) => {
       return this.workflowService.getWorkflowDynamicFormParts().pipe(
         mergeMap((workflowComponents: DynamicFormParts) => {
           const workflowFormParts = this.getWorkflowFormParts(workflowComponents);
 
-          const leftWorkflowHistory = new WorkflowDataModel(
-            workflowHistForComparison.leftWorkflowHistory.workflow,
-            workflowFormParts.dynamicParts,
-          );
+          const leftWorkflowHistory = new WorkflowDataModel(workflowHistForComparison.leftHistory.workflow, workflowFormParts.dynamicParts);
           const rightWorkflowHistory = new WorkflowDataModel(
-            workflowHistForComparison.rightWorkflowHistory.workflow,
+            workflowHistForComparison.rightHistory.workflow,
             workflowFormParts.dynamicParts,
           );
           return [
@@ -402,9 +399,9 @@ export class WorkflowsEffects {
               payload: {
                 workflowFormParts: workflowFormParts,
                 leftWorkflowHistoryData: leftWorkflowHistory.getWorkflowFromData(),
-                leftWorkflowHistory: workflowHistForComparison.leftWorkflowHistory.history,
+                leftWorkflowHistory: workflowHistForComparison.leftHistory.history,
                 rightWorkflowHistoryData: rightWorkflowHistory.getWorkflowFromData(),
-                rightWorkflowHistory: workflowHistForComparison.rightWorkflowHistory.history,
+                rightWorkflowHistory: workflowHistForComparison.rightHistory.history,
               },
             },
           ];

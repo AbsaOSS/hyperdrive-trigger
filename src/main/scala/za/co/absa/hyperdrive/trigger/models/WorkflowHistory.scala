@@ -20,8 +20,3 @@ case class WorkflowHistory(
   workflowId: Long,
   workflow: WorkflowJoined
 )
-
-case class WorkflowsFromHistory(
-  leftWorkflowHistory: WorkflowHistory,
-  rightWorkflowHistory: WorkflowHistory
-)

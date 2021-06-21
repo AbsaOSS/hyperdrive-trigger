@@ -57,20 +57,3 @@ export class WorkflowHistoryModelFactory {
     };
   }
 }
-
-export type WorkflowHistoriesForComparisonModel = {
-  leftWorkflowHistory: WorkflowHistoryModel;
-  rightWorkflowHistory: WorkflowHistoryModel;
-};
-
-export class WorkflowHistoriesForComparisonModelFactory {
-  static create(
-    leftWorkflowHistory: WorkflowHistoryModel,
-    rightWorkflowHistory: WorkflowHistoryModel,
-  ): WorkflowHistoriesForComparisonModel {
-    return {
-      leftWorkflowHistory: leftWorkflowHistory,
-      rightWorkflowHistory: rightWorkflowHistory,
-    };
-  }
-}
