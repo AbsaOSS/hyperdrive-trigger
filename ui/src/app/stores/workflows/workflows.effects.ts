@@ -34,7 +34,7 @@ import { ToastrService } from 'ngx-toastr';
 import { texts } from '../../constants/texts.constants';
 import { WorkflowModel, WorkflowModelFactory } from '../../models/workflow.model';
 import { WorkflowRequestModel } from '../../models/workflowRequest.model';
-import { HistoryModel, HistoryPairModel, WorkflowHistoryModel} from '../../models/historyModel';
+import { HistoryModel, HistoryPairModel, WorkflowHistoryModel } from '../../models/historyModel';
 import { WorkflowHistoryService } from '../../services/workflowHistory/workflow-history.service';
 import { JobService } from '../../services/job/job.service';
 import { JobForRunModel } from '../../models/jobForRun.model';
