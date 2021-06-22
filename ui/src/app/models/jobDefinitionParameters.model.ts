@@ -13,8 +13,7 @@
  * limitations under the License.
  */
 
-import { FormConfig, FormConfigFactory } from './formConfing.model';
-import { JobTypeFactory } from './jobType.model';
+import { FormConfig, FormConfigFactory } from './formConfig.model';
 
 export interface JobDefinitionParameters {
   formConfig: FormConfig;
