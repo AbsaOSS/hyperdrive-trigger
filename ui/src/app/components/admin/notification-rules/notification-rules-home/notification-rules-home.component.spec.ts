@@ -21,10 +21,11 @@ import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { absoluteRoutes } from '../../../../constants/routes.constants';
 import { JobTemplateModelFactory } from '../../../../models/jobTemplate.model';
-import { JobParametersModelFactory } from '../../../../models/jobParameters.model';
 import { Store } from '@ngrx/store';
 import { AppState } from '../../../../stores/app.reducers';
 import { ClrDatagridStateInterface } from '@clr/angular';
+import { JobTypeFactory } from '../../../../models/jobType.model';
+import { ShellTemplateParametersModel } from '../../../../models/jobTemplateParameters.model';
 
 describe('JobTemplatesHomeComponent', () => {
   let underTest: NotificationRulesHomeComponent;
@@ -35,7 +36,7 @@ describe('JobTemplatesHomeComponent', () => {
   const initialAppState = {
     jobTemplates: {
       jobTemplates: [
-        JobTemplateModelFactory.create(0, 'templateName', 'fromConfig', { name: 'jobType' }, JobParametersModelFactory.createEmpty()),
+        JobTemplateModelFactory.create(0, 'name', 'formConfig', JobTypeFactory.create('Shell'), ShellTemplateParametersModel.createEmpty()),
       ],
       total: 2,
       page: 3,
