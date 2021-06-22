@@ -46,6 +46,7 @@ class NotificationSenderImpl(notificationRuleService: NotificationRuleService, e
         case (rules, workflow) => rules.foreach(rule => createMessageAndSend(rule, workflow, dagInstance, jobInstances))
       }
     } else {
+      logger.debug(s"Attempting to send notifications for ${dagInstance}, but it is disabled")
       Future{}
     }
   }
