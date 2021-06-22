@@ -66,15 +66,21 @@ set workflow = jsonb_set(workflow::jsonb, array['dagDefinitionJoined', 'jobDefin
   select
     historyId,
     jsonb_agg(
-      jsonb_set(
-        toUpdateWithFormConfig.jobDefinition::jsonb,
-        array ['jobParameters'],
-        (toUpdateWithFormConfig.jobDefinition::jsonb -> 'jobParameters' -> 'maps')::jsonb ||
-        (toUpdateWithFormConfig.jobDefinition::jsonb -> 'jobParameters' -> 'variables')::jsonb ||
-        (toUpdateWithFormConfig.jobDefinition::jsonb -> 'jobParameters' -> 'keyValuePairs')::jsonb ||
-        ('{"formConfig":' || toUpdateWithFormConfig.formConfigName || '}')::jsonb,
-        true
-      )
+      case
+        when (toUpdateWithFormConfig.jobDefinition -> 'jobParameters' ?? 'maps' OR
+             toUpdateWithFormConfig.jobDefinition -> 'jobParameters' ?? 'variables' OR
+             toUpdateWithFormConfig.jobDefinition -> 'jobParameters' ?? 'keyValuePairs')
+        then jsonb_set(
+                toUpdateWithFormConfig.jobDefinition::jsonb,
+                array ['jobParameters'],
+                (toUpdateWithFormConfig.jobDefinition::jsonb -> 'jobParameters' -> 'maps')::jsonb ||
+                (toUpdateWithFormConfig.jobDefinition::jsonb -> 'jobParameters' -> 'variables')::jsonb ||
+                (toUpdateWithFormConfig.jobDefinition::jsonb -> 'jobParameters' -> 'keyValuePairs')::jsonb ||
+                ('{"formConfig":' || toUpdateWithFormConfig.formConfigName || '}')::jsonb,
+                true
+             )
+        else toUpdateWithFormConfig.jobDefinition::jsonb
+      end
     ) as updatedJobDefinitions
   from (
     select
