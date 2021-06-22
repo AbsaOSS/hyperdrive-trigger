@@ -20,8 +20,8 @@ import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, Matchers}
 import za.co.absa.hyperdrive.trigger.TestUtils.await
-import za.co.absa.hyperdrive.trigger.models.{JobParameters, ResolvedJobDefinition, ShellParameters, SparkParameters}
-import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobStatuses, JobTypes}
+import za.co.absa.hyperdrive.trigger.models.{ResolvedJobDefinition, ShellInstanceParameters, SparkInstanceParameters}
+import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobStatuses}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
@@ -55,7 +55,7 @@ class DagInstanceServiceTest extends AsyncFlatSpec with Matchers with MockitoSug
     val jobInstance1 = dagInstance.jobInstances.head
     val jobDefinition1 = resolvedJobDefinitions.head
     jobInstance1.jobName shouldBe jobDefinition1.name
-    jobInstance1.jobParameters shouldBe SparkParameters(jobDefinition1.jobParameters)
+    jobInstance1.jobParameters shouldBe jobDefinition1.jobParameters
     jobInstance1.jobStatus shouldBe JobStatuses.InQueue
     jobInstance1.executorJobId shouldBe None
     jobInstance1.created should not be None
@@ -66,7 +66,7 @@ class DagInstanceServiceTest extends AsyncFlatSpec with Matchers with MockitoSug
     val jobInstance2 = dagInstance.jobInstances(1)
     val jobDefinition2 = resolvedJobDefinitions(1)
     jobInstance2.jobName shouldBe jobDefinition2.name
-    jobInstance2.jobParameters shouldBe ShellParameters(jobDefinition2.jobParameters)
+    jobInstance2.jobParameters shouldBe jobDefinition2.jobParameters
     jobInstance2.order shouldBe jobDefinition2.order
   }
 
@@ -93,24 +93,17 @@ class DagInstanceServiceTest extends AsyncFlatSpec with Matchers with MockitoSug
   private def createResolvedJobDefinitions() = {
     Seq(
       ResolvedJobDefinition(
-        jobType = JobTypes.Spark,
         name = "Spark Job",
-        jobParameters = JobParameters(
-          variables = Map("jobJar" -> "/dir/driver.jar",
-            "mainClass" -> "aaa.bbb.TestClass",
-            "deploymentMode" -> "cluster"
-          ),
-          maps = Map("aaa" -> List("bbb", "ccc"))
+        jobParameters = SparkInstanceParameters(
+          jobJar = "/dir/driver.jar",
+          mainClass = "aaa.bbb.TestClass"
         ),
         order = 1
       ),
       ResolvedJobDefinition(
-        jobType = JobTypes.Shell,
         name = "Shell Job",
-        jobParameters = JobParameters(
-          variables = Map(
-            "scriptLocation" -> "testShellScript.sh"
-          )
+        jobParameters = ShellInstanceParameters(
+          scriptLocation = "testShellScript.sh"
         ),
         order = 2
       )

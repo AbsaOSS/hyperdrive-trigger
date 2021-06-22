@@ -22,11 +22,12 @@ import za.co.absa.hyperdrive.trigger.models.search.{ContainsFilterAttributes, So
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class JobTemplateRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryH2TestBase {
+class JobTemplateRepositoryPostgresTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryPostgresTestBase {
 
-  val jobTemplateRepository: JobTemplateRepository = new JobTemplateRepositoryImpl { override val profile = h2Profile }
+  val jobTemplateRepository: JobTemplateRepository = new JobTemplateRepositoryImpl
 
   override def beforeAll: Unit = {
+    super.beforeAll()
     schemaSetup()
   }
 

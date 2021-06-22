@@ -184,7 +184,7 @@ export class WorkflowService {
     ]);
   }
 
-  private getJobTemplates(): Observable<JobTemplateModel[]> {
+  getJobTemplates(): Observable<JobTemplateModel[]> {
     return this.httpClient
       .get<JobTemplateModel[]>(api.GET_JOB_TEMPLATES, { observe: 'response' })
       .pipe(map((response) => response.body));
@@ -268,75 +268,55 @@ export class WorkflowService {
     return DynamicFormPartFactory.createWithLabel(templateId, templateName, [
       FormPartFactory.create(
         'Additional jars',
-        'jobParameters.maps.additionalJars',
+        'jobParameters.additionalJars',
         'set-field',
         PartValidationFactory.create(false, undefined, 1),
       ),
       FormPartFactory.create(
         'Additional files',
-        'jobParameters.maps.additionalFiles',
+        'jobParameters.additionalFiles',
         'set-field',
         PartValidationFactory.create(false, undefined, 1),
       ),
       FormPartFactory.create(
         'Additional Spark Config',
-        'jobParameters.keyValuePairs.additionalSparkConfig',
+        'jobParameters.additionalSparkConfig',
         'key-value-field',
         PartValidationFactory.create(false, undefined, 1),
       ),
-      FormPartFactory.create(
-        'App arguments',
-        'jobParameters.maps.appArguments',
-        'set-field',
-        PartValidationFactory.create(false, undefined, 1),
-      ),
+      FormPartFactory.create('App arguments', 'jobParameters.appArguments', 'set-field', PartValidationFactory.create(false, undefined, 1)),
     ]);
   }
 
   private static getSparkFormParts(): FormPart[] {
     return [
-      FormPartFactory.create('Job jar', 'jobParameters.variables.jobJar', 'string-field', PartValidationFactory.create(true, undefined, 1)),
-      FormPartFactory.create(
-        'Main class',
-        'jobParameters.variables.mainClass',
-        'string-field',
-        PartValidationFactory.create(true, undefined, 1),
-      ),
+      FormPartFactory.create('Job jar', 'jobParameters.jobJar', 'string-field', PartValidationFactory.create(true, undefined, 1)),
+      FormPartFactory.create('Main class', 'jobParameters.mainClass', 'string-field', PartValidationFactory.create(true, undefined, 1)),
       FormPartFactory.create(
         'Additional jars',
-        'jobParameters.maps.additionalJars',
+        'jobParameters.additionalJars',
         'set-field',
         PartValidationFactory.create(false, undefined, 1),
       ),
       FormPartFactory.create(
         'Additional files',
-        'jobParameters.maps.additionalFiles',
+        'jobParameters.additionalFiles',
         'set-field',
         PartValidationFactory.create(false, undefined, 1),
       ),
       FormPartFactory.create(
         'Additional Spark Config',
-        'jobParameters.keyValuePairs.additionalSparkConfig',
+        'jobParameters.additionalSparkConfig',
         'key-value-field',
         PartValidationFactory.create(false, undefined, 1),
       ),
-      FormPartFactory.create(
-        'App arguments',
-        'jobParameters.maps.appArguments',
-        'set-field',
-        PartValidationFactory.create(false, undefined, 1),
-      ),
+      FormPartFactory.create('App arguments', 'jobParameters.appArguments', 'set-field', PartValidationFactory.create(false, undefined, 1)),
     ];
   }
 
   private static getShellFormParts(): FormPart[] {
     return [
-      FormPartFactory.create(
-        'Script',
-        'jobParameters.variables.scriptLocation',
-        'string-field',
-        PartValidationFactory.create(true, undefined, 1),
-      ),
+      FormPartFactory.create('Script', 'jobParameters.scriptLocation', 'string-field', PartValidationFactory.create(true, undefined, 1)),
     ];
   }
 }

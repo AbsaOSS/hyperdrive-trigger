@@ -16,10 +16,7 @@
 package za.co.absa.hyperdrive.trigger.models.tables
 
 import slick.lifted.ProvenShape
-import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
-import za.co.absa.hyperdrive.trigger.models.{JobParameters, JobTemplate}
-
-import scala.collection.immutable.SortedMap
+import za.co.absa.hyperdrive.trigger.models.{JobTemplate, JobTemplateParameters}
 
 trait JobTemplateTable extends SearchableTableQuery {
   this: Profile with JdbcTypeMapper =>
@@ -28,33 +25,22 @@ trait JobTemplateTable extends SearchableTableQuery {
   final class JobTemplateTable(tag: Tag) extends Table[JobTemplate](tag, _tableName = "job_template") with SearchableTable {
 
     def name: Rep[String] = column[String]("name", O.Unique)
-    def jobType: Rep[JobType] = column[JobType]("job_type")
-    def variables: Rep[Map[String, String]] = column[Map[String, String]]("variables")
-    def maps: Rep[Map[String, List[String]]] = column[Map[String, List[String]]]("maps")
-    def keyValuePairs: Rep[Map[String, SortedMap[String, String]]] = column[Map[String, SortedMap[String, String]]]("key_value_pairs")
+    def jobParameters: Rep[JobTemplateParameters] = column[JobTemplateParameters]("job_parameters", O.SqlType("JSONB"))
     def id: Rep[Long] = column[Long]("id", O.PrimaryKey, O.AutoInc, O.SqlType("BIGSERIAL"))
     def formConfig: Rep[String] = column[String]("form_config")
 
-    def * : ProvenShape[JobTemplate] = (name, jobType, variables, maps, keyValuePairs, id, formConfig) <> (
+    def * : ProvenShape[JobTemplate] = (name, jobParameters, id, formConfig) <> (
       jobTemplateTuple =>
         JobTemplate.apply(
           name = jobTemplateTuple._1,
-          jobType = jobTemplateTuple._2,
-          jobParameters = JobParameters(
-            variables = jobTemplateTuple._3,
-            maps = jobTemplateTuple._4,
-            keyValuePairs = jobTemplateTuple._5
-          ),
-          id = jobTemplateTuple._6,
-          formConfig = jobTemplateTuple._7
+          jobParameters = jobTemplateTuple._2,
+          id = jobTemplateTuple._3,
+          formConfig = jobTemplateTuple._4
         ),
       (jobTemplate: JobTemplate) =>
         Option(
           jobTemplate.name,
-          jobTemplate.jobType,
-          jobTemplate.jobParameters.variables,
-          jobTemplate.jobParameters.maps,
-          jobTemplate.jobParameters.keyValuePairs,
+          jobTemplate.jobParameters,
           jobTemplate.id,
           jobTemplate.formConfig
         )
@@ -62,10 +48,6 @@ trait JobTemplateTable extends SearchableTableQuery {
 
     override def fieldMapping: Map[String, Rep[_]] = Map(
       "name" -> this.name,
-      "jobType" -> this.jobType,
-      "variables" -> this.variables,
-      "maps" -> this.maps,
-      "keyValuePairs" -> this.keyValuePairs,
       "id" -> this.id,
       "formConfig" -> this.formConfig
     )

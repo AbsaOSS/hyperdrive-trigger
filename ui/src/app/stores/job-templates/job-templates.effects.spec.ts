@@ -27,13 +27,13 @@ import { JobTemplateModel, JobTemplateModelFactory } from '../../models/jobTempl
 import { GetJobTemplateForForm, SearchJobTemplates, SetJobTemplateForFrom } from './job-templates.actions';
 import * as JobTemplatesActions from './job-templates.actions';
 import { Spy, createSpyFromClass } from 'jasmine-auto-spies';
-import { JobParametersModelFactory } from '../../models/jobParameters.model';
 import { WorkflowService } from '../../services/workflow/workflow.service';
 import { DynamicFormPart } from '../../models/workflowFormParts.model';
 import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
 import { texts } from '../../constants/texts.constants';
 import { absoluteRoutes } from '../../constants/routes.constants';
+import { SparkTemplateParametersModel } from '../../models/jobTemplateParameters.model';
 
 describe('JobTemplatesEffects', () => {
   let underTest: JobTemplatesEffects;
@@ -71,7 +71,7 @@ describe('JobTemplatesEffects', () => {
         'templateName',
         'fromConfig',
         { name: 'jobType' },
-        JobParametersModelFactory.createEmpty(),
+        SparkTemplateParametersModel.createEmpty(),
       );
 
       const searchResponse = new TableSearchResponseModel<JobTemplateModel>([jobTemplate], 1);
@@ -112,7 +112,7 @@ describe('JobTemplatesEffects', () => {
         'templateName',
         'fromConfig',
         { name: 'jobType' },
-        JobParametersModelFactory.createEmpty(),
+        SparkTemplateParametersModel.createEmpty(),
       );
 
       const action = new GetJobTemplateForForm(jobTemplate.id);
@@ -156,7 +156,7 @@ describe('JobTemplatesEffects', () => {
         'templateName',
         'fromConfig',
         { name: 'jobType' },
-        JobParametersModelFactory.createEmpty(),
+        SparkTemplateParametersModel.createEmpty(),
       );
       const dynamicFormParts: DynamicFormPart[] = [];
 
@@ -179,7 +179,7 @@ describe('JobTemplatesEffects', () => {
         'templateName',
         'fromConfig',
         { name: 'jobType' },
-        JobParametersModelFactory.createEmpty(),
+        SparkTemplateParametersModel.createEmpty(),
       );
       const action = new SetJobTemplateForFrom(jobTemplate);
       mockActions = cold('-a', { a: action });

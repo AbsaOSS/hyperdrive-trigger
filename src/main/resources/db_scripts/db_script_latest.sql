@@ -44,9 +44,10 @@ create table "job_definition" (
   "dag_definition_id" BIGINT NOT NULL,
   "job_template_id" BIGINT NOT NULL,
   "name" VARCHAR NOT NULL,
-  "variables" VARCHAR NOT NULL,
-  "maps" VARCHAR NOT NULL,
-  "key_value_pairs" VARCHAR NOT NULL,
+  "variables_old" VARCHAR DEFAULT '{}',
+  "maps_old" VARCHAR DEFAULT '{}',
+  "key_value_pairs_old" VARCHAR DEFAULT '{}',
+  "job_parameters" JSONB NOT NULL DEFAULT '{}',
   "order" INTEGER NOT NULL,
   "id" BIGSERIAL NOT NULL PRIMARY KEY
 );
@@ -93,10 +94,11 @@ create table "workflow_history" (
 
 create table "job_template" (
   "name" VARCHAR NOT NULL UNIQUE,
-  "job_type" VARCHAR NOT NULL,
-  "variables" VARCHAR NOT NULL,
-  "maps" VARCHAR NOT NULL,
-  "key_value_pairs" VARCHAR NOT NULL,
+  "job_type_old" VARCHAR,
+  "variables_old" VARCHAR DEFAULT '{}',
+  "maps_old" VARCHAR DEFAULT '{}',
+  "key_value_pairs_old" VARCHAR DEFAULT '{}',
+  "job_parameters" JSONB NOT NULL DEFAULT '{}',
   "id" BIGSERIAL NOT NULL PRIMARY KEY,
   "form_config" VARCHAR NOT NULL DEFAULT 'unknown'
 );

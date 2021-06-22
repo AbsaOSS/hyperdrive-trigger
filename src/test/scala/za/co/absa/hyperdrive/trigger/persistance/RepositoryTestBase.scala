@@ -17,13 +17,12 @@
 package za.co.absa.hyperdrive.trigger.persistance
 
 import za.co.absa.hyperdrive.trigger.TestUtils
-import za.co.absa.hyperdrive.trigger.models.{DagDefinition, DagDefinitionJoined, DagInstance, JobDefinition, JobParameters, JobTemplate, NotificationRule, Properties, SchedulerInstance, Sensor, Settings, Workflow, WorkflowJoined}
+import za.co.absa.hyperdrive.trigger.models.{DagDefinition, DagDefinitionJoined, DagInstance, JobDefinition, JobTemplate, NotificationRule, Properties, SchedulerInstance, Sensor, Settings, ShellTemplateParameters, SparkDefinitionParameters, SparkTemplateParameters, Workflow, WorkflowJoined}
 import za.co.absa.hyperdrive.trigger.models.dagRuns.DagRun
-import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobTypes, SchedulerInstanceStatuses, SensorTypes}
+import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, SchedulerInstanceStatuses, SensorTypes}
 
 import java.time.LocalDateTime
 import java.util.concurrent.TimeUnit
-import scala.collection.immutable.SortedMap
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration.Duration
 
@@ -154,8 +153,8 @@ trait RepositoryTestBase extends Repository {
     val dr5 = DagRun(workflowId = 5, workflowName = "workflowName5", projectName = "projectName3", jobCount = 2, started = LocalDateTime.now().plusDays(5), finished = None, status = DagInstanceStatuses.Running.name, triggeredBy = triggeredBy, id = 304)
     val dagRuns: Seq[DagRun] = Seq(dr1, dr2, dr3, dr4, dr5)
 
-    val jt1 = JobTemplate(name = "jobTemplate1", jobType = JobTypes.Spark, JobParameters(Map("key" -> "value"), Map("key" -> List("value1", "value2")), Map("key" -> SortedMap("subKey1" -> "value1"))), id = 100, formConfig = "Spark")
-    val jt2 = JobTemplate(name = "jobTemplate2", jobType = JobTypes.Shell, JobParameters(Map(), Map(), Map()), id = 101, formConfig = "Shell")
+    val jt1 = JobTemplate(name = "jobTemplate1", SparkTemplateParameters(jobJar = None, mainClass = None, appArguments = List("value1", "value2"), additionalJars = List("value1", "value2"), additionalFiles = List("value1", "value2"), additionalSparkConfig = Map("key" -> "value")), id = 100, formConfig = "Spark")
+    val jt2 = JobTemplate(name = "jobTemplate2", ShellTemplateParameters(scriptLocation = None), id = 101, formConfig = "Shell")
     val jobTemplates = Seq(jt1, jt2)
 
     val dd1 = DagDefinition(workflowId = w1.id, id = 400)
@@ -167,7 +166,7 @@ trait RepositoryTestBase extends Repository {
     val dd7 = DagDefinition(workflowId = w7.id, id = 406)
     val dagDefinitions = Seq(dd1, dd2, dd3, dd4, dd5, dd6, dd7)
 
-    val genericJd = JobDefinition(dagDefinitionId = -1, jobTemplateId = -1, name = "generic", jobParameters = JobParameters(Map(), Map(), Map()), order = 1, id = -1)
+    val genericJd = JobDefinition(dagDefinitionId = -1, jobTemplateId = -1, name = "generic", jobParameters = SparkDefinitionParameters(jobJar = None, mainClass = None), order = 1, id = -1)
     val jd1dd1 = genericJd.copy(dagDefinitionId = 400, jobTemplateId = 100, name = "jd1dd1", order = 1, id = 501)
     val jd2dd1 = genericJd.copy(dagDefinitionId = 400, jobTemplateId = 101, name = "jd2dd1", order = 2, id = 502)
     val jd1dd2 = genericJd.copy(dagDefinitionId = 401, jobTemplateId = 101, name = "jd1dd2", order = 1, id = 503)

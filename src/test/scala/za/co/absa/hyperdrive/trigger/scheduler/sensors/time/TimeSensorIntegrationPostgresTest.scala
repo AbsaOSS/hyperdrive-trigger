@@ -31,34 +31,27 @@ import za.co.absa.hyperdrive.trigger.scheduler.sensors.Sensors
 import scala.concurrent.ExecutionContext.Implicits.global
 
 
-class TimeSensorIntegrationTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryH2TestBase {
-  private val sensorRepository: SensorRepositoryImpl = new SensorRepositoryImpl {
-    override val profile = h2Profile
-  }
-  private val workflowHistoryRepository: WorkflowHistoryRepositoryImpl = new WorkflowHistoryRepositoryImpl {
-    override val profile = h2Profile
-  }
-  private val workflowRepository: WorkflowRepositoryImpl = new WorkflowRepositoryImpl(workflowHistoryRepository) {
-    override val profile = h2Profile
-  }
-  private val eventRepository: EventRepositoryImpl = new EventRepositoryImpl {
-    override val profile = h2Profile
-  }
-  private val dagDefinitionRepository: DagDefinitionRepositoryImpl = new DagDefinitionRepositoryImpl {
-    override val profile = h2Profile
-  }
-  private val dagInstanceRepository: DagInstanceRepositoryImpl = new DagInstanceRepositoryImpl with H2Profile {
-    override val profile = h2Profile
-  }
-  private val jobTemplateRepository: JobTemplateRepositoryImpl = new JobTemplateRepositoryImpl {
-    override val profile = h2Profile
-  }
+class TimeSensorIntegrationPostgresTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryPostgresTestBase {
+  private val sensorRepository: SensorRepositoryImpl = new SensorRepositoryImpl
+
+  private val workflowHistoryRepository: WorkflowHistoryRepositoryImpl = new WorkflowHistoryRepositoryImpl
+
+  private val workflowRepository: WorkflowRepositoryImpl = new WorkflowRepositoryImpl(workflowHistoryRepository)
+
+  private val eventRepository: EventRepositoryImpl = new EventRepositoryImpl
+
+  private val dagDefinitionRepository: DagDefinitionRepositoryImpl = new DagDefinitionRepositoryImpl
+
+  private val dagInstanceRepository: DagInstanceRepositoryImpl = new DagInstanceRepositoryImpl
+
+  private val jobTemplateRepository: JobTemplateRepositoryImpl = new JobTemplateRepositoryImpl
 
   private val jobTemplateService: JobTemplateService = new JobTemplateServiceImpl(jobTemplateRepository)
 
   private val dagInstanceService: DagInstanceService = new DagInstanceServiceImpl(jobTemplateService)
 
   override def beforeAll: Unit = {
+    super.beforeAll()
     schemaSetup()
   }
 
@@ -82,9 +75,9 @@ class TimeSensorIntegrationTest extends FlatSpec with Matchers with BeforeAndAft
     val properties = Properties(-1L, Settings(Map("cronExpression" -> cronExpression), Map.empty), Map.empty)
     val sensor = Sensor(-1L, SensorTypes.Time, properties)
 
-    val jobParameters1 = JobParameters(Map("deploymentMode" -> "client", "jobJar" -> "spark-job.jar", "mainClass" -> "TheMainClass"), Map.empty)
+    val jobParameters1 = SparkDefinitionParameters(jobJar = Option("spark-job.jar"), mainClass = Option("TheMainClass"))
     val jobDefinition1 = JobDefinition(-1L, sparkTemplateId, "Time-Sensor Job 1", jobParameters1, 1)
-    val jobParameters2 = JobParameters(Map("deploymentMode" -> "client", "jobJar" -> "spark-job-2.jar", "mainClass" -> "TheMainClass"), Map.empty)
+    val jobParameters2 = SparkDefinitionParameters(jobJar = Option("spark-job-2.jar"), mainClass = Option("TheMainClass"))
     val jobDefinition2 = JobDefinition(-1L, sparkTemplateId, "Time-Sensor Job 2", jobParameters2, 2)
 
     val dagDefinitionJoined = DagDefinitionJoined(-1L, Seq(jobDefinition1, jobDefinition2))

@@ -48,13 +48,8 @@
       </app-string-filter>
     </clr-dg-filter>
   </clr-dg-column>
-  <clr-dg-column [clrDgField]="jobTemplateColumns.JOB_TYPE">
+  <clr-dg-column>
     <ng-container *clrDgHideableColumn="{hidden: false}">Job type</ng-container>
-    <clr-dg-filter [clrDgFilter]="jobTypeFilter">
-      <app-string-filter #jobTypeFilter [property]="jobTemplateColumns.JOB_TYPE"
-                         [removeFiltersSubject]="removeFiltersSubject">
-      </app-string-filter>
-    </clr-dg-filter>
   </clr-dg-column>
   <clr-dg-placeholder>We couldn't find any job templates!</clr-dg-placeholder>
 
@@ -68,7 +63,7 @@
 
     <clr-dg-cell (dblclick)="showJobTemplate(jobTemplate.id)">{{jobTemplate.name}}</clr-dg-cell>
     <clr-dg-cell (dblclick)="showJobTemplate(jobTemplate.id)">{{jobTemplate.formConfig}}</clr-dg-cell>
-    <clr-dg-cell (dblclick)="showJobTemplate(jobTemplate.id)">{{jobTemplate.jobType.name}}</clr-dg-cell>
+    <clr-dg-cell (dblclick)="showJobTemplate(jobTemplate.id)">{{jobTemplate.jobParameters.jobType}}</clr-dg-cell>
   </clr-dg-row>
 
   <clr-dg-footer>

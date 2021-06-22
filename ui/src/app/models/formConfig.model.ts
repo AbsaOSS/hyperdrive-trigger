@@ -13,10 +13,12 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models
+export type FormConfig = {
+  name: string;
+};
 
-case class ResolvedJobDefinition(
-  name: String,
-  jobParameters: JobInstanceParameters,
-  order: Int
-)
+export class FormConfigFactory {
+  static create(name: string): FormConfig {
+    return { name: name };
+  }
+}
