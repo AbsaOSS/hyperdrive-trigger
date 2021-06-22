@@ -45,9 +45,7 @@ trait SearchableTableQuery {
       val withBooleanFilter = request.getBooleanFilterAttributes.foldLeft(withLongFilter)((query, attributes) =>
         query.filter(table => applyBooleanFilter(attributes, table.fieldMapping)))
 
-
       val length = withBooleanFilter.length.result
-
 
       val result = withBooleanFilter
         .sortBy(table => sortFields(request.sort, table.fieldMapping, table.defaultSortColumn))
@@ -99,7 +97,7 @@ trait SearchableTableQuery {
         LiteralColumn(1) === LiteralColumn(1)
       } else if (attributes.value.isTrue) {
         tableField === LiteralColumn(true)
-      }else {
+      } else {
         tableField === LiteralColumn(false)
       }
     }
