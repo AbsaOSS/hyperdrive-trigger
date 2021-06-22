@@ -241,6 +241,74 @@ class SearchableTableQueryTest extends FlatSpec with Matchers with BeforeAndAfte
     result.total shouldBe 0
   }
 
+  "the boolean filter" should "find values that are true" in {
+    val filter = BooleanFilterAttributes(field = TestSearchableTableFieldNames.booleanField, value = BooleanValues(isTrue = true, isFalse = false))
+    val searchRequest = TableSearchRequest(
+      booleanFilterAttributes = Some(Seq(filter)),
+      sort = None,
+      from = 0,
+      size = 50
+    )
+
+    val result = await(db.run(underTest.search(searchRequest)))
+
+    val expected = TestSearchableData.testSearchableEntities.filter(e => e.booleanValue)
+    result.total should be > 0
+    result.total shouldBe expected.size
+    result.items should contain theSameElementsAs expected
+  }
+
+  it should "find values that are false" in {
+    val filter = BooleanFilterAttributes(field = TestSearchableTableFieldNames.booleanField, value = BooleanValues(isTrue = false, isFalse = true))
+    val searchRequest = TableSearchRequest(
+      booleanFilterAttributes = Some(Seq(filter)),
+      sort = None,
+      from = 0,
+      size = 50
+    )
+
+    val result = await(db.run(underTest.search(searchRequest)))
+
+    val expected = TestSearchableData.testSearchableEntities.filter(e => !e.booleanValue)
+    result.total should be > 0
+    result.total shouldBe expected.size
+    result.items should contain theSameElementsAs expected
+  }
+
+  it should "find all values if the filter has checked both true/false" in {
+    val filter = BooleanFilterAttributes(field = TestSearchableTableFieldNames.booleanField, value = BooleanValues(isTrue = true, isFalse = true))
+    val searchRequest = TableSearchRequest(
+      booleanFilterAttributes = Some(Seq(filter)),
+      sort = None,
+      from = 0,
+      size = 50
+    )
+
+    val result = await(db.run(underTest.search(searchRequest)))
+
+    val expected = TestSearchableData.testSearchableEntities
+    result.total should be > 0
+    result.total shouldBe expected.size
+    result.items should contain theSameElementsAs expected
+  }
+
+  it should "find all values if the filter has checked neither true nor false" in {
+    val filter = BooleanFilterAttributes(field = TestSearchableTableFieldNames.booleanField, value = BooleanValues(isTrue = false, isFalse = false))
+    val searchRequest = TableSearchRequest(
+      booleanFilterAttributes = Some(Seq(filter)),
+      sort = None,
+      from = 0,
+      size = 50
+    )
+
+    val result = await(db.run(underTest.search(searchRequest)))
+
+    val expected = TestSearchableData.testSearchableEntities
+    result.total should be > 0
+    result.total shouldBe expected.size
+    result.items should contain theSameElementsAs expected
+  }
+
   "sort" should "apply a default sort if no sort column is specified" in {
     val searchRequest = TableSearchRequest(
       sort = None,

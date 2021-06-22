@@ -16,12 +16,7 @@
 import { AfterViewInit, Component, OnDestroy, QueryList, ViewChildren } from '@angular/core';
 import { ClrDatagridColumn, ClrDatagridStateInterface } from '@clr/angular';
 import { SortAttributesModel } from '../../../../models/search/sortAttributes.model';
-import { TableSearchRequestModel } from '../../../../models/search/tableSearchRequest.model';
-import { ContainsFilterAttributes } from '../../../../models/search/containsFilterAttributes.model';
-import { IntRangeFilterAttributes } from '../../../../models/search/intRangeFilterAttributes.model';
-import { DateTimeRangeFilterAttributes } from '../../../../models/search/dateTimeRangeFilterAttributes.model';
-import { LongFilterAttributes } from '../../../../models/search/longFilterAttributes.model';
-import { EqualsMultipleFilterAttributes } from '../../../../models/search/equalsMultipleFilterAttributes.model';
+import { TableSearchRequestModelFactory } from '../../../../models/search/tableSearchRequest.model';
 import { Subject, Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { AppState, selectNotificationRulesState } from '../../../../stores/app.reducers';
@@ -34,6 +29,7 @@ import { NotificationRuleModel } from '../../../../models/notificationRule.model
 import { ConfirmationDialogTypes } from '../../../../constants/confirmationDialogTypes.constants';
 import { texts } from '../../../../constants/texts.constants';
 import { ConfirmationDialogService } from '../../../../services/confirmation-dialog/confirmation-dialog.service';
+import { FilterAttributes } from '../../../../models/search/filterAttributes.model';
 
 @Component({
   selector: 'app-notification-rules-home',
@@ -54,7 +50,7 @@ export class NotificationRulesHomeComponent implements AfterViewInit, OnDestroy 
   notificationRules: NotificationRuleModel[] = [];
   total = 0;
   loading = true;
-  filters: any[] = [];
+  filters: FilterAttributes[] = [];
 
   notificationRuleColumns = notificationRuleColumns;
   absoluteRoutes = absoluteRoutes;
@@ -86,17 +82,7 @@ export class NotificationRulesHomeComponent implements AfterViewInit, OnDestroy 
   }
 
   refresh() {
-    const searchRequestModel: TableSearchRequestModel = {
-      from: this.pageFrom,
-      size: this.pageSize,
-      sort: this.sort,
-      containsFilterAttributes: this.filters.filter((f) => f instanceof ContainsFilterAttributes),
-      intRangeFilterAttributes: this.filters.filter((f) => f instanceof IntRangeFilterAttributes),
-      dateTimeRangeFilterAttributes: this.filters.filter((f) => f instanceof DateTimeRangeFilterAttributes),
-      longFilterAttributes: this.filters.filter((f) => f instanceof LongFilterAttributes),
-      equalsMultipleFilterAttributes: this.filters.filter((f) => f instanceof EqualsMultipleFilterAttributes),
-    };
-
+    const searchRequestModel = TableSearchRequestModelFactory.create(this.pageFrom, this.pageSize, this.sort, this.filters);
     this.store.dispatch(new SearchNotificationRules(searchRequestModel));
     this.refreshSubject.next(true);
   }
