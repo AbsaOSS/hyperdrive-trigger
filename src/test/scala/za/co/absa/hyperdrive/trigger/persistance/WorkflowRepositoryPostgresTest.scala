@@ -27,25 +27,21 @@ import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, GenericDatabas
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class WorkflowRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach
-  with RepositoryH2TestBase with MockitoSugar {
-
-  val workflowHistoryRepositoryMock: WorkflowHistoryRepository = mock[WorkflowHistoryRepository]
-  val workflowHistoryRepository: WorkflowHistoryRepository = new WorkflowHistoryRepositoryImpl() {
-    override val profile = h2Profile
-  }
-
-  val workflowRepositoryMocked: WorkflowRepository = new WorkflowRepositoryImpl(workflowHistoryRepositoryMock) {
-    override val profile = h2Profile
-  }
-
-  val workflowRepository: WorkflowRepository = new WorkflowRepositoryImpl(workflowHistoryRepository) {
-    override val profile = h2Profile
-  }
+class WorkflowRepositoryPostgresTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach
+  with RepositoryPostgresTestBase with MockitoSugar {
 
   import api._
 
+  val workflowHistoryRepositoryMock: WorkflowHistoryRepository = mock[WorkflowHistoryRepository]
+  val workflowHistoryRepository: WorkflowHistoryRepository = new WorkflowHistoryRepositoryImpl()
+
+  val workflowRepositoryMocked: WorkflowRepository = new WorkflowRepositoryImpl(workflowHistoryRepositoryMock)
+
+  val workflowRepository: WorkflowRepository = new WorkflowRepositoryImpl(workflowHistoryRepository)
+
+
   override def beforeAll: Unit = {
+    super.beforeAll()
     schemaSetup()
   }
 
@@ -314,7 +310,10 @@ class WorkflowRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterA
     val ids = expectedWorkflows.map(_.id)
     val actualWorkflows = await(workflowRepository.getWorkflows(ids))
 
-    actualWorkflows should contain theSameElementsAs expectedWorkflows
+    actualWorkflows.map(_.toWorkflow) should contain theSameElementsAs expectedWorkflows.map(_.toWorkflow)
+    actualWorkflows.map(_.sensor) should contain theSameElementsAs expectedWorkflows.map(_.sensor)
+    actualWorkflows.map(_.dagDefinitionJoined.toDag()) should contain theSameElementsAs expectedWorkflows.map(_.dagDefinitionJoined.toDag())
+    actualWorkflows.flatMap(_.dagDefinitionJoined.jobDefinitions) should contain theSameElementsAs expectedWorkflows.flatMap(_.dagDefinitionJoined.jobDefinitions)
   }
 
   it should "return an empty seq if no workflows are found" in {

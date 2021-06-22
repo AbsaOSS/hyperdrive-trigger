@@ -27,7 +27,6 @@ import za.co.absa.hyperdrive.trigger.TestUtils.await
 import za.co.absa.hyperdrive.trigger.api.rest.services.NotificationRuleService
 import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.InQueue
-import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.Shell
 import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobStatuses}
 import za.co.absa.hyperdrive.trigger.scheduler.utilities.email.EmailService
 
@@ -134,7 +133,7 @@ class NotificationSenderTest extends FlatSpec with MockitoSugar with Matchers wi
   private def createJobInstance() = {
     JobInstance(
       jobName = "jobName",
-      jobParameters = ShellParameters(scriptLocation = ""),
+      jobParameters = ShellInstanceParameters(scriptLocation = ""),
       jobStatus = InQueue,
       executorJobId = None,
       applicationId = None,

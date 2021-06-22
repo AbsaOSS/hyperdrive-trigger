@@ -19,7 +19,7 @@ case class JobDefinition(
   dagDefinitionId: Long = 0,
   jobTemplateId: Long = 0,
   name: String,
-  jobParameters: JobParameters,
+  jobParameters: JobDefinitionParameters,
   order: Int,
   id: Long = 0
 )

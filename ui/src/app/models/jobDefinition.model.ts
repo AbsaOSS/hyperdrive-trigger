@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
-import { JobParametersModel, JobParametersModelFactory } from './jobParameters.model';
+import { JobDefinitionParameters } from './jobDefinitionParameters.model';
 
 export type JobDefinitionModel = {
   dagDefinitionId: number;
   name: string;
   jobTemplateId: string;
-  jobParameters: JobParametersModel;
+  jobParameters: JobDefinitionParameters;
   order: number;
   id: number;
 };
@@ -29,7 +29,7 @@ export class JobDefinitionModelFactory {
     dagDefinitionId = 0,
     name: string,
     jobTemplateId: string,
-    jobParameters: JobParametersModel,
+    jobParameters: JobDefinitionParameters,
     order: number,
     id: number,
   ): JobDefinitionModel {
@@ -44,6 +44,6 @@ export class JobDefinitionModelFactory {
   }
 
   static createEmpty(): JobDefinitionModel {
-    return this.create(undefined, undefined, undefined, JobParametersModelFactory.createEmpty(), undefined, undefined);
+    return this.create(undefined, undefined, undefined, undefined, undefined, undefined);
   }
 }

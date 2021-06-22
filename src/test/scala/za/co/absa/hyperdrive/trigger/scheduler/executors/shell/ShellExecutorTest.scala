@@ -18,11 +18,10 @@ package za.co.absa.hyperdrive.trigger.scheduler.executors.shell
 import java.nio.file.Paths
 import java.time.LocalDateTime
 import java.util.concurrent.TimeUnit
-
 import org.mockito.ArgumentMatchers
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FlatSpec, Matchers}
-import za.co.absa.hyperdrive.trigger.models.{JobInstance, ShellParameters}
+import za.co.absa.hyperdrive.trigger.models.{JobInstance, ShellInstanceParameters}
 import org.mockito.Mockito._
 import org.mockito.ArgumentMatchers._
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.{Failed, InQueue, Lost, Running, Submitting, Succeeded}
@@ -39,7 +38,7 @@ class ShellExecutorTest extends FlatSpec with Matchers with BeforeAndAfterAll wi
   private val testScriptLocation = "testShellScript.sh"
   private val testJobInstance = JobInstance(
     jobName = "jobName",
-    jobParameters = ShellParameters(scriptLocation = ""),
+    jobParameters = ShellInstanceParameters(scriptLocation = ""),
     jobStatus = InQueue,
     executorJobId = None,
     applicationId = None,
@@ -55,7 +54,7 @@ class ShellExecutorTest extends FlatSpec with Matchers with BeforeAndAfterAll wi
 
   "ShellExecutor.execute" should "succeeded job when everything is set correctly" in {
     when(updateJobStub.apply(any[JobInstance])).thenReturn(Future.successful((): Unit))
-    val shellParameters = ShellParameters.apply(scriptLocation = Paths.get(ShellExecutorConfig.getExecutablesFolder, testScriptLocation).toString)
+    val shellParameters = ShellInstanceParameters.apply(scriptLocation = Paths.get(ShellExecutorConfig.getExecutablesFolder, testScriptLocation).toString)
     val testInput = testJobInstance.copy(
       jobParameters = shellParameters
     )
@@ -70,8 +69,8 @@ class ShellExecutorTest extends FlatSpec with Matchers with BeforeAndAfterAll wi
   "ShellExecutor.execute" should "fail job when job with running status is executed" in {
     when(updateJobStub.apply(any[JobInstance])).thenReturn(Future.successful((): Unit))
     val testInput = testJobInstance.copy(jobStatus = Running)
-    val shellParameters: ShellParameters = testInput.jobParameters match {
-      case shellParameters: ShellParameters =>shellParameters
+    val shellParameters: ShellInstanceParameters = testInput.jobParameters match {
+      case shellParameters: ShellInstanceParameters => shellParameters
       case _ => throw new Exception("Incorrect job instance parameters")
     }
 
@@ -82,7 +81,7 @@ class ShellExecutorTest extends FlatSpec with Matchers with BeforeAndAfterAll wi
 
   "ShellExecutor.execute" should "fail job when script cant be found" in {
     when(updateJobStub.apply(any[JobInstance])).thenReturn(Future.successful((): Unit))
-    val shellParameters = ShellParameters(scriptLocation = "/invalidLocation/invalidScriptName.sh")
+    val shellParameters = ShellInstanceParameters(scriptLocation = "/invalidLocation/invalidScriptName.sh")
     val testInput = testJobInstance.copy(
       jobParameters = shellParameters
     )
@@ -97,8 +96,8 @@ class ShellExecutorTest extends FlatSpec with Matchers with BeforeAndAfterAll wi
     when(updateJobStub.apply(any[JobInstance])).thenReturn(Future.successful((): Unit))
     val testInput = testJobInstance.copy(jobStatus = Submitting)
 
-    val shellParameters: ShellParameters = testInput.jobParameters match {
-      case shellParameters: ShellParameters =>shellParameters
+    val shellParameters: ShellInstanceParameters = testInput.jobParameters match {
+      case shellParameters: ShellInstanceParameters => shellParameters
       case _ => throw new Exception("Incorrect job instance parameters")
     }
 

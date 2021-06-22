@@ -44,6 +44,7 @@ import { BulkOperationErrorModel } from '../../models/errors/bulkOperationError.
 import { UtilService } from '../../services/util/util.service';
 import groupBy from 'lodash-es/groupBy';
 import { ApiUtil } from '../../utils/api/api.util';
+import { JobTemplateModel } from '../../models/jobTemplate.model';
 
 @Injectable()
 export class WorkflowsEffects {
@@ -248,49 +249,63 @@ export class WorkflowsEffects {
     ofType(WorkflowActions.CREATE_WORKFLOW),
     withLatestFrom(this.store.select(selectWorkflowState)),
     switchMap(([action, state]: [WorkflowActions.CreateWorkflow, fromWorkflows.State]) => {
-      const workflowCreateRequest = new WorkflowRequestModel(
-        state.workflowAction.workflowFormData.details,
-        state.workflowAction.workflowFormData.sensor,
-        state.workflowAction.workflowFormData.jobs,
-      ).getCreateWorkflowRequestObject();
+      return this.workflowService.getJobTemplates().pipe(
+        mergeMap((jobTemplates: JobTemplateModel[]) => {
+          const workflowCreateRequest = new WorkflowRequestModel(
+            state.workflowAction.workflowFormData.details,
+            state.workflowAction.workflowFormData.sensor,
+            state.workflowAction.workflowFormData.jobs,
+            jobTemplates,
+          ).getCreateWorkflowRequestObject();
 
-      return this.workflowService.createWorkflow(workflowCreateRequest).pipe(
-        mergeMap((result: WorkflowJoinedModel) => {
-          const workflow: WorkflowModel = WorkflowModelFactory.create(
-            result.name,
-            result.isActive,
-            result.project,
-            result.created,
-            result.updated,
-            result.id,
+          return this.workflowService.createWorkflow(workflowCreateRequest).pipe(
+            mergeMap((result: WorkflowJoinedModel) => {
+              const workflow: WorkflowModel = WorkflowModelFactory.create(
+                result.name,
+                result.isActive,
+                result.project,
+                result.created,
+                result.updated,
+                result.id,
+              );
+              this.toastrService.success(texts.CREATE_WORKFLOW_SUCCESS_NOTIFICATION);
+              this.router.navigateByUrl(absoluteRoutes.SHOW_WORKFLOW + '/' + workflow.id);
+
+              return [
+                {
+                  type: WorkflowActions.CREATE_WORKFLOW_SUCCESS,
+                  payload: workflow,
+                },
+              ];
+            }),
+            catchError((errorResponse) => {
+              if (ApiUtil.isBackendValidationError(errorResponse)) {
+                return [
+                  {
+                    type: WorkflowActions.CREATE_WORKFLOW_FAILURE,
+                    payload: errorResponse.map((err) => err.message),
+                  },
+                ];
+              } else {
+                this.toastrService.error(texts.CREATE_WORKFLOW_FAILURE_NOTIFICATION);
+                return [
+                  {
+                    type: WorkflowActions.CREATE_WORKFLOW_FAILURE,
+                    payload: [],
+                  },
+                ];
+              }
+            }),
           );
-          this.toastrService.success(texts.CREATE_WORKFLOW_SUCCESS_NOTIFICATION);
-          this.router.navigateByUrl(absoluteRoutes.SHOW_WORKFLOW + '/' + workflow.id);
-
+        }),
+        catchError(() => {
+          this.toastrService.error(texts.LOAD_JOB_TEMPLATES_FAILURE_NOTIFICATION);
           return [
             {
-              type: WorkflowActions.CREATE_WORKFLOW_SUCCESS,
-              payload: workflow,
+              type: WorkflowActions.CREATE_WORKFLOW_FAILURE,
+              payload: [],
             },
           ];
-        }),
-        catchError((errorResponse) => {
-          if (ApiUtil.isBackendValidationError(errorResponse)) {
-            return [
-              {
-                type: WorkflowActions.CREATE_WORKFLOW_FAILURE,
-                payload: errorResponse.map((err) => err.message),
-              },
-            ];
-          } else {
-            this.toastrService.error(texts.CREATE_WORKFLOW_FAILURE_NOTIFICATION);
-            return [
-              {
-                type: WorkflowActions.CREATE_WORKFLOW_FAILURE,
-                payload: [],
-              },
-            ];
-          }
         }),
       );
     }),
@@ -301,49 +316,54 @@ export class WorkflowsEffects {
     ofType(WorkflowActions.UPDATE_WORKFLOW),
     withLatestFrom(this.store.select(selectWorkflowState)),
     switchMap(([action, state]: [WorkflowActions.CreateWorkflow, fromWorkflows.State]) => {
-      const workflowUpdateRequest = new WorkflowRequestModel(
-        state.workflowAction.workflowFormData.details,
-        state.workflowAction.workflowFormData.sensor,
-        state.workflowAction.workflowFormData.jobs,
-      ).getUpdateWorkflowRequestObject(state.workflowAction.id);
+      return this.workflowService.getJobTemplates().pipe(
+        mergeMap((jobTemplates: JobTemplateModel[]) => {
+          const workflowUpdateRequest = new WorkflowRequestModel(
+            state.workflowAction.workflowFormData.details,
+            state.workflowAction.workflowFormData.sensor,
+            state.workflowAction.workflowFormData.jobs,
+            jobTemplates,
+          ).getUpdateWorkflowRequestObject(state.workflowAction.id);
 
-      return this.workflowService.updateWorkflow(workflowUpdateRequest).pipe(
-        mergeMap((result: WorkflowJoinedModel) => {
-          const workflow: WorkflowModel = WorkflowModelFactory.create(
-            result.name,
-            result.isActive,
-            result.project,
-            result.created,
-            result.updated,
-            result.id,
+          return this.workflowService.updateWorkflow(workflowUpdateRequest).pipe(
+            mergeMap((result: WorkflowJoinedModel) => {
+              const workflow: WorkflowModel = WorkflowModelFactory.create(
+                result.name,
+                result.isActive,
+                result.project,
+                result.created,
+                result.updated,
+                result.id,
+              );
+              this.toastrService.success(texts.UPDATE_WORKFLOW_SUCCESS_NOTIFICATION);
+              this.router.navigateByUrl(absoluteRoutes.SHOW_WORKFLOW + '/' + workflow.id);
+
+              return [
+                {
+                  type: WorkflowActions.UPDATE_WORKFLOW_SUCCESS,
+                  payload: workflow,
+                },
+              ];
+            }),
+            catchError((errorResponse) => {
+              if (ApiUtil.isBackendValidationError(errorResponse)) {
+                return [
+                  {
+                    type: WorkflowActions.UPDATE_WORKFLOW_FAILURE,
+                    payload: errorResponse.map((err) => err.message),
+                  },
+                ];
+              } else {
+                this.toastrService.error(texts.UPDATE_WORKFLOW_FAILURE_NOTIFICATION);
+                return [
+                  {
+                    type: WorkflowActions.UPDATE_WORKFLOW_FAILURE,
+                    payload: [],
+                  },
+                ];
+              }
+            }),
           );
-          this.toastrService.success(texts.UPDATE_WORKFLOW_SUCCESS_NOTIFICATION);
-          this.router.navigateByUrl(absoluteRoutes.SHOW_WORKFLOW + '/' + workflow.id);
-
-          return [
-            {
-              type: WorkflowActions.UPDATE_WORKFLOW_SUCCESS,
-              payload: workflow,
-            },
-          ];
-        }),
-        catchError((errorResponse) => {
-          if (ApiUtil.isBackendValidationError(errorResponse)) {
-            return [
-              {
-                type: WorkflowActions.UPDATE_WORKFLOW_FAILURE,
-                payload: errorResponse.map((err) => err.message),
-              },
-            ];
-          } else {
-            this.toastrService.error(texts.UPDATE_WORKFLOW_FAILURE_NOTIFICATION);
-            return [
-              {
-                type: WorkflowActions.UPDATE_WORKFLOW_FAILURE,
-                payload: [],
-              },
-            ];
-          }
         }),
       );
     }),
