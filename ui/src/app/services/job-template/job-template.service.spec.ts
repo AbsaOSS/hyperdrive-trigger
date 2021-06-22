@@ -21,7 +21,7 @@ import { api } from '../../constants/api.constants';
 import { TableSearchRequestModel } from '../../models/search/tableSearchRequest.model';
 import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
 import { JobTemplateModel, JobTemplateModelFactory } from '../../models/jobTemplate.model';
-import { JobParametersModelFactory } from '../../models/jobParameters.model';
+import { SparkTemplateParametersModel } from '../../models/jobTemplateParameters.model';
 
 describe('JobTemplateService', () => {
   let underTest: JobTemplateService;
@@ -59,7 +59,7 @@ describe('JobTemplateService', () => {
   });
 
   it('getJobTemplate() should return job template', () => {
-    const jobTemplate = JobTemplateModelFactory.create(1, 'name', 'formConfig', undefined, JobParametersModelFactory.createEmpty());
+    const jobTemplate = JobTemplateModelFactory.create(1, 'name', 'formConfig', undefined, SparkTemplateParametersModel.createEmpty());
 
     underTest.getJobTemplate(jobTemplate.id).subscribe(
       (data) => expect(data).toEqual(jobTemplate),

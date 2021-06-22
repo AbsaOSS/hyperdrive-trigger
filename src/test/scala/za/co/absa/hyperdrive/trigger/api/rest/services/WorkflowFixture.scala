@@ -67,12 +67,9 @@ object WorkflowFixture {
             dagDefinitionId = 0,
             jobTemplateId = GenericSparkJobTemplate.id,
             name = "TestJob1",
-            jobParameters = JobParameters(
-              variables = Map("jobJar" -> "/dir/driver.jar",
-                "mainClass" -> "aaa.bbb.TestClass",
-                "deploymentMode" -> "cluster"
-              ),
-              maps = Map("aaa" -> List("bbb", "ccc"))
+            jobParameters = SparkDefinitionParameters(
+              jobJar = Option("/dir/driver.jar"),
+              mainClass = Option("aaa.bbb.TestClass")
             ),
             order = 1,
             id = 1
@@ -81,11 +78,8 @@ object WorkflowFixture {
             dagDefinitionId = 0,
             jobTemplateId = GenericShellJobTemplate.id,
             name = "TestJob2",
-            jobParameters = JobParameters(
-              variables = Map("jobJar" -> "/dir/driver.jar",
-                "mainClass" -> "aaa.bbb.TestClass"
-              ),
-              maps = Map("appArguments" -> List("--arg1=value1", "--arg2=value2"))
+            jobParameters = ShellDefinitionParameters(
+              scriptLocation = Option("/dir/script.sh")
             ),
             order = 2,
             id = 2
@@ -124,13 +118,10 @@ object WorkflowFixture {
             dagDefinitionId = 0,
             jobTemplateId = GenericSparkJobTemplate.id,
             name = s"${randomString()} Driver",
-            jobParameters = JobParameters(
-              variables = Map(
-                "jobJar" -> s"${randomString()}/driver.jar",
-                "mainClass" -> "za.co.absa.hyperdrive.driver.drivers.CommandLineIngestionDriver",
-                "deploymentMode" -> "cluster"
-              ),
-              maps = Map("appArguments" -> List(
+            jobParameters = SparkDefinitionParameters(
+              jobJar = Option(s"${randomString()}/driver.jar"),
+              mainClass = Option("za.co.absa.hyperdrive.driver.drivers.CommandLineIngestionDriver"),
+              appArguments = List(
                 s"component.decoder=za.co.absa.hyperdrive.ingestor.implementation.decoder.avro.confluent.ConfluentAvroKafkaStreamDecoder",
                 s"component.ingestor=Spark",
                 s"component.manager=za.co.absa.hyperdrive.ingestor.implementation.manager.checkpoint.CheckpointOffsetManager",
@@ -159,7 +150,7 @@ object WorkflowFixture {
                 s"reader.option.kafka.ssl.truststore.password=${randomString()}",
                 s"transformer.columns.to.select=${randomString()}",
                 s"writer.parquet.destination.directory=${randomString()}"
-              ))
+              )
             ),
             order = 0
           ),
@@ -167,17 +158,14 @@ object WorkflowFixture {
             dagDefinitionId = 0,
             jobTemplateId = GenericSparkJobTemplate.id,
             name = s"${randomString()} Publisher",
-            jobParameters = JobParameters(
-              variables = Map(
-                "jobJar" -> s"${randomString()}/publisher.jar",
-                "mainClass" -> "za.co.absa.hyperdrive.publisher.HyperdrivePublisher",
-                "deploymentMode" -> "cluster"
-              ),
-              maps = Map("appArguments" -> List(
+            jobParameters = SparkDefinitionParameters(
+              jobJar = Option(s"${randomString()}/publisher.jar"),
+              mainClass = Option("za.co.absa.hyperdrive.publisher.HyperdrivePublisher"),
+              appArguments = List(
                 s"--buffer-directory=${randomString()}",
                 s"--raw-directory=${randomString()}",
                 s"--publish-directory=${randomString()}"
-              ))
+              )
             ),
             order = 1
           )
@@ -212,11 +200,8 @@ object WorkflowFixture {
             dagDefinitionId = 0,
             jobTemplateId = GenericShellJobTemplate.id,
             name = s"${randomString()}",
-            jobParameters = JobParameters(
-              variables = Map(
-                "scriptLocation" -> s"${randomString()}/script.sh"
-              ),
-              maps = Map.empty
+            jobParameters = ShellDefinitionParameters(
+              scriptLocation = Option(s"${randomString()}/script.sh")
             ),
             order = 0
           )
