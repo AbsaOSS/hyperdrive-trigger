@@ -92,7 +92,9 @@ export class NotificationRulesHomeComponent implements AfterViewInit, OnDestroy 
   }
 
   clearSort() {
-    !!this.sort ? (this.columns.find((_) => _.field == this.sort.by).sortOrder = 0) : undefined;
+    if (!!this.sort) {
+      this.columns.find((_) => _.field == this.sort.by).sortOrder = 0;
+    }
   }
 
   showNotificationRule(id: number) {
