@@ -30,7 +30,8 @@ import { ConfirmationDialogService } from '../../../../services/confirmation-dia
 import {
   CreateNotificationRule,
   DeleteNotificationRule,
-  RemoveNotificationRuleBackendValidationError, UpdateNotificationRule
+  RemoveNotificationRuleBackendValidationError,
+  UpdateNotificationRule,
 } from '../../../../stores/notification-rules/notification-rules.actions';
 import { absoluteRoutes } from '../../../../constants/routes.constants';
 
