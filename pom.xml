@@ -120,7 +120,7 @@
         <javamelody.spring.boot.starter.version>1.86.0</javamelody.spring.boot.starter.version>
         <buildnumber.maven.plugin.version>1.4</buildnumber.maven.plugin.version>
         <liquibase-maven-plugin.version>3.10.2</liquibase-maven-plugin.version>
-        <snakeyaml.version>1.25</snakeyaml.version>
+        <snakeyaml.version>1.26</snakeyaml.version>
         <commons-validator.version>1.7</commons-validator.version>
 
         <!-- Deployment -->
