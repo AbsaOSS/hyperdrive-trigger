@@ -34,6 +34,7 @@ class YarnConnectionHealthIndicator extends HealthIndicator {
     Try(new URL(s"$yarnBaseUrl/$yarnTestEndpoint")).flatMap(url =>
       Try({
         val connection = url.openConnection().asInstanceOf[HttpURLConnection]
+        HealthConfig.yarnConnectionTimeoutMillisOpt.foreach(connection.setConnectTimeout)
         connection.getResponseCode == successCode
       })
     ) match {
