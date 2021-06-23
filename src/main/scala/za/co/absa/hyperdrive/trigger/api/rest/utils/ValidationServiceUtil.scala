@@ -21,7 +21,7 @@ import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, ApiException}
 import scala.concurrent.{ExecutionContext, Future}
 
 object ValidationServiceUtil {
-  def reduce(validators: Seq[Future[Seq[ApiError]]])(implicit ec: ExecutionContext) = {
+  def reduce(validators: Seq[Future[Seq[ApiError]]])(implicit ec: ExecutionContext): Future[Unit] = {
     Future
       .reduce(validators)(_ ++ _)
       .transform(apiErrors => if (apiErrors.nonEmpty) throw new ApiException(apiErrors), identity)

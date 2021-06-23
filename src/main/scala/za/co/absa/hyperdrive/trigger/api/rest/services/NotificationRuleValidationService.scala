@@ -50,7 +50,7 @@ class NotificationRuleValidationServiceImpl (override val workflowRepository: Wo
     ValidationServiceUtil.reduce(validators)
   }
 
-  private def emptyStringToNone(str: String) = {
+  private def emptyStringToNone(str: String): Option[String] = {
     if(str.isEmpty) {
       None
     } else {
@@ -58,7 +58,7 @@ class NotificationRuleValidationServiceImpl (override val workflowRepository: Wo
     }
   }
 
-  private def validateProjectExists(project: String)(implicit ec: ExecutionContext) = {
+  private def validateProjectExists(project: String)(implicit ec: ExecutionContext): Future[Seq[ValidationError]] = {
     workflowRepository.existsProject(project)
       .map(exists => if (exists) {
         Seq()
@@ -67,7 +67,7 @@ class NotificationRuleValidationServiceImpl (override val workflowRepository: Wo
       })
   }
 
-  private def validateWorkflowsWithPrefixExists(workflowPrefix: String)(implicit ec: ExecutionContext) = {
+  private def validateWorkflowsWithPrefixExists(workflowPrefix: String)(implicit ec: ExecutionContext): Future[Seq[ValidationError]] = {
     workflowRepository.existsWorkflowWithPrefix(workflowPrefix)
       .map(exists => if (exists) {
         Seq()
@@ -76,18 +76,18 @@ class NotificationRuleValidationServiceImpl (override val workflowRepository: Wo
       })
   }
 
-  private def validateEmailAddresses(emailAddresses: Seq[String]) = {
+  private def validateEmailAddresses(emailAddresses: Seq[String]): Future[Seq[ValidationError]] = {
     Future.successful(
       emailAddresses.filterNot(address => emailValidator.isValid(address))
         .map(address => ValidationError(s"Recipient $address is not a valid e-mail address"))
     )
   }
 
-  private def validateMinElapsedSeconds(minElapsedSeconds: Option[Long]) = {
+  private def validateMinElapsedSeconds(minElapsedSeconds: Option[Long]): Future[Seq[ValidationError]] = {
     Future.successful(
       minElapsedSeconds
         .filter(_ < 0)
-        .map(v => Seq(ValidationError(s"minElapsedSecondsSinceLastSuccess cannot be negative, is $v")))
+        .map(v => Seq(ValidationError(s"Min elapsed seconds since last success cannot be negative, is $v")))
         .getOrElse(Seq())
     )
   }

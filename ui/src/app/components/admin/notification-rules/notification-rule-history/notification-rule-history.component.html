@@ -35,7 +35,7 @@
     <clr-dg-column>Change By</clr-dg-column>
     <clr-dg-column>Changed on</clr-dg-column>
 
-    <clr-dg-placeholder>We couldn't find any history for selected workflow!</clr-dg-placeholder>
+    <clr-dg-placeholder>We couldn't find any history for the selected notification rule!</clr-dg-placeholder>
     <clr-dg-row *clrDgItems="let record of notificationRuleHistory" [clrDgItem]="record" [clrDgSelectable]="isSelectable(record)">
       <clr-dg-cell>{{record.operation.name}}</clr-dg-cell>
       <clr-dg-cell>{{record.changedBy}}</clr-dg-cell>
