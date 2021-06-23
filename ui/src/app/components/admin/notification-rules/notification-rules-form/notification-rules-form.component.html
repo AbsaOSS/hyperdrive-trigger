@@ -72,14 +72,14 @@
           [isShow]="isReadOnlyMode()"
           [name]="'Is Active'"
           [valueChanges]="changes"
-          [value]="notificationRule.isActive"
+          [value]="notificationRule?.isActive"
           [property]="'isActive'">
         </app-boolean-part>
         <app-string-with-suggestions-part
           [isShow]="isReadOnlyMode()"
           [name]="'Project'"
           [valueChanges]="changes"
-          [value]="notificationRule.project"
+          [value]="notificationRule?.project"
           [property]="'project'"
           [options]="projects"
           [partValidation]="optional"
@@ -89,7 +89,7 @@
           [isShow]="isReadOnlyMode()"
           [name]="'Workflow Prefix'"
           [valueChanges]="changes"
-          [value]="notificationRule.workflowPrefix"
+          [value]="notificationRule?.workflowPrefix"
           [property]="'workflowPrefix'"
           [partValidation]="optional"
           [helperText]="'Leave empty to match all workflows. Don\'t use the asterisk (*)'">
@@ -98,7 +98,7 @@
           [isShow]="isReadOnlyMode()"
           [name]="'Waiting period after last successful run'"
           [valueChanges]="changes"
-          [value]="notificationRule.minElapsedSecondsSinceLastSuccess"
+          [value]="notificationRule?.minElapsedSecondsSinceLastSuccess"
           [property]="'minElapsedSecondsSinceLastSuccess'"
           [partValidation]="required"
           [helperText]="'After a successful run, no notifications are sent during the waiting period, to avoid spurious notifications. Set to zero to ignore this feature'">
@@ -116,7 +116,7 @@
           [isShow]="isReadOnlyMode()"
           [name]="'Recipients'"
           [valueChanges]="changes"
-          [value]="notificationRule.recipients"
+          [value]="notificationRule?.recipients"
           [property]="'recipients'"
           [partValidation]="required">
         </app-string-sequence-part>

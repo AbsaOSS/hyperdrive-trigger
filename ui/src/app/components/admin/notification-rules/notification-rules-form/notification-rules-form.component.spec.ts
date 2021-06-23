@@ -22,12 +22,25 @@ import { NotificationRuleModelFactory } from '../../../../models/notificationRul
 import { dagInstanceStatuses } from '../../../../models/enums/dagInstanceStatuses.constants';
 import { PreviousRouteService } from '../../../../services/previousRoute/previous-route.service';
 import { Router } from '@angular/router';
+import { Subject } from 'rxjs';
+import { createSpyFromClass, Spy } from 'jasmine-auto-spies';
+import { Store } from '@ngrx/store';
+import { AppState } from '../../../../stores/app.reducers';
+import { ConfirmationDialogService } from '../../../../services/confirmation-dialog/confirmation-dialog.service';
+import {
+  CreateNotificationRule,
+  DeleteNotificationRule,
+  RemoveNotificationRuleBackendValidationError, UpdateNotificationRule
+} from '../../../../stores/notification-rules/notification-rules.actions';
+import { absoluteRoutes } from '../../../../constants/routes.constants';
 
 describe('NotificationRulesForm', () => {
   let underTest: NotificationRulesFormComponent;
   let fixture: ComponentFixture<NotificationRulesFormComponent>;
   let previousRouteService: PreviousRouteService;
   let router;
+  let store: Store<AppState>;
+  let confirmationDialogServiceSpy: Spy<ConfirmationDialogService>;
 
   const dummyNotificationRule = NotificationRuleModelFactory.create(
     true,
@@ -60,12 +73,18 @@ describe('NotificationRulesForm', () => {
   beforeEach(
     waitForAsync(() => {
       TestBed.configureTestingModule({
-        providers: [provideMockStore({ initialState: initialAppState }), PreviousRouteService],
+        providers: [
+          provideMockStore({ initialState: initialAppState }),
+          PreviousRouteService,
+          { provide: ConfirmationDialogService, useValue: createSpyFromClass(ConfirmationDialogService) },
+        ],
         declarations: [NotificationRulesFormComponent],
         imports: [RouterTestingModule.withRoutes([]), FormsModule],
       }).compileComponents();
       previousRouteService = TestBed.inject(PreviousRouteService);
       router = TestBed.inject(Router);
+      store = TestBed.inject(Store);
+      confirmationDialogServiceSpy = TestBed.inject<any>(ConfirmationDialogService);
     }),
   );
 
@@ -77,4 +96,192 @@ describe('NotificationRulesForm', () => {
   it('should create', () => {
     expect(underTest).toBeTruthy();
   });
+
+  it(
+    'CreateNotificationRule() should dispatch create notification rule when dialog is confirmed',
+    waitForAsync(() => {
+      underTest.notificationRulesForm = { form: { valid: true } };
+
+      const subject = new Subject<boolean>();
+      const storeSpy = spyOn(store, 'dispatch');
+
+      const dialogServiceSpy = confirmationDialogServiceSpy.confirm.and.returnValue(subject.asObservable());
+
+      underTest.createNotificationRule();
+
+      subject.next(true);
+
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(dialogServiceSpy).toHaveBeenCalled();
+        expect(storeSpy).toHaveBeenCalled();
+        expect(storeSpy).toHaveBeenCalledWith(new CreateNotificationRule());
+      });
+    }),
+  );
+
+  it(
+    'CreateNotificationRule() should not dispatch create notification rule when dialog is not confirmed',
+    waitForAsync(() => {
+      const id = 1;
+      underTest.notificationRulesForm = { form: { valid: true } };
+      const subject = new Subject<boolean>();
+      const storeSpy = spyOn(store, 'dispatch');
+
+      const dialogServiceSpy = confirmationDialogServiceSpy.confirm.and.returnValue(subject.asObservable());
+
+      underTest.createNotificationRule();
+      subject.next(false);
+
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(dialogServiceSpy).toHaveBeenCalled();
+        expect(storeSpy).toHaveBeenCalledTimes(0);
+      });
+    }),
+  );
+
+  it(
+    'UpdateNotificationRule() should dispatch update notification rule when dialog is confirmed',
+    waitForAsync(() => {
+      underTest.notificationRulesForm = { form: { valid: true } };
+
+      const subject = new Subject<boolean>();
+      const storeSpy = spyOn(store, 'dispatch');
+
+      const dialogServiceSpy = confirmationDialogServiceSpy.confirm.and.returnValue(subject.asObservable());
+
+      underTest.updateNotificationRule();
+
+      subject.next(true);
+
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(dialogServiceSpy).toHaveBeenCalled();
+        expect(storeSpy).toHaveBeenCalled();
+        expect(storeSpy).toHaveBeenCalledWith(new UpdateNotificationRule());
+      });
+    }),
+  );
+
+  it(
+    'UpdateNotificationRule() should not dispatch update notification rule when dialog is not confirmed',
+    waitForAsync(() => {
+      const id = 1;
+      underTest.notificationRulesForm = { form: { valid: true } };
+      const subject = new Subject<boolean>();
+      const storeSpy = spyOn(store, 'dispatch');
+
+      const dialogServiceSpy = confirmationDialogServiceSpy.confirm.and.returnValue(subject.asObservable());
+
+      underTest.updateNotificationRule();
+      subject.next(false);
+
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(dialogServiceSpy).toHaveBeenCalled();
+        expect(storeSpy).toHaveBeenCalledTimes(0);
+      });
+    }),
+  );
+
+  it(
+    'deleteNotificationRule() should dispatch delete notification rule action with id when dialog is confirmed',
+    waitForAsync(() => {
+      const id = 1;
+      const subject = new Subject<boolean>();
+      const storeSpy = spyOn(store, 'dispatch');
+
+      const dialogServiceSpy = confirmationDialogServiceSpy.confirm.and.returnValue(subject.asObservable());
+
+      underTest.deleteNotificationRule(id);
+      subject.next(true);
+
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(dialogServiceSpy).toHaveBeenCalled();
+        expect(storeSpy).toHaveBeenCalled();
+        expect(storeSpy).toHaveBeenCalledWith(new DeleteNotificationRule(id));
+      });
+    }),
+  );
+
+  it(
+    'deleteNotificationRule() should not dispatch delete notification rule action when dialog is not confirmed',
+    waitForAsync(() => {
+      const id = 1;
+      const subject = new Subject<boolean>();
+      const storeSpy = spyOn(store, 'dispatch');
+
+      const dialogServiceSpy = confirmationDialogServiceSpy.confirm.and.returnValue(subject.asObservable());
+
+      underTest.deleteNotificationRule(id);
+      subject.next(false);
+
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(dialogServiceSpy).toHaveBeenCalled();
+        expect(storeSpy).toHaveBeenCalledTimes(0);
+      });
+    }),
+  );
+
+  it('cancel() should navigate back when history is not empty', () => {
+    const testUrl = 'test/url';
+    const dialogServiceSpy = spyOn(previousRouteService, 'getPreviousUrl').and.returnValue(testUrl);
+    const routerSpy = spyOn(router, 'navigateByUrl');
+
+    underTest.cancel();
+    expect(dialogServiceSpy).toHaveBeenCalled();
+    expect(routerSpy).toHaveBeenCalledTimes(1);
+    expect(routerSpy).toHaveBeenCalledWith(testUrl);
+  });
+
+  it('cancel() should navigate to notification rules home when history is empty', () => {
+    const dialogServiceSpy = spyOn(previousRouteService, 'getPreviousUrl').and.returnValue(undefined);
+    const routerSpy = spyOn(router, 'navigateByUrl');
+    underTest.cancel();
+    expect(dialogServiceSpy).toHaveBeenCalled();
+    expect(routerSpy).toHaveBeenCalledTimes(1);
+    expect(routerSpy).toHaveBeenCalledWith(absoluteRoutes.NOTIFICATION_RULES_HOME);
+  });
+
+  it(
+    'formHasChanged() should return false if notificationRule has not changed',
+    waitForAsync(() => {
+      underTest.initialNotificationRule = dummyNotificationRule;
+      underTest.notificationRule = dummyNotificationRule;
+
+      expect(underTest.formHasChanged()).toBeFalse();
+    }),
+  );
+
+  it(
+    'formHasChanged() should return true if notificationRule has changed',
+    waitForAsync(() => {
+      underTest.initialNotificationRule = dummyNotificationRule;
+      underTest.notificationRule = {
+        ...dummyNotificationRule,
+        statuses: [dagInstanceStatuses.SUCCEEDED.name],
+      };
+      expect(underTest.formHasChanged()).toBeTrue();
+    }),
+  );
+
+  it(
+    'removeBackendValidationError() should dispatch remove backend validation error action',
+    waitForAsync(() => {
+      const index = 2;
+
+      const storeSpy = spyOn(store, 'dispatch');
+
+      underTest.removeBackendValidationError(index);
+
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(storeSpy).toHaveBeenCalled();
+        expect(storeSpy).toHaveBeenCalledWith(new RemoveNotificationRuleBackendValidationError(index));
+      });
+    }),
+  );
 });

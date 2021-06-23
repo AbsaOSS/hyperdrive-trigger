@@ -15,54 +15,25 @@
 
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { NotificationRuleHistoryComponent } from './notification-rule-history.component';
-import { Store } from '@ngrx/store';
-import { AppState } from '../../../../stores/app.reducers';
 import { provideMockStore } from '@ngrx/store/testing';
-import { PreviousRouteService } from '../../../../services/previousRoute/previous-route.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 import { WorkflowHistoryComponent } from '../../../workflows/workflow-history/workflow-history.component';
-import { NotificationRuleModelFactory } from '../../../../models/notificationRule.model';
-import { dagInstanceStatuses } from '../../../../models/enums/dagInstanceStatuses.constants';
 import { HistoryModelFactory } from '../../../../models/historyModel';
-import { NotificationRuleHistoryModelFactory } from '../../../../models/notificationRuleHistoryModel';
 
 describe('NotificationRuleHistoryComponent', () => {
   let underTest: NotificationRuleHistoryComponent;
   let fixture: ComponentFixture<NotificationRuleHistoryComponent>;
-  let store: Store<AppState>;
-  let router: Router;
-  let previousRouteService: PreviousRouteService;
 
-  const dummyNotificationRule = NotificationRuleModelFactory.create(
-    true,
-    'Project 1',
-    undefined,
-    7200,
-    [dagInstanceStatuses.SUCCEEDED.name, dagInstanceStatuses.FAILED.name],
-    ['abc@xyz.com'],
-    new Date(Date.now()),
-    undefined,
-    1,
-  );
-
-  const historyRecordOne = NotificationRuleHistoryModelFactory.create(
-    HistoryModelFactory.create(1, new Date(Date.now()), 'userName', { name: 'Create' }),
-    10,
-    dummyNotificationRule,
-  );
-  const historyRecordTwo = NotificationRuleHistoryModelFactory.create(
-    HistoryModelFactory.create(2, new Date(Date.now()), 'userName', { name: 'Update' }),
-    11,
-    dummyNotificationRule,
-  );
+  const historyRecordOne = HistoryModelFactory.create(1, new Date(Date.now()), 'userName', { name: 'Create' });
+  const historyRecordTwo = HistoryModelFactory.create(2, new Date(Date.now()), 'userName', { name: 'Update' });
+  const historyRecordThree = HistoryModelFactory.create(3, new Date(Date.now()), 'userName', { name: 'Update' });
 
   const initialAppState = {
     notificationRules: {
       history: {
         loading: true,
-        historyEntries: [historyRecordOne, historyRecordTwo],
+        historyEntries: [historyRecordOne, historyRecordTwo, historyRecordThree],
       },
     },
   };
@@ -85,4 +56,28 @@ describe('NotificationRuleHistoryComponent', () => {
   it('should create', () => {
     expect(underTest).toBeTruthy();
   });
+
+  it(
+    'should set properties during on init',
+    waitForAsync(() => {
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(underTest.loading).toBe(initialAppState.notificationRules.history.loading);
+        expect(underTest.notificationRuleHistory).toBe(initialAppState.notificationRules.history.historyEntries);
+      });
+    }),
+  );
+
+  it(
+    'isSelectable() should return false when 2 history records are selected',
+    waitForAsync(() => {
+      underTest.notificationRuleHistory = [historyRecordOne, historyRecordTwo, historyRecordThree];
+      underTest.selected = [historyRecordOne, historyRecordTwo];
+
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(underTest.isSelectable(historyRecordThree)).toBeFalsy();
+      });
+    }),
+  );
 });
