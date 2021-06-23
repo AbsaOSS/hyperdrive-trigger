@@ -16,7 +16,7 @@
 package za.co.absa.hyperdrive.trigger.scheduler.executors.shell
 
 import org.slf4j.LoggerFactory
-import za.co.absa.hyperdrive.trigger.models.{JobInstance, ShellParameters}
+import za.co.absa.hyperdrive.trigger.models.{JobInstance, ShellInstanceParameters}
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses._
 import za.co.absa.hyperdrive.trigger.scheduler.executors.Executor
 
@@ -24,10 +24,10 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.sys.process._
 import scala.util.Try
 
-object ShellExecutor extends Executor[ShellParameters] {
+object ShellExecutor extends Executor[ShellInstanceParameters] {
   private val logger = LoggerFactory.getLogger(this.getClass)
 
-  override def execute(jobInstance: JobInstance, jobParameters: ShellParameters, updateJob: JobInstance => Future[Unit])
+  override def execute(jobInstance: JobInstance, jobParameters: ShellInstanceParameters, updateJob: JobInstance => Future[Unit])
                       (implicit executionContext: ExecutionContext): Future[Unit] = {
     jobInstance.jobStatus match {
       case status if status == InQueue => executeJob(jobInstance, jobParameters, updateJob)
@@ -36,7 +36,7 @@ object ShellExecutor extends Executor[ShellParameters] {
     }
   }
 
-  private def executeJob(jobInstance: JobInstance, jobParameters: ShellParameters, updateJob: JobInstance => Future[Unit])
+  private def executeJob(jobInstance: JobInstance, jobParameters: ShellInstanceParameters, updateJob: JobInstance => Future[Unit])
                         (implicit executionContext: ExecutionContext): Future[Unit] = {
     updateJob(jobInstance.copy(jobStatus = Running)).map { _ =>
       Try {
