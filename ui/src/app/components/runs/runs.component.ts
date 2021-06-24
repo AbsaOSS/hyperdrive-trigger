@@ -24,15 +24,16 @@ import { Subject, Subscription } from 'rxjs';
 import { skip } from 'rxjs/operators';
 import { dagRunColumns } from '../../constants/dagRunColumns.constants';
 import { dagInstanceStatuses } from '../../models/enums/dagInstanceStatuses.constants';
-import { ContainsFilterAttributes } from '../../models/search/containsFilterAttributes.model';
 import { TableSearchRequestModel } from '../../models/search/tableSearchRequest.model';
+import { SortAttributesModel } from '../../models/search/sortAttributes.model';
+import { ActivatedRoute } from '@angular/router';
+import { JobInstanceModel } from '../../models/jobInstance.model';
+import { FilterAttributes } from '../../models/search/filterAttributes.model';
+import { EqualsMultipleFilterAttributes } from '../../models/search/equalsMultipleFilterAttributes.model';
+import { LongFilterAttributes } from '../../models/search/longFilterAttributes.model';
+import { ContainsFilterAttributes } from '../../models/search/containsFilterAttributes.model';
 import { IntRangeFilterAttributes } from '../../models/search/intRangeFilterAttributes.model';
 import { DateTimeRangeFilterAttributes } from '../../models/search/dateTimeRangeFilterAttributes.model';
-import { SortAttributesModel } from '../../models/search/sortAttributes.model';
-import { EqualsMultipleFilterAttributes } from '../../models/search/equalsMultipleFilterAttributes.model';
-import { ActivatedRoute } from '@angular/router';
-import { LongFilterAttributes } from '../../models/search/longFilterAttributes.model';
-import { JobInstanceModel } from '../../models/jobInstance.model';
 
 @Component({
   selector: 'app-runs',
@@ -54,7 +55,7 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
   dagRuns: DagRunModel[] = [];
   total = 0;
   loading = true;
-  filters: any[] = [];
+  filters: FilterAttributes[] = [];
 
   dagRunColumns = dagRunColumns;
   dagInstanceStatuses = dagInstanceStatuses;
@@ -106,11 +107,19 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
         from: this.pageFrom,
         size: this.pageSize,
         sort: this.sort,
-        containsFilterAttributes: this.filters.filter((f) => f instanceof ContainsFilterAttributes),
-        intRangeFilterAttributes: this.filters.filter((f) => f instanceof IntRangeFilterAttributes),
-        dateTimeRangeFilterAttributes: this.filters.filter((f) => f instanceof DateTimeRangeFilterAttributes),
+        containsFilterAttributes: this.filters
+          .filter((f) => f instanceof ContainsFilterAttributes)
+          .map((f) => f as ContainsFilterAttributes),
+        intRangeFilterAttributes: this.filters
+          .filter((f) => f instanceof IntRangeFilterAttributes)
+          .map((f) => f as IntRangeFilterAttributes),
+        dateTimeRangeFilterAttributes: this.filters
+          .filter((f) => f instanceof DateTimeRangeFilterAttributes)
+          .map((f) => f as DateTimeRangeFilterAttributes),
         longFilterAttributes: !!this.workflowId ? [new LongFilterAttributes('workflowId', this.workflowId)] : [],
-        equalsMultipleFilterAttributes: this.filters.filter((f) => f instanceof EqualsMultipleFilterAttributes),
+        equalsMultipleFilterAttributes: this.filters
+          .filter((f) => f instanceof EqualsMultipleFilterAttributes)
+          .map((f) => f as EqualsMultipleFilterAttributes),
       };
       this.store.dispatch(new GetDagRuns(searchRequestModel));
     } else {

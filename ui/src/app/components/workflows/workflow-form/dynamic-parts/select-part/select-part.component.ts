@@ -50,7 +50,7 @@ export class SelectPartComponent implements OnInit {
     if (!this.value || this.value == '') {
       this.modelChanged(this.options.size != 0 ? this.options.keys().next().value : '');
     }
-    this.partValidationSafe = PartValidationFactory.create(!!this.partValidation.isRequired ? this.partValidation.isRequired : true);
+    this.partValidationSafe = PartValidationFactory.create(this.partValidation?.isRequired ?? true);
   }
 
   modelChanged(value: string) {

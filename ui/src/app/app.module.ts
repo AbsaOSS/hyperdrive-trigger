@@ -78,6 +78,15 @@ import { JobTemplatesEffects } from './stores/job-templates/job-templates.effect
 import { JobTemplatesHomeComponent } from './components/admin/job-templates/job-templates-home/job-templates-home.component';
 import { JobTemplateShowComponent } from './components/admin/job-templates/job-template-show/job-template-show.component';
 import { StringWithSuggestionsPartComponent } from './components/workflows/workflow-form/dynamic-parts/string-with-suggestions-part/string-with-suggestions-part.component';
+import { NotificationRulesComponent } from './components/admin/notification-rules/notification-rules.component';
+import { NotificationRulesHomeComponent } from './components/admin/notification-rules/notification-rules-home/notification-rules-home.component';
+import { NotificationRulesFormComponent } from './components/admin/notification-rules/notification-rules-form/notification-rules-form.component';
+import { NotificationRulesEffects } from './stores/notification-rules/notification-rules.effects';
+import { ComboboxPartComponent } from './components/workflows/workflow-form/dynamic-parts/combobox-part/combobox-part.component';
+import { DurationPartComponent } from './components/workflows/workflow-form/dynamic-parts/duration-part/duration-part.component';
+import { NotificationRuleComponent } from './components/admin/notification-rules/notification-rule/notification-rule.component';
+import { NotificationRuleComparisonComponent } from './components/admin/notification-rules/notification-rule-history/notification-rule-comparison/notification-rule-comparison.component';
+import { NotificationRuleHistoryComponent } from './components/admin/notification-rules/notification-rule-history/notification-rule-history.component';
 
 @NgModule({
   declarations: [
@@ -99,6 +108,8 @@ import { StringWithSuggestionsPartComponent } from './components/workflows/workf
     StringPartComponent,
     StringWithSuggestionsPartComponent,
     BooleanPartComponent,
+    ComboboxPartComponent,
+    DurationPartComponent,
     SelectPartComponent,
     StringSequencePartComponent,
     KeyStringValuePartComponent,
@@ -118,6 +129,12 @@ import { StringWithSuggestionsPartComponent } from './components/workflows/workf
     JobTemplatesComponent,
     JobTemplatesHomeComponent,
     JobTemplateShowComponent,
+    NotificationRuleComponent,
+    NotificationRulesComponent,
+    NotificationRulesHomeComponent,
+    NotificationRulesFormComponent,
+    NotificationRuleComparisonComponent,
+    NotificationRuleHistoryComponent,
   ],
   imports: [
     BrowserModule,
@@ -130,7 +147,7 @@ import { StringWithSuggestionsPartComponent } from './components/workflows/workf
       timeOut: 5000,
     }),
     StoreModule.forRoot(reducers),
-    EffectsModule.forRoot([ApplicationEffects, AuthEffects, RunsEffects, WorkflowsEffects, JobTemplatesEffects]),
+    EffectsModule.forRoot([ApplicationEffects, AuthEffects, RunsEffects, WorkflowsEffects, JobTemplatesEffects, NotificationRulesEffects]),
     StoreRouterConnectingModule.forRoot(),
     !environment.production ? StoreDevtoolsModule.instrument() : [],
   ],

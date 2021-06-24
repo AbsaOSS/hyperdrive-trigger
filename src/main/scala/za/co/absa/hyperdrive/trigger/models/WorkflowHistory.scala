@@ -15,24 +15,8 @@
 
 package za.co.absa.hyperdrive.trigger.models
 
-import java.time.LocalDateTime
-
-import za.co.absa.hyperdrive.trigger.models.enums.DBOperation.DBOperation
-
-case class History(
-  id: Long = 0,
-  changedOn: LocalDateTime,
-  changedBy: String,
-  operation: DBOperation
-)
-
 case class WorkflowHistory(
   history: History,
   workflowId: Long,
   workflow: WorkflowJoined
-)
-
-case class WorkflowsFromHistory(
-  leftWorkflowHistory: WorkflowHistory,
-  rightWorkflowHistory: WorkflowHistory
 )

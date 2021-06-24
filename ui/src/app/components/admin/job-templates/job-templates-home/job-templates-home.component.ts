@@ -16,12 +16,7 @@
 import { AfterViewInit, Component, OnDestroy, QueryList, ViewChildren } from '@angular/core';
 import { ClrDatagridColumn, ClrDatagridStateInterface } from '@clr/angular';
 import { SortAttributesModel } from '../../../../models/search/sortAttributes.model';
-import { TableSearchRequestModel } from '../../../../models/search/tableSearchRequest.model';
-import { ContainsFilterAttributes } from '../../../../models/search/containsFilterAttributes.model';
-import { IntRangeFilterAttributes } from '../../../../models/search/intRangeFilterAttributes.model';
-import { DateTimeRangeFilterAttributes } from '../../../../models/search/dateTimeRangeFilterAttributes.model';
-import { LongFilterAttributes } from '../../../../models/search/longFilterAttributes.model';
-import { EqualsMultipleFilterAttributes } from '../../../../models/search/equalsMultipleFilterAttributes.model';
+import { TableSearchRequestModelFactory } from '../../../../models/search/tableSearchRequest.model';
 import { JobTemplateModel } from '../../../../models/jobTemplate.model';
 import { Subject, Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
@@ -31,6 +26,7 @@ import { jobTemplateColumns } from '../../../../constants/jobTemplateColumns.con
 import { SearchJobTemplates } from '../../../../stores/job-templates/job-templates.actions';
 import { absoluteRoutes } from 'src/app/constants/routes.constants';
 import { Router } from '@angular/router';
+import { FilterAttributes } from '../../../../models/search/filterAttributes.model';
 
 @Component({
   selector: 'app-job-templates-home',
@@ -50,7 +46,7 @@ export class JobTemplatesHomeComponent implements AfterViewInit, OnDestroy {
   jobTemplates: JobTemplateModel[] = [];
   total = 0;
   loading = true;
-  filters: any[] = [];
+  filters: FilterAttributes[] = [];
 
   jobTemplateColumns = jobTemplateColumns;
   absoluteRoutes = absoluteRoutes;
@@ -82,17 +78,7 @@ export class JobTemplatesHomeComponent implements AfterViewInit, OnDestroy {
   }
 
   refresh() {
-    const searchRequestModel: TableSearchRequestModel = {
-      from: this.pageFrom,
-      size: this.pageSize,
-      sort: this.sort,
-      containsFilterAttributes: this.filters.filter((f) => f instanceof ContainsFilterAttributes),
-      intRangeFilterAttributes: this.filters.filter((f) => f instanceof IntRangeFilterAttributes),
-      dateTimeRangeFilterAttributes: this.filters.filter((f) => f instanceof DateTimeRangeFilterAttributes),
-      longFilterAttributes: this.filters.filter((f) => f instanceof LongFilterAttributes),
-      equalsMultipleFilterAttributes: this.filters.filter((f) => f instanceof EqualsMultipleFilterAttributes),
-    };
-
+    const searchRequestModel = TableSearchRequestModelFactory.create(this.pageFrom, this.pageSize, this.sort, this.filters);
     this.store.dispatch(new SearchJobTemplates(searchRequestModel));
     this.refreshSubject.next(true);
   }

@@ -16,7 +16,7 @@
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
 import org.springframework.stereotype.Service
-import za.co.absa.hyperdrive.trigger.models.{History, WorkflowsFromHistory}
+import za.co.absa.hyperdrive.trigger.models.{History, HistoryPair, WorkflowHistory}
 import za.co.absa.hyperdrive.trigger.persistance.WorkflowHistoryRepository
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -25,7 +25,7 @@ trait WorkflowHistoryService {
   val workflowHistoryRepository: WorkflowHistoryRepository
 
   def getHistoryForWorkflow(workflowId: Long)(implicit ec: ExecutionContext): Future[Seq[History]]
-  def getWorkflowsFromHistory(leftWorkflowHistoryId: Long, rightWorkflowHistoryId: Long)(implicit ec: ExecutionContext): Future[WorkflowsFromHistory]
+  def getWorkflowsFromHistory(leftWorkflowHistoryId: Long, rightWorkflowHistoryId: Long)(implicit ec: ExecutionContext): Future[HistoryPair[WorkflowHistory]]
 }
 
 @Service
@@ -35,7 +35,7 @@ class WorkflowHistoryServiceImpl(override val workflowHistoryRepository: Workflo
     workflowHistoryRepository.getHistoryForWorkflow(workflowId)
   }
 
-  override def getWorkflowsFromHistory(leftWorkflowHistoryId: Long, rightWorkflowHistoryId: Long)(implicit ec: ExecutionContext): Future[WorkflowsFromHistory] = {
+  override def getWorkflowsFromHistory(leftWorkflowHistoryId: Long, rightWorkflowHistoryId: Long)(implicit ec: ExecutionContext): Future[HistoryPair[WorkflowHistory]] = {
     workflowHistoryRepository.getWorkflowsFromHistory(leftWorkflowHistoryId, rightWorkflowHistoryId)
   }
 

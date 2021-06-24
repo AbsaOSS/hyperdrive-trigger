@@ -121,6 +121,7 @@
         <buildnumber.maven.plugin.version>1.4</buildnumber.maven.plugin.version>
         <liquibase-maven-plugin.version>3.10.2</liquibase-maven-plugin.version>
         <snakeyaml.version>1.26</snakeyaml.version>
+        <commons-validator.version>1.7</commons-validator.version>
 
         <!-- Deployment -->
         <gpg.plugin.version>1.6</gpg.plugin.version>
@@ -240,6 +241,12 @@
             <artifactId>liquibase-maven-plugin</artifactId>
             <version>${liquibase-maven-plugin.version}</version>
         </dependency>
+        <dependency>
+            <groupId>commons-validator</groupId>
+            <artifactId>commons-validator</artifactId>
+            <version>${commons-validator.version}</version>
+        </dependency>
+
         <!-- For Liquibase yaml -->
         <dependency>
             <groupId>org.yaml</groupId>
