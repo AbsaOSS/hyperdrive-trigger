@@ -63,7 +63,7 @@ describe('DagRunService', () => {
       (error) => fail(error),
     );
 
-    const req = httpTestingController.expectOne(api.KILL_JOB + '?applicationId=' + applicationId);
+    const req = httpTestingController.expectOne(api.KILL_JOB.replace('{applicationId}', applicationId.toString()));
     expect(req.request.method).toEqual('POST');
     req.flush(new Boolean(true));
   });

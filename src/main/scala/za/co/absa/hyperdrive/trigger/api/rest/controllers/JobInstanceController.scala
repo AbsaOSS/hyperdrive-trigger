@@ -32,8 +32,8 @@ class JobInstanceController @Inject()(jobInstanceService: JobInstanceService) {
     jobInstanceService.getJobInstances(dagInstanceId).toJava.toCompletableFuture
   }
 
-  @PostMapping(path = Array("/jobInstances"))
-  def killJob(@RequestParam applicationId: String): CompletableFuture[Boolean] = {
+  @PostMapping(path = Array("/jobInstances/{applicationId}/kill"))
+  def killJob(@PathVariable applicationId: String): CompletableFuture[Boolean] = {
     jobInstanceService.killJob(applicationId).toJava.toCompletableFuture
   }
 

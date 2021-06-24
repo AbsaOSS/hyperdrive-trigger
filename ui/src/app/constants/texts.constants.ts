@@ -52,9 +52,9 @@ export const texts = {
   RUN_WORKFLOWS_FAILURE_NOTIFICATION: "Sorry, workflows couldn't be submitted. Please try again.",
 
   KILL_JOB_CONFIRMATION_TITLE: 'Kill running job',
-  KILL_JOB_CONFIRMATION_CONTENT:
-    'Are you sure you want to kill running job? The operation cannot be reverted and operation may not take effect.',
-  KILL_JOB_SUCCESS_NOTIFICATION: 'Kill job request passed, but it does not mean that job is killed. Please refresh page and verify status.',
+  KILL_JOB_CONFIRMATION_CONTENT: 'Are you sure you want to kill running job? The operation cannot be reverted!',
+  KILL_JOB_SUCCESS_NOTIFICATION:
+    'Request to kill the job has been submitted. Please refresh the page after a few seconds and verify its status.',
   KILL_JOB_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
 
   CREATE_WORKFLOW_CONFIRMATION_TITLE: 'Create workflow',
