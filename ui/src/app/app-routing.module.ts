@@ -28,6 +28,11 @@ import { WelcomeComponent } from './components/auth/welcome/welcome.component';
 import { JobTemplatesComponent } from './components/admin/job-templates/job-templates.component';
 import { JobTemplatesHomeComponent } from './components/admin/job-templates/job-templates-home/job-templates-home.component';
 import { JobTemplateShowComponent } from './components/admin/job-templates/job-template-show/job-template-show.component';
+import { NotificationRulesComponent } from './components/admin/notification-rules/notification-rules.component';
+import { NotificationRulesHomeComponent } from './components/admin/notification-rules/notification-rules-home/notification-rules-home.component';
+import { NotificationRuleComponent } from './components/admin/notification-rules/notification-rule/notification-rule.component';
+import { NotificationRuleHistoryComponent } from './components/admin/notification-rules/notification-rule-history/notification-rule-history.component';
+import { NotificationRuleComparisonComponent } from './components/admin/notification-rules/notification-rule-history/notification-rule-comparison/notification-rule-comparison.component';
 
 const routes: Routes = [
   { path: routeNames.DEFAULT, redirectTo: routeNames.WORKFLOWS, pathMatch: 'full' },
@@ -54,6 +59,22 @@ const routes: Routes = [
       { path: routeNames.JOB_TEMPLATES_HOME, component: JobTemplatesHomeComponent, pathMatch: 'full' },
       { path: routeNames.JOB_TEMPLATE_SHOW, component: JobTemplateShowComponent },
     ],
+  },
+  {
+    path: routeNames.NOTIFICATION_RULES,
+    component: NotificationRulesComponent,
+    canActivate: [AuthGuardService],
+    children: [
+      { path: routeNames.NOTIFICATION_RULES_HOME, component: NotificationRulesHomeComponent, pathMatch: 'full' },
+      { path: routeNames.NOTIFICATION_RULE_ACTION, component: NotificationRuleComponent },
+      { path: routeNames.NOTIFICATION_RULE_ACTION_WITH_ID, component: NotificationRuleComponent },
+      { path: routeNames.NOTIFICATION_RULE_HISTORY, component: NotificationRuleHistoryComponent },
+    ],
+  },
+  {
+    path: routeNames.NOTIFICATION_RULE_HISTORY_COMPARISON,
+    component: NotificationRuleComparisonComponent,
+    canActivate: [AuthGuardService],
   },
 ];
 

@@ -21,20 +21,20 @@ import za.co.absa.hyperdrive.trigger.models.{History, NotificationRule, Notifica
 
 import java.time.LocalDateTime
 
-trait NotificationRuleHistoryTable {
+trait NotificationRuleHistoryTable extends HistoryTableQuery {
   this: Profile with JdbcTypeMapper =>
 
   import api._
 
-  final class NotificationRuleHistoryTable(tag: Tag) extends Table[NotificationRuleHistory](tag, _tableName = "notification_rule_history") {
-    def id: Rep[Long] = column[Long]("id", O.PrimaryKey, O.AutoInc, O.SqlType("BIGSERIAL"))
-    def changedOn: Rep[LocalDateTime] = column[LocalDateTime]("changed_on")
-    def changedBy: Rep[String] = column[String]("changed_by")
-    def operation: Rep[DBOperation] = column[DBOperation]("operation")
-    def notificationRuleId: Rep[Long] = column[Long]("notification_rule_id")
+  final class NotificationRuleHistoryTable(tag: Tag) extends Table[NotificationRuleHistory](tag, _tableName = "notification_rule_history") with HistoryTable {
+    override def id: Rep[Long] = column[Long]("id", O.PrimaryKey, O.AutoInc, O.SqlType("BIGSERIAL"))
+    override def changedOn: Rep[LocalDateTime] = column[LocalDateTime]("changed_on")
+    override def changedBy: Rep[String] = column[String]("changed_by")
+    override def operation: Rep[DBOperation] = column[DBOperation]("operation")
+    override def entityId: Rep[Long] = column[Long]("notification_rule_id")
     def notificationRule: Rep[NotificationRule] = column[NotificationRule]("notification_rule", O.SqlType("JSONB"))
 
-    def * : ProvenShape[NotificationRuleHistory] = (id, changedOn, changedBy, operation, notificationRuleId, notificationRule) <> (
+    def * : ProvenShape[NotificationRuleHistory] = (id, changedOn, changedBy, operation, entityId, notificationRule) <> (
       notificationRuleTuple =>
         NotificationRuleHistory.apply(
           history = History.apply(

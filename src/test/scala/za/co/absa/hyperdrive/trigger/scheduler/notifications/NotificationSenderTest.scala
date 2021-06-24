@@ -68,7 +68,7 @@ class NotificationSenderTest extends FlatSpec with MockitoSugar with Matchers wi
     // then
     val recipientsCaptor: ArgumentCaptor[Seq[String]] = ArgumentCaptor.forClass(classOf[Seq[String]])
     val messagesCaptor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
-    val expectedSubject = s"Hyperdrive ${environment}: Workflow ${w.name} ${di.status.name}"
+    val expectedSubject = s"Hyperdrive Notifications, ${environment}: Workflow ${w.name} ${di.status.name}"
     val expectedMessageBase =
       raw"""Environment: TEST
            |Project: ${w.project}
