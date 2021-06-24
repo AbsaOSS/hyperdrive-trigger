@@ -42,6 +42,14 @@ export const api = {
   SEARCH_JOB_TEMPLATES: '/jobTemplates/search',
   GET_JOB_TEMPLATE: '/jobTemplate',
 
+  CREATE_NOTIFICATION_RULE: '/notificationRule',
+  GET_NOTIFICATION_RULES: '/notificationRules',
+  GET_NOTIFICATION_RULE: '/notificationRule',
+  UPDATE_NOTIFICATION_RULE: '/notificationRule',
+  DELETE_NOTIFICATION_RULE: '/notificationRule',
+  SEARCH_NOTIFICATION_RULES: '/notificationRules/search',
+  GET_HISTORY_FOR_NOTIFICATION_RULE: '/notificationRuleHistory',
+  GET_NOTIFICATION_RULES_FROM_HISTORY: '/notificationRulesFromHistory',
   GET_QUARTZ_DETAIL: '/util/quartzDetail',
 };
 

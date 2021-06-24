@@ -276,6 +276,19 @@ class WorkflowRepositoryPostgresTest extends FlatSpec with Matchers with BeforeA
     existingWorkflowNames shouldBe empty
   }
 
+  "existsWorkflowWithPrefix" should "return true if workflow with prefix exists (case-insensitive)" in {
+    createTestData()
+    val result1 = await(workflowRepository.existsWorkflowWithPrefix("work"))
+    val result2 = await(workflowRepository.existsWorkflowWithPrefix("WORK"))
+    result1 shouldBe true
+    result2 shouldBe true
+  }
+
+  it should "return false if no workflow with prefix exists" in {
+    createTestData()
+    val result = await(workflowRepository.existsWorkflowWithPrefix("flow"))
+    result shouldBe false
+  }
 
   "getWorkflow" should "return the workflow" in {
     createTestData()
@@ -422,6 +435,19 @@ class WorkflowRepositoryPostgresTest extends FlatSpec with Matchers with BeforeA
     historyEntries shouldBe empty
   }
 
+  "existsProject" should "return true if a workflow with the project name exists (case-insensitive)" in {
+    createTestData()
+    val result1 = await(workflowRepository.existsProject("project1"))
+    val result2 = await(workflowRepository.existsProject("PROJect1"))
+    result1 shouldBe true
+    result2 shouldBe true
+  }
+
+  it should "return false if no workflow with the project name exists" in {
+    createTestData()
+    val result = await(workflowRepository.existsProject("proj"))
+    result shouldBe false
+  }
 
   "releaseWorkflowAssignmentsOfDeactivatedInstances" should "remove the instanceId for deactivated instances" in {
     // given

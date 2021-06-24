@@ -37,6 +37,11 @@ export class HistoryModelFactory {
   }
 }
 
+export type HistoryPairModel<T> = {
+  leftHistory: T;
+  rightHistory: T;
+};
+
 export type WorkflowHistoryModel = {
   history: HistoryModel;
   workflowId: number;
@@ -49,23 +54,6 @@ export class WorkflowHistoryModelFactory {
       history: history,
       workflowId: workflowId,
       workflow: workflow,
-    };
-  }
-}
-
-export type WorkflowHistoriesForComparisonModel = {
-  leftWorkflowHistory: WorkflowHistoryModel;
-  rightWorkflowHistory: WorkflowHistoryModel;
-};
-
-export class WorkflowHistoriesForComparisonModelFactory {
-  static create(
-    leftWorkflowHistory: WorkflowHistoryModel,
-    rightWorkflowHistory: WorkflowHistoryModel,
-  ): WorkflowHistoriesForComparisonModel {
-    return {
-      leftWorkflowHistory: leftWorkflowHistory,
-      rightWorkflowHistory: rightWorkflowHistory,
     };
   }
 }
