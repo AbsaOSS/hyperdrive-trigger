@@ -17,7 +17,6 @@ import { Component, Input, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
 import cloneDeep from 'lodash-es/cloneDeep';
 import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
-import { ControlContainer, NgForm } from '@angular/forms';
 import { PartValidation, PartValidationFactory } from '../../../../../models/workflowFormParts.model';
 import { UuidUtil } from '../../../../../utils/uuid/uuid.util';
 import { texts } from 'src/app/constants/texts.constants';
@@ -44,9 +43,9 @@ export class KeyStringValuePartComponent implements OnInit {
 
   ngOnInit(): void {
     this.partValidationSafe = PartValidationFactory.create(
-      !this.partValidation.isRequired ? this.partValidation.isRequired : true,
-      !!this.partValidation.maxLength ? this.partValidation.maxLength : Number.MAX_SAFE_INTEGER,
-      !!this.partValidation.minLength ? this.partValidation.minLength : 1,
+      this.partValidation?.isRequired ?? true,
+      this.partValidation?.maxLength ?? Number.MAX_SAFE_INTEGER,
+      this.partValidation?.minLength ?? 1,
     );
 
     for (const prop in this.value) {

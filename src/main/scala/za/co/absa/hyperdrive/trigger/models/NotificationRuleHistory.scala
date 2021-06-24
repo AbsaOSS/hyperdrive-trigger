@@ -20,8 +20,3 @@ case class NotificationRuleHistory(
   notificationRuleId: Long,
   notificationRule: NotificationRule
 )
-
-case class NotificationRuleFromHistory(
-  leftNotificationHistory: NotificationRuleHistory,
-  rightNotificationHistory: NotificationRuleHistory
-)

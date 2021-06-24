@@ -20,7 +20,7 @@ import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.models.enums.DBOperation.{Create, DBOperation, Delete, Update}
 
 import java.time.LocalDateTime
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 trait NotificationRuleHistoryRepository extends Repository {
   import slick.dbio.DBIO
@@ -29,6 +29,8 @@ trait NotificationRuleHistoryRepository extends Repository {
   private[persistance] def update(notificationRule: NotificationRule, user: String)(implicit ec: ExecutionContext): DBIO[Long]
   private[persistance] def delete(notificationRule: NotificationRule, user: String)(implicit ec: ExecutionContext): DBIO[Long]
 
+  def getHistoryForNotificationRule(notificationRuleId: Long)(implicit ec: ExecutionContext): Future[Seq[History]]
+  def getNotificationRulesFromHistory(leftNotificationRuleHistoryId: Long, rightNotificationRuleHistoryId: Long)(implicit ec: ExecutionContext): Future[HistoryPair[NotificationRuleHistory]]
 }
 
 @stereotype.Repository
@@ -58,5 +60,16 @@ class NotificationRuleHistoryRepositoryImpl extends NotificationRuleHistoryRepos
 
   override private[persistance] def delete(notificationRule: NotificationRule, user: String)(implicit ec: ExecutionContext): DBIO[Long] = {
     this.insert(notificationRule, user, Delete)
+  }
+
+  override def getHistoryForNotificationRule(notificationRuleId: Long)(implicit ec: ExecutionContext): Future[Seq[History]] = {
+    db.run(notificationRuleHistoryTable.getHistoryForEntity(notificationRuleId))
+  }
+
+  override def getNotificationRulesFromHistory(leftNotificationRuleHistoryId: Long, rightNotificationRuleHistoryId: Long)
+  (implicit ec: ExecutionContext): Future[HistoryPair[NotificationRuleHistory]] = {
+    db.run(notificationRuleHistoryTable.getEntitiesFromHistory(
+      leftNotificationRuleHistoryId, rightNotificationRuleHistoryId
+    ))
   }
 }

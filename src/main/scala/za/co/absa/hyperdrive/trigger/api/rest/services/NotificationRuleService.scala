@@ -21,13 +21,14 @@ import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.models.{NotificationRule, Workflow}
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses.DagInstanceStatus
 import za.co.absa.hyperdrive.trigger.models.search.{TableSearchRequest, TableSearchResponse}
-import za.co.absa.hyperdrive.trigger.persistance.NotificationRuleRepository
+import za.co.absa.hyperdrive.trigger.persistance.{NotificationRuleRepository, WorkflowRepository}
 
 import java.time.LocalDateTime
 import scala.concurrent.{ExecutionContext, Future}
 
 trait NotificationRuleService {
   val notificationRuleRepository: NotificationRuleRepository
+  val notificationRuleValidationService: NotificationRuleValidationService
 
   def createNotificationRule(notificationRule: NotificationRule)(implicit ec: ExecutionContext): Future[NotificationRule]
 
@@ -46,15 +47,18 @@ trait NotificationRuleService {
 }
 
 @Service
-class NotificationRuleServiceImpl(override val notificationRuleRepository: NotificationRuleRepository) extends NotificationRuleService {
-
+class NotificationRuleServiceImpl(override val notificationRuleRepository: NotificationRuleRepository,
+                                  override val notificationRuleValidationService: NotificationRuleValidationService) extends NotificationRuleService {
   private[services] def getUserName: () => String = {
     SecurityContextHolder.getContext.getAuthentication.getPrincipal.asInstanceOf[UserDetails].getUsername.toLowerCase
   }
 
   override def createNotificationRule(notificationRule: NotificationRule)(implicit ec: ExecutionContext): Future[NotificationRule] = {
     val userName = getUserName.apply()
-    notificationRuleRepository.insertNotificationRule(notificationRule, userName).map(id => notificationRule.copy(id = id))
+    for {
+      _ <- notificationRuleValidationService.validate(notificationRule)
+      id <- notificationRuleRepository.insertNotificationRule(notificationRule, userName)
+    } yield notificationRule.copy(id = id)
   }
 
   override def getNotificationRule(id: Long)(implicit ec: ExecutionContext): Future[NotificationRule] = {
@@ -67,7 +71,10 @@ class NotificationRuleServiceImpl(override val notificationRuleRepository: Notif
 
   override def updateNotificationRule(notificationRule: NotificationRule)(implicit ec: ExecutionContext): Future[NotificationRule] = {
     val userName = getUserName.apply()
-    notificationRuleRepository.updateNotificationRule(notificationRule, userName).map(_ => notificationRule)
+    for {
+      _ <- notificationRuleValidationService.validate(notificationRule)
+      _ <- notificationRuleRepository.updateNotificationRule(notificationRule, userName)
+    } yield notificationRule
   }
 
   override def deleteNotificationRule(id: Long)(implicit ec: ExecutionContext): Future[Boolean] = {

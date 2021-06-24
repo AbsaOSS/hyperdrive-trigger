@@ -102,4 +102,24 @@ export const texts = {
 
   LOAD_JOB_TEMPLATE_FAILURE_NOTIFICATION: "Sorry, job template couldn't be loaded. Please try again.",
   LOAD_JOB_TEMPLATES_FAILURE_NOTIFICATION: "Sorry, job templates couldn't be loaded. Please try again.",
+
+  CREATE_NOTIFICATION_RULE_CONFIRMATION_TITLE: 'Create notification rule',
+  CREATE_NOTIFICATION_RULE_CONFIRMATION_CONTENT: 'Are you sure you want to create a new notification rule?',
+  CREATE_NOTIFICATION_RULE_SUCCESS_NOTIFICATION: 'Notification rule has been created.',
+  CREATE_NOTIFICATION_RULE_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
+
+  UPDATE_NOTIFICATION_RULE_CONFIRMATION_TITLE: 'Update notification rule',
+  UPDATE_NOTIFICATION_RULE_CONFIRMATION_CONTENT: 'Are you sure you want to update the notification rule?',
+  UPDATE_NOTIFICATION_RULE_SUCCESS_NOTIFICATION: 'Notification rule has been updated.',
+  UPDATE_NOTIFICATION_RULE_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
+
+  DELETE_NOTIFICATION_RULE_CONFIRMATION_TITLE: 'Delete notification rule',
+  DELETE_NOTIFICATION_RULE_CONFIRMATION_CONTENT:
+    'Are you sure you want to delete this notification rule? The operation cannot be reverted.',
+  DELETE_NOTIFICATION_RULE_SUCCESS_NOTIFICATION: 'Notification rule has been deleted.',
+  DELETE_NOTIFICATION_RULE_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
+
+  LOAD_NOTIFICATION_RULE_FAILURE_NOTIFICATION: "Sorry, notification rule couldn't be loaded. Please try again.",
+  LOAD_HISTORY_FOR_NOTIFICATION_RULE_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
+  LOAD_NOTIFICATION_RULES_FROM_HISTORY_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
 };
