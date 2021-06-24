@@ -112,6 +112,8 @@ object SparkExecutorConfig {
     Configs.getMapFromConf("sparkYarnSink.additionalConfs")
   val getExecutablesFolder: String =
     Configs.conf.getString("sparkYarnSink.executablesFolder")
+  val getUserUsedToKillJob: String =
+    Try(Configs.conf.getString("sparkYarnSink.userUsedToKillJob")).getOrElse("Unknown")
 }
 
 object JobDefinitionConfig {

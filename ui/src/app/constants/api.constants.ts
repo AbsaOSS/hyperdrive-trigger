@@ -21,6 +21,7 @@ export const api = {
 
   DAG_RUN_SEARCH: '/dagRuns/search',
   JOB_INSTANCES: '/jobInstances',
+  KILL_JOB: '/jobInstances',
 
   GET_PROJECTS: '/workflows/projects',
   GET_WORKFLOW: '/workflow',

@@ -16,7 +16,6 @@
 package za.co.absa.hyperdrive.trigger.api.rest.controllers
 
 import java.util.concurrent.CompletableFuture
-
 import za.co.absa.hyperdrive.trigger.api.rest.services.JobInstanceService
 import za.co.absa.hyperdrive.trigger.models.JobInstance
 import javax.inject.Inject
@@ -31,6 +30,11 @@ class JobInstanceController @Inject()(jobInstanceService: JobInstanceService) {
   @GetMapping(path = Array("/jobInstances"))
   def getJobInstances(@RequestParam dagInstanceId: Long): CompletableFuture[Seq[JobInstance]] = {
     jobInstanceService.getJobInstances(dagInstanceId).toJava.toCompletableFuture
+  }
+
+  @PostMapping(path = Array("/jobInstances"))
+  def killJob(@RequestParam applicationId: String): CompletableFuture[Boolean] = {
+    jobInstanceService.killJob(applicationId).toJava.toCompletableFuture
   }
 
 }

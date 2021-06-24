@@ -55,4 +55,9 @@ export class DagRunService {
         }),
       );
   }
+
+  killJob(applicationId: string): Observable<boolean> {
+    const params = new HttpParams().set('applicationId', applicationId);
+    return this.httpClient.post<boolean>(api.KILL_JOB, {}, { params: params, observe: 'response' }).pipe(map((_) => _.body));
+  }
 }

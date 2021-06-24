@@ -18,9 +18,14 @@ import { jobStatuses } from '../../../models/enums/jobStatuses.constants';
 import { JobInstanceModel } from '../../../models/jobInstance.model';
 import { Store } from '@ngrx/store';
 import { AppState, selectApplicationState, selectRunState } from '../../../stores/app.reducers';
-import { GetDagRunDetail } from '../../../stores/runs/runs.actions';
+import { GetDagRunDetail, KillJob } from '../../../stores/runs/runs.actions';
 import { Subject, Subscription } from 'rxjs';
 import { AppInfoModel } from '../../../models/appInfo.model';
+import { jobTypes } from '../../../constants/jobTypes.constants';
+import { ToastrService } from 'ngx-toastr';
+import { texts } from '../../../constants/texts.constants';
+import { ConfirmationDialogService } from '../../../services/confirmation-dialog/confirmation-dialog.service';
+import { ConfirmationDialogTypes } from '../../../constants/confirmationDialogTypes.constants';
 
 @Component({
   selector: 'app-run-detail',
@@ -33,6 +38,7 @@ export class RunDetailComponent implements OnInit, OnDestroy {
   runDetailSubscription: Subscription;
   refreshSubscription: Subscription;
   applicationStateSubscription: Subscription;
+  confirmationDialogServiceSubscription: Subscription = null;
 
   jobInstances: JobInstanceModel[];
   appInfo: AppInfoModel;
@@ -41,7 +47,11 @@ export class RunDetailComponent implements OnInit, OnDestroy {
 
   jobStatuses = jobStatuses;
 
-  constructor(private store: Store<AppState>) {}
+  constructor(
+    private store: Store<AppState>,
+    private toastrService: ToastrService,
+    private confirmationDialogService: ConfirmationDialogService,
+  ) {}
 
   ngOnInit() {
     this.store.dispatch(new GetDagRunDetail(this.dagRunId));
@@ -66,12 +76,6 @@ export class RunDetailComponent implements OnInit, OnDestroy {
     this.store.dispatch(new GetDagRunDetail(this.dagRunId));
   }
 
-  ngOnDestroy(): void {
-    !!this.runDetailSubscription && this.runDetailSubscription.unsubscribe();
-    !!this.refreshSubscription && this.refreshSubscription.unsubscribe();
-    !!this.applicationStateSubscription && this.applicationStateSubscription.unsubscribe();
-  }
-
   getApplicationIdUrl(resourceManagerUrl: string, applicationId: string): string {
     let url = resourceManagerUrl;
     if (!url.endsWith('/')) {
@@ -83,5 +87,40 @@ export class RunDetailComponent implements OnInit, OnDestroy {
     }
     url += applicationId;
     return url;
+  }
+
+  getKillableJob(): JobInstanceModel {
+    return this.jobInstances.find(
+      (jobInstance) =>
+        jobInstance.jobStatus.name == jobStatuses.RUNNING &&
+        jobInstance.jobParameters.jobType.name == jobTypes.SPARK &&
+        jobInstance.applicationId,
+    );
+  }
+
+  canKillJob(): boolean {
+    return !!this.getKillableJob();
+  }
+
+  killJob(): void {
+    const jobToKill: JobInstanceModel = this.getKillableJob();
+    if (!!jobToKill) {
+      this.confirmationDialogServiceSubscription = this.confirmationDialogService
+        .confirm(ConfirmationDialogTypes.YesOrNo, texts.KILL_JOB_CONFIRMATION_TITLE, texts.KILL_JOB_CONFIRMATION_CONTENT)
+        .subscribe((confirmed) => {
+          if (confirmed) {
+            this.store.dispatch(new KillJob({ dagRunId: this.dagRunId, applicationId: jobToKill.applicationId }));
+          }
+        });
+    } else {
+      this.toastrService.error(texts.KILL_JOB_FAILURE_NOTIFICATION);
+    }
+  }
+
+  ngOnDestroy(): void {
+    !!this.runDetailSubscription && this.runDetailSubscription.unsubscribe();
+    !!this.refreshSubscription && this.refreshSubscription.unsubscribe();
+    !!this.applicationStateSubscription && this.applicationStateSubscription.unsubscribe();
+    !!this.confirmationDialogServiceSubscription && this.confirmationDialogServiceSubscription.unsubscribe();
   }
 }
