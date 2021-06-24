@@ -146,7 +146,7 @@ class NotificationRuleValidationServiceTest extends AsyncFlatSpec with Matchers 
 
     // then
     result.apiErrors should have size 1
-    result.apiErrors.head.message shouldBe "minElapsedSecondsSinceLastSuccess cannot be negative, is -1"
+    result.apiErrors.head.message shouldBe "Min elapsed seconds since last success cannot be negative, is -1"
   }
 
   it should "return all validation errors" in {
