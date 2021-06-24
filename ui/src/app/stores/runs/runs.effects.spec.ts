@@ -22,7 +22,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Actions } from '@ngrx/effects';
 import { cold } from 'jasmine-marbles';
 import * as RunsActions from './runs.actions';
-import { GetDagRunDetail, GetDagRuns } from './runs.actions';
+import { GetDagRunDetail, GetDagRuns, KillJob } from './runs.actions';
 
 import { DagRunModel, DagRunModelFactory } from '../../models/dagRuns/dagRun.model';
 import {
@@ -34,20 +34,24 @@ import {
 import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
 import { SortAttributesModel } from '../../models/search/sortAttributes.model';
 import { JobTypeFactory } from '../../models/jobType.model';
+import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { texts } from '../../constants/texts.constants';
 
 describe('RunsEffects', () => {
   let underTest: RunsEffects;
   let dagRunService: DagRunService;
   let mockActions: Observable<any>;
+  let toastrService: ToastrService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [RunsEffects, DagRunService, provideMockActions(() => mockActions)],
-      imports: [HttpClientTestingModule],
+      imports: [HttpClientTestingModule, ToastrModule.forRoot()],
     });
     underTest = TestBed.inject(RunsEffects);
     dagRunService = TestBed.inject(DagRunService);
     mockActions = TestBed.inject(Actions);
+    toastrService = TestBed.inject(ToastrService);
   });
 
   describe('runsGet', () => {
@@ -155,6 +159,75 @@ describe('RunsEffects', () => {
         },
       });
       expect(underTest.runDetailGet).toBeObservable(expected);
+    });
+  });
+
+  describe('jobKill', () => {
+    it('should dispatch get dag run detail and show success toast', () => {
+      const dagRunId = 1;
+      const applicationId = 'applicationId-2';
+      const killJobResponsePlain = true;
+
+      const action = new KillJob({ dagRunId: dagRunId, applicationId: applicationId });
+      mockActions = cold('-a', { a: action });
+      const killJobResponse = cold('-a|', { a: killJobResponsePlain });
+      const expected = cold('--a', {
+        a: {
+          type: RunsActions.GET_DAG_RUN_DETAIL,
+          payload: dagRunId,
+        },
+      });
+
+      spyOn(dagRunService, 'killJob').and.returnValue(killJobResponse);
+      const toastrServiceSpy = spyOn(toastrService, 'success');
+
+      expect(underTest.jobKill).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.KILL_JOB_SUCCESS_NOTIFICATION);
+    });
+
+    it('should dispatch get dag run detail and show error toast if dagRunService.killJob responds with false value', () => {
+      const dagRunId = 1;
+      const applicationId = 'applicationId-2';
+      const killJobResponsePlain = false;
+
+      const action = new KillJob({ dagRunId: dagRunId, applicationId: applicationId });
+      mockActions = cold('-a', { a: action });
+      const killJobResponse = cold('-a|', { a: killJobResponsePlain });
+      const expected = cold('--a', {
+        a: {
+          type: RunsActions.GET_DAG_RUN_DETAIL,
+          payload: dagRunId,
+        },
+      });
+
+      spyOn(dagRunService, 'killJob').and.returnValue(killJobResponse);
+      const toastrServiceSpy = spyOn(toastrService, 'error');
+
+      expect(underTest.jobKill).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.KILL_JOB_FAILURE_NOTIFICATION);
+    });
+
+    it('should dispatch get dag run detail and show error toast if dagRunService.killJob responds with an error', () => {
+      const dagRunId = 1;
+      const applicationId = 'applicationId-2';
+      const action = new KillJob({ dagRunId: dagRunId, applicationId: applicationId });
+      mockActions = cold('-a', { a: action });
+      const errorResponse = cold('-#|');
+
+      spyOn(dagRunService, 'killJob').and.returnValue(errorResponse);
+      const toastrServiceSpy = spyOn(toastrService, 'error');
+
+      const expected = cold('--a', {
+        a: {
+          type: RunsActions.GET_DAG_RUN_DETAIL,
+          payload: dagRunId,
+        },
+      });
+      expect(underTest.jobKill).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.KILL_JOB_FAILURE_NOTIFICATION);
     });
   });
 });

@@ -55,4 +55,10 @@ export class DagRunService {
         }),
       );
   }
+
+  killJob(applicationId: string): Observable<boolean> {
+    return this.httpClient
+      .post<boolean>(api.KILL_JOB.replace('{applicationId}', applicationId.toString()), {}, { observe: 'response' })
+      .pipe(map((_) => _.body));
+  }
 }
