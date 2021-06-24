@@ -14,6 +14,15 @@
   -->
 
   <clr-datagrid [clrDgLoading]="loading">
+
+    <clr-dg-action-bar *ngIf="canKillJob()">
+      <div class="btn-group">
+        <button class="btn btn-danger btn-sm" (click)="killJob()">
+          Kill running spark job
+        </button>
+      </div>
+    </clr-dg-action-bar>
+
     <clr-dg-column>Job Name</clr-dg-column>
     <clr-dg-column>Type</clr-dg-column>
     <clr-dg-column>Created</clr-dg-column>
