@@ -13,22 +13,10 @@
  * limitations under the License.
  */
 
-export type JobParametersModel = {
-  variables: Map<string, string>;
-  maps: Map<string, Set<string>>;
-  keyValuePairs: Map<string, Map<string, string>>;
-};
+UPDATE job_definition
+SET job_parameters = replace(job_parameters::text, '"formConfig"', '"jobType"')::jsonb;
 
-export class JobParametersModelFactory {
-  static create(
-    variables: Map<string, string>,
-    maps: Map<string, Set<string>>,
-    keyValuePairs: Map<string, Map<string, string>>,
-  ): JobParametersModel {
-    return { variables: variables, maps: maps, keyValuePairs: keyValuePairs };
-  }
+update job_template
+set job_parameters = job_parameters::jsonb || ('{"jobType":"' || form_config || '"}' )::jsonb;
 
-  static createEmpty(): JobParametersModel {
-    return this.create(new Map(), new Map(), new Map());
-  }
-}
+alter table job_template drop column form_config;

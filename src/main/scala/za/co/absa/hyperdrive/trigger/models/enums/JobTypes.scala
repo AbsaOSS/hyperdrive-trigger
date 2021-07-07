@@ -25,6 +25,7 @@ object JobTypes {
 
   case object Spark extends JobType("Spark")
   case object Shell extends JobType("Shell")
+  case object Hyperdrive extends JobType("Hyperdrive")
 
   val jobTypes: Set[JobType] = Set(Spark, Shell)
 

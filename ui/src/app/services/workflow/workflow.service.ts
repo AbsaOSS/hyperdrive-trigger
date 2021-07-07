@@ -16,7 +16,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpParams, HttpResponse } from '@angular/common/http';
 import { api } from '../../constants/api.constants';
-import { jobTemplateFormConfigs } from '../../constants/jobTemplates.constants';
+// import { jobTemplateFormConfigs } from '../../constants/jobTemplates.constants';
 import { catchError, map, mergeMap } from 'rxjs/operators';
 import { ProjectModel } from '../../models/project.model';
 import { Observable, of, throwError } from 'rxjs';
@@ -26,7 +26,7 @@ import {
   DynamicFormPartFactory,
   DynamicFormParts,
   DynamicFormPartsFactory,
-  FormPart,
+  // FormPart,
   FormPartFactory,
   PartValidationFactory,
 } from '../../models/workflowFormParts.model';
@@ -169,20 +169,20 @@ export class WorkflowService {
     return this.getJobTemplates().pipe(
       mergeMap((jobTemplates) => {
         const sensorParts = WorkflowService.getSensorDynamicFormParts();
-        const jobParts = jobTemplates.map((jobTemplate) => {
-          return WorkflowService.getJobDynamicFormPart(jobTemplate);
-        });
-        return of(DynamicFormPartsFactory.create(sensorParts, jobParts));
+        // const jobParts = jobTemplates.map((jobTemplate) => {
+        //   return WorkflowService.getJobDynamicFormPart(jobTemplate);
+        // });
+        return of(DynamicFormPartsFactory.create(sensorParts));
       }),
     );
   }
 
-  getJobDynamicFormParts(): Observable<DynamicFormPart[]> {
-    return of([
-      DynamicFormPartFactory.create('Spark', WorkflowService.getSparkFormParts()),
-      DynamicFormPartFactory.create('Shell', WorkflowService.getShellFormParts()),
-    ]);
-  }
+  // getJobDynamicFormParts(): Observable<DynamicFormPart[]> {
+  //   return of([
+  //     DynamicFormPartFactory.create('Spark', WorkflowService.getSparkFormParts()),
+  //     DynamicFormPartFactory.create('Shell', WorkflowService.getShellFormParts()),
+  //   ]);
+  // }
 
   getJobTemplates(): Observable<JobTemplateModel[]> {
     return this.httpClient
@@ -244,79 +244,79 @@ export class WorkflowService {
     ];
   }
 
-  private static getJobDynamicFormPart(jobTemplate: JobTemplateModel): DynamicFormPart {
-    if (jobTemplate.formConfig === jobTemplateFormConfigs.SPARK) {
-      return this.getSparkDynamicFormParts(jobTemplate.id.toString(), jobTemplate.name);
-    }
-    if (jobTemplate.formConfig === jobTemplateFormConfigs.SHELL) {
-      return this.getShellDynamicFormParts(jobTemplate.id.toString(), jobTemplate.name);
-    }
-    if (jobTemplate.formConfig === jobTemplateFormConfigs.HYPERDRIVE) {
-      return this.getHyperConformanceDynamicFormParts(jobTemplate.id.toString(), jobTemplate.name);
-    }
-  }
-
-  private static getSparkDynamicFormParts(templateId: string, templateName: string): DynamicFormPart {
-    return DynamicFormPartFactory.createWithLabel(templateId, templateName, this.getSparkFormParts());
-  }
-
-  private static getShellDynamicFormParts(templateId: string, templateName: string): DynamicFormPart {
-    return DynamicFormPartFactory.createWithLabel(templateId, templateName, this.getShellFormParts());
-  }
-
-  private static getHyperConformanceDynamicFormParts(templateId: string, templateName: string): DynamicFormPart {
-    return DynamicFormPartFactory.createWithLabel(templateId, templateName, [
-      FormPartFactory.create(
-        'Additional jars',
-        'jobParameters.additionalJars',
-        'set-field',
-        PartValidationFactory.create(false, undefined, 1),
-      ),
-      FormPartFactory.create(
-        'Additional files',
-        'jobParameters.additionalFiles',
-        'set-field',
-        PartValidationFactory.create(false, undefined, 1),
-      ),
-      FormPartFactory.create(
-        'Additional Spark Config',
-        'jobParameters.additionalSparkConfig',
-        'key-value-field',
-        PartValidationFactory.create(false, undefined, 1),
-      ),
-      FormPartFactory.create('App arguments', 'jobParameters.appArguments', 'set-field', PartValidationFactory.create(false, undefined, 1)),
-    ]);
-  }
-
-  private static getSparkFormParts(): FormPart[] {
-    return [
-      FormPartFactory.create('Job jar', 'jobParameters.jobJar', 'string-field', PartValidationFactory.create(true, undefined, 1)),
-      FormPartFactory.create('Main class', 'jobParameters.mainClass', 'string-field', PartValidationFactory.create(true, undefined, 1)),
-      FormPartFactory.create(
-        'Additional jars',
-        'jobParameters.additionalJars',
-        'set-field',
-        PartValidationFactory.create(false, undefined, 1),
-      ),
-      FormPartFactory.create(
-        'Additional files',
-        'jobParameters.additionalFiles',
-        'set-field',
-        PartValidationFactory.create(false, undefined, 1),
-      ),
-      FormPartFactory.create(
-        'Additional Spark Config',
-        'jobParameters.additionalSparkConfig',
-        'key-value-field',
-        PartValidationFactory.create(false, undefined, 1),
-      ),
-      FormPartFactory.create('App arguments', 'jobParameters.appArguments', 'set-field', PartValidationFactory.create(false, undefined, 1)),
-    ];
-  }
-
-  private static getShellFormParts(): FormPart[] {
-    return [
-      FormPartFactory.create('Script', 'jobParameters.scriptLocation', 'string-field', PartValidationFactory.create(true, undefined, 1)),
-    ];
-  }
+  // private static getJobDynamicFormPart(jobTemplate: JobTemplateModel): DynamicFormPart {
+  //   if (jobTemplate.formConfig === jobTemplateFormConfigs.SPARK) {
+  //     return this.getSparkDynamicFormParts(jobTemplate.id.toString(), jobTemplate.name);
+  //   }
+  //   if (jobTemplate.formConfig === jobTemplateFormConfigs.SHELL) {
+  //     return this.getShellDynamicFormParts(jobTemplate.id.toString(), jobTemplate.name);
+  //   }
+  //   if (jobTemplate.formConfig === jobTemplateFormConfigs.HYPERDRIVE) {
+  //     return this.getHyperConformanceDynamicFormParts(jobTemplate.id.toString(), jobTemplate.name);
+  //   }
+  // }
+  //
+  // private static getSparkDynamicFormParts(templateId: string, templateName: string): DynamicFormPart {
+  //   return DynamicFormPartFactory.createWithLabel(templateId, templateName, this.getSparkFormParts());
+  // }
+  //
+  // private static getShellDynamicFormParts(templateId: string, templateName: string): DynamicFormPart {
+  //   return DynamicFormPartFactory.createWithLabel(templateId, templateName, this.getShellFormParts());
+  // }
+  //
+  // private static getHyperConformanceDynamicFormParts(templateId: string, templateName: string): DynamicFormPart {
+  //   return DynamicFormPartFactory.createWithLabel(templateId, templateName, [
+  //     FormPartFactory.create(
+  //       'Additional jars',
+  //       'jobParameters.additionalJars',
+  //       'set-field',
+  //       PartValidationFactory.create(false, undefined, 1),
+  //     ),
+  //     FormPartFactory.create(
+  //       'Additional files',
+  //       'jobParameters.additionalFiles',
+  //       'set-field',
+  //       PartValidationFactory.create(false, undefined, 1),
+  //     ),
+  //     FormPartFactory.create(
+  //       'Additional Spark Config',
+  //       'jobParameters.additionalSparkConfig',
+  //       'key-value-field',
+  //       PartValidationFactory.create(false, undefined, 1),
+  //     ),
+  //     FormPartFactory.create('App arguments', 'jobParameters.appArguments', 'set-field', PartValidationFactory.create(false, undefined, 1)),
+  //   ]);
+  // }
+  //
+  // private static getSparkFormParts(): FormPart[] {
+  //   return [
+  //     FormPartFactory.create('Job jar', 'jobParameters.jobJar', 'string-field', PartValidationFactory.create(true, undefined, 1)),
+  //     FormPartFactory.create('Main class', 'jobParameters.mainClass', 'string-field', PartValidationFactory.create(true, undefined, 1)),
+  //     FormPartFactory.create(
+  //       'Additional jars',
+  //       'jobParameters.additionalJars',
+  //       'set-field',
+  //       PartValidationFactory.create(false, undefined, 1),
+  //     ),
+  //     FormPartFactory.create(
+  //       'Additional files',
+  //       'jobParameters.additionalFiles',
+  //       'set-field',
+  //       PartValidationFactory.create(false, undefined, 1),
+  //     ),
+  //     FormPartFactory.create(
+  //       'Additional Spark Config',
+  //       'jobParameters.additionalSparkConfig',
+  //       'key-value-field',
+  //       PartValidationFactory.create(false, undefined, 1),
+  //     ),
+  //     FormPartFactory.create('App arguments', 'jobParameters.appArguments', 'set-field', PartValidationFactory.create(false, undefined, 1)),
+  //   ];
+  // }
+  //
+  // private static getShellFormParts(): FormPart[] {
+  //   return [
+  //     FormPartFactory.create('Script', 'jobParameters.scriptLocation', 'string-field', PartValidationFactory.create(true, undefined, 1)),
+  //   ];
+  // }
 }

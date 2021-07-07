@@ -16,4 +16,5 @@
 export const jobTypes = {
   SHELL: 'Shell',
   SPARK: 'Spark',
+  HYPERDRIVE: 'Hyperdrive',
 };

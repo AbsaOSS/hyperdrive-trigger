@@ -16,14 +16,14 @@
 export type WorkflowFormPartsModel = {
   detailsParts: FormPart[];
   sensorSwitchPart: FormPart;
-  staticJobPart: FormPart;
-  jobSwitchPart: FormPart;
+  // staticJobPart: FormPart;
+  // jobSwitchPart: FormPart;
   dynamicParts: DynamicFormParts;
 };
 
 export type DynamicFormParts = {
   sensorDynamicParts: DynamicFormPart[];
-  jobDynamicParts: DynamicFormPart[];
+  // jobDynamicParts: DynamicFormPart[];
 };
 
 export type DynamicFormPart = {
@@ -51,16 +51,16 @@ export class WorkflowFormPartsModelFactory {
     return {
       detailsParts: detailsParts,
       sensorSwitchPart: sensorSwitchPart,
-      staticJobPart: staticJobPart,
-      jobSwitchPart: jobSwitchPart,
+      // staticJobPart: staticJobPart,
+      // jobSwitchPart: jobSwitchPart,
       dynamicParts: dynamicParts,
     };
   }
 }
 
 export class DynamicFormPartsFactory {
-  static create(sensorDynamicParts: DynamicFormPart[], jobDynamicParts: DynamicFormPart[]): DynamicFormParts {
-    return { sensorDynamicParts: sensorDynamicParts, jobDynamicParts: jobDynamicParts };
+  static create(sensorDynamicParts: DynamicFormPart[]): DynamicFormParts {
+    return { sensorDynamicParts: sensorDynamicParts };
   }
 }
 

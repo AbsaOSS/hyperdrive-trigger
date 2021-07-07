@@ -39,6 +39,28 @@ export class SparkTemplateParametersModel implements JobTemplateParameters {
   }
 }
 
+export class HyperdriveTemplateParametersModel implements JobTemplateParameters {
+  jobType: string;
+  appArguments: Set<string>;
+  additionalJars: Set<string>;
+  additionalFiles: Set<string>;
+  additionalSparkConfig: Map<string, string>;
+  jobJar: string;
+  mainClass: string;
+
+  static createEmpty(): HyperdriveTemplateParametersModel {
+    return {
+      jobType: 'Spark',
+      appArguments: new Set(),
+      additionalJars: new Set(),
+      additionalFiles: new Set(),
+      additionalSparkConfig: new Map(),
+      jobJar: '',
+      mainClass: '',
+    };
+  }
+}
+
 export class ShellTemplateParametersModel implements JobTemplateParameters {
   jobType: string;
   scriptLocation?: string;

@@ -24,8 +24,7 @@ object JobTemplateFixture {
     JobTemplate(
       name = "Generic Spark Job Template",
       jobParameters = SparkTemplateParameters(jobJar = None, mainClass = None),
-      id = 1,
-      formConfig = "Spark"
+      id = 1
     )
   }
 
@@ -33,8 +32,7 @@ object JobTemplateFixture {
     JobTemplate(
       name = "Generic Shell Job Template",
       jobParameters = ShellTemplateParameters(scriptLocation = None),
-      id = 2,
-      formConfig = "Shell"
+      id = 2
     )
   }
 }
