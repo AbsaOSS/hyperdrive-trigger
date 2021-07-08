@@ -524,5 +524,30 @@
                 <skip.postgres.tests>false</skip.postgres.tests>
             </properties>
         </profile>
+        <profile>
+            <id>manual-release</id>
+            <activation>
+                <property>
+                    <name>manual-release</name>
+                </property>
+            </activation>
+            <properties>
+                <scm.connection>scm:git:git://github.com/AbsaOSS/hyperdrive-trigger.git</scm.connection>
+                <scm.developerConnection>scm:git:ssh://github.com/AbsaOSS/hyperdrive-trigger.git</scm.developerConnection>
+                <scm.url>https://github.com/AbsaOSS/hyperdrive-trigger/tree/master</scm.url>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-release-plugin</artifactId>
+                        <version>${maven.release.plugin.version}</version>
+                        <configuration>
+                            <username>git</username> <!-- Make sure git-push is not tried with local user -->
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 </project>
