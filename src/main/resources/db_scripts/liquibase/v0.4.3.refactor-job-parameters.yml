@@ -15,11 +15,11 @@
 
 databaseChangeLog:
   - changeSet:
-      id: v0.4.5.drop-old-fields
-      logicalFilePath: v0.4.5.drop-old-fields
+      id: v0.4.3.refactor-job-parameters
+      logicalFilePath: v0.4.3.refactor-job-parameters
       author: HyperdriveDevTeam@absa.africa
       context: default
       changes:
         - sqlFile:
             relativeToChangelogFile: true
-            path: v0.4.5.drop-old-fields.sql
+            path: v0.4.3.refactor-job-parameters.sql
