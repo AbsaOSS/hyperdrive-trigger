@@ -15,7 +15,7 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.sensors.kafka
 
-import za.co.absa.hyperdrive.trigger.models.{AbsaKafkaSensorProperties, Event, SensorIds, SensorProperties}
+import za.co.absa.hyperdrive.trigger.models.{AbsaKafkaSensorProperties, Event, SensorIds}
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.PollSensor
 import scala.concurrent.{ExecutionContext, Future}
 

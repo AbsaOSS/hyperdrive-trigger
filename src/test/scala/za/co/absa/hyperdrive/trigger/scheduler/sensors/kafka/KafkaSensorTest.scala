@@ -27,7 +27,7 @@ import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
 import play.api.libs.json.Json
 import za.co.absa.hyperdrive.trigger.TestUtils.await
-import za.co.absa.hyperdrive.trigger.models.{AbsaKafkaSensorProperties, Event, Sensor, SensorIds, SensorProperties}
+import za.co.absa.hyperdrive.trigger.models.{AbsaKafkaSensorProperties, Event, Sensor, SensorIds}
 import za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor
 
 import java.util.Properties

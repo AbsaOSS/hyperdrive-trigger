@@ -19,7 +19,7 @@ import org.apache.kafka.clients.consumer.{ConsumerConfig, ConsumerRebalanceListe
 import org.apache.kafka.common.TopicPartition
 import org.slf4j.LoggerFactory
 import play.api.libs.json.{JsError, JsSuccess, Json}
-import za.co.absa.hyperdrive.trigger.models.{Event, KafkaSensorProperties, SensorIds, SensorProperties}
+import za.co.absa.hyperdrive.trigger.models.{Event, KafkaSensorProperties, SensorIds}
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.PollSensor
 import za.co.absa.hyperdrive.trigger.scheduler.utilities.KafkaConfig
 

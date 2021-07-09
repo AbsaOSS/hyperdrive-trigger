@@ -18,7 +18,7 @@ package za.co.absa.hyperdrive.trigger.scheduler.sensors.time
 
 import org.quartz.CronScheduleBuilder.cronSchedule
 import org.quartz._
-import za.co.absa.hyperdrive.trigger.models.{Event, SensorIds, SensorProperties, TimeSensorProperties}
+import za.co.absa.hyperdrive.trigger.models.{Event, SensorIds, TimeSensorProperties}
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.PushSensor
 
 import scala.concurrent.{ExecutionContext, Future}
