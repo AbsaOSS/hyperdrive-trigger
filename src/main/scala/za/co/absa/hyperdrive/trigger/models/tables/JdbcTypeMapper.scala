@@ -57,9 +57,7 @@ trait JdbcTypeMapper {
   implicit lazy val sensorTypeMapper: JdbcType[SensorType] =
     MappedColumnType.base[SensorType, String](
       sensorType => sensorType.name,
-      sensorTypeName => SensorTypes.sensorTypes.find(_.name == sensorTypeName).getOrElse(
-        throw new Exception(s"Couldn't find SensorType: $sensorTypeName")
-      )
+      sensorTypeName => SensorTypes.convertSensorTypeNameToSensorType(sensorTypeName)
     )
 
   implicit lazy val jobTypeMapper: JdbcType[JobType] =

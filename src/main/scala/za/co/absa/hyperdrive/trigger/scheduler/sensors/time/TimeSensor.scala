@@ -48,7 +48,7 @@ class TimeSensor(eventsProcessor: (Seq[Event], Long) => Future[Boolean],
   private def buildJobDetail(sensorId: Long): JobDetail = {
     val jobDataMap = new JobDataMap()
     jobDataMap.put(TimeSensor.PUSH_FUNCTION_JOB_DATA_MAP_KEY, push)
-    jobDataMap.put(TimeSensor.SENSOR_ID_DATA_MAP_KEY, sensorId)
+    jobDataMap.put(TimeSensor.SENSOR_ID_JOB_DATA_MAP_KEY, sensorId)
     JobBuilder.newJob(classOf[TimeSensorQuartzJob])
       .withIdentity(jobKey)
       .withDescription(s"Quartz-Job for TimeSensor (#$sensorId)")
@@ -70,7 +70,7 @@ class TimeSensor(eventsProcessor: (Seq[Event], Long) => Future[Boolean],
 
 object TimeSensor {
   val PUSH_FUNCTION_JOB_DATA_MAP_KEY: String = "pushFunction"
-  val SENSOR_ID_DATA_MAP_KEY: String = "sensorId"
+  val SENSOR_ID_JOB_DATA_MAP_KEY: String = "sensorId"
 
   val JOB_GROUP_NAME: String = "time-sensor-job-group"
   val JOB_TRIGGER_GROUP_NAME: String = "time-sensor-job-trigger-group"

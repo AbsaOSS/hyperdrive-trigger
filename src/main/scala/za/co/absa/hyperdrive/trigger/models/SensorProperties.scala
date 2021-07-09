@@ -71,7 +71,7 @@ object TimeSensorProperties {
 }
 
 object SensorProperties {
-  implicit val sensorPropertiesFormat = new Format[SensorProperties] {
+  implicit val sensorPropertiesFormat: Format[SensorProperties] = new Format[SensorProperties] {
     override def reads(json: JsValue): JsResult[SensorProperties] = {
       (json \ "sensorType").as[String] match {
         case SensorTypes.Kafka.name => KafkaSensorProperties.kafkaFormat.reads(json)
@@ -89,5 +89,3 @@ object SensorProperties {
     }
   }
 }
-
-case class SensorIds(sensorId: Long, workflowId: Long)

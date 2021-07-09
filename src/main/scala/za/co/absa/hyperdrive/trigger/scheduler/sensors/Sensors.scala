@@ -125,7 +125,7 @@ class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: Sensor
         )
       ) match {
         case Success(s) => sensors.put(sensor.id, s)
-        case Failure(f) => logger.error(s"Couldn't create Kafka sensor for sensor (#${sensor.id}).", f)
+        case Failure(f) => logger.error(s"Could not create Kafka sensor for sensor (#${sensor.id}).", f)
       }
     case absaKafkaSensorProperties: AbsaKafkaSensorProperties =>
       Try(
@@ -138,7 +138,7 @@ class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: Sensor
         )
       ) match {
         case Success(s) => sensors.put(sensor.id, s)
-        case Failure(f) => logger.error(s"Couldn't create Absa Kafka sensor for sensor (#${sensor.id}).", f)
+        case Failure(f) => logger.error(s"Could not create Absa Kafka sensor for sensor (#${sensor.id}).", f)
       }
     case timeSensorProperties: TimeSensorProperties =>
       Try(
@@ -150,7 +150,7 @@ class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: Sensor
         )
       ) match {
         case Success(s) => sensors.put(sensor.id, s)
-        case Failure(f) => logger.error(s"Couldn't create Time sensor for sensor (#${sensor.id}).", f)
+        case Failure(f) => logger.error(s"Could not create Time sensor for sensor (#${sensor.id}).", f)
       }
     case recurringSensorProperties: RecurringSensorProperties =>
       Try(
@@ -163,10 +163,10 @@ class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: Sensor
         )
       ) match {
         case Success(s) => sensors.put(sensor.id, s)
-        case Failure(f) => logger.error(s"Couldn't create Recurring sensor for sensor (#${sensor.id}).", f)
+        case Failure(f) => logger.error(s"Could not create Recurring sensor for sensor (#${sensor.id}).", f)
       }
     case _ =>
-      logger.error(s"Couldn't not fid sensor implementation (#${sensor.id}).", sensor.properties.sensorType)
+      logger.error(s"Could not not fid sensor implementation (#${sensor.id}).", sensor.properties.sensorType)
   }
   }
 

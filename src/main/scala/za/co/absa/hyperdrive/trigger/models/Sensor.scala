@@ -20,3 +20,5 @@ case class Sensor(
   properties: SensorProperties,
   id: Long = 0
 )
+
+case class SensorIds(sensorId: Long, workflowId: Long)
