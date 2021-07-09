@@ -18,7 +18,6 @@ package za.co.absa.hyperdrive.trigger.scheduler.sensors.recurring
 
 import java.util.concurrent
 
-import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.{eq => eqTo, _}
 import org.mockito.Mockito.{reset, never, times, verify, when}
@@ -26,7 +25,6 @@ import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
 import za.co.absa.hyperdrive.trigger.TestUtils.await
 import za.co.absa.hyperdrive.trigger.models._
-import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes
 import za.co.absa.hyperdrive.trigger.persistance.DagInstanceRepository
 import za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor
 
@@ -46,37 +44,38 @@ class RecurringSensorTest extends FlatSpec with MockitoSugar with Matchers with 
   "RecurringSensor.poll" should "do nothing when workflow is running" in {
     // given
     val triggeredBy = "user"
-    val properties = Properties(-1L, Settings(Map.empty, Map.empty), Map.empty)
-    val sensorDefinition = Sensor(-1L, SensorTypes.Recurring, properties)
+    val properties = RecurringSensorProperties()
+    val sensorDefinition = Sensor(-1L, properties)
+    val sensorIds: SensorIds = SensorIds(sensorDefinition.id, sensorDefinition.workflowId)
 
     when(dagInstanceRepository.hasRunningDagInstance(eqTo(sensorDefinition.workflowId))(any[ExecutionContext])).thenReturn(Future{true})
-
-    val underTest = new RecurringSensor(eventProcessor.eventProcessor(triggeredBy), sensorDefinition, executionContext, dagInstanceRepository)
+    val underTest = new RecurringSensor(eventProcessor.eventProcessor(triggeredBy), sensorIds, properties, executionContext, dagInstanceRepository)
 
     // when
     val result: Unit = await(underTest.poll())
 
     // then
     result shouldBe (): Unit
-    verify(eventProcessor, never()).eventProcessor(any[String])(any[Seq[Event]], any[Properties])(any[ExecutionContext])
+    verify(eventProcessor, never()).eventProcessor(any[String])(any[Seq[Event]], any[Long])(any[ExecutionContext])
   }
 
   "RecurringSensor.poll" should "call event processor when workflow is not running" in {
     // given
     val triggeredBy = "user"
-    val properties = Properties(-1L, Settings(Map.empty, Map.empty), Map.empty)
-    val sensorDefinition = Sensor(-1L, SensorTypes.Recurring, properties)
+    val properties = RecurringSensorProperties()
+    val sensorDefinition = Sensor(-1L, properties)
+    val sensorIds: SensorIds = SensorIds(sensorDefinition.id, sensorDefinition.workflowId)
 
     when(dagInstanceRepository.hasRunningDagInstance(eqTo(sensorDefinition.workflowId))(any[ExecutionContext])).thenReturn(Future{false})
-    when(eventProcessor.eventProcessor(eqTo(triggeredBy))(any[Seq[Event]], eqTo(properties))(any[ExecutionContext])).thenReturn(Future{true})
+    when(eventProcessor.eventProcessor(eqTo(triggeredBy))(any[Seq[Event]], eqTo(sensorDefinition.id))(any[ExecutionContext])).thenReturn(Future{true})
 
-    val underTest = new RecurringSensor(eventProcessor.eventProcessor(triggeredBy), sensorDefinition, executionContext, dagInstanceRepository)
+    val underTest = new RecurringSensor(eventProcessor.eventProcessor(triggeredBy), sensorIds, properties, executionContext, dagInstanceRepository)
 
     // when
     val result: Unit = await(underTest.poll())
 
     // then
     result shouldBe (): Unit
-    verify(eventProcessor, times(1)).eventProcessor(eqTo(triggeredBy))(any[Seq[Event]], any[Properties])(any[ExecutionContext])
+    verify(eventProcessor, times(1)).eventProcessor(eqTo(triggeredBy))(any[Seq[Event]], any[Long])(any[ExecutionContext])
   }
 }

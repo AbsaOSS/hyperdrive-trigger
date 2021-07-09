@@ -125,9 +125,7 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
       sensor = workflow.sensor.copy(
         id = originalWorkflow.sensor.id,
         workflowId = originalWorkflow.id,
-        properties = workflow.sensor.properties.copy(
-          sensorId = originalWorkflow.sensor.properties.sensorId
-        )
+        properties = workflow.sensor.properties
       ),
       dagDefinitionJoined = workflow.dagDefinitionJoined.copy(
         id = originalWorkflow.dagDefinitionJoined.id,

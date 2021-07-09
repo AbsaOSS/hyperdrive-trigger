@@ -54,10 +54,11 @@ create table "job_definition" (
 
 create table "sensor" (
   "workflow_id" BIGINT NOT NULL,
-  "sensor_type" VARCHAR NOT NULL,
-  "variables" VARCHAR NOT NULL,
-  "maps" VARCHAR NOT NULL,
-  "match_properties" VARCHAR NOT NULL,
+  "properties" JSONB NOT NULL DEFAULT '{}',
+  "sensor_type_old" VARCHAR,
+  "variables_old" VARCHAR,
+  "maps_old" VARCHAR,
+  "match_properties_old" VARCHAR,
   "id" BIGSERIAL NOT NULL PRIMARY KEY
 );
 

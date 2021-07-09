@@ -18,22 +18,22 @@ package za.co.absa.hyperdrive.trigger.scheduler.sensors.time
 
 import org.quartz.CronScheduleBuilder.cronSchedule
 import org.quartz._
-import za.co.absa.hyperdrive.trigger.models.{Event, Properties, Sensor}
+import za.co.absa.hyperdrive.trigger.models.{Event, SensorIds, SensorProperties, TimeSensorProperties}
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.PushSensor
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class TimeSensor(eventsProcessor: (Seq[Event], Properties) => Future[Boolean],
-                 sensorDefinition: Sensor,
+class TimeSensor(eventsProcessor: (Seq[Event], Long) => Future[Boolean],
+                 sensorIds: SensorIds,
+                 sensorProperties: TimeSensorProperties,
                  executionContext: ExecutionContext,
                  scheduler: Scheduler
-                ) extends PushSensor(eventsProcessor, sensorDefinition, executionContext) {
-  private val properties = sensorDefinition.properties
-  val jobKey: JobKey = new JobKey(properties.sensorId.toString, TimeSensor.JOB_GROUP_NAME)
+                ) extends PushSensor[TimeSensorProperties](eventsProcessor, sensorIds, sensorProperties, executionContext) {
+  val jobKey: JobKey = new JobKey(sensorIds.sensorId.toString, TimeSensor.JOB_GROUP_NAME)
   val jobTriggerKey: TriggerKey = new TriggerKey(jobKey.getName, TimeSensor.JOB_TRIGGER_GROUP_NAME)
 
   override def push: Seq[Event] => Future[Unit] = (events: Seq[Event]) =>
-    eventsProcessor.apply(events, properties).map(_ => (): Unit)
+    eventsProcessor.apply(events, sensorIds.sensorId).map(_ => (): Unit)
 
   override def closeInternal(): Unit = {
     scheduler.deleteJob(jobKey)
@@ -48,7 +48,7 @@ class TimeSensor(eventsProcessor: (Seq[Event], Properties) => Future[Boolean],
   private def buildJobDetail(sensorId: Long): JobDetail = {
     val jobDataMap = new JobDataMap()
     jobDataMap.put(TimeSensor.PUSH_FUNCTION_JOB_DATA_MAP_KEY, push)
-    jobDataMap.put(TimeSensor.PROPERTIES_JOB_DATA_MAP_KEY, properties)
+    jobDataMap.put(TimeSensor.SENSOR_ID_DATA_MAP_KEY, sensorId)
     JobBuilder.newJob(classOf[TimeSensorQuartzJob])
       .withIdentity(jobKey)
       .withDescription(s"Quartz-Job for TimeSensor (#$sensorId)")
@@ -70,24 +70,20 @@ class TimeSensor(eventsProcessor: (Seq[Event], Properties) => Future[Boolean],
 
 object TimeSensor {
   val PUSH_FUNCTION_JOB_DATA_MAP_KEY: String = "pushFunction"
-  val PROPERTIES_JOB_DATA_MAP_KEY: String = "properties"
+  val SENSOR_ID_DATA_MAP_KEY: String = "sensorId"
 
   val JOB_GROUP_NAME: String = "time-sensor-job-group"
   val JOB_TRIGGER_GROUP_NAME: String = "time-sensor-job-trigger-group"
 
-  def apply(eventsProcessor: (Seq[Event], Properties) => Future[Boolean],
-            sensorDefinition: Sensor, executionContext: ExecutionContext): TimeSensor = {
+  def apply(eventsProcessor: (Seq[Event], Long) => Future[Boolean],
+            sensorIds: SensorIds, sensorProperties: TimeSensorProperties, executionContext: ExecutionContext): TimeSensor = {
     val quartzScheduler = TimeSensorQuartzSchedulerManager.getScheduler
-    val timeSensorSettings = TimeSensorSettings(sensorDefinition.properties.settings)
-    val sensor = new TimeSensor(eventsProcessor, sensorDefinition, executionContext, quartzScheduler)
+    val sensor = new TimeSensor(eventsProcessor, sensorIds, sensorProperties, executionContext, quartzScheduler)
 
-    val sensorId = sensorDefinition.properties.sensorId
-    val cronExpression = timeSensorSettings.cronExpression
+    validateJobKeys(sensor.jobKey, sensor.jobTriggerKey, quartzScheduler, sensorIds.sensorId)
+    validateCronExpression(sensorProperties.cronExpression, sensorIds.sensorId)
 
-    validateJobKeys(sensor.jobKey, sensor.jobTriggerKey, quartzScheduler, sensorId)
-    validateCronExpression(cronExpression, sensorId)
-
-    sensor.launchQuartzJob(new CronExpression(cronExpression), sensorId)
+    sensor.launchQuartzJob(new CronExpression(sensorProperties.cronExpression), sensorIds.sensorId)
     sensor
   }
 

@@ -149,4 +149,15 @@ trait JdbcTypeMapper {
     recipients => Json.toJson(recipients.sorted),
     column => column.as[Recipients]
   )
+
+  implicit lazy val sensorPropertiesMapper: JdbcType[SensorProperties] = MappedColumnType.base[SensorProperties, JsValue](
+    {
+      case kafka: KafkaSensorProperties => Json.toJson(kafka)
+      case absaKafka: AbsaKafkaSensorProperties => Json.toJson(absaKafka)
+      case recurring: RecurringSensorProperties => Json.toJson(recurring)
+      case time: TimeSensorProperties => Json.toJson(time)
+    },
+    column => column.as[SensorProperties]
+  )
+
 }

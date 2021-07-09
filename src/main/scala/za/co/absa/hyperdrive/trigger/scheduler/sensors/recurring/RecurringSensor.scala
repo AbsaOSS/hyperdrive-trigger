@@ -17,10 +17,9 @@ package za.co.absa.hyperdrive.trigger.scheduler.sensors.recurring
 
 import java.time.format.DateTimeFormatter
 import java.time.Instant
-
 import org.slf4j.LoggerFactory
 import play.api.libs.json.JsObject
-import za.co.absa.hyperdrive.trigger.models.{Event, Properties, Sensor}
+import za.co.absa.hyperdrive.trigger.models.{Event, RecurringSensorProperties, SensorIds}
 import za.co.absa.hyperdrive.trigger.persistance.DagInstanceRepository
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.PollSensor
 
@@ -28,29 +27,28 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
 class RecurringSensor(
-  eventsProcessor: (Seq[Event], Properties) => Future[Boolean],
-  sensorDefinition: Sensor,
+  eventsProcessor: (Seq[Event], Long) => Future[Boolean],
+  sensorIds: SensorIds,
+  sensorProperties: RecurringSensorProperties,
   executionContext: ExecutionContext,
   dagInstanceRepository: DagInstanceRepository
-) extends PollSensor(eventsProcessor, sensorDefinition, executionContext) {
-
-  private val properties = sensorDefinition.properties
+) extends PollSensor[RecurringSensorProperties](eventsProcessor, sensorIds, sensorProperties, executionContext) {
   private val eventDateFormatter: DateTimeFormatter = DateTimeFormatter.ISO_INSTANT
 
   private val logger = LoggerFactory.getLogger(this.getClass)
-  private val logMsgPrefix = s"Sensor id = ${properties.sensorId}."
+  private val logMsgPrefix = s"Sensor id = ${sensorIds.sensorId}."
 
   override def poll(): Future[Unit] = {
     logger.debug(s"$logMsgPrefix. Polling new events.")
 
-    val fut = dagInstanceRepository.hasRunningDagInstance(sensorDefinition.workflowId).flatMap { hasRunningDagInstance =>
+    val fut = dagInstanceRepository.hasRunningDagInstance(sensorIds.workflowId).flatMap { hasRunningDagInstance =>
       if (hasRunningDagInstance) {
         logger.debug(s"$logMsgPrefix. Workflow is running.")
         Future.successful((): Unit)
       } else {
-        val sourceEventId = s"sid=${properties.sensorId};t=${eventDateFormatter.format(Instant.now())}"
-        val event = Event(sourceEventId, properties.sensorId, JsObject.empty)
-        eventsProcessor.apply(Seq(event), properties).map(_ => (): Unit)
+        val sourceEventId = s"sid=${sensorIds.sensorId};t=${eventDateFormatter.format(Instant.now())}"
+        val event = Event(sourceEventId, sensorIds.sensorId, JsObject.empty)
+        eventsProcessor.apply(Seq(event), sensorIds.sensorId).map(_ => (): Unit)
       }
     }
 

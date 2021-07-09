@@ -18,11 +18,10 @@ package za.co.absa.hyperdrive.trigger.scheduler.sensors.time
 
 import java.time.Instant
 import java.time.format.DateTimeFormatter
-
 import org.quartz.{Job, JobExecutionContext}
 import org.slf4j.LoggerFactory
 import play.api.libs.json.JsObject
-import za.co.absa.hyperdrive.trigger.models.{Event, Properties}
+import za.co.absa.hyperdrive.trigger.models.Event
 
 import scala.concurrent.Future
 
@@ -34,9 +33,9 @@ class TimeSensorQuartzJob extends Job {
     logger.info("Starting Time Sensor Quartz Job")
     val jobDataMap = jobExecutionContext.getJobDetail.getJobDataMap
     val push = jobDataMap.get(TimeSensor.PUSH_FUNCTION_JOB_DATA_MAP_KEY).asInstanceOf[Seq[Event] => Future[Unit]]
-    val properties = jobDataMap.get(TimeSensor.PROPERTIES_JOB_DATA_MAP_KEY).asInstanceOf[Properties]
-    val sourceEventId = s"sid=${properties.sensorId};t=${eventDateFormatter.format(Instant.now())}"
-    val event = Event(sourceEventId, properties.sensorId, JsObject.empty)
+    val sensorId = jobDataMap.get(TimeSensor.SENSOR_ID_DATA_MAP_KEY).asInstanceOf[Long]
+    val sourceEventId = s"sid=${sensorId};t=${eventDateFormatter.format(Instant.now())}"
+    val event = Event(sourceEventId, sensorId, JsObject.empty)
     push(Seq(event))
   }
 }

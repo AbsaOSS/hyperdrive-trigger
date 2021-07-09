@@ -27,8 +27,7 @@ import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
 import play.api.libs.json.Json
 import za.co.absa.hyperdrive.trigger.TestUtils.await
-import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes
-import za.co.absa.hyperdrive.trigger.models.{Event, Sensor, Settings, Properties => SensorProperties}
+import za.co.absa.hyperdrive.trigger.models.{AbsaKafkaSensorProperties, Event, Sensor, SensorIds, SensorProperties}
 import za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor
 
 import java.util.Properties
@@ -110,22 +109,20 @@ class KafkaSensorTest extends FlatSpec with MockitoSugar with Matchers with Befo
     val eventProcessor2 = mock[EventProcessor]
     when(eventProcessor1.eventProcessor(any())(any(), any())(any())).thenReturn(Future {true})
     when(eventProcessor2.eventProcessor(any())(any(), any())(any())).thenReturn(Future {true})
-    val sensor1 = Sensor(id = 42, sensorType = SensorTypes.AbsaKafka, properties = SensorProperties(
-      sensorId = 42,
-      settings = Settings(
-        Map(KafkaSettings.Topic -> notificationTopic),
-        Map(KafkaSettings.Servers -> List(kafkaUrl))),
-      matchProperties = Map(
-        matchPropertyKey -> "match-property-value-42"
-      )))
-    val sensor2 = Sensor(id = 43, sensorType = SensorTypes.AbsaKafka, properties = SensorProperties(
-      sensorId = 43,
-      settings = Settings(
-        Map(KafkaSettings.Topic -> notificationTopic),
-        Map(KafkaSettings.Servers -> List(kafkaUrl))),
-      matchProperties = Map(
-        matchPropertyKey -> "match-property-value-43"
-      )))
+    val absaKafkaSensorProperties1 = AbsaKafkaSensorProperties(
+      topic = notificationTopic,
+      servers = List(kafkaUrl),
+      ingestionToken = "match-property-value-42"
+    )
+    val sensor1 = Sensor(id = 42, properties = absaKafkaSensorProperties1)
+    val sensorIds1 = SensorIds(sensor1.id, sensor1.workflowId)
+    val absaKafkaSensorProperties2 = AbsaKafkaSensorProperties(
+      topic = notificationTopic,
+      servers = List(kafkaUrl),
+      ingestionToken = "match-property-value-43"
+    )
+    val sensor2 = Sensor(id = 43, properties = absaKafkaSensorProperties2)
+    val sensorIds2 = SensorIds(sensor2.id, sensor2.workflowId)
     val messages = Seq(
       raw"""{"$matchPropertyKey": "match-property-value-42"}""",
       raw"""{"$matchPropertyKey": "match-property-value-43"}"""
@@ -134,11 +131,11 @@ class KafkaSensorTest extends FlatSpec with MockitoSugar with Matchers with Befo
 
     withRunningKafka {
       val producer = createProducer()
-      val kafkaSensor1 = new KafkaSensor(eventProcessor1.eventProcessor("test"), sensor1, consumeFromLatest = true, global)
+      val kafkaSensor1 = new AbsaKafkaSensor(eventProcessor1.eventProcessor("test"), sensorIds1, absaKafkaSensorProperties1, consumeFromLatest = true, executionContext = global)
       for (_ <- 0 to maxPollRetries){ // hope that consumer will have been assigned partition and is ready to poll
         await(kafkaSensor1.poll())
       }
-      val kafkaSensor2 = new KafkaSensor(eventProcessor2.eventProcessor("test"), sensor2, consumeFromLatest = true, global)
+      val kafkaSensor2 = new AbsaKafkaSensor(eventProcessor2.eventProcessor("test"), sensorIds2, absaKafkaSensorProperties2, consumeFromLatest = true, executionContext = global)
       for (_ <- 0 to maxPollRetries){ // hope that consumer will have been assigned partition and is ready to poll
         await(kafkaSensor2.poll())
       }
@@ -166,21 +163,20 @@ class KafkaSensorTest extends FlatSpec with MockitoSugar with Matchers with Befo
 
     when(eventProcessor1.eventProcessor(any())(any(), any())(any())).thenReturn(Future {true})
     when(eventProcessor2.eventProcessor(any())(any(), any())(any())).thenReturn(Future {true})
-    val sensor = Sensor(id = 42, sensorType = SensorTypes.AbsaKafka, properties = SensorProperties(
-      sensorId = 42,
-      settings = Settings(
-        Map(KafkaSettings.Topic -> notificationTopic),
-        Map(KafkaSettings.Servers -> List(kafkaUrl))),
-      matchProperties = Map(
-        matchPropertyKey -> ingestionToken
-      )))
+    val absaKafkaSensorProperties = AbsaKafkaSensorProperties(
+      topic = notificationTopic,
+      servers = List(kafkaUrl),
+      ingestionToken = ingestionToken
+    )
+    val sensor = Sensor(id = 42, properties = absaKafkaSensorProperties)
+    val sensorIds = SensorIds(sensorId = sensor.id, workflowId = sensor.workflowId)
 
     val maxPollRetries = 10
     withRunningKafka {
       val producer = createProducer()
       // when
 
-      val kafkaSensor1 = new KafkaSensor(eventProcessor1.eventProcessor("test"), sensor, consumeFromLatest, global)
+      val kafkaSensor1 = new AbsaKafkaSensor(eventProcessor1.eventProcessor("test"), sensorIds, absaKafkaSensorProperties, consumeFromLatest, global)
       for (_ <- 0 to maxPollRetries){ // hope that consumer will have been assigned partition and is ready to poll
         await(kafkaSensor1.poll())
       }
@@ -190,7 +186,7 @@ class KafkaSensorTest extends FlatSpec with MockitoSugar with Matchers with Befo
 
       publishToKafka(producer, notificationTopic, messagesWhileUnsubscribed)
 
-      val kafkaSensor2 = new KafkaSensor(eventProcessor2.eventProcessor("test"), sensor, consumeFromLatest, global)
+      val kafkaSensor2 = new AbsaKafkaSensor(eventProcessor2.eventProcessor("test"), sensorIds, absaKafkaSensorProperties, consumeFromLatest, global)
       for (_ <- 0 to maxPollRetries){ // hope that consumer will have been assigned partition and is ready to poll
         await(kafkaSensor2.poll())
       }
@@ -199,18 +195,17 @@ class KafkaSensorTest extends FlatSpec with MockitoSugar with Matchers with Befo
 
       // then
       val eventsCaptor: ArgumentCaptor[Seq[Event]] = ArgumentCaptor.forClass(classOf[Seq[Event]])
-      val propertiesCaptor: ArgumentCaptor[SensorProperties] = ArgumentCaptor.forClass(classOf[SensorProperties])
+      val sensorIdCaptor: ArgumentCaptor[Long] = ArgumentCaptor.forClass(classOf[Long])
       val invocations = expectedPayloadOpt match {
         case Some(_) => 1
         case None => 0
       }
-      verify(eventProcessor2, times(invocations)).eventProcessor(eqTo("test"))(eventsCaptor.capture(), propertiesCaptor.capture())(any())
+      verify(eventProcessor2, times(invocations)).eventProcessor(eqTo("test"))(eventsCaptor.capture(), sensorIdCaptor.capture())(any())
       expectedPayloadOpt.map(expectedPayload => {
         eventsCaptor.getValue.size shouldBe 1
         val event = eventsCaptor.getValue.head
-        event.sensorId shouldBe sensor.properties.sensorId
+        event.sensorId shouldBe sensor.id
         event.payload shouldBe Json.parse(expectedPayload)
-        propertiesCaptor.getValue shouldBe sensor.properties
       }).getOrElse(succeed)
     }
   }

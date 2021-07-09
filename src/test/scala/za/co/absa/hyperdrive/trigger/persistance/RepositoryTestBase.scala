@@ -17,9 +17,9 @@
 package za.co.absa.hyperdrive.trigger.persistance
 
 import za.co.absa.hyperdrive.trigger.TestUtils
-import za.co.absa.hyperdrive.trigger.models.{DagDefinition, DagDefinitionJoined, DagInstance, JobDefinition, JobTemplate, NotificationRule, Properties, SchedulerInstance, Sensor, Settings, ShellTemplateParameters, SparkDefinitionParameters, SparkTemplateParameters, Workflow, WorkflowJoined}
+import za.co.absa.hyperdrive.trigger.models.{AbsaKafkaSensorProperties, DagDefinition, DagDefinitionJoined, DagInstance, JobDefinition, JobTemplate, KafkaSensorProperties, NotificationRule, SchedulerInstance, Sensor, ShellTemplateParameters, SparkDefinitionParameters, SparkTemplateParameters, TimeSensorProperties, Workflow, WorkflowJoined}
 import za.co.absa.hyperdrive.trigger.models.dagRuns.DagRun
-import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, SchedulerInstanceStatuses, SensorTypes}
+import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, SchedulerInstanceStatuses}
 
 import java.time.LocalDateTime
 import java.util.concurrent.TimeUnit
@@ -197,13 +197,13 @@ trait RepositoryTestBase extends Repository {
   }
 
   object TestSensors {
-    val activeTimeW100: (Sensor, Workflow) = (Sensor(TestData.w1.id, SensorTypes.Time, Properties(100L, Settings(Map.empty, Map.empty), Map.empty), 100), TestData.w1)
-    val activeAbsaKafka: (Sensor, Workflow) = (Sensor(TestData.w2.id, SensorTypes.AbsaKafka, Properties(101L, Settings(Map.empty, Map.empty), Map.empty), 101), TestData.w2)
-    val activeKafka: (Sensor, Workflow) = (Sensor(TestData.w3.id, SensorTypes.Kafka, Properties(102L, Settings(Map.empty, Map.empty), Map.empty), 102), TestData.w3)
-    val activeTimeW101: (Sensor, Workflow) = (Sensor(TestData.w4.id, SensorTypes.Time, Properties(103L, Settings(Map.empty, Map.empty), Map.empty), 103), TestData.w4)
-    val inactiveTime: (Sensor, Workflow) = (Sensor(TestData.w5.id, SensorTypes.Time, Properties(104L, Settings(Map.empty, Map.empty), Map.empty), 104), TestData.w5)
-    val inactiveAbsaKafka: (Sensor, Workflow) = (Sensor(TestData.w6.id, SensorTypes.AbsaKafka, Properties(105L, Settings(Map.empty, Map.empty), Map.empty), 105), TestData.w6)
-    val inactiveKafka: (Sensor, Workflow) = (Sensor(TestData.w7.id, SensorTypes.Kafka, Properties(106L, Settings(Map.empty, Map.empty), Map.empty), 106), TestData.w7)
+    val activeTimeW100: (Sensor, Workflow) = (Sensor(TestData.w1.id, TimeSensorProperties(cronExpression = ""), 100), TestData.w1)
+    val activeAbsaKafka: (Sensor, Workflow) = (Sensor(TestData.w2.id, AbsaKafkaSensorProperties(topic = "", servers = List.empty[String], ingestionToken = ""), 101), TestData.w2)
+    val activeKafka: (Sensor, Workflow) = (Sensor(TestData.w3.id, KafkaSensorProperties(topic = "", servers = List.empty[String], matchProperties = Map.empty[String, String]), 102), TestData.w3)
+    val activeTimeW101: (Sensor, Workflow) = (Sensor(TestData.w4.id, TimeSensorProperties(cronExpression = ""), 103), TestData.w4)
+    val inactiveTime: (Sensor, Workflow) = (Sensor(TestData.w5.id, TimeSensorProperties(cronExpression = ""), 104), TestData.w5)
+    val inactiveAbsaKafka: (Sensor, Workflow) = (Sensor(TestData.w6.id, AbsaKafkaSensorProperties(topic = "", servers = List.empty[String], ingestionToken = ""), 105), TestData.w6)
+    val inactiveKafka: (Sensor, Workflow) = (Sensor(TestData.w7.id, KafkaSensorProperties(topic = "", servers = List.empty[String], matchProperties = Map.empty[String, String]), 106), TestData.w7)
 
     val allSensors: Seq[(Sensor, Workflow)] = Seq(activeTimeW100, activeAbsaKafka, activeKafka, activeTimeW101, inactiveTime, inactiveAbsaKafka, inactiveKafka)
   }

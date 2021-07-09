@@ -23,7 +23,6 @@ import org.quartz.impl.matchers.GroupMatcher
 import org.scalatest._
 import za.co.absa.hyperdrive.trigger.api.rest.services.{DagInstanceService, DagInstanceServiceImpl, JobTemplateFixture, JobTemplateService, JobTemplateServiceImpl}
 import za.co.absa.hyperdrive.trigger.models._
-import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes
 import za.co.absa.hyperdrive.trigger.persistance._
 import za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.Sensors
@@ -72,8 +71,8 @@ class TimeSensorIntegrationPostgresTest extends FlatSpec with Matchers with Befo
     val sparkTemplateId = await(jobTemplateRepository.insertJobTemplate(sparkTemplate)).right.get
 
     // Persist workflow, sensor and dagDefinition
-    val properties = Properties(-1L, Settings(Map("cronExpression" -> cronExpression), Map.empty), Map.empty)
-    val sensor = Sensor(-1L, SensorTypes.Time, properties)
+    val properties = TimeSensorProperties(cronExpression = cronExpression)
+    val sensor = Sensor(-1L, properties)
 
     val jobParameters1 = SparkDefinitionParameters(jobJar = Option("spark-job.jar"), mainClass = Option("TheMainClass"))
     val jobDefinition1 = JobDefinition(-1L, sparkTemplateId, "Time-Sensor Job 1", jobParameters1, 1)

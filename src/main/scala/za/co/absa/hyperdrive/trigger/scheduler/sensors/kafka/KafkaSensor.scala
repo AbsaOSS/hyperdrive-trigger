@@ -19,7 +19,7 @@ import org.apache.kafka.clients.consumer.{ConsumerConfig, ConsumerRebalanceListe
 import org.apache.kafka.common.TopicPartition
 import org.slf4j.LoggerFactory
 import play.api.libs.json.{JsError, JsSuccess, Json}
-import za.co.absa.hyperdrive.trigger.models.{Event, Properties, Sensor}
+import za.co.absa.hyperdrive.trigger.models.{Event, KafkaSensorProperties, SensorIds, SensorProperties}
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.PollSensor
 import za.co.absa.hyperdrive.trigger.scheduler.utilities.KafkaConfig
 
@@ -30,27 +30,26 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
 class KafkaSensor(
-  eventsProcessor: (Seq[Event], Properties) => Future[Boolean],
-  sensorDefinition: Sensor,
+  eventsProcessor: (Seq[Event], Long) => Future[Boolean],
+  sensorIds: SensorIds,
+  sensorProperties: KafkaSensorProperties,
   consumeFromLatest: Boolean = false,
   executionContext: ExecutionContext
-) extends PollSensor(eventsProcessor, sensorDefinition, executionContext) {
+) extends PollSensor[KafkaSensorProperties](eventsProcessor, sensorIds, sensorProperties, executionContext) {
 
-  private val properties = sensorDefinition.properties
   private val logger = LoggerFactory.getLogger(this.getClass)
-  private val logMsgPrefix = s"Sensor id = ${properties.sensorId}."
-  private val kafkaSettings = KafkaSettings(properties.settings)
+  private val logMsgPrefix = s"Sensor id = ${sensorIds.sensorId}."
 
   private val consumer = {
-    val consumerProperties = KafkaConfig.getConsumerProperties(kafkaSettings)
-    val groupId = s"${KafkaConfig.getBaseGroupId}-${properties.sensorId}"
+    val consumerProperties = KafkaConfig.getConsumerProperties(sensorProperties)
+    val groupId = s"${KafkaConfig.getBaseGroupId}-${sensorIds.sensorId}"
     consumerProperties.put(ConsumerConfig.GROUP_ID_CONFIG, groupId)
 
     new KafkaConsumer[String, String](consumerProperties)
   }
 
   try {
-    consumer.subscribe(Collections.singletonList(kafkaSettings.topic), new ConsumerRebalanceListener {
+    consumer.subscribe(Collections.singletonList(sensorProperties.topic), new ConsumerRebalanceListener {
       override def onPartitionsRevoked(partitions: util.Collection[TopicPartition]): Unit = {
         // no-op
       }
@@ -87,7 +86,7 @@ class KafkaSensor(
     if (records.nonEmpty) {
       val events = records.map(recordToEvent).toSeq
       val matchedEvents = events.filter { event =>
-        properties.matchProperties.forall { matchProperty =>
+        sensorProperties.matchProperties.forall { matchProperty =>
           (event.payload \ matchProperty._1).validate[String] match {
             case JsSuccess(value, _) => value == matchProperty._2
             case _: JsError => false
@@ -95,7 +94,7 @@ class KafkaSensor(
         }
       }
       matchedEvents.headOption.map(matchedEvent => {
-        eventsProcessor.apply(Seq(matchedEvent), properties).map(_ => (): Unit)
+        eventsProcessor.apply(Seq(matchedEvent), sensorIds.sensorId).map(_ => (): Unit)
       }).getOrElse(Future.successful((): Unit))
     } else {
       Future.successful((): Unit)
@@ -103,14 +102,14 @@ class KafkaSensor(
   }
 
   private def recordToEvent[A](record: ConsumerRecord[A, String]): Event = {
-    val sourceEventId = properties.sensorId + "kafka" + record.topic() + record.partition() + record.offset()
+    val sourceEventId = sensorIds.sensorId + "kafka" + record.topic() + record.partition() + record.offset()
     val payload = Try(
       Json.parse(record.value())
     ).getOrElse {
       logger.debug(s"$logMsgPrefix. Invalid message.")
       Json.parse(s"""{"errorMessage": "${record.value()}"}""")
     }
-    Event(sourceEventId, properties.sensorId, payload)
+    Event(sourceEventId, sensorIds.sensorId, payload)
   }
 
   override def closeInternal(): Unit = {
