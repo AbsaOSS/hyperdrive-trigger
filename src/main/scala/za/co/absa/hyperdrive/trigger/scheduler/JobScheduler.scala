@@ -71,7 +71,7 @@ class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstance
         case Success(_) =>
           logger.debug("Manager stopped.")
         case Failure(exception) =>
-          logger.debug(s"Manager stopped with exception.", exception)
+          logger.error(s"Manager stopped with exception.", exception)
       }
     }
   }
@@ -103,6 +103,12 @@ class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstance
           processEvents(assignedWorkflowIds, firstIteration)
           enqueueDags(assignedWorkflowIds)
         }
+      runningAssignWorkflows.onComplete {
+        case Success(_) =>
+          logger.debug("Running assign workflows finished successfully.")
+        case Failure(exception) =>
+          logger.error(s"Running assign workflows finished with exception.", exception)
+      }
     }
   }
 
@@ -131,7 +137,7 @@ class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstance
         case Success(_) =>
           logger.debug("Running sensors finished successfully.")
         case Failure(exception) =>
-          logger.debug(s"Running sensors finished with exception.", exception)
+          logger.error(s"Running sensors finished with exception.", exception)
       }
     }
   }
@@ -143,7 +149,7 @@ class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstance
         case Success(_) =>
           logger.debug("Running enqueue finished successfully.")
         case Failure(exception) =>
-          logger.debug(s"Running enqueue finished with exception.", exception)
+          logger.error(s"Running enqueue finished with exception.", exception)
       }
     }
   }

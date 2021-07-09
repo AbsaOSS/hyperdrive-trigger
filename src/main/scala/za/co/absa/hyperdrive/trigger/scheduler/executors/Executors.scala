@@ -44,17 +44,27 @@ class Executors @Inject()(dagInstanceRepository: DagInstanceRepository, jobInsta
     jobInstanceRepository.getJobInstances(dagInstance.id).flatMap {
       case jobInstances if jobInstances.exists(_.jobStatus.isFailed) =>
         val updatedDagInstance = dagInstance.copy(status = DagInstanceStatuses.Failed, finished = Option(LocalDateTime.now()))
-        for {
+        val fut = for {
           _ <- jobInstanceRepository.updateJobsStatus(jobInstances.filter(!_.jobStatus.isFinalStatus).map(_.id), JobStatuses.FailedPreviousJob)
           _ <- dagInstanceRepository.update(updatedDagInstance)
           _ <- notificationSender.sendNotifications(updatedDagInstance, jobInstances)
         } yield {}
+        fut.onComplete {
+          case Failure(exception) => logger.error(s"Updating status failed for failed run. Dag instance id = ${dagInstance.id}", exception)
+          case _ =>
+        }
+        fut
       case jobInstances if jobInstances.forall(ji => ji.jobStatus.isFinalStatus && !ji.jobStatus.isFailed) =>
         val updatedDagInstance = dagInstance.copy(status = DagInstanceStatuses.Succeeded, finished = Option(LocalDateTime.now()))
-        for {
+        val fut = for {
           _ <- dagInstanceRepository.update(updatedDagInstance)
           _ <- notificationSender.sendNotifications(updatedDagInstance, jobInstances)
         } yield {}
+        fut.onComplete {
+          case Failure(exception) => logger.error(s"Updating status failed for successful run. Dag instance id = ${dagInstance.id}", exception)
+          case _ =>
+        }
+        fut
       case jobInstances =>
         val jobInstance = jobInstances.filter(!_.jobStatus.isFinalStatus).sortBy(_.order).headOption
         val fut = dagInstanceRepository.update(dagInstance.copy(status = DagInstanceStatuses.Running)).flatMap { _ =>
@@ -69,9 +79,9 @@ class Executors @Inject()(dagInstanceRepository: DagInstanceRepository, jobInsta
           }
         }
         fut.onComplete {
-          case Success(_) => logger.info(s"Executing job. Job instance id = ${jobInstance}")
+          case Success(_) => logger.debug(s"Executing job. Job instance id = ${jobInstance}")
           case Failure(exception) => {
-            logger.info(s"Executing job failed. Job instance id = ${jobInstance}.", exception)
+            logger.error(s"Executing job failed. Job instance id = ${jobInstance}.", exception)
           }
         }
         fut
