@@ -19,8 +19,7 @@ package za.co.absa.hyperdrive.trigger.api.rest.services
 import javax.inject.Inject
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.api.rest.utils.ValidationServiceUtil
-import za.co.absa.hyperdrive.trigger.models.WorkflowJoined
-import za.co.absa.hyperdrive.trigger.models.{HyperdriveDefinitionParameters, JobDefinitionParameters, ShellDefinitionParameters, SparkDefinitionParameters, WorkflowJoined}
+import za.co.absa.hyperdrive.trigger.models.{AbsaKafkaSensorProperties, HyperdriveDefinitionParameters, JobDefinitionParameters, KafkaSensorProperties, RecurringSensorProperties, SensorProperties, ShellDefinitionParameters, SparkDefinitionParameters, TimeSensorProperties, WorkflowJoined}
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, ApiException, BulkOperationError, ValidationError}
 import za.co.absa.hyperdrive.trigger.persistance.WorkflowRepository
 
@@ -104,11 +103,9 @@ class WorkflowValidationServiceImpl @Inject()(override val workflowRepository: W
       originalWorkflow.project == updatedWorkflow.project
     )
 
-    val workflowSensorVerification = Seq(
-      originalWorkflow.sensor.sensorType == updatedWorkflow.sensor.sensorType,
-      originalWorkflow.sensor.properties.matchProperties.equals(updatedWorkflow.sensor.properties.matchProperties),
-      originalWorkflow.sensor.properties.settings.variables.equals(updatedWorkflow.sensor.properties.settings.variables),
-      areMapsEqual(originalWorkflow.sensor.properties.settings.maps, updatedWorkflow.sensor.properties.settings.maps)
+    val workflowSensorVerification =  validateSensorProperties(
+      originalWorkflow.sensor.properties,
+      updatedWorkflow.sensor.properties
     )
 
     val workflowJobsVerification = Seq(
@@ -127,10 +124,20 @@ class WorkflowValidationServiceImpl @Inject()(override val workflowRepository: W
       })
     ).flatten
 
-    if((workflowDetailsVerification ++ workflowSensorVerification ++ workflowJobsVerification).contains(false)) {
+    if((workflowDetailsVerification ++ workflowJobsVerification :+ workflowSensorVerification).contains(false)) {
       Future.successful(Seq())
     } else {
       Future.successful(Seq(ValidationError("Nothing to update")))
+    }
+  }
+
+  private def validateSensorProperties(originalSensorProperties: SensorProperties, updatedSensorProperties: SensorProperties): Boolean = {
+    (originalSensorProperties, updatedSensorProperties) match {
+      case (original: KafkaSensorProperties, updated: KafkaSensorProperties) => original.equals(updated)
+      case (original: AbsaKafkaSensorProperties, updated: AbsaKafkaSensorProperties) => original.equals(updated)
+      case (original: RecurringSensorProperties, updated: RecurringSensorProperties) => original.equals(updated)
+      case (original: TimeSensorProperties, updated: TimeSensorProperties) => original.equals(updated)
+      case _ => false
     }
   }
 

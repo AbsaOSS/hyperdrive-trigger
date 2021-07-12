@@ -38,7 +38,7 @@ case class WorkflowJoined(
   created: LocalDateTime = LocalDateTime.now(),
   updated: Option[LocalDateTime],
   schedulerInstanceId: Option[Long] = None,
-  sensor: Sensor,
+  sensor: Sensor[SensorProperties],
   dagDefinitionJoined: DagDefinitionJoined,
   id: Long = 0
 ){

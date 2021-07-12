@@ -16,40 +16,40 @@
 package za.co.absa.hyperdrive.trigger.scheduler.sensors
 
 import org.slf4j.LoggerFactory
-import za.co.absa.hyperdrive.trigger.models.{Event, Properties}
+import za.co.absa.hyperdrive.trigger.models.{Event, SensorProperties}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
 
-trait Sensor {
+trait Sensor[T <: SensorProperties] {
   private val logger = LoggerFactory.getLogger(this.getClass)
-  val eventsProcessor: (Seq[Event], Properties) => Future[Boolean]
-  val sensorDefinition: za.co.absa.hyperdrive.trigger.models.Sensor
+  val eventsProcessor: (Seq[Event], Long) => Future[Boolean]
+  val sensorDefinition: za.co.absa.hyperdrive.trigger.models.Sensor[T]
   implicit val executionContext: ExecutionContext
   def close(): Unit = {
     try {
       closeInternal()
     } catch {
-      case NonFatal(e) => logger.warn(s"Couldn't close sensor $sensorDefinition", e)
+      case NonFatal(e) => logger.warn(s"Couldn't close sensor ${sensorDefinition.id} - ${sensorDefinition}", e)
     }
   }
   def closeInternal(): Unit
 }
 
-abstract class PollSensor(
-  override val eventsProcessor: (Seq[Event], Properties) => Future[Boolean],
-  override val sensorDefinition: za.co.absa.hyperdrive.trigger.models.Sensor,
+abstract class PollSensor[T <: SensorProperties](
+  override val eventsProcessor: (Seq[Event], Long) => Future[Boolean],
+  override val sensorDefinition: za.co.absa.hyperdrive.trigger.models.Sensor[T],
   override val executionContext: ExecutionContext
-) extends Sensor {
+) extends Sensor[T] {
   implicit val ec: ExecutionContext = executionContext
   def poll(): Future[Unit]
 }
 
-abstract class PushSensor(
-  override val eventsProcessor: (Seq[Event], Properties) => Future[Boolean],
-  override val sensorDefinition: za.co.absa.hyperdrive.trigger.models.Sensor,
+abstract class PushSensor[T <: SensorProperties](
+  override val eventsProcessor: (Seq[Event], Long) => Future[Boolean],
+  override val sensorDefinition: za.co.absa.hyperdrive.trigger.models.Sensor[T],
   override val executionContext: ExecutionContext
-) extends Sensor {
+) extends Sensor[T] {
   implicit val ec: ExecutionContext = executionContext
   def push: Seq[Event] => Future[Unit]
 }

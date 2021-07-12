@@ -21,6 +21,7 @@ import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, Matchers}
 import za.co.absa.hyperdrive.trigger.TestUtils.await
+import za.co.absa.hyperdrive.trigger.models.KafkaSensorProperties
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, ApiException, BulkOperationError, ValidationError}
 import za.co.absa.hyperdrive.trigger.persistance.WorkflowRepository
 
@@ -205,11 +206,12 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
 
   "validateWorkflowData" should "return empty seq when workflows are different otherwise seq with error" in {
     // given
-    val originalWorkflow = WorkflowFixture.createWorkflowJoined();
+    val originalWorkflow = WorkflowFixture.createWorkflowJoined()
+    val originalKafkaSensorProperties = originalWorkflow.sensor.properties.asInstanceOf[KafkaSensorProperties]
     val changeInDetails = originalWorkflow.copy(name = "differentName")
     val changeInSensor = originalWorkflow.copy(
       sensor = originalWorkflow.sensor.copy(
-        properties = originalWorkflow.sensor.properties.copy(matchProperties = Map("diffKey" -> "diffValue"))
+        properties = originalKafkaSensorProperties.copy(matchProperties = Map("diffKey" -> "diffValue"))
       )
     )
     val changeInJobs = originalWorkflow.copy(
