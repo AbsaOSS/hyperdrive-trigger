@@ -50,8 +50,9 @@ object SparkExecutor extends Executor[SparkInstanceParameters] {
       val submitTimeOut = SparkExecutorConfig.getSubmitTimeOut
       val latch = new CountDownLatch(1)
       val sparkAppHandle = getSparkLauncher(id, ji.jobName, jobParameters).startApplication(new SparkAppHandle.Listener {
+        import scala.math.Ordered.orderingToOrdered
         override def stateChanged(handle: SparkAppHandle): Unit =
-          if (handle.getState == SparkAppHandle.State.SUBMITTED) {
+          if (handle.getState >= SparkAppHandle.State.SUBMITTED) {
             latch.countDown()
           }
         override def infoChanged(handle: SparkAppHandle): Unit = {
