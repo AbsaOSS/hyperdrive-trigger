@@ -25,10 +25,6 @@ create table "workflow" (
 
 create table "job_instance" (
   "job_name" VARCHAR NOT NULL,
-  "job_type_old" VARCHAR,
-  "variables_old" VARCHAR DEFAULT '{}',
-  "maps_old" VARCHAR DEFAULT '{}',
-  "key_value_pairs_old" VARCHAR DEFAULT '{}',
   "job_parameters" JSONB NOT NULL DEFAULT '{}',
   "job_status" VARCHAR NOT NULL,
   "executor_job_id" VARCHAR,
@@ -44,9 +40,6 @@ create table "job_definition" (
   "dag_definition_id" BIGINT NOT NULL,
   "job_template_id" BIGINT NOT NULL,
   "name" VARCHAR NOT NULL,
-  "variables_old" VARCHAR DEFAULT '{}',
-  "maps_old" VARCHAR DEFAULT '{}',
-  "key_value_pairs_old" VARCHAR DEFAULT '{}',
   "job_parameters" JSONB NOT NULL DEFAULT '{}',
   "order" INTEGER NOT NULL,
   "id" BIGSERIAL NOT NULL PRIMARY KEY
@@ -94,10 +87,6 @@ create table "workflow_history" (
 
 create table "job_template" (
   "name" VARCHAR NOT NULL UNIQUE,
-  "job_type_old" VARCHAR,
-  "variables_old" VARCHAR DEFAULT '{}',
-  "maps_old" VARCHAR DEFAULT '{}',
-  "key_value_pairs_old" VARCHAR DEFAULT '{}',
   "job_parameters" JSONB NOT NULL DEFAULT '{}',
   "id" BIGSERIAL NOT NULL PRIMARY KEY,
   "form_config" VARCHAR NOT NULL DEFAULT 'unknown'
