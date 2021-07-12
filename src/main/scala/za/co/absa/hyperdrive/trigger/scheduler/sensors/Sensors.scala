@@ -162,7 +162,7 @@ class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: Sensor
           case Failure(f) => logger.error(s"Could not create Recurring sensor for sensor (#${sensor.id}).", f)
         }
       case _ =>
-        logger.error(s"Could not not fid sensor implementation (#${sensor.id}).", sensor.properties.sensorType)
+        logger.error(s"Could not find sensor implementation (#${sensor.id}).", sensor.properties.sensorType)
     }
   }
 
