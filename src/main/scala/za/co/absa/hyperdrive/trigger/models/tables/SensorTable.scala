@@ -22,7 +22,7 @@ trait SensorTable {
   this: Profile with JdbcTypeMapper with WorkflowTable =>
   import api._
 
-  final class SensorTable(tag: Tag) extends Table[Sensor](tag, _tableName = "sensor") {
+  final class SensorTable(tag: Tag) extends Table[Sensor[SensorProperties]](tag, _tableName = "sensor") {
 
     def workflowId: Rep[Long] = column[Long]("workflow_id")
     def properties: Rep[SensorProperties] = column[SensorProperties]("properties", O.SqlType("JSONB"))
@@ -31,14 +31,14 @@ trait SensorTable {
     def workflow_fk: ForeignKeyQuery[WorkflowTable, Workflow] =
       foreignKey("sensor_workflow_fk", workflowId, TableQuery[WorkflowTable])(_.id)
 
-    def * : ProvenShape[Sensor] = (workflowId, properties, id) <> (
+    def * : ProvenShape[Sensor[SensorProperties]] = (workflowId, properties, id) <> (
       sensorTuple =>
         Sensor.apply(
           workflowId = sensorTuple._1,
           properties = sensorTuple._2,
           id = sensorTuple._3
         ),
-      (sensor: Sensor) =>
+      (sensor: Sensor[SensorProperties]) =>
         Option(
           sensor.workflowId,
           sensor.properties,

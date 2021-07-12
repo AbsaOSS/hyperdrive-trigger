@@ -22,16 +22,16 @@ import za.co.absa.hyperdrive.trigger.scheduler.utilities.SensorsConfig
 import scala.concurrent.{ExecutionContext, Future}
 
 trait SensorRepository extends Repository {
-  def getNewActiveAssignedSensors(idsToFilter: Seq[Long], assignedWorkflowIds: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[Sensor]]
+  def getNewActiveAssignedSensors(idsToFilter: Seq[Long], assignedWorkflowIds: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[Sensor[_ <: SensorProperties]]]
   def getInactiveSensors(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[Long]]
-  def getChangedSensors(originalSensorsPropertiesWithId: Seq[(Long, SensorProperties)])(implicit ec: ExecutionContext): Future[Seq[Sensor]]
+  def getChangedSensors(originalSensorsPropertiesWithId: Seq[(Long, SensorProperties)])(implicit ec: ExecutionContext): Future[Seq[Sensor[_ <:SensorProperties]]]
 }
 
 @stereotype.Repository
 class SensorRepositoryImpl extends SensorRepository {
   import api._
 
-  override def getNewActiveAssignedSensors(idsToFilter: Seq[Long], assignedWorkflowIds: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[Sensor]] = db.run {(
+  override def getNewActiveAssignedSensors(idsToFilter: Seq[Long], assignedWorkflowIds: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[Sensor[_ <: SensorProperties]]] = db.run {(
     for {
       sensor <- sensorTable if !(sensor.id inSet idsToFilter)
       workflow <- workflowTable if(workflow.id === sensor.workflowId
@@ -51,13 +51,13 @@ class SensorRepositoryImpl extends SensorRepository {
     }).result
   }
 
-  override def getChangedSensors(originalSensorsPropertiesWithId: Seq[(Long, SensorProperties)])(implicit ec: ExecutionContext): Future[Seq[Sensor]] = {
+  override def getChangedSensors(originalSensorsPropertiesWithId: Seq[(Long, SensorProperties)])(implicit ec: ExecutionContext): Future[Seq[Sensor[_ <: SensorProperties]]] = {
     Future.sequence(
       originalSensorsPropertiesWithId.grouped(SensorsConfig.getChangedSensorsChunkQuerySize).toSeq.map(group => getChangedSensorsInternal(group))
     ).map(_.flatten)
   }
 
-  private def getChangedSensorsInternal(originalSensorsPropertiesWithId: Seq[(Long, SensorProperties)])(implicit ec: ExecutionContext): Future[Seq[Sensor]] = db.run {(
+  private def getChangedSensorsInternal(originalSensorsPropertiesWithId: Seq[(Long, SensorProperties)])(implicit ec: ExecutionContext): Future[Seq[Sensor[_ <:SensorProperties]]] = db.run {(
     for {
       sensor <- sensorTable if originalSensorsPropertiesWithId
         .map(originalSensor => sensorIsDifferent(sensor, originalSensor._1, originalSensor._2))

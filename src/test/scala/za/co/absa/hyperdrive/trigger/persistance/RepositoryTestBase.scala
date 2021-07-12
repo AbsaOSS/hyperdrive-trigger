@@ -17,7 +17,7 @@
 package za.co.absa.hyperdrive.trigger.persistance
 
 import za.co.absa.hyperdrive.trigger.TestUtils
-import za.co.absa.hyperdrive.trigger.models.{AbsaKafkaSensorProperties, DagDefinition, DagDefinitionJoined, DagInstance, JobDefinition, JobTemplate, KafkaSensorProperties, NotificationRule, SchedulerInstance, Sensor, ShellTemplateParameters, SparkDefinitionParameters, SparkTemplateParameters, TimeSensorProperties, Workflow, WorkflowJoined}
+import za.co.absa.hyperdrive.trigger.models.{AbsaKafkaSensorProperties, DagDefinition, DagDefinitionJoined, DagInstance, JobDefinition, JobTemplate, KafkaSensorProperties, NotificationRule, SchedulerInstance, Sensor, SensorProperties, ShellTemplateParameters, SparkDefinitionParameters, SparkTemplateParameters, TimeSensorProperties, Workflow, WorkflowJoined}
 import za.co.absa.hyperdrive.trigger.models.dagRuns.DagRun
 import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, SchedulerInstanceStatuses}
 
@@ -96,7 +96,7 @@ trait RepositoryTestBase extends Repository {
     run(jobDefinitionTable.forceInsertAll(TestData.jobDefinitions))
   }
 
-  def insertSensors(sensorsAndWorkflows: Seq[(Sensor, Workflow)]): Unit = {
+  def insertSensors(sensorsAndWorkflows: Seq[(Sensor[SensorProperties], Workflow)]): Unit = {
     val sensors = sensorsAndWorkflows.map{case (sensor, _) => sensor}
     val workflows = sensorsAndWorkflows.map{case (_, workflow) => workflow}.distinct
     run(workflowTable.forceInsertAll(workflows))
@@ -197,22 +197,22 @@ trait RepositoryTestBase extends Repository {
   }
 
   object TestSensors {
-    val activeTimeW100: (Sensor, Workflow) = (Sensor(TestData.w1.id, TimeSensorProperties(cronExpression = ""), 100), TestData.w1)
-    val activeAbsaKafka: (Sensor, Workflow) = (Sensor(TestData.w2.id, AbsaKafkaSensorProperties(topic = "", servers = List.empty[String], ingestionToken = ""), 101), TestData.w2)
-    val activeKafka: (Sensor, Workflow) = (Sensor(TestData.w3.id, KafkaSensorProperties(topic = "", servers = List.empty[String], matchProperties = Map.empty[String, String]), 102), TestData.w3)
-    val activeTimeW101: (Sensor, Workflow) = (Sensor(TestData.w4.id, TimeSensorProperties(cronExpression = ""), 103), TestData.w4)
-    val inactiveTime: (Sensor, Workflow) = (Sensor(TestData.w5.id, TimeSensorProperties(cronExpression = ""), 104), TestData.w5)
-    val inactiveAbsaKafka: (Sensor, Workflow) = (Sensor(TestData.w6.id, AbsaKafkaSensorProperties(topic = "", servers = List.empty[String], ingestionToken = ""), 105), TestData.w6)
-    val inactiveKafka: (Sensor, Workflow) = (Sensor(TestData.w7.id, KafkaSensorProperties(topic = "", servers = List.empty[String], matchProperties = Map.empty[String, String]), 106), TestData.w7)
+    val activeTimeW100: (Sensor[SensorProperties], Workflow) = (Sensor(TestData.w1.id, TimeSensorProperties(cronExpression = ""), 100), TestData.w1)
+    val activeAbsaKafka: (Sensor[SensorProperties], Workflow) = (Sensor(TestData.w2.id, AbsaKafkaSensorProperties(topic = "", servers = List.empty[String], ingestionToken = ""), 101), TestData.w2)
+    val activeKafka: (Sensor[SensorProperties], Workflow) = (Sensor(TestData.w3.id, KafkaSensorProperties(topic = "", servers = List.empty[String], matchProperties = Map.empty[String, String]), 102), TestData.w3)
+    val activeTimeW101: (Sensor[SensorProperties], Workflow) = (Sensor(TestData.w4.id, TimeSensorProperties(cronExpression = ""), 103), TestData.w4)
+    val inactiveTime: (Sensor[SensorProperties], Workflow) = (Sensor(TestData.w5.id, TimeSensorProperties(cronExpression = ""), 104), TestData.w5)
+    val inactiveAbsaKafka: (Sensor[SensorProperties], Workflow) = (Sensor(TestData.w6.id, AbsaKafkaSensorProperties(topic = "", servers = List.empty[String], ingestionToken = ""), 105), TestData.w6)
+    val inactiveKafka: (Sensor[SensorProperties], Workflow) = (Sensor(TestData.w7.id, KafkaSensorProperties(topic = "", servers = List.empty[String], matchProperties = Map.empty[String, String]), 106), TestData.w7)
 
-    val allSensors: Seq[(Sensor, Workflow)] = Seq(activeTimeW100, activeAbsaKafka, activeKafka, activeTimeW101, inactiveTime, inactiveAbsaKafka, inactiveKafka)
+    val allSensors: Seq[(Sensor[SensorProperties], Workflow)] = Seq(activeTimeW100, activeAbsaKafka, activeKafka, activeTimeW101, inactiveTime, inactiveAbsaKafka, inactiveKafka)
   }
 
   object TestDataJoined {
     val wj1 = createWorkflowJoined(TestData.w1, TestSensors.activeTimeW100._1, TestData.dd1, Seq(TestData.jd1dd1, TestData.jd2dd1))
     val wj2 = createWorkflowJoined(TestData.w2, TestSensors.activeAbsaKafka._1, TestData.dd2, Seq(TestData.jd1dd2))
 
-    private def createWorkflowJoined(workflow: Workflow, sensor: Sensor, dagDefinition: DagDefinition, jobDefinitions: Seq[JobDefinition]) = {
+    private def createWorkflowJoined(workflow: Workflow, sensor: Sensor[SensorProperties], dagDefinition: DagDefinition, jobDefinitions: Seq[JobDefinition]) = {
       val dagDefinitionJoined = DagDefinitionJoined(dagDefinition, jobDefinitions)
       WorkflowJoined(
         workflow.name,

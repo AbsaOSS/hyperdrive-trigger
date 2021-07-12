@@ -27,7 +27,7 @@ import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
 import play.api.libs.json.Json
 import za.co.absa.hyperdrive.trigger.TestUtils.await
-import za.co.absa.hyperdrive.trigger.models.{AbsaKafkaSensorProperties, Event, Sensor, SensorIds}
+import za.co.absa.hyperdrive.trigger.models.{AbsaKafkaSensorProperties, Event, Sensor}
 import za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor
 
 import java.util.Properties
@@ -115,14 +115,12 @@ class KafkaSensorTest extends FlatSpec with MockitoSugar with Matchers with Befo
       ingestionToken = "match-property-value-42"
     )
     val sensor1 = Sensor(id = 42, properties = absaKafkaSensorProperties1)
-    val sensorIds1 = SensorIds(sensor1.id, sensor1.workflowId)
     val absaKafkaSensorProperties2 = AbsaKafkaSensorProperties(
       topic = notificationTopic,
       servers = List(kafkaUrl),
       ingestionToken = "match-property-value-43"
     )
     val sensor2 = Sensor(id = 43, properties = absaKafkaSensorProperties2)
-    val sensorIds2 = SensorIds(sensor2.id, sensor2.workflowId)
     val messages = Seq(
       raw"""{"$matchPropertyKey": "match-property-value-42"}""",
       raw"""{"$matchPropertyKey": "match-property-value-43"}"""
@@ -131,11 +129,11 @@ class KafkaSensorTest extends FlatSpec with MockitoSugar with Matchers with Befo
 
     withRunningKafka {
       val producer = createProducer()
-      val kafkaSensor1 = new AbsaKafkaSensor(eventProcessor1.eventProcessor("test"), sensorIds1, absaKafkaSensorProperties1, consumeFromLatest = true, executionContext = global)
+      val kafkaSensor1 = new AbsaKafkaSensor(eventProcessor1.eventProcessor("test"), sensor1, consumeFromLatest = true, executionContext = global)
       for (_ <- 0 to maxPollRetries){ // hope that consumer will have been assigned partition and is ready to poll
         await(kafkaSensor1.poll())
       }
-      val kafkaSensor2 = new AbsaKafkaSensor(eventProcessor2.eventProcessor("test"), sensorIds2, absaKafkaSensorProperties2, consumeFromLatest = true, executionContext = global)
+      val kafkaSensor2 = new AbsaKafkaSensor(eventProcessor2.eventProcessor("test"), sensor2, consumeFromLatest = true, executionContext = global)
       for (_ <- 0 to maxPollRetries){ // hope that consumer will have been assigned partition and is ready to poll
         await(kafkaSensor2.poll())
       }
@@ -169,14 +167,13 @@ class KafkaSensorTest extends FlatSpec with MockitoSugar with Matchers with Befo
       ingestionToken = ingestionToken
     )
     val sensor = Sensor(id = 42, properties = absaKafkaSensorProperties)
-    val sensorIds = SensorIds(sensorId = sensor.id, workflowId = sensor.workflowId)
 
     val maxPollRetries = 10
     withRunningKafka {
       val producer = createProducer()
       // when
 
-      val kafkaSensor1 = new AbsaKafkaSensor(eventProcessor1.eventProcessor("test"), sensorIds, absaKafkaSensorProperties, consumeFromLatest, global)
+      val kafkaSensor1 = new AbsaKafkaSensor(eventProcessor1.eventProcessor("test"), sensor, consumeFromLatest, global)
       for (_ <- 0 to maxPollRetries){ // hope that consumer will have been assigned partition and is ready to poll
         await(kafkaSensor1.poll())
       }
@@ -186,7 +183,7 @@ class KafkaSensorTest extends FlatSpec with MockitoSugar with Matchers with Befo
 
       publishToKafka(producer, notificationTopic, messagesWhileUnsubscribed)
 
-      val kafkaSensor2 = new AbsaKafkaSensor(eventProcessor2.eventProcessor("test"), sensorIds, absaKafkaSensorProperties, consumeFromLatest, global)
+      val kafkaSensor2 = new AbsaKafkaSensor(eventProcessor2.eventProcessor("test"), sensor, consumeFromLatest, global)
       for (_ <- 0 to maxPollRetries){ // hope that consumer will have been assigned partition and is ready to poll
         await(kafkaSensor2.poll())
       }

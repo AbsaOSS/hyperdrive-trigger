@@ -16,7 +16,7 @@
 package za.co.absa.hyperdrive.trigger.scheduler.sensors
 
 import org.slf4j.LoggerFactory
-import za.co.absa.hyperdrive.trigger.models.{Event, SensorIds, SensorProperties}
+import za.co.absa.hyperdrive.trigger.models.{Event, SensorProperties}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
@@ -24,14 +24,13 @@ import scala.util.control.NonFatal
 trait Sensor[T <: SensorProperties] {
   private val logger = LoggerFactory.getLogger(this.getClass)
   val eventsProcessor: (Seq[Event], Long) => Future[Boolean]
-  val sensorIds: SensorIds
-  val sensorProperties: T
+  val sensorDefinition: za.co.absa.hyperdrive.trigger.models.Sensor[T]
   implicit val executionContext: ExecutionContext
   def close(): Unit = {
     try {
       closeInternal()
     } catch {
-      case NonFatal(e) => logger.warn(s"Couldn't close sensor ${sensorIds.sensorId} - ${sensorProperties}", e)
+      case NonFatal(e) => logger.warn(s"Couldn't close sensor ${sensorDefinition.id} - ${sensorDefinition}", e)
     }
   }
   def closeInternal(): Unit
@@ -39,8 +38,7 @@ trait Sensor[T <: SensorProperties] {
 
 abstract class PollSensor[T <: SensorProperties](
   override val eventsProcessor: (Seq[Event], Long) => Future[Boolean],
-  override val sensorIds: SensorIds,
-  override val sensorProperties: T,
+  override val sensorDefinition: za.co.absa.hyperdrive.trigger.models.Sensor[T],
   override val executionContext: ExecutionContext
 ) extends Sensor[T] {
   implicit val ec: ExecutionContext = executionContext
@@ -49,8 +47,7 @@ abstract class PollSensor[T <: SensorProperties](
 
 abstract class PushSensor[T <: SensorProperties](
   override val eventsProcessor: (Seq[Event], Long) => Future[Boolean],
-  override val sensorIds: SensorIds,
-  override val sensorProperties: T,
+  override val sensorDefinition: za.co.absa.hyperdrive.trigger.models.Sensor[T],
   override val executionContext: ExecutionContext
 ) extends Sensor[T] {
   implicit val ec: ExecutionContext = executionContext

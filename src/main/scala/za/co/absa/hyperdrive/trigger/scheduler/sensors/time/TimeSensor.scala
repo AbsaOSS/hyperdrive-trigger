@@ -18,22 +18,22 @@ package za.co.absa.hyperdrive.trigger.scheduler.sensors.time
 
 import org.quartz.CronScheduleBuilder.cronSchedule
 import org.quartz._
-import za.co.absa.hyperdrive.trigger.models.{Event, SensorIds, TimeSensorProperties}
+import za.co.absa.hyperdrive.trigger.models.{Event, TimeSensorProperties}
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.PushSensor
+import za.co.absa.hyperdrive.trigger.models.{Sensor => SensorDefition}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class TimeSensor(eventsProcessor: (Seq[Event], Long) => Future[Boolean],
-                 sensorIds: SensorIds,
-                 sensorProperties: TimeSensorProperties,
+                 sensorDefinition: SensorDefition[TimeSensorProperties],
                  executionContext: ExecutionContext,
                  scheduler: Scheduler
-                ) extends PushSensor[TimeSensorProperties](eventsProcessor, sensorIds, sensorProperties, executionContext) {
-  val jobKey: JobKey = new JobKey(sensorIds.sensorId.toString, TimeSensor.JOB_GROUP_NAME)
+                ) extends PushSensor[TimeSensorProperties](eventsProcessor, sensorDefinition, executionContext) {
+  val jobKey: JobKey = new JobKey(sensorDefinition.id.toString, TimeSensor.JOB_GROUP_NAME)
   val jobTriggerKey: TriggerKey = new TriggerKey(jobKey.getName, TimeSensor.JOB_TRIGGER_GROUP_NAME)
 
   override def push: Seq[Event] => Future[Unit] = (events: Seq[Event]) =>
-    eventsProcessor.apply(events, sensorIds.sensorId).map(_ => (): Unit)
+    eventsProcessor.apply(events, sensorDefinition.id).map(_ => (): Unit)
 
   override def closeInternal(): Unit = {
     scheduler.deleteJob(jobKey)
@@ -76,14 +76,14 @@ object TimeSensor {
   val JOB_TRIGGER_GROUP_NAME: String = "time-sensor-job-trigger-group"
 
   def apply(eventsProcessor: (Seq[Event], Long) => Future[Boolean],
-            sensorIds: SensorIds, sensorProperties: TimeSensorProperties, executionContext: ExecutionContext): TimeSensor = {
+            sensorDefinition: SensorDefition[TimeSensorProperties], executionContext: ExecutionContext): TimeSensor = {
     val quartzScheduler = TimeSensorQuartzSchedulerManager.getScheduler
-    val sensor = new TimeSensor(eventsProcessor, sensorIds, sensorProperties, executionContext, quartzScheduler)
+    val sensor = new TimeSensor(eventsProcessor, sensorDefinition, executionContext, quartzScheduler)
 
-    validateJobKeys(sensor.jobKey, sensor.jobTriggerKey, quartzScheduler, sensorIds.sensorId)
-    validateCronExpression(sensorProperties.cronExpression, sensorIds.sensorId)
+    validateJobKeys(sensor.jobKey, sensor.jobTriggerKey, quartzScheduler, sensorDefinition.id)
+    validateCronExpression(sensorDefinition.properties.cronExpression, sensorDefinition.id)
 
-    sensor.launchQuartzJob(new CronExpression(sensorProperties.cronExpression), sensorIds.sensorId)
+    sensor.launchQuartzJob(new CronExpression(sensorDefinition.properties.cronExpression), sensorDefinition.id)
     sensor
   }
 

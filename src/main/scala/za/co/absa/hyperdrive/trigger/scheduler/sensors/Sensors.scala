@@ -17,13 +17,14 @@ package za.co.absa.hyperdrive.trigger.scheduler.sensors
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
-import za.co.absa.hyperdrive.trigger.models.{AbsaKafkaSensorProperties, KafkaSensorProperties, RecurringSensorProperties, SensorIds, SensorProperties, TimeSensorProperties}
+import za.co.absa.hyperdrive.trigger.models.{AbsaKafkaSensorProperties, KafkaSensorProperties, RecurringSensorProperties, SensorProperties, TimeSensorProperties}
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, SensorRepository}
 import za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.kafka.{AbsaKafkaSensor, KafkaSensor}
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.recurring.RecurringSensor
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.time.{TimeSensor, TimeSensorQuartzSchedulerManager}
 import za.co.absa.hyperdrive.trigger.scheduler.utilities.SensorsConfig
+import za.co.absa.hyperdrive.trigger.models.{Sensor => SensorDefition}
 
 import java.util.concurrent.Executors
 import javax.inject.Inject
@@ -78,7 +79,7 @@ class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: Sensor
   private def updateChangedSensors(): Future[Unit] = {
     val kafkaSensorConsumeFromLatest = false // by construction, this query never returns sensor that changed its
     // activation state, therefore the consumer never has to consume from the latest
-    sensorRepository.getChangedSensors(sensors.values.map( sensor => (sensor.sensorIds.sensorId, sensor.sensorProperties)).toSeq).map(
+    sensorRepository.getChangedSensors(sensors.values.map( sensor => (sensor.sensorDefinition.id, sensor.sensorDefinition.properties)).toSeq).map(
       _.foreach { sensor =>
         stopSensor(sensor.id)
         startSensor(sensor, kafkaSensorConsumeFromLatest)
@@ -87,8 +88,8 @@ class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: Sensor
   }
 
   private def removeReleasedSensors(assignedWorkflowIds: Seq[Long]): Unit = {
-    val releasedWorkflowIds = sensors.values.map(_.sensorIds.workflowId).toSeq.diff(assignedWorkflowIds)
-    sensors.filter { case (_, value) => releasedWorkflowIds.contains(value.sensorIds.workflowId) }
+    val releasedWorkflowIds = sensors.values.map(_.sensorDefinition.workflowId).toSeq.diff(assignedWorkflowIds)
+    sensors.filter { case (_, value) => releasedWorkflowIds.contains(value.sensorDefinition.workflowId) }
       .foreach { case (sensorId, _) => stopSensor(sensorId) }
   }
 
@@ -111,65 +112,59 @@ class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: Sensor
     }
   }
 
-  private def startSensor(sensor: za.co.absa.hyperdrive.trigger.models.Sensor, kafkaSensorConsumeFromLatest: Boolean) = {
-    val sensorIds = SensorIds(sensor.id, sensor.workflowId)
+  private def startSensor(sensor: SensorDefition[_ <: SensorProperties], kafkaSensorConsumeFromLatest: Boolean) = {
     sensor.properties match {
-    case kafkaSensorProperties: KafkaSensorProperties =>
-      Try(
-        new KafkaSensor(
-          eventProcessor.eventProcessor(s"Sensor - ${sensor.properties.sensorType.name}"),
-          sensorIds,
-          kafkaSensorProperties,
-          kafkaSensorConsumeFromLatest,
-          executionContext
-        )
-      ) match {
-        case Success(s) => sensors.put(sensor.id, s)
-        case Failure(f) => logger.error(s"Could not create Kafka sensor for sensor (#${sensor.id}).", f)
-      }
-    case absaKafkaSensorProperties: AbsaKafkaSensorProperties =>
-      Try(
-        new AbsaKafkaSensor(
-          eventProcessor.eventProcessor(s"Sensor - ${sensor.properties.sensorType.name}"),
-          sensorIds,
-          absaKafkaSensorProperties,
-          kafkaSensorConsumeFromLatest,
-          executionContext
-        )
-      ) match {
-        case Success(s) => sensors.put(sensor.id, s)
-        case Failure(f) => logger.error(s"Could not create Absa Kafka sensor for sensor (#${sensor.id}).", f)
-      }
-    case timeSensorProperties: TimeSensorProperties =>
-      Try(
-        TimeSensor(
-          eventProcessor.eventProcessor(s"Sensor - ${sensor.properties.sensorType.name}"),
-          sensorIds,
-          timeSensorProperties,
-          executionContext
-        )
-      ) match {
-        case Success(s) => sensors.put(sensor.id, s)
-        case Failure(f) => logger.error(s"Could not create Time sensor for sensor (#${sensor.id}).", f)
-      }
-    case recurringSensorProperties: RecurringSensorProperties =>
-      Try(
-        new RecurringSensor(
-          eventProcessor.eventProcessor(s"Sensor - ${sensor.properties.sensorType.name}"),
-          sensorIds,
-          recurringSensorProperties,
-          executionContext,
-          dagInstanceRepository
-        )
-      ) match {
-        case Success(s) => sensors.put(sensor.id, s)
-        case Failure(f) => logger.error(s"Could not create Recurring sensor for sensor (#${sensor.id}).", f)
-      }
-    case _ =>
-      logger.error(s"Could not not fid sensor implementation (#${sensor.id}).", sensor.properties.sensorType)
+      case kafkaSensorProperties: KafkaSensorProperties =>
+        Try(
+          new KafkaSensor(
+            eventProcessor.eventProcessor(s"Sensor - ${sensor.properties.sensorType.name}"),
+            sensor.copy(properties = kafkaSensorProperties),
+            kafkaSensorConsumeFromLatest,
+            executionContext
+          )
+        ) match {
+          case Success(s) => sensors.put(sensor.id, s)
+          case Failure(f) => logger.error(s"Could not create Kafka sensor for sensor (#${sensor.id}).", f)
+        }
+      case absaKafkaSensorProperties: AbsaKafkaSensorProperties =>
+        Try(
+          new AbsaKafkaSensor(
+            eventProcessor.eventProcessor(s"Sensor - ${sensor.properties.sensorType.name}"),
+            sensor.copy(properties = absaKafkaSensorProperties),
+            kafkaSensorConsumeFromLatest,
+            executionContext
+          )
+        ) match {
+          case Success(s) => sensors.put(sensor.id, s)
+          case Failure(f) => logger.error(s"Could not create Absa Kafka sensor for sensor (#${sensor.id}).", f)
+        }
+      case timeSensorProperties: TimeSensorProperties =>
+        Try(
+          TimeSensor(
+            eventProcessor.eventProcessor(s"Sensor - ${sensor.properties.sensorType.name}"),
+            sensor.copy(properties = timeSensorProperties),
+            executionContext
+          )
+        ) match {
+          case Success(s) => sensors.put(sensor.id, s)
+          case Failure(f) => logger.error(s"Could not create Time sensor for sensor (#${sensor.id}).", f)
+        }
+      case recurringSensorProperties: RecurringSensorProperties =>
+        Try(
+          new RecurringSensor(
+            eventProcessor.eventProcessor(s"Sensor - ${sensor.properties.sensorType.name}"),
+            sensor.copy(properties = recurringSensorProperties),
+            executionContext,
+            dagInstanceRepository
+          )
+        ) match {
+          case Success(s) => sensors.put(sensor.id, s)
+          case Failure(f) => logger.error(s"Could not create Recurring sensor for sensor (#${sensor.id}).", f)
+        }
+      case _ =>
+        logger.error(s"Could not not fid sensor implementation (#${sensor.id}).", sensor.properties.sensorType)
+    }
   }
-  }
-
 
   private def pollEvents(): Future[Seq[Unit]] = {
     Future.sequence(sensors.flatMap {

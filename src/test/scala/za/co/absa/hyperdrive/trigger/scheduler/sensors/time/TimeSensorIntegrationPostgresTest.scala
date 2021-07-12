@@ -72,7 +72,7 @@ class TimeSensorIntegrationPostgresTest extends FlatSpec with Matchers with Befo
 
     // Persist workflow, sensor and dagDefinition
     val properties = TimeSensorProperties(cronExpression = cronExpression)
-    val sensor = Sensor(-1L, properties)
+    val sensor = Sensor[SensorProperties](-1L, properties)
 
     val jobParameters1 = SparkDefinitionParameters(jobJar = Option("spark-job.jar"), mainClass = Option("TheMainClass"))
     val jobDefinition1 = JobDefinition(-1L, sparkTemplateId, "Time-Sensor Job 1", jobParameters1, 1)
