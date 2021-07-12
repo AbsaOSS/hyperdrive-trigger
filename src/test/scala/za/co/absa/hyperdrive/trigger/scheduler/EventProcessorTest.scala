@@ -25,7 +25,7 @@ import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
 import play.api.libs.json.JsObject
 import za.co.absa.hyperdrive.trigger.TestUtils.await
-import za.co.absa.hyperdrive.trigger.api.rest.services.{DagInstanceService}
+import za.co.absa.hyperdrive.trigger.api.rest.services.DagInstanceService
 import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
 import za.co.absa.hyperdrive.trigger.persistance.{DagDefinitionRepository, DagInstanceRepository, EventRepository}
@@ -66,7 +66,7 @@ class EventProcessorTest extends FlatSpec with MockitoSugar with Matchers with B
     when(dagInstanceRepository.insertJoinedDagInstancesWithEvents(any())(any[ExecutionContext])).thenReturn(Future{(): Unit})
 
     // when
-    await(underTest.eventProcessor(triggeredBy)(Seq(event), Properties(sensorId, Settings(Map.empty, Map.empty), Map.empty)))
+    await(underTest.eventProcessor(triggeredBy)(Seq(event), sensorId))
 
     // then
     val booleanCaptor: ArgumentCaptor[Boolean] = ArgumentCaptor.forClass(classOf[Boolean])
@@ -96,7 +96,7 @@ class EventProcessorTest extends FlatSpec with MockitoSugar with Matchers with B
     when(eventRepository.getExistEvents(any())(any[ExecutionContext])).thenReturn(Future{Seq(event.sensorEventId)})
 
     // when
-    await(underTest.eventProcessor(triggeredBy)(Seq(event), Properties(sensorId, Settings(Map.empty, Map.empty), Map.empty)))
+    await(underTest.eventProcessor(triggeredBy)(Seq(event), sensorId))
 
     // then
     verify(dagDefinitionRepository, never()).getJoinedDagDefinition(any())(any[ExecutionContext])
@@ -114,7 +114,7 @@ class EventProcessorTest extends FlatSpec with MockitoSugar with Matchers with B
     when(dagDefinitionRepository.getJoinedDagDefinition(eqTo(sensorId))(any[ExecutionContext])).thenReturn(Future{None})
 
     // when
-    await(underTest.eventProcessor(triggeredBy)(Seq(event), Properties(sensorId, Settings(Map.empty, Map.empty), Map.empty)))
+    await(underTest.eventProcessor(triggeredBy)(Seq(event), sensorId))
     // then
     verify(dagDefinitionRepository).getJoinedDagDefinition(eqTo(sensorId))(any[ExecutionContext])
     verify(dagInstanceService, never).createDagInstance(any(), eqTo(triggeredBy), any())(any[ExecutionContext])
@@ -122,8 +122,7 @@ class EventProcessorTest extends FlatSpec with MockitoSugar with Matchers with B
   }
 
   private def createEvent(sensorId: Long) = {
-    val properties = Properties(sensorId, Settings(Map.empty, Map.empty), Map.empty)
-    Event("sensorEventId", properties.sensorId, JsObject.empty)
+    Event("sensorEventId", sensorId, JsObject.empty)
   }
 
   private def createJobDefintion(dagDefinitionId: Long): JobDefinition = {

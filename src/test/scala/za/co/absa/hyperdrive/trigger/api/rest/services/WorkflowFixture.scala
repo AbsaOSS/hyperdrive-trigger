@@ -22,9 +22,6 @@ import java.util.UUID
 import org.apache.commons.lang3.RandomStringUtils
 import za.co.absa.hyperdrive.trigger.api.rest.services.JobTemplateFixture.{GenericShellJobTemplate, GenericSparkJobTemplate}
 import za.co.absa.hyperdrive.trigger.models._
-import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes
-import za.co.absa.hyperdrive.trigger.scheduler.sensors.kafka.KafkaSettings
-import za.co.absa.hyperdrive.trigger.scheduler.sensors.time.TimeSensorSettings
 
 object WorkflowFixture {
   val Random = new scala.util.Random(42)
@@ -50,13 +47,9 @@ object WorkflowFixture {
       project = "testProject",
       sensor = Sensor(
         workflowId = 10,
-        sensorType = SensorTypes.AbsaKafka,
-        properties = Properties(
-          sensorId = 0,
-          settings = Settings(
-            variables = Map(KafkaSettings.Topic -> "testTopic"),
-            maps = Map(KafkaSettings.Servers -> List("http://localhost:9093", "http://localhost:9092"))
-          ),
+        properties = KafkaSensorProperties(
+          topic = "testTopic",
+          servers =  List("http://localhost:9093", "http://localhost:9092"),
           matchProperties = Map("ingestionToken" -> "abcdef-123456")
         )
       ),
@@ -98,17 +91,14 @@ object WorkflowFixture {
       project = projectName,
       sensor = Sensor(
         workflowId = 0,
-        sensorType = SensorTypes.AbsaKafka,
-        properties = Properties(
-          sensorId = 0,
-          settings = Settings(
-            variables = Map(KafkaSettings.Topic -> randomString()),
-            maps = Map(KafkaSettings.Servers -> List(
+        properties = AbsaKafkaSensorProperties(
+          topic = randomString(),
+          servers = List(
               s"http://${randomString()}:${randomInt(0, 65535)}",
               s"https://${randomString()}:${randomInt(0, 65535)}",
-              s"https://${randomString()}:${randomInt(0, 65535)}"))
+              s"https://${randomString()}:${randomInt(0, 65535)}"
           ),
-          matchProperties = Map("ingestionToken" -> randomUuid())
+          ingestionToken = randomUuid()
         )
       ),
       dagDefinitionJoined = DagDefinitionJoined(
@@ -183,14 +173,8 @@ object WorkflowFixture {
       project = projectName,
       sensor = Sensor(
         workflowId = 0,
-        sensorType = SensorTypes.Time,
-        properties = Properties(
-          sensorId = 0,
-          settings = Settings(
-            variables = Map(TimeSensorSettings.CRON_EXPRESSION_KEY -> randomCron()),
-            maps = Map.empty
-          ),
-          matchProperties = Map.empty
+        properties = TimeSensorProperties(
+          cronExpression = randomCron()
         )
       ),
       dagDefinitionJoined = DagDefinitionJoined(
