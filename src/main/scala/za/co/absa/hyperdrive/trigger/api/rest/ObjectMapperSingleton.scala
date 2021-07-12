@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import play.api.libs.json.Json
-import za.co.absa.hyperdrive.trigger.models.{JobDefinitionParameters, JobTemplateParameters}
+import za.co.absa.hyperdrive.trigger.models.{JobDefinitionParameters, JobTemplateParameters, SensorProperties}
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses.DagInstanceStatus
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.JobStatus
 import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
@@ -94,6 +94,19 @@ object ObjectMapperSingleton {
     }
   }
 
+  private class SensorPropertiesDeserializer extends JsonDeserializer[SensorProperties] {
+    override def deserialize(p: JsonParser, ctxt: DeserializationContext): SensorProperties = {
+      val node = p.getCodec.readTree[JsonNode](p)
+      Json.parse(node.toString).as[SensorProperties]
+    }
+  }
+
+  private class SensorPropertiesSerializer extends JsonSerializer[SensorProperties] {
+    override def serialize(value: SensorProperties, jsonGenerator: JsonGenerator, serializerProvider: SerializerProvider): Unit = {
+      jsonGenerator.writeRawValue(Json.toJson(value).toString())
+    }
+  }
+
   private val module = new SimpleModule()
     .addDeserializer(classOf[SensorType], new SensorTypesDeserializer)
     .addDeserializer(classOf[JobStatus], new JobStatusesDeserializer)
@@ -104,6 +117,8 @@ object ObjectMapperSingleton {
     .addDeserializer(classOf[JobTemplateParameters], new JobTemplateParametersDeserializer)
     .addSerializer(classOf[JobTemplateParameters], new JobTemplateParametersSerializer)
     .addSerializer(classOf[DagInstanceStatus], new DagInstanceStatusesSerializer)
+    .addDeserializer(classOf[SensorProperties], new SensorPropertiesDeserializer)
+    .addSerializer(classOf[SensorProperties], new SensorPropertiesSerializer)
 
   private val objectMapper = new ObjectMapper()
     .registerModule(DefaultScalaModule)

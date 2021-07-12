@@ -57,9 +57,7 @@ trait JdbcTypeMapper {
   implicit lazy val sensorTypeMapper: JdbcType[SensorType] =
     MappedColumnType.base[SensorType, String](
       sensorType => sensorType.name,
-      sensorTypeName => SensorTypes.sensorTypes.find(_.name == sensorTypeName).getOrElse(
-        throw new Exception(s"Couldn't find SensorType: $sensorTypeName")
-      )
+      sensorTypeName => SensorTypes.convertSensorTypeNameToSensorType(sensorTypeName)
     )
 
   implicit lazy val jobTypeMapper: JdbcType[JobType] =
@@ -150,4 +148,15 @@ trait JdbcTypeMapper {
     recipients => Json.toJson(recipients.sorted),
     column => column.as[Recipients]
   )
+
+  implicit lazy val sensorPropertiesMapper: JdbcType[SensorProperties] = MappedColumnType.base[SensorProperties, JsValue](
+    {
+      case kafka: KafkaSensorProperties => Json.toJson(kafka)
+      case absaKafka: AbsaKafkaSensorProperties => Json.toJson(absaKafka)
+      case recurring: RecurringSensorProperties => Json.toJson(recurring)
+      case time: TimeSensorProperties => Json.toJson(time)
+    },
+    column => column.as[SensorProperties]
+  )
+
 }
