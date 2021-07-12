@@ -16,22 +16,22 @@
 package za.co.absa.hyperdrive.trigger.persistance
 
 import org.springframework.stereotype
-import za.co.absa.hyperdrive.trigger.models.Sensor
+import za.co.absa.hyperdrive.trigger.models.{Sensor, SensorProperties}
 import za.co.absa.hyperdrive.trigger.scheduler.utilities.SensorsConfig
 
 import scala.concurrent.{ExecutionContext, Future}
 
 trait SensorRepository extends Repository {
-  def getNewActiveAssignedSensors(idsToFilter: Seq[Long], assignedWorkflowIds: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[Sensor]]
+  def getNewActiveAssignedSensors(idsToFilter: Seq[Long], assignedWorkflowIds: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[Sensor[_ <: SensorProperties]]]
   def getInactiveSensors(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[Long]]
-  def getChangedSensors(originalSensors: Seq[Sensor])(implicit ec: ExecutionContext): Future[Seq[Sensor]]
+  def getChangedSensors(originalSensorsPropertiesWithId: Seq[(Long, SensorProperties)])(implicit ec: ExecutionContext): Future[Seq[Sensor[_ <:SensorProperties]]]
 }
 
 @stereotype.Repository
 class SensorRepositoryImpl extends SensorRepository {
   import api._
 
-  override def getNewActiveAssignedSensors(idsToFilter: Seq[Long], assignedWorkflowIds: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[Sensor]] = db.run {(
+  override def getNewActiveAssignedSensors(idsToFilter: Seq[Long], assignedWorkflowIds: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[Sensor[_ <: SensorProperties]]] = db.run {(
     for {
       sensor <- sensorTable if !(sensor.id inSet idsToFilter)
       workflow <- workflowTable if(workflow.id === sensor.workflowId
@@ -51,16 +51,16 @@ class SensorRepositoryImpl extends SensorRepository {
     }).result
   }
 
-  override def getChangedSensors(originalSensors: Seq[Sensor])(implicit ec: ExecutionContext): Future[Seq[Sensor]] = {
+  override def getChangedSensors(originalSensorsPropertiesWithId: Seq[(Long, SensorProperties)])(implicit ec: ExecutionContext): Future[Seq[Sensor[_ <: SensorProperties]]] = {
     Future.sequence(
-      originalSensors.grouped(SensorsConfig.getChangedSensorsChunkQuerySize).toSeq.map(group => getChangedSensorsInternal(group))
+      originalSensorsPropertiesWithId.grouped(SensorsConfig.getChangedSensorsChunkQuerySize).toSeq.map(group => getChangedSensorsInternal(group))
     ).map(_.flatten)
   }
 
-  private def getChangedSensorsInternal(originalSensors: Seq[Sensor])(implicit ec: ExecutionContext): Future[Seq[Sensor]] = db.run {(
+  private def getChangedSensorsInternal(originalSensorsPropertiesWithId: Seq[(Long, SensorProperties)])(implicit ec: ExecutionContext): Future[Seq[Sensor[_ <:SensorProperties]]] = db.run {(
     for {
-      sensor <- sensorTable if originalSensors
-        .map(originalSensor => sensorIsDifferent(sensor, originalSensor))
+      sensor <- sensorTable if originalSensorsPropertiesWithId
+        .map(originalSensor => sensorIsDifferent(sensor, originalSensor._1, originalSensor._2))
         .reduceLeftOption(_ || _)
         .getOrElse(false: Rep[Boolean])
     } yield {
@@ -68,11 +68,7 @@ class SensorRepositoryImpl extends SensorRepository {
     }).result
   }
 
-  private def sensorIsDifferent(sensor: SensorTable, originalSensor: Sensor): Rep[Boolean] = {
-    sensor.id === originalSensor.id &&
-      (sensor.sensorType =!= originalSensor.sensorType ||
-      sensor.variables =!= originalSensor.properties.settings.variables ||
-      sensor.maps =!= originalSensor.properties.settings.maps ||
-      sensor.matchProperties =!= originalSensor.properties.matchProperties)
+  private def sensorIsDifferent(sensor: SensorTable, sensorId: Long, originalSensorProperties: SensorProperties): Rep[Boolean] = {
+    sensor.id === sensorId && sensor.properties =!= originalSensorProperties
   }
 }

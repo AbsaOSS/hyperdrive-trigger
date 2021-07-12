@@ -15,6 +15,8 @@
 
 package za.co.absa.hyperdrive.trigger.models.enums
 
+import play.api.libs.json.{Format, JsPath, JsString, Writes}
+
 object SensorTypes {
 
   sealed abstract class SensorType(val name: String) {
@@ -27,4 +29,15 @@ object SensorTypes {
   case object Recurring extends SensorType("Recurring")
 
   val sensorTypes: Set[SensorType] = Set(Kafka, AbsaKafka, Time, Recurring)
+
+  def convertSensorTypeNameToSensorType(sensorType: String): SensorType = {
+    SensorTypes.sensorTypes.find(_.name == sensorType).getOrElse(
+      throw new Exception(s"Couldn't find SensorType: $sensorType")
+    )
+  }
+
+  implicit val sensorTypesFormat: Format[SensorType] = Format[SensorType](
+    JsPath.read[String].map(convertSensorTypeNameToSensorType),
+    Writes[SensorType] { sensorType => JsString(sensorType.name) }
+  )
 }

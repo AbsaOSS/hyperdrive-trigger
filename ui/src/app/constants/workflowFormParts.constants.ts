@@ -27,7 +27,7 @@ export const workflowFormParts = {
     IS_ACTIVE: FormPartFactory.create('Is active', 'isActive', 'boolean-field', PartValidationFactory.create(true)),
   },
   SENSOR: {
-    SENSOR_TYPE: FormPartFactory.create('Sensor type', 'sensorType.name', 'select-field', PartValidationFactory.create(true)),
+    SENSOR_TYPE: FormPartFactory.create('Sensor type', 'properties.sensorType', 'select-field', PartValidationFactory.create(true)),
   },
   JOB: {
     JOB_NAME: FormPartFactory.create('Job name', 'name', 'string-field', PartValidationFactory.create(true, undefined, 1)),

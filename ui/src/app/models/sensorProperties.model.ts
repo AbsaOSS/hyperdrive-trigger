@@ -13,19 +13,29 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.scheduler.sensors.time
+export interface SensorProperties {
+  sensorType: string;
+}
 
-import za.co.absa.hyperdrive.trigger.models.Settings
+export class KafkaSensorProperties implements SensorProperties {
+  sensorType: string;
+  topic: string;
+  servers: Set<string>;
+  matchProperties: Map<string, string>;
+}
 
-case class TimeSensorSettings(
-   cronExpression: String
-)
+export class AbsaKafkaSensorProperties implements SensorProperties {
+  sensorType: string;
+  topic: string;
+  servers: Set<string>;
+  ingestionToken: string;
+}
 
-object TimeSensorSettings {
-  val CRON_EXPRESSION_KEY = "cronExpression"
-  def apply(settings: Settings): TimeSensorSettings = {
-    TimeSensorSettings(
-      cronExpression = settings.variables(CRON_EXPRESSION_KEY)
-    )
-  }
+export class TimeSensorProperties implements SensorProperties {
+  sensorType: string;
+  cronExpression: string;
+}
+
+export class RecurringSensorProperties implements SensorProperties {
+  sensorType: string;
 }

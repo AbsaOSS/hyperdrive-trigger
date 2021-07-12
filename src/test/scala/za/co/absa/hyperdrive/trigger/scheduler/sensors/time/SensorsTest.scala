@@ -28,7 +28,6 @@ import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{Assertion, BeforeAndAfter, FlatSpec, Matchers}
 import za.co.absa.hyperdrive.trigger.TestUtils.await
 import za.co.absa.hyperdrive.trigger.models._
-import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, SensorRepository}
 import za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.Sensors
@@ -192,7 +191,7 @@ class SensorsTest extends FlatSpec with MockitoSugar with Matchers with BeforeAn
 
   it should "never query sensors of unassigned workflows" in {
     val baseSensor = createTimeSensor(0L, 0L, "0 0/10 * ? * * *")
-    val assignedSensorsT0 = (0 to 49).map(i => baseSensor.copy(id = i, workflowId = 100 + i, properties = baseSensor.properties.copy(sensorId = i)))
+    val assignedSensorsT0 = (0 to 49).map(i => baseSensor.copy(id = i, workflowId = 100 + i))
     val assignedSensorsT1 = assignedSensorsT0.filter(_.id <= 29)
     val assignedSensorsT2 = assignedSensorsT0.filter(_.id <= 39)
     val assignedWorkflowIdsT0 = assignedSensorsT0.map(_.workflowId)
@@ -222,11 +221,11 @@ class SensorsTest extends FlatSpec with MockitoSugar with Matchers with BeforeAn
     verifyExactlyNQuartzJobsExist(assignedSensorsT2.size)
     underTest.cleanUpSensors()
 
-    val sensorsCaptor: ArgumentCaptor[Seq[Sensor]] = ArgumentCaptor.forClass(classOf[Seq[Sensor]])
+    val sensorsCaptor: ArgumentCaptor[Seq[Tuple2[Long, SensorProperties]]] = ArgumentCaptor.forClass(classOf[Seq[Tuple2[Long, SensorProperties]]])
     verify(sensorRepository, times(3)).getChangedSensors(sensorsCaptor.capture())(any())
     sensorsCaptor.getAllValues.get(0) shouldBe Seq()
-    sensorsCaptor.getAllValues.get(1) should contain theSameElementsAs assignedSensorsT1
-    sensorsCaptor.getAllValues.get(2) should contain theSameElementsAs assignedSensorsT1
+    sensorsCaptor.getAllValues.get(1) should contain theSameElementsAs assignedSensorsT1.map(sensor => (sensor.id, sensor.properties))
+    sensorsCaptor.getAllValues.get(2) should contain theSameElementsAs assignedSensorsT1.map(sensor => (sensor.id, sensor.properties))
 
     val idsCaptor: ArgumentCaptor[Seq[Long]] = ArgumentCaptor.forClass(classOf[Seq[Long]])
     verify(sensorRepository, times(3)).getInactiveSensors(idsCaptor.capture())(any())
@@ -279,13 +278,8 @@ class SensorsTest extends FlatSpec with MockitoSugar with Matchers with BeforeAn
   private def createTimeSensor(sensorId: Long, workflowId: Long, cronExpression: String)  = {
     Sensor(
       workflowId = workflowId,
-      sensorType = SensorTypes.Time,
-      properties = Properties(
-        settings = Settings(
-          variables = Map("cronExpression" -> cronExpression),
-          maps = Map()),
-        matchProperties = Map(),
-        sensorId = sensorId
+      properties = TimeSensorProperties(
+        cronExpression = cronExpression
       ),
       id = sensorId
     )

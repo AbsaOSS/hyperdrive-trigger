@@ -19,7 +19,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.models.{Project, ProjectInfo, Workflow, WorkflowImportExportWrapper, WorkflowJoined}
-import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, BulkOperationError, GenericError, ValidationError}
+import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, BulkOperationError, GenericError}
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, WorkflowRepository}
 import org.slf4j.LoggerFactory
 import za.co.absa.hyperdrive.trigger.scheduler.utilities.ApplicationConfig
@@ -125,9 +125,7 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
       sensor = workflow.sensor.copy(
         id = originalWorkflow.sensor.id,
         workflowId = originalWorkflow.id,
-        properties = workflow.sensor.properties.copy(
-          sensorId = originalWorkflow.sensor.properties.sensorId
-        )
+        properties = workflow.sensor.properties
       ),
       dagDefinitionJoined = workflow.dagDefinitionJoined.copy(
         id = originalWorkflow.dagDefinitionJoined.id,

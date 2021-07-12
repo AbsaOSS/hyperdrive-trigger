@@ -75,7 +75,7 @@ class WorkflowRepositoryPostgresTest extends FlatSpec with Matchers with BeforeA
     val actualSensors = await(db.run(sensorTable.result))
     actualSensors should have size 1
     actualSensors.head.id shouldBe workflowId
-    actualSensors.head.sensorType shouldBe workflowToInsert.sensor.sensorType
+    actualSensors.head.properties.sensorType shouldBe workflowToInsert.sensor.properties.sensorType
 
     val actualDagDefinitions = await(db.run(dagDefinitionTable.result))
     actualDagDefinitions should have size 1
@@ -206,7 +206,7 @@ class WorkflowRepositoryPostgresTest extends FlatSpec with Matchers with BeforeA
     val actualSensors = await(db.run(sensorTable.result))
     actualSensors should have size 1
     actualSensors.head.id shouldBe workflowId
-    actualSensors.head.sensorType shouldBe workflowV2.sensor.sensorType
+    actualSensors.head.properties.sensorType shouldBe workflowV2.sensor.properties.sensorType
 
     val actualJobDefinitions = await(db.run(jobDefinitionTable.result))
     actualJobDefinitions should have size workflowV2.dagDefinitionJoined.jobDefinitions.size
