@@ -13,14 +13,14 @@
  * limitations under the License.
  */
 
-import { FormConfig, FormConfigFactory } from './formConfig.model';
+import { JobType, JobTypeFactory } from "./jobType.model";
 
 export interface JobDefinitionParameters {
-  formConfig: FormConfig;
+  jobType: JobType;
 }
 
 export class SparkDefinitionParametersModel implements JobDefinitionParameters {
-  formConfig: FormConfig;
+  jobType: JobType;
   appArguments: Set<string>;
   additionalJars: Set<string>;
   additionalFiles: Set<string>;
@@ -30,7 +30,7 @@ export class SparkDefinitionParametersModel implements JobDefinitionParameters {
 
   static createEmpty(): SparkDefinitionParametersModel {
     return {
-      formConfig: FormConfigFactory.create('Spark'),
+      jobType: JobTypeFactory.create('Spark'),
       appArguments: new Set(),
       additionalJars: new Set(),
       additionalFiles: new Set(),
@@ -40,7 +40,7 @@ export class SparkDefinitionParametersModel implements JobDefinitionParameters {
 }
 
 export class HyperdriveDefinitionParametersModel implements JobDefinitionParameters {
-  formConfig: FormConfig;
+  jobType: JobType;
   appArguments: Set<string>;
   additionalJars: Set<string>;
   additionalFiles: Set<string>;
@@ -48,7 +48,7 @@ export class HyperdriveDefinitionParametersModel implements JobDefinitionParamet
 
   static createEmpty(): HyperdriveDefinitionParametersModel {
     return {
-      formConfig: FormConfigFactory.create('Hyperdrive'),
+      jobType: JobTypeFactory.create('Hyperdrive'),
       appArguments: new Set(),
       additionalJars: new Set(),
       additionalFiles: new Set(),
@@ -58,10 +58,10 @@ export class HyperdriveDefinitionParametersModel implements JobDefinitionParamet
 }
 
 export class ShellDefinitionParametersModel implements JobDefinitionParameters {
-  formConfig: FormConfig;
+  jobType: JobType;
   scriptLocation?: string;
 
   static createEmpty(): ShellDefinitionParametersModel {
-    return { formConfig: FormConfigFactory.create('Shell'), scriptLocation: null };
+    return { jobType: JobTypeFactory.create('Shell'), scriptLocation: null };
   }
 }

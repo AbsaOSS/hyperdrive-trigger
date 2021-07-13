@@ -34,6 +34,16 @@ case class SparkTemplateParameters(
   additionalSparkConfig: Map[String, String] = Map.empty[String, String]
 ) extends JobTemplateParameters
 
+case class HyperdriveTemplateParameters(
+  jobType: JobType = JobTypes.Spark,
+  jobJar: String,
+  mainClass: String,
+  appArguments: List[String] = List.empty[String],
+  additionalJars: List[String] = List.empty[String],
+  additionalFiles: List[String] = List.empty[String],
+  additionalSparkConfig: Map[String, String] = Map.empty[String, String]
+) extends JobTemplateParameters
+
 case class ShellTemplateParameters(
   jobType: JobType = JobTypes.Shell,
   scriptLocation: Option[String]
@@ -41,6 +51,10 @@ case class ShellTemplateParameters(
 
 object SparkTemplateParameters {
   implicit val sparkFormat: OFormat[SparkTemplateParameters] = Json.using[Json.WithDefaultValues].format[SparkTemplateParameters]
+}
+
+object HyperdriveTemplateParameters {
+  implicit val hyperdriveFormat: OFormat[HyperdriveTemplateParameters] = Json.using[Json.WithDefaultValues].format[HyperdriveTemplateParameters]
 }
 
 object ShellTemplateParameters {
@@ -52,12 +66,14 @@ object JobTemplateParameters {
     override def reads(json: JsValue): JsResult[JobTemplateParameters] = {
       (json \ "jobType").as[String] match {
         case JobTypes.Spark.name => SparkTemplateParameters.sparkFormat.reads(json)
+        case JobTypes.Hyperdrive.name => HyperdriveTemplateParameters.hyperdriveFormat.reads(json)
         case JobTypes.Shell.name => ShellTemplateParameters.shellFormat.reads(json)
       }
     }
 
     override def writes(jobTemplateParameters: JobTemplateParameters): JsValue = jobTemplateParameters match {
       case sparkParameters: SparkTemplateParameters => SparkTemplateParameters.sparkFormat.writes(sparkParameters)
+      case hyperdriveParameters: HyperdriveTemplateParameters => HyperdriveTemplateParameters.hyperdriveFormat.writes(hyperdriveParameters)
       case shellParameters: ShellTemplateParameters => ShellTemplateParameters.shellFormat.writes(shellParameters)
     }
   }

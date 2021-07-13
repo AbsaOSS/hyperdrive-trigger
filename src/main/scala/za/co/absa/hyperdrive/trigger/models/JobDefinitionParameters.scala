@@ -17,15 +17,15 @@
 package za.co.absa.hyperdrive.trigger.models
 
 import play.api.libs.json.{Format, JsResult, JsValue, Json, OFormat}
-import za.co.absa.hyperdrive.trigger.models.enums.FormConfigs.FormConfig
-import za.co.absa.hyperdrive.trigger.models.enums.FormConfigs
+import za.co.absa.hyperdrive.trigger.models.enums.JobTypes
+import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
 
 sealed trait JobDefinitionParameters {
-  val formConfig: FormConfig
+  val jobType: JobType
 }
 
 case class SparkDefinitionParameters(
-  formConfig: FormConfig = FormConfigs.Spark,
+  jobType: JobType = JobTypes.Spark,
   jobJar: Option[String],
   mainClass: Option[String],
   appArguments: List[String] = List.empty[String],
@@ -35,7 +35,7 @@ case class SparkDefinitionParameters(
 ) extends JobDefinitionParameters
 
 case class HyperdriveDefinitionParameters(
-  formConfig: FormConfig = FormConfigs.Hyperdrive,
+  jobType: JobType = JobTypes.Hyperdrive,
   appArguments: List[String] = List.empty[String],
   additionalJars: List[String] = List.empty[String],
   additionalFiles: List[String] = List.empty[String],
@@ -43,7 +43,7 @@ case class HyperdriveDefinitionParameters(
 ) extends JobDefinitionParameters
 
 case class ShellDefinitionParameters(
-  formConfig: FormConfig = FormConfigs.Shell,
+  jobType: JobType = JobTypes.Shell,
   scriptLocation: Option[String]
 ) extends JobDefinitionParameters
 
@@ -62,10 +62,10 @@ object ShellDefinitionParameters {
 object JobDefinitionParameters {
   implicit val jobParametersFormat = new Format[JobDefinitionParameters] {
     override def reads(json: JsValue): JsResult[JobDefinitionParameters] = {
-      (json \ "formConfig").as[String] match {
-        case FormConfigs.Spark.name => SparkDefinitionParameters.sparkFormat.reads(json)
-        case FormConfigs.Hyperdrive.name => HyperdriveDefinitionParameters.hyperdriveFormat.reads(json)
-        case FormConfigs.Shell.name => ShellDefinitionParameters.shellFormat.reads(json)
+      (json \ "jobType").as[String] match {
+        case JobTypes.Spark.name => SparkDefinitionParameters.sparkFormat.reads(json)
+        case JobTypes.Hyperdrive.name => HyperdriveDefinitionParameters.hyperdriveFormat.reads(json)
+        case JobTypes.Shell.name => ShellDefinitionParameters.shellFormat.reads(json)
       }
     }
 

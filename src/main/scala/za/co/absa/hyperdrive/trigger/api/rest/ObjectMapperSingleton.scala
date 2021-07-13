@@ -22,11 +22,10 @@ import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import play.api.libs.json.Json
 import za.co.absa.hyperdrive.trigger.models.{JobDefinitionParameters, JobTemplateParameters, SensorProperties}
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses.DagInstanceStatus
-import za.co.absa.hyperdrive.trigger.models.enums.FormConfigs.FormConfig
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.JobStatus
 import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
 import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes.SensorType
-import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, FormConfigs, JobStatuses, JobTypes, SensorTypes}
+import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobStatuses, JobTypes, SensorTypes}
 import com.fasterxml.jackson.databind._
 
 
@@ -95,20 +94,6 @@ object ObjectMapperSingleton {
     }
   }
 
-  private class FormConfigDeserializer extends JsonDeserializer[FormConfig] {
-    override def deserialize(p: JsonParser, ctxt: DeserializationContext): FormConfig = {
-      val node = p.getCodec.readTree[JsonNode](p)
-      val value = node.textValue()
-      FormConfigs.formConfigs.find(_.name == value).getOrElse(throw new Exception("Failed to find enum value"))
-    }
-  }
-
-  private class FormConfigSerializer extends JsonSerializer[FormConfig] {
-    override def serialize(value: FormConfig, jsonGenerator: JsonGenerator, serializerProvider: SerializerProvider): Unit = {
-      jsonGenerator.writeString(value.name)
-    }
-  }
-
   private class SensorPropertiesDeserializer extends JsonDeserializer[SensorProperties] {
     override def deserialize(p: JsonParser, ctxt: DeserializationContext): SensorProperties = {
       val node = p.getCodec.readTree[JsonNode](p)
@@ -132,8 +117,6 @@ object ObjectMapperSingleton {
     .addDeserializer(classOf[JobTemplateParameters], new JobTemplateParametersDeserializer)
     .addSerializer(classOf[JobTemplateParameters], new JobTemplateParametersSerializer)
     .addSerializer(classOf[DagInstanceStatus], new DagInstanceStatusesSerializer)
-    .addDeserializer(classOf[FormConfig], new FormConfigDeserializer)
-    .addSerializer(classOf[FormConfig], new FormConfigSerializer)
     .addDeserializer(classOf[SensorProperties], new SensorPropertiesDeserializer)
     .addSerializer(classOf[SensorProperties], new SensorPropertiesSerializer)
 

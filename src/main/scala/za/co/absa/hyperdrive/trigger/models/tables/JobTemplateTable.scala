@@ -27,29 +27,25 @@ trait JobTemplateTable extends SearchableTableQuery {
     def name: Rep[String] = column[String]("name", O.Unique)
     def jobParameters: Rep[JobTemplateParameters] = column[JobTemplateParameters]("job_parameters", O.SqlType("JSONB"))
     def id: Rep[Long] = column[Long]("id", O.PrimaryKey, O.AutoInc, O.SqlType("BIGSERIAL"))
-    def formConfig: Rep[String] = column[String]("form_config")
 
-    def * : ProvenShape[JobTemplate] = (name, jobParameters, id, formConfig) <> (
+    def * : ProvenShape[JobTemplate] = (name, jobParameters, id) <> (
       jobTemplateTuple =>
         JobTemplate.apply(
           name = jobTemplateTuple._1,
           jobParameters = jobTemplateTuple._2,
-          id = jobTemplateTuple._3,
-          formConfig = jobTemplateTuple._4
+          id = jobTemplateTuple._3
         ),
       (jobTemplate: JobTemplate) =>
         Option(
           jobTemplate.name,
           jobTemplate.jobParameters,
-          jobTemplate.id,
-          jobTemplate.formConfig
+          jobTemplate.id
         )
     )
 
     override def fieldMapping: Map[String, Rep[_]] = Map(
       "name" -> this.name,
-      "id" -> this.id,
-      "formConfig" -> this.formConfig
+      "id" -> this.id
     )
 
     override def defaultSortColumn: Rep[_] = id

@@ -46,8 +46,8 @@ object JobTemplateResolutionUtil {
     (primary, secondary) match {
       case (definitionParams: SparkDefinitionParameters, templateParams: SparkTemplateParameters) =>
         mergeSparkParameters(definitionParams, templateParams)
-      case (definitionParams: HyperdriveDefinitionParameters, templateParams: SparkTemplateParameters) =>
-        mergeSparkAndHyperdriveParameters(definitionParams, templateParams)
+      case (definitionParams: HyperdriveDefinitionParameters, templateParams: HyperdriveTemplateParameters) =>
+        mergeHyperdriveParameters(definitionParams, templateParams)
       case (definitionParams: ShellDefinitionParameters, templateParams: ShellTemplateParameters) =>
         mergeShellParameters(definitionParams, templateParams)
       case _ =>
@@ -55,10 +55,10 @@ object JobTemplateResolutionUtil {
     }
   }
 
-  private def mergeSparkAndHyperdriveParameters(definitionParams: HyperdriveDefinitionParameters, templateParams: SparkTemplateParameters): SparkInstanceParameters = {
+  private def mergeHyperdriveParameters(definitionParams: HyperdriveDefinitionParameters, templateParams: HyperdriveTemplateParameters): SparkInstanceParameters = {
     SparkInstanceParameters(
-      jobJar = templateParams.jobJar.getOrElse(""),
-      mainClass = templateParams.mainClass.getOrElse(""),
+      jobJar = templateParams.jobJar,
+      mainClass = templateParams.mainClass,
       appArguments = mergeLists(definitionParams.appArguments, templateParams.appArguments),
       additionalJars = mergeLists(definitionParams.additionalJars, templateParams.additionalJars),
       additionalFiles = mergeLists(definitionParams.additionalFiles, templateParams.additionalFiles),
