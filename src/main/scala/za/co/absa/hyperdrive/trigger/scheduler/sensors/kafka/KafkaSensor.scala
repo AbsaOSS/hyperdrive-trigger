@@ -20,6 +20,7 @@ import org.apache.kafka.common.TopicPartition
 import org.slf4j.LoggerFactory
 import play.api.libs.json.{JsError, JsSuccess, Json}
 import za.co.absa.hyperdrive.trigger.models.{Event, KafkaSensorProperties}
+import za.co.absa.hyperdrive.trigger.configuration.{KafkaConfig => KafkaConfigNew}
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.PollSensor
 import za.co.absa.hyperdrive.trigger.scheduler.utilities.KafkaConfig
 
@@ -35,12 +36,15 @@ class KafkaSensor(
   sensorDefinition: SensorDefition[KafkaSensorProperties],
   consumeFromLatest: Boolean = false,
   executionContext: ExecutionContext
-) extends PollSensor[KafkaSensorProperties](eventsProcessor, sensorDefinition, executionContext) {
+)(implicit kafkaConfig: KafkaConfigNew) extends PollSensor[KafkaSensorProperties](eventsProcessor, sensorDefinition, executionContext) {
 
   private val logger = LoggerFactory.getLogger(this.getClass)
   private val logMsgPrefix = s"Sensor id = ${sensorDefinition.id}."
 
   private val consumer = {
+    val keyDeserializer = kafkaConfig.keyDeserializer
+    logger.info("Key Deserializer")
+    logger.info(keyDeserializer)
     val consumerProperties = KafkaConfig.getConsumerProperties(sensorDefinition.properties)
     val groupId = s"${KafkaConfig.getBaseGroupId}-${sensorDefinition.id}"
     consumerProperties.put(ConsumerConfig.GROUP_ID_CONFIG, groupId)

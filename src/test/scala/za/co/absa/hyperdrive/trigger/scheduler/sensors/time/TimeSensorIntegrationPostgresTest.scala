@@ -17,11 +17,11 @@
 package za.co.absa.hyperdrive.trigger.scheduler.sensors.time
 
 import java.time.LocalDateTime
-
 import org.quartz.JobKey
 import org.quartz.impl.matchers.GroupMatcher
 import org.scalatest._
 import za.co.absa.hyperdrive.trigger.api.rest.services.{DagInstanceService, DagInstanceServiceImpl, JobTemplateFixture, JobTemplateService, JobTemplateServiceImpl}
+import za.co.absa.hyperdrive.trigger.configuration.KafkaConfig
 import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.persistance._
 import za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor
@@ -49,6 +49,8 @@ class TimeSensorIntegrationPostgresTest extends FlatSpec with Matchers with Befo
 
   private val dagInstanceService: DagInstanceService = new DagInstanceServiceImpl(jobTemplateService)
 
+  private val kafkaConfig = KafkaConfig()
+
   override def beforeAll: Unit = {
     super.beforeAll()
     schemaSetup()
@@ -64,7 +66,7 @@ class TimeSensorIntegrationPostgresTest extends FlatSpec with Matchers with Befo
 
   it should "persist an event when the time sensor is fired" in {
     val processor = new EventProcessor(eventRepository, dagDefinitionRepository, dagInstanceRepository, dagInstanceService)
-    val sensors = new Sensors(processor, sensorRepository, dagInstanceRepository)
+    val sensors = new Sensors(processor, sensorRepository, dagInstanceRepository, kafkaConfig)
     val cronExpression = "0/3 * * * * ?"
 
     val sparkTemplate = JobTemplateFixture.GenericSparkJobTemplate

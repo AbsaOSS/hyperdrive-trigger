@@ -28,6 +28,7 @@ import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
 import play.api.libs.json.Json
 import za.co.absa.hyperdrive.trigger.TestUtils.await
 import za.co.absa.hyperdrive.trigger.models.{AbsaKafkaSensorProperties, Event, Sensor}
+import za.co.absa.hyperdrive.trigger.configuration.KafkaConfig
 import za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor
 
 import java.util.Properties
@@ -39,6 +40,7 @@ class KafkaSensorTest extends FlatSpec with MockitoSugar with Matchers with Befo
   private val ingestionToken = "95fce3e7-2468-46fa-9456-74919497528c"
   private val kafkaPort = 12345
   private val kafkaUrl = s"localhost:${kafkaPort}"
+  private implicit val kafkaConfig: KafkaConfig = KafkaConfig()
 
   before {
     System.setProperty("kafkaSource.poll.duration", "750")
