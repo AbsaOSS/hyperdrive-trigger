@@ -17,6 +17,7 @@ package za.co.absa.hyperdrive.trigger
 
 import org.springframework.context.annotation.DependsOn
 import org.springframework.stereotype.Component
+import za.co.absa.hyperdrive.trigger.configuration.KafkaConfig
 import za.co.absa.hyperdrive.trigger.scheduler.JobScheduler
 import za.co.absa.hyperdrive.trigger.scheduler.utilities.SchedulerConfig
 
@@ -26,7 +27,7 @@ import scala.concurrent.Future
 
 @Component
 @DependsOn(Array("liquibaseConfigurationMarker"))
-class HyperDriverManager @Inject() (jobScheduler: JobScheduler) {
+class HyperDriverManager @Inject() (jobScheduler: JobScheduler, kafkaConfig: KafkaConfig) {
 
   @PostConstruct
   def init(): Unit = {
@@ -46,4 +47,10 @@ class HyperDriverManager @Inject() (jobScheduler: JobScheduler) {
   def stopManager: Future[Unit] = {
     jobScheduler.stopManager()
   }
+
+  def bla = {
+    kafkaConfig.key.deserializer
+  }
+
+  def config = kafkaConfig
 }

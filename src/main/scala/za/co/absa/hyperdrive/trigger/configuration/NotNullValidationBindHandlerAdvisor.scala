@@ -36,7 +36,7 @@ class NotNullValidationBindHandler(bindHandler: BindHandler) extends AbstractBin
       case _ => false
     }
 
-    if (hasNotNullConstraint && target.getValue == null) {
+    if (hasNotNullConstraint && result == null) {
       throw new NotNullValidationException(name)
     }
 

@@ -16,9 +16,12 @@
 
 package za.co.absa.hyperdrive.trigger.configuration
 
+import com.typesafe.config.{Config, ConfigFactory}
+import org.springframework.boot.context.properties.bind.DefaultValue
 import org.springframework.boot.context.properties.{ConfigurationProperties, ConstructorBinding}
 import org.springframework.validation.annotation.Validated
 
+import java.util.{Optional, Properties}
 import java.{util => ju}
 import javax.validation.Valid
 import javax.validation.constraints.{Min, NotBlank, NotNull}
@@ -28,20 +31,30 @@ import scala.collection.JavaConverters._
 @ConfigurationProperties("kafka-source")
 @ConstructorBinding
 @Validated
+@Valid
 case class KafkaConfig(
   @BeanProperty
   @NotNull
   @Valid
   key: Key,
-  @BeanProperty properties: ju.Map[String, String] = Map[String, String]().asJava
+//  @BeanProperty properties: ju.Map[String, String] = Map[String, String]().asJava,
+  @BeanProperty @Valid @NotNull @KafkaSensorProperties(message = "key.deserializer, value.deserializer or max.poll.records is not defined") properties: Properties,
+  @BeanProperty @NotBlank @DefaultValue optionalString: OptionConstructibleWrapper[String] = new OptionConstructibleWrapper[String](""),
+  @BeanProperty @DefaultValue(Array("42")) defaultValue: Int = 0,
+  @BeanProperty @NotBlank someProperty: String
 ) {
-  val propertiesAsScala: Map[String, String] = properties.asScala.toMap
+  val propertiesConfig: Config = ConfigFactory.parseProperties(properties)
 }
 case object KafkaConfig {
-  def apply(keyDeserializer: String): KafkaConfig = KafkaConfig(Key(keyDeserializer))
+  def apply(keyDeserializer: String): KafkaConfig = KafkaConfig(Key(keyDeserializer), properties = new Properties(), someProperty = "aldsf")
 }
 
 case class Key(
   @BeanProperty
   @NotBlank
   deserializer: String)
+
+class OptionConstructibleWrapper[A](value: A) {
+  private val underlying: Option[A] = Option(value)
+  def apply(): Option[A] = underlying
+}
