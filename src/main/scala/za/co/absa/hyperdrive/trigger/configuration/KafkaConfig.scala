@@ -24,7 +24,7 @@ import org.springframework.validation.annotation.Validated
 import java.util.{Optional, Properties}
 import java.{util => ju}
 import javax.validation.Valid
-import javax.validation.constraints.{Min, NotBlank, NotNull}
+import javax.validation.constraints.{Min, NotBlank, NotNull, Size}
 import scala.beans.BeanProperty
 import scala.collection.JavaConverters._
 
@@ -46,13 +46,15 @@ case class KafkaConfig(
   val propertiesConfig: Config = ConfigFactory.parseProperties(properties)
 }
 case object KafkaConfig {
-  def apply(keyDeserializer: String): KafkaConfig = KafkaConfig(Key(keyDeserializer), properties = new Properties(), someProperty = "aldsf")
+  def apply(keyDeserializer: String): KafkaConfig = KafkaConfig(new Key(keyDeserializer), properties = new Properties(), someProperty = "aldsf")
 }
 
-case class Key(
-  @BeanProperty
-  @NotBlank
-  deserializer: String)
+class Key(
+  @(NotBlank @scala.annotation.meta.field)
+  @(Size @scala.annotation.meta.field)(min = 5)
+  val deserializer: String) {
+  def getDeserializer = deserializer
+}
 
 class OptionConstructibleWrapper[A](value: A) {
   private val underlying: Option[A] = Option(value)
