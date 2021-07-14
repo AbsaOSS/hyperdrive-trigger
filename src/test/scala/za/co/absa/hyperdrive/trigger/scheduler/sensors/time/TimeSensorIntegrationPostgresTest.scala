@@ -49,7 +49,7 @@ class TimeSensorIntegrationPostgresTest extends FlatSpec with Matchers with Befo
 
   private val dagInstanceService: DagInstanceService = new DagInstanceServiceImpl(jobTemplateService)
 
-  private val kafkaConfig = KafkaConfig()
+  private val kafkaConfig = KafkaConfig(keyDeserializer = "asdlf")
 
   override def beforeAll: Unit = {
     super.beforeAll()

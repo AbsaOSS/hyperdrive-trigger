@@ -40,7 +40,7 @@ class SensorsTest extends FlatSpec with MockitoSugar with Matchers with BeforeAn
   private val sensorRepository = mock[SensorRepository]
   private val eventProcessor = mock[EventProcessor]
   private val dagInstanceRepository = mock[DagInstanceRepository]
-  private val kafkaConfig = KafkaConfig()
+  private val kafkaConfig = KafkaConfig(keyDeserializer = "asdf")
 
   before {
     reset(sensorRepository)

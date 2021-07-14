@@ -17,11 +17,31 @@
 package za.co.absa.hyperdrive.trigger.configuration
 
 import org.springframework.boot.context.properties.{ConfigurationProperties, ConstructorBinding}
+import org.springframework.validation.annotation.Validated
 
+import java.{util => ju}
+import javax.validation.Valid
+import javax.validation.constraints.{Min, NotBlank, NotNull}
 import scala.beans.BeanProperty
+import scala.collection.JavaConverters._
 
 @ConfigurationProperties("kafka-source")
 @ConstructorBinding
+@Validated
 case class KafkaConfig(
-  @BeanProperty keyDeserializer: String = "defaultValue"
-)
+  @BeanProperty
+  @NotNull
+  @Valid
+  key: Key,
+  @BeanProperty properties: ju.Map[String, String] = Map[String, String]().asJava
+) {
+  val propertiesAsScala: Map[String, String] = properties.asScala.toMap
+}
+case object KafkaConfig {
+  def apply(keyDeserializer: String): KafkaConfig = KafkaConfig(Key(keyDeserializer))
+}
+
+case class Key(
+  @BeanProperty
+  @NotBlank
+  deserializer: String)
