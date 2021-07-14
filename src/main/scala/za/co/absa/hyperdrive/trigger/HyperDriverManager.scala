@@ -49,7 +49,7 @@ class HyperDriverManager @Inject() (jobScheduler: JobScheduler, kafkaConfig: Kaf
   }
 
   def bla = {
-    kafkaConfig.key.getDeserializer
+    kafkaConfig.key.deserializer
   }
 
   def config = kafkaConfig

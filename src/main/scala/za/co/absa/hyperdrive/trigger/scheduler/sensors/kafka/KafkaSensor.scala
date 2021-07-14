@@ -42,7 +42,7 @@ class KafkaSensor(
   private val logMsgPrefix = s"Sensor id = ${sensorDefinition.id}."
 
   private val consumer = {
-    val keyDeserializer = kafkaConfig.key.getDeserializer
+    val keyDeserializer = kafkaConfig.key.deserializer
     logger.info("Key Deserializer")
     logger.info(keyDeserializer)
     val consumerProperties = KafkaConfig.getConsumerProperties(sensorDefinition.properties)

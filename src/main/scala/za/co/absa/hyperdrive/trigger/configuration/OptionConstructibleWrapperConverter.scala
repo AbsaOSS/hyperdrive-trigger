@@ -22,6 +22,8 @@ import org.springframework.stereotype.Component
 
 @Component
 @ConfigurationPropertiesBinding
-class OptionConverter extends Converter[String, OptionConstructibleWrapper[String]]{
-  override def convert(source: String): OptionConstructibleWrapper[String] = new OptionConstructibleWrapper(source)
+class StringOptionConstructibleWrapperConverter extends OptionConstructibleWrapperConverter[String]
+
+class OptionConstructibleWrapperConverter[T] extends Converter[T, OptionConstructibleWrapper[T]]{
+  override def convert(source: T): OptionConstructibleWrapper[T] = new OptionConstructibleWrapper(source)
 }

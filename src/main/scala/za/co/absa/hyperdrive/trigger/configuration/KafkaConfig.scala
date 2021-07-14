@@ -21,42 +21,39 @@ import org.springframework.boot.context.properties.bind.DefaultValue
 import org.springframework.boot.context.properties.{ConfigurationProperties, ConstructorBinding}
 import org.springframework.validation.annotation.Validated
 
-import java.util.{Optional, Properties}
-import java.{util => ju}
+import java.util.Properties
 import javax.validation.Valid
-import javax.validation.constraints.{Min, NotBlank, NotNull, Size}
-import scala.beans.BeanProperty
-import scala.collection.JavaConverters._
+import javax.validation.constraints.{NotBlank, NotNull, Size}
+import scala.annotation.meta.field
 
 @ConfigurationProperties("kafka-source")
 @ConstructorBinding
 @Validated
-@Valid
-case class KafkaConfig(
-  @BeanProperty
-  @NotNull
-  @Valid
-  key: Key,
-//  @BeanProperty properties: ju.Map[String, String] = Map[String, String]().asJava,
-  @BeanProperty @Valid @NotNull @KafkaSensorProperties(message = "key.deserializer, value.deserializer or max.poll.records is not defined") properties: Properties,
-  @BeanProperty @NotBlank @DefaultValue optionalString: OptionConstructibleWrapper[String] = new OptionConstructibleWrapper[String](""),
-  @BeanProperty @DefaultValue(Array("42")) defaultValue: Int = 0,
-  @BeanProperty @NotBlank someProperty: String
+class KafkaConfig(
+  @(NotNull @field)
+  @(Valid @field)
+  val key: Key,
+  @(Valid @field)
+  @(KafkaSensorProperties @field)(message = "key.deserializer, value.deserializer or max.poll.records is not defined")
+  val properties: Properties,
+  @DefaultValue
+  val optionalString: OptionConstructibleWrapper[String],
+  @DefaultValue(Array("42"))
+  val defaultValue: Int
 ) {
   val propertiesConfig: Config = ConfigFactory.parseProperties(properties)
 }
-case object KafkaConfig {
-  def apply(keyDeserializer: String): KafkaConfig = KafkaConfig(new Key(keyDeserializer), properties = new Properties(), someProperty = "aldsf")
+
+object KafkaConfig {
+  def apply(keyDeserializer: String): KafkaConfig = new KafkaConfig(
+    new Key(keyDeserializer),
+    new Properties(),
+    new OptionConstructibleWrapper[String](null),
+    42
+  )
 }
 
 class Key(
-  @(NotBlank @scala.annotation.meta.field)
-  @(Size @scala.annotation.meta.field)(min = 5)
-  val deserializer: String) {
-  def getDeserializer = deserializer
-}
-
-class OptionConstructibleWrapper[A](value: A) {
-  private val underlying: Option[A] = Option(value)
-  def apply(): Option[A] = underlying
-}
+  @(NotBlank @field)
+  @(Size @field)(min = 5)
+  val deserializer: String)
