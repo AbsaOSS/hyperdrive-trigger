@@ -93,15 +93,13 @@
         <play-json.version>2.7.3</play-json.version>
         <play-ws-standalone.version>2.0.3</play-ws-standalone.version>
         <play-ahc-ws-standalone.version>2.0.2</play-ahc-ws-standalone.version>
-        <spring-boot-starter-web.version>2.0.0.RELEASE</spring-boot-starter-web.version>
         <jackson-module.version>2.11.0</jackson-module.version>
-        <spring-boot-starter-tomcat.version>2.0.0.RELEASE</spring-boot-starter-tomcat.version>
         <alchim31>3.2.0</alchim31>
-        <spring.version>2.0.0.RELEASE</spring.version>
+        <spring.version>2.5.2</spring.version>
         <quartz.version>2.3.2</quartz.version>
         <log4j.version>2.11.1</log4j.version>
         <slf4j.log4j2.version>1.7.26</slf4j.log4j2.version>
-        <spring.ldap.version>5.0.3.RELEASE</spring.ldap.version>
+        <spring.security.ldap.version>5.5.1</spring.security.ldap.version>
         <scalatest.version>3.0.5</scalatest.version>
         <h2database.version>1.4.200</h2database.version>
         <testcontainers.postgresql.version>1.15.3</testcontainers.postgresql.version>
@@ -117,7 +115,7 @@
         <frontend.maven.plugin.version>1.9.0</frontend.maven.plugin.version>
         <maven.war.plugin.version>2.6</maven.war.plugin.version>
         <commons.lang3.version>3.11</commons.lang3.version>
-        <javamelody.spring.boot.starter.version>1.86.0</javamelody.spring.boot.starter.version>
+        <javamelody.spring.boot.starter.version>1.87.0</javamelody.spring.boot.starter.version>
         <buildnumber.maven.plugin.version>1.4</buildnumber.maven.plugin.version>
         <liquibase-maven-plugin.version>3.10.2</liquibase-maven-plugin.version>
         <snakeyaml.version>1.26</snakeyaml.version>
@@ -193,7 +191,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-            <version>${spring-boot-starter-web.version}</version>
+            <version>${spring.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -223,13 +221,13 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
-            <version>${spring-boot-starter-tomcat.version}</version>
+            <version>${spring.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-ldap</artifactId>
-            <version>${spring.ldap.version}</version>
+            <version>${spring.security.ldap.version}</version>
         </dependency>
         <dependency>
             <groupId>it.burning</groupId>
@@ -265,6 +263,18 @@
             <groupId>net.bull.javamelody</groupId>
             <artifactId>javamelody-spring-boot-starter</artifactId>
             <version>${javamelody.spring.boot.starter.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-aop</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!-- Override spring version in javamelody-spring-boot-starter -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+            <version>${spring.version}</version>
         </dependency>
         <!--TESTS-->
         <dependency>
