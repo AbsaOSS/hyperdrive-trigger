@@ -18,7 +18,6 @@ package za.co.absa.hyperdrive.trigger.models.tables
 import java.time.LocalDateTime
 
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.JobStatus
-import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
 import za.co.absa.hyperdrive.trigger.models._
 import slick.lifted.{ForeignKeyQuery, ProvenShape}
 
@@ -29,7 +28,6 @@ trait JobInstanceTable {
   final class JobInstanceTable(tag: Tag) extends Table[JobInstance](tag, _tableName = "job_instance") {
 
     def jobName: Rep[String] = column[String]("job_name")
-    def jobType: Rep[JobType] = column[JobType]("job_type")
     def jobParameters: Rep[JobInstanceParameters] = column[JobInstanceParameters]("job_parameters", O.SqlType("JSONB"))
     def jobStatus: Rep[JobStatus] = column[JobStatus]("job_status")
     def executorJobId: Rep[Option[String]] = column[Option[String]]("executor_job_id")
@@ -45,7 +43,6 @@ trait JobInstanceTable {
 
     def * : ProvenShape[JobInstance] = (
       jobName,
-      jobType,
       jobParameters,
       jobStatus,
       executorJobId,
@@ -59,21 +56,19 @@ trait JobInstanceTable {
       jobInstanceTuple =>
         JobInstance.apply(
           jobName = jobInstanceTuple._1,
-          jobType = jobInstanceTuple._2,
-          jobParameters = jobInstanceTuple._3,
-          jobStatus = jobInstanceTuple._4,
-          executorJobId = jobInstanceTuple._5,
-          applicationId = jobInstanceTuple._6,
-          created = jobInstanceTuple._7,
-          updated = jobInstanceTuple._8,
-          order = jobInstanceTuple._9,
-          dagInstanceId = jobInstanceTuple._10,
-          id = jobInstanceTuple._11
+          jobParameters = jobInstanceTuple._2,
+          jobStatus = jobInstanceTuple._3,
+          executorJobId = jobInstanceTuple._4,
+          applicationId = jobInstanceTuple._5,
+          created = jobInstanceTuple._6,
+          updated = jobInstanceTuple._7,
+          order = jobInstanceTuple._8,
+          dagInstanceId = jobInstanceTuple._9,
+          id = jobInstanceTuple._10
         ),
       (jobInstance: JobInstance) =>
         Option(
           jobInstance.jobName,
-          jobInstance.jobType,
           jobInstance.jobParameters,
           jobInstance.jobStatus,
           jobInstance.executorJobId,

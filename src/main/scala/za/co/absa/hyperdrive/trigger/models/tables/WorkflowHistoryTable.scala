@@ -21,20 +21,20 @@ import slick.lifted.ProvenShape
 import za.co.absa.hyperdrive.trigger.models.enums.DBOperation.DBOperation
 import za.co.absa.hyperdrive.trigger.models.{History, WorkflowHistory, WorkflowJoined}
 
-trait WorkflowHistoryTable {
+trait WorkflowHistoryTable extends HistoryTableQuery {
   this: Profile with JdbcTypeMapper =>
 
   import api._
 
-  final class WorkflowHistoryTable(tag: Tag) extends Table[WorkflowHistory](tag, _tableName = "workflow_history") {
-    def id: Rep[Long] = column[Long]("id", O.PrimaryKey, O.AutoInc, O.SqlType("BIGSERIAL"))
-    def changedOn: Rep[LocalDateTime] = column[LocalDateTime]("changed_on")
-    def changedBy: Rep[String] = column[String]("changed_by")
-    def operation: Rep[DBOperation] = column[DBOperation]("operation")
-    def workflowId: Rep[Long] = column[Long]("workflow_id")
+  final class WorkflowHistoryTable(tag: Tag) extends Table[WorkflowHistory](tag, _tableName = "workflow_history") with HistoryTable {
+    override def id: Rep[Long] = column[Long]("id", O.PrimaryKey, O.AutoInc, O.SqlType("BIGSERIAL"))
+    override def changedOn: Rep[LocalDateTime] = column[LocalDateTime]("changed_on")
+    override def changedBy: Rep[String] = column[String]("changed_by")
+    override def operation: Rep[DBOperation] = column[DBOperation]("operation")
+    override def entityId: Rep[Long] = column[Long]("workflow_id")
     def workflow: Rep[WorkflowJoined] = column[WorkflowJoined]("workflow")
 
-    def * : ProvenShape[WorkflowHistory] = (id, changedOn, changedBy, operation, workflowId, workflow) <> (
+    def * : ProvenShape[WorkflowHistory] = (id, changedOn, changedBy, operation, entityId, workflow) <> (
       workflowTuple =>
         WorkflowHistory.apply(
           history = History.apply(

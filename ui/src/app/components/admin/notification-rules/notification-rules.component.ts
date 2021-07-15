@@ -13,12 +13,15 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models
+import { Component } from '@angular/core';
 
-import scala.collection.immutable.SortedMap
-
-case class JobParameters(
-  variables: Map[String, String],
-  maps: Map[String, List[String]] = Map.empty[String, List[String]],
-  keyValuePairs: Map[String, SortedMap[String, String]] = Map.empty
-)
+@Component({
+  selector: 'app-notification-rules',
+  templateUrl: './notification-rules.component.html',
+  styleUrls: ['./notification-rules.component.scss'],
+})
+export class NotificationRulesComponent {
+  constructor() {
+    //do nothing
+  }
+}

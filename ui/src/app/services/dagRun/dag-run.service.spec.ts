@@ -54,4 +54,17 @@ describe('DagRunService', () => {
     expect(req.request.method).toEqual('GET');
     req.flush([...jobInstances]);
   });
+
+  it('killJob() should call kill job rest api', () => {
+    const applicationId = 'application_id';
+    const response = true;
+    underTest.killJob(applicationId).subscribe(
+      (data) => expect(data).toEqual(response),
+      (error) => fail(error),
+    );
+
+    const req = httpTestingController.expectOne(api.KILL_JOB.replace('{applicationId}', applicationId.toString()));
+    expect(req.request.method).toEqual('POST');
+    req.flush(new Boolean(true));
+  });
 });

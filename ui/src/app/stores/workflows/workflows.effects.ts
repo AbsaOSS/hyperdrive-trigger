@@ -28,13 +28,13 @@ import { AppState, selectWorkflowState } from '../app.reducers';
 import { Store } from '@ngrx/store';
 import * as fromWorkflows from './workflows.reducers';
 import { WorkflowDataModel } from '../../models/workflowData.model';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { absoluteRoutes } from '../../constants/routes.constants';
 import { ToastrService } from 'ngx-toastr';
 import { texts } from '../../constants/texts.constants';
 import { WorkflowModel, WorkflowModelFactory } from '../../models/workflow.model';
 import { WorkflowRequestModel } from '../../models/workflowRequest.model';
-import { HistoryModel, WorkflowHistoriesForComparisonModel } from '../../models/historyModel';
+import { HistoryModel, HistoryPairModel, WorkflowHistoryModel } from '../../models/historyModel';
 import { WorkflowHistoryService } from '../../services/workflowHistory/workflow-history.service';
 import { JobService } from '../../services/job/job.service';
 import { JobForRunModel } from '../../models/jobForRun.model';
@@ -43,6 +43,8 @@ import { ApiErrorModel } from '../../models/errors/apiError.model';
 import { BulkOperationErrorModel } from '../../models/errors/bulkOperationError.model';
 import { UtilService } from '../../services/util/util.service';
 import groupBy from 'lodash-es/groupBy';
+import { ApiUtil } from '../../utils/api/api.util';
+import { JobTemplateModel } from '../../models/jobTemplate.model';
 
 @Injectable()
 export class WorkflowsEffects {
@@ -247,49 +249,63 @@ export class WorkflowsEffects {
     ofType(WorkflowActions.CREATE_WORKFLOW),
     withLatestFrom(this.store.select(selectWorkflowState)),
     switchMap(([action, state]: [WorkflowActions.CreateWorkflow, fromWorkflows.State]) => {
-      const workflowCreateRequest = new WorkflowRequestModel(
-        state.workflowAction.workflowFormData.details,
-        state.workflowAction.workflowFormData.sensor,
-        state.workflowAction.workflowFormData.jobs,
-      ).getCreateWorkflowRequestObject();
+      return this.workflowService.getJobTemplates().pipe(
+        mergeMap((jobTemplates: JobTemplateModel[]) => {
+          const workflowCreateRequest = new WorkflowRequestModel(
+            state.workflowAction.workflowFormData.details,
+            state.workflowAction.workflowFormData.sensor,
+            state.workflowAction.workflowFormData.jobs,
+            jobTemplates,
+          ).getCreateWorkflowRequestObject();
 
-      return this.workflowService.createWorkflow(workflowCreateRequest).pipe(
-        mergeMap((result: WorkflowJoinedModel) => {
-          const workflow: WorkflowModel = WorkflowModelFactory.create(
-            result.name,
-            result.isActive,
-            result.project,
-            result.created,
-            result.updated,
-            result.id,
+          return this.workflowService.createWorkflow(workflowCreateRequest).pipe(
+            mergeMap((result: WorkflowJoinedModel) => {
+              const workflow: WorkflowModel = WorkflowModelFactory.create(
+                result.name,
+                result.isActive,
+                result.project,
+                result.created,
+                result.updated,
+                result.id,
+              );
+              this.toastrService.success(texts.CREATE_WORKFLOW_SUCCESS_NOTIFICATION);
+              this.router.navigateByUrl(absoluteRoutes.SHOW_WORKFLOW + '/' + workflow.id);
+
+              return [
+                {
+                  type: WorkflowActions.CREATE_WORKFLOW_SUCCESS,
+                  payload: workflow,
+                },
+              ];
+            }),
+            catchError((errorResponse) => {
+              if (ApiUtil.isBackendValidationError(errorResponse)) {
+                return [
+                  {
+                    type: WorkflowActions.CREATE_WORKFLOW_FAILURE,
+                    payload: errorResponse.map((err) => err.message),
+                  },
+                ];
+              } else {
+                this.toastrService.error(texts.CREATE_WORKFLOW_FAILURE_NOTIFICATION);
+                return [
+                  {
+                    type: WorkflowActions.CREATE_WORKFLOW_FAILURE,
+                    payload: [],
+                  },
+                ];
+              }
+            }),
           );
-          this.toastrService.success(texts.CREATE_WORKFLOW_SUCCESS_NOTIFICATION);
-          this.router.navigateByUrl(absoluteRoutes.SHOW_WORKFLOW + '/' + workflow.id);
-
+        }),
+        catchError(() => {
+          this.toastrService.error(texts.LOAD_JOB_TEMPLATES_FAILURE_NOTIFICATION);
           return [
             {
-              type: WorkflowActions.CREATE_WORKFLOW_SUCCESS,
-              payload: workflow,
+              type: WorkflowActions.CREATE_WORKFLOW_FAILURE,
+              payload: [],
             },
           ];
-        }),
-        catchError((errorResponse) => {
-          if (this.isBackendValidationError(errorResponse)) {
-            return [
-              {
-                type: WorkflowActions.CREATE_WORKFLOW_FAILURE,
-                payload: errorResponse.map((err) => err.message),
-              },
-            ];
-          } else {
-            this.toastrService.error(texts.CREATE_WORKFLOW_FAILURE_NOTIFICATION);
-            return [
-              {
-                type: WorkflowActions.CREATE_WORKFLOW_FAILURE,
-                payload: [],
-              },
-            ];
-          }
         }),
       );
     }),
@@ -300,49 +316,54 @@ export class WorkflowsEffects {
     ofType(WorkflowActions.UPDATE_WORKFLOW),
     withLatestFrom(this.store.select(selectWorkflowState)),
     switchMap(([action, state]: [WorkflowActions.CreateWorkflow, fromWorkflows.State]) => {
-      const workflowUpdateRequest = new WorkflowRequestModel(
-        state.workflowAction.workflowFormData.details,
-        state.workflowAction.workflowFormData.sensor,
-        state.workflowAction.workflowFormData.jobs,
-      ).getUpdateWorkflowRequestObject(state.workflowAction.id);
+      return this.workflowService.getJobTemplates().pipe(
+        mergeMap((jobTemplates: JobTemplateModel[]) => {
+          const workflowUpdateRequest = new WorkflowRequestModel(
+            state.workflowAction.workflowFormData.details,
+            state.workflowAction.workflowFormData.sensor,
+            state.workflowAction.workflowFormData.jobs,
+            jobTemplates,
+          ).getUpdateWorkflowRequestObject(state.workflowAction.id);
 
-      return this.workflowService.updateWorkflow(workflowUpdateRequest).pipe(
-        mergeMap((result: WorkflowJoinedModel) => {
-          const workflow: WorkflowModel = WorkflowModelFactory.create(
-            result.name,
-            result.isActive,
-            result.project,
-            result.created,
-            result.updated,
-            result.id,
+          return this.workflowService.updateWorkflow(workflowUpdateRequest).pipe(
+            mergeMap((result: WorkflowJoinedModel) => {
+              const workflow: WorkflowModel = WorkflowModelFactory.create(
+                result.name,
+                result.isActive,
+                result.project,
+                result.created,
+                result.updated,
+                result.id,
+              );
+              this.toastrService.success(texts.UPDATE_WORKFLOW_SUCCESS_NOTIFICATION);
+              this.router.navigateByUrl(absoluteRoutes.SHOW_WORKFLOW + '/' + workflow.id);
+
+              return [
+                {
+                  type: WorkflowActions.UPDATE_WORKFLOW_SUCCESS,
+                  payload: workflow,
+                },
+              ];
+            }),
+            catchError((errorResponse) => {
+              if (ApiUtil.isBackendValidationError(errorResponse)) {
+                return [
+                  {
+                    type: WorkflowActions.UPDATE_WORKFLOW_FAILURE,
+                    payload: errorResponse.map((err) => err.message),
+                  },
+                ];
+              } else {
+                this.toastrService.error(texts.UPDATE_WORKFLOW_FAILURE_NOTIFICATION);
+                return [
+                  {
+                    type: WorkflowActions.UPDATE_WORKFLOW_FAILURE,
+                    payload: [],
+                  },
+                ];
+              }
+            }),
           );
-          this.toastrService.success(texts.UPDATE_WORKFLOW_SUCCESS_NOTIFICATION);
-          this.router.navigateByUrl(absoluteRoutes.SHOW_WORKFLOW + '/' + workflow.id);
-
-          return [
-            {
-              type: WorkflowActions.UPDATE_WORKFLOW_SUCCESS,
-              payload: workflow,
-            },
-          ];
-        }),
-        catchError((errorResponse) => {
-          if (this.isBackendValidationError(errorResponse)) {
-            return [
-              {
-                type: WorkflowActions.UPDATE_WORKFLOW_FAILURE,
-                payload: errorResponse.map((err) => err.message),
-              },
-            ];
-          } else {
-            this.toastrService.error(texts.UPDATE_WORKFLOW_FAILURE_NOTIFICATION);
-            return [
-              {
-                type: WorkflowActions.UPDATE_WORKFLOW_FAILURE,
-                payload: [],
-              },
-            ];
-          }
         }),
       );
     }),
@@ -382,17 +403,14 @@ export class WorkflowsEffects {
         action.payload.rightWorkflowHistoryId,
       );
     }),
-    mergeMap((workflowHistForComparison: WorkflowHistoriesForComparisonModel) => {
+    mergeMap((workflowHistForComparison: HistoryPairModel<WorkflowHistoryModel>) => {
       return this.workflowService.getWorkflowDynamicFormParts().pipe(
         mergeMap((workflowComponents: DynamicFormParts) => {
           const workflowFormParts = this.getWorkflowFormParts(workflowComponents);
 
-          const leftWorkflowHistory = new WorkflowDataModel(
-            workflowHistForComparison.leftWorkflowHistory.workflow,
-            workflowFormParts.dynamicParts,
-          );
+          const leftWorkflowHistory = new WorkflowDataModel(workflowHistForComparison.leftHistory.workflow, workflowFormParts.dynamicParts);
           const rightWorkflowHistory = new WorkflowDataModel(
-            workflowHistForComparison.rightWorkflowHistory.workflow,
+            workflowHistForComparison.rightHistory.workflow,
             workflowFormParts.dynamicParts,
           );
           return [
@@ -401,9 +419,9 @@ export class WorkflowsEffects {
               payload: {
                 workflowFormParts: workflowFormParts,
                 leftWorkflowHistoryData: leftWorkflowHistory.getWorkflowFromData(),
-                leftWorkflowHistory: workflowHistForComparison.leftWorkflowHistory.history,
+                leftWorkflowHistory: workflowHistForComparison.leftHistory.history,
                 rightWorkflowHistoryData: rightWorkflowHistory.getWorkflowFromData(),
-                rightWorkflowHistory: workflowHistForComparison.rightWorkflowHistory.history,
+                rightWorkflowHistory: workflowHistForComparison.rightHistory.history,
               },
             },
           ];
@@ -512,8 +530,8 @@ export class WorkflowsEffects {
           }
         }),
         catchError((errorResponse) => {
-          if (this.isApiError(errorResponse)) {
-            const message = this.concatenateApiErrors(errorResponse as ApiErrorModel[]);
+          if (ApiUtil.isApiError(errorResponse)) {
+            const message = ApiUtil.concatenateApiErrors(errorResponse as ApiErrorModel[]);
             this.toastrService.error(message);
           } else {
             this.toastrService.error(texts.RUN_WORKFLOWS_FAILURE_NOTIFICATION);
@@ -549,8 +567,8 @@ export class WorkflowsEffects {
           ];
         }),
         catchError((errorResponse) => {
-          if (this.isApiError(errorResponse)) {
-            const message = this.concatenateApiErrors(errorResponse as ApiErrorModel[]);
+          if (ApiUtil.isApiError(errorResponse)) {
+            const message = ApiUtil.concatenateApiErrors(errorResponse as ApiErrorModel[]);
             this.toastrService.error(message);
           } else {
             this.toastrService.error(texts.EXPORT_WORKFLOWS_FAILURE_NOTIFICATION);
@@ -588,8 +606,8 @@ export class WorkflowsEffects {
             ];
           }),
           catchError((errorResponse) => {
-            if (this.isApiError(errorResponse)) {
-              const message = this.concatenateApiErrors(errorResponse as ApiErrorModel[]);
+            if (ApiUtil.isApiError(errorResponse)) {
+              const message = ApiUtil.concatenateApiErrors(errorResponse as ApiErrorModel[]);
               this.toastrService.error(message);
             } else {
               this.toastrService.error(texts.IMPORT_WORKFLOW_FAILURE_NOTIFICATION);
@@ -629,7 +647,7 @@ export class WorkflowsEffects {
           ];
         }),
         catchError((errorResponse) => {
-          if (this.isBulkOperationError(errorResponse)) {
+          if (ApiUtil.isBulkOperationError(errorResponse)) {
             const errorGroups: { [key: string]: BulkOperationErrorModel[] } = groupBy(
               errorResponse as BulkOperationErrorModel[],
               'workflowIdentifier',
@@ -659,28 +677,4 @@ export class WorkflowsEffects {
       );
     }),
   );
-
-  concatenateApiErrors(apiErrors: ApiErrorModel[]): string {
-    return apiErrors.map((apiError) => apiError.message).reduce((a, b) => `${a}\n${b}`);
-  }
-
-  isApiError(errorResponse: any): boolean {
-    return Array.isArray(errorResponse) && errorResponse.every((err) => this.isInstanceOfApiError(err));
-  }
-
-  isInstanceOfApiError(object: any): object is ApiErrorModel {
-    return 'message' in object;
-  }
-
-  isBulkOperationError(errorResponse: any): boolean {
-    return Array.isArray(errorResponse) && errorResponse.every((err) => this.isInstanceOfBulkOperationError(err));
-  }
-
-  isInstanceOfBulkOperationError(object: any): object is BulkOperationErrorModel {
-    return 'innerError' in object;
-  }
-
-  isBackendValidationError(errorResponse: any): boolean {
-    return this.isApiError(errorResponse) && errorResponse.every((err) => err.errorType.name == 'validationError');
-  }
 }

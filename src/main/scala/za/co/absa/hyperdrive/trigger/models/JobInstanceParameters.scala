@@ -16,16 +16,16 @@
 
 package za.co.absa.hyperdrive.trigger.models
 
-import java.nio.file.Paths
-
 import play.api.libs.json.{Format, JsResult, JsValue, Json, OFormat}
-import za.co.absa.hyperdrive.trigger.scheduler.utilities.{ShellExecutorConfig, SparkExecutorConfig}
+import za.co.absa.hyperdrive.trigger.models.enums.JobTypes
+import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
 
-import scala.util.Try
+sealed trait JobInstanceParameters {
+  val jobType: JobType
+}
 
-sealed trait JobInstanceParameters
-
-case class SparkParameters(
+case class SparkInstanceParameters(
+  jobType: JobType = JobTypes.Spark,
   jobJar: String,
   mainClass: String,
   appArguments: List[String] = List.empty[String],
@@ -34,41 +34,31 @@ case class SparkParameters(
   additionalSparkConfig: Map[String, String] = Map.empty[String, String]
 ) extends JobInstanceParameters
 
-case class ShellParameters(
+case class ShellInstanceParameters(
+  jobType: JobType = JobTypes.Shell,
   scriptLocation: String
 ) extends JobInstanceParameters
 
-object SparkParameters {
-  implicit val sparkFormat: OFormat[SparkParameters] = Json.using[Json.WithDefaultValues].format[SparkParameters]
-
-  def apply(jobParameters: JobParameters): SparkParameters = {
-    SparkParameters(
-      jobJar = Paths.get(SparkExecutorConfig.getExecutablesFolder, jobParameters.variables("jobJar")).toString,
-      mainClass = jobParameters.variables("mainClass"),
-      appArguments = Try(jobParameters.maps("appArguments")).getOrElse(List.empty[String]),
-      additionalJars = Try(jobParameters.maps("additionalJars")).getOrElse(List.empty[String]).map(jar => Paths.get(SparkExecutorConfig.getExecutablesFolder, jar).toString),
-      additionalFiles = Try(jobParameters.maps("additionalFiles")).getOrElse(List.empty[String]).map(file => Paths.get(SparkExecutorConfig.getExecutablesFolder, file).toString),
-      additionalSparkConfig = Try(jobParameters.keyValuePairs("additionalSparkConfig")).getOrElse(Map.empty[String, String])
-    )
-  }
+object SparkInstanceParameters {
+  implicit val sparkFormat: OFormat[SparkInstanceParameters] = Json.using[Json.WithDefaultValues].format[SparkInstanceParameters]
 }
 
-object ShellParameters {
-  implicit val shellFormat: OFormat[ShellParameters] = Json.using[Json.WithDefaultValues].format[ShellParameters]
-
-  def apply(jobParameters: JobParameters): ShellParameters = new ShellParameters(
-    scriptLocation = Paths.get(ShellExecutorConfig.getExecutablesFolder, jobParameters.variables("scriptLocation")).toString
-  )
+object ShellInstanceParameters {
+  implicit val shellFormat: OFormat[ShellInstanceParameters] = Json.using[Json.WithDefaultValues].format[ShellInstanceParameters]
 }
 
 object JobInstanceParameters {
-  implicit val jobParametersFormat: Format[JobInstanceParameters] = new Format[JobInstanceParameters] {
-    override def writes(o: JobInstanceParameters): JsValue = o match {
-      case spark: SparkParameters => Json.toJson(spark)
-      case shell: ShellParameters => Json.toJson(shell)
+  implicit val jobParametersFormat = new Format[JobInstanceParameters] {
+    override def reads(json: JsValue): JsResult[JobInstanceParameters] = {
+      (json \ "jobType").as[String] match {
+        case JobTypes.Spark.name => SparkInstanceParameters.sparkFormat.reads(json)
+        case JobTypes.Shell.name => ShellInstanceParameters.shellFormat.reads(json)
+      }
     }
-    override def reads(json: JsValue): JsResult[JobInstanceParameters] =
-      SparkParameters.sparkFormat.reads(json).orElse(
-        ShellParameters.shellFormat.reads(json))
+
+    override def writes(jobInstanceParameters: JobInstanceParameters): JsValue = jobInstanceParameters match {
+      case sparkParameters: SparkInstanceParameters => SparkInstanceParameters.sparkFormat.writes(sparkParameters)
+      case shellParameters: ShellInstanceParameters => ShellInstanceParameters.shellFormat.writes(shellParameters)
+    }
   }
 }

@@ -112,6 +112,8 @@ object SparkExecutorConfig {
     Configs.getMapFromConf("sparkYarnSink.additionalConfs")
   val getExecutablesFolder: String =
     Configs.conf.getString("sparkYarnSink.executablesFolder")
+  val getUserUsedToKillJob: String =
+    Try(Configs.conf.getString("sparkYarnSink.userUsedToKillJob")).getOrElse("Unknown")
 }
 
 object JobDefinitionConfig {
@@ -122,11 +124,24 @@ object JobDefinitionConfig {
 object HealthConfig {
   lazy val databaseConnectionTimeoutMillis: Int =
     Try(Configs.conf.getInt("health.databaseConnection.timeoutMillis")).getOrElse(120000)
-  lazy val yarnConnectionTestEndpoint: String =
+  lazy val yarnConnectionTestEndpoint: String = {
     Configs.conf.getString("health.yarnConnection.testEndpoint")
+  }
+  lazy val yarnConnectionTimeoutMillisOpt: Option[Int] =
+    Try(Configs.conf.getInt("health.yarnConnection.timeoutMillis")).toOption
 }
 
 object ApplicationConfig {
   val maximumNumberOfWorkflowsInBulkRun: Int =
     Try(Configs.conf.getInt("application.maximumNumberOfWorkflowsInBulkRun")).getOrElse(10)
+}
+
+object NotificationConfig {
+  val notificationEnabled: Boolean = Try(Configs.conf.getBoolean("notification.enabled")).getOrElse(false)
+  val notificationSenderAddress: String = Try(Configs.conf.getString("notification.sender.address")).getOrElse("")
+}
+
+object GeneralConfig {
+  val environment: String =
+    Try(Configs.conf.getString("environment")).getOrElse("Unknown")
 }

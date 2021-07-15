@@ -15,19 +15,15 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.executors.spark
 
-import za.co.absa.hyperdrive.trigger.models.{JobInstance, SparkParameters}
+import za.co.absa.hyperdrive.trigger.models.{JobInstance, SparkInstanceParameters}
 
 import scala.concurrent.{ExecutionContext, Future}
 import java.util.UUID.randomUUID
 import java.util.concurrent.{CountDownLatch, TimeUnit}
 
-import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
-
 import scala.collection.JavaConverters._
 import org.apache.spark.launcher.{SparkAppHandle, SparkLauncher}
 import play.api.libs.json.{JsValue, Json}
-import play.api.libs.ws.ahc.StandaloneAhcWSClient
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses._
 import za.co.absa.hyperdrive.trigger.scheduler.executors.Executor
 import za.co.absa.hyperdrive.trigger.scheduler.utilities.SparkExecutorConfig
@@ -35,11 +31,10 @@ import za.co.absa.hyperdrive.trigger.scheduler.utilities.JobDefinitionConfig.{Ke
 import play.api.libs.ws.JsonBodyReadables._
 import za.co.absa.hyperdrive.trigger.scheduler.executors.spark.{FinalStatuses => YarnFinalStatuses}
 import org.slf4j.LoggerFactory
+import za.co.absa.hyperdrive.trigger.api.rest.utils.WSClientProvider
 
-object SparkExecutor extends Executor[SparkParameters] {
-  private val wsClient = StandaloneAhcWSClient()(ActorMaterializer()(ActorSystem()))
-
-  override def execute(jobInstance: JobInstance, jobParameters: SparkParameters, updateJob: JobInstance => Future[Unit])
+object SparkExecutor extends Executor[SparkInstanceParameters] {
+  override def execute(jobInstance: JobInstance, jobParameters: SparkInstanceParameters, updateJob: JobInstance => Future[Unit])
                       (implicit executionContext: ExecutionContext): Future[Unit] = {
     jobInstance.executorJobId match {
       case None => submitJob(jobInstance, jobParameters, updateJob)
@@ -47,7 +42,7 @@ object SparkExecutor extends Executor[SparkParameters] {
     }
   }
 
-  private def submitJob(jobInstance: JobInstance, jobParameters: SparkParameters, updateJob: JobInstance => Future[Unit])
+  private def submitJob(jobInstance: JobInstance, jobParameters: SparkInstanceParameters, updateJob: JobInstance => Future[Unit])
                        (implicit executionContext: ExecutionContext): Future[Unit] = {
     val id = randomUUID().toString
     val ji = jobInstance.copy(executorJobId = Some(id), jobStatus = Submitting)
@@ -70,7 +65,7 @@ object SparkExecutor extends Executor[SparkParameters] {
 
   private def updateJobStatus(executorJobId: String, jobInstance: JobInstance, updateJob: JobInstance => Future[Unit])
                              (implicit executionContext: ExecutionContext): Future[Unit] = {
-    wsClient.url(getStatusUrl(executorJobId)).get().map { response =>
+    WSClientProvider.getWSClient.url(getStatusUrl(executorJobId)).get().map { response =>
       (Json.fromJson[AppsResponse](response.body[JsValue]).asOpt match {
         case Some(asd) => asd.apps.app
         case None => Seq.empty
@@ -84,7 +79,7 @@ object SparkExecutor extends Executor[SparkParameters] {
     }
   }
 
-  private def getSparkLauncher(id: String, jobName: String, jobParameters: SparkParameters): SparkLauncher = {
+  private def getSparkLauncher(id: String, jobName: String, jobParameters: SparkInstanceParameters): SparkLauncher = {
     val sparkLauncher = new SparkLauncher(Map(
       "HADOOP_CONF_DIR" -> SparkExecutorConfig.getHadoopConfDir,
       "SPARK_PRINT_LAUNCH_COMMAND" -> "1"

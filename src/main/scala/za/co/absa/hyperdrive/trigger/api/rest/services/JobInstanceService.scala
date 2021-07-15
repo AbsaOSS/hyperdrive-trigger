@@ -16,14 +16,20 @@
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
 import org.springframework.stereotype.Service
+import play.api.libs.json.Json
+import za.co.absa.hyperdrive.trigger.api.rest.utils.WSClientProvider
 import za.co.absa.hyperdrive.trigger.models.JobInstance
 import za.co.absa.hyperdrive.trigger.persistance.JobInstanceRepository
+import za.co.absa.hyperdrive.trigger.scheduler.utilities.SparkExecutorConfig
+import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
 
 trait JobInstanceService {
   val jobInstanceRepository: JobInstanceRepository
   def getJobInstances(dagInstanceId: Long)(implicit ec: ExecutionContext): Future[Seq[JobInstance]]
+  def killJob(applicationId: String)(implicit ec: ExecutionContext): Future[Boolean]
 }
 
 @Service
@@ -33,4 +39,19 @@ class JobInstanceServiceImpl(override val jobInstanceRepository: JobInstanceRepo
     jobInstanceRepository.getJobInstances(dagInstanceId)
   }
 
+  override def killJob(applicationId: String)(implicit ec: ExecutionContext): Future[Boolean] = {
+    val url: String =
+      s"${SparkExecutorConfig.getHadoopResourceManagerUrlBase}/ws/v1/cluster/apps/$applicationId/state?user.name=${SparkExecutorConfig.getUserUsedToKillJob}"
+    val data = Json.obj(
+      "state" -> "KILLED"
+    )
+
+    Try {
+      WSClientProvider.getWSClient.url(url).put(data).map { response =>
+        response.status == 200 || response.status == 202
+      }.recoverWith {
+        case _ => Future.successful(false)
+      }
+    }.getOrElse(Future.successful(false))
+  }
 }

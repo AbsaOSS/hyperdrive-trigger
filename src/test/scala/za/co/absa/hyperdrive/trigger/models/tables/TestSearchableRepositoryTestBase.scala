@@ -19,9 +19,9 @@ package za.co.absa.hyperdrive.trigger.models.tables
 import java.time.LocalDateTime
 
 import slick.lifted.ProvenShape
-import za.co.absa.hyperdrive.trigger.persistance.RepositoryTestBase
+import za.co.absa.hyperdrive.trigger.persistance.RepositoryH2TestBase
 
-trait TestSearchableRepositoryTestBase extends RepositoryTestBase with TestSearchableTable {
+trait TestSearchableRepositoryTestBase extends RepositoryH2TestBase with TestSearchableTable {
 
   import api._
 
@@ -37,11 +37,17 @@ trait TestSearchableRepositoryTestBase extends RepositoryTestBase with TestSearc
 
   object TestSearchableData {
     val t1 = TestSearchableEntity(longValue = 1, stringValue = "value1", stringValue2 = "str1", stringValue3 = "bar",
-      localDateTimeValue = LocalDateTime.of(2020, 3, 1, 12, 30, 5))
+      localDateTimeValue = LocalDateTime.of(2020, 3, 1, 12, 30, 5),
+      booleanValue = false
+    )
     val t2 = TestSearchableEntity(longValue = 2, stringValue = "value2", stringValue2 = "str2", stringValue3 = "bar",
-      localDateTimeValue = LocalDateTime.of(2005, 3, 1, 12, 30, 5))
+      localDateTimeValue = LocalDateTime.of(2005, 3, 1, 12, 30, 5),
+      booleanValue = true
+    )
     val t3 = TestSearchableEntity(longValue = 3, stringValue = "value3", stringValue2 = "str3", stringValue3 = "foo",
-      localDateTimeValue = LocalDateTime.of(2025, 3, 1, 12, 30, 5))
+      localDateTimeValue = LocalDateTime.of(2025, 3, 1, 12, 30, 5),
+      booleanValue = false
+    )
     val testSearchableEntities: Seq[TestSearchableEntity] = Seq(t3, t2, t1)
   }
 

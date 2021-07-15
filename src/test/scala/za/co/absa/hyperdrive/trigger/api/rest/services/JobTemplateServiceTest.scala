@@ -48,8 +48,8 @@ class JobTemplateServiceTest extends AsyncFlatSpec with Matchers with MockitoSug
 
     // then
     resolvedJobDefinitions should have size 2
-    resolvedJobDefinitions.head.jobType shouldBe JobTypes.Spark
-    resolvedJobDefinitions(1).jobType shouldBe JobTypes.Shell
+    resolvedJobDefinitions.head.jobParameters.jobType shouldBe JobTypes.Spark
+    resolvedJobDefinitions(1).jobParameters.jobType shouldBe JobTypes.Shell
   }
 
   "getJobTemplates" should "return all job templates" in {

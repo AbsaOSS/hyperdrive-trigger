@@ -20,6 +20,8 @@ import { WorkflowJoinedModel, WorkflowJoinedModelFactory } from './workflowJoine
 import { SensorModel, SensorModelFactory } from './sensor.model';
 import { DagDefinitionJoinedModel, DagDefinitionJoinedModelFactory } from './dagDefinitionJoined.model';
 import { JobDefinitionModelFactory } from './jobDefinition.model';
+import { workflowFormParts } from '../constants/workflowFormParts.constants';
+import { JobTemplateModel } from './jobTemplate.model';
 
 class WorkflowDetails {
   constructor(
@@ -33,7 +35,12 @@ class WorkflowDetails {
 }
 
 export class WorkflowRequestModel {
-  constructor(public detailsData: WorkflowEntryModel[], public sensorData: WorkflowEntryModel[], public jobsData: JobEntryModel[]) {}
+  constructor(
+    public detailsData: WorkflowEntryModel[],
+    public sensorData: WorkflowEntryModel[],
+    public jobsData: JobEntryModel[],
+    public jobTemplates: JobTemplateModel[],
+  ) {}
 
   getCreateWorkflowRequestObject(): WorkflowJoinedModel {
     return this.createWorkflowRequestObject();
@@ -82,7 +89,13 @@ export class WorkflowRequestModel {
       const partialJobDefinition = JobDefinitionModelFactory.createEmpty();
       partialJobDefinition.order = jobDef.order;
       jobDef.entries.forEach((jobProp) => {
-        set(partialJobDefinition, jobProp.property, jobProp.value);
+        if (workflowFormParts.JOB.JOB_TEMPLATE_ID.property == jobProp.property) {
+          const template: JobTemplateModel = this.jobTemplates.find((element) => element.id.toString() == jobProp.value);
+          set(partialJobDefinition, 'jobParameters.formConfig', template.formConfig);
+          set(partialJobDefinition, jobProp.property, jobProp.value);
+        } else {
+          set(partialJobDefinition, jobProp.property, jobProp.value);
+        }
       });
       return partialJobDefinition;
     });

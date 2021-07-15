@@ -16,10 +16,9 @@
 package za.co.absa.hyperdrive.trigger.models.tables
 
 import java.time.LocalDateTime
-
 import slick.ast.BaseTypedType
 import slick.lifted.{AbstractTable, ColumnOrdered}
-import za.co.absa.hyperdrive.trigger.models.search.{ContainsFilterAttributes, DateTimeRangeFilterAttributes, EqualsMultipleFilterAttributes, IntRangeFilterAttributes, LongFilterAttributes, SortAttributes, TableSearchRequest, TableSearchResponse}
+import za.co.absa.hyperdrive.trigger.models.search.{BooleanFilterAttributes, ContainsFilterAttributes, DateTimeRangeFilterAttributes, EqualsMultipleFilterAttributes, IntRangeFilterAttributes, LongFilterAttributes, SortAttributes, TableSearchRequest, TableSearchResponse}
 
 import scala.concurrent.ExecutionContext
 
@@ -28,7 +27,7 @@ trait SearchableTableQuery {
 
   import api._
 
-  implicit class TableQueryExtension[T <: SearchableTable with AbstractTable[_]](tableQuery: TableQuery[T]) {
+  implicit class SearchableTableQueryExtension[T <: SearchableTable with AbstractTable[_]](tableQuery: TableQuery[T]) {
 
     def search(request: TableSearchRequest)(implicit ec: ExecutionContext): DBIOAction[TableSearchResponse[T#TableElementType], NoStream, Effect.Read] = {
       val initQuery: Query[T, T#TableElementType, Seq] = tableQuery
@@ -43,12 +42,12 @@ trait SearchableTableQuery {
         query.filter(table => applyEqualsMultipleFilter(attributes, table.fieldMapping)))
       val withLongFilter = request.getLongFilterAttributes.foldLeft(withMultiEquals)((query, attributes) =>
         query.filter(table => applyLongFilter(attributes, table.fieldMapping)))
+      val withBooleanFilter = request.getBooleanFilterAttributes.foldLeft(withLongFilter)((query, attributes) =>
+        query.filter(table => applyBooleanFilter(attributes, table.fieldMapping)))
 
+      val length = withBooleanFilter.length.result
 
-      val length = withLongFilter.length.result
-
-
-      val result = withLongFilter
+      val result = withBooleanFilter
         .sortBy(table => sortFields(request.sort, table.fieldMapping, table.defaultSortColumn))
         .drop(request.from)
         .take(request.size)
@@ -90,6 +89,17 @@ trait SearchableTableQuery {
     private def applyRangeFilter[B: BaseTypedType](tableField: Rep[B], start: Option[B], end: Option[B]): Rep[Boolean] = {
       start.map(date => tableField >= date).getOrElse(LiteralColumn(true)) &&
         end.map(date => tableField <= date).getOrElse(LiteralColumn(true))
+    }
+
+    private def applyBooleanFilter(attributes: BooleanFilterAttributes, fieldMapping: Map[String, Rep[_]]): Rep[Boolean] = {
+      val tableField = fieldMapping(attributes.field).asInstanceOf[Rep[Boolean]]
+      if (attributes.value.isTrue == attributes.value.isFalse) {
+        LiteralColumn(1) === LiteralColumn(1)
+      } else if (attributes.value.isTrue) {
+        tableField === LiteralColumn(true)
+      } else {
+        tableField === LiteralColumn(false)
+      }
     }
 
     private def sortFields(sortOpt: Option[SortAttributes], fieldMapping: Map[String, Rep[_]], defaultSortColumn: Rep[_]): ColumnOrdered[_] = {
