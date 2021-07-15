@@ -1,0 +1,112 @@
+<!--
+  ~ Copyright 2018 ABSA Group Limited
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<clr-datagrid (clrDgRefresh)="onClarityDgRefresh($event)" [clrDgLoading]="loading">
+
+  <clr-dg-action-bar>
+    <div class="btn-group">
+      <button type="button" class="btn btn-sm btn-secondary" [routerLink]="[absoluteRoutes.CREATE_NOTIFICATION_RULE]">
+        <clr-icon shape="plus"></clr-icon>
+        Create new notification rule
+      </button>
+      <button type="button" class="btn btn-sm btn-secondary" (click)="clearFilters()">
+        <clr-icon shape="trash"></clr-icon>
+        Clear filters
+      </button>
+      <button type="button" class="btn btn-sm btn-secondary" (click)="clearSort()">
+        <clr-icon shape="trash"></clr-icon>
+        Clear sort
+      </button>
+      <button type="button" class="btn btn-sm btn-secondary" (click)="refresh()">
+        <clr-icon shape="refresh"></clr-icon>
+        Refresh
+      </button>
+    </div>
+  </clr-dg-action-bar>
+
+  <clr-dg-column [clrDgField]="notificationRuleColumns.PROJECT">
+    <ng-container *clrDgHideableColumn="{hidden: false}">Project</ng-container>
+    <clr-dg-filter [clrDgFilter]="fromConfigFilter">
+      <app-string-filter #fromConfigFilter [property]="notificationRuleColumns.PROJECT"
+                         [removeFiltersSubject]="removeFiltersSubject">
+      </app-string-filter>
+    </clr-dg-filter>
+  </clr-dg-column>
+  <clr-dg-column [clrDgField]="notificationRuleColumns.WORKFLOW_PREFIX">
+    <ng-container *clrDgHideableColumn="{hidden: false}">Workflow Prefix</ng-container>
+    <clr-dg-filter [clrDgFilter]="jobTypeFilter">
+      <app-string-filter #jobTypeFilter [property]="notificationRuleColumns.WORKFLOW_PREFIX"
+                         [removeFiltersSubject]="removeFiltersSubject">
+      </app-string-filter>
+    </clr-dg-filter>
+  </clr-dg-column>
+  <clr-dg-column>
+    <ng-container>Statuses</ng-container>
+  </clr-dg-column>
+  <clr-dg-column>
+    <ng-container>Recipients</ng-container>
+  </clr-dg-column>
+  <clr-dg-column
+    [clrDgField]="notificationRuleColumns.IS_ACTIVE">
+    <ng-container>Is active</ng-container>
+    <clr-dg-filter [clrDgFilter]="workflowIsActiveFilter">
+      <app-boolean-filter [removeFiltersSubject]="removeFiltersSubject"
+                          #workflowIsActiveFilter
+                          [property]="notificationRuleColumns.IS_ACTIVE">
+      </app-boolean-filter>
+    </clr-dg-filter>
+  </clr-dg-column>
+
+  <clr-dg-placeholder>We couldn't find any notification rules!</clr-dg-placeholder>
+
+  <clr-dg-row *ngFor="let notificationRule of notificationRules" [clrDgItem]="notificationRule">
+    <clr-dg-action-overflow>
+      <button type="button" class="action-item" [routerLink]="[absoluteRoutes.SHOW_NOTIFICATION_RULE, notificationRule.id]">
+        <clr-icon shape="eye"></clr-icon>
+        Show
+      </button>
+      <button type="button" class="action-item" [routerLink]="[absoluteRoutes.EDIT_NOTIFICATION_RULE, notificationRule.id]">
+        <clr-icon shape="pencil"></clr-icon>
+        Edit
+      </button>
+      <button type="button" class="action-item" (click)="deleteNotificationRule(notificationRule.id)">
+        <clr-icon shape="close"></clr-icon>
+        Delete
+      </button>
+      <button type="button" class="action-item" [routerLink]="[absoluteRoutes.NOTIFICATION_RULE_HISTORY(notificationRule.id)]">
+        <clr-icon shape="history"></clr-icon>
+        Show History
+      </button>
+    </clr-dg-action-overflow>
+
+    <clr-dg-cell (dblclick)="showNotificationRule(notificationRule.id)">{{notificationRule.project}}</clr-dg-cell>
+    <clr-dg-cell (dblclick)="showNotificationRule(notificationRule.id)">{{notificationRule.workflowPrefix}}</clr-dg-cell>
+    <clr-dg-cell (dblclick)="showNotificationRule(notificationRule.id)" style="text-overflow: ellipsis;">{{notificationRule.statuses.join(', ')}}</clr-dg-cell>
+    <clr-dg-cell (dblclick)="showNotificationRule(notificationRule.id)" style="text-overflow: ellipsis;">{{notificationRule.recipients.join(', ')}}</clr-dg-cell>
+    <clr-dg-cell (dblclick)="showNotificationRule(notificationRule.id)" [ngSwitch]="notificationRule.isActive">
+      <clr-icon *ngSwitchCase="true" shape="circle" class="is-solid" style="color: green"></clr-icon>
+      <clr-icon *ngSwitchCase="false" shape="circle" class="is-solid" style="color: red"></clr-icon>
+      {{notificationRule.isActive ? 'Yes' : 'No'}}
+    </clr-dg-cell>
+  </clr-dg-row>
+
+  <clr-dg-footer>
+    <clr-dg-pagination #pagination [clrDgPageSize]="50" [(clrDgPage)]="page"
+                       [clrDgTotalItems]="total"></clr-dg-pagination>
+    <clr-dg-page-size [clrPageSizeOptions]="[50,100,150,200,250]">Notification rules per page</clr-dg-page-size>
+    {{pagination.firstItem + 1}} - {{pagination.lastItem + 1}}
+    of {{total}} notification rules
+  </clr-dg-footer>
+</clr-datagrid>

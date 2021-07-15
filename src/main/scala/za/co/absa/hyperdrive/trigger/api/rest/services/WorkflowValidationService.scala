@@ -18,7 +18,9 @@ package za.co.absa.hyperdrive.trigger.api.rest.services
 
 import javax.inject.Inject
 import org.springframework.stereotype.Service
+import za.co.absa.hyperdrive.trigger.api.rest.utils.ValidationServiceUtil
 import za.co.absa.hyperdrive.trigger.models.WorkflowJoined
+import za.co.absa.hyperdrive.trigger.models.{HyperdriveDefinitionParameters, JobDefinitionParameters, ShellDefinitionParameters, SparkDefinitionParameters, WorkflowJoined}
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, ApiException, BulkOperationError, ValidationError}
 import za.co.absa.hyperdrive.trigger.persistance.WorkflowRepository
 
@@ -48,7 +50,7 @@ class WorkflowValidationServiceImpl @Inject()(override val workflowRepository: W
       validateWorkflowNotExists(workflows),
       validateProjectIsNotEmpty(workflows)
     )
-    combine(validators)
+    ValidationServiceUtil.reduce(validators)
   }
 
   override def validateOnUpdate(originalWorkflow: WorkflowJoined, updatedWorkflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Unit] = {
@@ -57,16 +59,9 @@ class WorkflowValidationServiceImpl @Inject()(override val workflowRepository: W
       validateProjectIsNotEmpty(updatedWorkflow),
       validateWorkflowData(originalWorkflow, updatedWorkflow)
     )
-    combine(validators).transform(identity, {
+    ValidationServiceUtil.reduce(validators).transform(identity, {
       case ex: ApiException => new ApiException(ex.apiErrors.map(_.unwrapError()))
     })
-  }
-
-  private def combine(validators: Seq[Future[Seq[ApiError]]])(implicit ec: ExecutionContext) = {
-    val combinedValidators = Future
-      .reduce(validators)(_ ++ _)
-      .transform(apiErrors => if (apiErrors.nonEmpty) throw new ApiException(apiErrors), identity)
-    combinedValidators
   }
 
   private def validateWorkflowNotExists(workflows: Seq[WorkflowJoined])(implicit ec: ExecutionContext): Future[Seq[ApiError]] = {
@@ -126,9 +121,7 @@ class WorkflowValidationServiceImpl @Inject()(override val workflowRepository: W
             originalJob.name == updatedJob.name,
             originalJob.jobTemplateId == updatedJob.jobTemplateId,
             originalJob.order == updatedJob.order,
-            originalJob.jobParameters.variables.equals(updatedJob.jobParameters.variables),
-            areMapsEqual(originalJob.jobParameters.maps, updatedJob.jobParameters.maps),
-            areMapsOfMapsEqual(originalJob.jobParameters.keyValuePairs, updatedJob.jobParameters.keyValuePairs)
+            validateJobParameters(originalJob.jobParameters, updatedJob.jobParameters)
           )
         ).getOrElse(Seq(false))
       })
@@ -138,6 +131,15 @@ class WorkflowValidationServiceImpl @Inject()(override val workflowRepository: W
       Future.successful(Seq())
     } else {
       Future.successful(Seq(ValidationError("Nothing to update")))
+    }
+  }
+
+  private def validateJobParameters(originalJobParameters: JobDefinitionParameters, updatedJobParameters: JobDefinitionParameters): Boolean = {
+    (originalJobParameters, updatedJobParameters) match {
+      case (original: SparkDefinitionParameters, updated: SparkDefinitionParameters) => original.equals(updated)
+      case (original: HyperdriveDefinitionParameters, updated: HyperdriveDefinitionParameters) => original.equals(updated)
+      case (original: ShellDefinitionParameters, updated: ShellDefinitionParameters) => original.equals(updated)
+      case _ => false
     }
   }
 

@@ -21,13 +21,20 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { AppState } from '../../../stores/app.reducers';
 import { Store } from '@ngrx/store';
 import { Subject } from 'rxjs';
-import { GetDagRunDetail } from '../../../stores/runs/runs.actions';
+import { GetDagRunDetail, KillJob } from '../../../stores/runs/runs.actions';
 import { AppInfoModelFactory } from '../../../models/appInfo.model';
+import { JobInstanceModelFactory, JobInstanceParametersModelFactory, JobStatusFactory } from '../../../models/jobInstance.model';
+import { JobTypeFactory } from '../../../models/jobType.model';
+import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { ConfirmationDialogService } from '../../../services/confirmation-dialog/confirmation-dialog.service';
+import { texts } from '../../../constants/texts.constants';
 
 describe('RunDetailComponent', () => {
   let underTest: RunDetailComponent;
   let fixture: ComponentFixture<RunDetailComponent>;
   let store: Store<AppState>;
+  let toastrService: ToastrService;
+  let confirmationDialogService: ConfirmationDialogService;
 
   const initialAppState = {
     application: {
@@ -44,11 +51,13 @@ describe('RunDetailComponent', () => {
   beforeEach(
     waitForAsync(() => {
       TestBed.configureTestingModule({
-        providers: [provideMockStore({ initialState: initialAppState })],
+        providers: [ConfirmationDialogService, provideMockStore({ initialState: initialAppState })],
         declarations: [RunDetailComponent],
-        imports: [HttpClientTestingModule],
+        imports: [HttpClientTestingModule, ToastrModule.forRoot()],
       }).compileComponents();
       store = TestBed.inject(Store);
+      toastrService = TestBed.inject(ToastrService);
+      confirmationDialogService = TestBed.inject(ConfirmationDialogService);
     }),
   );
 
@@ -101,6 +110,180 @@ describe('RunDetailComponent', () => {
       expect(url2).toBe(expectedUrl);
       const url3 = underTest.getApplicationIdUrl('http://localhost:8088', '/applicationId_1234');
       expect(url3).toBe(expectedUrl);
+    }),
+  );
+
+  it(
+    'getKillableJob() should return killable job if exists',
+    waitForAsync(() => {
+      const killableJobInstance = JobInstanceModelFactory.create(
+        0,
+        'jobName2',
+        JobInstanceParametersModelFactory.create(JobTypeFactory.create('Spark')),
+        'applicationId',
+        new Date(Date.now()),
+        new Date(Date.now()),
+        JobStatusFactory.create('Running'),
+        0,
+      );
+      const notKillableJobInstance = JobInstanceModelFactory.create(
+        1,
+        'jobName1',
+        JobInstanceParametersModelFactory.create(JobTypeFactory.create('Spark')),
+        undefined,
+        new Date(Date.now()),
+        new Date(Date.now()),
+        JobStatusFactory.create('Status'),
+        0,
+      );
+
+      underTest.jobInstances = [killableJobInstance, notKillableJobInstance];
+
+      const result = underTest.getKillableJob();
+      expect(result).toEqual(killableJobInstance);
+    }),
+  );
+
+  it(
+    'getKillableJob() should return undefined job if does not exist',
+    waitForAsync(() => {
+      const notKillableJobInstance = JobInstanceModelFactory.create(
+        0,
+        'jobName1',
+        JobInstanceParametersModelFactory.create(JobTypeFactory.create('Spark')),
+        undefined,
+        new Date(Date.now()),
+        new Date(Date.now()),
+        JobStatusFactory.create('Status'),
+        0,
+      );
+
+      underTest.jobInstances = [notKillableJobInstance];
+
+      const result = underTest.getKillableJob();
+      expect(result).toEqual(undefined);
+    }),
+  );
+
+  it(
+    'canKillJob() should return true if killable job exists',
+    waitForAsync(() => {
+      const killableJobInstance = JobInstanceModelFactory.create(
+        0,
+        'jobName2',
+        JobInstanceParametersModelFactory.create(JobTypeFactory.create('Spark')),
+        'applicationId',
+        new Date(Date.now()),
+        new Date(Date.now()),
+        JobStatusFactory.create('Running'),
+        0,
+      );
+      const notKillableJobInstance = JobInstanceModelFactory.create(
+        0,
+        'jobName1',
+        JobInstanceParametersModelFactory.create(JobTypeFactory.create('Spark')),
+        undefined,
+        new Date(Date.now()),
+        new Date(Date.now()),
+        JobStatusFactory.create('Status'),
+        0,
+      );
+
+      underTest.jobInstances = [killableJobInstance, notKillableJobInstance];
+
+      const result = underTest.canKillJob();
+      expect(result).toEqual(true);
+    }),
+  );
+
+  it(
+    'canKillJob() should return false if killable job does not exist',
+    waitForAsync(() => {
+      const notKillableJobInstance = JobInstanceModelFactory.create(
+        0,
+        'jobName1',
+        JobInstanceParametersModelFactory.create(JobTypeFactory.create('Spark')),
+        undefined,
+        new Date(Date.now()),
+        new Date(Date.now()),
+        JobStatusFactory.create('Status'),
+        0,
+      );
+
+      underTest.jobInstances = [notKillableJobInstance];
+
+      const result = underTest.canKillJob();
+      expect(result).toEqual(false);
+    }),
+  );
+
+  it(
+    'killJob() should dispatch kill job action with application id and dag run in when dialog is confirmed',
+    waitForAsync(() => {
+      const dagRunId = 1;
+      const killableJobInstance = JobInstanceModelFactory.create(
+        0,
+        'jobName2',
+        JobInstanceParametersModelFactory.create(JobTypeFactory.create('Spark')),
+        'applicationId',
+        new Date(Date.now()),
+        new Date(Date.now()),
+        JobStatusFactory.create('Running'),
+        0,
+      );
+      const notKillableJobInstance = JobInstanceModelFactory.create(
+        1,
+        'jobName1',
+        JobInstanceParametersModelFactory.create(JobTypeFactory.create('Spark')),
+        undefined,
+        new Date(Date.now()),
+        new Date(Date.now()),
+        JobStatusFactory.create('Status'),
+        0,
+      );
+      underTest.jobInstances = [killableJobInstance, notKillableJobInstance];
+      underTest.dagRunId = dagRunId;
+
+      const subject = new Subject<boolean>();
+      const storeSpy = spyOn(store, 'dispatch');
+
+      spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
+
+      underTest.killJob();
+      subject.next(true);
+
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(storeSpy).toHaveBeenCalled();
+        expect(storeSpy).toHaveBeenCalledWith(new KillJob({ dagRunId: dagRunId, applicationId: killableJobInstance.applicationId }));
+      });
+    }),
+  );
+
+  it(
+    'killJob() should not dispatch kill job action if killable job does not exist',
+    waitForAsync(() => {
+      const notKillableJobInstance = JobInstanceModelFactory.create(
+        1,
+        'jobName1',
+        JobInstanceParametersModelFactory.create(JobTypeFactory.create('Spark')),
+        undefined,
+        new Date(Date.now()),
+        new Date(Date.now()),
+        JobStatusFactory.create('Status'),
+        0,
+      );
+      underTest.jobInstances = [notKillableJobInstance];
+
+      const toastrServiceSpy = spyOn(toastrService, 'error');
+
+      underTest.killJob();
+
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+        expect(toastrServiceSpy).toHaveBeenCalledWith(texts.KILL_JOB_FAILURE_NOTIFICATION);
+      });
     }),
   );
 });

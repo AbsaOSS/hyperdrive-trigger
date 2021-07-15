@@ -18,7 +18,6 @@ package za.co.absa.hyperdrive.trigger.api.rest.controllers
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 import java.util.concurrent.CompletableFuture
 import java.util.zip.{ZipEntry, ZipInputStream, ZipOutputStream}
-
 import javax.inject.Inject
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -26,7 +25,7 @@ import org.springframework.core.io.ByteArrayResource
 import org.springframework.http.{HttpHeaders, MediaType, ResponseEntity}
 import org.springframework.web.bind.annotation._
 import org.springframework.web.multipart.MultipartFile
-import za.co.absa.hyperdrive.trigger.ObjectMapperSingleton
+import za.co.absa.hyperdrive.trigger.api.rest.ObjectMapperSingleton
 import za.co.absa.hyperdrive.trigger.api.rest.services.WorkflowService
 import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, BulkOperationError, GenericError}

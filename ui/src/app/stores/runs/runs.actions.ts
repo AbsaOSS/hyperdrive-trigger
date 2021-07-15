@@ -27,6 +27,8 @@ export const GET_DAG_RUN_DETAIL = 'GET_DAG_RUN_DETAIL';
 export const GET_DAG_RUN_DETAIL_SUCCESS = 'GET_DAG_RUN_DETAIL_SUCCESS';
 export const GET_DAG_RUN_DETAIL_FAILURE = 'GET_DAG_RUN_DETAIL_FAILURE';
 
+export const KILL_JOB = 'KILL_JOB';
+
 export class GetDagRuns implements Action {
   readonly type = GET_DAG_RUNS;
   constructor(public payload: TableSearchRequestModel) {}
@@ -55,10 +57,16 @@ export class GetDagRunDetailFailure implements Action {
   readonly type = GET_DAG_RUN_DETAIL_FAILURE;
 }
 
+export class KillJob implements Action {
+  readonly type = KILL_JOB;
+  constructor(public payload: { dagRunId: number; applicationId: string }) {}
+}
+
 export type RunsActions =
   | GetDagRuns
   | GetDagRunsSuccess
   | GetDagRunsFailure
   | GetDagRunDetail
   | GetDagRunDetailSuccess
-  | GetDagRunDetailFailure;
+  | GetDagRunDetailFailure
+  | KillJob;

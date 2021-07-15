@@ -19,6 +19,8 @@ import { DateTimeRangeFilterAttributes } from './dateTimeRangeFilterAttributes.m
 import { SortAttributesModel } from './sortAttributes.model';
 import { EqualsMultipleFilterAttributes } from './equalsMultipleFilterAttributes.model';
 import { LongFilterAttributes } from './longFilterAttributes.model';
+import { BooleanFilterAttributes } from './booleanFilterAttributes.model';
+import { FilterAttributes } from './filterAttributes.model';
 
 export class TableSearchRequestModel {
   constructor(
@@ -29,6 +31,27 @@ export class TableSearchRequestModel {
     public dateTimeRangeFilterAttributes?: DateTimeRangeFilterAttributes[],
     public longFilterAttributes?: LongFilterAttributes[],
     public equalsMultipleFilterAttributes?: EqualsMultipleFilterAttributes[],
+    public booleanFilterAttributes?: BooleanFilterAttributes[],
     public sort?: SortAttributesModel,
   ) {}
+}
+
+export class TableSearchRequestModelFactory {
+  static create(from: number, size: number, sort?: SortAttributesModel, filters?: FilterAttributes[]): TableSearchRequestModel {
+    return {
+      from: from,
+      size: size,
+      sort: sort,
+      containsFilterAttributes: filters?.filter((f) => f instanceof ContainsFilterAttributes).map((f) => f as ContainsFilterAttributes),
+      intRangeFilterAttributes: filters?.filter((f) => f instanceof IntRangeFilterAttributes).map((f) => f as IntRangeFilterAttributes),
+      dateTimeRangeFilterAttributes: filters
+        ?.filter((f) => f instanceof DateTimeRangeFilterAttributes)
+        .map((f) => f as DateTimeRangeFilterAttributes),
+      longFilterAttributes: filters?.filter((f) => f instanceof LongFilterAttributes).map((f) => f as LongFilterAttributes),
+      equalsMultipleFilterAttributes: filters
+        ?.filter((f) => f instanceof EqualsMultipleFilterAttributes)
+        .map((f) => f as EqualsMultipleFilterAttributes),
+      booleanFilterAttributes: filters?.filter((f) => f instanceof BooleanFilterAttributes).map((f) => f as BooleanFilterAttributes),
+    };
+  }
 }

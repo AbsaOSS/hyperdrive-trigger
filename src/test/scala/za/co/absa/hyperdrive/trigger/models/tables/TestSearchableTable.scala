@@ -30,7 +30,8 @@ trait TestSearchableTable extends SearchableTableQuery {
                                   stringValue: String,
                                   stringValue2: String,
                                   stringValue3: String,
-                                  localDateTimeValue: LocalDateTime
+                                  localDateTimeValue: LocalDateTime,
+                                  booleanValue: Boolean
                                  )
 
   object TestSearchableTableFieldNames {
@@ -39,6 +40,7 @@ trait TestSearchableTable extends SearchableTableQuery {
     val stringField2 = "stringField2"
     val stringField3 = "stringField3"
     val localDateTimeField = "localDateTimeField"
+    val booleanField = "booleanField"
   }
 
   final class TestSearchableTable(tag: Tag) extends Table[TestSearchableEntity](tag, _tableName = "test_searchable_entity") with SearchableTable {
@@ -52,14 +54,17 @@ trait TestSearchableTable extends SearchableTableQuery {
 
     def localDateTimeField: Rep[LocalDateTime] = column[LocalDateTime]("local_date_time_field")
 
-    override def * : ProvenShape[TestSearchableEntity] = (longField, stringField, stringField2, stringField3, localDateTimeField).mapTo[TestSearchableEntity]
+    def booleanField: Rep[Boolean] = column[Boolean]("boolean_field")
+
+    override def * : ProvenShape[TestSearchableEntity] = (longField, stringField, stringField2, stringField3, localDateTimeField, booleanField).mapTo[TestSearchableEntity]
 
     override def fieldMapping: Map[String, Rep[_]] = Map(
       TestSearchableTableFieldNames.longField -> longField,
       TestSearchableTableFieldNames.stringField -> stringField,
       TestSearchableTableFieldNames.stringField2 -> stringField2,
       TestSearchableTableFieldNames.stringField3 -> stringField3,
-      TestSearchableTableFieldNames.localDateTimeField -> localDateTimeField
+      TestSearchableTableFieldNames.localDateTimeField -> localDateTimeField,
+      TestSearchableTableFieldNames.booleanField -> booleanField
     )
 
     override def defaultSortColumn: Rep[_] = longField

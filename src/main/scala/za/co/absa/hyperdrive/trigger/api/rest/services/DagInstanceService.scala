@@ -19,7 +19,7 @@ import java.time.LocalDateTime
 
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobStatuses, JobTypes}
-import za.co.absa.hyperdrive.trigger.models.{DagDefinitionJoined, DagInstanceJoined, JobInstance, ResolvedJobDefinition, ShellParameters, SparkParameters}
+import za.co.absa.hyperdrive.trigger.models.{DagDefinitionJoined, DagInstanceJoined, JobInstance, ResolvedJobDefinition}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -54,13 +54,9 @@ class DagInstanceServiceImpl(override val jobTemplateService: JobTemplateService
     val now = LocalDateTime.now()
     val finished = if (skip) Some(now) else None
     resolvedJobDefinitions.map { resolvedJobDefinition =>
-      val jobParameters = resolvedJobDefinition.jobType match {
-        case JobTypes.Spark => SparkParameters(resolvedJobDefinition.jobParameters)
-        case JobTypes.Shell => ShellParameters(resolvedJobDefinition.jobParameters)
-      }
+      val jobParameters = resolvedJobDefinition.jobParameters
       JobInstance(
         jobName = resolvedJobDefinition.name,
-        jobType = resolvedJobDefinition.jobType,
         jobParameters = jobParameters,
         jobStatus = initialJobStatus,
         executorJobId = None,

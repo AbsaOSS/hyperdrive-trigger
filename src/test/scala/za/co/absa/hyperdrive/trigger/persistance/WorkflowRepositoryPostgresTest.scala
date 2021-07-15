@@ -27,30 +27,26 @@ import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, GenericDatabas
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class WorkflowRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach
-  with RepositoryTestBase with MockitoSugar {
-
-  val workflowHistoryRepositoryMock: WorkflowHistoryRepository = mock[WorkflowHistoryRepository]
-  val workflowHistoryRepository: WorkflowHistoryRepository = new WorkflowHistoryRepositoryImpl() {
-    override val profile = h2Profile
-  }
-
-  val workflowRepositoryMocked: WorkflowRepository = new WorkflowRepositoryImpl(workflowHistoryRepositoryMock) {
-    override val profile = h2Profile
-  }
-
-  val workflowRepository: WorkflowRepository = new WorkflowRepositoryImpl(workflowHistoryRepository) {
-    override val profile = h2Profile
-  }
+class WorkflowRepositoryPostgresTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach
+  with RepositoryPostgresTestBase with MockitoSugar {
 
   import api._
 
+  val workflowHistoryRepositoryMock: WorkflowHistoryRepository = mock[WorkflowHistoryRepository]
+  val workflowHistoryRepository: WorkflowHistoryRepository = new WorkflowHistoryRepositoryImpl()
+
+  val workflowRepositoryMocked: WorkflowRepository = new WorkflowRepositoryImpl(workflowHistoryRepositoryMock)
+
+  val workflowRepository: WorkflowRepository = new WorkflowRepositoryImpl(workflowHistoryRepository)
+
+
   override def beforeAll: Unit = {
-    h2SchemaSetup()
+    super.beforeAll()
+    schemaSetup()
   }
 
   override def afterAll: Unit = {
-    h2SchemaDrop()
+    schemaDrop()
   }
 
   override def beforeEach: Unit = {
@@ -280,6 +276,19 @@ class WorkflowRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterA
     existingWorkflowNames shouldBe empty
   }
 
+  "existsWorkflowWithPrefix" should "return true if workflow with prefix exists (case-insensitive)" in {
+    createTestData()
+    val result1 = await(workflowRepository.existsWorkflowWithPrefix("work"))
+    val result2 = await(workflowRepository.existsWorkflowWithPrefix("WORK"))
+    result1 shouldBe true
+    result2 shouldBe true
+  }
+
+  it should "return false if no workflow with prefix exists" in {
+    createTestData()
+    val result = await(workflowRepository.existsWorkflowWithPrefix("flow"))
+    result shouldBe false
+  }
 
   "getWorkflow" should "return the workflow" in {
     createTestData()
@@ -301,7 +310,10 @@ class WorkflowRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterA
     val ids = expectedWorkflows.map(_.id)
     val actualWorkflows = await(workflowRepository.getWorkflows(ids))
 
-    actualWorkflows should contain theSameElementsAs expectedWorkflows
+    actualWorkflows.map(_.toWorkflow) should contain theSameElementsAs expectedWorkflows.map(_.toWorkflow)
+    actualWorkflows.map(_.sensor) should contain theSameElementsAs expectedWorkflows.map(_.sensor)
+    actualWorkflows.map(_.dagDefinitionJoined.toDag()) should contain theSameElementsAs expectedWorkflows.map(_.dagDefinitionJoined.toDag())
+    actualWorkflows.flatMap(_.dagDefinitionJoined.jobDefinitions) should contain theSameElementsAs expectedWorkflows.flatMap(_.dagDefinitionJoined.jobDefinitions)
   }
 
   it should "return an empty seq if no workflows are found" in {
@@ -423,6 +435,19 @@ class WorkflowRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterA
     historyEntries shouldBe empty
   }
 
+  "existsProject" should "return true if a workflow with the project name exists (case-insensitive)" in {
+    createTestData()
+    val result1 = await(workflowRepository.existsProject("project1"))
+    val result2 = await(workflowRepository.existsProject("PROJect1"))
+    result1 shouldBe true
+    result2 shouldBe true
+  }
+
+  it should "return false if no workflow with the project name exists" in {
+    createTestData()
+    val result = await(workflowRepository.existsProject("proj"))
+    result shouldBe false
+  }
 
   "releaseWorkflowAssignmentsOfDeactivatedInstances" should "remove the instanceId for deactivated instances" in {
     // given

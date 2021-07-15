@@ -21,10 +21,13 @@ import { DagRunService } from '../../services/dagRun/dag-run.service';
 import { JobInstanceModel } from '../../models/jobInstance.model';
 import { DagRunModel } from '../../models/dagRuns/dagRun.model';
 import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
+import { KILL_JOB, KillJob } from '../runs/runs.actions';
+import { ToastrService } from 'ngx-toastr';
+import { texts } from '../../constants/texts.constants';
 
 @Injectable()
 export class RunsEffects {
-  constructor(private actions: Actions, private dagRunService: DagRunService) {}
+  constructor(private actions: Actions, private dagRunService: DagRunService, private toastrService: ToastrService) {}
 
   @Effect({ dispatch: true })
   runsGet = this.actions.pipe(
@@ -67,6 +70,43 @@ export class RunsEffects {
           return [
             {
               type: RunActions.GET_DAG_RUN_DETAIL_FAILURE,
+            },
+          ];
+        }),
+      );
+    }),
+  );
+
+  @Effect({ dispatch: true })
+  jobKill = this.actions.pipe(
+    ofType(RunActions.KILL_JOB),
+    switchMap((action: RunActions.KillJob) => {
+      return this.dagRunService.killJob(action.payload.applicationId).pipe(
+        mergeMap((killResult: boolean) => {
+          if (killResult) {
+            this.toastrService.success(texts.KILL_JOB_SUCCESS_NOTIFICATION);
+            return [
+              {
+                type: RunActions.GET_DAG_RUN_DETAIL,
+                payload: action.payload.dagRunId,
+              },
+            ];
+          } else {
+            this.toastrService.error(texts.KILL_JOB_FAILURE_NOTIFICATION);
+            return [
+              {
+                type: RunActions.GET_DAG_RUN_DETAIL,
+                payload: action.payload.dagRunId,
+              },
+            ];
+          }
+        }),
+        catchError(() => {
+          this.toastrService.error(texts.KILL_JOB_FAILURE_NOTIFICATION);
+          return [
+            {
+              type: RunActions.GET_DAG_RUN_DETAIL,
+              payload: action.payload.dagRunId,
             },
           ];
         }),

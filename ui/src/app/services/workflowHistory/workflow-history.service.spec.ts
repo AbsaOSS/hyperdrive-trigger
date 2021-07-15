@@ -20,12 +20,7 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 import { WorkflowService } from '../workflow/workflow.service';
 import { WorkflowJoinedModelFactory } from '../../models/workflowJoined.model';
 import { api } from '../../constants/api.constants';
-import {
-  HistoryModelFactory,
-  WorkflowHistoriesForComparisonModel,
-  WorkflowHistoriesForComparisonModelFactory,
-  WorkflowHistoryModelFactory,
-} from '../../models/historyModel';
+import { HistoryModelFactory, HistoryPairModel, WorkflowHistoryModel, WorkflowHistoryModelFactory } from '../../models/historyModel';
 
 describe('WorkflowHistoryService', () => {
   let underTest: WorkflowHistoryService;
@@ -70,10 +65,10 @@ describe('WorkflowHistoryService', () => {
 
     const workflow = WorkflowJoinedModelFactory.create('name', true, 'project', undefined, undefined, undefined, 0);
 
-    const workflowHistoriesForComparison: WorkflowHistoriesForComparisonModel = WorkflowHistoriesForComparisonModelFactory.create(
-      WorkflowHistoryModelFactory.create(history, leftWorkflowHistoryId, workflow),
-      WorkflowHistoryModelFactory.create(history, rightWorkflowHistoryId, workflow),
-    );
+    const workflowHistoriesForComparison: HistoryPairModel<WorkflowHistoryModel> = {
+      leftHistory: WorkflowHistoryModelFactory.create(history, leftWorkflowHistoryId, workflow),
+      rightHistory: WorkflowHistoryModelFactory.create(history, rightWorkflowHistoryId, workflow),
+    };
 
     underTest.getWorkflowsFromHistory(leftWorkflowHistoryId, rightWorkflowHistoryId).subscribe(
       (data) => expect(data).toEqual(workflowHistoriesForComparison),

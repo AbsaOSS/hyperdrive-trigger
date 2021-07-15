@@ -67,7 +67,7 @@ import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { texts } from '../../constants/texts.constants';
 import { Router } from '@angular/router';
 import { absoluteRoutes } from '../../constants/routes.constants';
-import { ApiErrorModel, ApiErrorModelFactory } from '../../models/errors/apiError.model';
+import { ApiErrorModelFactory } from '../../models/errors/apiError.model';
 import { WorkflowHistoryService } from '../../services/workflowHistory/workflow-history.service';
 import { HistoryModel, HistoryModelFactory } from '../../models/historyModel';
 import { JobForRunModelFactory } from '../../models/jobForRun.model';
@@ -510,14 +510,16 @@ describe('WorkflowsEffects', () => {
       const action = new CreateWorkflow();
       mockActions = cold('-a', { a: action });
       const createWorkflowResponse = cold('-#|', null, 'notValidationError');
+      const getJobTemplatesResponse = cold('-a|', { a: [] });
 
-      const expected = cold('--a', {
+      const expected = cold('---a', {
         a: {
           type: WorkflowsActions.CREATE_WORKFLOW_FAILURE,
           payload: [],
         },
       });
 
+      spyOn(workflowService, 'getJobTemplates').and.returnValue(getJobTemplatesResponse);
       spyOn(workflowService, 'createWorkflow').and.returnValue(createWorkflowResponse);
 
       expect(underTest.workflowCreate).toBeObservable(expected);
@@ -532,14 +534,16 @@ describe('WorkflowsEffects', () => {
       const action = new CreateWorkflow();
       mockActions = cold('-a', { a: action });
       const createWorkflowResponse = cold('-#|', null, [error]);
+      const getJobTemplatesResponse = cold('-a|', { a: [] });
 
-      const expected = cold('--a', {
+      const expected = cold('---a', {
         a: {
           type: WorkflowsActions.CREATE_WORKFLOW_FAILURE,
           payload: [error.message],
         },
       });
 
+      spyOn(workflowService, 'getJobTemplates').and.returnValue(getJobTemplatesResponse);
       spyOn(workflowService, 'createWorkflow').and.returnValue(createWorkflowResponse);
 
       expect(underTest.workflowCreate).toBeObservable(expected);
@@ -572,14 +576,16 @@ describe('WorkflowsEffects', () => {
       mockActions = cold('-a', { a: action });
 
       const createWorkflowResponse = cold('-a|', { a: workflow });
+      const getJobTemplatesResponse = cold('-a|', { a: [] });
 
-      const expected = cold('--a', {
+      const expected = cold('---a', {
         a: {
           type: WorkflowsActions.CREATE_WORKFLOW_SUCCESS,
           payload: createWorkflowSuccessPayload,
         },
       });
 
+      spyOn(workflowService, 'getJobTemplates').and.returnValue(getJobTemplatesResponse);
       spyOn(workflowService, 'createWorkflow').and.returnValue(createWorkflowResponse);
 
       expect(underTest.workflowCreate).toBeObservable(expected);
@@ -597,14 +603,16 @@ describe('WorkflowsEffects', () => {
       const action = new UpdateWorkflow();
       mockActions = cold('-a', { a: action });
       const updateWorkflowResponse = cold('-#|', null, 'notWorkflowValidation');
+      const getJobTemplatesResponse = cold('-a|', { a: [] });
 
-      const expected = cold('--a', {
+      const expected = cold('---a', {
         a: {
           type: WorkflowsActions.UPDATE_WORKFLOW_FAILURE,
           payload: [],
         },
       });
 
+      spyOn(workflowService, 'getJobTemplates').and.returnValue(getJobTemplatesResponse);
       spyOn(workflowService, 'updateWorkflow').and.returnValue(updateWorkflowResponse);
 
       expect(underTest.workflowUpdate).toBeObservable(expected);
@@ -618,14 +626,16 @@ describe('WorkflowsEffects', () => {
       const action = new UpdateWorkflow();
       mockActions = cold('-a', { a: action });
       const updateWorkflowResponse = cold('-#|', null, [error]);
+      const getJobTemplatesResponse = cold('-a|', { a: [] });
 
-      const expected = cold('--a', {
+      const expected = cold('---a', {
         a: {
           type: WorkflowsActions.UPDATE_WORKFLOW_FAILURE,
           payload: [error.message],
         },
       });
 
+      spyOn(workflowService, 'getJobTemplates').and.returnValue(getJobTemplatesResponse);
       spyOn(workflowService, 'updateWorkflow').and.returnValue(updateWorkflowResponse);
 
       expect(underTest.workflowUpdate).toBeObservable(expected);
@@ -658,14 +668,16 @@ describe('WorkflowsEffects', () => {
       mockActions = cold('-a', { a: action });
 
       const updateWorkflowResponse = cold('-a|', { a: workflow });
+      const getJobTemplatesResponse = cold('-a|', { a: [] });
 
-      const expected = cold('--a', {
+      const expected = cold('---a', {
         a: {
           type: WorkflowsActions.UPDATE_WORKFLOW_SUCCESS,
           payload: updateWorkflowSuccessPayload,
         },
       });
 
+      spyOn(workflowService, 'getJobTemplates').and.returnValue(getJobTemplatesResponse);
       spyOn(workflowService, 'updateWorkflow').and.returnValue(updateWorkflowResponse);
 
       expect(underTest.workflowUpdate).toBeObservable(expected);
@@ -745,54 +757,6 @@ describe('WorkflowsEffects', () => {
       expect(result.sensorSwitchPart).toBe(workflowFormPartsConsts.SENSOR.SENSOR_TYPE);
       expect(result.staticJobPart).toBe(workflowFormPartsConsts.JOB.JOB_NAME);
       expect(result.jobSwitchPart).toBe(workflowFormPartsConsts.JOB.JOB_TEMPLATE_ID);
-    });
-  });
-
-  describe('isApiError', () => {
-    it('should return false if string is passed', () => {
-      const errorResponse = 'errorResponse';
-      expect(underTest.isApiError(errorResponse)).toBeFalsy();
-    });
-
-    it('should return false if wrong object is passed', () => {
-      const errorResponse: Record<string, any> = { fieldOne: 'fieldOne', fieldTwo: true, fieldThree: { nestedField: 99 } };
-      expect(underTest.isApiError(errorResponse)).toBeFalsy();
-    });
-
-    it('should return false if array with wrong object is passed', () => {
-      const errorResponse: Array<any> = [{ fieldOne: 'fieldOne', fieldTwo: true, fieldThree: { nestedField: 99 } }];
-      expect(underTest.isApiError(errorResponse)).toBeFalsy();
-    });
-
-    it('should return true if array with any error type is passed', () => {
-      const errorResponse: ApiErrorModel[] = [
-        ApiErrorModelFactory.create('message1', { name: 'validationError' }),
-        ApiErrorModelFactory.create('message2', { name: 'someError' }),
-      ];
-      expect(underTest.isApiError(errorResponse)).toBeTruthy();
-    });
-  });
-
-  describe('isBackendValidationError', () => {
-    it('should return false if string is passed', () => {
-      const errorResponse = 'errorResponse';
-      expect(underTest.isBackendValidationError(errorResponse)).toBeFalsy();
-    });
-
-    it('should return false if correct object array is passed with incorrect error type', () => {
-      const errorResponse: ApiErrorModel[] = [
-        ApiErrorModelFactory.create('message1', { name: 'validationError' }),
-        ApiErrorModelFactory.create('message2', { name: 'wrongName' }),
-      ];
-      expect(underTest.isBackendValidationError(errorResponse)).toBeFalsy();
-    });
-
-    it('should return true if array with validation error is passed', () => {
-      const errorResponse: ApiErrorModel[] = [
-        ApiErrorModelFactory.create('message1', { name: 'validationError' }),
-        ApiErrorModelFactory.create('message2', { name: 'validationError' }),
-      ];
-      expect(underTest.isBackendValidationError(errorResponse)).toBeTruthy();
     });
   });
 

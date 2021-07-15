@@ -15,20 +15,20 @@
 
 package za.co.absa.hyperdrive.trigger.models.tables
 
-import java.io.StringWriter
-
-import za.co.absa.hyperdrive.trigger.models.enums.{DBOperation, DagInstanceStatuses, JobStatuses, JobTypes, SchedulerInstanceStatuses, SensorTypes}
-import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes.SensorType
-import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.JobStatus
-import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
 import play.api.libs.json.{JsValue, Json}
 import slick.jdbc.JdbcType
-import za.co.absa.hyperdrive.trigger.ObjectMapperSingleton
-import za.co.absa.hyperdrive.trigger.models.{JobInstanceParameters, ShellParameters, SparkParameters, WorkflowJoined}
+import za.co.absa.hyperdrive.trigger.api.rest.ObjectMapperSingleton
+import za.co.absa.hyperdrive.trigger.models.NotificationRule.Recipients
 import za.co.absa.hyperdrive.trigger.models.enums.DBOperation.DBOperation
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses.DagInstanceStatus
+import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.JobStatus
+import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
 import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses.SchedulerInstanceStatus
+import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes.SensorType
+import za.co.absa.hyperdrive.trigger.models.enums._
+import za.co.absa.hyperdrive.trigger.models._
 
+import java.io.StringWriter
 import scala.collection.immutable.SortedMap
 
 trait JdbcTypeMapper {
@@ -41,7 +41,9 @@ trait JdbcTypeMapper {
       ObjectMapperSingleton.getObjectMapper.writeValue(stringWriter, workflowJoined)
       stringWriter.toString
     },
-    workflowJoinedString => ObjectMapperSingleton.getObjectMapper.readValue(workflowJoinedString, classOf[WorkflowJoined])
+    workflowJoinedString => {
+      ObjectMapperSingleton.getObjectMapper.readValue(workflowJoinedString, classOf[WorkflowJoined])
+    }
   )
 
   implicit lazy val dbOperationMapper: JdbcType[DBOperation] =
@@ -79,9 +81,7 @@ trait JdbcTypeMapper {
   implicit lazy val dagInstanceStatusMapper: JdbcType[DagInstanceStatus] =
     MappedColumnType.base[DagInstanceStatus, String](
       status => status.name,
-      statusName => DagInstanceStatuses.statuses.find(_.name == statusName).getOrElse(
-        throw new Exception(s"Couldn't find DagInstanceStatus: $statusName")
-      )
+      DagInstanceStatuses.convertStatusNameToDagInstanceStatus
     )
 
   implicit lazy val instanceStatusMapper: JdbcType[SchedulerInstanceStatus] =
@@ -115,11 +115,38 @@ trait JdbcTypeMapper {
       }
     )
 
-  implicit lazy val jobParametersMapper: JdbcType[JobInstanceParameters] = MappedColumnType.base[JobInstanceParameters, JsValue](
+  implicit lazy val jobInstanceParametersMapper: JdbcType[JobInstanceParameters] = MappedColumnType.base[JobInstanceParameters, JsValue](
     {
-      case a: SparkParameters => Json.toJson(a)
-      case b: ShellParameters => Json.toJson(b)
+      case spark: SparkInstanceParameters => Json.toJson(spark)
+      case shell: ShellInstanceParameters => Json.toJson(shell)
     },
     column => column.as[JobInstanceParameters]
+  )
+
+  implicit lazy val jobTemplateParametersMapper: JdbcType[JobTemplateParameters] = MappedColumnType.base[JobTemplateParameters, JsValue](
+    {
+      case spark: SparkTemplateParameters => Json.toJson(spark)
+      case shell: ShellTemplateParameters => Json.toJson(shell)
+    },
+    column => column.as[JobTemplateParameters]
+  )
+
+  implicit lazy val jobDefinitionParametersMapper: JdbcType[JobDefinitionParameters] = MappedColumnType.base[JobDefinitionParameters, JsValue](
+    {
+      case spark: SparkDefinitionParameters => Json.toJson(spark)
+      case hyperdrive: HyperdriveDefinitionParameters => Json.toJson(hyperdrive)
+      case shell: ShellDefinitionParameters => Json.toJson(shell)
+    },
+    column => column.as[JobDefinitionParameters]
+  )
+
+  implicit lazy val notificationRuleMapper: JdbcType[NotificationRule] = MappedColumnType.base[NotificationRule, JsValue](
+    notificationRule => Json.toJson(notificationRule),
+    column => column.as[NotificationRule]
+  )
+
+  implicit lazy val recipientsMapper: JdbcType[Recipients] = MappedColumnType.base[Recipients, JsValue](
+    recipients => Json.toJson(recipients.sorted),
+    column => column.as[Recipients]
   )
 }

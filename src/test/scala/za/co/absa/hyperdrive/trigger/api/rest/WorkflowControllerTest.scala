@@ -25,7 +25,6 @@ import org.mockito.Mockito.{reset, verify, when}
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, Matchers}
 import org.springframework.mock.web.MockMultipartFile
-import za.co.absa.hyperdrive.trigger.ObjectMapperSingleton
 import za.co.absa.hyperdrive.trigger.api.rest.controllers.WorkflowController
 import za.co.absa.hyperdrive.trigger.api.rest.services.JobTemplateFixture.{GenericShellJobTemplate, GenericSparkJobTemplate}
 import za.co.absa.hyperdrive.trigger.api.rest.services.{WorkflowFixture, WorkflowService}

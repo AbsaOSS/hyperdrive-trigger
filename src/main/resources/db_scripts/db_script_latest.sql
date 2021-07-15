@@ -25,7 +25,7 @@ create table "workflow" (
 
 create table "job_instance" (
   "job_name" VARCHAR NOT NULL,
-  "job_type" VARCHAR NOT NULL,
+  "job_type_old" VARCHAR,
   "variables_old" VARCHAR DEFAULT '{}',
   "maps_old" VARCHAR DEFAULT '{}',
   "key_value_pairs_old" VARCHAR DEFAULT '{}',
@@ -44,9 +44,10 @@ create table "job_definition" (
   "dag_definition_id" BIGINT NOT NULL,
   "job_template_id" BIGINT NOT NULL,
   "name" VARCHAR NOT NULL,
-  "variables" VARCHAR NOT NULL,
-  "maps" VARCHAR NOT NULL,
-  "key_value_pairs" VARCHAR NOT NULL,
+  "variables_old" VARCHAR DEFAULT '{}',
+  "maps_old" VARCHAR DEFAULT '{}',
+  "key_value_pairs_old" VARCHAR DEFAULT '{}',
+  "job_parameters" JSONB NOT NULL DEFAULT '{}',
   "order" INTEGER NOT NULL,
   "id" BIGSERIAL NOT NULL PRIMARY KEY
 );
@@ -93,10 +94,11 @@ create table "workflow_history" (
 
 create table "job_template" (
   "name" VARCHAR NOT NULL UNIQUE,
-  "job_type" VARCHAR NOT NULL,
-  "variables" VARCHAR NOT NULL,
-  "maps" VARCHAR NOT NULL,
-  "key_value_pairs" VARCHAR NOT NULL,
+  "job_type_old" VARCHAR,
+  "variables_old" VARCHAR DEFAULT '{}',
+  "maps_old" VARCHAR DEFAULT '{}',
+  "key_value_pairs_old" VARCHAR DEFAULT '{}',
+  "job_parameters" JSONB NOT NULL DEFAULT '{}',
   "id" BIGSERIAL NOT NULL PRIMARY KEY,
   "form_config" VARCHAR NOT NULL DEFAULT 'unknown'
 );
@@ -105,6 +107,27 @@ create table "scheduler_instance" (
   "id" BIGSERIAL NOT NULL PRIMARY KEY,
   "status" VARCHAR NOT NULL,
   "last_heartbeat" TIMESTAMP NOT NULL
+);
+
+create table "notification_rule" (
+  "id" BIGSERIAL NOT NULL PRIMARY KEY,
+  "is_active" BOOLEAN NOT NULL,
+  "project" VARCHAR,
+  "workflow_prefix" VARCHAR,
+  "min_elapsed_secs_last_success" BIGINT,
+  "statuses" JSONB NOT NULL DEFAULT '{}',
+  "recipients" JSONB NOT NULL DEFAULT '{}',
+  "created" TIMESTAMP NOT NULL,
+  "updated" TIMESTAMP
+);
+
+create table "notification_rule_history" (
+  "id" BIGSERIAL NOT NULL PRIMARY KEY,
+  "changed_on" TIMESTAMP NOT NULL,
+  "changed_by" VARCHAR NOT NULL,
+  "operation" VARCHAR NOT NULL,
+  "notification_rule_id" BIGINT NOT NULL,
+  "notification_rule" JSONB NOT NULL
 );
 
 alter table "job_instance"

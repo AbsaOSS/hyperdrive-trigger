@@ -14,6 +14,15 @@
   -->
 
   <clr-datagrid [clrDgLoading]="loading">
+
+    <clr-dg-action-bar *ngIf="canKillJob()">
+      <div class="btn-group">
+        <button class="btn btn-danger btn-sm" (click)="killJob()">
+          Kill running spark job
+        </button>
+      </div>
+    </clr-dg-action-bar>
+
     <clr-dg-column>Job Name</clr-dg-column>
     <clr-dg-column>Type</clr-dg-column>
     <clr-dg-column>Created</clr-dg-column>
@@ -25,7 +34,7 @@
 
     <clr-dg-row *ngFor="let jobInstance of jobInstances">
       <clr-dg-cell>{{jobInstance.jobName}}</clr-dg-cell>
-      <clr-dg-cell>{{jobInstance.jobType.name}}</clr-dg-cell>
+      <clr-dg-cell>{{jobInstance.jobParameters.jobType.name}}</clr-dg-cell>
       <clr-dg-cell>{{jobInstance.created | date:'medium'}}</clr-dg-cell>
       <clr-dg-cell>{{jobInstance.updated | date:'medium'}}</clr-dg-cell>
       <clr-dg-cell [ngSwitch]="jobInstance.jobStatus.name">

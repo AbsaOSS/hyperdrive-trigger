@@ -25,18 +25,18 @@ import za.co.absa.hyperdrive.trigger.models.enums.DBOperation.DBOperation
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 
-class WorkflowHistoryRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryTestBase {
+class WorkflowHistoryRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryH2TestBase {
 
   val workflowHistoryRepository: WorkflowHistoryRepository = new WorkflowHistoryRepositoryImpl {
     override val profile = h2Profile
   }
 
   override def beforeAll: Unit = {
-    h2SchemaSetup()
+    schemaSetup()
   }
 
   override def afterAll: Unit = {
-    h2SchemaDrop()
+    schemaDrop()
   }
 
   override def afterEach: Unit = {
@@ -86,14 +86,14 @@ class WorkflowHistoryRepositoryTest extends FlatSpec with Matchers with BeforeAn
     val updateResultId = TestUtils.await(db.run(workflowHistoryRepository.update(workflowUpdate, user)))
 
     val result = TestUtils.await(workflowHistoryRepository.getWorkflowsFromHistory(updateResultId, createResultId))
-    verifyHistory(Seq(result.leftWorkflowHistory.history), updateResultId, user, DBOperation.Update) shouldBe true
-    verifyHistory(Seq(result.rightWorkflowHistory.history), createResultId, user, DBOperation.Create) shouldBe true
-    result.leftWorkflowHistory.workflowId shouldBe workflowId
-    result.leftWorkflowHistory.workflow shouldBe workflowUpdate
-    result.leftWorkflowHistory.workflow.name shouldBe workflowUpdate.name
-    result.rightWorkflowHistory.workflowId shouldBe workflowId
-    result.rightWorkflowHistory.workflow shouldBe workflowCreate
-    result.rightWorkflowHistory.workflow.name shouldBe workflowCreate.name
+    verifyHistory(Seq(result.leftHistory.history), updateResultId, user, DBOperation.Update) shouldBe true
+    verifyHistory(Seq(result.rightHistory.history), createResultId, user, DBOperation.Create) shouldBe true
+    result.leftHistory.workflowId shouldBe workflowId
+    result.leftHistory.workflow shouldBe workflowUpdate
+    result.leftHistory.workflow.name shouldBe workflowUpdate.name
+    result.rightHistory.workflowId shouldBe workflowId
+    result.rightHistory.workflow shouldBe workflowCreate
+    result.rightHistory.workflow.name shouldBe workflowCreate.name
   }
 
   "workflowHistoryRepository.getWorkflowsFromHistory" should "throw db exception when one of the history records does not exist" in {
@@ -106,6 +106,6 @@ class WorkflowHistoryRepositoryTest extends FlatSpec with Matchers with BeforeAn
     val exceptionResult = the [Exception] thrownBy
       TestUtils.await(workflowHistoryRepository.getWorkflowsFromHistory(createResultId, notCreatedId))
 
-    exceptionResult.getMessage should equal (s"Workflow history with ${createResultId} or ${notCreatedId} does not exist.")
+    exceptionResult.getMessage should equal (s"Entities with #${createResultId} or #${notCreatedId} don't exist on WorkflowHistoryRepositoryImpl.this.WorkflowHistoryTable.")
   }
 }

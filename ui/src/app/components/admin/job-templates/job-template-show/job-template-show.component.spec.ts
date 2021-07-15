@@ -19,7 +19,8 @@ import { provideMockStore } from '@ngrx/store/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { FormsModule } from '@angular/forms';
 import { JobTemplateModelFactory } from '../../../../models/jobTemplate.model';
-import { JobParametersModelFactory } from '../../../../models/jobParameters.model';
+import { ShellTemplateParametersModel, SparkTemplateParametersModel } from '../../../../models/jobTemplateParameters.model';
+import { JobTypeFactory } from '../../../../models/jobType.model';
 
 describe('JobTemplateShow', () => {
   let underTest: JobTemplateShowComponent;
@@ -35,7 +36,7 @@ describe('JobTemplateShow', () => {
           'templateName',
           'fromConfig',
           { name: 'jobType' },
-          JobParametersModelFactory.createEmpty(),
+          SparkTemplateParametersModel.createEmpty(),
         ),
         jobTemplateFormEntries: [],
       },
@@ -83,5 +84,36 @@ describe('JobTemplateShow', () => {
     expect(underTest.isJobTemplateParametersHidden).toBeFalse();
     underTest.toggleJobTemplateParametersAccordion();
     expect(underTest.isJobTemplateParametersHidden).toBeTrue();
+  });
+
+  it('isJobTemplateEmpty() should return true if parameters are not set', () => {
+    underTest.jobTemplate = JobTemplateModelFactory.create(
+      0,
+      'name',
+      'formConfig',
+      JobTypeFactory.create('Spark'),
+      SparkTemplateParametersModel.createEmpty(),
+    );
+    expect(underTest.isJobTemplateEmpty()).toBeTrue();
+    underTest.jobTemplate = JobTemplateModelFactory.create(
+      0,
+      'name',
+      'formConfig',
+      JobTypeFactory.create('Shell'),
+      ShellTemplateParametersModel.createEmpty(),
+    );
+    expect(underTest.isJobTemplateEmpty()).toBeTrue();
+  });
+
+  it('isJobTemplateEmpty() should return false if parameters are set', () => {
+    const sparkParams = SparkTemplateParametersModel.createEmpty();
+    sparkParams.additionalFiles = new Set('fileName');
+    underTest.jobTemplate = JobTemplateModelFactory.create(0, 'name', 'formConfig', JobTypeFactory.create('Spark'), sparkParams);
+    expect(underTest.isJobTemplateEmpty()).toBeFalse();
+
+    const shellParams = ShellTemplateParametersModel.createEmpty();
+    shellParams.scriptLocation = 'script';
+    underTest.jobTemplate = JobTemplateModelFactory.create(0, 'name', 'formConfig', JobTypeFactory.create('Shell'), shellParams);
+    expect(underTest.isJobTemplateEmpty()).toBeFalse();
   });
 });

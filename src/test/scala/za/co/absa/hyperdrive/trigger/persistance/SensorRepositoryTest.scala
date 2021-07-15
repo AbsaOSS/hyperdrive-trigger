@@ -21,17 +21,17 @@ import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class SensorRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryTestBase {
+class SensorRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryH2TestBase {
 
   import TestSensors._
   val sensorRepository: SensorRepository = new SensorRepositoryImpl { override val profile = h2Profile }
 
   override def beforeAll: Unit = {
-    h2SchemaSetup()
+    schemaSetup()
   }
 
   override def afterAll: Unit = {
-    h2SchemaDrop()
+    schemaDrop()
   }
 
   override def afterEach: Unit = {

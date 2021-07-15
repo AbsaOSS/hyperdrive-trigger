@@ -15,6 +15,7 @@
 
 import { workflowModes } from '../models/enums/workflowModes.constants';
 import { jobTemplateModes } from '../models/enums/jobTemplateModes.constants';
+import { notificationRuleModes } from '../models/enums/notificationRuleModes.constants';
 
 export const routeNames = {
   DEFAULT: '',
@@ -31,6 +32,12 @@ export const routeNames = {
   JOB_TEMPLATES: 'admin/job-templates',
   JOB_TEMPLATES_HOME: '',
   JOB_TEMPLATE_SHOW: 'show/:id',
+  NOTIFICATION_RULES: 'admin/notification-rules',
+  NOTIFICATION_RULES_HOME: '',
+  NOTIFICATION_RULE_ACTION: ':mode',
+  NOTIFICATION_RULE_ACTION_WITH_ID: ':mode/:id',
+  NOTIFICATION_RULE_HISTORY: 'show/:id/history',
+  NOTIFICATION_RULE_HISTORY_COMPARISON: 'admin/notification-rules/show/:id/history/:historyIdLeft/compareWith/:historyIdRight',
 };
 
 export const absoluteRoutes = {
@@ -48,6 +55,11 @@ export const absoluteRoutes = {
   JOB_TEMPLATES: `/${routeNames.JOB_TEMPLATES}`,
   JOB_TEMPLATES_HOME: `/${routeNames.JOB_TEMPLATES}`,
   SHOW_JOB_TEMPLATE: `/${routeNames.JOB_TEMPLATES}/${jobTemplateModes.SHOW}`,
+  NOTIFICATION_RULES: `/${routeNames.NOTIFICATION_RULES}`,
+  NOTIFICATION_RULES_HOME: `/${routeNames.NOTIFICATION_RULES}`,
+  SHOW_NOTIFICATION_RULE: `/${routeNames.NOTIFICATION_RULES}/${notificationRuleModes.SHOW}`,
+  CREATE_NOTIFICATION_RULE: `/${routeNames.NOTIFICATION_RULES}/${notificationRuleModes.CREATE}`,
+  EDIT_NOTIFICATION_RULE: `/${routeNames.NOTIFICATION_RULES}/${notificationRuleModes.EDIT}`,
   RUNS_WITH_WORKFLOW_ID(workflowId: number): string {
     return `/runs/${workflowId}`;
   },
@@ -56,5 +68,11 @@ export const absoluteRoutes = {
   },
   WORKFLOW_HISTORY_COMPARISON(workflowId: number, historyIdFirst: number, historyIdSecond: number): string {
     return `/${routeNames.WORKFLOWS}/${workflowModes.SHOW}/${workflowId}/history/${historyIdFirst}/compareWith/${historyIdSecond}`;
+  },
+  NOTIFICATION_RULE_HISTORY(id: number): string {
+    return `/${routeNames.NOTIFICATION_RULES}/${notificationRuleModes.SHOW}/${id}/history`;
+  },
+  NOTIFICATION_RULE_HISTORY_COMPARISON(id: number, historyIdFirst: number, historyIdSecond: number): string {
+    return `/${routeNames.NOTIFICATION_RULES}/${notificationRuleModes.SHOW}/${id}/history/${historyIdFirst}/compareWith/${historyIdSecond}`;
   },
 };

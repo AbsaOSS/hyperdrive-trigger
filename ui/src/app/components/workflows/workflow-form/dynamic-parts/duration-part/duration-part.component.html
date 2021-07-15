@@ -1,0 +1,100 @@
+<!--
+  ~ Copyright 2018 ABSA Group Limited
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<clr-control-container *ngIf="!isShow">
+  <label>{{name}}</label>
+  <div class="clr-input-wrapper duration-input">
+    <input class="clr-select" clrControl
+           type="number"
+           [id]="name+'days'+uuid"
+           [name]="name+'days'+uuid"
+           [readOnly]="isShow"
+           [ngModel]="days"
+           (ngModelChange)="daysChanged($event)"
+           [required]="partValidationSafe.isRequired"
+           [min]="0"
+    />
+  </div>
+  <span>days</span>
+
+  <div class="clr-input-wrapper duration-input">
+    <input class="clr-select" clrControl
+         type="number"
+         [id]="name+'hours'+uuid"
+         [name]="name+'hours'+uuid"
+         [readOnly]="isShow"
+         [ngModel]="hours"
+         (ngModelChange)="hoursChanged($event)"
+         [required]="partValidationSafe.isRequired"
+         [min]="0"
+         [max]="23"
+    />
+  </div>
+  <span>hours</span>
+
+  <div class="clr-input-wrapper duration-input">
+    <input class="clr-select" clrControl
+         type="number"
+         [id]="name+'minutes'+uuid"
+         [name]="name+'minutes'+uuid"
+         [readOnly]="isShow"
+         [ngModel]="minutes"
+         (ngModelChange)="minutesChanged($event)"
+         [required]="partValidationSafe.isRequired"
+         [min]="0"
+         [max]="59"
+    />
+  </div>
+  <span>minutes</span>
+
+  <div class="clr-input-wrapper duration-input">
+    <input class="clr-select" clrControl
+         type="number"
+         [id]="name+'seconds'+uuid"
+         [name]="name+'seconds'+uuid"
+         [readOnly]="isShow"
+         [ngModel]="seconds"
+         (ngModelChange)="secondsChanged($event)"
+         [required]="partValidationSafe.isRequired"
+         [min]="0"
+         [max]="59"
+    />
+  </div>
+  <span>seconds</span>
+  <clr-control-helper *ngIf="helperText">{{helperText}}</clr-control-helper>
+  <clr-control-error *clrIfError="'required'">{{texts.FORM_VALIDATION_MUST_BE_FILLED(name)}}</clr-control-error>
+</clr-control-container>
+
+<div *ngIf="isShow" class="clr-form-control clr-row">
+  <label class="clr-control-label clr-col-12 clr-col-md-2">{{name}}</label>
+  <span class="clr-control-container clr-col-md-10 clr-col-12 breakableSpan">
+    <ng-container *ngIf="days != 0">
+      {{days}} days
+    </ng-container>
+    <ng-container *ngIf="hours != 0">
+      <ng-container *ngIf="days != 0">,</ng-container>
+      {{hours}} hours
+    </ng-container>
+    <ng-container *ngIf="minutes != 0">
+      <ng-container *ngIf="days != 0 || hours != 0">,</ng-container>
+      {{minutes}} minutes
+    </ng-container>
+    <ng-container *ngIf="seconds != 0">
+      <ng-container *ngIf="days != 0 || hours != 0 || minutes != 0">,</ng-container>
+      {{seconds}} seconds
+    </ng-container>
+    <ng-container *ngIf="value == 0">None</ng-container>
+  </span>
+</div>

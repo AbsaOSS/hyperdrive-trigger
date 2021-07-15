@@ -31,7 +31,7 @@ trait WorkflowHistoryRepository extends Repository {
   private[persistance] def delete(workflow: WorkflowJoined, user: String)(implicit ec: ExecutionContext): DBIO[Long]
 
   def getHistoryForWorkflow(workflowId: Long)(implicit ec: ExecutionContext): Future[Seq[History]]
-  def getWorkflowsFromHistory(leftWorkflowHistoryId: Long, rightWorkflowHistoryId: Long)(implicit ec: ExecutionContext): Future[WorkflowsFromHistory]
+  def getWorkflowsFromHistory(leftWorkflowHistoryId: Long, rightWorkflowHistoryId: Long)(implicit ec: ExecutionContext): Future[HistoryPair[WorkflowHistory]]
 }
 
 @stereotype.Repository
@@ -64,35 +64,10 @@ class WorkflowHistoryRepositoryImpl extends WorkflowHistoryRepository {
   }
 
   override def getHistoryForWorkflow(workflowId: Long)(implicit ec: ExecutionContext): Future[Seq[History]] = {
-    db.run(
-      workflowHistoryTable.filter(_.workflowId === workflowId).map(
-        row => (row.id, row.changedOn, row.changedBy, row.operation)
-      ).result
-    ).map(_.map(result => History(
-      id = result._1,
-      changedOn = result._2,
-      changedBy = result._3,
-      operation = result._4
-    )))
+    db.run(workflowHistoryTable.getHistoryForEntity(workflowId))
   }
 
-  override def getWorkflowsFromHistory(leftWorkflowHistoryId: Long, rightWorkflowHistoryId: Long)(implicit ec: ExecutionContext): Future[WorkflowsFromHistory] = {
-    val queryResult = db.run(
-      (for {
-        leftWorkflowHistory <- workflowHistoryTable if leftWorkflowHistory.id === leftWorkflowHistoryId
-        rightWorkflowHistory <- workflowHistoryTable if rightWorkflowHistory.id === rightWorkflowHistoryId
-      } yield {
-        (leftWorkflowHistory, rightWorkflowHistory)
-      }).result
-    )
-
-    queryResult.map(
-      _.headOption.map{ workflowsForComparisonTuple =>
-        WorkflowsFromHistory(workflowsForComparisonTuple._1, workflowsForComparisonTuple._2)
-      }.getOrElse(
-        throw new Exception(s"Workflow history with ${leftWorkflowHistoryId} or ${rightWorkflowHistoryId} does not exist.")
-      )
-    )
+  override def getWorkflowsFromHistory(leftWorkflowHistoryId: Long, rightWorkflowHistoryId: Long)(implicit ec: ExecutionContext): Future[HistoryPair[WorkflowHistory]] = {
+    db.run(workflowHistoryTable.getEntitiesFromHistory(leftWorkflowHistoryId, rightWorkflowHistoryId))
   }
-
 }

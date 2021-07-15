@@ -46,9 +46,9 @@ export class StringSequencePartComponent implements OnInit {
 
   ngOnInit(): void {
     this.partValidationSafe = PartValidationFactory.create(
-      !this.partValidation.isRequired ? this.partValidation.isRequired : true,
-      !!this.partValidation.maxLength ? this.partValidation.maxLength : Number.MAX_SAFE_INTEGER,
-      !!this.partValidation.minLength ? this.partValidation.minLength : 1,
+      this.partValidation?.isRequired ?? true,
+      this.partValidation?.maxLength ?? Number.MAX_SAFE_INTEGER,
+      this.partValidation?.minLength ?? 1,
     );
 
     if (!this.value) this.modelChanged(this.partValidationSafe.isRequired ? [''] : []);

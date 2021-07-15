@@ -34,6 +34,7 @@ trait WorkflowRepository extends Repository {
   def insertWorkflows(workflow: Seq[WorkflowJoined], user: String)(implicit ec: ExecutionContext): Future[Seq[Long]]
   def existsWorkflows(names: Seq[String])(implicit ec: ExecutionContext): Future[Seq[String]]
   def existsOtherWorkflow(name: String, id: Long)(implicit ec: ExecutionContext): Future[Boolean]
+  def existsWorkflowWithPrefix(workflowPrefix: String)(implicit ec: ExecutionContext): Future[Boolean]
   def getWorkflow(id: Long)(implicit ec: ExecutionContext): Future[WorkflowJoined]
   def getWorkflows(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[WorkflowJoined]]
   def getWorkflows()(implicit ec: ExecutionContext): Future[Seq[Workflow]]
@@ -44,6 +45,7 @@ trait WorkflowRepository extends Repository {
   def updateWorkflowsIsActive(ids: Seq[Long], isActiveNewValue: Boolean, user: String)(implicit ec: ExecutionContext): Future[Unit]
   def getProjects()(implicit ec: ExecutionContext): Future[Seq[String]]
   def getProjectsInfo()(implicit ec: ExecutionContext): Future[Seq[ProjectInfo]]
+  def existsProject(project: String)(implicit ec: ExecutionContext): Future[Boolean]
   def releaseWorkflowAssignmentsOfDeactivatedInstances()(implicit ec: ExecutionContext): Future[(Int, Int)]
   def releaseWorkflowAssignments(workflowIds: Seq[Long], instanceId: Long)(implicit ec: ExecutionContext): Future[Int]
   def acquireWorkflowAssignments(workflowIds: Seq[Long], instanceId: Long)(implicit ec: ExecutionContext): Future[Int]
@@ -107,6 +109,12 @@ class WorkflowRepositoryImpl(override val workflowHistoryRepository: WorkflowHis
   override def existsOtherWorkflow(name: String, id: Long)(implicit ec: ExecutionContext): Future[Boolean] = db.run(
     workflowTable.filter(_.name === name)
       .filter(_.id =!= id)
+      .exists
+      .result
+  )
+
+  override def existsWorkflowWithPrefix(workflowPrefix: String)(implicit ec: ExecutionContext): Future[Boolean] = db.run(
+    workflowTable.filter(w => w.name.toLowerCase.like(LiteralColumn[String](s"${workflowPrefix.toLowerCase}%")))
       .exists
       .result
   )
@@ -270,6 +278,10 @@ class WorkflowRepositoryImpl(override val workflowHistoryRepository: WorkflowHis
 
   override def getProjectsInfo()(implicit ec: ExecutionContext): Future[Seq[ProjectInfo]] = db.run(
     workflowTable.map(_.project).groupBy(_.value).map(e => (e._1, e._2.length)).sortBy(_._1).result.map(_.map((ProjectInfo.apply _).tupled(_)))
+  )
+
+  override def existsProject(project: String)(implicit ec: ExecutionContext): Future[Boolean] = db.run(
+    workflowTable.filter(_.project.toLowerCase === project.toLowerCase).exists.result
   )
 
   override def releaseWorkflowAssignmentsOfDeactivatedInstances()(implicit ec: ExecutionContext): Future[(Int, Int)] = db.run(

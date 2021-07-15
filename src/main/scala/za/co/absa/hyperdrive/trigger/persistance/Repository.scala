@@ -30,6 +30,8 @@ trait Repository
     with WorkflowHistoryTable
     with JobTemplateTable
     with SchedulerInstanceTable
+    with NotificationRuleTable
+    with NotificationRuleHistoryTable
     with Profile with JdbcTypeMapper {
 
   lazy val db = PostgresDB.db

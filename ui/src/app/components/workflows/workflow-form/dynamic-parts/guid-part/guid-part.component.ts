@@ -45,9 +45,9 @@ export class GuidPartComponent implements OnInit {
   ngOnInit(): void {
     if (!this.value) this.refreshGuid();
     this.partValidationSafe = PartValidationFactory.create(
-      !!this.partValidation.isRequired ? this.partValidation.isRequired : true,
-      !!this.partValidation.maxLength ? this.partValidation.maxLength : 36,
-      !!this.partValidation.minLength ? this.partValidation.minLength : 36,
+      this.partValidation?.isRequired ?? true,
+      this.partValidation?.maxLength ?? 36,
+      this.partValidation?.minLength ?? 36,
     );
   }
 

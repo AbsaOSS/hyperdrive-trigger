@@ -47,7 +47,6 @@
         <appender-ref ref="FILE-ROLLING"/>
         <appender-ref ref="Console" />
     </logger>
-
     <root level="info">
         <appender-ref ref="FILE-ROLLING"/>
         <appender-ref ref="Console" />
