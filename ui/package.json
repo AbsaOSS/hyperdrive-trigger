@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve --open",
-    "build": "ng build --aot --prod --base-href /hyperdrive_trigger/",
+    "build": "ng build --aot --prod",
     "test": "ng test",
     "test:ci": "ng test --karmaConfig=karma.conf.ci.js",
     "lint": "tsc --noEmit && eslint 'src/**/*.{js,ts}' --quiet --fix",

@@ -16,6 +16,7 @@
 package za.co.absa.hyperdrive.trigger
 
 import com.fasterxml.jackson.databind._
+import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.context.annotation.{Bean, Configuration}
 import org.springframework.scheduling.annotation.EnableAsync
@@ -38,4 +39,8 @@ class Application() {
   @Bean
   def objectMapper(): ObjectMapper = ObjectMapperSingleton.getObjectMapper
 
+}
+
+object Application extends App {
+  SpringApplication.run(classOf[Application], args: _*)
 }
