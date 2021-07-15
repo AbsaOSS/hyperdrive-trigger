@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -15,24 +16,17 @@
 
 package za.co.absa.hyperdrive.trigger.persistance
 
-import za.co.absa.hyperdrive.trigger.models.tables._
+import org.springframework.stereotype.Component
+import slick.jdbc.{JdbcProfile, PostgresProfile}
+import za.co.absa.hyperdrive.trigger.configuration.application.DatabaseConfig
+import javax.inject.Inject
 
-trait Repository
-  extends DagInstanceTable
-    with DagDefinitionTable
-    with EventTable
-    with JobDefinitionTable
-    with JobInstanceTable
-    with SensorTable
-    with WorkflowTable
-    with DagRunTable
-    with WorkflowHistoryTable
-    with JobTemplateTable
-    with SchedulerInstanceTable
-    with NotificationRuleTable
-    with NotificationRuleHistoryTable
-    with Profile with JdbcTypeMapper {
-
-  val dbProvider: DatabaseProvider
-  lazy val db: DatabaseProvider.profile.backend.DatabaseDef = dbProvider.db
+@Component
+class DatabaseProvider @Inject()(databaseConfig: DatabaseConfig) {
+  import za.co.absa.hyperdrive.trigger.persistance.DatabaseProvider._
+  lazy val db: profile.backend.DatabaseDef =
+    profile.api.Database.forConfig(path = "", config = databaseConfig.dbConfig)
+}
+object DatabaseProvider {
+  val profile: JdbcProfile = PostgresProfile
 }

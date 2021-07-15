@@ -33,11 +33,11 @@ class WorkflowRepositoryPostgresTest extends FlatSpec with Matchers with BeforeA
   import api._
 
   val workflowHistoryRepositoryMock: WorkflowHistoryRepository = mock[WorkflowHistoryRepository]
-  val workflowHistoryRepository: WorkflowHistoryRepository = new WorkflowHistoryRepositoryImpl()
+  val workflowHistoryRepository: WorkflowHistoryRepository = new WorkflowHistoryRepositoryImpl(dbProvider)
 
-  val workflowRepositoryMocked: WorkflowRepository = new WorkflowRepositoryImpl(workflowHistoryRepositoryMock)
+  val workflowRepositoryMocked: WorkflowRepository = new WorkflowRepositoryImpl(dbProvider, workflowHistoryRepositoryMock)
 
-  val workflowRepository: WorkflowRepository = new WorkflowRepositoryImpl(workflowHistoryRepository)
+  val workflowRepository: WorkflowRepository = new WorkflowRepositoryImpl(dbProvider, workflowHistoryRepository)
 
 
   override def beforeAll: Unit = {

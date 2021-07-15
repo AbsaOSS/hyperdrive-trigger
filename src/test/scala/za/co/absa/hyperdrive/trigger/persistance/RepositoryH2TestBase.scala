@@ -17,6 +17,7 @@ package za.co.absa.hyperdrive.trigger.persistance
 
 import play.api.libs.json.{JsValue, Json}
 import slick.jdbc.JdbcType
+import za.co.absa.hyperdrive.trigger.configuration.application.DatabaseConfig
 import za.co.absa.hyperdrive.trigger.models.tables.Profile
 
 import scala.util.Try
@@ -24,6 +25,12 @@ import scala.util.Try
 trait RepositoryH2TestBase extends RepositoryTestBase {
   val h2Profile = slick.jdbc.H2Profile
   override val profile = h2Profile
+  override val dbProvider: DatabaseProvider = new DatabaseProvider(DatabaseConfig(Map(
+    "connectionPool" -> "disabled",
+    "url" -> "jdbc:h2:mem:hyperdriver;INIT=create domain if not exists JSONB as text;MODE=PostgreSQL;DATABASE_TO_UPPER=false",
+    "driver" -> "org.h2.Driver",
+    "keepAliveConnection" -> "true"
+  )))
 }
 
 trait H2Profile extends Profile {

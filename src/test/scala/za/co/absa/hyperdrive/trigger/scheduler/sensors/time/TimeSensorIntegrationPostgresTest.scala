@@ -31,19 +31,19 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 
 class TimeSensorIntegrationPostgresTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryPostgresTestBase {
-  private val sensorRepository: SensorRepositoryImpl = new SensorRepositoryImpl
+  private val sensorRepository: SensorRepositoryImpl = new SensorRepositoryImpl(dbProvider)
 
-  private val workflowHistoryRepository: WorkflowHistoryRepositoryImpl = new WorkflowHistoryRepositoryImpl
+  private val workflowHistoryRepository: WorkflowHistoryRepositoryImpl = new WorkflowHistoryRepositoryImpl(dbProvider)
 
-  private val workflowRepository: WorkflowRepositoryImpl = new WorkflowRepositoryImpl(workflowHistoryRepository)
+  private val workflowRepository: WorkflowRepositoryImpl = new WorkflowRepositoryImpl(dbProvider, workflowHistoryRepository)
 
-  private val eventRepository: EventRepositoryImpl = new EventRepositoryImpl
+  private val eventRepository: EventRepositoryImpl = new EventRepositoryImpl(dbProvider)
 
-  private val dagDefinitionRepository: DagDefinitionRepositoryImpl = new DagDefinitionRepositoryImpl
+  private val dagDefinitionRepository: DagDefinitionRepositoryImpl = new DagDefinitionRepositoryImpl(dbProvider)
 
-  private val dagInstanceRepository: DagInstanceRepositoryImpl = new DagInstanceRepositoryImpl
+  private val dagInstanceRepository: DagInstanceRepositoryImpl = new DagInstanceRepositoryImpl(dbProvider)
 
-  private val jobTemplateRepository: JobTemplateRepositoryImpl = new JobTemplateRepositoryImpl
+  private val jobTemplateRepository: JobTemplateRepositoryImpl = new JobTemplateRepositoryImpl(dbProvider)
 
   private val jobTemplateService: JobTemplateService = new JobTemplateServiceImpl(jobTemplateRepository)
 

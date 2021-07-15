@@ -28,7 +28,7 @@ class NotificationRuleHistoryRepositoryTest extends FlatSpec with Matchers with 
   import api._
 
   private val h2NotificationRuleHistoryRepository: NotificationRuleHistoryRepository =
-    new NotificationRuleHistoryRepositoryImpl() with H2Profile  {
+    new NotificationRuleHistoryRepositoryImpl(dbProvider) with H2Profile  {
       override val profile = h2Profile
     }
 

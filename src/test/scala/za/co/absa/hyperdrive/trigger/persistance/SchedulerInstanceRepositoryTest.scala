@@ -26,7 +26,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class SchedulerInstanceRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryH2TestBase {
   import api._
 
-  val schedulerInstanceRepository: SchedulerInstanceRepository = new SchedulerInstanceRepositoryImpl { override val profile = h2Profile }
+  val schedulerInstanceRepository: SchedulerInstanceRepository =
+    new SchedulerInstanceRepositoryImpl(dbProvider) { override val profile = h2Profile }
 
   override def beforeAll: Unit = {
     schemaSetup()

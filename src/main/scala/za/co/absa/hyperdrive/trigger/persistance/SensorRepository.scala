@@ -19,6 +19,7 @@ import org.springframework.stereotype
 import za.co.absa.hyperdrive.trigger.models.{Sensor, SensorProperties}
 import za.co.absa.hyperdrive.trigger.scheduler.utilities.SensorsConfig
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 trait SensorRepository extends Repository {
@@ -28,7 +29,8 @@ trait SensorRepository extends Repository {
 }
 
 @stereotype.Repository
-class SensorRepositoryImpl extends SensorRepository {
+class SensorRepositoryImpl @Inject()(val dbProvider: DatabaseProvider)
+  extends SensorRepository {
   import api._
 
   override def getNewActiveAssignedSensors(idsToFilter: Seq[Long], assignedWorkflowIds: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[Sensor[_ <: SensorProperties]]] = db.run {(

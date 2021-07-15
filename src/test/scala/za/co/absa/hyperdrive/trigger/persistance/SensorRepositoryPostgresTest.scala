@@ -23,7 +23,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class SensorRepositoryPostgresTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryPostgresTestBase {
 
   import TestSensors._
-  val sensorRepository: SensorRepository = new SensorRepositoryImpl
+  val sensorRepository: SensorRepository = new SensorRepositoryImpl(dbProvider)
 
   override def beforeAll: Unit = {
     super.beforeAll()
