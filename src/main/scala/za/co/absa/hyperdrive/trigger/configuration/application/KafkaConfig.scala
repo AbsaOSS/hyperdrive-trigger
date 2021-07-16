@@ -16,30 +16,24 @@
 
 package za.co.absa.hyperdrive.trigger.configuration.application
 
-import com.typesafe.config.{Config, ConfigFactory}
 import org.springframework.boot.context.properties.bind.Name
 import org.springframework.boot.context.properties.{ConfigurationProperties, ConstructorBinding}
 import org.springframework.validation.annotation.Validated
 
 import java.util.Properties
-import javax.validation.constraints.NotNull
+import javax.validation.constraints.{NotBlank, NotNull}
 import scala.annotation.meta.field
 
-@ConfigurationProperties
+@ConfigurationProperties("kafka-source")
 @ConstructorBinding
 @Validated
-class DatabaseConfig (
-  @Name("db")
+class KafkaConfig (
+  @(KafkaSensorProperties @field)(message = "key.deserializer, value.deserializer or max.poll.records is not defined")
+  val properties: Properties,
+  @Name("group.id.prefix")
+  @(NotBlank @field)
+  val groupIdPrefix: String,
+  @Name("poll.duration")
   @(NotNull @field)
-  val dbProperties: Properties
-) {
-  val dbConfig: Config = ConfigFactory.parseProperties(dbProperties)
-}
-
-object DatabaseConfig {
-  def apply(propertiesMap: Map[String, String]): DatabaseConfig = {
-    val properties = new Properties()
-    propertiesMap.foreach { case (key, value) => properties.setProperty(key, value)}
-    new DatabaseConfig(properties)
-  }
-}
+  val pollDuration: Long
+)

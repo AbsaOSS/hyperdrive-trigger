@@ -15,8 +15,10 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.sensors.kafka
 
+import za.co.absa.hyperdrive.trigger.configuration.application.KafkaConfig
 import za.co.absa.hyperdrive.trigger.models.{AbsaKafkaSensorProperties, Event}
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.PollSensor
+
 import scala.concurrent.{ExecutionContext, Future}
 import za.co.absa.hyperdrive.trigger.models.{Sensor => SensorDefition}
 
@@ -25,7 +27,8 @@ class AbsaKafkaSensor(
   sensorDefinition: SensorDefition[AbsaKafkaSensorProperties],
   consumeFromLatest: Boolean = false,
   executionContext: ExecutionContext
-) extends PollSensor[AbsaKafkaSensorProperties](eventsProcessor, sensorDefinition, executionContext) {
+)(implicit kafkaConfig: KafkaConfig)
+  extends PollSensor[AbsaKafkaSensorProperties](eventsProcessor, sensorDefinition, executionContext) {
 
   val kafkaSensor = new KafkaSensor(
     eventsProcessor,

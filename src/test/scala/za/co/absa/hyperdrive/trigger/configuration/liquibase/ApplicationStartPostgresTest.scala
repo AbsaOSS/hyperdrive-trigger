@@ -42,9 +42,10 @@ class ApplicationStartPostgresTest extends FlatSpec with Matchers with SpringInt
 
   override def beforeAll(): Unit = {
     import scala.collection.JavaConverters._
-    databaseConfig.db.asScala.foreach { case (key, value) =>
+    databaseConfig.dbProperties.asScala.foreach { case (key, value) =>
       System.setProperty(s"db.${key}", value)
     }
+
     super.beforeAll()
   }
 

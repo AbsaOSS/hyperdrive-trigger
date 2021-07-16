@@ -17,6 +17,7 @@ package za.co.absa.hyperdrive.trigger.scheduler.sensors
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
+import za.co.absa.hyperdrive.trigger.configuration.application.KafkaConfig
 import za.co.absa.hyperdrive.trigger.models.{AbsaKafkaSensorProperties, KafkaSensorProperties, RecurringSensorProperties, SensorProperties, TimeSensorProperties}
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, SensorRepository}
 import za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor
@@ -33,7 +34,8 @@ import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success, Try}
 
 @Component
-class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: SensorRepository, dagInstanceRepository: DagInstanceRepository) {
+class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: SensorRepository,
+                        dagInstanceRepository: DagInstanceRepository, implicit val kafkaConfig: KafkaConfig) {
   private val logger = LoggerFactory.getLogger(this.getClass)
 
   private implicit val executionContext: ExecutionContextExecutor =

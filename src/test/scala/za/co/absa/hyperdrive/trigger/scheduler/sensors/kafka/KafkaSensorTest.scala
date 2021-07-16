@@ -33,12 +33,14 @@ import za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor
 import java.util.Properties
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import za.co.absa.hyperdrive.trigger.configuration.application.KafkaConfig
 
 class KafkaSensorTest extends FlatSpec with MockitoSugar with Matchers with BeforeAndAfter {
   private val matchPropertyKey = "ingestionToken"
   private val ingestionToken = "95fce3e7-2468-46fa-9456-74919497528c"
   private val kafkaPort = 12345
   private val kafkaUrl = s"localhost:${kafkaPort}"
+  private implicit val dummyKafkaConfig: KafkaConfig = new KafkaConfig(new Properties(), "groupIdPrefix", 100)
 
   before {
     System.setProperty("kafkaSource.poll.duration", "750")

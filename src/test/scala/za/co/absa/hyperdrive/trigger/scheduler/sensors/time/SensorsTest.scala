@@ -16,8 +16,7 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.sensors.time
 
-import java.util.concurrent
-
+import java.util.{Properties, concurrent}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, times, verify, when}
@@ -27,6 +26,7 @@ import org.quartz.{JobKey, TriggerKey}
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{Assertion, BeforeAndAfter, FlatSpec, Matchers}
 import za.co.absa.hyperdrive.trigger.TestUtils.await
+import za.co.absa.hyperdrive.trigger.configuration.application.KafkaConfig
 import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, SensorRepository}
 import za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor
@@ -40,6 +40,7 @@ class SensorsTest extends FlatSpec with MockitoSugar with Matchers with BeforeAn
   private val sensorRepository = mock[SensorRepository]
   private val eventProcessor = mock[EventProcessor]
   private val dagInstanceRepository = mock[DagInstanceRepository]
+  private val kafkaConfig: KafkaConfig = new KafkaConfig(new Properties(), "groupIdPrefix", 100)
 
   before {
     reset(sensorRepository)
@@ -57,7 +58,7 @@ class SensorsTest extends FlatSpec with MockitoSugar with Matchers with BeforeAn
     when(sensorRepository.getInactiveSensors(any())(any[ExecutionContext])).thenReturn(Future{Seq.empty})
     when(sensorRepository.getNewActiveAssignedSensors(any(), any())(any[ExecutionContext])).thenReturn(Future{Seq(timeSensor)})
 
-    val underTest = new Sensors(eventProcessor, sensorRepository, dagInstanceRepository)
+    val underTest = new Sensors(eventProcessor, sensorRepository, dagInstanceRepository, kafkaConfig)
 
     // when
     underTest.prepareSensors()
@@ -89,7 +90,7 @@ class SensorsTest extends FlatSpec with MockitoSugar with Matchers with BeforeAn
       Future {Seq(timeSensor, timeSensor2)},
       Future {Seq.empty}
     )
-    val underTest = new Sensors(eventProcessor, sensorRepository, dagInstanceRepository)
+    val underTest = new Sensors(eventProcessor, sensorRepository, dagInstanceRepository, kafkaConfig)
 
     // when, then
     underTest.prepareSensors()
@@ -132,7 +133,7 @@ class SensorsTest extends FlatSpec with MockitoSugar with Matchers with BeforeAn
       Future {Seq(timeSensor3)},
       Future {Seq(timeSensor)}
     )
-    val underTest = new Sensors(eventProcessor, sensorRepository, dagInstanceRepository)
+    val underTest = new Sensors(eventProcessor, sensorRepository, dagInstanceRepository, kafkaConfig)
 
     // when, then
     underTest.prepareSensors()
@@ -175,7 +176,7 @@ class SensorsTest extends FlatSpec with MockitoSugar with Matchers with BeforeAn
       Future {Seq(timeSensor, timeSensor2)},
       Future {Seq(timeSensor)}
     )
-    val underTest = new Sensors(eventProcessor, sensorRepository, dagInstanceRepository)
+    val underTest = new Sensors(eventProcessor, sensorRepository, dagInstanceRepository, kafkaConfig)
 
     // when, then
     underTest.prepareSensors()
@@ -205,7 +206,7 @@ class SensorsTest extends FlatSpec with MockitoSugar with Matchers with BeforeAn
       Future {Seq.empty},
       Future {assignedSensorsT2.diff(assignedSensorsT1)}
     )
-    val underTest = new Sensors(eventProcessor, sensorRepository, dagInstanceRepository)
+    val underTest = new Sensors(eventProcessor, sensorRepository, dagInstanceRepository, kafkaConfig)
 
     underTest.prepareSensors()
     await(underTest.processEvents(assignedWorkflowIdsT0, firstIteration = false))
