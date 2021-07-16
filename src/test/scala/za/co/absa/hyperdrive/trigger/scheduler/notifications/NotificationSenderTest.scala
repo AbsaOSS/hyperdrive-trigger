@@ -25,6 +25,7 @@ import org.springframework.mail.SimpleMailMessage
 import org.springframework.mail.javamail.JavaMailSenderImpl
 import za.co.absa.hyperdrive.trigger.TestUtils.await
 import za.co.absa.hyperdrive.trigger.api.rest.services.NotificationRuleService
+import za.co.absa.hyperdrive.trigger.configuration.application.TestSparkYarnSinkConfig
 import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.InQueue
 import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobStatuses}
@@ -37,7 +38,7 @@ import scala.concurrent.Future
 class NotificationSenderTest extends FlatSpec with MockitoSugar with Matchers with BeforeAndAfter {
   private val notificationRuleService = mock[NotificationRuleService]
   private val emailService = mock[EmailService]
-  private val underTest = new NotificationSenderImpl(notificationRuleService, emailService)
+  private val underTest = new NotificationSenderImpl(notificationRuleService, emailService, TestSparkYarnSinkConfig())
 
   before {
     reset(notificationRuleService)

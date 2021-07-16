@@ -26,7 +26,7 @@ import org.quartz.{JobKey, TriggerKey}
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{Assertion, BeforeAndAfter, FlatSpec, Matchers}
 import za.co.absa.hyperdrive.trigger.TestUtils.await
-import za.co.absa.hyperdrive.trigger.configuration.application.KafkaConfig
+import za.co.absa.hyperdrive.trigger.configuration.application.{KafkaConfig, TestKafkaConfig}
 import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, SensorRepository}
 import za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor
@@ -40,7 +40,7 @@ class SensorsTest extends FlatSpec with MockitoSugar with Matchers with BeforeAn
   private val sensorRepository = mock[SensorRepository]
   private val eventProcessor = mock[EventProcessor]
   private val dagInstanceRepository = mock[DagInstanceRepository]
-  private val kafkaConfig: KafkaConfig = new KafkaConfig(new Properties(), "groupIdPrefix", 100)
+  private val kafkaConfig: KafkaConfig = TestKafkaConfig()
 
   before {
     reset(sensorRepository)

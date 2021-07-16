@@ -18,17 +18,19 @@ package za.co.absa.hyperdrive.trigger.api.rest.health
 
 import org.springframework.boot.actuate.health.{Health, HealthIndicator}
 import org.springframework.stereotype.Component
-import za.co.absa.hyperdrive.trigger.scheduler.utilities.{HealthConfig, SparkExecutorConfig}
+import za.co.absa.hyperdrive.trigger.configuration.application.SparkYarnSinkConfig
+import za.co.absa.hyperdrive.trigger.scheduler.utilities.{HealthConfig}
 
 import java.net.{HttpURLConnection, MalformedURLException, URL}
+import javax.inject.Inject
 import scala.util.{Failure, Success, Try}
 
 @Component
-class YarnConnectionHealthIndicator extends HealthIndicator {
+class YarnConnectionHealthIndicator @Inject()(sparkYarnSinkConfig: SparkYarnSinkConfig) extends HealthIndicator {
   val successCode = 200
 
   override protected def health(): Health = {
-    val yarnBaseUrl = SparkExecutorConfig.getHadoopResourceManagerUrlBase.stripSuffix("/")
+    val yarnBaseUrl = sparkYarnSinkConfig.hadoopResourceManagerUrlBase.stripSuffix("/")
     val yarnTestEndpoint = HealthConfig.yarnConnectionTestEndpoint.stripPrefix("/")
 
     Try(new URL(s"$yarnBaseUrl/$yarnTestEndpoint")).flatMap(url =>

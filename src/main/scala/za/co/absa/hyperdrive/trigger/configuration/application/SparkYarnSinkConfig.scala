@@ -16,7 +16,7 @@
 
 package za.co.absa.hyperdrive.trigger.configuration.application
 
-import org.springframework.boot.context.properties.bind.Name
+import org.springframework.boot.context.properties.bind.{DefaultValue, Name}
 import org.springframework.boot.context.properties.{ConfigurationProperties, ConstructorBinding}
 import org.springframework.validation.annotation.Validated
 
@@ -24,16 +24,30 @@ import java.util.Properties
 import javax.validation.constraints.{NotBlank, NotNull}
 import scala.annotation.meta.field
 
-@ConfigurationProperties("kafka-source")
+@ConfigurationProperties("spark-yarn-sink")
 @ConstructorBinding
 @Validated
-class KafkaConfig (
-  @(KafkaSensorProperties @field)(message = "key.deserializer, value.deserializer or max.poll.records is not defined")
-  val properties: Properties,
-  @Name("group.id.prefix")
-  @(NotBlank @field)
-  val groupIdPrefix: String,
-  @Name("poll.duration")
+class SparkYarnSinkConfig (
   @NotNull
-  val pollDuration: Long
-)
+  val submitTimeout: Int,
+  @(NotBlank @field)
+  val hadoopConfDir: String,
+  @(NotBlank @field)
+  val master: String,
+  @(NotBlank @field)
+  val sparkHome: String,
+  @(NotBlank @field)
+  val hadoopResourceManagerUrlBase: String,
+  @Name("filesToDeploy")
+  filesToDeployInternal: String,
+  @Name("additionalConfs")
+  additionalConfsInternal: Properties,
+  @NotNull
+  val executablesFolder: String,
+  @DefaultValue(Array("Unknown"))
+  val userUsedToKillJob: String
+) {
+  import scala.collection.JavaConverters._
+  val filesToDeploy: Seq[String] = Option(filesToDeployInternal).map(_.split(",").toSeq).getOrElse(Seq())
+  val additionalConfs: Map[String, String] = Option(additionalConfsInternal).map(_.asScala.toMap).getOrElse(Map())
+}

@@ -21,7 +21,7 @@ import org.quartz.JobKey
 import org.quartz.impl.matchers.GroupMatcher
 import org.scalatest._
 import za.co.absa.hyperdrive.trigger.api.rest.services.{DagInstanceService, DagInstanceServiceImpl, JobTemplateFixture, JobTemplateService, JobTemplateServiceImpl}
-import za.co.absa.hyperdrive.trigger.configuration.application.KafkaConfig
+import za.co.absa.hyperdrive.trigger.configuration.application.{KafkaConfig, TestKafkaConfig}
 import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.persistance._
 import za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor
@@ -50,7 +50,7 @@ class TimeSensorIntegrationPostgresTest extends FlatSpec with Matchers with Befo
 
   private val dagInstanceService: DagInstanceService = new DagInstanceServiceImpl(jobTemplateService)
 
-  private val kafkaConfig: KafkaConfig = new KafkaConfig(new Properties(), "groupIdPrefix", 100)
+  private val kafkaConfig: KafkaConfig = TestKafkaConfig()
 
   override def beforeAll: Unit = {
     super.beforeAll()

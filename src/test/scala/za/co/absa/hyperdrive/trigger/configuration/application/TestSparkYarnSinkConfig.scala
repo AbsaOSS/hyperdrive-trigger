@@ -16,24 +16,18 @@
 
 package za.co.absa.hyperdrive.trigger.configuration.application
 
-import org.springframework.boot.context.properties.bind.Name
-import org.springframework.boot.context.properties.{ConfigurationProperties, ConstructorBinding}
-import org.springframework.validation.annotation.Validated
-
 import java.util.Properties
-import javax.validation.constraints.{NotBlank, NotNull}
-import scala.annotation.meta.field
 
-@ConfigurationProperties("kafka-source")
-@ConstructorBinding
-@Validated
-class KafkaConfig (
-  @(KafkaSensorProperties @field)(message = "key.deserializer, value.deserializer or max.poll.records is not defined")
-  val properties: Properties,
-  @Name("group.id.prefix")
-  @(NotBlank @field)
-  val groupIdPrefix: String,
-  @Name("poll.duration")
-  @NotNull
-  val pollDuration: Long
-)
+object TestSparkYarnSinkConfig {
+  def apply() = new SparkYarnSinkConfig(
+    submitTimeout = 1000,
+    hadoopConfDir = "",
+    master = "yarn",
+    sparkHome = "",
+    hadoopResourceManagerUrlBase = "",
+    filesToDeployInternal = "",
+    additionalConfsInternal = new Properties(),
+    executablesFolder = "",
+    userUsedToKillJob = "Unknown"
+  )
+}

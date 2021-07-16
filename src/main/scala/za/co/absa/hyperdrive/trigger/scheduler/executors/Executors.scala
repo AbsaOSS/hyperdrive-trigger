@@ -27,6 +27,7 @@ import za.co.absa.hyperdrive.trigger.scheduler.utilities.ExecutorsConfig
 import org.slf4j.LoggerFactory
 import za.co.absa.hyperdrive.trigger.scheduler.executors.shell.ShellExecutor
 import org.springframework.stereotype.Component
+import za.co.absa.hyperdrive.trigger.configuration.application.SparkYarnSinkConfig
 import za.co.absa.hyperdrive.trigger.scheduler.notifications.NotificationSender
 
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
@@ -34,9 +35,9 @@ import scala.util.{Failure, Success}
 
 @Component
 class Executors @Inject()(dagInstanceRepository: DagInstanceRepository, jobInstanceRepository: JobInstanceRepository,
-                          notificationSender: NotificationSender) {
+                          notificationSender: NotificationSender, sparkYarnSinkConfig: SparkYarnSinkConfig) {
   private val logger = LoggerFactory.getLogger(this.getClass)
-
+  private implicit val executorConfig: ExecutorConfig = new ExecutorConfig(sparkYarnSinkConfig)
   private implicit val executionContext: ExecutionContextExecutor =
     ExecutionContext.fromExecutor(concurrent.Executors.newFixedThreadPool(ExecutorsConfig.getThreadPoolSize))
 
@@ -93,3 +94,7 @@ class Executors @Inject()(dagInstanceRepository: DagInstanceRepository, jobInsta
   }
 
 }
+
+class ExecutorConfig (
+  val sparkYarnSinkConfig: SparkYarnSinkConfig
+)
