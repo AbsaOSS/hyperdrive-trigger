@@ -19,7 +19,7 @@ import org.apache.kafka.clients.consumer.{ConsumerConfig, ConsumerRebalanceListe
 import org.apache.kafka.common.TopicPartition
 import org.slf4j.LoggerFactory
 import play.api.libs.json.{JsError, JsSuccess, Json}
-import za.co.absa.hyperdrive.trigger.configuration.application.KafkaConfig
+import za.co.absa.hyperdrive.trigger.configuration.application.{GeneralConfig, KafkaConfig}
 import za.co.absa.hyperdrive.trigger.models.{Event, KafkaSensorProperties}
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.PollSensor
 
@@ -35,7 +35,7 @@ class KafkaSensor(
   sensorDefinition: SensorDefition[KafkaSensorProperties],
   consumeFromLatest: Boolean = false,
   executionContext: ExecutionContext
-)(implicit kafkaConfig: KafkaConfig)
+)(implicit kafkaConfig: KafkaConfig, generalConfig: GeneralConfig)
   extends PollSensor[KafkaSensorProperties](eventsProcessor, sensorDefinition, executionContext) {
 
   private val logger = LoggerFactory.getLogger(this.getClass)
@@ -45,9 +45,7 @@ class KafkaSensor(
     val consumerProperties = kafkaConfig.properties
     val servers = sensorDefinition.properties.servers.mkString(",")
     consumerProperties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, servers)
-    // TODO: Add appUniqueId
-    //     val groupId = s"${kafkaConfig.groupIdPrefix}-${appUniqueId}-${sensorDefinition.id}"
-    val groupId = s"${kafkaConfig.groupIdPrefix}-${sensorDefinition.id}"
+    val groupId = s"${kafkaConfig.groupIdPrefix}-${generalConfig.appUniqueId}-${sensorDefinition.id}"
     consumerProperties.put(ConsumerConfig.GROUP_ID_CONFIG, groupId)
 
     new KafkaConsumer[String, String](consumerProperties)

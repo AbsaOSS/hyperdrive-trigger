@@ -20,6 +20,9 @@ import org.springframework.boot.context.properties.bind.{DefaultValue, Name}
 import org.springframework.boot.context.properties.{ConfigurationProperties, ConstructorBinding}
 import org.springframework.validation.annotation.Validated
 
+import javax.validation.constraints.NotBlank
+import scala.annotation.meta.field
+
 @ConfigurationProperties
 @ConstructorBinding
 @Validated
@@ -30,5 +33,7 @@ class GeneralConfig (
   @DefaultValue(Array("Unknown"))
   val environment: String,
   @DefaultValue(Array("Unknown"))
-  val version: String
+  val version: String,
+  @(NotBlank @field)
+  val appUniqueId: String
 )

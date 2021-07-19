@@ -46,6 +46,7 @@ class YarnConnection (
   @NotNull
   val testEndpoint: String,
   @Name("timeoutMillis")
+  // TODO: Cannot be null!
   timeoutMillisInternal: Int
 ) {
   val timeoutMillis: Option[Int] = Option(timeoutMillisInternal)
