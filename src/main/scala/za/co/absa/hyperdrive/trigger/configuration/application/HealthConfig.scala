@@ -46,8 +46,7 @@ class YarnConnection (
   @NotNull
   val testEndpoint: String,
   @Name("timeoutMillis")
-  // TODO: Cannot be null!
-  timeoutMillisInternal: Int
+  timeoutMillisInternal: Integer
 ) {
-  val timeoutMillis: Option[Int] = Option(timeoutMillisInternal)
+  val timeoutMillis: Option[Int] = Option[Integer](timeoutMillisInternal).map(Integer2int)
 }

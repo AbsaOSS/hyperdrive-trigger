@@ -70,7 +70,7 @@ class ApplicationStartPostgresTest extends FlatSpec with Matchers with SpringInt
     shellExecutorConfig.executablesFolder shouldBe "src/test/resources/"
     healthConfig.databaseConnection.timeoutMillis shouldBe 120000
     healthConfig.yarnConnection.testEndpoint shouldBe "/cluster/cluster"
-//    healthConfig.yarnConnection.timeoutMillis shouldBe None
+    healthConfig.yarnConnection.timeoutMillis shouldBe None
     kafkaConfig.groupIdPrefix shouldBe "hyper_drive"
     kafkaConfig.pollDuration shouldBe 500
     kafkaConfig.properties.getProperty("key.deserializer") shouldBe "org.apache.kafka.common.serialization.StringDeserializer"
