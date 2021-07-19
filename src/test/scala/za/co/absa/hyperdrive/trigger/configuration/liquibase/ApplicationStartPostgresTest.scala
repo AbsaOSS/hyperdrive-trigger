@@ -18,7 +18,7 @@ package za.co.absa.hyperdrive.trigger.configuration.liquibase
 
 import org.scalatest.{FlatSpec, Matchers}
 import za.co.absa.hyperdrive.trigger.api.rest.services.WorkflowFixture
-import za.co.absa.hyperdrive.trigger.configuration.application.DatabaseConfig
+import za.co.absa.hyperdrive.trigger.configuration.application.{DatabaseConfig, TestDatabaseConfig}
 import za.co.absa.hyperdrive.trigger.persistance._
 import za.co.absa.hyperdrive.trigger.{HyperDriverManager, SpringIntegrationTest}
 
@@ -36,7 +36,7 @@ class ApplicationStartPostgresTest extends FlatSpec with Matchers with SpringInt
 
   @Inject() var workflowRepository: WorkflowRepository = _
 
-  override val dbProvider: DatabaseProvider = new DatabaseProvider(DatabaseConfig(Map())) {
+  override val dbProvider: DatabaseProvider = new DatabaseProvider(TestDatabaseConfig(Map())) {
     override lazy val db: DatabaseProvider.profile.backend.DatabaseDef = injectedDbProvider.db
   }
 

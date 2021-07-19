@@ -37,16 +37,6 @@ object JobDefinitionConfig {
   val MergedValuesSeparator = " "
 }
 
-object HealthConfig {
-  lazy val databaseConnectionTimeoutMillis: Int =
-    Try(Configs.conf.getInt("health.databaseConnection.timeoutMillis")).getOrElse(120000)
-  lazy val yarnConnectionTestEndpoint: String = {
-    Configs.conf.getString("health.yarnConnection.testEndpoint")
-  }
-  lazy val yarnConnectionTimeoutMillisOpt: Option[Int] =
-    Try(Configs.conf.getInt("health.yarnConnection.timeoutMillis")).toOption
-}
-
 object ApplicationConfig {
   val maximumNumberOfWorkflowsInBulkRun: Int =
     Try(Configs.conf.getInt("application.maximumNumberOfWorkflowsInBulkRun")).getOrElse(10)

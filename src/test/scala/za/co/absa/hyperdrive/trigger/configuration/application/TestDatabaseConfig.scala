@@ -16,22 +16,12 @@
 
 package za.co.absa.hyperdrive.trigger.configuration.application
 
-import com.typesafe.config.{Config, ConfigFactory}
-import org.springframework.boot.context.properties.bind.Name
-import org.springframework.boot.context.properties.{ConfigurationProperties, ConstructorBinding}
-import org.springframework.validation.annotation.Validated
-
 import java.util.Properties
-import javax.validation.constraints.NotNull
-import scala.annotation.meta.field
 
-@ConfigurationProperties
-@ConstructorBinding
-@Validated
-class DatabaseConfig (
-  @Name("db")
-  @(NotNull @field)
-  val dbProperties: Properties
-) {
-  val dbConfig: Config = ConfigFactory.parseProperties(dbProperties)
+object TestDatabaseConfig {
+  def apply(propertiesMap: Map[String, String]): DatabaseConfig = {
+    val properties = new Properties()
+    propertiesMap.foreach { case (key, value) => properties.setProperty(key, value)}
+    new DatabaseConfig(properties)
+  }
 }

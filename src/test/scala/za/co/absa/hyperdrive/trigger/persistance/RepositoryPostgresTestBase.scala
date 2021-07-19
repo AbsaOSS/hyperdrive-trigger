@@ -19,7 +19,7 @@ package za.co.absa.hyperdrive.trigger.persistance
 import org.scalatest.{BeforeAndAfterAll, Suite}
 import org.testcontainers.containers.PostgreSQLContainer
 import slick.jdbc.PostgresProfile
-import za.co.absa.hyperdrive.trigger.configuration.application.DatabaseConfig
+import za.co.absa.hyperdrive.trigger.configuration.application.{DatabaseConfig, TestDatabaseConfig}
 
 import java.util.UUID
 
@@ -29,7 +29,7 @@ trait RepositoryPostgresTestBase extends RepositoryTestBase with BeforeAndAfterA
   private val defaultUser = "test"
   private val defaultPass = "test"
   val databaseConfig: DatabaseConfig = {
-    DatabaseConfig(Map(
+    TestDatabaseConfig(Map(
       "driver" -> "org.testcontainers.jdbc.ContainerDatabaseDriver",
       "url" -> s"jdbc:tc:postgresql:${postgresVersion}:///${databaseName}",
       "user" -> defaultUser,

@@ -16,22 +16,37 @@
 
 package za.co.absa.hyperdrive.trigger.configuration.application
 
-import com.typesafe.config.{Config, ConfigFactory}
-import org.springframework.boot.context.properties.bind.Name
+import org.springframework.boot.context.properties.bind.{DefaultValue, Name}
 import org.springframework.boot.context.properties.{ConfigurationProperties, ConstructorBinding}
 import org.springframework.validation.annotation.Validated
 
-import java.util.Properties
+import javax.validation.Valid
 import javax.validation.constraints.NotNull
-import scala.annotation.meta.field
 
-@ConfigurationProperties
+@ConfigurationProperties("health")
 @ConstructorBinding
 @Validated
-class DatabaseConfig (
-  @Name("db")
-  @(NotNull @field)
-  val dbProperties: Properties
+class HealthConfig (
+  @Valid
+  @Name("databaseConnection")
+  databaseConnectionInternal: DatabaseConnection,
+  @Valid
+  @NotNull
+  val yarnConnection: YarnConnection
 ) {
-  val dbConfig: Config = ConfigFactory.parseProperties(dbProperties)
+  val databaseConnection: DatabaseConnection = Option(databaseConnectionInternal).getOrElse(new DatabaseConnection())
+}
+
+class DatabaseConnection (
+  @DefaultValue(Array("120000"))
+  val timeoutMillis: Int = 120000
+)
+
+class YarnConnection (
+  @NotNull
+  val testEndpoint: String,
+  @Name("timeoutMillis")
+  timeoutMillisInternal: Int
+) {
+  val timeoutMillis: Option[Int] = Option(timeoutMillisInternal)
 }
