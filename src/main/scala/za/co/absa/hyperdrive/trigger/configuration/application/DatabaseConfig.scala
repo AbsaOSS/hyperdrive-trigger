@@ -32,7 +32,7 @@ class DatabaseConfig (
   @NotNull
   val dbProperties: Properties,
   @Name("db.skip.liquibase")
-  @DefaultValue("false")
+  @DefaultValue(Array("false"))
   val skipLiquibase: Boolean
 ) {
   val dbConfig: Config = ConfigFactory.parseProperties(dbProperties)

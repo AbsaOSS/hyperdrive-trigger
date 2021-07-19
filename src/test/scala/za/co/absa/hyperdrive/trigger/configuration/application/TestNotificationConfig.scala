@@ -16,19 +16,11 @@
 
 package za.co.absa.hyperdrive.trigger.configuration.application
 
-import org.springframework.boot.context.properties.bind.{DefaultValue, Name}
-import org.springframework.boot.context.properties.{ConfigurationProperties, ConstructorBinding}
-import org.springframework.validation.annotation.Validated
-
-@ConfigurationProperties
-@ConstructorBinding
-@Validated
-class GeneralConfig (
-  @Name("application.maximumNumberOfWorkflowsInBulkRun")
-  @DefaultValue(Array("10"))
-  val maximumNumberOfWorkflowsInBulkRun: Int,
-  @DefaultValue(Array("Unknown"))
-  val environment: String,
-  @DefaultValue(Array("Unknown"))
-  val version: String
-)
+object TestNotificationConfig {
+  def apply(
+    enabled: Boolean = false,
+    senderAddress: String = ""
+  ): NotificationConfig = {
+    new NotificationConfig(enabled, senderAddress)
+  }
+}

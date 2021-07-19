@@ -32,6 +32,10 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 
 class TimeSensorIntegrationPostgresTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryPostgresTestBase {
+  private val schedulerConfig: SchedulerConfig = TestSchedulerConfig()
+
+  private val kafkaConfig: KafkaConfig = TestKafkaConfig()
+
   private val sensorRepository: SensorRepositoryImpl = new SensorRepositoryImpl(dbProvider, schedulerConfig)
 
   private val workflowHistoryRepository: WorkflowHistoryRepositoryImpl = new WorkflowHistoryRepositoryImpl(dbProvider)
@@ -49,10 +53,6 @@ class TimeSensorIntegrationPostgresTest extends FlatSpec with Matchers with Befo
   private val jobTemplateService: JobTemplateService = new JobTemplateServiceImpl(jobTemplateRepository)
 
   private val dagInstanceService: DagInstanceService = new DagInstanceServiceImpl(jobTemplateService)
-
-  private val kafkaConfig: KafkaConfig = TestKafkaConfig()
-
-  private val schedulerConfig: SchedulerConfig = TestSchedulerConfig()
 
   override def beforeAll: Unit = {
     super.beforeAll()

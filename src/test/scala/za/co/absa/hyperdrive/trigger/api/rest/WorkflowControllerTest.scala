@@ -18,7 +18,6 @@ package za.co.absa.hyperdrive.trigger.api.rest
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 import java.util.zip.{ZipEntry, ZipInputStream, ZipOutputStream}
-
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, verify, when}
@@ -28,6 +27,7 @@ import org.springframework.mock.web.MockMultipartFile
 import za.co.absa.hyperdrive.trigger.api.rest.controllers.WorkflowController
 import za.co.absa.hyperdrive.trigger.api.rest.services.JobTemplateFixture.{GenericShellJobTemplate, GenericSparkJobTemplate}
 import za.co.absa.hyperdrive.trigger.api.rest.services.{WorkflowFixture, WorkflowService}
+import za.co.absa.hyperdrive.trigger.configuration.application.TestGeneralConfig
 import za.co.absa.hyperdrive.trigger.models.errors.ApiException
 import za.co.absa.hyperdrive.trigger.models.{Project, Workflow, WorkflowImportExportWrapper}
 
@@ -36,7 +36,7 @@ import scala.concurrent.Future
 
 class WorkflowControllerTest extends AsyncFlatSpec with Matchers with MockitoSugar with BeforeAndAfter {
   private val workflowService = mock[WorkflowService]
-  private val underTest = new WorkflowController(workflowService)
+  private val underTest = new WorkflowController(workflowService, TestGeneralConfig())
 
   before {
     reset(workflowService)

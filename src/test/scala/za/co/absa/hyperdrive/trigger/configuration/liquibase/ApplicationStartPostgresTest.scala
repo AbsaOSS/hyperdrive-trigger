@@ -18,7 +18,7 @@ package za.co.absa.hyperdrive.trigger.configuration.liquibase
 
 import org.scalatest.{FlatSpec, Matchers}
 import za.co.absa.hyperdrive.trigger.api.rest.services.WorkflowFixture
-import za.co.absa.hyperdrive.trigger.configuration.application.{DatabaseConfig, TestDatabaseConfig}
+import za.co.absa.hyperdrive.trigger.configuration.application.TestDatabaseConfig
 import za.co.absa.hyperdrive.trigger.persistance._
 import za.co.absa.hyperdrive.trigger.{HyperDriverManager, SpringIntegrationTest}
 

@@ -25,7 +25,7 @@ import org.springframework.mail.SimpleMailMessage
 import org.springframework.mail.javamail.JavaMailSenderImpl
 import za.co.absa.hyperdrive.trigger.TestUtils.await
 import za.co.absa.hyperdrive.trigger.api.rest.services.NotificationRuleService
-import za.co.absa.hyperdrive.trigger.configuration.application.TestSparkYarnSinkConfig
+import za.co.absa.hyperdrive.trigger.configuration.application.{TestGeneralConfig, TestNotificationConfig, TestSparkYarnSinkConfig}
 import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.InQueue
 import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobStatuses}
@@ -39,8 +39,12 @@ class NotificationSenderTest extends FlatSpec with MockitoSugar with Matchers wi
   private val notificationRuleService = mock[NotificationRuleService]
   private val emailService = mock[EmailService]
   private val clusterBaseUrl = "http://localhost:8088"
+  private val senderAddress = "sender <sender@abc.com>"
+  private val environment = "TEST"
+
   private val underTest = new NotificationSenderImpl(notificationRuleService, emailService,
-    TestSparkYarnSinkConfig(hadoopResourceManagerUrlBase = clusterBaseUrl))
+    TestSparkYarnSinkConfig(hadoopResourceManagerUrlBase = clusterBaseUrl), TestNotificationConfig(enabled = true, senderAddress),
+    TestGeneralConfig(environment = environment))
 
   before {
     reset(notificationRuleService)
@@ -49,8 +53,6 @@ class NotificationSenderTest extends FlatSpec with MockitoSugar with Matchers wi
 
   "sendNotifications" should "send notifications" in {
     // given
-    val senderAddress = "sender <sender@abc.com>"
-    val environment = "TEST"
     val di = createDagInstance().copy(
       status = DagInstanceStatuses.Succeeded,
       started = LocalDateTime.of(LocalDate.of(2020, 3, 2), LocalTime.of(12, 30)),
