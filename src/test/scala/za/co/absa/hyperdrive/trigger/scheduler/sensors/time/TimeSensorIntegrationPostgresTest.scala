@@ -21,7 +21,7 @@ import org.quartz.JobKey
 import org.quartz.impl.matchers.GroupMatcher
 import org.scalatest._
 import za.co.absa.hyperdrive.trigger.api.rest.services.{DagInstanceService, DagInstanceServiceImpl, JobTemplateFixture, JobTemplateService, JobTemplateServiceImpl}
-import za.co.absa.hyperdrive.trigger.configuration.application.{KafkaConfig, TestKafkaConfig}
+import za.co.absa.hyperdrive.trigger.configuration.application.{KafkaConfig, SchedulerConfig, TestKafkaConfig, TestSchedulerConfig}
 import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.persistance._
 import za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor
@@ -32,7 +32,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 
 class TimeSensorIntegrationPostgresTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryPostgresTestBase {
-  private val sensorRepository: SensorRepositoryImpl = new SensorRepositoryImpl(dbProvider)
+  private val sensorRepository: SensorRepositoryImpl = new SensorRepositoryImpl(dbProvider, schedulerConfig)
 
   private val workflowHistoryRepository: WorkflowHistoryRepositoryImpl = new WorkflowHistoryRepositoryImpl(dbProvider)
 
@@ -52,6 +52,8 @@ class TimeSensorIntegrationPostgresTest extends FlatSpec with Matchers with Befo
 
   private val kafkaConfig: KafkaConfig = TestKafkaConfig()
 
+  private val schedulerConfig: SchedulerConfig = TestSchedulerConfig()
+
   override def beforeAll: Unit = {
     super.beforeAll()
     schemaSetup()
@@ -67,7 +69,7 @@ class TimeSensorIntegrationPostgresTest extends FlatSpec with Matchers with Befo
 
   it should "persist an event when the time sensor is fired" in {
     val processor = new EventProcessor(eventRepository, dagDefinitionRepository, dagInstanceRepository, dagInstanceService)
-    val sensors = new Sensors(processor, sensorRepository, dagInstanceRepository, kafkaConfig)
+    val sensors = new Sensors(processor, sensorRepository, dagInstanceRepository, kafkaConfig, schedulerConfig)
     val cronExpression = "0/3 * * * * ?"
 
     val sparkTemplate = JobTemplateFixture.GenericSparkJobTemplate

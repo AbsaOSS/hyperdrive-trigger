@@ -32,27 +32,6 @@ private object Configs {
   }
 }
 
-object SensorsConfig {
-  val getThreadPoolSize: Int =
-    Configs.conf.getInt("scheduler.sensors.thread.pool.size")
-  val getChangedSensorsChunkQuerySize: Int =
-    Configs.conf.getInt("scheduler.sensors.changedSensorsChunkQuerySize")
-}
-
-object SchedulerConfig {
-  val getHeartBeat: Int =
-    Configs.conf.getInt("scheduler.heart.beat")
-  val getMaxParallelJobs: Int =
-    Configs.conf.getInt("scheduler.jobs.parallel.number")
-  val isAutostart: Boolean =
-    Try(Configs.conf.getBoolean("scheduler.autostart")).getOrElse(true)
-}
-
-object ExecutorsConfig {
-  val getThreadPoolSize: Int =
-    Configs.conf.getInt("scheduler.executors.thread.pool.size")
-}
-
 object JobDefinitionConfig {
   val KeysToMerge = Set("spark.executor.extraJavaOptions", "spark.driver.extraJavaOptions")
   val MergedValuesSeparator = " "

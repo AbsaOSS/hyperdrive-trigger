@@ -16,8 +16,8 @@
 package za.co.absa.hyperdrive.trigger.persistance
 
 import org.springframework.stereotype
+import za.co.absa.hyperdrive.trigger.configuration.application.SchedulerConfig
 import za.co.absa.hyperdrive.trigger.models.{Sensor, SensorProperties}
-import za.co.absa.hyperdrive.trigger.scheduler.utilities.SensorsConfig
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -29,7 +29,7 @@ trait SensorRepository extends Repository {
 }
 
 @stereotype.Repository
-class SensorRepositoryImpl @Inject()(val dbProvider: DatabaseProvider)
+class SensorRepositoryImpl @Inject()(val dbProvider: DatabaseProvider, val schedulerConfig: SchedulerConfig)
   extends SensorRepository {
   import api._
 
@@ -55,7 +55,7 @@ class SensorRepositoryImpl @Inject()(val dbProvider: DatabaseProvider)
 
   override def getChangedSensors(originalSensorsPropertiesWithId: Seq[(Long, SensorProperties)])(implicit ec: ExecutionContext): Future[Seq[Sensor[_ <: SensorProperties]]] = {
     Future.sequence(
-      originalSensorsPropertiesWithId.grouped(SensorsConfig.getChangedSensorsChunkQuerySize).toSeq.map(group => getChangedSensorsInternal(group))
+      originalSensorsPropertiesWithId.grouped(schedulerConfig.sensors.changedSensorsChunkQuerySize).toSeq.map(group => getChangedSensorsInternal(group))
     ).map(_.flatten)
   }
 

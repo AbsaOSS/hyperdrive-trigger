@@ -23,11 +23,10 @@ import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.InvalidExecutor
 import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobStatuses}
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, JobInstanceRepository}
 import za.co.absa.hyperdrive.trigger.scheduler.executors.spark.SparkExecutor
-import za.co.absa.hyperdrive.trigger.scheduler.utilities.ExecutorsConfig
 import org.slf4j.LoggerFactory
 import za.co.absa.hyperdrive.trigger.scheduler.executors.shell.ShellExecutor
 import org.springframework.stereotype.Component
-import za.co.absa.hyperdrive.trigger.configuration.application.SparkYarnSinkConfig
+import za.co.absa.hyperdrive.trigger.configuration.application.{SchedulerConfig, SparkYarnSinkConfig}
 import za.co.absa.hyperdrive.trigger.scheduler.notifications.NotificationSender
 
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
@@ -35,11 +34,12 @@ import scala.util.{Failure, Success}
 
 @Component
 class Executors @Inject()(dagInstanceRepository: DagInstanceRepository, jobInstanceRepository: JobInstanceRepository,
-                          notificationSender: NotificationSender, sparkYarnSinkConfig: SparkYarnSinkConfig) {
+                          notificationSender: NotificationSender, sparkYarnSinkConfig: SparkYarnSinkConfig,
+                          schedulerConfig: SchedulerConfig) {
   private val logger = LoggerFactory.getLogger(this.getClass)
   private implicit val executorConfig: ExecutorConfig = new ExecutorConfig(sparkYarnSinkConfig)
   private implicit val executionContext: ExecutionContextExecutor =
-    ExecutionContext.fromExecutor(concurrent.Executors.newFixedThreadPool(ExecutorsConfig.getThreadPoolSize))
+    ExecutionContext.fromExecutor(concurrent.Executors.newFixedThreadPool(schedulerConfig.executors.threadPoolSize))
 
   def executeDag(dagInstance: DagInstance): Future[Unit] = {
     jobInstanceRepository.getJobInstances(dagInstance.id).flatMap {
