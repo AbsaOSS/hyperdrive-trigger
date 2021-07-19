@@ -38,7 +38,9 @@ import scala.concurrent.Future
 class NotificationSenderTest extends FlatSpec with MockitoSugar with Matchers with BeforeAndAfter {
   private val notificationRuleService = mock[NotificationRuleService]
   private val emailService = mock[EmailService]
-  private val underTest = new NotificationSenderImpl(notificationRuleService, emailService, TestSparkYarnSinkConfig())
+  private val clusterBaseUrl = "http://localhost:8088"
+  private val underTest = new NotificationSenderImpl(notificationRuleService, emailService,
+    TestSparkYarnSinkConfig(hadoopResourceManagerUrlBase = clusterBaseUrl))
 
   before {
     reset(notificationRuleService)
@@ -117,7 +119,7 @@ class NotificationSenderTest extends FlatSpec with MockitoSugar with Matchers wi
     // then
     val messagesCaptor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
     verify(emailService).sendMessageToBccRecipients(any(), any(), any(), messagesCaptor.capture())
-    messagesCaptor.getValue should include("Failed application: http://localhost:8088/cluster/app/application_9876_4567")
+    messagesCaptor.getValue should include(s"Failed application: $clusterBaseUrl/cluster/app/application_9876_4567")
   }
 
   private def createDagInstance() = {

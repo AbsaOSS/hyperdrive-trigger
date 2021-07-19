@@ -40,7 +40,7 @@ class KafkaSensorTest extends FlatSpec with MockitoSugar with Matchers with Befo
   private val ingestionToken = "95fce3e7-2468-46fa-9456-74919497528c"
   private val kafkaPort = 12345
   private val kafkaUrl = s"localhost:${kafkaPort}"
-  private implicit val dummyKafkaConfig: KafkaConfig = TestKafkaConfig()
+  private implicit val testKafkaConfig: KafkaConfig = TestKafkaConfig()
 
   before {
     System.setProperty("kafkaSource.poll.duration", "750")
