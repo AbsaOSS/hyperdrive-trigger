@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -13,31 +14,9 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.scheduler.utilities
-
-import com.typesafe.config.{Config, ConfigFactory}
-import org.apache.kafka.clients.consumer.ConsumerConfig
-import za.co.absa.hyperdrive.trigger.models.KafkaSensorProperties
-
-import java.io.File
-import java.util.Properties
-import scala.collection.JavaConverters._
-import scala.util.Try
-
-private object Configs {
-  private val configPath: Option[String] = Option(System.getProperty("spring.config.location")).filter(_.trim.nonEmpty)
-  val conf: Config = configPath match {
-    case Some(cp) => ConfigFactory.parseFile(new File(cp))
-    case None => ConfigFactory.load()
-  }
-}
+package za.co.absa.hyperdrive.trigger.configuration.application
 
 object JobDefinitionConfig {
   val KeysToMerge = Set("spark.executor.extraJavaOptions", "spark.driver.extraJavaOptions")
   val MergedValuesSeparator = " "
-}
-
-object GeneralConfig {
-  val environment: String =
-    Try(Configs.conf.getString("environment")).getOrElse("Unknown")
 }
