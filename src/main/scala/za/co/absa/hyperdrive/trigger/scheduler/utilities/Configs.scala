@@ -30,19 +30,6 @@ private object Configs {
     case Some(cp) => ConfigFactory.parseFile(new File(cp))
     case None => ConfigFactory.load()
   }
-
-  def getMapFromConf(propertyName: String): Map[String, String] = {
-    Try {
-      def getKeys(path: String): Seq[String] = {
-        Try(Configs.conf.getObject(path).keySet().asScala).getOrElse(Set.empty[String]) match {
-          case keys if keys.nonEmpty => keys.flatMap(k => getKeys(s"$path.$k")).toSeq
-          case keys if keys.isEmpty => Seq(path)
-        }
-      }
-      val keys = getKeys(propertyName)
-      keys.map(k => (k.stripPrefix(s"$propertyName."), conf.getString(k))).toMap
-    }.getOrElse(Map.empty[String, String])
-  }
 }
 
 object SensorsConfig {
@@ -64,32 +51,6 @@ object SchedulerConfig {
 object ExecutorsConfig {
   val getThreadPoolSize: Int =
     Configs.conf.getInt("scheduler.executors.thread.pool.size")
-}
-
-object ShellExecutorConfig {
-  val getExecutablesFolder: String =
-    Configs.conf.getString("shellExecutor.executablesFolder")
-}
-
-object SparkExecutorConfig {
-  val getSubmitTimeOut: Int =
-    Configs.conf.getInt("sparkYarnSink.submitTimeout")
-  val getHadoopConfDir: String =
-    Configs.conf.getString("sparkYarnSink.hadoopConfDir")
-  val getMaster: String =
-    Configs.conf.getString("sparkYarnSink.master")
-  val getSparkHome: String =
-    Configs.conf.getString("sparkYarnSink.sparkHome")
-  val getHadoopResourceManagerUrlBase: String =
-    Configs.conf.getString("sparkYarnSink.hadoopResourceManagerUrlBase")
-  val getFilesToDeploy: Seq[String] =
-    Try(Configs.conf.getString("sparkYarnSink.filesToDeploy").split(",").toSeq).getOrElse(Seq.empty[String])
-  val getAdditionalConfs: Map[String, String] =
-    Configs.getMapFromConf("sparkYarnSink.additionalConfs")
-  val getExecutablesFolder: String =
-    Configs.conf.getString("sparkYarnSink.executablesFolder")
-  val getUserUsedToKillJob: String =
-    Try(Configs.conf.getString("sparkYarnSink.userUsedToKillJob")).getOrElse("Unknown")
 }
 
 object JobDefinitionConfig {
