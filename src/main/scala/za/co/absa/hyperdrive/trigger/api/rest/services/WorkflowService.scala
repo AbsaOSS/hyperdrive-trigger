@@ -22,7 +22,7 @@ import za.co.absa.hyperdrive.trigger.models.{Project, ProjectInfo, Workflow, Wor
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, BulkOperationError, GenericError}
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, WorkflowRepository}
 import org.slf4j.LoggerFactory
-import za.co.absa.hyperdrive.trigger.scheduler.utilities.ApplicationConfig
+import za.co.absa.hyperdrive.trigger.configuration.application.GeneralConfig
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -71,7 +71,8 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
                           override val dagInstanceRepository: DagInstanceRepository,
                           override val dagInstanceService: DagInstanceService,
                           override val jobTemplateService: JobTemplateService,
-                          override val workflowValidationService: WorkflowValidationService) extends WorkflowService {
+                          override val workflowValidationService: WorkflowValidationService,
+                          generalConfig: GeneralConfig) extends WorkflowService {
 
   private val serviceLogger = LoggerFactory.getLogger(this.getClass)
 
@@ -165,9 +166,9 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
     workflowIds.distinct.length match {
       case numberOfWorkflows if numberOfWorkflows == 1 =>
         throw new ApiException(GenericError(s"More than 1 workflow has to be triggered!"))
-      case numberOfWorkflows if numberOfWorkflows > ApplicationConfig.maximumNumberOfWorkflowsInBulkRun =>
+      case numberOfWorkflows if numberOfWorkflows > generalConfig.maximumNumberOfWorkflowsInBulkRun =>
         throw new ApiException(GenericError(
-          s"Cannot trigger more than ${ApplicationConfig.maximumNumberOfWorkflowsInBulkRun} workflows!"
+          s"Cannot trigger more than ${generalConfig.maximumNumberOfWorkflowsInBulkRun} workflows!"
         ))
       case _ =>
         serviceLogger.debug(s"User: $userName called bulk run workflows. Workflows: $workflowIds will be executed.")
