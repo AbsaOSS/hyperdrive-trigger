@@ -19,6 +19,7 @@ package za.co.absa.hyperdrive.trigger.persistance
 import org.springframework.stereotype
 import za.co.absa.hyperdrive.trigger.models.JobForRun
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 trait JobDefinitionRepository extends Repository {
@@ -26,7 +27,7 @@ trait JobDefinitionRepository extends Repository {
 }
 
 @stereotype.Repository
-class JobDefinitionRepositoryImpl extends JobDefinitionRepository {
+class JobDefinitionRepositoryImpl @Inject()(val dbProvider: DatabaseProvider) extends JobDefinitionRepository {
   import api._
 
   override def getJobsForRun(workflowId: Long)(implicit ec: ExecutionContext): Future[Seq[JobForRun]] = db.run {

@@ -21,6 +21,7 @@ import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, ApiException, Gene
 import za.co.absa.hyperdrive.trigger.models.JobTemplate
 import za.co.absa.hyperdrive.trigger.models.search.{TableSearchRequest, TableSearchResponse}
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
@@ -34,7 +35,7 @@ trait JobTemplateRepository extends Repository {
 }
 
 @stereotype.Repository
-class JobTemplateRepositoryImpl extends JobTemplateRepository {
+class JobTemplateRepositoryImpl @Inject()(val dbProvider: DatabaseProvider) extends JobTemplateRepository {
   import api._
   private val repositoryLogger = LoggerFactory.getLogger(this.getClass)
 

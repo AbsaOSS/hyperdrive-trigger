@@ -15,7 +15,6 @@
 
 package za.co.absa.hyperdrive.trigger.persistance
 
-import slick.jdbc.{JdbcProfile, PostgresProfile}
 import za.co.absa.hyperdrive.trigger.models.tables._
 
 trait Repository
@@ -34,11 +33,6 @@ trait Repository
     with NotificationRuleHistoryTable
     with Profile with JdbcTypeMapper {
 
-  lazy val db = PostgresDB.db
-
-}
-
-private[persistance] object PostgresDB {
-  val profile: JdbcProfile = PostgresProfile
-  lazy val db: profile.backend.DatabaseDef = profile.api.Database.forConfig("db")
+  val dbProvider: DatabaseProvider
+  lazy val db: DatabaseProvider.profile.backend.DatabaseDef = dbProvider.db
 }

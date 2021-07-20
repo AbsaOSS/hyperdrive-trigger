@@ -19,9 +19,9 @@ import org.slf4j.LoggerFactory
 import org.springframework.mail.MailException
 import org.springframework.stereotype.Component
 import za.co.absa.hyperdrive.trigger.api.rest.services.NotificationRuleService
+import za.co.absa.hyperdrive.trigger.configuration.application.{GeneralConfig, NotificationConfig, SparkYarnSinkConfig}
 import za.co.absa.hyperdrive.trigger.models.{DagInstance, JobInstance, NotificationRule, Workflow}
 import za.co.absa.hyperdrive.trigger.scheduler.utilities.email.EmailService
-import za.co.absa.hyperdrive.trigger.scheduler.utilities.{GeneralConfig, NotificationConfig, SparkExecutorConfig}
 
 import java.time.format.DateTimeFormatter
 import scala.collection.mutable
@@ -32,12 +32,14 @@ trait NotificationSender {
 }
 
 @Component
-class NotificationSenderImpl(notificationRuleService: NotificationRuleService, emailService: EmailService) extends NotificationSender {
+class NotificationSenderImpl(notificationRuleService: NotificationRuleService, emailService: EmailService,
+                             sparkYarnSinkConfig: SparkYarnSinkConfig, notificationConfig: NotificationConfig,
+                             generalConfig: GeneralConfig) extends NotificationSender {
   private val logger = LoggerFactory.getLogger(this.getClass)
-  private val sender = NotificationConfig.notificationSenderAddress
-  private val notificationEnabled = NotificationConfig.notificationEnabled
-  private val environment = GeneralConfig.environment
-  private val yarnBaseUrl = SparkExecutorConfig.getHadoopResourceManagerUrlBase
+  private val sender = notificationConfig.senderAddress
+  private val notificationEnabled = notificationConfig.enabled
+  private val environment = generalConfig.environment
+  private val yarnBaseUrl = sparkYarnSinkConfig.hadoopResourceManagerUrlBase
   private val dateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
 
   def sendNotifications(dagInstance: DagInstance, jobInstances: Seq[JobInstance])(implicit ec: ExecutionContext): Future[Unit] = {

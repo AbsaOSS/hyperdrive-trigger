@@ -16,7 +16,7 @@
 package za.co.absa.hyperdrive.trigger.api.rest.utils
 
 import za.co.absa.hyperdrive.trigger.models._
-import za.co.absa.hyperdrive.trigger.scheduler.utilities.JobDefinitionConfig.{KeysToMerge, MergedValuesSeparator}
+import za.co.absa.hyperdrive.trigger.configuration.application.JobDefinitionConfig.{KeysToMerge, MergedValuesSeparator}
 
 import scala.util.{Failure, Success, Try}
 

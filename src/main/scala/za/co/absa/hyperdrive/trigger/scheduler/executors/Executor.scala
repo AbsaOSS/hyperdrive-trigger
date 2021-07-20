@@ -20,5 +20,6 @@ import za.co.absa.hyperdrive.trigger.models.{JobInstance, JobInstanceParameters}
 import scala.concurrent.{ExecutionContext, Future}
 
 trait Executor[T <: JobInstanceParameters] {
-  def execute(jobInstance: JobInstance, jobParameters: T, updateJob: JobInstance => Future[Unit])(implicit executionContext: ExecutionContext): Future[Unit]
+  def execute(jobInstance: JobInstance, jobParameters: T, updateJob: JobInstance => Future[Unit])
+             (implicit executionContext: ExecutionContext, executorConfig: ExecutorConfig): Future[Unit]
 }

@@ -17,13 +17,13 @@
 package za.co.absa.hyperdrive.trigger.scheduler.cluster
 
 import java.time.{Duration, LocalDateTime}
-
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
-import org.mockito.Mockito.{reset, times, verify, when, never}
+import org.mockito.Mockito.{never, reset, times, verify, when}
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, Matchers}
 import za.co.absa.hyperdrive.trigger.TestUtils.await
+import za.co.absa.hyperdrive.trigger.configuration.application.TestSchedulerConfig
 import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses
 
@@ -33,8 +33,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class WorkflowBalancerTest extends AsyncFlatSpec with MockitoSugar with Matchers with BeforeAndAfter {
   private val schedulerInstanceService = mock[SchedulerInstanceService]
   private val workflowBalancingService = mock[WorkflowBalancingService]
-  private val lagThresholdMillis = 20000L
-  private val lagThreshold = Duration.ofMillis(lagThresholdMillis)
+  private val schedulerConfig = TestSchedulerConfig()
   private val baseWorkflow = Workflow(name = "workflow", isActive = true, project = "project", updated = None)
 
   before {
@@ -56,7 +55,7 @@ class WorkflowBalancerTest extends AsyncFlatSpec with MockitoSugar with Matchers
       baseWorkflow.copy(id = 12, schedulerInstanceId = Some(instance1.id)),
       baseWorkflow.copy(id = 13, schedulerInstanceId = Some(instance1.id))
     )
-    val underTest = new WorkflowBalancer(schedulerInstanceService, workflowBalancingService, lagThresholdMillis)
+    val underTest = new WorkflowBalancer(schedulerInstanceService, workflowBalancingService, schedulerConfig)
 
     when(schedulerInstanceService.registerNewInstance()).thenReturn(Future{instance1.id})
     when(schedulerInstanceService.updateSchedulerStatus(any(), any())(any[ExecutionContext])).thenReturn(
@@ -79,7 +78,7 @@ class WorkflowBalancerTest extends AsyncFlatSpec with MockitoSugar with Matchers
     val idCaptor: ArgumentCaptor[Long] = ArgumentCaptor.forClass(classOf[Long])
 
     verify(schedulerInstanceService, times(1)).registerNewInstance()
-    verify(schedulerInstanceService, times(2)).updateSchedulerStatus(eqTo(instance1.id), eqTo(lagThreshold))(any())
+    verify(schedulerInstanceService, times(2)).updateSchedulerStatus(eqTo(instance1.id), eqTo(schedulerConfig.lagThreshold))(any())
     verify(workflowBalancingService, times(2)).getMaxWorkflowId()
     verify(workflowBalancingService, times(1)).getWorkflowsAssignment(
       idsCaptor.capture(), instancesCaptor.capture(), idCaptor.capture())(any())
@@ -103,7 +102,7 @@ class WorkflowBalancerTest extends AsyncFlatSpec with MockitoSugar with Matchers
     val assignedWorkflowsT2 = Seq(baseWorkflow.copy(id = 21, schedulerInstanceId = Some(instance1.id)))
     val assignedWorkflowsT3 = Seq(baseWorkflow.copy(id = 31, schedulerInstanceId = Some(instance1.id)))
 
-    val underTest = new WorkflowBalancer(schedulerInstanceService, workflowBalancingService, lagThresholdMillis)
+    val underTest = new WorkflowBalancer(schedulerInstanceService, workflowBalancingService, schedulerConfig)
 
     when(schedulerInstanceService.registerNewInstance()).thenReturn(Future{instance1.id})
     when(schedulerInstanceService.updateSchedulerStatus(any(), any())(any[ExecutionContext])).thenReturn(
@@ -141,7 +140,7 @@ class WorkflowBalancerTest extends AsyncFlatSpec with MockitoSugar with Matchers
     val assignedWorkflowsT2 = Seq(baseWorkflow.copy(id = 21, schedulerInstanceId = Some(instance1.id)))
     val assignedWorkflowsT3 = Seq(baseWorkflow.copy(id = 31, schedulerInstanceId = Some(instance1.id)))
 
-    val underTest = new WorkflowBalancer(schedulerInstanceService, workflowBalancingService, lagThresholdMillis)
+    val underTest = new WorkflowBalancer(schedulerInstanceService, workflowBalancingService, schedulerConfig)
 
     when(schedulerInstanceService.registerNewInstance()).thenReturn(Future{instance1.id})
     when(schedulerInstanceService.updateSchedulerStatus(any(), any())(any[ExecutionContext])).thenReturn(Future{instances})
@@ -177,7 +176,7 @@ class WorkflowBalancerTest extends AsyncFlatSpec with MockitoSugar with Matchers
     val instances = Seq(instance1, instance2)
     val assignedWorkflows = Seq(baseWorkflow.copy(id = 11, schedulerInstanceId = Some(instance1.id)))
 
-    val underTest = new WorkflowBalancer(schedulerInstanceService, workflowBalancingService, lagThresholdMillis)
+    val underTest = new WorkflowBalancer(schedulerInstanceService, workflowBalancingService, schedulerConfig)
 
     when(schedulerInstanceService.registerNewInstance()).thenReturn(Future{instance1.id})
     when(schedulerInstanceService.updateSchedulerStatus(any(), any())(any[ExecutionContext])).thenReturn(Future{instances})
@@ -203,7 +202,7 @@ class WorkflowBalancerTest extends AsyncFlatSpec with MockitoSugar with Matchers
 
   it should "fail if updateSchedulerStatus fails" in {
     // given
-    val underTest = new WorkflowBalancer(schedulerInstanceService, workflowBalancingService, lagThresholdMillis)
+    val underTest = new WorkflowBalancer(schedulerInstanceService, workflowBalancingService, schedulerConfig)
     when(schedulerInstanceService.registerNewInstance()).thenReturn(Future{42L})
     when(schedulerInstanceService.updateSchedulerStatus(any(), any())(any[ExecutionContext])).thenReturn(
       Future.failed(new SchedulerInstanceAlreadyDeactivatedException))

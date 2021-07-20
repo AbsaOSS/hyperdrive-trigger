@@ -28,9 +28,11 @@ class NotificationRuleRepositoryPostgresTest extends FlatSpec with Matchers with
 
   import api._
 
-  private val notificationRuleHistoryRepository: NotificationRuleHistoryRepository = new NotificationRuleHistoryRepositoryImpl()
+  private val notificationRuleHistoryRepository: NotificationRuleHistoryRepository =
+    new NotificationRuleHistoryRepositoryImpl(dbProvider)
 
-  private val notificationRuleRepository: NotificationRuleRepository = new NotificationRuleRepositoryImpl(notificationRuleHistoryRepository)
+  private val notificationRuleRepository: NotificationRuleRepository =
+    new NotificationRuleRepositoryImpl(dbProvider, notificationRuleHistoryRepository)
 
   override def beforeAll(): Unit = {
     super.beforeAll()

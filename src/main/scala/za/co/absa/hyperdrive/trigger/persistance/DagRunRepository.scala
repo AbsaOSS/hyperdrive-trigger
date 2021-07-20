@@ -19,6 +19,7 @@ import org.springframework.stereotype
 import za.co.absa.hyperdrive.trigger.models.dagRuns.DagRun
 import za.co.absa.hyperdrive.trigger.models.search.{TableSearchRequest, TableSearchResponse}
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 trait DagRunRepository extends Repository {
@@ -26,7 +27,7 @@ trait DagRunRepository extends Repository {
 }
 
 @stereotype.Repository
-class DagRunRepositoryImpl extends DagRunRepository {
+class DagRunRepositoryImpl @Inject()(val dbProvider: DatabaseProvider) extends DagRunRepository {
   override def searchDagRuns(searchRequest: TableSearchRequest)(implicit ec: ExecutionContext): Future[TableSearchResponse[DagRun]] = {
     db.run(dagRunTable.search(searchRequest))
   }

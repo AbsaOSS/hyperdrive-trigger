@@ -16,11 +16,11 @@
 package za.co.absa.hyperdrive.trigger.persistance
 
 import java.time.LocalDateTime
-
 import org.springframework.stereotype
 import za.co.absa.hyperdrive.trigger.models.enums.DBOperation.{Create, DBOperation, Delete, Update}
 import za.co.absa.hyperdrive.trigger.models._
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 trait WorkflowHistoryRepository extends Repository {
@@ -35,7 +35,8 @@ trait WorkflowHistoryRepository extends Repository {
 }
 
 @stereotype.Repository
-class WorkflowHistoryRepositoryImpl extends WorkflowHistoryRepository {
+class WorkflowHistoryRepositoryImpl @Inject()(val dbProvider: DatabaseProvider)
+  extends WorkflowHistoryRepository {
   import api._
 
   private def insert(workflow: WorkflowJoined, user: String, operation: DBOperation)(implicit ec: ExecutionContext): DBIO[Long] = {
