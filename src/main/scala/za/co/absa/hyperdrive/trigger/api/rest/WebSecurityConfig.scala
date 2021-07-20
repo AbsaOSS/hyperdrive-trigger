@@ -54,6 +54,7 @@ class WebSecurityConfig {
     new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK)
   }
 
+
   @Configuration
   class ApiWebSecurityConfigurationAdapter @Inject() (
     restAuthenticationEntryPoint: RestAuthenticationEntryPoint,
