@@ -120,6 +120,7 @@
         <liquibase-maven-plugin.version>3.10.2</liquibase-maven-plugin.version>
         <snakeyaml.version>1.26</snakeyaml.version>
         <commons-validator.version>1.7</commons-validator.version>
+        <hibernate.validator.version>6.2.0.Final</hibernate.validator.version>
 
         <!-- Deployment -->
         <gpg.plugin.version>1.6</gpg.plugin.version>
@@ -243,6 +244,11 @@
             <groupId>commons-validator</groupId>
             <artifactId>commons-validator</artifactId>
             <version>${commons-validator.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>${hibernate.validator.version}</version>
         </dependency>
 
         <!-- For Liquibase yaml -->

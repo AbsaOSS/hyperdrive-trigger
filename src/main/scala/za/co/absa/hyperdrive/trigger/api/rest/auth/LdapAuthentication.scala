@@ -15,25 +15,20 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.auth
 
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider
 import org.springframework.stereotype.Component
+import za.co.absa.hyperdrive.trigger.configuration.application.AuthConfig
+
+import javax.inject.Inject
 
 @Component
-class LdapAuthentication extends HyperdriverAuthentication {
+class LdapAuthentication @Inject()(authConfig: AuthConfig) extends HyperdriverAuthentication {
 
-  @Value("${auth.ad.domain:}")
-  val adDomain: String = ""
-
-  @Value("${auth.ad.server:}")
-  val adServer: String = ""
-
-  @Value("${auth.ldap.search.base:}")
-  val ldapSearchBase: String = ""
-
-  @Value("${auth.ldap.search.filter:}")
-  val ldapSearchFilter: String = ""
+  private val adDomain: String = authConfig.adDomain
+  private val adServer: String = authConfig.adServer
+  private val ldapSearchBase: String = authConfig.ldapSearchBase
+  private val ldapSearchFilter: String = authConfig.ldapSearchFilter
 
   private lazy val requiredParameters = Seq(
     (adDomain, "auth.ad.domain"),

@@ -17,29 +17,31 @@
 package za.co.absa.hyperdrive.trigger.scheduler.cluster
 
 import org.scalatest._
+import za.co.absa.hyperdrive.trigger.configuration.application.TestSchedulerConfig
 import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses
 import za.co.absa.hyperdrive.trigger.persistance._
 
+import java.time.Duration
 import scala.concurrent.ExecutionContext.Implicits.global
 
 
 class WorkflowBalancerIntegrationTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryH2TestBase {
   import api._
 
-  private val schedulerInstanceRepository: SchedulerInstanceRepository = new SchedulerInstanceRepositoryImpl {
+  private val schedulerInstanceRepository: SchedulerInstanceRepository = new SchedulerInstanceRepositoryImpl(dbProvider) {
     override val profile = h2Profile
   }
-  private val workflowHistoryRepository: WorkflowHistoryRepositoryImpl = new WorkflowHistoryRepositoryImpl {
+  private val workflowHistoryRepository: WorkflowHistoryRepositoryImpl = new WorkflowHistoryRepositoryImpl(dbProvider) {
     override val profile = h2Profile
   }
-  private val workflowRepository: WorkflowRepositoryImpl = new WorkflowRepositoryImpl(workflowHistoryRepository) {
+  private val workflowRepository: WorkflowRepositoryImpl = new WorkflowRepositoryImpl(dbProvider, workflowHistoryRepository) {
     override val profile = h2Profile
   }
 
   private val schedulerInstanceService: SchedulerInstanceService = new SchedulerInstanceServiceImpl(schedulerInstanceRepository)
   private val workflowBalancingService: WorkflowBalancingService = new WorkflowBalancingServiceImpl(workflowRepository)
-  private val lagThresholdMillis = 20000L
+  private val schedulerConfig = TestSchedulerConfig()
 
   private val baseWorkflow = Workflow(name = "workflow", isActive = true, project = "project", updated = None)
   private val random = new scala.util.Random(0)
@@ -58,10 +60,10 @@ class WorkflowBalancerIntegrationTest extends FlatSpec with Matchers with Before
   "WorkflowBalancer.getAssignedWorkflows" should "never double-assign a workflow and each workflow should be assigned " +
     "to exactly one scheduler after the steady state is reached. These conditions should hold, independent from any" +
     " workflow ids that are retained from previous iterations (because dags may still be running)" in {
-    val balancer0 = new WorkflowBalancer(schedulerInstanceService, workflowBalancingService, lagThresholdMillis)
-    val balancer1 = new WorkflowBalancer(schedulerInstanceService, workflowBalancingService, lagThresholdMillis)
-    val balancer2 = new WorkflowBalancer(schedulerInstanceService, workflowBalancingService, lagThresholdMillis)
-    val balancer3 = new WorkflowBalancer(schedulerInstanceService, workflowBalancingService, lagThresholdMillis)
+    val balancer0 = new WorkflowBalancer(schedulerInstanceService, workflowBalancingService, schedulerConfig)
+    val balancer1 = new WorkflowBalancer(schedulerInstanceService, workflowBalancingService, schedulerConfig)
+    val balancer2 = new WorkflowBalancer(schedulerInstanceService, workflowBalancingService, schedulerConfig)
+    val balancer3 = new WorkflowBalancer(schedulerInstanceService, workflowBalancingService, schedulerConfig)
     val workflowIds = 0L to 199L
     val workflows = workflowIds.map(i => baseWorkflow.copy(id = i, name = s"workflow$i"))
     run(workflowTable.forceInsertAll(workflows))

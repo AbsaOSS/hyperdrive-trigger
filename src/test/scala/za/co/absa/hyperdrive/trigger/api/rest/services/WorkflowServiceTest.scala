@@ -16,13 +16,13 @@
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
 import java.time.LocalDateTime
-
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{eq => eqTo, _}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, Matchers}
 import za.co.absa.hyperdrive.trigger.TestUtils.await
+import za.co.absa.hyperdrive.trigger.configuration.application.TestGeneralConfig
 import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobTypes}
 import za.co.absa.hyperdrive.trigger.models.errors.ApiErrorTypes.{BulkOperationErrorType, GenericErrorType}
@@ -39,7 +39,8 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
   private val jobTemplateService = mock[JobTemplateService]
   private val workflowValidationService = mock[WorkflowValidationService]
   private val userName = "fakeUserName"
-  private val underTest = new WorkflowServiceImpl(workflowRepository, dagInstanceRepository, dagInstanceService, jobTemplateService, workflowValidationService){
+  private val underTest = new WorkflowServiceImpl(workflowRepository, dagInstanceRepository, dagInstanceService,
+    jobTemplateService, workflowValidationService, TestGeneralConfig()){
     override private[services] def getUserName: () => String = () => userName
   }
 

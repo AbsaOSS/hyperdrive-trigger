@@ -23,14 +23,15 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.{Bean, Configuration}
-import za.co.absa.hyperdrive.trigger.persistance.Repository
+import za.co.absa.hyperdrive.trigger.configuration.application.DatabaseConfig
+import za.co.absa.hyperdrive.trigger.persistance.{DatabaseProvider, Repository}
 
 @Configuration
 @EnableConfigurationProperties(Array(classOf[LiquibaseProperties]))
-class LiquibaseConfiguration(properties: LiquibaseProperties) extends SpringLiquibase with Repository {
+class LiquibaseConfiguration(properties: LiquibaseProperties, dbConfig: DatabaseConfig, val dbProvider: DatabaseProvider)
+  extends SpringLiquibase with Repository {
   private val configLogger = LoggerFactory.getLogger(this.getClass)
-  @Value("${db.skip.liquibase:false}")
-  val skipLiquibase: Boolean = false
+  private val skipLiquibase: Boolean = dbConfig.skipLiquibase
 
   @Bean
   // used to reference this class in the @DependsOn annotation

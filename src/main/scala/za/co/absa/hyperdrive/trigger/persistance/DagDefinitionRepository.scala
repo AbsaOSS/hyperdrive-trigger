@@ -18,6 +18,7 @@ package za.co.absa.hyperdrive.trigger.persistance
 import org.springframework.stereotype
 import za.co.absa.hyperdrive.trigger.models.DagDefinitionJoined
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 trait DagDefinitionRepository extends Repository {
@@ -25,7 +26,7 @@ trait DagDefinitionRepository extends Repository {
 }
 
 @stereotype.Repository
-class DagDefinitionRepositoryImpl extends DagDefinitionRepository {
+class DagDefinitionRepositoryImpl @Inject()(val dbProvider: DatabaseProvider) extends DagDefinitionRepository {
   import api._
 
   def getJoinedDagDefinition(sensorId: Long)(implicit executionContext: ExecutionContext): Future[Option[DagDefinitionJoined]] = {

@@ -16,6 +16,7 @@
 package za.co.absa.hyperdrive.trigger.persistance
 
 import org.scalatest.{FlatSpec, _}
+import za.co.absa.hyperdrive.trigger.configuration.application.TestSchedulerConfig
 import za.co.absa.hyperdrive.trigger.models.{AbsaKafkaSensorProperties, KafkaSensorProperties, SensorProperties, TimeSensorProperties}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -23,7 +24,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class SensorRepositoryPostgresTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryPostgresTestBase {
 
   import TestSensors._
-  val sensorRepository: SensorRepository = new SensorRepositoryImpl
+  val sensorRepository: SensorRepository = new SensorRepositoryImpl(dbProvider, TestSchedulerConfig())
 
   override def beforeAll: Unit = {
     super.beforeAll()
