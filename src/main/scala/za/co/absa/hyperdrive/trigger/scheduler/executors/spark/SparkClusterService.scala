@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -13,13 +14,14 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.scheduler.executors
+package za.co.absa.hyperdrive.trigger.scheduler.executors.spark
 
-import za.co.absa.hyperdrive.trigger.models.{JobInstance, JobInstanceParameters}
+import za.co.absa.hyperdrive.trigger.models.{JobInstance, SparkInstanceParameters}
+import za.co.absa.hyperdrive.trigger.scheduler.executors.ExecutorConfig
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait Executor[T <: JobInstanceParameters] {
-  def execute(jobInstance: JobInstance, jobParameters: T, updateJob: JobInstance => Future[Unit])
-             (implicit executionContext: ExecutionContext, executorConfig: ExecutorConfig): Future[Unit]
+trait SparkClusterService {
+  def submitJob(jobInstance: JobInstance, jobParameters: SparkInstanceParameters, updateJob: JobInstance => Future[Unit])
+               (implicit executionContext: ExecutionContext, executorConfig: ExecutorConfig): Future[Unit]
 }
