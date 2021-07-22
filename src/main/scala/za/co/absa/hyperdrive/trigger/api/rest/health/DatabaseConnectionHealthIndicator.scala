@@ -33,7 +33,7 @@ class DatabaseConnectionHealthIndicator @Inject()(val dbProvider: DatabaseProvid
   with Repository {
   import api._
   private val log = LoggerFactory.getLogger(this.getClass)
-  val dbConnection: Duration = Duration(healthConfig.databaseConnection.timeoutMillis, TimeUnit.MILLISECONDS)
+  val dbConnection: Duration = Duration(healthConfig.databaseConnectionTimeoutMillis, TimeUnit.MILLISECONDS)
   override protected def health(): Health = {
     Try {
       Await.result(db.run(sql"""SELECT 1""".as[Int]), dbConnection)

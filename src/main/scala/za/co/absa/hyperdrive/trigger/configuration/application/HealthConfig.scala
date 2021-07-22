@@ -20,33 +20,20 @@ import org.springframework.boot.context.properties.bind.{DefaultValue, Name}
 import org.springframework.boot.context.properties.{ConfigurationProperties, ConstructorBinding}
 import org.springframework.validation.annotation.Validated
 
-import javax.validation.Valid
 import javax.validation.constraints.NotNull
 
 @ConfigurationProperties("health")
 @ConstructorBinding
 @Validated
 class HealthConfig (
-  @Valid
-  @Name("databaseConnection")
-  databaseConnectionInternal: DatabaseConnection,
-  @Valid
-  @NotNull
-  val yarnConnection: YarnConnection
-) {
-  val databaseConnection: DatabaseConnection = Option(databaseConnectionInternal).getOrElse(new DatabaseConnection())
-}
-
-class DatabaseConnection (
   @DefaultValue(Array("120000"))
-  val timeoutMillis: Int = 120000
-)
-
-class YarnConnection (
+  @Name("databaseConnection.timeoutMillis")
+  val databaseConnectionTimeoutMillis: Int = 120000,
   @NotNull
-  val testEndpoint: String,
-  @Name("timeoutMillis")
-  timeoutMillisInternal: Integer
+  @Name("yarnConnection.testEndpoint")
+  val yarnConnectionTestEndpoint: String,
+  @Name("yarnConnection.timeoutMillis")
+  yarnConnectionTimeoutMillisInternal: Integer
 ) {
-  val timeoutMillis: Option[Int] = Option[Integer](timeoutMillisInternal).map(Integer2int)
+  val yarnConnectionTimeoutMillis: Option[Int] = Option[Integer](yarnConnectionTimeoutMillisInternal).map(Integer2int)
 }

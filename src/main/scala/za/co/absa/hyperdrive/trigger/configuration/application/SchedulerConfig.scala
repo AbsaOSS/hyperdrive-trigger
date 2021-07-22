@@ -35,7 +35,6 @@ class SchedulerConfig(
   @Name("jobs.parallel.number")
   val maxParallelJobs: Int,
   @DefaultValue(Array("true"))
-  @Name("autostart")
   val autostart: Boolean,
   @DefaultValue(Array("20000"))
   @Name("lag.threshold")

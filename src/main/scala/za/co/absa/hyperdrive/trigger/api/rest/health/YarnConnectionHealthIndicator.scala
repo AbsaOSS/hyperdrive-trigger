@@ -30,12 +30,12 @@ class YarnConnectionHealthIndicator @Inject()(sparkYarnSinkConfig: SparkYarnSink
 
   override protected def health(): Health = {
     val yarnBaseUrl = sparkYarnSinkConfig.hadoopResourceManagerUrlBase.stripSuffix("/")
-    val yarnTestEndpoint = healthConfig.yarnConnection.testEndpoint.stripPrefix("/")
+    val yarnTestEndpoint = healthConfig.yarnConnectionTestEndpoint.stripPrefix("/")
 
     Try(new URL(s"$yarnBaseUrl/$yarnTestEndpoint")).flatMap(url =>
       Try({
         val connection = url.openConnection().asInstanceOf[HttpURLConnection]
-        healthConfig.yarnConnection.timeoutMillis.foreach(connection.setConnectTimeout)
+        healthConfig.yarnConnectionTimeoutMillis.foreach(connection.setConnectTimeout)
         connection.getResponseCode == successCode
       })
     ) match {

@@ -23,6 +23,6 @@ class NotNullValidationException(name: ConfigurationPropertyName) extends Runtim
 
 object NotNullValidationException {
   def createMessage(name: ConfigurationPropertyName): String = {
-    s"${name} expected to be not null, but was null"
+    s"Property ${name} was not defined, but is required"
   }
 }

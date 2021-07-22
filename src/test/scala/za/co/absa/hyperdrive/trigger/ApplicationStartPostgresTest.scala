@@ -68,9 +68,9 @@ class ApplicationStartPostgresTest extends FlatSpec with Matchers with SpringInt
     schedulerConfig.sensors.changedSensorsChunkQuerySize shouldBe 100
     schedulerConfig.executors.threadPoolSize shouldBe 30
     shellExecutorConfig.executablesFolder shouldBe "src/test/resources/"
-    healthConfig.databaseConnection.timeoutMillis shouldBe 120000
-    healthConfig.yarnConnection.testEndpoint shouldBe "/cluster/cluster"
-    healthConfig.yarnConnection.timeoutMillis shouldBe None
+    healthConfig.databaseConnectionTimeoutMillis shouldBe 120000
+    healthConfig.yarnConnectionTestEndpoint shouldBe "/cluster/cluster"
+    healthConfig.yarnConnectionTimeoutMillis shouldBe None
     kafkaConfig.groupIdPrefix shouldBe "hyper_drive"
     kafkaConfig.pollDuration shouldBe 500
     kafkaConfig.properties.getProperty("key.deserializer") shouldBe "org.apache.kafka.common.serialization.StringDeserializer"
