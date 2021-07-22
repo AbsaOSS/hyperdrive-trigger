@@ -17,13 +17,13 @@ package za.co.absa.hyperdrive.trigger.scheduler.sensors
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
+import za.co.absa.hyperdrive.trigger.configuration.application.{GeneralConfig, KafkaConfig, SchedulerConfig}
 import za.co.absa.hyperdrive.trigger.models.{AbsaKafkaSensorProperties, KafkaSensorProperties, RecurringSensorProperties, SensorProperties, TimeSensorProperties}
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, SensorRepository}
 import za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.kafka.{AbsaKafkaSensor, KafkaSensor}
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.recurring.RecurringSensor
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.time.{TimeSensor, TimeSensorQuartzSchedulerManager}
-import za.co.absa.hyperdrive.trigger.scheduler.utilities.SensorsConfig
 import za.co.absa.hyperdrive.trigger.models.{Sensor => SensorDefition}
 
 import java.util.concurrent.Executors
@@ -33,11 +33,13 @@ import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success, Try}
 
 @Component
-class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: SensorRepository, dagInstanceRepository: DagInstanceRepository) {
+class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: SensorRepository,
+                        dagInstanceRepository: DagInstanceRepository, implicit val kafkaConfig: KafkaConfig,
+                        implicit val generalConfig: GeneralConfig, schedulerConfig: SchedulerConfig) {
   private val logger = LoggerFactory.getLogger(this.getClass)
 
   private implicit val executionContext: ExecutionContextExecutor =
-    ExecutionContext.fromExecutor(Executors.newFixedThreadPool(SensorsConfig.getThreadPoolSize))
+    ExecutionContext.fromExecutor(Executors.newFixedThreadPool(schedulerConfig.sensors.threadPoolSize))
 
   private val sensors: mutable.Map[Long, Sensor[ _<: SensorProperties]] = mutable.Map.empty[Long, Sensor[ _<: SensorProperties]]
 

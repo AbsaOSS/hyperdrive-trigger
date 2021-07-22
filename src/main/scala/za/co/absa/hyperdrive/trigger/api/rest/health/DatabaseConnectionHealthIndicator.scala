@@ -19,20 +19,21 @@ package za.co.absa.hyperdrive.trigger.api.rest.health
 import org.slf4j.LoggerFactory
 import org.springframework.boot.actuate.health.{Health, HealthIndicator}
 import org.springframework.stereotype.Component
-import za.co.absa.hyperdrive.trigger.persistance.Repository
-import za.co.absa.hyperdrive.trigger.scheduler.utilities.HealthConfig
+import za.co.absa.hyperdrive.trigger.configuration.application.HealthConfig
+import za.co.absa.hyperdrive.trigger.persistance.{DatabaseProvider, Repository}
 
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import scala.util.{Failure, Success, Try}
 
 @Component
-class DatabaseConnectionHealthIndicator extends HealthIndicator with Repository {
+class DatabaseConnectionHealthIndicator @Inject()(val dbProvider: DatabaseProvider, healthConfig: HealthConfig) extends HealthIndicator
+  with Repository {
   import api._
   private val log = LoggerFactory.getLogger(this.getClass)
-  val dbConnection: Duration = Duration(HealthConfig.databaseConnectionTimeoutMillis, TimeUnit.MILLISECONDS)
-
+  val dbConnection: Duration = Duration(healthConfig.databaseConnectionTimeoutMillis, TimeUnit.MILLISECONDS)
   override protected def health(): Health = {
     Try {
       Await.result(db.run(sql"""SELECT 1""".as[Int]), dbConnection)

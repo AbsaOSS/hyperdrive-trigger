@@ -27,7 +27,7 @@ import scala.concurrent.duration.Duration
 
 class WorkflowHistoryRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryH2TestBase {
 
-  val workflowHistoryRepository: WorkflowHistoryRepository = new WorkflowHistoryRepositoryImpl {
+  val workflowHistoryRepository: WorkflowHistoryRepository = new WorkflowHistoryRepositoryImpl(dbProvider) {
     override val profile = h2Profile
   }
 

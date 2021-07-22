@@ -19,22 +19,30 @@ package za.co.absa.hyperdrive.trigger.persistance
 import org.scalatest.{BeforeAndAfterAll, Suite}
 import org.testcontainers.containers.PostgreSQLContainer
 import slick.jdbc.PostgresProfile
+import za.co.absa.hyperdrive.trigger.configuration.application.{DatabaseConfig, TestDatabaseConfig}
+
+import java.util.UUID
 
 trait RepositoryPostgresTestBase extends RepositoryTestBase with BeforeAndAfterAll { this: Suite =>
+  private val databaseName = UUID.randomUUID().toString
+  private val postgresVersion = "12.7"
+  private val defaultUser = "test"
+  private val defaultPass = "test"
+  val databaseConfig: DatabaseConfig = {
+    TestDatabaseConfig(Map(
+      "driver" -> "org.testcontainers.jdbc.ContainerDatabaseDriver",
+      "url" -> s"jdbc:tc:postgresql:${postgresVersion}:///${databaseName}",
+      "user" -> defaultUser,
+      "password" -> defaultPass
+    ))
+  }
   override val profile = PostgresProfile
-  private val defaultDatabaseName = "test"
-
+  override val dbProvider: DatabaseProvider = new DatabaseProvider(databaseConfig)
   override def beforeAll(): Unit = {
-    val postgresVersion = "12.7"
-    val defaultUser = "test"
-    val defaultPass = "test"
-    System.setProperty("db.driver", "org.testcontainers.jdbc.ContainerDatabaseDriver")
-    System.setProperty("db.url", s"jdbc:tc:postgresql:${postgresVersion}:///${defaultDatabaseName}")
-    System.setProperty("db.user", defaultUser)
-    System.setProperty("db.password", defaultPass)
-
     new PostgreSQLContainer(s"postgres:${postgresVersion}")
+      .withDatabaseName(databaseName)
 
     super.beforeAll()
   }
 }
+

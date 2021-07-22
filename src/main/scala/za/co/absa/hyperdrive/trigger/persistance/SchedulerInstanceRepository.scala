@@ -16,12 +16,12 @@
 package za.co.absa.hyperdrive.trigger.persistance
 
 import java.time.{Duration, LocalDateTime}
-
 import org.springframework.stereotype
 import za.co.absa.hyperdrive.trigger.models.SchedulerInstance
 import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses
 import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses.SchedulerInstanceStatus
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
@@ -36,7 +36,8 @@ trait SchedulerInstanceRepository extends Repository {
 }
 
 @stereotype.Repository
-class SchedulerInstanceRepositoryImpl extends SchedulerInstanceRepository {
+class SchedulerInstanceRepositoryImpl @Inject()(val dbProvider: DatabaseProvider)
+  extends SchedulerInstanceRepository {
 
   import api._
 
