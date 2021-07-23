@@ -20,7 +20,6 @@ import com.amazonaws.services.elasticmapreduce.AmazonElasticMapReduceClientBuild
 import com.amazonaws.services.elasticmapreduce.model.{ActionOnFailure, AddJobFlowStepsRequest, HadoopJarStepConfig, StepConfig}
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import za.co.absa.hyperdrive.trigger.configuration.application.JobDefinitionConfig.{KeysToMerge, MergedValuesSeparator}
 import za.co.absa.hyperdrive.trigger.configuration.application.SparkConfig
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.Submitting
 import za.co.absa.hyperdrive.trigger.models.{JobInstance, SparkInstanceParameters}
@@ -59,10 +58,12 @@ class SparkEmrClusterServiceImpl extends SparkClusterService {
   private def getSparkArgs(id: String, jobName: String, jobParameters: SparkInstanceParameters)
                           (implicit sparkConfig: SparkConfig) = {
     val config = sparkConfig.emr
-    val confs = Map("spark.yarn.tags" -> id) ++ config.additionalConfs ++ jobParameters.additionalSparkConfig ++
+    val confs = Map("spark.yarn.tags" -> id) ++
+      config.additionalConfs ++
+      jobParameters.additionalSparkConfig ++
       mergeAdditionalSparkConfig(config.additionalConfs, jobParameters.additionalSparkConfig)
     val files = config.filesToDeploy ++ jobParameters.additionalFiles
-    SparkArgsBuilder(
+    SparkEmrArgs(
       mainClass = jobParameters.mainClass,
       jobJar = jobParameters.jobJar,
       appName = jobName,
@@ -71,13 +72,6 @@ class SparkEmrClusterServiceImpl extends SparkClusterService {
       additionalJars = jobParameters.additionalJars,
       sparkArgs = Seq("--verbose"),
       appArgs = jobParameters.appArguments
-    ).getArgs()
+    ).getArgs
   }
-
-  private def mergeAdditionalSparkConfig(globalConfig: Map[String, String], jobConfig: Map[String, String]) =
-    KeysToMerge.map(key => {
-      val globalValue = globalConfig.getOrElse(key, "")
-      val jobValue = jobConfig.getOrElse(key, "")
-      key -> s"$globalValue$MergedValuesSeparator$jobValue".trim
-    }).toMap
 }

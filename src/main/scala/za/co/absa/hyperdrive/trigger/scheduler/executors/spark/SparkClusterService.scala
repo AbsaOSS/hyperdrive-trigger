@@ -16,6 +16,7 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.executors.spark
 
+import za.co.absa.hyperdrive.trigger.configuration.application.JobDefinitionConfig.{KeysToMerge, MergedValuesSeparator}
 import za.co.absa.hyperdrive.trigger.configuration.application.SparkConfig
 import za.co.absa.hyperdrive.trigger.models.{JobInstance, SparkInstanceParameters}
 
@@ -24,4 +25,11 @@ import scala.concurrent.{ExecutionContext, Future}
 trait SparkClusterService {
   def submitJob(jobInstance: JobInstance, jobParameters: SparkInstanceParameters, updateJob: JobInstance => Future[Unit])
                (implicit executionContext: ExecutionContext, sparkConfig: SparkConfig): Future[Unit]
+
+  protected def mergeAdditionalSparkConfig(globalConfig: Map[String, String], jobConfig: Map[String, String]): Map[String, String] =
+    KeysToMerge.map(key => {
+      val globalValue = globalConfig.getOrElse(key, "")
+      val jobValue = jobConfig.getOrElse(key, "")
+      key -> s"$globalValue$MergedValuesSeparator$jobValue".trim
+    }).toMap
 }

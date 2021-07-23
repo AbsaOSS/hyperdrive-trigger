@@ -16,7 +16,7 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.executors.spark
 
-case class SparkArgsBuilder (
+case class SparkEmrArgs (
   mainClass: String,
   jobJar: String,
   appName: String,
@@ -26,7 +26,7 @@ case class SparkArgsBuilder (
   sparkArgs: Seq[String],
   appArgs: Seq[String]
 ) {
-  def getArgs(): Seq[String] = {
+  def getArgs: Seq[String] = {
     Seq("spark-submit") ++
       confs.flatMap {
         case (key, value) => Seq("--conf", s"$key=$value")

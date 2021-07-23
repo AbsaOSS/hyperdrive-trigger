@@ -19,7 +19,6 @@ package za.co.absa.hyperdrive.trigger.scheduler.executors.spark
 import org.apache.spark.launcher.{SparkAppHandle, SparkLauncher}
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import za.co.absa.hyperdrive.trigger.configuration.application.JobDefinitionConfig.{KeysToMerge, MergedValuesSeparator}
 import za.co.absa.hyperdrive.trigger.configuration.application.SparkConfig
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.Submitting
 import za.co.absa.hyperdrive.trigger.models.{JobInstance, SparkInstanceParameters}
@@ -80,11 +79,4 @@ class SparkYarnClusterServiceImpl extends SparkClusterService {
 
     sparkLauncher
   }
-
-  private def mergeAdditionalSparkConfig(globalConfig: Map[String, String], jobConfig: Map[String, String]) =
-    KeysToMerge.map(key => {
-      val globalValue = globalConfig.getOrElse(key, "")
-      val jobValue = jobConfig.getOrElse(key, "")
-      key -> s"$globalValue$MergedValuesSeparator$jobValue".trim
-    }).toMap
 }
