@@ -22,7 +22,7 @@ import za.co.absa.hyperdrive.trigger.models.{DagInstance, JobInstance, ShellInst
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.InvalidExecutor
 import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobStatuses}
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, JobInstanceRepository}
-import za.co.absa.hyperdrive.trigger.scheduler.executors.spark.{SparkClusterService, SparkExecutor, SparkYarnClusterServiceImpl}
+import za.co.absa.hyperdrive.trigger.scheduler.executors.spark.{SparkClusterService, SparkEmrClusterServiceImpl, SparkExecutor, SparkYarnClusterServiceImpl}
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.BeanFactory
 import za.co.absa.hyperdrive.trigger.scheduler.executors.shell.ShellExecutor
@@ -45,8 +45,10 @@ class Executors @Inject()(dagInstanceRepository: DagInstanceRepository, jobInsta
       case "yarn" =>
         logger.info(s"Using yarn cluster")
         beanFactory.getBean(classOf[SparkYarnClusterServiceImpl])
-      }
-      case _ => throw new IllegalArgumentException("Invalid spark cluster api - use one of: yarn")
+      case "emr" =>
+        logger.info(s"Using emr cluster")
+        beanFactory.getBean(classOf[SparkEmrClusterServiceImpl])
+      case _ => throw new IllegalArgumentException("Invalid spark cluster api - use one of: yarn, emr")
     }
   }
 
