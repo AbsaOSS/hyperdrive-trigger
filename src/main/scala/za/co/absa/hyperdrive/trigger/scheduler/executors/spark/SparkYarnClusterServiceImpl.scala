@@ -20,9 +20,9 @@ import org.apache.spark.launcher.{SparkAppHandle, SparkLauncher}
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.configuration.application.JobDefinitionConfig.{KeysToMerge, MergedValuesSeparator}
+import za.co.absa.hyperdrive.trigger.configuration.application.SparkConfig
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.Submitting
 import za.co.absa.hyperdrive.trigger.models.{JobInstance, SparkInstanceParameters}
-import za.co.absa.hyperdrive.trigger.scheduler.executors.ExecutorConfig
 
 import java.util.UUID.randomUUID
 import java.util.concurrent.{CountDownLatch, TimeUnit}
@@ -31,11 +31,11 @@ import scala.concurrent.{ExecutionContext, Future}
 @Service
 class SparkYarnClusterServiceImpl extends SparkClusterService {
   override def submitJob(jobInstance: JobInstance, jobParameters: SparkInstanceParameters, updateJob: JobInstance => Future[Unit])
-                        (implicit executionContext: ExecutionContext, executorConfig: ExecutorConfig): Future[Unit] = {
+                        (implicit executionContext: ExecutionContext, sparkConfig: SparkConfig): Future[Unit] = {
     val id = randomUUID().toString
     val ji = jobInstance.copy(executorJobId = Some(id), jobStatus = Submitting)
     updateJob(ji).map { _ =>
-      val submitTimeout = executorConfig.sparkYarnSinkConfig.submitTimeout
+      val submitTimeout = sparkConfig.yarn.submitTimeout
       val latch = new CountDownLatch(1)
       val sparkAppHandle = getSparkLauncher(id, ji.jobName, jobParameters).startApplication(new SparkAppHandle.Listener {
         import scala.math.Ordered.orderingToOrdered
@@ -53,9 +53,9 @@ class SparkYarnClusterServiceImpl extends SparkClusterService {
   }
 
   private def getSparkLauncher(id: String, jobName: String, jobParameters: SparkInstanceParameters)
-                              (implicit executorConfig: ExecutorConfig): SparkLauncher = {
+                              (implicit sparkConfig: SparkConfig): SparkLauncher = {
     import scala.collection.JavaConverters._
-    val config = executorConfig.sparkYarnSinkConfig
+    val config = sparkConfig.yarn
     val sparkLauncher = new SparkLauncher(Map(
       "HADOOP_CONF_DIR" -> config.hadoopConfDir,
       "SPARK_PRINT_LAUNCH_COMMAND" -> "1"

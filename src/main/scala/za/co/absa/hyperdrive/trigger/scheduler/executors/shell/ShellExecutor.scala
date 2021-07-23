@@ -18,7 +18,6 @@ package za.co.absa.hyperdrive.trigger.scheduler.executors.shell
 import org.slf4j.LoggerFactory
 import za.co.absa.hyperdrive.trigger.models.{JobInstance, ShellInstanceParameters}
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses._
-import za.co.absa.hyperdrive.trigger.scheduler.executors.ExecutorConfig
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.sys.process._

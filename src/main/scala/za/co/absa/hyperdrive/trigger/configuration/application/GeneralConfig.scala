@@ -35,7 +35,5 @@ class GeneralConfig (
   @DefaultValue(Array("Unknown"))
   val version: String,
   @(NotBlank @field)
-  val appUniqueId: String,
-  @Name("spark.cluster.api")
-  val sparkClusterApi: String
+  val appUniqueId: String
 )

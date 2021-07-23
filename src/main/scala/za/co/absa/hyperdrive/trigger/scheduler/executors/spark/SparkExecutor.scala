@@ -18,17 +18,17 @@ package za.co.absa.hyperdrive.trigger.scheduler.executors.spark
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.JsonBodyReadables._
 import za.co.absa.hyperdrive.trigger.api.rest.utils.WSClientProvider
+import za.co.absa.hyperdrive.trigger.configuration.application.SparkConfig
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses._
 import za.co.absa.hyperdrive.trigger.models.{JobInstance, SparkInstanceParameters}
 import za.co.absa.hyperdrive.trigger.scheduler.executors.spark.{FinalStatuses => YarnFinalStatuses}
-import za.co.absa.hyperdrive.trigger.scheduler.executors.ExecutorConfig
 
 import scala.concurrent.{ExecutionContext, Future}
 
 object SparkExecutor {
   def execute(jobInstance: JobInstance, jobParameters: SparkInstanceParameters, updateJob: JobInstance => Future[Unit],
               sparkClusterService: SparkClusterService)
-             (implicit executionContext: ExecutionContext, executorConfig: ExecutorConfig): Future[Unit] = {
+             (implicit executionContext: ExecutionContext, sparkConfig: SparkConfig): Future[Unit] = {
     jobInstance.executorJobId match {
       case None => sparkClusterService.submitJob(jobInstance, jobParameters, updateJob)
       case Some(executorJobId) => updateJobStatus(executorJobId, jobInstance, updateJob)
@@ -36,7 +36,7 @@ object SparkExecutor {
   }
 
   private def updateJobStatus(executorJobId: String, jobInstance: JobInstance, updateJob: JobInstance => Future[Unit])
-                             (implicit executionContext: ExecutionContext, executorConfig: ExecutorConfig): Future[Unit] = {
+                             (implicit executionContext: ExecutionContext, sparkConfig: SparkConfig): Future[Unit] = {
     WSClientProvider.getWSClient.url(getStatusUrl(executorJobId)).get().map { response =>
       (Json.fromJson[AppsResponse](response.body[JsValue]).asOpt match {
         case Some(asd) => asd.apps.app
@@ -51,8 +51,8 @@ object SparkExecutor {
     }
   }
 
-  private def getStatusUrl(executorJobId: String)(implicit executorConfig: ExecutorConfig): String = {
-    s"${executorConfig.sparkYarnSinkConfig.hadoopResourceManagerUrlBase}/ws/v1/cluster/apps?applicationTags=$executorJobId"
+  private def getStatusUrl(executorJobId: String)(implicit sparkConfig: SparkConfig): String = {
+    s"${sparkConfig.hadoopResourceManagerUrlBase}/ws/v1/cluster/apps?applicationTags=$executorJobId"
   }
 
   private def getStatus(finalStatus: String): JobStatus = {

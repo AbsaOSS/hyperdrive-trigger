@@ -21,7 +21,7 @@ import za.co.absa.hyperdrive.trigger.api.rest.utils.WSClientProvider
 import za.co.absa.hyperdrive.trigger.models.JobInstance
 import za.co.absa.hyperdrive.trigger.persistance.JobInstanceRepository
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
-import za.co.absa.hyperdrive.trigger.configuration.application.SparkYarnSinkConfig
+import za.co.absa.hyperdrive.trigger.configuration.application.SparkConfig
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
@@ -34,7 +34,7 @@ trait JobInstanceService {
 
 @Service
 class JobInstanceServiceImpl(override val jobInstanceRepository: JobInstanceRepository,
-                             sparkYarnSinkConfig: SparkYarnSinkConfig) extends JobInstanceService {
+                             sparkConfig: SparkConfig) extends JobInstanceService {
 
   override def getJobInstances(dagInstanceId: Long)(implicit ec: ExecutionContext): Future[Seq[JobInstance]] = {
     jobInstanceRepository.getJobInstances(dagInstanceId)
@@ -42,7 +42,7 @@ class JobInstanceServiceImpl(override val jobInstanceRepository: JobInstanceRepo
 
   override def killJob(applicationId: String)(implicit ec: ExecutionContext): Future[Boolean] = {
     val url: String =
-      s"${sparkYarnSinkConfig.hadoopResourceManagerUrlBase}/ws/v1/cluster/apps/$applicationId/state?user.name=${sparkYarnSinkConfig.userUsedToKillJob}"
+      s"${sparkConfig.hadoopResourceManagerUrlBase}/ws/v1/cluster/apps/$applicationId/state?user.name=${sparkConfig.userUsedToKillJob}"
     val data = Json.obj(
       "state" -> "KILLED"
     )

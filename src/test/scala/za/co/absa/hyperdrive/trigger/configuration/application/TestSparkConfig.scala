@@ -18,8 +18,9 @@ package za.co.absa.hyperdrive.trigger.configuration.application
 
 import java.util.Properties
 
-object TestSparkYarnSinkConfig {
+object TestSparkConfig {
   def apply(
+    submitApi: String = "yarn",
     submitTimeout: Int = 1000,
     hadoopConfDir: String = "",
     master: String = "yarn",
@@ -29,10 +30,10 @@ object TestSparkYarnSinkConfig {
     additionalConfsInternal: Properties = new Properties(),
     executablesFolder: String = "",
     userUsedToKillJob: String = "Unknown"
-  ): SparkYarnSinkConfig = {
-    new SparkYarnSinkConfig(
-      submitTimeout, hadoopConfDir, master, sparkHome, hadoopResourceManagerUrlBase, filesToDeployInternal,
-      additionalConfsInternal, executablesFolder, userUsedToKillJob
+  ): SparkConfig = {
+    new SparkConfig("yarn", new SparkYarnSinkConfig(submitTimeout, hadoopConfDir, master, sparkHome,
+      filesToDeployInternal, additionalConfsInternal, executablesFolder), null, hadoopResourceManagerUrlBase,
+      userUsedToKillJob
     )
   }
 }

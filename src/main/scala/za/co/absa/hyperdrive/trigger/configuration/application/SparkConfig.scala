@@ -24,9 +24,23 @@ import java.util.Properties
 import javax.validation.constraints.{NotBlank, NotNull}
 import scala.annotation.meta.field
 
-@ConfigurationProperties("spark-yarn-sink")
+@ConfigurationProperties("spark")
 @ConstructorBinding
 @Validated
+class SparkConfig (
+  @DefaultValue(Array("yarn"))
+  val submitApi: String,
+  @Name("yarn.sink")
+  val yarn: SparkYarnSinkConfig,
+  @Name("emr")
+  // Todo: Make sure that this is not null when submitApi is emr
+  val emr: SparkEmrSinkConfig,
+  @(NotBlank @field)
+  val hadoopResourceManagerUrlBase: String,
+  @DefaultValue(Array("Unknown"))
+  val userUsedToKillJob: String
+)
+
 class SparkYarnSinkConfig (
   @NotNull
   val submitTimeout: Int,
@@ -36,16 +50,25 @@ class SparkYarnSinkConfig (
   val master: String,
   @(NotBlank @field)
   val sparkHome: String,
-  @(NotBlank @field)
-  val hadoopResourceManagerUrlBase: String,
   @Name("filesToDeploy")
   filesToDeployInternal: String,
   @Name("additionalConfs")
   additionalConfsInternal: Properties,
   @NotNull
-  val executablesFolder: String,
-  @DefaultValue(Array("Unknown"))
-  val userUsedToKillJob: String
+  val executablesFolder: String
+) {
+  import scala.collection.JavaConverters._
+  val filesToDeploy: Seq[String] = Option(filesToDeployInternal).map(_.split(",").toSeq).getOrElse(Seq())
+  val additionalConfs: Map[String, String] = Option(additionalConfsInternal).map(_.asScala.toMap).getOrElse(Map())
+}
+
+class SparkEmrSinkConfig (
+  @NotNull
+  val clusterId: String,
+  @Name("filesToDeploy")
+  filesToDeployInternal: String,
+  @Name("additionalConfs")
+  additionalConfsInternal: Properties
 ) {
   import scala.collection.JavaConverters._
   val filesToDeploy: Seq[String] = Option(filesToDeployInternal).map(_.split(",").toSeq).getOrElse(Seq())
