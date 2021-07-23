@@ -19,27 +19,38 @@ package za.co.absa.hyperdrive.trigger.configuration.application
 import org.springframework.boot.context.properties.bind.{DefaultValue, Name}
 import org.springframework.boot.context.properties.{ConfigurationProperties, ConstructorBinding}
 import org.springframework.validation.annotation.Validated
+import org.springframework.validation.{Errors, Validator}
 
 import java.util.Properties
 import javax.validation.constraints.{NotBlank, NotNull}
 import scala.annotation.meta.field
 
-@ConfigurationProperties("spark")
+@ConfigurationProperties
 @ConstructorBinding
 @Validated
 class SparkConfig (
   @DefaultValue(Array("yarn"))
+  @Name("spark.submitApi")
   val submitApi: String,
-  @Name("yarn.sink")
+  @Name("sparkYarnSink")
   val yarn: SparkYarnSinkConfig,
-  @Name("emr")
-  // Todo: Make sure that this is not null when submitApi is emr
+  @Name("spark.emr")
   val emr: SparkEmrSinkConfig,
   @(NotBlank @field)
+  @Name("sparkYarnSink.hadoopResourceManagerUrlBase")
   val hadoopResourceManagerUrlBase: String,
   @DefaultValue(Array("Unknown"))
+  @Name("sparkYarnSink.userUsedToKillJob")
   val userUsedToKillJob: String
-)
+) {
+  if (submitApi == "yarn" && yarn == null) {
+    throw new RuntimeException("If spark.submitApi is yarn, sparkYarnSink arguments are required")
+  } else if (submitApi == "emr" && emr == null) {
+    throw new RuntimeException("If spark.submitApi is emr, spark.emr arguments are required")
+  } else if (submitApi != "yarn" && submitApi != "emr") {
+    throw new RuntimeException("spark.submitApi has to be either 'yarn' or 'emr'")
+  }
+}
 
 class SparkYarnSinkConfig (
   @NotNull
