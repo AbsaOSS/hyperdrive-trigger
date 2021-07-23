@@ -44,6 +44,7 @@ class SparkEmrClusterServiceImpl extends SparkClusterService {
           .withArgs(getSparkArgs(id, ji.jobName, jobParameters):_*)
         )
         .withActionOnFailure(ActionOnFailure.CONTINUE)
+        .withName(jobInstance.jobName)
 
       val jobFlowStepsRequest = new AddJobFlowStepsRequest()
         .withJobFlowId(sparkConfig.emr.clusterId)
@@ -58,7 +59,7 @@ class SparkEmrClusterServiceImpl extends SparkClusterService {
         .getOrElse(emrWithRegion)
         .build()
       val response = emr.addJobFlowSteps(jobFlowStepsRequest)
-      logger.info(s"Added step for executorId ${id} and stepId(s) ${response.getStepIds.asScala.mkString(", ")}")
+      logger.info(s"Added jobFlowStepsRequest ${jobFlowStepsRequest} for executorId ${id} and stepId(s) ${response.getStepIds.asScala.mkString(", ")}")
       logger.info(response.toString)
     }
   }

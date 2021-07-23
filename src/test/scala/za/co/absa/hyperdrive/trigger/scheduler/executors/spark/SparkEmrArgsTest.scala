@@ -19,7 +19,7 @@ import org.scalatest.{FlatSpec, Matchers}
 
 class SparkEmrArgsTest extends FlatSpec with Matchers {
 
-  "SparkEmrArgs.getArgs" should "return the spark args as a string" in {
+  "SparkEmrArgs.getArgs" should "return the spark args as a string sequence" in {
     val sparkEmrArgs = SparkEmrArgs(
       mainClass = "mainClass",
       jobJar = "job.jar",
@@ -49,9 +49,34 @@ class SparkEmrArgsTest extends FlatSpec with Matchers {
       "1.jar,2.jar",
       "--sparkArg1",
       "--sparkArg2",
+      "job.jar",
       "arg1",
       "arg2",
       "arg3"
+    )
+  }
+
+  it should "not provide arguments for empty sequences" in {
+    val sparkEmrArgs = SparkEmrArgs(
+      mainClass = "mainClass",
+      jobJar = "job.jar",
+      appName = "appName",
+      confs = Map(),
+      files = Seq(),
+      additionalJars = Seq(),
+      sparkArgs = Seq(),
+      appArgs = Seq()
+    )
+
+    val result = sparkEmrArgs.getArgs
+
+    result should contain theSameElementsInOrderAs Seq(
+      "spark-submit",
+      "--class",
+      "mainClass",
+      "--name",
+      "appName",
+      "job.jar"
     )
   }
 }

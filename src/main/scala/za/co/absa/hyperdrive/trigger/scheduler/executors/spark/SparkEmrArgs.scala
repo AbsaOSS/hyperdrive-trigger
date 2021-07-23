@@ -27,15 +27,18 @@ case class SparkEmrArgs (
   appArgs: Seq[String]
 ) {
   def getArgs: Seq[String] = {
+    val filesArgs = if (files.nonEmpty) Seq("--files", files.mkString(",")) else Seq()
+    val jarsArgs = if (additionalJars.nonEmpty) Seq("--jars", additionalJars.mkString(",")) else Seq()
     Seq("spark-submit") ++
       confs.flatMap {
         case (key, value) => Seq("--conf", s"$key=$value")
       } ++
       Seq("--class", mainClass) ++
       Seq("--name", appName) ++
-      Seq("--files", files.mkString(",")) ++
-      Seq("--jars", additionalJars.mkString(",")) ++
+      filesArgs ++
+      jarsArgs ++
       sparkArgs ++
+      Seq(jobJar) ++
       appArgs
   }
 }

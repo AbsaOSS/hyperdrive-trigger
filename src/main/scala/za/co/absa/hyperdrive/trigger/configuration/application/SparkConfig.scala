@@ -20,6 +20,7 @@ import org.springframework.boot.context.properties.bind.{DefaultValue, Name}
 import org.springframework.boot.context.properties.{ConfigurationProperties, ConstructorBinding}
 import org.springframework.validation.annotation.Validated
 import org.springframework.validation.{Errors, Validator}
+import za.co.absa.hyperdrive.trigger.configuration.application.SparkConfig.{transformAdditionalConfsProperty, transformFilesProperty}
 
 import java.util.Properties
 import javax.validation.constraints.{NotBlank, NotNull}
@@ -52,6 +53,19 @@ class SparkConfig (
   }
 }
 
+object SparkConfig {
+  def transformFilesProperty(filesToDeployInternal: String): Seq[String] = Option(filesToDeployInternal)
+    .map(_.split(",").toSeq)
+    .getOrElse(Seq())
+    .filter(_.nonEmpty)
+
+  def transformAdditionalConfsProperty(additionalConfsInternal: Properties): Map[String, String] = {
+    import scala.collection.JavaConverters._
+    Option(additionalConfsInternal)
+      .map(_.asScala.toMap).getOrElse(Map())
+  }
+}
+
 class SparkYarnSinkConfig (
   @NotNull
   val submitTimeout: Int,
@@ -68,9 +82,8 @@ class SparkYarnSinkConfig (
   @NotNull
   val executablesFolder: String
 ) {
-  import scala.collection.JavaConverters._
-  val filesToDeploy: Seq[String] = Option(filesToDeployInternal).map(_.split(",").toSeq).getOrElse(Seq())
-  val additionalConfs: Map[String, String] = Option(additionalConfsInternal).map(_.asScala.toMap).getOrElse(Map())
+  val filesToDeploy: Seq[String] = transformFilesProperty(filesToDeployInternal)
+  val additionalConfs: Map[String, String] = transformAdditionalConfsProperty(additionalConfsInternal)
 }
 
 class SparkEmrSinkConfig (
@@ -88,6 +101,6 @@ class SparkEmrSinkConfig (
   import scala.collection.JavaConverters._
   val awsProfile: Option[String] = Option(awsProfileInternal)
   val region: Option[String] = Option(regionInternal)
-  val filesToDeploy: Seq[String] = Option(filesToDeployInternal).map(_.split(",").toSeq).getOrElse(Seq())
-  val additionalConfs: Map[String, String] = Option(additionalConfsInternal).map(_.asScala.toMap).getOrElse(Map())
+  val filesToDeploy: Seq[String] = transformFilesProperty(filesToDeployInternal)
+  val additionalConfs: Map[String, String] = transformAdditionalConfsProperty(additionalConfsInternal)
 }
