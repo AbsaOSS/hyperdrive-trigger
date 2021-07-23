@@ -76,12 +76,18 @@ class SparkYarnSinkConfig (
 class SparkEmrSinkConfig (
   @NotNull
   val clusterId: String,
+  @Name("awsProfile")
+  awsProfileInternal: String,
+  @Name("region")
+  regionInternal: String,
   @Name("filesToDeploy")
   filesToDeployInternal: String,
   @Name("additionalConfs")
   additionalConfsInternal: Properties
 ) {
   import scala.collection.JavaConverters._
+  val awsProfile: Option[String] = Option(awsProfileInternal)
+  val region: Option[String] = Option(regionInternal)
   val filesToDeploy: Seq[String] = Option(filesToDeployInternal).map(_.split(",").toSeq).getOrElse(Seq())
   val additionalConfs: Map[String, String] = Option(additionalConfsInternal).map(_.asScala.toMap).getOrElse(Map())
 }

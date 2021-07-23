@@ -16,6 +16,7 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.executors.spark
 
+import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.services.elasticmapreduce.AmazonElasticMapReduceClientBuilder
 import com.amazonaws.services.elasticmapreduce.model.{ActionOnFailure, AddJobFlowStepsRequest, HadoopJarStepConfig, StepConfig}
 import org.slf4j.LoggerFactory
@@ -48,7 +49,14 @@ class SparkEmrClusterServiceImpl extends SparkClusterService {
         .withJobFlowId(sparkConfig.emr.clusterId)
         .withSteps(Seq(stepConfig).asJava)
 
-      val emr = AmazonElasticMapReduceClientBuilder.standard().build()
+      val emrBuilder = AmazonElasticMapReduceClientBuilder.standard()
+      val emrWithRegion = sparkConfig.emr.region
+        .map(region => emrBuilder.withRegion(region))
+        .getOrElse(emrBuilder)
+      val emr = sparkConfig.emr.awsProfile
+        .map(profile => emrWithRegion.withCredentials(new ProfileCredentialsProvider(profile)))
+        .getOrElse(emrWithRegion)
+        .build()
       val response = emr.addJobFlowSteps(jobFlowStepsRequest)
       logger.info(s"Added step for executorId ${id} and stepId(s) ${response.getStepIds.asScala.mkString(", ")}")
       logger.info(response.toString)
