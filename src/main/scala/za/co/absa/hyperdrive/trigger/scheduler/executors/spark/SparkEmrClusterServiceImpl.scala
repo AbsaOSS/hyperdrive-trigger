@@ -31,6 +31,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @Service
 class SparkEmrClusterServiceImpl extends SparkClusterService {
   private val logger = LoggerFactory.getLogger(this.getClass)
+  private val commandRunnerJar = "command-runner.jar"
 
   override def submitJob(jobInstance: JobInstance, jobParameters: SparkInstanceParameters, updateJob: JobInstance => Future[Unit])
                         (implicit executionContext: ExecutionContext, sparkConfig: SparkConfig): Future[Unit] = {
@@ -40,7 +41,7 @@ class SparkEmrClusterServiceImpl extends SparkClusterService {
       import scala.collection.JavaConverters._
       val stepConfig = new StepConfig()
         .withHadoopJarStep(new HadoopJarStepConfig()
-          .withJar("command-runner.jar")
+          .withJar(commandRunnerJar)
           .withArgs(getSparkArgs(id, ji.jobName, jobParameters):_*)
         )
         .withActionOnFailure(ActionOnFailure.CONTINUE)
@@ -50,18 +51,23 @@ class SparkEmrClusterServiceImpl extends SparkClusterService {
         .withJobFlowId(sparkConfig.emr.clusterId)
         .withSteps(Seq(stepConfig).asJava)
 
-      val emrBuilder = AmazonElasticMapReduceClientBuilder.standard()
-      val emrWithRegion = sparkConfig.emr.region
-        .map(region => emrBuilder.withRegion(region))
-        .getOrElse(emrBuilder)
-      val emr = sparkConfig.emr.awsProfile
-        .map(profile => emrWithRegion.withCredentials(new ProfileCredentialsProvider(profile)))
-        .getOrElse(emrWithRegion)
-        .build()
+      val emr = getEmrClient
       val response = emr.addJobFlowSteps(jobFlowStepsRequest)
-      logger.info(s"Added jobFlowStepsRequest ${jobFlowStepsRequest} for executorId ${id} and stepId(s) ${response.getStepIds.asScala.mkString(", ")}")
+      val stepId = response.getStepIds.asScala.headOption
+      logger.info(s"Added jobFlowStepsRequest ${jobFlowStepsRequest} for executorId ${id} and stepId $stepId}")
       logger.info(response.toString)
     }
+  }
+
+  private def getEmrClient(implicit sparkConfig: SparkConfig) = {
+    val emrBuilder = AmazonElasticMapReduceClientBuilder.standard()
+    val emrWithRegion = sparkConfig.emr.region
+      .map(region => emrBuilder.withRegion(region))
+      .getOrElse(emrBuilder)
+    sparkConfig.emr.awsProfile
+      .map(profile => emrWithRegion.withCredentials(new ProfileCredentialsProvider(profile)))
+      .getOrElse(emrWithRegion)
+      .build()
   }
 
   private def getSparkArgs(id: String, jobName: String, jobParameters: SparkInstanceParameters)

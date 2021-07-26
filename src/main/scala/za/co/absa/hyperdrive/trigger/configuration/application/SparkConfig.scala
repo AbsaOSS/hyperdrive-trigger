@@ -20,7 +20,7 @@ import org.springframework.boot.context.properties.bind.{DefaultValue, Name}
 import org.springframework.boot.context.properties.{ConfigurationProperties, ConstructorBinding}
 import org.springframework.validation.annotation.Validated
 import org.springframework.validation.{Errors, Validator}
-import za.co.absa.hyperdrive.trigger.configuration.application.SparkConfig.{transformAdditionalConfsProperty, transformFilesProperty}
+import za.co.absa.hyperdrive.trigger.configuration.application.SparkConfig.{toNonEmptyOption, transformAdditionalConfsProperty, transformFilesProperty}
 
 import java.util.Properties
 import javax.validation.constraints.{NotBlank, NotNull}
@@ -64,6 +64,10 @@ object SparkConfig {
     Option(additionalConfsInternal)
       .map(_.asScala.toMap).getOrElse(Map())
   }
+
+  def toNonEmptyOption(string: String): Option[String] = {
+    Option(string).collect { case x if x.trim.nonEmpty => x}
+  }
 }
 
 class SparkYarnSinkConfig (
@@ -92,15 +96,15 @@ class SparkEmrSinkConfig (
   @Name("awsProfile")
   awsProfileInternal: String,
   @Name("region")
-  regionInternal: String,
+  @(AwsRegion @field)(message = "Not a valid aws region")
+  val regionInternal: String,
   @Name("filesToDeploy")
   filesToDeployInternal: String,
   @Name("additionalConfs")
   additionalConfsInternal: Properties
 ) {
-  import scala.collection.JavaConverters._
-  val awsProfile: Option[String] = Option(awsProfileInternal)
-  val region: Option[String] = Option(regionInternal)
+  val awsProfile: Option[String] = toNonEmptyOption(awsProfileInternal)
+  val region: Option[String] = toNonEmptyOption(regionInternal)
   val filesToDeploy: Seq[String] = transformFilesProperty(filesToDeployInternal)
   val additionalConfs: Map[String, String] = transformAdditionalConfsProperty(additionalConfsInternal)
 }
