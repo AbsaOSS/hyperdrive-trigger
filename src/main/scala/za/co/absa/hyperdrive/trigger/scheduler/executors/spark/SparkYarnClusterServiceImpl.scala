@@ -25,12 +25,13 @@ import za.co.absa.hyperdrive.trigger.models.{JobInstance, SparkInstanceParameter
 
 import java.util.UUID.randomUUID
 import java.util.concurrent.{CountDownLatch, TimeUnit}
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 @Service
-class SparkYarnClusterServiceImpl extends SparkClusterService {
+class SparkYarnClusterServiceImpl @Inject()(implicit sparkConfig: SparkConfig) extends SparkClusterService {
   override def submitJob(jobInstance: JobInstance, jobParameters: SparkInstanceParameters, updateJob: JobInstance => Future[Unit])
-                        (implicit executionContext: ExecutionContext, sparkConfig: SparkConfig): Future[Unit] = {
+                        (implicit executionContext: ExecutionContext): Future[Unit] = {
     val id = randomUUID().toString
     val ji = jobInstance.copy(executorJobId = Some(id), jobStatus = Submitting)
     updateJob(ji).map { _ =>

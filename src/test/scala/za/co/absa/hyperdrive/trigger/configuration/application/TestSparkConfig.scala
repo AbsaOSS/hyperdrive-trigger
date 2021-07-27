@@ -20,20 +20,39 @@ import java.util.Properties
 
 object TestSparkConfig {
   def apply(
-    submitApi: String = "yarn",
     submitTimeout: Int = 1000,
     hadoopConfDir: String = "",
     master: String = "yarn",
     sparkHome: String = "",
     hadoopResourceManagerUrlBase: String = "",
-    filesToDeployInternal: String = "",
-    additionalConfsInternal: Properties = new Properties(),
+    filesToDeploy: Seq[String] = Seq(),
+    additionalConfs: Map[String, String] = Map(),
     executablesFolder: String = "",
     userUsedToKillJob: String = "Unknown"
   ): SparkConfig = {
     new SparkConfig("yarn", new SparkYarnSinkConfig(submitTimeout, hadoopConfDir, master, sparkHome,
-      filesToDeployInternal, additionalConfsInternal, executablesFolder), null, hadoopResourceManagerUrlBase,
+      filesToDeploy.mkString(","), toProperties(additionalConfs), executablesFolder), null, hadoopResourceManagerUrlBase,
       userUsedToKillJob
     )
+  }
+
+  def emr(
+    clusterId: String = "j-2AXXXXXXGAPLF",
+    awsProfile: String = "",
+    region: String = "",
+    hadoopResourceManagerUrlBase: String = "",
+    filesToDeploy: Seq[String] = Seq(),
+    additionalConfs: Map[String, String] = Map(),
+    userUsedToKillJob: String = "Unknown"
+  ): SparkConfig = {
+    new SparkConfig("emr", null, new SparkEmrSinkConfig(clusterId, awsProfile, region,
+      filesToDeploy.mkString(","), toProperties(additionalConfs)), hadoopResourceManagerUrlBase, userUsedToKillJob
+    )
+  }
+
+  private def toProperties(map: Map[String, String]): Properties = {
+    val properties = new Properties()
+    map.foreach { case (key, value) => properties.setProperty(key, value) }
+    properties
   }
 }

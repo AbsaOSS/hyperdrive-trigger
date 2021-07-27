@@ -16,8 +16,6 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.executors.spark
 
-import com.amazonaws.auth.profile.ProfileCredentialsProvider
-import com.amazonaws.services.elasticmapreduce.AmazonElasticMapReduceClientBuilder
 import com.amazonaws.services.elasticmapreduce.model.{ActionOnFailure, AddJobFlowStepsRequest, HadoopJarStepConfig, StepConfig}
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -26,15 +24,16 @@ import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.Submitting
 import za.co.absa.hyperdrive.trigger.models.{JobInstance, SparkInstanceParameters}
 
 import java.util.UUID.randomUUID
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 @Service
-class SparkEmrClusterServiceImpl extends SparkClusterService {
+class SparkEmrClusterServiceImpl @Inject()(sparkConfig: SparkConfig, emrClusterProvider: EmrClusterProviderService) extends SparkClusterService {
   private val logger = LoggerFactory.getLogger(this.getClass)
   private val commandRunnerJar = "command-runner.jar"
 
   override def submitJob(jobInstance: JobInstance, jobParameters: SparkInstanceParameters, updateJob: JobInstance => Future[Unit])
-                        (implicit executionContext: ExecutionContext, sparkConfig: SparkConfig): Future[Unit] = {
+                        (implicit executionContext: ExecutionContext): Future[Unit] = {
     val id = randomUUID().toString
     val ji = jobInstance.copy(executorJobId = Some(id), jobStatus = Submitting)
     updateJob(ji).map { _ =>
@@ -51,7 +50,7 @@ class SparkEmrClusterServiceImpl extends SparkClusterService {
         .withJobFlowId(sparkConfig.emr.clusterId)
         .withSteps(Seq(stepConfig).asJava)
 
-      val emr = getEmrClient
+      val emr = emrClusterProvider.get()
       val response = emr.addJobFlowSteps(jobFlowStepsRequest)
       val stepId = response.getStepIds.asScala.headOption
       logger.info(s"Added jobFlowStepsRequest ${jobFlowStepsRequest} for executorId ${id} and stepId $stepId}")
@@ -59,19 +58,7 @@ class SparkEmrClusterServiceImpl extends SparkClusterService {
     }
   }
 
-  private def getEmrClient(implicit sparkConfig: SparkConfig) = {
-    val emrBuilder = AmazonElasticMapReduceClientBuilder.standard()
-    val emrWithRegion = sparkConfig.emr.region
-      .map(region => emrBuilder.withRegion(region))
-      .getOrElse(emrBuilder)
-    sparkConfig.emr.awsProfile
-      .map(profile => emrWithRegion.withCredentials(new ProfileCredentialsProvider(profile)))
-      .getOrElse(emrWithRegion)
-      .build()
-  }
-
-  private def getSparkArgs(id: String, jobName: String, jobParameters: SparkInstanceParameters)
-                          (implicit sparkConfig: SparkConfig) = {
+  private def getSparkArgs(id: String, jobName: String, jobParameters: SparkInstanceParameters) = {
     val config = sparkConfig.emr
     val confs = Map("spark.yarn.tags" -> id) ++
       config.additionalConfs ++
