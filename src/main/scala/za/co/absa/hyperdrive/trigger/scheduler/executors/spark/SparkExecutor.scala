@@ -31,6 +31,8 @@ import za.co.absa.hyperdrive.trigger.scheduler.executors.spark.{FinalStatuses =>
 import org.slf4j.LoggerFactory
 import za.co.absa.hyperdrive.trigger.api.rest.utils.WSClientProvider
 
+import java.nio.file.Paths
+
 object SparkExecutor extends Executor[SparkInstanceParameters] {
   override def execute(jobInstance: JobInstance, jobParameters: SparkInstanceParameters, updateJob: JobInstance => Future[Unit])
                       (implicit executionContext: ExecutionContext, executorConfig: ExecutorConfig): Future[Unit] = {
@@ -88,7 +90,7 @@ object SparkExecutor extends Executor[SparkInstanceParameters] {
       .setMaster(config.master)
       .setDeployMode("cluster")
       .setMainClass(jobParameters.mainClass)
-      .setAppResource(jobParameters.jobJar)
+      .setAppResource(Paths.get(config.executablesFolder, jobParameters.jobJar).toString)
       .setSparkHome(config.sparkHome)
       .setAppName(jobName)
       .setConf("spark.yarn.tags", id)
@@ -97,8 +99,8 @@ object SparkExecutor extends Executor[SparkInstanceParameters] {
       .redirectToLog(LoggerFactory.getLogger(s"SparkExecutor.executorJobId=$id").getName)
     config.filesToDeploy.foreach(file => sparkLauncher.addFile(file))
     config.additionalConfs.foreach(conf => sparkLauncher.setConf(conf._1, conf._2))
-    jobParameters.additionalJars.foreach(sparkLauncher.addJar)
-    jobParameters.additionalFiles.foreach(sparkLauncher.addFile)
+    jobParameters.additionalJars.foreach(jar => sparkLauncher.addJar(Paths.get(config.executablesFolder, jar).toString))
+    jobParameters.additionalFiles.foreach(file => sparkLauncher.addFile(Paths.get(config.executablesFolder, file).toString))
     jobParameters.additionalSparkConfig.foreach(conf => sparkLauncher.setConf(conf._1, conf._2))
     mergeAdditionalSparkConfig(config.additionalConfs, jobParameters.additionalSparkConfig)
       .foreach(conf => sparkLauncher.setConf(conf._1, conf._2))

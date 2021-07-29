@@ -37,5 +37,11 @@ class AuthConfig (
   val ldapSearchBase: String,
   @DefaultValue(Array(""))
   @Name("ldap.search.filter")
-  val ldapSearchFilter: String
+  val ldapSearchFilter: String,
+  @DefaultValue(Array("hyperdriver-user"))
+  @Name("inmemory.user")
+  val inMemoryUser: String,
+  @DefaultValue(Array("hyperdriver-password"))
+  @Name("inmemory.password")
+  val inMemoryPassword: String
 )

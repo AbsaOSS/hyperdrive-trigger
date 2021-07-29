@@ -20,6 +20,7 @@ import za.co.absa.hyperdrive.trigger.models.{JobInstance, ShellInstanceParameter
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses._
 import za.co.absa.hyperdrive.trigger.scheduler.executors.{Executor, ExecutorConfig}
 
+import java.nio.file.Paths
 import scala.concurrent.{ExecutionContext, Future}
 import scala.sys.process._
 import scala.util.Try
@@ -37,10 +38,10 @@ object ShellExecutor extends Executor[ShellInstanceParameters] {
   }
 
   private def executeJob(jobInstance: JobInstance, jobParameters: ShellInstanceParameters, updateJob: JobInstance => Future[Unit])
-                        (implicit executionContext: ExecutionContext): Future[Unit] = {
+                        (implicit executionContext: ExecutionContext, executorConfig: ExecutorConfig): Future[Unit] = {
     updateJob(jobInstance.copy(jobStatus = Running)).map { _ =>
       Try {
-        jobParameters.scriptLocation.!(new ProcessLogger {
+        Paths.get(executorConfig.shellExecutorConfig.executablesFolder, jobParameters.scriptLocation).toString.!(new ProcessLogger {
           override def out(s: => String): Unit = logger.info(s)
           override def err(s: => String): Unit = logger.error(s)
           override def buffer[T](f: => T): T = f
