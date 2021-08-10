@@ -30,33 +30,7 @@ describe('KafkaComponent', () => {
     { property: 'propertyTwo', value: 'valueTwo' },
     { property: 'switchPartProp', value: 'optionTwo' },
   ];
-  // const workflowFormParts = WorkflowFormPartsModelFactory.create(
-  //   [],
-  //   FormPartFactory.create(
-  //     'switchPartName',
-  //     'switchPartProp',
-  //     'switchPartType',
-  //     PartValidationFactory.create(true),
-  //     new Map([
-  //       ['optionOne', 'optionOne'],
-  //       ['optionTwo', 'optionTwoLabel'],
-  //     ]),
-  //   ),
-  //   undefined,
-  //   undefined,
-  //   DynamicFormPartsFactory.create(
-  //     [
-  //       DynamicFormPartFactory.create('optionOne', [
-  //         FormPartFactory.create('partOne', 'partOne', 'partOne', PartValidationFactory.create(true)),
-  //       ]),
-  //       DynamicFormPartFactory.createWithLabel('optionTwo', 'optionTwoLabel', [
-  //         FormPartFactory.create('partTwo', 'partTwo', 'partTwo', PartValidationFactory.create(true)),
-  //       ]),
-  //     ],
-  //     [],
-  //   ),
-  // );
-  //
+
   beforeEach(
     waitForAsync(() => {
       TestBed.configureTestingModule({
