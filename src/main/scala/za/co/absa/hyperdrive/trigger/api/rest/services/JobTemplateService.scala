@@ -16,7 +16,6 @@
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
 import org.springframework.stereotype.Service
-import za.co.absa.hyperdrive.trigger.api.rest.utils.JobTemplateResolutionUtil
 import za.co.absa.hyperdrive.trigger.models.search.{TableSearchRequest, TableSearchResponse}
 import za.co.absa.hyperdrive.trigger.models.{DagDefinitionJoined, JobTemplate, ResolvedJobDefinition}
 import za.co.absa.hyperdrive.trigger.persistance.JobTemplateRepository
@@ -35,7 +34,7 @@ trait JobTemplateService {
 }
 
 @Service
-class JobTemplateServiceImpl(override val jobTemplateRepository: JobTemplateRepository, jobTemplateResolutionUtil: JobTemplateResolutionUtil) extends JobTemplateService {
+class JobTemplateServiceImpl(override val jobTemplateRepository: JobTemplateRepository, jobTemplateResolutionUtil: JobTemplateResolutionService) extends JobTemplateService {
   override def getJobTemplate(id: Long)(implicit ec: ExecutionContext): Future[JobTemplate] = {
     jobTemplateRepository.getJobTemplate(id)
   }

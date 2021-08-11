@@ -21,7 +21,6 @@ import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, Matchers}
 import za.co.absa.hyperdrive.trigger.TestUtils.await
 import za.co.absa.hyperdrive.trigger.api.rest.services.JobTemplateFixture.{GenericShellJobTemplate, GenericSparkJobTemplate}
-import za.co.absa.hyperdrive.trigger.api.rest.utils.JobTemplateResolutionUtil
 import za.co.absa.hyperdrive.trigger.models.{ResolvedJobDefinition, ShellInstanceParameters, SparkInstanceParameters}
 import za.co.absa.hyperdrive.trigger.models.enums.JobTypes
 import za.co.absa.hyperdrive.trigger.models.search.{TableSearchRequest, TableSearchResponse}
@@ -32,7 +31,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class JobTemplateServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar with BeforeAndAfter {
   private val jobTemplateRepository = mock[JobTemplateRepository]
-  private val jobTemplateResolutionUtil = mock[JobTemplateResolutionUtil]
+  private val jobTemplateResolutionUtil = mock[JobTemplateResolutionService]
   private val underTest = new JobTemplateServiceImpl(jobTemplateRepository, jobTemplateResolutionUtil)
 
   before {

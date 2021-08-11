@@ -13,20 +13,22 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.api.rest.utils
+package za.co.absa.hyperdrive.trigger.api.rest.services
 
-import org.springframework.stereotype.Component
-import za.co.absa.hyperdrive.trigger.models._
+import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.configuration.application.JobDefinitionConfig.{KeysToMerge, MergedValuesSeparator}
 import za.co.absa.hyperdrive.trigger.configuration.application.{ShellExecutorConfig, SparkYarnSinkConfig}
+import za.co.absa.hyperdrive.trigger.models._
 
 import java.nio.file.Paths
-import javax.inject.Inject
 import scala.util.{Failure, Success, Try}
 
-@Component
-class JobTemplateResolutionUtil @Inject()(sparkYarnSinkConfig: SparkYarnSinkConfig, shellExecutorConfig: ShellExecutorConfig) {
+trait JobTemplateResolutionService {
+  def resolveDagDefinitionJoined(dagDefinitionJoined: DagDefinitionJoined, jobTemplates: Seq[JobTemplate]): Seq[ResolvedJobDefinition]
+}
 
+@Service
+class JobTemplateResolutionServiceImpl(sparkYarnSinkConfig: SparkYarnSinkConfig, shellExecutorConfig: ShellExecutorConfig) extends JobTemplateResolutionService {
   def resolveDagDefinitionJoined(dagDefinitionJoined: DagDefinitionJoined, jobTemplates: Seq[JobTemplate]): Seq[ResolvedJobDefinition] = {
     val jobTemplatesLookup = jobTemplates.map(t => t.id -> t).toMap
     dagDefinitionJoined.jobDefinitions.map(jd => {
