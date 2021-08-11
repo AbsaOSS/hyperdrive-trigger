@@ -21,7 +21,8 @@ import org.quartz.JobKey
 import org.quartz.impl.matchers.GroupMatcher
 import org.scalatest._
 import za.co.absa.hyperdrive.trigger.api.rest.services.{DagInstanceService, DagInstanceServiceImpl, JobTemplateFixture, JobTemplateService, JobTemplateServiceImpl}
-import za.co.absa.hyperdrive.trigger.configuration.application.{GeneralConfig, KafkaConfig, SchedulerConfig, TestGeneralConfig, TestKafkaConfig, TestSchedulerConfig}
+import za.co.absa.hyperdrive.trigger.api.rest.utils.JobTemplateResolutionUtil
+import za.co.absa.hyperdrive.trigger.configuration.application.{GeneralConfig, KafkaConfig, SchedulerConfig, ShellExecutorConfig, SparkYarnSinkConfig, TestGeneralConfig, TestKafkaConfig, TestSchedulerConfig, TestShellExecutorConfig, TestSparkYarnSinkConfig}
 import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.persistance._
 import za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor
@@ -35,6 +36,8 @@ class TimeSensorIntegrationPostgresTest extends FlatSpec with Matchers with Befo
   private val schedulerConfig: SchedulerConfig = TestSchedulerConfig()
   private val kafkaConfig: KafkaConfig = TestKafkaConfig()
   private val generalConfig: GeneralConfig = TestGeneralConfig()
+  private val shellExecutorConfig: ShellExecutorConfig = TestShellExecutorConfig()
+  private val sparkYarnSinkConfig: SparkYarnSinkConfig = TestSparkYarnSinkConfig()
   private val sensorRepository: SensorRepositoryImpl = new SensorRepositoryImpl(dbProvider, schedulerConfig)
   private val workflowHistoryRepository: WorkflowHistoryRepositoryImpl = new WorkflowHistoryRepositoryImpl(dbProvider)
   private val workflowRepository: WorkflowRepositoryImpl = new WorkflowRepositoryImpl(dbProvider, workflowHistoryRepository)
@@ -42,7 +45,8 @@ class TimeSensorIntegrationPostgresTest extends FlatSpec with Matchers with Befo
   private val dagDefinitionRepository: DagDefinitionRepositoryImpl = new DagDefinitionRepositoryImpl(dbProvider)
   private val dagInstanceRepository: DagInstanceRepositoryImpl = new DagInstanceRepositoryImpl(dbProvider)
   private val jobTemplateRepository: JobTemplateRepositoryImpl = new JobTemplateRepositoryImpl(dbProvider)
-  private val jobTemplateService: JobTemplateService = new JobTemplateServiceImpl(jobTemplateRepository)
+  private val jobTemplateResolutionUtil: JobTemplateResolutionUtil = new JobTemplateResolutionUtil(sparkYarnSinkConfig, shellExecutorConfig)
+  private val jobTemplateService: JobTemplateService = new JobTemplateServiceImpl(jobTemplateRepository, jobTemplateResolutionUtil)
   private val dagInstanceService: DagInstanceService = new DagInstanceServiceImpl(jobTemplateService)
 
   override def beforeAll: Unit = {

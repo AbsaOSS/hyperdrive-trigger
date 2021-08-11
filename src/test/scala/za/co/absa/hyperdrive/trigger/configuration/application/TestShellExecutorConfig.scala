@@ -17,11 +17,7 @@
 package za.co.absa.hyperdrive.trigger.configuration.application
 
 object TestShellExecutorConfig {
-  def apply(
-    executablesFolder: String = ""
-  ): ShellExecutorConfig = {
-    new ShellExecutorConfig (
-      executablesFolder
-    )
+  def apply(executablesFolder: String = ""): ShellExecutorConfig = {
+    new ShellExecutorConfig(executablesFolder)
   }
 }

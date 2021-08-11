@@ -24,7 +24,7 @@ import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FlatSpec, Matchers}
 import za.co.absa.hyperdrive.trigger.models.{JobInstance, ShellInstanceParameters}
 import org.mockito.Mockito._
 import org.mockito.ArgumentMatchers._
-import za.co.absa.hyperdrive.trigger.configuration.application.{ShellExecutorConfig, TestShellExecutorConfig, TestSparkYarnSinkConfig}
+import za.co.absa.hyperdrive.trigger.configuration.application.{ShellExecutorConfig, TestSparkYarnSinkConfig}
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.{Failed, InQueue, Lost, Running, Submitting, Succeeded}
 import za.co.absa.hyperdrive.trigger.scheduler.executors.ExecutorConfig
 
@@ -50,7 +50,7 @@ class ShellExecutorTest extends FlatSpec with Matchers with BeforeAndAfterAll wi
   )
 
   private val shellExecutorConfig = new ShellExecutorConfig("src/test/resources")
-  private implicit val executorConfig: ExecutorConfig = new ExecutorConfig(TestSparkYarnSinkConfig(), TestShellExecutorConfig())
+  private implicit val executorConfig: ExecutorConfig = new ExecutorConfig(TestSparkYarnSinkConfig())
 
   override def beforeEach: Unit = {
     org.mockito.Mockito.reset(updateJobStub)
