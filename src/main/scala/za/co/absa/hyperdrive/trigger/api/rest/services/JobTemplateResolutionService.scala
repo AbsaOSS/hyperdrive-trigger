@@ -13,16 +13,22 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.api.rest.utils
+package za.co.absa.hyperdrive.trigger.api.rest.services
 
-import za.co.absa.hyperdrive.trigger.models._
+import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.configuration.application.JobDefinitionConfig.{KeysToMerge, MergedValuesSeparator}
+import za.co.absa.hyperdrive.trigger.configuration.application.{ShellExecutorConfig, SparkYarnSinkConfig}
+import za.co.absa.hyperdrive.trigger.models._
 
+import java.nio.file.Paths
 import scala.util.{Failure, Success, Try}
 
+trait JobTemplateResolutionService {
+  def resolveDagDefinitionJoined(dagDefinitionJoined: DagDefinitionJoined, jobTemplates: Seq[JobTemplate]): Seq[ResolvedJobDefinition]
+}
 
-object JobTemplateResolutionUtil {
-
+@Service
+class JobTemplateResolutionServiceImpl(sparkYarnSinkConfig: SparkYarnSinkConfig, shellExecutorConfig: ShellExecutorConfig) extends JobTemplateResolutionService {
   def resolveDagDefinitionJoined(dagDefinitionJoined: DagDefinitionJoined, jobTemplates: Seq[JobTemplate]): Seq[ResolvedJobDefinition] = {
     val jobTemplatesLookup = jobTemplates.map(t => t.id -> t).toMap
     dagDefinitionJoined.jobDefinitions.map(jd => {
@@ -57,29 +63,31 @@ object JobTemplateResolutionUtil {
 
   private def mergeSparkAndHyperdriveParameters(definitionParams: HyperdriveDefinitionParameters, templateParams: SparkTemplateParameters): SparkInstanceParameters = {
     SparkInstanceParameters(
-      jobJar = templateParams.jobJar.getOrElse(""),
+      jobJar = Paths.get(sparkYarnSinkConfig.executablesFolder, templateParams.jobJar.getOrElse("")).toString,
       mainClass = templateParams.mainClass.getOrElse(""),
       appArguments = mergeLists(definitionParams.appArguments, templateParams.appArguments),
-      additionalJars = mergeLists(definitionParams.additionalJars, templateParams.additionalJars),
-      additionalFiles = mergeLists(definitionParams.additionalFiles, templateParams.additionalFiles),
+      additionalJars = mergeLists(definitionParams.additionalJars, templateParams.additionalJars).map(jar => Paths.get(sparkYarnSinkConfig.executablesFolder, jar).toString),
+      additionalFiles = mergeLists(definitionParams.additionalFiles, templateParams.additionalFiles).map(file => Paths.get(sparkYarnSinkConfig.executablesFolder, file).toString),
       additionalSparkConfig = mergeMaps(definitionParams.additionalSparkConfig, templateParams.additionalSparkConfig, mergeSortedMapEntries)
     )
   }
 
   private def mergeSparkParameters(definitionParams: SparkDefinitionParameters, templateParams: SparkTemplateParameters): SparkInstanceParameters = {
     SparkInstanceParameters(
-      jobJar = mergeOptionStrings(definitionParams.jobJar, templateParams.jobJar),
+      jobJar = Paths.get(sparkYarnSinkConfig.executablesFolder, mergeOptionStrings(definitionParams.jobJar, templateParams.jobJar)).toString,
       mainClass = mergeOptionStrings(definitionParams.mainClass, templateParams.mainClass),
       appArguments = mergeLists(definitionParams.appArguments, templateParams.appArguments),
-      additionalJars = mergeLists(definitionParams.additionalJars, templateParams.additionalJars),
-      additionalFiles = mergeLists(definitionParams.additionalFiles, templateParams.additionalFiles),
+      additionalJars = mergeLists(definitionParams.additionalJars, templateParams.additionalJars).map(jar => Paths.get(sparkYarnSinkConfig.executablesFolder, jar).toString),
+      additionalFiles = mergeLists(definitionParams.additionalFiles, templateParams.additionalFiles).map(file => Paths.get(sparkYarnSinkConfig.executablesFolder, file).toString),
       additionalSparkConfig = mergeMaps(definitionParams.additionalSparkConfig, templateParams.additionalSparkConfig, mergeSortedMapEntries)
     )
   }
 
   private def mergeShellParameters(definitionParams: ShellDefinitionParameters, templateParams: ShellTemplateParameters): ShellInstanceParameters = {
     ShellInstanceParameters(
-      scriptLocation = definitionParams.scriptLocation.getOrElse(templateParams.scriptLocation.getOrElse(""))
+      scriptLocation = Paths.get(
+        shellExecutorConfig.executablesFolder, definitionParams.scriptLocation.getOrElse(templateParams.scriptLocation.getOrElse(""))
+      ).toString
     )
   }
 
