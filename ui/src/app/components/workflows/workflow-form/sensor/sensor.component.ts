@@ -29,8 +29,9 @@ import { WorkflowEntryUtil } from 'src/app/utils/workflowEntry/workflowEntry.uti
   styleUrls: ['./sensor.component.scss'],
 })
 export class SensorComponent implements OnInit, OnDestroy {
+  readonly SENSOR_TYPE_PROPERTY = 'properties.sensorType';
+
   @Input() isShow: boolean;
-  @Input() workflowFormParts: WorkflowFormPartsModel;
   @Input() sensorData: WorkflowEntryModel[];
   @Input() changes: Subject<Action>;
 
@@ -50,7 +51,7 @@ export class SensorComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.sensorChangesSubscription = this.sensorChanges.subscribe((sensorChange) => {
-      if (sensorChange.property == this.workflowFormParts.sensorSwitchPart.property) {
+      if (sensorChange.property == this.SENSOR_TYPE_PROPERTY) {
         this.changes.next(new WorkflowSensorTypeSwitched(WorkflowEntryModelFactory.create(sensorChange.property, sensorChange.value)));
       } else {
         this.changes.next(new WorkflowSensorChanged(WorkflowEntryModelFactory.create(sensorChange.property, sensorChange.value)));
@@ -59,8 +60,8 @@ export class SensorComponent implements OnInit, OnDestroy {
   }
 
   getSelectedSensorType(): string {
-    const selected = this.sensorData.find((value) => value.property == 'properties.sensorType');
-    return !!selected ? selected.value : sensorTypes.ABSA_KAFKA;
+    const selected = this.sensorData.find((value) => value.property == this.SENSOR_TYPE_PROPERTY);
+    return selected?.value ?? sensorTypes.ABSA_KAFKA;
   }
 
   ngOnDestroy(): void {

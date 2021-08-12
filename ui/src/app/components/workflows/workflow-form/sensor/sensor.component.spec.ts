@@ -16,13 +16,6 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { SensorComponent } from './sensor.component';
-import {
-  DynamicFormPartFactory,
-  DynamicFormPartsFactory,
-  FormPartFactory,
-  PartValidationFactory,
-  WorkflowFormPartsModelFactory,
-} from '../../../../models/workflowFormParts.model';
 import { WorkflowSensorChanged, WorkflowSensorTypeSwitched } from '../../../../stores/workflows/workflows.actions';
 import { WorkflowEntryModelFactory } from '../../../../models/workflowEntry.model';
 import { Subject } from 'rxjs';
@@ -38,32 +31,6 @@ describe('SensorComponent', () => {
     { property: 'propertyTwo', value: 'valueTwo' },
     { property: 'properties.sensorType', value: 'optionTwo' },
   ];
-  const workflowFormParts = WorkflowFormPartsModelFactory.create(
-    [],
-    FormPartFactory.create(
-      'switchPartName',
-      'switchPartProp',
-      'switchPartType',
-      PartValidationFactory.create(true),
-      new Map([
-        ['optionOne', 'optionOne'],
-        ['optionTwo', 'optionTwoLabel'],
-      ]),
-    ),
-    undefined,
-    undefined,
-    DynamicFormPartsFactory.create(
-      [
-        DynamicFormPartFactory.create('optionOne', [
-          FormPartFactory.create('partOne', 'partOne', 'partOne', PartValidationFactory.create(true)),
-        ]),
-        DynamicFormPartFactory.createWithLabel('optionTwo', 'optionTwoLabel', [
-          FormPartFactory.create('partTwo', 'partTwo', 'partTwo', PartValidationFactory.create(true)),
-        ]),
-      ],
-      [],
-    ),
-  );
 
   beforeEach(
     waitForAsync(() => {
@@ -79,7 +46,6 @@ describe('SensorComponent', () => {
 
     //set test data
     underTest.sensorData = sensorData;
-    underTest.workflowFormParts = workflowFormParts;
     underTest.changes = new Subject<Action>();
   });
 
@@ -108,7 +74,7 @@ describe('SensorComponent', () => {
   it(
     'should dispatch workflow sensor type switch when value for switch is received',
     waitForAsync(() => {
-      const usedWorkflowEntry = WorkflowEntryModelFactory.create(workflowFormParts.sensorSwitchPart.property, 'value');
+      const usedWorkflowEntry = WorkflowEntryModelFactory.create(underTest.SENSOR_TYPE_PROPERTY, 'value');
 
       fixture.detectChanges();
       fixture.whenStable().then(() => {
