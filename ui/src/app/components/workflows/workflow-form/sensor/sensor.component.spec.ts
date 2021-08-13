@@ -16,17 +16,11 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { SensorComponent } from './sensor.component';
-import {
-  DynamicFormPartFactory,
-  DynamicFormPartsFactory,
-  FormPartFactory,
-  PartValidationFactory,
-  WorkflowFormPartsModelFactory,
-} from '../../../../models/workflowFormParts.model';
 import { WorkflowSensorChanged, WorkflowSensorTypeSwitched } from '../../../../stores/workflows/workflows.actions';
 import { WorkflowEntryModelFactory } from '../../../../models/workflowEntry.model';
 import { Subject } from 'rxjs';
 import { Action } from '@ngrx/store';
+import { sensorTypes } from '../../../../constants/sensorTypes.constants';
 
 describe('SensorComponent', () => {
   let fixture: ComponentFixture<SensorComponent>;
@@ -35,34 +29,8 @@ describe('SensorComponent', () => {
   const sensorData = [
     { property: 'propertyOne', value: 'valueOne' },
     { property: 'propertyTwo', value: 'valueTwo' },
-    { property: 'switchPartProp', value: 'optionTwo' },
+    { property: 'properties.sensorType', value: 'optionTwo' },
   ];
-  const workflowFormParts = WorkflowFormPartsModelFactory.create(
-    [],
-    FormPartFactory.create(
-      'switchPartName',
-      'switchPartProp',
-      'switchPartType',
-      PartValidationFactory.create(true),
-      new Map([
-        ['optionOne', 'optionOne'],
-        ['optionTwo', 'optionTwoLabel'],
-      ]),
-    ),
-    undefined,
-    undefined,
-    DynamicFormPartsFactory.create(
-      [
-        DynamicFormPartFactory.create('optionOne', [
-          FormPartFactory.create('partOne', 'partOne', 'partOne', PartValidationFactory.create(true)),
-        ]),
-        DynamicFormPartFactory.createWithLabel('optionTwo', 'optionTwoLabel', [
-          FormPartFactory.create('partTwo', 'partTwo', 'partTwo', PartValidationFactory.create(true)),
-        ]),
-      ],
-      [],
-    ),
-  );
 
   beforeEach(
     waitForAsync(() => {
@@ -78,7 +46,6 @@ describe('SensorComponent', () => {
 
     //set test data
     underTest.sensorData = sensorData;
-    underTest.workflowFormParts = workflowFormParts;
     underTest.changes = new Subject<Action>();
   });
 
@@ -107,7 +74,7 @@ describe('SensorComponent', () => {
   it(
     'should dispatch workflow sensor type switch when value for switch is received',
     waitForAsync(() => {
-      const usedWorkflowEntry = WorkflowEntryModelFactory.create(workflowFormParts.sensorSwitchPart.property, 'value');
+      const usedWorkflowEntry = WorkflowEntryModelFactory.create(underTest.SENSOR_TYPE_PROPERTY, 'value');
 
       fixture.detectChanges();
       fixture.whenStable().then(() => {
@@ -124,62 +91,27 @@ describe('SensorComponent', () => {
   );
 
   it(
-    'getSensorTypes() should return sensor types',
-    waitForAsync(() => {
-      fixture.detectChanges();
-      fixture.whenStable().then(() => {
-        const result = underTest.getSensorTypes();
-        expect(result).toEqual(workflowFormParts.sensorSwitchPart.options);
-      });
-    }),
-  );
-
-  it(
-    'getSelectedSensorComponent() should return first dynamic parts when no sensor is selected',
+    'getSelectedSensorType() should return absa-kafka sensor type when no sensor is selected',
     waitForAsync(() => {
       underTest.sensorData = [];
       fixture.detectChanges();
       fixture.whenStable().then(() => {
-        const resultLeft = underTest.getSelectedSensorComponent();
-        const resultRight = workflowFormParts.dynamicParts.sensorDynamicParts[0].parts;
+        const resultLeft = underTest.getSelectedSensorType();
+
+        expect(resultLeft).toEqual(sensorTypes.ABSA_KAFKA);
+      });
+    }),
+  );
+
+  it(
+    'getSelectedSensorType() should return sensor type when sensor is selected',
+    waitForAsync(() => {
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        const resultLeft = underTest.getSelectedSensorType();
+        const resultRight = sensorData[2].value;
 
         expect(resultLeft).toEqual(resultRight);
-      });
-    }),
-  );
-
-  it(
-    'getSelectedSensorComponent() should return dynamic parts when sensor is selected',
-    waitForAsync(() => {
-      fixture.detectChanges();
-      fixture.whenStable().then(() => {
-        const resultLeft = underTest.getSelectedSensorComponent();
-        const resultRight = workflowFormParts.dynamicParts.sensorDynamicParts[1].parts;
-
-        expect(resultLeft).toEqual(resultRight);
-      });
-    }),
-  );
-
-  it(
-    'getValue() should return value when property exists',
-    waitForAsync(() => {
-      fixture.detectChanges();
-      fixture.whenStable().then(() => {
-        const queriedDetail = sensorData[0];
-        expect(underTest.getValue(queriedDetail.property)).toBe(queriedDetail.value);
-      });
-    }),
-  );
-
-  it(
-    'getValue() should return undefined when property does not exist',
-    waitForAsync(() => {
-      const undefinedProperty = 'undefinedProperty';
-
-      fixture.detectChanges();
-      fixture.whenStable().then(() => {
-        expect(underTest.getValue(undefinedProperty)).toBe(undefined);
       });
     }),
   );

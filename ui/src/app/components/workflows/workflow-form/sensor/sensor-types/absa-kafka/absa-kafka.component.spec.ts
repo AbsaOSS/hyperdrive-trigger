@@ -15,37 +15,36 @@
 
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
-import { WorkflowDetailsComponent } from './workflow-details.component';
-import { WorkflowEntryModelFactory } from '../../../../models/workflowEntry.model';
-import { WorkflowDetailsChanged } from '../../../../stores/workflows/workflows.actions';
 import { Subject } from 'rxjs';
 import { Action } from '@ngrx/store';
+import { AbsaKafkaComponent } from './absa-kafka.component';
+import { WorkflowEntryModelFactory } from '../../../../../../models/workflowEntry.model';
+import { WorkflowSensorChanged } from '../../../../../../stores/workflows/workflows.actions';
 
-describe('WorkflowDetailsComponent', () => {
-  let fixture: ComponentFixture<WorkflowDetailsComponent>;
-  let underTest: WorkflowDetailsComponent;
+describe('AbsaKafkaComponent', () => {
+  let fixture: ComponentFixture<AbsaKafkaComponent>;
+  let underTest: AbsaKafkaComponent;
 
   const sensorData = [
     { property: 'propertyOne', value: 'valueOne' },
     { property: 'propertyTwo', value: 'valueTwo' },
+    { property: 'switchPartProp', value: 'optionTwo' },
   ];
-  const parts = [];
 
   beforeEach(
     waitForAsync(() => {
       TestBed.configureTestingModule({
-        declarations: [WorkflowDetailsComponent],
+        declarations: [AbsaKafkaComponent],
       }).compileComponents();
     }),
   );
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(WorkflowDetailsComponent);
+    fixture = TestBed.createComponent(AbsaKafkaComponent);
     underTest = fixture.componentInstance;
 
     //set test data
-    underTest.data = sensorData;
-    underTest.parts = parts;
+    underTest.sensorData = sensorData;
     underTest.changes = new Subject<Action>();
   });
 
@@ -54,18 +53,18 @@ describe('WorkflowDetailsComponent', () => {
   });
 
   it(
-    'should dispatch workflow details change when value is received',
+    'should dispatch workflow sensor change when value is received',
     waitForAsync(() => {
       const usedWorkflowEntry = WorkflowEntryModelFactory.create('property', 'value');
       fixture.detectChanges();
       fixture.whenStable().then(() => {
         const storeSpy = spyOn(underTest.changes, 'next');
-        underTest.detailsChanges.next(usedWorkflowEntry);
+        underTest.sensorChanges.next(usedWorkflowEntry);
         fixture.detectChanges();
 
         fixture.whenStable().then(() => {
           expect(storeSpy).toHaveBeenCalledTimes(1);
-          expect(storeSpy).toHaveBeenCalledWith(new WorkflowDetailsChanged(usedWorkflowEntry));
+          expect(storeSpy).toHaveBeenCalledWith(new WorkflowSensorChanged(usedWorkflowEntry));
         });
       });
     }),

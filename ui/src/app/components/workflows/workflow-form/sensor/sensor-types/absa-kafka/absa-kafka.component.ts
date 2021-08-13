@@ -14,33 +14,25 @@
  */
 
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { workflowModes } from '../../../../models/enums/workflowModes.constants';
 import { Subject, Subscription } from 'rxjs';
 import { Action } from '@ngrx/store';
-import { WorkflowSensorChanged, WorkflowSensorTypeSwitched } from '../../../../stores/workflows/workflows.actions';
-import { PartValidationFactory, WorkflowFormPartsModel } from '../../../../models/workflowFormParts.model';
-import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../models/workflowEntry.model';
-import { sensorTypes, sensorTypesArray } from '../../../../constants/sensorTypes.constants';
+import { PartValidationFactory } from '../../../../../../models/workflowFormParts.model';
+import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../../models/workflowEntry.model';
+import { WorkflowSensorChanged } from '../../../../../../stores/workflows/workflows.actions';
 import { WorkflowEntryUtil } from 'src/app/utils/workflowEntry/workflowEntry.util';
 
 @Component({
-  selector: 'app-sensor',
-  templateUrl: './sensor.component.html',
-  styleUrls: ['./sensor.component.scss'],
+  selector: 'app-absa-kafka',
+  templateUrl: './absa-kafka.component.html',
+  styleUrls: ['./absa-kafka.component.scss'],
 })
-export class SensorComponent implements OnInit, OnDestroy {
-  readonly SENSOR_TYPE_PROPERTY = 'properties.sensorType';
-
+export class AbsaKafkaComponent implements OnInit, OnDestroy {
   @Input() isShow: boolean;
   @Input() sensorData: WorkflowEntryModel[];
   @Input() changes: Subject<Action>;
 
   WorkflowEntryUtil = WorkflowEntryUtil;
   PartValidationFactory = PartValidationFactory;
-
-  workflowModes = workflowModes;
-  sensorTypesArray = sensorTypesArray;
-  sensorTypes = sensorTypes;
 
   sensorChanges: Subject<WorkflowEntryModel> = new Subject<WorkflowEntryModel>();
   sensorChangesSubscription: Subscription;
@@ -51,17 +43,8 @@ export class SensorComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.sensorChangesSubscription = this.sensorChanges.subscribe((sensorChange) => {
-      if (sensorChange.property == this.SENSOR_TYPE_PROPERTY) {
-        this.changes.next(new WorkflowSensorTypeSwitched(WorkflowEntryModelFactory.create(sensorChange.property, sensorChange.value)));
-      } else {
-        this.changes.next(new WorkflowSensorChanged(WorkflowEntryModelFactory.create(sensorChange.property, sensorChange.value)));
-      }
+      this.changes.next(new WorkflowSensorChanged(WorkflowEntryModelFactory.create(sensorChange.property, sensorChange.value)));
     });
-  }
-
-  getSelectedSensorType(): string {
-    const selected = this.sensorData.find((value) => value.property == this.SENSOR_TYPE_PROPERTY);
-    return selected?.value ?? sensorTypes.ABSA_KAFKA;
   }
 
   ngOnDestroy(): void {

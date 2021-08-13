@@ -18,8 +18,9 @@ import { workflowModes } from '../../../../models/enums/workflowModes.constants'
 import { Subject, Subscription } from 'rxjs';
 import { Action } from '@ngrx/store';
 import { WorkflowDetailsChanged } from '../../../../stores/workflows/workflows.actions';
-import { FormPart } from '../../../../models/workflowFormParts.model';
+import { FormPart, PartValidationFactory } from '../../../../models/workflowFormParts.model';
 import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../models/workflowEntry.model';
+import { WorkflowEntryUtil } from '../../../../utils/workflowEntry/workflowEntry.util';
 
 @Component({
   selector: 'app-workflow-details',
@@ -27,11 +28,14 @@ import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../model
   styleUrls: ['./workflow-details.component.scss'],
 })
 export class WorkflowDetailsComponent implements OnInit, OnDestroy {
-  @Input() mode: string;
+  @Input() isShow: boolean;
   @Input() parts: FormPart[];
   @Input() data: WorkflowEntryModel[];
   @Input() changes: Subject<Action>;
   @Input() projects: string[];
+
+  PartValidationFactory = PartValidationFactory;
+  WorkflowEntryUtil = WorkflowEntryUtil;
 
   workflowModes = workflowModes;
 
@@ -46,11 +50,6 @@ export class WorkflowDetailsComponent implements OnInit, OnDestroy {
     this.detailsChangesSubscription = this.detailsChanges.subscribe((newValue) => {
       this.changes.next(new WorkflowDetailsChanged(WorkflowEntryModelFactory.create(newValue.property, newValue.value)));
     });
-  }
-
-  getValue(prop: string) {
-    const val = this.data.find((value) => value.property == prop);
-    return !!val ? val.value : undefined;
   }
 
   ngOnDestroy(): void {

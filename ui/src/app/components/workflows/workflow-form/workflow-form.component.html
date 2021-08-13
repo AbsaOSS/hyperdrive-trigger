@@ -89,7 +89,7 @@
           </div>
           <div [hidden]="isDetailsAccordionHidden" class="accordion-content">
             <app-workflow-details
-              [mode]="mode"
+              [isShow]="mode == workflowModes.SHOW || mode == workflowModes.COMPARISON"
               [parts]="workflowFormParts.detailsParts"
               [data]="workflowData.details"
               [changes]="changes"
@@ -107,8 +107,7 @@
           </div>
           <div [hidden]="isSensorAccordionHidden" class="accordion-content">
             <app-sensor
-              [mode]="mode"
-              [workflowFormParts]="workflowFormParts"
+              [isShow]="mode == workflowModes.SHOW || mode == workflowModes.COMPARISON"
               [sensorData]="workflowData.sensor"
               [changes]="changes">
             </app-sensor>
