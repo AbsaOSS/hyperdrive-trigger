@@ -87,6 +87,10 @@ import { DurationPartComponent } from './components/workflows/workflow-form/dyna
 import { NotificationRuleComponent } from './components/admin/notification-rules/notification-rule/notification-rule.component';
 import { NotificationRuleComparisonComponent } from './components/admin/notification-rules/notification-rule-history/notification-rule-comparison/notification-rule-comparison.component';
 import { NotificationRuleHistoryComponent } from './components/admin/notification-rules/notification-rule-history/notification-rule-history.component';
+import { RecurringComponent } from './components/workflows/workflow-form/sensor/sensor-types/recurring/recurring.component';
+import { TimeComponent } from './components/workflows/workflow-form/sensor/sensor-types/time/time.component';
+import { KafkaComponent } from './components/workflows/workflow-form/sensor/sensor-types/kafka/kafka.component';
+import { AbsaKafkaComponent } from './components/workflows/workflow-form/sensor/sensor-types/absa-kafka/absa-kafka.component';
 
 @NgModule({
   declarations: [
@@ -103,6 +107,10 @@ import { NotificationRuleHistoryComponent } from './components/admin/notificatio
     WorkflowComponent,
     WorkflowDetailsComponent,
     SensorComponent,
+    RecurringComponent,
+    TimeComponent,
+    KafkaComponent,
+    AbsaKafkaComponent,
     JobsComponent,
     JobComponent,
     StringPartComponent,
