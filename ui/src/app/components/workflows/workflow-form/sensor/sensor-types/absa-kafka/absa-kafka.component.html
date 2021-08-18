@@ -15,25 +15,24 @@
 
 <app-string-part
   [isShow]="isShow"
-  [name]="'Workflow name'"
-  [valueChanges]="detailsChanges"
-  [value]="WorkflowEntryUtil.getValue('name', data)"
-  [property]="'name'"
-  [partValidation]="PartValidationFactory.create(true, 45, 1)">
-</app-string-part>
-<app-string-with-suggestions-part
-  [isShow]="isShow"
-  [name]="'Project name'"
-  [valueChanges]="detailsChanges"
-  [value]="WorkflowEntryUtil.getValue('project', data)"
-  [property]="'project'"
-  [options]="projects"
+  [name]="'Topic'"
+  [valueChanges]="sensorChanges"
+  [value]="WorkflowEntryUtil.getValue('properties.topic', sensorData)"
+  [property]="'properties.topic'"
   [partValidation]="PartValidationFactory.create(true, undefined, 1)">
-</app-string-with-suggestions-part>
-<app-boolean-part
+</app-string-part>
+<app-string-sequence-part
   [isShow]="isShow"
-  [name]="'Is active'"
-  [valueChanges]="detailsChanges"
-  [value]="WorkflowEntryUtil.getValue('isActive', data)"
-  [property]="'isActive'">
-</app-boolean-part>
+  [name]="'Kafka servers'"
+  [valueChanges]="sensorChanges"
+  [value]="WorkflowEntryUtil.getValue('properties.servers', sensorData)"
+  [property]="'properties.servers'"
+  [partValidation]="PartValidationFactory.create(true, undefined, 1)">
+</app-string-sequence-part>
+<app-guid-part
+  [isShow]="isShow"
+  [name]="'Ingestion token'"
+  [valueChanges]="sensorChanges"
+  [value]="WorkflowEntryUtil.getValue('properties.ingestionToken', sensorData)"
+  [property]="'properties.ingestionToken'">
+</app-guid-part>
