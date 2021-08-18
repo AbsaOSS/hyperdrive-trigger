@@ -18,17 +18,16 @@ package za.co.absa.hyperdrive.trigger.scheduler.executors.shell
 import org.slf4j.LoggerFactory
 import za.co.absa.hyperdrive.trigger.models.{JobInstance, ShellInstanceParameters}
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses._
-import za.co.absa.hyperdrive.trigger.scheduler.executors.{Executor, ExecutorConfig}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.sys.process._
 import scala.util.Try
 
-object ShellExecutor extends Executor[ShellInstanceParameters] {
+object ShellExecutor {
   private val logger = LoggerFactory.getLogger(this.getClass)
 
-  override def execute(jobInstance: JobInstance, jobParameters: ShellInstanceParameters, updateJob: JobInstance => Future[Unit])
-                      (implicit executionContext: ExecutionContext, executorConfig: ExecutorConfig): Future[Unit] = {
+  def execute(jobInstance: JobInstance, jobParameters: ShellInstanceParameters, updateJob: JobInstance => Future[Unit])
+             (implicit executionContext: ExecutionContext): Future[Unit] = {
     jobInstance.jobStatus match {
       case status if status == InQueue => executeJob(jobInstance, jobParameters, updateJob)
       case status if status == Running => updateJob(jobInstance.copy(jobStatus = Failed))

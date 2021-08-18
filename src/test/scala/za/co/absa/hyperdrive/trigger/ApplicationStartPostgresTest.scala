@@ -40,7 +40,7 @@ class ApplicationStartPostgresTest extends FlatSpec with Matchers with SpringInt
   @Inject() var notificationConfig: NotificationConfig = _
   @Inject() var schedulerConfig: SchedulerConfig = _
   @Inject() var shellExecutorConfig: ShellExecutorConfig = _
-  @Inject() var sparkYarnSinkConfig: SparkYarnSinkConfig = _
+  @Inject() var sparkConfig: SparkConfig = _
 
   override val dbProvider: DatabaseProvider = new DatabaseProvider(TestDatabaseConfig(Map())) {
     override lazy val db: DatabaseProvider.profile.backend.DatabaseDef = injectedDbProvider.db
@@ -77,15 +77,16 @@ class ApplicationStartPostgresTest extends FlatSpec with Matchers with SpringInt
     kafkaConfig.properties.getProperty("value.deserializer") shouldBe "org.apache.kafka.common.serialization.StringDeserializer"
     kafkaConfig.properties.getProperty("max.poll.records") shouldBe "100"
     kafkaConfig.properties.getProperty("security.protocol") shouldBe "PLAINTEXT"
-    sparkYarnSinkConfig.hadoopResourceManagerUrlBase shouldBe "http://localhost:8088"
-    sparkYarnSinkConfig.hadoopConfDir shouldBe "/opt/hadoop"
-    sparkYarnSinkConfig.sparkHome shouldBe "/opt/spark"
-    sparkYarnSinkConfig.master shouldBe "yarn"
-    sparkYarnSinkConfig.submitTimeout shouldBe 160000
-    sparkYarnSinkConfig.executablesFolder shouldBe ""
-    sparkYarnSinkConfig.filesToDeploy shouldBe Seq()
-    sparkYarnSinkConfig.additionalConfs shouldBe Map()
-    sparkYarnSinkConfig.userUsedToKillJob shouldBe "Unknown"
+    sparkConfig.submitApi shouldBe "yarn"
+    sparkConfig.hadoopResourceManagerUrlBase shouldBe "http://localhost:8088"
+    sparkConfig.yarn.hadoopConfDir shouldBe "/opt/hadoop"
+    sparkConfig.yarn.sparkHome shouldBe "/opt/spark"
+    sparkConfig.yarn.master shouldBe "yarn"
+    sparkConfig.yarn.submitTimeout shouldBe 160000
+    sparkConfig.yarn.executablesFolder shouldBe ""
+    sparkConfig.yarn.filesToDeploy shouldBe Seq()
+    sparkConfig.yarn.additionalConfs shouldBe Map()
+    sparkConfig.userUsedToKillJob shouldBe "Unknown"
     notificationConfig.senderAddress shouldBe "sender <sender@abc.com>"
     notificationConfig.enabled shouldBe true
 
