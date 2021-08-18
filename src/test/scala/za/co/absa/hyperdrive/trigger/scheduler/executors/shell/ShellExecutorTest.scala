@@ -15,22 +15,21 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.executors.shell
 
+import org.mockito.ArgumentMatchers
+import org.mockito.ArgumentMatchers._
+import org.mockito.Mockito._
+import org.scalatest.mockito.MockitoSugar
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FlatSpec, Matchers}
+import za.co.absa.hyperdrive.trigger.configuration.application.ShellExecutorConfig
+import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses._
+import za.co.absa.hyperdrive.trigger.models.{JobInstance, ShellInstanceParameters}
+
 import java.nio.file.Paths
 import java.time.LocalDateTime
 import java.util.concurrent.TimeUnit
-import org.mockito.ArgumentMatchers
-import org.scalatest.mockito.MockitoSugar
-import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FlatSpec, Matchers}
-import za.co.absa.hyperdrive.trigger.models.{JobInstance, ShellInstanceParameters}
-import org.mockito.Mockito._
-import org.mockito.ArgumentMatchers._
-import za.co.absa.hyperdrive.trigger.configuration.application.{ShellExecutorConfig, TestSparkYarnSinkConfig}
-import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.{Failed, InQueue, Lost, Running, Submitting, Succeeded}
-import za.co.absa.hyperdrive.trigger.scheduler.executors.ExecutorConfig
-
-import scala.concurrent.{Await, Future}
-import scala.concurrent.duration.Duration
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Future}
 
 class ShellExecutorTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with MockitoSugar {
 
@@ -50,7 +49,6 @@ class ShellExecutorTest extends FlatSpec with Matchers with BeforeAndAfterAll wi
   )
 
   private val shellExecutorConfig = new ShellExecutorConfig("src/test/resources")
-  private implicit val executorConfig: ExecutorConfig = new ExecutorConfig(TestSparkYarnSinkConfig())
 
   override def beforeEach: Unit = {
     org.mockito.Mockito.reset(updateJobStub)

@@ -21,11 +21,9 @@ import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito.{reset, times, verify, when}
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
-import org.springframework.mail.SimpleMailMessage
-import org.springframework.mail.javamail.JavaMailSenderImpl
 import za.co.absa.hyperdrive.trigger.TestUtils.await
 import za.co.absa.hyperdrive.trigger.api.rest.services.NotificationRuleService
-import za.co.absa.hyperdrive.trigger.configuration.application.{TestGeneralConfig, TestNotificationConfig, TestSparkYarnSinkConfig}
+import za.co.absa.hyperdrive.trigger.configuration.application.{TestGeneralConfig, TestNotificationConfig, TestSparkConfig}
 import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.InQueue
 import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobStatuses}
@@ -43,7 +41,7 @@ class NotificationSenderTest extends FlatSpec with MockitoSugar with Matchers wi
   private val environment = "TEST"
 
   private val underTest = new NotificationSenderImpl(notificationRuleService, emailService,
-    TestSparkYarnSinkConfig(hadoopResourceManagerUrlBase = clusterBaseUrl), TestNotificationConfig(enabled = true, senderAddress),
+    TestSparkConfig(hadoopResourceManagerUrlBase = clusterBaseUrl), TestNotificationConfig(enabled = true, senderAddress),
     TestGeneralConfig(environment = environment))
 
   before {

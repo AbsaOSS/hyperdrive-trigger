@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -13,13 +14,14 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.scheduler.executors
+package za.co.absa.hyperdrive.trigger.configuration.application
 
-import za.co.absa.hyperdrive.trigger.models.{JobInstance, JobInstanceParameters}
+import com.amazonaws.regions.Regions
+import javax.validation.{ConstraintValidator, ConstraintValidatorContext}
+import scala.util.Try
 
-import scala.concurrent.{ExecutionContext, Future}
-
-trait Executor[T <: JobInstanceParameters] {
-  def execute(jobInstance: JobInstance, jobParameters: T, updateJob: JobInstance => Future[Unit])
-             (implicit executionContext: ExecutionContext, executorConfig: ExecutorConfig): Future[Unit]
+class AwsRegionValidator extends ConstraintValidator[AwsRegion, String]{
+  override def isValid(awsRegion: String, constraintValidatorContext: ConstraintValidatorContext): Boolean = {
+    awsRegion == null || awsRegion.isEmpty || Try(Regions.fromName(awsRegion)).isSuccess
+  }
 }
