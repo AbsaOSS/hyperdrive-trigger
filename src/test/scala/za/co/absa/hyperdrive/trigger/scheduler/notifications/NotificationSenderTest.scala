@@ -62,7 +62,7 @@ class NotificationSenderTest extends FlatSpec with MockitoSugar with Matchers wi
     val w = createWorkflow()
 
     when(notificationRuleService.getMatchingNotificationRules(eqTo(di.workflowId), eqTo(di.status))(any())).thenReturn(
-      Future { (Seq(nr1, nr2), w) }
+      Future { Some(Seq(nr1, nr2), w) }
     )
 
     // when
@@ -110,7 +110,7 @@ class NotificationSenderTest extends FlatSpec with MockitoSugar with Matchers wi
     val w = createWorkflow()
 
     when(notificationRuleService.getMatchingNotificationRules(eqTo(di.workflowId), eqTo(di.status))(any())).thenReturn(
-      Future { (Seq(nr1), w) }
+      Future { Some(Seq(nr1), w) }
     )
 
     // when
