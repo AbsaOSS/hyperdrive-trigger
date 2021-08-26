@@ -15,14 +15,13 @@
 
 package za.co.absa.hyperdrive.trigger.persistance
 
-import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FlatSpec, Matchers}
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FlatSpec, OptionValues, Matchers}
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses._
 import za.co.absa.hyperdrive.trigger.models.{DagInstance, NotificationRule, Workflow}
 
 import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
-import org.scalatest.OptionValues
 
 class NotificationRuleRepositoryPostgresTest extends FlatSpec with Matchers with BeforeAndAfterAll
   with BeforeAndAfterEach with RepositoryPostgresTestBase with OptionValues {
@@ -66,7 +65,7 @@ class NotificationRuleRepositoryPostgresTest extends FlatSpec with Matchers with
     result.value._2 shouldBe w1
   }
 
-  it should "not fail when there are no matching rules" in {
+  it should "return None when there are no matching rules" in {
     val result = await(notificationRuleRepository.getMatchingNotificationRules(42L, InQueue, LocalDateTime.now()))
     result shouldBe None
   }
