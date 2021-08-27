@@ -70,9 +70,10 @@ class SparkConfigNestedClassesValidatorTest extends FlatSpec with MockitoSugar w
   }
 
   it should "return true for submitApi = emr" in {
-    val config = baseSparkConfig.copy(emr = baseSparkConfig.emr.copy(
-      clusterId = "abc"
-    )).toSparkConfig
+    val config = baseSparkConfig.copy(
+      submitApi = "emr",
+      emr = baseSparkConfig.emr.copy(clusterId = "abc")
+    ).toSparkConfig
 
     val isValid = underTest.isValid(config, mockContext)
 

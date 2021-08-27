@@ -71,7 +71,7 @@ class SparkConfigNestedClassesValidator extends ConstraintValidator[SparkConfigN
     if (emrIsNull) {
       false
     } else {
-      val regionValid = sparkConfig.emr.region.isDefined && Try(Regions.fromName(sparkConfig.emr.region.get)).isSuccess
+      val regionValid = sparkConfig.emr.region.isEmpty || Try(Regions.fromName(sparkConfig.emr.region.get)).isSuccess
       validateConstraints(Seq(
         Constraint(notNullValidator.isValid(sparkConfig.emr, context),
           "spark.submitApi", "If spark.submitApi is emr, spark.emr arguments are required"),
