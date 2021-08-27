@@ -29,8 +29,6 @@ class SparkConfigNestedClassesValidator extends ConstraintValidator[SparkConfigN
   private val notBlankValidator = new NotBlankValidator
   private val notNullMessage = "must not be null"
   private val notBlankMessage = "must no be blank"
-  
-  
   private case class Constraint(isValid: Boolean, field: String, message: String)
 
   override def isValid(sparkConfig: SparkConfig, constraintValidatorContext: ConstraintValidatorContext): Boolean = {
@@ -39,36 +37,49 @@ class SparkConfigNestedClassesValidator extends ConstraintValidator[SparkConfigN
     } else if (sparkConfig.submitApi == "emr") {
       validateSparkEmr(sparkConfig)(constraintValidatorContext)
     } else {
-      throw new RuntimeException("spark.submitApi has to be either 'yarn' or 'emr'")
+      addConstraintViolation("spark.submitApi", "spark.submitApi has to be either 'yarn' or 'emr'")(constraintValidatorContext)
+      false
     }
   }
 
   private def validateSparkYarnSink(sparkConfig: SparkConfig)(implicit context: ConstraintValidatorContext): Boolean = {
-    validateConstraints(Seq(
+    val yarnIsNull = !validateConstraints(Seq(
       Constraint(notNullValidator.isValid(sparkConfig.yarn, context),
-        "spark.submitApi", "If spark.submitApi is yarn, sparkYarnSink arguments are required"),
-      Constraint(notNullValidator.isValid(sparkConfig.yarn.submitTimeout, context),
-        "sparkYarnSink.submitTimeout", notNullMessage),
-      Constraint(notBlankValidator.isValid(sparkConfig.yarn.hadoopConfDir, context), 
-        "sparkYarnSink.hadoopConfDir", notBlankMessage),
-      Constraint(notBlankValidator.isValid(sparkConfig.yarn.master, context),
-        "sparkYarnSink.master", notBlankMessage),
-      Constraint(notBlankValidator.isValid(sparkConfig.yarn.sparkHome, context),
-        "sparkYarnSink.sparkHome", notBlankMessage),
-      Constraint(notNullValidator.isValid(sparkConfig.yarn.executablesFolder, context),
-        "sparkYarnSink.executablesFolder", notNullMessage)
-    ))
+        "spark.submitApi", "If spark.submitApi is yarn, sparkYarnSink arguments are required")))
+    if (yarnIsNull) {
+      false
+    } else {
+      validateConstraints(Seq(
+        Constraint(sparkConfig.yarn.submitTimeout > 0,
+          "sparkYarnSink.submitTimeout", "must be > 0"),
+        Constraint(notBlankValidator.isValid(sparkConfig.yarn.hadoopConfDir, context),
+          "sparkYarnSink.hadoopConfDir", notBlankMessage),
+        Constraint(notBlankValidator.isValid(sparkConfig.yarn.master, context),
+          "sparkYarnSink.master", notBlankMessage),
+        Constraint(notBlankValidator.isValid(sparkConfig.yarn.sparkHome, context),
+          "sparkYarnSink.sparkHome", notBlankMessage),
+        Constraint(notNullValidator.isValid(sparkConfig.yarn.executablesFolder, context),
+          "sparkYarnSink.executablesFolder", notNullMessage)
+      ))
+    }
   }
 
   private def validateSparkEmr(sparkConfig: SparkConfig)(implicit context: ConstraintValidatorContext): Boolean = {
-    val regionValid = sparkConfig.emr.region.isDefined && Try(Regions.fromName(sparkConfig.emr.region.get)).isFailure
-    validateConstraints(Seq(
+    val emrIsNull = !validateConstraints(Seq(
       Constraint(notNullValidator.isValid(sparkConfig.emr, context),
-        "spark.submitApi", "If spark.submitApi is emr, spark.emr arguments are required"),
-      Constraint(notBlankValidator.isValid(sparkConfig.emr.clusterId, context),
-        "spark.emr.clusterId", notBlankMessage),
-      Constraint(regionValid, "spark.emr.region", "must be a valid aws region string")
-    ))
+        "spark.submitApi", "If spark.submitApi is emr, spark.emr arguments are required")))
+    if (emrIsNull) {
+      false
+    } else {
+      val regionValid = sparkConfig.emr.region.isDefined && Try(Regions.fromName(sparkConfig.emr.region.get)).isSuccess
+      validateConstraints(Seq(
+        Constraint(notNullValidator.isValid(sparkConfig.emr, context),
+          "spark.submitApi", "If spark.submitApi is emr, spark.emr arguments are required"),
+        Constraint(notBlankValidator.isValid(sparkConfig.emr.clusterId, context),
+          "spark.emr.clusterId", notBlankMessage),
+        Constraint(regionValid, "spark.emr.region", "must be a valid aws region string")
+      ))
+    }
   }
 
   private def validateConstraints(constraints: Seq[Constraint])(implicit context: ConstraintValidatorContext): Boolean = {
@@ -77,6 +88,8 @@ class SparkConfigNestedClassesValidator extends ConstraintValidator[SparkConfigN
   }
   
   private def addConstraintViolation(field: String, message: String)(implicit context: ConstraintValidatorContext): Unit = {
-    context.buildConstraintViolationWithTemplate(message).addPropertyNode(field).addConstraintViolation()
+    context.buildConstraintViolationWithTemplate(message)
+      .addPropertyNode(field)
+      .addConstraintViolation()
   }
 }
