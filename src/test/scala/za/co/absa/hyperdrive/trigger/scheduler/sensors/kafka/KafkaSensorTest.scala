@@ -132,11 +132,11 @@ class KafkaSensorTest extends FlatSpec with MockitoSugar with Matchers with Befo
 
     withRunningKafka {
       val producer = createProducer()
-      val kafkaSensor1 = new AbsaKafkaSensor(eventProcessor1.eventProcessor("test"), sensor1, consumeFromLatest = true, executionContext = global)
+      val kafkaSensor1 = new AbsaKafkaSensor(eventProcessor1.eventProcessor("test"), sensor1, consumeFromLatest = true)
       for (_ <- 0 to maxPollRetries){ // hope that consumer will have been assigned partition and is ready to poll
         await(kafkaSensor1.poll())
       }
-      val kafkaSensor2 = new AbsaKafkaSensor(eventProcessor2.eventProcessor("test"), sensor2, consumeFromLatest = true, executionContext = global)
+      val kafkaSensor2 = new AbsaKafkaSensor(eventProcessor2.eventProcessor("test"), sensor2, consumeFromLatest = true)
       for (_ <- 0 to maxPollRetries){ // hope that consumer will have been assigned partition and is ready to poll
         await(kafkaSensor2.poll())
       }
@@ -176,7 +176,7 @@ class KafkaSensorTest extends FlatSpec with MockitoSugar with Matchers with Befo
       val producer = createProducer()
       // when
 
-      val kafkaSensor1 = new AbsaKafkaSensor(eventProcessor1.eventProcessor("test"), sensor, consumeFromLatest, global)
+      val kafkaSensor1 = new AbsaKafkaSensor(eventProcessor1.eventProcessor("test"), sensor, consumeFromLatest)
       for (_ <- 0 to maxPollRetries){ // hope that consumer will have been assigned partition and is ready to poll
         await(kafkaSensor1.poll())
       }
@@ -186,7 +186,7 @@ class KafkaSensorTest extends FlatSpec with MockitoSugar with Matchers with Befo
 
       publishToKafka(producer, notificationTopic, messagesWhileUnsubscribed)
 
-      val kafkaSensor2 = new AbsaKafkaSensor(eventProcessor2.eventProcessor("test"), sensor, consumeFromLatest, global)
+      val kafkaSensor2 = new AbsaKafkaSensor(eventProcessor2.eventProcessor("test"), sensor, consumeFromLatest)
       for (_ <- 0 to maxPollRetries){ // hope that consumer will have been assigned partition and is ready to poll
         await(kafkaSensor2.poll())
       }

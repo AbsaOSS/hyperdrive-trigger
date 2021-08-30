@@ -30,9 +30,9 @@ import scala.util.{Failure, Success}
 class RecurringSensor(
   eventsProcessor: (Seq[Event], Long) => Future[Boolean],
   sensorDefinition: SensorDefition[RecurringSensorProperties],
-  executionContext: ExecutionContext,
   dagInstanceRepository: DagInstanceRepository
-) extends PollSensor[RecurringSensorProperties](eventsProcessor, sensorDefinition, executionContext) {
+)(implicit executionContext: ExecutionContext)
+  extends PollSensor[RecurringSensorProperties](eventsProcessor, sensorDefinition, executionContext) {
   private val eventDateFormatter: DateTimeFormatter = DateTimeFormatter.ISO_INSTANT
 
   private val logger = LoggerFactory.getLogger(this.getClass)
