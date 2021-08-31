@@ -33,9 +33,8 @@ import za.co.absa.hyperdrive.trigger.models.{Sensor => SensorDefition}
 class KafkaSensor(
   eventsProcessor: (Seq[Event], Long) => Future[Boolean],
   sensorDefinition: SensorDefition[KafkaSensorProperties],
-  consumeFromLatest: Boolean = false,
-  executionContext: ExecutionContext
-)(implicit kafkaConfig: KafkaConfig, generalConfig: GeneralConfig)
+  consumeFromLatest: Boolean = false
+)(implicit kafkaConfig: KafkaConfig, generalConfig: GeneralConfig, executionContext: ExecutionContext)
   extends PollSensor[KafkaSensorProperties](eventsProcessor, sensorDefinition, executionContext) {
 
   private val logger = LoggerFactory.getLogger(this.getClass)
