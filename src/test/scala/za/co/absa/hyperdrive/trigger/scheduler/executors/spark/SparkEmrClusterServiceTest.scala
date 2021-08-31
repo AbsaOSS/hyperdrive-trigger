@@ -23,7 +23,7 @@ import org.mockito.Mockito.{verify, when}
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{AsyncFlatSpec, BeforeAndAfterAll, Matchers}
 import za.co.absa.hyperdrive.trigger.TestUtils.await
-import za.co.absa.hyperdrive.trigger.configuration.application.TestSparkConfig
+import za.co.absa.hyperdrive.trigger.configuration.application.DefaultTestSparkConfig
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.{InQueue, Submitting}
 import za.co.absa.hyperdrive.trigger.models.{JobInstance, SparkInstanceParameters}
 
@@ -34,7 +34,7 @@ class SparkEmrClusterServiceTest extends AsyncFlatSpec with Matchers with Mockit
   implicit override def executionContext: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
   private val mockEmrClient = mock[AmazonElasticMapReduce]
-  private val sparkConfig = TestSparkConfig.emr(
+  private val sparkConfig = DefaultTestSparkConfig.emr(
     filesToDeploy = Seq("/global/file/1", "/global/file/2"),
     additionalConfs = Map(
       "spark.driver.memory" -> "1g",

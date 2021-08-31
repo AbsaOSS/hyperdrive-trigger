@@ -29,6 +29,7 @@ import scala.annotation.meta.field
 @ConfigurationProperties
 @ConstructorBinding
 @Validated
+@SparkConfigNestedClasses
 class SparkConfig (
   @DefaultValue(Array("yarn"))
   @Name("spark.submitApi")
@@ -43,15 +44,7 @@ class SparkConfig (
   @DefaultValue(Array("Unknown"))
   @Name("sparkYarnSink.userUsedToKillJob")
   val userUsedToKillJob: String
-) {
-  if (submitApi == "yarn" && yarn == null) {
-    throw new RuntimeException("If spark.submitApi is yarn, sparkYarnSink arguments are required")
-  } else if (submitApi == "emr" && emr == null) {
-    throw new RuntimeException("If spark.submitApi is emr, spark.emr arguments are required")
-  } else if (submitApi != "yarn" && submitApi != "emr") {
-    throw new RuntimeException("spark.submitApi has to be either 'yarn' or 'emr'")
-  }
-}
+)
 
 object SparkConfig {
   def transformFilesProperty(filesToDeployInternal: String): Seq[String] = Option(filesToDeployInternal)
@@ -71,19 +64,14 @@ object SparkConfig {
 }
 
 class SparkYarnSinkConfig (
-  @NotNull
   val submitTimeout: Int,
-  @(NotBlank @field)
   val hadoopConfDir: String,
-  @(NotBlank @field)
   val master: String,
-  @(NotBlank @field)
   val sparkHome: String,
   @Name("filesToDeploy")
   filesToDeployInternal: String,
   @Name("additionalConfs")
   additionalConfsInternal: Properties,
-  @NotNull
   val executablesFolder: String
 ) {
   val filesToDeploy: Seq[String] = transformFilesProperty(filesToDeployInternal)
@@ -91,12 +79,10 @@ class SparkYarnSinkConfig (
 }
 
 class SparkEmrSinkConfig (
-  @NotNull
   val clusterId: String,
   @Name("awsProfile")
   awsProfileInternal: String,
   @Name("region")
-  @(AwsRegion @field)(message = "Not a valid aws region")
   val regionInternal: String,
   @Name("filesToDeploy")
   filesToDeployInternal: String,
