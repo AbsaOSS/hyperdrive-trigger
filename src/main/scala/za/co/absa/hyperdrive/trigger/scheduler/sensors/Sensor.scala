@@ -39,17 +39,15 @@ trait Sensor[T <: SensorProperties] {
 abstract class PollSensor[T <: SensorProperties](
   override val eventsProcessor: (Seq[Event], Long) => Future[Boolean],
   override val sensorDefinition: za.co.absa.hyperdrive.trigger.models.Sensor[T],
-  override val executionContext: ExecutionContext
+  override implicit val executionContext: ExecutionContext
 ) extends Sensor[T] {
-  implicit val ec: ExecutionContext = executionContext
   def poll(): Future[Unit]
 }
 
 abstract class PushSensor[T <: SensorProperties](
   override val eventsProcessor: (Seq[Event], Long) => Future[Boolean],
   override val sensorDefinition: za.co.absa.hyperdrive.trigger.models.Sensor[T],
-  override val executionContext: ExecutionContext
+  override implicit val executionContext: ExecutionContext
 ) extends Sensor[T] {
-  implicit val ec: ExecutionContext = executionContext
   def push: Seq[Event] => Future[Unit]
 }
