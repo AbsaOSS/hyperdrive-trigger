@@ -29,6 +29,7 @@ class SparkConfigNestedClassesValidator extends ConstraintValidator[SparkConfigN
   private val notBlankValidator = new NotBlankValidator
   private val notNullMessage = "must not be null"
   private val notBlankMessage = "must no be blank"
+  private val sparkSubmitApi = "spark.submitApi"
   private case class Constraint(isValid: Boolean, field: String, message: String)
 
   override def isValid(sparkConfig: SparkConfig, constraintValidatorContext: ConstraintValidatorContext): Boolean = {
@@ -37,7 +38,7 @@ class SparkConfigNestedClassesValidator extends ConstraintValidator[SparkConfigN
     } else if (sparkConfig.submitApi == "emr") {
       validateSparkEmr(sparkConfig)(constraintValidatorContext)
     } else {
-      addConstraintViolation("spark.submitApi", "spark.submitApi has to be either 'yarn' or 'emr'")(constraintValidatorContext)
+      addConstraintViolation(sparkSubmitApi, s"$sparkSubmitApi has to be either 'yarn' or 'emr'")(constraintValidatorContext)
       false
     }
   }
@@ -45,7 +46,7 @@ class SparkConfigNestedClassesValidator extends ConstraintValidator[SparkConfigN
   private def validateSparkYarnSink(sparkConfig: SparkConfig)(implicit context: ConstraintValidatorContext): Boolean = {
     val yarnIsNull = !validateConstraints(Seq(
       Constraint(notNullValidator.isValid(sparkConfig.yarn, context),
-        "spark.submitApi", "If spark.submitApi is yarn, sparkYarnSink arguments are required")))
+        sparkSubmitApi, s"If $sparkSubmitApi is yarn, sparkYarnSink arguments are required")))
     if (yarnIsNull) {
       false
     } else {
@@ -67,14 +68,14 @@ class SparkConfigNestedClassesValidator extends ConstraintValidator[SparkConfigN
   private def validateSparkEmr(sparkConfig: SparkConfig)(implicit context: ConstraintValidatorContext): Boolean = {
     val emrIsNull = !validateConstraints(Seq(
       Constraint(notNullValidator.isValid(sparkConfig.emr, context),
-        "spark.submitApi", "If spark.submitApi is emr, spark.emr arguments are required")))
+        sparkSubmitApi, s"If $sparkSubmitApi is emr, spark.emr arguments are required")))
     if (emrIsNull) {
       false
     } else {
       val regionValid = sparkConfig.emr.region.isEmpty || Try(Regions.fromName(sparkConfig.emr.region.get)).isSuccess
       validateConstraints(Seq(
         Constraint(notNullValidator.isValid(sparkConfig.emr, context),
-          "spark.submitApi", "If spark.submitApi is emr, spark.emr arguments are required"),
+          sparkSubmitApi, s"If $sparkSubmitApi is emr, spark.emr arguments are required"),
         Constraint(notBlankValidator.isValid(sparkConfig.emr.clusterId, context),
           "spark.emr.clusterId", notBlankMessage),
         Constraint(regionValid, "spark.emr.region", "must be a valid aws region string")

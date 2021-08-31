@@ -32,6 +32,7 @@ class SparkConfigNestedClassesValidatorTest extends FlatSpec with MockitoSugar w
   private val underTest = new SparkConfigNestedClassesValidator
   private val mockContext = mock[ConstraintValidatorContext]
   private val mockConstraintViolationBuilder = mock[ConstraintViolationBuilder]
+  private val sparkSubmitApi = "spark.submitApi"
   private val baseSparkConfig = TestSparkConfig(
     submitApi = "yarn",
     yarn = TestSparkYarnSinkConfig(
@@ -91,7 +92,7 @@ class SparkConfigNestedClassesValidatorTest extends FlatSpec with MockitoSugar w
 
     // then
     isValid shouldBe false
-    verify(mockConstraintViolationBuilder).addPropertyNode(eqTo("spark.submitApi"))
+    verify(mockConstraintViolationBuilder).addPropertyNode(eqTo(sparkSubmitApi))
   }
 
   it should "return false if submitApi is emr but no emr config is given" in {
@@ -105,7 +106,7 @@ class SparkConfigNestedClassesValidatorTest extends FlatSpec with MockitoSugar w
 
     // then
     isValid shouldBe false
-    verify(mockConstraintViolationBuilder).addPropertyNode(eqTo("spark.submitApi"))
+    verify(mockConstraintViolationBuilder).addPropertyNode(eqTo(sparkSubmitApi))
   }
 
   it should "return false if there are constraint violations in the yarn config" in {
@@ -163,6 +164,6 @@ class SparkConfigNestedClassesValidatorTest extends FlatSpec with MockitoSugar w
 
     underTest.isValid(config, mockContext)
 
-    verify(mockConstraintViolationBuilder).addPropertyNode(eqTo("spark.submitApi"))
+    verify(mockConstraintViolationBuilder).addPropertyNode(eqTo(sparkSubmitApi))
   }
 }
