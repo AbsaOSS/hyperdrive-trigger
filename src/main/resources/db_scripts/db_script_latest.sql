@@ -19,48 +19,48 @@ create table "workflow" (
   "project" VARCHAR NOT NULL,
   "created" TIMESTAMP NOT NULL,
   "updated" TIMESTAMP,
-  "scheduler_instance_id" BIGINT,
-  "id" BIGSERIAL NOT NULL PRIMARY KEY
+  "id" BIGSERIAL NOT NULL PRIMARY KEY,
+  "scheduler_instance_id" BIGINT
 );
 
 create table "job_instance" (
   "job_name" VARCHAR NOT NULL,
-  "job_parameters" JSONB NOT NULL DEFAULT '{}',
   "job_status" VARCHAR NOT NULL,
   "executor_job_id" VARCHAR,
-  "application_id" VARCHAR,
   "created" TIMESTAMP NOT NULL,
   "updated" TIMESTAMP,
   "order" INTEGER NOT NULL,
   "dag_instance_id" BIGINT NOT NULL,
-  "id" BIGSERIAL NOT NULL PRIMARY KEY
+  "id" BIGSERIAL NOT NULL PRIMARY KEY,
+  "application_id" VARCHAR,
+  "job_parameters" JSONB NOT NULL DEFAULT '{}'
 );
 
 create table "job_definition" (
   "dag_definition_id" BIGINT NOT NULL,
-  "job_template_id" BIGINT NOT NULL,
   "name" VARCHAR NOT NULL,
-  "job_parameters" JSONB NOT NULL DEFAULT '{}',
   "order" INTEGER NOT NULL,
-  "id" BIGSERIAL NOT NULL PRIMARY KEY
+  "id" BIGSERIAL NOT NULL PRIMARY KEY,
+  "job_template_id" BIGINT NOT NULL,
+  "job_parameters" JSONB NOT NULL DEFAULT '{}'
 );
 
 create table "sensor" (
   "workflow_id" BIGINT NOT NULL,
-  "properties" JSONB NOT NULL DEFAULT '{}',
   "sensor_type_old" VARCHAR,
   "variables_old" VARCHAR,
   "maps_old" VARCHAR,
   "match_properties_old" VARCHAR,
-  "id" BIGSERIAL NOT NULL PRIMARY KEY
+  "id" BIGSERIAL NOT NULL PRIMARY KEY,
+  "properties" JSONB NOT NULL DEFAULT '{}'
 );
 
 create table "event" (
   "sensor_event_id" VARCHAR(70) NOT NULL UNIQUE,
   "sensor_id" BIGINT NOT NULL,
-  "payload" JSONB NOT NULL,
   "dag_instance_id" BIGINT,
-  "id" BIGSERIAL NOT NULL PRIMARY KEY
+  "id" BIGSERIAL NOT NULL PRIMARY KEY,
+  "payload" JSONB NOT NULL
 );
 
 create table "dag_definition" (
@@ -70,11 +70,11 @@ create table "dag_definition" (
 
 create table "dag_instance" (
   "status" VARCHAR NOT NULL,
-  "triggered_by" VARCHAR NOT NULL,
   "workflow_id" BIGINT NOT NULL,
+  "id" BIGSERIAL NOT NULL PRIMARY KEY,
   "started" TIMESTAMP NOT NULL,
   "finished" TIMESTAMP,
-  "id" BIGSERIAL NOT NULL PRIMARY KEY
+  "triggered_by" VARCHAR NOT NULL
 );
 
 create table "workflow_history" (
@@ -88,9 +88,9 @@ create table "workflow_history" (
 
 create table "job_template" (
   "name" VARCHAR NOT NULL UNIQUE,
-  "job_parameters" JSONB NOT NULL DEFAULT '{}',
   "id" BIGSERIAL NOT NULL PRIMARY KEY,
-  "form_config" VARCHAR NOT NULL DEFAULT 'unknown'
+  "form_config" VARCHAR NOT NULL DEFAULT 'unknown',
+  "job_parameters" JSONB NOT NULL DEFAULT '{}'
 );
 
 create table "scheduler_instance" (
@@ -195,10 +195,10 @@ left join (
 left join workflow
     on workflow.id = dag_instance.workflow_id;
 
-insert into "job_template" ("name", "job_type", "form_config", "variables", "maps", "key_value_pairs")
-values ('Generic Spark Job', 'Spark', 'Spark', '{}', '{}', '{}');
-insert into "job_template" ("name", "job_type", "form_config", "variables", "maps", "key_value_pairs")
-values ('Generic Shell Job', 'Shell', 'Shell', '{}', '{}', '{}');
+insert into "job_template" ("name", "form_config", "job_parameters")
+values ('Generic Spark Job', 'Spark', '{"jobType": "Spark"}');
+insert into "job_template" ("name", "form_config", "job_parameters")
+values ('Generic Shell Job', 'Shell', '{"jobType": "Shell"}');
 
 CREATE INDEX job_instance_dag_instance_idx ON job_instance (dag_instance_id);
 CREATE INDEX dag_instance_workflow_id_idx ON dag_instance (workflow_id);
