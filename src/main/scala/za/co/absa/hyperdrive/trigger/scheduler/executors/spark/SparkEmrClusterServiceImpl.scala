@@ -60,6 +60,7 @@ class SparkEmrClusterServiceImpl @Inject()(sparkConfig: SparkConfig, emrClusterP
 
   private def getSparkArgs(id: String, jobName: String, jobParameters: SparkInstanceParameters) = {
     val config = sparkConfig.emr
+    val sparkSubmitConfs = Map("--deploy-mode" -> "cluster")
     val confs = Map("spark.yarn.tags" -> id) ++
       config.additionalConfs ++
       jobParameters.additionalSparkConfig ++
@@ -69,6 +70,7 @@ class SparkEmrClusterServiceImpl @Inject()(sparkConfig: SparkConfig, emrClusterP
       mainClass = jobParameters.mainClass,
       jobJar = jobParameters.jobJar,
       appName = jobName,
+      sparkSubmitConfs = sparkSubmitConfs,
       confs = confs,
       files = files,
       additionalJars = jobParameters.additionalJars,
