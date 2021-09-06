@@ -27,11 +27,10 @@ object DefaultTestSparkConfig {
     hadoopResourceManagerUrlBase: String = "",
     filesToDeploy: Seq[String] = Seq(),
     additionalConfs: Map[String, String] = Map(),
-    executablesFolder: String = "",
     userUsedToKillJob: String = "Unknown"
   ): SparkConfig = {
     new SparkConfig("yarn", new SparkYarnSinkConfig(submitTimeout, hadoopConfDir, master, sparkHome,
-      filesToDeploy.mkString(","), toProperties(additionalConfs), executablesFolder), null, hadoopResourceManagerUrlBase,
+      filesToDeploy.mkString(","), toProperties(additionalConfs)), null, hadoopResourceManagerUrlBase,
       userUsedToKillJob
     )
   }

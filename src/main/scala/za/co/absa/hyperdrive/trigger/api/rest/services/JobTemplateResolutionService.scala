@@ -16,9 +16,7 @@
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
 import org.springframework.stereotype.Service
-import za.co.absa.hyperdrive.trigger.api.rest.utils.PathResolverUtil
 import za.co.absa.hyperdrive.trigger.configuration.application.JobDefinitionConfig.{KeysToMerge, MergedValuesSeparator}
-import za.co.absa.hyperdrive.trigger.configuration.application.{ShellExecutorConfig, SparkConfig}
 import za.co.absa.hyperdrive.trigger.models._
 
 import scala.util.{Failure, Success, Try}
@@ -28,7 +26,7 @@ trait JobTemplateResolutionService {
 }
 
 @Service
-class JobTemplateResolutionServiceImpl(sparkConfig: SparkConfig, shellExecutorConfig: ShellExecutorConfig) extends JobTemplateResolutionService {
+class JobTemplateResolutionServiceImpl extends JobTemplateResolutionService {
   def resolveDagDefinitionJoined(dagDefinitionJoined: DagDefinitionJoined, jobTemplates: Seq[JobTemplate]): Seq[ResolvedJobDefinition] = {
     val jobTemplatesLookup = jobTemplates.map(t => t.id -> t).toMap
     dagDefinitionJoined.jobDefinitions.map(jd => {
@@ -63,31 +61,29 @@ class JobTemplateResolutionServiceImpl(sparkConfig: SparkConfig, shellExecutorCo
 
   private def mergeSparkAndHyperdriveParameters(definitionParams: HyperdriveDefinitionParameters, templateParams: SparkTemplateParameters): SparkInstanceParameters = {
     SparkInstanceParameters(
-      jobJar = PathResolverUtil.resolve(sparkConfig.yarn.executablesFolder, templateParams.jobJar.getOrElse("")),
+      jobJar = templateParams.jobJar.getOrElse(""),
       mainClass = templateParams.mainClass.getOrElse(""),
       appArguments = mergeLists(definitionParams.appArguments, templateParams.appArguments),
-      additionalJars = mergeLists(definitionParams.additionalJars, templateParams.additionalJars).map(jar => PathResolverUtil.resolve(sparkConfig.yarn.executablesFolder, jar)),
-      additionalFiles = mergeLists(definitionParams.additionalFiles, templateParams.additionalFiles).map(file => PathResolverUtil.resolve(sparkConfig.yarn.executablesFolder, file)),
+      additionalJars = mergeLists(definitionParams.additionalJars, templateParams.additionalJars),
+      additionalFiles = mergeLists(definitionParams.additionalFiles, templateParams.additionalFiles),
       additionalSparkConfig = mergeMaps(definitionParams.additionalSparkConfig, templateParams.additionalSparkConfig, mergeSortedMapEntries)
     )
   }
 
   private def mergeSparkParameters(definitionParams: SparkDefinitionParameters, templateParams: SparkTemplateParameters): SparkInstanceParameters = {
     SparkInstanceParameters(
-      jobJar = PathResolverUtil.resolve(sparkConfig.yarn.executablesFolder, mergeOptionStrings(definitionParams.jobJar, templateParams.jobJar)),
+      jobJar = mergeOptionStrings(definitionParams.jobJar, templateParams.jobJar),
       mainClass = mergeOptionStrings(definitionParams.mainClass, templateParams.mainClass),
       appArguments = mergeLists(definitionParams.appArguments, templateParams.appArguments),
-      additionalJars = mergeLists(definitionParams.additionalJars, templateParams.additionalJars).map(jar => PathResolverUtil.resolve(sparkConfig.yarn.executablesFolder, jar)),
-      additionalFiles = mergeLists(definitionParams.additionalFiles, templateParams.additionalFiles).map(file => PathResolverUtil.resolve(sparkConfig.yarn.executablesFolder, file)),
+      additionalJars = mergeLists(definitionParams.additionalJars, templateParams.additionalJars),
+      additionalFiles = mergeLists(definitionParams.additionalFiles, templateParams.additionalFiles),
       additionalSparkConfig = mergeMaps(definitionParams.additionalSparkConfig, templateParams.additionalSparkConfig, mergeSortedMapEntries)
     )
   }
 
   private def mergeShellParameters(definitionParams: ShellDefinitionParameters, templateParams: ShellTemplateParameters): ShellInstanceParameters = {
     ShellInstanceParameters(
-      scriptLocation = PathResolverUtil.resolve(
-        shellExecutorConfig.executablesFolder, definitionParams.scriptLocation.getOrElse(templateParams.scriptLocation.getOrElse(""))
-      )
+      scriptLocation = definitionParams.scriptLocation.getOrElse(templateParams.scriptLocation.getOrElse(""))
     )
   }
 

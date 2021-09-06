@@ -20,10 +20,9 @@ import za.co.absa.hyperdrive.trigger.models.enums.JobTypes
 import za.co.absa.hyperdrive.trigger.models.{DagDefinitionJoined, HyperdriveDefinitionParameters, JobDefinition, ShellDefinitionParameters, ShellInstanceParameters, ShellTemplateParameters, SparkDefinitionParameters, SparkInstanceParameters, SparkTemplateParameters}
 import za.co.absa.hyperdrive.trigger.api.rest.services.JobTemplateFixture.{GenericShellJobTemplate, GenericSparkJobTemplate}
 import za.co.absa.hyperdrive.trigger.api.rest.services.JobTemplateResolutionServiceImpl
-import za.co.absa.hyperdrive.trigger.configuration.application.{TestShellExecutorConfig, DefaultTestSparkConfig}
 
 class JobTemplateResolutionServiceTest extends FlatSpec with Matchers {
-  private val underTest = new JobTemplateResolutionServiceImpl(DefaultTestSparkConfig.apply(), TestShellExecutorConfig.apply())
+  private val underTest = new JobTemplateResolutionServiceImpl
 
   "resolveDagDefinition" should "return a ResolvedJobDefinition with the same jobType as in the template" in {
     // given
@@ -344,69 +343,6 @@ class JobTemplateResolutionServiceTest extends FlatSpec with Matchers {
 
     // then
     result.getMessage should include("template with id 1")
-  }
-
-  it should "correctly apply the executables folder when executables folder is not set" in {
-    // given
-    val underTest = new JobTemplateResolutionServiceImpl(DefaultTestSparkConfig.apply(executablesFolder = ""), TestShellExecutorConfig.apply())
-
-    val jobTemplate = GenericSparkJobTemplate
-    val jobJar = "s3://abc/xyz/ghi-123.jar"
-
-    val expectedResult = "s3://abc/xyz/ghi-123.jar"
-
-    val jobDefinition = createJobDefinition().copy(jobTemplateId = jobTemplate.id, jobParameters = SparkDefinitionParameters(
-      jobJar = Some(jobJar), mainClass = None
-    ))
-    val dagDefinitionJoined = createDagDefinitionJoined(jobDefinition)
-
-    // when
-    val resolvedJobDefinitions = underTest.resolveDagDefinitionJoined(dagDefinitionJoined, Seq(jobTemplate))
-
-    // then
-    val resolvedJobDefinition = resolvedJobDefinitions.head
-    resolvedJobDefinition.jobParameters.asInstanceOf[SparkInstanceParameters].jobJar shouldBe expectedResult
-  }
-
-  it should "correctly apply the executables folder when executables folder is set" in {
-    // given
-    val underTest = new JobTemplateResolutionServiceImpl(DefaultTestSparkConfig.apply(executablesFolder = "s3://"), TestShellExecutorConfig.apply())
-
-    val jobTemplate = GenericSparkJobTemplate
-    val jobJar = "abc/xyz/ghi-123.jar"
-    val expectedResult = "s3://abc/xyz/ghi-123.jar"
-    val jobDefinition = createJobDefinition().copy(jobTemplateId = jobTemplate.id, jobParameters = SparkDefinitionParameters(
-      jobJar = Some(jobJar), mainClass = None
-    ))
-    val dagDefinitionJoined = createDagDefinitionJoined(jobDefinition)
-
-    // when
-    val resolvedJobDefinitions = underTest.resolveDagDefinitionJoined(dagDefinitionJoined, Seq(jobTemplate))
-
-    // then
-    val resolvedJobDefinition = resolvedJobDefinitions.head
-    resolvedJobDefinition.jobParameters.asInstanceOf[SparkInstanceParameters].jobJar shouldBe expectedResult
-  }
-
-  it should "correctly apply the executables folder if executables folder is set and file path starts with slash" in {
-    // given
-    val underTest = new JobTemplateResolutionServiceImpl(DefaultTestSparkConfig.apply(executablesFolder = "s3://"), TestShellExecutorConfig.apply())
-
-    val jobTemplate = GenericSparkJobTemplate
-    val jobJar = "/abc/xyz/ghi-123.jar"
-    val expectedResult = "s3://abc/xyz/ghi-123.jar"
-
-    val jobDefinition = createJobDefinition().copy(jobTemplateId = jobTemplate.id, jobParameters = SparkDefinitionParameters(
-      jobJar = Some(jobJar), mainClass = None
-    ))
-    val dagDefinitionJoined = createDagDefinitionJoined(jobDefinition)
-
-    // when
-    val resolvedJobDefinitions = underTest.resolveDagDefinitionJoined(dagDefinitionJoined, Seq(jobTemplate))
-
-    // then
-    val resolvedJobDefinition = resolvedJobDefinitions.head
-    resolvedJobDefinition.jobParameters.asInstanceOf[SparkInstanceParameters].jobJar shouldBe expectedResult
   }
 
   private def createDagDefinitionJoined(jobDefinition: JobDefinition) = {
