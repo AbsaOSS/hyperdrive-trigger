@@ -76,6 +76,7 @@ class SparkEmrClusterServiceTest extends AsyncFlatSpec with Matchers with Mockit
     stepConfig.getHadoopJarStep.getJar shouldBe "command-runner.jar"
     stepConfig.getHadoopJarStep.getArgs should contain theSameElementsInOrderAs Seq(
       "spark-submit",
+      "--deploy-mode", "cluster",
       "--conf", "spark.executor.extraJavaOptions=-DGlobalExecutorOpt -DLocalExecutorOpt",
       "--conf", "spark.driver.memory=2g",
       "--conf", "spark.driver.extraJavaOptions=-DGlobalDriverOpt -DLocalDriverOpt",
