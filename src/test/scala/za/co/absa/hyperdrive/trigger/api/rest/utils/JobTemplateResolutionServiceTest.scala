@@ -346,6 +346,69 @@ class JobTemplateResolutionServiceTest extends FlatSpec with Matchers {
     result.getMessage should include("template with id 1")
   }
 
+  it should "correctly apply the executables folder when executables folder is not set" in {
+    // given
+    val underTest = new JobTemplateResolutionServiceImpl(DefaultTestSparkConfig.apply(executablesFolder = ""), TestShellExecutorConfig.apply())
+
+    val jobTemplate = GenericSparkJobTemplate
+    val jobJar = "s3://abc/xyz/ghi-123.jar"
+
+    val expectedResult = "s3://abc/xyz/ghi-123.jar"
+
+    val jobDefinition = createJobDefinition().copy(jobTemplateId = jobTemplate.id, jobParameters = SparkDefinitionParameters(
+      jobJar = Some(jobJar), mainClass = None
+    ))
+    val dagDefinitionJoined = createDagDefinitionJoined(jobDefinition)
+
+    // when
+    val resolvedJobDefinitions = underTest.resolveDagDefinitionJoined(dagDefinitionJoined, Seq(jobTemplate))
+
+    // then
+    val resolvedJobDefinition = resolvedJobDefinitions.head
+    resolvedJobDefinition.jobParameters.asInstanceOf[SparkInstanceParameters].jobJar shouldBe expectedResult
+  }
+
+  it should "correctly apply the executables folder when executables folder is set" in {
+    // given
+    val underTest = new JobTemplateResolutionServiceImpl(DefaultTestSparkConfig.apply(executablesFolder = "s3://"), TestShellExecutorConfig.apply())
+
+    val jobTemplate = GenericSparkJobTemplate
+    val jobJar = "abc/xyz/ghi-123.jar"
+    val expectedResult = "s3://abc/xyz/ghi-123.jar"
+    val jobDefinition = createJobDefinition().copy(jobTemplateId = jobTemplate.id, jobParameters = SparkDefinitionParameters(
+      jobJar = Some(jobJar), mainClass = None
+    ))
+    val dagDefinitionJoined = createDagDefinitionJoined(jobDefinition)
+
+    // when
+    val resolvedJobDefinitions = underTest.resolveDagDefinitionJoined(dagDefinitionJoined, Seq(jobTemplate))
+
+    // then
+    val resolvedJobDefinition = resolvedJobDefinitions.head
+    resolvedJobDefinition.jobParameters.asInstanceOf[SparkInstanceParameters].jobJar shouldBe expectedResult
+  }
+
+  it should "correctly apply the executables folder if executables folder is set and file path starts with slash" in {
+    // given
+    val underTest = new JobTemplateResolutionServiceImpl(DefaultTestSparkConfig.apply(executablesFolder = "s3://"), TestShellExecutorConfig.apply())
+
+    val jobTemplate = GenericSparkJobTemplate
+    val jobJar = "/abc/xyz/ghi-123.jar"
+    val expectedResult = "s3://abc/xyz/ghi-123.jar"
+
+    val jobDefinition = createJobDefinition().copy(jobTemplateId = jobTemplate.id, jobParameters = SparkDefinitionParameters(
+      jobJar = Some(jobJar), mainClass = None
+    ))
+    val dagDefinitionJoined = createDagDefinitionJoined(jobDefinition)
+
+    // when
+    val resolvedJobDefinitions = underTest.resolveDagDefinitionJoined(dagDefinitionJoined, Seq(jobTemplate))
+
+    // then
+    val resolvedJobDefinition = resolvedJobDefinitions.head
+    resolvedJobDefinition.jobParameters.asInstanceOf[SparkInstanceParameters].jobJar shouldBe expectedResult
+  }
+
   private def createDagDefinitionJoined(jobDefinition: JobDefinition) = {
     DagDefinitionJoined(jobDefinitions = Seq(jobDefinition))
   }

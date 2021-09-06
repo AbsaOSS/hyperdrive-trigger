@@ -16,11 +16,11 @@
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
 import org.springframework.stereotype.Service
+import za.co.absa.hyperdrive.trigger.api.rest.utils.PathResolverUtil
 import za.co.absa.hyperdrive.trigger.configuration.application.JobDefinitionConfig.{KeysToMerge, MergedValuesSeparator}
 import za.co.absa.hyperdrive.trigger.configuration.application.{ShellExecutorConfig, SparkConfig}
 import za.co.absa.hyperdrive.trigger.models._
 
-import java.nio.file.Paths
 import scala.util.{Failure, Success, Try}
 
 trait JobTemplateResolutionService {
@@ -63,31 +63,31 @@ class JobTemplateResolutionServiceImpl(sparkConfig: SparkConfig, shellExecutorCo
 
   private def mergeSparkAndHyperdriveParameters(definitionParams: HyperdriveDefinitionParameters, templateParams: SparkTemplateParameters): SparkInstanceParameters = {
     SparkInstanceParameters(
-      jobJar = Paths.get(sparkConfig.yarn.executablesFolder, templateParams.jobJar.getOrElse("")).toString,
+      jobJar = PathResolverUtil.resolve(sparkConfig.yarn.executablesFolder, templateParams.jobJar.getOrElse("")),
       mainClass = templateParams.mainClass.getOrElse(""),
       appArguments = mergeLists(definitionParams.appArguments, templateParams.appArguments),
-      additionalJars = mergeLists(definitionParams.additionalJars, templateParams.additionalJars).map(jar => Paths.get(sparkConfig.yarn.executablesFolder, jar).toString),
-      additionalFiles = mergeLists(definitionParams.additionalFiles, templateParams.additionalFiles).map(file => Paths.get(sparkConfig.yarn.executablesFolder, file).toString),
+      additionalJars = mergeLists(definitionParams.additionalJars, templateParams.additionalJars).map(jar => PathResolverUtil.resolve(sparkConfig.yarn.executablesFolder, jar)),
+      additionalFiles = mergeLists(definitionParams.additionalFiles, templateParams.additionalFiles).map(file => PathResolverUtil.resolve(sparkConfig.yarn.executablesFolder, file)),
       additionalSparkConfig = mergeMaps(definitionParams.additionalSparkConfig, templateParams.additionalSparkConfig, mergeSortedMapEntries)
     )
   }
 
   private def mergeSparkParameters(definitionParams: SparkDefinitionParameters, templateParams: SparkTemplateParameters): SparkInstanceParameters = {
     SparkInstanceParameters(
-      jobJar = Paths.get(sparkConfig.yarn.executablesFolder, mergeOptionStrings(definitionParams.jobJar, templateParams.jobJar)).toString,
+      jobJar = PathResolverUtil.resolve(sparkConfig.yarn.executablesFolder, mergeOptionStrings(definitionParams.jobJar, templateParams.jobJar)),
       mainClass = mergeOptionStrings(definitionParams.mainClass, templateParams.mainClass),
       appArguments = mergeLists(definitionParams.appArguments, templateParams.appArguments),
-      additionalJars = mergeLists(definitionParams.additionalJars, templateParams.additionalJars).map(jar => Paths.get(sparkConfig.yarn.executablesFolder, jar).toString),
-      additionalFiles = mergeLists(definitionParams.additionalFiles, templateParams.additionalFiles).map(file => Paths.get(sparkConfig.yarn.executablesFolder, file).toString),
+      additionalJars = mergeLists(definitionParams.additionalJars, templateParams.additionalJars).map(jar => PathResolverUtil.resolve(sparkConfig.yarn.executablesFolder, jar)),
+      additionalFiles = mergeLists(definitionParams.additionalFiles, templateParams.additionalFiles).map(file => PathResolverUtil.resolve(sparkConfig.yarn.executablesFolder, file)),
       additionalSparkConfig = mergeMaps(definitionParams.additionalSparkConfig, templateParams.additionalSparkConfig, mergeSortedMapEntries)
     )
   }
 
   private def mergeShellParameters(definitionParams: ShellDefinitionParameters, templateParams: ShellTemplateParameters): ShellInstanceParameters = {
     ShellInstanceParameters(
-      scriptLocation = Paths.get(
+      scriptLocation = PathResolverUtil.resolve(
         shellExecutorConfig.executablesFolder, definitionParams.scriptLocation.getOrElse(templateParams.scriptLocation.getOrElse(""))
-      ).toString
+      )
     )
   }
 
