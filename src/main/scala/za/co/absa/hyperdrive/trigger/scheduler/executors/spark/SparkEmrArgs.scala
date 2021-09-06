@@ -20,6 +20,7 @@ case class SparkEmrArgs (
   mainClass: String,
   jobJar: String,
   appName: String,
+  sparkSubmitConfs: Map[String, String],
   confs: Map[String, String],
   files: Seq[String],
   additionalJars: Seq[String],
@@ -30,6 +31,9 @@ case class SparkEmrArgs (
     val filesArgs = if (files.nonEmpty) Seq("--files", files.mkString(",")) else Seq()
     val jarsArgs = if (additionalJars.nonEmpty) Seq("--jars", additionalJars.mkString(",")) else Seq()
     Seq("spark-submit") ++
+      sparkSubmitConfs.flatMap {
+        case (key, value) => Seq(key, value)
+      } ++
       confs.flatMap {
         case (key, value) => Seq("--conf", s"$key=$value")
       } ++

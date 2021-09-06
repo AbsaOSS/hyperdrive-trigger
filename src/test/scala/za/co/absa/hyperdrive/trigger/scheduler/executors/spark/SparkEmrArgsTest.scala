@@ -22,8 +22,9 @@ class SparkEmrArgsTest extends FlatSpec with Matchers {
   "SparkEmrArgs.getArgs" should "return the spark args as a string sequence" in {
     val sparkEmrArgs = SparkEmrArgs(
       mainClass = "mainClass",
-      jobJar = "job.jar",
+      jobJar = "////job.jar",
       appName = "appName",
+      sparkSubmitConfs = Map("--spark-submit-conf" -> "some-value"),
       confs = Map("conf1" -> "value1", "conf2" -> "value2"),
       files = Seq("file1", "file2", "file3"),
       additionalJars = Seq("1.jar", "2.jar"),
@@ -35,6 +36,8 @@ class SparkEmrArgsTest extends FlatSpec with Matchers {
 
     result should contain theSameElementsInOrderAs Seq(
       "spark-submit",
+      "--spark-submit-conf",
+      "some-value",
       "--conf",
       "conf1=value1",
       "--conf",
@@ -49,7 +52,7 @@ class SparkEmrArgsTest extends FlatSpec with Matchers {
       "1.jar,2.jar",
       "--sparkArg1",
       "--sparkArg2",
-      "job.jar",
+      "////job.jar",
       "arg1",
       "arg2",
       "arg3"
@@ -61,6 +64,7 @@ class SparkEmrArgsTest extends FlatSpec with Matchers {
       mainClass = "mainClass",
       jobJar = "job.jar",
       appName = "appName",
+      sparkSubmitConfs = Map(),
       confs = Map(),
       files = Seq(),
       additionalJars = Seq(),
