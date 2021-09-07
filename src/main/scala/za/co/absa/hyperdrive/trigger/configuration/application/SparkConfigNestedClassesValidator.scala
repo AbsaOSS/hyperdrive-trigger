@@ -19,7 +19,6 @@ package za.co.absa.hyperdrive.trigger.configuration.application
 import com.amazonaws.regions.Regions
 import org.hibernate.validator.internal.constraintvalidators.bv.{NotBlankValidator, NotNullValidator}
 
-import javax.validation.constraints.NotNull
 import javax.validation.{ConstraintValidator, ConstraintValidatorContext}
 import scala.util.Try
 
@@ -58,9 +57,7 @@ class SparkConfigNestedClassesValidator extends ConstraintValidator[SparkConfigN
         Constraint(notBlankValidator.isValid(sparkConfig.yarn.master, context),
           "sparkYarnSink.master", notBlankMessage),
         Constraint(notBlankValidator.isValid(sparkConfig.yarn.sparkHome, context),
-          "sparkYarnSink.sparkHome", notBlankMessage),
-        Constraint(notNullValidator.isValid(sparkConfig.yarn.executablesFolder, context),
-          "sparkYarnSink.executablesFolder", notNullMessage)
+          "sparkYarnSink.sparkHome", notBlankMessage)
       ))
     }
   }
