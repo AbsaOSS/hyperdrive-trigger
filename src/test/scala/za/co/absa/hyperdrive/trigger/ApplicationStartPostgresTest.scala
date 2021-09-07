@@ -39,7 +39,6 @@ class ApplicationStartPostgresTest extends FlatSpec with Matchers with SpringInt
   @Inject() var kafkaConfig: KafkaConfig = _
   @Inject() var notificationConfig: NotificationConfig = _
   @Inject() var schedulerConfig: SchedulerConfig = _
-  @Inject() var shellExecutorConfig: ShellExecutorConfig = _
   @Inject() var sparkConfig: SparkConfig = _
 
   override val dbProvider: DatabaseProvider = new DatabaseProvider(TestDatabaseConfig(Map())) {
@@ -67,7 +66,6 @@ class ApplicationStartPostgresTest extends FlatSpec with Matchers with SpringInt
     schedulerConfig.sensors.threadPoolSize shouldBe 20
     schedulerConfig.sensors.changedSensorsChunkQuerySize shouldBe 100
     schedulerConfig.executors.threadPoolSize shouldBe 30
-    shellExecutorConfig.executablesFolder shouldBe "src/test/resources/"
     healthConfig.databaseConnectionTimeoutMillis shouldBe 120000
     healthConfig.yarnConnectionTestEndpoint shouldBe "/cluster/cluster"
     healthConfig.yarnConnectionTimeoutMillis shouldBe None
@@ -83,7 +81,6 @@ class ApplicationStartPostgresTest extends FlatSpec with Matchers with SpringInt
     sparkConfig.yarn.sparkHome shouldBe "/opt/spark"
     sparkConfig.yarn.master shouldBe "yarn"
     sparkConfig.yarn.submitTimeout shouldBe 160000
-    sparkConfig.yarn.executablesFolder shouldBe ""
     sparkConfig.yarn.filesToDeploy shouldBe Seq()
     sparkConfig.yarn.additionalConfs shouldBe Map()
     sparkConfig.userUsedToKillJob shouldBe "Unknown"

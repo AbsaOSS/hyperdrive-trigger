@@ -19,11 +19,10 @@ package za.co.absa.hyperdrive.trigger.configuration.application
 import org.springframework.boot.context.properties.bind.{DefaultValue, Name}
 import org.springframework.boot.context.properties.{ConfigurationProperties, ConstructorBinding}
 import org.springframework.validation.annotation.Validated
-import org.springframework.validation.{Errors, Validator}
 import za.co.absa.hyperdrive.trigger.configuration.application.SparkConfig.{toNonEmptyOption, transformAdditionalConfsProperty, transformFilesProperty}
 
 import java.util.Properties
-import javax.validation.constraints.{NotBlank, NotNull}
+import javax.validation.constraints.NotBlank
 import scala.annotation.meta.field
 
 @ConfigurationProperties
@@ -71,8 +70,7 @@ class SparkYarnSinkConfig (
   @Name("filesToDeploy")
   filesToDeployInternal: String,
   @Name("additionalConfs")
-  additionalConfsInternal: Properties,
-  val executablesFolder: String
+  additionalConfsInternal: Properties
 ) {
   val filesToDeploy: Seq[String] = transformFilesProperty(filesToDeployInternal)
   val additionalConfs: Map[String, String] = transformAdditionalConfsProperty(additionalConfsInternal)
