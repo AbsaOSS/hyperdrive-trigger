@@ -43,11 +43,11 @@ export class SparkComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.jobChangesSubscription = this.jobChanges.subscribe((sensorChange) => {
+    this.jobChangesSubscription = this.jobChanges.subscribe((jobChange) => {
       this.changes.next(
         new WorkflowJobChanged({
           jobId: this.jobId,
-          jobEntry: WorkflowEntryModelFactory.create(sensorChange.property, sensorChange.value),
+          jobEntry: WorkflowEntryModelFactory.create(jobChange.property, jobChange.value),
         }),
       );
     });

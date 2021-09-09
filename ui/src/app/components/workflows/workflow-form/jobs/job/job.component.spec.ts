@@ -192,12 +192,12 @@ describe('JobComponent', () => {
   );
 
   it(
-    'getSelectedJob() should return selected job',
+    'getSelectedJobTemplateId() should return selected job template id',
     waitForAsync(() => {
       underTest.jobId = jobId;
       fixture.detectChanges();
       fixture.whenStable().then(() => {
-        const resultLeft = underTest.getSelectedJob();
+        const resultLeft = underTest.getSelectedJobTemplateId();
         const resultRight = jobsData[0].entries[1].value;
         expect(resultLeft).toEqual(resultRight);
       });
@@ -205,12 +205,12 @@ describe('JobComponent', () => {
   );
 
   it(
-    'getSelectedJob() should return undefined when job does not exist',
+    'getSelectedJobTemplateId() should return undefined when template does not exist',
     waitForAsync(() => {
       underTest.jobId = '999';
       fixture.detectChanges();
       fixture.whenStable().then(() => {
-        const result = underTest.getSelectedJob();
+        const result = underTest.getSelectedJobTemplateId();
 
         expect(result).toBeUndefined();
       });

@@ -71,7 +71,7 @@ export class JobComponent implements OnInit, OnDestroy {
   }
 
   getSelectedFormConfig(): string {
-    const selectedJob = this.getSelectedJob();
+    const selectedJob = this.getSelectedJobTemplateId();
     const selectedJobTemplate = this.jobTemplates.find((jobTemplate) => jobTemplate.id == selectedJob);
     return selectedJobTemplate?.formConfig ?? jobTemplateFormConfigs.SPARK;
   }
@@ -81,7 +81,7 @@ export class JobComponent implements OnInit, OnDestroy {
     return !!jobDataOption ? jobDataOption.entries : [];
   }
 
-  getSelectedJob() {
+  getSelectedJobTemplateId() {
     const selected = this.getJobData().find((value) => value.property == this.JOB_TEMPLATE_PROPERTY);
     return !!selected ? selected.value : undefined;
   }
