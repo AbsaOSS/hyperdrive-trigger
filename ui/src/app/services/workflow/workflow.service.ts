@@ -24,13 +24,13 @@ import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
 import {
   DynamicFormPart,
   DynamicFormPartFactory,
-  DynamicFormParts,
   DynamicFormPartsFactory,
   FormPart,
   FormPartFactory,
   PartValidationFactory,
 } from '../../models/workflowFormParts.model';
 import { JobTemplateModel } from '../../models/jobTemplate.model';
+import { DynamicFormPartsResponse, DynamicFormPartsResponseFactory } from '../../models/dynamicFormPartsResponse.model';
 
 @Injectable({
   providedIn: 'root',
@@ -165,14 +165,14 @@ export class WorkflowService {
     );
   }
 
-  getWorkflowDynamicFormParts(): Observable<DynamicFormParts> {
+  getWorkflowDynamicFormParts(): Observable<DynamicFormPartsResponse> {
     return this.getJobTemplates().pipe(
       mergeMap((jobTemplates) => {
         const sensorParts = WorkflowService.getSensorDynamicFormParts();
         const jobParts = jobTemplates.map((jobTemplate) => {
           return WorkflowService.getJobDynamicFormPart(jobTemplate);
         });
-        return of(DynamicFormPartsFactory.create(sensorParts, jobParts));
+        return of(DynamicFormPartsResponseFactory.create(DynamicFormPartsFactory.create(sensorParts, jobParts), jobTemplates));
       }),
     );
   }

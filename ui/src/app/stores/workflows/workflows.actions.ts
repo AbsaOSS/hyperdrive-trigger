@@ -24,6 +24,7 @@ import { SortAttributesModel } from '../../models/search/sortAttributes.model';
 import { HistoryModel } from '../../models/historyModel';
 import { WorkflowFormDataModel } from '../../models/workflowFormData.model';
 import { JobForRunModel } from '../../models/jobForRun.model';
+import { JobTemplateModel } from '../../models/jobTemplate.model';
 
 export const INITIALIZE_WORKFLOWS = 'INITIALIZE_WORKFLOWS';
 export const INITIALIZE_WORKFLOWS_SUCCESS = 'INITIALIZE_WORKFLOWS_SUCCESS';
@@ -104,7 +105,7 @@ export class InitializeWorkflows implements Action {
 
 export class InitializeWorkflowsSuccess implements Action {
   readonly type = INITIALIZE_WORKFLOWS_SUCCESS;
-  constructor(public payload: { projects: ProjectModel[]; workflowFormParts: WorkflowFormPartsModel }) {}
+  constructor(public payload: { projects: ProjectModel[]; workflowFormParts: WorkflowFormPartsModel; jobTemplates: JobTemplateModel[] }) {}
 }
 
 export class InitializeWorkflowsFailure implements Action {
@@ -331,6 +332,7 @@ export class LoadWorkflowsFromHistorySuccess implements Action {
       leftWorkflowHistory: HistoryModel;
       rightWorkflowHistoryData: WorkflowFormDataModel;
       rightWorkflowHistory: HistoryModel;
+      jobTemplates: JobTemplateModel[];
     },
   ) {}
 }

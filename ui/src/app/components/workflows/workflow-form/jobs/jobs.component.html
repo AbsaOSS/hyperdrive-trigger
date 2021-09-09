@@ -42,9 +42,9 @@
     <div class="accordion-content" [hidden]="isJobHidden(job.jobId)">
       <app-job
         [jobId]="job.jobId"
-        [mode]="mode"
+        [isShow]="mode == workflowModes.SHOW || mode == workflowModes.COMPARISON"
         [jobsData]="jobsData"
-        [workflowFormParts]="workflowFormParts"
+        [jobTemplates]="jobTemplates"
         [changes]="changes">
       </app-job>
     </div>

@@ -23,6 +23,7 @@ import { WorkflowFormPartsModel } from '../../../../models/workflowFormParts.mod
 import { LoadWorkflowsFromHistory } from '../../../../stores/workflows/workflows.actions';
 import { WorkflowFormDataModel } from '../../../../models/workflowFormData.model';
 import { HistoryModel } from '../../../../models/historyModel';
+import { JobTemplateModel } from '../../../../models/jobTemplate.model';
 
 @Component({
   selector: 'app-workflow-comparison',
@@ -40,6 +41,7 @@ export class WorkflowComparisonComponent implements OnInit, OnDestroy {
   workflowHistoryLeft: HistoryModel;
   workflowHistoryRight: HistoryModel;
   workflowFormParts: WorkflowFormPartsModel;
+  jobTemplates: JobTemplateModel[];
 
   loading = true;
   changes = new Subject<Action>();
@@ -62,6 +64,7 @@ export class WorkflowComparisonComponent implements OnInit, OnDestroy {
       this.workflowDataRight = state.history.rightWorkflowHistoryData;
       this.workflowHistoryLeft = state.history.leftWorkflowHistory;
       this.workflowHistoryRight = state.history.rightWorkflowHistory;
+      this.jobTemplates = state.jobTemplates;
       this.loading = state.history.loading;
     });
   }
