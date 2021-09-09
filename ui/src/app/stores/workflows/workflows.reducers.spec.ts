@@ -95,6 +95,7 @@ describe('WorkflowsReducers', () => {
       },
       workflowFile: undefined,
     },
+    jobTemplates: [],
     workflowsSort: undefined,
     workflowsFilters: [],
     history: {

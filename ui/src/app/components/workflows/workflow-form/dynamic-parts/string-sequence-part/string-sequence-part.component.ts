@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { Subject } from 'rxjs';
 import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
 import { ControlContainer, NgForm } from '@angular/forms';
@@ -27,7 +27,7 @@ import { texts } from 'src/app/constants/texts.constants';
   styleUrls: ['./string-sequence-part.component.scss'],
   viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
 })
-export class StringSequencePartComponent implements OnInit {
+export class StringSequencePartComponent implements OnInit, OnChanges {
   uiid = UuidUtil.createUUID();
   texts = texts;
   @Input() isShow: boolean;
@@ -50,8 +50,11 @@ export class StringSequencePartComponent implements OnInit {
       this.partValidation?.maxLength ?? Number.MAX_SAFE_INTEGER,
       this.partValidation?.minLength ?? 1,
     );
+    this.setDefaultValue();
+  }
 
-    if (!this.value) this.modelChanged(this.partValidationSafe.isRequired ? [''] : []);
+  ngOnChanges(changes: SimpleChanges): void {
+    this.setDefaultValue();
   }
 
   trackByFn(index, item) {
@@ -79,5 +82,9 @@ export class StringSequencePartComponent implements OnInit {
   modelChanged(value: string[]) {
     this.value = value.map((val) => val.trim());
     this.valueChanges.next(WorkflowEntryModelFactory.create(this.property, this.value));
+  }
+
+  setDefaultValue() {
+    if (!this.value) this.modelChanged(this.partValidation.isRequired ? [''] : []);
   }
 }

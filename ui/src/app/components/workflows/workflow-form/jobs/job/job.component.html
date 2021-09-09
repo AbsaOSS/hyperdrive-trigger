@@ -13,26 +13,44 @@
   ~ limitations under the License.
   -->
 
-<app-dynamic-parts
-  [isShow]="mode == workflowModes.SHOW || mode == workflowModes.COMPARISON"
-  [formParts]="[workflowFormParts.staticJobPart]"
+<app-string-part
+  [isShow]="isShow"
+  [name]="'Job name'"
   [valueChanges]="jobChanges"
-  [values]="getJobData()">
-</app-dynamic-parts>
-
+  [value]="WorkflowEntryUtil.getValue('name', getJobData())"
+  [property]="'name'"
+  [partValidation]="PartValidationFactory.create(true, undefined, 1)">
+</app-string-part>
 <app-select-part
-  [isShow]="mode == workflowModes.SHOW || mode == workflowModes.COMPARISON"
-  [name]="workflowFormParts.jobSwitchPart.name"
-  [value]="getValue(workflowFormParts.jobSwitchPart.property)"
-  [options]="getJobTypes()"
+  [isShow]="isShow"
+  [name]="'Job template'"
+  [value]="WorkflowEntryUtil.getValue('jobTemplateId', this.getJobData())"
+  [options]="getJobTemplates()"
   [valueChanges]="jobChanges"
-  [property]="workflowFormParts.jobSwitchPart.property"
-  [partValidation]="workflowFormParts.jobSwitchPart.partValidation">
+  [property]="'jobTemplateId'"
+  [partValidation]="PartValidationFactory.create(true)">
 </app-select-part>
 
-<app-dynamic-parts
-  [isShow]="mode == workflowModes.SHOW || mode == workflowModes.COMPARISON"
-  [formParts]="getSelectedJobComponent()"
-  [valueChanges]="jobChanges"
-  [values]="getJobData()">
-</app-dynamic-parts>
+<div [ngSwitch]="getSelectedFormConfig()">
+  <app-spark
+    *ngSwitchCase="jobTemplateFormConfigs.SPARK"
+    [isShow]="isShow"
+    [jobData]="getJobData()"
+    [jobId]="jobId"
+    [changes]="changes">
+  </app-spark>
+  <app-hyperdrive
+    *ngSwitchCase="jobTemplateFormConfigs.HYPERDRIVE"
+    [isShow]="isShow"
+    [jobData]="getJobData()"
+    [jobId]="jobId"
+    [changes]="changes">
+  </app-hyperdrive>
+  <app-shell
+    *ngSwitchCase="jobTemplateFormConfigs.SHELL"
+    [isShow]="isShow"
+    [jobData]="getJobData()"
+    [jobId]="jobId"
+    [changes]="changes">
+  </app-shell>
+</div>

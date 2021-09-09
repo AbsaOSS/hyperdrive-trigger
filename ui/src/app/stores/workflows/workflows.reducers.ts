@@ -23,6 +23,7 @@ import { WorkflowFormDataModel } from '../../models/workflowFormData.model';
 import { HistoryModel } from '../../models/historyModel';
 import { JobForRunModel } from '../../models/jobForRun.model';
 import { workflowModes } from '../../models/enums/workflowModes.constants';
+import { JobTemplateModel } from '../../models/jobTemplate.model';
 
 export interface State {
   projects: ProjectModel[];
@@ -38,6 +39,7 @@ export interface State {
     initialWorkflowFormData: WorkflowFormDataModel;
     workflowFile: File;
   };
+  jobTemplates: JobTemplateModel[];
   workflowsSort: SortAttributesModel;
   workflowsFilters: any[];
   history: {
@@ -80,6 +82,7 @@ const initialState: State = {
     },
     workflowFile: undefined,
   },
+  jobTemplates: [],
   workflowsSort: undefined,
   workflowsFilters: undefined,
   history: {
@@ -152,6 +155,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         ...state,
         loading: false,
         projects: sortedProjects,
+        jobTemplates: action.payload.jobTemplates,
         workflowAction: {
           ...state.workflowAction,
           workflowFormParts: action.payload.workflowFormParts,
@@ -597,6 +601,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
           rightWorkflowHistoryData: action.payload.rightWorkflowHistoryData,
           rightWorkflowHistory: action.payload.rightWorkflowHistory,
         },
+        jobTemplates: action.payload.jobTemplates,
       };
     case WorkflowsActions.LOAD_WORKFLOWS_FROM_HISTORY_FAILURE:
       return {
