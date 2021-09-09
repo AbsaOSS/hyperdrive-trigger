@@ -25,6 +25,7 @@ import {
   WorkflowRemoveJob,
 } from '../../../../stores/workflows/workflows.actions';
 import { JobEntryModel } from '../../../../models/jobEntry.model';
+import { JobTemplateModel } from '../../../../models/jobTemplate.model';
 
 @Component({
   selector: 'app-jobs',
@@ -36,6 +37,7 @@ export class JobsComponent implements OnDestroy, OnInit, AfterViewChecked {
   @Input() mode: string;
   @Input() workflowFormParts: WorkflowFormPartsModel;
   @Input() jobsData: JobEntryModel[];
+  @Input() jobTemplates: JobTemplateModel[];
   @Input() changes: Subject<Action>;
 
   workflowModes = workflowModes;

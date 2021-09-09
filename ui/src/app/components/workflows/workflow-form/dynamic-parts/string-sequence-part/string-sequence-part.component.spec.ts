@@ -184,4 +184,95 @@ describe('StringSequencePartComponent', () => {
       });
     }),
   );
+
+  it(
+    'setDefaultValue() should set array with empty string when value is undefined and field is required',
+    waitForAsync(() => {
+      const value = undefined;
+      const propertyName = 'property';
+      const testedSubject = new Subject<WorkflowEntryModel>();
+      const subjectSpy = spyOn(testedSubject, 'next');
+      const partValidation = PartValidationFactory.create(true, 5, 50);
+
+      underTest.isShow = false;
+      underTest.value = value;
+      underTest.property = propertyName;
+      underTest.valueChanges = testedSubject;
+      underTest.partValidation = partValidation;
+
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        underTest.setDefaultValue();
+
+        fixture.detectChanges();
+        fixture.whenStable().then(() => {
+          const testedValue = underTest.value;
+          const expectedValue = [''];
+          expect(testedValue).toEqual(expectedValue);
+          expect(subjectSpy).toHaveBeenCalled();
+          expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, expectedValue));
+        });
+      });
+    }),
+  );
+
+  it(
+    'setDefaultValue() should set empty array when value is undefined and field is not required',
+    waitForAsync(() => {
+      const value = undefined;
+      const propertyName = 'property';
+      const testedSubject = new Subject<WorkflowEntryModel>();
+      const subjectSpy = spyOn(testedSubject, 'next');
+      const partValidation = PartValidationFactory.create(false, 5, 50);
+
+      underTest.isShow = false;
+      underTest.value = value;
+      underTest.property = propertyName;
+      underTest.valueChanges = testedSubject;
+      underTest.partValidation = partValidation;
+
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        underTest.setDefaultValue();
+
+        fixture.detectChanges();
+        fixture.whenStable().then(() => {
+          const testedValue = underTest.value;
+          const expectedValue = [];
+          expect(testedValue).toEqual(expectedValue);
+          expect(subjectSpy).toHaveBeenCalled();
+          expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, expectedValue));
+        });
+      });
+    }),
+  );
+
+  it(
+    'setDefaultValue() should do nothing when value is not undefined',
+    waitForAsync(() => {
+      const value = [''];
+      const propertyName = 'property';
+      const testedSubject = new Subject<WorkflowEntryModel>();
+      const subjectSpy = spyOn(testedSubject, 'next');
+      const partValidation = PartValidationFactory.create(false, 5, 50);
+
+      underTest.isShow = false;
+      underTest.value = value;
+      underTest.property = propertyName;
+      underTest.valueChanges = testedSubject;
+      underTest.partValidation = partValidation;
+
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        underTest.setDefaultValue();
+
+        fixture.detectChanges();
+        fixture.whenStable().then(() => {
+          const testedValue = underTest.value;
+          expect(testedValue).toEqual(value);
+          expect(subjectSpy).toHaveBeenCalledTimes(0);
+        });
+      });
+    }),
+  );
 });

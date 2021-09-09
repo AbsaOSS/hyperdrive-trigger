@@ -75,6 +75,7 @@ import { JobService } from '../../services/job/job.service';
 import { UtilService } from 'src/app/services/util/util.service';
 import { BulkOperationErrorModelFactory } from 'src/app/models/errors/bulkOperationError.model';
 import { RecurringSensorProperties } from '../../models/sensorProperties.model';
+import { DynamicFormPartsResponse, DynamicFormPartsResponseFactory } from '../../models/dynamicFormPartsResponse.model';
 
 describe('WorkflowsEffects', () => {
   let underTest: WorkflowsEffects;
@@ -105,6 +106,7 @@ describe('WorkflowsEffects', () => {
         ),
         workflowFile: new File(['content'], 'filename.json'),
       },
+      jobTemplates: [],
     },
   };
 
@@ -142,17 +144,22 @@ describe('WorkflowsEffects', () => {
         ]),
       ];
 
-      const dynamicFormParts = DynamicFormPartsFactory.create(
-        [
-          DynamicFormPartFactory.create('typeOne', [
-            FormPartFactory.create('nameOne', 'propertyOne', 'string-field', PartValidationFactory.create(true)),
-          ]),
-        ],
-        [
-          DynamicFormPartFactory.create('typeTwo', [
-            FormPartFactory.create('nameTwo', 'propertyTwo', 'string-field', PartValidationFactory.create(true)),
-          ]),
-        ],
+      const jobTemplates = [];
+
+      const dynamicFormPartsResponse = DynamicFormPartsResponseFactory.create(
+        DynamicFormPartsFactory.create(
+          [
+            DynamicFormPartFactory.create('typeOne', [
+              FormPartFactory.create('nameOne', 'propertyOne', 'string-field', PartValidationFactory.create(true)),
+            ]),
+          ],
+          [
+            DynamicFormPartFactory.create('typeTwo', [
+              FormPartFactory.create('nameTwo', 'propertyTwo', 'string-field', PartValidationFactory.create(true)),
+            ]),
+          ],
+        ),
+        jobTemplates,
       );
 
       const workflowFormParts = WorkflowFormPartsModelFactory.create(
@@ -160,18 +167,18 @@ describe('WorkflowsEffects', () => {
         workflowFormPartsConsts.SENSOR.SENSOR_TYPE,
         workflowFormPartsConsts.JOB.JOB_NAME,
         workflowFormPartsConsts.JOB.JOB_TEMPLATE_ID,
-        dynamicFormParts,
+        dynamicFormPartsResponse.dynamicFormParts,
       );
 
       const action = new InitializeWorkflows();
       mockActions = cold('-a', { a: action });
       const getProjectsResponse = cold('-a|', { a: projects });
-      const getWorkflowDynamicFormPartsResponse = cold('-a|', { a: dynamicFormParts });
+      const getWorkflowDynamicFormPartsResponse = cold('-a|', { a: dynamicFormPartsResponse });
 
       const expected = cold('---a', {
         a: {
           type: WorkflowsActions.INITIALIZE_WORKFLOWS_SUCCESS,
-          payload: { projects: projects, workflowFormParts: workflowFormParts },
+          payload: { projects: projects, workflowFormParts: workflowFormParts, jobTemplates: jobTemplates },
         },
       });
 
