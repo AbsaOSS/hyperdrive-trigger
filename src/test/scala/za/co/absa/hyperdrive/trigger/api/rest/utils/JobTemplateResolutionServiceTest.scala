@@ -20,10 +20,9 @@ import za.co.absa.hyperdrive.trigger.models.enums.JobTypes
 import za.co.absa.hyperdrive.trigger.models.{DagDefinitionJoined, HyperdriveDefinitionParameters, JobDefinition, ShellDefinitionParameters, ShellInstanceParameters, ShellTemplateParameters, SparkDefinitionParameters, SparkInstanceParameters, SparkTemplateParameters}
 import za.co.absa.hyperdrive.trigger.api.rest.services.JobTemplateFixture.{GenericShellJobTemplate, GenericSparkJobTemplate}
 import za.co.absa.hyperdrive.trigger.api.rest.services.JobTemplateResolutionServiceImpl
-import za.co.absa.hyperdrive.trigger.configuration.application.{TestShellExecutorConfig, DefaultTestSparkConfig}
 
 class JobTemplateResolutionServiceTest extends FlatSpec with Matchers {
-  private val underTest = new JobTemplateResolutionServiceImpl(DefaultTestSparkConfig.apply(), TestShellExecutorConfig.apply())
+  private val underTest = new JobTemplateResolutionServiceImpl
 
   "resolveDagDefinition" should "return a ResolvedJobDefinition with the same jobType as in the template" in {
     // given
