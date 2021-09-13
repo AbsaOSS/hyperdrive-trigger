@@ -58,6 +58,11 @@ class SparkEmrClusterServiceImpl @Inject()(sparkConfig: SparkConfig, emrClusterP
     }
   }
 
+  override def handleMissingYarnStatusForJobStatusSubmitting(jobInstance: JobInstance, updateJob: JobInstance => Future[Unit])
+    (implicit executionContext: ExecutionContext): Future[Unit] = Future {
+    // do nothing
+  }
+
   private def getSparkArgs(id: String, jobName: String, jobParameters: SparkInstanceParameters) = {
     val config = sparkConfig.emr
     val sparkSubmitConfs = Map("--deploy-mode" -> "cluster")
