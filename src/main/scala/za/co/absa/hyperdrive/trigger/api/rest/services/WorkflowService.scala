@@ -18,7 +18,7 @@ package za.co.absa.hyperdrive.trigger.api.rest.services
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
-import za.co.absa.hyperdrive.trigger.models.{Project, ProjectInfo, Workflow, WorkflowImportExportWrapper, WorkflowJoined}
+import za.co.absa.hyperdrive.trigger.models.{JobDefinition, Project, ProjectInfo, Workflow, WorkflowImportExportWrapper, WorkflowJoined}
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, BulkOperationError, GenericError}
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, WorkflowRepository}
 import org.slf4j.LoggerFactory
@@ -213,11 +213,11 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
   override def exportWorkflows(workflowIds: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[WorkflowImportExportWrapper]] = {
     for {
       workflows <- workflowRepository.getWorkflows(workflowIds)
-      allJobTemplateIds = workflows.flatMap(_.dagDefinitionJoined.jobDefinitions.map(_.jobTemplateId)).distinct
+      allJobTemplateIds = workflows.flatMap(_.dagDefinitionJoined.jobDefinitions.flatMap(_.jobTemplateId)).distinct
       allJobTemplates <- jobTemplateService.getJobTemplatesByIds(allJobTemplateIds)
     } yield {
       workflows.map(workflow => {
-        val jobTemplateIds = workflow.dagDefinitionJoined.jobDefinitions.map(_.jobTemplateId).distinct
+        val jobTemplateIds = workflow.dagDefinitionJoined.jobDefinitions.flatMap(_.jobTemplateId).distinct
         val jobTemplates = allJobTemplates.filter(jobTemplate => jobTemplateIds.contains(jobTemplate.id))
         WorkflowImportExportWrapper(workflow, jobTemplates)
       })
@@ -282,8 +282,12 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
             val workflowWithResolvedJobTemplateIds = workflowImport.workflowJoined
               .copy(dagDefinitionJoined = workflowImport.workflowJoined.dagDefinitionJoined
                 .copy(jobDefinitions = workflowImport.workflowJoined.dagDefinitionJoined.jobDefinitions
-                  .map(jobDefinition => jobDefinition.copy(jobTemplateId = getNewId(jobDefinition.jobTemplateId)))))
-
+                  .map {
+                    case jobDefinition @ JobDefinition(_, Some(jobTemplateId), _, _, _, _) =>
+                      jobDefinition.copy(jobTemplateId = Some(getNewId(jobTemplateId)))
+                    case jobDefinition @ JobDefinition(_, None, _, _, _, _) =>
+                      jobDefinition
+                  }))
             Right(workflowWithResolvedJobTemplateIds)
           }
         }

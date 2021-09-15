@@ -17,7 +17,6 @@
 package za.co.absa.hyperdrive.trigger.scheduler
 
 import java.time.LocalDateTime
-
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito.{never, reset, verify, when}
@@ -27,7 +26,7 @@ import play.api.libs.json.JsObject
 import za.co.absa.hyperdrive.trigger.TestUtils.await
 import za.co.absa.hyperdrive.trigger.api.rest.services.DagInstanceService
 import za.co.absa.hyperdrive.trigger.models._
-import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
+import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobTypes}
 import za.co.absa.hyperdrive.trigger.persistance.{DagDefinitionRepository, DagInstanceRepository, EventRepository}
 import za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor
 
@@ -126,7 +125,7 @@ class EventProcessorTest extends FlatSpec with MockitoSugar with Matchers with B
   }
 
   private def createJobDefintion(dagDefinitionId: Long): JobDefinition = {
-    JobDefinition(dagDefinitionId, -1L, "someJobName", SparkDefinitionParameters(jobJar = None, mainClass = None), 1)
+    JobDefinition(dagDefinitionId, Some(-1L), "someJobName", SparkDefinitionParameters(jobType = JobTypes.Spark, jobJar = None, mainClass = None), 1)
   }
 
   private def createDagDefinition(workflowId: Long, id: Long, jobDefinitions: Seq[JobDefinition]) = DagDefinitionJoined(workflowId, jobDefinitions, id)

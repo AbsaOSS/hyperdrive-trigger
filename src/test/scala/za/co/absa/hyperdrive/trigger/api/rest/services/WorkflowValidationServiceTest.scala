@@ -31,6 +31,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar with BeforeAndAfter {
   private val workflowRepository = mock[WorkflowRepository]
+  private val jobTemplateService = mock[JobTemplateService]
 
   before {
     reset(workflowRepository)
@@ -38,10 +39,14 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
 
   "validateOnInsert" should "return None if entity is valid" in {
     // given
-    val underTest = new WorkflowValidationServiceImpl(workflowRepository)
+    val underTest = new WorkflowValidationServiceImpl(workflowRepository, jobTemplateService)
     val workflowJoined = WorkflowFixture.createWorkflowJoined()
-    when(workflowRepository.existsWorkflows(eqTo(Seq(workflowJoined.name)))(any[ExecutionContext])).thenReturn(Future{Seq()})
 
+    when(workflowRepository.existsWorkflows(eqTo(Seq(workflowJoined.name)))(any[ExecutionContext])).thenReturn(Future{Seq()})
+    when(jobTemplateService.getJobTemplate(eqTo(JobTemplateFixture.GenericSparkJobTemplate.id))(any[ExecutionContext]))
+      .thenReturn(Future(JobTemplateFixture.GenericSparkJobTemplate))
+    when(jobTemplateService.getJobTemplate(eqTo(JobTemplateFixture.GenericShellJobTemplate.id))(any[ExecutionContext]))
+      .thenReturn(Future(JobTemplateFixture.GenericShellJobTemplate))
     // when
     await(underTest.validateOnInsert(workflowJoined))
 
@@ -52,9 +57,13 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
 
   "validateOnInsert" should "return None if all entities are valid" in {
     // given
-    val underTest = new WorkflowValidationServiceImpl(workflowRepository)
+    val underTest = new WorkflowValidationServiceImpl(workflowRepository, jobTemplateService)
     val workflows = Seq(WorkflowFixture.createWorkflowJoined(), WorkflowFixture.createTimeBasedShellScriptWorkflow("p"))
     when(workflowRepository.existsWorkflows(any())(any[ExecutionContext])).thenReturn(Future{Seq()})
+    when(jobTemplateService.getJobTemplate(eqTo(JobTemplateFixture.GenericSparkJobTemplate.id))(any[ExecutionContext]))
+      .thenReturn(Future(JobTemplateFixture.GenericSparkJobTemplate))
+    when(jobTemplateService.getJobTemplate(eqTo(JobTemplateFixture.GenericShellJobTemplate.id))(any[ExecutionContext]))
+      .thenReturn(Future(JobTemplateFixture.GenericShellJobTemplate))
 
     // when
     await(underTest.validateOnInsert(workflows))
@@ -67,10 +76,14 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
 
   it should "fail if one of the workflow names already exists" in {
     // given
-    val underTest = new WorkflowValidationServiceImpl(workflowRepository)
+    val underTest = new WorkflowValidationServiceImpl(workflowRepository, jobTemplateService)
     val workflow1 = WorkflowFixture.createWorkflowJoined()
     val workflows = Seq(workflow1, WorkflowFixture.createTimeBasedShellScriptWorkflow("p"))
     when(workflowRepository.existsWorkflows(any())(any[ExecutionContext])).thenReturn(Future{Seq(workflow1.name)})
+    when(jobTemplateService.getJobTemplate(eqTo(JobTemplateFixture.GenericSparkJobTemplate.id))(any[ExecutionContext]))
+      .thenReturn(Future(JobTemplateFixture.GenericSparkJobTemplate))
+    when(jobTemplateService.getJobTemplate(eqTo(JobTemplateFixture.GenericShellJobTemplate.id))(any[ExecutionContext]))
+      .thenReturn(Future(JobTemplateFixture.GenericShellJobTemplate))
 
     // when
     val result = the [ApiException] thrownBy await(underTest.validateOnInsert(workflows))
@@ -82,11 +95,15 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
 
   it should "fail if one of the project names is empty" in {
     // given
-    val underTest = new WorkflowValidationServiceImpl(workflowRepository)
+    val underTest = new WorkflowValidationServiceImpl(workflowRepository, jobTemplateService)
     val workflow = WorkflowFixture.createWorkflowJoined()
     val invalidWorkflow = workflow.copy(project = "")
     val workflows = Seq(workflow, invalidWorkflow)
     when(workflowRepository.existsWorkflows(any())(any[ExecutionContext])).thenReturn(Future{Seq()})
+    when(jobTemplateService.getJobTemplate(eqTo(JobTemplateFixture.GenericSparkJobTemplate.id))(any[ExecutionContext]))
+      .thenReturn(Future(JobTemplateFixture.GenericSparkJobTemplate))
+    when(jobTemplateService.getJobTemplate(eqTo(JobTemplateFixture.GenericShellJobTemplate.id))(any[ExecutionContext]))
+      .thenReturn(Future(JobTemplateFixture.GenericShellJobTemplate))
 
     // when
     val result = the [ApiException] thrownBy await(underTest.validateOnInsert(workflows))
@@ -98,11 +115,16 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
 
   it should "fail and report all errors" in {
     // given
-    val underTest = new WorkflowValidationServiceImpl(workflowRepository)
+    val underTest = new WorkflowValidationServiceImpl(workflowRepository, jobTemplateService)
     val workflow = WorkflowFixture.createWorkflowJoined().copy(name = "workflow")
     val invalidWorkflow = workflow.copy(name = "invalidWorkflow", project = null)
     val invalidWorkflow2 = workflow.copy(name = "invalidWorkflow2", project = "")
     when(workflowRepository.existsWorkflows(any())(any[ExecutionContext])).thenReturn(Future{Seq(invalidWorkflow2.name)})
+
+    when(jobTemplateService.getJobTemplate(eqTo(JobTemplateFixture.GenericSparkJobTemplate.id))(any[ExecutionContext]))
+      .thenReturn(Future(JobTemplateFixture.GenericSparkJobTemplate))
+    when(jobTemplateService.getJobTemplate(eqTo(JobTemplateFixture.GenericShellJobTemplate.id))(any[ExecutionContext]))
+      .thenReturn(Future(JobTemplateFixture.GenericShellJobTemplate))
 
     // when
     val workflows = Seq(workflow, invalidWorkflow, invalidWorkflow2)
@@ -117,12 +139,59 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
     )
   }
 
+  it should "fail if job template and job definition types are not equal" in {
+    // given
+    val underTest = new WorkflowValidationServiceImpl(workflowRepository, jobTemplateService)
+    val workflowJoined = WorkflowFixture.createWorkflowJoined()
+    val sparkJobTemplate = JobTemplateFixture.GenericSparkJobTemplate
+    val shellJobTemplate = JobTemplateFixture.GenericShellJobTemplate
+    val sparkJobTemplateWithShellId = sparkJobTemplate.copy(id = shellJobTemplate.id)
+    val shellJobTemplateWithSparkId = sparkJobTemplate.copy(id = sparkJobTemplate.id)
+
+    when(workflowRepository.existsWorkflows(eqTo(Seq(workflowJoined.name)))(any[ExecutionContext])).thenReturn(Future{Seq()})
+    when(jobTemplateService.getJobTemplate(eqTo(sparkJobTemplateWithShellId.id))(any[ExecutionContext]))
+      .thenReturn(Future(sparkJobTemplateWithShellId))
+    when(jobTemplateService.getJobTemplate(eqTo(shellJobTemplateWithSparkId.id))(any[ExecutionContext]))
+      .thenReturn(Future(shellJobTemplateWithSparkId))
+    // when
+    val result = the [ApiException] thrownBy await(underTest.validateOnInsert(workflowJoined))
+
+    // then
+    result.apiErrors should have size 1
+    result.apiErrors should contain theSameElementsAs Seq(
+      ValidationError("Template's job type has to be the same as job's job type. Template - Spark is not equlat to Job - Shell")
+    )
+  }
+
+  it should "fail if mandatory fields are empty" in {
+    // given
+    val underTest = new WorkflowValidationServiceImpl(workflowRepository, jobTemplateService)
+    val workflowJoined = WorkflowFixture.createShellScriptJobWithoutTemplateAndScript()
+
+    when(workflowRepository.existsWorkflows(eqTo(Seq(workflowJoined.name)))(any[ExecutionContext])).thenReturn(Future{Seq()})
+
+    // when
+    val result = the [ApiException] thrownBy await(underTest.validateOnInsert(workflowJoined))
+
+    // then
+    result.apiErrors should have size 1
+    println(result.apiErrors.head.message)
+    result.apiErrors should contain theSameElementsAs Seq(
+      ValidationError("Script location cannot be empty in case of Shell job type when template is empty")
+    )
+  }
+
   "validateOnUpdate" should "return None if entity is valid" in {
     // given
-    val underTest = new WorkflowValidationServiceImpl(workflowRepository)
+    val underTest = new WorkflowValidationServiceImpl(workflowRepository, jobTemplateService)
     val originalWorkflow = WorkflowFixture.createWorkflowJoined()
     val updatedWorkflow = originalWorkflow.copy(name = "diff")
     when(workflowRepository.existsOtherWorkflow(eqTo(updatedWorkflow.name), eqTo(updatedWorkflow.id))(any[ExecutionContext])).thenReturn(Future{false})
+
+    when(jobTemplateService.getJobTemplate(eqTo(JobTemplateFixture.GenericSparkJobTemplate.id))(any[ExecutionContext]))
+      .thenReturn(Future(JobTemplateFixture.GenericSparkJobTemplate))
+    when(jobTemplateService.getJobTemplate(eqTo(JobTemplateFixture.GenericShellJobTemplate.id))(any[ExecutionContext]))
+      .thenReturn(Future(JobTemplateFixture.GenericShellJobTemplate))
 
     // when
     await(underTest.validateOnUpdate(originalWorkflow, updatedWorkflow))
@@ -134,10 +203,15 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
 
   it should "fail if the workflow name already exists in another entity" in {
     // given
-    val underTest = new WorkflowValidationServiceImpl(workflowRepository)
+    val underTest = new WorkflowValidationServiceImpl(workflowRepository, jobTemplateService)
     val originalWorkflow = WorkflowFixture.createWorkflowJoined()
     val updatedWorkflow = originalWorkflow.copy(name = "differentName")
     when(workflowRepository.existsOtherWorkflow(eqTo(updatedWorkflow.name), eqTo(updatedWorkflow.id))(any[ExecutionContext])).thenReturn(Future{true})
+
+    when(jobTemplateService.getJobTemplate(eqTo(JobTemplateFixture.GenericSparkJobTemplate.id))(any[ExecutionContext]))
+      .thenReturn(Future(JobTemplateFixture.GenericSparkJobTemplate))
+    when(jobTemplateService.getJobTemplate(eqTo(JobTemplateFixture.GenericShellJobTemplate.id))(any[ExecutionContext]))
+      .thenReturn(Future(JobTemplateFixture.GenericShellJobTemplate))
 
     // when
     val result = the [ApiException] thrownBy await(underTest.validateOnUpdate(originalWorkflow, updatedWorkflow))
@@ -149,10 +223,15 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
 
   it should "fail if the project name is empty" in {
     // given
-    val underTest = new WorkflowValidationServiceImpl(workflowRepository)
+    val underTest = new WorkflowValidationServiceImpl(workflowRepository, jobTemplateService)
     val originalWorkflow = WorkflowFixture.createWorkflowJoined()
     val updatedWorkflow = originalWorkflow.copy(project = "")
     when(workflowRepository.existsOtherWorkflow(eqTo(updatedWorkflow.name), eqTo(updatedWorkflow.id))(any[ExecutionContext])).thenReturn(Future{false})
+
+    when(jobTemplateService.getJobTemplate(eqTo(JobTemplateFixture.GenericSparkJobTemplate.id))(any[ExecutionContext]))
+      .thenReturn(Future(JobTemplateFixture.GenericSparkJobTemplate))
+    when(jobTemplateService.getJobTemplate(eqTo(JobTemplateFixture.GenericShellJobTemplate.id))(any[ExecutionContext]))
+      .thenReturn(Future(JobTemplateFixture.GenericShellJobTemplate))
 
     // when
     val result = the [ApiException] thrownBy await(underTest.validateOnUpdate(originalWorkflow, updatedWorkflow))
@@ -169,7 +248,7 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
     val mapTwo = Map("bb" -> List("33"), "aa" -> List("11", "22"))
     val mapThree = Map("cc" -> List("44", "55"))
 
-    val underTest = new WorkflowValidationServiceImpl(workflowRepository)
+    val underTest = new WorkflowValidationServiceImpl(workflowRepository, jobTemplateService)
 
     // then
     underTest.areMapsEqual(mapEmpty, mapEmpty) shouldBe true
@@ -190,7 +269,7 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
     val mapTwo = Map("bb" -> SortedMap("55" -> "66"), "aa" -> SortedMap("11" -> "22", "33" -> "44"))
     val mapThree = Map("cc" -> SortedMap("77" -> "88"))
 
-    val underTest = new WorkflowValidationServiceImpl(workflowRepository)
+    val underTest = new WorkflowValidationServiceImpl(workflowRepository, jobTemplateService)
 
     // then
     underTest.areMapsOfMapsEqual(mapEmpty, mapEmpty) shouldBe true
@@ -225,7 +304,7 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
       )
     )
 
-    val underTest = new WorkflowValidationServiceImpl(workflowRepository)
+    val underTest = new WorkflowValidationServiceImpl(workflowRepository, jobTemplateService)
 
     // then
     await(underTest.validateWorkflowData(originalWorkflow, originalWorkflow.copy())) shouldBe Seq(ValidationError("Nothing to update"))

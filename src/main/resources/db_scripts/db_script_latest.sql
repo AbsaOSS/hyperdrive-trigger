@@ -41,7 +41,7 @@ create table "job_definition" (
   "name" VARCHAR NOT NULL,
   "order" INTEGER NOT NULL,
   "id" BIGSERIAL NOT NULL PRIMARY KEY,
-  "job_template_id" BIGINT NOT NULL,
+  "job_template_id" BIGINT,
   "job_parameters" JSONB NOT NULL DEFAULT '{}'
 );
 
@@ -89,7 +89,7 @@ create table "workflow_history" (
 create table "job_template" (
   "name" VARCHAR NOT NULL UNIQUE,
   "id" BIGSERIAL NOT NULL PRIMARY KEY,
-  "form_config" VARCHAR NOT NULL DEFAULT 'unknown',
+  "form_config_old" VARCHAR DEFAULT 'NotUsed',
   "job_parameters" JSONB NOT NULL DEFAULT '{}'
 );
 
@@ -194,11 +194,6 @@ left join (
     on jobInstanceCount.dag_instance_id = dag_instance.id
 left join workflow
     on workflow.id = dag_instance.workflow_id;
-
-insert into "job_template" ("name", "form_config", "job_parameters")
-values ('Generic Spark Job', 'Spark', '{"jobType": "Spark"}');
-insert into "job_template" ("name", "form_config", "job_parameters")
-values ('Generic Shell Job', 'Shell', '{"jobType": "Shell"}');
 
 CREATE INDEX job_instance_dag_instance_idx ON job_instance (dag_instance_id);
 CREATE INDEX dag_instance_workflow_id_idx ON dag_instance (workflow_id);

@@ -17,7 +17,7 @@
 package za.co.absa.hyperdrive.trigger
 
 import org.scalatest.{FlatSpec, Matchers}
-import za.co.absa.hyperdrive.trigger.api.rest.services.WorkflowFixture
+import za.co.absa.hyperdrive.trigger.api.rest.services.{JobTemplateFixture, WorkflowFixture}
 import za.co.absa.hyperdrive.trigger.configuration.application._
 import za.co.absa.hyperdrive.trigger.persistance._
 
@@ -32,7 +32,7 @@ class ApplicationStartPostgresTest extends FlatSpec with Matchers with SpringInt
   @Inject() var hyperDriverManager: HyperDriverManager = _
   @Inject() var workflowHistoryRepository: WorkflowHistoryRepository = _
   @Inject() var workflowRepository: WorkflowRepository = _
-
+  @Inject() var jobTemplateRepository: JobTemplateRepository = _
   @Inject() var authConfig: AuthConfig = _
   @Inject() var generalConfig: GeneralConfig = _
   @Inject() var healthConfig: HealthConfig = _
@@ -88,11 +88,24 @@ class ApplicationStartPostgresTest extends FlatSpec with Matchers with SpringInt
     notificationConfig.enabled shouldBe true
 
     hyperDriverManager.isManagerRunning shouldBe true
+    val jobTemplateSpark = JobTemplateFixture.GenericSparkJobTemplate
+    val jobTemplateShell = JobTemplateFixture.GenericShellJobTemplate
+    await(jobTemplateRepository.insertJobTemplate(jobTemplateSpark))
+    await(jobTemplateRepository.insertJobTemplate(jobTemplateShell))
+    val jobTemplates = await(jobTemplateRepository.getJobTemplates())
+
     val workflowJoined = WorkflowFixture.createWorkflowJoined()
-    await(workflowRepository.insertWorkflow(workflowJoined, "test-user"))
+    val workflowJoinedWithCorrectIds = workflowJoined.copy(
+      dagDefinitionJoined = workflowJoined.dagDefinitionJoined.copy(
+        jobDefinitions = workflowJoined.dagDefinitionJoined.jobDefinitions.map(
+          jobDef => jobDef.copy(jobTemplateId = jobTemplates.find(_.jobParameters.jobType == jobDef.jobParameters.jobType).map(_.id))
+        )
+      )
+    )
+    await(workflowRepository.insertWorkflow(workflowJoinedWithCorrectIds, "test-user"))
     val workflows = await(workflowRepository.getWorkflows())
     workflows.size shouldBe 1
-    workflows.head.name shouldBe workflowJoined.name
+    workflows.head.name shouldBe workflowJoinedWithCorrectIds.name
 
     import api._
     run(sqlu"drop view dag_run_view")

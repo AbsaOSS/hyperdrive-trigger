@@ -15,9 +15,11 @@
 
 package za.co.absa.hyperdrive.trigger.models
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+
 case class JobDefinition(
   dagDefinitionId: Long = 0,
-  jobTemplateId: Long = 0,
+  @JsonDeserialize(contentAs = classOf[java.lang.Long]) jobTemplateId: Option[Long] = None,
   name: String,
   jobParameters: JobDefinitionParameters,
   order: Int,

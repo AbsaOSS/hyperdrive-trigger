@@ -25,7 +25,7 @@ sealed trait JobInstanceParameters {
 }
 
 case class SparkInstanceParameters(
-  jobType: JobType = JobTypes.Spark,
+  jobType: JobType,
   jobJar: String,
   mainClass: String,
   appArguments: List[String] = List.empty[String],
@@ -48,10 +48,10 @@ object ShellInstanceParameters {
 }
 
 object JobInstanceParameters {
-  implicit val jobParametersFormat = new Format[JobInstanceParameters] {
+  implicit val jobParametersFormat: Format[JobInstanceParameters] = new Format[JobInstanceParameters] {
     override def reads(json: JsValue): JsResult[JobInstanceParameters] = {
       (json \ "jobType").as[String] match {
-        case JobTypes.Spark.name => SparkInstanceParameters.sparkFormat.reads(json)
+        case JobTypes.Spark.name | JobTypes.Hyperdrive.name => SparkInstanceParameters.sparkFormat.reads(json)
         case JobTypes.Shell.name => ShellInstanceParameters.shellFormat.reads(json)
       }
     }

@@ -29,13 +29,40 @@ trait JobTemplateResolutionService {
 class JobTemplateResolutionServiceImpl extends JobTemplateResolutionService {
   def resolveDagDefinitionJoined(dagDefinitionJoined: DagDefinitionJoined, jobTemplates: Seq[JobTemplate]): Seq[ResolvedJobDefinition] = {
     val jobTemplatesLookup = jobTemplates.map(t => t.id -> t).toMap
-    dagDefinitionJoined.jobDefinitions.map(jd => {
-      val jobTemplate = Try(jobTemplatesLookup(jd.jobTemplateId)) match {
-        case Success(value) => value
-        case Failure(_) => throw new NoSuchElementException(s"Couldn't find template with id ${jd.jobTemplateId}")
-      }
-      resolveJobDefinition(jd, jobTemplate)
-    })
+    dagDefinitionJoined.jobDefinitions.map {
+      case jd @ JobDefinition(_, Some(jobTemplateId), _, _, _, _) =>
+        val jobTemplate = Try(jobTemplatesLookup(jobTemplateId)) match {
+          case Success(value) => value
+          case Failure(_) => throw new NoSuchElementException(s"Couldn't find template with id ${jobTemplateId}")
+        }
+        resolveJobDefinition(jd, jobTemplate)
+      case jd @ JobDefinition(_, None, _, _, _, _) => resolveJobDefinition(jd)
+    }
+  }
+
+  private def resolveJobDefinition(jobDefinition: JobDefinition): ResolvedJobDefinition = {
+    val jobParameters = jobDefinition.jobParameters match {
+      case SparkDefinitionParameters(jobType, jobJar, mainClass, appArguments, additionalJars, additionalFiles, additionalSparkConfig) =>
+        SparkInstanceParameters(
+          jobType = jobType,
+          jobJar = jobJar.getOrElse(""),
+          mainClass = mainClass.getOrElse(""),
+          appArguments = appArguments,
+          additionalJars = additionalJars,
+          additionalFiles = additionalFiles,
+          additionalSparkConfig = additionalSparkConfig
+        )
+      case ShellDefinitionParameters(_, scriptLocation) =>
+        ShellInstanceParameters(
+          scriptLocation = scriptLocation.getOrElse("")
+        )
+    }
+
+    ResolvedJobDefinition(
+      name = jobDefinition.name,
+      jobParameters = jobParameters,
+      order = jobDefinition.order
+    )
   }
 
   private def resolveJobDefinition(jobDefinition: JobDefinition, jobTemplate: JobTemplate): ResolvedJobDefinition = {
@@ -50,8 +77,6 @@ class JobTemplateResolutionServiceImpl extends JobTemplateResolutionService {
     (primary, secondary) match {
       case (definitionParams: SparkDefinitionParameters, templateParams: SparkTemplateParameters) =>
         mergeSparkParameters(definitionParams, templateParams)
-      case (definitionParams: HyperdriveDefinitionParameters, templateParams: SparkTemplateParameters) =>
-        mergeSparkAndHyperdriveParameters(definitionParams, templateParams)
       case (definitionParams: ShellDefinitionParameters, templateParams: ShellTemplateParameters) =>
         mergeShellParameters(definitionParams, templateParams)
       case _ =>
@@ -59,21 +84,11 @@ class JobTemplateResolutionServiceImpl extends JobTemplateResolutionService {
     }
   }
 
-  private def mergeSparkAndHyperdriveParameters(definitionParams: HyperdriveDefinitionParameters, templateParams: SparkTemplateParameters): SparkInstanceParameters = {
-    SparkInstanceParameters(
-      jobJar = templateParams.jobJar.getOrElse(""),
-      mainClass = templateParams.mainClass.getOrElse(""),
-      appArguments = mergeLists(definitionParams.appArguments, templateParams.appArguments),
-      additionalJars = mergeLists(definitionParams.additionalJars, templateParams.additionalJars),
-      additionalFiles = mergeLists(definitionParams.additionalFiles, templateParams.additionalFiles),
-      additionalSparkConfig = mergeMaps(definitionParams.additionalSparkConfig, templateParams.additionalSparkConfig, mergeSortedMapEntries)
-    )
-  }
-
   private def mergeSparkParameters(definitionParams: SparkDefinitionParameters, templateParams: SparkTemplateParameters): SparkInstanceParameters = {
     SparkInstanceParameters(
-      jobJar = mergeOptionStrings(definitionParams.jobJar, templateParams.jobJar),
-      mainClass = mergeOptionStrings(definitionParams.mainClass, templateParams.mainClass),
+      jobType = definitionParams.jobType,
+      jobJar = mergeOptionString(definitionParams.jobJar, templateParams.jobJar),
+      mainClass = mergeOptionString(definitionParams.mainClass, templateParams.mainClass),
       appArguments = mergeLists(definitionParams.appArguments, templateParams.appArguments),
       additionalJars = mergeLists(definitionParams.additionalJars, templateParams.additionalJars),
       additionalFiles = mergeLists(definitionParams.additionalFiles, templateParams.additionalFiles),
@@ -83,17 +98,17 @@ class JobTemplateResolutionServiceImpl extends JobTemplateResolutionService {
 
   private def mergeShellParameters(definitionParams: ShellDefinitionParameters, templateParams: ShellTemplateParameters): ShellInstanceParameters = {
     ShellInstanceParameters(
-      scriptLocation = definitionParams.scriptLocation.getOrElse(templateParams.scriptLocation.getOrElse(""))
+      scriptLocation = definitionParams.scriptLocation.getOrElse(templateParams.scriptLocation)
     )
   }
 
-  private def mergeOptionStrings(primary: Option[String], secondary: Option[String]) =
-    primary.getOrElse(secondary.getOrElse(""))
+  private def mergeOptionString(primary: Option[String], secondary: String): String =
+    primary.getOrElse(secondary)
 
-  private def mergeLists(primary: List[String], secondary: List[String]) =
+  private def mergeLists(primary: List[String], secondary: List[String]): List[String] =
     secondary ++ primary
 
-  private def mergeSortedMapEntries(key: String, firstValue: String, secondValue: String) = {
+  private def mergeSortedMapEntries(key: String, firstValue: String, secondValue: String): String = {
     if (KeysToMerge.contains(key)) {
       s"$secondValue$MergedValuesSeparator$firstValue".trim
     } else {

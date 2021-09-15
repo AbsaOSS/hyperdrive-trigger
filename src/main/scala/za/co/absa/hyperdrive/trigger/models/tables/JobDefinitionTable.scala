@@ -25,7 +25,7 @@ trait JobDefinitionTable {
   final class JobDefinitionTable(tag: Tag) extends Table[JobDefinition](tag, _tableName = "job_definition") {
 
     def dagDefinitionId: Rep[Long] = column[Long]("dag_definition_id")
-    def jobTemplateId: Rep[Long] = column[Long]("job_template_id")
+    def jobTemplateId: Rep[Option[Long]] = column[Option[Long]]("job_template_id")
     def name: Rep[String] = column[String]("name")
     def jobParameters: Rep[JobDefinitionParameters] = column[JobDefinitionParameters]("job_parameters", O.SqlType("JSONB"))
     def order: Rep[Int] = column[Int]("order")
