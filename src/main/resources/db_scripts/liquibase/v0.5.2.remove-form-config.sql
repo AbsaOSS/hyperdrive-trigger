@@ -33,3 +33,39 @@ where
 
 delete from job_template
 where name = 'Generic Spark Job' OR name = 'Generic Shell Job';
+
+with jobDefinitons as (
+    select id, jsonb_array_elements(workflow::jsonb -> 'dagDefinitionJoined' -> 'jobDefinitions')  as jobDefinition
+    from workflow_history
+),
+updateJobType as (
+    select
+        id,
+        jsonb_set(
+            jobDefinitons.jobDefinition,
+            array ['jobParameters'],
+            (jobDefinitons.jobDefinition -> 'jobParameters')::jsonb - 'formConfig' || jsonb_build_object('jobType', jobDefinitons.jobDefinition -> 'jobParameters'->'formConfig'),
+            true
+        ) as jobDefinition
+    from jobDefinitons
+),
+updatedJobTemplateId as (
+    select
+        id,
+        jsonb_agg(
+            case
+            when  (((updateJobType.jobDefinition -> 'jobParameters')::jsonb ->> 'jobType' = 'Shell') AND ((updateJobType.jobDefinition -> 'jobParameters')::jsonb ->> 'scriptLocation' IS NOT NULL)) OR
+                  (((updateJobType.jobDefinition -> 'jobParameters')::jsonb ->> 'jobType' = 'Hyperdrive') AND ((updateJobType.jobDefinition -> 'jobParameters')::jsonb ->> 'jobJar' IS NOT NULL)) OR
+                  (((updateJobType.jobDefinition -> 'jobParameters')::jsonb ->> 'jobType' = 'Spark') AND ((updateJobType.jobDefinition -> 'jobParameters')::jsonb ->> 'jobJar' IS NOT NULL))
+            then jsonb_delete_path(updateJobType.jobDefinition, array ['jobTemplateId'])
+
+            else updateJobType.jobDefinition::jsonb
+            end
+        ) as jobDefiniton
+    from updateJobType
+    group by id
+)
+update workflow_history
+set workflow = jsonb_set(workflow::jsonb, array['dagDefinitionJoined', 'jobDefinitions'], updatedJobTemplateId.jobDefiniton)
+FROM updatedJobTemplateId
+where updatedJobTemplateId.id=workflow_history.id;
