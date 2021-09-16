@@ -195,7 +195,7 @@ class JobTemplateResolutionServiceTest extends FlatSpec with Matchers {
     )
 
     // then
-    templateDefined.head.jobParameters.jobType shouldBe JobTypes.Hyperdrive
+    templateDefined.head.jobParameters.jobType shouldBe JobTypes.Spark
     templateDefined.head.jobParameters.asInstanceOf[SparkInstanceParameters].jobJar shouldBe sparkTemplateParametersDefined.jobJar
     templateDefined.head.jobParameters.asInstanceOf[SparkInstanceParameters].mainClass shouldBe sparkTemplateParametersDefined.mainClass
     templateDefined.head.jobParameters.asInstanceOf[SparkInstanceParameters].appArguments should contain theSameElementsAs sparkTemplateParametersDefined.appArguments
@@ -203,7 +203,7 @@ class JobTemplateResolutionServiceTest extends FlatSpec with Matchers {
     templateDefined.head.jobParameters.asInstanceOf[SparkInstanceParameters].additionalFiles should contain theSameElementsAs sparkTemplateParametersDefined.additionalFiles
     templateDefined.head.jobParameters.asInstanceOf[SparkInstanceParameters].additionalSparkConfig should contain theSameElementsAs sparkTemplateParametersDefined.additionalSparkConfig
 
-    bothScriptsDefined.head.jobParameters.jobType shouldBe JobTypes.Hyperdrive
+    bothScriptsDefined.head.jobParameters.jobType shouldBe JobTypes.Spark
     bothScriptsDefined.head.jobParameters.asInstanceOf[SparkInstanceParameters].jobJar shouldBe sparkTemplateParametersDefined.jobJar
     bothScriptsDefined.head.jobParameters.asInstanceOf[SparkInstanceParameters].mainClass shouldBe sparkTemplateParametersDefined.mainClass
     bothScriptsDefined.head.jobParameters.asInstanceOf[SparkInstanceParameters].appArguments should contain theSameElementsAs hyperdriveJobParametersDefined.appArguments ++ sparkTemplateParametersDefined.appArguments

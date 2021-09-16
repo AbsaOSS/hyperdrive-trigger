@@ -18,6 +18,7 @@ package za.co.absa.hyperdrive.trigger.api.rest.services
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.configuration.application.JobDefinitionConfig.{KeysToMerge, MergedValuesSeparator}
 import za.co.absa.hyperdrive.trigger.models._
+import za.co.absa.hyperdrive.trigger.models.enums.JobTypes
 
 import scala.util.{Failure, Success, Try}
 
@@ -86,7 +87,7 @@ class JobTemplateResolutionServiceImpl extends JobTemplateResolutionService {
 
   private def mergeSparkParameters(definitionParams: SparkDefinitionParameters, templateParams: SparkTemplateParameters): SparkInstanceParameters = {
     SparkInstanceParameters(
-      jobType = definitionParams.jobType,
+      jobType = JobTypes.Spark,
       jobJar = mergeOptionString(definitionParams.jobJar, templateParams.jobJar),
       mainClass = mergeOptionString(definitionParams.mainClass, templateParams.mainClass),
       appArguments = mergeLists(definitionParams.appArguments, templateParams.appArguments),
