@@ -16,16 +16,18 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.executors.spark
 
-import com.amazonaws.services.elasticmapreduce.model.{ActionOnFailure, AddJobFlowStepsRequest, HadoopJarStepConfig, StepConfig}
+import com.amazonaws.services.elasticmapreduce.model.{ActionOnFailure, AddJobFlowStepsRequest, DescribeStepRequest, HadoopJarStepConfig, StepConfig, StepState}
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.configuration.application.SparkConfig
-import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.Submitting
+import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses
+import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.{JobStatus, Lost, Submitting}
 import za.co.absa.hyperdrive.trigger.models.{JobInstance, SparkInstanceParameters}
 
 import java.util.UUID.randomUUID
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success, Try}
 
 @Service
 class SparkEmrClusterServiceImpl @Inject()(sparkConfig: SparkConfig, emrClusterProvider: EmrClusterProviderService) extends SparkClusterService {
@@ -35,13 +37,13 @@ class SparkEmrClusterServiceImpl @Inject()(sparkConfig: SparkConfig, emrClusterP
   override def submitJob(jobInstance: JobInstance, jobParameters: SparkInstanceParameters, updateJob: JobInstance => Future[Unit])
                         (implicit executionContext: ExecutionContext): Future[Unit] = {
     val id = randomUUID().toString
-    val ji = jobInstance.copy(executorJobId = Some(id), jobStatus = Submitting)
-    updateJob(ji).map { _ =>
+    val jiSubmitting = jobInstance.copy(executorJobId = Some(id), jobStatus = Submitting)
+    updateJob(jiSubmitting).map { _ =>
       import scala.collection.JavaConverters._
       val stepConfig = new StepConfig()
         .withHadoopJarStep(new HadoopJarStepConfig()
           .withJar(commandRunnerJar)
-          .withArgs(getSparkArgs(id, ji.jobName, jobParameters):_*)
+          .withArgs(getSparkArgs(id, jiSubmitting.jobName, jobParameters):_*)
         )
         .withActionOnFailure(ActionOnFailure.CONTINUE)
         .withName(jobInstance.jobName)
@@ -55,12 +57,28 @@ class SparkEmrClusterServiceImpl @Inject()(sparkConfig: SparkConfig, emrClusterP
       val stepId = response.getStepIds.asScala.headOption
       logger.info(s"Added jobFlowStepsRequest ${jobFlowStepsRequest} for executorId ${id} and stepId $stepId}")
       logger.info(response.toString)
+      stepId
+    }.flatMap { stepId =>
+      val jiStepId = jiSubmitting.copy(stepId = stepId)
+      updateJob(jiStepId)
     }
   }
 
   override def handleMissingYarnStatusForJobStatusSubmitting(jobInstance: JobInstance, updateJob: JobInstance => Future[Unit])
-    (implicit executionContext: ExecutionContext): Future[Unit] = Future {
-    // do nothing
+    (implicit executionContext: ExecutionContext): Future[Unit] = {
+    val emr = emrClusterProvider.get()
+    val jobStatus = jobInstance.stepId match {
+      case Some(stepId) =>
+        val request = new DescribeStepRequest()
+          .withClusterId(sparkConfig.emr.clusterId)
+          .withStepId(stepId)
+        val stepState = emr.describeStep(request).getStep.getStatus.getState
+        mapStepStateToJobStatus(stepState, jobInstance)
+      case None =>
+        logger.error(s"Expected non-null step id, but was null on jobInstance: ${jobInstance}")
+        Lost
+    }
+    updateJob(jobInstance.copy(jobStatus = jobStatus))
   }
 
   private def getSparkArgs(id: String, jobName: String, jobParameters: SparkInstanceParameters) = {
@@ -82,5 +100,20 @@ class SparkEmrClusterServiceImpl @Inject()(sparkConfig: SparkConfig, emrClusterP
       sparkArgs = Seq("--verbose"),
       appArgs = jobParameters.appArguments
     ).getArgs
+  }
+
+  private def mapStepStateToJobStatus(stepState: String, jobInstance: JobInstance): JobStatus = {
+    Try(StepState.fromValue(stepState)) match {
+      case Failure(exception) =>
+        logger.error(s"Encountered unexpected step state ${stepState} in jobInstance ${jobInstance}", exception)
+        JobStatuses.Lost
+      case Success(value) => value match {
+        case StepState.PENDING | StepState.CANCEL_PENDING => JobStatuses.Submitting
+        case StepState.RUNNING => JobStatuses.Running
+        case StepState.COMPLETED => JobStatuses.Succeeded
+        case StepState.CANCELLED => JobStatuses.Killed
+        case StepState.FAILED | StepState.INTERRUPTED => JobStatuses.Failed
+      }
+    }
   }
 }
