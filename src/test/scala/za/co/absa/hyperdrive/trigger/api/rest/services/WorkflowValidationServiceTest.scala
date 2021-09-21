@@ -159,11 +159,11 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
     // then
     result.apiErrors should have size 1
     result.apiErrors should contain theSameElementsAs Seq(
-      ValidationError("Template's job type has to be the same as job's job type. Template - Spark is not equlat to Job - Shell")
+      ValidationError("Template's job type has to be the same as job's job type. Template - Spark is not equal to Job - Shell")
     )
   }
 
-  it should "fail if mandatory fields are empty" in {
+  it should "fail if mandatory fields are empty - Shell" in {
     // given
     val underTest = new WorkflowValidationServiceImpl(workflowRepository, jobTemplateService)
     val workflowJoined = WorkflowFixture.createShellScriptJobWithoutTemplateAndScript()
@@ -178,6 +178,24 @@ class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with Moc
     println(result.apiErrors.head.message)
     result.apiErrors should contain theSameElementsAs Seq(
       ValidationError("Script location cannot be empty in case of Shell job type when template is empty")
+    )
+  }
+
+  it should "fail if mandatory fields are empty - Spark" in {
+    // given
+    val underTest = new WorkflowValidationServiceImpl(workflowRepository, jobTemplateService)
+    val workflowJoined = WorkflowFixture.createSparkJobWithoutTemplateAndJar()
+
+    when(workflowRepository.existsWorkflows(eqTo(Seq(workflowJoined.name)))(any[ExecutionContext])).thenReturn(Future{Seq()})
+
+    // when
+    val result = the [ApiException] thrownBy await(underTest.validateOnInsert(workflowJoined))
+
+    // then
+    result.apiErrors should have size 1
+    println(result.apiErrors.head.message)
+    result.apiErrors should contain theSameElementsAs Seq(
+      ValidationError("Job jar and main class cannot be empty in case of Spark job type when template is empty")
     )
   }
 

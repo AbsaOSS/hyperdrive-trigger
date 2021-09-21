@@ -38,7 +38,7 @@ object WorkflowFixture {
     "0 43 12 22 4 ? *"
   )
 
-  def createWorkflowJoined() = {
+  def createWorkflowJoined(sparkJobTemplateId: Long = GenericSparkJobTemplate.id, shellJobTemplateId: Long = GenericShellJobTemplate.id) = {
     WorkflowJoined(
       id = 10,
       name = "testWorkflow",
@@ -59,7 +59,7 @@ object WorkflowFixture {
         jobDefinitions = Seq(
           JobDefinition(
             dagDefinitionId = 0,
-            jobTemplateId = Some(GenericSparkJobTemplate.id),
+            jobTemplateId = Some(sparkJobTemplateId),
             name = "TestJob1",
             jobParameters = SparkDefinitionParameters(
               jobType = JobTypes.Spark,
@@ -71,7 +71,7 @@ object WorkflowFixture {
           ),
           JobDefinition(
             dagDefinitionId = 0,
-            jobTemplateId = Some(GenericShellJobTemplate.id),
+            jobTemplateId = Some(shellJobTemplateId),
             name = "TestJob2",
             jobParameters = ShellDefinitionParameters(
               scriptLocation = Option("/dir/script.sh")
@@ -220,6 +220,38 @@ object WorkflowFixture {
             name = s"${randomString()}",
             jobParameters = ShellDefinitionParameters(
               scriptLocation = None
+            ),
+            order = 0
+          )
+        )
+      )
+    )
+  }
+
+  def createSparkJobWithoutTemplateAndJar(): WorkflowJoined = {
+    WorkflowJoined(
+      name = s"Time ${randomString(maxLength = MaxLengthRandomString - 5)}",
+      isActive = randomBoolean(),
+      created = randomDate(),
+      updated = if (randomBoolean()) Some(randomDate()) else None,
+      project = "project",
+      sensor = Sensor(
+        workflowId = 0,
+        properties = TimeSensorProperties(
+          cronExpression = randomCron()
+        )
+      ),
+      dagDefinitionJoined = DagDefinitionJoined(
+        workflowId = 0,
+        jobDefinitions = Seq(
+          JobDefinition(
+            dagDefinitionId = 0,
+            jobTemplateId = None,
+            name = s"${randomString()}",
+            jobParameters = SparkDefinitionParameters(
+              jobType = JobTypes.Spark,
+              jobJar = None,
+              mainClass = None
             ),
             order = 0
           )

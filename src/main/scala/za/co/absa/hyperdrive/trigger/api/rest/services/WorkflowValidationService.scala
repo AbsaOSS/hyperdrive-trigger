@@ -185,7 +185,7 @@ class WorkflowValidationServiceImpl @Inject()(override val workflowRepository: W
         case Some(jobTemplateId) => jobTemplateService.getJobTemplate(jobTemplateId).map { jobTemplate =>
           if (jobTemplate.jobParameters.jobType != jobDefinition.jobParameters.jobType)
             Seq(ValidationError(
-              s"Template's job type has to be the same as job's job type. Template - ${jobTemplate.jobParameters.jobType} is not equlat to Job - ${jobDefinition.jobParameters.jobType}"
+              s"Template's job type has to be the same as job's job type. Template - ${jobTemplate.jobParameters.jobType} is not equal to Job - ${jobDefinition.jobParameters.jobType}"
             ))
           else
             Seq.empty[ApiError]

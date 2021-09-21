@@ -19,6 +19,7 @@ package za.co.absa.hyperdrive.trigger
 import org.scalatest.{FlatSpec, Matchers}
 import za.co.absa.hyperdrive.trigger.api.rest.services.{JobTemplateFixture, WorkflowFixture}
 import za.co.absa.hyperdrive.trigger.configuration.application._
+import za.co.absa.hyperdrive.trigger.models.enums.JobTypes
 import za.co.absa.hyperdrive.trigger.persistance._
 
 import java.time.Duration
@@ -94,18 +95,15 @@ class ApplicationStartPostgresTest extends FlatSpec with Matchers with SpringInt
     await(jobTemplateRepository.insertJobTemplate(jobTemplateShell))
     val jobTemplates = await(jobTemplateRepository.getJobTemplates())
 
-    val workflowJoined = WorkflowFixture.createWorkflowJoined()
-    val workflowJoinedWithCorrectIds = workflowJoined.copy(
-      dagDefinitionJoined = workflowJoined.dagDefinitionJoined.copy(
-        jobDefinitions = workflowJoined.dagDefinitionJoined.jobDefinitions.map(
-          jobDef => jobDef.copy(jobTemplateId = jobTemplates.find(_.jobParameters.jobType == jobDef.jobParameters.jobType).map(_.id))
-        )
-      )
+    val workflowJoined = WorkflowFixture.createWorkflowJoined(
+      sparkJobTemplateId = jobTemplates.find(_.jobParameters.jobType == JobTypes.Spark).map(_.id).get,
+      shellJobTemplateId = jobTemplates.find(_.jobParameters.jobType == JobTypes.Shell).map(_.id).get
     )
-    await(workflowRepository.insertWorkflow(workflowJoinedWithCorrectIds, "test-user"))
+
+    await(workflowRepository.insertWorkflow(workflowJoined, "test-user"))
     val workflows = await(workflowRepository.getWorkflows())
     workflows.size shouldBe 1
-    workflows.head.name shouldBe workflowJoinedWithCorrectIds.name
+    workflows.head.name shouldBe workflowJoined.name
 
     import api._
     run(sqlu"drop view dag_run_view")

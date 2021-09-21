@@ -25,7 +25,7 @@ sealed trait JobInstanceParameters {
 }
 
 case class SparkInstanceParameters(
-  jobType: JobType,
+  jobType: JobType = JobTypes.Spark,
   jobJar: String,
   mainClass: String,
   appArguments: List[String] = List.empty[String],
