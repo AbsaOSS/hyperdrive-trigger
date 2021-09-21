@@ -67,4 +67,7 @@ databaseChangeLog:
       file: v0.4.4.drop-old-fields.yml
   - include:
       relativeToChangelogFile: true
+      file: v0.4.4.refactor-sensor-properties.yml
+  - include:
+      relativeToChangelogFile: true
       file: v0.5.2.add-step-id.yml
