@@ -36,7 +36,7 @@ import scala.util.{Failure, Success, Try}
 class SparkEmrClusterServiceImpl @Inject()(sparkConfig: SparkConfig, emrClusterProvider: EmrClusterProviderService) extends SparkClusterService {
   private val logger = LoggerFactory.getLogger(this.getClass)
   private val commandRunnerJar = "command-runner.jar"
-  private val emr = emrClusterProvider.get()
+  private lazy val emr = emrClusterProvider.get()
 
   override def submitJob(jobInstance: JobInstance, jobParameters: SparkInstanceParameters, updateJob: JobInstance => Future[Unit])
                         (implicit executionContext: ExecutionContext): Future[Unit] = {
