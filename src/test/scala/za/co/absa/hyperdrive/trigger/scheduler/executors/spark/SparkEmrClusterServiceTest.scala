@@ -16,7 +16,7 @@
 package za.co.absa.hyperdrive.trigger.scheduler.executors.spark
 
 import com.amazonaws.services.elasticmapreduce.AmazonElasticMapReduce
-import com.amazonaws.services.elasticmapreduce.model.{ActionOnFailure, AddJobFlowStepsRequest, AddJobFlowStepsResult, DescribeStepResult, Step, StepState, StepStatus}
+import com.amazonaws.services.elasticmapreduce.model.{ActionOnFailure, AddJobFlowStepsRequest, AddJobFlowStepsResult, DescribeStepResult, ListStepsRequest, ListStepsResult, Step, StepState, StepStatus, StepSummary}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, times, verify, when}
@@ -32,6 +32,7 @@ import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.{InQueue, JobStatu
 import za.co.absa.hyperdrive.trigger.models.{JobInstance, SparkInstanceParameters}
 
 import java.time.LocalDateTime
+import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
 class SparkEmrClusterServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar with OptionValues
@@ -116,7 +117,7 @@ class SparkEmrClusterServiceTest extends AsyncFlatSpec with Matchers with Mockit
       "job.jar",
       "arg1", "arg2", "key1=value1", "key2=value2")
     stepConfig.getActionOnFailure shouldBe ActionOnFailure.CONTINUE.toString
-    stepConfig.getName shouldBe jobInstance.jobName
+    stepConfig.getName shouldBe jobInstance.jobName + "_" + executorJobId
   }
 
   private val cases = Table(
@@ -151,10 +152,51 @@ class SparkEmrClusterServiceTest extends AsyncFlatSpec with Matchers with Mockit
     }
   }
 
-  "handleMissingYarnStatusForJobStatusSubmitting" should "update the job status to Lost if the step id is missing" in {
+  "handleMissingYarnStatusForJobStatusSubmitting" should "update the job status using the step name if the step id is missing" in {
     // given
-    val jobInstance = createJobInstance()
+    import scala.collection.JavaConverters._
+    val executorJobId = "executorJobId" + UUID.randomUUID().toString
+    val jobName = "jobName"
+    val stepId = "s-abcdefghi"
+
+    val stepSummariesPage1 = (11 to 15).map(createTestStepSummary)
+    val paginationMarker = "paginationMarker" + UUID.randomUUID().toString
+    val stepSummariesPage2 = (21 to 25).map(createTestStepSummary) :+ new StepSummary()
+      .withId(stepId)
+      .withName(s"${jobName}_${executorJobId}")
+      .withStatus(new StepStatus().withState(StepState.RUNNING))
+    val jobInstance = createJobInstance().copy(jobName = jobName, executorJobId = Some(executorJobId))
     when(mockUpdateJob.updateJob(any())).thenReturn(Future{})
+    when(mockEmrClient.listSteps(any())).thenAnswer(new Answer[ListStepsResult] {
+      override def answer(invocation: InvocationOnMock): ListStepsResult = {
+        val marker = invocation.getArgument[ListStepsRequest](0).getMarker
+        if (marker == null) {
+          new ListStepsResult()
+            .withSteps(stepSummariesPage1.asJava)
+            .withMarker(paginationMarker)
+        } else {
+          new ListStepsResult().withSteps(stepSummariesPage2.asJava)
+        }
+      }
+    })
+
+    // when
+    await(underTest.handleMissingYarnStatusForJobStatusSubmitting(jobInstance, mockUpdateJob.updateJob))
+
+    // then
+    val jobInstanceCaptor: ArgumentCaptor[JobInstance] = ArgumentCaptor.forClass(classOf[JobInstance])
+    verify(mockUpdateJob).updateJob(jobInstanceCaptor.capture())
+    val ji = jobInstanceCaptor.getValue
+    ji.jobStatus shouldBe JobStatuses.Running
+    ji.stepId.value shouldBe stepId
+  }
+
+  it should "update the job status to lost if no step with matching name or id exists" in {
+    import scala.collection.JavaConverters._
+    val executorJobId = UUID.randomUUID().toString
+    val jobInstance = createJobInstance().copy(executorJobId = Some(executorJobId))
+    when(mockUpdateJob.updateJob(any())).thenReturn(Future{})
+    when(mockEmrClient.listSteps(any())).thenReturn(new ListStepsResult().withSteps(Seq[StepSummary]().asJava))
 
     // when
     await(underTest.handleMissingYarnStatusForJobStatusSubmitting(jobInstance, mockUpdateJob.updateJob))
@@ -165,7 +207,6 @@ class SparkEmrClusterServiceTest extends AsyncFlatSpec with Matchers with Mockit
     val ji = jobInstanceCaptor.getValue
     ji.jobStatus shouldBe JobStatuses.Lost
   }
-
 
   private def createJobInstance() = {
     JobInstance(
@@ -191,5 +232,12 @@ class SparkEmrClusterServiceTest extends AsyncFlatSpec with Matchers with Mockit
       order = 0,
       dagInstanceId = 0
     )
+  }
+
+  private def createTestStepSummary(id: Int) = {
+    new StepSummary()
+      .withId(s"$id")
+      .withName(s"job_$id")
+      .withStatus(new StepStatus().withState(StepState.RUNNING))
   }
 }

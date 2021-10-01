@@ -16,16 +16,19 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.executors.spark
 
-import com.amazonaws.services.elasticmapreduce.model.{ActionOnFailure, AddJobFlowStepsRequest, DescribeStepRequest, HadoopJarStepConfig, StepConfig, StepState}
+import com.amazonaws.services.elasticmapreduce.model.{ActionOnFailure, AddJobFlowStepsRequest, DescribeStepRequest, HadoopJarStepConfig, ListStepsRequest, StepConfig, StepState, StepSummary}
+import org.apache.commons.lang3.StringUtils
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.configuration.application.SparkConfig
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.{JobStatus, Lost, Submitting}
 import za.co.absa.hyperdrive.trigger.models.{JobInstance, SparkInstanceParameters}
+import za.co.absa.hyperdrive.trigger.scheduler.executors.spark.SparkEmrClusterServiceImpl.getStepName
 
 import java.util.UUID.randomUUID
 import javax.inject.Inject
+import scala.annotation.tailrec
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
@@ -33,6 +36,7 @@ import scala.util.{Failure, Success, Try}
 class SparkEmrClusterServiceImpl @Inject()(sparkConfig: SparkConfig, emrClusterProvider: EmrClusterProviderService) extends SparkClusterService {
   private val logger = LoggerFactory.getLogger(this.getClass)
   private val commandRunnerJar = "command-runner.jar"
+  private val emr = emrClusterProvider.get()
 
   override def submitJob(jobInstance: JobInstance, jobParameters: SparkInstanceParameters, updateJob: JobInstance => Future[Unit])
                         (implicit executionContext: ExecutionContext): Future[Unit] = {
@@ -46,13 +50,12 @@ class SparkEmrClusterServiceImpl @Inject()(sparkConfig: SparkConfig, emrClusterP
           .withArgs(getSparkArgs(id, jiSubmitting.jobName, jobParameters):_*)
         )
         .withActionOnFailure(ActionOnFailure.CONTINUE)
-        .withName(jobInstance.jobName)
+        .withName(getStepName(jiSubmitting.jobName, jiSubmitting.executorJobId.get))
 
       val jobFlowStepsRequest = new AddJobFlowStepsRequest()
         .withJobFlowId(sparkConfig.emr.clusterId)
         .withSteps(Seq(stepConfig).asJava)
 
-      val emr = emrClusterProvider.get()
       val response = emr.addJobFlowSteps(jobFlowStepsRequest)
       val stepId = response.getStepIds.asScala.headOption
       logger.info(s"Added jobFlowStepsRequest ${jobFlowStepsRequest} for executorId ${id} and stepId $stepId}")
@@ -66,19 +69,46 @@ class SparkEmrClusterServiceImpl @Inject()(sparkConfig: SparkConfig, emrClusterP
 
   override def handleMissingYarnStatusForJobStatusSubmitting(jobInstance: JobInstance, updateJob: JobInstance => Future[Unit])
     (implicit executionContext: ExecutionContext): Future[Unit] = {
-    val emr = emrClusterProvider.get()
-    val jobStatus = jobInstance.stepId match {
+    val updatedJobInstance = jobInstance.stepId match {
       case Some(stepId) =>
-        val request = new DescribeStepRequest()
-          .withClusterId(sparkConfig.emr.clusterId)
-          .withStepId(stepId)
-        val stepState = emr.describeStep(request).getStep.getStatus.getState
-        mapStepStateToJobStatus(stepState, jobInstance)
+        val jobStatus = getStateByStepId(stepId, jobInstance)
+        jobInstance.copy(jobStatus = jobStatus)
       case None =>
-        logger.error(s"Expected non-null step id, but was null on jobInstance: ${jobInstance}")
-        Lost
+        logger.debug(s"No stepId set for jobInstance ${jobInstance}. Getting step Id by step name")
+        val stepName = getStepName(jobInstance.jobName, jobInstance.executorJobId.get)
+        val stepSummary = getStepSummaryByStepName(stepName)
+        stepSummary match {
+          case Some(s) =>
+            val jobStatus = mapStepStateToJobStatus(s.getStatus.getState, jobInstance)
+            jobInstance.copy(stepId = Some(s.getId), jobStatus = jobStatus)
+          case None =>
+            logger.error(s"No step could be found for jobInstance: ${jobInstance}")
+            jobInstance.copy(jobStatus = Lost)
+        }
     }
-    updateJob(jobInstance.copy(jobStatus = jobStatus))
+    updateJob(updatedJobInstance)
+  }
+
+  private def getStateByStepId(stepId: String, jobInstance: JobInstance) = {
+    val request = new DescribeStepRequest()
+      .withClusterId(sparkConfig.emr.clusterId)
+      .withStepId(stepId)
+
+    val stepState = emr.describeStep(request).getStep.getStatus.getState
+    mapStepStateToJobStatus(stepState, jobInstance)
+  }
+
+  @tailrec
+  private def getStepSummaryByStepName(stepName: String, paginationMarker: Option[String] = None): Option[StepSummary] = {
+    val request = new ListStepsRequest().withClusterId(sparkConfig.emr.clusterId)
+    val requestWithMarker = paginationMarker.map(p => request.withMarker(p)).getOrElse(request)
+    val result = emr.listSteps(requestWithMarker)
+    import scala.collection.JavaConverters._
+    result.getSteps.asScala.find(s => s.getName == stepName) match {
+      case Some(x) => Some(x)
+      case None if result.getMarker == null || result.getMarker.isEmpty => None
+      case None => getStepSummaryByStepName(stepName, Some(result.getMarker))
+    }
   }
 
   private def getSparkArgs(id: String, jobName: String, jobParameters: SparkInstanceParameters) = {
@@ -116,4 +146,17 @@ class SparkEmrClusterServiceImpl @Inject()(sparkConfig: SparkConfig, emrClusterP
       }
     }
   }
+}
+
+object SparkEmrClusterServiceImpl {
+  private val JobNameMaxLength = 50
+
+  /**
+   *
+   * @param jobName a human-readable name
+   * @param jobId a uuid
+   * @return the first 50 characters of the job name, followed by a underscore and the uuid
+   */
+  def getStepName(jobName: String, jobId: String): String =
+    s"${StringUtils.abbreviate(jobName, JobNameMaxLength)}_${jobId}"
 }
