@@ -40,6 +40,7 @@ class ShellExecutorTest extends FlatSpec with Matchers with BeforeAndAfterAll wi
     jobStatus = InQueue,
     executorJobId = None,
     applicationId = None,
+    stepId = None,
     created = LocalDateTime.now(),
     updated = None,
     order = 0,

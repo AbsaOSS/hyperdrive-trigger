@@ -18,7 +18,7 @@ package za.co.absa.hyperdrive.trigger.api.rest.services
 import java.time.LocalDateTime
 
 import org.springframework.stereotype.Service
-import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobStatuses, JobTypes}
+import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobStatuses}
 import za.co.absa.hyperdrive.trigger.models.{DagDefinitionJoined, DagInstanceJoined, JobInstance, ResolvedJobDefinition}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -61,6 +61,7 @@ class DagInstanceServiceImpl(override val jobTemplateService: JobTemplateService
         jobStatus = initialJobStatus,
         executorJobId = None,
         applicationId = None,
+        stepId = None,
         created = now,
         updated = finished,
         order = resolvedJobDefinition.order,

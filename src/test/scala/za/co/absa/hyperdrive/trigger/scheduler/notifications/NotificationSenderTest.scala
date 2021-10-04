@@ -140,6 +140,7 @@ class NotificationSenderTest extends FlatSpec with MockitoSugar with Matchers wi
       jobStatus = InQueue,
       executorJobId = None,
       applicationId = None,
+      stepId = None,
       created = LocalDateTime.now(),
       updated = None,
       order = 0,
