@@ -16,27 +16,14 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.executors.spark
 
-import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.services.elasticmapreduce.{AmazonElasticMapReduce, AmazonElasticMapReduceClientBuilder}
 import org.springframework.stereotype.Service
-import za.co.absa.hyperdrive.trigger.configuration.application.SparkConfig
-
-import javax.inject.Inject
 
 trait EmrClusterProviderService {
   def get(): AmazonElasticMapReduce
 }
 
 @Service
-class EmrClusterProviderServiceImpl @Inject()(sparkConfig: SparkConfig) extends EmrClusterProviderService {
-  override def get(): AmazonElasticMapReduce = {
-    val emrBuilder = AmazonElasticMapReduceClientBuilder.standard()
-    val emrWithRegion = sparkConfig.emr.region
-      .map(region => emrBuilder.withRegion(region))
-      .getOrElse(emrBuilder)
-    sparkConfig.emr.awsProfile
-      .map(profile => emrWithRegion.withCredentials(new ProfileCredentialsProvider(profile)))
-      .getOrElse(emrWithRegion)
-      .build()
-  }
+class EmrClusterProviderServiceImpl extends EmrClusterProviderService {
+  override def get(): AmazonElasticMapReduce = AmazonElasticMapReduceClientBuilder.standard().build()
 }
