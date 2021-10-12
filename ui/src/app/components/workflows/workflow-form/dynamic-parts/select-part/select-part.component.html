@@ -13,25 +13,33 @@
   ~ limitations under the License.
   -->
 
-<clr-select-container *ngIf="!isShow">
+<clr-control-container *ngIf="options.size != 0 && !isShow">
   <label>{{name}}</label>
-  <select
-    clrSelect
-    [id]="name+uiid"
-    style="width:100%; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"
-    [name]="name+uiid"
-    [ngModel]="value"
-    (ngModelChange)="modelChanged($event)"
-    [required]="partValidationSafe.isRequired">
-    <!-- option.key contains the value, option.value contains the label -->
-    <option *ngFor="let option of options | keyvalue" [value]="option.key">{{option.value}}</option>
-  </select>
-  <clr-control-error *clrIfError="'required'">{{texts.FORM_VALIDATION_ONE_MUST_BE_SELECTED(name)}}</clr-control-error>
-</clr-select-container>
+  <div class="clr-select-wrapper">
+    <select [name]="name+uiid"  class="clr-select" clrControl [ngModel]="value" (ngModelChange)="modelChanged($event)">
+      <option *ngIf="!isRequired" class="dropdown-item"></option>
+      <option *ngFor="let option of options | keyvalue" [value]="option.key">
+        {{option.value}}</option>
+    </select>
+  </div>
+  <button *ngIf="!isRequired" type="button" class="btn btn-link" (click)="removeSelectedOption()">
+    <clr-icon shape="trash"></clr-icon>
+  </button>
+</clr-control-container>
+
+<div *ngIf="options.size == 0 && !isShow" class="clr-form-control clr-row">
+  <label class="clr-control-label clr-col-12 clr-col-md-2">{{name}}</label>
+  <span class="clr-control-container clr-col-md-10 clr-col-12 breakableSpan">
+    Nothing to select !
+  </span>
+</div>
 
 <div *ngIf="isShow" class="clr-form-control clr-row">
   <label class="clr-control-label clr-col-12 clr-col-md-2">{{name}}</label>
-  <span class="clr-control-container clr-col-md-10 clr-col-12 breakableSpan">
-    {{options.get(value.toString())}}
+  <span *ngIf="value" class="clr-control-container clr-col-md-10 clr-col-12 breakableSpan">
+    {{options.get(value?.toString())}}
+  </span>
+  <span *ngIf="!value" class="clr-control-container clr-col-md-10 clr-col-12 breakableSpan">
+    Nothing selected!
   </span>
 </div>

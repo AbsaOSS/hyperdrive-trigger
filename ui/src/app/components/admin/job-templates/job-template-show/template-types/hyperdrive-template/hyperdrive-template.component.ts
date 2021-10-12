@@ -13,11 +13,19 @@
  * limitations under the License.
  */
 
-import { WorkflowEntryModel } from '../../models/workflowEntry.model';
+import { Component, Input } from '@angular/core';
+import { HyperdriveTemplateParametersModel } from '../../../../../../models/jobTemplateParameters.model';
 
-export class WorkflowEntryUtil {
-  static getValue(property: string, data: WorkflowEntryModel[]): any {
-    const val = data?.find((value) => value.property == property);
-    return !!val ? val.value : undefined;
+@Component({
+  selector: 'app-hyperdrive-template',
+  templateUrl: './hyperdrive-template.component.html',
+  styleUrls: ['./hyperdrive-template.component.scss'],
+})
+export class HyperdriveTemplateComponent {
+  @Input() isShow: boolean;
+  @Input() jobParameters: HyperdriveTemplateParametersModel;
+
+  constructor() {
+    // do nothing
   }
 }

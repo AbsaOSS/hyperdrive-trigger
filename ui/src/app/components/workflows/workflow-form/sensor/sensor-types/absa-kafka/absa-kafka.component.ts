@@ -13,41 +13,32 @@
  * limitations under the License.
  */
 
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { Subject, Subscription } from 'rxjs';
-import { Action } from '@ngrx/store';
-import { PartValidationFactory } from '../../../../../../models/workflowFormParts.model';
-import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../../models/workflowEntry.model';
-import { WorkflowSensorChanged } from '../../../../../../stores/workflows/workflows.actions';
-import { WorkflowEntryUtil } from 'src/app/utils/workflowEntry/workflowEntry.util';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { AbsaKafkaSensorProperties } from '../../../../../../models/sensorProperties.model';
 
 @Component({
   selector: 'app-absa-kafka',
   templateUrl: './absa-kafka.component.html',
   styleUrls: ['./absa-kafka.component.scss'],
 })
-export class AbsaKafkaComponent implements OnInit, OnDestroy {
+export class AbsaKafkaComponent {
   @Input() isShow: boolean;
-  @Input() sensorData: WorkflowEntryModel[];
-  @Input() changes: Subject<Action>;
-
-  WorkflowEntryUtil = WorkflowEntryUtil;
-  PartValidationFactory = PartValidationFactory;
-
-  sensorChanges: Subject<WorkflowEntryModel> = new Subject<WorkflowEntryModel>();
-  sensorChangesSubscription: Subscription;
+  @Input() sensorProperties: AbsaKafkaSensorProperties;
+  @Output() sensorPropertiesChange: EventEmitter<AbsaKafkaSensorProperties> = new EventEmitter();
 
   constructor() {
     // do nothing
   }
 
-  ngOnInit(): void {
-    this.sensorChangesSubscription = this.sensorChanges.subscribe((sensorChange) => {
-      this.changes.next(new WorkflowSensorChanged(WorkflowEntryModelFactory.create(sensorChange.property, sensorChange.value)));
-    });
+  topicChange(topic: string) {
+    this.sensorPropertiesChange.emit({ ...this.sensorProperties, topic: topic });
   }
 
-  ngOnDestroy(): void {
-    !!this.sensorChangesSubscription && this.sensorChangesSubscription.unsubscribe();
+  kafkaServersChange(kafkaServers: string[]) {
+    this.sensorPropertiesChange.emit({ ...this.sensorProperties, servers: kafkaServers });
+  }
+
+  ingestionTokenChange(ingestionToken: string) {
+    this.sensorPropertiesChange.emit({ ...this.sensorProperties, ingestionToken: ingestionToken });
   }
 }

@@ -1,4 +1,4 @@
-/*
+/*!
  * Copyright 2018 ABSA Group Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,18 +12,3 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import { WorkflowEntryModel } from './workflowEntry.model';
-import { JobEntryModel } from './jobEntry.model';
-
-export type WorkflowFormDataModel = {
-  details: WorkflowEntryModel[];
-  sensor: WorkflowEntryModel[];
-  jobs: JobEntryModel[];
-};
-
-export class WorkflowFormDataModelFactory {
-  static create(details: WorkflowEntryModel[], sensor: WorkflowEntryModel[], jobs: JobEntryModel[]): WorkflowFormDataModel {
-    return { details: details, sensor: sensor, jobs: jobs };
-  }
-}

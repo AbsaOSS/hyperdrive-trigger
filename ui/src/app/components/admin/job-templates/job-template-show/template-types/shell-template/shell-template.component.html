@@ -16,8 +16,5 @@
 <app-string-part
   [isShow]="isShow"
   [name]="'Script'"
-  [valueChanges]="jobChanges"
-  [value]="WorkflowEntryUtil.getValue('jobParameters.scriptLocation', jobData)"
-  [property]="'jobParameters.scriptLocation'"
-  [partValidation]="PartValidationFactory.create(true, undefined, 1)">
+  [value]="jobParameters?.scriptLocation">
 </app-string-part>

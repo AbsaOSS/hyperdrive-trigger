@@ -13,35 +13,54 @@
   ~ limitations under the License.
   -->
 
+<app-string-part
+  *ngIf="!isJobTemplateSelected"
+  [isShow]="isShow"
+  [name]="'Job jar'"
+  [value]="jobParameters?.jobJar"
+  (valueChange)="jobJarChange($event)"
+  [isRequired]=true
+  [minLength]=1>
+</app-string-part>
+<app-string-part
+  *ngIf="!isJobTemplateSelected"
+  [isShow]="isShow"
+  [name]="'Main class'"
+  [value]="jobParameters?.mainClass"
+  (valueChange)="mainClassChange($event)"
+  [isRequired]=true
+  [minLength]=1>
+</app-string-part>
 <app-string-sequence-part
   [isShow]="isShow"
   [name]="'Additional jars'"
-  [valueChanges]="jobChanges"
-  [value]="WorkflowEntryUtil.getValue('jobParameters.additionalJars', jobData)"
-  [property]="'jobParameters.additionalJars'"
-  [partValidation]="PartValidationFactory.create(false, undefined, 1)">
+  [value]="jobParameters?.additionalJars"
+  (valueChange)="additionalJarsChange($event)"
+  [isRequired]=false
+  [minLength]=1>
 </app-string-sequence-part>
 <app-string-sequence-part
   [isShow]="isShow"
   [name]="'Additional files'"
-  [valueChanges]="jobChanges"
-  [value]="WorkflowEntryUtil.getValue('jobParameters.additionalFiles', jobData)"
-  [property]="'jobParameters.additionalFiles'"
-  [partValidation]="PartValidationFactory.create(false, undefined, 1)">
+  [value]="jobParameters?.additionalFiles"
+  (valueChange)="additionalFilesChange($event)"
+  [isRequired]=false
+  [minLength]=1>
 </app-string-sequence-part>
+
 <app-key-string-value-part
   [isShow]="isShow"
   [name]="'Additional Spark Config'"
-  [valueChanges]="jobChanges"
-  [value]="WorkflowEntryUtil.getValue('jobParameters.additionalSparkConfig', jobData)"
-  [property]="'jobParameters.additionalSparkConfig'"
-  [partValidation]="PartValidationFactory.create(false, undefined, 1)">
+  [value]="jobParameters?.additionalSparkConfig"
+  (valueChange)="additionalSparkConfigChange($event)"
+  [isRequired]=false
+  [minLength]=1>
 </app-key-string-value-part>
 <app-string-sequence-part
   [isShow]="isShow"
   [name]="'App arguments'"
-  [valueChanges]="jobChanges"
-  [value]="WorkflowEntryUtil.getValue('jobParameters.appArguments', jobData)"
-  [property]="'jobParameters.appArguments'"
-  [partValidation]="PartValidationFactory.create(false, undefined, 1)">
+  [value]="jobParameters?.appArguments"
+  (valueChange)="appArgumentsChange($event)"
+  [isRequired]=false
+  [minLength]=1>
 </app-string-sequence-part>

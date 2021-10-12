@@ -13,16 +13,19 @@
  * limitations under the License.
  */
 
-import { JobTemplateModel } from './jobTemplate.model';
-import { DynamicFormParts } from './workflowFormParts.model';
+import { Component, Input } from '@angular/core';
+import { ShellTemplateParametersModel } from '../../../../../../models/jobTemplateParameters.model';
 
-export type DynamicFormPartsResponse = {
-  dynamicFormParts: DynamicFormParts;
-  jobTemplates: JobTemplateModel[];
-};
+@Component({
+  selector: 'app-shell-template',
+  templateUrl: './shell-template.component.html',
+  styleUrls: ['./shell-template.component.scss'],
+})
+export class ShellTemplateComponent {
+  @Input() isShow: boolean;
+  @Input() jobParameters: ShellTemplateParametersModel;
 
-export class DynamicFormPartsResponseFactory {
-  static create(dynamicFormParts: DynamicFormParts, jobTemplates: JobTemplateModel[]): DynamicFormPartsResponse {
-    return { dynamicFormParts, jobTemplates };
+  constructor() {
+    // do nothing
   }
 }

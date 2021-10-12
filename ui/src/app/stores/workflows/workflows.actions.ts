@@ -16,13 +16,9 @@
 import { Action } from '@ngrx/store';
 import { ProjectModel } from '../../models/project.model';
 import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
-import { WorkflowFormPartsModel } from '../../models/workflowFormParts.model';
-import { WorkflowEntryModel } from '../../models/workflowEntry.model';
-import { JobEntryModel } from '../../models/jobEntry.model';
 import { WorkflowModel } from '../../models/workflow.model';
 import { SortAttributesModel } from '../../models/search/sortAttributes.model';
-import { HistoryModel } from '../../models/historyModel';
-import { WorkflowFormDataModel } from '../../models/workflowFormData.model';
+import { HistoryModel, WorkflowHistoryModel } from '../../models/historyModel';
 import { JobForRunModel } from '../../models/jobForRun.model';
 import { JobTemplateModel } from '../../models/jobTemplate.model';
 
@@ -36,16 +32,8 @@ export const LOAD_WORKFLOW_SUCCESS = 'LOAD_WORKFLOW_SUCCESS';
 export const LOAD_WORKFLOW_FAILURE_INCORRECT_ID = 'LOAD_WORKFLOW_FAILURE_INCORRECT_ID';
 export const LOAD_WORKFLOW_FAILURE = 'LOAD_WORKFLOW_FAILURE';
 
+export const WORKFLOW_CHANGED = 'WORKFLOW_CHANGED';
 export const WORKFLOW_ACTION_CHANGED = 'WORKFLOW_ACTION_CHANGED';
-export const WORKFLOW_DETAILS_CHANGED = 'WORKFLOW_DETAILS_CHANGED';
-export const WORKFLOW_SENSOR_CHANGED = 'WORKFLOW_SENSOR_CHANGED';
-export const WORKFLOW_SENSOR_TYPE_SWITCHED = 'WORKFLOW_SENSOR_TYPE_SWITCHED';
-export const WORKFLOW_ADD_EMPTY_JOB = 'WORKFLOW_ADD_EMPTY_JOB';
-export const WORKFLOW_REMOVE_JOB = 'WORKFLOW_REMOVE_JOB';
-export const WORKFLOW_COPY_JOB = 'WORKFLOW_COPY_JOB';
-export const WORKFLOW_JOB_CHANGED = 'WORKFLOW_JOB_CHANGED';
-export const WORKFLOW_JOB_TYPE_SWITCHED = 'WORKFLOW_JOB_TYPE_SWITCHED';
-export const WORKFLOW_JOBS_REORDER = 'WORKFLOW_JOBS_REORDER';
 
 export const DELETE_WORKFLOW = 'DELETE_WORKFLOW';
 export const DELETE_WORKFLOW_SUCCESS = 'DELETE_WORKFLOW_SUCCESS';
@@ -105,7 +93,7 @@ export class InitializeWorkflows implements Action {
 
 export class InitializeWorkflowsSuccess implements Action {
   readonly type = INITIALIZE_WORKFLOWS_SUCCESS;
-  constructor(public payload: { projects: ProjectModel[]; workflowFormParts: WorkflowFormPartsModel; jobTemplates: JobTemplateModel[] }) {}
+  constructor(public payload: { projects: ProjectModel[]; jobTemplates: JobTemplateModel[] }) {}
 }
 
 export class InitializeWorkflowsFailure implements Action {
@@ -119,18 +107,12 @@ export class StartWorkflowInitialization implements Action {
 
 export class SetEmptyWorkflow implements Action {
   readonly type = SET_EMPTY_WORKFLOW;
+  constructor(public payload: WorkflowJoinedModel) {}
 }
 
 export class LoadWorkflowSuccess implements Action {
   readonly type = LOAD_WORKFLOW_SUCCESS;
-  constructor(
-    public payload: {
-      workflow: WorkflowJoinedModel;
-      detailsData: WorkflowEntryModel[];
-      sensorData: WorkflowEntryModel[];
-      jobsData: JobEntryModel[];
-    },
-  ) {}
+  constructor(public payload: WorkflowJoinedModel) {}
 }
 
 export class LoadWorkflowFailure implements Action {
@@ -141,54 +123,14 @@ export class LoadWorkflowFailureIncorrectId implements Action {
   readonly type = LOAD_WORKFLOW_FAILURE_INCORRECT_ID;
 }
 
-export class WorkflowActionChanged implements Action {
-  readonly type = WORKFLOW_ACTION_CHANGED;
+export class WorkflowChanged implements Action {
+  readonly type = WORKFLOW_CHANGED;
   constructor(public payload: WorkflowJoinedModel) {}
 }
 
-export class WorkflowDetailsChanged implements Action {
-  readonly type = WORKFLOW_DETAILS_CHANGED;
-  constructor(public payload: WorkflowEntryModel) {}
-}
-
-export class WorkflowSensorChanged implements Action {
-  readonly type = WORKFLOW_SENSOR_CHANGED;
-  constructor(public payload: WorkflowEntryModel) {}
-}
-
-export class WorkflowSensorTypeSwitched implements Action {
-  readonly type = WORKFLOW_SENSOR_TYPE_SWITCHED;
-  constructor(public payload: WorkflowEntryModel) {}
-}
-
-export class WorkflowAddEmptyJob implements Action {
-  readonly type = WORKFLOW_ADD_EMPTY_JOB;
-  constructor(public payload: number) {}
-}
-
-export class WorkflowRemoveJob implements Action {
-  readonly type = WORKFLOW_REMOVE_JOB;
-  constructor(public payload: string) {}
-}
-
-export class WorkflowCopyJob implements Action {
-  readonly type = WORKFLOW_COPY_JOB;
-  constructor(public payload: string) {}
-}
-
-export class WorkflowJobChanged implements Action {
-  readonly type = WORKFLOW_JOB_CHANGED;
-  constructor(public payload: { jobId: string; jobEntry: WorkflowEntryModel }) {}
-}
-
-export class WorkflowJobTypeSwitched implements Action {
-  readonly type = WORKFLOW_JOB_TYPE_SWITCHED;
-  constructor(public payload: { jobId: string; jobEntry: WorkflowEntryModel }) {}
-}
-
-export class WorkflowJobsReorder implements Action {
-  readonly type = WORKFLOW_JOBS_REORDER;
-  constructor(public payload: { initialJobPosition: number; updatedJobPosition: number }) {}
+export class WorkflowActionChanged implements Action {
+  readonly type = WORKFLOW_ACTION_CHANGED;
+  constructor(public payload: WorkflowJoinedModel) {}
 }
 
 export class DeleteWorkflow implements Action {
@@ -327,11 +269,8 @@ export class LoadWorkflowsFromHistorySuccess implements Action {
   readonly type = LOAD_WORKFLOWS_FROM_HISTORY_SUCCESS;
   constructor(
     public payload: {
-      workflowFormParts: WorkflowFormPartsModel;
-      leftWorkflowHistoryData: WorkflowFormDataModel;
-      leftWorkflowHistory: HistoryModel;
-      rightWorkflowHistoryData: WorkflowFormDataModel;
-      rightWorkflowHistory: HistoryModel;
+      leftWorkflowHistory: WorkflowHistoryModel;
+      rightWorkflowHistory: WorkflowHistoryModel;
       jobTemplates: JobTemplateModel[];
     },
   ) {}
@@ -386,16 +325,8 @@ export type WorkflowsActions =
   | LoadWorkflowSuccess
   | LoadWorkflowFailure
   | LoadWorkflowFailureIncorrectId
+  | WorkflowChanged
   | WorkflowActionChanged
-  | WorkflowDetailsChanged
-  | WorkflowSensorChanged
-  | WorkflowSensorTypeSwitched
-  | WorkflowAddEmptyJob
-  | WorkflowRemoveJob
-  | WorkflowCopyJob
-  | WorkflowJobChanged
-  | WorkflowJobTypeSwitched
-  | WorkflowJobsReorder
   | DeleteWorkflow
   | DeleteWorkflowSuccess
   | DeleteWorkflowFailure

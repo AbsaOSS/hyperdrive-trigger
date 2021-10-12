@@ -19,10 +19,7 @@ import { KeyStringValuePartComponent } from './key-string-value-part.component';
 import { DebugElement, Predicate } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { FormsModule, NgForm } from '@angular/forms';
-import { Subject } from 'rxjs';
-import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
 import set from 'lodash/set';
-import { PartValidationFactory } from '../../../../../models/workflowFormParts.model';
 
 describe('KeyStringValuePartComponent', () => {
   let fixture: ComponentFixture<KeyStringValuePartComponent>;
@@ -61,17 +58,12 @@ describe('KeyStringValuePartComponent', () => {
           const newValue = '';
           const newValueObject = {};
           set(newValueObject, '', '');
-          const propertyName = 'property';
-          const testedSubject = new Subject<WorkflowEntryModel>();
-          const subjectSpy = spyOn(testedSubject, 'next');
-          const partValidation = PartValidationFactory.create(true, 5, 50);
+          spyOn(underTest.valueChange, 'emit');
 
           underTest.isShow = false;
+          underTest.isRequired = true;
           underTest.name = 'name';
           underTest.value = oldValue;
-          underTest.property = propertyName;
-          underTest.valueChanges = testedSubject;
-          underTest.partValidation = partValidation;
           fixture.detectChanges();
 
           fixture.whenStable().then(() => {
@@ -79,8 +71,8 @@ describe('KeyStringValuePartComponent', () => {
             expect(results.length == 2).toBeTrue();
             expect(results[0].nativeElement.value).toBe(newKey);
             expect(results[1].nativeElement.value).toBe(newValue);
-            expect(subjectSpy).toHaveBeenCalledTimes(1);
-            expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValueObject));
+            expect(underTest.valueChange.emit).toHaveBeenCalled();
+            expect(underTest.valueChange.emit).toHaveBeenCalledWith(newValueObject);
           });
         }),
       );
@@ -104,17 +96,12 @@ describe('KeyStringValuePartComponent', () => {
       set(newValueObject, newItemKey, oldItemValue);
       set(newValueObject, 'keyThree', 'valueThree');
 
-      const propertyName = 'property';
-      const partValidation = PartValidationFactory.create(true, 5, 50);
-      const testedSubject = new Subject<WorkflowEntryModel>();
-      const subjectSpy = spyOn(testedSubject, 'next');
+      spyOn(underTest.valueChange, 'emit');
 
       underTest.isShow = false;
+      underTest.isRequired = true;
       underTest.name = 'name';
       underTest.value = oldValueObject;
-      underTest.property = propertyName;
-      underTest.valueChanges = testedSubject;
-      underTest.partValidation = partValidation;
 
       fixture.detectChanges();
       fixture.whenStable().then(() => {
@@ -127,8 +114,8 @@ describe('KeyStringValuePartComponent', () => {
         fixture.whenStable().then(() => {
           const testedValue = fixture.debugElement.queryAll(inputSelector)[2].nativeElement.value;
           expect(testedValue).toBe(newItemKey);
-          expect(subjectSpy).toHaveBeenCalled();
-          expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValueObject));
+          expect(underTest.valueChange.emit).toHaveBeenCalled();
+          expect(underTest.valueChange.emit).toHaveBeenCalledWith(newValueObject);
         });
       });
     }),
@@ -151,17 +138,12 @@ describe('KeyStringValuePartComponent', () => {
       set(newValueObject, oldItemKey, newItemValue);
       set(newValueObject, 'keyThree', 'valueThree');
 
-      const propertyName = 'property';
-      const partValidation = PartValidationFactory.create(true, 5, 50);
-      const testedSubject = new Subject<WorkflowEntryModel>();
-      const subjectSpy = spyOn(testedSubject, 'next');
+      spyOn(underTest.valueChange, 'emit');
 
       underTest.isShow = false;
+      underTest.isRequired = true;
       underTest.name = 'name';
       underTest.value = oldValueObject;
-      underTest.property = propertyName;
-      underTest.valueChanges = testedSubject;
-      underTest.partValidation = partValidation;
 
       fixture.detectChanges();
       fixture.whenStable().then(() => {
@@ -174,8 +156,8 @@ describe('KeyStringValuePartComponent', () => {
         fixture.whenStable().then(() => {
           const testedValue = fixture.debugElement.queryAll(inputSelector)[3].nativeElement.value;
           expect(testedValue).toBe(newItemValue);
-          expect(subjectSpy).toHaveBeenCalled();
-          expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValueObject));
+          expect(underTest.valueChange.emit).toHaveBeenCalled();
+          expect(underTest.valueChange.emit).toHaveBeenCalledWith(newValueObject);
         });
       });
     }),
@@ -193,17 +175,12 @@ describe('KeyStringValuePartComponent', () => {
       set(newValueObject, 'keyOne', 'valueOne');
       set(newValueObject, 'keyThree', 'valueThree');
 
-      const propertyName = 'property';
-      const partValidation = PartValidationFactory.create(true, 5, 50);
-      const testedSubject = new Subject<WorkflowEntryModel>();
-      const subjectSpy = spyOn(testedSubject, 'next');
+      spyOn(underTest.valueChange, 'emit');
 
       underTest.isShow = false;
+      underTest.isRequired = true;
       underTest.name = 'name';
       underTest.value = oldValueObject;
-      underTest.property = propertyName;
-      underTest.valueChanges = testedSubject;
-      underTest.partValidation = partValidation;
 
       fixture.detectChanges();
       fixture.whenStable().then(() => {
@@ -211,8 +188,8 @@ describe('KeyStringValuePartComponent', () => {
 
         fixture.detectChanges();
         fixture.whenStable().then(() => {
-          expect(subjectSpy).toHaveBeenCalled();
-          expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValueObject));
+          expect(underTest.valueChange.emit).toHaveBeenCalled();
+          expect(underTest.valueChange.emit).toHaveBeenCalledWith(newValueObject);
         });
       });
     }),
@@ -230,17 +207,12 @@ describe('KeyStringValuePartComponent', () => {
       set(newValueObject, 'keyTwo', 'valueTwo');
       set(newValueObject, '', '');
 
-      const propertyName = 'property';
-      const partValidation = PartValidationFactory.create(true, 5, 50);
-      const testedSubject = new Subject<WorkflowEntryModel>();
-      const subjectSpy = spyOn(testedSubject, 'next');
+      spyOn(underTest.valueChange, 'emit');
 
       underTest.isShow = false;
+      underTest.isRequired = true;
       underTest.name = 'name';
       underTest.value = oldValueObject;
-      underTest.property = propertyName;
-      underTest.valueChanges = testedSubject;
-      underTest.partValidation = partValidation;
 
       fixture.detectChanges();
       fixture.whenStable().then(() => {
@@ -248,8 +220,8 @@ describe('KeyStringValuePartComponent', () => {
 
         fixture.detectChanges();
         fixture.whenStable().then(() => {
-          expect(subjectSpy).toHaveBeenCalled();
-          expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValueObject));
+          expect(underTest.valueChange.emit).toHaveBeenCalled();
+          expect(underTest.valueChange.emit).toHaveBeenCalledWith(newValueObject);
         });
       });
     }),

@@ -14,22 +14,12 @@
  */
 
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-
-import { Subject } from 'rxjs';
-import { Action } from '@ngrx/store';
 import { TimeComponent } from './time.component';
-import { WorkflowEntryModelFactory } from '../../../../../../models/workflowEntry.model';
-import { WorkflowSensorChanged } from '../../../../../../stores/workflows/workflows.actions';
+import { TimeSensorProperties } from '../../../../../../models/sensorProperties.model';
 
 describe('TimeComponent', () => {
   let fixture: ComponentFixture<TimeComponent>;
   let underTest: TimeComponent;
-
-  const sensorData = [
-    { property: 'propertyOne', value: 'valueOne' },
-    { property: 'propertyTwo', value: 'valueTwo' },
-    { property: 'switchPartProp', value: 'optionTwo' },
-  ];
 
   beforeEach(
     waitForAsync(() => {
@@ -44,29 +34,22 @@ describe('TimeComponent', () => {
     underTest = fixture.componentInstance;
 
     //set test data
-    underTest.sensorData = sensorData;
-    underTest.changes = new Subject<Action>();
+    underTest.isShow = false;
+    underTest.sensorProperties = TimeSensorProperties.createEmpty();
   });
 
   it('should create', () => {
     expect(underTest).toBeTruthy();
   });
 
-  it(
-    'should dispatch workflow sensor change when value is received',
-    waitForAsync(() => {
-      const usedWorkflowEntry = WorkflowEntryModelFactory.create('property', 'value');
-      fixture.detectChanges();
-      fixture.whenStable().then(() => {
-        const storeSpy = spyOn(underTest.changes, 'next');
-        underTest.sensorChanges.next(usedWorkflowEntry);
-        fixture.detectChanges();
+  it('should emit updated properties when runAtChange() is called', () => {
+    spyOn(underTest.sensorPropertiesChange, 'emit');
+    const newCronExpression = 'newCronExpression';
+    const newSensorProperties = { ...underTest.sensorProperties, cronExpression: newCronExpression };
 
-        fixture.whenStable().then(() => {
-          expect(storeSpy).toHaveBeenCalledTimes(1);
-          expect(storeSpy).toHaveBeenCalledWith(new WorkflowSensorChanged(usedWorkflowEntry));
-        });
-      });
-    }),
-  );
+    underTest.runAtChange(newCronExpression);
+
+    expect(underTest.sensorPropertiesChange.emit).toHaveBeenCalled();
+    expect(underTest.sensorPropertiesChange.emit).toHaveBeenCalledWith(newSensorProperties);
+  });
 });

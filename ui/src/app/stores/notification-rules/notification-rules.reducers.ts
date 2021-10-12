@@ -147,7 +147,7 @@ export function notificationRulesReducer(state: State = initialState, action: No
         ...state,
         notificationRuleAction: {
           ...state.notificationRuleAction,
-          notificationRule: { ...state.notificationRuleAction.notificationRule, [action.payload.property]: action.payload.value },
+          notificationRule: action.payload,
         },
       };
     case NotificationRulesActions.SET_EMPTY_NOTIFICATION_RULE:

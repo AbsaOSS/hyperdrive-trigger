@@ -40,14 +40,6 @@
       </app-string-filter>
     </clr-dg-filter>
   </clr-dg-column>
-  <clr-dg-column [clrDgField]="jobTemplateColumns.FORM_CONFIG">
-    <ng-container *clrDgHideableColumn="{hidden: false}">Form config</ng-container>
-    <clr-dg-filter [clrDgFilter]="fromConfigFilter">
-      <app-string-filter #fromConfigFilter [property]="jobTemplateColumns.FORM_CONFIG"
-                         [removeFiltersSubject]="removeFiltersSubject">
-      </app-string-filter>
-    </clr-dg-filter>
-  </clr-dg-column>
   <clr-dg-column>
     <ng-container *clrDgHideableColumn="{hidden: false}">Job type</ng-container>
   </clr-dg-column>
@@ -62,7 +54,6 @@
     </clr-dg-action-overflow>
 
     <clr-dg-cell (dblclick)="showJobTemplate(jobTemplate.id)">{{jobTemplate.name}}</clr-dg-cell>
-    <clr-dg-cell (dblclick)="showJobTemplate(jobTemplate.id)">{{jobTemplate.formConfig}}</clr-dg-cell>
     <clr-dg-cell (dblclick)="showJobTemplate(jobTemplate.id)">{{jobTemplate.jobParameters.jobType}}</clr-dg-cell>
   </clr-dg-row>
 

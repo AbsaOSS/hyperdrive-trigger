@@ -16,25 +16,24 @@
 <app-select-part
   [isShow]="isShow"
   [name]="'Sensor type'"
-  [value]="WorkflowEntryUtil.getValue('properties.sensorType', sensorData)"
+  [value]="sensor?.properties?.sensorType"
   [options]="sensorTypesArray"
-  [valueChanges]="sensorChanges"
-  [property]="'properties.sensorType'"
-  [partValidation]="PartValidationFactory.create(true)">
+  [isRequired]="true"
+  (valueChange)="sensorTypeChange($event)">
 </app-select-part>
 
-<div [ngSwitch]="getSelectedSensorType()">
+<div [ngSwitch]="this.sensor?.properties?.sensorType">
   <app-absa-kafka
     *ngSwitchCase="sensorTypes.ABSA_KAFKA"
     [isShow]="isShow"
-    [sensorData]="sensorData"
-    [changes]="changes">
+    [sensorProperties]="sensor.properties"
+    (sensorPropertiesChange)="sensorPropertiesChange($event)">
   </app-absa-kafka>
   <app-kafka
     *ngSwitchCase="sensorTypes.KAFKA"
     [isShow]="isShow"
-    [sensorData]="sensorData"
-    [changes]="changes">
+    [sensorProperties]="sensor.properties"
+    (sensorPropertiesChange)="sensorPropertiesChange($event)">
   </app-kafka>
   <app-recurring
     *ngSwitchCase="sensorTypes.RECURRING">
@@ -42,7 +41,7 @@
   <app-time
     *ngSwitchCase="sensorTypes.TIME"
     [isShow]="isShow"
-    [sensorData]="sensorData"
-    [changes]="changes">
+    [sensorProperties]="sensor.properties"
+    (sensorPropertiesChange)="sensorPropertiesChange($event)">
   </app-time>
 </div>

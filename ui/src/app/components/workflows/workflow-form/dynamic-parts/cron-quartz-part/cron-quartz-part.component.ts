@@ -13,9 +13,8 @@
  * limitations under the License.
  */
 
-import { Component, Input, OnInit } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
-import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Observable } from 'rxjs';
 import {
   DayValues,
   Frequencies,
@@ -40,8 +39,7 @@ export class CronQuartzPartComponent implements OnInit {
   @Input() isShow: boolean;
   @Input() name: string;
   @Input() value: string;
-  @Input() property: string;
-  @Input() valueChanges: Subject<WorkflowEntryModel>;
+  @Output() valueChange: EventEmitter<string> = new EventEmitter();
 
   uiid = UuidUtil.createUUID();
   defaultCronExpression = '0 0/25 * ? * * *';
@@ -191,9 +189,9 @@ export class CronQuartzPartComponent implements OnInit {
     }
   }
 
-  modelChanged(value: string): void {
+  modelChanged(value: string) {
     this.value = value.trim();
-    this.valueChanges.next(WorkflowEntryModelFactory.create(this.property, this.value));
+    this.valueChange.emit(this.value);
   }
 }
 

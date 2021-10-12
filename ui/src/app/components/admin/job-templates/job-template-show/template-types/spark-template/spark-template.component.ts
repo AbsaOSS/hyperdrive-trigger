@@ -13,12 +13,19 @@
  * limitations under the License.
  */
 
-export type FormConfig = {
-  name: string;
-};
+import { Component, Input } from '@angular/core';
+import { SparkTemplateParametersModel } from '../../../../../../models/jobTemplateParameters.model';
 
-export class FormConfigFactory {
-  static create(name: string): FormConfig {
-    return { name: name };
+@Component({
+  selector: 'app-spark-template',
+  templateUrl: './spark-template.component.html',
+  styleUrls: ['./spark-template.component.scss'],
+})
+export class SparkTemplateComponent {
+  @Input() isShow: boolean;
+  @Input() jobParameters: SparkTemplateParametersModel;
+
+  constructor() {
+    // do nothing
   }
 }

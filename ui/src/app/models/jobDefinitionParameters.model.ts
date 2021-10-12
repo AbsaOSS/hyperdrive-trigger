@@ -13,55 +13,61 @@
  * limitations under the License.
  */
 
-import { FormConfig, FormConfigFactory } from './formConfig.model';
+import { jobTypes } from '../constants/jobTypes.constants';
 
 export interface JobDefinitionParameters {
-  formConfig: FormConfig;
+  jobType: string;
 }
 
 export class SparkDefinitionParametersModel implements JobDefinitionParameters {
-  formConfig: FormConfig;
-  appArguments: Set<string>;
-  additionalJars: Set<string>;
-  additionalFiles: Set<string>;
+  jobType: string;
+  appArguments: string[];
+  additionalJars: string[];
+  additionalFiles: string[];
   additionalSparkConfig: Map<string, string>;
   jobJar?: string;
   mainClass?: string;
 
   static createEmpty(): SparkDefinitionParametersModel {
     return {
-      formConfig: FormConfigFactory.create('Spark'),
-      appArguments: new Set(),
-      additionalJars: new Set(),
-      additionalFiles: new Set(),
+      jobJar: '',
+      mainClass: '',
+      jobType: jobTypes.SPARK,
+      appArguments: [],
+      additionalJars: [],
+      additionalFiles: [],
       additionalSparkConfig: new Map(),
     };
   }
 }
 
 export class HyperdriveDefinitionParametersModel implements JobDefinitionParameters {
-  formConfig: FormConfig;
-  appArguments: Set<string>;
-  additionalJars: Set<string>;
-  additionalFiles: Set<string>;
+  jobType: string;
+  appArguments: string[];
+  additionalJars: string[];
+  additionalFiles: string[];
   additionalSparkConfig: Map<string, string>;
+  jobJar?: string;
+  mainClass?: string;
 
   static createEmpty(): HyperdriveDefinitionParametersModel {
     return {
-      formConfig: FormConfigFactory.create('Hyperdrive'),
-      appArguments: new Set(),
-      additionalJars: new Set(),
-      additionalFiles: new Set(),
+      jobJar: '',
+      mainClass: '',
+      jobType: jobTypes.HYPERDRIVE,
+      appArguments: [],
+      additionalJars: [],
+      additionalFiles: [],
       additionalSparkConfig: new Map(),
     };
   }
 }
 
 export class ShellDefinitionParametersModel implements JobDefinitionParameters {
-  formConfig: FormConfig;
+  jobType: string;
   scriptLocation?: string;
 
   static createEmpty(): ShellDefinitionParametersModel {
-    return { formConfig: FormConfigFactory.create('Shell'), scriptLocation: null };
+    return { jobType: jobTypes.SHELL, scriptLocation: '' };
   }
 }

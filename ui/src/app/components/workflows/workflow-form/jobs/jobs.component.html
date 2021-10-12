@@ -13,39 +13,38 @@
   ~ limitations under the License.
   -->
 
-<button type="button" class="btn btn-sm btn-secondary" *ngIf="mode != workflowModes.SHOW && mode != workflowModes.COMPARISON" (click)="addJob()">
+<button type="button" class="btn btn-sm btn-secondary" *ngIf="!isShow" (click)="addJob()">
   <clr-icon shape="plus"></clr-icon>
   Add job
 </button>
 
-<div clrDroppable [clrDraggable]="job.order" (clrDrop)="reorderJobs($event.dragDataTransfer, job.order)" class="card" *ngFor="let job of this.jobsData; let index = index; trackBy: trackByFn;">
+<div clrDroppable [clrDraggable]="job.order" (clrDrop)="reorderJobs($event.dragDataTransfer, job.order)" class="card" *ngFor="let job of this.jobs.jobDefinitions; let index = index; trackBy: trackByFn;">
   <div class="card-block">
     <div class="card-title notSelectable" style="word-wrap: break-word;">
-      <span (click)="toggleJob(job.jobId)">
-        <clr-icon shape="angle" [dir]="isJobHidden(job.jobId)?'right':'down'"></clr-icon>
-        {{getJobName(job.jobId)}}
+      <span (click)="toggleJob(job.order)">
+        <clr-icon shape="angle" [dir]="isJobHidden(job.order)?'right':'down'"></clr-icon>
+        {{job.name}}
       </span>
       <span>
-        <button clrDragHandle type="button" class="btn btn-link" [hidden]="mode == workflowModes.SHOW || mode == workflowModes.COMPARISON">
+        <button clrDragHandle type="button" class="btn btn-link" [hidden]="isShow">
           <clr-icon shape="drag-handle"></clr-icon>
         </button>
-        <button type="button" style="float: right;" class="btn btn-link" *ngIf="mode != workflowModes.SHOW && mode != workflowModes.COMPARISON"
-                (click)="removeJob(job.jobId)">
+        <button type="button" style="float: right;" class="btn btn-link" *ngIf="!isShow"
+                (click)="removeJob(job.order)">
           <clr-icon shape="trash" class="is-error"></clr-icon>
         </button>
-        <button type="button" style="float: right;" class="btn btn-link" *ngIf="mode != workflowModes.SHOW && mode != workflowModes.COMPARISON"
-                (click)="copyJob(job.jobId)">
+        <button type="button" style="float: right;" class="btn btn-link" *ngIf="!isShow"
+                (click)="copyJob(job.order)">
           <clr-icon shape="copy"></clr-icon>
         </button>
       </span>
     </div>
-    <div class="accordion-content" [hidden]="isJobHidden(job.jobId)">
+    <div class="accordion-content" [hidden]="isJobHidden(job.order)">
       <app-job
-        [jobId]="job.jobId"
-        [isShow]="mode == workflowModes.SHOW || mode == workflowModes.COMPARISON"
-        [jobsData]="jobsData"
+        [isShow]="isShow"
+        [job]="job"
         [jobTemplates]="jobTemplates"
-        [changes]="changes">
+        (jobChange)="jobChange($event)">
       </app-job>
     </div>
   </div>

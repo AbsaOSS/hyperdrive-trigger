@@ -16,4 +16,11 @@
 export const jobTypes = {
   SHELL: 'Shell',
   SPARK: 'Spark',
+  HYPERDRIVE: 'Hyperdrive',
 };
+
+export const jobTypesArray: Map<string, string> = new Map([
+  [jobTypes.HYPERDRIVE, 'Hyperdrive'],
+  [jobTypes.SPARK, 'Spark'],
+  [jobTypes.SHELL, 'Shell'],
+]);
