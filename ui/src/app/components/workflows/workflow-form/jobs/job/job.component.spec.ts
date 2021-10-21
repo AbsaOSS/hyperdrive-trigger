@@ -51,7 +51,7 @@ describe('JobComponent', () => {
 
     //set test data
     underTest.isShow = isShow;
-    underTest.job = jobData;
+    underTest.job = { ...jobData };
     underTest.jobTemplates = jobTemplates;
   });
 
