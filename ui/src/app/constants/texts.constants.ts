@@ -122,6 +122,4 @@ export const texts = {
   LOAD_NOTIFICATION_RULE_FAILURE_NOTIFICATION: "Sorry, notification rule couldn't be loaded. Please try again.",
   LOAD_HISTORY_FOR_NOTIFICATION_RULE_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
   LOAD_NOTIFICATION_RULES_FROM_HISTORY_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
-
-  LOAD_WORKFLOWS_AND_PROJECTS_FAILURE_NOTIFICATION: 'Sorry, projects and workflows could not be loaded. Try again.',
 };

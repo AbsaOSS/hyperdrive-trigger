@@ -26,7 +26,7 @@
   [isShow]="isShow"
   [name]="'Job type'"
   [value]="job?.jobParameters?.jobType"
-  [options]="jobTypesArray"
+  [options]="jobTypesMap"
   (valueChange)="jobTypeChange($event)"
   [isRequired]="true">
 </app-select-part>
@@ -46,7 +46,7 @@
     [isShow]="isShow"
     [jobParameters]="job?.jobParameters"
     (jobParametersChange)="jobParametersChange($event)"
-    [isJobTemplateSelected]="!!job.jobTemplateId"
+    [isJobTemplateSelected]="this.isJobTemplateSelected()"
     [jobTemplateChanges]="jobTemplateChanges">
   </app-spark-job>
   <app-hyperdrive-job
@@ -54,7 +54,7 @@
     [isShow]="isShow"
     [jobParameters]="job?.jobParameters"
     (jobParametersChange)="jobParametersChange($event)"
-    [isJobTemplateSelected]="!!job.jobTemplateId"
+    [isJobTemplateSelected]="this.isJobTemplateSelected()"
     [jobTemplateChanges]="jobTemplateChanges">
   </app-hyperdrive-job>
   <app-shell-job
@@ -62,7 +62,7 @@
     [isShow]="isShow"
     [jobParameters]="job?.jobParameters"
     (jobParametersChange)="jobParametersChange($event)"
-    [isJobTemplateSelected]="!!job.jobTemplateId"
+    [isJobTemplateSelected]="this.isJobTemplateSelected()"
     [jobTemplateChanges]="jobTemplateChanges">
   </app-shell-job>
 </div>

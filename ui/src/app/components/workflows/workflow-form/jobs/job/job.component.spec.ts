@@ -118,4 +118,21 @@ describe('JobComponent', () => {
       });
     }),
   );
+
+  describe('isJobTemplateSelected() should return boolean value if template is selected', () => {
+    const parameters = [
+      { output: true, input: '0' },
+      { output: true, input: '10' },
+      { output: false, input: undefined },
+      { output: false, input: null },
+    ];
+
+    parameters.forEach((parameter) => {
+      it('should pass for value ' + parameter.input, () => {
+        underTest.job.jobTemplateId = parameter.input;
+        const result = underTest.isJobTemplateSelected();
+        expect(result).toBe(parameter.output);
+      });
+    });
+  });
 });

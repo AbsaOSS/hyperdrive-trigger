@@ -15,6 +15,7 @@
 
 import { UuidUtil } from '../utils/uuid/uuid.util';
 import { sensorTypes } from '../constants/sensorTypes.constants';
+import { defaultCronExpression } from '../constants/cronExpression.constants';
 
 export interface SensorProperties {
   sensorType: string;
@@ -47,7 +48,7 @@ export class TimeSensorProperties implements SensorProperties {
   cronExpression: string;
 
   static createEmpty(): TimeSensorProperties {
-    return { sensorType: sensorTypes.TIME, cronExpression: '0 0/25 * ? * * *' };
+    return { sensorType: sensorTypes.TIME, cronExpression: defaultCronExpression };
   }
 }
 

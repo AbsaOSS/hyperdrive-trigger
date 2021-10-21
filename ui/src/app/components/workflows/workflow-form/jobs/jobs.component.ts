@@ -93,6 +93,7 @@ export class JobsComponent {
   reorderJobs(initialJobPosition: number, updatedJobPosition: number) {
     if (initialJobPosition !== updatedJobPosition) {
       this.jobs = { ...this.jobs, jobDefinitions: this.switchJobs(this.jobs.jobDefinitions, initialJobPosition, updatedJobPosition) };
+      this.hiddenJobs = this.switchHiddenJobs(this.hiddenJobs, initialJobPosition, updatedJobPosition);
       this.jobsChange.emit(this.jobs);
     }
   }
@@ -109,6 +110,24 @@ export class JobsComponent {
         return jobEntry;
       })
       .sort((projectLeft, projectRight) => projectLeft.order - projectRight.order);
+  }
+
+  switchHiddenJobs(hiddenJobs: Set<number>, initialJobPosition, updatedJobPosition): Set<number> {
+    const updatedHiddenJobs: Set<number> = new Set<number>([...hiddenJobs]);
+
+    if (hiddenJobs.has(initialJobPosition)) {
+      updatedHiddenJobs.add(updatedJobPosition);
+    } else {
+      updatedHiddenJobs.delete(updatedJobPosition);
+    }
+
+    if (hiddenJobs.has(updatedJobPosition)) {
+      updatedHiddenJobs.add(initialJobPosition);
+    } else {
+      updatedHiddenJobs.delete(initialJobPosition);
+    }
+
+    return updatedHiddenJobs;
   }
 
   trackByFn(index, job: JobDefinitionModel) {

@@ -26,7 +26,7 @@ describe('JobsComponent', () => {
   const jobTemplates = [];
   const jobsData = DagDefinitionJoinedModelFactory.create(
     0,
-    [JobDefinitionModelFactory.createDefault(0), JobDefinitionModelFactory.createDefault(1)],
+    [JobDefinitionModelFactory.createDefault(0), JobDefinitionModelFactory.createDefault(1), JobDefinitionModelFactory.createDefault(2)],
     0,
   );
 
@@ -92,8 +92,9 @@ describe('JobsComponent', () => {
     underTest.removeJob(removedJobOrder);
 
     expect(underTest.jobsChange.emit).toHaveBeenCalled();
-    expect(underTest.jobs.jobDefinitions.length).toBe(1);
+    expect(underTest.jobs.jobDefinitions.length).toBe(jobsData.jobDefinitions.length - 1);
     expect(underTest.jobs.jobDefinitions[0].order).toBe(0);
+    expect(underTest.jobs.jobDefinitions[1].order).toBe(1);
   });
 
   it('copyJob() should add copy of the job into jobs and emit updated jobs', () => {
@@ -103,7 +104,7 @@ describe('JobsComponent', () => {
     underTest.copyJob(copiedJobOrder);
 
     expect(underTest.jobsChange.emit).toHaveBeenCalled();
-    expect(underTest.jobs.jobDefinitions.length).toBe(3);
+    expect(underTest.jobs.jobDefinitions.length).toBe(jobsData.jobDefinitions.length + 1);
     expect(underTest.jobs.jobDefinitions[copiedJobOrder].jobParameters).toBe(
       underTest.jobs.jobDefinitions[underTest.jobs.jobDefinitions.length - 1].jobParameters,
     );
@@ -127,10 +128,19 @@ describe('JobsComponent', () => {
     spyOn(underTest.jobsChange, 'emit');
     const initialJobPosition = 0;
     const updatedJobPosition = 1;
+    const expectedResult = {
+      ...jobsData,
+      jobDefinitions: [
+        { ...jobsData.jobDefinitions[1], order: 0 },
+        { ...jobsData.jobDefinitions[0], order: 1 },
+        { ...jobsData.jobDefinitions[2], order: 2 },
+      ],
+    };
 
     underTest.reorderJobs(initialJobPosition, updatedJobPosition);
 
     expect(underTest.jobsChange.emit).toHaveBeenCalled();
+    expect(underTest.jobsChange.emit).toHaveBeenCalledWith(expectedResult);
   });
 
   describe('switchJobs', () => {
@@ -154,6 +164,27 @@ describe('JobsComponent', () => {
       const jobs = [job0, job1, job2];
 
       expect(underTest.switchJobs(jobs, 1, 1)).toEqual(jobs);
+    });
+  });
+
+  describe('switchHiddenJobs', () => {
+    it('should leave all jobs visible if no job is hidden', () => {
+      const hiddenJobs: Set<number> = new Set<number>([]);
+
+      expect(underTest.switchHiddenJobs(hiddenJobs, 0, 1)).toEqual(hiddenJobs);
+    });
+
+    it('should leave hidden job hidden and visible job visible', () => {
+      const hiddenJobs: Set<number> = new Set<number>([0, 3, 4]);
+      const expectedHiddenJobs: Set<number> = new Set<number>([1, 3, 4]);
+
+      expect(underTest.switchHiddenJobs(hiddenJobs, 0, 1)).toEqual(expectedHiddenJobs);
+    });
+
+    it('should leave all jobs hidden if no job is visible', () => {
+      const hiddenJobs: Set<number> = new Set<number>([0, 1, 2, 3, 4]);
+
+      expect(underTest.switchHiddenJobs(hiddenJobs, 0, 1)).toEqual(hiddenJobs);
     });
   });
 });

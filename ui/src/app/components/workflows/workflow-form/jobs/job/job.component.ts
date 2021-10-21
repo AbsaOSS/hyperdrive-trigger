@@ -15,7 +15,7 @@
 
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { JobTemplateModel } from '../../../../../models/jobTemplate.model';
-import { jobTypes, jobTypesArray } from '../../../../../constants/jobTypes.constants';
+import { jobTypes, jobTypesMap } from '../../../../../constants/jobTypes.constants';
 import {
   HyperdriveDefinitionParametersModel,
   JobDefinitionParameters,
@@ -37,7 +37,7 @@ export class JobComponent {
 
   jobTemplateChanges = new EventEmitter();
 
-  jobTypesArray = jobTypesArray;
+  jobTypesMap = jobTypesMap;
   jobTypes = jobTypes;
 
   constructor() {
@@ -71,10 +71,10 @@ export class JobComponent {
         return { ...this.job, jobTemplateId: undefined, jobParameters: HyperdriveDefinitionParametersModel.createEmpty() };
       }
       case jobTypes.SPARK: {
-        return (this.job = { ...this.job, jobTemplateId: undefined, jobParameters: SparkDefinitionParametersModel.createEmpty() });
+        return { ...this.job, jobTemplateId: undefined, jobParameters: SparkDefinitionParametersModel.createEmpty() };
       }
       case jobTypes.SHELL: {
-        return (this.job = { ...this.job, jobTemplateId: undefined, jobParameters: ShellDefinitionParametersModel.createEmpty() });
+        return { ...this.job, jobTemplateId: undefined, jobParameters: ShellDefinitionParametersModel.createEmpty() };
       }
     }
   }
@@ -87,5 +87,9 @@ export class JobComponent {
         })
         .map((jobTemplate) => [jobTemplate.id.toString(), jobTemplate.name]),
     );
+  }
+
+  isJobTemplateSelected(): boolean {
+    return this.job?.jobTemplateId !== undefined && this.job?.jobTemplateId !== null;
   }
 }

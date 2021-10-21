@@ -13,14 +13,4 @@
  * limitations under the License.
  */
 
-export const jobTypes = {
-  SHELL: 'Shell',
-  SPARK: 'Spark',
-  HYPERDRIVE: 'Hyperdrive',
-};
-
-export const jobTypesMap: Map<string, string> = new Map([
-  [jobTypes.HYPERDRIVE, 'Hyperdrive'],
-  [jobTypes.SPARK, 'Spark'],
-  [jobTypes.SHELL, 'Shell'],
-]);
+export const defaultCronExpression = '0 0/25 * ? * * *';

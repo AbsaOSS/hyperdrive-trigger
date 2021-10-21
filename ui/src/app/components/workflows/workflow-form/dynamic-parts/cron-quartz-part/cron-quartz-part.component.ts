@@ -28,6 +28,7 @@ import { ToastrService } from 'ngx-toastr';
 import { texts } from '../../../../../constants/texts.constants';
 import { ControlContainer, NgForm } from '@angular/forms';
 import { UuidUtil } from '../../../../../utils/uuid/uuid.util';
+import { defaultCronExpression } from '../../../../../constants/cronExpression.constants';
 
 @Component({
   selector: 'app-cron-quartz-part',
@@ -42,7 +43,7 @@ export class CronQuartzPartComponent implements OnInit {
   @Output() valueChange: EventEmitter<string> = new EventEmitter();
 
   uiid = UuidUtil.createUUID();
-  defaultCronExpression = '0 0/25 * ? * * *';
+  defaultCronExpression = defaultCronExpression;
   everyDayUserFriendly: UserFriendlyConstruction = { prefix: ['0', '0'], suffix: ['?', '*', '*', '*'], position: 2 };
   everyHourUserFriendly: UserFriendlyConstruction = { prefix: ['0'], suffix: ['*', '?', '*', '*', '*'], position: 1 };
   everyHourEveryUserFriendly: UserFriendlyConstruction = { prefix: ['0'], suffix: ['*', '?', '*', '*', '*'], position: 1 };

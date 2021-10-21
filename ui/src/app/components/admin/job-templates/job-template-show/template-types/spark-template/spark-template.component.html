@@ -16,12 +16,12 @@
 <app-string-part
   [isShow]="isShow"
   [name]="'Job jar'"
-  [value]="jobParameters.jobJar">
+  [value]="jobParameters?.jobJar">
 </app-string-part>
 <app-string-part
   [isShow]="isShow"
   [name]="'Main class'"
-  [value]="jobParameters.mainClass">
+  [value]="jobParameters?.mainClass">
 </app-string-part>
 <app-string-sequence-part
   [isShow]="isShow"
@@ -41,5 +41,5 @@
 <app-string-sequence-part
   [isShow]="isShow"
   [name]="'App arguments'"
-  [value]="jobParameters.appArguments">
+  [value]="jobParameters?.appArguments">
 </app-string-sequence-part>

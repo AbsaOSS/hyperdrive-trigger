@@ -30,7 +30,7 @@
 <div *ngIf="options.size == 0 && !isShow" class="clr-form-control clr-row">
   <label class="clr-control-label clr-col-12 clr-col-md-2">{{name}}</label>
   <span class="clr-control-container clr-col-md-10 clr-col-12 breakableSpan">
-    Nothing to select !
+    Nothing to select
   </span>
 </div>
 
@@ -40,6 +40,6 @@
     {{options.get(value?.toString())}}
   </span>
   <span *ngIf="!value" class="clr-control-container clr-col-md-10 clr-col-12 breakableSpan">
-    Nothing selected!
+    Nothing selected
   </span>
 </div>
