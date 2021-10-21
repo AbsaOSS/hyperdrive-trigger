@@ -31,11 +31,12 @@ object SparkExecutor {
              (implicit executionContext: ExecutionContext, sparkConfig: SparkConfig): Future[Unit] = {
     jobInstance.executorJobId match {
       case None => sparkClusterService.submitJob(jobInstance, jobParameters, updateJob)
-      case Some(executorJobId) => updateJobStatus(executorJobId, jobInstance, updateJob)
+      case Some(executorJobId) => updateJobStatus(executorJobId, jobInstance, updateJob, sparkClusterService)
     }
   }
 
-  private def updateJobStatus(executorJobId: String, jobInstance: JobInstance, updateJob: JobInstance => Future[Unit])
+  private def updateJobStatus(executorJobId: String, jobInstance: JobInstance, updateJob: JobInstance => Future[Unit],
+                              sparkClusterService: SparkClusterService)
                              (implicit executionContext: ExecutionContext, sparkConfig: SparkConfig): Future[Unit] = {
     WSClientProvider.getWSClient.url(getStatusUrl(executorJobId)).get().map { response =>
       (Json.fromJson[AppsResponse](response.body[JsValue]).asOpt match {
@@ -45,7 +46,8 @@ object SparkExecutor {
         case Seq(first) => updateJob(jobInstance.copy(
           applicationId = Some(first.id),
           jobStatus = getStatus(first.finalStatus)))
-        case _ if jobInstance.jobStatus == Submitting => updateJob(jobInstance.copy(jobStatus = SubmissionTimeout))
+        case _ if jobInstance.jobStatus == Submitting =>
+          sparkClusterService.handleMissingYarnStatusForJobStatusSubmitting(jobInstance, updateJob)
         case _ => updateJob(jobInstance.copy(jobStatus = Lost))
       }
     }

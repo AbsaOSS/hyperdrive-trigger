@@ -15,11 +15,11 @@
 
 databaseChangeLog:
   - changeSet:
-      id: v0.5.2.remove-form-config
-      logicalFilePath: v0.5.2.remove-form-config
+      id: v0.5.3.remove-form-config
+      logicalFilePath: v0.5.3.remove-form-config
       author: HyperdriveDevTeam@absa.africa
       context: default
       changes:
         - sqlFile:
             relativeToChangelogFile: true
-            path: v0.5.2.remove-form-config.sql
+            path: v0.5.3.remove-form-config.sql
