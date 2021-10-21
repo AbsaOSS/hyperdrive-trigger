@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { JobDefinitionParameters } from './jobDefinitionParameters.model';
+import { HyperdriveDefinitionParametersModel, JobDefinitionParameters } from './jobDefinitionParameters.model';
 
 export type JobDefinitionModel = {
   dagDefinitionId: number;
@@ -45,5 +45,9 @@ export class JobDefinitionModelFactory {
 
   static createEmpty(): JobDefinitionModel {
     return this.create(undefined, undefined, undefined, undefined, undefined, undefined);
+  }
+
+  static createDefault(order: number): JobDefinitionModel {
+    return this.create(0, '', undefined, HyperdriveDefinitionParametersModel.createEmpty(), order, 0);
   }
 }

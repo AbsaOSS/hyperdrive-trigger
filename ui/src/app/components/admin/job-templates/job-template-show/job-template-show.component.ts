@@ -14,17 +14,13 @@
  */
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Subject, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { AppState, selectJobTemplatesState } from '../../../../stores/app.reducers';
 import { ActivatedRoute } from '@angular/router';
 import { GetJobTemplateForForm } from '../../../../stores/job-templates/job-templates.actions';
-import { WorkflowEntryModel } from '../../../../models/workflowEntry.model';
-import { PartValidation, PartValidationFactory } from '../../../../models/workflowFormParts.model';
-import { JobTemplateFormEntryModel } from '../../../../models/jobTemplateFormEntry.model';
 import { JobTemplateModel } from '../../../../models/jobTemplate.model';
 import { jobTypes } from '../../../../constants/jobTypes.constants';
-import { ShellTemplateParametersModel, SparkTemplateParametersModel } from '../../../../models/jobTemplateParameters.model';
 
 @Component({
   selector: 'app-job-template-show',
@@ -32,19 +28,16 @@ import { ShellTemplateParametersModel, SparkTemplateParametersModel } from '../.
   styleUrls: ['./job-template-show.component.scss'],
 })
 export class JobTemplateShowComponent implements OnInit, OnDestroy {
-  paramsSubscription: Subscription;
-  jobTemplateSubscription: Subscription = null;
-  changes: Subject<WorkflowEntryModel> = new Subject<WorkflowEntryModel>();
-
-  jobTemplate: JobTemplateModel;
-  jobTemplateFormEntries: JobTemplateFormEntryModel[] = [];
-  loading = false;
-
   isShow = true;
-  partValidation: PartValidation = PartValidationFactory.create(true, 1000, 1);
-
+  loading = false;
+  jobTemplate: JobTemplateModel;
   isJobTemplateInfoHidden = false;
   isJobTemplateParametersHidden = false;
+
+  paramsSubscription: Subscription;
+  jobTemplateSubscription: Subscription = null;
+
+  jobTypes = jobTypes;
 
   constructor(private store: Store<AppState>, route: ActivatedRoute) {
     this.paramsSubscription = route.params.subscribe((parameters) => {
@@ -56,7 +49,6 @@ export class JobTemplateShowComponent implements OnInit, OnDestroy {
     this.jobTemplateSubscription = this.store.select(selectJobTemplatesState).subscribe((state) => {
       this.loading = state.jobTemplateAction.loading;
       this.jobTemplate = state.jobTemplateAction.jobTemplate;
-      this.jobTemplateFormEntries = state.jobTemplateAction.jobTemplateFormEntries;
     });
   }
 
@@ -66,24 +58,6 @@ export class JobTemplateShowComponent implements OnInit, OnDestroy {
 
   toggleJobTemplateParametersAccordion() {
     this.isJobTemplateParametersHidden = !this.isJobTemplateParametersHidden;
-  }
-
-  isJobTemplateEmpty() {
-    switch (this.jobTemplate.jobParameters.jobType) {
-      case jobTypes.SHELL:
-        const shellParameters: ShellTemplateParametersModel = <ShellTemplateParametersModel>this.jobTemplate.jobParameters;
-        return !shellParameters.scriptLocation;
-      case jobTypes.SPARK:
-        const sparkParameters: SparkTemplateParametersModel = <SparkTemplateParametersModel>this.jobTemplate.jobParameters;
-        return (
-          !sparkParameters.jobJar &&
-          !sparkParameters.mainClass &&
-          (sparkParameters.appArguments?.size ?? 0) == 0 &&
-          (sparkParameters.additionalJars?.size ?? 0) == 0 &&
-          (sparkParameters.additionalFiles?.size ?? 0) == 0 &&
-          (sparkParameters.additionalSparkConfig?.size ?? 0) == 0
-        );
-    }
   }
 
   ngOnDestroy(): void {

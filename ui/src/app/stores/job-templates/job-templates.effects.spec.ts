@@ -28,7 +28,6 @@ import { GetJobTemplateForForm, SearchJobTemplates, SetJobTemplateForFrom } from
 import * as JobTemplatesActions from './job-templates.actions';
 import { Spy, createSpyFromClass } from 'jasmine-auto-spies';
 import { WorkflowService } from '../../services/workflow/workflow.service';
-import { DynamicFormPart } from '../../models/workflowFormParts.model';
 import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
 import { texts } from '../../constants/texts.constants';
@@ -66,13 +65,7 @@ describe('JobTemplatesEffects', () => {
 
   describe('jobTemplatesSearch', () => {
     it('should return job templates', () => {
-      const jobTemplate = JobTemplateModelFactory.create(
-        0,
-        'templateName',
-        'fromConfig',
-        { name: 'jobType' },
-        SparkTemplateParametersModel.createEmpty(),
-      );
+      const jobTemplate = JobTemplateModelFactory.create(0, 'templateName', SparkTemplateParametersModel.createEmpty());
 
       const searchResponse = new TableSearchResponseModel<JobTemplateModel>([jobTemplate], 1);
 
@@ -107,13 +100,7 @@ describe('JobTemplatesEffects', () => {
 
   describe('jobTemplateForFormGet', () => {
     it('should return job template', () => {
-      const jobTemplate = JobTemplateModelFactory.create(
-        10,
-        'templateName',
-        'fromConfig',
-        { name: 'jobType' },
-        SparkTemplateParametersModel.createEmpty(),
-      );
+      const jobTemplate = JobTemplateModelFactory.create(10, 'templateName', SparkTemplateParametersModel.createEmpty());
 
       const action = new GetJobTemplateForForm(jobTemplate.id);
       mockActions = cold('-a', { a: action });
@@ -146,52 +133,6 @@ describe('JobTemplatesEffects', () => {
       expect(underTest.jobTemplateForFormGet).toBeObservable(expected);
       expect(toastrServiceErrorSpy).toHaveBeenCalledWith(texts.LOAD_JOB_TEMPLATE_FAILURE_NOTIFICATION);
       expect(routerNavigateByUrlSpy).toHaveBeenCalledWith(absoluteRoutes.JOB_TEMPLATES_HOME);
-    });
-  });
-
-  describe('jobTemplateForFormSet', () => {
-    it('should return get job template failure if workflowService.getJobDynamicFormParts responds empty array', () => {
-      const jobTemplate = JobTemplateModelFactory.create(
-        10,
-        'templateName',
-        'fromConfig',
-        { name: 'jobType' },
-        SparkTemplateParametersModel.createEmpty(),
-      );
-      const dynamicFormParts: DynamicFormPart[] = [];
-
-      const action = new SetJobTemplateForFrom(jobTemplate);
-      mockActions = cold('-a', { a: action });
-      const getJobDynamicFormPartsResponse = cold('-a|', { a: dynamicFormParts });
-      const expected = cold('--a', {
-        a: {
-          type: JobTemplatesActions.GET_JOB_TEMPLATE_FOR_FORM_FAILURE,
-        },
-      });
-      workflowService.getJobDynamicFormParts.and.returnValue(getJobDynamicFormPartsResponse);
-
-      expect(underTest.jobTemplateForFormSet).toBeObservable(expected);
-    });
-
-    it('should return get job template failure if workflowService.getJobDynamicFormParts responds with an error', () => {
-      const jobTemplate = JobTemplateModelFactory.create(
-        10,
-        'templateName',
-        'fromConfig',
-        { name: 'jobType' },
-        SparkTemplateParametersModel.createEmpty(),
-      );
-      const action = new SetJobTemplateForFrom(jobTemplate);
-      mockActions = cold('-a', { a: action });
-      const errorResponse = cold('-#|');
-      workflowService.getJobDynamicFormParts.and.returnValue(errorResponse);
-
-      const expected = cold('--a', {
-        a: {
-          type: JobTemplatesActions.GET_JOB_TEMPLATE_FOR_FORM_FAILURE,
-        },
-      });
-      expect(underTest.jobTemplateForFormSet).toBeObservable(expected);
     });
   });
 });

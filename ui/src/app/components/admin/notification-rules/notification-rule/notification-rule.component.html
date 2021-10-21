@@ -26,6 +26,6 @@
     [notificationRule]="notificationRule"
     [notificationRuleStatuses]="notificationRuleStatuses"
     [mode]="mode"
-    [changes]="changes">
+    (notificationRuleChange)="notificationRuleChange($event)">
   </app-notification-rules-form>
 </div>

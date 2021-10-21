@@ -29,4 +29,8 @@ export class SensorModelFactory {
   static createEmpty(): SensorModel {
     return this.create(undefined, undefined, undefined);
   }
+
+  static createEmptyWithParams(properties: SensorProperties): SensorModel {
+    return this.create(undefined, properties, undefined);
+  }
 }

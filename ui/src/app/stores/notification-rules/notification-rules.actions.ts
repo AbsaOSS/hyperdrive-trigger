@@ -17,7 +17,6 @@ import { Action } from '@ngrx/store';
 import { TableSearchRequestModel } from '../../models/search/tableSearchRequest.model';
 import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
 import { NotificationRuleModel } from '../../models/notificationRule.model';
-import { WorkflowEntryModel } from '../../models/workflowEntry.model';
 import { HistoryModel } from '../../models/historyModel';
 import { NotificationRuleHistoryModel } from '../../models/notificationRuleHistoryModel';
 
@@ -125,7 +124,7 @@ export class DeleteNotificationRuleFailure implements Action {
 
 export class NotificationRuleChanged implements Action {
   readonly type = NOTIFICATION_RULE_CHANGED;
-  constructor(public payload: WorkflowEntryModel) {}
+  constructor(public payload: NotificationRuleModel) {}
 }
 
 export class SetEmptyNotificationRule implements Action {

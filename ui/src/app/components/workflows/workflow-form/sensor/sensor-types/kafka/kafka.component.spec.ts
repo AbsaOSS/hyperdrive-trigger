@@ -15,21 +15,12 @@
 
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
-import { Subject } from 'rxjs';
-import { Action } from '@ngrx/store';
 import { KafkaComponent } from './kafka.component';
-import { WorkflowEntryModelFactory } from '../../../../../../models/workflowEntry.model';
-import { WorkflowSensorChanged } from '../../../../../../stores/workflows/workflows.actions';
+import { KafkaSensorProperties } from '../../../../../../models/sensorProperties.model';
 
 describe('KafkaComponent', () => {
   let fixture: ComponentFixture<KafkaComponent>;
   let underTest: KafkaComponent;
-
-  const sensorData = [
-    { property: 'propertyOne', value: 'valueOne' },
-    { property: 'propertyTwo', value: 'valueTwo' },
-    { property: 'switchPartProp', value: 'optionTwo' },
-  ];
 
   beforeEach(
     waitForAsync(() => {
@@ -44,29 +35,48 @@ describe('KafkaComponent', () => {
     underTest = fixture.componentInstance;
 
     //set test data
-    underTest.sensorData = sensorData;
-    underTest.changes = new Subject<Action>();
+    underTest.isShow = false;
+    underTest.sensorProperties = KafkaSensorProperties.createEmpty();
   });
 
   it('should create', () => {
     expect(underTest).toBeTruthy();
   });
 
-  it(
-    'should dispatch workflow sensor change when value is received',
-    waitForAsync(() => {
-      const usedWorkflowEntry = WorkflowEntryModelFactory.create('property', 'value');
-      fixture.detectChanges();
-      fixture.whenStable().then(() => {
-        const storeSpy = spyOn(underTest.changes, 'next');
-        underTest.sensorChanges.next(usedWorkflowEntry);
-        fixture.detectChanges();
+  it('should emit updated properties when topicChange() is called', () => {
+    spyOn(underTest.sensorPropertiesChange, 'emit');
+    const newTopicValue = 'newTopicValue';
+    const newSensorProperties = { ...underTest.sensorProperties, topic: newTopicValue };
 
-        fixture.whenStable().then(() => {
-          expect(storeSpy).toHaveBeenCalledTimes(1);
-          expect(storeSpy).toHaveBeenCalledWith(new WorkflowSensorChanged(usedWorkflowEntry));
-        });
-      });
-    }),
-  );
+    underTest.topicChange(newTopicValue);
+
+    expect(underTest.sensorPropertiesChange.emit).toHaveBeenCalled();
+    expect(underTest.sensorPropertiesChange.emit).toHaveBeenCalledWith(newSensorProperties);
+  });
+
+  it('should emit updated properties when kafkaServersChange() is called', () => {
+    spyOn(underTest.sensorPropertiesChange, 'emit');
+    const newKafkaServersValue = ['server1', 'server2'];
+    const newSensorProperties = { ...underTest.sensorProperties, servers: newKafkaServersValue };
+
+    underTest.kafkaServersChange(newKafkaServersValue);
+
+    expect(underTest.sensorPropertiesChange.emit).toHaveBeenCalled();
+    expect(underTest.sensorPropertiesChange.emit).toHaveBeenCalledWith(newSensorProperties);
+  });
+
+  it('should emit updated properties when matchPropertiesChange() is called', () => {
+    spyOn(underTest.sensorPropertiesChange, 'emit');
+    const newMatchProperties = new Map<string, string>([
+      ['newMatchPropertyKey1', 'newMatchPropertyValue1'],
+      ['newMatchPropertyKey2', 'newMatchPropertyValue2'],
+      ['newMatchPropertyKey3', 'newMatchPropertyValue3'],
+    ]);
+    const newSensorProperties = { ...underTest.sensorProperties, matchProperties: newMatchProperties };
+
+    underTest.matchPropertiesChange(newMatchProperties);
+
+    expect(underTest.sensorPropertiesChange.emit).toHaveBeenCalled();
+    expect(underTest.sensorPropertiesChange.emit).toHaveBeenCalledWith(newSensorProperties);
+  });
 });

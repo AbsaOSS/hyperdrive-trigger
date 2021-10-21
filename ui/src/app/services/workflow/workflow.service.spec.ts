@@ -21,9 +21,6 @@ import { WorkflowService } from './workflow.service';
 import { ProjectModelFactory } from '../../models/project.model';
 import { WorkflowModelFactory } from '../../models/workflow.model';
 import { WorkflowJoinedModelFactory } from '../../models/workflowJoined.model';
-import { jobTemplateFormConfigs } from '../../constants/jobTemplates.constants';
-import { JobTemplateModelFactory } from '../../models/jobTemplate.model';
-import { SparkTemplateParametersModel } from '../../models/jobTemplateParameters.model';
 
 describe('WorkflowService', () => {
   let underTest: WorkflowService;
@@ -217,39 +214,5 @@ describe('WorkflowService', () => {
     const req = httpTestingController.expectOne(api.RUN_WORKFLOWS);
     expect(req.request.method).toEqual('PUT');
     req.flush(new Boolean(response));
-  });
-
-  it('getWorkflowDynamicFormParts() should return no form parts if no templates are present', () => {
-    underTest.getWorkflowDynamicFormParts().subscribe(
-      (data) => expect(data.dynamicFormParts.jobDynamicParts.length).toEqual(0),
-      (error) => fail(error),
-    );
-
-    const req = httpTestingController.expectOne(encodeURI(api.GET_JOB_TEMPLATES));
-    expect(req.request.method).toEqual('GET');
-    req.flush([]);
-  });
-
-  it('getWorkflowDynamicFormParts() should return only the shell-job form part if no other templates are present', () => {
-    const templateName = 'Some Shell Job';
-    underTest.getWorkflowDynamicFormParts().subscribe(
-      (data) => {
-        expect(data.dynamicFormParts.jobDynamicParts.length).toEqual(1);
-        expect(data.dynamicFormParts.jobDynamicParts[0].label).toEqual(templateName);
-      },
-      (error) => fail(error),
-    );
-
-    const req = httpTestingController.expectOne(encodeURI(api.GET_JOB_TEMPLATES));
-    expect(req.request.method).toEqual('GET');
-    req.flush([
-      JobTemplateModelFactory.create(
-        0,
-        templateName,
-        jobTemplateFormConfigs.SHELL,
-        { name: 'Spark' },
-        SparkTemplateParametersModel.createEmpty(),
-      ),
-    ]);
   });
 });

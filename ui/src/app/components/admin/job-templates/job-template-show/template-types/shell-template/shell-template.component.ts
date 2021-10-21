@@ -13,12 +13,19 @@
  * limitations under the License.
  */
 
-export type FormConfig = {
-  name: string;
-};
+import { Component, Input } from '@angular/core';
+import { ShellTemplateParametersModel } from '../../../../../../models/jobTemplateParameters.model';
 
-export class FormConfigFactory {
-  static create(name: string): FormConfig {
-    return { name: name };
+@Component({
+  selector: 'app-shell-template',
+  templateUrl: './shell-template.component.html',
+  styleUrls: ['./shell-template.component.scss'],
+})
+export class ShellTemplateComponent {
+  @Input() isShow: boolean;
+  @Input() jobParameters: ShellTemplateParametersModel;
+
+  constructor() {
+    // do nothing
   }
 }

@@ -13,11 +13,4 @@
  * limitations under the License.
  */
 
-import { WorkflowEntryModel } from '../../models/workflowEntry.model';
-
-export class WorkflowEntryUtil {
-  static getValue(property: string, data: WorkflowEntryModel[]): any {
-    const val = data?.find((value) => value.property == property);
-    return !!val ? val.value : undefined;
-  }
-}
+export const defaultCronExpression = '0 0/25 * ? * * *';
