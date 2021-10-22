@@ -38,7 +38,6 @@ import { State, notificationRulesReducer } from './notification-rules.reducers';
 import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
 import { NotificationRuleModel, NotificationRuleModelFactory } from '../../models/notificationRule.model';
 import { dagInstanceStatuses } from '../../models/enums/dagInstanceStatuses.constants';
-import { WorkflowEntryModelFactory } from '../../models/workflowEntry.model';
 
 describe('NotificationRulesReducers', () => {
   const initialState = {
@@ -291,7 +290,8 @@ describe('NotificationRulesReducers', () => {
 
   it('should update the notification rule on notification rule changed', () => {
     const notificationRule = NotificationRuleFixture.create();
-    const notificationRulesAction = new NotificationRuleChanged(WorkflowEntryModelFactory.create('workflowPrefix', 'some-value'));
+    const updatedNotificationChange = { ...notificationRule, workflowPrefix: 'some-value' };
+    const notificationRulesAction = new NotificationRuleChanged(updatedNotificationChange);
 
     const previousState = {
       ...initialState,

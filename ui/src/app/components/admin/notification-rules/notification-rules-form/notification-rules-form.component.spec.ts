@@ -285,4 +285,82 @@ describe('NotificationRulesForm', () => {
       });
     }),
   );
+
+  it('should emit updated notification rule when isActiveChange() is called', () => {
+    underTest.notificationRule = dummyNotificationRule;
+
+    spyOn(underTest.notificationRuleChange, 'emit');
+    const newIsActive = !underTest.notificationRule.isActive;
+    const newNotificationRule = { ...underTest.notificationRule, isActive: newIsActive };
+
+    underTest.isActiveChange(newIsActive);
+
+    expect(underTest.notificationRuleChange.emit).toHaveBeenCalled();
+    expect(underTest.notificationRuleChange.emit).toHaveBeenCalledWith(newNotificationRule);
+  });
+
+  it('should emit updated notification rule when projectChange() is called', () => {
+    underTest.notificationRule = dummyNotificationRule;
+
+    spyOn(underTest.notificationRuleChange, 'emit');
+    const newProject = 'newProject';
+    const newNotificationRule = { ...underTest.notificationRule, project: newProject };
+
+    underTest.projectChange(newProject);
+
+    expect(underTest.notificationRuleChange.emit).toHaveBeenCalled();
+    expect(underTest.notificationRuleChange.emit).toHaveBeenCalledWith(newNotificationRule);
+  });
+
+  it('should emit updated notification rule when workflowPrefixChange() is called', () => {
+    underTest.notificationRule = dummyNotificationRule;
+
+    spyOn(underTest.notificationRuleChange, 'emit');
+    const newWorkflowPrefix = 'newWorkflowPrefix';
+    const newNotificationRule = { ...underTest.notificationRule, workflowPrefix: newWorkflowPrefix };
+
+    underTest.workflowPrefixChange(newWorkflowPrefix);
+
+    expect(underTest.notificationRuleChange.emit).toHaveBeenCalled();
+    expect(underTest.notificationRuleChange.emit).toHaveBeenCalledWith(newNotificationRule);
+  });
+
+  it('should emit updated notification rule when recipientsChange() is called', () => {
+    underTest.notificationRule = dummyNotificationRule;
+
+    spyOn(underTest.notificationRuleChange, 'emit');
+    const newRecipients = ['newRecipient1', 'newRecipient2', 'newRecipient3'];
+    const newNotificationRule = { ...underTest.notificationRule, recipients: newRecipients };
+
+    underTest.recipientsChange(newRecipients);
+
+    expect(underTest.notificationRuleChange.emit).toHaveBeenCalled();
+    expect(underTest.notificationRuleChange.emit).toHaveBeenCalledWith(newNotificationRule);
+  });
+
+  it('should emit updated notification rule when statusesChange() is called', () => {
+    underTest.notificationRule = dummyNotificationRule;
+
+    spyOn(underTest.notificationRuleChange, 'emit');
+    const newStatuses = ['newStatus1', 'newStatus2', 'newStatus3'];
+    const newNotificationRule = { ...underTest.notificationRule, statuses: newStatuses };
+
+    underTest.statusesChange(newStatuses);
+
+    expect(underTest.notificationRuleChange.emit).toHaveBeenCalled();
+    expect(underTest.notificationRuleChange.emit).toHaveBeenCalledWith(newNotificationRule);
+  });
+
+  it('should emit updated notification rule when waitingPeriodChange() is called', () => {
+    underTest.notificationRule = dummyNotificationRule;
+
+    spyOn(underTest.notificationRuleChange, 'emit');
+    const newWaitingPeriod = underTest.notificationRule.minElapsedSecondsSinceLastSuccess + 1234;
+    const newNotificationRule = { ...underTest.notificationRule, minElapsedSecondsSinceLastSuccess: newWaitingPeriod };
+
+    underTest.waitingPeriodChange(newWaitingPeriod);
+
+    expect(underTest.notificationRuleChange.emit).toHaveBeenCalled();
+    expect(underTest.notificationRuleChange.emit).toHaveBeenCalledWith(newNotificationRule);
+  });
 });

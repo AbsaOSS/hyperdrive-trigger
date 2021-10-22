@@ -13,11 +13,8 @@
  * limitations under the License.
  */
 
-import { Component, Input, OnInit } from '@angular/core';
-import { Subject } from 'rxjs';
-import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ControlContainer, NgForm } from '@angular/forms';
-import { PartValidation, PartValidationFactory } from '../../../../../models/workflowFormParts.model';
 import { UuidUtil } from '../../../../../utils/uuid/uuid.util';
 import { texts } from 'src/app/constants/texts.constants';
 
@@ -29,18 +26,19 @@ import { texts } from 'src/app/constants/texts.constants';
 })
 export class StringWithSuggestionsPartComponent implements OnInit {
   uiid = UuidUtil.createUUID();
-  texts = texts;
   @Input() isShow: boolean;
   @Input() name: string;
   @Input() value: string;
+  @Output() valueChange = new EventEmitter();
   @Input() options: string[] = [];
-  @Input() property: string;
-  @Input() valueChanges: Subject<WorkflowEntryModel>;
-  @Input() partValidation: PartValidation;
   @Input() helperText: string;
-  partValidationSafe: PartValidation;
+  @Input() isRequired = false;
+  @Input() minLength = 1;
+  @Input() maxLength: number = Number.MAX_SAFE_INTEGER;
 
   optionsSafe: string[] = [];
+
+  texts = texts;
 
   constructor() {
     // do nothing
@@ -51,15 +49,9 @@ export class StringWithSuggestionsPartComponent implements OnInit {
       this.modelChanged('');
     }
     this.optionsSafe = this.options;
-    this.partValidationSafe = PartValidationFactory.create(
-      this.partValidation?.isRequired ?? true,
-      this.partValidation?.maxLength ?? Number.MAX_SAFE_INTEGER,
-      this.partValidation?.minLength ?? 1,
-    );
   }
 
   modelChanged(value: string) {
-    this.value = value.trim();
-    this.valueChanges.next(WorkflowEntryModelFactory.create(this.property, this.value));
+    this.valueChange.emit(value.trim());
   }
 }

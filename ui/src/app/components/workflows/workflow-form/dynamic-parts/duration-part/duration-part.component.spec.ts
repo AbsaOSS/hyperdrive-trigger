@@ -16,12 +16,9 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { DurationPartComponent } from './duration-part.component';
-import { Subject } from 'rxjs';
-import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
 import { By } from '@angular/platform-browser';
 import { DebugElement, Predicate } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
-import { PartValidationFactory } from '../../../../../models/workflowFormParts.model';
 
 describe('DurationPartComponent', () => {
   let fixture: ComponentFixture<DurationPartComponent>;
@@ -57,24 +54,18 @@ describe('DurationPartComponent', () => {
         waitForAsync(() => {
           const oldValue = parameter;
           const newValue = 0;
-          const propertyName = 'property';
-          const partValidation = PartValidationFactory.create(true, 5, 50);
-          const testedSubject = new Subject<WorkflowEntryModel>();
-          const subjectSpy = spyOn(testedSubject, 'next');
+          spyOn(underTest.valueChange, 'emit');
 
           underTest.isShow = false;
           underTest.name = 'name';
           underTest.value = oldValue;
-          underTest.property = propertyName;
-          underTest.valueChanges = testedSubject;
-          underTest.partValidation = partValidation;
           fixture.detectChanges();
 
           fixture.whenStable().then(() => {
             const results = fixture.debugElement.queryAll(inputSelector).map((element) => element.nativeElement.value);
             expect(results).toEqual(['0', '0', '0', '0']);
-            expect(subjectSpy).toHaveBeenCalledTimes(1);
-            expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValue));
+            expect(underTest.valueChange.emit).toHaveBeenCalled();
+            expect(underTest.valueChange.emit).toHaveBeenCalledWith(newValue);
           });
         }),
       );
@@ -85,16 +76,10 @@ describe('DurationPartComponent', () => {
     'should initialize, days, hours, minutes and seconds from initial value',
     waitForAsync(() => {
       const initialValue = 100001;
-      const propertyName = 'property';
-      const testedSubject = new Subject<WorkflowEntryModel>();
-      const partValidation = PartValidationFactory.create(true, 5, 50);
 
       underTest.isShow = false;
       underTest.name = 'name';
       underTest.value = initialValue;
-      underTest.property = propertyName;
-      underTest.valueChanges = testedSubject;
-      underTest.partValidation = partValidation;
 
       fixture.detectChanges();
 
@@ -110,17 +95,11 @@ describe('DurationPartComponent', () => {
     waitForAsync(() => {
       const oldValue = 30;
       const newValue = 52;
-      const propertyName = 'property';
-      const testedSubject = new Subject<WorkflowEntryModel>();
-      const subjectSpy = spyOn(testedSubject, 'next');
-      const partValidation = PartValidationFactory.create(true, 5, 50);
+      spyOn(underTest.valueChange, 'emit');
 
       underTest.isShow = false;
       underTest.name = 'name';
       underTest.value = oldValue;
-      underTest.property = propertyName;
-      underTest.valueChanges = testedSubject;
-      underTest.partValidation = partValidation;
 
       fixture.detectChanges();
       fixture.whenStable().then(() => {
@@ -133,8 +112,8 @@ describe('DurationPartComponent', () => {
         fixture.whenStable().then(() => {
           const testedValue = fixture.debugElement.queryAll(inputSelector)[3].nativeElement.value;
           expect(testedValue).toBe(newValue.toString());
-          expect(subjectSpy).toHaveBeenCalled();
-          expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValue));
+          expect(underTest.valueChange.emit).toHaveBeenCalled();
+          expect(underTest.valueChange.emit).toHaveBeenCalledWith(newValue);
         });
       });
     }),

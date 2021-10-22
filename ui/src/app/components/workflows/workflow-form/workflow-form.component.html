@@ -16,7 +16,7 @@
 <div class="btn-group" *ngIf="mode == workflowModes.SHOW">
   <button type="button" class="btn btn-sm btn-secondary" (click)="switchWorkflowActiveState(id)">
     <clr-icon shape="power"></clr-icon>
-    {{isWorkflowActive ? 'Deactivate' : 'Activate'}}
+    {{initialWorkflow.isActive ? 'Deactivate' : 'Activate'}}
   </button>
   <button type="button" class="btn btn-sm btn-secondary" (click)="runWorkflow(id)">
     <clr-icon shape="play"></clr-icon>
@@ -90,9 +90,8 @@
           <div [hidden]="isDetailsAccordionHidden" class="accordion-content">
             <app-workflow-details
               [isShow]="mode == workflowModes.SHOW || mode == workflowModes.COMPARISON"
-              [parts]="workflowFormParts.detailsParts"
-              [data]="workflowData.details"
-              [changes]="changes"
+              [details]="workflowForForm"
+              (detailsChange)="detailsChange($event)"
               [projects]="projects">
             </app-workflow-details>
           </div>
@@ -108,8 +107,8 @@
           <div [hidden]="isSensorAccordionHidden" class="accordion-content">
             <app-sensor
               [isShow]="mode == workflowModes.SHOW || mode == workflowModes.COMPARISON"
-              [sensorData]="workflowData.sensor"
-              [changes]="changes">
+              [sensor]="workflowForForm.sensor"
+              (sensorChange)="sensorChange($event)">
             </app-sensor>
           </div>
         </div>
@@ -123,12 +122,10 @@
           </div>
           <div [hidden]="isJobsAccordionHidden">
             <app-jobs
-              [jobsUnfold]="jobsUnfold"
-              [mode]="mode"
-              [workflowFormParts]="workflowFormParts"
-              [jobsData]="getJobsData()"
+              [isShow]="mode == workflowModes.SHOW || mode == workflowModes.COMPARISON"
+              [jobs]="workflowForForm.dagDefinitionJoined"
               [jobTemplates]="jobTemplates"
-              [changes]="changes">
+              (jobsChange)="jobsChange($event)">
             </app-jobs>
           </div>
         </div>

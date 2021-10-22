@@ -13,41 +13,35 @@
  * limitations under the License.
  */
 
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { Subject, Subscription } from 'rxjs';
-import { Action } from '@ngrx/store';
-import { PartValidationFactory } from '../../../../../../models/workflowFormParts.model';
-import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../../models/workflowEntry.model';
-import { WorkflowSensorChanged } from '../../../../../../stores/workflows/workflows.actions';
-import { WorkflowEntryUtil } from 'src/app/utils/workflowEntry/workflowEntry.util';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { KafkaSensorProperties } from '../../../../../../models/sensorProperties.model';
 
 @Component({
   selector: 'app-kafka',
   templateUrl: './kafka.component.html',
   styleUrls: ['./kafka.component.scss'],
 })
-export class KafkaComponent implements OnInit, OnDestroy {
+export class KafkaComponent {
   @Input() isShow: boolean;
-  @Input() sensorData: WorkflowEntryModel[];
-  @Input() changes: Subject<Action>;
-
-  WorkflowEntryUtil = WorkflowEntryUtil;
-  PartValidationFactory = PartValidationFactory;
-
-  sensorChanges: Subject<WorkflowEntryModel> = new Subject<WorkflowEntryModel>();
-  sensorChangesSubscription: Subscription;
+  @Input() sensorProperties: KafkaSensorProperties;
+  @Output() sensorPropertiesChange = new EventEmitter();
 
   constructor() {
     // do nothing
   }
 
-  ngOnInit(): void {
-    this.sensorChangesSubscription = this.sensorChanges.subscribe((sensorChange) => {
-      this.changes.next(new WorkflowSensorChanged(WorkflowEntryModelFactory.create(sensorChange.property, sensorChange.value)));
-    });
+  topicChange(topic: string) {
+    this.sensorProperties = { ...this.sensorProperties, topic: topic };
+    this.sensorPropertiesChange.emit(this.sensorProperties);
   }
 
-  ngOnDestroy(): void {
-    !!this.sensorChangesSubscription && this.sensorChangesSubscription.unsubscribe();
+  kafkaServersChange(servers: string[]) {
+    this.sensorProperties = { ...this.sensorProperties, servers: servers };
+    this.sensorPropertiesChange.emit(this.sensorProperties);
+  }
+
+  matchPropertiesChange(matchProperties: Map<string, string>) {
+    this.sensorProperties = { ...this.sensorProperties, matchProperties: matchProperties };
+    this.sensorPropertiesChange.emit(this.sensorProperties);
   }
 }

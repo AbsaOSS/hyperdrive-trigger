@@ -27,28 +27,19 @@
             <app-string-part
               [isShow]="true"
               [name]="'Operation'"
-              [valueChanges]="detailsChanges"
-              [value]="historyDetail.operation.name"
-              [property]="'operation'"
-              [partValidation]="partValidation">
+              [value]="historyDetail.operation.name">
             </app-string-part>
 
             <app-string-part
               [isShow]="true"
               [name]="'Change By'"
-              [valueChanges]="detailsChanges"
-              [value]="historyDetail.changedBy"
-              [property]="'user'"
-              [partValidation]="partValidation">
+              [value]="historyDetail.changedBy">
             </app-string-part>
 
             <app-string-part
               [isShow]="true"
               [name]="'Changed on'"
-              [valueChanges]="detailsChanges"
-              [value]="historyDetail.changedOn | date: 'medium'"
-              [property]="'date'"
-              [partValidation]="partValidation">
+              [value]="historyDetail.changedOn | date: 'medium'">
             </app-string-part>
           </div>
         </div>

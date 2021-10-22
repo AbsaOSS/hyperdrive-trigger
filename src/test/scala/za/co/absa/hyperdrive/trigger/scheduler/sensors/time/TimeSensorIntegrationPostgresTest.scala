@@ -23,6 +23,7 @@ import org.scalatest._
 import za.co.absa.hyperdrive.trigger.api.rest.services.{DagInstanceService, DagInstanceServiceImpl, JobTemplateFixture, JobTemplateResolutionServiceImpl, JobTemplateService, JobTemplateServiceImpl}
 import za.co.absa.hyperdrive.trigger.configuration.application.{GeneralConfig, KafkaConfig, SchedulerConfig, TestGeneralConfig, TestKafkaConfig, TestSchedulerConfig}
 import za.co.absa.hyperdrive.trigger.models._
+import za.co.absa.hyperdrive.trigger.models.enums.JobTypes
 import za.co.absa.hyperdrive.trigger.persistance._
 import za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.Sensors
@@ -70,10 +71,10 @@ class TimeSensorIntegrationPostgresTest extends FlatSpec with Matchers with Befo
     val properties = TimeSensorProperties(cronExpression = cronExpression)
     val sensor = Sensor[SensorProperties](-1L, properties)
 
-    val jobParameters1 = SparkDefinitionParameters(jobJar = Option("spark-job.jar"), mainClass = Option("TheMainClass"))
-    val jobDefinition1 = JobDefinition(-1L, sparkTemplateId, "Time-Sensor Job 1", jobParameters1, 1)
-    val jobParameters2 = SparkDefinitionParameters(jobJar = Option("spark-job-2.jar"), mainClass = Option("TheMainClass"))
-    val jobDefinition2 = JobDefinition(-1L, sparkTemplateId, "Time-Sensor Job 2", jobParameters2, 2)
+    val jobParameters1 = SparkDefinitionParameters(jobType = JobTypes.Spark, jobJar = Option("spark-job.jar"), mainClass = Option("TheMainClass"))
+    val jobDefinition1 = JobDefinition(-1L, Some(sparkTemplateId), "Time-Sensor Job 1", jobParameters1, 1)
+    val jobParameters2 = SparkDefinitionParameters(jobType = JobTypes.Spark, jobJar = Option("spark-job-2.jar"), mainClass = Option("TheMainClass"))
+    val jobDefinition2 = JobDefinition(-1L, Some(sparkTemplateId), "Time-Sensor Job 2", jobParameters2, 2)
 
     val dagDefinitionJoined = DagDefinitionJoined(-1L, Seq(jobDefinition1, jobDefinition2))
     val workflowJoined = WorkflowJoined("Time-Sensor Workflow", true, "some-project", LocalDateTime.now(), None, None, sensor, dagDefinitionJoined)

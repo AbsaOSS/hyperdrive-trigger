@@ -59,7 +59,6 @@ import { KeyStringValuePartComponent } from './components/workflows/workflow-for
 import { GuidPartComponent } from './components/workflows/workflow-form/dynamic-parts/guid-part/guid-part.component';
 import { CronQuartzPartComponent } from './components/workflows/workflow-form/dynamic-parts/cron-quartz-part/cron-quartz-part.component';
 import { JobComponent } from './components/workflows/workflow-form/jobs/job/job.component';
-import { DynamicPartsComponent } from './components/workflows/workflow-form/dynamic-parts/dynamic-parts.component';
 import { PreviousRouteService } from './services/previousRoute/previous-route.service';
 import { ToastrModule } from 'ngx-toastr';
 import { ConfirmationDialogComponent } from './components/common/confirmation-dialog/confirmation-dialog.component';
@@ -91,9 +90,12 @@ import { RecurringComponent } from './components/workflows/workflow-form/sensor/
 import { TimeComponent } from './components/workflows/workflow-form/sensor/sensor-types/time/time.component';
 import { KafkaComponent } from './components/workflows/workflow-form/sensor/sensor-types/kafka/kafka.component';
 import { AbsaKafkaComponent } from './components/workflows/workflow-form/sensor/sensor-types/absa-kafka/absa-kafka.component';
-import { SparkComponent } from './components/workflows/workflow-form/jobs/job/job-types/spark/spark.component';
-import { ShellComponent } from './components/workflows/workflow-form/jobs/job/job-types/shell/shell.component';
-import { HyperdriveComponent } from './components/workflows/workflow-form/jobs/job/job-types/hyperdrive/hyperdrive.component';
+import { SparkJobComponent } from './components/workflows/workflow-form/jobs/job/job-types/spark-job/spark-job.component';
+import { ShellJobComponent } from './components/workflows/workflow-form/jobs/job/job-types/shell-job/shell-job.component';
+import { HyperdriveJobComponent } from './components/workflows/workflow-form/jobs/job/job-types/hyperdrive-job/hyperdrive-job.component';
+import { ShellTemplateComponent } from './components/admin/job-templates/job-template-show/template-types/shell-template/shell-template.component';
+import { SparkTemplateComponent } from './components/admin/job-templates/job-template-show/template-types/spark-template/spark-template.component';
+import { HyperdriveTemplateComponent } from './components/admin/job-templates/job-template-show/template-types/hyperdrive-template/hyperdrive-template.component';
 
 @NgModule({
   declarations: [
@@ -116,9 +118,9 @@ import { HyperdriveComponent } from './components/workflows/workflow-form/jobs/j
     AbsaKafkaComponent,
     JobsComponent,
     JobComponent,
-    SparkComponent,
-    HyperdriveComponent,
-    ShellComponent,
+    SparkJobComponent,
+    HyperdriveJobComponent,
+    ShellJobComponent,
     StringPartComponent,
     StringWithSuggestionsPartComponent,
     BooleanPartComponent,
@@ -129,7 +131,6 @@ import { HyperdriveComponent } from './components/workflows/workflow-form/jobs/j
     KeyStringValuePartComponent,
     GuidPartComponent,
     CronQuartzPartComponent,
-    DynamicPartsComponent,
     ConfirmationDialogComponent,
     CronQuartzExpressionValidator,
     WorkflowHistoryComponent,
@@ -143,6 +144,9 @@ import { HyperdriveComponent } from './components/workflows/workflow-form/jobs/j
     JobTemplatesComponent,
     JobTemplatesHomeComponent,
     JobTemplateShowComponent,
+    ShellTemplateComponent,
+    SparkTemplateComponent,
+    HyperdriveTemplateComponent,
     NotificationRuleComponent,
     NotificationRulesComponent,
     NotificationRulesHomeComponent,

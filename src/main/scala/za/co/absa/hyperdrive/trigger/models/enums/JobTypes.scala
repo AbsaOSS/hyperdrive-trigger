@@ -24,9 +24,10 @@ object JobTypes {
   }
 
   case object Spark extends JobType("Spark")
+  case object Hyperdrive extends JobType("Hyperdrive")
   case object Shell extends JobType("Shell")
 
-  val jobTypes: Set[JobType] = Set(Spark, Shell)
+  val jobTypes: Set[JobType] = Set(Spark, Hyperdrive, Shell)
 
   def convertJobTypeNameToJobType(jobType: String): JobType = {
     JobTypes.jobTypes.find(_.name == jobType).getOrElse(

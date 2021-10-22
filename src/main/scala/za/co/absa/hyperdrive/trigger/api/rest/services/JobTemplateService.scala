@@ -40,7 +40,7 @@ class JobTemplateServiceImpl(override val jobTemplateRepository: JobTemplateRepo
   }
 
   override def resolveJobTemplate(dagDefinitionJoined: DagDefinitionJoined)(implicit ec: ExecutionContext): Future[Seq[ResolvedJobDefinition]] = {
-    val jobTemplateIds = dagDefinitionJoined.jobDefinitions.map(_.jobTemplateId)
+    val jobTemplateIds = dagDefinitionJoined.jobDefinitions.flatMap(_.jobTemplateId)
     jobTemplateRepository.getJobTemplatesByIds(jobTemplateIds).map(
       jobTemplates => jobTemplateResolutionService.resolveDagDefinitionJoined(dagDefinitionJoined, jobTemplates)
     )

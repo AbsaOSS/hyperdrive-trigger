@@ -25,6 +25,7 @@ import { dagInstanceStatuses } from '../../../../models/enums/dagInstanceStatuse
 import { NotificationRuleComponent } from './notification-rule.component';
 import { AppState } from '../../../../stores/app.reducers';
 import { PreviousRouteService } from '../../../../services/previousRoute/previous-route.service';
+import { NotificationRuleChanged } from '../../../../stores/notification-rules/notification-rules.actions';
 
 describe('NotificationRuleComponent', () => {
   let underTest: NotificationRuleComponent;
@@ -109,6 +110,22 @@ describe('NotificationRuleComponent', () => {
         expect(underTest.notificationRuleStatuses).toEqual(
           initialAppState.notificationRules.notificationRuleAction.notificationRule.statuses,
         );
+      });
+    }),
+  );
+
+  it(
+    'should dispatch notification rule change on notificationRuleChange()',
+    waitForAsync(() => {
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        const newNotificationRule = { ...dummyNotificationRule, project: 'newProjectName' };
+        const storeSpy = spyOn(store, 'dispatch');
+
+        underTest.notificationRuleChange(newNotificationRule);
+
+        expect(storeSpy).toHaveBeenCalled();
+        expect(storeSpy).toHaveBeenCalledWith(new NotificationRuleChanged(newNotificationRule));
       });
     }),
   );

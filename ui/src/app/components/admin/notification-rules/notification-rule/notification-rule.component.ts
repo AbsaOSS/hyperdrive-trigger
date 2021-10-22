@@ -15,7 +15,7 @@
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subject, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { NotificationRuleModel } from '../../../../models/notificationRule.model';
 import { AppState, selectNotificationRulesState } from '../../../../stores/app.reducers';
@@ -28,7 +28,6 @@ import {
   NotificationRuleChanged,
   SetEmptyNotificationRule,
 } from '../../../../stores/notification-rules/notification-rules.actions';
-import { WorkflowEntryModel } from '../../../../models/workflowEntry.model';
 
 @Component({
   selector: 'app-notification-rule',
@@ -45,8 +44,6 @@ export class NotificationRuleComponent implements OnInit, OnDestroy {
 
   paramsSubscription: Subscription;
   notificationRuleSubscription: Subscription;
-  changes: Subject<WorkflowEntryModel> = new Subject<WorkflowEntryModel>();
-  changesSubscription: Subscription;
 
   constructor(
     private store: Store<AppState>,
@@ -75,14 +72,15 @@ export class NotificationRuleComponent implements OnInit, OnDestroy {
       this.initialNotificationRule = state.notificationRuleAction.initialNotificationRule;
       this.backendValidationErrors = state.notificationRuleAction.backendValidationErrors;
     });
-    this.changesSubscription = this.changes.subscribe((state) => {
-      this.store.dispatch(new NotificationRuleChanged(state));
-    });
+  }
+
+  notificationRuleChange(value: NotificationRuleModel) {
+    this.notificationRule = value;
+    this.store.dispatch(new NotificationRuleChanged(this.notificationRule));
   }
 
   ngOnDestroy(): void {
     !!this.notificationRuleSubscription && this.notificationRuleSubscription.unsubscribe();
     !!this.paramsSubscription && this.paramsSubscription.unsubscribe();
-    !!this.changesSubscription && this.changesSubscription.unsubscribe();
   }
 }

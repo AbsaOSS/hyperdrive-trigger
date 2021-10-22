@@ -15,7 +15,6 @@
 
 import * as JobTemplatesActions from './job-templates.actions';
 import { JobTemplateModel } from '../../models/jobTemplate.model';
-import { JobTemplateFormEntryModel } from '../../models/jobTemplateFormEntry.model';
 
 export interface State {
   jobTemplates: JobTemplateModel[];
@@ -26,7 +25,6 @@ export interface State {
     id: number;
     loading: boolean;
     jobTemplate: JobTemplateModel;
-    jobTemplateFormEntries: JobTemplateFormEntryModel[];
   };
 }
 
@@ -39,7 +37,6 @@ const initialState: State = {
     id: undefined,
     loading: true,
     jobTemplate: undefined,
-    jobTemplateFormEntries: [],
   },
 };
 
@@ -70,17 +67,8 @@ export function jobTemplatesReducer(state: State = initialState, action: JobTemp
         ...state,
         jobTemplateAction: {
           ...state.jobTemplateAction,
-          loading: true,
-          jobTemplate: action.payload,
-        },
-      };
-    case JobTemplatesActions.SET_JOB_TEMPLATE_PARTS_FOR_FORM:
-      return {
-        ...state,
-        jobTemplateAction: {
-          ...state.jobTemplateAction,
           loading: false,
-          jobTemplateFormEntries: action.payload,
+          jobTemplate: action.payload,
         },
       };
     case JobTemplatesActions.GET_JOB_TEMPLATE_FOR_FORM_FAILURE:
