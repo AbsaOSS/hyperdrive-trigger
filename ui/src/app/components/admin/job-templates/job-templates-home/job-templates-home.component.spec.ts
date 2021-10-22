@@ -34,9 +34,7 @@ describe('JobTemplatesHomeComponent', () => {
 
   const initialAppState = {
     jobTemplates: {
-      jobTemplates: [
-        JobTemplateModelFactory.create(0, 'templateName', 'fromConfig', { name: 'jobType' }, SparkTemplateParametersModel.createEmpty()),
-      ],
+      jobTemplates: [JobTemplateModelFactory.create(0, 'templateName', SparkTemplateParametersModel.createEmpty())],
       total: 2,
       page: 3,
       loading: false,

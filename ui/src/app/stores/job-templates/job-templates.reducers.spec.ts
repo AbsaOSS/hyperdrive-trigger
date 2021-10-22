@@ -21,12 +21,10 @@ import {
   SearchJobTemplatesFailure,
   SearchJobTemplatesSuccess,
   SetJobTemplateForFrom,
-  SetJobTemplatePartsForFrom,
 } from './job-templates.actions';
 import { State, jobTemplatesReducer } from './job-templates.reducers';
 import { JobTemplateModel, JobTemplateModelFactory } from '../../models/jobTemplate.model';
 import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
-import { JobTemplateFormEntryModel } from '../../models/jobTemplateFormEntry.model';
 import { SparkTemplateParametersModel } from '../../models/jobTemplateParameters.model';
 
 describe('JobTemplatesReducers', () => {
@@ -39,7 +37,6 @@ describe('JobTemplatesReducers', () => {
       id: undefined,
       loading: true,
       jobTemplate: undefined,
-      jobTemplateFormEntries: [],
     },
   } as State;
 
@@ -52,13 +49,7 @@ describe('JobTemplatesReducers', () => {
   });
 
   it('should set job templates, total and loading to false on search job templates success', () => {
-    const jobTemplate = JobTemplateModelFactory.create(
-      0,
-      'templateName',
-      'fromConfig',
-      { name: 'jobType' },
-      SparkTemplateParametersModel.createEmpty(),
-    );
+    const jobTemplate = JobTemplateModelFactory.create(0, 'templateName', SparkTemplateParametersModel.createEmpty());
 
     const jobTemplateSearchResult = new TableSearchResponseModel<JobTemplateModel>([jobTemplate], 1);
     const jobTemplatesAction = new SearchJobTemplatesSuccess({ jobTemplatesSearchResponse: jobTemplateSearchResult });
@@ -97,14 +88,8 @@ describe('JobTemplatesReducers', () => {
     });
   });
 
-  it('should set loading to true and job template on set job template for form', () => {
-    const jobTemplate = JobTemplateModelFactory.create(
-      0,
-      'templateName',
-      'fromConfig',
-      { name: 'jobType' },
-      SparkTemplateParametersModel.createEmpty(),
-    );
+  it('should set loading to false and job template on set job template for form', () => {
+    const jobTemplate = JobTemplateModelFactory.create(0, 'templateName', SparkTemplateParametersModel.createEmpty());
     const jobTemplatesAction = new SetJobTemplateForFrom(jobTemplate);
 
     const actual = jobTemplatesReducer(initialState, jobTemplatesAction);
@@ -114,24 +99,7 @@ describe('JobTemplatesReducers', () => {
       jobTemplateAction: {
         ...initialState.jobTemplateAction,
         jobTemplate: jobTemplate,
-        loading: true,
-      },
-    });
-  });
-
-  it('should set loading to false, successfully loaded to true and job template form entries on set job template parts for form', () => {
-    const jobTemplateFormEntries: JobTemplateFormEntryModel[] = [];
-
-    const jobTemplatesAction = new SetJobTemplatePartsForFrom(jobTemplateFormEntries);
-
-    const actual = jobTemplatesReducer(initialState, jobTemplatesAction);
-
-    expect(actual).toEqual({
-      ...initialState,
-      jobTemplateAction: {
-        ...initialState.jobTemplateAction,
         loading: false,
-        jobTemplateFormEntries: jobTemplateFormEntries,
       },
     });
   });

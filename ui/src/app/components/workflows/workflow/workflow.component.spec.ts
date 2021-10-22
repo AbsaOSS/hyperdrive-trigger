@@ -17,46 +17,31 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { WorkflowComponent } from './workflow.component';
 import { provideMockStore } from '@ngrx/store/testing';
-import { ActivatedRoute, Router } from '@angular/router';
-import { of } from 'rxjs';
+import { ActivatedRoute, Params } from '@angular/router';
+import { Subject } from 'rxjs';
 import { RouterTestingModule } from '@angular/router/testing';
 import { PreviousRouteService } from '../../../services/previousRoute/previous-route.service';
 import { ConfirmationDialogService } from '../../../services/confirmation-dialog/confirmation-dialog.service';
 import { Store } from '@ngrx/store';
 import { AppState } from '../../../stores/app.reducers';
 import { StartWorkflowInitialization } from '../../../stores/workflows/workflows.actions';
-import { DynamicFormPartsFactory, WorkflowFormPartsModelFactory } from '../../../models/workflowFormParts.model';
-import { workflowFormParts, workflowFormPartsSequences } from '../../../constants/workflowFormParts.constants';
+import { WorkflowJoinedModelFactory } from '../../../models/workflowJoined.model';
 
 describe('WorkflowComponent', () => {
   let underTest: WorkflowComponent;
   let fixture: ComponentFixture<WorkflowComponent>;
-  let previousRouteService: PreviousRouteService;
-  let router: Router;
-  let confirmationDialogService: ConfirmationDialogService;
   let store: Store<AppState>;
+  const routeParams: Subject<Params> = new Subject<Params>();
 
   const initialAppState = {
     workflows: {
+      projects: [],
       workflowAction: {
         loading: true,
         mode: 'mode',
         id: 0,
-        workflow: {
-          isActive: true,
-        },
-        workflowFormData: {
-          details: [{ property: 'detailProp', value: 'detailVal' }],
-          sensor: [{ property: 'sensorProp', value: 'sensorVal' }],
-          jobs: [{ jobId: 'jobId', order: 0, entries: [{ property: 'jobProp', value: 'jobVal' }] }],
-        },
-        workflowFormParts: WorkflowFormPartsModelFactory.create(
-          workflowFormPartsSequences.allDetails,
-          workflowFormParts.SENSOR.SENSOR_TYPE,
-          workflowFormParts.JOB.JOB_NAME,
-          workflowFormParts.JOB.JOB_TEMPLATE_ID,
-          DynamicFormPartsFactory.create([], []),
-        ),
+        workflow: WorkflowJoinedModelFactory.createEmpty(),
+        workflowForForm: WorkflowJoinedModelFactory.createEmpty(),
         backendValidationErrors: ['validationError'],
       },
     },
@@ -71,10 +56,7 @@ describe('WorkflowComponent', () => {
           {
             provide: ActivatedRoute,
             useValue: {
-              params: of({
-                id: 0,
-                mode: 'mode',
-              }),
+              params: routeParams,
             },
           },
           PreviousRouteService,
@@ -82,9 +64,6 @@ describe('WorkflowComponent', () => {
         imports: [RouterTestingModule.withRoutes([])],
         declarations: [WorkflowComponent],
       }).compileComponents();
-      previousRouteService = TestBed.inject(PreviousRouteService);
-      router = TestBed.inject(Router);
-      confirmationDialogService = TestBed.inject(ConfirmationDialogService);
       store = TestBed.inject(Store);
     }),
   );
@@ -103,25 +82,26 @@ describe('WorkflowComponent', () => {
     waitForAsync(() => {
       fixture.detectChanges();
       fixture.whenStable().then(() => {
-        expect(underTest.loading).toBe(initialAppState.workflows.workflowAction.loading);
-        expect(underTest.mode).toBe(initialAppState.workflows.workflowAction.mode);
         expect(underTest.id).toBe(initialAppState.workflows.workflowAction.id);
-        expect(underTest.isWorkflowActive).toBe(initialAppState.workflows.workflowAction.workflow.isActive);
-        expect(underTest.backendValidationErrors).toBe(initialAppState.workflows.workflowAction.backendValidationErrors);
-        expect(underTest.workflowFormParts).toBe(initialAppState.workflows.workflowAction.workflowFormParts);
-        expect(underTest.workflowData).toBe(initialAppState.workflows.workflowAction.workflowFormData);
+        expect(underTest.mode).toBe(initialAppState.workflows.workflowAction.mode);
+        expect(underTest.loading).toBe(initialAppState.workflows.workflowAction.loading);
+        expect(underTest.initialWorkflow).toBe(initialAppState.workflows.workflowAction.workflow);
+        expect(underTest.workflowForForm).toBe(initialAppState.workflows.workflowAction.workflowForForm);
+        expect(underTest.backendValidationErrors).toEqual(initialAppState.workflows.workflowAction.backendValidationErrors);
       });
     }),
   );
 
   it(
-    'when changes is dispatched from child component it should propagate action to store',
+    'when route is changed it should dispatch start workflow initialization',
     waitForAsync(() => {
-      const usedAction = new StartWorkflowInitialization({ id: 1, mode: 'mode' });
+      const newRouteParams = { id: 1, mode: 'mode' };
+      const usedAction = new StartWorkflowInitialization(newRouteParams);
+
       fixture.detectChanges();
       fixture.whenStable().then(() => {
         const storeSpy = spyOn(store, 'dispatch');
-        underTest.changes.next(usedAction);
+        routeParams.next(newRouteParams);
         fixture.detectChanges();
 
         fixture.whenStable().then(() => {

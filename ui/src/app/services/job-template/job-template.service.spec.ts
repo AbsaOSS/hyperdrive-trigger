@@ -59,7 +59,7 @@ describe('JobTemplateService', () => {
   });
 
   it('getJobTemplate() should return job template', () => {
-    const jobTemplate = JobTemplateModelFactory.create(1, 'name', 'formConfig', undefined, SparkTemplateParametersModel.createEmpty());
+    const jobTemplate = JobTemplateModelFactory.create(1, 'name', SparkTemplateParametersModel.createEmpty());
 
     underTest.getJobTemplate(jobTemplate.id).subscribe(
       (data) => expect(data).toEqual(jobTemplate),

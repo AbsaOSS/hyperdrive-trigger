@@ -16,23 +16,22 @@
 <app-string-part
   [isShow]="isShow"
   [name]="'Topic'"
-  [valueChanges]="sensorChanges"
-  [value]="WorkflowEntryUtil.getValue('properties.topic', sensorData)"
-  [property]="'properties.topic'"
-  [partValidation]="PartValidationFactory.create(true, undefined, 1)">
+  (valueChange)="topicChange($event)"
+  [value]="sensorProperties?.topic"
+  [isRequired]=true
+  [minLength]=1>
 </app-string-part>
 <app-string-sequence-part
   [isShow]="isShow"
   [name]="'Kafka servers'"
-  [valueChanges]="sensorChanges"
-  [value]="WorkflowEntryUtil.getValue('properties.servers', sensorData)"
-  [property]="'properties.servers'"
-  [partValidation]="PartValidationFactory.create(true, undefined, 1)">
+  [value]="sensorProperties?.servers"
+  (valueChange)="kafkaServersChange($event)"
+  [isRequired]=true
+  [minLength]=1>
 </app-string-sequence-part>
 <app-guid-part
   [isShow]="isShow"
   [name]="'Ingestion token'"
-  [valueChanges]="sensorChanges"
-  [value]="WorkflowEntryUtil.getValue('properties.ingestionToken', sensorData)"
-  [property]="'properties.ingestionToken'">
+  (valueChange)="ingestionTokenChange($event)"
+  [value]="sensorProperties?.ingestionToken">
 </app-guid-part>

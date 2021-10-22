@@ -19,24 +19,24 @@
     <input [name]="name+ '-'+i+uiid" clrControl [readOnly]="isShow" type="text" [ngModel]="val"
            (ngModelChange)="ngModelChanged($event, i)"
            required
-           [minlength]="partValidation.minLength"
-           [maxlength]="partValidation.maxLength"/>
+           [minlength]="minLength"
+           [maxlength]="maxLength"/>
     <clr-control-error *clrIfError="'required'">{{texts.FORM_VALIDATION_MUST_BE_FILLED(name)}}</clr-control-error>
-    <clr-control-error *clrIfError="'minlength'">{{texts.FORM_VALIDATION_MIN_LENGTH(name, partValidationSafe.minLength)}}</clr-control-error>
-    <clr-control-error *clrIfError="'maxlength'">{{texts.FORM_VALIDATION_MAX_LENGTH(name, partValidationSafe.maxLength)}}</clr-control-error>
+    <clr-control-error *clrIfError="'minlength'">{{texts.FORM_VALIDATION_MIN_LENGTH(name, minLength)}}</clr-control-error>
+    <clr-control-error *clrIfError="'maxlength'">{{texts.FORM_VALIDATION_MAX_LENGTH(name, maxLength)}}</clr-control-error>
 
     <button *ngIf="!isShow" type="button" class="btn btn-link" (click)="onDeleteValue(i)">
       <clr-icon shape="trash"></clr-icon>
     </button>
 
-    <button type="button" class="btn btn-link" *ngIf="!isShow && value.length - 1 === i" (click)="onAddValue()">
+    <button type="button" class="btn btn-link" *ngIf="!isShow && value?.length - 1 === i" (click)="onAddValue()">
       <clr-icon shape="plus"></clr-icon>
     </button>
   </clr-control-container>
 
-  <clr-control-container *ngIf="value.length == 0 && !isShow">
+  <clr-control-container *ngIf="value?.length == 0 && !isShow">
     <label>{{name}}</label>
-    <input [name]="name+uiid" clrControl [ngModel]="undefined" [required]="partValidation.isRequired" type="hidden"/>
+    <input [name]="name+uiid" clrControl [ngModel]="undefined" [required]="isRequired" type="hidden"/>
     <clr-control-error *clrIfError="'required'">{{texts.FORM_VALIDATION_MUST_BE_FILLED(name)}}</clr-control-error>
 
     <button type="button" class="btn btn-link" (click)="onAddValue()">

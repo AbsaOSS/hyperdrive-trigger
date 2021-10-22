@@ -19,7 +19,7 @@ package za.co.absa.hyperdrive.trigger.api.rest.services
 import javax.inject.Inject
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.api.rest.utils.ValidationServiceUtil
-import za.co.absa.hyperdrive.trigger.models.{AbsaKafkaSensorProperties, HyperdriveDefinitionParameters, JobDefinitionParameters, KafkaSensorProperties, RecurringSensorProperties, SensorProperties, ShellDefinitionParameters, SparkDefinitionParameters, TimeSensorProperties, WorkflowJoined}
+import za.co.absa.hyperdrive.trigger.models.{AbsaKafkaSensorProperties, JobDefinition, JobDefinitionParameters, KafkaSensorProperties, RecurringSensorProperties, SensorProperties, ShellDefinitionParameters, SparkDefinitionParameters, TimeSensorProperties, WorkflowJoined}
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, ApiException, BulkOperationError, ValidationError}
 import za.co.absa.hyperdrive.trigger.persistance.WorkflowRepository
 
@@ -28,15 +28,15 @@ import scala.concurrent.{ExecutionContext, Future}
 
 trait WorkflowValidationService {
   val workflowRepository: WorkflowRepository
+  val jobTemplateService: JobTemplateService
 
   def validateOnInsert(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Unit]
   def validateOnInsert(workflows: Seq[WorkflowJoined])(implicit ec: ExecutionContext): Future[Unit]
-
   def validateOnUpdate(originalWorkflow: WorkflowJoined, updatedWorkflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Unit]
 }
 
 @Service
-class WorkflowValidationServiceImpl @Inject()(override val workflowRepository: WorkflowRepository)
+class WorkflowValidationServiceImpl @Inject()(override val workflowRepository: WorkflowRepository, override val jobTemplateService: JobTemplateService)
   extends WorkflowValidationService {
   override def validateOnInsert(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Unit] = {
     validateOnInsert(Seq(workflow)).transform(identity, {
@@ -47,7 +47,8 @@ class WorkflowValidationServiceImpl @Inject()(override val workflowRepository: W
   override def validateOnInsert(workflows: Seq[WorkflowJoined])(implicit ec: ExecutionContext): Future[Unit] = {
     val validators = Seq(
       validateWorkflowNotExists(workflows),
-      validateProjectIsNotEmpty(workflows)
+      validateProjectIsNotEmpty(workflows),
+      validateJobDefinition(workflows.flatMap(_.dagDefinitionJoined.jobDefinitions))
     )
     ValidationServiceUtil.reduce(validators)
   }
@@ -56,7 +57,8 @@ class WorkflowValidationServiceImpl @Inject()(override val workflowRepository: W
     val validators = Seq(
       validateWorkflowIsUnique(updatedWorkflow),
       validateProjectIsNotEmpty(updatedWorkflow),
-      validateWorkflowData(originalWorkflow, updatedWorkflow)
+      validateWorkflowData(originalWorkflow, updatedWorkflow),
+      validateJobDefinition(updatedWorkflow.dagDefinitionJoined.jobDefinitions)
     )
     ValidationServiceUtil.reduce(validators).transform(identity, {
       case ex: ApiException => new ApiException(ex.apiErrors.map(_.unwrapError()))
@@ -144,7 +146,6 @@ class WorkflowValidationServiceImpl @Inject()(override val workflowRepository: W
   private def validateJobParameters(originalJobParameters: JobDefinitionParameters, updatedJobParameters: JobDefinitionParameters): Boolean = {
     (originalJobParameters, updatedJobParameters) match {
       case (original: SparkDefinitionParameters, updated: SparkDefinitionParameters) => original.equals(updated)
-      case (original: HyperdriveDefinitionParameters, updated: HyperdriveDefinitionParameters) => original.equals(updated)
       case (original: ShellDefinitionParameters, updated: ShellDefinitionParameters) => original.equals(updated)
       case _ => false
     }
@@ -166,5 +167,30 @@ class WorkflowValidationServiceImpl @Inject()(override val workflowRepository: W
           case (_: String, valueRight: SortedMap[String, String]) => valueLeft.equals(valueRight)
         }
     }.toSeq.contains(false)
+  }
+
+  private def validateJobDefinition(jobDefinitions: Seq[JobDefinition])(implicit ec: ExecutionContext): Future[Seq[ApiError]] = {
+    Future.sequence(jobDefinitions.map { jobDefinition =>
+      jobDefinition.jobTemplateId match {
+        case None => jobDefinition.jobParameters match {
+          case SparkDefinitionParameters(jobType, jobJar, mainClass, _, _, _, _) if jobJar.isEmpty || mainClass.isEmpty =>
+            Future.successful(Seq(ValidationError(s"Job jar and main class cannot be empty in case of $jobType job type when template is empty")))
+          case SparkDefinitionParameters(_, _, _, _, _, _, _) =>
+            Future.successful(Seq.empty[ApiError])
+          case ShellDefinitionParameters(jobType, scriptLocation) if scriptLocation.isEmpty =>
+            Future.successful(Seq(ValidationError(s"Script location cannot be empty in case of $jobType job type when template is empty")))
+          case ShellDefinitionParameters(_, _) =>
+            Future.successful(Seq.empty[ApiError])
+        }
+        case Some(jobTemplateId) => jobTemplateService.getJobTemplate(jobTemplateId).map { jobTemplate =>
+          if (jobTemplate.jobParameters.jobType != jobDefinition.jobParameters.jobType)
+            Seq(ValidationError(
+              s"Template's job type has to be the same as job's job type. Template - ${jobTemplate.jobParameters.jobType} is not equal to Job - ${jobDefinition.jobParameters.jobType}"
+            ))
+          else
+            Seq.empty[ApiError]
+        }
+      }
+    }).map(_.flatten)
   }
 }

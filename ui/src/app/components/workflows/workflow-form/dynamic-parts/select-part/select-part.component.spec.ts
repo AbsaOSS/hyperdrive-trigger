@@ -19,9 +19,6 @@ import { SelectPartComponent } from './select-part.component';
 import { DebugElement, Predicate } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { FormsModule, NgForm } from '@angular/forms';
-import { Subject } from 'rxjs';
-import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
-import { PartValidationFactory } from '../../../../../models/workflowFormParts.model';
 
 describe('SelectPartComponent', () => {
   let fixture: ComponentFixture<SelectPartComponent>;
@@ -57,30 +54,26 @@ describe('SelectPartComponent', () => {
         waitForAsync(() => {
           const oldValue = parameter;
           const newValue = 'oneValue';
-          const propertyName = 'property';
           const options = new Map([
             [newValue, 'oneLabel'],
             ['two', 'twoLabel'],
             ['three', 'threeLabel'],
           ]);
-          const testedSubject = new Subject<WorkflowEntryModel>();
-          const subjectSpy = spyOn(testedSubject, 'next');
-          const partValidation = PartValidationFactory.create(true);
+          spyOn(underTest.valueChange, 'emit');
 
           underTest.isShow = false;
+          underTest.isRequired = true;
           underTest.name = 'name';
           underTest.value = oldValue;
-          underTest.property = propertyName;
           underTest.options = options;
-          underTest.valueChanges = testedSubject;
-          underTest.partValidation = partValidation;
+          underTest.ngOnInit();
           fixture.detectChanges();
 
           fixture.whenStable().then(() => {
             const result = fixture.debugElement.query(inputSelector).nativeElement.value;
             expect(result).toBe(newValue);
-            expect(subjectSpy).toHaveBeenCalledTimes(1);
-            expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValue));
+            expect(underTest.valueChange.emit).toHaveBeenCalled();
+            expect(underTest.valueChange.emit).toHaveBeenCalledWith(newValue);
           });
         }),
       );
@@ -92,24 +85,18 @@ describe('SelectPartComponent', () => {
     waitForAsync(() => {
       const oldValue = 'oneValue';
       const newValue = 'threeValue';
-      const propertyName = 'property';
       const options = new Map([
         [oldValue, 'oneLabel'],
         ['two', 'two'],
         [newValue, 'threeLabel'],
       ]);
 
-      const testedSubject = new Subject<WorkflowEntryModel>();
-      const subjectSpy = spyOn(testedSubject, 'next');
-      const partValidation = PartValidationFactory.create(true);
+      spyOn(underTest.valueChange, 'emit');
 
       underTest.isShow = false;
       underTest.name = 'name';
       underTest.value = oldValue;
-      underTest.property = propertyName;
       underTest.options = options;
-      underTest.valueChanges = testedSubject;
-      underTest.partValidation = partValidation;
 
       fixture.detectChanges();
       fixture.whenStable().then(() => {
@@ -121,8 +108,8 @@ describe('SelectPartComponent', () => {
         fixture.whenStable().then(() => {
           const testedValue = fixture.debugElement.query(inputSelector).nativeElement.value;
           expect(testedValue).toBe(newValue);
-          expect(subjectSpy).toHaveBeenCalled();
-          expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValue));
+          expect(underTest.valueChange.emit).toHaveBeenCalled();
+          expect(underTest.valueChange.emit).toHaveBeenCalledWith(testedValue);
         });
       });
     }),

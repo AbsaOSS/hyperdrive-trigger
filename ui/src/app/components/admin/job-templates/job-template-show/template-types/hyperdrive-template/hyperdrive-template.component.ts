@@ -13,17 +13,19 @@
  * limitations under the License.
  */
 
-import { WorkflowEntryModel } from './workflowEntry.model';
-import { JobEntryModel } from './jobEntry.model';
+import { Component, Input } from '@angular/core';
+import { HyperdriveTemplateParametersModel } from '../../../../../../models/jobTemplateParameters.model';
 
-export type WorkflowFormDataModel = {
-  details: WorkflowEntryModel[];
-  sensor: WorkflowEntryModel[];
-  jobs: JobEntryModel[];
-};
+@Component({
+  selector: 'app-hyperdrive-template',
+  templateUrl: './hyperdrive-template.component.html',
+  styleUrls: ['./hyperdrive-template.component.scss'],
+})
+export class HyperdriveTemplateComponent {
+  @Input() isShow: boolean;
+  @Input() jobParameters: HyperdriveTemplateParametersModel;
 
-export class WorkflowFormDataModelFactory {
-  static create(details: WorkflowEntryModel[], sensor: WorkflowEntryModel[], jobs: JobEntryModel[]): WorkflowFormDataModel {
-    return { details: details, sensor: sensor, jobs: jobs };
+  constructor() {
+    // do nothing
   }
 }

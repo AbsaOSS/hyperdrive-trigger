@@ -31,26 +31,12 @@
           <app-string-part
             [isShow]="true"
             [name]="'Job template name'"
-            [valueChanges]="changes"
-            [value]="jobTemplate.name"
-            [property]="'name'"
-            [partValidation]="partValidation">
-          </app-string-part>
-          <app-string-part
-            [isShow]="true"
-            [name]="'Form config'"
-            [valueChanges]="changes"
-            [value]="jobTemplate.formConfig"
-            [property]="'formConfig'"
-            [partValidation]="partValidation">
+            [value]="jobTemplate.name">
           </app-string-part>
           <app-string-part
             [isShow]="true"
             [name]="'Job type'"
-            [valueChanges]="changes"
-            [value]="jobTemplate.jobParameters.jobType"
-            [property]="'jobType.name'"
-            [partValidation]="partValidation">
+            [value]="jobTemplate.jobParameters.jobType">
           </app-string-part>
         </div>
       </div>
@@ -61,75 +47,23 @@
           <clr-icon shape="angle" [dir]="isJobTemplateParametersHidden?'right':'down'"></clr-icon>
           Job Template Parameters
         </div>
-        <div *ngIf="isJobTemplateEmpty()" [hidden]="isJobTemplateParametersHidden" class="accordion-content">
-          <h6>Job template has no parameters.</h6>
-        </div>
-        <div *ngIf="!isJobTemplateEmpty()" [hidden]="isJobTemplateParametersHidden" class="accordion-content">
-          <div *ngFor="let jobTemplateFormEntry of jobTemplateFormEntries">
-            <div [ngSwitch]="jobTemplateFormEntry.formPart.type">
-              <app-string-part
-                *ngSwitchCase="'string-field'"
-                [isShow]="isShow"
-                [name]="jobTemplateFormEntry.formPart.name"
-                [valueChanges]="changes"
-                [value]="jobTemplateFormEntry.value"
-                [property]="jobTemplateFormEntry.formPart.property"
-                [partValidation]="jobTemplateFormEntry.formPart.partValidation">
-              </app-string-part>
-              <app-string-sequence-part
-                *ngSwitchCase="'set-field'"
-                [isShow]="isShow"
-                [name]="jobTemplateFormEntry.formPart.name"
-                [valueChanges]="changes"
-                [value]="jobTemplateFormEntry.value"
-                [property]="jobTemplateFormEntry.formPart.property"
-                [partValidation]="jobTemplateFormEntry.formPart.partValidation">
-              </app-string-sequence-part>
-              <app-key-string-value-part
-                *ngSwitchCase="'key-value-field'"
-                [isShow]="isShow"
-                [name]="jobTemplateFormEntry.formPart.name"
-                [valueChanges]="changes"
-                [value]="jobTemplateFormEntry.value"
-                [property]="jobTemplateFormEntry.formPart.property"
-                [partValidation]="jobTemplateFormEntry.formPart.partValidation">
-              </app-key-string-value-part>
-              <app-guid-part
-                *ngSwitchCase="'guid-field'"
-                [isShow]="isShow"
-                [name]="jobTemplateFormEntry.formPart.name"
-                [valueChanges]="changes"
-                [value]="jobTemplateFormEntry.value"
-                [property]="jobTemplateFormEntry.formPart.property"
-                [partValidation]="jobTemplateFormEntry.formPart.partValidation">
-              </app-guid-part>
-              <app-cron-quartz-part
-                *ngSwitchCase="'cron-quartz-field'"
-                [isShow]="isShow"
-                [name]="jobTemplateFormEntry.formPart.name"
-                [valueChanges]="changes"
-                [value]="jobTemplateFormEntry.value"
-                [property]="jobTemplateFormEntry.formPart.property">
-              </app-cron-quartz-part>
-              <app-select-part
-                *ngSwitchCase="'select-field'"
-                [isShow]="isShow"
-                [name]="jobTemplateFormEntry.formPart.name"
-                [valueChanges]="changes"
-                [value]="jobTemplateFormEntry.value"
-                [property]="jobTemplateFormEntry.formPart.property"
-                [options]="jobTemplateFormEntry.formPart.options"
-                [partValidation]="jobTemplateFormEntry.formPart.partValidation">
-              </app-select-part>
-              <app-boolean-part
-                *ngSwitchCase="'boolean-field'"
-                [isShow]="isShow"
-                [name]="jobTemplateFormEntry.formPart.name"
-                [valueChanges]="changes"
-                [value]="jobTemplateFormEntry.value"
-                [property]="jobTemplateFormEntry.formPart.property">
-              </app-boolean-part>
-            </div>
+        <div [hidden]="isJobTemplateParametersHidden" class="accordion-content">
+          <div [ngSwitch]="this.jobTemplate?.jobParameters?.jobType">
+            <app-spark-template
+              *ngSwitchCase="jobTypes.SPARK"
+              [isShow]="isShow"
+              [jobParameters]="jobTemplate?.jobParameters">
+            </app-spark-template>
+            <app-hyperdrive-template
+              *ngSwitchCase="jobTypes.HYPERDRIVE"
+              [isShow]="isShow"
+              [jobParameters]="jobTemplate?.jobParameters">
+            </app-hyperdrive-template>
+            <app-shell-template
+              *ngSwitchCase="jobTypes.SHELL"
+              [isShow]="isShow"
+              [jobParameters]="jobTemplate?.jobParameters">
+            </app-shell-template>
           </div>
         </div>
       </div>

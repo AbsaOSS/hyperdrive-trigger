@@ -21,15 +21,12 @@
 
 <div *ngIf="!loading">
   <app-workflow-form
-    [mode]="mode"
-    [workflowData]="workflowData"
-    [initialWorkflowData]="initialWorkflowData"
-    [workflowFormParts]="workflowFormParts"
-    [jobTemplates]="jobTemplates"
     [id]="id"
-    [backendValidationErrors]="backendValidationErrors"
-    [changes]="changes"
-    [isWorkflowActive]="isWorkflowActive">
+    [mode]="mode"
+    [initialWorkflow]="initialWorkflow"
+    [workflowForForm]="workflowForForm"
+    [projects]="projects"
+    [jobTemplates]="jobTemplates"
+    [backendValidationErrors]="backendValidationErrors">
   </app-workflow-form>
-
 </div>

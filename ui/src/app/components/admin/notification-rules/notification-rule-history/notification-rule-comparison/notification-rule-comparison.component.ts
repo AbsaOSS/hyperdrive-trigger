@@ -14,8 +14,8 @@
  */
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Subject, Subscription } from 'rxjs';
-import { Action, Store } from '@ngrx/store';
+import { Subscription } from 'rxjs';
+import { Store } from '@ngrx/store';
 import { ActivatedRoute } from '@angular/router';
 import { NotificationRuleHistoryModel } from '../../../../../models/notificationRuleHistoryModel';
 import { notificationRuleModes } from '../../../../../models/enums/notificationRuleModes.constants';
@@ -37,7 +37,6 @@ export class NotificationRuleComparisonComponent implements OnInit, OnDestroy {
   rightHistory: NotificationRuleHistoryModel;
 
   loading = true;
-  changes = new Subject<Action>();
 
   constructor(private store: Store<AppState>, route: ActivatedRoute) {
     this.paramsSubscription = route.params.subscribe((parameters) => {

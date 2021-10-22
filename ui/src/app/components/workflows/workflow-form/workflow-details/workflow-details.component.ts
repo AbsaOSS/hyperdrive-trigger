@@ -13,46 +13,36 @@
  * limitations under the License.
  */
 
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { workflowModes } from '../../../../models/enums/workflowModes.constants';
-import { Subject, Subscription } from 'rxjs';
-import { Action } from '@ngrx/store';
-import { WorkflowDetailsChanged } from '../../../../stores/workflows/workflows.actions';
-import { FormPart, PartValidationFactory } from '../../../../models/workflowFormParts.model';
-import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../models/workflowEntry.model';
-import { WorkflowEntryUtil } from '../../../../utils/workflowEntry/workflowEntry.util';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { WorkflowJoinedModel } from '../../../../models/workflowJoined.model';
 
 @Component({
   selector: 'app-workflow-details',
   templateUrl: './workflow-details.component.html',
   styleUrls: ['./workflow-details.component.scss'],
 })
-export class WorkflowDetailsComponent implements OnInit, OnDestroy {
+export class WorkflowDetailsComponent {
   @Input() isShow: boolean;
-  @Input() parts: FormPart[];
-  @Input() data: WorkflowEntryModel[];
-  @Input() changes: Subject<Action>;
+  @Input() details: WorkflowJoinedModel;
+  @Output() detailsChange = new EventEmitter();
   @Input() projects: string[];
-
-  PartValidationFactory = PartValidationFactory;
-  WorkflowEntryUtil = WorkflowEntryUtil;
-
-  workflowModes = workflowModes;
-
-  detailsChanges: Subject<WorkflowEntryModel> = new Subject<WorkflowEntryModel>();
-  detailsChangesSubscription: Subscription;
 
   constructor() {
     // do nothing
   }
 
-  ngOnInit(): void {
-    this.detailsChangesSubscription = this.detailsChanges.subscribe((newValue) => {
-      this.changes.next(new WorkflowDetailsChanged(WorkflowEntryModelFactory.create(newValue.property, newValue.value)));
-    });
+  nameChange(name: string) {
+    this.details = { ...this.details, name: name };
+    this.detailsChange.emit(this.details);
   }
 
-  ngOnDestroy(): void {
-    !!this.detailsChangesSubscription && this.detailsChangesSubscription.unsubscribe();
+  projectChange(project: string) {
+    this.details = { ...this.details, project: project };
+    this.detailsChange.emit(this.details);
+  }
+
+  isActiveChange(isActive: boolean) {
+    this.details = { ...this.details, isActive: isActive };
+    this.detailsChange.emit(this.details);
   }
 }

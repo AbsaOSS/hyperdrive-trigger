@@ -16,41 +16,53 @@
 <app-string-part
   [isShow]="isShow"
   [name]="'Job name'"
-  [valueChanges]="jobChanges"
-  [value]="WorkflowEntryUtil.getValue('name', getJobData())"
-  [property]="'name'"
-  [partValidation]="PartValidationFactory.create(true, undefined, 1)">
+  (valueChange)="nameChange($event)"
+  [value]="job?.name"
+  [isRequired]=true
+  [minLength]=1>
 </app-string-part>
+
+<app-select-part
+  [isShow]="isShow"
+  [name]="'Job type'"
+  [value]="job?.jobParameters?.jobType"
+  [options]="jobTypesMap"
+  (valueChange)="jobTypeChange($event)"
+  [isRequired]="true">
+</app-select-part>
+
 <app-select-part
   [isShow]="isShow"
   [name]="'Job template'"
-  [value]="WorkflowEntryUtil.getValue('jobTemplateId', this.getJobData())"
+  [value]="job?.jobTemplateId"
   [options]="getJobTemplates()"
-  [valueChanges]="jobChanges"
-  [property]="'jobTemplateId'"
-  [partValidation]="PartValidationFactory.create(true)">
+  (valueChange)="jobTemplateChange($event)"
+  [isRequired]="false">
 </app-select-part>
 
-<div [ngSwitch]="getSelectedFormConfig()">
-  <app-spark
-    *ngSwitchCase="jobTemplateFormConfigs.SPARK"
+<div [ngSwitch]="this.job?.jobParameters?.jobType">
+  <app-spark-job
+    *ngSwitchCase="jobTypes.SPARK"
     [isShow]="isShow"
-    [jobData]="getJobData()"
-    [jobId]="jobId"
-    [changes]="changes">
-  </app-spark>
-  <app-hyperdrive
-    *ngSwitchCase="jobTemplateFormConfigs.HYPERDRIVE"
+    [jobParameters]="job?.jobParameters"
+    (jobParametersChange)="jobParametersChange($event)"
+    [isJobTemplateSelected]="this.isJobTemplateSelected()"
+    [jobTemplateChanges]="jobTemplateChanges">
+  </app-spark-job>
+  <app-hyperdrive-job
+    *ngSwitchCase="jobTypes.HYPERDRIVE"
     [isShow]="isShow"
-    [jobData]="getJobData()"
-    [jobId]="jobId"
-    [changes]="changes">
-  </app-hyperdrive>
-  <app-shell
-    *ngSwitchCase="jobTemplateFormConfigs.SHELL"
+    [jobParameters]="job?.jobParameters"
+    (jobParametersChange)="jobParametersChange($event)"
+    [isJobTemplateSelected]="this.isJobTemplateSelected()"
+    [jobTemplateChanges]="jobTemplateChanges">
+  </app-hyperdrive-job>
+  <app-shell-job
+    *ngSwitchCase="jobTypes.SHELL"
     [isShow]="isShow"
-    [jobData]="getJobData()"
-    [jobId]="jobId"
-    [changes]="changes">
-  </app-shell>
+    [jobParameters]="job?.jobParameters"
+    (jobParametersChange)="jobParametersChange($event)"
+    [isJobTemplateSelected]="this.isJobTemplateSelected()"
+    [jobTemplateChanges]="jobTemplateChanges">
+  </app-shell-job>
 </div>

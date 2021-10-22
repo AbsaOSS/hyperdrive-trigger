@@ -13,11 +13,8 @@
  * limitations under the License.
  */
 
-import { Component, Input, OnInit } from '@angular/core';
-import { Subject } from 'rxjs';
-import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ControlContainer, NgForm } from '@angular/forms';
-import { PartValidation, PartValidationFactory } from '../../../../../models/workflowFormParts.model';
 import { UuidUtil } from '../../../../../utils/uuid/uuid.util';
 import { texts } from 'src/app/constants/texts.constants';
 
@@ -33,11 +30,9 @@ export class SelectPartComponent implements OnInit {
   @Input() isShow: boolean;
   @Input() name: string;
   @Input() value: string;
-  @Input() property: string;
+  @Output() valueChange: EventEmitter<string> = new EventEmitter();
   @Input() options: Map<string, string>;
-  @Input() valueChanges: Subject<WorkflowEntryModel>;
-  @Input() partValidation: PartValidation;
-  partValidationSafe: PartValidation;
+  @Input() isRequired = false;
 
   constructor() {
     // do nothing
@@ -47,14 +42,21 @@ export class SelectPartComponent implements OnInit {
     if (!this.options) {
       this.options = new Map();
     }
-    if (!this.value || this.value == '') {
+    if (this.isRequired && (!this.value || this.value == '')) {
       this.modelChanged(this.options.size != 0 ? this.options.keys().next().value : '');
     }
-    this.partValidationSafe = PartValidationFactory.create(this.partValidation?.isRequired ?? true);
+  }
+
+  removeSelectedOption() {
+    this.modelChanged(undefined);
   }
 
   modelChanged(value: string) {
-    this.value = value.trim();
-    this.valueChanges.next(WorkflowEntryModelFactory.create(this.property, this.value));
+    if (!value) {
+      this.value = undefined;
+    } else {
+      this.value = value.trim();
+    }
+    this.valueChange.emit(this.value);
   }
 }

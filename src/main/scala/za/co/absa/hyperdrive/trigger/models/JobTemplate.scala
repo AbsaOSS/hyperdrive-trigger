@@ -18,6 +18,5 @@ package za.co.absa.hyperdrive.trigger.models
 case class JobTemplate(
   name: String,
   jobParameters: JobTemplateParameters,
-  id: Long = 0,
-  formConfig: String
+  id: Long = 0
 )

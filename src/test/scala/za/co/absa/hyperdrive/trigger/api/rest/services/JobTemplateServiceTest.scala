@@ -44,7 +44,7 @@ class JobTemplateServiceTest extends AsyncFlatSpec with Matchers with MockitoSug
     val dagDefinitionJoined = WorkflowFixture.createWorkflowJoined().dagDefinitionJoined
     val jobTemplates = Seq(GenericShellJobTemplate, GenericSparkJobTemplate)
     val resolvedJobDefinitions = Seq(
-      ResolvedJobDefinition(name = "JobA", jobParameters = SparkInstanceParameters(jobJar = "", mainClass = ""), order = 0),
+      ResolvedJobDefinition(name = "JobA", jobParameters = SparkInstanceParameters(jobType = JobTypes.Spark, jobJar = "", mainClass = ""), order = 0),
       ResolvedJobDefinition(name = "JobB", jobParameters = ShellInstanceParameters(scriptLocation = ""), order = 1)
     )
 

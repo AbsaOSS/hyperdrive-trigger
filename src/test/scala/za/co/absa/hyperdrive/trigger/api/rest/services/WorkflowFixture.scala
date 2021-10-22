@@ -18,10 +18,11 @@ package za.co.absa.hyperdrive.trigger.api.rest.services
 
 import java.time.LocalDateTime
 import java.util.UUID
-
 import org.apache.commons.lang3.RandomStringUtils
 import za.co.absa.hyperdrive.trigger.api.rest.services.JobTemplateFixture.{GenericShellJobTemplate, GenericSparkJobTemplate}
 import za.co.absa.hyperdrive.trigger.models._
+import za.co.absa.hyperdrive.trigger.models.enums.JobTypes
+import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
 
 object WorkflowFixture {
   val Random = new scala.util.Random(42)
@@ -37,7 +38,7 @@ object WorkflowFixture {
     "0 43 12 22 4 ? *"
   )
 
-  def createWorkflowJoined() = {
+  def createWorkflowJoined(sparkJobTemplateId: Long = GenericSparkJobTemplate.id, shellJobTemplateId: Long = GenericShellJobTemplate.id) = {
     WorkflowJoined(
       id = 10,
       name = "testWorkflow",
@@ -58,9 +59,10 @@ object WorkflowFixture {
         jobDefinitions = Seq(
           JobDefinition(
             dagDefinitionId = 0,
-            jobTemplateId = GenericSparkJobTemplate.id,
+            jobTemplateId = Some(sparkJobTemplateId),
             name = "TestJob1",
             jobParameters = SparkDefinitionParameters(
+              jobType = JobTypes.Spark,
               jobJar = Option("/dir/driver.jar"),
               mainClass = Option("aaa.bbb.TestClass")
             ),
@@ -69,7 +71,7 @@ object WorkflowFixture {
           ),
           JobDefinition(
             dagDefinitionId = 0,
-            jobTemplateId = GenericShellJobTemplate.id,
+            jobTemplateId = Some(shellJobTemplateId),
             name = "TestJob2",
             jobParameters = ShellDefinitionParameters(
               scriptLocation = Option("/dir/script.sh")
@@ -106,9 +108,10 @@ object WorkflowFixture {
         jobDefinitions = Seq(
           JobDefinition(
             dagDefinitionId = 0,
-            jobTemplateId = GenericSparkJobTemplate.id,
+            jobTemplateId = Some(GenericSparkJobTemplate.id),
             name = s"${randomString()} Driver",
             jobParameters = SparkDefinitionParameters(
+              jobType = JobTypes.Spark,
               jobJar = Option(s"${randomString()}/driver.jar"),
               mainClass = Option("za.co.absa.hyperdrive.driver.drivers.CommandLineIngestionDriver"),
               appArguments = List(
@@ -146,9 +149,10 @@ object WorkflowFixture {
           ),
           JobDefinition(
             dagDefinitionId = 0,
-            jobTemplateId = GenericSparkJobTemplate.id,
+            jobTemplateId = Some(GenericSparkJobTemplate.id),
             name = s"${randomString()} Publisher",
             jobParameters = SparkDefinitionParameters(
+              jobType = JobTypes.Spark,
               jobJar = Option(s"${randomString()}/publisher.jar"),
               mainClass = Option("za.co.absa.hyperdrive.publisher.HyperdrivePublisher"),
               appArguments = List(
@@ -182,10 +186,72 @@ object WorkflowFixture {
         jobDefinitions = Seq(
           JobDefinition(
             dagDefinitionId = 0,
-            jobTemplateId = GenericShellJobTemplate.id,
+            jobTemplateId = Some(GenericShellJobTemplate.id),
             name = s"${randomString()}",
             jobParameters = ShellDefinitionParameters(
               scriptLocation = Option(s"${randomString()}/script.sh")
+            ),
+            order = 0
+          )
+        )
+      )
+    )
+  }
+
+  def createShellScriptJobWithoutTemplateAndScript(): WorkflowJoined = {
+    WorkflowJoined(
+      name = s"Time ${randomString(maxLength = MaxLengthRandomString - 5)}",
+      isActive = randomBoolean(),
+      created = randomDate(),
+      updated = if (randomBoolean()) Some(randomDate()) else None,
+      project = "project",
+      sensor = Sensor(
+        workflowId = 0,
+        properties = TimeSensorProperties(
+          cronExpression = randomCron()
+        )
+      ),
+      dagDefinitionJoined = DagDefinitionJoined(
+        workflowId = 0,
+        jobDefinitions = Seq(
+          JobDefinition(
+            dagDefinitionId = 0,
+            jobTemplateId = None,
+            name = s"${randomString()}",
+            jobParameters = ShellDefinitionParameters(
+              scriptLocation = None
+            ),
+            order = 0
+          )
+        )
+      )
+    )
+  }
+
+  def createSparkJobWithoutTemplateAndJar(): WorkflowJoined = {
+    WorkflowJoined(
+      name = s"Time ${randomString(maxLength = MaxLengthRandomString - 5)}",
+      isActive = randomBoolean(),
+      created = randomDate(),
+      updated = if (randomBoolean()) Some(randomDate()) else None,
+      project = "project",
+      sensor = Sensor(
+        workflowId = 0,
+        properties = TimeSensorProperties(
+          cronExpression = randomCron()
+        )
+      ),
+      dagDefinitionJoined = DagDefinitionJoined(
+        workflowId = 0,
+        jobDefinitions = Seq(
+          JobDefinition(
+            dagDefinitionId = 0,
+            jobTemplateId = None,
+            name = s"${randomString()}",
+            jobParameters = SparkDefinitionParameters(
+              jobType = JobTypes.Spark,
+              jobJar = None,
+              mainClass = None
             ),
             order = 0
           )

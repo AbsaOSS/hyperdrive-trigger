@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { Subject, Subscription } from 'rxjs';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { AppState, selectWorkflowState } from '../../../../stores/app.reducers';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -24,8 +24,6 @@ import {
   RemoveNotificationRuleBackendValidationError,
   UpdateNotificationRule,
 } from '../../../../stores/notification-rules/notification-rules.actions';
-import { WorkflowEntryModel } from '../../../../models/workflowEntry.model';
-import { PartValidation, PartValidationFactory } from '../../../../models/workflowFormParts.model';
 import { NotificationRuleModel } from '../../../../models/notificationRule.model';
 import { ConfirmationDialogTypes } from '../../../../constants/confirmationDialogTypes.constants';
 import { texts } from '../../../../constants/texts.constants';
@@ -47,15 +45,13 @@ export class NotificationRulesFormComponent implements OnInit, OnDestroy {
   @Input() backendValidationErrors: string[];
   @Input() initialNotificationRule: NotificationRuleModel;
   @Input() notificationRule: NotificationRuleModel;
+  @Output() notificationRuleChange = new EventEmitter();
   @Input() notificationRuleStatuses: string[];
   @Input() mode: string;
-  @Input() changes: Subject<WorkflowEntryModel>;
 
   workflowsSubscription: Subscription = null;
   confirmationDialogServiceSubscription: Subscription = null;
 
-  optional: PartValidation = PartValidationFactory.create(false, 1000, 1);
-  required: PartValidation = PartValidationFactory.create(true);
   notificationRuleModes = notificationRuleModes;
   absoluteRoutes = absoluteRoutes;
   projects: string[] = [];
@@ -136,6 +132,36 @@ export class NotificationRulesFormComponent implements OnInit, OnDestroy {
 
   removeBackendValidationError(index: number): void {
     this.store.dispatch(new RemoveNotificationRuleBackendValidationError(index));
+  }
+
+  isActiveChange(value: boolean) {
+    this.notificationRule = { ...this.notificationRule, isActive: value };
+    this.notificationRuleChange.emit(this.notificationRule);
+  }
+
+  projectChange(value: string) {
+    this.notificationRule = { ...this.notificationRule, project: value };
+    this.notificationRuleChange.emit(this.notificationRule);
+  }
+
+  workflowPrefixChange(value: string) {
+    this.notificationRule = { ...this.notificationRule, workflowPrefix: value };
+    this.notificationRuleChange.emit(this.notificationRule);
+  }
+
+  recipientsChange(value: string[]) {
+    this.notificationRule = { ...this.notificationRule, recipients: value };
+    this.notificationRuleChange.emit(this.notificationRule);
+  }
+
+  statusesChange(value: string[]) {
+    this.notificationRule = { ...this.notificationRule, statuses: value };
+    this.notificationRuleChange.emit(this.notificationRule);
+  }
+
+  waitingPeriodChange(value: number) {
+    this.notificationRule = { ...this.notificationRule, minElapsedSecondsSinceLastSuccess: value };
+    this.notificationRuleChange.emit(this.notificationRule);
   }
 
   isReadOnlyMode(): boolean {

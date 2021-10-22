@@ -23,7 +23,7 @@
            [readOnly]="isShow"
            [ngModel]="days"
            (ngModelChange)="daysChanged($event)"
-           [required]="partValidationSafe.isRequired"
+           [required]="isRequired"
            [min]="0"
     />
   </div>
@@ -37,7 +37,7 @@
          [readOnly]="isShow"
          [ngModel]="hours"
          (ngModelChange)="hoursChanged($event)"
-         [required]="partValidationSafe.isRequired"
+         [required]="isRequired"
          [min]="0"
          [max]="23"
     />
@@ -52,7 +52,7 @@
          [readOnly]="isShow"
          [ngModel]="minutes"
          (ngModelChange)="minutesChanged($event)"
-         [required]="partValidationSafe.isRequired"
+         [required]="isRequired"
          [min]="0"
          [max]="59"
     />
@@ -67,7 +67,7 @@
          [readOnly]="isShow"
          [ngModel]="seconds"
          (ngModelChange)="secondsChanged($event)"
-         [required]="partValidationSafe.isRequired"
+         [required]="isRequired"
          [min]="0"
          [max]="59"
     />

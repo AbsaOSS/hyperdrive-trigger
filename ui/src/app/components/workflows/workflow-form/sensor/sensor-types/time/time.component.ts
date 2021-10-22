@@ -13,39 +13,25 @@
  * limitations under the License.
  */
 
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { Subject, Subscription } from 'rxjs';
-import { Action } from '@ngrx/store';
-import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../../models/workflowEntry.model';
-import { WorkflowSensorChanged } from '../../../../../../stores/workflows/workflows.actions';
-import { WorkflowEntryUtil } from 'src/app/utils/workflowEntry/workflowEntry.util';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { TimeSensorProperties } from '../../../../../../models/sensorProperties.model';
 
 @Component({
   selector: 'app-time',
   templateUrl: './time.component.html',
   styleUrls: ['./time.component.scss'],
 })
-export class TimeComponent implements OnInit, OnDestroy {
+export class TimeComponent {
   @Input() isShow: boolean;
-  @Input() sensorData: WorkflowEntryModel[];
-  @Input() changes: Subject<Action>;
-
-  WorkflowEntryUtil = WorkflowEntryUtil;
-
-  sensorChanges: Subject<WorkflowEntryModel> = new Subject<WorkflowEntryModel>();
-  sensorChangesSubscription: Subscription;
+  @Input() sensorProperties: TimeSensorProperties;
+  @Output() sensorPropertiesChange = new EventEmitter();
 
   constructor() {
     // do nothing
   }
 
-  ngOnInit(): void {
-    this.sensorChangesSubscription = this.sensorChanges.subscribe((sensorChange) => {
-      this.changes.next(new WorkflowSensorChanged(WorkflowEntryModelFactory.create(sensorChange.property, sensorChange.value)));
-    });
-  }
-
-  ngOnDestroy(): void {
-    !!this.sensorChangesSubscription && this.sensorChangesSubscription.unsubscribe();
+  runAtChange(cronExpression: string) {
+    this.sensorProperties = { ...this.sensorProperties, cronExpression: cronExpression };
+    this.sensorPropertiesChange.emit(this.sensorProperties);
   }
 }

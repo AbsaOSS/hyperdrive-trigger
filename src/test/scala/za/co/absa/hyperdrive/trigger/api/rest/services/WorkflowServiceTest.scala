@@ -343,8 +343,8 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
     val validateOnInsertCaptor: ArgumentCaptor[Seq[WorkflowJoined]] = ArgumentCaptor.forClass(classOf[Seq[WorkflowJoined]])
     verify(workflowValidationService).validateOnInsert(validateOnInsertCaptor.capture())(any())
     val convertedWorkflows = validateOnInsertCaptor.getValue
-    convertedWorkflows.head.dagDefinitionJoined.jobDefinitions.map(_.jobTemplateId) should contain theSameElementsInOrderAs Seq(11, 12)
-    convertedWorkflows(1).dagDefinitionJoined.jobDefinitions.head.jobTemplateId shouldBe 12
+    convertedWorkflows.head.dagDefinitionJoined.jobDefinitions.flatMap(_.jobTemplateId) should contain theSameElementsInOrderAs Seq(11, 12)
+    convertedWorkflows(1).dagDefinitionJoined.jobDefinitions.head.jobTemplateId.get shouldBe 12
 
     val insertWorkflowsCaptor: ArgumentCaptor[Seq[WorkflowJoined]] = ArgumentCaptor.forClass(classOf[Seq[WorkflowJoined]])
     verify(workflowRepository).insertWorkflows(insertWorkflowsCaptor.capture(), eqTo(userName))(any())
@@ -453,8 +453,8 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
 
     val result = await(underTest.convertToWorkflowJoined(workflowImport))
 
-    result.dagDefinitionJoined.jobDefinitions.head.jobTemplateId shouldBe 11
-    result.dagDefinitionJoined.jobDefinitions(1).jobTemplateId shouldBe 12
+    result.dagDefinitionJoined.jobDefinitions.head.jobTemplateId.get shouldBe 11
+    result.dagDefinitionJoined.jobDefinitions(1).jobTemplateId.get shouldBe 12
     result.schedulerInstanceId shouldBe None
   }
 

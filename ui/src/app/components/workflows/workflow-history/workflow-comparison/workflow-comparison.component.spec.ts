@@ -16,12 +16,11 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { WorkflowComparisonComponent } from './workflow-comparison.component';
-import { DynamicFormPartsFactory, WorkflowFormPartsModelFactory } from '../../../../models/workflowFormParts.model';
-import { workflowFormParts, workflowFormPartsSequences } from '../../../../constants/workflowFormParts.constants';
 import { provideMockStore } from '@ngrx/store/testing';
 import { ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
-import { HistoryModelFactory } from '../../../../models/historyModel';
+import { HistoryModelFactory, WorkflowHistoryModelFactory } from '../../../../models/historyModel';
+import { WorkflowJoinedModelFactory } from '../../../../models/workflowJoined.model';
 
 describe('WorkflowComparisonComponent', () => {
   let underTest: WorkflowComparisonComponent;
@@ -31,25 +30,17 @@ describe('WorkflowComparisonComponent', () => {
     workflows: {
       history: {
         loading: true,
-        workflowFormParts: WorkflowFormPartsModelFactory.create(
-          workflowFormPartsSequences.allDetails,
-          workflowFormParts.SENSOR.SENSOR_TYPE,
-          workflowFormParts.JOB.JOB_NAME,
-          workflowFormParts.JOB.JOB_TEMPLATE_ID,
-          DynamicFormPartsFactory.create([], []),
+        workflowHistory: [],
+        leftWorkflowHistory: WorkflowHistoryModelFactory.create(
+          HistoryModelFactory.create(1, new Date(Date.now()), 'User', { name: 'Create' }),
+          0,
+          WorkflowJoinedModelFactory.createEmpty(),
         ),
-        leftWorkflowHistoryData: {
-          details: [{ property: 'detailProp', value: 'detailVal' }],
-          sensor: [{ property: 'sensorProp', value: 'sensorVal' }],
-          jobs: [{ jobId: 'jobId', order: 0, entries: [{ property: 'jobProp', value: 'jobVal' }] }],
-        },
-        rightWorkflowHistoryData: {
-          details: [{ property: 'detailProp', value: 'detailVal' }],
-          sensor: [{ property: 'sensorProp', value: 'sensorVal' }],
-          jobs: [{ jobId: 'jobId', order: 0, entries: [{ property: 'jobProp', value: 'jobVal' }] }],
-        },
-        leftWorkflowHistory: HistoryModelFactory.create(1, new Date(Date.now()), 'User', { name: 'Create' }),
-        rightWorkflowHistory: HistoryModelFactory.create(2, new Date(Date.now()), 'User', { name: 'Update' }),
+        rightWorkflowHistory: WorkflowHistoryModelFactory.create(
+          HistoryModelFactory.create(2, new Date(Date.now()), 'User', { name: 'Update' }),
+          0,
+          WorkflowJoinedModelFactory.createEmpty(),
+        ),
       },
     },
   };
@@ -89,9 +80,6 @@ describe('WorkflowComparisonComponent', () => {
       fixture.detectChanges();
       fixture.whenStable().then(() => {
         expect(underTest.loading).toBe(initialAppState.workflows.history.loading);
-        expect(underTest.workflowFormParts).toBe(initialAppState.workflows.history.workflowFormParts);
-        expect(underTest.workflowDataLeft).toBe(initialAppState.workflows.history.leftWorkflowHistoryData);
-        expect(underTest.workflowDataRight).toBe(initialAppState.workflows.history.rightWorkflowHistoryData);
         expect(underTest.workflowHistoryLeft).toBe(initialAppState.workflows.history.leftWorkflowHistory);
         expect(underTest.workflowHistoryRight).toBe(initialAppState.workflows.history.rightWorkflowHistory);
       });

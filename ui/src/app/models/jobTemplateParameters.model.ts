@@ -13,28 +13,52 @@
  * limitations under the License.
  */
 
+import { jobTypes } from '../constants/jobTypes.constants';
+
 export interface JobTemplateParameters {
   jobType: string;
 }
 
 export class SparkTemplateParametersModel implements JobTemplateParameters {
   jobType: string;
-  appArguments: Set<string>;
-  additionalJars: Set<string>;
-  additionalFiles: Set<string>;
+  appArguments: string[];
+  additionalJars: string[];
+  additionalFiles: string[];
   additionalSparkConfig: Map<string, string>;
-  jobJar?: string;
-  mainClass?: string;
+  jobJar: string;
+  mainClass: string;
 
   static createEmpty(): SparkTemplateParametersModel {
     return {
-      jobType: 'Spark',
-      appArguments: new Set(),
-      additionalJars: new Set(),
-      additionalFiles: new Set(),
+      jobType: jobTypes.SPARK,
+      appArguments: [],
+      additionalJars: [],
+      additionalFiles: [],
       additionalSparkConfig: new Map(),
-      jobJar: null,
-      mainClass: null,
+      jobJar: '',
+      mainClass: '',
+    };
+  }
+}
+
+export class HyperdriveTemplateParametersModel implements JobTemplateParameters {
+  jobType: string;
+  appArguments: string[];
+  additionalJars: string[];
+  additionalFiles: string[];
+  additionalSparkConfig: Map<string, string>;
+  jobJar: string;
+  mainClass: string;
+
+  static createEmpty(): HyperdriveTemplateParametersModel {
+    return {
+      jobType: jobTypes.HYPERDRIVE,
+      jobJar: '',
+      mainClass: '',
+      appArguments: [],
+      additionalJars: [],
+      additionalFiles: [],
+      additionalSparkConfig: new Map(),
     };
   }
 }
@@ -44,6 +68,6 @@ export class ShellTemplateParametersModel implements JobTemplateParameters {
   scriptLocation?: string;
 
   static createEmpty(): ShellTemplateParametersModel {
-    return { jobType: 'Shell', scriptLocation: null };
+    return { jobType: jobTypes.SHELL, scriptLocation: '' };
   }
 }

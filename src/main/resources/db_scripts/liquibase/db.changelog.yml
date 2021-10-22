@@ -71,3 +71,6 @@ databaseChangeLog:
   - include:
       relativeToChangelogFile: true
       file: v0.5.2.add-step-id.yml
+  - include:
+      relativeToChangelogFile: true
+      file: v0.5.3.remove-form-config.yml

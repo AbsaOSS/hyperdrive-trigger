@@ -132,7 +132,6 @@ trait JdbcTypeMapper {
   implicit lazy val jobDefinitionParametersMapper: JdbcType[JobDefinitionParameters] = MappedColumnType.base[JobDefinitionParameters, JsValue](
     {
       case spark: SparkDefinitionParameters => Json.toJson(spark)
-      case hyperdrive: HyperdriveDefinitionParameters => Json.toJson(hyperdrive)
       case shell: ShellDefinitionParameters => Json.toJson(shell)
     },
     column => column.as[JobDefinitionParameters]

@@ -16,52 +16,26 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { JobComponent } from './job.component';
-import { JobEntryModelFactory } from '../../../../../models/jobEntry.model';
-import { WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
-import { Subject } from 'rxjs';
-import { Action } from '@ngrx/store';
-import { WorkflowJobChanged, WorkflowJobTypeSwitched } from '../../../../../stores/workflows/workflows.actions';
 import { JobTemplateModelFactory } from '../../../../../models/jobTemplate.model';
-import { JobTypeFactory } from '../../../../../models/jobType.model';
-import { SparkTemplateParametersModel } from '../../../../../models/jobTemplateParameters.model';
-import { jobTemplateFormConfigs } from '../../../../../constants/jobTemplates.constants';
+import {
+  HyperdriveTemplateParametersModel,
+  ShellTemplateParametersModel,
+  SparkTemplateParametersModel,
+} from '../../../../../models/jobTemplateParameters.model';
 import { jobTypes } from '../../../../../constants/jobTypes.constants';
+import { JobDefinitionModelFactory } from '../../../../../models/jobDefinition.model';
+import { ShellDefinitionParametersModel } from '../../../../../models/jobDefinitionParameters.model';
 
 describe('JobComponent', () => {
   let fixture: ComponentFixture<JobComponent>;
   let underTest: JobComponent;
 
-  const jobsData = [
-    JobEntryModelFactory.createWithUuid(0, [
-      WorkflowEntryModelFactory.create('jobStaticPart', 'value'),
-      WorkflowEntryModelFactory.create('jobTemplateId', '2'),
-    ]),
-  ];
-  const jobTemplates = [
-    JobTemplateModelFactory.create(
-      1,
-      'template1',
-      jobTemplateFormConfigs.SPARK,
-      JobTypeFactory.create(jobTypes.SPARK),
-      SparkTemplateParametersModel.createEmpty(),
-    ),
-    JobTemplateModelFactory.create(
-      2,
-      'template2',
-      jobTemplateFormConfigs.SHELL,
-      JobTypeFactory.create(jobTypes.SHELL),
-      SparkTemplateParametersModel.createEmpty(),
-    ),
-    JobTemplateModelFactory.create(
-      3,
-      'template3',
-      jobTemplateFormConfigs.HYPERDRIVE,
-      JobTypeFactory.create(jobTypes.SPARK),
-      SparkTemplateParametersModel.createEmpty(),
-    ),
-  ];
+  const jobData = JobDefinitionModelFactory.createDefault(0);
+  const sparkTemplate = JobTemplateModelFactory.create(1, 'template1', SparkTemplateParametersModel.createEmpty());
+  const hyperdriveTemplate = JobTemplateModelFactory.create(2, 'template2', HyperdriveTemplateParametersModel.createEmpty());
+  const shellTemplate = JobTemplateModelFactory.create(3, 'template3', ShellTemplateParametersModel.createEmpty());
+  const jobTemplates = [sparkTemplate, hyperdriveTemplate, shellTemplate];
   const isShow = true;
-  const jobId: string = jobsData[0].jobId;
 
   beforeEach(
     waitForAsync(() => {
@@ -77,55 +51,62 @@ describe('JobComponent', () => {
 
     //set test data
     underTest.isShow = isShow;
-    underTest.jobId = jobId;
-    underTest.jobsData = jobsData;
+    underTest.job = { ...jobData };
     underTest.jobTemplates = jobTemplates;
-    underTest.changes = new Subject<Action>();
   });
 
   it('should create', () => {
     expect(underTest).toBeTruthy();
   });
 
-  it(
-    'should dispatch change action when jobChanges receives WorkflowEntryModel event',
-    waitForAsync(() => {
-      const property = 'property';
-      const value = 'value';
+  it('should emit updated job when nameChange() is called', () => {
+    spyOn(underTest.jobChange, 'emit');
+    const newNameValue = 'newNameValue';
+    const updatedJob = { ...underTest.job, name: newNameValue };
 
-      const changesSpy = spyOn(underTest.changes, 'next');
-      fixture.detectChanges();
-      underTest.jobChanges.next(WorkflowEntryModelFactory.create(property, value));
-      fixture.detectChanges();
+    underTest.nameChange(newNameValue);
 
-      fixture.whenStable().then(() => {
-        expect(changesSpy).toHaveBeenCalled();
-        expect(changesSpy).toHaveBeenCalledWith(
-          new WorkflowJobChanged({ jobId: jobId, jobEntry: WorkflowEntryModelFactory.create(property, value) }),
-        );
-      });
-    }),
-  );
+    expect(underTest.jobChange.emit).toHaveBeenCalled();
+    expect(underTest.jobChange.emit).toHaveBeenCalledWith(updatedJob);
+  });
 
-  it(
-    'should dispatch change action when jobChanges receives switch part event',
-    waitForAsync(() => {
-      const property = underTest.JOB_TEMPLATE_PROPERTY;
-      const value = 'value';
+  it('should emit updated job and job template change when jobTemplateChange() is called', () => {
+    spyOn(underTest.jobChange, 'emit');
+    spyOn(underTest.jobTemplateChanges, 'emit');
+    const newTemplateId = 'newTemplateId';
+    const updatedJob = { ...underTest.job, jobTemplateId: newTemplateId };
 
-      const changesSpy = spyOn(underTest.changes, 'next');
-      fixture.detectChanges();
-      underTest.jobChanges.next(WorkflowEntryModelFactory.create(property, value));
-      fixture.detectChanges();
+    underTest.jobTemplateChange(newTemplateId);
 
-      fixture.whenStable().then(() => {
-        expect(changesSpy).toHaveBeenCalled();
-        expect(changesSpy).toHaveBeenCalledWith(
-          new WorkflowJobTypeSwitched({ jobId: jobId, jobEntry: WorkflowEntryModelFactory.create(property, value) }),
-        );
-      });
-    }),
-  );
+    expect(underTest.jobChange.emit).toHaveBeenCalled();
+    expect(underTest.jobChange.emit).toHaveBeenCalledWith(updatedJob);
+    expect(underTest.jobTemplateChanges.emit).toHaveBeenCalled();
+    expect(underTest.jobTemplateChanges.emit).toHaveBeenCalledWith(newTemplateId);
+  });
+
+  it('should emit updated job when jobParametersChange() is called', () => {
+    spyOn(underTest.jobChange, 'emit');
+
+    const newJobParameters = ShellDefinitionParametersModel.createEmpty();
+    const updatedJob = { ...underTest.job, jobParameters: newJobParameters };
+
+    underTest.jobParametersChange(newJobParameters);
+
+    expect(underTest.jobChange.emit).toHaveBeenCalled();
+    expect(underTest.jobChange.emit).toHaveBeenCalledWith(updatedJob);
+  });
+
+  it('should emit empty job when jobTypeChange() is called', () => {
+    spyOn(underTest.jobChange, 'emit');
+    const newJobType = jobTypes.SHELL;
+    const newEmptyJob = ShellDefinitionParametersModel.createEmpty();
+    const updatedJob = { ...underTest.job, jobParameters: newEmptyJob };
+
+    underTest.jobTypeChange(newJobType);
+
+    expect(underTest.jobChange.emit).toHaveBeenCalled();
+    expect(underTest.jobChange.emit).toHaveBeenCalledWith(updatedJob);
+  });
 
   it(
     'getJobTemplates() should return job templates',
@@ -133,87 +114,25 @@ describe('JobComponent', () => {
       fixture.detectChanges();
       fixture.whenStable().then(() => {
         const result = underTest.getJobTemplates();
-        expect(result).toEqual(new Map(jobTemplates.map((part) => [part.id.toString(), part.name])));
+        expect(result).toEqual(new Map([[hyperdriveTemplate.id.toString(), hyperdriveTemplate.name]]));
       });
     }),
   );
 
-  it(
-    'getSelectedFormConfig() should return default form config when no job is selected',
-    waitForAsync(() => {
-      underTest.jobId = undefined;
-      fixture.detectChanges();
-      fixture.whenStable().then(() => {
-        const resultLeft = underTest.getSelectedFormConfig();
+  describe('isJobTemplateSelected() should return boolean value if template is selected', () => {
+    const parameters = [
+      { output: true, input: '0' },
+      { output: true, input: '10' },
+      { output: false, input: undefined },
+      { output: false, input: null },
+    ];
 
-        expect(resultLeft).toEqual(jobTemplateFormConfigs.SPARK);
+    parameters.forEach((parameter) => {
+      it('should pass for value ' + parameter.input, () => {
+        underTest.job.jobTemplateId = parameter.input;
+        const result = underTest.isJobTemplateSelected();
+        expect(result).toBe(parameter.output);
       });
-    }),
-  );
-
-  it(
-    'getSelectedFormConfig() should return selected form config when job is selected',
-    waitForAsync(() => {
-      fixture.detectChanges();
-      fixture.whenStable().then(() => {
-        const resultLeft = underTest.getSelectedFormConfig();
-        const resultRight = jobTemplates.find(
-          (jt) => jt.id.toString() === jobsData[0].entries.find((jd) => jd.property === underTest.JOB_TEMPLATE_PROPERTY).value.toString(),
-        ).formConfig;
-
-        expect(resultLeft).toEqual(resultRight);
-      });
-    }),
-  );
-
-  it(
-    'getJobData() should return return job data',
-    waitForAsync(() => {
-      fixture.detectChanges();
-      fixture.whenStable().then(() => {
-        const result = underTest.getJobData();
-
-        expect(result).toEqual(jobsData[0].entries);
-      });
-    }),
-  );
-
-  it(
-    'getJobData() should return empty array when job data does not exist for job with defined id',
-    waitForAsync(() => {
-      underTest.jobId = '999';
-      fixture.detectChanges();
-      fixture.whenStable().then(() => {
-        const result = underTest.getJobData();
-
-        expect(result).toEqual([]);
-      });
-    }),
-  );
-
-  it(
-    'getSelectedJobTemplateId() should return selected job template id',
-    waitForAsync(() => {
-      underTest.jobId = jobId;
-      fixture.detectChanges();
-      fixture.whenStable().then(() => {
-        const resultLeft = underTest.getSelectedJobTemplateId();
-        const resultRight = jobsData[0].entries[1].value;
-        expect(resultLeft).toEqual(resultRight);
-      });
-    }),
-  );
-
-  it(
-    'getSelectedJobTemplateId() should return undefined when template does not exist',
-    waitForAsync(() => {
-      underTest.jobId = '999';
-      fixture.detectChanges();
-      fixture.whenStable().then(() => {
-        const result = underTest.getSelectedJobTemplateId();
-
-        expect(result).toBeUndefined();
-      });
-    }),
-  );
+    });
+  });
 });
