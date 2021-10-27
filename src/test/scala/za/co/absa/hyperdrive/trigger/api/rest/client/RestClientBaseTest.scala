@@ -1,0 +1,136 @@
+package za.co.absa.hyperdrive.trigger.api.rest.client
+
+import org.mockito.ArgumentMatchers.{eq => eqTo}
+import org.mockito.Mockito
+import org.mockito.stubbing.OngoingStubbing
+import org.scalatest.BeforeAndAfter
+import org.scalatest.Matchers
+import org.scalatest.WordSpec
+import org.scalatest.mockito.MockitoSugar
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.web.client.RestTemplate
+
+abstract class RestClientBaseTest extends WordSpec with Matchers with MockitoSugar with BeforeAndAfter {
+  val authClient: AuthClient     = mock[AuthClient]
+  val restTemplate: RestTemplate = mock[RestTemplate]
+
+  val restClient: RestClient = new RestClient(authClient, restTemplate)
+
+  before {
+    Mockito.reset(authClient)
+    Mockito.reset(restTemplate)
+    setAuthHeaders(restClient, new HttpHeaders())
+  }
+
+  def stubOkGetRequest(
+    url: String,
+    headers: HttpHeaders,
+    responseBody: String
+  ): OngoingStubbing[ResponseEntity[String]] =
+    stubGetRequest(url, headers)
+      .thenReturn(new ResponseEntity[String](responseBody, HttpStatus.OK))
+
+  def stubCreatedPostRequest[T](
+    url: String,
+    headers: HttpHeaders,
+    requestBody: T,
+    responseBody: String
+  ): OngoingStubbing[ResponseEntity[String]] =
+    stubPostRequest(url, headers, requestBody)
+      .thenReturn(new ResponseEntity[String](responseBody, HttpStatus.CREATED))
+
+  def stubUnauthorizedGetRequest(url: String, headers: HttpHeaders): OngoingStubbing[ResponseEntity[String]] =
+    stubGetRequest(url, headers)
+      .thenReturn(new ResponseEntity[String](HttpStatus.UNAUTHORIZED))
+
+  def stubUnauthorizedPostRequest[T](
+    url: String,
+    headers: HttpHeaders,
+    requestBody: T
+  ): OngoingStubbing[ResponseEntity[String]] =
+    stubPostRequest(url, headers, requestBody)
+      .thenReturn(new ResponseEntity[String](HttpStatus.UNAUTHORIZED))
+
+  def stubForbiddenGetRequest(url: String, headers: HttpHeaders): OngoingStubbing[ResponseEntity[String]] =
+    stubGetRequest(url, headers)
+      .thenReturn(new ResponseEntity[String](HttpStatus.FORBIDDEN))
+
+  def stubForbiddenPostRequest[T](
+    url: String,
+    headers: HttpHeaders,
+    requestBody: T
+  ): OngoingStubbing[ResponseEntity[String]] =
+    stubPostRequest(url, headers, requestBody)
+      .thenReturn(new ResponseEntity[String](HttpStatus.FORBIDDEN))
+
+  def stubNotFoundGetRequest(url: String): OngoingStubbing[ResponseEntity[String]] =
+    stubGetRequest(url)
+      .thenReturn(new ResponseEntity[String](HttpStatus.NOT_FOUND))
+
+  def stubNotFoundPostRequest[T](url: String, requestBody: T): OngoingStubbing[ResponseEntity[String]] =
+    stubPostRequest(url, new HttpHeaders(), requestBody)
+      .thenReturn(new ResponseEntity[String](HttpStatus.NOT_FOUND))
+
+  def stubInternalServerErrorGetRequest(url: String): OngoingStubbing[ResponseEntity[String]] =
+    stubGetRequest(url)
+      .thenReturn(new ResponseEntity[String](HttpStatus.INTERNAL_SERVER_ERROR))
+
+  def stubInternalServerErrorPostRequest[T](url: String, requestBody: T): OngoingStubbing[ResponseEntity[String]] =
+    stubPostRequest(url, new HttpHeaders(), requestBody)
+      .thenReturn(new ResponseEntity[String](HttpStatus.INTERNAL_SERVER_ERROR))
+
+  private def stubGetRequest(
+    url: String,
+    headers: HttpHeaders = new HttpHeaders()
+  ): OngoingStubbing[ResponseEntity[String]] = {
+    val request = new HttpEntity[String](headers)
+    stubRequest(url, request, HttpMethod.GET)
+  }
+
+  private def stubPostRequest[T](
+    url: String,
+    headers: HttpHeaders,
+    requestBody: T
+  ): OngoingStubbing[ResponseEntity[String]] = {
+    headers.add(HttpHeaders.CONTENT_TYPE, "application/json; charset=utf-8")
+    val request = new HttpEntity[T](requestBody, headers)
+    stubRequest(url, request, HttpMethod.POST)
+  }
+
+  private def stubRequest[T](
+    url: String,
+    request: HttpEntity[T],
+    method: HttpMethod
+  ): OngoingStubbing[ResponseEntity[String]] =
+    Mockito
+      .when(restTemplate.exchange(eqTo(url), eqTo(method), eqTo(request), eqTo(classOf[String])))
+
+  def stubAuthFailure(): Unit =
+    Mockito.when(authClient.authenticate()).thenThrow(UnauthorizedException("Authentication failure"))
+
+  def stubAuthSuccess(): HttpHeaders = {
+    val renewedSessionHeaders = new HttpHeaders()
+    renewedSessionHeaders.add("session", "renewed")
+    Mockito.when(authClient.authenticate()).thenReturn(renewedSessionHeaders)
+
+    renewedSessionHeaders
+  }
+
+  def stubExpiredSession(): HttpHeaders = {
+    val expiredSessionHeaders = new HttpHeaders()
+    expiredSessionHeaders.add("session", "expired")
+    setAuthHeaders(restClient, expiredSessionHeaders)
+
+    expiredSessionHeaders
+  }
+
+  private def setAuthHeaders(restClient: RestClient, httpHeaders: HttpHeaders): Unit = {
+    val field = classOf[RestClient].getDeclaredField("authHeaders")
+    field.setAccessible(true)
+    field.set(restClient, httpHeaders)
+  }
+}

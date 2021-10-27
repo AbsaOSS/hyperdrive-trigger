@@ -79,6 +79,7 @@
         <jackson-module.version>2.11.0</jackson-module.version>
         <alchim31>3.2.0</alchim31>
         <spring.version>2.5.2</spring.version>
+        <spring.kerberos.version>1.0.1.RELEASE</spring.kerberos.version>
         <quartz.version>2.3.2</quartz.version>
         <log4j.version>2.11.1</log4j.version>
         <slf4j.log4j2.version>1.7.26</slf4j.log4j2.version>
@@ -253,6 +254,11 @@
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-emr</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security.kerberos</groupId>
+            <artifactId>spring-security-kerberos-client</artifactId>
+            <version>${spring.kerberos.version}</version>
         </dependency>
 
         <!-- For Liquibase yaml -->
