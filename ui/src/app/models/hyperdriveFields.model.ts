@@ -15,7 +15,7 @@
 
 export class HyperdriveFieldsModel {
   hyperdriveType: string;
-  fields: string[];
+  fields: string[] = [];
   excludedFields: string[] = [];
 
   constructor(hyperdriveType: string, fields: string[], excludedFields: string[] = []) {
