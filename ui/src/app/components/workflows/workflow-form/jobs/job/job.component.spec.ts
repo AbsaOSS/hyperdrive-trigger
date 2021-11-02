@@ -73,15 +73,16 @@ describe('JobComponent', () => {
   it('should emit updated job and job template change when jobTemplateChange() is called', () => {
     spyOn(underTest.jobChange, 'emit');
     spyOn(underTest.jobTemplateChanges, 'emit');
-    const newTemplateId = 'newTemplateId';
-    const updatedJob = { ...underTest.job, jobTemplateId: newTemplateId };
+    const newJobTemplate = JobTemplateModelFactory.create(999, 'newJobTemplate', HyperdriveTemplateParametersModel.createEmpty());
+    underTest.jobTemplates = [...underTest.jobTemplates, newJobTemplate];
+    const updatedJob = { ...underTest.job, jobTemplateId: newJobTemplate.id.toString() };
 
-    underTest.jobTemplateChange(newTemplateId);
+    underTest.jobTemplateChange(newJobTemplate.id.toString());
 
     expect(underTest.jobChange.emit).toHaveBeenCalled();
     expect(underTest.jobChange.emit).toHaveBeenCalledWith(updatedJob);
     expect(underTest.jobTemplateChanges.emit).toHaveBeenCalled();
-    expect(underTest.jobTemplateChanges.emit).toHaveBeenCalledWith(newTemplateId);
+    expect(underTest.jobTemplateChanges.emit).toHaveBeenCalledWith({ jobTemplateId: newJobTemplate.id.toString(), jobTemplateParameters: newJobTemplate.jobParameters });
   });
 
   it('should emit updated job when jobParametersChange() is called', () => {

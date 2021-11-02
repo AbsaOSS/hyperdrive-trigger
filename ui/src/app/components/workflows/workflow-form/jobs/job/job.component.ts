@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output} from '@angular/core';
 import { JobTemplateModel } from '../../../../../models/jobTemplate.model';
 import { jobTypes, jobTypesMap } from '../../../../../constants/jobTypes.constants';
 import {
@@ -23,6 +23,7 @@ import {
   SparkDefinitionParametersModel,
 } from '../../../../../models/jobDefinitionParameters.model';
 import { JobDefinitionModel } from '../../../../../models/jobDefinition.model';
+import { JobTemplateParameters } from '../../../../../models/jobTemplateParameters.model';
 
 @Component({
   selector: 'app-job',
@@ -35,7 +36,7 @@ export class JobComponent {
   @Output() jobChange = new EventEmitter();
   @Input() jobTemplates: JobTemplateModel[];
 
-  jobTemplateChanges = new EventEmitter();
+  jobTemplateChanges: EventEmitter<{ jobTemplateId: string; jobTemplateParameters: JobTemplateParameters }> = new EventEmitter();
 
   jobTypesMap = jobTypesMap;
   jobTypes = jobTypes;
@@ -57,7 +58,10 @@ export class JobComponent {
   jobTemplateChange(jobTemplateId: string) {
     this.job = { ...this.job, jobTemplateId: jobTemplateId };
     this.jobChange.emit(this.job);
-    this.jobTemplateChanges.emit(jobTemplateId);
+    this.jobTemplateChanges.emit({
+      jobTemplateId: jobTemplateId,
+      jobTemplateParameters: this.getSelectedJobTemplateParameters(),
+    });
   }
 
   jobParametersChange(jobParameters: JobDefinitionParameters) {
@@ -87,6 +91,10 @@ export class JobComponent {
         })
         .map((jobTemplate) => [jobTemplate.id.toString(), jobTemplate.name]),
     );
+  }
+
+  getSelectedJobTemplateParameters(): JobTemplateParameters {
+    return this.jobTemplates.find((jobTemplate) => jobTemplate.id.toString() == this.job.jobTemplateId)?.jobParameters;
   }
 
   isJobTemplateSelected(): boolean {
