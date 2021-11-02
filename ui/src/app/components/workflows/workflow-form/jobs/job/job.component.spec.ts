@@ -120,6 +120,20 @@ describe('JobComponent', () => {
     }),
   );
 
+  it('should return selected template parameters when getSelectedJobTemplateParameters() is called and template is selected', () => {
+    underTest.job = {...underTest.job, jobTemplateId: sparkTemplate.id.toString()}
+    const result = underTest.getSelectedJobTemplateParameters();
+
+    expect(result).toEqual(sparkTemplate.jobParameters);
+  });
+
+  it('should return undefined when getSelectedJobTemplateParameters() is called and template is not selected', () => {
+    underTest.job = {...underTest.job, jobTemplateId: undefined}
+    const result = underTest.getSelectedJobTemplateParameters();
+
+    expect(result).toEqual(undefined);
+  });
+
   describe('isJobTemplateSelected() should return boolean value if template is selected', () => {
     const parameters = [
       { output: true, input: '0' },
