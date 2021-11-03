@@ -54,7 +54,7 @@ export class HyperdriveJobComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.jobTemplateChangesSubscription = this.jobTemplateChanges.subscribe((value: JobTemplateChangeEventModel) => {
-      this.jobParametersChange.emit(HyperdriveDefinitionParametersModel.createEmpty());
+      this.jobParametersChange.emit({...HyperdriveDefinitionParametersModel.createEmpty(), jobJar: undefined, mainClass: undefined});
       if (value?.jobTemplateId) {
         const jobTemplateParameters = <HyperdriveTemplateParametersModel>value?.jobTemplateParameters;
         this.hyperdriveType = HyperdriveUtil.getHyperdriveTypeFromAppArguments(
@@ -89,7 +89,12 @@ export class HyperdriveJobComponent implements OnInit, OnDestroy {
   }
 
   hyperdriveTypeChange(value: string) {
-    this.jobParametersChange.emit(HyperdriveDefinitionParametersModel.createEmpty());
+    this.jobParametersChange.emit(
+      {...HyperdriveDefinitionParametersModel.createEmpty(),
+        jobJar: this.jobParameters.jobJar,
+        mainClass: this.jobParameters.mainClass
+      }
+    );
     this.hyperdriveType = value;
   }
 
