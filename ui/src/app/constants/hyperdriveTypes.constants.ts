@@ -48,11 +48,11 @@ export const hyperdriveTypesFields: HyperdriveFieldsModel[] = [
     hyperdriveFields.MENAS_DATASET_NAME,
     hyperdriveFields.MENAS_DATASET_VERSION,
   ]),
-  new HyperdriveFieldsModel(hyperdriveTypes.OFFLOAD_PUBLISH_TOPIC, [
-    hyperdriveFields.READER_TOPIC,
-    hyperdriveFields.WRITER_DESTINATION_DIR,
-  ],
-  [hyperdriveFields.MENAS_DATASET_NAME, hyperdriveFields.MENAS_DATASET_VERSION, hyperdriveFields.WRITER_TOPIC]),
+  new HyperdriveFieldsModel(
+    hyperdriveTypes.OFFLOAD_PUBLISH_TOPIC,
+    [hyperdriveFields.READER_TOPIC, hyperdriveFields.WRITER_DESTINATION_DIR],
+    [hyperdriveFields.MENAS_DATASET_NAME, hyperdriveFields.MENAS_DATASET_VERSION, hyperdriveFields.WRITER_TOPIC],
+  ),
 ];
 
 export const hyperdriveTemplateFields = {

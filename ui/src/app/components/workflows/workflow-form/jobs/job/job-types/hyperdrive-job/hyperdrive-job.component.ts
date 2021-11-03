@@ -16,6 +16,16 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { HyperdriveDefinitionParametersModel } from '../../../../../../../models/jobDefinitionParameters.model';
 import { Subscription } from 'rxjs';
+import {
+  hyperdriveFields,
+  hyperdriveTypes,
+  hyperdriveTypesFields,
+  hyperdriveTypesJobTemplateFields,
+  hyperdriveTypesMap,
+} from '../../../../../../../constants/hyperdriveTypes.constants';
+import { HyperdriveTemplateParametersModel } from '../../../../../../../models/jobTemplateParameters.model';
+import { HyperdriveUtil } from '../../../../../../../utils/hyperdrive/hyperdrive.util';
+import { JobTemplateChangeEventModel } from '../../../../../../../models/jobTemplateChangeEvent';
 
 @Component({
   selector: 'app-hyperdrive-job',
@@ -27,19 +37,70 @@ export class HyperdriveJobComponent implements OnInit, OnDestroy {
   @Input() jobParameters: HyperdriveDefinitionParametersModel;
   @Output() jobParametersChange: EventEmitter<HyperdriveDefinitionParametersModel> = new EventEmitter();
   @Input() isJobTemplateSelected: boolean;
-  @Input() jobTemplateChanges: EventEmitter<string>;
+  @Input() jobTemplateChanges: EventEmitter<JobTemplateChangeEventModel>;
+  @Input() jobTemplateParameters: HyperdriveTemplateParametersModel;
+
+  private hyperdriveType: string = undefined;
 
   jobTemplateChangesSubscription: Subscription;
+
+  hyperdriveTypes = hyperdriveTypes;
+  hyperdriveTypesMap = hyperdriveTypesMap;
+  hyperdriveFields = hyperdriveFields;
 
   constructor() {
     // do nothing
   }
 
   ngOnInit(): void {
-    this.jobTemplateChangesSubscription = this.jobTemplateChanges.subscribe((value) => {
-      if (value) {
-        this.jobParametersChange.emit({ ...this.jobParameters, jobJar: undefined, mainClass: undefined });
+    this.jobTemplateChangesSubscription = this.jobTemplateChanges.subscribe((value: JobTemplateChangeEventModel) => {
+      this.jobParametersChange.emit(HyperdriveDefinitionParametersModel.createEmpty());
+      if (value?.jobTemplateId) {
+        const jobTemplateParameters = <HyperdriveTemplateParametersModel>value?.jobTemplateParameters;
+        this.hyperdriveType = HyperdriveUtil.getHyperdriveTypeFromAppArguments(
+          jobTemplateParameters.appArguments,
+          hyperdriveTypesJobTemplateFields,
+        );
       }
+    });
+
+    if (this.isJobTemplateSelected) {
+      const hyperdriveTypeFromJobParams = HyperdriveUtil.getHyperdriveTypeFromAppArguments(
+        this.jobParameters.appArguments,
+        hyperdriveTypesFields,
+      );
+      const hyperdriveTypeFromTemplateParams = HyperdriveUtil.getHyperdriveTypeFromAppArguments(
+        this.jobTemplateParameters.appArguments,
+        hyperdriveTypesJobTemplateFields,
+      );
+
+      if (hyperdriveTypeFromJobParams == hyperdriveTypeFromTemplateParams) {
+        this.hyperdriveType = hyperdriveTypeFromJobParams;
+      } else {
+        this.hyperdriveType = undefined;
+      }
+    } else {
+      this.hyperdriveType = HyperdriveUtil.getHyperdriveTypeFromAppArguments(this.jobParameters.appArguments, hyperdriveTypesFields);
+    }
+  }
+
+  getHyperdriveType(): string {
+    return this.hyperdriveType;
+  }
+
+  hyperdriveTypeChange(value: string) {
+    this.jobParametersChange.emit(HyperdriveDefinitionParametersModel.createEmpty());
+    this.hyperdriveType = value;
+  }
+
+  getHyperdriveFieldValue(fieldPrefix: string): any {
+    return this.jobParameters?.appArguments.find((appArgument) => appArgument.startsWith(fieldPrefix))?.replace(fieldPrefix, '');
+  }
+
+  hyperdriveFieldChange(value, fieldPrefix: string) {
+    this.jobParametersChange.emit({
+      ...this.jobParameters,
+      appArguments: HyperdriveUtil.updateOrPushAppArgument(this.jobParameters.appArguments, fieldPrefix, value),
     });
   }
 
@@ -59,8 +120,23 @@ export class HyperdriveJobComponent implements OnInit, OnDestroy {
     this.jobParametersChange.emit({ ...this.jobParameters, additionalFiles: additionalFiles });
   }
 
+  getAppArguments(): string[] {
+    const hyperdriveTypeFields = hyperdriveTypesFields.find(
+      (hyperdriveTypeField) => hyperdriveTypeField.hyperdriveType == this.hyperdriveType,
+    );
+    return this.jobParameters?.appArguments?.filter(
+      (argument) => !hyperdriveTypeFields?.fields.some((field) => argument.startsWith(field)),
+    );
+  }
+
   appArgumentsChange(appArguments: string[]) {
-    this.jobParametersChange.emit({ ...this.jobParameters, appArguments: appArguments });
+    const hyperdriveTypeFields = hyperdriveTypesFields.find(
+      (hyperdriveTypeField) => hyperdriveTypeField.hyperdriveType == this.hyperdriveType,
+    );
+    const hyperdriveArguments = this.jobParameters.appArguments.filter((argument) =>
+      hyperdriveTypeFields?.fields.some((field) => argument.startsWith(field)),
+    );
+    this.jobParametersChange.emit({ ...this.jobParameters, appArguments: [...appArguments, ...hyperdriveArguments] });
   }
 
   additionalSparkConfigChange(additionalSparkConfig: Map<string, string>) {

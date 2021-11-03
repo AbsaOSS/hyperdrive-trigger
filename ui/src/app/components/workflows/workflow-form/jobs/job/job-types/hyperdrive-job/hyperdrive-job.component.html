@@ -12,7 +12,6 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
 <app-string-part
   *ngIf="!isJobTemplateSelected"
   [isShow]="isShow"
@@ -31,6 +30,105 @@
   [isRequired]=true
   [minLength]=1>
 </app-string-part>
+
+<app-select-part
+  [isShow]="isShow || isJobTemplateSelected"
+  [name]="'Hyperdrive type'"
+  [value]="getHyperdriveType()"
+  [options]="hyperdriveTypesMap"
+  (valueChange)="hyperdriveTypeChange($event)"
+  [isRequired]="false">
+</app-select-part>
+
+<div [ngSwitch]="getHyperdriveType()">
+  <div *ngSwitchCase="hyperdriveTypes.OFFLOAD_RAW_TOPIC_WITH_HYPERCONFORMANCE">
+    <app-string-part
+      [isShow]="isShow"
+      [name]="'Source topic'"
+      [value]="getHyperdriveFieldValue(hyperdriveFields.READER_TOPIC)"
+      (valueChange)="hyperdriveFieldChange($event, hyperdriveFields.READER_TOPIC)"
+      [isRequired]=true
+      [minLength]=1>
+    </app-string-part>
+    <app-string-part
+      [isShow]="isShow"
+      [name]="'Destination directory'"
+      [value]="getHyperdriveFieldValue(hyperdriveFields.WRITER_DESTINATION_DIR)"
+      (valueChange)="hyperdriveFieldChange($event, hyperdriveFields.WRITER_DESTINATION_DIR)"
+      [isRequired]=true
+      [minLength]=1>
+    </app-string-part>
+    <app-string-part
+      [isShow]="isShow"
+      [name]="'Menas dataset name'"
+      [value]="getHyperdriveFieldValue(hyperdriveFields.MENAS_DATASET_NAME)"
+      (valueChange)="hyperdriveFieldChange($event, hyperdriveFields.MENAS_DATASET_NAME)"
+      [isRequired]=true
+      [minLength]=1>
+    </app-string-part>
+    <app-string-part
+      [isShow]="isShow"
+      [name]="'Menas dataset version'"
+      [value]="getHyperdriveFieldValue(hyperdriveFields.MENAS_DATASET_VERSION)"
+      (valueChange)="hyperdriveFieldChange($event, hyperdriveFields.MENAS_DATASET_VERSION)"
+      [isRequired]=true
+      [minLength]=1>
+    </app-string-part>
+  </div>
+  <div *ngSwitchCase="hyperdriveTypes.HYPERCONFORMANCE_RAW_TO_PUBLISH_TOPIC">
+    <app-string-part
+      [isShow]="isShow"
+      [name]="'Source topic'"
+      [value]="getHyperdriveFieldValue(hyperdriveFields.READER_TOPIC)"
+      (valueChange)="hyperdriveFieldChange($event, hyperdriveFields.READER_TOPIC)"
+      [isRequired]=true
+      [minLength]=1>
+    </app-string-part>
+    <app-string-part
+      [isShow]="isShow"
+      [name]="'Destination topic'"
+      [value]="getHyperdriveFieldValue(hyperdriveFields.WRITER_TOPIC)"
+      (valueChange)="hyperdriveFieldChange($event, hyperdriveFields.WRITER_TOPIC)"
+      [isRequired]=true
+      [minLength]=1>
+    </app-string-part>
+    <app-string-part
+      [isShow]="isShow"
+      [name]="'Menas dataset name'"
+      [value]="getHyperdriveFieldValue(hyperdriveFields.MENAS_DATASET_NAME)"
+      (valueChange)="hyperdriveFieldChange($event, hyperdriveFields.MENAS_DATASET_NAME)"
+      [isRequired]=true
+      [minLength]=1>
+    </app-string-part>
+    <app-string-part
+      [isShow]="isShow"
+      [name]="'Menas dataset version'"
+      [value]="getHyperdriveFieldValue(hyperdriveFields.MENAS_DATASET_VERSION)"
+      (valueChange)="hyperdriveFieldChange($event, hyperdriveFields.MENAS_DATASET_VERSION)"
+      [isRequired]=true
+      [minLength]=1>
+    </app-string-part>
+  </div>
+  <div *ngSwitchCase="hyperdriveTypes.OFFLOAD_PUBLISH_TOPIC">
+    <app-string-part
+      [isShow]="isShow"
+      [name]="'Source topic'"
+      [value]="getHyperdriveFieldValue(hyperdriveFields.READER_TOPIC)"
+      (valueChange)="hyperdriveFieldChange($event, hyperdriveFields.READER_TOPIC)"
+      [isRequired]=true
+      [minLength]=1>
+    </app-string-part>
+    <app-string-part
+      [isShow]="isShow"
+      [name]="'Destination directory'"
+      [value]="getHyperdriveFieldValue(hyperdriveFields.WRITER_DESTINATION_DIR)"
+      (valueChange)="hyperdriveFieldChange($event, hyperdriveFields.WRITER_DESTINATION_DIR)"
+      [isRequired]=true
+      [minLength]=1>
+    </app-string-part>
+  </div>
+</div>
+
 <app-string-sequence-part
   [isShow]="isShow"
   [name]="'Additional jars'"
@@ -59,7 +157,7 @@
 <app-string-sequence-part
   [isShow]="isShow"
   [name]="'App arguments'"
-  [value]="jobParameters?.appArguments"
+  [value]="getAppArguments()"
   (valueChange)="appArgumentsChange($event)"
   [isRequired]=false
   [minLength]=1>

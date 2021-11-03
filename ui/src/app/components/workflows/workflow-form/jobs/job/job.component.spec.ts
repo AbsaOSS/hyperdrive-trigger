@@ -25,6 +25,7 @@ import {
 import { jobTypes } from '../../../../../constants/jobTypes.constants';
 import { JobDefinitionModelFactory } from '../../../../../models/jobDefinition.model';
 import { ShellDefinitionParametersModel } from '../../../../../models/jobDefinitionParameters.model';
+import { JobTemplateChangeEventModel } from '../../../../../models/jobTemplateChangeEvent';
 
 describe('JobComponent', () => {
   let fixture: ComponentFixture<JobComponent>;
@@ -82,7 +83,9 @@ describe('JobComponent', () => {
     expect(underTest.jobChange.emit).toHaveBeenCalled();
     expect(underTest.jobChange.emit).toHaveBeenCalledWith(updatedJob);
     expect(underTest.jobTemplateChanges.emit).toHaveBeenCalled();
-    expect(underTest.jobTemplateChanges.emit).toHaveBeenCalledWith({ jobTemplateId: newJobTemplate.id.toString(), jobTemplateParameters: newJobTemplate.jobParameters });
+    expect(underTest.jobTemplateChanges.emit).toHaveBeenCalledWith(
+      new JobTemplateChangeEventModel(newJobTemplate.id.toString(), newJobTemplate.jobParameters),
+    );
   });
 
   it('should emit updated job when jobParametersChange() is called', () => {
@@ -121,14 +124,14 @@ describe('JobComponent', () => {
   );
 
   it('should return selected template parameters when getSelectedJobTemplateParameters() is called and template is selected', () => {
-    underTest.job = {...underTest.job, jobTemplateId: sparkTemplate.id.toString()}
+    underTest.job = { ...underTest.job, jobTemplateId: sparkTemplate.id.toString() };
     const result = underTest.getSelectedJobTemplateParameters();
 
     expect(result).toEqual(sparkTemplate.jobParameters);
   });
 
   it('should return undefined when getSelectedJobTemplateParameters() is called and template is not selected', () => {
-    underTest.job = {...underTest.job, jobTemplateId: undefined}
+    underTest.job = { ...underTest.job, jobTemplateId: undefined };
     const result = underTest.getSelectedJobTemplateParameters();
 
     expect(result).toEqual(undefined);
