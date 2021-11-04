@@ -23,6 +23,7 @@ import za.co.absa.hyperdrive.trigger.TestUtils.await
 import za.co.absa.hyperdrive.trigger.api.rest.services.JobTemplateFixture.{GenericShellJobTemplate, GenericSparkJobTemplate}
 import za.co.absa.hyperdrive.trigger.models.{ResolvedJobDefinition, ShellInstanceParameters, SparkInstanceParameters}
 import za.co.absa.hyperdrive.trigger.models.enums.JobTypes
+import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, ValidationError}
 import za.co.absa.hyperdrive.trigger.models.search.{TableSearchRequest, TableSearchResponse}
 import za.co.absa.hyperdrive.trigger.persistance.JobTemplateRepository
 
@@ -32,7 +33,11 @@ import scala.concurrent.{ExecutionContext, Future}
 class JobTemplateServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar with BeforeAndAfter {
   private val jobTemplateRepository = mock[JobTemplateRepository]
   private val jobTemplateResolutionUtil = mock[JobTemplateResolutionService]
-  private val underTest = new JobTemplateServiceImpl(jobTemplateRepository, jobTemplateResolutionUtil)
+  private val jobTemplateValidationService = mock[JobTemplateValidationService]
+  private val underTest = new JobTemplateServiceImpl(jobTemplateRepository, jobTemplateResolutionUtil, jobTemplateValidationService){
+    override private[services] def getUserName: () => String = () => userName
+  }
+  private val userName = "test-user"
 
   before {
     reset(jobTemplateRepository)
@@ -123,5 +128,75 @@ class JobTemplateServiceTest extends AsyncFlatSpec with Matchers with MockitoSug
 
     // then
     result shouldBe jobTemplate
+  }
+
+  "createJobTemplate" should "create a job template" in {
+    // given
+    val jobTemplate = GenericShellJobTemplate
+    when(jobTemplateRepository.insertJobTemplate(eqTo(jobTemplate), eqTo(userName))(any[ExecutionContext])).thenReturn(Future{jobTemplate.id})
+    when(jobTemplateValidationService.validate(eqTo(jobTemplate))(any[ExecutionContext]())).thenReturn(Future{(): Unit})
+
+    // when
+    val result = await(underTest.createJobTemplate(jobTemplate))
+
+    // then
+    verify(jobTemplateValidationService).validate(eqTo(jobTemplate))(any[ExecutionContext]())
+    result shouldBe jobTemplate
+  }
+
+  "createJobTemplate" should "throw an exception if the validation failed" in {
+    // given
+    val jobTemplate = GenericShellJobTemplate
+    when(jobTemplateRepository.insertJobTemplate(eqTo(jobTemplate), eqTo(userName))(any[ExecutionContext])).thenReturn(Future{jobTemplate.id})
+    when(jobTemplateValidationService.validate(eqTo(jobTemplate))(any[ExecutionContext]())).thenReturn(
+      Future.failed(new ApiException(Seq(ValidationError("error")))))
+
+    // when
+    val result = the [ApiException] thrownBy await(underTest.createJobTemplate(jobTemplate))
+
+    // then
+    result.apiErrors.head.message shouldBe "error"
+  }
+
+  "updateJobTemplate" should "update a job template" in {
+    // given
+    val jobTemplate = GenericShellJobTemplate
+    when(jobTemplateRepository.updateJobTemplate(eqTo(jobTemplate), eqTo(userName))(any[ExecutionContext]))
+      .thenReturn(Future{(): Unit})
+    when(jobTemplateValidationService.validate(eqTo(jobTemplate))(any[ExecutionContext]())).thenReturn(Future{(): Unit})
+
+    // when
+    val result = await(underTest.updateJobTemplate(jobTemplate))
+
+    // then
+    verify(jobTemplateValidationService).validate(eqTo(jobTemplate))(any[ExecutionContext]())
+    result shouldBe jobTemplate
+  }
+
+  "updateJobTemplate" should "throw an exception if the validation failed" in {
+    // given
+    val jobTemplate = GenericShellJobTemplate
+    when(jobTemplateRepository.updateJobTemplate(eqTo(jobTemplate), eqTo(userName))(any[ExecutionContext])).thenReturn(Future{(): Unit})
+    when(jobTemplateValidationService.validate(eqTo(jobTemplate))(any[ExecutionContext]())).thenReturn(
+      Future.failed(new ApiException(Seq(ValidationError("error")))))
+
+    // when
+    val result = the [ApiException] thrownBy await(underTest.updateJobTemplate(jobTemplate))
+
+    // then
+    result.apiErrors.head.message shouldBe "error"
+  }
+
+  "deleteJobTemplate" should "delete a job template" in {
+    // given
+    val jobTemplate = GenericSparkJobTemplate
+    when(jobTemplateRepository.deleteJobTemplate(eqTo(jobTemplate.id), eqTo(userName))(any[ExecutionContext]))
+      .thenReturn(Future{(): Unit})
+
+    // when
+    val result = await(underTest.deleteJobTemplate(jobTemplate.id))
+
+    // then
+    result shouldBe true
   }
 }
