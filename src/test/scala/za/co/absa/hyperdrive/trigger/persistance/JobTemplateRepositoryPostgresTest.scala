@@ -24,7 +24,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class JobTemplateRepositoryPostgresTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryPostgresTestBase {
 
-  val jobTemplateRepository: JobTemplateRepository = new JobTemplateRepositoryImpl(dbProvider)
+  val jobTemplateHistoryRepository: JobTemplateHistoryRepository = new JobTemplateHistoryRepositoryImpl(dbProvider)
+  val jobTemplateRepository: JobTemplateRepository = new JobTemplateRepositoryImpl(dbProvider, jobTemplateHistoryRepository)
 
   override def beforeAll: Unit = {
     super.beforeAll()
