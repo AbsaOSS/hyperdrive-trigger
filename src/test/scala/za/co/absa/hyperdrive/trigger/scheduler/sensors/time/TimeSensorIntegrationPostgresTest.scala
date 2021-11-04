@@ -20,7 +20,7 @@ import java.time.LocalDateTime
 import org.quartz.JobKey
 import org.quartz.impl.matchers.GroupMatcher
 import org.scalatest._
-import za.co.absa.hyperdrive.trigger.api.rest.services.{DagInstanceService, DagInstanceServiceImpl, JobTemplateFixture, JobTemplateResolutionServiceImpl, JobTemplateService, JobTemplateServiceImpl}
+import za.co.absa.hyperdrive.trigger.api.rest.services.{DagInstanceService, DagInstanceServiceImpl, JobTemplateFixture, JobTemplateResolutionServiceImpl, JobTemplateService, JobTemplateServiceImpl, JobTemplateValidationServiceImpl}
 import za.co.absa.hyperdrive.trigger.configuration.application.{GeneralConfig, KafkaConfig, SchedulerConfig, TestGeneralConfig, TestKafkaConfig, TestSchedulerConfig}
 import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.models.enums.JobTypes
@@ -41,9 +41,11 @@ class TimeSensorIntegrationPostgresTest extends FlatSpec with Matchers with Befo
   private val eventRepository: EventRepositoryImpl = new EventRepositoryImpl(dbProvider)
   private val dagDefinitionRepository: DagDefinitionRepositoryImpl = new DagDefinitionRepositoryImpl(dbProvider)
   private val dagInstanceRepository: DagInstanceRepositoryImpl = new DagInstanceRepositoryImpl(dbProvider)
-  private val jobTemplateRepository: JobTemplateRepositoryImpl = new JobTemplateRepositoryImpl(dbProvider)
+  private val jobTemplateHistoryRepository: JobTemplateHistoryRepositoryImpl = new JobTemplateHistoryRepositoryImpl(dbProvider)
+  private val jobTemplateRepository: JobTemplateRepositoryImpl = new JobTemplateRepositoryImpl(dbProvider, jobTemplateHistoryRepository)
   private val jobTemplateResolutionService: JobTemplateResolutionServiceImpl = new JobTemplateResolutionServiceImpl
-  private val jobTemplateService: JobTemplateService = new JobTemplateServiceImpl(jobTemplateRepository, jobTemplateResolutionService)
+  private val jobTemplateValidationService: JobTemplateValidationServiceImpl = new JobTemplateValidationServiceImpl(jobTemplateRepository)
+  private val jobTemplateService: JobTemplateService = new JobTemplateServiceImpl(jobTemplateRepository, jobTemplateResolutionService, jobTemplateValidationService)
   private val dagInstanceService: DagInstanceService = new DagInstanceServiceImpl(jobTemplateService)
 
   override def beforeAll: Unit = {
@@ -63,9 +65,10 @@ class TimeSensorIntegrationPostgresTest extends FlatSpec with Matchers with Befo
     val processor = new EventProcessor(eventRepository, dagDefinitionRepository, dagInstanceRepository, dagInstanceService)
     val sensors = new Sensors(processor, sensorRepository, dagInstanceRepository, kafkaConfig, generalConfig, schedulerConfig)
     val cronExpression = "0/3 * * * * ?"
+    val testUser = "test-user"
 
     val sparkTemplate = JobTemplateFixture.GenericSparkJobTemplate
-    val sparkTemplateId = await(jobTemplateRepository.insertJobTemplate(sparkTemplate)).right.get
+    val sparkTemplateId = await(jobTemplateRepository.insertJobTemplate(sparkTemplate, testUser))
 
     // Persist workflow, sensor and dagDefinition
     val properties = TimeSensorProperties(cronExpression = cronExpression)
