@@ -42,6 +42,7 @@ class JobTemplateServiceTest extends AsyncFlatSpec with Matchers with MockitoSug
   before {
     reset(jobTemplateRepository)
     reset(jobTemplateResolutionUtil)
+    reset(jobTemplateValidationService)
   }
 
   "resolveJobTemplate" should "resolve the job template" in {
