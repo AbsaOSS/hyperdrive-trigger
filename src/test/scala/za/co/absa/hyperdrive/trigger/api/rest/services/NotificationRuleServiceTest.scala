@@ -18,7 +18,7 @@ package za.co.absa.hyperdrive.trigger.api.rest.services
 import org.mockito.ArgumentMatchers.{eq => eqTo, _}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
-import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, Matchers}
+import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, Matchers, OptionValues}
 import za.co.absa.hyperdrive.trigger.TestUtils.await
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, ValidationError}
@@ -30,7 +30,7 @@ import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
-class NotificationRuleServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar with BeforeAndAfter {
+class NotificationRuleServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar with BeforeAndAfter with OptionValues {
   private val notificationRuleRepository = mock[NotificationRuleRepository]
   private val notificationRuleValidationService = mock[NotificationRuleValidationService]
   private val userName = "some-user"
@@ -168,13 +168,13 @@ class NotificationRuleServiceTest extends AsyncFlatSpec with Matchers with Mocki
     val workflow = Workflow("workflow1", isActive = true, "project1", LocalDateTime.now(), None, None, 42L)
     val matchingRules = (Seq(rule), workflow)
     when(notificationRuleRepository.getMatchingNotificationRules(eqTo(42L), eqTo(DagInstanceStatuses.Failed),
-      any[LocalDateTime]())(any[ExecutionContext])).thenReturn(Future{matchingRules})
+      any[LocalDateTime]())(any[ExecutionContext])).thenReturn(Future{Some(matchingRules)})
 
     // when
     val result = await(underTest.getMatchingNotificationRules(42L, DagInstanceStatuses.Failed))
 
     // then
-    result shouldBe matchingRules
+    result.value shouldBe matchingRules
   }
 
 }

@@ -23,7 +23,7 @@ import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
 import za.co.absa.hyperdrive.trigger.TestUtils.await
 import za.co.absa.hyperdrive.trigger.api.rest.services.NotificationRuleService
-import za.co.absa.hyperdrive.trigger.configuration.application.{TestGeneralConfig, TestNotificationConfig, TestSparkConfig}
+import za.co.absa.hyperdrive.trigger.configuration.application.{TestGeneralConfig, TestNotificationConfig, DefaultTestSparkConfig}
 import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.InQueue
 import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobStatuses}
@@ -41,7 +41,7 @@ class NotificationSenderTest extends FlatSpec with MockitoSugar with Matchers wi
   private val environment = "TEST"
 
   private val underTest = new NotificationSenderImpl(notificationRuleService, emailService,
-    TestSparkConfig(hadoopResourceManagerUrlBase = clusterBaseUrl), TestNotificationConfig(enabled = true, senderAddress),
+    DefaultTestSparkConfig(hadoopResourceManagerUrlBase = clusterBaseUrl), TestNotificationConfig(enabled = true, senderAddress),
     TestGeneralConfig(environment = environment))
 
   before {
@@ -62,7 +62,7 @@ class NotificationSenderTest extends FlatSpec with MockitoSugar with Matchers wi
     val w = createWorkflow()
 
     when(notificationRuleService.getMatchingNotificationRules(eqTo(di.workflowId), eqTo(di.status))(any())).thenReturn(
-      Future { (Seq(nr1, nr2), w) }
+      Future { Some(Seq(nr1, nr2), w) }
     )
 
     // when
@@ -110,7 +110,7 @@ class NotificationSenderTest extends FlatSpec with MockitoSugar with Matchers wi
     val w = createWorkflow()
 
     when(notificationRuleService.getMatchingNotificationRules(eqTo(di.workflowId), eqTo(di.status))(any())).thenReturn(
-      Future { (Seq(nr1), w) }
+      Future { Some(Seq(nr1), w) }
     )
 
     // when

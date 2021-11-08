@@ -25,10 +25,10 @@ import java.lang.annotation.Target;
 
 @Target({ ElementType.METHOD, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = AwsRegionValidator.class)
-public @interface AwsRegion {
+@Constraint(validatedBy = SparkConfigNestedClassesValidator.class)
+public @interface SparkConfigNestedClasses {
 
-    String message() default "{awsRegion.constraint}";
+    String message() default "{sparkConfigNestedClasses.constraint}";
 
     Class<?>[] groups() default {};
 

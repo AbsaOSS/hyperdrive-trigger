@@ -45,7 +45,11 @@ class NotificationSenderImpl(notificationRuleService: NotificationRuleService, e
   def sendNotifications(dagInstance: DagInstance, jobInstances: Seq[JobInstance])(implicit ec: ExecutionContext): Future[Unit] = {
     if (notificationEnabled) {
       notificationRuleService.getMatchingNotificationRules(dagInstance.workflowId, dagInstance.status).map {
-        case (rules, workflow) => rules.foreach(rule => createMessageAndSend(rule, workflow, dagInstance, jobInstances))
+        case Some((rules, workflow)) => rules.foreach(rule => createMessageAndSend(rule, workflow, dagInstance, jobInstances))
+        case None => {
+                logger.debug(s"No rules matching workflow ID ${dagInstance.workflowId} with status ${dagInstance.status} found")
+                Future.successful()
+        }
       }
     } else {
       logger.debug(s"Attempting to send notifications for ${dagInstance}, but it is disabled")

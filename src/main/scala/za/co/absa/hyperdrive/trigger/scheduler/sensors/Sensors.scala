@@ -121,8 +121,7 @@ class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: Sensor
           new KafkaSensor(
             eventProcessor.eventProcessor(s"Sensor - ${sensor.properties.sensorType.name}"),
             sensor.copy(properties = kafkaSensorProperties),
-            kafkaSensorConsumeFromLatest,
-            executionContext
+            kafkaSensorConsumeFromLatest
           )
         ) match {
           case Success(s) => sensors.put(sensor.id, s)
@@ -133,8 +132,7 @@ class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: Sensor
           new AbsaKafkaSensor(
             eventProcessor.eventProcessor(s"Sensor - ${sensor.properties.sensorType.name}"),
             sensor.copy(properties = absaKafkaSensorProperties),
-            kafkaSensorConsumeFromLatest,
-            executionContext
+            kafkaSensorConsumeFromLatest
           )
         ) match {
           case Success(s) => sensors.put(sensor.id, s)
@@ -144,8 +142,7 @@ class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: Sensor
         Try(
           TimeSensor(
             eventProcessor.eventProcessor(s"Sensor - ${sensor.properties.sensorType.name}"),
-            sensor.copy(properties = timeSensorProperties),
-            executionContext
+            sensor.copy(properties = timeSensorProperties)
           )
         ) match {
           case Success(s) => sensors.put(sensor.id, s)
@@ -156,7 +153,6 @@ class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: Sensor
           new RecurringSensor(
             eventProcessor.eventProcessor(s"Sensor - ${sensor.properties.sensorType.name}"),
             sensor.copy(properties = recurringSensorProperties),
-            executionContext,
             dagInstanceRepository
           )
         ) match {
