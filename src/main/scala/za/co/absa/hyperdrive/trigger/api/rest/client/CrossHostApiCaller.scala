@@ -10,7 +10,7 @@ import scala.annotation.tailrec
 import scala.util.Failure
 import scala.util.Random
 import scala.util.Try
-//FIXME: protected?
+
 class CrossHostApiCaller private (apiBaseUrls: Vector[String], maxTryCount: Int, private var currentHostIndex: Int)
     extends ApiCaller {
   def baseUrlsCount: Int = apiBaseUrls.size

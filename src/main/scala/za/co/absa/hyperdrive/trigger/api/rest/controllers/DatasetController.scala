@@ -11,11 +11,12 @@ import java.util.concurrent.CompletableFuture
 import javax.inject.Inject
 import scala.compat.java8.FutureConverters._
 import scala.compat.java8.OptionConverters._
+import scala.concurrent.ExecutionContext.Implicits.global
 
 @RestController
-class DatasetController @Inject()(datasetService: DatasetService){
+class DatasetController @Inject() (datasetService: DatasetService) {
 
-    @GetMapping(path = Array("/dataset/search"))
-    def search(@RequestParam searchQuery: Optional[String]): CompletableFuture[Seq[VersionedDataset]] =
-        datasetService.search(searchQuery.asScala).toJava.toCompletableFuture
+  @GetMapping(path = Array("/dataset/search"))
+  def search(@RequestParam searchQuery: Optional[String]): CompletableFuture[Seq[VersionedDataset]] =
+    datasetService.search(searchQuery.asScala).toJava.toCompletableFuture
 }

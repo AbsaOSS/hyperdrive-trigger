@@ -9,7 +9,7 @@ import org.springframework.web.client.RestTemplate
 
 import scala.annotation.tailrec
 import scala.reflect.ClassTag
-//FIXME: protected?
+
 class RestClient(authClient: AuthClient, restTemplate: RestTemplate) {
   private val logger = LoggerFactory.getLogger(this.getClass)
 

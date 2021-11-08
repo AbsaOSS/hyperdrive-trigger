@@ -12,21 +12,21 @@ import scala.collection.JavaConverters._
 
 object AuthClient {
 
-  def apply(credentials: Credentials, apiCaller: ApiCaller): AuthClient = credentials match {
-    case ldapCredentials: LdapCredentials         => createLdapAuthClient(apiCaller, ldapCredentials)
-    case kerberosCredentials: KerberosCredentials => createSpnegoAuthClient(apiCaller, kerberosCredentials)
+  def apply(credentials: Credentials, apiCaller: ApiCaller, authEndpoints: AuthEndpoints): AuthClient = credentials match {
+    case ldapCredentials: LdapCredentials         => createLdapAuthClient(apiCaller, ldapCredentials, authEndpoints.ldapPath)
+    case kerberosCredentials: KerberosCredentials => createSpnegoAuthClient(apiCaller, kerberosCredentials, authEndpoints.spnegoPath)
     case InvalidCredentials                       => throw UnauthorizedException("No valid credetials provided")
   }
 
-  private def createLdapAuthClient(apiCaller: ApiCaller, credentials: LdapCredentials): LdapAuthClient = {
+  private def createLdapAuthClient(apiCaller: ApiCaller, credentials: LdapCredentials, path: String): LdapAuthClient = {
     val restTemplate = RestTemplateSingleton.instance
-    new LdapAuthClient(credentials.username, credentials.password, restTemplate, apiCaller)
+    new LdapAuthClient(credentials.username, credentials.password, restTemplate, apiCaller, path)
   }
 
-  private def createSpnegoAuthClient(apiCaller: ApiCaller, credentials: KerberosCredentials): SpnegoAuthClient = {
+  private def createSpnegoAuthClient(apiCaller: ApiCaller, credentials: KerberosCredentials, path: String): SpnegoAuthClient = {
     val restTemplate = new KerberosRestTemplate(credentials.keytabLocation, credentials.username)
     restTemplate.setErrorHandler(NoOpErrorHandler)
-    new SpnegoAuthClient(credentials.username, credentials.keytabLocation, restTemplate, apiCaller)
+    new SpnegoAuthClient(credentials.username, credentials.keytabLocation, restTemplate, apiCaller, path)
   }
 }
 
@@ -70,17 +70,17 @@ sealed abstract class AuthClient(
   }
 }
 
-class SpnegoAuthClient(username: String, keytabLocation: String, restTemplate: RestTemplate, apiCaller: ApiCaller)
-    extends AuthClient(username, restTemplate, apiCaller, baseUrl => s"$baseUrl/api/user/info") { //FIXME: fix url
-  override protected def requestAuthentication(url: String): ResponseEntity[String] = {//FIXME: protected?
+class SpnegoAuthClient(username: String, keytabLocation: String, restTemplate: RestTemplate, apiCaller: ApiCaller, path: String)
+    extends AuthClient(username, restTemplate, apiCaller, baseUrl => s"$baseUrl$path") {
+  override protected def requestAuthentication(url: String): ResponseEntity[String] = {
     logger.info(s"Authenticating via SPNEGO ($url): user `$username`, with keytab `$keytabLocation`")
     restTemplate.getForEntity(url, classOf[String])
   }
 }
 
-class LdapAuthClient(username: String, password: String, restTemplate: RestTemplate, apiCaller: ApiCaller)
-    extends AuthClient(username, restTemplate, apiCaller, baseUrl => s"$baseUrl/api/login") { //FIXME: fix url
-  override protected def requestAuthentication(url: String): ResponseEntity[String] = {//FIXME: protected?
+class LdapAuthClient(username: String, password: String, restTemplate: RestTemplate, apiCaller: ApiCaller, path: String)
+    extends AuthClient(username, restTemplate, apiCaller, baseUrl => s"$baseUrl$path") {
+  override protected def requestAuthentication(url: String): ResponseEntity[String] = {
     val requestParts = new LinkedMultiValueMap[String, String]
     requestParts.add("username", username)
     requestParts.add("password", password)
