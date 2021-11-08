@@ -19,7 +19,6 @@ import javax.inject.Inject
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.BeanFactory
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.{Bean, Configuration}
 import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.AuthenticationManager
@@ -33,16 +32,13 @@ import org.springframework.security.web.authentication.{AuthenticationFailureHan
 import org.springframework.security.web.csrf.CsrfToken
 import org.springframework.stereotype.Component
 import za.co.absa.hyperdrive.trigger.api.rest.auth.{HyperdriverAuthentication, InMemoryAuthentication, LdapAuthentication}
+import za.co.absa.hyperdrive.trigger.configuration.application.AuthConfig
 
 @EnableWebSecurity
-class WebSecurityConfig {
+class WebSecurityConfig @Inject()(val beanFactory: BeanFactory, authConfig: AuthConfig) {
   private val logger = LoggerFactory.getLogger(this.getClass)
 
-  @Inject
-  val beanFactory: BeanFactory = null
-
-  @Value("${auth.mechanism:}")
-  val authMechanism: String = ""
+  val authMechanism: String = authConfig.mechanism
 
   @Bean
   def authenticationFailureHandler(): AuthenticationFailureHandler = {
@@ -53,6 +49,7 @@ class WebSecurityConfig {
   def logoutSuccessHandler(): LogoutSuccessHandler = {
     new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK)
   }
+
 
   @Configuration
   class ApiWebSecurityConfigurationAdapter @Inject() (

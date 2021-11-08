@@ -17,15 +17,14 @@ package za.co.absa.hyperdrive.trigger.scheduler
 
 import java.util.concurrent
 import java.util.concurrent.atomic.AtomicBoolean
-
 import javax.inject.Inject
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
+import za.co.absa.hyperdrive.trigger.configuration.application.SchedulerConfig
 import za.co.absa.hyperdrive.trigger.persistance._
 import za.co.absa.hyperdrive.trigger.scheduler.cluster.{SchedulerInstanceAlreadyDeactivatedException, WorkflowBalancer}
 import za.co.absa.hyperdrive.trigger.scheduler.executors.Executors
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.Sensors
-import za.co.absa.hyperdrive.trigger.scheduler.utilities.{SchedulerConfig, SensorsConfig}
 
 import scala.collection.mutable
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
@@ -33,17 +32,17 @@ import scala.util.{Failure, Success}
 
 @Component
 class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstanceRepository: DagInstanceRepository,
-                             workflowBalancer: WorkflowBalancer) {
+                             workflowBalancer: WorkflowBalancer, schedulerConfig: SchedulerConfig) {
 
   case class RunningDagsKey(dagId: Long, workflowId: Long)
 
   private val logger = LoggerFactory.getLogger(this.getClass)
 
-  private val HEART_BEAT: Int = SchedulerConfig.getHeartBeat
-  val NUM_OF_PAR_TASKS: Int = SchedulerConfig.getMaxParallelJobs
+  private val HEART_BEAT: Int = schedulerConfig.heartBeat
+  val NUM_OF_PAR_TASKS: Int = schedulerConfig.maxParallelJobs
 
   private implicit val executionContext: ExecutionContextExecutor =
-    ExecutionContext.fromExecutor(concurrent.Executors.newFixedThreadPool(SensorsConfig.getThreadPoolSize))
+    ExecutionContext.fromExecutor(concurrent.Executors.newFixedThreadPool(schedulerConfig.sensors.threadPoolSize))
 
   private val isManagerRunningAtomic = new AtomicBoolean(false)
   private var runningScheduler: Future[Unit] = Future.successful((): Unit)
@@ -71,7 +70,7 @@ class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstance
         case Success(_) =>
           logger.debug("Manager stopped.")
         case Failure(exception) =>
-          logger.debug(s"Manager stopped with exception.", exception)
+          logger.error(s"Manager stopped with exception.", exception)
       }
     }
   }
@@ -103,6 +102,12 @@ class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstance
           processEvents(assignedWorkflowIds, firstIteration)
           enqueueDags(assignedWorkflowIds)
         }
+      runningAssignWorkflows.onComplete {
+        case Success(_) =>
+          logger.debug("Running assign workflows finished successfully.")
+        case Failure(exception) =>
+          logger.error(s"Running assign workflows finished with exception.", exception)
+      }
     }
   }
 
@@ -131,7 +136,7 @@ class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstance
         case Success(_) =>
           logger.debug("Running sensors finished successfully.")
         case Failure(exception) =>
-          logger.debug(s"Running sensors finished with exception.", exception)
+          logger.error(s"Running sensors finished with exception.", exception)
       }
     }
   }
@@ -143,7 +148,7 @@ class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstance
         case Success(_) =>
           logger.debug("Running enqueue finished successfully.")
         case Failure(exception) =>
-          logger.debug(s"Running enqueue finished with exception.", exception)
+          logger.error(s"Running enqueue finished with exception.", exception)
       }
     }
   }

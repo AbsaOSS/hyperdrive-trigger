@@ -18,14 +18,17 @@ package za.co.absa.hyperdrive.trigger
 import com.fasterxml.jackson.databind._
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import org.springframework.context.annotation.{Bean, Configuration}
 import org.springframework.scheduling.annotation.EnableAsync
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
 import za.co.absa.hyperdrive.trigger.api.rest.ObjectMapperSingleton
+import za.co.absa.hyperdrive.trigger.configuration.application.NotNullValidationBindHandlerAdvisor
 
 @SpringBootApplication
 @EnableAsync
 @Configuration
+@ConfigurationPropertiesScan(Array("za.co.absa.hyperdrive.trigger.configuration"))
 class Application() {
   @Bean def asyncExecutor(): ThreadPoolTaskExecutor = {
     val executor = new ThreadPoolTaskExecutor()
@@ -38,6 +41,9 @@ class Application() {
 
   @Bean
   def objectMapper(): ObjectMapper = ObjectMapperSingleton.getObjectMapper
+
+  @Bean
+  def notNullValidationBindHandlerAdvisor(): NotNullValidationBindHandlerAdvisor = new NotNullValidationBindHandlerAdvisor()
 
 }
 

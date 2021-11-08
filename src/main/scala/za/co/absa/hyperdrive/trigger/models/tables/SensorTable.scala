@@ -15,48 +15,33 @@
 
 package za.co.absa.hyperdrive.trigger.models.tables
 
-import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes.SensorType
-import za.co.absa.hyperdrive.trigger.models.{Properties, Sensor, Settings, Workflow}
+import za.co.absa.hyperdrive.trigger.models.{Sensor, SensorProperties, Workflow}
 import slick.lifted.{ForeignKeyQuery, ProvenShape}
 
 trait SensorTable {
   this: Profile with JdbcTypeMapper with WorkflowTable =>
   import api._
 
-  final class SensorTable(tag: Tag) extends Table[Sensor](tag, _tableName = "sensor") {
+  final class SensorTable(tag: Tag) extends Table[Sensor[SensorProperties]](tag, _tableName = "sensor") {
 
     def workflowId: Rep[Long] = column[Long]("workflow_id")
-    def sensorType: Rep[SensorType] = column[SensorType]("sensor_type")
-    def variables: Rep[Map[String, String]] = column[Map[String, String]]("variables")
-    def maps: Rep[Map[String, List[String]]] = column[Map[String, List[String]]]("maps")
-    def matchProperties: Rep[Map[String, String]] = column[Map[String, String]]("match_properties")
+    def properties: Rep[SensorProperties] = column[SensorProperties]("properties", O.SqlType("JSONB"))
     def id: Rep[Long] = column[Long]("id", O.PrimaryKey, O.AutoInc, O.SqlType("BIGSERIAL"))
 
     def workflow_fk: ForeignKeyQuery[WorkflowTable, Workflow] =
       foreignKey("sensor_workflow_fk", workflowId, TableQuery[WorkflowTable])(_.id)
 
-    def * : ProvenShape[Sensor] = (workflowId, sensorType, variables, maps, matchProperties, id) <> (
+    def * : ProvenShape[Sensor[SensorProperties]] = (workflowId, properties, id) <> (
       sensorTuple =>
         Sensor.apply(
           workflowId = sensorTuple._1,
-          sensorType = sensorTuple._2,
-          properties = Properties.apply(
-            sensorId = sensorTuple._6,
-            settings = Settings.apply(
-              variables = sensorTuple._3,
-              maps = sensorTuple._4
-            ),
-            matchProperties = sensorTuple._5
-          ),
-          id = sensorTuple._6
+          properties = sensorTuple._2,
+          id = sensorTuple._3
         ),
-      (sensor: Sensor) =>
+      (sensor: Sensor[SensorProperties]) =>
         Option(
           sensor.workflowId,
-          sensor.sensorType,
-          sensor.properties.settings.variables,
-          sensor.properties.settings.maps,
-          sensor.properties.matchProperties,
+          sensor.properties,
           sensor.id
         )
     )

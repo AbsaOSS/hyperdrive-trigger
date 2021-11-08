@@ -13,12 +13,16 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.scheduler.executors
+export const sensorTypes = {
+  KAFKA: 'Kafka',
+  ABSA_KAFKA: 'Absa-Kafka',
+  RECURRING: 'Recurring',
+  TIME: 'Time',
+};
 
-import za.co.absa.hyperdrive.trigger.models.{JobInstance, JobInstanceParameters}
-
-import scala.concurrent.{ExecutionContext, Future}
-
-trait Executor[T <: JobInstanceParameters] {
-  def execute(jobInstance: JobInstance, jobParameters: T, updateJob: JobInstance => Future[Unit])(implicit executionContext: ExecutionContext): Future[Unit]
-}
+export const sensorTypesArray: Map<string, string> = new Map([
+  [sensorTypes.KAFKA, 'Kafka'],
+  [sensorTypes.ABSA_KAFKA, 'Kafka Ingestion Token'],
+  [sensorTypes.TIME, 'Time'],
+  [sensorTypes.RECURRING, 'Recurring'],
+]);

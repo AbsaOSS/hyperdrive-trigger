@@ -14,18 +14,35 @@
   -->
 
 <app-select-part
-  [isShow]="mode == workflowModes.SHOW || mode == workflowModes.COMPARISON"
-  [name]="workflowFormParts.sensorSwitchPart.name"
-  [value]="getValue(workflowFormParts.sensorSwitchPart.property)"
-  [options]="getSensorTypes()"
+  [isShow]="isShow"
+  [name]="'Sensor type'"
+  [value]="WorkflowEntryUtil.getValue('properties.sensorType', sensorData)"
+  [options]="sensorTypesArray"
   [valueChanges]="sensorChanges"
-  [property]="workflowFormParts.sensorSwitchPart.property"
-  [partValidation]="workflowFormParts.sensorSwitchPart.partValidation">
+  [property]="'properties.sensorType'"
+  [partValidation]="PartValidationFactory.create(true)">
 </app-select-part>
 
-<app-dynamic-parts
-  [isShow]="mode == workflowModes.SHOW || mode == workflowModes.COMPARISON"
-  [formParts]="getSelectedSensorComponent()"
-  [valueChanges]="sensorChanges"
-  [values]="sensorData">
-</app-dynamic-parts>
+<div [ngSwitch]="getSelectedSensorType()">
+  <app-absa-kafka
+    *ngSwitchCase="sensorTypes.ABSA_KAFKA"
+    [isShow]="isShow"
+    [sensorData]="sensorData"
+    [changes]="changes">
+  </app-absa-kafka>
+  <app-kafka
+    *ngSwitchCase="sensorTypes.KAFKA"
+    [isShow]="isShow"
+    [sensorData]="sensorData"
+    [changes]="changes">
+  </app-kafka>
+  <app-recurring
+    *ngSwitchCase="sensorTypes.RECURRING">
+  </app-recurring>
+  <app-time
+    *ngSwitchCase="sensorTypes.TIME"
+    [isShow]="isShow"
+    [sensorData]="sensorData"
+    [changes]="changes">
+  </app-time>
+</div>

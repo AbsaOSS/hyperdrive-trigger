@@ -16,7 +16,6 @@
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
 import org.springframework.stereotype.Service
-import za.co.absa.hyperdrive.trigger.api.rest.utils.JobTemplateResolutionUtil
 import za.co.absa.hyperdrive.trigger.models.search.{TableSearchRequest, TableSearchResponse}
 import za.co.absa.hyperdrive.trigger.models.{DagDefinitionJoined, JobTemplate, ResolvedJobDefinition}
 import za.co.absa.hyperdrive.trigger.persistance.JobTemplateRepository
@@ -35,7 +34,7 @@ trait JobTemplateService {
 }
 
 @Service
-class JobTemplateServiceImpl(override val jobTemplateRepository: JobTemplateRepository) extends JobTemplateService {
+class JobTemplateServiceImpl(override val jobTemplateRepository: JobTemplateRepository, jobTemplateResolutionService: JobTemplateResolutionService) extends JobTemplateService {
   override def getJobTemplate(id: Long)(implicit ec: ExecutionContext): Future[JobTemplate] = {
     jobTemplateRepository.getJobTemplate(id)
   }
@@ -43,7 +42,7 @@ class JobTemplateServiceImpl(override val jobTemplateRepository: JobTemplateRepo
   override def resolveJobTemplate(dagDefinitionJoined: DagDefinitionJoined)(implicit ec: ExecutionContext): Future[Seq[ResolvedJobDefinition]] = {
     val jobTemplateIds = dagDefinitionJoined.jobDefinitions.map(_.jobTemplateId)
     jobTemplateRepository.getJobTemplatesByIds(jobTemplateIds).map(
-      jobTemplates => JobTemplateResolutionUtil.resolveDagDefinitionJoined(dagDefinitionJoined, jobTemplates)
+      jobTemplates => jobTemplateResolutionService.resolveDagDefinitionJoined(dagDefinitionJoined, jobTemplates)
     )
   }
 

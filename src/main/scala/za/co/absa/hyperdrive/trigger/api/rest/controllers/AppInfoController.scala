@@ -15,18 +15,17 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.controllers
 
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.web.bind.annotation._
+import za.co.absa.hyperdrive.trigger.configuration.application.{GeneralConfig, SparkConfig}
 import za.co.absa.hyperdrive.trigger.models.AppInfo
 
+import javax.inject.Inject
+
 @RestController 
-class AppInfoController {
-  @Value("${environment:Unknown}")
-  val environment: String = ""
-  @Value("${version:Unknown}")
-  val version: String = ""
-  @Value("${sparkYarnSink.hadoopResourceManagerUrlBase:Unknown}")
-  val resourceManagerUrl: String = ""
+class AppInfoController @Inject()(sparkConfig: SparkConfig, generalConfig: GeneralConfig) {
+  val environment: String = generalConfig.environment
+  val version: String = generalConfig.version
+  val resourceManagerUrl: String = sparkConfig.hadoopResourceManagerUrlBase
 
   @GetMapping(path = Array("/app/info"))
   def appInfo(): AppInfo = {

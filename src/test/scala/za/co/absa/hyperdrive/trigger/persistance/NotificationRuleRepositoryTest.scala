@@ -26,12 +26,12 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class NotificationRuleRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryH2TestBase {
   import api._
   private val h2NotificationRuleHistoryRepository: NotificationRuleHistoryRepository =
-    new NotificationRuleHistoryRepositoryImpl() with H2Profile  {
+    new NotificationRuleHistoryRepositoryImpl(dbProvider) with H2Profile  {
       override val profile = h2Profile
     }
 
   private val h2NotificationRuleRepository: NotificationRuleRepository =
-    new NotificationRuleRepositoryImpl(h2NotificationRuleHistoryRepository) with H2Profile {
+    new NotificationRuleRepositoryImpl(dbProvider, h2NotificationRuleHistoryRepository) with H2Profile {
       override val profile = h2Profile
     }
 

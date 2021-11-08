@@ -70,27 +70,4 @@ describe('WorkflowDetailsComponent', () => {
       });
     }),
   );
-
-  it(
-    'getValue() should return value when property exists',
-    waitForAsync(() => {
-      fixture.detectChanges();
-      fixture.whenStable().then(() => {
-        const queriedDetail = sensorData[0];
-        expect(underTest.getValue(queriedDetail.property)).toBe(queriedDetail.value);
-      });
-    }),
-  );
-
-  it(
-    'getValue() should return undefined when property does not exist',
-    waitForAsync(() => {
-      const undefinedProperty = 'undefinedProperty';
-
-      fixture.detectChanges();
-      fixture.whenStable().then(() => {
-        expect(underTest.getValue(undefinedProperty)).toBe(undefined);
-      });
-    }),
-  );
 });

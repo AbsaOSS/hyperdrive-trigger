@@ -13,10 +13,27 @@
   ~ limitations under the License.
   -->
 
-<app-dynamic-parts
-  [isShow]="mode == workflowModes.SHOW || mode == workflowModes.COMPARISON"
-  [formParts]="parts"
+<app-string-part
+  [isShow]="isShow"
+  [name]="'Workflow name'"
   [valueChanges]="detailsChanges"
-  [values]="data"
-  [projects]="projects">
-</app-dynamic-parts>
+  [value]="WorkflowEntryUtil.getValue('name', data)"
+  [property]="'name'"
+  [partValidation]="PartValidationFactory.create(true, 45, 1)">
+</app-string-part>
+<app-string-with-suggestions-part
+  [isShow]="isShow"
+  [name]="'Project name'"
+  [valueChanges]="detailsChanges"
+  [value]="WorkflowEntryUtil.getValue('project', data)"
+  [property]="'project'"
+  [options]="projects"
+  [partValidation]="PartValidationFactory.create(true, undefined, 1)">
+</app-string-with-suggestions-part>
+<app-boolean-part
+  [isShow]="isShow"
+  [name]="'Is active'"
+  [valueChanges]="detailsChanges"
+  [value]="WorkflowEntryUtil.getValue('isActive', data)"
+  [property]="'isActive'">
+</app-boolean-part>
