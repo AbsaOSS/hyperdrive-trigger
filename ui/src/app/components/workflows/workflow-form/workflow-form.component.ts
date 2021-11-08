@@ -39,6 +39,7 @@ import { Router } from '@angular/router';
 import cloneDeep from 'lodash-es/cloneDeep';
 import isEqual from 'lodash-es/isEqual';
 import { WorkflowFormDataModel } from '../../../models/workflowFormData.model';
+import { JobTemplateModel } from '../../../models/jobTemplate.model';
 
 @Component({
   selector: 'app-workflow-form',
@@ -51,6 +52,7 @@ export class WorkflowFormComponent implements OnInit, OnDestroy {
   @Input() workflowData: WorkflowFormDataModel;
   @Input() initialWorkflowData: WorkflowFormDataModel;
   @Input() workflowFormParts: WorkflowFormPartsModel;
+  @Input() jobTemplates: JobTemplateModel[];
   @Input() id: number;
   @Input() mode: string;
   @Input() backendValidationErrors: string[];

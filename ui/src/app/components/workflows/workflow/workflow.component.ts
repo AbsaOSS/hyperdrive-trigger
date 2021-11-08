@@ -26,8 +26,8 @@ import { ConfirmationDialogService } from '../../../services/confirmation-dialog
 import { WorkflowEntryModel } from '../../../models/workflowEntry.model';
 import { JobEntryModel } from '../../../models/jobEntry.model';
 import { WorkflowFormPartsModel } from '../../../models/workflowFormParts.model';
-import { delay } from 'rxjs/operators';
 import { WorkflowFormDataModel } from '../../../models/workflowFormData.model';
+import { JobTemplateModel } from '../../../models/jobTemplate.model';
 
 @Component({
   selector: 'app-workflow',
@@ -58,6 +58,8 @@ export class WorkflowComponent implements OnInit, OnDestroy {
   initialWorkflowData: WorkflowFormDataModel;
   workflowFormParts: WorkflowFormPartsModel;
 
+  jobTemplates: JobTemplateModel[];
+
   changes: Subject<Action> = new Subject<Action>();
   changesSubscription: Subscription;
 
@@ -87,6 +89,7 @@ export class WorkflowComponent implements OnInit, OnDestroy {
       this.workflowFormParts = state.workflowAction.workflowFormParts;
       this.workflowData = state.workflowAction.workflowFormData;
       this.initialWorkflowData = state.workflowAction.initialWorkflowFormData;
+      this.jobTemplates = state.jobTemplates;
     });
     this.changesSubscription = this.changes.subscribe((state) => {
       this.store.dispatch(state);

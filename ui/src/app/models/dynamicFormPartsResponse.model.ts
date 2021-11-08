@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -14,16 +13,16 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.scheduler.executors.spark
+import { JobTemplateModel } from './jobTemplate.model';
+import { DynamicFormParts } from './workflowFormParts.model';
 
-import com.amazonaws.services.elasticmapreduce.{AmazonElasticMapReduce, AmazonElasticMapReduceClientBuilder}
-import org.springframework.stereotype.Service
+export type DynamicFormPartsResponse = {
+  dynamicFormParts: DynamicFormParts;
+  jobTemplates: JobTemplateModel[];
+};
 
-trait EmrClusterProviderService {
-  def get(): AmazonElasticMapReduce
-}
-
-@Service
-class EmrClusterProviderServiceImpl extends EmrClusterProviderService {
-  override def get(): AmazonElasticMapReduce = AmazonElasticMapReduceClientBuilder.standard().build()
+export class DynamicFormPartsResponseFactory {
+  static create(dynamicFormParts: DynamicFormParts, jobTemplates: JobTemplateModel[]): DynamicFormPartsResponse {
+    return { dynamicFormParts, jobTemplates };
+  }
 }

@@ -16,61 +16,51 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { JobComponent } from './job.component';
-import {
-  DynamicFormPart,
-  DynamicFormPartFactory,
-  DynamicFormPartsFactory,
-  FormPart,
-  FormPartFactory,
-  PartValidationFactory,
-  WorkflowFormPartsModelFactory,
-} from '../../../../../models/workflowFormParts.model';
 import { JobEntryModelFactory } from '../../../../../models/jobEntry.model';
 import { WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
 import { Subject } from 'rxjs';
 import { Action } from '@ngrx/store';
 import { WorkflowJobChanged, WorkflowJobTypeSwitched } from '../../../../../stores/workflows/workflows.actions';
+import { JobTemplateModelFactory } from '../../../../../models/jobTemplate.model';
+import { JobTypeFactory } from '../../../../../models/jobType.model';
+import { SparkTemplateParametersModel } from '../../../../../models/jobTemplateParameters.model';
+import { jobTemplateFormConfigs } from '../../../../../constants/jobTemplates.constants';
+import { jobTypes } from '../../../../../constants/jobTypes.constants';
 
 describe('JobComponent', () => {
   let fixture: ComponentFixture<JobComponent>;
   let underTest: JobComponent;
 
-  const jobStaticPart: FormPart = FormPartFactory.create(
-    'jobStaticPart',
-    'jobStaticPart',
-    'jobStaticPart',
-    PartValidationFactory.create(true),
-  );
-  const jobSwitchPart: FormPart = FormPartFactory.create(
-    'switchPartName',
-    'switchPartProp',
-    'switchPartType',
-    PartValidationFactory.create(true),
-    new Map([
-      ['optionOne', 'optionOne'],
-      ['optionTwo', 'optionTwoLabel'],
-    ]),
-  );
-  const jobDynamicPartOne: DynamicFormPart = DynamicFormPartFactory.create('optionOne', [
-    FormPartFactory.create('partOne', 'partOne', 'partOne', PartValidationFactory.create(true)),
-  ]);
-  const jobDynamicPartTwo: DynamicFormPart = DynamicFormPartFactory.createWithLabel('optionTwo', 'optionTwoLabel', [
-    FormPartFactory.create('partTwo', 'partTwo', 'partTwo', PartValidationFactory.create(true)),
-  ]);
-  const workflowFormParts = WorkflowFormPartsModelFactory.create(
-    [],
-    undefined,
-    jobStaticPart,
-    jobSwitchPart,
-    DynamicFormPartsFactory.create([], [jobDynamicPartOne, jobDynamicPartTwo]),
-  );
   const jobsData = [
     JobEntryModelFactory.createWithUuid(0, [
       WorkflowEntryModelFactory.create('jobStaticPart', 'value'),
-      WorkflowEntryModelFactory.create('switchPartProp', 'optionTwo'),
+      WorkflowEntryModelFactory.create('jobTemplateId', '2'),
     ]),
   ];
-  const mode = 'mode';
+  const jobTemplates = [
+    JobTemplateModelFactory.create(
+      1,
+      'template1',
+      jobTemplateFormConfigs.SPARK,
+      JobTypeFactory.create(jobTypes.SPARK),
+      SparkTemplateParametersModel.createEmpty(),
+    ),
+    JobTemplateModelFactory.create(
+      2,
+      'template2',
+      jobTemplateFormConfigs.SHELL,
+      JobTypeFactory.create(jobTypes.SHELL),
+      SparkTemplateParametersModel.createEmpty(),
+    ),
+    JobTemplateModelFactory.create(
+      3,
+      'template3',
+      jobTemplateFormConfigs.HYPERDRIVE,
+      JobTypeFactory.create(jobTypes.SPARK),
+      SparkTemplateParametersModel.createEmpty(),
+    ),
+  ];
+  const isShow = true;
   const jobId: string = jobsData[0].jobId;
 
   beforeEach(
@@ -86,10 +76,10 @@ describe('JobComponent', () => {
     underTest = fixture.componentInstance;
 
     //set test data
-    underTest.workflowFormParts = workflowFormParts;
-    underTest.mode = mode;
+    underTest.isShow = isShow;
     underTest.jobId = jobId;
     underTest.jobsData = jobsData;
+    underTest.jobTemplates = jobTemplates;
     underTest.changes = new Subject<Action>();
   });
 
@@ -120,7 +110,7 @@ describe('JobComponent', () => {
   it(
     'should dispatch change action when jobChanges receives switch part event',
     waitForAsync(() => {
-      const property = workflowFormParts.jobSwitchPart.property;
+      const property = underTest.JOB_TEMPLATE_PROPERTY;
       const value = 'value';
 
       const changesSpy = spyOn(underTest.changes, 'next');
@@ -138,37 +128,38 @@ describe('JobComponent', () => {
   );
 
   it(
-    'getJobTypes() should return job types',
+    'getJobTemplates() should return job templates',
     waitForAsync(() => {
       fixture.detectChanges();
       fixture.whenStable().then(() => {
-        const result = underTest.getJobTypes();
-        expect(result).toEqual(workflowFormParts.jobSwitchPart.options);
+        const result = underTest.getJobTemplates();
+        expect(result).toEqual(new Map(jobTemplates.map((part) => [part.id.toString(), part.name])));
       });
     }),
   );
 
   it(
-    'getSelectedJobComponent() should return first dynamic parts when no job is selected',
+    'getSelectedFormConfig() should return default form config when no job is selected',
     waitForAsync(() => {
       underTest.jobId = undefined;
       fixture.detectChanges();
       fixture.whenStable().then(() => {
-        const resultLeft = underTest.getSelectedJobComponent();
-        const resultRight = workflowFormParts.dynamicParts.jobDynamicParts[0].parts;
+        const resultLeft = underTest.getSelectedFormConfig();
 
-        expect(resultLeft).toEqual(resultRight);
+        expect(resultLeft).toEqual(jobTemplateFormConfigs.SPARK);
       });
     }),
   );
 
   it(
-    'getSelectedJobComponent() should return dynamic parts when sensor is selected',
+    'getSelectedFormConfig() should return selected form config when job is selected',
     waitForAsync(() => {
       fixture.detectChanges();
       fixture.whenStable().then(() => {
-        const resultLeft = underTest.getSelectedJobComponent();
-        const resultRight = workflowFormParts.dynamicParts.jobDynamicParts[1].parts;
+        const resultLeft = underTest.getSelectedFormConfig();
+        const resultRight = jobTemplates.find(
+          (jt) => jt.id.toString() === jobsData[0].entries.find((jd) => jd.property === underTest.JOB_TEMPLATE_PROPERTY).value.toString(),
+        ).formConfig;
 
         expect(resultLeft).toEqual(resultRight);
       });
@@ -201,12 +192,12 @@ describe('JobComponent', () => {
   );
 
   it(
-    'getSelectedJob() should return selected job',
+    'getSelectedJobTemplateId() should return selected job template id',
     waitForAsync(() => {
       underTest.jobId = jobId;
       fixture.detectChanges();
       fixture.whenStable().then(() => {
-        const resultLeft = underTest.getSelectedJob();
+        const resultLeft = underTest.getSelectedJobTemplateId();
         const resultRight = jobsData[0].entries[1].value;
         expect(resultLeft).toEqual(resultRight);
       });
@@ -214,37 +205,14 @@ describe('JobComponent', () => {
   );
 
   it(
-    'getSelectedJob() should return undefined when job does not exist',
+    'getSelectedJobTemplateId() should return undefined when template does not exist',
     waitForAsync(() => {
       underTest.jobId = '999';
       fixture.detectChanges();
       fixture.whenStable().then(() => {
-        const result = underTest.getSelectedJob();
+        const result = underTest.getSelectedJobTemplateId();
 
         expect(result).toBeUndefined();
-      });
-    }),
-  );
-
-  it(
-    'getValue() should return value when property exists',
-    waitForAsync(() => {
-      fixture.detectChanges();
-      fixture.whenStable().then(() => {
-        const queriedDetail = jobsData[0].entries[0];
-        expect(underTest.getValue(queriedDetail.property)).toBe(queriedDetail.value);
-      });
-    }),
-  );
-
-  it(
-    'getValue() should return undefined when property does not exist',
-    waitForAsync(() => {
-      const undefinedProperty = 'undefinedProperty';
-
-      fixture.detectChanges();
-      fixture.whenStable().then(() => {
-        expect(underTest.getValue(undefinedProperty)).toBe(undefined);
       });
     }),
   );

@@ -20,7 +20,7 @@ import org.apache.spark.launcher.{SparkAppHandle, SparkLauncher}
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.configuration.application.SparkConfig
-import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.Submitting
+import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.{SubmissionTimeout, Submitting}
 import za.co.absa.hyperdrive.trigger.models.{JobInstance, SparkInstanceParameters}
 
 import java.util.UUID.randomUUID
@@ -50,6 +50,11 @@ class SparkYarnClusterServiceImpl @Inject()(implicit sparkConfig: SparkConfig) e
       latch.await(submitTimeout, TimeUnit.MILLISECONDS)
       sparkAppHandle.kill()
     }
+  }
+
+  override def handleMissingYarnStatusForJobStatusSubmitting(jobInstance: JobInstance, updateJob: JobInstance => Future[Unit])
+    (implicit executionContext: ExecutionContext): Future[Unit] = {
+    updateJob(jobInstance.copy(jobStatus = SubmissionTimeout))
   }
 
   private def getSparkLauncher(id: String, jobName: String, jobParameters: SparkInstanceParameters)

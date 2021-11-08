@@ -33,6 +33,7 @@ create table "job_instance" (
   "dag_instance_id" BIGINT NOT NULL,
   "id" BIGSERIAL NOT NULL PRIMARY KEY,
   "application_id" VARCHAR,
+  "step_id" VARCHAR,
   "job_parameters" JSONB NOT NULL DEFAULT '{}'
 );
 

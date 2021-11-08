@@ -44,8 +44,7 @@ case class TestSparkYarnSinkConfig(
   master: String,
   sparkHome: String,
   filesToDeployInternal: String,
-  additionalConfsInternal: Properties,
-  executablesFolder: String
+  additionalConfsInternal: Properties
 ) {
   def toSparkYarnSinkConfig: SparkYarnSinkConfig = {
     new SparkYarnSinkConfig(
@@ -54,8 +53,7 @@ case class TestSparkYarnSinkConfig(
       master,
       sparkHome,
       filesToDeployInternal,
-      additionalConfsInternal,
-      executablesFolder
+      additionalConfsInternal
     )
   }
 }

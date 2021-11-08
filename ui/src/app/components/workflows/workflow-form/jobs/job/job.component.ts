@@ -15,12 +15,14 @@
 
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Subject, Subscription } from 'rxjs';
-import { workflowModes } from '../../../../../models/enums/workflowModes.constants';
-import { FormPart, WorkflowFormPartsModel } from '../../../../../models/workflowFormParts.model';
 import { Action } from '@ngrx/store';
 import { WorkflowJobChanged, WorkflowJobTypeSwitched } from '../../../../../stores/workflows/workflows.actions';
 import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
 import { JobEntryModel } from '../../../../../models/jobEntry.model';
+import { jobTemplateFormConfigs } from '../../../../../constants/jobTemplates.constants';
+import { WorkflowEntryUtil } from 'src/app/utils/workflowEntry/workflowEntry.util';
+import { PartValidationFactory } from 'src/app/models/workflowFormParts.model';
+import { JobTemplateModel } from '../../../../../models/jobTemplate.model';
 
 @Component({
   selector: 'app-job',
@@ -28,13 +30,17 @@ import { JobEntryModel } from '../../../../../models/jobEntry.model';
   styleUrls: ['./job.component.scss'],
 })
 export class JobComponent implements OnInit, OnDestroy {
+  readonly JOB_TEMPLATE_PROPERTY = 'jobTemplateId';
+
   @Input() jobId: string;
-  @Input() mode: string;
-  @Input() workflowFormParts: WorkflowFormPartsModel;
+  @Input() isShow: boolean;
   @Input() jobsData: JobEntryModel[];
+  @Input() jobTemplates: JobTemplateModel[];
   @Input() changes: Subject<Action>;
 
-  workflowModes = workflowModes;
+  jobTemplateFormConfigs = jobTemplateFormConfigs;
+  WorkflowEntryUtil = WorkflowEntryUtil;
+  PartValidationFactory = PartValidationFactory;
 
   jobChanges: Subject<WorkflowEntryModel> = new Subject<WorkflowEntryModel>();
   jobChangesSubscription: Subscription;
@@ -45,7 +51,7 @@ export class JobComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.jobChangesSubscription = this.jobChanges.subscribe((jobChange) => {
-      if (jobChange.property == this.workflowFormParts.jobSwitchPart.property) {
+      if (jobChange.property == this.JOB_TEMPLATE_PROPERTY) {
         this.changes.next(
           new WorkflowJobTypeSwitched({
             jobId: this.jobId,
@@ -60,13 +66,14 @@ export class JobComponent implements OnInit, OnDestroy {
     });
   }
 
-  getJobTypes(): Map<string, string> {
-    return new Map(this.workflowFormParts.dynamicParts.jobDynamicParts.map((part) => [part.value, part.label]));
+  getJobTemplates(): Map<string, string> {
+    return new Map(this.jobTemplates.map((part) => [part.id.toString(), part.name]));
   }
 
-  getSelectedJobComponent(): FormPart[] {
-    const jobDynamicPart = this.workflowFormParts.dynamicParts.jobDynamicParts.find((jdp) => jdp.value == this.getSelectedJob());
-    return jobDynamicPart ? jobDynamicPart.parts : this.workflowFormParts.dynamicParts.jobDynamicParts[0].parts;
+  getSelectedFormConfig(): string {
+    const selectedJob = this.getSelectedJobTemplateId();
+    const selectedJobTemplate = this.jobTemplates.find((jobTemplate) => jobTemplate.id == selectedJob);
+    return selectedJobTemplate?.formConfig ?? jobTemplateFormConfigs.SPARK;
   }
 
   getJobData(): WorkflowEntryModel[] {
@@ -74,14 +81,9 @@ export class JobComponent implements OnInit, OnDestroy {
     return !!jobDataOption ? jobDataOption.entries : [];
   }
 
-  getSelectedJob() {
-    const selected = this.getJobData().find((value) => value.property == this.workflowFormParts.jobSwitchPart.property);
+  getSelectedJobTemplateId() {
+    const selected = this.getJobData().find((value) => value.property == this.JOB_TEMPLATE_PROPERTY);
     return !!selected ? selected.value : undefined;
-  }
-
-  getValue(prop: string) {
-    const val = this.getJobData().find((value) => value.property == prop);
-    return !!val ? val.value : undefined;
   }
 
   ngOnDestroy(): void {
