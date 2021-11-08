@@ -43,7 +43,7 @@ trait NotificationRuleRepository extends Repository {
 
   def searchNotificationRules(tableSearchRequest: TableSearchRequest)(implicit ec: ExecutionContext): Future[TableSearchResponse[NotificationRule]]
 
-  def getMatchingNotificationRules(workflowId: Long, status: DagInstanceStatus, currentTime: LocalDateTime)(implicit ec: ExecutionContext): Future[(Seq[NotificationRule], Workflow)]
+  def getMatchingNotificationRules(workflowId: Long, status: DagInstanceStatus, currentTime: LocalDateTime)(implicit ec: ExecutionContext): Future[Option[(Seq[NotificationRule], Workflow)]]
 
 }
 
@@ -102,7 +102,7 @@ class NotificationRuleRepositoryImpl @Inject()(
       .withErrorHandling(s"Unexpected error occurred when searching notification rules with request ${searchRequest}")
     )
 
-  override def getMatchingNotificationRules(workflowId: Long, status: DagInstanceStatus, currentTime: LocalDateTime)(implicit ec: ExecutionContext): Future[(Seq[NotificationRule], Workflow)] = {
+  override def getMatchingNotificationRules(workflowId: Long, status: DagInstanceStatus, currentTime: LocalDateTime)(implicit ec: ExecutionContext): Future[Option[(Seq[NotificationRule], Workflow)]] = {
     val lastSucceededDagSubQuery = dagInstanceTable
       .filter(_.status.inSet(Set(DagInstanceStatuses.Succeeded)))
       .filter(_.workflowId === LiteralColumn[Long](workflowId).bind)
@@ -128,7 +128,11 @@ class NotificationRuleRepositoryImpl @Inject()(
         }
         .map { case ((n, w), _) => (n, w)}
         .result
-        .map(notificationRuleWorkflows => (notificationRuleWorkflows.map(_._1), notificationRuleWorkflows.head._2))
+        .map(notificationRuleWorkflows => (notificationRuleWorkflows.map(_._1), notificationRuleWorkflows.headOption.map(_._2)))
+        .map { 
+          case (r, Some(w)) => Some(r, w)
+          case (r, None) => None
+        }
     )
   }
 

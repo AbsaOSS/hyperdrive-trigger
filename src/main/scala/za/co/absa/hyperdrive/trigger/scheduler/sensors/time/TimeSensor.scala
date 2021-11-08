@@ -26,9 +26,9 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class TimeSensor(eventsProcessor: (Seq[Event], Long) => Future[Boolean],
                  sensorDefinition: SensorDefition[TimeSensorProperties],
-                 executionContext: ExecutionContext,
                  scheduler: Scheduler
-                ) extends PushSensor[TimeSensorProperties](eventsProcessor, sensorDefinition, executionContext) {
+                )(implicit executionContext: ExecutionContext) 
+                  extends PushSensor[TimeSensorProperties](eventsProcessor, sensorDefinition, executionContext) {
   val jobKey: JobKey = new JobKey(sensorDefinition.id.toString, TimeSensor.JOB_GROUP_NAME)
   val jobTriggerKey: TriggerKey = new TriggerKey(jobKey.getName, TimeSensor.JOB_TRIGGER_GROUP_NAME)
 
@@ -76,9 +76,10 @@ object TimeSensor {
   val JOB_TRIGGER_GROUP_NAME: String = "time-sensor-job-trigger-group"
 
   def apply(eventsProcessor: (Seq[Event], Long) => Future[Boolean],
-            sensorDefinition: SensorDefition[TimeSensorProperties], executionContext: ExecutionContext): TimeSensor = {
+            sensorDefinition: SensorDefition[TimeSensorProperties])
+           (implicit executionContext: ExecutionContext): TimeSensor = {
     val quartzScheduler = TimeSensorQuartzSchedulerManager.getScheduler
-    val sensor = new TimeSensor(eventsProcessor, sensorDefinition, executionContext, quartzScheduler)
+    val sensor = new TimeSensor(eventsProcessor, sensorDefinition, quartzScheduler)
 
     validateJobKeys(sensor.jobKey, sensor.jobTriggerKey, quartzScheduler, sensorDefinition.id)
     validateCronExpression(sensorDefinition.properties.cronExpression, sensorDefinition.id)
