@@ -17,8 +17,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <version>0.5.1</version>
+    <version>0.5.2</version>
     <groupId>za.co.absa</groupId>
+
+    <parent>
+        <groupId>za.co.absa</groupId>
+        <artifactId>root-pom</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
     <artifactId>hyperdrive-trigger</artifactId>
     <packaging>jar</packaging>
 
@@ -26,36 +33,12 @@
     <description>Hyperdrive-Trigger is a scheduler and GUI for hyperdrive.</description>
     <url>https://github.com/AbsaOSS/hyperdrive-trigger</url>
 
-    <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-        </repository>
-    </distributionManagement>
-
     <scm>
-        <connection>scm:git:git://github.com/AbsaOSS/hyperdrive-trigger.git</connection>
-        <developerConnection>scm:git:ssh://github.com/AbsaOSS/hyperdrive-trigger.git</developerConnection>
-        <url>https://github.com/AbsaOSS/hyperdrive-trigger/tree/master</url>
-        <tag>v0.5.1</tag>
+        <url>${scm.url}</url>
+        <connection>${scm.connection}</connection>
+        <developerConnection>${scm.developerConnection}</developerConnection>
+        <tag>v0.5.2</tag>
     </scm>
-
-    <licenses>
-        <license>
-            <name>Apache License, Version 2.0</name>
-            <url>https://www.apache.org/licenses/LICENSE-2.0</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-
-    <organization>
-        <name>ABSA Group Limited</name>
-        <url>https://www.absa.africa</url>
-    </organization>
 
     <developers>
         <developer>
@@ -131,6 +114,10 @@
         <scalatest.suites />
         <scalatest.tagsToExclude>za.co.absa.hyperdrive.trigger.testdata.PersistingData</scalatest.tagsToExclude>
         <skip.postgres.tests>true</skip.postgres.tests>
+
+        <scm.url><!-- defined outside the pom --></scm.url>
+        <scm.connection><!-- defined outside the pom --></scm.connection>
+        <scm.developerConnection><!-- defined outside the pom --></scm.developerConnection>
     </properties>
 
     <dependencyManagement>
@@ -356,7 +343,6 @@
             <plugin>
                 <groupId>net.alchim31.maven</groupId>
                 <artifactId>scala-maven-plugin</artifactId>
-                <version>${alchim31}</version>
                 <executions>
                     <execution>
                         <id>scala-compile</id>
@@ -426,7 +412,6 @@
                     <archive>
                         <manifestEntries>
                             <App-Version>${project.version}</App-Version>
-                            <Build-Number>${buildNumber}</Build-Number>
                         </manifestEntries>
                         <manifest>
                             <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
@@ -450,17 +435,6 @@
                 </dependencies>
             </plugin>
 
-            <!-- Deployment-->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>${maven.release.plugin.version}</version>
-                <configuration>
-                    <tagNameFormat>v@{project.version}</tagNameFormat>
-                    <releaseProfiles>deploy</releaseProfiles>
-                    <username>git</username> <!-- Make sure git-push is not tried with local user -->
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
@@ -517,89 +491,45 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>buildnumber-maven-plugin</artifactId>
-                <version>${buildnumber.maven.plugin.version}</version>
-                <executions>
-                    <execution>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>create</goal>
-                        </goals>
-                    </execution>
-                </executions>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
                 <configuration>
-                    <shortRevisionLength>8</shortRevisionLength>
+                    <autoReleaseAfterClose>false</autoReleaseAfterClose>
+                    <stagingProgressTimeoutMinutes>15</stagingProgressTimeoutMinutes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-release-plugin</artifactId>
+                <configuration>
+                    <tagNameFormat>v@{project.version}</tagNameFormat>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.rat</groupId>
+                <artifactId>apache-rat-plugin</artifactId>
+                <configuration>
+                    <excludes combine.children="append">
+                        <exclude>**/node/**</exclude>
+                        <exclude>**/node_modules/**</exclude>
+                        <exclude>**/build.yml</exclude>
+                        <exclude>**/.editorconfig</exclude>
+                        <exclude>.dockerignore</exclude>
+                        <exclude>**/.gitkeep</exclude>
+                        <exclude>src/main/resources/banner.txt</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
         </plugins>
-
     </build>
 
     <profiles>
         <profile>
-            <id>deploy</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>attach-sources</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>net.alchim31.maven</groupId>
-                        <artifactId>scala-maven-plugin</artifactId>
-                        <version>${alchim31}</version>
-                        <configuration>
-                            <scalaVersion>${scala.compat.version}</scalaVersion>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>attach-javadocs</id>
-                                <goals>
-                                    <goal>doc-jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <version>${gpg.plugin.version}</version>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.sonatype.plugins</groupId>
-                        <artifactId>nexus-staging-maven-plugin</artifactId>
-                        <version>${nexus.staging.plugin.version}</version>
-                        <extensions>true</extensions>
-                        <configuration>
-                            <serverId>ossrh</serverId>
-                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                            <autoReleaseAfterClose>false</autoReleaseAfterClose>
-                            <stagingProgressTimeoutMinutes>15</stagingProgressTimeoutMinutes>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
             <id>testdata</id>
+            <activation>
+                <property>
+                    <name>testdata</name>
+                </property>
+            </activation>
             <properties>
                 <scalatest.suites>za.co.absa.hyperdrive.trigger.testdata.TestDataGeneratorLocal</scalatest.suites>
                 <scalatest.tagsToExclude />
@@ -608,42 +538,40 @@
             </properties>
         </profile>
         <profile>
-            <id>license-check</id>
+            <id>all-tests</id>
+            <activation>
+                <property>
+                    <name>all-tests</name>
+                </property>
+            </activation>
+            <properties>
+                <skip.postgres.tests>false</skip.postgres.tests>
+            </properties>
+        </profile>
+        <profile>
+            <id>manual-release</id>
+            <activation>
+                <property>
+                    <name>manual-release</name>
+                </property>
+            </activation>
+            <properties>
+                <scm.connection>scm:git:git://github.com/AbsaOSS/hyperdrive-trigger.git</scm.connection>
+                <scm.developerConnection>scm:git:ssh://github.com/AbsaOSS/hyperdrive-trigger.git</scm.developerConnection>
+                <scm.url>https://github.com/AbsaOSS/hyperdrive-trigger/tree/master</scm.url>
+            </properties>
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.apache.rat</groupId>
-                        <artifactId>apache-rat-plugin</artifactId>
-                        <version>0.13</version>
-                        <executions>
-                            <execution>
-                                <phase>validate</phase>
-                                <goals>
-                                    <goal>check</goal>
-                                </goals>
-                            </execution>
-                        </executions>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-release-plugin</artifactId>
+                        <version>${maven.release.plugin.version}</version>
                         <configuration>
-                            <excludes>
-                                <exclude>**/node/**</exclude>
-                                <exclude>**/node_modules/**</exclude>
-                                <exclude>**/*.json</exclude>
-                                <exclude>**/build.yml</exclude>
-                                <exclude>**/.editorconfig</exclude>
-                                <exclude>.dockerignore</exclude>
-                                <exclude>**/.gitkeep</exclude>
-                                <exclude>src/main/resources/banner.txt</exclude>
-                            </excludes>
+                            <username>git</username> <!-- Make sure git-push is not tried with local user -->
                         </configuration>
                     </plugin>
                 </plugins>
             </build>
-        </profile>
-        <profile>
-            <id>all-tests</id>
-            <properties>
-                <skip.postgres.tests>false</skip.postgres.tests>
-            </properties>
         </profile>
     </profiles>
 </project>

@@ -221,7 +221,7 @@ describe('WorkflowService', () => {
 
   it('getWorkflowDynamicFormParts() should return no form parts if no templates are present', () => {
     underTest.getWorkflowDynamicFormParts().subscribe(
-      (data) => expect(data.jobDynamicParts.length).toEqual(0),
+      (data) => expect(data.dynamicFormParts.jobDynamicParts.length).toEqual(0),
       (error) => fail(error),
     );
 
@@ -234,8 +234,8 @@ describe('WorkflowService', () => {
     const templateName = 'Some Shell Job';
     underTest.getWorkflowDynamicFormParts().subscribe(
       (data) => {
-        expect(data.jobDynamicParts.length).toEqual(1);
-        expect(data.jobDynamicParts[0].label).toEqual(templateName);
+        expect(data.dynamicFormParts.jobDynamicParts.length).toEqual(1);
+        expect(data.dynamicFormParts.jobDynamicParts[0].label).toEqual(templateName);
       },
       (error) => fail(error),
     );

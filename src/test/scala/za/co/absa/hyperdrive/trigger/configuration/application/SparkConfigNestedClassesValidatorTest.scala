@@ -41,8 +41,7 @@ class SparkConfigNestedClassesValidatorTest extends FlatSpec with MockitoSugar w
       master = "yarn",
       sparkHome = "/opt/spark",
       filesToDeployInternal = "/opt/file1,/opt/file2",
-      additionalConfsInternal = new Properties(),
-      executablesFolder = ""
+      additionalConfsInternal = new Properties()
     ),
     emr = TestSparkEmrSinkConfig(
       clusterId = null,
@@ -115,8 +114,7 @@ class SparkConfigNestedClassesValidatorTest extends FlatSpec with MockitoSugar w
       submitTimeout = 0,
       hadoopConfDir = "",
       master = "",
-      sparkHome = "",
-      executablesFolder = null
+      sparkHome = ""
     )).toSparkConfig
 
     // when
@@ -125,14 +123,13 @@ class SparkConfigNestedClassesValidatorTest extends FlatSpec with MockitoSugar w
     // then
     isValid shouldBe false
     val stringCaptor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
-    verify(mockConstraintViolationBuilder, times(5)).addPropertyNode(stringCaptor.capture())
+    verify(mockConstraintViolationBuilder, times(4)).addPropertyNode(stringCaptor.capture())
     import scala.collection.JavaConverters._
     stringCaptor.getAllValues.asScala should contain theSameElementsAs Seq(
       "sparkYarnSink.submitTimeout",
       "sparkYarnSink.hadoopConfDir",
       "sparkYarnSink.master",
-      "sparkYarnSink.sparkHome",
-      "sparkYarnSink.executablesFolder"
+      "sparkYarnSink.sparkHome"
     )
   }
 

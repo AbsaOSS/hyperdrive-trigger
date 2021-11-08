@@ -32,6 +32,7 @@ trait JobInstanceTable {
     def jobStatus: Rep[JobStatus] = column[JobStatus]("job_status")
     def executorJobId: Rep[Option[String]] = column[Option[String]]("executor_job_id")
     def applicationId: Rep[Option[String]] = column[Option[String]]("application_id")
+    def stepId: Rep[Option[String]] = column[Option[String]]("step_id")
     def created: Rep[LocalDateTime] = column[LocalDateTime]("created")
     def updated: Rep[Option[LocalDateTime]] = column[Option[LocalDateTime]]("updated")
     def order: Rep[Int] = column[Int]("order")
@@ -47,40 +48,16 @@ trait JobInstanceTable {
       jobStatus,
       executorJobId,
       applicationId,
+      stepId,
       created,
       updated,
       order,
       dagInstanceId,
       id
     ) <> (
-      jobInstanceTuple =>
-        JobInstance.apply(
-          jobName = jobInstanceTuple._1,
-          jobParameters = jobInstanceTuple._2,
-          jobStatus = jobInstanceTuple._3,
-          executorJobId = jobInstanceTuple._4,
-          applicationId = jobInstanceTuple._5,
-          created = jobInstanceTuple._6,
-          updated = jobInstanceTuple._7,
-          order = jobInstanceTuple._8,
-          dagInstanceId = jobInstanceTuple._9,
-          id = jobInstanceTuple._10
-        ),
-      (jobInstance: JobInstance) =>
-        Option(
-          jobInstance.jobName,
-          jobInstance.jobParameters,
-          jobInstance.jobStatus,
-          jobInstance.executorJobId,
-          jobInstance.applicationId,
-          jobInstance.created,
-          jobInstance.updated,
-          jobInstance.order,
-          jobInstance.dagInstanceId,
-          jobInstance.id
-        )
+      JobInstance.tupled,
+      JobInstance.unapply
     )
-
   }
 
   lazy val jobInstanceTable = TableQuery[JobInstanceTable]

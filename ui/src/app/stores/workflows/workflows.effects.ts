@@ -45,6 +45,7 @@ import { UtilService } from '../../services/util/util.service';
 import groupBy from 'lodash-es/groupBy';
 import { ApiUtil } from '../../utils/api/api.util';
 import { JobTemplateModel } from '../../models/jobTemplate.model';
+import { DynamicFormPartsResponse } from '../../models/dynamicFormPartsResponse.model';
 
 @Injectable()
 export class WorkflowsEffects {
@@ -67,14 +68,15 @@ export class WorkflowsEffects {
     }),
     mergeMap((projects: ProjectModel[]) => {
       return this.workflowService.getWorkflowDynamicFormParts().pipe(
-        mergeMap((workflowComponents: DynamicFormParts) => {
-          const workflowFormParts = this.getWorkflowFormParts(workflowComponents);
+        mergeMap((workflowComponents: DynamicFormPartsResponse) => {
+          const workflowFormParts = this.getWorkflowFormParts(workflowComponents.dynamicFormParts);
           return [
             {
               type: WorkflowActions.INITIALIZE_WORKFLOWS_SUCCESS,
               payload: {
                 projects: projects,
                 workflowFormParts: workflowFormParts,
+                jobTemplates: workflowComponents.jobTemplates,
               },
             },
           ];
@@ -405,8 +407,8 @@ export class WorkflowsEffects {
     }),
     mergeMap((workflowHistForComparison: HistoryPairModel<WorkflowHistoryModel>) => {
       return this.workflowService.getWorkflowDynamicFormParts().pipe(
-        mergeMap((workflowComponents: DynamicFormParts) => {
-          const workflowFormParts = this.getWorkflowFormParts(workflowComponents);
+        mergeMap((workflowComponents: DynamicFormPartsResponse) => {
+          const workflowFormParts = this.getWorkflowFormParts(workflowComponents.dynamicFormParts);
 
           const leftWorkflowHistory = new WorkflowDataModel(workflowHistForComparison.leftHistory.workflow, workflowFormParts.dynamicParts);
           const rightWorkflowHistory = new WorkflowDataModel(
@@ -422,6 +424,7 @@ export class WorkflowsEffects {
                 leftWorkflowHistory: workflowHistForComparison.leftHistory.history,
                 rightWorkflowHistoryData: rightWorkflowHistory.getWorkflowFromData(),
                 rightWorkflowHistory: workflowHistForComparison.rightHistory.history,
+                jobTemplates: workflowComponents.jobTemplates,
               },
             },
           ];

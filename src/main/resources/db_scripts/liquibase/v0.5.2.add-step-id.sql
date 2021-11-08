@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -14,16 +13,4 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.scheduler.executors.spark
-
-import com.amazonaws.services.elasticmapreduce.{AmazonElasticMapReduce, AmazonElasticMapReduceClientBuilder}
-import org.springframework.stereotype.Service
-
-trait EmrClusterProviderService {
-  def get(): AmazonElasticMapReduce
-}
-
-@Service
-class EmrClusterProviderServiceImpl extends EmrClusterProviderService {
-  override def get(): AmazonElasticMapReduce = AmazonElasticMapReduceClientBuilder.standard().build()
-}
+alter table "job_instance" add column "step_id" VARCHAR;
