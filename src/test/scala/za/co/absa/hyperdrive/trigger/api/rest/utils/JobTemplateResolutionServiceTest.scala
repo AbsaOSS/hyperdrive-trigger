@@ -19,8 +19,11 @@ import org.scalatest.{FlatSpec, Matchers}
 import za.co.absa.hyperdrive.trigger.models.enums.JobTypes
 import za.co.absa.hyperdrive.trigger.models.{DagDefinitionJoined, HyperdriveDefinitionParameters, JobDefinition, ShellDefinitionParameters, ShellInstanceParameters, ShellTemplateParameters, SparkDefinitionParameters, SparkInstanceParameters, SparkTemplateParameters}
 import za.co.absa.hyperdrive.trigger.api.rest.services.JobTemplateFixture.{GenericShellJobTemplate, GenericSparkJobTemplate}
+import za.co.absa.hyperdrive.trigger.api.rest.services.JobTemplateResolutionServiceImpl
+import za.co.absa.hyperdrive.trigger.configuration.application.{TestShellExecutorConfig, TestSparkConfig}
 
-class JobTemplateResolutionUtilTest extends FlatSpec with Matchers {
+class JobTemplateResolutionServiceTest extends FlatSpec with Matchers {
+  private val underTest = new JobTemplateResolutionServiceImpl(TestSparkConfig.apply(), TestShellExecutorConfig.apply())
 
   "resolveDagDefinition" should "return a ResolvedJobDefinition with the same jobType as in the template" in {
     // given
@@ -29,7 +32,7 @@ class JobTemplateResolutionUtilTest extends FlatSpec with Matchers {
     val dagDefinitionJoined = createDagDefinitionJoined(jobDefinition)
 
     // when
-    val resolvedJobDefinitions = JobTemplateResolutionUtil.resolveDagDefinitionJoined(dagDefinitionJoined, Seq(jobTemplate))
+    val resolvedJobDefinitions = underTest.resolveDagDefinitionJoined(dagDefinitionJoined, Seq(jobTemplate))
 
     // then
     val resolvedJobDefinition = resolvedJobDefinitions.head
@@ -51,7 +54,7 @@ class JobTemplateResolutionUtilTest extends FlatSpec with Matchers {
     val dagDefinitionJoined = DagDefinitionJoined(jobDefinitions = Seq(jobDefinition1, jobDefinition2))
 
     // when
-    val resolvedJobDefinitions = JobTemplateResolutionUtil.resolveDagDefinitionJoined(dagDefinitionJoined, Seq(jobTemplate1, jobTemplate2))
+    val resolvedJobDefinitions = underTest.resolveDagDefinitionJoined(dagDefinitionJoined, Seq(jobTemplate1, jobTemplate2))
 
     // then
     resolvedJobDefinitions should have size 2
@@ -79,19 +82,19 @@ class JobTemplateResolutionUtilTest extends FlatSpec with Matchers {
     val jobTemplateWithScript = GenericShellJobTemplate.copy(jobParameters = shellTemplateParametersWithScript, id = 2)
 
     // when
-    val bothScriptsUndefined = JobTemplateResolutionUtil.resolveDagDefinitionJoined(
+    val bothScriptsUndefined = underTest.resolveDagDefinitionJoined(
       createDagDefinitionJoined(createJobDefinition().copy(jobTemplateId = jobTemplateNoScript.id, jobParameters = shellJobParametersNoScript)),
       Seq(jobTemplateNoScript)
     )
-    val templateScriptDefined = JobTemplateResolutionUtil.resolveDagDefinitionJoined(
+    val templateScriptDefined = underTest.resolveDagDefinitionJoined(
       createDagDefinitionJoined(createJobDefinition().copy(jobTemplateId = jobTemplateWithScript.id, jobParameters = shellJobParametersNoScript)),
       Seq(jobTemplateWithScript)
     )
-    val jobScriptDefined = JobTemplateResolutionUtil.resolveDagDefinitionJoined(
+    val jobScriptDefined = underTest.resolveDagDefinitionJoined(
       createDagDefinitionJoined(createJobDefinition().copy(jobTemplateId = jobTemplateNoScript.id, jobParameters = shellJobParametersWithScript)),
       Seq(jobTemplateNoScript)
     )
-    val bothScriptsDefined = JobTemplateResolutionUtil.resolveDagDefinitionJoined(
+    val bothScriptsDefined = underTest.resolveDagDefinitionJoined(
       createDagDefinitionJoined(createJobDefinition().copy(jobTemplateId = jobTemplateWithScript.id, jobParameters = shellJobParametersWithScript)),
       Seq(jobTemplateWithScript)
     )
@@ -148,19 +151,19 @@ class JobTemplateResolutionUtilTest extends FlatSpec with Matchers {
     val jobTemplateDefined = GenericShellJobTemplate.copy(jobParameters = sparkTemplateParametersDefined, id = 2)
 
     // when
-    val bothUndefined = JobTemplateResolutionUtil.resolveDagDefinitionJoined(
+    val bothUndefined = underTest.resolveDagDefinitionJoined(
       createDagDefinitionJoined(createJobDefinition().copy(jobTemplateId = jobTemplateUndefined.id, jobParameters = sparkJobParametersUndefined)),
       Seq(jobTemplateUndefined)
     )
-    val templateDefined = JobTemplateResolutionUtil.resolveDagDefinitionJoined(
+    val templateDefined = underTest.resolveDagDefinitionJoined(
       createDagDefinitionJoined(createJobDefinition().copy(jobTemplateId = jobTemplateDefined.id, jobParameters = sparkJobParametersUndefined)),
       Seq(jobTemplateDefined)
     )
-    val jobDefined = JobTemplateResolutionUtil.resolveDagDefinitionJoined(
+    val jobDefined = underTest.resolveDagDefinitionJoined(
       createDagDefinitionJoined(createJobDefinition().copy(jobTemplateId = jobTemplateUndefined.id, jobParameters = sparkJobParametersDefined)),
       Seq(jobTemplateUndefined)
     )
-    val bothScriptsDefined = JobTemplateResolutionUtil.resolveDagDefinitionJoined(
+    val bothScriptsDefined = underTest.resolveDagDefinitionJoined(
       createDagDefinitionJoined(createJobDefinition().copy(jobTemplateId = jobTemplateDefined.id, jobParameters = sparkJobParametersDefined)),
       Seq(jobTemplateDefined)
     )
@@ -233,19 +236,19 @@ class JobTemplateResolutionUtilTest extends FlatSpec with Matchers {
     val jobTemplateDefined = GenericShellJobTemplate.copy(jobParameters = sparkTemplateParametersDefined, id = 2)
 
     // when
-    val bothUndefined = JobTemplateResolutionUtil.resolveDagDefinitionJoined(
+    val bothUndefined = underTest.resolveDagDefinitionJoined(
       createDagDefinitionJoined(createJobDefinition().copy(jobTemplateId = jobTemplateUndefined.id, jobParameters = hyperdriveJobParametersUndefined)),
       Seq(jobTemplateUndefined)
     )
-    val templateDefined = JobTemplateResolutionUtil.resolveDagDefinitionJoined(
+    val templateDefined = underTest.resolveDagDefinitionJoined(
       createDagDefinitionJoined(createJobDefinition().copy(jobTemplateId = jobTemplateDefined.id, jobParameters = hyperdriveJobParametersUndefined)),
       Seq(jobTemplateDefined)
     )
-    val jobDefined = JobTemplateResolutionUtil.resolveDagDefinitionJoined(
+    val jobDefined = underTest.resolveDagDefinitionJoined(
       createDagDefinitionJoined(createJobDefinition().copy(jobTemplateId = jobTemplateUndefined.id, jobParameters = hyperdriveJobParametersDefined)),
       Seq(jobTemplateUndefined)
     )
-    val bothScriptsDefined = JobTemplateResolutionUtil.resolveDagDefinitionJoined(
+    val bothScriptsDefined = underTest.resolveDagDefinitionJoined(
       createDagDefinitionJoined(createJobDefinition().copy(jobTemplateId = jobTemplateDefined.id, jobParameters = hyperdriveJobParametersDefined)),
       Seq(jobTemplateDefined)
     )
@@ -308,7 +311,7 @@ class JobTemplateResolutionUtilTest extends FlatSpec with Matchers {
     val dagDefinitionJoined = createDagDefinitionJoined(jobDefinition)
 
     // when
-    val resolvedJobDefinitions = JobTemplateResolutionUtil.resolveDagDefinitionJoined(dagDefinitionJoined, Seq(jobTemplate))
+    val resolvedJobDefinitions = underTest.resolveDagDefinitionJoined(dagDefinitionJoined, Seq(jobTemplate))
 
     // then
     val resolvedJobDefinition = resolvedJobDefinitions.head
@@ -325,7 +328,7 @@ class JobTemplateResolutionUtilTest extends FlatSpec with Matchers {
     val dagDefinitionJoined = createDagDefinitionJoined(jobDefinition)
 
     // when
-    val result = intercept[IllegalArgumentException](JobTemplateResolutionUtil.resolveDagDefinitionJoined(dagDefinitionJoined, Seq(jobTemplate)))
+    val result = intercept[IllegalArgumentException](underTest.resolveDagDefinitionJoined(dagDefinitionJoined, Seq(jobTemplate)))
 
     // then
     result.getMessage should include("Could not mix different job types.")
@@ -337,7 +340,7 @@ class JobTemplateResolutionUtilTest extends FlatSpec with Matchers {
     val dagDefinitionJoined = createDagDefinitionJoined(jobDefinition)
 
     // when
-    val result = intercept[NoSuchElementException](JobTemplateResolutionUtil.resolveDagDefinitionJoined(dagDefinitionJoined, Seq.empty))
+    val result = intercept[NoSuchElementException](underTest.resolveDagDefinitionJoined(dagDefinitionJoined, Seq.empty))
 
     // then
     result.getMessage should include("template with id 1")

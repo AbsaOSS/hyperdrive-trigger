@@ -20,6 +20,7 @@ import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.models.enums.DBOperation.{Create, DBOperation, Delete, Update}
 
 import java.time.LocalDateTime
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 trait NotificationRuleHistoryRepository extends Repository {
@@ -34,7 +35,8 @@ trait NotificationRuleHistoryRepository extends Repository {
 }
 
 @stereotype.Repository
-class NotificationRuleHistoryRepositoryImpl extends NotificationRuleHistoryRepository {
+class NotificationRuleHistoryRepositoryImpl @Inject()(val dbProvider: DatabaseProvider)
+  extends NotificationRuleHistoryRepository {
   import api._
 
   private def insert(notificationRule: NotificationRule, user: String, operation: DBOperation)(implicit ec: ExecutionContext): DBIO[Long] = {

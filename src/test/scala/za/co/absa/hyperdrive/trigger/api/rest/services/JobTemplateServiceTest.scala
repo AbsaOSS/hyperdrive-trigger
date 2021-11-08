@@ -21,6 +21,7 @@ import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, Matchers}
 import za.co.absa.hyperdrive.trigger.TestUtils.await
 import za.co.absa.hyperdrive.trigger.api.rest.services.JobTemplateFixture.{GenericShellJobTemplate, GenericSparkJobTemplate}
+import za.co.absa.hyperdrive.trigger.models.{ResolvedJobDefinition, ShellInstanceParameters, SparkInstanceParameters}
 import za.co.absa.hyperdrive.trigger.models.enums.JobTypes
 import za.co.absa.hyperdrive.trigger.models.search.{TableSearchRequest, TableSearchResponse}
 import za.co.absa.hyperdrive.trigger.persistance.JobTemplateRepository
@@ -30,26 +31,33 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class JobTemplateServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar with BeforeAndAfter {
   private val jobTemplateRepository = mock[JobTemplateRepository]
-  private val underTest = new JobTemplateServiceImpl(jobTemplateRepository)
+  private val jobTemplateResolutionUtil = mock[JobTemplateResolutionService]
+  private val underTest = new JobTemplateServiceImpl(jobTemplateRepository, jobTemplateResolutionUtil)
 
   before {
     reset(jobTemplateRepository)
+    reset(jobTemplateResolutionUtil)
   }
 
   "resolveJobTemplate" should "resolve the job template" in {
     // given
     val dagDefinitionJoined = WorkflowFixture.createWorkflowJoined().dagDefinitionJoined
     val jobTemplates = Seq(GenericShellJobTemplate, GenericSparkJobTemplate)
+    val resolvedJobDefinitions = Seq(
+      ResolvedJobDefinition(name = "JobA", jobParameters = SparkInstanceParameters(jobJar = "", mainClass = ""), order = 0),
+      ResolvedJobDefinition(name = "JobB", jobParameters = ShellInstanceParameters(scriptLocation = ""), order = 1)
+    )
 
     when(jobTemplateRepository.getJobTemplatesByIds(any())(any[ExecutionContext])).thenReturn(Future{jobTemplates})
+    when(jobTemplateResolutionUtil.resolveDagDefinitionJoined(any(), any())).thenReturn(resolvedJobDefinitions)
 
     // when
-    val resolvedJobDefinitions = await(underTest.resolveJobTemplate(dagDefinitionJoined))
+    val result = await(underTest.resolveJobTemplate(dagDefinitionJoined))
 
     // then
-    resolvedJobDefinitions should have size 2
-    resolvedJobDefinitions.head.jobParameters.jobType shouldBe JobTypes.Spark
-    resolvedJobDefinitions(1).jobParameters.jobType shouldBe JobTypes.Shell
+    result should have size 2
+    result.head.jobParameters.jobType shouldBe JobTypes.Spark
+    result(1).jobParameters.jobType shouldBe JobTypes.Shell
   }
 
   "getJobTemplates" should "return all job templates" in {

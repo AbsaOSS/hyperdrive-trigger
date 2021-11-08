@@ -16,12 +16,12 @@
 package za.co.absa.hyperdrive.trigger.persistance
 
 import java.time.LocalDateTime
-
 import org.springframework.stereotype
 import za.co.absa.hyperdrive.trigger.models.JobInstance
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.JobStatus
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 trait JobInstanceRepository extends Repository {
@@ -31,7 +31,7 @@ trait JobInstanceRepository extends Repository {
 }
 
 @stereotype.Repository
-class JobInstanceRepositoryImpl extends JobInstanceRepository {
+class JobInstanceRepositoryImpl @Inject()(val dbProvider: DatabaseProvider) extends JobInstanceRepository {
   import api._
 
   override def updateJob(job: JobInstance)(implicit ec: ExecutionContext): Future[Unit] = db.run {

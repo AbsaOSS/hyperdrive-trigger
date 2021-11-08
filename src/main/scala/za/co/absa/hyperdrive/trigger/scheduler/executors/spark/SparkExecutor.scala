@@ -15,56 +15,28 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.executors.spark
 
+import play.api.libs.json.{JsValue, Json}
+import play.api.libs.ws.JsonBodyReadables._
+import za.co.absa.hyperdrive.trigger.api.rest.utils.WSClientProvider
+import za.co.absa.hyperdrive.trigger.configuration.application.SparkConfig
+import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses._
 import za.co.absa.hyperdrive.trigger.models.{JobInstance, SparkInstanceParameters}
+import za.co.absa.hyperdrive.trigger.scheduler.executors.spark.{FinalStatuses => YarnFinalStatuses}
 
 import scala.concurrent.{ExecutionContext, Future}
-import java.util.UUID.randomUUID
-import java.util.concurrent.{CountDownLatch, TimeUnit}
 
-import scala.collection.JavaConverters._
-import org.apache.spark.launcher.{SparkAppHandle, SparkLauncher}
-import play.api.libs.json.{JsValue, Json}
-import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses._
-import za.co.absa.hyperdrive.trigger.scheduler.executors.Executor
-import za.co.absa.hyperdrive.trigger.scheduler.utilities.SparkExecutorConfig
-import za.co.absa.hyperdrive.trigger.scheduler.utilities.JobDefinitionConfig.{KeysToMerge, MergedValuesSeparator}
-import play.api.libs.ws.JsonBodyReadables._
-import za.co.absa.hyperdrive.trigger.scheduler.executors.spark.{FinalStatuses => YarnFinalStatuses}
-import org.slf4j.LoggerFactory
-import za.co.absa.hyperdrive.trigger.api.rest.utils.WSClientProvider
-
-object SparkExecutor extends Executor[SparkInstanceParameters] {
-  override def execute(jobInstance: JobInstance, jobParameters: SparkInstanceParameters, updateJob: JobInstance => Future[Unit])
-                      (implicit executionContext: ExecutionContext): Future[Unit] = {
+object SparkExecutor {
+  def execute(jobInstance: JobInstance, jobParameters: SparkInstanceParameters, updateJob: JobInstance => Future[Unit],
+              sparkClusterService: SparkClusterService)
+             (implicit executionContext: ExecutionContext, sparkConfig: SparkConfig): Future[Unit] = {
     jobInstance.executorJobId match {
-      case None => submitJob(jobInstance, jobParameters, updateJob)
+      case None => sparkClusterService.submitJob(jobInstance, jobParameters, updateJob)
       case Some(executorJobId) => updateJobStatus(executorJobId, jobInstance, updateJob)
     }
   }
 
-  private def submitJob(jobInstance: JobInstance, jobParameters: SparkInstanceParameters, updateJob: JobInstance => Future[Unit])
-                       (implicit executionContext: ExecutionContext): Future[Unit] = {
-    val id = randomUUID().toString
-    val ji = jobInstance.copy(executorJobId = Some(id), jobStatus = Submitting)
-    updateJob(ji).map { _ =>
-      val submitTimeOut = SparkExecutorConfig.getSubmitTimeOut
-      val latch = new CountDownLatch(1)
-      val sparkAppHandle = getSparkLauncher(id, ji.jobName, jobParameters).startApplication(new SparkAppHandle.Listener {
-        override def stateChanged(handle: SparkAppHandle): Unit =
-          if (handle.getState == SparkAppHandle.State.SUBMITTED) {
-            latch.countDown()
-          }
-        override def infoChanged(handle: SparkAppHandle): Unit = {
-          // do nothing
-        }
-      })
-      latch.await(submitTimeOut, TimeUnit.MILLISECONDS)
-      sparkAppHandle.kill()
-    }
-  }
-
   private def updateJobStatus(executorJobId: String, jobInstance: JobInstance, updateJob: JobInstance => Future[Unit])
-                             (implicit executionContext: ExecutionContext): Future[Unit] = {
+                             (implicit executionContext: ExecutionContext, sparkConfig: SparkConfig): Future[Unit] = {
     WSClientProvider.getWSClient.url(getStatusUrl(executorJobId)).get().map { response =>
       (Json.fromJson[AppsResponse](response.body[JsValue]).asOpt match {
         case Some(asd) => asd.apps.app
@@ -79,41 +51,8 @@ object SparkExecutor extends Executor[SparkInstanceParameters] {
     }
   }
 
-  private def getSparkLauncher(id: String, jobName: String, jobParameters: SparkInstanceParameters): SparkLauncher = {
-    val sparkLauncher = new SparkLauncher(Map(
-      "HADOOP_CONF_DIR" -> SparkExecutorConfig.getHadoopConfDir,
-      "SPARK_PRINT_LAUNCH_COMMAND" -> "1"
-    ).asJava)
-      .setMaster(SparkExecutorConfig.getMaster)
-      .setDeployMode("cluster")
-      .setMainClass(jobParameters.mainClass)
-      .setAppResource(jobParameters.jobJar)
-      .setSparkHome(SparkExecutorConfig.getSparkHome)
-      .setAppName(jobName)
-      .setConf("spark.yarn.tags", id)
-      .addAppArgs(jobParameters.appArguments.toSeq:_*)
-      .addSparkArg("--verbose")
-      .redirectToLog(LoggerFactory.getLogger(s"SparkExecutor.executorJobId=$id").getName)
-    SparkExecutorConfig.getFilesToDeploy.foreach(file => sparkLauncher.addFile(file))
-    SparkExecutorConfig.getAdditionalConfs.foreach(conf => sparkLauncher.setConf(conf._1, conf._2))
-    jobParameters.additionalJars.foreach(sparkLauncher.addJar)
-    jobParameters.additionalFiles.foreach(sparkLauncher.addFile)
-    jobParameters.additionalSparkConfig.foreach(conf => sparkLauncher.setConf(conf._1, conf._2))
-    mergeAdditionalSparkConfig(SparkExecutorConfig.getAdditionalConfs, jobParameters.additionalSparkConfig)
-      .foreach(conf => sparkLauncher.setConf(conf._1, conf._2))
-
-    sparkLauncher
-  }
-
-  private def mergeAdditionalSparkConfig(globalConfig: Map[String, String], jobConfig: Map[String, String]) =
-    KeysToMerge.map(key => {
-      val globalValue = globalConfig.getOrElse(key, "")
-      val jobValue = jobConfig.getOrElse(key, "")
-      key -> s"$globalValue$MergedValuesSeparator$jobValue".trim
-    }).toMap
-
-  private def getStatusUrl(executorJobId: String): String = {
-    s"${SparkExecutorConfig.getHadoopResourceManagerUrlBase}/ws/v1/cluster/apps?applicationTags=$executorJobId"
+  private def getStatusUrl(executorJobId: String)(implicit sparkConfig: SparkConfig): String = {
+    s"${sparkConfig.hadoopResourceManagerUrlBase}/ws/v1/cluster/apps?applicationTags=$executorJobId"
   }
 
   private def getStatus(finalStatus: String): JobStatus = {

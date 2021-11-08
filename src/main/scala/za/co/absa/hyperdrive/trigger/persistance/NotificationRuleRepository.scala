@@ -24,6 +24,7 @@ import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, GenericDatabas
 import za.co.absa.hyperdrive.trigger.models.search.{TableSearchRequest, TableSearchResponse}
 
 import java.time.LocalDateTime
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
@@ -47,7 +48,10 @@ trait NotificationRuleRepository extends Repository {
 }
 
 @stereotype.Repository
-class NotificationRuleRepositoryImpl(override val notificationRuleHistoryRepository: NotificationRuleHistoryRepository) extends NotificationRuleRepository {
+class NotificationRuleRepositoryImpl @Inject()(
+  val dbProvider: DatabaseProvider,
+  override val notificationRuleHistoryRepository: NotificationRuleHistoryRepository)
+  extends NotificationRuleRepository {
 
   import api._
 

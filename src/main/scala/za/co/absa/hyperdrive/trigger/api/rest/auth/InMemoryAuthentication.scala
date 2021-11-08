@@ -18,11 +18,14 @@ package za.co.absa.hyperdrive.trigger.api.rest.auth
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.crypto.password.NoOpPasswordEncoder
 import org.springframework.stereotype.Component
+import za.co.absa.hyperdrive.trigger.configuration.application.AuthConfig
+
+import javax.inject.Inject
 
 @Component
-class InMemoryAuthentication extends HyperdriverAuthentication {
-  val username: String = "hyperdriver-user"
-  val password: String = "hyperdriver-password"
+class InMemoryAuthentication @Inject()(authConfig: AuthConfig) extends HyperdriverAuthentication {
+  val username: String = authConfig.inMemoryUser
+  val password: String = authConfig.inMemoryPassword
 
   def validateParams() {
     if (username.isEmpty || password.isEmpty) {

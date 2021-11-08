@@ -57,7 +57,7 @@ import {
   workflowFormPartsSequences,
 } from '../../constants/workflowFormParts.constants';
 import { workflowModes } from '../../models/enums/workflowModes.constants';
-import { SensorModelFactory, SensorTypeFactory } from '../../models/sensor.model';
+import { SensorModelFactory } from '../../models/sensor.model';
 import { DagDefinitionJoinedModelFactory } from '../../models/dagDefinitionJoined.model';
 import { WorkflowJoinedModelFactory } from '../../models/workflowJoined.model';
 import { WorkflowEntryModelFactory } from '../../models/workflowEntry.model';
@@ -74,6 +74,7 @@ import { JobForRunModelFactory } from '../../models/jobForRun.model';
 import { JobService } from '../../services/job/job.service';
 import { UtilService } from 'src/app/services/util/util.service';
 import { BulkOperationErrorModelFactory } from 'src/app/models/errors/bulkOperationError.model';
+import { RecurringSensorProperties } from '../../models/sensorProperties.model';
 
 describe('WorkflowsEffects', () => {
   let underTest: WorkflowsEffects;
@@ -256,7 +257,7 @@ describe('WorkflowsEffects', () => {
         true,
         'project',
         undefined,
-        SensorModelFactory.create(10, SensorTypeFactory.create('name'), undefined, 10),
+        SensorModelFactory.create(10, new RecurringSensorProperties(), 10),
         DagDefinitionJoinedModelFactory.create(10, [jobDefinition], 10),
         10,
       );
@@ -276,7 +277,9 @@ describe('WorkflowsEffects', () => {
               WorkflowEntryModelFactory.create(workflowFormParts.DETAILS.PROJECT_NAME.property, workflow.project),
               WorkflowEntryModelFactory.create(workflowFormParts.DETAILS.IS_ACTIVE.property, workflow.isActive),
             ],
-            sensorData: [WorkflowEntryModelFactory.create(workflowFormParts.SENSOR.SENSOR_TYPE.property, workflow.sensor.sensorType.name)],
+            sensorData: [
+              WorkflowEntryModelFactory.create(workflowFormParts.SENSOR.SENSOR_TYPE.property, workflow.sensor.properties.sensorType),
+            ],
             jobsData: [
               jasmine.objectContaining({
                 order: 0,
@@ -559,7 +562,7 @@ describe('WorkflowsEffects', () => {
         true,
         'project',
         undefined,
-        SensorModelFactory.create(10, SensorTypeFactory.create('name'), undefined, 10),
+        SensorModelFactory.create(10, undefined, 10),
         DagDefinitionJoinedModelFactory.create(10, [JobDefinitionModelFactory.create(10, 'name', '1', undefined, 0, 10)], 10),
         10,
       );
@@ -651,7 +654,7 @@ describe('WorkflowsEffects', () => {
         true,
         'project',
         undefined,
-        SensorModelFactory.create(10, SensorTypeFactory.create('name'), undefined, 10),
+        SensorModelFactory.create(10, undefined, 10),
         DagDefinitionJoinedModelFactory.create(10, [JobDefinitionModelFactory.create(10, 'name', '1', undefined, 0, 10)], 10),
         10,
       );
@@ -1021,7 +1024,7 @@ describe('WorkflowsEffects', () => {
         true,
         'project',
         undefined,
-        SensorModelFactory.create(10, SensorTypeFactory.create('name'), undefined, 10),
+        SensorModelFactory.create(10, new RecurringSensorProperties(), 10),
         DagDefinitionJoinedModelFactory.create(10, [jobDefinition], 10),
         10,
       );
@@ -1041,7 +1044,9 @@ describe('WorkflowsEffects', () => {
               WorkflowEntryModelFactory.create(workflowFormParts.DETAILS.PROJECT_NAME.property, workflow.project),
               WorkflowEntryModelFactory.create(workflowFormParts.DETAILS.IS_ACTIVE.property, workflow.isActive),
             ],
-            sensorData: [WorkflowEntryModelFactory.create(workflowFormParts.SENSOR.SENSOR_TYPE.property, workflow.sensor.sensorType.name)],
+            sensorData: [
+              WorkflowEntryModelFactory.create(workflowFormParts.SENSOR.SENSOR_TYPE.property, workflow.sensor.properties.sensorType),
+            ],
             jobsData: [
               jasmine.objectContaining({
                 order: 0,

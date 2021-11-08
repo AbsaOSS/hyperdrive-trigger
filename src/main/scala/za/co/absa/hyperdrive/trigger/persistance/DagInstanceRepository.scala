@@ -19,6 +19,7 @@ import org.springframework.stereotype
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
 import za.co.absa.hyperdrive.trigger.models.{DagInstance, DagInstanceJoined, Event}
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 trait DagInstanceRepository extends Repository {
@@ -38,7 +39,7 @@ trait DagInstanceRepository extends Repository {
 }
 
 @stereotype.Repository
-class DagInstanceRepositoryImpl extends DagInstanceRepository {
+class DagInstanceRepositoryImpl @Inject()(val dbProvider: DatabaseProvider) extends DagInstanceRepository {
   import api._
 
   override def insertJoinedDagInstancesWithEvents(dagInstancesJoined: Seq[(DagInstanceJoined, Event)])(implicit executionContext: ExecutionContext): Future[Unit] = db.run(

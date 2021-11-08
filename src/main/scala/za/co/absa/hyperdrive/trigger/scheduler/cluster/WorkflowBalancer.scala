@@ -17,11 +17,11 @@
 package za.co.absa.hyperdrive.trigger.scheduler.cluster
 
 import java.time.Duration
-
 import javax.inject.Inject
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
+import za.co.absa.hyperdrive.trigger.configuration.application.SchedulerConfig
 import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses.SchedulerInstanceStatus
 import za.co.absa.hyperdrive.trigger.models.{SchedulerInstance, Workflow}
 
@@ -30,7 +30,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @Component
 class WorkflowBalancer @Inject()(schedulerInstanceService: SchedulerInstanceService,
                                  workflowBalancingService: WorkflowBalancingService,
-                                 @Value("${scheduler.lag.threshold:20000}") lagThresholdMillis: Long) {
+                                 schedulerConfig: SchedulerConfig) {
   case class SchedulerIdStatus(id: Long, status: SchedulerInstanceStatus)
   private val logger = LoggerFactory.getLogger(this.getClass)
 
@@ -41,10 +41,9 @@ class WorkflowBalancer @Inject()(schedulerInstanceService: SchedulerInstanceServ
   private var previousMaxWorkflowId: Option[Long] = None
 
   def getAssignedWorkflows(runningWorkflowIds: Iterable[Long])(implicit ec: ExecutionContext): Future[Seq[Workflow]] = {
-    val lagThreshold = Duration.ofMillis(lagThresholdMillis)
     for {
       instanceId <- getOrCreateInstance
-      instances <- schedulerInstanceService.updateSchedulerStatus(instanceId, lagThreshold)
+      instances <- schedulerInstanceService.updateSchedulerStatus(instanceId, schedulerConfig.lagThreshold)
       _ = logger.debug(s"Scheduler instance $instanceId observed all instance ids = ${instances.map(_.id).sorted}")
       instancesIdStatus = instances.map(s => SchedulerIdStatus(s.id, s.status)).toSet
       isInstancesSteady = instancesIdStatus == previousInstancesIdStatus

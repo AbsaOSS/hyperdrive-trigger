@@ -35,7 +35,7 @@ class ManagementCustomEndpoint {
 
   @GetMapping(path = Array("/"))
   def getLogArchives: ResponseEntity[Seq[String]] = {
-    val logsDir = new File(env.getProperty("logging.path"))
+    val logsDir = new File(env.getProperty("logging.file.path"))
     val result = if(logsDir.exists && logsDir.isDirectory) {
       logsDir.listFiles.filter {
         e => e.isFile && e.getName.endsWith(".gz")
@@ -48,7 +48,7 @@ class ManagementCustomEndpoint {
 
   @GetMapping(path = Array("/download"))
   def downloadLogArchive(@RequestParam fileName: String): ResponseEntity[ByteArrayResource] = {
-    val logFile = new File(s"${env.getProperty("logging.path")}/$fileName")
+    val logFile = new File(s"${env.getProperty("logging.file.path")}/$fileName")
     val header = new HttpHeaders()
     header.add(HttpHeaders.CONTENT_DISPOSITION, s"attachment; filename=$fileName")
     header.add("Cache-Control", "no-cache, no-store, must-revalidate")

@@ -21,10 +21,9 @@ import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito.{reset, times, verify, when}
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
-import org.springframework.mail.SimpleMailMessage
-import org.springframework.mail.javamail.JavaMailSenderImpl
 import za.co.absa.hyperdrive.trigger.TestUtils.await
 import za.co.absa.hyperdrive.trigger.api.rest.services.NotificationRuleService
+import za.co.absa.hyperdrive.trigger.configuration.application.{TestGeneralConfig, TestNotificationConfig, TestSparkConfig}
 import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.InQueue
 import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobStatuses}
@@ -37,7 +36,13 @@ import scala.concurrent.Future
 class NotificationSenderTest extends FlatSpec with MockitoSugar with Matchers with BeforeAndAfter {
   private val notificationRuleService = mock[NotificationRuleService]
   private val emailService = mock[EmailService]
-  private val underTest = new NotificationSenderImpl(notificationRuleService, emailService)
+  private val clusterBaseUrl = "http://localhost:8088"
+  private val senderAddress = "sender <sender@abc.com>"
+  private val environment = "TEST"
+
+  private val underTest = new NotificationSenderImpl(notificationRuleService, emailService,
+    TestSparkConfig(hadoopResourceManagerUrlBase = clusterBaseUrl), TestNotificationConfig(enabled = true, senderAddress),
+    TestGeneralConfig(environment = environment))
 
   before {
     reset(notificationRuleService)
@@ -46,8 +51,6 @@ class NotificationSenderTest extends FlatSpec with MockitoSugar with Matchers wi
 
   "sendNotifications" should "send notifications" in {
     // given
-    val senderAddress = "sender <sender@abc.com>"
-    val environment = "TEST"
     val di = createDagInstance().copy(
       status = DagInstanceStatuses.Succeeded,
       started = LocalDateTime.of(LocalDate.of(2020, 3, 2), LocalTime.of(12, 30)),
@@ -116,7 +119,7 @@ class NotificationSenderTest extends FlatSpec with MockitoSugar with Matchers wi
     // then
     val messagesCaptor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
     verify(emailService).sendMessageToBccRecipients(any(), any(), any(), messagesCaptor.capture())
-    messagesCaptor.getValue should include("Failed application: http://localhost:8088/cluster/app/application_9876_4567")
+    messagesCaptor.getValue should include(s"Failed application: $clusterBaseUrl/cluster/app/application_9876_4567")
   }
 
   private def createDagInstance() = {

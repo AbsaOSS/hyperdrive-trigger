@@ -17,7 +17,6 @@
 package za.co.absa.hyperdrive.trigger.testdata
 
 import java.util.UUID
-
 import javax.inject.Inject
 import org.scalatest.{BeforeAndAfterAll, FlatSpec, Matchers}
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -28,7 +27,7 @@ import za.co.absa.hyperdrive.trigger.SpringIntegrationTest
 import za.co.absa.hyperdrive.trigger.TestUtils.await
 import za.co.absa.hyperdrive.trigger.api.rest.services.{WorkflowFixture, WorkflowService}
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
-import za.co.absa.hyperdrive.trigger.models.{Event, Properties, Settings}
+import za.co.absa.hyperdrive.trigger.models.{Event, RecurringSensorProperties}
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, SensorRepository}
 import za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor
 
@@ -82,8 +81,8 @@ class TestDataGeneratorLocal extends FlatSpec with Matchers with SpringIntegrati
     val sensors = await(sensorRepository.getNewActiveAssignedSensors(Seq.empty, allWorkflowIds))
     sensors.foreach(sensor => {
       val event = Event(UUID.randomUUID().toString, sensor.id, JsObject.empty)
-      val properties = Properties(sensor.id, Settings(Map.empty, Map.empty), Map.empty)
-      val result = await(eventProcessor.eventProcessor("triggered by")(Seq(event), properties))
+      val properties = RecurringSensorProperties()
+      val result = await(eventProcessor.eventProcessor("triggered by")(Seq(event), sensor.id))
       result shouldBe true
     })
 

@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -13,22 +14,19 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.scheduler.sensors.kafka
+package za.co.absa.hyperdrive.trigger.persistance
 
-import za.co.absa.hyperdrive.trigger.models.Settings
+import org.springframework.stereotype.Component
+import slick.jdbc.{JdbcProfile, PostgresProfile}
+import za.co.absa.hyperdrive.trigger.configuration.application.DatabaseConfig
+import javax.inject.Inject
 
-case class KafkaSettings(
-  topic: String,
-  servers: List[String]
-)
-
-object KafkaSettings {
-  val Topic = "topic"
-  val Servers = "servers"
-  def apply(settings: Settings): KafkaSettings = {
-    KafkaSettings(
-      topic = settings.variables(Topic),
-      servers = settings.maps(Servers)
-    )
-  }
+@Component
+class DatabaseProvider @Inject()(databaseConfig: DatabaseConfig) {
+  import za.co.absa.hyperdrive.trigger.persistance.DatabaseProvider._
+  lazy val db: profile.backend.DatabaseDef =
+    profile.api.Database.forConfig(path = "", config = databaseConfig.dbConfig)
+}
+object DatabaseProvider {
+  val profile: JdbcProfile = PostgresProfile
 }

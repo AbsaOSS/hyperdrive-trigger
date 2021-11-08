@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -13,19 +14,17 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.scheduler.sensors.time
+package za.co.absa.hyperdrive.trigger.configuration.application
 
-import za.co.absa.hyperdrive.trigger.models.Settings
+import org.springframework.boot.context.properties.{ConfigurationProperties, ConstructorBinding}
+import org.springframework.validation.annotation.Validated
 
-case class TimeSensorSettings(
-   cronExpression: String
+import javax.validation.constraints.NotNull
+
+@ConfigurationProperties("shell-executor")
+@ConstructorBinding
+@Validated
+class ShellExecutorConfig (
+  @NotNull
+  val executablesFolder: String
 )
-
-object TimeSensorSettings {
-  val CRON_EXPRESSION_KEY = "cronExpression"
-  def apply(settings: Settings): TimeSensorSettings = {
-    TimeSensorSettings(
-      cronExpression = settings.variables(CRON_EXPRESSION_KEY)
-    )
-  }
-}

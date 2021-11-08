@@ -16,7 +16,7 @@
 package za.co.absa.hyperdrive.trigger.models.tables
 
 import play.api.libs.json.JsValue
-import za.co.absa.hyperdrive.trigger.models.{DagInstance, Event, Sensor}
+import za.co.absa.hyperdrive.trigger.models.{DagInstance, Event, Sensor, SensorProperties}
 import slick.lifted.{ForeignKeyQuery, ProvenShape}
 
 trait EventTable {
@@ -31,7 +31,7 @@ trait EventTable {
     def dagInstanceId: Rep[Option[Long]] = column[Option[Long]]("dag_instance_id")
     def id: Rep[Long] = column[Long]("id", O.PrimaryKey, O.AutoInc, O.SqlType("BIGSERIAL"))
 
-    def sensor_fk: ForeignKeyQuery[SensorTable, Sensor] =
+    def sensor_fk: ForeignKeyQuery[SensorTable, Sensor[SensorProperties]] =
       foreignKey("event_sensor_fk", sensorId, TableQuery[SensorTable])(_.id)
 
     def dagInstance_fk: ForeignKeyQuery[DagInstanceTable, DagInstance] =

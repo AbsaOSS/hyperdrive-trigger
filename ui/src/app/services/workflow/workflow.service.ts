@@ -193,18 +193,8 @@ export class WorkflowService {
   private static getSensorDynamicFormParts(): DynamicFormPart[] {
     return [
       DynamicFormPartFactory.create('Kafka', [
-        FormPartFactory.create(
-          'Topic',
-          'properties.settings.variables.topic',
-          'string-field',
-          PartValidationFactory.create(true, undefined, 1),
-        ),
-        FormPartFactory.create(
-          'Kafka servers',
-          'properties.settings.maps.servers',
-          'set-field',
-          PartValidationFactory.create(true, undefined, 1),
-        ),
+        FormPartFactory.create('Topic', 'properties.topic', 'string-field', PartValidationFactory.create(true, undefined, 1)),
+        FormPartFactory.create('Kafka servers', 'properties.servers', 'set-field', PartValidationFactory.create(true, undefined, 1)),
         FormPartFactory.create(
           'Match properties',
           'properties.matchProperties',
@@ -213,32 +203,12 @@ export class WorkflowService {
         ),
       ]),
       DynamicFormPartFactory.createWithLabel('Absa-Kafka', 'Kafka Ingestion Token', [
-        FormPartFactory.create(
-          'Topic',
-          'properties.settings.variables.topic',
-          'string-field',
-          PartValidationFactory.create(true, undefined, 1),
-        ),
-        FormPartFactory.create(
-          'Kafka servers',
-          'properties.settings.maps.servers',
-          'set-field',
-          PartValidationFactory.create(true, undefined, 1),
-        ),
-        FormPartFactory.create(
-          'Ingestion token',
-          'properties.matchProperties.ingestionToken',
-          'guid-field',
-          PartValidationFactory.create(true, 36, 36),
-        ),
+        FormPartFactory.create('Topic', 'properties.topic', 'string-field', PartValidationFactory.create(true, undefined, 1)),
+        FormPartFactory.create('Kafka servers', 'properties.servers', 'set-field', PartValidationFactory.create(true, undefined, 1)),
+        FormPartFactory.create('Ingestion token', 'properties.ingestionToken', 'guid-field', PartValidationFactory.create(true, 36, 36)),
       ]),
       DynamicFormPartFactory.create('Time', [
-        FormPartFactory.create(
-          'Run at',
-          'properties.settings.variables.cronExpression',
-          'cron-quartz-field',
-          PartValidationFactory.create(true),
-        ),
+        FormPartFactory.create('Run at', 'properties.cronExpression', 'cron-quartz-field', PartValidationFactory.create(true)),
       ]),
       DynamicFormPartFactory.create('Recurring', []),
     ];

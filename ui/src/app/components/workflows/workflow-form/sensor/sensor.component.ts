@@ -18,8 +18,10 @@ import { workflowModes } from '../../../../models/enums/workflowModes.constants'
 import { Subject, Subscription } from 'rxjs';
 import { Action } from '@ngrx/store';
 import { WorkflowSensorChanged, WorkflowSensorTypeSwitched } from '../../../../stores/workflows/workflows.actions';
-import { FormPart, WorkflowFormPartsModel } from '../../../../models/workflowFormParts.model';
+import { PartValidationFactory, WorkflowFormPartsModel } from '../../../../models/workflowFormParts.model';
 import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../models/workflowEntry.model';
+import { sensorTypes, sensorTypesArray } from '../../../../constants/sensorTypes.constants';
+import { WorkflowEntryUtil } from 'src/app/utils/workflowEntry/workflowEntry.util';
 
 @Component({
   selector: 'app-sensor',
@@ -27,12 +29,18 @@ import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../model
   styleUrls: ['./sensor.component.scss'],
 })
 export class SensorComponent implements OnInit, OnDestroy {
-  @Input() mode: string;
-  @Input() workflowFormParts: WorkflowFormPartsModel;
+  readonly SENSOR_TYPE_PROPERTY = 'properties.sensorType';
+
+  @Input() isShow: boolean;
   @Input() sensorData: WorkflowEntryModel[];
   @Input() changes: Subject<Action>;
 
+  WorkflowEntryUtil = WorkflowEntryUtil;
+  PartValidationFactory = PartValidationFactory;
+
   workflowModes = workflowModes;
+  sensorTypesArray = sensorTypesArray;
+  sensorTypes = sensorTypes;
 
   sensorChanges: Subject<WorkflowEntryModel> = new Subject<WorkflowEntryModel>();
   sensorChangesSubscription: Subscription;
@@ -43,7 +51,7 @@ export class SensorComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.sensorChangesSubscription = this.sensorChanges.subscribe((sensorChange) => {
-      if (sensorChange.property == this.workflowFormParts.sensorSwitchPart.property) {
+      if (sensorChange.property == this.SENSOR_TYPE_PROPERTY) {
         this.changes.next(new WorkflowSensorTypeSwitched(WorkflowEntryModelFactory.create(sensorChange.property, sensorChange.value)));
       } else {
         this.changes.next(new WorkflowSensorChanged(WorkflowEntryModelFactory.create(sensorChange.property, sensorChange.value)));
@@ -51,21 +59,9 @@ export class SensorComponent implements OnInit, OnDestroy {
     });
   }
 
-  getSensorTypes(): Map<string, string> {
-    return new Map(this.workflowFormParts.dynamicParts.sensorDynamicParts.map((component) => [component.value, component.label]));
-  }
-
-  getSelectedSensorComponent(): FormPart[] {
-    const selected = this.sensorData.find((value) => value.property == this.workflowFormParts.sensorSwitchPart.property);
-    const selectedSensor = !!selected ? selected.value : undefined;
-
-    const sensorComponent = this.workflowFormParts.dynamicParts.sensorDynamicParts.find((sp) => sp.value == selectedSensor);
-    return sensorComponent ? sensorComponent.parts : this.workflowFormParts.dynamicParts.sensorDynamicParts[0].parts;
-  }
-
-  getValue(prop: string) {
-    const val = this.sensorData.find((value) => value.property == prop);
-    return !!val ? val.value : undefined;
+  getSelectedSensorType(): string {
+    const selected = this.sensorData.find((value) => value.property == this.SENSOR_TYPE_PROPERTY);
+    return selected?.value ?? sensorTypes.ABSA_KAFKA;
   }
 
   ngOnDestroy(): void {
