@@ -13,20 +13,21 @@
  * limitations under the License.
  */
 
-import { HyperdriveTemplateParametersModel, JobTemplateParameters } from './jobTemplateParameters.model';
+import { HistoryModel } from './historyModel';
+import { JobTemplateModel } from './jobTemplate.model';
 
-export type JobTemplateModel = {
-  id: number;
-  name: string;
-  jobParameters: JobTemplateParameters;
+export type JobTemplateHistoryModel = {
+  history: HistoryModel;
+  jobTemplateId: number;
+  jobTemplate: JobTemplateModel;
 };
 
-export class JobTemplateModelFactory {
-  static create(id: number, name: string, jobParameters: JobTemplateParameters): JobTemplateModel {
-    return { id: id, name: name, jobParameters: jobParameters };
-  }
-
-  static createEmpty(): JobTemplateModel {
-    return { id: undefined, name: '', jobParameters: HyperdriveTemplateParametersModel.createEmpty() };
+export class JobTemplateHistoryModelFactory {
+  static create(history: HistoryModel, jobTemplateId: number, jobTemplate: JobTemplateModel): JobTemplateHistoryModel {
+    return {
+      history: history,
+      jobTemplateId: jobTemplateId,
+      jobTemplate: jobTemplate,
+    };
   }
 }

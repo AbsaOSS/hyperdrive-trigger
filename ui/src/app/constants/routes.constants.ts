@@ -31,7 +31,11 @@ export const routeNames = {
   ADMIN: 'admin',
   JOB_TEMPLATES: 'admin/job-templates',
   JOB_TEMPLATES_HOME: '',
-  JOB_TEMPLATE_SHOW: 'show/:id',
+  JOB_TEMPLATE_ACTION: ':mode',
+  JOB_TEMPLATE_ACTION_WITH_ID: ':mode/:id',
+  JOB_TEMPLATE_HISTORY: 'show/:id/history',
+  JOB_TEMPLATE_HISTORY_COMPARISON: 'admin/job-templates/show/:id/history/:historyIdLeft/compareWith/:historyIdRight',
+
   NOTIFICATION_RULES: 'admin/notification-rules',
   NOTIFICATION_RULES_HOME: '',
   NOTIFICATION_RULE_ACTION: ':mode',
@@ -55,6 +59,8 @@ export const absoluteRoutes = {
   JOB_TEMPLATES: `/${routeNames.JOB_TEMPLATES}`,
   JOB_TEMPLATES_HOME: `/${routeNames.JOB_TEMPLATES}`,
   SHOW_JOB_TEMPLATE: `/${routeNames.JOB_TEMPLATES}/${jobTemplateModes.SHOW}`,
+  CREATE_JOB_TEMPLATE: `/${routeNames.JOB_TEMPLATES}/${jobTemplateModes.CREATE}`,
+  EDIT_JOB_TEMPLATE: `/${routeNames.JOB_TEMPLATES}/${jobTemplateModes.EDIT}`,
   NOTIFICATION_RULES: `/${routeNames.NOTIFICATION_RULES}`,
   NOTIFICATION_RULES_HOME: `/${routeNames.NOTIFICATION_RULES}`,
   SHOW_NOTIFICATION_RULE: `/${routeNames.NOTIFICATION_RULES}/${notificationRuleModes.SHOW}`,
@@ -74,5 +80,11 @@ export const absoluteRoutes = {
   },
   NOTIFICATION_RULE_HISTORY_COMPARISON(id: number, historyIdFirst: number, historyIdSecond: number): string {
     return `/${routeNames.NOTIFICATION_RULES}/${notificationRuleModes.SHOW}/${id}/history/${historyIdFirst}/compareWith/${historyIdSecond}`;
+  },
+  JOB_TEMPLATE_HISTORY(id: number): string {
+    return `/${routeNames.JOB_TEMPLATES}/${jobTemplateModes.SHOW}/${id}/history`;
+  },
+  JOB_TEMPLATE_HISTORY_COMPARISON(id: number, historyIdFirst: number, historyIdSecond: number): string {
+    return `/${routeNames.JOB_TEMPLATES}/${jobTemplateModes.SHOW}/${id}/history/${historyIdFirst}/compareWith/${historyIdSecond}`;
   },
 };
