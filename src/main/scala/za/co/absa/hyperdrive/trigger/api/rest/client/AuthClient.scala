@@ -15,6 +15,7 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.client
 
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -30,7 +31,7 @@ object AuthClient {
   def apply(credentials: Credentials, apiCaller: ApiCaller, authEndpoints: AuthEndpoints): AuthClient = credentials match {
     case ldapCredentials: LdapCredentials         => createLdapAuthClient(apiCaller, ldapCredentials, authEndpoints.ldapPath)
     case kerberosCredentials: KerberosCredentials => createSpnegoAuthClient(apiCaller, kerberosCredentials, authEndpoints.spnegoPath)
-    case InvalidCredentials                       => throw UnauthorizedException("No valid credetials provided")
+    case InvalidCredentials                       => throw UnauthorizedException("No valid credentials provided")
   }
 
   private def createLdapAuthClient(apiCaller: ApiCaller, credentials: LdapCredentials, path: String): LdapAuthClient = {
@@ -51,7 +52,7 @@ sealed abstract class AuthClient(
   apiCaller: ApiCaller,
   url: String => String
 ) {
-  protected val logger = LoggerFactory.getLogger(this.getClass)
+  protected val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
   @throws[UnauthorizedException]
   def authenticate(): HttpHeaders =

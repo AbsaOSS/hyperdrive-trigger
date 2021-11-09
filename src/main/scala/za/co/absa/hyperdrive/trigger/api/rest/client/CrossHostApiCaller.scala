@@ -53,15 +53,13 @@ class CrossHostApiCaller private (apiBaseUrls: Vector[String], maxTryCount: Int,
       }
       //using match instead of recoverWith to make the function @tailrec
       result match {
-        case Failure(e: RetryableException) if attemptNumber < maxTryCount => {
+        case Failure(e: RetryableException) if attemptNumber < maxTryCount =>
           logFailure(e, url, attemptNumber, None)
           attempt(url, attemptNumber + 1, urlsTried)
-        }
-        case Failure(e: RetryableException) if urlsTried < baseUrlsCount => {
+        case Failure(e: RetryableException) if urlsTried < baseUrlsCount =>
           val nextUrl = nextBaseUrl()
           logFailure(e, url, attemptNumber, Option(nextUrl))
           attempt(nextUrl, 1, urlsTried + 1)
-        }
         case _ => result
       }
     }

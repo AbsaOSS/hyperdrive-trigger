@@ -15,7 +15,6 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.client
 
-import org.springframework.beans.factory.FactoryBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import za.co.absa.hyperdrive.trigger.configuration.application.MenasConfig

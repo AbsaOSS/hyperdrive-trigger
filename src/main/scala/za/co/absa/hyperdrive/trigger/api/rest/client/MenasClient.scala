@@ -27,8 +27,8 @@ class MenasClient(private[client] val apiCaller: ApiCaller, private[client] val 
 
   def listVersionedDatasets(searchQuery: Option[String])(implicit ec: ExecutionContext): Future[Seq[VersionedDataset]] =
     Future(apiCaller.call { apiBaseUrl =>
-      val queryParam = searchQuery.fold("")(query => s"?searchQuery=$query")
-      val url        = s"$apiBaseUrl/menas/api/dataset/list$queryParam"
+      val searchSegment = searchQuery.fold("")(query => s"/$query")
+      val url = s"$apiBaseUrl/menas/api/dataset/list$searchSegment"
       restClient.sendGet[Seq[VersionedDataset]](url)
     })
 }

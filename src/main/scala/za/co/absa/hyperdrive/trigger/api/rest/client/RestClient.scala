@@ -66,24 +66,22 @@ class RestClient(authClient: AuthClient, restTemplate: RestTemplate) {
     val statusCode = response.getStatusCode
 
     statusCode match {
-      case HttpStatus.OK | HttpStatus.CREATED => {
+      case HttpStatus.OK | HttpStatus.CREATED =>
         logger.info(s"Response - $statusCode : ${response.getBody}")
         JsonSerializer.fromJson[T](response.getBody)
-      }
-      case HttpStatus.UNAUTHORIZED | HttpStatus.FORBIDDEN => {
+      case HttpStatus.UNAUTHORIZED | HttpStatus.FORBIDDEN =>
         logger.warn(s"Response - $statusCode :${Option(response.getBody).getOrElse("None")}")
         logger.warn(s"Unauthorized $method request for URL: $url")
         if (retriesLeft <= 0) {
           throw UnauthorizedException("Unable to reauthenticate, no retries left")
         }
 
-        logger.warn("Expired session, reaunthenticating")
+        logger.warn("Expired session, reauthenticating")
         authenticate()
 
         logger.info(s"Retrying $method request for URL: $url")
         logger.info(s"Retries left: $retriesLeft")
         send[B, T](method, url, headers, body, retriesLeft - 1)
-      }
       case HttpStatus.NOT_FOUND =>
         throw NotFoundException(s"Entity not found - $statusCode")
       case _ =>
