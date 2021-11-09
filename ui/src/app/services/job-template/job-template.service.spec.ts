@@ -22,6 +22,8 @@ import { TableSearchRequestModel } from '../../models/search/tableSearchRequest.
 import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
 import { JobTemplateModel, JobTemplateModelFactory } from '../../models/jobTemplate.model';
 import { SparkTemplateParametersModel } from '../../models/jobTemplateParameters.model';
+import { HistoryModelFactory, HistoryPairModel } from '../../models/historyModel';
+import { JobTemplateHistoryModel, JobTemplateHistoryModelFactory } from '../../models/jobTemplateHistoryModel';
 
 describe('JobTemplateService', () => {
   let underTest: JobTemplateService;
@@ -69,5 +71,81 @@ describe('JobTemplateService', () => {
     const req = httpTestingController.expectOne(api.GET_JOB_TEMPLATE + `?id=${jobTemplate.id}`);
     expect(req.request.method).toEqual('GET');
     req.flush(jobTemplate);
+  });
+
+  it('createJobTemplate() should return created jobTemplate', () => {
+    const sparkJobTemplate = JobTemplateModelFactory.createEmpty();
+
+    underTest.createJobTemplate(sparkJobTemplate).subscribe(
+      (data) => expect(data).toEqual(sparkJobTemplate),
+      (error) => fail(error),
+    );
+
+    const req = httpTestingController.expectOne(api.CREATE_JOB_TEMPLATE);
+    expect(req.request.method).toEqual('PUT');
+    req.flush(sparkJobTemplate);
+  });
+
+  it('updateJobTemplate() should return updated jobTemplate', () => {
+    const sparkJobTemplate = JobTemplateModelFactory.createEmpty();
+
+    underTest.updateJobTemplate(sparkJobTemplate).subscribe(
+      (data) => expect(data).toEqual(sparkJobTemplate),
+      (error) => fail(error),
+    );
+
+    const req = httpTestingController.expectOne(api.UPDATE_JOB_TEMPLATE);
+    expect(req.request.method).toEqual('POST');
+    req.flush(sparkJobTemplate);
+  });
+
+  it('deleteJobTemplate() should delete jobTemplate', () => {
+    const id = 1;
+    const response = true;
+    underTest.deleteJobTemplate(id).subscribe(
+      (data) => expect(data).toEqual(response),
+      (error) => fail(error),
+    );
+
+    const req = httpTestingController.expectOne(api.DELETE_JOB_TEMPLATE + `?id=${id}`);
+    expect(req.request.method).toEqual('DELETE');
+    req.flush(new Boolean(true));
+  });
+
+  it('getHistoryForJobTemplate() should return history for jobTemplate', () => {
+    const jobTemplateId = 1;
+    const history = HistoryModelFactory.create(2, new Date(Date.now()), 'userName', { name: 'Create' });
+
+    underTest.getHistoryForJobTemplate(jobTemplateId).subscribe(
+      (data) => expect(data).toEqual([history]),
+      (error) => fail(error),
+    );
+
+    const req = httpTestingController.expectOne(api.GET_HISTORY_FOR_JOB_TEMPLATE + `?jobTemplateId=${jobTemplateId}`);
+    expect(req.request.method).toEqual('GET');
+    req.flush([history]);
+  });
+
+  it('getJobTemplatesFromHistory() should return jobTemplates from history', () => {
+    const leftHistoryId = 11;
+    const rightHistoryId = 12;
+
+    const history = HistoryModelFactory.create(2, new Date(Date.now()), 'userName', { name: 'Create' });
+
+    const jobTemplateHistoriesForComparison: HistoryPairModel<JobTemplateHistoryModel> = {
+      leftHistory: JobTemplateHistoryModelFactory.create(history, leftHistoryId, JobTemplateModelFactory.createEmpty()),
+      rightHistory: JobTemplateHistoryModelFactory.create(history, rightHistoryId, JobTemplateModelFactory.createEmpty()),
+    };
+
+    underTest.getJobTemplatesFromHistory(leftHistoryId, rightHistoryId).subscribe(
+      (data) => expect(data).toEqual(jobTemplateHistoriesForComparison),
+      (error) => fail(error),
+    );
+
+    const req = httpTestingController.expectOne(
+      api.GET_JOB_TEMPLATES_FROM_HISTORY + `?leftJobTemplateHistoryId=${leftHistoryId}&rightJobTemplateHistoryId=${rightHistoryId}`,
+    );
+    expect(req.request.method).toEqual('GET');
+    req.flush(jobTemplateHistoriesForComparison);
   });
 });

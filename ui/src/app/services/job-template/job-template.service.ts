@@ -14,13 +14,15 @@
  */
 
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { api } from '../../constants/api.constants';
-import { map } from 'rxjs/operators';
-import { Observable } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
+import { Observable, throwError } from 'rxjs';
 import { JobTemplateModel } from '../../models/jobTemplate.model';
 import { TableSearchRequestModel } from '../../models/search/tableSearchRequest.model';
 import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
+import { HistoryModel, HistoryPairModel } from '../../models/historyModel';
+import { JobTemplateHistoryModel } from '../../models/jobTemplateHistoryModel';
 
 @Injectable({
   providedIn: 'root',
@@ -46,5 +48,57 @@ export class JobTemplateService {
     return this.httpClient
       .get<JobTemplateModel>(api.GET_JOB_TEMPLATE, { params: params, observe: 'response' })
       .pipe(map((response) => response.body));
+  }
+
+  createJobTemplate(jobTemplate: JobTemplateModel): Observable<JobTemplateModel> {
+    return this.httpClient
+      .put<JobTemplateModel>(api.CREATE_JOB_TEMPLATE, jobTemplate, { observe: 'response' })
+      .pipe(
+        map((_) => {
+          return _.body;
+        }),
+        catchError((errorResponse: HttpErrorResponse) => {
+          return throwError(errorResponse.error);
+        }),
+      );
+  }
+
+  updateJobTemplate(jobTemplate: JobTemplateModel): Observable<JobTemplateModel> {
+    return this.httpClient
+      .post<JobTemplateModel>(api.UPDATE_JOB_TEMPLATE, jobTemplate, { observe: 'response' })
+      .pipe(
+        map((_) => {
+          return _.body;
+        }),
+        catchError((errorResponse: HttpErrorResponse) => {
+          return throwError(errorResponse.error);
+        }),
+      );
+  }
+
+  deleteJobTemplate(id: number): Observable<boolean> {
+    const params = new HttpParams().set('id', id.toString());
+
+    return this.httpClient
+      .delete<boolean>(api.DELETE_JOB_TEMPLATE, { params: params, observe: 'response' })
+      .pipe(map((_) => _.body));
+  }
+
+  getHistoryForJobTemplate(jobTemplateId: number): Observable<HistoryModel[]> {
+    const params = new HttpParams().set('jobTemplateId', jobTemplateId.toString());
+
+    return this.httpClient
+      .get<HistoryModel[]>(api.GET_HISTORY_FOR_JOB_TEMPLATE, { params: params, observe: 'response' })
+      .pipe(map((_) => _.body));
+  }
+
+  getJobTemplatesFromHistory(leftHistoryId: number, rightHistoryId: number): Observable<HistoryPairModel<JobTemplateHistoryModel>> {
+    const params = new HttpParams()
+      .set('leftJobTemplateHistoryId', leftHistoryId.toString())
+      .set('rightJobTemplateHistoryId', rightHistoryId.toString());
+
+    return this.httpClient
+      .get<HistoryPairModel<JobTemplateHistoryModel>>(api.GET_JOB_TEMPLATES_FROM_HISTORY, { params: params, observe: 'response' })
+      .pipe(map((_) => _.body));
   }
 }
