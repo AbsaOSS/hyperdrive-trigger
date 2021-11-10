@@ -31,8 +31,8 @@ import { jobTemplateModes } from '../../../../models/enums/jobTemplateModes.cons
 export class JobTemplateComponent implements OnInit, OnDestroy {
   mode: string;
   loading = false;
+  initialJobTemplate: JobTemplateModel;
   jobTemplate: JobTemplateModel;
-  jobTemplateForForm: JobTemplateModel;
   isJobTemplateParametersHidden = false;
   backendValidationErrors: string[];
 
@@ -55,8 +55,8 @@ export class JobTemplateComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.jobTemplateSubscription = this.store.select(selectJobTemplatesState).subscribe((state) => {
       this.loading = state.jobTemplateAction.loading;
+      this.initialJobTemplate = state.jobTemplateAction.initialJobTemplate;
       this.jobTemplate = state.jobTemplateAction.jobTemplate;
-      this.jobTemplateForForm = state.jobTemplateAction.jobTemplate;
       this.backendValidationErrors = state.jobTemplateAction.backendValidationErrors;
     });
   }

@@ -82,7 +82,7 @@ describe('JobTemplateComponent', () => {
       fixture.whenStable().then(() => {
         expect(underTest.loading).toBe(initialAppState.jobTemplates.jobTemplateAction.loading);
         expect(underTest.jobTemplate).toBe(initialAppState.jobTemplates.jobTemplateAction.jobTemplate);
-        expect(underTest.jobTemplateForForm).toBe(initialAppState.jobTemplates.jobTemplateAction.jobTemplate);
+        expect(underTest.initialJobTemplate).toBe(initialAppState.jobTemplates.jobTemplateAction.initialJobTemplate);
         expect(underTest.backendValidationErrors).toBe(initialAppState.jobTemplates.jobTemplateAction.backendValidationErrors);
       });
     }),
