@@ -19,13 +19,13 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { FormsModule } from '@angular/forms';
 import { WorkflowHistoryComponent } from '../../../workflows/workflow-history/workflow-history.component';
 import { HistoryModelFactory } from '../../../../models/historyModel';
-import {JobTemplateHistoryComponent} from "./job-template-history.component";
-import {LoadHistoryForJobTemplate} from "../../../../stores/job-templates/job-templates.actions";
-import {Store} from "@ngrx/store";
-import {AppState} from "../../../../stores/app.reducers";
-import {Subject} from "rxjs";
-import {ActivatedRoute, Params} from "@angular/router";
-import {PreviousRouteService} from "../../../../services/previousRoute/previous-route.service";
+import { JobTemplateHistoryComponent } from './job-template-history.component';
+import { LoadHistoryForJobTemplate } from '../../../../stores/job-templates/job-templates.actions';
+import { Store } from '@ngrx/store';
+import { AppState } from '../../../../stores/app.reducers';
+import { Subject } from 'rxjs';
+import { ActivatedRoute, Params } from '@angular/router';
+import { PreviousRouteService } from '../../../../services/previousRoute/previous-route.service';
 
 describe('JobTemplateHistoryComponent', () => {
   let underTest: JobTemplateHistoryComponent;
