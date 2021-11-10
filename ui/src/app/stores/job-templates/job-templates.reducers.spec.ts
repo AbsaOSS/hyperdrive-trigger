@@ -19,7 +19,8 @@ import {
   CreateJobTemplateFailure,
   CreateJobTemplateSuccess,
   DeleteJobTemplate,
-  DeleteJobTemplateFailure, DeleteJobTemplateSuccess,
+  DeleteJobTemplateFailure,
+  DeleteJobTemplateSuccess,
   GetJobTemplateForForm,
   GetJobTemplateForFormFailure,
   JobTemplateChanged,
@@ -43,11 +44,12 @@ import { State, jobTemplatesReducer } from './job-templates.reducers';
 import { JobTemplateModel, JobTemplateModelFactory } from '../../models/jobTemplate.model';
 import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
 import {
-  HyperdriveTemplateParametersModel, ShellTemplateParametersModel,
-  SparkTemplateParametersModel
+  HyperdriveTemplateParametersModel,
+  ShellTemplateParametersModel,
+  SparkTemplateParametersModel,
 } from '../../models/jobTemplateParameters.model';
-import {HistoryModel, HistoryModelFactory} from "../../models/historyModel";
-import {JobTemplateHistoryModelFactory} from "../../models/jobTemplateHistoryModel";
+import { HistoryModel, HistoryModelFactory } from '../../models/historyModel';
+import { JobTemplateHistoryModelFactory } from '../../models/jobTemplateHistoryModel';
 
 describe('JobTemplatesReducers', () => {
   const initialState = {
@@ -315,10 +317,10 @@ describe('JobTemplatesReducers', () => {
   it('should remove job template from job templates on delete job template success', () => {
     const templateIdToDelete = 2;
     const jobTemplate1 = JobTemplateModelFactory.create(1, 'Spark', SparkTemplateParametersModel.createEmpty());
-    const jobTemplate2 = JobTemplateModelFactory.create(templateIdToDelete, 'Hyperdrive', HyperdriveTemplateParametersModel.createEmpty())
-    const jobTemplate3 = JobTemplateModelFactory.create(3, 'Shell', ShellTemplateParametersModel.createEmpty())
+    const jobTemplate2 = JobTemplateModelFactory.create(templateIdToDelete, 'Hyperdrive', HyperdriveTemplateParametersModel.createEmpty());
+    const jobTemplate3 = JobTemplateModelFactory.create(3, 'Shell', ShellTemplateParametersModel.createEmpty());
     const jobTemplates = [jobTemplate1, jobTemplate2, jobTemplate3];
-    const updatedJobTemplates = [jobTemplate1, jobTemplate3]
+    const updatedJobTemplates = [jobTemplate1, jobTemplate3];
     const jobTemplatesAction = new DeleteJobTemplateSuccess(templateIdToDelete);
 
     const previousState = {
@@ -373,7 +375,7 @@ describe('JobTemplatesReducers', () => {
   });
 
   it('should set loading to false and set history entries on load history for job template success', () => {
-    const historyEntries: HistoryModel[] = [HistoryModelFactory.create(1, new Date(Date.now()), 'userName', { name: 'Create' })]
+    const historyEntries: HistoryModel[] = [HistoryModelFactory.create(1, new Date(Date.now()), 'userName', { name: 'Create' })];
     const jobTemplatesAction = new LoadHistoryForJobTemplateSuccess(historyEntries);
 
     const actual = jobTemplatesReducer(initialState, jobTemplatesAction);
@@ -425,7 +427,7 @@ describe('JobTemplatesReducers', () => {
     const leftHistory = JobTemplateHistoryModelFactory.create(history, leftHistoryId, JobTemplateModelFactory.createEmpty());
     const rightHistory = JobTemplateHistoryModelFactory.create(history, rightHistoryId, JobTemplateModelFactory.createEmpty());
 
-    const jobTemplatesAction = new LoadJobTemplatesFromHistorySuccess( {leftHistory: leftHistory, rightHistory: rightHistory} );
+    const jobTemplatesAction = new LoadJobTemplatesFromHistorySuccess({ leftHistory: leftHistory, rightHistory: rightHistory });
 
     const actual = jobTemplatesReducer(initialState, jobTemplatesAction);
 
