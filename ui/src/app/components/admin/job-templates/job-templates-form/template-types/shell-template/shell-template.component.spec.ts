@@ -36,4 +36,15 @@ describe('ShellTemplateComponent', () => {
   it('should create', () => {
     expect(underTest).toBeTruthy();
   });
+
+  it('should emit updated job template parameters when scriptChange() is called', () => {
+    spyOn(underTest.jobParametersChange, 'emit');
+    const newScript = 'newScript';
+    const newJobParameters = { ...underTest.jobParameters, scriptLocation: newScript };
+
+    underTest.scriptChange(newScript);
+
+    expect(underTest.jobParametersChange.emit).toHaveBeenCalled();
+    expect(underTest.jobParametersChange.emit).toHaveBeenCalledWith(newJobParameters);
+  });
 });

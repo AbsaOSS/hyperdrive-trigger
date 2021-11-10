@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ShellTemplateParametersModel } from '../../../../../../models/jobTemplateParameters.model';
 
 @Component({
@@ -24,8 +24,13 @@ import { ShellTemplateParametersModel } from '../../../../../../models/jobTempla
 export class ShellTemplateComponent {
   @Input() isShow: boolean;
   @Input() jobParameters: ShellTemplateParametersModel;
+  @Output() jobParametersChange: EventEmitter<ShellTemplateParametersModel> = new EventEmitter();
 
   constructor() {
     // do nothing
+  }
+
+  scriptChange(scriptLocation: string) {
+    this.jobParametersChange.emit({ ...this.jobParameters, scriptLocation: scriptLocation });
   }
 }
