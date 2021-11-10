@@ -16,7 +16,7 @@
 import { Injectable } from '@angular/core';
 import { Actions, Effect, ofType } from '@ngrx/effects';
 import * as JobTemplatesActions from './job-templates.actions';
-import { catchError, mergeMap, switchMap } from 'rxjs/operators';
+import { catchError, mergeMap, switchMap, withLatestFrom } from 'rxjs/operators';
 import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
 import { JobTemplateService } from '../../services/job-template/job-template.service';
 import { JobTemplateModel } from '../../models/jobTemplate.model';
@@ -25,6 +25,12 @@ import { ToastrService } from 'ngx-toastr';
 import { texts } from '../../constants/texts.constants';
 import { absoluteRoutes } from '../../constants/routes.constants';
 import { Router } from '@angular/router';
+import { AppState, selectJobTemplatesState } from '../app.reducers';
+import * as fromJobTemplates from '../job-templates/job-templates.reducers';
+import { ApiUtil } from '../../utils/api/api.util';
+import { Store } from '@ngrx/store';
+import { HistoryModel, HistoryPairModel } from '../../models/historyModel';
+import { JobTemplateHistoryModel } from '../../models/jobTemplateHistoryModel';
 
 @Injectable()
 export class JobTemplatesEffects {
@@ -34,6 +40,7 @@ export class JobTemplatesEffects {
     private workflowService: WorkflowService,
     private toastrService: ToastrService,
     private router: Router,
+    private store: Store<AppState>,
   ) {}
 
   @Effect({ dispatch: true })
@@ -79,6 +86,173 @@ export class JobTemplatesEffects {
           return [
             {
               type: JobTemplatesActions.GET_JOB_TEMPLATE_FOR_FORM_FAILURE,
+            },
+          ];
+        }),
+      );
+    }),
+  );
+
+  @Effect({ dispatch: true })
+  jobTemplateCreate = this.actions.pipe(
+    ofType(JobTemplatesActions.CREATE_JOB_TEMPLATE),
+    withLatestFrom(this.store.select(selectJobTemplatesState)),
+    switchMap(([action, state]: [JobTemplatesActions.CreateJobTemplate, fromJobTemplates.State]) => {
+      return this.jobTemplateService.createJobTemplate(state.jobTemplateAction.jobTemplate).pipe(
+        mergeMap((jobTemplate: JobTemplateModel) => {
+          this.toastrService.success(texts.CREATE_JOB_TEMPLATE_SUCCESS_NOTIFICATION);
+          this.router.navigateByUrl(absoluteRoutes.SHOW_JOB_TEMPLATE + '/' + jobTemplate.id);
+
+          return [
+            {
+              type: JobTemplatesActions.CREATE_JOB_TEMPLATE_SUCCESS,
+              payload: jobTemplate,
+            },
+          ];
+        }),
+        catchError((errorResponse) => {
+          if (ApiUtil.isBackendValidationError(errorResponse)) {
+            return [
+              {
+                type: JobTemplatesActions.CREATE_JOB_TEMPLATE_FAILURE,
+                payload: errorResponse.map((err) => err.message),
+              },
+            ];
+          } else {
+            this.toastrService.error(texts.CREATE_JOB_TEMPLATE_FAILURE_NOTIFICATION);
+            return [
+              {
+                type: JobTemplatesActions.CREATE_JOB_TEMPLATE_FAILURE,
+                payload: [],
+              },
+            ];
+          }
+        }),
+      );
+    }),
+  );
+
+  @Effect({ dispatch: true })
+  jobTemplateUpdate = this.actions.pipe(
+    ofType(JobTemplatesActions.UPDATE_JOB_TEMPLATE),
+    withLatestFrom(this.store.select(selectJobTemplatesState)),
+    switchMap(([action, state]: [JobTemplatesActions.UpdateJobTemplate, fromJobTemplates.State]) => {
+      return this.jobTemplateService.updateJobTemplate(state.jobTemplateAction.jobTemplate).pipe(
+        mergeMap((jobTemplate: JobTemplateModel) => {
+          this.toastrService.success(texts.UPDATE_JOB_TEMPLATE_SUCCESS_NOTIFICATION);
+          this.router.navigateByUrl(absoluteRoutes.SHOW_JOB_TEMPLATE + '/' + jobTemplate.id);
+
+          return [
+            {
+              type: JobTemplatesActions.UPDATE_JOB_TEMPLATE_SUCCESS,
+              payload: jobTemplate,
+            },
+          ];
+        }),
+        catchError((errorResponse) => {
+          if (ApiUtil.isBackendValidationError(errorResponse)) {
+            return [
+              {
+                type: JobTemplatesActions.UPDATE_JOB_TEMPLATE_FAILURE,
+                payload: errorResponse.map((err) => err.message),
+              },
+            ];
+          } else {
+            this.toastrService.error(texts.UPDATE_JOB_TEMPLATE_FAILURE_NOTIFICATION);
+            return [
+              {
+                type: JobTemplatesActions.UPDATE_JOB_TEMPLATE_FAILURE,
+                payload: [],
+              },
+            ];
+          }
+        }),
+      );
+    }),
+  );
+
+  @Effect({ dispatch: true })
+  jobTemplateDelete = this.actions.pipe(
+    ofType(JobTemplatesActions.DELETE_JOB_TEMPLATE),
+    switchMap((action: JobTemplatesActions.DeleteJobTemplate) => {
+      return this.jobTemplateService.deleteJobTemplate(action.payload).pipe(
+        mergeMap((result: boolean) => {
+          if (result) {
+            this.router.navigateByUrl(absoluteRoutes.JOB_TEMPLATES_HOME);
+            this.toastrService.success(texts.DELETE_JOB_TEMPLATE_SUCCESS_NOTIFICATION);
+            return [
+              {
+                type: JobTemplatesActions.DELETE_JOB_TEMPLATE_SUCCESS,
+                payload: action.payload,
+              },
+            ];
+          } else {
+            this.toastrService.error(texts.DELETE_JOB_TEMPLATE_FAILURE_NOTIFICATION);
+            return [
+              {
+                type: JobTemplatesActions.DELETE_JOB_TEMPLATE_FAILURE,
+              },
+            ];
+          }
+        }),
+        catchError(() => {
+          this.toastrService.error(texts.DELETE_JOB_TEMPLATE_FAILURE_NOTIFICATION);
+          return [
+            {
+              type: JobTemplatesActions.DELETE_JOB_TEMPLATE_FAILURE,
+            },
+          ];
+        }),
+      );
+    }),
+  );
+
+  @Effect({ dispatch: true })
+  historyForJobTemplateLoad = this.actions.pipe(
+    ofType(JobTemplatesActions.LOAD_HISTORY_FOR_JOB_TEMPLATE),
+    switchMap((action: JobTemplatesActions.LoadHistoryForJobTemplate) => {
+      return this.jobTemplateService.getHistoryForJobTemplate(action.payload).pipe(
+        mergeMap((historyForJobTemplate: HistoryModel[]) => {
+          return [
+            {
+              type: JobTemplatesActions.LOAD_HISTORY_FOR_JOB_TEMPLATE_SUCCESS,
+              payload: historyForJobTemplate.sort((left, right) => right.id - left.id),
+            },
+          ];
+        }),
+        catchError(() => {
+          this.toastrService.error(texts.LOAD_HISTORY_FOR_JOB_TEMPLATE_FAILURE_NOTIFICATION);
+          return [
+            {
+              type: JobTemplatesActions.LOAD_HISTORY_FOR_JOB_TEMPLATE_FAILURE,
+            },
+          ];
+        }),
+      );
+    }),
+  );
+
+  @Effect({ dispatch: true })
+  jobTemplatesFromHistoryLoad = this.actions.pipe(
+    ofType(JobTemplatesActions.LOAD_JOB_TEMPLATES_FROM_HISTORY),
+    switchMap((action: JobTemplatesActions.LoadJobTemplatesFromHistory) => {
+      return this.jobTemplateService.getJobTemplatesFromHistory(action.payload.leftHistoryId, action.payload.rightHistoryId).pipe(
+        mergeMap((jobTemplateHistoryPair: HistoryPairModel<JobTemplateHistoryModel>) => {
+          return [
+            {
+              type: JobTemplatesActions.LOAD_JOB_TEMPLATES_FROM_HISTORY_SUCCESS,
+              payload: {
+                leftHistory: jobTemplateHistoryPair.leftHistory,
+                rightHistory: jobTemplateHistoryPair.rightHistory,
+              },
+            },
+          ];
+        }),
+        catchError(() => {
+          this.toastrService.error(texts.LOAD_JOB_TEMPLATES_FROM_HISTORY_FAILURE_NOTIFICATION);
+          return [
+            {
+              type: JobTemplatesActions.LOAD_JOB_TEMPLATES_FROM_HISTORY_FAILURE,
             },
           ];
         }),
