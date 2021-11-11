@@ -68,10 +68,13 @@ export class HyperdriveJobComponent implements OnInit, OnDestroy {
         );
       }
     });
+    this.initHyperdriveType();
+  }
 
+  initHyperdriveType() {
     if (this.isJobTemplateSelected) {
       const hyperdriveTypeFromJobParams = HyperdriveUtil.getHyperdriveTypeFromAppArguments(
-        this.jobParameters.appArguments,
+        this.jobParameters?.appArguments,
         hyperdriveTypesFields,
       );
       const hyperdriveTypeFromTemplateParams = HyperdriveUtil.getHyperdriveTypeFromAppArguments(
@@ -85,7 +88,7 @@ export class HyperdriveJobComponent implements OnInit, OnDestroy {
         this.hyperdriveType = undefined;
       }
     } else {
-      this.hyperdriveType = HyperdriveUtil.getHyperdriveTypeFromAppArguments(this.jobParameters.appArguments, hyperdriveTypesFields);
+      this.hyperdriveType = HyperdriveUtil.getHyperdriveTypeFromAppArguments(this.jobParameters?.appArguments, hyperdriveTypesFields);
     }
   }
 
@@ -96,8 +99,8 @@ export class HyperdriveJobComponent implements OnInit, OnDestroy {
   hyperdriveTypeChange(value: string) {
     this.jobParametersChange.emit({
       ...this.jobParameters,
-      jobJar: this.jobParameters.jobJar,
-      mainClass: this.jobParameters.mainClass,
+      jobJar: this.jobParameters?.jobJar,
+      mainClass: this.jobParameters?.mainClass,
       appArguments: this.getAppArguments(),
     });
     this.hyperdriveType = value;
@@ -110,7 +113,7 @@ export class HyperdriveJobComponent implements OnInit, OnDestroy {
   hyperdriveFieldChange(value, fieldPrefix: string) {
     this.jobParametersChange.emit({
       ...this.jobParameters,
-      appArguments: HyperdriveUtil.updateOrPushAppArgument(this.jobParameters.appArguments, fieldPrefix, value),
+      appArguments: HyperdriveUtil.updateOrPushAppArgument(this.jobParameters?.appArguments, fieldPrefix, value),
     });
   }
 
@@ -143,7 +146,7 @@ export class HyperdriveJobComponent implements OnInit, OnDestroy {
     const hyperdriveTypeFields = hyperdriveTypesFields.find(
       (hyperdriveTypeField) => hyperdriveTypeField.hyperdriveType == this.hyperdriveType,
     );
-    const hyperdriveArguments = this.jobParameters.appArguments.filter((argument) =>
+    const hyperdriveArguments = this.jobParameters?.appArguments.filter((argument) =>
       hyperdriveTypeFields?.fields.some((field) => argument.startsWith(field)),
     );
     this.jobParametersChange.emit({ ...this.jobParameters, appArguments: [...appArguments, ...hyperdriveArguments] });
