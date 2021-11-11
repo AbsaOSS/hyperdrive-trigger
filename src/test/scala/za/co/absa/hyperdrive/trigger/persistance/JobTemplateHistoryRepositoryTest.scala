@@ -50,7 +50,7 @@ class JobTemplateHistoryRepositoryTest extends FlatSpec with Matchers with Befor
     })
   }
 
-  "notificationRuleHistoryRepository create/update/delete/getHistoryForWorkflow/getJobTemplatesFromHistory" should "create workflow history record with correct values" in {
+  "jobTemplateHistoryRepository create/update/delete/getHistoryForWorkflow/getJobTemplatesFromHistory" should "create workflow history record with correct values" in {
     val nrCreate = TestData.jt1
     val nrUpdate = nrCreate.copy(name = nrCreate.name + "-updated")
 

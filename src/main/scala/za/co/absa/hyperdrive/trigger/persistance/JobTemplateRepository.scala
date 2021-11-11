@@ -58,12 +58,10 @@ class JobTemplateRepositoryImpl @Inject()(val dbProvider: DatabaseProvider, over
     db.run(
       (for {
         jobTemplateId <- jobTemplateTable returning jobTemplateTable.map(_.id) += jobTemplate
+        insertedJobTemplate <- getSingleJobTemplate(jobTemplateId)
+        historyId <- jobTemplateHistoryRepository.create(insertedJobTemplate, user)
       } yield {
-        jobTemplateId
-      }).flatMap(id => {
-        getSingleJobTemplate(id).map(
-          jobTemplateUpdate => jobTemplateHistoryRepository.create(jobTemplateUpdate, user)
-        ).flatMap(_.map(_ => id))
+        historyId
       }).transactionally.asTry.map {
         case Success(jobTemplateId) => jobTemplateId
         case Failure(ex) =>
@@ -97,14 +95,12 @@ class JobTemplateRepositoryImpl @Inject()(val dbProvider: DatabaseProvider, over
   override def updateJobTemplate(jobTemplate: JobTemplate, user: String)(implicit ec: ExecutionContext): Future[Unit] = {
     db.run(
       (for {
-        w <- jobTemplateTable.filter(_.id === jobTemplate.id).update(jobTemplate)
+        _ <- jobTemplateTable.filter(_.id === jobTemplate.id).update(jobTemplate)
+        updatedJobTemplate <- getSingleJobTemplate(jobTemplate.id)
+        _ <- jobTemplateHistoryRepository.update(updatedJobTemplate, user)
       } yield {
-        w
-      }).flatMap(
-        result => getSingleJobTemplate(jobTemplate.id).map(
-          jobTemplateUpdated => jobTemplateHistoryRepository.update(jobTemplateUpdated, user)
-        ).flatMap(_.map(_ => result))
-      ).transactionally.asTry.map {
+        (): Unit
+      }).transactionally.asTry.map {
         case Success(_) => (): Unit
         case Failure(ex) =>
           repositoryLogger.error(s"Unexpected error occurred when updating job template $jobTemplate", ex)
@@ -120,8 +116,13 @@ class JobTemplateRepositoryImpl @Inject()(val dbProvider: DatabaseProvider, over
       }
     ).flatMap(_ =>
       jobTemplateTable.filter(_.id === id).delete andThen
-        DBIO.successful((): Unit)).transactionally
-    )
+        DBIO.successful((): Unit)
+    ).transactionally.asTry.map {
+      case Success(_) => (): Unit
+      case Failure(ex) =>
+        repositoryLogger.error(s"Unexpected error occurred when deleting job template $id", ex)
+        throw new ApiException(GenericDatabaseError)
+    })
   }
 
   override def existsOtherJobTemplate(name: String, id: Long)(implicit ec: ExecutionContext): Future[Boolean] = db.run(

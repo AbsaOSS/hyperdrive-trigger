@@ -15,8 +15,6 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
-import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.models.search.{TableSearchRequest, TableSearchResponse}
 import za.co.absa.hyperdrive.trigger.models.{DagDefinitionJoined, JobTemplate, ResolvedJobDefinition}
@@ -40,7 +38,7 @@ trait JobTemplateService {
 }
 
 @Service
-class JobTemplateServiceImpl(override val jobTemplateRepository: JobTemplateRepository, jobTemplateResolutionService: JobTemplateResolutionService, override val jobTemplateValidationService: JobTemplateValidationService) extends JobTemplateService {
+class JobTemplateServiceImpl(override val jobTemplateRepository: JobTemplateRepository, jobTemplateResolutionService: JobTemplateResolutionService, override val jobTemplateValidationService: JobTemplateValidationService) extends JobTemplateService with UserDetailsService {
   override def getJobTemplate(id: Long)(implicit ec: ExecutionContext): Future[JobTemplate] = {
     jobTemplateRepository.getJobTemplate(id)
   }
@@ -88,9 +86,5 @@ class JobTemplateServiceImpl(override val jobTemplateRepository: JobTemplateRepo
   override def deleteJobTemplate(id: Long)(implicit ec: ExecutionContext): Future[Boolean] = {
     val userName = getUserName.apply()
     jobTemplateRepository.deleteJobTemplate(id, userName).map(_ => true)
-  }
-
-  private[services] def getUserName: () => String = {
-    SecurityContextHolder.getContext.getAuthentication.getPrincipal.asInstanceOf[UserDetails].getUsername.toLowerCase
   }
 }
