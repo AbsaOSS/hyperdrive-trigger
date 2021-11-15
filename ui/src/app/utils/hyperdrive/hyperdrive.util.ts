@@ -47,4 +47,23 @@ export class HyperdriveUtil {
       return undefined;
     }
   }
+
+  static getHyperdriveTypeFromJobAndTemplateAppArguments(
+    jobAppArguments: string[],
+    jobHyperdriveFields: HyperdriveFieldsModel[],
+    templateAppArguments: string[],
+    templateHyperdriveFields: HyperdriveFieldsModel[],
+  ): string {
+    const hyperdriveTypeFromJobParams = HyperdriveUtil.getHyperdriveTypeFromAppArguments(jobAppArguments, jobHyperdriveFields);
+    const hyperdriveTypeFromTemplateParams = HyperdriveUtil.getHyperdriveTypeFromAppArguments(
+      templateAppArguments,
+      templateHyperdriveFields,
+    );
+
+    if (hyperdriveTypeFromJobParams == hyperdriveTypeFromTemplateParams) {
+      return hyperdriveTypeFromJobParams;
+    } else {
+      return undefined;
+    }
+  }
 }

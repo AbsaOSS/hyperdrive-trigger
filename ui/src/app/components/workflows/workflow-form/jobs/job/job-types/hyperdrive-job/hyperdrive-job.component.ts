@@ -68,27 +68,19 @@ export class HyperdriveJobComponent implements OnInit, OnDestroy {
         );
       }
     });
-    this.initHyperdriveType();
+    this.hyperdriveType = this.initHyperdriveType();
   }
 
-  initHyperdriveType() {
+  private initHyperdriveType(): string {
     if (this.isJobTemplateSelected) {
-      const hyperdriveTypeFromJobParams = HyperdriveUtil.getHyperdriveTypeFromAppArguments(
+      return HyperdriveUtil.getHyperdriveTypeFromJobAndTemplateAppArguments(
         this.jobParameters?.appArguments,
         hyperdriveTypesFields,
-      );
-      const hyperdriveTypeFromTemplateParams = HyperdriveUtil.getHyperdriveTypeFromAppArguments(
-        this.jobTemplateParameters.appArguments,
+        this.jobTemplateParameters?.appArguments,
         hyperdriveTypesJobTemplateFields,
       );
-
-      if (hyperdriveTypeFromJobParams == hyperdriveTypeFromTemplateParams) {
-        this.hyperdriveType = hyperdriveTypeFromJobParams;
-      } else {
-        this.hyperdriveType = undefined;
-      }
     } else {
-      this.hyperdriveType = HyperdriveUtil.getHyperdriveTypeFromAppArguments(this.jobParameters?.appArguments, hyperdriveTypesFields);
+      return HyperdriveUtil.getHyperdriveTypeFromAppArguments(this.jobParameters?.appArguments, hyperdriveTypesFields);
     }
   }
 
