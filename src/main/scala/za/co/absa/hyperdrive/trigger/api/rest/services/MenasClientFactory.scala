@@ -13,32 +13,63 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.api.rest.client
+package za.co.absa.hyperdrive.trigger.api.rest.services
 
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import za.co.absa.hyperdrive.trigger.api.rest.client.AuthClient
+import za.co.absa.hyperdrive.trigger.api.rest.client.AuthEndpoints
+import za.co.absa.hyperdrive.trigger.api.rest.client.Credentials
+import za.co.absa.hyperdrive.trigger.api.rest.client.CrossHostApiCaller
+import za.co.absa.hyperdrive.trigger.api.rest.client.InvalidCredentials
+import za.co.absa.hyperdrive.trigger.api.rest.client.KerberosCredentials
+import za.co.absa.hyperdrive.trigger.api.rest.client.RestClient
+import za.co.absa.hyperdrive.trigger.api.rest.client.RestTemplateSingleton
+import za.co.absa.hyperdrive.trigger.api.rest.client.StandardCredentials
 import za.co.absa.hyperdrive.trigger.configuration.application.MenasConfig
 
 import javax.inject.Inject
 
 @Configuration
 class MenasClientFactory @Inject() (menasConfig: MenasConfig) {
+  protected val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
+  private val authMechanism: String    = menasConfig.authMechanism
   private val username: Option[String] = validateStringParam(menasConfig.username)
   private val password: Option[String] = validateStringParam(menasConfig.password)
   private val keytab: Option[String]   = validateStringParam(menasConfig.keytab)
   private val baseUrls: Seq[String]    = validateArrayParam("menas.baseUrls", menasConfig.baseUrls).toSeq
-  private val ldapPath: String         = menasConfig.ldapPath
-  private val spnegoPath: String       = menasConfig.spnegoPath
+  private val standardPath: String     = menasConfig.standardAuthPath
+  private val spnegoPath: String       = menasConfig.spnegoAuthPath
   private val retries: Option[Int]     = menasConfig.retries
 
-  private val credentials: Credentials = (username, password, keytab) match {
-    case (Some(user), _, Some(keytab)) => KerberosCredentials(user, keytab)
-    case (Some(user), Some(pwd), _)    => LdapCredentials(user, pwd)
-    case _                             => InvalidCredentials
+  private val credentials: Credentials = (authMechanism.toLowerCase match {
+    case "standard" => {
+      logger.info(s"Using username and password to log into Menas")
+      for {
+        user <- username
+        pwd  <- password
+      } yield StandardCredentials(user, pwd)
+    }
+    case "spnego" => {
+      logger.info(s"Using keytab to log into Menas")
+      for {
+        user <- username
+        kt   <- keytab
+      } yield KerberosCredentials(user, kt)
+    }
+    case str => {
+      logger.error(s"Invalid Menas authentication method: `$str` ")
+      Some(InvalidCredentials)
+    }
+  }).getOrElse {
+    logger.error(s"Invalid credentials for Menas authentication method `$authMechanism`")
+    InvalidCredentials
   }
 
-  private val authEndpoints: AuthEndpoints = AuthEndpoints(ldapPath, spnegoPath)
+  private val authEndpoints: AuthEndpoints = AuthEndpoints(standardPath, spnegoPath)
 
   @Bean
   def menasClient(): MenasClient = getInstance(credentials, baseUrls, retries)

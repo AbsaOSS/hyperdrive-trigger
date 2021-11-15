@@ -28,18 +28,29 @@ import scala.collection.JavaConverters._
 
 object AuthClient {
 
-  def apply(credentials: Credentials, apiCaller: ApiCaller, authEndpoints: AuthEndpoints): AuthClient = credentials match {
-    case ldapCredentials: LdapCredentials         => createLdapAuthClient(apiCaller, ldapCredentials, authEndpoints.ldapPath)
-    case kerberosCredentials: KerberosCredentials => createSpnegoAuthClient(apiCaller, kerberosCredentials, authEndpoints.spnegoPath)
-    case InvalidCredentials                       => throw UnauthorizedException("No valid credentials provided")
-  }
+  def apply(credentials: Credentials, apiCaller: ApiCaller, authEndpoints: AuthEndpoints): AuthClient =
+    credentials match {
+      case standardCredentials: StandardCredentials =>
+        createStandardAuthClient(apiCaller, standardCredentials, authEndpoints.standard)
+      case kerberosCredentials: KerberosCredentials =>
+        createSpnegoAuthClient(apiCaller, kerberosCredentials, authEndpoints.spnego)
+      case InvalidCredentials => throw UnauthorizedException("No valid credentials provided")
+    }
 
-  private def createLdapAuthClient(apiCaller: ApiCaller, credentials: LdapCredentials, path: String): LdapAuthClient = {
+  private def createStandardAuthClient(
+    apiCaller: ApiCaller,
+    credentials: StandardCredentials,
+    path: String
+  ): StandardAuthClient = {
     val restTemplate = RestTemplateSingleton.instance
-    new LdapAuthClient(credentials.username, credentials.password, restTemplate, apiCaller, path)
+    new StandardAuthClient(credentials.username, credentials.password, restTemplate, apiCaller, path)
   }
 
-  private def createSpnegoAuthClient(apiCaller: ApiCaller, credentials: KerberosCredentials, path: String): SpnegoAuthClient = {
+  private def createSpnegoAuthClient(
+    apiCaller: ApiCaller,
+    credentials: KerberosCredentials,
+    path: String
+  ): SpnegoAuthClient = {
     val restTemplate = new KerberosRestTemplate(credentials.keytabLocation, credentials.username)
     restTemplate.setErrorHandler(NoOpErrorHandler)
     new SpnegoAuthClient(credentials.username, credentials.keytabLocation, restTemplate, apiCaller, path)
@@ -86,22 +97,32 @@ sealed abstract class AuthClient(
   }
 }
 
-class SpnegoAuthClient(username: String, keytabLocation: String, restTemplate: RestTemplate, apiCaller: ApiCaller, path: String)
-    extends AuthClient(username, restTemplate, apiCaller, baseUrl => s"$baseUrl$path") {
+class SpnegoAuthClient(
+  username: String,
+  keytabLocation: String,
+  restTemplate: RestTemplate,
+  apiCaller: ApiCaller,
+  path: String
+) extends AuthClient(username, restTemplate, apiCaller, baseUrl => s"$baseUrl$path") {
   override protected def requestAuthentication(url: String): ResponseEntity[String] = {
     logger.info(s"Authenticating via SPNEGO ($url): user `$username`, with keytab `$keytabLocation`")
     restTemplate.getForEntity(url, classOf[String])
   }
 }
 
-class LdapAuthClient(username: String, password: String, restTemplate: RestTemplate, apiCaller: ApiCaller, path: String)
-    extends AuthClient(username, restTemplate, apiCaller, baseUrl => s"$baseUrl$path") {
+class StandardAuthClient(
+  username: String,
+  password: String,
+  restTemplate: RestTemplate,
+  apiCaller: ApiCaller,
+  path: String
+) extends AuthClient(username, restTemplate, apiCaller, baseUrl => s"$baseUrl$path") {
   override protected def requestAuthentication(url: String): ResponseEntity[String] = {
     val requestParts = new LinkedMultiValueMap[String, String]
     requestParts.add("username", username)
     requestParts.add("password", password)
 
-    logger.info(s"Authenticating via LDAP ($url): user `$username`")
+    logger.info(s"Authenticating via username and password ($url): user `$username`")
     restTemplate.postForEntity(url, requestParts, classOf[String])
   }
 }

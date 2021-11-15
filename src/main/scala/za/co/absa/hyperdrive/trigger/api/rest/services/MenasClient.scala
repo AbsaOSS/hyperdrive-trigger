@@ -13,14 +13,16 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.api.rest.client
+package za.co.absa.hyperdrive.trigger.api.rest.services
 
+import za.co.absa.hyperdrive.trigger.api.rest.client.ApiCaller
+import za.co.absa.hyperdrive.trigger.api.rest.client.RestClient
 import za.co.absa.hyperdrive.trigger.models.VersionedDataset
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
-class MenasClient(private[client] val apiCaller: ApiCaller, private[client] val restClient: RestClient) {
+class MenasClient(private[services] val apiCaller: ApiCaller, private[services] val restClient: RestClient) {
 
   def authenticate(): Unit =
     restClient.authenticate()
@@ -28,7 +30,7 @@ class MenasClient(private[client] val apiCaller: ApiCaller, private[client] val 
   def listVersionedDatasets(searchQuery: Option[String])(implicit ec: ExecutionContext): Future[Seq[VersionedDataset]] =
     Future(apiCaller.call { apiBaseUrl =>
       val searchSegment = searchQuery.fold("")(query => s"/$query")
-      val url = s"$apiBaseUrl/menas/api/dataset/list$searchSegment"
+      val url           = s"$apiBaseUrl/menas/api/dataset/list$searchSegment"
       restClient.sendGet[Seq[VersionedDataset]](url)
     })
 }

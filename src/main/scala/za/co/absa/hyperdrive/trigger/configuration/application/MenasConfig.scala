@@ -26,16 +26,18 @@ import org.springframework.validation.annotation.Validated
 @Validated
 class MenasConfig(
   @DefaultValue(Array(""))
-  val keytab: String,
+  val authMechanism: String,
   @DefaultValue(Array(""))
   val username: String,
+  @DefaultValue(Array(""))
+  val keytab: String,
   @DefaultValue(Array(""))
   val password: String,
   val baseUrls: Array[String],
   @DefaultValue(Array(""))
-  val ldapPath: String,
+  val standardAuthPath: String,
   @DefaultValue(Array(""))
-  val spnegoPath: String,
+  val spnegoAuthPath: String,
   retriesInternal: Integer
 ) {
   val retries: Option[Int] = Option[Integer](retriesInternal).map(Integer2int)

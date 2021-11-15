@@ -16,7 +16,6 @@
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
 import org.springframework.stereotype.Service
-import za.co.absa.hyperdrive.trigger.api.rest.client.MenasClient
 import za.co.absa.hyperdrive.trigger.models.VersionedDataset
 
 import javax.inject.Inject
