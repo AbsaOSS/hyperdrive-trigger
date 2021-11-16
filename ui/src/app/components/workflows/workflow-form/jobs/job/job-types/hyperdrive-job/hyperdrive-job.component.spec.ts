@@ -63,7 +63,7 @@ describe('HyperdriveJobComponent', () => {
           expect(underTest.jobParametersChange.emit).toHaveBeenCalled();
           expect(underTest.jobParametersChange.emit).toHaveBeenCalledWith({
             ...underTest.jobParameters,
-            ...underTest.getAppArguments(),
+            ...[],
             jobJar: undefined,
             mainClass: undefined,
           });

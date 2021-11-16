@@ -58,7 +58,7 @@ export class HyperdriveJobComponent implements OnInit, OnDestroy {
         ...this.jobParameters,
         jobJar: undefined,
         mainClass: undefined,
-        appArguments: this.getAppArguments(),
+        appArguments: [],
       });
       if (value?.jobTemplateId) {
         const jobTemplateParameters = <HyperdriveTemplateParametersModel>value?.jobTemplateParameters;
@@ -73,12 +73,7 @@ export class HyperdriveJobComponent implements OnInit, OnDestroy {
 
   private initHyperdriveType(): string {
     if (this.isJobTemplateSelected) {
-      return HyperdriveUtil.getHyperdriveTypeFromJobAndTemplateAppArguments(
-        this.jobParameters?.appArguments,
-        hyperdriveTypesFields,
-        this.jobTemplateParameters?.appArguments,
-        hyperdriveTypesJobTemplateFields,
-      );
+      return HyperdriveUtil.getHyperdriveTypeFromAppArguments(this.jobTemplateParameters?.appArguments, hyperdriveTypesJobTemplateFields);
     } else {
       return HyperdriveUtil.getHyperdriveTypeFromAppArguments(this.jobParameters?.appArguments, hyperdriveTypesFields);
     }
@@ -93,7 +88,7 @@ export class HyperdriveJobComponent implements OnInit, OnDestroy {
       ...this.jobParameters,
       jobJar: this.jobParameters?.jobJar,
       mainClass: this.jobParameters?.mainClass,
-      appArguments: this.getAppArguments(),
+      appArguments: [],
     });
     this.hyperdriveType = value;
   }
