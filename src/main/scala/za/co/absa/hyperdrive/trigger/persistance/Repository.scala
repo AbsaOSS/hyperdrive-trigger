@@ -28,6 +28,7 @@ trait Repository
     with DagRunTable
     with WorkflowHistoryTable
     with JobTemplateTable
+    with JobTemplateHistoryTable
     with SchedulerInstanceTable
     with NotificationRuleTable
     with NotificationRuleHistoryTable
