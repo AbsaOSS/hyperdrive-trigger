@@ -59,9 +59,9 @@ class JobTemplateRepositoryImpl @Inject()(val dbProvider: DatabaseProvider, over
       (for {
         jobTemplateId <- jobTemplateTable returning jobTemplateTable.map(_.id) += jobTemplate
         insertedJobTemplate <- getSingleJobTemplate(jobTemplateId)
-        historyId <- jobTemplateHistoryRepository.create(insertedJobTemplate, user)
+        _ <- jobTemplateHistoryRepository.create(insertedJobTemplate, user)
       } yield {
-        historyId
+        jobTemplateId
       }).transactionally.asTry.map {
         case Success(jobTemplateId) => jobTemplateId
         case Failure(ex) =>
