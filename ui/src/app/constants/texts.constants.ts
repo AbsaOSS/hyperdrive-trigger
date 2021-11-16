@@ -103,6 +103,24 @@ export const texts = {
   LOAD_JOB_TEMPLATE_FAILURE_NOTIFICATION: "Sorry, job template couldn't be loaded. Please try again.",
   LOAD_JOB_TEMPLATES_FAILURE_NOTIFICATION: "Sorry, job templates couldn't be loaded. Please try again.",
 
+  CREATE_JOB_TEMPLATE_CONFIRMATION_TITLE: 'Create job template',
+  CREATE_JOB_TEMPLATE_CONFIRMATION_CONTENT: 'Are you sure you want to create a new job template?',
+  CREATE_JOB_TEMPLATE_SUCCESS_NOTIFICATION: 'Job template has been created.',
+  CREATE_JOB_TEMPLATE_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
+
+  UPDATE_JOB_TEMPLATE_CONFIRMATION_TITLE: 'Update job template',
+  UPDATE_JOB_TEMPLATE_CONFIRMATION_CONTENT: 'Are you sure you want to update the job template?',
+  UPDATE_JOB_TEMPLATE_SUCCESS_NOTIFICATION: 'Job template has been updated.',
+  UPDATE_JOB_TEMPLATE_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
+
+  DELETE_JOB_TEMPLATE_CONFIRMATION_TITLE: 'Delete job template',
+  DELETE_JOB_TEMPLATE_CONFIRMATION_CONTENT: 'Are you sure you want to delete this job template? The operation cannot be reverted.',
+  DELETE_JOB_TEMPLATE_SUCCESS_NOTIFICATION: 'Job template has been deleted.',
+  DELETE_JOB_TEMPLATE_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
+
+  LOAD_HISTORY_FOR_JOB_TEMPLATE_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
+  LOAD_JOB_TEMPLATES_FROM_HISTORY_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
+
   CREATE_NOTIFICATION_RULE_CONFIRMATION_TITLE: 'Create notification rule',
   CREATE_NOTIFICATION_RULE_CONFIRMATION_CONTENT: 'Are you sure you want to create a new notification rule?',
   CREATE_NOTIFICATION_RULE_SUCCESS_NOTIFICATION: 'Notification rule has been created.',

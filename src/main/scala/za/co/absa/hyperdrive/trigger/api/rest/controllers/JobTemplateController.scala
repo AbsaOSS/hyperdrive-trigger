@@ -44,5 +44,19 @@ class JobTemplateController @Inject()(jobTemplateService: JobTemplateService) {
     jobTemplateService.searchJobTemplates(searchRequest).toJava.toCompletableFuture
   }
 
+  @PutMapping(path = Array("/jobTemplate"))
+  def createJobTemplate(@RequestBody jobTemplate: JobTemplate): CompletableFuture[JobTemplate] = {
+    jobTemplateService.createJobTemplate(jobTemplate).toJava.toCompletableFuture
+  }
+
+  @PostMapping(path = Array("/jobTemplates"))
+  def updateJobTemplate(@RequestBody jobTemplate: JobTemplate): CompletableFuture[JobTemplate] = {
+    jobTemplateService.updateJobTemplate(jobTemplate).toJava.toCompletableFuture
+  }
+
+  @DeleteMapping(path = Array("/jobTemplates"))
+  def deleteJobTemplate(@RequestParam id: Long): CompletableFuture[Boolean] = {
+    jobTemplateService.deleteJobTemplate(id).toJava.toCompletableFuture
+  }
 }
 

@@ -16,5 +16,8 @@
 <app-string-part
   [isShow]="isShow"
   [name]="'Script'"
-  [value]="jobParameters?.scriptLocation">
+  [value]="jobParameters?.scriptLocation"
+  (valueChange)="scriptChange($event)"
+  [isRequired]=true
+  [minLength]=1>
 </app-string-part>

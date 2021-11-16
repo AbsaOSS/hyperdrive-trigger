@@ -16,30 +16,48 @@
 <app-string-part
   [isShow]="isShow"
   [name]="'Job jar'"
-  [value]="jobParameters?.jobJar">
+  [value]="jobParameters?.jobJar"
+  (valueChange)="jobJarChange($event)"
+  [isRequired]=true
+  [minLength]=1>
 </app-string-part>
 <app-string-part
   [isShow]="isShow"
   [name]="'Main class'"
-  [value]="jobParameters?.mainClass">
+  [value]="jobParameters?.mainClass"
+  (valueChange)="mainClassChange($event)"
+  [isRequired]=true
+  [minLength]=1>
 </app-string-part>
 <app-string-sequence-part
   [isShow]="isShow"
   [name]="'Additional jars'"
-  [value]="jobParameters?.additionalJars">
+  [value]="jobParameters?.additionalJars"
+  (valueChange)="additionalJarsChange($event)"
+  [isRequired]=false
+  [minLength]=1>
 </app-string-sequence-part>
 <app-string-sequence-part
   [isShow]="isShow"
   [name]="'Additional files'"
-  [value]="jobParameters?.additionalFiles">
+  [value]="jobParameters?.additionalFiles"
+  (valueChange)="additionalFilesChange($event)"
+  [isRequired]=false
+  [minLength]=1>
 </app-string-sequence-part>
 <app-key-string-value-part
   [isShow]="isShow"
   [name]="'Additional Spark Config'"
-  [value]="jobParameters?.additionalSparkConfig">
+  [value]="jobParameters?.additionalSparkConfig"
+  (valueChange)="additionalSparkConfigChange($event)"
+  [isRequired]=false
+  [minLength]=1>
 </app-key-string-value-part>
 <app-string-sequence-part
   [isShow]="isShow"
   [name]="'App arguments'"
-  [value]="jobParameters?.appArguments">
+  [value]="jobParameters?.appArguments"
+  (valueChange)="appArgumentsChange($event)"
+  [isRequired]=false
+  [minLength]=1>
 </app-string-sequence-part>

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { JobTemplateParameters } from './jobTemplateParameters.model';
+import { HyperdriveTemplateParametersModel, JobTemplateParameters } from './jobTemplateParameters.model';
 
 export type JobTemplateModel = {
   id: number;
@@ -24,5 +24,9 @@ export type JobTemplateModel = {
 export class JobTemplateModelFactory {
   static create(id: number, name: string, jobParameters: JobTemplateParameters): JobTemplateModel {
     return { id: id, name: name, jobParameters: jobParameters };
+  }
+
+  static createEmpty(): JobTemplateModel {
+    return { id: undefined, name: '', jobParameters: HyperdriveTemplateParametersModel.createEmpty() };
   }
 }

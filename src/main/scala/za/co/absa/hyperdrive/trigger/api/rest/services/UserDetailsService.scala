@@ -13,19 +13,13 @@
  * limitations under the License.
  */
 
-import { Component, Input } from '@angular/core';
-import { HyperdriveTemplateParametersModel } from '../../../../../../models/jobTemplateParameters.model';
+package za.co.absa.hyperdrive.trigger.api.rest.services
 
-@Component({
-  selector: 'app-hyperdrive-template',
-  templateUrl: './hyperdrive-template.component.html',
-  styleUrls: ['./hyperdrive-template.component.scss'],
-})
-export class HyperdriveTemplateComponent {
-  @Input() isShow: boolean;
-  @Input() jobParameters: HyperdriveTemplateParametersModel;
+import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.core.userdetails.UserDetails
 
-  constructor() {
-    // do nothing
+trait UserDetailsService {
+  private[services] def getUserName: () => String = {
+    SecurityContextHolder.getContext.getAuthentication.getPrincipal.asInstanceOf[UserDetails].getUsername.toLowerCase
   }
 }

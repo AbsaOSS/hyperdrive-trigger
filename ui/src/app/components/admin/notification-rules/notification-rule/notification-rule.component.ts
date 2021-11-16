@@ -19,8 +19,6 @@ import { Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { NotificationRuleModel } from '../../../../models/notificationRule.model';
 import { AppState, selectNotificationRulesState } from '../../../../stores/app.reducers';
-import { ConfirmationDialogService } from '../../../../services/confirmation-dialog/confirmation-dialog.service';
-import { PreviousRouteService } from '../../../../services/previousRoute/previous-route.service';
 import { notificationRuleModes } from '../../../../models/enums/notificationRuleModes.constants';
 
 import {
@@ -45,13 +43,7 @@ export class NotificationRuleComponent implements OnInit, OnDestroy {
   paramsSubscription: Subscription;
   notificationRuleSubscription: Subscription;
 
-  constructor(
-    private store: Store<AppState>,
-    private confirmationDialogService: ConfirmationDialogService,
-    private previousRouteService: PreviousRouteService,
-    private router: Router,
-    route: ActivatedRoute,
-  ) {
+  constructor(private store: Store<AppState>, private router: Router, route: ActivatedRoute) {
     this.paramsSubscription = route.params.subscribe((parameters) => {
       this.mode = parameters.mode;
       if (parameters.mode == notificationRuleModes.CREATE) {

@@ -26,7 +26,7 @@ import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
 import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses.SchedulerInstanceStatus
 import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes.SensorType
 import za.co.absa.hyperdrive.trigger.models.enums._
-import za.co.absa.hyperdrive.trigger.models._
+import za.co.absa.hyperdrive.trigger.models.{JobTemplate, _}
 
 import java.io.StringWriter
 import scala.collection.immutable.SortedMap
@@ -43,6 +43,17 @@ trait JdbcTypeMapper {
     },
     workflowJoinedString => {
       ObjectMapperSingleton.getObjectMapper.readValue(workflowJoinedString, classOf[WorkflowJoined])
+    }
+  )
+
+  implicit lazy val jobTemplateMapper: JdbcType[JobTemplate] = MappedColumnType.base[JobTemplate, String](
+    jobTemplate => {
+      val stringWriter = new StringWriter
+      ObjectMapperSingleton.getObjectMapper.writeValue(stringWriter, jobTemplate)
+      stringWriter.toString
+    },
+    jobTemplateString => {
+      ObjectMapperSingleton.getObjectMapper.readValue(jobTemplateString, classOf[JobTemplate])
     }
   )
 

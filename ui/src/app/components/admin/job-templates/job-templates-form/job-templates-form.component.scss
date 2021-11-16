@@ -13,19 +13,10 @@
  * limitations under the License.
  */
 
-import { Component, Input } from '@angular/core';
-import { SparkTemplateParametersModel } from '../../../../../../models/jobTemplateParameters.model';
+@import 'src/app/components/workflows/workflow-form/workflow-form.component';
 
-@Component({
-  selector: 'app-spark-template',
-  templateUrl: './spark-template.component.html',
-  styleUrls: ['./spark-template.component.scss'],
-})
-export class SparkTemplateComponent {
-  @Input() isShow: boolean;
-  @Input() jobParameters: SparkTemplateParametersModel;
-
-  constructor() {
-    // do nothing
-  }
+.loading {
+  position: fixed;
+  top: 50%;
+  right: 50%;
 }

@@ -13,19 +13,10 @@
  * limitations under the License.
  */
 
-import { Component, Input } from '@angular/core';
-import { ShellTemplateParametersModel } from '../../../../../../models/jobTemplateParameters.model';
+package za.co.absa.hyperdrive.trigger.models
 
-@Component({
-  selector: 'app-shell-template',
-  templateUrl: './shell-template.component.html',
-  styleUrls: ['./shell-template.component.scss'],
-})
-export class ShellTemplateComponent {
-  @Input() isShow: boolean;
-  @Input() jobParameters: ShellTemplateParametersModel;
-
-  constructor() {
-    // do nothing
-  }
-}
+case class JobTemplateHistory(
+  history: History,
+  jobTemplateId: Long,
+  jobTemplate: JobTemplate
+)

@@ -75,7 +75,6 @@ import { BaseUrlInterceptor } from './services/interceptors/baseurl.interceptor'
 import { JobTemplatesComponent } from './components/admin/job-templates/job-templates.component';
 import { JobTemplatesEffects } from './stores/job-templates/job-templates.effects';
 import { JobTemplatesHomeComponent } from './components/admin/job-templates/job-templates-home/job-templates-home.component';
-import { JobTemplateShowComponent } from './components/admin/job-templates/job-template-show/job-template-show.component';
 import { StringWithSuggestionsPartComponent } from './components/workflows/workflow-form/dynamic-parts/string-with-suggestions-part/string-with-suggestions-part.component';
 import { NotificationRulesComponent } from './components/admin/notification-rules/notification-rules.component';
 import { NotificationRulesHomeComponent } from './components/admin/notification-rules/notification-rules-home/notification-rules-home.component';
@@ -93,9 +92,13 @@ import { AbsaKafkaComponent } from './components/workflows/workflow-form/sensor/
 import { SparkJobComponent } from './components/workflows/workflow-form/jobs/job/job-types/spark-job/spark-job.component';
 import { ShellJobComponent } from './components/workflows/workflow-form/jobs/job/job-types/shell-job/shell-job.component';
 import { HyperdriveJobComponent } from './components/workflows/workflow-form/jobs/job/job-types/hyperdrive-job/hyperdrive-job.component';
-import { ShellTemplateComponent } from './components/admin/job-templates/job-template-show/template-types/shell-template/shell-template.component';
-import { SparkTemplateComponent } from './components/admin/job-templates/job-template-show/template-types/spark-template/spark-template.component';
-import { HyperdriveTemplateComponent } from './components/admin/job-templates/job-template-show/template-types/hyperdrive-template/hyperdrive-template.component';
+import { ShellTemplateComponent } from './components/admin/job-templates/job-templates-form/template-types/shell-template/shell-template.component';
+import { SparkTemplateComponent } from './components/admin/job-templates/job-templates-form/template-types/spark-template/spark-template.component';
+import { HyperdriveTemplateComponent } from './components/admin/job-templates/job-templates-form/template-types/hyperdrive-template/hyperdrive-template.component';
+import { JobTemplateComponent } from './components/admin/job-templates/job-template/job-template.component';
+import { JobTemplatesFormComponent } from './components/admin/job-templates/job-templates-form/job-templates-form.component';
+import { JobTemplateHistoryComponent } from './components/admin/job-templates/job-template-history/job-template-history.component';
+import { JobTemplateComparisonComponent } from './components/admin/job-templates/job-template-history/job-template-comparison/job-template-comparison.component';
 
 @NgModule({
   declarations: [
@@ -143,7 +146,10 @@ import { HyperdriveTemplateComponent } from './components/admin/job-templates/jo
     LoginDialogComponent,
     JobTemplatesComponent,
     JobTemplatesHomeComponent,
-    JobTemplateShowComponent,
+    JobTemplateComponent,
+    JobTemplatesFormComponent,
+    JobTemplateHistoryComponent,
+    JobTemplateComparisonComponent,
     ShellTemplateComponent,
     SparkTemplateComponent,
     HyperdriveTemplateComponent,

@@ -15,13 +15,11 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
-import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.models.{NotificationRule, Workflow}
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses.DagInstanceStatus
 import za.co.absa.hyperdrive.trigger.models.search.{TableSearchRequest, TableSearchResponse}
-import za.co.absa.hyperdrive.trigger.persistance.{NotificationRuleRepository, WorkflowRepository}
+import za.co.absa.hyperdrive.trigger.persistance.NotificationRuleRepository
 
 import java.time.LocalDateTime
 import scala.concurrent.{ExecutionContext, Future}
@@ -48,10 +46,7 @@ trait NotificationRuleService {
 
 @Service
 class NotificationRuleServiceImpl(override val notificationRuleRepository: NotificationRuleRepository,
-                                  override val notificationRuleValidationService: NotificationRuleValidationService) extends NotificationRuleService {
-  private[services] def getUserName: () => String = {
-    SecurityContextHolder.getContext.getAuthentication.getPrincipal.asInstanceOf[UserDetails].getUsername.toLowerCase
-  }
+                                  override val notificationRuleValidationService: NotificationRuleValidationService) extends NotificationRuleService with UserDetailsService {
 
   override def createNotificationRule(notificationRule: NotificationRule)(implicit ec: ExecutionContext): Future[NotificationRule] = {
     val userName = getUserName.apply()
