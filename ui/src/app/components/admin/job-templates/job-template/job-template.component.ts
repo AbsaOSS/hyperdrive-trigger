@@ -18,21 +18,23 @@ import { Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { AppState, selectJobTemplatesState } from '../../../../stores/app.reducers';
 import { ActivatedRoute } from '@angular/router';
-import { GetJobTemplateForForm } from '../../../../stores/job-templates/job-templates.actions';
+import { GetJobTemplateForForm, SetEmptyJobTemplate } from '../../../../stores/job-templates/job-templates.actions';
 import { JobTemplateModel } from '../../../../models/jobTemplate.model';
 import { jobTypes } from '../../../../constants/jobTypes.constants';
+import { jobTemplateModes } from '../../../../models/enums/jobTemplateModes.constants';
 
 @Component({
-  selector: 'app-job-template-show',
-  templateUrl: './job-template-show.component.html',
-  styleUrls: ['./job-template-show.component.scss'],
+  selector: 'app-job-template',
+  templateUrl: './job-template.component.html',
+  styleUrls: ['./job-template.component.scss'],
 })
-export class JobTemplateShowComponent implements OnInit, OnDestroy {
-  isShow = true;
+export class JobTemplateComponent implements OnInit, OnDestroy {
+  mode: string;
   loading = false;
+  initialJobTemplate: JobTemplateModel;
   jobTemplate: JobTemplateModel;
-  isJobTemplateInfoHidden = false;
   isJobTemplateParametersHidden = false;
+  backendValidationErrors: string[];
 
   paramsSubscription: Subscription;
   jobTemplateSubscription: Subscription = null;
@@ -41,23 +43,22 @@ export class JobTemplateShowComponent implements OnInit, OnDestroy {
 
   constructor(private store: Store<AppState>, route: ActivatedRoute) {
     this.paramsSubscription = route.params.subscribe((parameters) => {
-      this.store.dispatch(new GetJobTemplateForForm(parameters.id));
+      this.mode = parameters.mode;
+      if (parameters.mode == jobTemplateModes.CREATE) {
+        this.store.dispatch(new SetEmptyJobTemplate());
+      } else if (parameters.mode == jobTemplateModes.SHOW || parameters.mode == jobTemplateModes.EDIT) {
+        this.store.dispatch(new GetJobTemplateForForm(parameters.id));
+      }
     });
   }
 
   ngOnInit(): void {
     this.jobTemplateSubscription = this.store.select(selectJobTemplatesState).subscribe((state) => {
       this.loading = state.jobTemplateAction.loading;
+      this.initialJobTemplate = state.jobTemplateAction.initialJobTemplate;
       this.jobTemplate = state.jobTemplateAction.jobTemplate;
+      this.backendValidationErrors = state.jobTemplateAction.backendValidationErrors;
     });
-  }
-
-  toggleJobTemplateInfoAccordion() {
-    this.isJobTemplateInfoHidden = !this.isJobTemplateInfoHidden;
-  }
-
-  toggleJobTemplateParametersAccordion() {
-    this.isJobTemplateParametersHidden = !this.isJobTemplateParametersHidden;
   }
 
   ngOnDestroy(): void {

@@ -23,10 +23,13 @@ import { Store } from '@ngrx/store';
 import { AppState, selectJobTemplatesState } from '../../../../stores/app.reducers';
 import { skip } from 'rxjs/operators';
 import { jobTemplateColumns } from '../../../../constants/jobTemplateColumns.constants';
-import { SearchJobTemplates } from '../../../../stores/job-templates/job-templates.actions';
+import { DeleteJobTemplate, SearchJobTemplates } from '../../../../stores/job-templates/job-templates.actions';
 import { absoluteRoutes } from 'src/app/constants/routes.constants';
 import { Router } from '@angular/router';
 import { FilterAttributes } from '../../../../models/search/filterAttributes.model';
+import { ConfirmationDialogTypes } from '../../../../constants/confirmationDialogTypes.constants';
+import { texts } from '../../../../constants/texts.constants';
+import { ConfirmationDialogService } from '../../../../services/confirmation-dialog/confirmation-dialog.service';
 
 @Component({
   selector: 'app-job-templates-home',
@@ -37,6 +40,7 @@ export class JobTemplatesHomeComponent implements AfterViewInit, OnDestroy {
   @ViewChildren(ClrDatagridColumn) columns: QueryList<ClrDatagridColumn>;
 
   templatesSubscription: Subscription = null;
+  confirmationDialogServiceSubscription: Subscription = null;
 
   page = 1;
   pageFrom = 0;
@@ -54,7 +58,7 @@ export class JobTemplatesHomeComponent implements AfterViewInit, OnDestroy {
   removeFiltersSubject: Subject<any> = new Subject();
   refreshSubject: Subject<boolean> = new Subject<boolean>();
 
-  constructor(private store: Store<AppState>, private router: Router) {}
+  constructor(private store: Store<AppState>, private router: Router, private confirmationDialogService: ConfirmationDialogService) {}
 
   ngAfterViewInit(): void {
     this.templatesSubscription = this.store
@@ -93,6 +97,14 @@ export class JobTemplatesHomeComponent implements AfterViewInit, OnDestroy {
 
   showJobTemplate(id: number) {
     this.router.navigate([absoluteRoutes.SHOW_JOB_TEMPLATE, id]);
+  }
+
+  deleteJobTemplate(id: number): void {
+    this.confirmationDialogServiceSubscription = this.confirmationDialogService
+      .confirm(ConfirmationDialogTypes.Delete, texts.DELETE_JOB_TEMPLATE_CONFIRMATION_TITLE, texts.DELETE_JOB_TEMPLATE_CONFIRMATION_CONTENT)
+      .subscribe((confirmed) => {
+        if (confirmed) this.store.dispatch(new DeleteJobTemplate(id));
+      });
   }
 
   ngOnDestroy(): void {

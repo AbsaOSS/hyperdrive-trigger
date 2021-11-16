@@ -94,6 +94,15 @@ create table "job_template" (
   "job_parameters" JSONB NOT NULL DEFAULT '{}'
 );
 
+create table "job_template_history" (
+    "id" BIGSERIAL NOT NULL PRIMARY KEY,
+    "changed_on" TIMESTAMP NOT NULL,
+    "changed_by" VARCHAR NOT NULL,
+    "operation" VARCHAR NOT NULL,
+    "job_template_id" BIGINT NOT NULL,
+    "job_template" VARCHAR NOT NULL
+);
+
 create table "scheduler_instance" (
   "id" BIGSERIAL NOT NULL PRIMARY KEY,
   "status" VARCHAR NOT NULL,

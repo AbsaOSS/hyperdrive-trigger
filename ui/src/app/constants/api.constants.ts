@@ -42,6 +42,11 @@ export const api = {
   GET_JOB_TEMPLATES: '/jobTemplates',
   SEARCH_JOB_TEMPLATES: '/jobTemplates/search',
   GET_JOB_TEMPLATE: '/jobTemplate',
+  CREATE_JOB_TEMPLATE: '/jobTemplate',
+  UPDATE_JOB_TEMPLATE: '/jobTemplates',
+  DELETE_JOB_TEMPLATE: '/jobTemplates',
+  GET_HISTORY_FOR_JOB_TEMPLATE: '/jobTemplateHistory',
+  GET_JOB_TEMPLATES_FROM_HISTORY: '/jobTemplatesFromHistory',
 
   CREATE_NOTIFICATION_RULE: '/notificationRule',
   GET_NOTIFICATION_RULES: '/notificationRules',

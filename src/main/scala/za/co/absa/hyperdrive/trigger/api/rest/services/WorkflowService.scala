@@ -15,8 +15,6 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
-import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.models.{JobDefinition, Project, ProjectInfo, Workflow, WorkflowImportExportWrapper, WorkflowJoined}
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, BulkOperationError, GenericError}
@@ -72,7 +70,7 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
                           override val dagInstanceService: DagInstanceService,
                           override val jobTemplateService: JobTemplateService,
                           override val workflowValidationService: WorkflowValidationService,
-                          generalConfig: GeneralConfig) extends WorkflowService {
+                          generalConfig: GeneralConfig) extends WorkflowService with UserDetailsService {
 
   private val serviceLogger = LoggerFactory.getLogger(this.getClass)
 
@@ -307,9 +305,5 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
 
   private def resetSchedulerInstanceId(workflowJoineds: Seq[WorkflowJoined]): Seq[WorkflowJoined] = {
     workflowJoineds.map(_.copy(schedulerInstanceId = None))
-  }
-
-  private[services] def getUserName: () => String = {
-    SecurityContextHolder.getContext.getAuthentication.getPrincipal.asInstanceOf[UserDetails].getUsername.toLowerCase
   }
 }
