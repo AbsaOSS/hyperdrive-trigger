@@ -25,12 +25,16 @@ import { Store } from '@ngrx/store';
 import { AppState } from '../../../../stores/app.reducers';
 import { ClrDatagridStateInterface } from '@clr/angular';
 import { SparkTemplateParametersModel } from '../../../../models/jobTemplateParameters.model';
+import { ConfirmationDialogService } from '../../../../services/confirmation-dialog/confirmation-dialog.service';
+import { Subject } from 'rxjs';
+import { DeleteJobTemplate } from '../../../../stores/job-templates/job-templates.actions';
 
 describe('JobTemplatesHomeComponent', () => {
   let underTest: JobTemplatesHomeComponent;
   let fixture: ComponentFixture<JobTemplatesHomeComponent>;
   let router: Router;
   let store: Store<AppState>;
+  let confirmationDialogService: ConfirmationDialogService;
 
   const initialAppState = {
     jobTemplates: {
@@ -44,10 +48,11 @@ describe('JobTemplatesHomeComponent', () => {
   beforeEach(
     waitForAsync(() => {
       TestBed.configureTestingModule({
-        providers: [provideMockStore({ initialState: initialAppState })],
+        providers: [ConfirmationDialogService, provideMockStore({ initialState: initialAppState })],
         declarations: [JobTemplatesHomeComponent],
         imports: [RouterTestingModule.withRoutes([])],
       }).compileComponents();
+      confirmationDialogService = TestBed.inject(ConfirmationDialogService);
       router = TestBed.inject(Router);
       store = TestBed.inject(Store);
     }),
@@ -123,6 +128,45 @@ describe('JobTemplatesHomeComponent', () => {
 
       expect(routerSpy).toHaveBeenCalledTimes(1);
       expect(routerSpy).toHaveBeenCalledWith([absoluteRoutes.SHOW_JOB_TEMPLATE, id]);
+    }),
+  );
+
+  it(
+    'deleteJobTemplate() should dispatch delete job template action with id when dialog is confirmed',
+    waitForAsync(() => {
+      const id = 1;
+      const subject = new Subject<boolean>();
+      const storeSpy = spyOn(store, 'dispatch');
+
+      spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
+
+      underTest.deleteJobTemplate(id);
+      subject.next(true);
+
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(storeSpy).toHaveBeenCalled();
+        expect(storeSpy).toHaveBeenCalledWith(new DeleteJobTemplate(id));
+      });
+    }),
+  );
+
+  it(
+    'deleteJobTemplate() should not dispatch delete job template action when dialog is not confirmed',
+    waitForAsync(() => {
+      const id = 1;
+      const subject = new Subject<boolean>();
+      const storeSpy = spyOn(store, 'dispatch');
+
+      spyOn(confirmationDialogService, 'confirm').and.returnValue(subject.asObservable());
+
+      underTest.deleteJobTemplate(id);
+      subject.next(false);
+
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(storeSpy).toHaveBeenCalledTimes(0);
+      });
     }),
   );
 });

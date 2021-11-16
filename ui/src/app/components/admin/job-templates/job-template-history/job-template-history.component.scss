@@ -1,4 +1,4 @@
-/*
+/*!
  * Copyright 2018 ABSA Group Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,19 +13,6 @@
  * limitations under the License.
  */
 
-import { Component, Input } from '@angular/core';
-import { ShellTemplateParametersModel } from '../../../../../../models/jobTemplateParameters.model';
-
-@Component({
-  selector: 'app-shell-template',
-  templateUrl: './shell-template.component.html',
-  styleUrls: ['./shell-template.component.scss'],
-})
-export class ShellTemplateComponent {
-  @Input() isShow: boolean;
-  @Input() jobParameters: ShellTemplateParametersModel;
-
-  constructor() {
-    // do nothing
-  }
+::ng-deep .history-datagrid .datagrid-column clr-checkbox-wrapper.clr-checkbox-wrapper {
+  display: none;
 }

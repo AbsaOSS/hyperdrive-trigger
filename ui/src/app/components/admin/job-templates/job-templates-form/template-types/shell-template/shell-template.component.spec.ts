@@ -14,26 +14,37 @@
  */
 
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { SparkTemplateComponent } from './spark-template.component';
+import { ShellTemplateComponent } from './shell-template.component';
 
-describe('SparkTemplateComponent', () => {
-  let fixture: ComponentFixture<SparkTemplateComponent>;
-  let underTest: SparkTemplateComponent;
+describe('ShellTemplateComponent', () => {
+  let fixture: ComponentFixture<ShellTemplateComponent>;
+  let underTest: ShellTemplateComponent;
 
   beforeEach(
     waitForAsync(() => {
       TestBed.configureTestingModule({
-        declarations: [SparkTemplateComponent],
+        declarations: [ShellTemplateComponent],
       }).compileComponents();
     }),
   );
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(SparkTemplateComponent);
+    fixture = TestBed.createComponent(ShellTemplateComponent);
     underTest = fixture.componentInstance;
   });
 
   it('should create', () => {
     expect(underTest).toBeTruthy();
+  });
+
+  it('should emit updated job template parameters when scriptChange() is called', () => {
+    spyOn(underTest.jobParametersChange, 'emit');
+    const newScript = 'newScript';
+    const newJobParameters = { ...underTest.jobParameters, scriptLocation: newScript };
+
+    underTest.scriptChange(newScript);
+
+    expect(underTest.jobParametersChange.emit).toHaveBeenCalled();
+    expect(underTest.jobParametersChange.emit).toHaveBeenCalledWith(newJobParameters);
   });
 });

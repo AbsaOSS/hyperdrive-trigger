@@ -1,4 +1,4 @@
-/*
+/*!
  * Copyright 2018 ABSA Group Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,20 +13,21 @@
  * limitations under the License.
  */
 
-import { HyperdriveTemplateParametersModel, JobTemplateParameters } from './jobTemplateParameters.model';
+:host {
+  display: flex;
+}
 
-export type JobTemplateModel = {
-  id: number;
-  name: string;
-  jobParameters: JobTemplateParameters;
-};
+:host, .content-area {
+  height: 100%;
+  width: 100%;
+}
 
-export class JobTemplateModelFactory {
-  static create(id: number, name: string, jobParameters: JobTemplateParameters): JobTemplateModel {
-    return { id: id, name: name, jobParameters: jobParameters };
-  }
+.oneSideOfComparison {
+  width: 50%;
+}
 
-  static createEmpty(): JobTemplateModel {
-    return { id: undefined, name: '', jobParameters: HyperdriveTemplateParametersModel.createEmpty() };
-  }
+.loading {
+  position: fixed;
+  top: 50%;
+  right: 50%;
 }

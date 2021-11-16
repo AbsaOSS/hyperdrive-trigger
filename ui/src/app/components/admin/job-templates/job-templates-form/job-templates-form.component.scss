@@ -13,19 +13,10 @@
  * limitations under the License.
  */
 
-import { Component, Input } from '@angular/core';
-import { HyperdriveTemplateParametersModel } from '../../../../../../models/jobTemplateParameters.model';
+@import 'src/app/components/workflows/workflow-form/workflow-form.component';
 
-@Component({
-  selector: 'app-hyperdrive-template',
-  templateUrl: './hyperdrive-template.component.html',
-  styleUrls: ['./hyperdrive-template.component.scss'],
-})
-export class HyperdriveTemplateComponent {
-  @Input() isShow: boolean;
-  @Input() jobParameters: HyperdriveTemplateParametersModel;
-
-  constructor() {
-    // do nothing
-  }
+.loading {
+  position: fixed;
+  top: 50%;
+  right: 50%;
 }

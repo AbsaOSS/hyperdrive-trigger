@@ -13,19 +13,24 @@
  * limitations under the License.
  */
 
-import { Component, Input } from '@angular/core';
-import { SparkTemplateParametersModel } from '../../../../../../models/jobTemplateParameters.model';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ShellTemplateParametersModel } from '../../../../../../models/jobTemplateParameters.model';
 
 @Component({
-  selector: 'app-spark-template',
-  templateUrl: './spark-template.component.html',
-  styleUrls: ['./spark-template.component.scss'],
+  selector: 'app-shell-template',
+  templateUrl: './shell-template.component.html',
+  styleUrls: ['./shell-template.component.scss'],
 })
-export class SparkTemplateComponent {
+export class ShellTemplateComponent {
   @Input() isShow: boolean;
-  @Input() jobParameters: SparkTemplateParametersModel;
+  @Input() jobParameters: ShellTemplateParametersModel;
+  @Output() jobParametersChange: EventEmitter<ShellTemplateParametersModel> = new EventEmitter();
 
   constructor() {
     // do nothing
+  }
+
+  scriptChange(scriptLocation: string) {
+    this.jobParametersChange.emit({ ...this.jobParameters, scriptLocation: scriptLocation });
   }
 }
