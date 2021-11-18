@@ -24,6 +24,6 @@ object TestKafkaConfig {
     properties.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer")
     properties.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer")
     properties.put("max.poll.records", "100")
-    new KafkaConfig(properties, "groupIdPrefix", 500)
+    new KafkaConfig(properties, "groupIdPrefix", 500, 10000)
   }
 }
