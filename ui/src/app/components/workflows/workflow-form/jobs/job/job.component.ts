@@ -23,6 +23,8 @@ import {
   SparkDefinitionParametersModel,
 } from '../../../../../models/jobDefinitionParameters.model';
 import { JobDefinitionModel } from '../../../../../models/jobDefinition.model';
+import { JobTemplateParameters } from '../../../../../models/jobTemplateParameters.model';
+import { JobTemplateChangeEventModel } from '../../../../../models/jobTemplateChangeEvent';
 
 @Component({
   selector: 'app-job',
@@ -35,7 +37,7 @@ export class JobComponent {
   @Output() jobChange = new EventEmitter();
   @Input() jobTemplates: JobTemplateModel[];
 
-  jobTemplateChanges = new EventEmitter();
+  jobTemplateChanges: EventEmitter<JobTemplateChangeEventModel> = new EventEmitter();
 
   jobTypesMap = jobTypesMap;
   jobTypes = jobTypes;
@@ -57,7 +59,7 @@ export class JobComponent {
   jobTemplateChange(jobTemplateId: string) {
     this.job = { ...this.job, jobTemplateId: jobTemplateId };
     this.jobChange.emit(this.job);
-    this.jobTemplateChanges.emit(jobTemplateId);
+    this.jobTemplateChanges.emit(new JobTemplateChangeEventModel(jobTemplateId, this.getSelectedJobTemplateParameters()));
   }
 
   jobParametersChange(jobParameters: JobDefinitionParameters) {
@@ -87,6 +89,10 @@ export class JobComponent {
         })
         .map((jobTemplate) => [jobTemplate.id.toString(), jobTemplate.name]),
     );
+  }
+
+  getSelectedJobTemplateParameters(): JobTemplateParameters {
+    return this.jobTemplates.find((jobTemplate) => jobTemplate.id.toString() == this.job.jobTemplateId)?.jobParameters;
   }
 
   isJobTemplateSelected(): boolean {

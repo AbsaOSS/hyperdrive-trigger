@@ -18,6 +18,8 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { SparkJobComponent } from './spark-job.component';
 import { SparkDefinitionParametersModel } from '../../../../../../../models/jobDefinitionParameters.model';
 import { EventEmitter } from '@angular/core';
+import { JobTemplateChangeEventModel } from '../../../../../../../models/jobTemplateChangeEvent';
+import { SparkTemplateParametersModel } from '../../../../../../../models/jobTemplateParameters.model';
 
 describe('SparkJobComponent', () => {
   let fixture: ComponentFixture<SparkJobComponent>;
@@ -46,13 +48,13 @@ describe('SparkJobComponent', () => {
     'should emit job parameters change with empty jobJar and mainClass on job template change',
     waitForAsync(() => {
       spyOn(underTest.jobParametersChange, 'emit');
-      underTest.jobTemplateChanges = new EventEmitter<string>();
+      underTest.jobTemplateChanges = new EventEmitter<JobTemplateChangeEventModel>();
       underTest.jobParameters = { ...underTest.jobParameters, jobJar: 'jobJar', mainClass: 'mainClass' };
 
       underTest.ngOnInit();
       fixture.detectChanges();
       fixture.whenStable().then(() => {
-        underTest.jobTemplateChanges.emit('templateChange');
+        underTest.jobTemplateChanges.emit(new JobTemplateChangeEventModel('templateChange', SparkTemplateParametersModel.createEmpty()));
 
         fixture.detectChanges();
         fixture.whenStable().then(() => {
