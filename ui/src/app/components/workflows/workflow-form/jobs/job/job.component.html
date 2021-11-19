@@ -53,6 +53,7 @@
     *ngSwitchCase="jobTypes.HYPERDRIVE"
     [isShow]="isShow"
     [jobParameters]="job?.jobParameters"
+    [jobTemplateParameters]="getSelectedJobTemplateParameters()"
     (jobParametersChange)="jobParametersChange($event)"
     [isJobTemplateSelected]="this.isJobTemplateSelected()"
     [jobTemplateChanges]="jobTemplateChanges">
