@@ -54,12 +54,7 @@ export class HyperdriveJobComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.jobTemplateChangesSubscription = this.jobTemplateChanges.subscribe((value: JobTemplateChangeEventModel) => {
-      this.jobParametersChange.emit({
-        ...this.jobParameters,
-        jobJar: undefined,
-        mainClass: undefined,
-        appArguments: [],
-      });
+      const previousHyperdriveType = this.hyperdriveType;
       if (value?.jobTemplateId) {
         const jobTemplateParameters = <HyperdriveTemplateParametersModel>value?.jobTemplateParameters;
         this.hyperdriveType = HyperdriveUtil.getHyperdriveTypeFromAppArguments(
@@ -67,6 +62,16 @@ export class HyperdriveJobComponent implements OnInit, OnDestroy {
           hyperdriveTypesJobTemplateFields,
         );
       }
+      this.jobParametersChange.emit({
+        ...this.jobParameters,
+        jobJar: undefined,
+        mainClass: undefined,
+        appArguments: this.getAppArgumentsForHyperdriveTypeChange(
+          this.jobParameters?.appArguments,
+          previousHyperdriveType,
+          this.hyperdriveType,
+        ),
+      });
     });
     this.hyperdriveType = this.initHyperdriveType();
   }
@@ -88,7 +93,7 @@ export class HyperdriveJobComponent implements OnInit, OnDestroy {
       ...this.jobParameters,
       jobJar: this.jobParameters?.jobJar,
       mainClass: this.jobParameters?.mainClass,
-      appArguments: [],
+      appArguments: this.getAppArgumentsForHyperdriveTypeChange(this.jobParameters?.appArguments, this.hyperdriveType, value),
     });
     this.hyperdriveType = value;
   }
@@ -137,6 +142,27 @@ export class HyperdriveJobComponent implements OnInit, OnDestroy {
       hyperdriveTypeFields?.fields.some((field) => argument.startsWith(field)),
     );
     this.jobParametersChange.emit({ ...this.jobParameters, appArguments: [...appArguments, ...hyperdriveArguments] });
+  }
+
+  private getAppArgumentsForHyperdriveTypeChange(
+    appArguments: string[],
+    previousHyperdriveType: string,
+    currentHyperdriveType: string,
+  ): string[] {
+    const currentHyperdriveTypeFields = hyperdriveTypesFields.find(
+      (hyperdriveTypeField) => hyperdriveTypeField.hyperdriveType == currentHyperdriveType,
+    );
+    const previousHyperdriveTypeFields = hyperdriveTypesFields.find(
+      (hyperdriveTypeField) => hyperdriveTypeField.hyperdriveType == previousHyperdriveType,
+    );
+
+    return appArguments.filter((argument) => {
+      if (currentHyperdriveTypeFields?.fields.some((field) => argument.startsWith(field))) {
+        return argument;
+      } else if (!previousHyperdriveTypeFields?.fields.some((field) => argument.startsWith(field))) {
+        return argument;
+      }
+    });
   }
 
   additionalSparkConfigChange(additionalSparkConfig: Map<string, string>) {
