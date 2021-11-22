@@ -24,6 +24,7 @@ import { JobTemplateModel, JobTemplateModelFactory } from '../../models/jobTempl
 import { SparkTemplateParametersModel } from '../../models/jobTemplateParameters.model';
 import { HistoryModelFactory, HistoryPairModel } from '../../models/historyModel';
 import { JobTemplateHistoryModel, JobTemplateHistoryModelFactory } from '../../models/jobTemplateHistoryModel';
+import { WorkflowModelFactory } from "../../models/workflow.model";
 
 describe('JobTemplateService', () => {
   let underTest: JobTemplateService;
@@ -147,5 +148,22 @@ describe('JobTemplateService', () => {
     );
     expect(req.request.method).toEqual('GET');
     req.flush(jobTemplateHistoriesForComparison);
+  });
+
+  it('getJobTemplateUsage() should return all workflows where job template is used', () => {
+    const workflows = [
+      WorkflowModelFactory.create('workflowOne', undefined, undefined, undefined, undefined, undefined),
+      WorkflowModelFactory.create('workflowTwo', undefined, undefined, undefined, undefined, undefined),
+    ];
+    const jobTemplateId = 1;
+
+    underTest.getJobTemplateUsage(jobTemplateId).subscribe(
+      (data) => expect(data).toEqual(workflows),
+      (error) => fail(error),
+    );
+
+    const req = httpTestingController.expectOne(api.GET_JOB_TEMPLATE_USAGE.replace('{id}', jobTemplateId.toString()));
+    expect(req.request.method).toEqual('GET');
+    req.flush(workflows);
   });
 });
