@@ -205,7 +205,7 @@ class JobTemplateServiceTest extends AsyncFlatSpec with Matchers with MockitoSug
     // given
     val jobTemplateId = 1
     val workflows = Seq(WorkflowFixture.createWorkflowJoined().toWorkflow, WorkflowFixture.createWorkflowJoined().toWorkflow)
-    when(jobTemplateRepository.getJobTemplateUsage(eqTo(jobTemplateId))).thenReturn(Future{workflows})
+    when(jobTemplateRepository.getJobTemplateUsage(jobTemplateId)).thenReturn(Future{workflows})
 
     // when
     val result = await(underTest.getJobTemplateUsage(jobTemplateId))

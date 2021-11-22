@@ -76,9 +76,9 @@
   <ng-template clrIfDetail let-jobTemplateUsage (clrIfDetailChange)="onJobTemplateUsageOpenClose($event)">
     <clr-dg-detail>
       <clr-dg-detail-header>
-        <b>Job template name: </b>{{jobTemplateUsage.name}}<br/>
-        <b>Job type: </b>{{jobTemplateUsage.jobParameters.jobType}}<br/>
-        <b>Job template usage: </b>
+        <strong>Job template name: </strong>{{jobTemplateUsage.name}}<br/>
+        <strong>Job type: </strong>{{jobTemplateUsage.jobParameters.jobType}}<br/>
+        <strong>Job template usage: </strong>
       </clr-dg-detail-header>
       <clr-dg-detail-body>
         <app-job-template-usage [jobTemplateId]="jobTemplateUsage.id" [refreshSubject]="refreshSubject"></app-job-template-usage>
