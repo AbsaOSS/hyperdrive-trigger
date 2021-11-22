@@ -23,6 +23,9 @@ import {
   DeleteJobTemplateSuccess,
   GetJobTemplateForForm,
   GetJobTemplateForFormFailure,
+  GetJobTemplateUsage,
+  GetJobTemplateUsageFailure,
+  GetJobTemplateUsageSuccess,
   JobTemplateChanged,
   LoadHistoryForJobTemplate,
   LoadHistoryForJobTemplateFailure,
@@ -50,6 +53,7 @@ import {
 } from '../../models/jobTemplateParameters.model';
 import { HistoryModel, HistoryModelFactory } from '../../models/historyModel';
 import { JobTemplateHistoryModelFactory } from '../../models/jobTemplateHistoryModel';
+import { WorkflowModelFactory } from "../../models/workflow.model";
 
 describe('JobTemplatesReducers', () => {
   const initialState = {
@@ -63,6 +67,10 @@ describe('JobTemplatesReducers', () => {
       initialJobTemplate: undefined,
       jobTemplate: undefined,
       backendValidationErrors: [],
+    },
+    usage: {
+      loading: false,
+      workflows: [],
     },
     history: {
       loading: true,
@@ -452,6 +460,56 @@ describe('JobTemplatesReducers', () => {
       history: {
         ...initialState.history,
         loading: false,
+      },
+    });
+  });
+
+  it('should set loading to true and workflows to empty on get job template usage', () => {
+    const jobTemplateId = 1;
+    const jobTemplatesAction = new GetJobTemplateUsage(jobTemplateId);
+
+    const actual = jobTemplatesReducer(initialState, jobTemplatesAction);
+
+    expect(actual).toEqual({
+      ...initialState,
+      usage: {
+        ...initialState.usage,
+        loading: true,
+        workflows: [],
+      },
+    });
+  });
+
+  it('should set loading to false and workflows on get job template usage success', () => {
+    const workflows = [
+      WorkflowModelFactory.create('workflowOne', undefined, undefined, undefined, undefined, undefined),
+      WorkflowModelFactory.create('workflowTwo', undefined, undefined, undefined, undefined, undefined),
+    ];
+    const jobTemplatesAction = new GetJobTemplateUsageSuccess(workflows);
+
+    const actual = jobTemplatesReducer(initialState, jobTemplatesAction);
+
+    expect(actual).toEqual({
+      ...initialState,
+      usage: {
+        ...initialState.usage,
+        loading: false,
+        workflows: workflows,
+      },
+    });
+  });
+
+  it('should set loading to false and workflows to empty on get job template usage failure', () => {
+    const jobTemplatesAction = new GetJobTemplateUsageFailure();
+
+    const actual = jobTemplatesReducer(initialState, jobTemplatesAction);
+
+    expect(actual).toEqual({
+      ...initialState,
+      usage: {
+        ...initialState.usage,
+        loading: false,
+        workflows: [],
       },
     });
   });
