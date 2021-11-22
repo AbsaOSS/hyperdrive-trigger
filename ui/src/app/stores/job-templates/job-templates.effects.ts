@@ -103,7 +103,10 @@ export class JobTemplatesEffects {
           return [
             {
               type: JobTemplatesActions.GET_JOB_TEMPLATE_USAGE_SUCCESS,
-              payload: workflows,
+              payload: workflows.sort(
+                (workflowLeft, workflowRight) =>
+                  workflowLeft.project.localeCompare(workflowRight.project) || workflowLeft.name.localeCompare(workflowRight.name),
+              ),
             },
           ];
         }),

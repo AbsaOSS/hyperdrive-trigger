@@ -490,11 +490,11 @@ describe('JobTemplatesEffects', () => {
 
       const action = new GetJobTemplateUsage(id);
       mockActions = cold('-a', { a: action });
-      const jobTemplateUsageResponse = cold('-a|', { a: [workflow, workflow] });
+      const jobTemplateUsageResponse = cold('-a|', { a: [workflow] });
       const expected = cold('--a', {
         a: {
           type: JobTemplatesActions.GET_JOB_TEMPLATE_USAGE_SUCCESS,
-          payload: [workflow, workflow],
+          payload: [workflow],
         },
       });
 
