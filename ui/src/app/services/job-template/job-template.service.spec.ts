@@ -24,7 +24,7 @@ import { JobTemplateModel, JobTemplateModelFactory } from '../../models/jobTempl
 import { SparkTemplateParametersModel } from '../../models/jobTemplateParameters.model';
 import { HistoryModelFactory, HistoryPairModel } from '../../models/historyModel';
 import { JobTemplateHistoryModel, JobTemplateHistoryModelFactory } from '../../models/jobTemplateHistoryModel';
-import { WorkflowModelFactory } from "../../models/workflow.model";
+import { WorkflowModelFactory } from '../../models/workflow.model';
 
 describe('JobTemplateService', () => {
   let underTest: JobTemplateService;

@@ -19,8 +19,8 @@ import { Subject, Subscription } from 'rxjs';
 import { WorkflowModel } from '../../../../../models/workflow.model';
 import { AppState, selectJobTemplatesState } from '../../../../../stores/app.reducers';
 import { GetJobTemplateUsage } from '../../../../../stores/job-templates/job-templates.actions';
-import { Router } from "@angular/router";
-import { absoluteRoutes } from "../../../../../constants/routes.constants";
+import { Router } from '@angular/router';
+import { absoluteRoutes } from '../../../../../constants/routes.constants';
 
 @Component({
   selector: 'app-job-template-usage',

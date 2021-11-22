@@ -27,7 +27,8 @@ import { JobTemplateModel, JobTemplateModelFactory } from '../../models/jobTempl
 import {
   CreateJobTemplate,
   DeleteJobTemplate,
-  GetJobTemplateForForm, GetJobTemplateUsage,
+  GetJobTemplateForForm,
+  GetJobTemplateUsage,
   LoadHistoryForJobTemplate,
   LoadJobTemplatesFromHistory,
   SearchJobTemplates,
@@ -45,7 +46,7 @@ import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import { ApiErrorModelFactory } from '../../models/errors/apiError.model';
 import { HistoryModel, HistoryModelFactory, HistoryPairModel } from '../../models/historyModel';
 import { JobTemplateHistoryModelFactory } from '../../models/jobTemplateHistoryModel';
-import { WorkflowModelFactory } from "../../models/workflow.model";
+import { WorkflowModelFactory } from '../../models/workflow.model';
 
 describe('JobTemplatesEffects', () => {
   let underTest: JobTemplatesEffects;

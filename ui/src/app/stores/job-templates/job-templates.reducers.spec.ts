@@ -53,7 +53,7 @@ import {
 } from '../../models/jobTemplateParameters.model';
 import { HistoryModel, HistoryModelFactory } from '../../models/historyModel';
 import { JobTemplateHistoryModelFactory } from '../../models/jobTemplateHistoryModel';
-import { WorkflowModelFactory } from "../../models/workflow.model";
+import { WorkflowModelFactory } from '../../models/workflow.model';
 
 describe('JobTemplatesReducers', () => {
   const initialState = {

@@ -99,7 +99,7 @@ import { JobTemplateComponent } from './components/admin/job-templates/job-templ
 import { JobTemplatesFormComponent } from './components/admin/job-templates/job-templates-form/job-templates-form.component';
 import { JobTemplateHistoryComponent } from './components/admin/job-templates/job-template-history/job-template-history.component';
 import { JobTemplateComparisonComponent } from './components/admin/job-templates/job-template-history/job-template-comparison/job-template-comparison.component';
-import { JobTemplateUsageComponent } from "./components/admin/job-templates/job-templates-home/job-template-usage/job-template-usage.component";
+import { JobTemplateUsageComponent } from './components/admin/job-templates/job-templates-home/job-template-usage/job-template-usage.component';
 
 @NgModule({
   declarations: [

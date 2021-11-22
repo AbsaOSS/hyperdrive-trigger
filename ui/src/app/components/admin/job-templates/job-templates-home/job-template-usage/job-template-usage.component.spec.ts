@@ -19,12 +19,12 @@ import { provideMockStore } from '@ngrx/store/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Store } from '@ngrx/store';
 import { Subject } from 'rxjs';
-import { JobTemplateUsageComponent } from "./job-template-usage.component";
-import { AppState } from "../../../../../stores/app.reducers";
-import { Router } from "@angular/router";
-import { RouterTestingModule } from "@angular/router/testing";
-import { GetJobTemplateUsage } from "../../../../../stores/job-templates/job-templates.actions";
-import { absoluteRoutes } from "../../../../../constants/routes.constants";
+import { JobTemplateUsageComponent } from './job-template-usage.component';
+import { AppState } from '../../../../../stores/app.reducers';
+import { Router } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
+import { GetJobTemplateUsage } from '../../../../../stores/job-templates/job-templates.actions';
+import { absoluteRoutes } from '../../../../../constants/routes.constants';
 
 describe('JobTemplateUsageComponent', () => {
   let underTest: JobTemplateUsageComponent;
