@@ -18,7 +18,7 @@ package za.co.absa.hyperdrive.trigger.persistance
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, GenericDatabaseError, ValidationError}
-import za.co.absa.hyperdrive.trigger.models.JobTemplate
+import za.co.absa.hyperdrive.trigger.models.{JobTemplate, Workflow}
 import za.co.absa.hyperdrive.trigger.models.search.{TableSearchRequest, TableSearchResponse}
 
 import javax.inject.Inject
@@ -37,6 +37,7 @@ trait JobTemplateRepository extends Repository {
   def updateJobTemplate(jobTemplate: JobTemplate, user: String)(implicit ec: ExecutionContext): Future[Unit]
   def deleteJobTemplate(id: Long, user: String)(implicit ec: ExecutionContext): Future[Unit]
   def existsOtherJobTemplate(name: String, id: Long)(implicit ec: ExecutionContext): Future[Boolean]
+  def getJobTemplateUsage(id: Long): Future[Seq[Workflow]]
 }
 
 @stereotype.Repository
@@ -131,4 +132,14 @@ class JobTemplateRepositoryImpl @Inject()(val dbProvider: DatabaseProvider, over
       .exists
       .result
   )
+
+  override def getJobTemplateUsage(id: Long): Future[Seq[Workflow]] = db.run((
+    for {
+      dagDefinitionId <- jobDefinitionTable.filter(_.jobTemplateId === id).map(_.dagDefinitionId).distinct
+      workflowId <- dagDefinitionTable.filter(_.id === dagDefinitionId).map(_.workflowId)
+      workflow <- workflowTable.filter(_.id === workflowId)
+    } yield {
+      workflow
+    }
+  ).result)
 }

@@ -16,7 +16,7 @@
 package za.co.absa.hyperdrive.trigger.persistance
 
 import org.scalatest.{FlatSpec, _}
-import za.co.absa.hyperdrive.trigger.models.JobTemplate
+import za.co.absa.hyperdrive.trigger.models.{JobTemplate, Workflow}
 import za.co.absa.hyperdrive.trigger.models.errors.ApiException
 import za.co.absa.hyperdrive.trigger.models.search.{ContainsFilterAttributes, SortAttributes, TableSearchRequest, TableSearchResponse}
 
@@ -164,5 +164,23 @@ class JobTemplateRepositoryPostgresTest extends FlatSpec with Matchers with Befo
     val exception = the [ApiException] thrownBy await(jobTemplateRepository.getJobTemplate(jobTemplateId))
 
     exception.getMessage shouldBe s"Job template with id ${jobTemplateId} does not exist."
+  }
+
+  "getJobTemplateUsage" should "return workflows where selected job template is used" in {
+    createTestData()
+    val jobTemplateId = TestData.jobTemplates.last.id
+
+    val result = await(jobTemplateRepository.getJobTemplateUsage(jobTemplateId))
+
+    result.isEmpty shouldBe false
+  }
+
+  "getJobTemplateUsage" should "return a empty sequence when job template does not exist" in {
+    insertJobTemplates()
+    val jobTemplateId = 999111
+
+    val result = await(jobTemplateRepository.getJobTemplateUsage(jobTemplateId))
+
+    result shouldBe Seq.empty[Workflow]
   }
 }
