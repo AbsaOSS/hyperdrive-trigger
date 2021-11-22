@@ -17,7 +17,7 @@ package za.co.absa.hyperdrive.trigger.api.rest.services
 
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.models.search.{TableSearchRequest, TableSearchResponse}
-import za.co.absa.hyperdrive.trigger.models.{DagDefinitionJoined, JobTemplate, ResolvedJobDefinition}
+import za.co.absa.hyperdrive.trigger.models.{DagDefinitionJoined, JobTemplate, ResolvedJobDefinition, Workflow}
 import za.co.absa.hyperdrive.trigger.persistance.JobTemplateRepository
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -35,6 +35,7 @@ trait JobTemplateService {
   def createJobTemplate(jobTemplate: JobTemplate)(implicit ec: ExecutionContext): Future[JobTemplate]
   def updateJobTemplate(jobTemplate: JobTemplate)(implicit ec: ExecutionContext): Future[JobTemplate]
   def deleteJobTemplate(id: Long)(implicit ec: ExecutionContext): Future[Boolean]
+  def getJobTemplateUsage(id: Long): Future[Seq[Workflow]]
 }
 
 @Service
@@ -87,4 +88,7 @@ class JobTemplateServiceImpl(override val jobTemplateRepository: JobTemplateRepo
     val userName = getUserName.apply()
     jobTemplateRepository.deleteJobTemplate(id, userName).map(_ => true)
   }
+
+  override def getJobTemplateUsage(id: Long): Future[Seq[Workflow]] =
+    jobTemplateRepository.getJobTemplateUsage(id)
 }
