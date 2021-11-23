@@ -71,7 +71,7 @@ class KafkaServiceTest extends FlatSpec with MockitoSugar with Matchers with Bef
       val result = the[ApiException] thrownBy await(underTest.existsTopic(testTopic, Seq(fakeKafkaUrl)))
 
       result.apiErrors should have size 1
-      result.apiErrors.head shouldBe GenericError("Could not establish connection.")
+      result.apiErrors.head shouldBe GenericError("Unexpected error occurred while connecting to kafka brokers")
     }
   }
 
