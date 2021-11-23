@@ -201,14 +201,14 @@ class JobTemplateServiceTest extends AsyncFlatSpec with Matchers with MockitoSug
     result shouldBe true
   }
 
-  "getJobTemplateUsage" should "return workflows where job template is used" in {
+  "getWorkflowsByJobTemplate" should "return workflows where job template is used" in {
     // given
     val jobTemplateId = 1
     val workflows = Seq(WorkflowFixture.createWorkflowJoined().toWorkflow, WorkflowFixture.createWorkflowJoined().toWorkflow)
-    when(jobTemplateRepository.getJobTemplateUsage(jobTemplateId)).thenReturn(Future{workflows})
+    when(jobTemplateRepository.getWorkflowsByJobTemplate(jobTemplateId)).thenReturn(Future{workflows})
 
     // when
-    val result = await(underTest.getJobTemplateUsage(jobTemplateId))
+    val result = await(underTest.getWorkflowsByJobTemplate(jobTemplateId))
 
     // then
     result shouldBe workflows

@@ -37,7 +37,7 @@ trait JobTemplateRepository extends Repository {
   def updateJobTemplate(jobTemplate: JobTemplate, user: String)(implicit ec: ExecutionContext): Future[Unit]
   def deleteJobTemplate(id: Long, user: String)(implicit ec: ExecutionContext): Future[Unit]
   def existsOtherJobTemplate(name: String, id: Long)(implicit ec: ExecutionContext): Future[Boolean]
-  def getJobTemplateUsage(id: Long): Future[Seq[Workflow]]
+  def getWorkflowsByJobTemplate(id: Long): Future[Seq[Workflow]]
 }
 
 @stereotype.Repository
@@ -133,7 +133,7 @@ class JobTemplateRepositoryImpl @Inject()(val dbProvider: DatabaseProvider, over
       .result
   )
 
-  override def getJobTemplateUsage(id: Long): Future[Seq[Workflow]] = db.run((
+  override def getWorkflowsByJobTemplate(id: Long): Future[Seq[Workflow]] = db.run((
     for {
       dagDefinitionId <- jobDefinitionTable.filter(_.jobTemplateId === id).map(_.dagDefinitionId).distinct
       workflowId <- dagDefinitionTable.filter(_.id === dagDefinitionId).map(_.workflowId)

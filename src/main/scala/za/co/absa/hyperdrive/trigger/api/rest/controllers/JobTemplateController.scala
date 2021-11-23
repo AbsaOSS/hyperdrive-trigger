@@ -59,8 +59,8 @@ class JobTemplateController @Inject()(jobTemplateService: JobTemplateService) {
   }
 
   @GetMapping(path = Array("/jobTemplates/{id}/workflows"))
-  def getJobTemplateUsage(@PathVariable id: Long): CompletableFuture[Seq[Workflow]] = {
-    jobTemplateService.getJobTemplateUsage(id).toJava.toCompletableFuture
+  def getWorkflowsByJobTemplate(@PathVariable id: Long): CompletableFuture[Seq[Workflow]] = {
+    jobTemplateService.getWorkflowsByJobTemplate(id).toJava.toCompletableFuture
   }
 }
 

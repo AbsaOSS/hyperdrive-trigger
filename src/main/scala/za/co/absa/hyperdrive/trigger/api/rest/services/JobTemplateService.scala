@@ -35,7 +35,7 @@ trait JobTemplateService {
   def createJobTemplate(jobTemplate: JobTemplate)(implicit ec: ExecutionContext): Future[JobTemplate]
   def updateJobTemplate(jobTemplate: JobTemplate)(implicit ec: ExecutionContext): Future[JobTemplate]
   def deleteJobTemplate(id: Long)(implicit ec: ExecutionContext): Future[Boolean]
-  def getJobTemplateUsage(id: Long): Future[Seq[Workflow]]
+  def getWorkflowsByJobTemplate(id: Long): Future[Seq[Workflow]]
 }
 
 @Service
@@ -89,6 +89,6 @@ class JobTemplateServiceImpl(override val jobTemplateRepository: JobTemplateRepo
     jobTemplateRepository.deleteJobTemplate(id, userName).map(_ => true)
   }
 
-  override def getJobTemplateUsage(id: Long): Future[Seq[Workflow]] =
-    jobTemplateRepository.getJobTemplateUsage(id)
+  override def getWorkflowsByJobTemplate(id: Long): Future[Seq[Workflow]] =
+    jobTemplateRepository.getWorkflowsByJobTemplate(id)
 }

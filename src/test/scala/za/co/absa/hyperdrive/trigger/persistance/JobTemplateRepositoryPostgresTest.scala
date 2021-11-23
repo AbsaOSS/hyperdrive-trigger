@@ -166,20 +166,20 @@ class JobTemplateRepositoryPostgresTest extends FlatSpec with Matchers with Befo
     exception.getMessage shouldBe s"Job template with id ${jobTemplateId} does not exist."
   }
 
-  "getJobTemplateUsage" should "return workflows where selected job template is used" in {
+  "getWorkflowsByJobTemplate" should "return workflows where selected job template is used" in {
     createTestData()
     val jobTemplateId = TestData.jobTemplates.last.id
 
-    val result = await(jobTemplateRepository.getJobTemplateUsage(jobTemplateId))
+    val result = await(jobTemplateRepository.getWorkflowsByJobTemplate(jobTemplateId))
 
     result.isEmpty shouldBe false
   }
 
-  "getJobTemplateUsage" should "return a empty sequence when job template does not exist" in {
+  "getWorkflowsByJobTemplate" should "return a empty sequence when job template does not exist" in {
     insertJobTemplates()
     val jobTemplateId = 999111
 
-    val result = await(jobTemplateRepository.getJobTemplateUsage(jobTemplateId))
+    val result = await(jobTemplateRepository.getWorkflowsByJobTemplate(jobTemplateId))
 
     result shouldBe Seq.empty[Workflow]
   }
