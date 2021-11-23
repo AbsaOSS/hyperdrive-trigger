@@ -26,6 +26,9 @@ import javax.inject.Inject
 class InMemoryAuthentication @Inject()(authConfig: AuthConfig) extends HyperdriverAuthentication {
   val username: String = authConfig.inMemoryUser
   val password: String = authConfig.inMemoryPassword
+  val adminUsername: String = authConfig.inMemoryAdminUser
+  val adminPassword: String = authConfig.inMemoryAdminPassword
+  val adminRole: String =  authConfig.adminRole
 
   def validateParams() {
     if (username.isEmpty || password.isEmpty) {
@@ -35,11 +38,15 @@ class InMemoryAuthentication @Inject()(authConfig: AuthConfig) extends Hyperdriv
 
   override def configure(auth: AuthenticationManagerBuilder) {
     this.validateParams()
-    auth
-      .inMemoryAuthentication()
+    auth.inMemoryAuthentication()
       .passwordEncoder(NoOpPasswordEncoder.getInstance())
       .withUser(username)
       .password(password)
       .authorities("ROLE_USER")
+      .and()
+      .passwordEncoder(NoOpPasswordEncoder.getInstance())
+      .withUser(adminUsername)
+      .password(adminPassword)
+      .authorities(adminRole)
   }
 }

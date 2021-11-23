@@ -43,5 +43,14 @@ class AuthConfig (
   val inMemoryUser: String,
   @DefaultValue(Array("hyperdriver-password"))
   @Name("inmemory.password")
-  val inMemoryPassword: String
+  val inMemoryPassword: String,
+  @DefaultValue(Array("hyperdriver-admin-user"))
+  @Name("inmemory.admin.user")
+  val inMemoryAdminUser: String,
+  @DefaultValue(Array("hyperdriver-admin-password"))
+  @Name("inmemory.admin.password")
+  val inMemoryAdminPassword: String,
+  @DefaultValue(Array("ROLE_USER"))
+  @Name("admin.role")
+  val adminRole: String
 )
