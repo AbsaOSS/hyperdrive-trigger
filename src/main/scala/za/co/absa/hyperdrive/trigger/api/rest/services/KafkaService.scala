@@ -29,14 +29,14 @@ import collection.JavaConversions._
 import scala.util.{Failure, Success, Try}
 
 trait KafkaService {
-  def doesKafkaTopicExist(kafkaTopicName: String, servers: Seq[String])(implicit ec: ExecutionContext): Future[Boolean]
+  def existsTopic(kafkaTopicName: String, servers: Seq[String])(implicit ec: ExecutionContext): Future[Boolean]
 }
 
 @Service
 class KafkaServiceImpl(val kafkaConfig: KafkaConfig) extends KafkaService {
   private val serviceLogger = LoggerFactory.getLogger(this.getClass)
 
-  override def doesKafkaTopicExist(kafkaTopicName: String, servers: Seq[String])(implicit ec: ExecutionContext): Future[Boolean] = {
+  override def existsTopic(kafkaTopicName: String, servers: Seq[String])(implicit ec: ExecutionContext): Future[Boolean] = {
     def closeAdminClient(adminClient: AdminClient): Unit = if (adminClient != null) adminClient.close()
 
     val properties = kafkaConfig.properties
@@ -59,7 +59,7 @@ class KafkaServiceImpl(val kafkaConfig: KafkaConfig) extends KafkaService {
           case _ =>
             closeAdminClient(adminClient)
             serviceLogger.error(s"Unexpected error occurred checking kafka topic = $kafkaTopicName, servers = $servers", exception)
-            throw new ApiException(GenericError("Could not establish connection."))
+            throw new ApiException(GenericError("Unexpected error occurred while connecting to kafka brokers"))
         }
       }
     }

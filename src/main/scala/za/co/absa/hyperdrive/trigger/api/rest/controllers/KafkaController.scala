@@ -24,8 +24,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 @RestController
 class KafkaController @Inject()(kafkaService: KafkaService) {
-  @GetMapping(path = Array("/doesKafkaTopicExist"))
-  def doesKafkaTopicExist(@RequestParam kafkaTopicName: String, @RequestParam servers: Array[String]): CompletableFuture[Boolean] = {
-    kafkaService.doesKafkaTopicExist(kafkaTopicName, servers).toJava.toCompletableFuture
+  @GetMapping(path = Array("/topics/{topicName}/exists"))
+  def existsTopic(@PathVariable topicName: String, @RequestParam servers: Array[String]): CompletableFuture[Boolean] = {
+    kafkaService.existsTopic(topicName, servers).toJava.toCompletableFuture
   }
 }

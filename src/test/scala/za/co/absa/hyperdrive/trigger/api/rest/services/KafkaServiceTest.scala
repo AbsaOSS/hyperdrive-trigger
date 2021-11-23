@@ -37,13 +37,13 @@ class KafkaServiceTest extends FlatSpec with MockitoSugar with Matchers with Bef
   private val testKafkaConfig: KafkaConfig = TestKafkaConfig()
   private implicit val config: EmbeddedKafkaConfig = EmbeddedKafkaConfig(kafkaPort = kafkaPort, zooKeeperPort = 12346)
 
-  "KafkaService.doesKafkaTopicExist" should "return true if topic exists" in {
+  "KafkaService.existsTopic" should "return true if topic exists" in {
     withRunningKafka {
       val testTopic = "testTopic"
       createTopic(testTopic)
 
       val underTest = new KafkaServiceImpl(testKafkaConfig)
-      val result = await(underTest.doesKafkaTopicExist(testTopic, Seq(kafkaUrl)))
+      val result = await(underTest.existsTopic(testTopic, Seq(kafkaUrl)))
 
       result shouldBe true
     }
@@ -54,7 +54,7 @@ class KafkaServiceTest extends FlatSpec with MockitoSugar with Matchers with Bef
       val testTopic = "fakeTopic"
 
       val underTest = new KafkaServiceImpl(testKafkaConfig)
-      val result = await(underTest.doesKafkaTopicExist(testTopic, Seq(kafkaUrl)))
+      val result = await(underTest.existsTopic(testTopic, Seq(kafkaUrl)))
 
       result shouldBe false
     }
@@ -68,7 +68,7 @@ class KafkaServiceTest extends FlatSpec with MockitoSugar with Matchers with Bef
 
       val underTest = new KafkaServiceImpl(testKafkaConfig)
 
-      val result = the[ApiException] thrownBy await(underTest.doesKafkaTopicExist(testTopic, Seq(fakeKafkaUrl)))
+      val result = the[ApiException] thrownBy await(underTest.existsTopic(testTopic, Seq(fakeKafkaUrl)))
 
       result.apiErrors should have size 1
       result.apiErrors.head shouldBe GenericError("Could not establish connection.")
