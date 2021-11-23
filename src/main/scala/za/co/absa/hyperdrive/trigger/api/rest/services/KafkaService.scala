@@ -24,27 +24,29 @@ import za.co.absa.hyperdrive.trigger.configuration.application.KafkaConfig
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, GenericError}
 
 import java.util.Arrays.asList
+import java.util.Properties
 import scala.concurrent.{ExecutionContext, Future}
 import collection.JavaConversions._
 import scala.util.{Failure, Success, Try}
 
 trait KafkaService {
-  def existsTopic(kafkaTopicName: String, servers: Seq[String])(implicit ec: ExecutionContext): Future[Boolean]
+  def existsTopic(kafkaTopicName: String, servers: Seq[String], properties: Map[String, String])(implicit ec: ExecutionContext): Future[Boolean]
 }
 
 @Service
 class KafkaServiceImpl(val kafkaConfig: KafkaConfig) extends KafkaService {
   private val serviceLogger = LoggerFactory.getLogger(this.getClass)
 
-  override def existsTopic(kafkaTopicName: String, servers: Seq[String])(implicit ec: ExecutionContext): Future[Boolean] = {
+  override def existsTopic(kafkaTopicName: String, servers: Seq[String], properties: Map[String, String])(implicit ec: ExecutionContext): Future[Boolean] = {
     def closeAdminClient(adminClient: AdminClient): Unit = if (adminClient != null) adminClient.close()
 
-    val properties = kafkaConfig.properties
-    properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, servers.mkString(","))
+    val kafkaProperties = new Properties()
+    properties.foreach(property => kafkaProperties.put(property._1, property._2))
+    kafkaProperties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, servers.mkString(","))
     var adminClient: AdminClient = null
     Future {
       Try {
-        adminClient = AdminClient.create(properties)
+        adminClient = AdminClient.create(kafkaProperties)
         adminClient.describeTopics(
           asList(kafkaTopicName), new DescribeTopicsOptions().timeoutMs(kafkaConfig.connectionTimeoutMillis)
         ).all().get()

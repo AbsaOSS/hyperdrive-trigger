@@ -34,6 +34,7 @@ import scala.concurrent.Future
 class KafkaServiceTest extends FlatSpec with MockitoSugar with Matchers with BeforeAndAfter {
   private val kafkaPort = 12345
   private val kafkaUrl = s"localhost:${kafkaPort}"
+  private val kafkaProperties: Map[String, String] = Map.empty
   private val testKafkaConfig: KafkaConfig = TestKafkaConfig()
   private implicit val config: EmbeddedKafkaConfig = EmbeddedKafkaConfig(kafkaPort = kafkaPort, zooKeeperPort = 12346)
 
@@ -43,7 +44,7 @@ class KafkaServiceTest extends FlatSpec with MockitoSugar with Matchers with Bef
       createTopic(testTopic)
 
       val underTest = new KafkaServiceImpl(testKafkaConfig)
-      val result = await(underTest.existsTopic(testTopic, Seq(kafkaUrl)))
+      val result = await(underTest.existsTopic(testTopic, Seq(kafkaUrl), kafkaProperties))
 
       result shouldBe true
     }
@@ -54,7 +55,7 @@ class KafkaServiceTest extends FlatSpec with MockitoSugar with Matchers with Bef
       val testTopic = "fakeTopic"
 
       val underTest = new KafkaServiceImpl(testKafkaConfig)
-      val result = await(underTest.existsTopic(testTopic, Seq(kafkaUrl)))
+      val result = await(underTest.existsTopic(testTopic, Seq(kafkaUrl), kafkaProperties))
 
       result shouldBe false
     }
@@ -68,7 +69,7 @@ class KafkaServiceTest extends FlatSpec with MockitoSugar with Matchers with Bef
 
       val underTest = new KafkaServiceImpl(testKafkaConfig)
 
-      val result = the[ApiException] thrownBy await(underTest.existsTopic(testTopic, Seq(fakeKafkaUrl)))
+      val result = the[ApiException] thrownBy await(underTest.existsTopic(testTopic, Seq(fakeKafkaUrl), kafkaProperties))
 
       result.apiErrors should have size 1
       result.apiErrors.head shouldBe GenericError("Unexpected error occurred while connecting to kafka brokers")
