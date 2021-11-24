@@ -28,7 +28,7 @@ class InMemoryAuthentication @Inject()(authConfig: AuthConfig) extends Hyperdriv
   val password: String = authConfig.inMemoryPassword
   val adminUsername: String = authConfig.inMemoryAdminUser
   val adminPassword: String = authConfig.inMemoryAdminPassword
-  val adminRole: String =  authConfig.adminRole
+  val adminRole: Option[String] =  authConfig.adminRole
 
   def validateParams() {
     if (username.isEmpty || password.isEmpty) {
@@ -47,6 +47,6 @@ class InMemoryAuthentication @Inject()(authConfig: AuthConfig) extends Hyperdriv
       .passwordEncoder(NoOpPasswordEncoder.getInstance())
       .withUser(adminUsername)
       .password(adminPassword)
-      .authorities(adminRole)
+      .authorities(adminRole.getOrElse("ROLE_USER"))
   }
 }

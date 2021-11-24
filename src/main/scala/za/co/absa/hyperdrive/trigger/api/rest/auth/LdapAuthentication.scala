@@ -48,11 +48,11 @@ class LdapAuthentication @Inject()(authConfig: AuthConfig) extends HyperdriverAu
   override def configure(auth: AuthenticationManagerBuilder): Unit = {
     this.validateParams()
     auth.authenticationProvider(activeDirectoryLdapAuthenticationProvider())
-    auth.ldapAuthentication().ldapAuthoritiesPopulator(new ActiveDirectoryLdapAuthoritiesPopulator())
   }
 
   private def activeDirectoryLdapAuthenticationProvider(): ActiveDirectoryLdapAuthenticationProvider = {
     val prov = new ActiveDirectoryLdapAuthenticationProvider(adDomain, adServer, ldapSearchBase)
+    prov.setAuthoritiesMapper(new LdapGrantedAuthoritiesMapper())
     prov.setSearchFilter(ldapSearchFilter)
     prov.setUseAuthenticationRequestCredentials(true)
     prov.setConvertSubErrorCodesToExceptions(true)

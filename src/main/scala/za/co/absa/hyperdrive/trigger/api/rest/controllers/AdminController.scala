@@ -39,6 +39,7 @@ class AdminController @Inject()(adminService: AdminService) {
     adminService.startManager.toJava.toCompletableFuture
   }
 
+  @PreAuthorize("@authConstants.hasAdminRole(authentication)")
   @PostMapping(path = Array("/admin/stopManager"))
   def stopManager(): CompletableFuture[Boolean] = {
     adminService.stopManager.toJava.toCompletableFuture

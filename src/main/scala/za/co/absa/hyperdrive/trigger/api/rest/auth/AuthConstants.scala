@@ -15,16 +15,16 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.auth
 
-import org.springframework.beans.factory.annotation.{Autowired, Value}
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.{Authentication, GrantedAuthority}
 import org.springframework.stereotype.Component
 import za.co.absa.hyperdrive.trigger.configuration.application.AuthConfig
 
 @Component("authConstants")
 class AuthConstants @Autowired()(authConfig: AuthConfig) {
-  private val adminRole: String = authConfig.adminRole
+  private val adminRole: Option[String] = authConfig.adminRole
 
   def hasAdminRole(auth: Authentication): Boolean = {
-    auth.getAuthorities.toArray(Array[GrantedAuthority]()).map(auth => auth.getAuthority).contains(adminRole)
+    adminRole.forall(auth.getAuthorities.toArray(Array[GrantedAuthority]()).map(auth => auth.getAuthority).contains(_))
   }
 }
