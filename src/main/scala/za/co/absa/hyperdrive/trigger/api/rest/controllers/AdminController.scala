@@ -33,13 +33,13 @@ class AdminController @Inject()(adminService: AdminService) {
     adminService.isManagerRunning.toJava.toCompletableFuture
   }
 
-  @PreAuthorize("@authConstants.hasAdminRole(authentication)")
+  @PreAuthorize("@authUtils.hasAdminRole(authentication)")
   @PostMapping(path = Array("/admin/startManager"))
   def startManager(): CompletableFuture[Boolean] = {
     adminService.startManager.toJava.toCompletableFuture
   }
 
-  @PreAuthorize("@authConstants.hasAdminRole(authentication)")
+  @PreAuthorize("@authUtils.hasAdminRole(authentication)")
   @PostMapping(path = Array("/admin/stopManager"))
   def stopManager(): CompletableFuture[Boolean] = {
     adminService.stopManager.toJava.toCompletableFuture

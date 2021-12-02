@@ -20,8 +20,8 @@ import org.springframework.security.core.{Authentication, GrantedAuthority}
 import org.springframework.stereotype.Component
 import za.co.absa.hyperdrive.trigger.configuration.application.AuthConfig
 
-@Component("authConstants")
-class AuthConstants @Autowired()(authConfig: AuthConfig) {
+@Component("authUtils")
+class AuthUtils @Autowired()(authConfig: AuthConfig) {
   private val adminRole: Option[String] = authConfig.adminRole
 
   def hasAdminRole(auth: Authentication): Boolean = {

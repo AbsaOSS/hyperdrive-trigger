@@ -24,6 +24,7 @@ import javax.inject.Inject
 
 @Component
 class InMemoryAuthentication @Inject()(authConfig: AuthConfig) extends HyperdriverAuthentication {
+  private val ROLE_USER = "ROLE_USER"
   val username: String = authConfig.inMemoryUser
   val password: String = authConfig.inMemoryPassword
   val adminUsername: String = authConfig.inMemoryAdminUser
@@ -42,11 +43,11 @@ class InMemoryAuthentication @Inject()(authConfig: AuthConfig) extends Hyperdriv
       .passwordEncoder(NoOpPasswordEncoder.getInstance())
       .withUser(username)
       .password(password)
-      .authorities("ROLE_USER")
+      .authorities(ROLE_USER)
       .and()
       .passwordEncoder(NoOpPasswordEncoder.getInstance())
       .withUser(adminUsername)
       .password(adminPassword)
-      .authorities(adminRole.getOrElse("ROLE_USER"))
+      .authorities(adminRole.getOrElse(ROLE_USER))
   }
 }

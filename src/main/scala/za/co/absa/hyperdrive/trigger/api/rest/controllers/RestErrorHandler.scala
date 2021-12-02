@@ -41,7 +41,7 @@ class RestErrorHandler {
 
   @ExceptionHandler(Array(classOf[AccessDeniedException]))
   def handleAccessDeniedException(ex: AccessDeniedException, request: WebRequest): ResponseEntity[Object] = {
-    logger.error("Access is denied")
+    logger.error("Access is denied", ex)
     new ResponseEntity(HttpStatus.UNAUTHORIZED)
   }
 

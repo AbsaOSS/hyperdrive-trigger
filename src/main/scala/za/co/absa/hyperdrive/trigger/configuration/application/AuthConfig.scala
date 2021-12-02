@@ -19,7 +19,7 @@ package za.co.absa.hyperdrive.trigger.configuration.application
 import org.springframework.boot.context.properties.bind.{DefaultValue, Name}
 import org.springframework.boot.context.properties.{ConfigurationProperties, ConstructorBinding}
 import org.springframework.validation.annotation.Validated
-import za.co.absa.hyperdrive.trigger.configuration.application.SparkConfig.toNonEmptyOption
+import za.co.absa.hyperdrive.trigger.configuration.application.ConfigUtil.toNonEmptyOption
 
 @ConfigurationProperties("auth")
 @ConstructorBinding
