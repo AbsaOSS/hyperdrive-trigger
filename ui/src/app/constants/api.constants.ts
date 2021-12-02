@@ -45,6 +45,7 @@ export const api = {
   CREATE_JOB_TEMPLATE: '/jobTemplate',
   UPDATE_JOB_TEMPLATE: '/jobTemplates',
   DELETE_JOB_TEMPLATE: '/jobTemplates',
+  GET_JOB_TEMPLATE_USAGE: '/jobTemplates/{id}/workflows',
   GET_HISTORY_FOR_JOB_TEMPLATE: '/jobTemplateHistory',
   GET_JOB_TEMPLATES_FROM_HISTORY: '/jobTemplatesFromHistory',
 

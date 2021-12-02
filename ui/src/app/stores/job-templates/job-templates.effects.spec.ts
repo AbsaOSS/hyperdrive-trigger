@@ -28,6 +28,7 @@ import {
   CreateJobTemplate,
   DeleteJobTemplate,
   GetJobTemplateForForm,
+  GetJobTemplateUsage,
   LoadHistoryForJobTemplate,
   LoadJobTemplatesFromHistory,
   SearchJobTemplates,
@@ -45,6 +46,7 @@ import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import { ApiErrorModelFactory } from '../../models/errors/apiError.model';
 import { HistoryModel, HistoryModelFactory, HistoryPairModel } from '../../models/historyModel';
 import { JobTemplateHistoryModelFactory } from '../../models/jobTemplateHistoryModel';
+import { WorkflowModelFactory } from '../../models/workflow.model';
 
 describe('JobTemplatesEffects', () => {
   let underTest: JobTemplatesEffects;
@@ -478,6 +480,45 @@ describe('JobTemplatesEffects', () => {
       expect(underTest.jobTemplatesFromHistoryLoad).toBeObservable(expected);
       expect(toastrServiceSpyError).toHaveBeenCalledTimes(1);
       expect(toastrServiceSpyError).toHaveBeenCalledWith(texts.LOAD_JOB_TEMPLATES_FROM_HISTORY_FAILURE_NOTIFICATION);
+    });
+  });
+
+  describe('jobTemplateUsageGet', () => {
+    it('should return job template usage', () => {
+      const id = 0;
+      const workflow = WorkflowModelFactory.create('workflowOne', undefined, undefined, undefined, undefined, undefined);
+
+      const action = new GetJobTemplateUsage(id);
+      mockActions = cold('-a', { a: action });
+      const jobTemplateUsageResponse = cold('-a|', { a: [workflow] });
+      const expected = cold('--a', {
+        a: {
+          type: JobTemplatesActions.GET_JOB_TEMPLATE_USAGE_SUCCESS,
+          payload: [workflow],
+        },
+      });
+
+      jobTemplateService.getJobTemplateUsage.and.returnValue(jobTemplateUsageResponse);
+
+      expect(underTest.jobTemplateUsageGet).toBeObservable(expected);
+    });
+
+    it('should return job template usage failure if jobTemplateService.getJobTemplateUsage responds with an error', () => {
+      const id = 0;
+      const toastrServiceSpyError = toastrServiceSpy.error;
+      const action = new GetJobTemplateUsage(id);
+      mockActions = cold('-a', { a: action });
+      const errorResponse = cold('-#|');
+      jobTemplateService.getJobTemplateUsage.and.returnValue(errorResponse);
+
+      const expected = cold('--a', {
+        a: {
+          type: JobTemplatesActions.GET_JOB_TEMPLATE_USAGE_FAILURE,
+        },
+      });
+      expect(underTest.jobTemplateUsageGet).toBeObservable(expected);
+      expect(toastrServiceSpyError).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpyError).toHaveBeenCalledWith(texts.GET_JOB_TEMPLATE_USAGE_FAILURE_NOTIFICATION);
     });
   });
 });

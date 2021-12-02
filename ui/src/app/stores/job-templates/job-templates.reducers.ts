@@ -17,6 +17,7 @@ import * as JobTemplatesActions from './job-templates.actions';
 import { JobTemplateModel, JobTemplateModelFactory } from '../../models/jobTemplate.model';
 import { HistoryModel } from '../../models/historyModel';
 import { JobTemplateHistoryModel } from '../../models/jobTemplateHistoryModel';
+import { WorkflowModel } from '../../models/workflow.model';
 
 export interface State {
   jobTemplates: JobTemplateModel[];
@@ -29,6 +30,10 @@ export interface State {
     initialJobTemplate: JobTemplateModel;
     jobTemplate: JobTemplateModel;
     backendValidationErrors: string[];
+  };
+  usage: {
+    loading: boolean;
+    workflows: WorkflowModel[];
   };
   history: {
     loading: boolean;
@@ -49,6 +54,10 @@ const initialState: State = {
     initialJobTemplate: undefined,
     jobTemplate: undefined,
     backendValidationErrors: [],
+  },
+  usage: {
+    loading: false,
+    workflows: [],
   },
   history: {
     loading: true,
@@ -96,6 +105,30 @@ export function jobTemplatesReducer(state: State = initialState, action: JobTemp
         jobTemplateAction: {
           ...initialState.jobTemplateAction,
           loading: false,
+        },
+      };
+    case JobTemplatesActions.GET_JOB_TEMPLATE_USAGE:
+      return {
+        ...state,
+        usage: {
+          loading: true,
+          workflows: [],
+        },
+      };
+    case JobTemplatesActions.GET_JOB_TEMPLATE_USAGE_SUCCESS:
+      return {
+        ...state,
+        usage: {
+          loading: false,
+          workflows: action.payload,
+        },
+      };
+    case JobTemplatesActions.GET_JOB_TEMPLATE_USAGE_FAILURE:
+      return {
+        ...state,
+        usage: {
+          loading: false,
+          workflows: [],
         },
       };
     case JobTemplatesActions.JOB_TEMPLATE_CHANGED:

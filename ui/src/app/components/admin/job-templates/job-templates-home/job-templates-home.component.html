@@ -73,6 +73,19 @@
     <clr-dg-cell (dblclick)="showJobTemplate(jobTemplate.id)">{{jobTemplate.jobParameters.jobType}}</clr-dg-cell>
   </clr-dg-row>
 
+  <ng-template clrIfDetail let-jobTemplateUsage (clrIfDetailChange)="onJobTemplateUsageOpenClose($event)">
+    <clr-dg-detail>
+      <clr-dg-detail-header>
+        <strong>Job template name: </strong>{{jobTemplateUsage.name}}<br/>
+        <strong>Job type: </strong>{{jobTemplateUsage.jobParameters.jobType}}<br/>
+        <strong>Job template usage: </strong>
+      </clr-dg-detail-header>
+      <clr-dg-detail-body>
+        <app-job-template-usage [jobTemplateId]="jobTemplateUsage.id" [refreshSubject]="refreshSubject"></app-job-template-usage>
+      </clr-dg-detail-body>
+    </clr-dg-detail>
+  </ng-template>
+
   <clr-dg-footer>
     <clr-dg-pagination #pagination [clrDgPageSize]="50" [(clrDgPage)]="page"
                        [clrDgTotalItems]="total"></clr-dg-pagination>
