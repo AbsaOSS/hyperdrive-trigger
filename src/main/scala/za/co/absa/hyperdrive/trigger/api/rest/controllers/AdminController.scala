@@ -15,9 +15,11 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.controllers
 
-import java.util.concurrent.CompletableFuture
+import org.springframework.security.access.prepost.PreAuthorize
 
+import java.util.concurrent.CompletableFuture
 import za.co.absa.hyperdrive.trigger.api.rest.services.AdminService
+
 import javax.inject.Inject
 import org.springframework.web.bind.annotation._
 
@@ -31,11 +33,13 @@ class AdminController @Inject()(adminService: AdminService) {
     adminService.isManagerRunning.toJava.toCompletableFuture
   }
 
+  @PreAuthorize("@authUtils.hasAdminRole(authentication)")
   @PostMapping(path = Array("/admin/startManager"))
   def startManager(): CompletableFuture[Boolean] = {
     adminService.startManager.toJava.toCompletableFuture
   }
 
+  @PreAuthorize("@authUtils.hasAdminRole(authentication)")
   @PostMapping(path = Array("/admin/stopManager"))
   def stopManager(): CompletableFuture[Boolean] = {
     adminService.stopManager.toJava.toCompletableFuture
