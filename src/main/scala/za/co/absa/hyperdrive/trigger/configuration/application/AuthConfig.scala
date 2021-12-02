@@ -19,6 +19,7 @@ package za.co.absa.hyperdrive.trigger.configuration.application
 import org.springframework.boot.context.properties.bind.{DefaultValue, Name}
 import org.springframework.boot.context.properties.{ConfigurationProperties, ConstructorBinding}
 import org.springframework.validation.annotation.Validated
+import za.co.absa.hyperdrive.trigger.configuration.application.ConfigUtil.toNonEmptyOption
 
 @ConfigurationProperties("auth")
 @ConstructorBinding
@@ -43,5 +44,15 @@ class AuthConfig (
   val inMemoryUser: String,
   @DefaultValue(Array("hyperdriver-password"))
   @Name("inmemory.password")
-  val inMemoryPassword: String
-)
+  val inMemoryPassword: String,
+  @DefaultValue(Array("hyperdriver-admin-user"))
+  @Name("inmemory.admin.user")
+  val inMemoryAdminUser: String,
+  @DefaultValue(Array("hyperdriver-admin-password"))
+  @Name("inmemory.admin.password")
+  val inMemoryAdminPassword: String,
+  @Name("admin.role")
+  val adminRoleInternal: String
+) {
+  val adminRole: Option[String] = toNonEmptyOption(adminRoleInternal)
+}

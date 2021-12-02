@@ -19,7 +19,7 @@ package za.co.absa.hyperdrive.trigger.configuration.application
 import org.springframework.boot.context.properties.bind.{DefaultValue, Name}
 import org.springframework.boot.context.properties.{ConfigurationProperties, ConstructorBinding}
 import org.springframework.validation.annotation.Validated
-import za.co.absa.hyperdrive.trigger.configuration.application.SparkConfig.{toNonEmptyOption, transformAdditionalConfsProperty, transformFilesProperty}
+import za.co.absa.hyperdrive.trigger.configuration.application.ConfigUtil._
 
 import java.util.Properties
 import javax.validation.constraints.NotBlank
@@ -45,23 +45,6 @@ class SparkConfig (
   val userUsedToKillJob: String
 )
 
-object SparkConfig {
-  def transformFilesProperty(filesToDeployInternal: String): Seq[String] = Option(filesToDeployInternal)
-    .map(_.split(",").toSeq)
-    .getOrElse(Seq())
-    .filter(_.nonEmpty)
-
-  def transformAdditionalConfsProperty(additionalConfsInternal: Properties): Map[String, String] = {
-    import scala.collection.JavaConverters._
-    Option(additionalConfsInternal)
-      .map(_.asScala.toMap).getOrElse(Map())
-  }
-
-  def toNonEmptyOption(string: String): Option[String] = {
-    Option(string).collect { case x if x.trim.nonEmpty => x}
-  }
-}
-
 class SparkYarnSinkConfig (
   val submitTimeout: Int,
   val hadoopConfDir: String,
@@ -72,8 +55,8 @@ class SparkYarnSinkConfig (
   @Name("additionalConfs")
   additionalConfsInternal: Properties
 ) {
-  val filesToDeploy: Seq[String] = transformFilesProperty(filesToDeployInternal)
-  val additionalConfs: Map[String, String] = transformAdditionalConfsProperty(additionalConfsInternal)
+  val filesToDeploy: Seq[String] = splitString(filesToDeployInternal, ",")
+  val additionalConfs: Map[String, String] = transformProperties(additionalConfsInternal)
 }
 
 class SparkEmrSinkConfig (
@@ -89,6 +72,6 @@ class SparkEmrSinkConfig (
 ) {
   val awsProfile: Option[String] = toNonEmptyOption(awsProfileInternal)
   val region: Option[String] = toNonEmptyOption(regionInternal)
-  val filesToDeploy: Seq[String] = transformFilesProperty(filesToDeployInternal)
-  val additionalConfs: Map[String, String] = transformAdditionalConfsProperty(additionalConfsInternal)
+  val filesToDeploy: Seq[String] = splitString(filesToDeployInternal, ",")
+  val additionalConfs: Map[String, String] = transformProperties(additionalConfsInternal)
 }
