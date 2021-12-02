@@ -19,6 +19,7 @@ import { TableSearchResponseModel } from '../../models/search/tableSearchRespons
 import { JobTemplateModel } from '../../models/jobTemplate.model';
 import { HistoryModel } from '../../models/historyModel';
 import { JobTemplateHistoryModel } from '../../models/jobTemplateHistoryModel';
+import { WorkflowModel } from '../../models/workflow.model';
 
 export const SEARCH_JOB_TEMPLATES = 'SEARCH_JOB_TEMPLATES';
 export const SEARCH_JOB_TEMPLATES_SUCCESS = 'SEARCH_JOB_TEMPLATES_SUCCESS';
@@ -26,6 +27,10 @@ export const SEARCH_JOB_TEMPLATES_FAILURE = 'SEARCH_JOB_TEMPLATES_FAILURE';
 export const GET_JOB_TEMPLATE_FOR_FORM = 'GET_JOB_TEMPLATE_FOR_FORM';
 export const SET_JOB_TEMPLATE_FOR_FORM = 'SET_JOB_TEMPLATE_FOR_FORM';
 export const GET_JOB_TEMPLATE_FOR_FORM_FAILURE = 'GET_JOB_TEMPLATE_FOR_FORM_FAILURE';
+
+export const GET_JOB_TEMPLATE_USAGE = 'GET_JOB_TEMPLATE_USAGE';
+export const GET_JOB_TEMPLATE_USAGE_SUCCESS = 'GET_JOB_TEMPLATE_USAGE_SUCCESS';
+export const GET_JOB_TEMPLATE_USAGE_FAILURE = 'GET_JOB_TEMPLATE_USAGE_FAILURE';
 
 export const JOB_TEMPLATE_CHANGED = 'JOB_TEMPLATE_CHANGED';
 export const SET_EMPTY_JOB_TEMPLATE = 'SET_EMPTY_JOB_TEMPLATE';
@@ -77,6 +82,20 @@ export class SetJobTemplateForFrom implements Action {
 
 export class GetJobTemplateForFormFailure implements Action {
   readonly type = GET_JOB_TEMPLATE_FOR_FORM_FAILURE;
+}
+
+export class GetJobTemplateUsage implements Action {
+  readonly type = GET_JOB_TEMPLATE_USAGE;
+  constructor(public payload: number) {}
+}
+
+export class GetJobTemplateUsageSuccess implements Action {
+  readonly type = GET_JOB_TEMPLATE_USAGE_SUCCESS;
+  constructor(public payload: WorkflowModel[]) {}
+}
+
+export class GetJobTemplateUsageFailure implements Action {
+  readonly type = GET_JOB_TEMPLATE_USAGE_FAILURE;
 }
 
 export class JobTemplateChanged implements Action {
@@ -175,6 +194,9 @@ export type JobTemplatesActions =
   | GetJobTemplateForForm
   | SetJobTemplateForFrom
   | GetJobTemplateForFormFailure
+  | GetJobTemplateUsage
+  | GetJobTemplateUsageSuccess
+  | GetJobTemplateUsageFailure
   | JobTemplateChanged
   | SetEmptyJobTemplate
   | RemoveJobTemplateBackendValidationError

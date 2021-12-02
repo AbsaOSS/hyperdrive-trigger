@@ -118,6 +118,8 @@ export const texts = {
   DELETE_JOB_TEMPLATE_SUCCESS_NOTIFICATION: 'Job template has been deleted.',
   DELETE_JOB_TEMPLATE_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
 
+  GET_JOB_TEMPLATE_USAGE_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
+
   LOAD_HISTORY_FOR_JOB_TEMPLATE_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
   LOAD_JOB_TEMPLATES_FROM_HISTORY_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
 

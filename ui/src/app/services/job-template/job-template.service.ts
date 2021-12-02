@@ -23,6 +23,7 @@ import { TableSearchRequestModel } from '../../models/search/tableSearchRequest.
 import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
 import { HistoryModel, HistoryPairModel } from '../../models/historyModel';
 import { JobTemplateHistoryModel } from '../../models/jobTemplateHistoryModel';
+import { WorkflowModel } from '../../models/workflow.model';
 
 @Injectable({
   providedIn: 'root',
@@ -100,5 +101,11 @@ export class JobTemplateService {
     return this.httpClient
       .get<HistoryPairModel<JobTemplateHistoryModel>>(api.GET_JOB_TEMPLATES_FROM_HISTORY, { params: params, observe: 'response' })
       .pipe(map((_) => _.body));
+  }
+
+  getJobTemplateUsage(id: number): Observable<WorkflowModel[]> {
+    return this.httpClient
+      .get<WorkflowModel[]>(api.GET_JOB_TEMPLATE_USAGE.replace('{id}', id.toString()), { observe: 'response' })
+      .pipe(map((response) => response.body));
   }
 }

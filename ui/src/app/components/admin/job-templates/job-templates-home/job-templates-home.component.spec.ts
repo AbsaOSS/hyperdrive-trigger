@@ -69,7 +69,7 @@ describe('JobTemplatesHomeComponent', () => {
   });
 
   it(
-    'onClarityDgRefresh() should dispatch SearchJobTemplates action',
+    'onClarityDgRefresh() should dispatch SearchJobTemplates action when job template usage is not opened',
     waitForAsync(() => {
       const storeSpy = spyOn(store, 'dispatch');
       const removeFiltersSubjectSpy = spyOn(underTest.refreshSubject, 'next');
@@ -86,24 +86,40 @@ describe('JobTemplatesHomeComponent', () => {
         },
         filters: [],
       };
+      underTest.openedJobTemplateUsage = null;
 
       underTest.onClarityDgRefresh(clrDatagridState);
 
-      expect(removeFiltersSubjectSpy).toHaveBeenCalledTimes(1);
+      expect(removeFiltersSubjectSpy).toHaveBeenCalledTimes(0);
       expect(storeSpy).toHaveBeenCalledTimes(1);
     }),
   );
 
   it(
-    'refresh() should dispatch SearchJobTemplates action',
+    'refresh() should dispatch SearchJobTemplates action when job template usage is not opened',
     waitForAsync(() => {
       const storeSpy = spyOn(store, 'dispatch');
       const removeFiltersSubjectSpy = spyOn(underTest.refreshSubject, 'next');
+      underTest.openedJobTemplateUsage = null;
+
+      underTest.refresh();
+
+      expect(removeFiltersSubjectSpy).toHaveBeenCalledTimes(0);
+      expect(storeSpy).toHaveBeenCalledTimes(1);
+    }),
+  );
+
+  it(
+    'refresh() should not dispatch SearchJobTemplates action when job template usage is opened',
+    waitForAsync(() => {
+      const storeSpy = spyOn(store, 'dispatch');
+      const removeFiltersSubjectSpy = spyOn(underTest.refreshSubject, 'next');
+      underTest.openedJobTemplateUsage = JobTemplateModelFactory.createEmpty();
 
       underTest.refresh();
 
       expect(removeFiltersSubjectSpy).toHaveBeenCalledTimes(1);
-      expect(storeSpy).toHaveBeenCalledTimes(1);
+      expect(storeSpy).toHaveBeenCalledTimes(0);
     }),
   );
 

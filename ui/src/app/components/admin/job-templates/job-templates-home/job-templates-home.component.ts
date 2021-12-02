@@ -52,6 +52,8 @@ export class JobTemplatesHomeComponent implements AfterViewInit, OnDestroy {
   loading = true;
   filters: FilterAttributes[] = [];
 
+  openedJobTemplateUsage: JobTemplateModel = null;
+
   jobTemplateColumns = jobTemplateColumns;
   absoluteRoutes = absoluteRoutes;
 
@@ -82,9 +84,12 @@ export class JobTemplatesHomeComponent implements AfterViewInit, OnDestroy {
   }
 
   refresh() {
-    const searchRequestModel = TableSearchRequestModelFactory.create(this.pageFrom, this.pageSize, this.sort, this.filters);
-    this.store.dispatch(new SearchJobTemplates(searchRequestModel));
-    this.refreshSubject.next(true);
+    if (!this.openedJobTemplateUsage) {
+      const searchRequestModel = TableSearchRequestModelFactory.create(this.pageFrom, this.pageSize, this.sort, this.filters);
+      this.store.dispatch(new SearchJobTemplates(searchRequestModel));
+    } else {
+      this.refreshSubject.next(true);
+    }
   }
 
   clearFilters() {
@@ -105,6 +110,10 @@ export class JobTemplatesHomeComponent implements AfterViewInit, OnDestroy {
       .subscribe((confirmed) => {
         if (confirmed) this.store.dispatch(new DeleteJobTemplate(id));
       });
+  }
+
+  onJobTemplateUsageOpenClose(event: JobTemplateModel) {
+    this.openedJobTemplateUsage = event;
   }
 
   ngOnDestroy(): void {
