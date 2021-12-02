@@ -31,6 +31,7 @@ import { ApiUtil } from '../../utils/api/api.util';
 import { Store } from '@ngrx/store';
 import { HistoryModel, HistoryPairModel } from '../../models/historyModel';
 import { JobTemplateHistoryModel } from '../../models/jobTemplateHistoryModel';
+import { WorkflowModel } from '../../models/workflow.model';
 
 @Injectable()
 export class JobTemplatesEffects {
@@ -86,6 +87,34 @@ export class JobTemplatesEffects {
           return [
             {
               type: JobTemplatesActions.GET_JOB_TEMPLATE_FOR_FORM_FAILURE,
+            },
+          ];
+        }),
+      );
+    }),
+  );
+
+  @Effect({ dispatch: true })
+  jobTemplateUsageGet = this.actions.pipe(
+    ofType(JobTemplatesActions.GET_JOB_TEMPLATE_USAGE),
+    switchMap((action: JobTemplatesActions.GetJobTemplateUsage) => {
+      return this.jobTemplateService.getJobTemplateUsage(action.payload).pipe(
+        mergeMap((workflows: WorkflowModel[]) => {
+          return [
+            {
+              type: JobTemplatesActions.GET_JOB_TEMPLATE_USAGE_SUCCESS,
+              payload: workflows.sort(
+                (workflowLeft, workflowRight) =>
+                  workflowLeft.project.localeCompare(workflowRight.project) || workflowLeft.name.localeCompare(workflowRight.name),
+              ),
+            },
+          ];
+        }),
+        catchError(() => {
+          this.toastrService.error(texts.GET_JOB_TEMPLATE_USAGE_FAILURE_NOTIFICATION);
+          return [
+            {
+              type: JobTemplatesActions.GET_JOB_TEMPLATE_USAGE_FAILURE,
             },
           ];
         }),

@@ -16,11 +16,10 @@
 package za.co.absa.hyperdrive.trigger.api.rest.controllers
 
 import java.util.concurrent.CompletableFuture
-
 import javax.inject.Inject
 import org.springframework.web.bind.annotation._
 import za.co.absa.hyperdrive.trigger.api.rest.services.JobTemplateService
-import za.co.absa.hyperdrive.trigger.models.JobTemplate
+import za.co.absa.hyperdrive.trigger.models.{JobTemplate, Workflow}
 import za.co.absa.hyperdrive.trigger.models.search.{TableSearchRequest, TableSearchResponse}
 
 import scala.compat.java8.FutureConverters._
@@ -57,6 +56,11 @@ class JobTemplateController @Inject()(jobTemplateService: JobTemplateService) {
   @DeleteMapping(path = Array("/jobTemplates"))
   def deleteJobTemplate(@RequestParam id: Long): CompletableFuture[Boolean] = {
     jobTemplateService.deleteJobTemplate(id).toJava.toCompletableFuture
+  }
+
+  @GetMapping(path = Array("/jobTemplates/{id}/workflows"))
+  def getWorkflowsByJobTemplate(@PathVariable id: Long): CompletableFuture[Seq[Workflow]] = {
+    jobTemplateService.getWorkflowsByJobTemplate(id).toJava.toCompletableFuture
   }
 }
 
