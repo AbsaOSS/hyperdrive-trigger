@@ -110,7 +110,7 @@
         <gpg.plugin.version>1.6</gpg.plugin.version>
         <nexus.staging.plugin.version>1.6.8</nexus.staging.plugin.version>
         <maven.release.plugin.version>2.5.3</maven.release.plugin.version>
-        <dockerfile.imageName>bigdatarnd-hyperdrive-trigger</dockerfile.imageName>
+        <dockerfile.imageName>hyperdrive-trigger</dockerfile.imageName>
 
         <skipNpmTests>${skipTests}</skipNpmTests>
         <scalatest.suites />

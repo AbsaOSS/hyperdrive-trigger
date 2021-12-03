@@ -17,7 +17,7 @@
 ARG DOCKER_BASE_IMAGE_PREFIX
 
 # specify your desired base image
-ARG MY_BASE_IMAGE=tomcat:9-jre8-alpine
+ARG MY_BASE_IMAGE=tomcat:9.0.45-jdk8-openjdk-slim
 
 # all pulling images MUST be prefixed like this
 FROM "$DOCKER_BASE_IMAGE_PREFIX""$MY_BASE_IMAGE"
