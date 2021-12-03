@@ -14,13 +14,13 @@
 
 
 # leave it empty, the value is passed from outside
-#ARG DOCKER_BASE_IMAGE_PREFIX
+ARG DOCKER_BASE_IMAGE_PREFIX
 
 # specify your desired base image
-#ARG MY_BASE_IMAGE=tomcat:9.0.44-jdk11-openjdk-slim-buster
+ARG TOMCAT_BASE_IMAGE=tomcat:9-jre8-alpine
 
 # all pulling images MUST be prefixed like this
-FROM tomcat:9-jre8-alpine
+FROM "$DOCKER_BASE_IMAGE_PREFIX""$TOMCAT_BASE_IMAGE"
 
 LABEL \
     vendor="ABSA" \
@@ -37,10 +37,9 @@ LABEL \
 # ARG PROJECT_VERSION
 # ARG PROJECT_BASEDIR
 # ARG PROJECT_BUILD_DIRECTORY
-ARG PROJECT_BUILD_FINAL_NAME
+# ARG PROJECT_BUILD_FINAL_NAME
 
 # SET ENVIRONMENT VARIABLES
-ENV JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk/jre
 
 ADD src/main/resources/docker/start_trigger.sh conf/start_trigger.sh
 ADD src/main/resources/docker/server.xml /tmp/server.xml
@@ -48,7 +47,7 @@ RUN chmod +x conf/start_trigger.sh && \
     rm -rf webapps/*
 
 # TRIGGER APPLICATION: WEB ARCHIVE.
-COPY target/${PROJECT_BUILD_FINAL_NAME} webapps/hyperdrive_trigger.war
+COPY target/*.war webapps/hyperdrive_trigger.war
 
 EXPOSE 8080
 EXPOSE 8443
