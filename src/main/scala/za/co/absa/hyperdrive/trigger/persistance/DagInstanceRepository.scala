@@ -19,6 +19,7 @@ import org.springframework.stereotype
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
 import za.co.absa.hyperdrive.trigger.models.{DagInstance, DagInstanceJoined, Event}
 
+import java.time.LocalDateTime
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -36,6 +37,8 @@ trait DagInstanceRepository extends Repository {
   def hasRunningDagInstance(workflowId: Long)(implicit executionContext: ExecutionContext): Future[Boolean]
 
   def hasInQueueDagInstance(workflowId: Long)(implicit executionContext: ExecutionContext): Future[Boolean]
+
+  def countDagInstancesFrom(workflowId: Long, fromDate: LocalDateTime)(implicit executionContext: ExecutionContext): Future[Int]
 }
 
 @stereotype.Repository
@@ -109,4 +112,13 @@ class DagInstanceRepositoryImpl @Inject()(val dbProvider: DatabaseProvider) exte
     )
   }
 
+  override def countDagInstancesFrom(workflowId: Long, fromDate: LocalDateTime)(implicit executionContext: ExecutionContext): Future[Int] = {
+    db.run(
+      dagInstanceTable
+        .filter(_.workflowId === workflowId)
+        .filter(_.started >= fromDate)
+        .length
+        .result
+    )
+  }
 }

@@ -126,4 +126,9 @@ class DagInstanceRepositoryTest extends FlatSpec with Matchers with BeforeAndAft
     result shouldBe false
   }
 
+  "dagInstanceRepository.countDagInstancesFrom" should "count dag instances from a certain datetime" in {
+    createTestData()
+    val result = await(dagInstanceRepository.countDagInstancesFrom(TestData.w1.id, LocalDateTime.now().minusMinutes(30L)))
+    result shouldBe 2
+  }
 }

@@ -139,9 +139,9 @@ trait RepositoryTestBase extends Repository {
 
     val workflows: Seq[Workflow] = Seq(w1, w2, w3, w4, w5, w6, w7)
 
-    val w1di1 = DagInstance(status = DagInstanceStatuses.InQueue, triggeredBy = triggeredBy, started = LocalDateTime.now(), finished = None, workflowId = w1.id, id = 200)
-    val w1di2 = DagInstance(status = DagInstanceStatuses.InQueue, triggeredBy = triggeredBy, started = LocalDateTime.now(), finished = None, workflowId = w1.id, id = 201)
-    val w1di3 = DagInstance(status = DagInstanceStatuses.Running, triggeredBy = triggeredBy, started = LocalDateTime.now(), finished = None, workflowId = w1.id, id = 202)
+    val w1di1 = DagInstance(status = DagInstanceStatuses.InQueue, triggeredBy = triggeredBy, started = LocalDateTime.now().minusHours(2L), finished = None, workflowId = w1.id, id = 200)
+    val w1di2 = DagInstance(status = DagInstanceStatuses.InQueue, triggeredBy = triggeredBy, started = LocalDateTime.now().minusHours(1L), finished = None, workflowId = w1.id, id = 201)
+    val w1di3 = DagInstance(status = DagInstanceStatuses.Running, triggeredBy = triggeredBy, started = LocalDateTime.now().minusHours(1L), finished = None, workflowId = w1.id, id = 202)
     val w1di4 = DagInstance(status = DagInstanceStatuses.Succeeded, triggeredBy = triggeredBy, started = LocalDateTime.now(), finished = Some(LocalDateTime.now()), workflowId = w1.id, id = 203)
     val w1di5 = DagInstance(status = DagInstanceStatuses.Failed, triggeredBy = triggeredBy, started = LocalDateTime.now(), finished = Some(LocalDateTime.now()), workflowId = w1.id, id = 204)
     val w2di1 = DagInstance(status = DagInstanceStatuses.InQueue, triggeredBy = triggeredBy, started = LocalDateTime.now(), finished = None, workflowId = w2.id, id = 205)
