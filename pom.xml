@@ -257,7 +257,11 @@
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-emr</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-sts</artifactId>
+        </dependency>
+        
         <!-- For Liquibase yaml -->
         <dependency>
             <groupId>org.yaml</groupId>
