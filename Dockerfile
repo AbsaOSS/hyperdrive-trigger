@@ -12,7 +12,15 @@
 # limitations under the License.
 #
 
-FROM tomcat:9-jre8-alpine
+
+# leave it empty, the value is passed from outside
+ARG DOCKER_BASE_IMAGE_PREFIX
+
+# specify your desired base image
+ARG TOMCAT_BASE_IMAGE=tomcat:9-jre8-alpine
+
+# all pulling images MUST be prefixed like this
+FROM "$DOCKER_BASE_IMAGE_PREFIX""$TOMCAT_BASE_IMAGE"
 
 LABEL \
     vendor="ABSA" \
@@ -20,29 +28,26 @@ LABEL \
     license="Apache License, version 2.0" \
     name="Hyperdrive Workflow Manager"
 
-# SET ENVIRONMENT VARIABLES
-ENV JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk/jre \
-    HADOOP_HOME=/hyperdrive/hadoop \
-    HADOOP_CONF_DIR=/hyperdrive/hadoop/etc/hadoop \
-    SPARK_HOME=/hyperdrive/spark \
-    SPARK_CONF_DIR=/hyperdrive/spark/conf \
-    KRB_FILE=/hyperdrive/conf/krb5.conf
+# These arguments are propagated from the corresponding Maven properties.
+# Uncomment what you need.
+#
+# ARG PROJECT_NAME
+# ARG PROJECT_GROUP_ID
+# ARG PROJECT_ARTIFACT_ID
+# ARG PROJECT_VERSION
+# ARG PROJECT_BASEDIR
+# ARG PROJECT_BUILD_DIRECTORY
+# ARG PROJECT_BUILD_FINAL_NAME
 
-ARG WAR_FILE
+# SET ENVIRONMENT VARIABLES
 
 ADD src/main/resources/docker/start_trigger.sh conf/start_trigger.sh
 ADD src/main/resources/docker/server.xml /tmp/server.xml
 RUN chmod +x conf/start_trigger.sh && \
     rm -rf webapps/*
 
-# SPARK-CONF AND KRB S LINKS.
-RUN mkdir -p /etc/spark/ && \
-    ln -s ${SPARK_CONF_DIR} /etc/spark && \
-    rm -rf /etc/krb5.conf && \
-    ln -s ${KRB_FILE} /etc/krb5.conf
-
 # TRIGGER APPLICATION: WEB ARCHIVE.
-COPY ${WAR_FILE} webapps/hyperdrive_trigger.war
+COPY target/*.war webapps/hyperdrive_trigger.war
 
 EXPOSE 8080
 EXPOSE 8443
