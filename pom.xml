@@ -97,6 +97,7 @@
         <scalatest-maven-plugin.version>2.0.0</scalatest-maven-plugin.version>
         <frontend.maven.plugin.version>1.9.0</frontend.maven.plugin.version>
         <maven.war.plugin.version>2.6</maven.war.plugin.version>
+        <git.commit.id.maven.plugin.version>4.9.10</git.commit.id.maven.plugin.version>
         <commons.lang3.version>3.11</commons.lang3.version>
         <javamelody.spring.boot.starter.version>1.87.0</javamelody.spring.boot.starter.version>
         <buildnumber.maven.plugin.version>1.4</buildnumber.maven.plugin.version>
@@ -110,6 +111,8 @@
         <gpg.plugin.version>1.6</gpg.plugin.version>
         <nexus.staging.plugin.version>1.6.8</nexus.staging.plugin.version>
         <maven.release.plugin.version>2.5.3</maven.release.plugin.version>
+        <dockerfile.imageName>hyperdrive-trigger</dockerfile.imageName>
+        <dockerfile.versionTagSuffix>-${git.commit.id.full}</dockerfile.versionTagSuffix>
 
         <skipNpmTests>${skipTests}</skipNpmTests>
         <scalatest.suites />
@@ -503,6 +506,13 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>dockerfile-maven-plugin</artifactId>
+                <configuration>
+                    <skip>false</skip>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.sonatype.plugins</groupId>
                 <artifactId>nexus-staging-maven-plugin</artifactId>
                 <configuration>
@@ -529,6 +539,29 @@
                         <exclude>**/.gitkeep</exclude>
                         <exclude>src/main/resources/banner.txt</exclude>
                     </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+                <version>${git.commit.id.maven.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>get-the-git-infos</id>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                        <phase>initialize</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                    <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+                    <includeOnlyProperties>
+                        <includeOnlyProperty>^git.build.(time|version)$</includeOnlyProperty>
+                        <includeOnlyProperty>^git.commit.id.(abbrev|full)$</includeOnlyProperty>
+                    </includeOnlyProperties>
+                    <commitIdGenerationMode>full</commitIdGenerationMode>
                 </configuration>
             </plugin>
         </plugins>
