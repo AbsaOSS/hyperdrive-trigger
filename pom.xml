@@ -80,7 +80,7 @@
         <alchim31>3.2.0</alchim31>
         <spring.version>2.5.2</spring.version>
         <quartz.version>2.3.2</quartz.version>
-        <log4j.version>2.11.1</log4j.version>
+        <log4j.version>2.15.0</log4j.version>
         <slf4j.log4j2.version>1.7.26</slf4j.log4j2.version>
         <spring.security.ldap.version>5.5.1</spring.security.ldap.version>
         <scalatest.version>3.0.5</scalatest.version>
@@ -137,6 +137,16 @@
     </dependencyManagement>
 
     <dependencies>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-to-slf4j</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-scala_${scala.compat.version}</artifactId>
@@ -261,7 +271,7 @@
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-sts</artifactId>
         </dependency>
-        
+
         <!-- For Liquibase yaml -->
         <dependency>
             <groupId>org.yaml</groupId>
