@@ -75,20 +75,23 @@ class DagInstanceRepositoryImpl @Inject()(val dbProvider: DatabaseProvider) exte
   }
 
   def getDagsToRun(runningIds: Seq[Long], size: Int, assignedWorkflowIds: Seq[Long])(implicit executionContext: ExecutionContext): Future[Seq[DagInstance]] = {
-    val prefilteredResult = db.run(
-      dagInstanceTable.filter { di =>
-        !di.workflowId.in(
-          dagInstanceTable.filter(_.id.inSet(runningIds)).map(_.workflowId)
-        )
-      }
-        .filter(_.status.inSet(DagInstanceStatuses.nonFinalStatuses))
-        .filter(_.workflowId inSetBind assignedWorkflowIds)
-        .result
-    )
+    val dagIdsQuery = dagInstanceTable
+      .filter(_.status inSet DagInstanceStatuses.nonFinalStatuses)
+      .filter(_.workflowId inSetBind assignedWorkflowIds)
+      .filterNot(_.id inSet runningIds)
+      .groupBy(_.workflowId)
+      .map(group => group._2.map(_.id).min)
+      .sorted
+      .take(size)
 
-    prefilteredResult.map(di =>
-      di.groupBy(_.workflowId).flatMap(_._2.sortBy(_.id).take(1)).take(size).toSeq
-    )
+    val dagsToRunQuery = for {
+      dagId <- dagIdsQuery
+      dag <- dagInstanceTable.filter(_.id === dagId)
+    } yield {
+      dag
+    }
+
+    db.run(dagsToRunQuery.result)
   }
 
   override def update(dagInstance: DagInstance): Future[Unit] = db.run(
