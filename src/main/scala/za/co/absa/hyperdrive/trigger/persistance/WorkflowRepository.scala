@@ -43,7 +43,8 @@ trait WorkflowRepository extends Repository {
   def updateWorkflow(workflow: WorkflowJoined, user: String)(implicit ec: ExecutionContext): Future[Unit]
   def switchWorkflowActiveState(id: Long, user: String)(implicit ec: ExecutionContext): Future[Unit]
   def updateWorkflowsIsActive(ids: Seq[Long], isActiveNewValue: Boolean, user: String)(implicit ec: ExecutionContext): Future[Unit]
-  def getProjects()(implicit ec: ExecutionContext): Future[Seq[String]]
+  def getProjects()(implicit ec: ExecutionContext): Future[Seq[Project]]
+  def getProjectNames()(implicit ec: ExecutionContext): Future[Seq[String]]
   def getProjectsInfo()(implicit ec: ExecutionContext): Future[Seq[ProjectInfo]]
   def existsProject(project: String)(implicit ec: ExecutionContext): Future[Boolean]
   def releaseWorkflowAssignmentsOfDeactivatedInstances()(implicit ec: ExecutionContext): Future[(Int, Int)]
@@ -171,7 +172,7 @@ class WorkflowRepositoryImpl @Inject()(
   }
 
   override def getWorkflows()(implicit ec: ExecutionContext): Future[Seq[Workflow]] = db.run(
-    workflowTable.sortBy(_.name).result
+    workflowTable.sortBy(workflow => (workflow.project, workflow.name)).result
   )
 
   override def getWorkflowsByProjectName(projectName: String)(implicit ec: ExecutionContext): Future[Seq[Workflow]] = db.run(
@@ -275,7 +276,18 @@ class WorkflowRepositoryImpl @Inject()(
     )
   }
 
-  override def getProjects()(implicit ec: ExecutionContext): Future[Seq[String]] = db.run(
+  override def getProjects()(implicit ec: ExecutionContext): Future[Seq[Project]] = {
+    db.run(
+      workflowTable.map(workflow => (workflow.project, workflow.name, workflow.id)).result
+    ).map(_.groupBy(_._1).map { case (project, workflows) =>
+      val workflowIdentities = workflows.map { case (_, name, id) =>
+        WorkflowIdentity(id, name)
+      }
+      Project(project, workflowIdentities)
+    }.toSeq)
+  }
+
+  override def getProjectNames()(implicit ec: ExecutionContext): Future[Seq[String]] = db.run(
     workflowTable.map(_.project).distinct.sortBy(_.value).result
   )
 

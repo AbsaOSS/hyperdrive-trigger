@@ -20,7 +20,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{FlatSpec, _}
-import za.co.absa.hyperdrive.trigger.models.Workflow
+import za.co.absa.hyperdrive.trigger.models.{Project, Workflow, WorkflowIdentity}
 import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, GenericDatabaseError}
 
@@ -585,6 +585,20 @@ class WorkflowRepositoryPostgresTest extends FlatSpec with Matchers with BeforeA
 
   it should "return None if there are no workflows" in {
     await(workflowRepository.getMaxWorkflowId) shouldBe None
+  }
+
+  "getProjects()" should "return workflow identities grouped by project name" in {
+    // given
+    createTestData()
+    val expected = TestData.workflows.groupBy(_.project).map{ case (project, workflows) =>
+      Project(project, workflows.map(workflow => WorkflowIdentity(workflow.id, workflow.name)))
+    }
+
+    // when
+    val result = await(workflowRepository.getProjects())
+
+    // then
+    result shouldBe expected
   }
 
   private def assertNoWorkflowIsDoubleAssigned(workflows: Seq[Workflow]*) = {
