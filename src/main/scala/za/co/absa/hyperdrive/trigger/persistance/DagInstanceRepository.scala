@@ -30,7 +30,7 @@ trait DagInstanceRepository extends Repository {
 
   def insertJoinedDagInstance(dagInstanceJoined: DagInstanceJoined)(implicit executionContext: ExecutionContext): Future[Unit]
 
-  def getDagsToRun(runningIds: Seq[Long], size: Int, assignedWorkflowIds: Seq[Long])(implicit executionContext: ExecutionContext): Future[Seq[DagInstance]]
+  def getDagsToRun(runningWorkflowIds: Seq[Long], size: Int, assignedWorkflowIds: Seq[Long])(implicit executionContext: ExecutionContext): Future[Seq[DagInstance]]
 
   def update(dagInstance: DagInstance): Future[Unit]
 
@@ -74,11 +74,11 @@ class DagInstanceRepositoryImpl @Inject()(val dbProvider: DatabaseProvider) exte
     } yield ()
   }
 
-  def getDagsToRun(runningIds: Seq[Long], size: Int, assignedWorkflowIds: Seq[Long])(implicit executionContext: ExecutionContext): Future[Seq[DagInstance]] = {
+  def getDagsToRun(runningWorkflowIds: Seq[Long], size: Int, assignedWorkflowIds: Seq[Long])(implicit executionContext: ExecutionContext): Future[Seq[DagInstance]] = {
     val dagIdsQuery = dagInstanceTable
       .filter(_.status inSet DagInstanceStatuses.nonFinalStatuses)
       .filter(_.workflowId inSetBind assignedWorkflowIds)
-      .filterNot(_.id inSet runningIds)
+      .filterNot(_.workflowId inSet runningWorkflowIds)
       .groupBy(_.workflowId)
       .map(group => group._2.map(_.id).min)
       .sorted
@@ -91,6 +91,7 @@ class DagInstanceRepositoryImpl @Inject()(val dbProvider: DatabaseProvider) exte
       dag
     }
 
+    dagsToRunQuery.result.statements.foreach(println)
     db.run(dagsToRunQuery.result)
   }
 
