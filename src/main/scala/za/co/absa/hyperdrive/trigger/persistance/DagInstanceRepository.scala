@@ -91,7 +91,6 @@ class DagInstanceRepositoryImpl @Inject()(val dbProvider: DatabaseProvider) exte
       dag
     }
 
-    dagsToRunQuery.result.statements.foreach(println)
     db.run(dagsToRunQuery.result)
   }
 
