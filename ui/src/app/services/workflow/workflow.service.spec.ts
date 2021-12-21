@@ -60,6 +60,19 @@ describe('WorkflowService', () => {
     req.flush([...projects]);
   });
 
+  it('getWorkflows() should return workflows', () => {
+    const workflows = [WorkflowModelFactory.create('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 0)];
+
+    underTest.getWorkflows().subscribe(
+      (data) => expect(data).toEqual(workflows),
+      (error) => fail(error),
+    );
+
+    const req = httpTestingController.expectOne(api.GET_WORKFLOWS);
+    expect(req.request.method).toEqual('GET');
+    req.flush([...workflows]);
+  });
+
   it('getWorkflow() should return workflow data', () => {
     const workflow = WorkflowJoinedModelFactory.create('name', true, 'project', undefined, undefined, undefined, 0);
 
@@ -146,19 +159,18 @@ describe('WorkflowService', () => {
     req.flush(workflow);
   });
 
-  it('importWorkflows() should return project list', () => {
+  it('importWorkflows() should return inserted workflows', () => {
     const workflow = WorkflowModelFactory.create('workflowName', true, 'projectName', new Date(Date.now()), new Date(Date.now()), 0);
-    const projects = [ProjectModelFactory.create('newProject', [workflow])];
     const file: File = new File(['content'], 'workflows.zip');
 
     underTest.importWorkflows(file).subscribe(
-      (data) => expect(data).toEqual(projects),
+      (data) => expect(data).toEqual([workflow]),
       (error) => fail(error),
     );
 
     const req = httpTestingController.expectOne(api.IMPORT_WORKFLOWS);
     expect(req.request.method).toEqual('POST');
-    req.flush(projects);
+    req.flush([workflow]);
   });
 
   it('createWorkflow() should return created workflow', () => {
