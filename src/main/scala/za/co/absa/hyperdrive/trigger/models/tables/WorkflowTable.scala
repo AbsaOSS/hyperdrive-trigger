@@ -20,11 +20,11 @@ import java.time.LocalDateTime
 import slick.lifted.{ForeignKeyQuery, ProvenShape}
 import za.co.absa.hyperdrive.trigger.models.{SchedulerInstance, Workflow}
 
-trait WorkflowTable {
-  this: Profile with SchedulerInstanceTable =>
+trait WorkflowTable extends SearchableTableQuery {
+  this: Profile with SchedulerInstanceTable with JdbcTypeMapper =>
   import  api._
 
-  final class WorkflowTable(tag: Tag) extends Table[Workflow](tag, _tableName = "workflow") {
+  final class WorkflowTable(tag: Tag) extends Table[Workflow](tag, _tableName = "workflow") with SearchableTable {
     def name: Rep[String] = column[String]("name", O.Unique, O.Length(45))
     def isActive: Rep[Boolean] = column[Boolean]("is_active")
     def project: Rep[String] = column[String]("project")
@@ -49,6 +49,18 @@ trait WorkflowTable {
         ),
       Workflow.unapply
     )
+
+    override def fieldMapping: Map[String, Rep[_]] = Map(
+      "name" -> this.name,
+      "isActive" -> this.isActive,
+      "project" -> this.project,
+      "created" -> this.created,
+      "updated" -> this.updated,
+      "schedulerInstanceId" -> this.schedulerInstanceId,
+      "id" -> this.id
+    )
+
+    override def defaultSortColumn: Rep[_] = (project, name)
   }
 
   lazy val workflowTable = TableQuery[WorkflowTable]

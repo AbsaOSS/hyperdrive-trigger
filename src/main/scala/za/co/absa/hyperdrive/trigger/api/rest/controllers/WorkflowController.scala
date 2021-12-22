@@ -29,6 +29,7 @@ import za.co.absa.hyperdrive.trigger.api.rest.services.WorkflowService
 import za.co.absa.hyperdrive.trigger.configuration.application.GeneralConfig
 import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, BulkOperationError, GenericError}
+import za.co.absa.hyperdrive.trigger.models.search.{TableSearchRequest, TableSearchResponse}
 
 import scala.collection.mutable.ArrayBuffer
 import scala.compat.java8.FutureConverters._
@@ -55,6 +56,11 @@ class WorkflowController @Inject()(workflowService: WorkflowService, generalConf
   @GetMapping(path = Array("/workflows"))
   def getWorkflows(): CompletableFuture[Seq[Workflow]] = {
     workflowService.getWorkflows.toJava.toCompletableFuture
+  }
+
+  @PostMapping(path = Array("/workflows/search"))
+  def searchWorkflows(@RequestBody searchRequest: TableSearchRequest): CompletableFuture[TableSearchResponse[Workflow]] = {
+    workflowService.searchWorkflows(searchRequest).toJava.toCompletableFuture
   }
 
   @GetMapping(path = Array("/workflowsByProjectName"))

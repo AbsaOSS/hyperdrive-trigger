@@ -18,9 +18,11 @@ package za.co.absa.hyperdrive.trigger.persistance
 import java.time.LocalDateTime
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype
+import za.co.absa.hyperdrive.trigger.models.dagRuns.DagRun
 import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses
 import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses.SchedulerInstanceStatus
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, GenericDatabaseError}
+import za.co.absa.hyperdrive.trigger.models.search.{TableSearchRequest, TableSearchResponse}
 import za.co.absa.hyperdrive.trigger.models.{ProjectInfo, _}
 
 import javax.inject.Inject
@@ -38,6 +40,7 @@ trait WorkflowRepository extends Repository {
   def getWorkflow(id: Long)(implicit ec: ExecutionContext): Future[WorkflowJoined]
   def getWorkflows(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[WorkflowJoined]]
   def getWorkflows()(implicit ec: ExecutionContext): Future[Seq[Workflow]]
+  def searchWorkflows(searchRequest: TableSearchRequest)(implicit ec: ExecutionContext): Future[TableSearchResponse[Workflow]]
   def getWorkflowsByProjectName(projectName: String)(implicit ec: ExecutionContext): Future[Seq[Workflow]]
   def deleteWorkflow(id: Long, user: String)(implicit ec: ExecutionContext): Future[Unit]
   def updateWorkflow(workflow: WorkflowJoined, user: String)(implicit ec: ExecutionContext): Future[Unit]
@@ -173,6 +176,10 @@ class WorkflowRepositoryImpl @Inject()(
   override def getWorkflows()(implicit ec: ExecutionContext): Future[Seq[Workflow]] = db.run(
     workflowTable.sortBy(_.name).result
   )
+
+  override def searchWorkflows(searchRequest: TableSearchRequest)(implicit ec: ExecutionContext): Future[TableSearchResponse[Workflow]] = {
+    db.run(workflowTable.search(searchRequest))
+  }
 
   override def getWorkflowsByProjectName(projectName: String)(implicit ec: ExecutionContext): Future[Seq[Workflow]] = db.run(
     workflowTable.filter(_.project === projectName).sortBy(_.name).result
