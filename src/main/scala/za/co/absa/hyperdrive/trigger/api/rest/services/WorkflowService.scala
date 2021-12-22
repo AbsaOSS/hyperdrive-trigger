@@ -21,6 +21,7 @@ import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, BulkOperationE
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, WorkflowRepository}
 import org.slf4j.LoggerFactory
 import za.co.absa.hyperdrive.trigger.configuration.application.GeneralConfig
+import za.co.absa.hyperdrive.trigger.models.search.{TableSearchRequest, TableSearchResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -36,6 +37,8 @@ trait WorkflowService {
   def getWorkflow(id: Long)(implicit ec: ExecutionContext): Future[WorkflowJoined]
 
   def getWorkflows()(implicit ec: ExecutionContext): Future[Seq[Workflow]]
+
+  def searchWorkflows(searchRequest: TableSearchRequest)(implicit ec: ExecutionContext): Future[TableSearchResponse[Workflow]]
 
   def getWorkflowsByProjectName(projectName: String)(implicit ec: ExecutionContext): Future[Seq[Workflow]]
 
@@ -91,6 +94,10 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
 
   def getWorkflows()(implicit ec: ExecutionContext): Future[Seq[Workflow]] = {
     workflowRepository.getWorkflows()
+  }
+
+  def searchWorkflows(searchRequest: TableSearchRequest)(implicit ec: ExecutionContext): Future[TableSearchResponse[Workflow]] = {
+    workflowRepository.searchWorkflows(searchRequest)
   }
 
   def getWorkflowsByProjectName(projectName: String)(implicit ec: ExecutionContext): Future[Seq[Workflow]] = {
