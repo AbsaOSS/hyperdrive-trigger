@@ -51,7 +51,7 @@ export class WorkflowsEffects {
     private jobService: JobService,
     private store: Store<AppState>,
     private router: Router,
-    public toastrService: ToastrService,
+    private toastrService: ToastrService,
     private utilService: UtilService,
   ) {}
 
