@@ -21,6 +21,7 @@ import { ProjectModel } from '../../models/project.model';
 import { Observable, throwError } from 'rxjs';
 import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
 import { JobTemplateModel } from '../../models/jobTemplate.model';
+import { WorkflowModel } from '../../models/workflow.model';
 
 @Injectable({
   providedIn: 'root',
@@ -31,6 +32,12 @@ export class WorkflowService {
   getProjects(): Observable<ProjectModel[]> {
     return this.httpClient
       .get<ProjectModel[]>(api.GET_PROJECTS, { observe: 'response' })
+      .pipe(map((_) => _.body));
+  }
+
+  getWorkflows(): Observable<WorkflowModel[]> {
+    return this.httpClient
+      .get<WorkflowModel[]>(api.GET_WORKFLOWS, { observe: 'response' })
       .pipe(map((_) => _.body));
   }
 
@@ -97,12 +104,12 @@ export class WorkflowService {
       );
   }
 
-  importWorkflows(zipFile: File): Observable<ProjectModel[]> {
+  importWorkflows(zipFile: File): Observable<WorkflowModel[]> {
     const formData: FormData = new FormData();
     formData.append('file', zipFile, zipFile.name);
 
     return this.httpClient
-      .post<ProjectModel[]>(api.IMPORT_WORKFLOWS, formData, { observe: 'response' })
+      .post<WorkflowModel[]>(api.IMPORT_WORKFLOWS, formData, { observe: 'response' })
       .pipe(
         map((_) => {
           return _.body;

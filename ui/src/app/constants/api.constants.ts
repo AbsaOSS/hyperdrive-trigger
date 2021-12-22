@@ -24,6 +24,7 @@ export const api = {
   KILL_JOB: '/jobInstances/{applicationId}/kill',
 
   GET_PROJECTS: '/workflows/projects',
+  GET_WORKFLOWS: '/workflows',
   GET_WORKFLOW: '/workflow',
   DELETE_WORKFLOW: '/workflows',
   EXPORT_WORKFLOWS: '/workflows/export',

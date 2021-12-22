@@ -165,7 +165,7 @@ class WorkflowController @Inject()(workflowService: WorkflowService, generalConf
   }
 
   @PostMapping(path = Array("/workflows/import"))
-  def importWorkflows(@RequestPart("file") file: MultipartFile): CompletableFuture[Seq[Project]] = {
+  def importWorkflows(@RequestPart("file") file: MultipartFile): CompletableFuture[Seq[WorkflowJoined]] = {
     val zipEntries = extractZipEntries(file.getBytes)
     if (zipEntries.isEmpty) {
       throw new ApiException(GenericError("The given zip file does not contain any workflows"))

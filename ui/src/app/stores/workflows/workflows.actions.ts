@@ -93,7 +93,13 @@ export class InitializeWorkflows implements Action {
 
 export class InitializeWorkflowsSuccess implements Action {
   readonly type = INITIALIZE_WORKFLOWS_SUCCESS;
-  constructor(public payload: { projects: ProjectModel[]; jobTemplates: JobTemplateModel[] }) {}
+  constructor(
+    public payload: {
+      workflows: WorkflowModel[];
+      projects: ProjectModel[];
+      jobTemplates: JobTemplateModel[];
+    },
+  ) {}
 }
 
 export class InitializeWorkflowsFailure implements Action {
@@ -309,7 +315,7 @@ export class ImportWorkflows implements Action {
 
 export class ImportWorkflowsSuccess implements Action {
   readonly type = IMPORT_WORKFLOWS_SUCCESS;
-  constructor(public payload: ProjectModel[]) {}
+  constructor(public payload: WorkflowModel[]) {}
 }
 
 export class ImportWorkflowsFailure implements Action {

@@ -34,7 +34,7 @@ import { HistoryModel, HistoryPairModel, WorkflowHistoryModel } from '../../mode
 import { WorkflowHistoryService } from '../../services/workflowHistory/workflow-history.service';
 import { JobService } from '../../services/job/job.service';
 import { JobForRunModel } from '../../models/jobForRun.model';
-import { EMPTY } from 'rxjs';
+import { EMPTY, forkJoin } from 'rxjs';
 import { ApiErrorModel } from '../../models/errors/apiError.model';
 import { BulkOperationErrorModel } from '../../models/errors/bulkOperationError.model';
 import { UtilService } from '../../services/util/util.service';
@@ -59,29 +59,32 @@ export class WorkflowsEffects {
   workflowsInitialize = this.actions.pipe(
     ofType(WorkflowActions.INITIALIZE_WORKFLOWS),
     switchMap((action: WorkflowActions.InitializeWorkflows) => {
-      return this.workflowService.getProjects();
-    }),
-    mergeMap((projects: ProjectModel[]) => {
-      return this.workflowService.getJobTemplates().pipe(
-        mergeMap((jobTemplates: JobTemplateModel[]) => {
+      const workflows = this.workflowService.getWorkflows();
+      const projects = this.workflowService.getProjects();
+      const jobTemplates = this.workflowService.getJobTemplates();
+
+      return forkJoin([projects, workflows, jobTemplates]).pipe(
+        switchMap(([projects, workflows, jobTemplates]: [ProjectModel[], WorkflowModel[], JobTemplateModel[]]) => {
           return [
             {
               type: WorkflowActions.INITIALIZE_WORKFLOWS_SUCCESS,
               payload: {
+                workflows: workflows,
                 projects: projects,
                 jobTemplates: jobTemplates,
               },
             },
           ];
         }),
-        catchError(() => {
-          return [
-            {
-              type: WorkflowActions.INITIALIZE_WORKFLOWS_FAILURE,
-            },
-          ];
-        }),
       );
+    }),
+    catchError(() => {
+      this.toastrService.error(texts.LOAD_WORKFLOWS_FAILURE_NOTIFICATION);
+      return [
+        {
+          type: WorkflowActions.INITIALIZE_WORKFLOWS_FAILURE,
+        },
+      ];
     }),
   );
 
@@ -570,12 +573,12 @@ export class WorkflowsEffects {
     ofType(WorkflowActions.IMPORT_WORKFLOWS),
     switchMap((action: WorkflowActions.ImportWorkflows) => {
       return this.workflowService.importWorkflows(action.payload).pipe(
-        mergeMap((projects: ProjectModel[]) => {
+        mergeMap((workflows: WorkflowModel[]) => {
           this.toastrService.success(texts.IMPORT_WORKFLOWS_SUCCESS_NOTIFICATION);
           return [
             {
               type: WorkflowActions.IMPORT_WORKFLOWS_SUCCESS,
-              payload: projects,
+              payload: workflows,
             },
           ];
         }),

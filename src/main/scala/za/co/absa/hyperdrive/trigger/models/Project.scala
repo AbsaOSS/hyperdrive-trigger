@@ -17,5 +17,10 @@ package za.co.absa.hyperdrive.trigger.models
 
 case class Project(
   name: String,
-  workflows: Seq[Workflow]
+  workflows: Seq[WorkflowIdentity]
+)
+
+case class WorkflowIdentity(
+  id: Long,
+  name: String
 )
