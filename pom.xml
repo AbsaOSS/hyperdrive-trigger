@@ -84,7 +84,7 @@
         <slf4j.log4j2.version>1.7.26</slf4j.log4j2.version>
         <spring.security.ldap.version>5.5.1</spring.security.ldap.version>
         <scalatest.version>3.0.5</scalatest.version>
-        <h2database.version>1.4.200</h2database.version>
+        <h2database.version>2.0.202</h2database.version>
         <testcontainers.postgresql.version>1.15.3</testcontainers.postgresql.version>
         <mockito.version>2.25.0</mockito.version>
         <cron-expression-descriptor.version>1.2</cron-expression-descriptor.version>

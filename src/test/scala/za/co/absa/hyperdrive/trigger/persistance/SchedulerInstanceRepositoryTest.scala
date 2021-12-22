@@ -47,13 +47,11 @@ class SchedulerInstanceRepositoryTest extends FlatSpec with Matchers with Before
 
   "insertInstance" should "insert an instance in active state" in {
     val now = LocalDateTime.now()
-    val expectedId = TestData.schedulerInstances.map(_.id).max + 1
 
     val newInstanceId = await(schedulerInstanceRepository.insertInstance())
     val allInstances = await(db.run(schedulerInstanceTable.result))
 
-    newInstanceId shouldBe expectedId
-    val newInstance = allInstances.find(_.id == expectedId).get
+    val newInstance = allInstances.find(_.id == newInstanceId).get
     newInstance.status shouldBe SchedulerInstanceStatuses.Active
     newInstance.lastHeartbeat.isBefore(now) shouldBe false
 
