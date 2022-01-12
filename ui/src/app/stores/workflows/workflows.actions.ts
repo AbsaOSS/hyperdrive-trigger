@@ -221,7 +221,7 @@ export class SearchWorkflows implements Action {
 
 export class SearchWorkflowsSuccess implements Action {
   readonly type = SEARCH_WORKFLOWS_SUCCESS;
-  constructor(public payload: { workflows: WorkflowModel[], total: number }) {}
+  constructor(public payload: { workflows: WorkflowModel[]; total: number }) {}
 }
 
 export class SearchWorkflowsFailure implements Action {

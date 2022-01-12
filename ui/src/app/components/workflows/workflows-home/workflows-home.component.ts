@@ -23,7 +23,8 @@ import {
   ExportWorkflows,
   ImportWorkflows,
   LoadJobsForRun,
-  RunWorkflows, SearchWorkflows,
+  RunWorkflows,
+  SearchWorkflows,
   SetWorkflowFile,
   UpdateWorkflowsIsActive,
 } from '../../../stores/workflows/workflows.actions';
@@ -38,7 +39,7 @@ import { filter } from 'rxjs/operators';
 import { workflowsHomeColumns } from 'src/app/constants/workflow.constants';
 import { TableSearchRequestModel } from '../../../models/search/tableSearchRequest.model';
 import { ContainsFilterAttributes } from '../../../models/search/containsFilterAttributes.model';
-import { BooleanFilterAttributes } from "../../../models/search/booleanFilterAttributes.model";
+import { BooleanFilterAttributes } from '../../../models/search/booleanFilterAttributes.model';
 
 @Component({
   selector: 'app-workflows-home',
@@ -92,9 +93,9 @@ export class WorkflowsHomeComponent implements OnInit, AfterViewInit, OnDestroy 
         .concat(state.workflowsSearch.searchRequest?.booleanFilterAttributes);
       this.pageFrom = state.workflowsSearch.searchRequest?.from ? state.workflowsSearch.searchRequest?.from : 0;
       this.pageSize = state.workflowsSearch.searchRequest?.size ? state.workflowsSearch.searchRequest?.size : 100;
-      this.page = (this.pageFrom/this.pageSize) + 1;
+      this.page = this.pageFrom / this.pageSize + 1;
 
-      if(this.loadingAction == true && state.workflowAction.loading == false) {
+      if (this.loadingAction == true && state.workflowAction.loading == false) {
         this.loadingAction = false;
         this.refresh();
       } else {
