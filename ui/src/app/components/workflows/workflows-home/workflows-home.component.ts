@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { Component, OnDestroy, OnInit, QueryList, ViewChildren } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { Subject, Subscription } from 'rxjs';
 import { AppState, selectWorkflowState } from '../../../stores/app.reducers';
 import { WorkflowModel } from '../../../models/workflow.model';
@@ -23,10 +23,8 @@ import {
   ExportWorkflows,
   ImportWorkflows,
   LoadJobsForRun,
-  RunWorkflows,
+  RunWorkflows, SearchWorkflows,
   SetWorkflowFile,
-  SetWorkflowsFilters,
-  SetWorkflowsSort,
   UpdateWorkflowsIsActive,
 } from '../../../stores/workflows/workflows.actions';
 import { ConfirmationDialogTypes } from '../../../constants/confirmationDialogTypes.constants';
@@ -38,23 +36,35 @@ import { ClrDatagridColumn, ClrDatagridStateInterface } from '@clr/angular';
 import { SortAttributesModel } from '../../../models/search/sortAttributes.model';
 import { filter } from 'rxjs/operators';
 import { workflowsHomeColumns } from 'src/app/constants/workflow.constants';
+import { TableSearchRequestModel } from '../../../models/search/tableSearchRequest.model';
+import { ContainsFilterAttributes } from '../../../models/search/containsFilterAttributes.model';
+import { BooleanFilterAttributes } from "../../../models/search/booleanFilterAttributes.model";
 
 @Component({
   selector: 'app-workflows-home',
   templateUrl: './workflows-home.component.html',
   styleUrls: ['./workflows-home.component.scss'],
 })
-export class WorkflowsHomeComponent implements OnInit, OnDestroy {
+export class WorkflowsHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChildren(ClrDatagridColumn) columns: QueryList<ClrDatagridColumn>;
 
   confirmationDialogServiceSubscription: Subscription = null;
   runWorkflowDialogSubscription: Subscription = null;
   workflowsSubscription: Subscription = null;
+  loadingSubscription: Subscription = null;
   routerSubscription: Subscription = null;
   workflows: WorkflowModel[] = [];
   absoluteRoutes = absoluteRoutes;
   workflowsHomeColumns = workflowsHomeColumns;
   selected: WorkflowModel[] = [];
+
+  loading = true;
+  loadingAction = false;
+
+  page = 1;
+  total = 0;
+  pageFrom = 0;
+  pageSize = 0;
 
   removeWorkflowFilterSubject: Subject<any> = new Subject();
   sort: SortAttributesModel = undefined;
@@ -74,9 +84,28 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.workflowsSubscription = this.store.select(selectWorkflowState).subscribe((state) => {
-      this.workflows = state.workflows;
-      this.sort = state.workflowsSort;
-      this.filters = state.workflowsFilters;
+      this.workflows = state.workflowsSearch.workflows;
+      this.total = state.workflowsSearch.total;
+      this.sort = state.workflowsSearch.searchRequest?.sort;
+      this.filters = []
+        .concat(state.workflowsSearch.searchRequest?.containsFilterAttributes)
+        .concat(state.workflowsSearch.searchRequest?.booleanFilterAttributes);
+      this.pageFrom = state.workflowsSearch.searchRequest?.from ? state.workflowsSearch.searchRequest?.from : 0;
+      this.pageSize = state.workflowsSearch.searchRequest?.size ? state.workflowsSearch.searchRequest?.size : 100;
+      this.page = (this.pageFrom/this.pageSize) + 1;
+
+      if(this.loadingAction == true && state.workflowAction.loading == false) {
+        this.loadingAction = false;
+        this.refresh();
+      } else {
+        this.loadingAction = state.workflowAction.loading;
+      }
+    });
+  }
+
+  ngAfterViewInit(): void {
+    this.loadingSubscription = this.store.select(selectWorkflowState).subscribe((state) => {
+      this.loading = state.workflowsSearch.loading;
     });
   }
 
@@ -95,7 +124,6 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
     this.confirmationDialogServiceSubscription = this.confirmationDialogService
       .confirm(ConfirmationDialogTypes.YesOrNo, texts.BULK_RUN_WORKFLOWS_TITLE, texts.BULK_RUN_WORKFLOWS_CONTENT(selected.length))
       .subscribe((confirmed) => {
-        this.ignoreRefresh = true;
         if (confirmed) this.store.dispatch(new RunWorkflows(selected.map((workflow) => workflow.id)));
       });
   }
@@ -146,7 +174,6 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
     this.confirmationDialogServiceSubscription = this.confirmationDialogService
       .confirm(ConfirmationDialogTypes.Delete, texts.DELETE_WORKFLOW_CONFIRMATION_TITLE, texts.DELETE_WORKFLOW_CONFIRMATION_CONTENT)
       .subscribe((confirmed) => {
-        this.ignoreRefresh = true;
         if (confirmed) this.store.dispatch(new DeleteWorkflow(id));
       });
   }
@@ -160,7 +187,6 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
       )
       .subscribe((confirmed) => {
         if (confirmed) {
-          this.ignoreRefresh = true;
           this.store.dispatch(new SwitchWorkflowActiveState({ id: id, currentActiveState: currentActiveState }));
         }
       });
@@ -177,16 +203,28 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
   onClarityDgRefresh(state: ClrDatagridStateInterface) {
     if (!this.ignoreRefresh) {
       this.sort = state.sort ? new SortAttributesModel(state.sort.by as string, state.sort.reverse ? -1 : 1) : undefined;
-      this.store.dispatch(new SetWorkflowsSort(this.sort));
+      this.pageFrom = state.page.from < 0 ? 0 : state.page.from;
+      this.pageSize = state.page.size;
       this.filters = state.filters ? state.filters : [];
-      this.store.dispatch(new SetWorkflowsFilters(this.filters));
+      this.refresh();
     }
+  }
+
+  refresh() {
+    const searchRequestModel: TableSearchRequestModel = {
+      from: this.pageFrom,
+      size: this.pageSize,
+      sort: this.sort,
+      containsFilterAttributes: this.filters.filter((f) => f instanceof ContainsFilterAttributes).map((f) => f as ContainsFilterAttributes),
+      booleanFilterAttributes: this.filters.filter((f) => f instanceof BooleanFilterAttributes).map((f) => f as BooleanFilterAttributes),
+    };
+    this.store.dispatch(new SearchWorkflows(searchRequestModel));
   }
 
   getFilter(name: string): any | undefined {
     let filter = undefined;
     if (this.filters) {
-      filter = this.filters.find((filter) => filter.field == name);
+      filter = this.filters.find((filter) => filter?.field == name);
     }
 
     return filter && filter.value ? filter.value : undefined;
@@ -197,7 +235,8 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
   }
 
   clearFilters() {
-    this.removeWorkflowFilterSubject.next();
+    this.filters = [];
+    this.refresh();
   }
 
   clearSort() {
@@ -236,7 +275,6 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
       )
       .subscribe((confirmed) => {
         if (confirmed) {
-          this.ignoreRefresh = true;
           this.store.dispatch(new UpdateWorkflowsIsActive({ ids: ids, isActiveNewValue: isActiveNewValue }));
         }
       });
@@ -247,5 +285,6 @@ export class WorkflowsHomeComponent implements OnInit, OnDestroy {
     !!this.confirmationDialogServiceSubscription && this.confirmationDialogServiceSubscription.unsubscribe();
     !!this.runWorkflowDialogSubscription && this.runWorkflowDialogSubscription.unsubscribe();
     !!this.routerSubscription && this.routerSubscription.unsubscribe();
+    !!this.loadingSubscription && this.loadingSubscription.unsubscribe();
   }
 }
