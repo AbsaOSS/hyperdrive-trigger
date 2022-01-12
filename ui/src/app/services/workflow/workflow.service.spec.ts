@@ -22,7 +22,6 @@ import { ProjectModelFactory } from '../../models/project.model';
 import {WorkflowModel, WorkflowModelFactory} from '../../models/workflow.model';
 import { WorkflowJoinedModelFactory } from '../../models/workflowJoined.model';
 import {TableSearchResponseModel} from "../../models/search/tableSearchResponse.model";
-import {DagRunModel} from "../../models/dagRuns/dagRun.model";
 import {TableSearchRequestModelFactory} from "../../models/search/tableSearchRequest.model";
 
 describe('WorkflowService', () => {
