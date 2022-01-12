@@ -88,9 +88,10 @@ export class WorkflowsHomeComponent implements OnInit, AfterViewInit, OnDestroy 
       this.workflows = state.workflowsSearch.workflows;
       this.total = state.workflowsSearch.total;
       this.sort = state.workflowsSearch.searchRequest?.sort;
-      this.filters = []
-        .concat(state.workflowsSearch.searchRequest?.containsFilterAttributes)
-        .concat(state.workflowsSearch.searchRequest?.booleanFilterAttributes);
+      this.filters = [
+        ...(state.workflowsSearch.searchRequest?.containsFilterAttributes || []),
+        ...(state.workflowsSearch.searchRequest?.booleanFilterAttributes || []),
+      ];
       this.pageFrom = state.workflowsSearch.searchRequest?.from ? state.workflowsSearch.searchRequest?.from : 0;
       this.pageSize = state.workflowsSearch.searchRequest?.size ? state.workflowsSearch.searchRequest?.size : 100;
       this.page = this.pageFrom / this.pageSize + 1;

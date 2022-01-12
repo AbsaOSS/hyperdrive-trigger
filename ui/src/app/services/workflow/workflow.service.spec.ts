@@ -19,10 +19,10 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 import { api } from '../../constants/api.constants';
 import { WorkflowService } from './workflow.service';
 import { ProjectModelFactory } from '../../models/project.model';
-import {WorkflowModel, WorkflowModelFactory} from '../../models/workflow.model';
+import { WorkflowModel, WorkflowModelFactory } from '../../models/workflow.model';
 import { WorkflowJoinedModelFactory } from '../../models/workflowJoined.model';
-import {TableSearchResponseModel} from "../../models/search/tableSearchResponse.model";
-import {TableSearchRequestModelFactory} from "../../models/search/tableSearchRequest.model";
+import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
+import { TableSearchRequestModelFactory } from '../../models/search/tableSearchRequest.model';
 
 describe('WorkflowService', () => {
   let underTest: WorkflowService;
@@ -76,11 +76,9 @@ describe('WorkflowService', () => {
   });
 
   it('searchWorkflows() should return workflows search response', () => {
-    const workflows = [WorkflowModelFactory.create(
-      'workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 0
-    )];
+    const workflows = [WorkflowModelFactory.create('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 0)];
     const searchResponseModel = new TableSearchResponseModel<WorkflowModel>(workflows, 1);
-    const request = TableSearchRequestModelFactory.create(0, 100)
+    const request = TableSearchRequestModelFactory.create(0, 100);
 
     underTest.searchWorkflows(request).subscribe(
       (data) => expect(data).toEqual(searchResponseModel),

@@ -34,7 +34,8 @@ import {
   UpdateWorkflow,
   UpdateWorkflowsIsActive,
   ImportWorkflows,
-  RunWorkflows, SearchWorkflows,
+  RunWorkflows,
+  SearchWorkflows,
 } from './workflows.actions';
 
 import { WorkflowsEffects } from './workflows.effects';
@@ -62,8 +63,8 @@ import { BulkOperationErrorModelFactory } from 'src/app/models/errors/bulkOperat
 import { RecurringSensorProperties } from '../../models/sensorProperties.model';
 import { JobTemplateModelFactory } from '../../models/jobTemplate.model';
 import { SparkTemplateParametersModel } from '../../models/jobTemplateParameters.model';
-import { TableSearchRequestModelFactory } from "../../models/search/tableSearchRequest.model";
-import { TableSearchResponseModel } from "../../models/search/tableSearchResponse.model";
+import { TableSearchRequestModelFactory } from '../../models/search/tableSearchRequest.model';
+import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
 
 describe('WorkflowsEffects', () => {
   let underTest: WorkflowsEffects;
@@ -172,11 +173,9 @@ describe('WorkflowsEffects', () => {
 
   describe('workflowsSearch', () => {
     it('should return workflows search response', () => {
-      const workflows = [WorkflowModelFactory.create(
-        'workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 0
-      )];
+      const workflows = [WorkflowModelFactory.create('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 0)];
       const searchResponseModel = new TableSearchResponseModel<WorkflowModel>(workflows, 1);
-      const searchRequest = TableSearchRequestModelFactory.create(0, 100)
+      const searchRequest = TableSearchRequestModelFactory.create(0, 100);
 
       const action = new SearchWorkflows(searchRequest);
       mockActions = cold('-a', { a: action });
@@ -197,7 +196,7 @@ describe('WorkflowsEffects', () => {
     it('should return search workflows failure if workflowService.searchWorkflows responds with an error', () => {
       const toastrServiceSpy = spyOn(toastrService, 'error');
 
-      const searchRequest = TableSearchRequestModelFactory.create(0, 100)
+      const searchRequest = TableSearchRequestModelFactory.create(0, 100);
 
       const action = new SearchWorkflows(searchRequest);
       mockActions = cold('-a', { a: action });
