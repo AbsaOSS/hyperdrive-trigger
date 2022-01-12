@@ -19,8 +19,11 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 import { api } from '../../constants/api.constants';
 import { WorkflowService } from './workflow.service';
 import { ProjectModelFactory } from '../../models/project.model';
-import { WorkflowModelFactory } from '../../models/workflow.model';
+import {WorkflowModel, WorkflowModelFactory} from '../../models/workflow.model';
 import { WorkflowJoinedModelFactory } from '../../models/workflowJoined.model';
+import {TableSearchResponseModel} from "../../models/search/tableSearchResponse.model";
+import {DagRunModel} from "../../models/dagRuns/dagRun.model";
+import {TableSearchRequestModelFactory} from "../../models/search/tableSearchRequest.model";
 
 describe('WorkflowService', () => {
   let underTest: WorkflowService;
@@ -71,6 +74,23 @@ describe('WorkflowService', () => {
     const req = httpTestingController.expectOne(api.GET_WORKFLOWS);
     expect(req.request.method).toEqual('GET');
     req.flush([...workflows]);
+  });
+
+  it('searchWorkflows() should return workflows search response', () => {
+    const workflows = [WorkflowModelFactory.create(
+      'workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 0
+    )];
+    const searchResponseModel = new TableSearchResponseModel<WorkflowModel>(workflows, 1);
+    const request = TableSearchRequestModelFactory.create(0, 100)
+
+    underTest.searchWorkflows(request).subscribe(
+      (data) => expect(data).toEqual(searchResponseModel),
+      (error) => fail(error),
+    );
+
+    const req = httpTestingController.expectOne(api.SEARCH_WORKFLOWS);
+    expect(req.request.method).toEqual('POST');
+    req.flush(searchResponseModel);
   });
 
   it('getWorkflow() should return workflow data', () => {
