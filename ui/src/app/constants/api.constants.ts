@@ -49,6 +49,7 @@ export const api = {
   GET_JOB_TEMPLATE_USAGE: '/jobTemplates/{id}/workflows',
   GET_HISTORY_FOR_JOB_TEMPLATE: '/jobTemplateHistory',
   GET_JOB_TEMPLATES_FROM_HISTORY: '/jobTemplatesFromHistory',
+  GET_HISTORY_JOB_TEMPLATE: '/historyJobTemplate',
 
   CREATE_NOTIFICATION_RULE: '/notificationRule',
   GET_NOTIFICATION_RULES: '/notificationRules',
