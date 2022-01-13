@@ -288,4 +288,29 @@ export class JobTemplatesEffects {
       );
     }),
   );
+
+  @Effect({ dispatch: true })
+  jobTemplateRevert = this.actions.pipe(
+    ofType(JobTemplatesActions.REVERT_JOB_TEMPLATE),
+    switchMap((action: JobTemplatesActions.RevertJobTemplate) => {
+      return this.jobTemplateService.getHistoryJobTemplate(action.payload).pipe(
+        mergeMap((jobTemplate: JobTemplateModel) => {
+          return [
+            {
+              type: JobTemplatesActions.REVERT_JOB_TEMPLATE_SUCCESS,
+              payload: jobTemplate,
+            },
+          ];
+        }),
+        catchError(() => {
+          this.toastrService.error(texts.LOAD_JOB_TEMPLATE_FAILURE_NOTIFICATION);
+          return [
+            {
+              type: JobTemplatesActions.REVERT_JOB_TEMPLATE_FAILURE,
+            },
+          ];
+        }),
+      );
+    }),
+  );
 }
