@@ -61,6 +61,7 @@ export const absoluteRoutes = {
   SHOW_JOB_TEMPLATE: `/${routeNames.JOB_TEMPLATES}/${jobTemplateModes.SHOW}`,
   CREATE_JOB_TEMPLATE: `/${routeNames.JOB_TEMPLATES}/${jobTemplateModes.CREATE}`,
   EDIT_JOB_TEMPLATE: `/${routeNames.JOB_TEMPLATES}/${jobTemplateModes.EDIT}`,
+  REVERT_JOB_TEMPLATE: `/${routeNames.JOB_TEMPLATES}/${jobTemplateModes.REVERT}`,
   NOTIFICATION_RULES: `/${routeNames.NOTIFICATION_RULES}`,
   NOTIFICATION_RULES_HOME: `/${routeNames.NOTIFICATION_RULES}`,
   SHOW_NOTIFICATION_RULE: `/${routeNames.NOTIFICATION_RULES}/${notificationRuleModes.SHOW}`,
