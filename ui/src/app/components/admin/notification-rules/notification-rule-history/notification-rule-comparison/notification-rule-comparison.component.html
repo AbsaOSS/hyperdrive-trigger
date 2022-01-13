@@ -22,6 +22,13 @@
 <div class="content-area" *ngIf="!loading">
   <div class="clr-row" *ngIf="isLoadedSuccessfully()">
     <div class="clr-col oneSideOfComparison" >
+      <div class="btn-group">
+        <button type="button" class="btn btn-sm btn-secondary"
+                [routerLink]="[absoluteRoutes.REVERT_NOTIFICATION_RULE, leftHistory.history.id]">
+          <clr-icon shape="redo"></clr-icon>
+          Revert
+        </button>
+      </div>
       <app-history-detail [historyDetail]="leftHistory.history"></app-history-detail>
       <app-notification-rules-form
         [mode]="notificationRuleModes.COMPARISON"
@@ -31,6 +38,13 @@
 
     </div>
     <div class="clr-col oneSideOfComparison">
+      <div class="btn-group">
+        <button type="button" class="btn btn-sm btn-secondary"
+                [routerLink]="[absoluteRoutes.REVERT_NOTIFICATION_RULE, rightHistory.history.id]">
+          <clr-icon shape="redo"></clr-icon>
+          Revert
+        </button>
+      </div>
       <app-history-detail [historyDetail]="rightHistory.history"></app-history-detail>
       <app-notification-rules-form
         [mode]="notificationRuleModes.COMPARISON"

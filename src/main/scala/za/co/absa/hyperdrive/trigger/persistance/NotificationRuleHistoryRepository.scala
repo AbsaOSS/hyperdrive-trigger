@@ -31,6 +31,7 @@ trait NotificationRuleHistoryRepository extends Repository {
   private[persistance] def delete(notificationRule: NotificationRule, user: String)(implicit ec: ExecutionContext): DBIO[Long]
 
   def getHistoryForNotificationRule(notificationRuleId: Long)(implicit ec: ExecutionContext): Future[Seq[History]]
+  def getHistoryJobTemplate(notificationRuleHistoryId: Long)(implicit ec: ExecutionContext): Future[NotificationRule]
   def getNotificationRulesFromHistory(leftNotificationRuleHistoryId: Long, rightNotificationRuleHistoryId: Long)(implicit ec: ExecutionContext): Future[HistoryPair[NotificationRuleHistory]]
 }
 
@@ -66,6 +67,10 @@ class NotificationRuleHistoryRepositoryImpl @Inject()(val dbProvider: DatabasePr
 
   override def getHistoryForNotificationRule(notificationRuleId: Long)(implicit ec: ExecutionContext): Future[Seq[History]] = {
     db.run(notificationRuleHistoryTable.getHistoryForEntity(notificationRuleId))
+  }
+
+  override def getHistoryJobTemplate(notificationRuleHistoryId: Long)(implicit ec: ExecutionContext): Future[NotificationRule] = {
+    db.run(notificationRuleHistoryTable.getHistoryEntity(notificationRuleHistoryId).map(_.notificationRule))
   }
 
   override def getNotificationRulesFromHistory(leftNotificationRuleHistoryId: Long, rightNotificationRuleHistoryId: Long)

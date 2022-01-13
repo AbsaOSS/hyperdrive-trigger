@@ -262,4 +262,29 @@ export class NotificationRulesEffects {
         );
     }),
   );
+
+  @Effect({ dispatch: true })
+  notificationRuleRevert = this.actions.pipe(
+    ofType(NotificationRulesActions.REVERT_NOTIFICATION_RULE),
+    switchMap((action: NotificationRulesActions.RevertNotificationRule) => {
+      return this.notificationRuleHistoryService.getHistoryJobTemplate(action.payload).pipe(
+        mergeMap((notificationRule: NotificationRuleModel) => {
+          return [
+            {
+              type: NotificationRulesActions.REVERT_NOTIFICATION_RULE_SUCCESS,
+              payload: notificationRule,
+            },
+          ];
+        }),
+        catchError(() => {
+          this.toastrService.error(texts.LOAD_NOTIFICATION_RULE_FAILURE_NOTIFICATION);
+          return [
+            {
+              type: NotificationRulesActions.REVERT_NOTIFICATION_RULE_FAILURE,
+            },
+          ];
+        }),
+      );
+    }),
+  );
 }
