@@ -267,7 +267,7 @@ export class NotificationRulesEffects {
   notificationRuleRevert = this.actions.pipe(
     ofType(NotificationRulesActions.REVERT_NOTIFICATION_RULE),
     switchMap((action: NotificationRulesActions.RevertNotificationRule) => {
-      return this.notificationRuleHistoryService.getHistoryJobTemplate(action.payload).pipe(
+      return this.notificationRuleHistoryService.getHistoryNotificationRule(action.payload).pipe(
         mergeMap((notificationRule: NotificationRuleModel) => {
           return [
             {

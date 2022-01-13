@@ -47,7 +47,7 @@ export class NotificationRuleHistoryService {
       .pipe(map((_) => _.body));
   }
 
-  getHistoryJobTemplate(id: number): Observable<NotificationRuleModel> {
+  getHistoryNotificationRule(id: number): Observable<NotificationRuleModel> {
     const params = new HttpParams().set('notificationRuleHistoryId', id.toString());
 
     return this.httpClient
