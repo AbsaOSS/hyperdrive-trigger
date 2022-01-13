@@ -613,4 +613,29 @@ export class WorkflowsEffects {
       );
     }),
   );
+
+  @Effect({ dispatch: true })
+  workflowRevert = this.actions.pipe(
+    ofType(WorkflowActions.REVERT_WORKFLOW),
+    switchMap((action: WorkflowActions.RevertWorkflow) => {
+      return this.workflowHistoryService.getHistoryWorkflow(action.payload).pipe(
+        mergeMap((workflow: WorkflowJoinedModel) => {
+          return [
+            {
+              type: WorkflowActions.REVERT_WORKFLOW_SUCCESS,
+              payload: workflow,
+            },
+          ];
+        }),
+        catchError(() => {
+          this.toastrService.error(texts.LOAD_WORKFLOW_FROM_HISTORY_FAILURE_NOTIFICATION);
+          return [
+            {
+              type: WorkflowActions.REVERT_WORKFLOW_FAILURE,
+            },
+          ];
+        }),
+      );
+    }),
+  );
 }
