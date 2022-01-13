@@ -166,4 +166,17 @@ describe('JobTemplateService', () => {
     expect(req.request.method).toEqual('GET');
     req.flush(workflows);
   });
+
+  it('getHistoryJobTemplate() should return history job template', () => {
+    const jobTemplate = JobTemplateModelFactory.create(1, 'name', SparkTemplateParametersModel.createEmpty());
+
+    underTest.getHistoryJobTemplate(jobTemplate.id).subscribe(
+      (data) => expect(data).toEqual(jobTemplate),
+      (error) => fail(error),
+    );
+
+    const req = httpTestingController.expectOne(api.GET_HISTORY_JOB_TEMPLATE + `?jobTemplateHistoryId=${jobTemplate.id}`);
+    expect(req.request.method).toEqual('GET');
+    req.flush(jobTemplate);
+  });
 });
