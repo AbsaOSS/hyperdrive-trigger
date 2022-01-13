@@ -22,6 +22,13 @@
 <div class="content-area" *ngIf="!loading">
   <div class="clr-row" *ngIf="isLoadedSuccessfully()">
     <div class="clr-col oneSideOfComparison" >
+      <div class="btn-group">
+        <button type="button" class="btn btn-sm btn-secondary"
+                [routerLink]="[absoluteRoutes.REVERT_WORKFLOW, workflowHistoryLeft.history.id]">
+          <clr-icon shape="redo"></clr-icon>
+          Revert
+        </button>
+      </div>
       <app-history-detail [historyDetail]="workflowHistoryLeft.history"></app-history-detail>
       <app-workflow-form
         [mode]="workflowModes.COMPARISON"
@@ -33,6 +40,13 @@
 
     </div>
     <div class="clr-col oneSideOfComparison">
+      <div class="btn-group">
+        <button type="button" class="btn btn-sm btn-secondary"
+                [routerLink]="[absoluteRoutes.REVERT_WORKFLOW, workflowHistoryRight.history.id]">
+          <clr-icon shape="redo"></clr-icon>
+          Revert
+        </button>
+      </div>
       <app-history-detail [historyDetail]="workflowHistoryRight.history"></app-history-detail>
       <app-workflow-form
         [mode]="workflowModes.COMPARISON"
