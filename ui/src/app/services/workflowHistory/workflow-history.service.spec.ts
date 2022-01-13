@@ -57,6 +57,19 @@ describe('WorkflowHistoryService', () => {
     req.flush([history]);
   });
 
+  it('getHistoryWorkflow() should return history workflow', () => {
+    const workflow = WorkflowJoinedModelFactory.create('name', true, 'project', undefined, undefined, undefined, 0);
+
+    underTest.getHistoryWorkflow(workflow.id).subscribe(
+      (data) => expect(data).toEqual(workflow),
+      (error) => fail(error),
+    );
+
+    const req = httpTestingController.expectOne(api.GET_HISTORY_WORKFLOW + `?workflowHistoryId=${workflow.id}`);
+    expect(req.request.method).toEqual('GET');
+    req.flush(workflow);
+  });
+
   it('getWorkflowsFromHistory() should return workflows from history', () => {
     const leftWorkflowHistoryId = 11;
     const rightWorkflowHistoryId = 12;
