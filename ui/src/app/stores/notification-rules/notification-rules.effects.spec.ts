@@ -27,7 +27,8 @@ import {
   DeleteNotificationRule,
   GetNotificationRule,
   LoadHistoryForNotificationRule,
-  LoadNotificationRulesFromHistory, RevertNotificationRule,
+  LoadNotificationRulesFromHistory,
+  RevertNotificationRule,
   SearchNotificationRules,
   UpdateNotificationRule,
 } from './notification-rules.actions';
