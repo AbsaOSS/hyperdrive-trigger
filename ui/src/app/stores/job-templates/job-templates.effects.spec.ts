@@ -30,7 +30,8 @@ import {
   GetJobTemplateForForm,
   GetJobTemplateUsage,
   LoadHistoryForJobTemplate,
-  LoadJobTemplatesFromHistory, RevertJobTemplate,
+  LoadJobTemplatesFromHistory,
+  RevertJobTemplate,
   SearchJobTemplates,
   UpdateJobTemplate,
 } from './job-templates.actions';
@@ -527,7 +528,7 @@ describe('JobTemplatesEffects', () => {
       const payload = 1;
       const jobTemplate = dummyJobTemplate;
 
-      const response: JobTemplateModel = dummyJobTemplate
+      const response: JobTemplateModel = dummyJobTemplate;
 
       const action = new RevertJobTemplate(payload);
       mockActions = cold('-a', { a: action });
@@ -547,7 +548,6 @@ describe('JobTemplatesEffects', () => {
     it('should display failure when service fails to load job template from history', () => {
       const toastrServiceSpyError = toastrServiceSpy.error;
       const payload = 1;
-
 
       const action = new RevertJobTemplate(payload);
       mockActions = cold('-a', { a: action });
