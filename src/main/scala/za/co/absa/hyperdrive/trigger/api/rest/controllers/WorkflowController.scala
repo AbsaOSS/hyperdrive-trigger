@@ -29,6 +29,7 @@ import za.co.absa.hyperdrive.trigger.api.rest.services.WorkflowService
 import za.co.absa.hyperdrive.trigger.configuration.application.GeneralConfig
 import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, BulkOperationError, GenericError}
+import za.co.absa.hyperdrive.trigger.models.search.{TableSearchRequest, TableSearchResponse}
 
 import scala.collection.mutable.ArrayBuffer
 import scala.compat.java8.FutureConverters._
@@ -55,6 +56,11 @@ class WorkflowController @Inject()(workflowService: WorkflowService, generalConf
   @GetMapping(path = Array("/workflows"))
   def getWorkflows(): CompletableFuture[Seq[Workflow]] = {
     workflowService.getWorkflows.toJava.toCompletableFuture
+  }
+
+  @PostMapping(path = Array("/workflows/search"))
+  def searchWorkflows(@RequestBody searchRequest: TableSearchRequest): CompletableFuture[TableSearchResponse[Workflow]] = {
+    workflowService.searchWorkflows(searchRequest).toJava.toCompletableFuture
   }
 
   @GetMapping(path = Array("/workflowsByProjectName"))
@@ -159,7 +165,7 @@ class WorkflowController @Inject()(workflowService: WorkflowService, generalConf
   }
 
   @PostMapping(path = Array("/workflows/import"))
-  def importWorkflows(@RequestPart("file") file: MultipartFile): CompletableFuture[Seq[Project]] = {
+  def importWorkflows(@RequestPart("file") file: MultipartFile): CompletableFuture[Seq[WorkflowJoined]] = {
     val zipEntries = extractZipEntries(file.getBytes)
     if (zipEntries.isEmpty) {
       throw new ApiException(GenericError("The given zip file does not contain any workflows"))

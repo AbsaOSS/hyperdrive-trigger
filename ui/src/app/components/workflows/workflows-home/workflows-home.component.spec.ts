@@ -47,13 +47,9 @@ describe('WorkflowsHomeComponent', () => {
 
   const initialAppState = {
     workflows: {
-      projects: [
-        ProjectModelFactory.create('projectOne', [
-          WorkflowModelFactory.create('workflowOne', undefined, undefined, undefined, undefined, undefined),
-        ]),
-        ProjectModelFactory.create('projectTwo', [
-          WorkflowModelFactory.create('workflowTwo', undefined, undefined, undefined, undefined, undefined),
-        ]),
+      workflows: [
+        WorkflowModelFactory.create('workflowOne', undefined, undefined, undefined, undefined, undefined),
+        WorkflowModelFactory.create('workflowTwo', undefined, undefined, undefined, undefined, undefined),
       ],
     },
     workflowsSort: undefined,
@@ -87,7 +83,7 @@ describe('WorkflowsHomeComponent', () => {
     waitForAsync(() => {
       fixture.detectChanges();
       fixture.whenStable().then(() => {
-        expect(underTest.workflows).toEqual([].concat(...initialAppState.workflows.projects.map((project) => project.workflows)));
+        expect(underTest.workflows).toEqual([...initialAppState.workflows.workflows]);
         expect(underTest.sort).toEqual(initialAppState.workflowsSort);
         expect(underTest.filters).toBeUndefined();
       });

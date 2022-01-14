@@ -20,9 +20,10 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{FlatSpec, _}
-import za.co.absa.hyperdrive.trigger.models.Workflow
+import za.co.absa.hyperdrive.trigger.models.{Project, Workflow, WorkflowIdentity}
 import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, GenericDatabaseError}
+import za.co.absa.hyperdrive.trigger.models.search.{BooleanFilterAttributes, BooleanValues, SortAttributes, TableSearchRequest, TableSearchResponse}
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -585,6 +586,107 @@ class WorkflowRepositoryPostgresTest extends FlatSpec with Matchers with BeforeA
 
   it should "return None if there are no workflows" in {
     await(workflowRepository.getMaxWorkflowId) shouldBe None
+  }
+
+  "getProjects()" should "return workflow identities grouped by project name" in {
+    // given
+    createTestData()
+    val expected = TestData.workflows.groupBy(_.project).map{ case (project, workflows) =>
+      Project(project, workflows.map(workflow => WorkflowIdentity(workflow.id, workflow.name)))
+    }
+
+    // when
+    val result = await(workflowRepository.getProjects())
+
+    // then
+    result shouldBe expected
+  }
+
+  "searchWorkflows" should "return zero workflows when db is empty" in {
+    val searchRequest: TableSearchRequest = TableSearchRequest(
+      sort = None,
+      from = 0,
+      size = Integer.MAX_VALUE
+    )
+
+    val result: TableSearchResponse[Workflow] = await(workflowRepository.searchWorkflows(searchRequest))
+    result.total shouldBe 0
+    result.items shouldBe Seq.empty[Workflow]
+  }
+
+  it should "return all workflows with no search query" in {
+    createTestData()
+    val searchRequest: TableSearchRequest = TableSearchRequest(
+      sort = None,
+      from = 0,
+      size = Integer.MAX_VALUE
+    )
+
+    val result: TableSearchResponse[Workflow] = await(workflowRepository.searchWorkflows(searchRequest))
+    result.total shouldBe TestData.workflows.size
+    result.items shouldBe TestData.workflows
+  }
+
+  it should "using from and size should return paginated workflows" in {
+    createTestData()
+    val searchRequest: TableSearchRequest = TableSearchRequest(
+      sort = None,
+      from = 2,
+      size = 2
+    )
+
+    val result: TableSearchResponse[Workflow] = await(workflowRepository.searchWorkflows(searchRequest))
+    result.total shouldBe TestData.workflows.size
+    result.items.size shouldBe searchRequest.size
+  }
+
+  it should "using sort by workflow name (asc order) should return sorted workflows" in {
+    createTestData()
+    val searchRequest: TableSearchRequest = TableSearchRequest(
+      sort = Option(SortAttributes(by = "name", order = 1)),
+      from = 0,
+      size = Integer.MAX_VALUE
+    )
+
+    val result: TableSearchResponse[Workflow] = await(workflowRepository.searchWorkflows(searchRequest))
+    result.total shouldBe TestData.workflows.size
+    result.items.size shouldBe TestData.workflows.size
+    result.items shouldBe TestData.workflows.sortBy(_.name)
+  }
+
+  it should "using sort by id (desc order) should return sorted workflows" in {
+    createTestData()
+    val searchRequest: TableSearchRequest = TableSearchRequest(
+      sort = Option(SortAttributes(by = "id", order = -1)),
+      from = 0,
+      size = Integer.MAX_VALUE
+    )
+
+    val result: TableSearchResponse[Workflow] = await(workflowRepository.searchWorkflows(searchRequest))
+    result.total shouldBe TestData.workflows.size
+    result.items.size shouldBe TestData.workflows.size
+    result.items shouldBe TestData.workflows.sortWith(_.id > _.id)
+  }
+
+  it should "apply filters" in {
+    createTestData()
+
+    val booleanFilterAttributes = Option(Seq(
+      BooleanFilterAttributes(field = "isActive", BooleanValues(isTrue = false, isFalse = true))
+    ))
+    val searchRequest: TableSearchRequest = TableSearchRequest(
+      booleanFilterAttributes = booleanFilterAttributes,
+      sort = None,
+      from = 0,
+      size = Integer.MAX_VALUE
+    )
+
+    val result = await(workflowRepository.searchWorkflows(searchRequest))
+
+    val expected = TestData.workflows.filter(workflow => !workflow.isActive)
+    result.total should be > 0
+    result.total shouldBe expected.size
+    result.items should contain theSameElementsAs expected
   }
 
   private def assertNoWorkflowIsDoubleAssigned(workflows: Seq[Workflow]*) = {

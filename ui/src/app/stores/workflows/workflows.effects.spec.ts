@@ -39,7 +39,7 @@ import {
 
 import { WorkflowsEffects } from './workflows.effects';
 import { WorkflowService } from '../../services/workflow/workflow.service';
-import { ProjectModelFactory } from '../../models/project.model';
+import { ProjectModelFactory, WorkflowIdentityModelFactory } from '../../models/project.model';
 import { WorkflowModel, WorkflowModelFactory } from '../../models/workflow.model';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import { workflowModes } from '../../models/enums/workflowModes.constants';
@@ -112,35 +112,40 @@ describe('WorkflowsEffects', () => {
   describe('workflowsInitialize', () => {
     it('should return projects and templates', () => {
       const projects = [
-        ProjectModelFactory.create('projectName1', [
-          WorkflowModelFactory.create('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 0),
-        ]),
-        ProjectModelFactory.create('projectName2', [
-          WorkflowModelFactory.create('workflowName2', true, 'projectName2', new Date(Date.now()), new Date(Date.now()), 1),
-        ]),
+        ProjectModelFactory.create('projectName1', [WorkflowIdentityModelFactory.create(0, 'workflowName1')]),
+        ProjectModelFactory.create('projectName2', [WorkflowIdentityModelFactory.create(1, 'workflowName2')]),
       ];
+
+      const workflows = Array.prototype.concat.apply(
+        [],
+        projects.map((p) => p.workflows),
+      );
 
       const jobTemplates = [JobTemplateModelFactory.create(0, 'templateName0', SparkTemplateParametersModel.createEmpty())];
 
       const action = new InitializeWorkflows();
       mockActions = cold('-a', { a: action });
       const getProjectsResponse = cold('-a|', { a: projects });
+      const getWorkflowsResponse = cold('-a|', { a: workflows });
       const getJobTemplatesResponse = cold('-a|', { a: jobTemplates });
 
       const expected = cold('---a', {
         a: {
           type: WorkflowsActions.INITIALIZE_WORKFLOWS_SUCCESS,
-          payload: { projects: projects, jobTemplates: jobTemplates },
+          payload: { workflows: workflows, projects: projects, jobTemplates: jobTemplates },
         },
       });
 
       spyOn(workflowService, 'getProjects').and.returnValue(getProjectsResponse);
+      spyOn(workflowService, 'getWorkflows').and.returnValue(getWorkflowsResponse);
       spyOn(workflowService, 'getJobTemplates').and.returnValue(getJobTemplatesResponse);
 
       expect(underTest.workflowsInitialize).toBeObservable(expected);
     });
 
     it('should return initialize workflows failure if workflowService.getJobTemplates responds with an error', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'error');
+
       const projects = [
         ProjectModelFactory.create('projectName1', [
           WorkflowModelFactory.create('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 0),
@@ -149,22 +154,30 @@ describe('WorkflowsEffects', () => {
           WorkflowModelFactory.create('workflowName2', true, 'projectName2', new Date(Date.now()), new Date(Date.now()), 1),
         ]),
       ];
+      const workflows = Array.prototype.concat.apply(
+        [],
+        projects.map((p) => p.workflows),
+      );
 
       const action = new InitializeWorkflows();
       mockActions = cold('-a', { a: action });
       const getProjectsResponse = cold('-a|', { a: projects });
+      const getWorkflowsResponse = cold('-a|', { a: workflows });
       const getJobTemplatesResponse = cold('-#|');
 
-      const expected = cold('---a', {
+      const expected = cold('--(a|)', {
         a: {
           type: WorkflowsActions.INITIALIZE_WORKFLOWS_FAILURE,
         },
       });
 
       spyOn(workflowService, 'getProjects').and.returnValue(getProjectsResponse);
+      spyOn(workflowService, 'getWorkflows').and.returnValue(getWorkflowsResponse);
       spyOn(workflowService, 'getJobTemplates').and.returnValue(getJobTemplatesResponse);
 
       expect(underTest.workflowsInitialize).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.LOAD_WORKFLOWS_FAILURE_NOTIFICATION);
     });
   });
 
