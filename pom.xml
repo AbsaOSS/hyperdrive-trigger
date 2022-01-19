@@ -86,7 +86,7 @@
         <scalatest.version>3.0.5</scalatest.version>
         <h2database.version>2.0.206</h2database.version>
         <testcontainers.postgresql.version>1.15.3</testcontainers.postgresql.version>
-        <mockito.version>2.25.0</mockito.version>
+        <mockito.version>4.2.0</mockito.version>
         <cron-expression-descriptor.version>1.2</cron-expression-descriptor.version>
         <node.version>12.14.1</node.version>
         <npm.version>6.13.4</npm.version>
