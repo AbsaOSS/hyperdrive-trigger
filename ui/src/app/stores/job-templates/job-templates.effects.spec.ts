@@ -540,7 +540,7 @@ describe('JobTemplatesEffects', () => {
         },
       });
 
-      jobTemplateService.getHistoryJobTemplate.and.returnValue(getHistoryJobTemplateResponse);
+      jobTemplateService.getJobTemplateFromHistory.and.returnValue(getHistoryJobTemplateResponse);
 
       expect(underTest.jobTemplateRevert).toBeObservable(expected);
     });
@@ -553,7 +553,7 @@ describe('JobTemplatesEffects', () => {
       mockActions = cold('-a', { a: action });
 
       const getHistoryJobTemplateResponse = cold('-#|');
-      jobTemplateService.getHistoryJobTemplate.and.returnValue(getHistoryJobTemplateResponse);
+      jobTemplateService.getJobTemplateFromHistory.and.returnValue(getHistoryJobTemplateResponse);
 
       const expected = cold('--a', {
         a: {
