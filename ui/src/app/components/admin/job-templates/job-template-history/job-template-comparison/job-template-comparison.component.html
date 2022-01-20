@@ -25,7 +25,7 @@
       <div class="btn-group">
         <button type="button" class="btn btn-sm btn-secondary" [routerLink]="[absoluteRoutes.REVERT_JOB_TEMPLATE, leftHistory.history.id]">
           <clr-icon shape="redo"></clr-icon>
-          Revert
+          Revert to this version
         </button>
       </div>
       <app-history-detail [historyDetail]="leftHistory.history"></app-history-detail>
@@ -40,7 +40,7 @@
       <div class="btn-group">
         <button type="button" class="btn btn-sm btn-secondary" [routerLink]="[absoluteRoutes.REVERT_JOB_TEMPLATE, rightHistory.history.id]">
           <clr-icon shape="redo"></clr-icon>
-          Revert
+          Revert to this version
         </button>
       </div>
       <app-history-detail [historyDetail]="rightHistory.history"></app-history-detail>

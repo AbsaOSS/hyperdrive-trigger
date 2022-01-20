@@ -293,7 +293,7 @@ export class JobTemplatesEffects {
   jobTemplateRevert = this.actions.pipe(
     ofType(JobTemplatesActions.REVERT_JOB_TEMPLATE),
     switchMap((action: JobTemplatesActions.RevertJobTemplate) => {
-      return this.jobTemplateService.getHistoryJobTemplate(action.payload).pipe(
+      return this.jobTemplateService.getJobTemplateFromHistory(action.payload).pipe(
         mergeMap((jobTemplate: JobTemplateModel) => {
           return [
             {
