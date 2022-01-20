@@ -47,11 +47,11 @@ export class NotificationRuleHistoryService {
       .pipe(map((_) => _.body));
   }
 
-  getHistoryNotificationRule(id: number): Observable<NotificationRuleModel> {
+  getNotificationRuleFromHistory(id: number): Observable<NotificationRuleModel> {
     const params = new HttpParams().set('notificationRuleHistoryId', id.toString());
 
     return this.httpClient
-      .get<NotificationRuleModel>(api.GET_HISTORY_NOTIFICATION_RULE, { params: params, observe: 'response' })
+      .get<NotificationRuleModel>(api.GET_NOTIFICATION_RULE_FROM_HISTORY, { params: params, observe: 'response' })
       .pipe(map((_) => _.body));
   }
 }

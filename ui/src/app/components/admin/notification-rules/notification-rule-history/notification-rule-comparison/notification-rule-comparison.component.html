@@ -26,7 +26,7 @@
         <button type="button" class="btn btn-sm btn-secondary"
                 [routerLink]="[absoluteRoutes.REVERT_NOTIFICATION_RULE, leftHistory.history.id]">
           <clr-icon shape="redo"></clr-icon>
-          Revert
+          Revert to this version
         </button>
       </div>
       <app-history-detail [historyDetail]="leftHistory.history"></app-history-detail>
@@ -42,7 +42,7 @@
         <button type="button" class="btn btn-sm btn-secondary"
                 [routerLink]="[absoluteRoutes.REVERT_NOTIFICATION_RULE, rightHistory.history.id]">
           <clr-icon shape="redo"></clr-icon>
-          Revert
+          Revert to this version
         </button>
       </div>
       <app-history-detail [historyDetail]="rightHistory.history"></app-history-detail>

@@ -60,7 +60,7 @@ export const api = {
   GET_HISTORY_FOR_NOTIFICATION_RULE: '/notificationRuleHistory',
   GET_NOTIFICATION_RULES_FROM_HISTORY: '/notificationRulesFromHistory',
   GET_QUARTZ_DETAIL: '/util/quartzDetail',
-  GET_HISTORY_NOTIFICATION_RULE: '/historyNotificationRule',
+  GET_NOTIFICATION_RULE_FROM_HISTORY: '/notificationRuleFromHistory',
 };
 
 export const SKIP_BASE_URL_INTERCEPTOR = 'Skip-base-url-interceptor';

@@ -505,7 +505,7 @@ describe('NotificationRulesEffects', () => {
         },
       });
 
-      notificationRuleHistoryServiceSpy.getHistoryNotificationRule.and.returnValue(getHistoryNotificationRuleResponse);
+      notificationRuleHistoryServiceSpy.getNotificationRuleFromHistory.and.returnValue(getHistoryNotificationRuleResponse);
 
       expect(underTest.notificationRuleRevert).toBeObservable(expected);
     });
@@ -518,7 +518,7 @@ describe('NotificationRulesEffects', () => {
       mockActions = cold('-a', { a: action });
 
       const getHistoryNotificationRuleResponse = cold('-#|');
-      notificationRuleHistoryServiceSpy.getHistoryNotificationRule.and.returnValue(getHistoryNotificationRuleResponse);
+      notificationRuleHistoryServiceSpy.getNotificationRuleFromHistory.and.returnValue(getHistoryNotificationRuleResponse);
 
       const expected = cold('--a', {
         a: {
