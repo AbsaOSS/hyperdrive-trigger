@@ -109,11 +109,11 @@ export class JobTemplateService {
       .pipe(map((response) => response.body));
   }
 
-  getHistoryJobTemplate(id: number): Observable<JobTemplateModel> {
+  getJobTemplateFromHistory(id: number): Observable<JobTemplateModel> {
     const params = new HttpParams().set('jobTemplateHistoryId', id.toString());
 
     return this.httpClient
-      .get<JobTemplateModel>(api.GET_HISTORY_JOB_TEMPLATE, { params: params, observe: 'response' })
+      .get<JobTemplateModel>(api.GET_JOB_TEMPLATE_FROM_HISTORY, { params: params, observe: 'response' })
       .pipe(map((_) => _.body));
   }
 }

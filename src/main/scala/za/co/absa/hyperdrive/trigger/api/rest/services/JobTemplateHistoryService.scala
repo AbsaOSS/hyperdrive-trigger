@@ -25,7 +25,7 @@ trait JobTemplateHistoryService {
   val jobTemplateHistoryRepository: JobTemplateHistoryRepository
 
   def getHistoryForJobTemplate(jobTemplateId: Long)(implicit ec: ExecutionContext): Future[Seq[History]]
-  def getHistoryJobTemplate(jobTemplateHistoryId: Long)(implicit ec: ExecutionContext): Future[JobTemplate]
+  def getJobTemplateFromHistory(jobTemplateHistoryId: Long)(implicit ec: ExecutionContext): Future[JobTemplate]
   def getJobTemplatesFromHistory(leftJobTemplateHistoryId: Long, rightJobTemplateHistoryId: Long)(implicit ec: ExecutionContext): Future[HistoryPair[JobTemplateHistory]]
 }
 
@@ -35,8 +35,8 @@ class JobTemplateHistoryServiceImpl(override val jobTemplateHistoryRepository: J
     jobTemplateHistoryRepository.getHistoryForJobTemplate(jobTemplateId)
   }
 
-  override def getHistoryJobTemplate(jobTemplateHistoryId: Long)(implicit ec: ExecutionContext): Future[JobTemplate] = {
-    jobTemplateHistoryRepository.getHistoryJobTemplate(jobTemplateHistoryId)
+  override def getJobTemplateFromHistory(jobTemplateHistoryId: Long)(implicit ec: ExecutionContext): Future[JobTemplate] = {
+    jobTemplateHistoryRepository.getJobTemplateFromHistory(jobTemplateHistoryId)
   }
 
   override def getJobTemplatesFromHistory(leftJobTemplateHistoryId: Long, rightJobTemplateHistoryId: Long)(implicit ec: ExecutionContext): Future[HistoryPair[JobTemplateHistory]] = {
