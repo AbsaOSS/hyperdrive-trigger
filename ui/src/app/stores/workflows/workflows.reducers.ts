@@ -518,7 +518,6 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
       return {
         ...state,
         loading: false,
-        // workflows: [...state.workflows, ...action.payload],
         projects: [...projects],
       };
     }
