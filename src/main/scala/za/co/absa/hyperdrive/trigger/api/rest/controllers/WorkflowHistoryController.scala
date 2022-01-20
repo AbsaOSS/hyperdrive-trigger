@@ -33,9 +33,9 @@ class WorkflowHistoryController @Inject()(workflowHistoryService: WorkflowHistor
     workflowHistoryService.getHistoryForWorkflow(workflowId).toJava.toCompletableFuture
   }
 
-  @GetMapping(path = Array("/historyWorkflow"))
-  def getHistoryWorkflow(@RequestParam workflowHistoryId: Long): CompletableFuture[WorkflowJoined] = {
-    workflowHistoryService.getHistoryWorkflow(workflowHistoryId).toJava.toCompletableFuture
+  @GetMapping(path = Array("/workflowFromHistory"))
+  def getWorkflowFromHistory(@RequestParam workflowHistoryId: Long): CompletableFuture[WorkflowJoined] = {
+    workflowHistoryService.getWorkflowFromHistory(workflowHistoryId).toJava.toCompletableFuture
   }
 
   @GetMapping(path = Array("/workflowsFromHistory"))

@@ -35,11 +35,11 @@ export class WorkflowHistoryService {
       .pipe(map((_) => _.body));
   }
 
-  getHistoryWorkflow(id: number): Observable<WorkflowJoinedModel> {
+  getWorkflowFromHistory(id: number): Observable<WorkflowJoinedModel> {
     const params = new HttpParams().set('workflowHistoryId', id.toString());
 
     return this.httpClient
-      .get<WorkflowJoinedModel>(api.GET_HISTORY_WORKFLOW, { params: params, observe: 'response' })
+      .get<WorkflowJoinedModel>(api.GET_WORKFLOW_FROM_HISTORY, { params: params, observe: 'response' })
       .pipe(map((_) => _.body));
   }
 

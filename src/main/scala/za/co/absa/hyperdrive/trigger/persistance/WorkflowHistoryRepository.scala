@@ -31,7 +31,7 @@ trait WorkflowHistoryRepository extends Repository {
   private[persistance] def delete(workflow: WorkflowJoined, user: String)(implicit ec: ExecutionContext): DBIO[Long]
 
   def getHistoryForWorkflow(workflowId: Long)(implicit ec: ExecutionContext): Future[Seq[History]]
-  def getHistoryWorkflow(workflowHistoryId: Long)(implicit ec: ExecutionContext): Future[WorkflowJoined]
+  def getWorkflowFromHistory(workflowHistoryId: Long)(implicit ec: ExecutionContext): Future[WorkflowJoined]
   def getWorkflowsFromHistory(leftWorkflowHistoryId: Long, rightWorkflowHistoryId: Long)(implicit ec: ExecutionContext): Future[HistoryPair[WorkflowHistory]]
 }
 
@@ -69,7 +69,7 @@ class WorkflowHistoryRepositoryImpl @Inject()(val dbProvider: DatabaseProvider)
     db.run(workflowHistoryTable.getHistoryForEntity(workflowId))
   }
 
-  override def getHistoryWorkflow(workflowHistoryId: Long)(implicit ec: ExecutionContext): Future[WorkflowJoined] = {
+  override def getWorkflowFromHistory(workflowHistoryId: Long)(implicit ec: ExecutionContext): Future[WorkflowJoined] = {
     db.run(workflowHistoryTable.getHistoryEntity(workflowHistoryId).map(_.workflow))
   }
 

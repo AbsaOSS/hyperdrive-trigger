@@ -618,7 +618,7 @@ export class WorkflowsEffects {
   workflowRevert = this.actions.pipe(
     ofType(WorkflowActions.REVERT_WORKFLOW),
     switchMap((action: WorkflowActions.RevertWorkflow) => {
-      return this.workflowHistoryService.getHistoryWorkflow(action.payload).pipe(
+      return this.workflowHistoryService.getWorkflowFromHistory(action.payload).pipe(
         mergeMap((workflow: WorkflowJoinedModel) => {
           return [
             {

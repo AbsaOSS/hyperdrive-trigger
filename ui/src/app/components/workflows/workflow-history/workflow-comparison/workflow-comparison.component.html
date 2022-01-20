@@ -26,7 +26,7 @@
         <button type="button" class="btn btn-sm btn-secondary"
                 [routerLink]="[absoluteRoutes.REVERT_WORKFLOW, workflowHistoryLeft.history.id]">
           <clr-icon shape="redo"></clr-icon>
-          Revert
+          Revert to this version
         </button>
       </div>
       <app-history-detail [historyDetail]="workflowHistoryLeft.history"></app-history-detail>
@@ -44,7 +44,7 @@
         <button type="button" class="btn btn-sm btn-secondary"
                 [routerLink]="[absoluteRoutes.REVERT_WORKFLOW, workflowHistoryRight.history.id]">
           <clr-icon shape="redo"></clr-icon>
-          Revert
+          Revert to this version
         </button>
       </div>
       <app-history-detail [historyDetail]="workflowHistoryRight.history"></app-history-detail>

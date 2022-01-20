@@ -1108,7 +1108,7 @@ describe('WorkflowsEffects', () => {
         },
       });
 
-      spyOn(workflowHistoryService, 'getHistoryWorkflow').and.returnValue(getHistoryWorkflowResponse);
+      spyOn(workflowHistoryService, 'getWorkflowFromHistory').and.returnValue(getHistoryWorkflowResponse);
 
       expect(underTest.workflowRevert).toBeObservable(expected);
     });
@@ -1121,7 +1121,7 @@ describe('WorkflowsEffects', () => {
       mockActions = cold('-a', { a: action });
 
       const getHistoryWorkflowResponse = cold('-#|');
-      spyOn(workflowHistoryService, 'getHistoryWorkflow').and.returnValue(getHistoryWorkflowResponse);
+      spyOn(workflowHistoryService, 'getWorkflowFromHistory').and.returnValue(getHistoryWorkflowResponse);
 
       const expected = cold('--a', {
         a: {

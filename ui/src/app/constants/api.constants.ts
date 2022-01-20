@@ -39,7 +39,7 @@ export const api = {
   GET_HISTORY_FOR_WORKFLOW: '/workflowHistory',
   GET_WORKFLOWS_FROM_HISTORY: '/workflowsFromHistory',
   GET_JOBS_FOR_RUN: '/jobsForRun',
-  GET_HISTORY_WORKFLOW: '/historyWorkflow',
+  GET_WORKFLOW_FROM_HISTORY: '/workflowFromHistory',
 
   GET_JOB_TEMPLATES: '/jobTemplates',
   SEARCH_JOB_TEMPLATES: '/jobTemplates/search',
