@@ -21,6 +21,7 @@ import { AppState, selectJobTemplatesState } from '../../../../../stores/app.red
 import { jobTemplateModes } from 'src/app/models/enums/jobTemplateModes.constants';
 import { JobTemplateHistoryModel } from '../../../../../models/jobTemplateHistoryModel';
 import { LoadJobTemplatesFromHistory } from '../../../../../stores/job-templates/job-templates.actions';
+import { absoluteRoutes } from '../../../../../constants/routes.constants';
 
 @Component({
   selector: 'app-job-template-comparison',
@@ -34,6 +35,7 @@ export class JobTemplateComparisonComponent implements OnInit, OnDestroy {
   rightHistory: JobTemplateHistoryModel;
 
   jobTemplateModes = jobTemplateModes;
+  absoluteRoutes = absoluteRoutes;
 
   jobTemplatesSubscription: Subscription = null;
   paramsSubscription: Subscription;

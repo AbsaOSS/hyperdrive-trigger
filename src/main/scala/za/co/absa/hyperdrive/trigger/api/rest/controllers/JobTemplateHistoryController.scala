@@ -32,6 +32,11 @@ class JobTemplateHistoryController @Inject()(jobTemplateHistoryService: JobTempl
     jobTemplateHistoryService.getHistoryForJobTemplate(jobTemplateId).toJava.toCompletableFuture
   }
 
+  @GetMapping(path = Array("/jobTemplateFromHistory"))
+  def getJobTemplateFromHistory(@RequestParam jobTemplateHistoryId: Long): CompletableFuture[JobTemplate] = {
+    jobTemplateHistoryService.getJobTemplateFromHistory(jobTemplateHistoryId).toJava.toCompletableFuture
+  }
+
   @GetMapping(path = Array("/jobTemplatesFromHistory"))
   def getJobTemplatesFromHistory(@RequestParam leftJobTemplateHistoryId: Long, @RequestParam rightJobTemplateHistoryId: Long): CompletableFuture[HistoryPair[JobTemplateHistory]] = {
     jobTemplateHistoryService.getJobTemplatesFromHistory(leftJobTemplateHistoryId, rightJobTemplateHistoryId).toJava.toCompletableFuture

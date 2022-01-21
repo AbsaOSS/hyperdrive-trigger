@@ -92,4 +92,19 @@ describe('NotificationRuleHistoryService', () => {
     expect(req.request.method).toEqual('GET');
     req.flush(notificationRuleHistoriesForComparison);
   });
+
+  it('getNotificationRuleFromHistory() should return history notification rule', () => {
+    const notificationRule = dummyNotificationRule;
+
+    underTest.getNotificationRuleFromHistory(notificationRule.id).subscribe(
+      (data) => expect(data).toEqual(notificationRule),
+      (error) => fail(error),
+    );
+
+    const req = httpTestingController.expectOne(
+      api.GET_NOTIFICATION_RULE_FROM_HISTORY + `?notificationRuleHistoryId=${notificationRule.id}`,
+    );
+    expect(req.request.method).toEqual('GET');
+    req.flush(notificationRule);
+  });
 });

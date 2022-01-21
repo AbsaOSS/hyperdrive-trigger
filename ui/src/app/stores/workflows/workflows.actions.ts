@@ -17,10 +17,10 @@ import { Action } from '@ngrx/store';
 import { ProjectModel } from '../../models/project.model';
 import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
 import { WorkflowModel } from '../../models/workflow.model';
-import { SortAttributesModel } from '../../models/search/sortAttributes.model';
 import { HistoryModel, WorkflowHistoryModel } from '../../models/historyModel';
 import { JobForRunModel } from '../../models/jobForRun.model';
 import { JobTemplateModel } from '../../models/jobTemplate.model';
+import { TableSearchRequestModel } from '../../models/search/tableSearchRequest.model';
 
 export const INITIALIZE_WORKFLOWS = 'INITIALIZE_WORKFLOWS';
 export const INITIALIZE_WORKFLOWS_SUCCESS = 'INITIALIZE_WORKFLOWS_SUCCESS';
@@ -57,8 +57,9 @@ export const UPDATE_WORKFLOW_FAILURE = 'UPDATE_WORKFLOW_FAILURE';
 
 export const REMOVE_BACKEND_VALIDATION_ERROR = 'REMOVE_BACKEND_VALIDATION_ERROR';
 
-export const SET_WORKFLOWS_SORT = 'SET_WORKFLOWS_SORT';
-export const SET_WORKFLOWS_FILTERS = 'SET_WORKFLOWS_FILTERS';
+export const SEARCH_WORKFLOWS = 'SEARCH_WORKFLOWS';
+export const SEARCH_WORKFLOWS_SUCCESS = 'SEARCH_WORKFLOWS_SUCCESS';
+export const SEARCH_WORKFLOWS_FAILURE = 'SEARCH_WORKFLOWS_FAILURE';
 
 export const LOAD_JOBS_FOR_RUN = 'LOAD_JOBS_FOR_RUN';
 export const LOAD_JOBS_FOR_RUN_SUCCESS = 'LOAD_JOBS_FOR_RUN_SUCCESS';
@@ -87,6 +88,10 @@ export const IMPORT_WORKFLOWS = 'IMPORT_WORKFLOWS';
 export const IMPORT_WORKFLOWS_SUCCESS = 'IMPORT_WORKFLOWS_SUCCESS';
 export const IMPORT_WORKFLOWS_FAILURE = 'IMPORT_WORKFLOWS_FAILURE';
 
+export const REVERT_WORKFLOW = 'REVERT_WORKFLOW';
+export const REVERT_WORKFLOW_SUCCESS = 'REVERT_WORKFLOW_SUCCESS';
+export const REVERT_WORKFLOW_FAILURE = 'REVERT_WORKFLOW_FAILURE';
+
 export class InitializeWorkflows implements Action {
   readonly type = INITIALIZE_WORKFLOWS;
 }
@@ -95,7 +100,6 @@ export class InitializeWorkflowsSuccess implements Action {
   readonly type = INITIALIZE_WORKFLOWS_SUCCESS;
   constructor(
     public payload: {
-      workflows: WorkflowModel[];
       projects: ProjectModel[];
       jobTemplates: JobTemplateModel[];
     },
@@ -214,14 +218,18 @@ export class RemoveBackendValidationError implements Action {
   constructor(public payload: number) {}
 }
 
-export class SetWorkflowsSort implements Action {
-  readonly type = SET_WORKFLOWS_SORT;
-  constructor(public payload: SortAttributesModel) {}
+export class SearchWorkflows implements Action {
+  readonly type = SEARCH_WORKFLOWS;
+  constructor(public payload: TableSearchRequestModel) {}
 }
 
-export class SetWorkflowsFilters implements Action {
-  readonly type = SET_WORKFLOWS_FILTERS;
-  constructor(public payload: any[]) {}
+export class SearchWorkflowsSuccess implements Action {
+  readonly type = SEARCH_WORKFLOWS_SUCCESS;
+  constructor(public payload: { workflows: WorkflowModel[]; total: number }) {}
+}
+
+export class SearchWorkflowsFailure implements Action {
+  readonly type = SEARCH_WORKFLOWS_FAILURE;
 }
 
 export class LoadJobsForRun implements Action {
@@ -322,6 +330,20 @@ export class ImportWorkflowsFailure implements Action {
   readonly type = IMPORT_WORKFLOWS_FAILURE;
 }
 
+export class RevertWorkflow implements Action {
+  readonly type = REVERT_WORKFLOW;
+  constructor(public payload: number) {}
+}
+
+export class RevertWorkflowSuccess implements Action {
+  readonly type = REVERT_WORKFLOW_SUCCESS;
+  constructor(public payload: WorkflowJoinedModel) {}
+}
+
+export class RevertWorkflowFailure implements Action {
+  readonly type = REVERT_WORKFLOW_FAILURE;
+}
+
 export type WorkflowsActions =
   | InitializeWorkflows
   | InitializeWorkflowsSuccess
@@ -349,8 +371,9 @@ export type WorkflowsActions =
   | UpdateWorkflowSuccess
   | UpdateWorkflowFailure
   | RemoveBackendValidationError
-  | SetWorkflowsSort
-  | SetWorkflowsFilters
+  | SearchWorkflows
+  | SearchWorkflowsSuccess
+  | SearchWorkflowsFailure
   | LoadJobsForRun
   | LoadJobsForRunSuccess
   | LoadJobsForRunFailure
@@ -370,4 +393,7 @@ export type WorkflowsActions =
   | ImportWorkflowFailure
   | ImportWorkflows
   | ImportWorkflowsSuccess
-  | ImportWorkflowsFailure;
+  | ImportWorkflowsFailure
+  | RevertWorkflow
+  | RevertWorkflowSuccess
+  | RevertWorkflowFailure;

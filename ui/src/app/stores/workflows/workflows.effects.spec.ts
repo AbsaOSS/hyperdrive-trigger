@@ -35,6 +35,8 @@ import {
   UpdateWorkflowsIsActive,
   ImportWorkflows,
   RunWorkflows,
+  RevertWorkflow,
+  SearchWorkflows,
 } from './workflows.actions';
 
 import { WorkflowsEffects } from './workflows.effects';
@@ -62,6 +64,9 @@ import { BulkOperationErrorModelFactory } from 'src/app/models/errors/bulkOperat
 import { RecurringSensorProperties } from '../../models/sensorProperties.model';
 import { JobTemplateModelFactory } from '../../models/jobTemplate.model';
 import { SparkTemplateParametersModel } from '../../models/jobTemplateParameters.model';
+import * as WorkflowActions from './workflows.actions';
+import { TableSearchRequestModelFactory } from '../../models/search/tableSearchRequest.model';
+import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
 
 describe('WorkflowsEffects', () => {
   let underTest: WorkflowsEffects;
@@ -116,28 +121,21 @@ describe('WorkflowsEffects', () => {
         ProjectModelFactory.create('projectName2', [WorkflowIdentityModelFactory.create(1, 'workflowName2')]),
       ];
 
-      const workflows = Array.prototype.concat.apply(
-        [],
-        projects.map((p) => p.workflows),
-      );
-
       const jobTemplates = [JobTemplateModelFactory.create(0, 'templateName0', SparkTemplateParametersModel.createEmpty())];
 
       const action = new InitializeWorkflows();
       mockActions = cold('-a', { a: action });
       const getProjectsResponse = cold('-a|', { a: projects });
-      const getWorkflowsResponse = cold('-a|', { a: workflows });
       const getJobTemplatesResponse = cold('-a|', { a: jobTemplates });
 
       const expected = cold('---a', {
         a: {
           type: WorkflowsActions.INITIALIZE_WORKFLOWS_SUCCESS,
-          payload: { workflows: workflows, projects: projects, jobTemplates: jobTemplates },
+          payload: { projects: projects, jobTemplates: jobTemplates },
         },
       });
 
       spyOn(workflowService, 'getProjects').and.returnValue(getProjectsResponse);
-      spyOn(workflowService, 'getWorkflows').and.returnValue(getWorkflowsResponse);
       spyOn(workflowService, 'getJobTemplates').and.returnValue(getJobTemplatesResponse);
 
       expect(underTest.workflowsInitialize).toBeObservable(expected);
@@ -154,15 +152,10 @@ describe('WorkflowsEffects', () => {
           WorkflowModelFactory.create('workflowName2', true, 'projectName2', new Date(Date.now()), new Date(Date.now()), 1),
         ]),
       ];
-      const workflows = Array.prototype.concat.apply(
-        [],
-        projects.map((p) => p.workflows),
-      );
 
       const action = new InitializeWorkflows();
       mockActions = cold('-a', { a: action });
       const getProjectsResponse = cold('-a|', { a: projects });
-      const getWorkflowsResponse = cold('-a|', { a: workflows });
       const getJobTemplatesResponse = cold('-#|');
 
       const expected = cold('--(a|)', {
@@ -172,12 +165,56 @@ describe('WorkflowsEffects', () => {
       });
 
       spyOn(workflowService, 'getProjects').and.returnValue(getProjectsResponse);
-      spyOn(workflowService, 'getWorkflows').and.returnValue(getWorkflowsResponse);
       spyOn(workflowService, 'getJobTemplates').and.returnValue(getJobTemplatesResponse);
 
       expect(underTest.workflowsInitialize).toBeObservable(expected);
       expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
       expect(toastrServiceSpy).toHaveBeenCalledWith(texts.LOAD_WORKFLOWS_FAILURE_NOTIFICATION);
+    });
+  });
+
+  describe('workflowsSearch', () => {
+    it('should return workflows search response', () => {
+      const workflows = [WorkflowModelFactory.create('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 0)];
+      const searchResponseModel = new TableSearchResponseModel<WorkflowModel>(workflows, 1);
+      const searchRequest = TableSearchRequestModelFactory.create(0, 100);
+
+      const action = new SearchWorkflows(searchRequest);
+      mockActions = cold('-a', { a: action });
+      const searchWorkflowsResponse = cold('-a|', { a: searchResponseModel });
+
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowsActions.SEARCH_WORKFLOWS_SUCCESS,
+          payload: { workflows: searchResponseModel.items, total: searchResponseModel.total },
+        },
+      });
+
+      spyOn(workflowService, 'searchWorkflows').and.returnValue(searchWorkflowsResponse);
+
+      expect(underTest.workflowsSearch).toBeObservable(expected);
+    });
+
+    it('should return search workflows failure if workflowService.searchWorkflows responds with an error', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'error');
+
+      const searchRequest = TableSearchRequestModelFactory.create(0, 100);
+
+      const action = new SearchWorkflows(searchRequest);
+      mockActions = cold('-a', { a: action });
+      const searchWorkflowsResponse = cold('-#|');
+
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowsActions.SEARCH_WORKFLOWS_FAILURE,
+        },
+      });
+
+      spyOn(workflowService, 'searchWorkflows').and.returnValue(searchWorkflowsResponse);
+
+      expect(underTest.workflowsSearch).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.SEARCH_WORKFLOWS_FAILURE_NOTIFICATION);
     });
   });
 
@@ -1088,6 +1125,47 @@ describe('WorkflowsEffects', () => {
       expect(utilServiceSpy).toHaveBeenCalledWith(expectedErrorMessagesGroup);
       expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
       expect(toastrServiceSpy).toHaveBeenCalledWith('sometext', texts.IMPORT_WORKFLOWS_BULK_FAILURE_TITLE, jasmine.anything());
+    });
+  });
+
+  describe('workflowRevert', () => {
+    it('should load workflow from history', () => {
+      const payload = 1;
+      const response = WorkflowJoinedModelFactory.createEmpty();
+
+      const action = new RevertWorkflow(payload);
+      mockActions = cold('-a', { a: action });
+      const getHistoryWorkflowResponse = cold('-a|', { a: response });
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowActions.REVERT_WORKFLOW_SUCCESS,
+          payload: response,
+        },
+      });
+
+      spyOn(workflowHistoryService, 'getWorkflowFromHistory').and.returnValue(getHistoryWorkflowResponse);
+
+      expect(underTest.workflowRevert).toBeObservable(expected);
+    });
+
+    it('should display failure when service fails to load workflow from history', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'error');
+      const payload = 1;
+
+      const action = new RevertWorkflow(payload);
+      mockActions = cold('-a', { a: action });
+
+      const getHistoryWorkflowResponse = cold('-#|');
+      spyOn(workflowHistoryService, 'getWorkflowFromHistory').and.returnValue(getHistoryWorkflowResponse);
+
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowActions.REVERT_WORKFLOW_FAILURE,
+        },
+      });
+      expect(underTest.workflowRevert).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.LOAD_WORKFLOW_FROM_HISTORY_FAILURE_NOTIFICATION);
     });
   });
 });

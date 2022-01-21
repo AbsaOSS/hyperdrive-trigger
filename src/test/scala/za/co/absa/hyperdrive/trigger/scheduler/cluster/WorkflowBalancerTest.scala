@@ -27,10 +27,11 @@ import za.co.absa.hyperdrive.trigger.configuration.application.TestSchedulerConf
 import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
 class WorkflowBalancerTest extends AsyncFlatSpec with MockitoSugar with Matchers with BeforeAndAfter {
+  override implicit def executionContext: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+
   private val schedulerInstanceService = mock[SchedulerInstanceService]
   private val workflowBalancingService = mock[WorkflowBalancingService]
   private val schedulerConfig = TestSchedulerConfig()

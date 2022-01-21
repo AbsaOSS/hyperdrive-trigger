@@ -15,6 +15,7 @@
 
 export const texts = {
   LOAD_WORKFLOWS_FAILURE_NOTIFICATION: "Sorry, workflows couldn't be loaded. Please try again.",
+  SEARCH_WORKFLOWS_FAILURE_NOTIFICATION: "Sorry, workflows couldn't be loaded. Please try again.",
 
   DELETE_WORKFLOW_CONFIRMATION_TITLE: 'Delete workflow',
   DELETE_WORKFLOW_CONFIRMATION_CONTENT: 'Are you sure you want to delete this workflow? The operation cannot be reverted.',
@@ -81,6 +82,7 @@ export const texts = {
 
   LOAD_HISTORY_FOR_WORKFLOW_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
   LOAD_WORKFLOWS_FROM_HISTORY_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
+  LOAD_WORKFLOW_FROM_HISTORY_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
 
   CRON_QUARTZ_INVALID_FOR_USER_FRIENDLY: 'Invalid quartz expression for user friendly input. Default will be used.',
 

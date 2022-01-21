@@ -47,6 +47,17 @@ class HistoryTableQueryTest extends FlatSpec with Matchers with BeforeAndAfterAl
     result.size shouldBe 0
   }
 
+  "getHistoryEntity" should "return entity from history " in {
+    val result = await(db.run(underTest.getHistoryEntity(TestHistoryData.t2.id)))
+    result shouldBe TestHistoryData.t2
+  }
+
+  it should "throw db exception when history entity does not exist" in {
+    val exceptionResult = the [Exception] thrownBy
+      await(db.run(underTest.getHistoryEntity(999)))
+    exceptionResult.getMessage shouldBe s"Entity with #${999} doesn't exist on HistoryTableQueryTest.this.TestHistoryTable."
+  }
+
   "getEntitiesFromHistory" should "return two entities from history for comparison" in {
     val result = await(db.run(underTest.getEntitiesFromHistory(TestHistoryData.t1.id, TestHistoryData.t2.id)))
     result.leftHistory shouldBe TestHistoryData.t1

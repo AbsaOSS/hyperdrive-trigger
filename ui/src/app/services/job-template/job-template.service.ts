@@ -108,4 +108,12 @@ export class JobTemplateService {
       .get<WorkflowModel[]>(api.GET_JOB_TEMPLATE_USAGE.replace('{id}', id.toString()), { observe: 'response' })
       .pipe(map((response) => response.body));
   }
+
+  getJobTemplateFromHistory(id: number): Observable<JobTemplateModel> {
+    const params = new HttpParams().set('jobTemplateHistoryId', id.toString());
+
+    return this.httpClient
+      .get<JobTemplateModel>(api.GET_JOB_TEMPLATE_FROM_HISTORY, { params: params, observe: 'response' })
+      .pipe(map((_) => _.body));
+  }
 }
