@@ -20,6 +20,7 @@ import { HistoryModel, HistoryPairModel } from '../../models/historyModel';
 import { api } from '../../constants/api.constants';
 import { map } from 'rxjs/operators';
 import { NotificationRuleHistoryModel } from '../../models/notificationRuleHistoryModel';
+import { NotificationRuleModel } from '../../models/notificationRule.model';
 
 @Injectable({
   providedIn: 'root',
@@ -43,6 +44,14 @@ export class NotificationRuleHistoryService {
 
     return this.httpClient
       .get<HistoryPairModel<NotificationRuleHistoryModel>>(api.GET_NOTIFICATION_RULES_FROM_HISTORY, { params: params, observe: 'response' })
+      .pipe(map((_) => _.body));
+  }
+
+  getNotificationRuleFromHistory(id: number): Observable<NotificationRuleModel> {
+    const params = new HttpParams().set('notificationRuleHistoryId', id.toString());
+
+    return this.httpClient
+      .get<NotificationRuleModel>(api.GET_NOTIFICATION_RULE_FROM_HISTORY, { params: params, observe: 'response' })
       .pipe(map((_) => _.body));
   }
 }

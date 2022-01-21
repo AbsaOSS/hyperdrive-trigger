@@ -222,6 +222,34 @@ export function notificationRulesReducer(state: State = initialState, action: No
           loading: false,
         },
       };
+    case NotificationRulesActions.REVERT_NOTIFICATION_RULE:
+      return {
+        ...state,
+        notificationRuleAction: {
+          ...initialState.notificationRuleAction,
+          id: action.payload,
+          loading: true,
+        },
+      };
+    case NotificationRulesActions.REVERT_NOTIFICATION_RULE_SUCCESS:
+      return {
+        ...state,
+        notificationRuleAction: {
+          ...state.notificationRuleAction,
+          loading: false,
+          initialNotificationRule: undefined,
+          notificationRule: action.payload,
+          backendValidationErrors: [],
+        },
+      };
+    case NotificationRulesActions.REVERT_NOTIFICATION_RULE_FAILURE:
+      return {
+        ...state,
+        notificationRuleAction: {
+          ...initialState.notificationRuleAction,
+          loading: false,
+        },
+      };
     default:
       return state;
   }

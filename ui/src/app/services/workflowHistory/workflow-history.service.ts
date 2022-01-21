@@ -19,6 +19,7 @@ import { Observable } from 'rxjs';
 import { HistoryModel, HistoryPairModel, WorkflowHistoryModel } from '../../models/historyModel';
 import { api } from '../../constants/api.constants';
 import { map } from 'rxjs/operators';
+import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
 
 @Injectable({
   providedIn: 'root',
@@ -31,6 +32,14 @@ export class WorkflowHistoryService {
 
     return this.httpClient
       .get<HistoryModel[]>(api.GET_HISTORY_FOR_WORKFLOW, { params: params, observe: 'response' })
+      .pipe(map((_) => _.body));
+  }
+
+  getWorkflowFromHistory(id: number): Observable<WorkflowJoinedModel> {
+    const params = new HttpParams().set('workflowHistoryId', id.toString());
+
+    return this.httpClient
+      .get<WorkflowJoinedModel>(api.GET_WORKFLOW_FROM_HISTORY, { params: params, observe: 'response' })
       .pipe(map((_) => _.body));
   }
 

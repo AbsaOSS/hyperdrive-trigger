@@ -48,13 +48,13 @@
   </button>
 </div>
 
-<form clrForm (ngSubmit)="mode != workflowModes.EDIT ? createWorkflow() : updateWorkflow()" #workflowForm="ngForm" novalidate>
+<form clrForm (ngSubmit)="mode != workflowModes.EDIT && mode != workflowModes.REVERT ? createWorkflow() : updateWorkflow()" #workflowForm="ngForm" novalidate>
   <div class="btn-group" *ngIf="mode != workflowModes.SHOW && mode != workflowModes.COMPARISON">
-    <button type="submit" class="btn btn-sm btn-secondary" *ngIf="mode != workflowModes.EDIT">
+    <button type="submit" class="btn btn-sm btn-secondary" *ngIf="mode != workflowModes.EDIT && mode != workflowModes.REVERT">
       <clr-icon shape="check"></clr-icon>
       Create new workflow
     </button>
-    <button type="submit" class="btn btn-sm btn-secondary" [disabled]="!hasWorkflowChanged()" *ngIf="mode == workflowModes.EDIT">
+    <button type="submit" class="btn btn-sm btn-secondary" [disabled]="!hasWorkflowChanged()" *ngIf="mode == workflowModes.EDIT || mode == workflowModes.REVERT">
       <clr-icon shape="check"></clr-icon>
       Update workflow
     </button>

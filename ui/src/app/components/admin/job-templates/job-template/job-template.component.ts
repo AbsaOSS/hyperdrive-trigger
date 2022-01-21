@@ -18,7 +18,7 @@ import { Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { AppState, selectJobTemplatesState } from '../../../../stores/app.reducers';
 import { ActivatedRoute } from '@angular/router';
-import { GetJobTemplateForForm, SetEmptyJobTemplate } from '../../../../stores/job-templates/job-templates.actions';
+import { GetJobTemplateForForm, RevertJobTemplate, SetEmptyJobTemplate } from '../../../../stores/job-templates/job-templates.actions';
 import { JobTemplateModel } from '../../../../models/jobTemplate.model';
 import { jobTypes } from '../../../../constants/jobTypes.constants';
 import { jobTemplateModes } from '../../../../models/enums/jobTemplateModes.constants';
@@ -48,6 +48,8 @@ export class JobTemplateComponent implements OnInit, OnDestroy {
         this.store.dispatch(new SetEmptyJobTemplate());
       } else if (parameters.mode == jobTemplateModes.SHOW || parameters.mode == jobTemplateModes.EDIT) {
         this.store.dispatch(new GetJobTemplateForForm(parameters.id));
+      } else if (parameters.mode == jobTemplateModes.REVERT) {
+        this.store.dispatch(new RevertJobTemplate(parameters.id));
       }
     });
   }

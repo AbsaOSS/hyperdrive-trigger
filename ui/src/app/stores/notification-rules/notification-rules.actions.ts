@@ -52,6 +52,10 @@ export const LOAD_NOTIFICATION_RULES_FROM_HISTORY = 'LOAD_NOTIFICATION_RULES_FRO
 export const LOAD_NOTIFICATION_RULES_FROM_HISTORY_SUCCESS = 'LOAD_NOTIFICATION_RULES_FROM_HISTORY_SUCCESS';
 export const LOAD_NOTIFICATION_RULES_FROM_HISTORY_FAILURE = 'LOAD_NOTIFICATION_RULES_FROM_HISTORY_FAILURE';
 
+export const REVERT_NOTIFICATION_RULE = 'REVERT_NOTIFICATION_RULE';
+export const REVERT_NOTIFICATION_RULE_SUCCESS = 'REVERT_NOTIFICATION_RULE_SUCCESS';
+export const REVERT_NOTIFICATION_RULE_FAILURE = 'REVERT_NOTIFICATION_RULE_FAILURE';
+
 export class SearchNotificationRules implements Action {
   readonly type = SEARCH_NOTIFICATION_RULES;
   constructor(public payload: TableSearchRequestModel) {}
@@ -169,6 +173,20 @@ export class LoadNotificationRulesFromHistoryFailure implements Action {
   readonly type = LOAD_NOTIFICATION_RULES_FROM_HISTORY_FAILURE;
 }
 
+export class RevertNotificationRule implements Action {
+  readonly type = REVERT_NOTIFICATION_RULE;
+  constructor(public payload: number) {}
+}
+
+export class RevertNotificationRuleSuccess implements Action {
+  readonly type = REVERT_NOTIFICATION_RULE_SUCCESS;
+  constructor(public payload: NotificationRuleModel) {}
+}
+
+export class RevertNotificationRuleFailure implements Action {
+  readonly type = REVERT_NOTIFICATION_RULE_FAILURE;
+}
+
 export type NotificationRulesActions =
   | SearchNotificationRules
   | SearchNotificationRulesSuccess
@@ -193,4 +211,7 @@ export type NotificationRulesActions =
   | LoadHistoryForNotificationRuleFailure
   | LoadNotificationRulesFromHistory
   | LoadNotificationRulesFromHistorySuccess
-  | LoadNotificationRulesFromHistoryFailure;
+  | LoadNotificationRulesFromHistoryFailure
+  | RevertNotificationRule
+  | RevertNotificationRuleSuccess
+  | RevertNotificationRuleFailure;

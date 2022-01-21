@@ -52,6 +52,7 @@ export const absoluteRoutes = {
   SHOW_WORKFLOW: `/${routeNames.WORKFLOWS}/${workflowModes.SHOW}`,
   CREATE_WORKFLOW: `/${routeNames.WORKFLOWS}/${workflowModes.CREATE}`,
   EDIT_WORKFLOW: `/${routeNames.WORKFLOWS}/${workflowModes.EDIT}`,
+  REVERT_WORKFLOW: `/${routeNames.WORKFLOWS}/${workflowModes.REVERT}`,
   COPY_WORKFLOW: `/${routeNames.WORKFLOWS}/${workflowModes.COPY}`,
   IMPORT_WORKFLOW: `/${routeNames.WORKFLOWS}/${workflowModes.IMPORT}`,
   RUNS: `/${routeNames.RUNS}`,
@@ -61,11 +62,13 @@ export const absoluteRoutes = {
   SHOW_JOB_TEMPLATE: `/${routeNames.JOB_TEMPLATES}/${jobTemplateModes.SHOW}`,
   CREATE_JOB_TEMPLATE: `/${routeNames.JOB_TEMPLATES}/${jobTemplateModes.CREATE}`,
   EDIT_JOB_TEMPLATE: `/${routeNames.JOB_TEMPLATES}/${jobTemplateModes.EDIT}`,
+  REVERT_JOB_TEMPLATE: `/${routeNames.JOB_TEMPLATES}/${jobTemplateModes.REVERT}`,
   NOTIFICATION_RULES: `/${routeNames.NOTIFICATION_RULES}`,
   NOTIFICATION_RULES_HOME: `/${routeNames.NOTIFICATION_RULES}`,
   SHOW_NOTIFICATION_RULE: `/${routeNames.NOTIFICATION_RULES}/${notificationRuleModes.SHOW}`,
   CREATE_NOTIFICATION_RULE: `/${routeNames.NOTIFICATION_RULES}/${notificationRuleModes.CREATE}`,
   EDIT_NOTIFICATION_RULE: `/${routeNames.NOTIFICATION_RULES}/${notificationRuleModes.EDIT}`,
+  REVERT_NOTIFICATION_RULE: `/${routeNames.NOTIFICATION_RULES}/${notificationRuleModes.REVERT}`,
   RUNS_WITH_WORKFLOW_ID(workflowId: number): string {
     return `/runs/${workflowId}`;
   },

@@ -31,6 +31,7 @@ import {
   GetJobTemplateUsage,
   LoadHistoryForJobTemplate,
   LoadJobTemplatesFromHistory,
+  RevertJobTemplate,
   SearchJobTemplates,
   UpdateJobTemplate,
 } from './job-templates.actions';
@@ -519,6 +520,49 @@ describe('JobTemplatesEffects', () => {
       expect(underTest.jobTemplateUsageGet).toBeObservable(expected);
       expect(toastrServiceSpyError).toHaveBeenCalledTimes(1);
       expect(toastrServiceSpyError).toHaveBeenCalledWith(texts.GET_JOB_TEMPLATE_USAGE_FAILURE_NOTIFICATION);
+    });
+  });
+
+  describe('jobTemplateRevert', () => {
+    it('should load job template from history', () => {
+      const payload = 1;
+      const jobTemplate = dummyJobTemplate;
+
+      const response: JobTemplateModel = dummyJobTemplate;
+
+      const action = new RevertJobTemplate(payload);
+      mockActions = cold('-a', { a: action });
+      const getHistoryJobTemplateResponse = cold('-a|', { a: response });
+      const expected = cold('--a', {
+        a: {
+          type: JobTemplatesActions.REVERT_JOB_TEMPLATE_SUCCESS,
+          payload: response,
+        },
+      });
+
+      jobTemplateService.getJobTemplateFromHistory.and.returnValue(getHistoryJobTemplateResponse);
+
+      expect(underTest.jobTemplateRevert).toBeObservable(expected);
+    });
+
+    it('should display failure when service fails to load job template from history', () => {
+      const toastrServiceSpyError = toastrServiceSpy.error;
+      const payload = 1;
+
+      const action = new RevertJobTemplate(payload);
+      mockActions = cold('-a', { a: action });
+
+      const getHistoryJobTemplateResponse = cold('-#|');
+      jobTemplateService.getJobTemplateFromHistory.and.returnValue(getHistoryJobTemplateResponse);
+
+      const expected = cold('--a', {
+        a: {
+          type: JobTemplatesActions.REVERT_JOB_TEMPLATE_FAILURE,
+        },
+      });
+      expect(underTest.jobTemplateRevert).toBeObservable(expected);
+      expect(toastrServiceSpyError).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpyError).toHaveBeenCalledWith(texts.LOAD_JOB_TEMPLATE_FAILURE_NOTIFICATION);
     });
   });
 });

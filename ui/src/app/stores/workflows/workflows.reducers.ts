@@ -526,6 +526,35 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         ...state,
         loading: false,
       };
+    case WorkflowsActions.REVERT_WORKFLOW:
+      return {
+        ...state,
+        workflowAction: {
+          ...initialState.workflowAction,
+          mode: workflowModes.REVERT,
+          id: action.payload,
+          loading: true,
+        },
+      };
+    case WorkflowsActions.REVERT_WORKFLOW_SUCCESS:
+      return {
+        ...state,
+        workflowAction: {
+          ...state.workflowAction,
+          loading: false,
+          workflow: undefined,
+          workflowForForm: action.payload,
+          backendValidationErrors: [],
+        },
+      };
+    case WorkflowsActions.REVERT_WORKFLOW_FAILURE:
+      return {
+        ...state,
+        workflowAction: {
+          ...initialState.workflowAction,
+          loading: false,
+        },
+      };
     default:
       return state;
   }

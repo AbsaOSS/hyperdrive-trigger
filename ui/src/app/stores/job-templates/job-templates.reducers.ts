@@ -271,6 +271,34 @@ export function jobTemplatesReducer(state: State = initialState, action: JobTemp
           loading: false,
         },
       };
+    case JobTemplatesActions.REVERT_JOB_TEMPLATE:
+      return {
+        ...state,
+        jobTemplateAction: {
+          ...initialState.jobTemplateAction,
+          id: action.payload,
+          loading: true,
+        },
+      };
+    case JobTemplatesActions.REVERT_JOB_TEMPLATE_SUCCESS:
+      return {
+        ...state,
+        jobTemplateAction: {
+          ...state.jobTemplateAction,
+          loading: false,
+          initialJobTemplate: undefined,
+          jobTemplate: action.payload,
+          backendValidationErrors: [],
+        },
+      };
+    case JobTemplatesActions.REVERT_JOB_TEMPLATE_FAILURE:
+      return {
+        ...state,
+        jobTemplateAction: {
+          ...initialState.jobTemplateAction,
+          loading: false,
+        },
+      };
     default:
       return state;
   }

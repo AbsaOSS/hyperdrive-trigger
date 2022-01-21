@@ -22,6 +22,7 @@ import { workflowModes } from '../../../../models/enums/workflowModes.constants'
 import { LoadWorkflowsFromHistory } from '../../../../stores/workflows/workflows.actions';
 import { WorkflowHistoryModel } from '../../../../models/historyModel';
 import { JobTemplateModel } from '../../../../models/jobTemplate.model';
+import { absoluteRoutes } from 'src/app/constants/routes.constants';
 
 @Component({
   selector: 'app-workflow-comparison',
@@ -39,6 +40,7 @@ export class WorkflowComparisonComponent implements OnInit, OnDestroy {
   paramsSubscription: Subscription;
 
   workflowModes = workflowModes;
+  absoluteRoutes = absoluteRoutes;
 
   constructor(private store: Store<AppState>, route: ActivatedRoute) {
     this.paramsSubscription = route.params.subscribe((parameters) => {

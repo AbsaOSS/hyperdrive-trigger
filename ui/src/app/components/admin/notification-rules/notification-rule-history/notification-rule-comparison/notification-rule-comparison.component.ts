@@ -21,6 +21,7 @@ import { NotificationRuleHistoryModel } from '../../../../../models/notification
 import { notificationRuleModes } from '../../../../../models/enums/notificationRuleModes.constants';
 import { AppState, selectNotificationRulesState } from '../../../../../stores/app.reducers';
 import { LoadNotificationRulesFromHistory } from '../../../../../stores/notification-rules/notification-rules.actions';
+import { absoluteRoutes } from 'src/app/constants/routes.constants';
 
 @Component({
   selector: 'app-notification-rule-comparison',
@@ -32,6 +33,7 @@ export class NotificationRuleComparisonComponent implements OnInit, OnDestroy {
   paramsSubscription: Subscription;
 
   notificationRuleModes = notificationRuleModes;
+  absoluteRoutes = absoluteRoutes;
 
   leftHistory: NotificationRuleHistoryModel;
   rightHistory: NotificationRuleHistoryModel;

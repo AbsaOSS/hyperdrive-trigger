@@ -34,15 +34,15 @@
   </button>
 </div>
 
-<form clrForm (ngSubmit)="mode != jobTemplateModes.EDIT ? createJobTemplate() : updateJobTemplate()"
+<form clrForm (ngSubmit)="mode != jobTemplateModes.EDIT && mode != jobTemplateModes.REVERT ? createJobTemplate() : updateJobTemplate()"
       #jobTemplateForm="ngForm" novalidate>
   <div class="btn-group" *ngIf="!isReadOnlyMode()">
-    <button type="submit" class="btn btn-sm btn-secondary" *ngIf="mode != jobTemplateModes.EDIT">
+    <button type="submit" class="btn btn-sm btn-secondary" *ngIf="mode != jobTemplateModes.EDIT && mode != jobTemplateModes.REVERT">
       <clr-icon shape="check"></clr-icon>
       Create new job template
     </button>
     <button type="submit" class="btn btn-sm btn-secondary" [disabled]="!formHasChanged()"
-            *ngIf="mode == jobTemplateModes.EDIT">
+            *ngIf="mode == jobTemplateModes.EDIT || mode == jobTemplateModes.REVERT">
       <clr-icon shape="check"></clr-icon>
       Update job template
     </button>

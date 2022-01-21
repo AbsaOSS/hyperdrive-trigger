@@ -56,6 +56,10 @@ export const LOAD_JOB_TEMPLATES_FROM_HISTORY = 'LOAD_JOB_TEMPLATES_FROM_HISTORY'
 export const LOAD_JOB_TEMPLATES_FROM_HISTORY_SUCCESS = 'LOAD_JOB_TEMPLATES_FROM_HISTORY_SUCCESS';
 export const LOAD_JOB_TEMPLATES_FROM_HISTORY_FAILURE = 'LOAD_JOB_TEMPLATES_FROM_HISTORY_FAILURE';
 
+export const REVERT_JOB_TEMPLATE = 'REVERT_JOB_TEMPLATE';
+export const REVERT_JOB_TEMPLATE_SUCCESS = 'REVERT_JOB_TEMPLATE_SUCCESS';
+export const REVERT_JOB_TEMPLATE_FAILURE = 'REVERT_JOB_TEMPLATE_FAILURE';
+
 export class SearchJobTemplates implements Action {
   readonly type = SEARCH_JOB_TEMPLATES;
   constructor(public payload: TableSearchRequestModel) {}
@@ -187,6 +191,20 @@ export class LoadJobTemplatesFromHistoryFailure implements Action {
   readonly type = LOAD_JOB_TEMPLATES_FROM_HISTORY_FAILURE;
 }
 
+export class RevertJobTemplate implements Action {
+  readonly type = REVERT_JOB_TEMPLATE;
+  constructor(public payload: number) {}
+}
+
+export class RevertJobTemplateSuccess implements Action {
+  readonly type = REVERT_JOB_TEMPLATE_SUCCESS;
+  constructor(public payload: JobTemplateModel) {}
+}
+
+export class RevertJobTemplateFailure implements Action {
+  readonly type = REVERT_JOB_TEMPLATE_FAILURE;
+}
+
 export type JobTemplatesActions =
   | SearchJobTemplates
   | SearchJobTemplatesSuccess
@@ -214,4 +232,7 @@ export type JobTemplatesActions =
   | LoadHistoryForJobTemplateFailure
   | LoadJobTemplatesFromHistory
   | LoadJobTemplatesFromHistorySuccess
-  | LoadJobTemplatesFromHistoryFailure;
+  | LoadJobTemplatesFromHistoryFailure
+  | RevertJobTemplate
+  | RevertJobTemplateSuccess
+  | RevertJobTemplateFailure;
