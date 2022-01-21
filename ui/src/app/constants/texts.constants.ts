@@ -15,6 +15,7 @@
 
 export const texts = {
   LOAD_WORKFLOWS_FAILURE_NOTIFICATION: "Sorry, workflows couldn't be loaded. Please try again.",
+  SEARCH_WORKFLOWS_FAILURE_NOTIFICATION: "Sorry, workflows couldn't be loaded. Please try again.",
 
   DELETE_WORKFLOW_CONFIRMATION_TITLE: 'Delete workflow',
   DELETE_WORKFLOW_CONFIRMATION_CONTENT: 'Are you sure you want to delete this workflow? The operation cannot be reverted.',

@@ -25,6 +25,7 @@ export const api = {
 
   GET_PROJECTS: '/workflows/projects',
   GET_WORKFLOWS: '/workflows',
+  SEARCH_WORKFLOWS: '/workflows/search',
   GET_WORKFLOW: '/workflow',
   DELETE_WORKFLOW: '/workflows',
   EXPORT_WORKFLOWS: '/workflows/export',
