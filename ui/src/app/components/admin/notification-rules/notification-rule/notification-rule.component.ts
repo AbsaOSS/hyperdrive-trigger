@@ -25,6 +25,7 @@ import {
   GetNotificationRule,
   NotificationRuleChanged,
   SetEmptyNotificationRule,
+  RevertNotificationRule,
 } from '../../../../stores/notification-rules/notification-rules.actions';
 
 @Component({
@@ -50,6 +51,8 @@ export class NotificationRuleComponent implements OnInit, OnDestroy {
         this.store.dispatch(new SetEmptyNotificationRule());
       } else if (parameters.mode == notificationRuleModes.SHOW || parameters.mode == notificationRuleModes.EDIT) {
         this.store.dispatch(new GetNotificationRule(parameters.id));
+      } else if (parameters.mode == notificationRuleModes.REVERT) {
+        this.store.dispatch(new RevertNotificationRule(parameters.id));
       }
     });
   }
