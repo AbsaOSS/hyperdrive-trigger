@@ -29,10 +29,11 @@ import za.co.absa.hyperdrive.trigger.models.errors.ApiErrorTypes.{BulkOperationE
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, ApiException, DatabaseError, ValidationError}
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, WorkflowRepository}
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
 class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar with BeforeAndAfter {
+  override implicit def executionContext: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+
   private val workflowRepository = mock[WorkflowRepository]
   private val dagInstanceRepository = mock[DagInstanceRepository]
   private val dagInstanceService = mock[DagInstanceService]

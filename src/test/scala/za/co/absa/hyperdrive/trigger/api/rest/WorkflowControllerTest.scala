@@ -31,10 +31,11 @@ import za.co.absa.hyperdrive.trigger.configuration.application.TestGeneralConfig
 import za.co.absa.hyperdrive.trigger.models.errors.ApiException
 import za.co.absa.hyperdrive.trigger.models.{Project, Workflow, WorkflowImportExportWrapper}
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class WorkflowControllerTest extends AsyncFlatSpec with Matchers with MockitoSugar with BeforeAndAfter {
+  override implicit def executionContext: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+
   private val workflowService = mock[WorkflowService]
   private val underTest = new WorkflowController(workflowService, TestGeneralConfig())
 

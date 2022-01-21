@@ -27,10 +27,11 @@ import za.co.absa.hyperdrive.trigger.models.{NotificationRule, Workflow}
 import za.co.absa.hyperdrive.trigger.persistance.NotificationRuleRepository
 
 import java.time.LocalDateTime
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
 class NotificationRuleServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar with BeforeAndAfter with OptionValues {
+  override implicit def executionContext: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+
   private val notificationRuleRepository = mock[NotificationRuleRepository]
   private val notificationRuleValidationService = mock[NotificationRuleValidationService]
   private val userName = "some-user"

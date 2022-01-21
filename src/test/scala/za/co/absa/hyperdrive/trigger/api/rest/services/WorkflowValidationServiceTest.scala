@@ -26,10 +26,11 @@ import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, ApiException, Bulk
 import za.co.absa.hyperdrive.trigger.persistance.WorkflowRepository
 
 import scala.collection.immutable.SortedMap
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
 class WorkflowValidationServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar with BeforeAndAfter {
+  override implicit def executionContext: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+
   private val workflowRepository = mock[WorkflowRepository]
   private val jobTemplateService = mock[JobTemplateService]
 
