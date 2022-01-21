@@ -16,8 +16,8 @@
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
 import org.springframework.stereotype.Service
-import za.co.absa.hyperdrive.trigger.models.{History, HistoryPair, JobTemplateHistory, WorkflowHistory}
-import za.co.absa.hyperdrive.trigger.persistance.{JobTemplateHistoryRepository, WorkflowHistoryRepository}
+import za.co.absa.hyperdrive.trigger.models.{History, HistoryPair, JobTemplate, JobTemplateHistory}
+import za.co.absa.hyperdrive.trigger.persistance.JobTemplateHistoryRepository
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -25,6 +25,7 @@ trait JobTemplateHistoryService {
   val jobTemplateHistoryRepository: JobTemplateHistoryRepository
 
   def getHistoryForJobTemplate(jobTemplateId: Long)(implicit ec: ExecutionContext): Future[Seq[History]]
+  def getJobTemplateFromHistory(jobTemplateHistoryId: Long)(implicit ec: ExecutionContext): Future[JobTemplate]
   def getJobTemplatesFromHistory(leftJobTemplateHistoryId: Long, rightJobTemplateHistoryId: Long)(implicit ec: ExecutionContext): Future[HistoryPair[JobTemplateHistory]]
 }
 
@@ -32,6 +33,10 @@ trait JobTemplateHistoryService {
 class JobTemplateHistoryServiceImpl(override val jobTemplateHistoryRepository: JobTemplateHistoryRepository) extends JobTemplateHistoryService {
   override def getHistoryForJobTemplate(jobTemplateId: Long)(implicit ec: ExecutionContext): Future[Seq[History]] = {
     jobTemplateHistoryRepository.getHistoryForJobTemplate(jobTemplateId)
+  }
+
+  override def getJobTemplateFromHistory(jobTemplateHistoryId: Long)(implicit ec: ExecutionContext): Future[JobTemplate] = {
+    jobTemplateHistoryRepository.getJobTemplateFromHistory(jobTemplateHistoryId)
   }
 
   override def getJobTemplatesFromHistory(leftJobTemplateHistoryId: Long, rightJobTemplateHistoryId: Long)(implicit ec: ExecutionContext): Future[HistoryPair[JobTemplateHistory]] = {

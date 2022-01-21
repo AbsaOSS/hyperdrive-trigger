@@ -38,6 +38,18 @@ trait HistoryTableQuery {
       )
     }
 
+    def getHistoryEntity(id: Long)(implicit ec: ExecutionContext): DBIOAction[T#TableElementType, NoStream, Effect.Read] = {
+      val queryResult = tableQuery
+        .filter(_.id === id)
+        .result
+
+      queryResult.map(
+        _.headOption.getOrElse(
+          throw new Exception(s"Entity with #${id} doesn't exist on ${ru.typeOf[T]}.")
+        )
+      )
+    }
+
     def getEntitiesFromHistory(leftId: Long, rightId: Long)(implicit ec: ExecutionContext): DBIOAction[HistoryPair[T#TableElementType], NoStream, Effect.Read] = {
       val queryResult = tableQuery
         .join(tableQuery).on(_.id === leftId && _.id === rightId)

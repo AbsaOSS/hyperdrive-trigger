@@ -16,7 +16,7 @@
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
 import org.springframework.stereotype.Service
-import za.co.absa.hyperdrive.trigger.models.{History, HistoryPair, NotificationRuleHistory}
+import za.co.absa.hyperdrive.trigger.models.{History, HistoryPair, NotificationRule, NotificationRuleHistory}
 import za.co.absa.hyperdrive.trigger.persistance.NotificationRuleHistoryRepository
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -25,6 +25,7 @@ trait NotificationRuleHistoryService {
   val historyRepository: NotificationRuleHistoryRepository
 
   def getHistoryForNotificationRule(workflowId: Long)(implicit ec: ExecutionContext): Future[Seq[History]]
+  def getNotificationRuleFromHistory(notificationRuleHistoryId: Long)(implicit ec: ExecutionContext): Future[NotificationRule]
   def getNotificationRulesFromHistory(leftHistoryId: Long, rightHistoryId: Long)(implicit ec: ExecutionContext): Future[HistoryPair[NotificationRuleHistory]]
 }
 
@@ -33,6 +34,10 @@ class NotificationRuleHistoryServiceImpl(override val historyRepository: Notific
 
   override def getHistoryForNotificationRule(notificationRuleId: Long)(implicit ec: ExecutionContext): Future[Seq[History]] = {
     historyRepository.getHistoryForNotificationRule(notificationRuleId)
+  }
+
+  override def getNotificationRuleFromHistory(notificationRuleHistoryId: Long)(implicit ec: ExecutionContext): Future[NotificationRule] = {
+    historyRepository.getNotificationRuleFromHistory(notificationRuleHistoryId)
   }
 
   override def getNotificationRulesFromHistory(leftHistoryId: Long, rightHistoryId: Long)(implicit ec: ExecutionContext): Future[HistoryPair[NotificationRuleHistory]] = {
