@@ -87,6 +87,10 @@ export const IMPORT_WORKFLOWS = 'IMPORT_WORKFLOWS';
 export const IMPORT_WORKFLOWS_SUCCESS = 'IMPORT_WORKFLOWS_SUCCESS';
 export const IMPORT_WORKFLOWS_FAILURE = 'IMPORT_WORKFLOWS_FAILURE';
 
+export const REVERT_WORKFLOW = 'REVERT_WORKFLOW';
+export const REVERT_WORKFLOW_SUCCESS = 'REVERT_WORKFLOW_SUCCESS';
+export const REVERT_WORKFLOW_FAILURE = 'REVERT_WORKFLOW_FAILURE';
+
 export class InitializeWorkflows implements Action {
   readonly type = INITIALIZE_WORKFLOWS;
 }
@@ -322,6 +326,20 @@ export class ImportWorkflowsFailure implements Action {
   readonly type = IMPORT_WORKFLOWS_FAILURE;
 }
 
+export class RevertWorkflow implements Action {
+  readonly type = REVERT_WORKFLOW;
+  constructor(public payload: number) {}
+}
+
+export class RevertWorkflowSuccess implements Action {
+  readonly type = REVERT_WORKFLOW_SUCCESS;
+  constructor(public payload: WorkflowJoinedModel) {}
+}
+
+export class RevertWorkflowFailure implements Action {
+  readonly type = REVERT_WORKFLOW_FAILURE;
+}
+
 export type WorkflowsActions =
   | InitializeWorkflows
   | InitializeWorkflowsSuccess
@@ -370,4 +388,7 @@ export type WorkflowsActions =
   | ImportWorkflowFailure
   | ImportWorkflows
   | ImportWorkflowsSuccess
-  | ImportWorkflowsFailure;
+  | ImportWorkflowsFailure
+  | RevertWorkflow
+  | RevertWorkflowSuccess
+  | RevertWorkflowFailure;

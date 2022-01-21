@@ -35,6 +35,7 @@ import {
   UpdateWorkflowsIsActive,
   ImportWorkflows,
   RunWorkflows,
+  RevertWorkflow,
 } from './workflows.actions';
 
 import { WorkflowsEffects } from './workflows.effects';
@@ -62,6 +63,7 @@ import { BulkOperationErrorModelFactory } from 'src/app/models/errors/bulkOperat
 import { RecurringSensorProperties } from '../../models/sensorProperties.model';
 import { JobTemplateModelFactory } from '../../models/jobTemplate.model';
 import { SparkTemplateParametersModel } from '../../models/jobTemplateParameters.model';
+import * as WorkflowActions from './workflows.actions';
 
 describe('WorkflowsEffects', () => {
   let underTest: WorkflowsEffects;
@@ -1088,6 +1090,47 @@ describe('WorkflowsEffects', () => {
       expect(utilServiceSpy).toHaveBeenCalledWith(expectedErrorMessagesGroup);
       expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
       expect(toastrServiceSpy).toHaveBeenCalledWith('sometext', texts.IMPORT_WORKFLOWS_BULK_FAILURE_TITLE, jasmine.anything());
+    });
+  });
+
+  describe('workflowRevert', () => {
+    it('should load workflow from history', () => {
+      const payload = 1;
+      const response = WorkflowJoinedModelFactory.createEmpty();
+
+      const action = new RevertWorkflow(payload);
+      mockActions = cold('-a', { a: action });
+      const getHistoryWorkflowResponse = cold('-a|', { a: response });
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowActions.REVERT_WORKFLOW_SUCCESS,
+          payload: response,
+        },
+      });
+
+      spyOn(workflowHistoryService, 'getWorkflowFromHistory').and.returnValue(getHistoryWorkflowResponse);
+
+      expect(underTest.workflowRevert).toBeObservable(expected);
+    });
+
+    it('should display failure when service fails to load workflow from history', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'error');
+      const payload = 1;
+
+      const action = new RevertWorkflow(payload);
+      mockActions = cold('-a', { a: action });
+
+      const getHistoryWorkflowResponse = cold('-#|');
+      spyOn(workflowHistoryService, 'getWorkflowFromHistory').and.returnValue(getHistoryWorkflowResponse);
+
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowActions.REVERT_WORKFLOW_FAILURE,
+        },
+      });
+      expect(underTest.workflowRevert).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.LOAD_WORKFLOW_FROM_HISTORY_FAILURE_NOTIFICATION);
     });
   });
 });
