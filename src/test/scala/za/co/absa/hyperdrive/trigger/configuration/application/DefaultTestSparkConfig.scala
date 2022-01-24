@@ -21,9 +21,7 @@ import java.util.Properties
 object DefaultTestSparkConfig {
   def apply(
     submitTimeout: Int = 1000,
-//    hadoopConfDir: String = "",
     master: String = "yarn",
-//    sparkHome: String = "",
     hadoopResourceManagerUrlBase: String = "",
     filesToDeploy: Seq[String] = Seq(),
     additionalConfs: Map[String, String] = Map(),
