@@ -21,15 +21,15 @@ import java.util.Properties
 object DefaultTestSparkConfig {
   def apply(
     submitTimeout: Int = 1000,
-    hadoopConfDir: String = "",
+//    hadoopConfDir: String = "",
     master: String = "yarn",
-    sparkHome: String = "",
+//    sparkHome: String = "",
     hadoopResourceManagerUrlBase: String = "",
     filesToDeploy: Seq[String] = Seq(),
     additionalConfs: Map[String, String] = Map(),
     userUsedToKillJob: String = "Unknown"
   ): SparkConfig = {
-    new SparkConfig("yarn", new SparkYarnSinkConfig(submitTimeout, hadoopConfDir, master, sparkHome,
+    new SparkConfig("yarn", new SparkYarnSinkConfig(submitTimeout, master,
       filesToDeploy.mkString(","), toProperties(additionalConfs)), null, hadoopResourceManagerUrlBase,
       userUsedToKillJob
     )

@@ -40,18 +40,14 @@ case class TestSparkConfig(
 
 case class TestSparkYarnSinkConfig(
   submitTimeout: Int,
-  hadoopConfDir: String,
   master: String,
-  sparkHome: String,
   filesToDeployInternal: String,
   additionalConfsInternal: Properties
 ) {
   def toSparkYarnSinkConfig: SparkYarnSinkConfig = {
     new SparkYarnSinkConfig(
       submitTimeout,
-      hadoopConfDir,
       master,
-      sparkHome,
       filesToDeployInternal,
       additionalConfsInternal
     )

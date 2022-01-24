@@ -37,9 +37,7 @@ class SparkConfigNestedClassesValidatorTest extends FlatSpec with MockitoSugar w
     submitApi = "yarn",
     yarn = TestSparkYarnSinkConfig(
       submitTimeout = 160000,
-      hadoopConfDir = "/opt/hadoop",
       master = "yarn",
-      sparkHome = "/opt/spark",
       filesToDeployInternal = "/opt/file1,/opt/file2",
       additionalConfsInternal = new Properties()
     ),
@@ -112,9 +110,7 @@ class SparkConfigNestedClassesValidatorTest extends FlatSpec with MockitoSugar w
     // given
     val config = baseSparkConfig.copy(yarn = baseSparkConfig.yarn.copy(
       submitTimeout = 0,
-      hadoopConfDir = "",
       master = "",
-      sparkHome = ""
     )).toSparkConfig
 
     // when
