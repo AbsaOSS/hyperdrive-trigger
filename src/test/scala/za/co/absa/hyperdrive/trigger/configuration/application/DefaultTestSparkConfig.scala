@@ -21,9 +21,9 @@ import java.util.Properties
 case class DefaultTestSparkConfig (
   submitApi: String = "yarn",
   submitTimeout: Int = 1000,
-  hadoopConfDir: String = "",
+  // hadoopConfDir: String = "",
   master: String = "yarn",
-  sparkHome: String = "",
+  // sparkHome: String = "",
   hadoopResourceManagerUrlBase: String = "",
   filesToDeploy: Seq[String] = Seq(),
   additionalConfs: Map[String, String] = Map(),
@@ -32,7 +32,7 @@ case class DefaultTestSparkConfig (
   clusterId: String = "j-2AXXXXXXGAPLF",
 ) {
   def yarn: SparkConfig =
-    new SparkConfig(submitApi, new SparkYarnSinkConfig(submitTimeout, hadoopConfDir, master, sparkHome,
+    new SparkConfig(submitApi, new SparkYarnSinkConfig(submitTimeout, master,
       filesToDeploy.mkString(","), toProperties(additionalConfs)), null, hadoopResourceManagerUrlBase,
       userUsedToKillJob, sparkSubmitThreadPoolSize
     )
