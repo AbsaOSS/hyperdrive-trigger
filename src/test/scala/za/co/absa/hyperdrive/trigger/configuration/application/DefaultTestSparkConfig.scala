@@ -21,9 +21,7 @@ import java.util.Properties
 case class DefaultTestSparkConfig (
   submitApi: String = "yarn",
   submitTimeout: Int = 1000,
-  // hadoopConfDir: String = "",
   master: String = "yarn",
-  // sparkHome: String = "",
   hadoopResourceManagerUrlBase: String = "",
   filesToDeploy: Seq[String] = Seq(),
   additionalConfs: Map[String, String] = Map(),
