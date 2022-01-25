@@ -25,8 +25,8 @@ trait SparkClusterService {
   def submitJob(jobInstance: JobInstance, jobParameters: SparkInstanceParameters, updateJob: JobInstance => Future[Unit])
                (implicit executionContext: ExecutionContext): Future[Unit]
 
-  def handleMissingYarnStatusForJobStatusSubmitting(jobInstance: JobInstance, updateJob: JobInstance => Future[Unit])
-               (implicit executionContext: ExecutionContext): Future[Unit]
+  def handleMissingYarnStatus(jobInstance: JobInstance, updateJob: JobInstance => Future[Unit])
+                             (implicit executionContext: ExecutionContext): Future[Unit]
 
   protected def mergeAdditionalSparkConfig(globalConfig: Map[String, String], jobConfig: Map[String, String]): Map[String, String] =
     KeysToMerge.map(key => {

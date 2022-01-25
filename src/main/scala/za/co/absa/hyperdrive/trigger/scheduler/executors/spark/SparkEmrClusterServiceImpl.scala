@@ -67,8 +67,8 @@ class SparkEmrClusterServiceImpl @Inject()(sparkConfig: SparkConfig, emrClusterP
     }
   }
 
-  override def handleMissingYarnStatusForJobStatusSubmitting(jobInstance: JobInstance, updateJob: JobInstance => Future[Unit])
-    (implicit executionContext: ExecutionContext): Future[Unit] = {
+  override def handleMissingYarnStatus(jobInstance: JobInstance, updateJob: JobInstance => Future[Unit])
+                                      (implicit executionContext: ExecutionContext): Future[Unit] = {
     val updatedJobInstance = jobInstance.stepId match {
       case Some(stepId) =>
         val jobStatus = getStateByStepId(stepId, jobInstance)

@@ -143,7 +143,7 @@ class SparkEmrClusterServiceTest extends AsyncFlatSpec with Matchers with Mockit
             .withState(stepState))))
 
       // when
-      await(underTest.handleMissingYarnStatusForJobStatusSubmitting(jobInstance, mockUpdateJob.updateJob))
+      await(underTest.handleMissingYarnStatus(jobInstance, mockUpdateJob.updateJob))
 
       // then
       val jobInstanceCaptor: ArgumentCaptor[JobInstance] = ArgumentCaptor.forClass(classOf[JobInstance])
@@ -182,7 +182,7 @@ class SparkEmrClusterServiceTest extends AsyncFlatSpec with Matchers with Mockit
     })
 
     // when
-    await(underTest.handleMissingYarnStatusForJobStatusSubmitting(jobInstance, mockUpdateJob.updateJob))
+    await(underTest.handleMissingYarnStatus(jobInstance, mockUpdateJob.updateJob))
 
     // then
     val jobInstanceCaptor: ArgumentCaptor[JobInstance] = ArgumentCaptor.forClass(classOf[JobInstance])
@@ -200,7 +200,7 @@ class SparkEmrClusterServiceTest extends AsyncFlatSpec with Matchers with Mockit
     when(mockEmrClient.listSteps(any())).thenReturn(new ListStepsResult().withSteps(Seq[StepSummary]().asJava))
 
     // when
-    await(underTest.handleMissingYarnStatusForJobStatusSubmitting(jobInstance, mockUpdateJob.updateJob))
+    await(underTest.handleMissingYarnStatus(jobInstance, mockUpdateJob.updateJob))
 
     // then
     val jobInstanceCaptor: ArgumentCaptor[JobInstance] = ArgumentCaptor.forClass(classOf[JobInstance])
