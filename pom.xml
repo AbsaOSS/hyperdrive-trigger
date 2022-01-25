@@ -549,6 +549,7 @@
                         <exclude>.dockerignore</exclude>
                         <exclude>**/.gitkeep</exclude>
                         <exclude>src/main/resources/banner.txt</exclude>
+                        <exclude>**/CODEOWNERS</exclude>
                     </excludes>
                 </configuration>
             </plugin>
