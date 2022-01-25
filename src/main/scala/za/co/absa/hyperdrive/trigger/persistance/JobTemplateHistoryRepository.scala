@@ -31,6 +31,7 @@ trait JobTemplateHistoryRepository extends Repository {
   private[persistance] def delete(jobTemplate: JobTemplate, user: String)(implicit ec: ExecutionContext): DBIO[Long]
 
   def getHistoryForJobTemplate(jobTemplateId: Long)(implicit ec: ExecutionContext): Future[Seq[History]]
+  def getJobTemplateFromHistory(jobTemplateHistoryId: Long)(implicit ec: ExecutionContext): Future[JobTemplate]
   def getJobTemplatesFromHistory(leftJobTemplateHistoryId: Long, rightJobTemplateHistoryId: Long)(implicit ec: ExecutionContext): Future[HistoryPair[JobTemplateHistory]]
 }
 
@@ -66,6 +67,10 @@ class JobTemplateHistoryRepositoryImpl @Inject()(val dbProvider: DatabaseProvide
 
   override def getHistoryForJobTemplate(jobTemplateId: Long)(implicit ec: ExecutionContext): Future[Seq[History]] = {
     db.run(jobTemplateHistoryTable.getHistoryForEntity(jobTemplateId))
+  }
+
+  override def getJobTemplateFromHistory(jobTemplateHistoryId: Long)(implicit ec: ExecutionContext): Future[JobTemplate] = {
+    db.run(jobTemplateHistoryTable.getHistoryEntity(jobTemplateHistoryId).map(_.jobTemplate))
   }
 
   override def getJobTemplatesFromHistory(leftJobTemplateHistoryId: Long, rightJobTemplateHistoryId: Long)(implicit ec: ExecutionContext): Future[HistoryPair[JobTemplateHistory]] = {

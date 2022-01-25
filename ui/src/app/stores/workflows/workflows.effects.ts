@@ -41,6 +41,7 @@ import { UtilService } from '../../services/util/util.service';
 import groupBy from 'lodash-es/groupBy';
 import { ApiUtil } from '../../utils/api/api.util';
 import { JobTemplateModel } from '../../models/jobTemplate.model';
+import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
 
 @Injectable()
 export class WorkflowsEffects {
@@ -59,17 +60,14 @@ export class WorkflowsEffects {
   workflowsInitialize = this.actions.pipe(
     ofType(WorkflowActions.INITIALIZE_WORKFLOWS),
     switchMap((action: WorkflowActions.InitializeWorkflows) => {
-      const workflows = this.workflowService.getWorkflows();
       const projects = this.workflowService.getProjects();
       const jobTemplates = this.workflowService.getJobTemplates();
-
-      return forkJoin([projects, workflows, jobTemplates]).pipe(
-        switchMap(([projects, workflows, jobTemplates]: [ProjectModel[], WorkflowModel[], JobTemplateModel[]]) => {
+      return forkJoin([projects, jobTemplates]).pipe(
+        switchMap(([projects, jobTemplates]: [ProjectModel[], JobTemplateModel[]]) => {
           return [
             {
               type: WorkflowActions.INITIALIZE_WORKFLOWS_SUCCESS,
               payload: {
-                workflows: workflows,
                 projects: projects,
                 jobTemplates: jobTemplates,
               },
@@ -85,6 +83,34 @@ export class WorkflowsEffects {
           type: WorkflowActions.INITIALIZE_WORKFLOWS_FAILURE,
         },
       ];
+    }),
+  );
+
+  @Effect({ dispatch: true })
+  workflowsSearch = this.actions.pipe(
+    ofType(WorkflowActions.SEARCH_WORKFLOWS),
+    switchMap((action: WorkflowActions.SearchWorkflows) => {
+      return this.workflowService.searchWorkflows(action.payload).pipe(
+        mergeMap((result: TableSearchResponseModel<WorkflowModel>) => {
+          return [
+            {
+              type: WorkflowActions.SEARCH_WORKFLOWS_SUCCESS,
+              payload: {
+                workflows: result.items,
+                total: result.total,
+              },
+            },
+          ];
+        }),
+        catchError(() => {
+          this.toastrService.error(texts.SEARCH_WORKFLOWS_FAILURE_NOTIFICATION);
+          return [
+            {
+              type: WorkflowActions.SEARCH_WORKFLOWS_FAILURE,
+            },
+          ];
+        }),
+      );
     }),
   );
 
@@ -607,6 +633,31 @@ export class WorkflowsEffects {
           return [
             {
               type: WorkflowActions.IMPORT_WORKFLOWS_FAILURE,
+            },
+          ];
+        }),
+      );
+    }),
+  );
+
+  @Effect({ dispatch: true })
+  workflowRevert = this.actions.pipe(
+    ofType(WorkflowActions.REVERT_WORKFLOW),
+    switchMap((action: WorkflowActions.RevertWorkflow) => {
+      return this.workflowHistoryService.getWorkflowFromHistory(action.payload).pipe(
+        mergeMap((workflow: WorkflowJoinedModel) => {
+          return [
+            {
+              type: WorkflowActions.REVERT_WORKFLOW_SUCCESS,
+              payload: workflow,
+            },
+          ];
+        }),
+        catchError(() => {
+          this.toastrService.error(texts.LOAD_WORKFLOW_FROM_HISTORY_FAILURE_NOTIFICATION);
+          return [
+            {
+              type: WorkflowActions.REVERT_WORKFLOW_FAILURE,
             },
           ];
         }),

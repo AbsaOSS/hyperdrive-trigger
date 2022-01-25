@@ -32,7 +32,7 @@ class EventProcessor(eventRepository: EventRepository,
 
   def eventProcessor(triggeredBy: String)(events: Seq[Event], sensorId: Long)(implicit ec: ExecutionContext): Future[Boolean] = {
     val fut = processEvents(events, sensorId, triggeredBy)
-    logger.debug(s"Processing events. Sensor id: ${sensorId}. Events: ${events.map(_.id)}")
+    logger.debug(s"Processing events. Sensor id: $sensorId. Events: ${events.map(_.id)}")
     fut
   }
 
@@ -53,8 +53,9 @@ class EventProcessor(eventRepository: EventRepository,
           case None =>
             Future.successful(true)
         }
+      } else {
+        Future.successful(true)
       }
-      Future.successful(true)
     }
   }
 

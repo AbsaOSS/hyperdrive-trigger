@@ -32,6 +32,11 @@ class NotificationRuleHistoryController @Inject()(notificationRuleHistoryService
     notificationRuleHistoryService.getHistoryForNotificationRule(notificationRuleId).toJava.toCompletableFuture
   }
 
+  @GetMapping(path = Array("/notificationRuleFromHistory"))
+  def getNotificationRuleFromHistory(@RequestParam notificationRuleHistoryId: Long): CompletableFuture[NotificationRule] = {
+    notificationRuleHistoryService.getNotificationRuleFromHistory(notificationRuleHistoryId).toJava.toCompletableFuture
+  }
+
   @GetMapping(path = Array("/notificationRulesFromHistory"))
   def getNotificationRulesFromHistory(@RequestParam leftHistoryId: Long, @RequestParam rightHistoryId: Long): CompletableFuture[HistoryPair[NotificationRuleHistory]] = {
     notificationRuleHistoryService.getNotificationRulesFromHistory(leftHistoryId, rightHistoryId).toJava.toCompletableFuture

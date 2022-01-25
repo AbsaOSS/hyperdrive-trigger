@@ -24,10 +24,11 @@ import za.co.absa.hyperdrive.trigger.api.rest.services.JobTemplateFixture.Generi
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, ValidationError}
 import za.co.absa.hyperdrive.trigger.persistance.JobTemplateRepository
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
 class JobTemplateValidationServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar with BeforeAndAfter {
+  override implicit def executionContext: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+
   private val jobTemplateRepository = mock[JobTemplateRepository]
   private val underTest = new JobTemplateValidationServiceImpl(jobTemplateRepository)
 

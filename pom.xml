@@ -17,7 +17,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <version>0.5.4-SNAPSHOT</version>
+    <version>0.5.5-SNAPSHOT</version>
     <groupId>za.co.absa</groupId>
 
     <parent>
@@ -65,7 +65,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <scala.compat.version>2.11</scala.compat.version>
+        <scala.compat.version>2.12</scala.compat.version>
         <spark.version>2.4.4</spark.version>
         <slick.version>3.3.3</slick.version>
         <tminglei.version>0.19.6</tminglei.version>
@@ -330,7 +330,7 @@
         </dependency>
         <dependency>
             <groupId>io.github.embeddedkafka</groupId>
-            <artifactId>embedded-kafka_2.11</artifactId>
+            <artifactId>embedded-kafka_${scala.compat.version}</artifactId>
             <version>${embedded.kafka.version}</version>
             <scope>test</scope>
         </dependency>
@@ -379,9 +379,6 @@
                         </goals>
                     </execution>
                 </executions>
-                <configuration>
-                    <scalaVersion>${scala.compat.version}</scalaVersion>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

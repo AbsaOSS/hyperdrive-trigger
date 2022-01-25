@@ -28,10 +28,11 @@ import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses
 import za.co.absa.hyperdrive.trigger.persistance.SchedulerInstanceRepository
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
 class SchedulerInstanceServiceTest extends AsyncFlatSpec with MockitoSugar with Matchers with BeforeAndAfter {
+  override implicit def executionContext: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+
   private val schedulerInstanceRepository = mock[SchedulerInstanceRepository]
   private val underTest = new SchedulerInstanceServiceImpl(schedulerInstanceRepository)
 

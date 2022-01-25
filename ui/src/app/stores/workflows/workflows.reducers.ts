@@ -16,15 +16,20 @@
 import * as WorkflowsActions from '../workflows/workflows.actions';
 import { ProjectModel, ProjectModelFactory, WorkflowIdentityModelFactory } from '../../models/project.model';
 import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
-import { SortAttributesModel } from '../../models/search/sortAttributes.model';
 import { HistoryModel, WorkflowHistoryModel } from '../../models/historyModel';
 import { JobForRunModel } from '../../models/jobForRun.model';
 import { workflowModes } from '../../models/enums/workflowModes.constants';
 import { JobTemplateModel } from '../../models/jobTemplate.model';
 import { WorkflowModel } from '../../models/workflow.model';
+import { TableSearchRequestModel } from '../../models/search/tableSearchRequest.model';
 
 export interface State {
-  workflows: WorkflowModel[];
+  workflowsSearch: {
+    loading: boolean;
+    workflows: WorkflowModel[];
+    total: number;
+    searchRequest: TableSearchRequestModel;
+  };
   projects: ProjectModel[];
   jobTemplates: JobTemplateModel[];
   loading: boolean;
@@ -37,8 +42,6 @@ export interface State {
     backendValidationErrors: string[];
     workflowFile: File;
   };
-  workflowsSort: SortAttributesModel;
-  workflowsFilters: any[];
   history: {
     loading: boolean;
     workflowHistory: HistoryModel[];
@@ -55,21 +58,24 @@ export interface State {
 }
 
 const initialState: State = {
-  workflows: [],
+  workflowsSearch: {
+    loading: true,
+    workflows: [],
+    total: 0,
+    searchRequest: undefined,
+  },
   projects: [],
   jobTemplates: [],
   loading: true,
   workflowAction: {
     id: undefined,
     mode: undefined,
-    loading: true,
+    loading: false,
     workflow: undefined,
     workflowForForm: undefined,
     backendValidationErrors: [],
     workflowFile: undefined,
   },
-  workflowsSort: undefined,
-  workflowsFilters: undefined,
   history: {
     loading: true,
     workflowHistory: [],
@@ -96,11 +102,45 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         ...state,
         loading: false,
         projects: sortedProjects,
-        workflows: action.payload.workflows,
         jobTemplates: action.payload.jobTemplates,
       };
     case WorkflowsActions.INITIALIZE_WORKFLOWS_FAILURE:
-      return { ...initialState, loading: false };
+      return { ...state, contentLoading: false };
+    case WorkflowsActions.SEARCH_WORKFLOWS:
+      return {
+        ...state,
+        workflowsSearch: {
+          ...state.workflowsSearch,
+          searchRequest: action.payload,
+          loading: true,
+        },
+      };
+    case WorkflowsActions.SEARCH_WORKFLOWS_SUCCESS:
+      return {
+        ...state,
+        workflowsSearch: {
+          ...state.workflowsSearch,
+          workflows: action.payload.workflows,
+          total: action.payload.total,
+          loading: false,
+        },
+        workflowAction: {
+          ...state.workflowAction,
+          loading: false,
+        },
+      };
+    case WorkflowsActions.SEARCH_WORKFLOWS_FAILURE:
+      return {
+        ...state,
+        workflowsSearch: {
+          ...state.workflowsSearch,
+          loading: false,
+        },
+        workflowAction: {
+          ...state.workflowAction,
+          loading: false,
+        },
+      };
     case WorkflowsActions.START_WORKFLOW_INITIALIZATION:
       return {
         ...state,
@@ -161,8 +201,8 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         ...state,
         workflowAction: {
           ...state.workflowAction,
+          loading: true,
         },
-        loading: true,
       };
     case WorkflowsActions.DELETE_WORKFLOW_SUCCESS:
       let newProjects = state.projects.map((project) => {
@@ -175,63 +215,66 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
       return {
         ...state,
         projects: [...newProjects],
-        workflows: [...state.workflows.filter((w) => w.id != action.payload)],
         workflowAction: {
           ...state.workflowAction,
+          loading: false,
         },
-        loading: false,
       };
     case WorkflowsActions.DELETE_WORKFLOW_FAILURE:
       return {
         ...state,
         workflowAction: {
           ...state.workflowAction,
+          loading: false,
         },
-        loading: false,
       };
     case WorkflowsActions.SWITCH_WORKFLOW_ACTIVE_STATE:
       return {
         ...state,
         workflowAction: {
           ...state.workflowAction,
+          loading: true,
         },
-        loading: true,
       };
     case WorkflowsActions.SWITCH_WORKFLOW_ACTIVE_STATE_SUCCESS:
       return {
         ...state,
-        workflows: [...state.workflows.map((w) => (w.id == action.payload ? { ...w, isActive: !w.isActive } : w))],
         workflowAction: {
           ...state.workflowAction,
+          workflow: {
+            ...state.workflowAction.workflow,
+            isActive: !state.workflowAction.workflow,
+          },
+          workflowForForm: {
+            ...state.workflowAction.workflowForForm,
+            isActive: !state.workflowAction.workflowForForm,
+          },
+          loading: false,
         },
-        loading: false,
       };
     case WorkflowsActions.SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE:
       return {
         ...state,
         workflowAction: {
           ...state.workflowAction,
+          loading: false,
         },
-        loading: false,
       };
     case WorkflowsActions.UPDATE_WORKFLOWS_IS_ACTIVE:
       return {
         ...state,
         workflowAction: {
           ...state.workflowAction,
+          loading: true,
         },
-        loading: true,
       };
     case WorkflowsActions.UPDATE_WORKFLOWS_IS_ACTIVE_SUCCESS: {
       return {
         ...state,
-        workflows: [
-          ...state.workflows.map((w) => (action.payload.ids.includes(w.id) ? { ...w, isActive: action.payload.isActiveNewValue } : w)),
-        ],
         workflowAction: {
           ...state.workflowAction,
+          loading: false,
         },
-        loading: false,
       };
     }
     case WorkflowsActions.UPDATE_WORKFLOWS_IS_ACTIVE_FAILURE:
@@ -239,8 +282,8 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         ...state,
         workflowAction: {
           ...state.workflowAction,
+          loading: false,
         },
-        loading: false,
       };
     case WorkflowsActions.CREATE_WORKFLOW:
       return {
@@ -254,7 +297,6 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
       const projects = sortProjects([...addWorkflow([action.payload], state.projects)]);
       return {
         ...state,
-        workflows: [...state.workflows, action.payload],
         projects: [...projects],
         workflowAction: {
           ...state.workflowAction,
@@ -303,7 +345,6 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
       return {
         ...state,
         projects: [...sortUpdatedProjects],
-        workflows: [...state.workflows.filter((w) => w.id != action.payload.id), action.payload],
         workflowAction: {
           ...state.workflowAction,
           loading: false,
@@ -329,16 +370,6 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
             ...state.workflowAction.backendValidationErrors.slice(action.payload + 1),
           ],
         },
-      };
-    case WorkflowsActions.SET_WORKFLOWS_SORT:
-      return {
-        ...state,
-        workflowsSort: action.payload,
-      };
-    case WorkflowsActions.SET_WORKFLOWS_FILTERS:
-      return {
-        ...state,
-        workflowsFilters: action.payload,
       };
     case WorkflowsActions.LOAD_HISTORY_FOR_WORKFLOW:
       return {
@@ -487,7 +518,6 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
       return {
         ...state,
         loading: false,
-        workflows: [...state.workflows, ...action.payload],
         projects: [...projects],
       };
     }
@@ -495,6 +525,35 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
       return {
         ...state,
         loading: false,
+      };
+    case WorkflowsActions.REVERT_WORKFLOW:
+      return {
+        ...state,
+        workflowAction: {
+          ...initialState.workflowAction,
+          mode: workflowModes.REVERT,
+          id: action.payload,
+          loading: true,
+        },
+      };
+    case WorkflowsActions.REVERT_WORKFLOW_SUCCESS:
+      return {
+        ...state,
+        workflowAction: {
+          ...state.workflowAction,
+          loading: false,
+          workflow: undefined,
+          workflowForForm: action.payload,
+          backendValidationErrors: [],
+        },
+      };
+    case WorkflowsActions.REVERT_WORKFLOW_FAILURE:
+      return {
+        ...state,
+        workflowAction: {
+          ...initialState.workflowAction,
+          loading: false,
+        },
       };
     default:
       return state;

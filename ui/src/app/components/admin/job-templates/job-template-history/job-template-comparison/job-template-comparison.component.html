@@ -22,6 +22,12 @@
 <div class="content-area" *ngIf="!loading">
   <div class="clr-row" *ngIf="isLoadedSuccessfully()">
     <div class="clr-col oneSideOfComparison" >
+      <div class="btn-group">
+        <button type="button" class="btn btn-sm btn-secondary" [routerLink]="[absoluteRoutes.REVERT_JOB_TEMPLATE, leftHistory.history.id]">
+          <clr-icon shape="redo"></clr-icon>
+          Revert to this version
+        </button>
+      </div>
       <app-history-detail [historyDetail]="leftHistory.history"></app-history-detail>
       <app-job-templates-form
         [mode]="jobTemplateModes.COMPARISON"
@@ -31,6 +37,12 @@
 
     </div>
     <div class="clr-col oneSideOfComparison">
+      <div class="btn-group">
+        <button type="button" class="btn btn-sm btn-secondary" [routerLink]="[absoluteRoutes.REVERT_JOB_TEMPLATE, rightHistory.history.id]">
+          <clr-icon shape="redo"></clr-icon>
+          Revert to this version
+        </button>
+      </div>
       <app-history-detail [historyDetail]="rightHistory.history"></app-history-detail>
       <app-job-templates-form
         [mode]="jobTemplateModes.COMPARISON"
