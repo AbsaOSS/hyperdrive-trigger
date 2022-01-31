@@ -139,7 +139,7 @@ export class WorkflowsEffects {
               return [
                 {
                   type: WorkflowActions.LOAD_WORKFLOW_SUCCESS,
-                  payload: workflow,
+                  payload: this.sortJobsInWorkflow(workflow),
                 },
               ];
             }),
@@ -563,7 +563,7 @@ export class WorkflowsEffects {
             return [
               {
                 type: WorkflowActions.LOAD_WORKFLOW_SUCCESS,
-                payload: workflow,
+                payload: this.sortJobsInWorkflow(workflow),
               },
             ];
           }),
@@ -649,7 +649,7 @@ export class WorkflowsEffects {
           return [
             {
               type: WorkflowActions.REVERT_WORKFLOW_SUCCESS,
-              payload: workflow,
+              payload: this.sortJobsInWorkflow(workflow),
             },
           ];
         }),
@@ -664,4 +664,9 @@ export class WorkflowsEffects {
       );
     }),
   );
+
+  sortJobsInWorkflow(workflow: WorkflowJoinedModel): WorkflowJoinedModel {
+    const sortedJobs = workflow.dagDefinitionJoined.jobDefinitions.sort((jobLeft, jobRight) => jobLeft.order - jobRight.order);
+    return { ...workflow, dagDefinitionJoined: { ...workflow.dagDefinitionJoined, jobDefinitions: sortedJobs } };
+  }
 }
