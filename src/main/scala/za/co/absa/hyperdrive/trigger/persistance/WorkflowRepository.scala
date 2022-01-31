@@ -151,7 +151,7 @@ class WorkflowRepositoryImpl @Inject()(
             sensor = s,
             dagDefinitionJoined = DagDefinitionJoined(
               workflowId = dd.workflowId,
-              jobDefinitions = wsddjd.map(_._4),
+              jobDefinitions = wsddjd.map(_._4).sortBy(_.order),
               id = dd.id
             ),
             id = w.id
