@@ -70,7 +70,7 @@
         <slick.version>3.3.3</slick.version>
         <tminglei.version>0.19.6</tminglei.version>
         <slick-hikaricp.version>3.3.1</slick-hikaricp.version>
-        <postgresql>42.2.6</postgresql>
+        <postgresql>42.2.25</postgresql>
         <kafka.version>2.2.0</kafka.version>
         <embedded.kafka.version>2.2.0</embedded.kafka.version>
         <play-json.version>2.7.3</play-json.version>
