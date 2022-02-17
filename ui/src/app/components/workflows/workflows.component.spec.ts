@@ -16,12 +16,17 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { WorkflowsComponent } from './workflows.component';
 import { provideMockStore } from '@ngrx/store/testing';
-import { ProjectModelFactory } from '../../models/project.model';
+import { ProjectModelFactory, WorkflowIdentityModelFactory } from '../../models/project.model';
 import { WorkflowModelFactory } from '../../models/workflow.model';
+import { RouterTestingModule } from '@angular/router/testing';
+import { Router, Routes } from '@angular/router';
 
 describe('WorkflowsComponent', () => {
   let fixture: ComponentFixture<WorkflowsComponent>;
   let underTest: WorkflowsComponent;
+  let router: Router;
+
+  const routes = [{ path: 'workflows/show/:id', component: {} }] as Routes;
 
   const initialAppState = {
     workflows: {
@@ -42,7 +47,9 @@ describe('WorkflowsComponent', () => {
       TestBed.configureTestingModule({
         providers: [provideMockStore({ initialState: initialAppState })],
         declarations: [WorkflowsComponent],
+        imports: [RouterTestingModule.withRoutes(routes)],
       }).compileComponents();
+      router = TestBed.inject(Router);
     }),
   );
 
@@ -65,4 +72,106 @@ describe('WorkflowsComponent', () => {
       });
     }),
   );
+
+  describe('isWorkflowHighlighted', () => {
+    it(
+      'should return true when url contains input id',
+      waitForAsync(() => {
+        const idMatching = 555;
+        router.navigate(['workflows/show', idMatching]).then(() => {
+          expect(underTest.isWorkflowHighlighted(idMatching)).toBeTruthy();
+        });
+      }),
+    );
+
+    it(
+      'should return false when url does not contain input id',
+      waitForAsync(() => {
+        const idNonMatching = 5;
+        router.navigate(['workflows/show', 555]).then(() => {
+          expect(underTest.isWorkflowHighlighted(idNonMatching)).toBeFalse();
+        });
+      }),
+    );
+  });
+
+  it(
+    'openCloseProject() should toggle a project',
+    waitForAsync(() => {
+      const project = 'project';
+      const projectOther = 'projectOther';
+
+      expect(underTest.openedProjects.size).toEqual(0);
+
+      underTest.openCloseProject(project);
+      expect(underTest.openedProjects.size).toEqual(1);
+      expect(underTest.openedProjects).toContain(project);
+
+      underTest.openCloseProject(projectOther);
+      expect(underTest.openedProjects.size).toEqual(2);
+      expect(underTest.openedProjects).toContain(project);
+      expect(underTest.openedProjects).toContain(projectOther);
+
+      underTest.openCloseProject(project);
+      expect(underTest.openedProjects.size).toEqual(1);
+      expect(underTest.openedProjects).toContain(projectOther);
+
+      underTest.openCloseProject(projectOther);
+      expect(underTest.openedProjects.size).toEqual(0);
+    }),
+  );
+
+  describe('isProjectClosed', () => {
+    it(
+      'should return true if project is not in opened projects no workflow is highlighted',
+      waitForAsync(() => {
+        const id = 555;
+        const otherId = 5;
+        router.navigate(['workflows/show', id]).then(() => {
+          expect(underTest.openedProjects.size).toEqual(0);
+          expect(underTest.isWorkflowHighlighted(otherId)).toBeFalse();
+
+          const result = underTest.isProjectClosed('project', [WorkflowIdentityModelFactory.create(otherId, 'name')]);
+
+          expect(result).toBeTruthy();
+        });
+      }),
+    );
+
+    it(
+      'should return false if project is in opened projects',
+      waitForAsync(() => {
+        const id = 555;
+        const otherId = 5;
+        const projectName = 'project';
+        underTest.openedProjects.add(projectName);
+
+        router.navigate(['workflows/show', id]).then(() => {
+          expect(underTest.openedProjects.size).toEqual(1);
+          expect(underTest.openedProjects).toContain(projectName);
+          expect(underTest.isWorkflowHighlighted(otherId)).toBeFalse();
+
+          const result = underTest.isProjectClosed(projectName, [WorkflowIdentityModelFactory.create(otherId, 'name')]);
+
+          expect(result).toBeFalse();
+        });
+      }),
+    );
+
+    it(
+      'should return false if project workflow is highlighted',
+      waitForAsync(() => {
+        const id = 555;
+        router.navigate(['workflows/show', id]).then(() => {
+          expect(underTest.openedProjects.size).toEqual(0);
+          expect(underTest.isWorkflowHighlighted(id)).toBeTruthy();
+
+          const result = underTest.isProjectClosed('project', [WorkflowIdentityModelFactory.create(id, 'name')]);
+
+          expect(underTest.openedProjects.size).toEqual(1);
+          expect(result).toBeFalse();
+        });
+      }),
+    );
+  });
 });
