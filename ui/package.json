@@ -21,7 +21,7 @@
     "@angular/platform-browser": "~13.2.2",
     "@angular/platform-browser-dynamic": "~13.2.2",
     "@angular/router": "~13.2.2",
-    "@cds/core": "^5.0.0",
+    "@cds/core": "^5.6.4",
     "@clr/angular": "^5.1.1",
     "@clr/core": "^3.1.4",
     "@clr/icons": "5.1.1",
