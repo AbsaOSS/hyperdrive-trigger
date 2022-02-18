@@ -61,7 +61,7 @@
  * Zone JS is required by default for Angular itself.
  */
 import 'zone.js';
-
+(window as any).global = window;
 /***************************************************************************************************
  * APPLICATION IMPORTS
  */
