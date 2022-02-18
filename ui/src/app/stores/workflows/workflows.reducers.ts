@@ -243,11 +243,11 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
           ...state.workflowAction,
           workflow: {
             ...state.workflowAction.workflow,
-            isActive: !state.workflowAction.workflow,
+            isActive: !state.workflowAction.workflow.isActive,
           },
           workflowForForm: {
             ...state.workflowAction.workflowForForm,
-            isActive: !state.workflowAction.workflowForForm,
+            isActive: !state.workflowAction.workflowForForm.isActive,
           },
           loading: false,
         },
