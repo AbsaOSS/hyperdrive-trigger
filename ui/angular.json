@@ -23,7 +23,6 @@
             "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.app.json",
             "baseHref": "/hyperdrive_trigger/",
-            "deployUrl": "/hyperdrive_trigger/",
             "assets": [
               "src/favicon.ico",
               "src/assets"
