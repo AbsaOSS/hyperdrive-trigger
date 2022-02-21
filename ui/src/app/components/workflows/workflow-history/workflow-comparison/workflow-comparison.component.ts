@@ -19,11 +19,10 @@ import { Action, Store } from '@ngrx/store';
 import { AppState, selectWorkflowState } from '../../../../stores/app.reducers';
 import { ActivatedRoute } from '@angular/router';
 import { workflowModes } from '../../../../models/enums/workflowModes.constants';
-import { WorkflowFormPartsModel } from '../../../../models/workflowFormParts.model';
 import { LoadWorkflowsFromHistory } from '../../../../stores/workflows/workflows.actions';
-import { WorkflowFormDataModel } from '../../../../models/workflowFormData.model';
-import { HistoryModel } from '../../../../models/historyModel';
+import { WorkflowHistoryModel } from '../../../../models/historyModel';
 import { JobTemplateModel } from '../../../../models/jobTemplate.model';
+import { absoluteRoutes } from 'src/app/constants/routes.constants';
 
 @Component({
   selector: 'app-workflow-comparison',
@@ -31,20 +30,17 @@ import { JobTemplateModel } from '../../../../models/jobTemplate.model';
   styleUrls: ['./workflow-comparison.component.scss'],
 })
 export class WorkflowComparisonComponent implements OnInit, OnDestroy {
+  loading = true;
+  workflowHistoryLeft: WorkflowHistoryModel;
+  workflowHistoryRight: WorkflowHistoryModel;
+  jobTemplates: JobTemplateModel[];
+
+  changes = new Subject<Action>();
   workflowsSubscription: Subscription = null;
   paramsSubscription: Subscription;
 
   workflowModes = workflowModes;
-
-  workflowDataLeft: WorkflowFormDataModel;
-  workflowDataRight: WorkflowFormDataModel;
-  workflowHistoryLeft: HistoryModel;
-  workflowHistoryRight: HistoryModel;
-  workflowFormParts: WorkflowFormPartsModel;
-  jobTemplates: JobTemplateModel[];
-
-  loading = true;
-  changes = new Subject<Action>();
+  absoluteRoutes = absoluteRoutes;
 
   constructor(private store: Store<AppState>, route: ActivatedRoute) {
     this.paramsSubscription = route.params.subscribe((parameters) => {
@@ -59,9 +55,6 @@ export class WorkflowComparisonComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.workflowsSubscription = this.store.select(selectWorkflowState).subscribe((state) => {
-      this.workflowFormParts = state.history.workflowFormParts;
-      this.workflowDataLeft = state.history.leftWorkflowHistoryData;
-      this.workflowDataRight = state.history.rightWorkflowHistoryData;
       this.workflowHistoryLeft = state.history.leftWorkflowHistory;
       this.workflowHistoryRight = state.history.rightWorkflowHistory;
       this.jobTemplates = state.jobTemplates;
@@ -70,13 +63,7 @@ export class WorkflowComparisonComponent implements OnInit, OnDestroy {
   }
 
   isLoadedSuccessfully(): boolean {
-    return (
-      !!this.workflowFormParts &&
-      !!this.workflowDataLeft &&
-      !!this.workflowDataRight &&
-      !!this.workflowHistoryLeft &&
-      !!this.workflowHistoryRight
-    );
+    return !!this.workflowHistoryLeft && !!this.workflowHistoryRight;
   }
 
   ngOnDestroy(): void {

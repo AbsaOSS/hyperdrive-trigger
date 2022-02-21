@@ -35,32 +35,19 @@ import {
   UpdateWorkflowsIsActive,
   ImportWorkflows,
   RunWorkflows,
+  RevertWorkflow,
+  SearchWorkflows,
 } from './workflows.actions';
 
 import { WorkflowsEffects } from './workflows.effects';
 import { WorkflowService } from '../../services/workflow/workflow.service';
-import { ProjectModelFactory } from '../../models/project.model';
+import { ProjectModelFactory, WorkflowIdentityModelFactory } from '../../models/project.model';
 import { WorkflowModel, WorkflowModelFactory } from '../../models/workflow.model';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
-import {
-  DynamicFormPart,
-  DynamicFormPartFactory,
-  DynamicFormParts,
-  DynamicFormPartsFactory,
-  FormPartFactory,
-  PartValidationFactory,
-  WorkflowFormPartsModelFactory,
-} from '../../models/workflowFormParts.model';
-import {
-  workflowFormParts,
-  workflowFormParts as workflowFormPartsConsts,
-  workflowFormPartsSequences,
-} from '../../constants/workflowFormParts.constants';
 import { workflowModes } from '../../models/enums/workflowModes.constants';
 import { SensorModelFactory } from '../../models/sensor.model';
 import { DagDefinitionJoinedModelFactory } from '../../models/dagDefinitionJoined.model';
 import { WorkflowJoinedModelFactory } from '../../models/workflowJoined.model';
-import { WorkflowEntryModelFactory } from '../../models/workflowEntry.model';
 import { JobDefinitionModelFactory } from '../../models/jobDefinition.model';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ToastrModule, ToastrService } from 'ngx-toastr';
@@ -75,7 +62,11 @@ import { JobService } from '../../services/job/job.service';
 import { UtilService } from 'src/app/services/util/util.service';
 import { BulkOperationErrorModelFactory } from 'src/app/models/errors/bulkOperationError.model';
 import { RecurringSensorProperties } from '../../models/sensorProperties.model';
-import { DynamicFormPartsResponse, DynamicFormPartsResponseFactory } from '../../models/dynamicFormPartsResponse.model';
+import { JobTemplateModelFactory } from '../../models/jobTemplate.model';
+import { SparkTemplateParametersModel } from '../../models/jobTemplateParameters.model';
+import * as WorkflowActions from './workflows.actions';
+import { TableSearchRequestModelFactory } from '../../models/search/tableSearchRequest.model';
+import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
 
 describe('WorkflowsEffects', () => {
   let underTest: WorkflowsEffects;
@@ -92,18 +83,8 @@ describe('WorkflowsEffects', () => {
     workflows: {
       workflowAction: {
         mode: workflowModes.CREATE,
-        workflowFormData: {
-          details: [{ property: 'detailProp', value: 'detailVal' }],
-          sensor: [{ property: 'sensorProp', value: 'sensorVal' }],
-          jobs: [{ jobId: 'jobId', order: 0, entries: [{ property: 'jobProp', value: 'jobVal' }] }],
-        },
-        workflowFormParts: WorkflowFormPartsModelFactory.create(
-          workflowFormPartsSequences.allDetails,
-          workflowFormPartsConsts.SENSOR.SENSOR_TYPE,
-          workflowFormPartsConsts.JOB.JOB_NAME,
-          workflowFormPartsConsts.JOB.JOB_TEMPLATE_ID,
-          DynamicFormPartsFactory.create([], []),
-        ),
+        workflow: WorkflowJoinedModelFactory.createEmpty(),
+        workflowForForm: WorkflowJoinedModelFactory.createEmpty(),
         workflowFile: new File(['content'], 'filename.json'),
       },
       jobTemplates: [],
@@ -134,61 +115,35 @@ describe('WorkflowsEffects', () => {
   });
 
   describe('workflowsInitialize', () => {
-    it('should return workflows and projects', () => {
+    it('should return projects and templates', () => {
       const projects = [
-        ProjectModelFactory.create('projectName1', [
-          WorkflowModelFactory.create('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 0),
-        ]),
-        ProjectModelFactory.create('projectName2', [
-          WorkflowModelFactory.create('workflowName2', true, 'projectName2', new Date(Date.now()), new Date(Date.now()), 1),
-        ]),
+        ProjectModelFactory.create('projectName1', [WorkflowIdentityModelFactory.create(0, 'workflowName1')]),
+        ProjectModelFactory.create('projectName2', [WorkflowIdentityModelFactory.create(1, 'workflowName2')]),
       ];
 
-      const jobTemplates = [];
-
-      const dynamicFormPartsResponse = DynamicFormPartsResponseFactory.create(
-        DynamicFormPartsFactory.create(
-          [
-            DynamicFormPartFactory.create('typeOne', [
-              FormPartFactory.create('nameOne', 'propertyOne', 'string-field', PartValidationFactory.create(true)),
-            ]),
-          ],
-          [
-            DynamicFormPartFactory.create('typeTwo', [
-              FormPartFactory.create('nameTwo', 'propertyTwo', 'string-field', PartValidationFactory.create(true)),
-            ]),
-          ],
-        ),
-        jobTemplates,
-      );
-
-      const workflowFormParts = WorkflowFormPartsModelFactory.create(
-        workflowFormPartsSequences.allDetails,
-        workflowFormPartsConsts.SENSOR.SENSOR_TYPE,
-        workflowFormPartsConsts.JOB.JOB_NAME,
-        workflowFormPartsConsts.JOB.JOB_TEMPLATE_ID,
-        dynamicFormPartsResponse.dynamicFormParts,
-      );
+      const jobTemplates = [JobTemplateModelFactory.create(0, 'templateName0', SparkTemplateParametersModel.createEmpty())];
 
       const action = new InitializeWorkflows();
       mockActions = cold('-a', { a: action });
       const getProjectsResponse = cold('-a|', { a: projects });
-      const getWorkflowDynamicFormPartsResponse = cold('-a|', { a: dynamicFormPartsResponse });
+      const getJobTemplatesResponse = cold('-a|', { a: jobTemplates });
 
       const expected = cold('---a', {
         a: {
           type: WorkflowsActions.INITIALIZE_WORKFLOWS_SUCCESS,
-          payload: { projects: projects, workflowFormParts: workflowFormParts, jobTemplates: jobTemplates },
+          payload: { projects: projects, jobTemplates: jobTemplates },
         },
       });
 
       spyOn(workflowService, 'getProjects').and.returnValue(getProjectsResponse);
-      spyOn(workflowService, 'getWorkflowDynamicFormParts').and.returnValue(getWorkflowDynamicFormPartsResponse);
+      spyOn(workflowService, 'getJobTemplates').and.returnValue(getJobTemplatesResponse);
 
       expect(underTest.workflowsInitialize).toBeObservable(expected);
     });
 
-    it('should return initialize workflows failure if workflowService.getWorkflowDynamicFormParts responds with an error', () => {
+    it('should return initialize workflows failure if workflowService.getJobTemplates responds with an error', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'error');
+
       const projects = [
         ProjectModelFactory.create('projectName1', [
           WorkflowModelFactory.create('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 0),
@@ -201,18 +156,65 @@ describe('WorkflowsEffects', () => {
       const action = new InitializeWorkflows();
       mockActions = cold('-a', { a: action });
       const getProjectsResponse = cold('-a|', { a: projects });
-      const getWorkflowDynamicFormPartsResponse = cold('-#|');
+      const getJobTemplatesResponse = cold('-#|');
 
-      const expected = cold('---a', {
+      const expected = cold('--(a|)', {
         a: {
           type: WorkflowsActions.INITIALIZE_WORKFLOWS_FAILURE,
         },
       });
 
       spyOn(workflowService, 'getProjects').and.returnValue(getProjectsResponse);
-      spyOn(workflowService, 'getWorkflowDynamicFormParts').and.returnValue(getWorkflowDynamicFormPartsResponse);
+      spyOn(workflowService, 'getJobTemplates').and.returnValue(getJobTemplatesResponse);
 
       expect(underTest.workflowsInitialize).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.LOAD_WORKFLOWS_FAILURE_NOTIFICATION);
+    });
+  });
+
+  describe('workflowsSearch', () => {
+    it('should return workflows search response', () => {
+      const workflows = [WorkflowModelFactory.create('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 0)];
+      const searchResponseModel = new TableSearchResponseModel<WorkflowModel>(workflows, 1);
+      const searchRequest = TableSearchRequestModelFactory.create(0, 100);
+
+      const action = new SearchWorkflows(searchRequest);
+      mockActions = cold('-a', { a: action });
+      const searchWorkflowsResponse = cold('-a|', { a: searchResponseModel });
+
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowsActions.SEARCH_WORKFLOWS_SUCCESS,
+          payload: { workflows: searchResponseModel.items, total: searchResponseModel.total },
+        },
+      });
+
+      spyOn(workflowService, 'searchWorkflows').and.returnValue(searchWorkflowsResponse);
+
+      expect(underTest.workflowsSearch).toBeObservable(expected);
+    });
+
+    it('should return search workflows failure if workflowService.searchWorkflows responds with an error', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'error');
+
+      const searchRequest = TableSearchRequestModelFactory.create(0, 100);
+
+      const action = new SearchWorkflows(searchRequest);
+      mockActions = cold('-a', { a: action });
+      const searchWorkflowsResponse = cold('-#|');
+
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowsActions.SEARCH_WORKFLOWS_FAILURE,
+        },
+      });
+
+      spyOn(workflowService, 'searchWorkflows').and.returnValue(searchWorkflowsResponse);
+
+      expect(underTest.workflowsSearch).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.SEARCH_WORKFLOWS_FAILURE_NOTIFICATION);
     });
   });
 
@@ -223,6 +225,7 @@ describe('WorkflowsEffects', () => {
       const expected = cold('a', {
         a: {
           type: WorkflowsActions.SET_EMPTY_WORKFLOW,
+          payload: WorkflowJoinedModelFactory.createEmpty(),
         },
       });
 
@@ -277,32 +280,7 @@ describe('WorkflowsEffects', () => {
       const expected = cold('--a', {
         a: {
           type: WorkflowsActions.LOAD_WORKFLOW_SUCCESS,
-          payload: {
-            workflow: workflow,
-            detailsData: [
-              WorkflowEntryModelFactory.create(workflowFormParts.DETAILS.WORKFLOW_NAME.property, workflow.name),
-              WorkflowEntryModelFactory.create(workflowFormParts.DETAILS.PROJECT_NAME.property, workflow.project),
-              WorkflowEntryModelFactory.create(workflowFormParts.DETAILS.IS_ACTIVE.property, workflow.isActive),
-            ],
-            sensorData: [
-              WorkflowEntryModelFactory.create(workflowFormParts.SENSOR.SENSOR_TYPE.property, workflow.sensor.properties.sensorType),
-            ],
-            jobsData: [
-              jasmine.objectContaining({
-                order: 0,
-                entries: [
-                  WorkflowEntryModelFactory.create(
-                    workflowFormParts.JOB.JOB_TEMPLATE_ID.property,
-                    workflow.dagDefinitionJoined.jobDefinitions[0].jobTemplateId,
-                  ),
-                  WorkflowEntryModelFactory.create(
-                    workflowFormParts.JOB.JOB_NAME.property,
-                    workflow.dagDefinitionJoined.jobDefinitions[0].name,
-                  ),
-                ],
-              }),
-            ],
-          },
+          payload: workflow,
         },
       });
 
@@ -520,16 +498,14 @@ describe('WorkflowsEffects', () => {
       const action = new CreateWorkflow();
       mockActions = cold('-a', { a: action });
       const createWorkflowResponse = cold('-#|', null, 'notValidationError');
-      const getJobTemplatesResponse = cold('-a|', { a: [] });
 
-      const expected = cold('---a', {
+      const expected = cold('--a', {
         a: {
           type: WorkflowsActions.CREATE_WORKFLOW_FAILURE,
           payload: [],
         },
       });
 
-      spyOn(workflowService, 'getJobTemplates').and.returnValue(getJobTemplatesResponse);
       spyOn(workflowService, 'createWorkflow').and.returnValue(createWorkflowResponse);
 
       expect(underTest.workflowCreate).toBeObservable(expected);
@@ -544,16 +520,14 @@ describe('WorkflowsEffects', () => {
       const action = new CreateWorkflow();
       mockActions = cold('-a', { a: action });
       const createWorkflowResponse = cold('-#|', null, [error]);
-      const getJobTemplatesResponse = cold('-a|', { a: [] });
 
-      const expected = cold('---a', {
+      const expected = cold('--a', {
         a: {
           type: WorkflowsActions.CREATE_WORKFLOW_FAILURE,
           payload: [error.message],
         },
       });
 
-      spyOn(workflowService, 'getJobTemplates').and.returnValue(getJobTemplatesResponse);
       spyOn(workflowService, 'createWorkflow').and.returnValue(createWorkflowResponse);
 
       expect(underTest.workflowCreate).toBeObservable(expected);
@@ -586,16 +560,14 @@ describe('WorkflowsEffects', () => {
       mockActions = cold('-a', { a: action });
 
       const createWorkflowResponse = cold('-a|', { a: workflow });
-      const getJobTemplatesResponse = cold('-a|', { a: [] });
 
-      const expected = cold('---a', {
+      const expected = cold('--a', {
         a: {
           type: WorkflowsActions.CREATE_WORKFLOW_SUCCESS,
           payload: createWorkflowSuccessPayload,
         },
       });
 
-      spyOn(workflowService, 'getJobTemplates').and.returnValue(getJobTemplatesResponse);
       spyOn(workflowService, 'createWorkflow').and.returnValue(createWorkflowResponse);
 
       expect(underTest.workflowCreate).toBeObservable(expected);
@@ -613,16 +585,14 @@ describe('WorkflowsEffects', () => {
       const action = new UpdateWorkflow();
       mockActions = cold('-a', { a: action });
       const updateWorkflowResponse = cold('-#|', null, 'notWorkflowValidation');
-      const getJobTemplatesResponse = cold('-a|', { a: [] });
 
-      const expected = cold('---a', {
+      const expected = cold('--a', {
         a: {
           type: WorkflowsActions.UPDATE_WORKFLOW_FAILURE,
           payload: [],
         },
       });
 
-      spyOn(workflowService, 'getJobTemplates').and.returnValue(getJobTemplatesResponse);
       spyOn(workflowService, 'updateWorkflow').and.returnValue(updateWorkflowResponse);
 
       expect(underTest.workflowUpdate).toBeObservable(expected);
@@ -636,16 +606,14 @@ describe('WorkflowsEffects', () => {
       const action = new UpdateWorkflow();
       mockActions = cold('-a', { a: action });
       const updateWorkflowResponse = cold('-#|', null, [error]);
-      const getJobTemplatesResponse = cold('-a|', { a: [] });
 
-      const expected = cold('---a', {
+      const expected = cold('--a', {
         a: {
           type: WorkflowsActions.UPDATE_WORKFLOW_FAILURE,
           payload: [error.message],
         },
       });
 
-      spyOn(workflowService, 'getJobTemplates').and.returnValue(getJobTemplatesResponse);
       spyOn(workflowService, 'updateWorkflow').and.returnValue(updateWorkflowResponse);
 
       expect(underTest.workflowUpdate).toBeObservable(expected);
@@ -678,16 +646,14 @@ describe('WorkflowsEffects', () => {
       mockActions = cold('-a', { a: action });
 
       const updateWorkflowResponse = cold('-a|', { a: workflow });
-      const getJobTemplatesResponse = cold('-a|', { a: [] });
 
-      const expected = cold('---a', {
+      const expected = cold('--a', {
         a: {
           type: WorkflowsActions.UPDATE_WORKFLOW_SUCCESS,
           payload: updateWorkflowSuccessPayload,
         },
       });
 
-      spyOn(workflowService, 'getJobTemplates').and.returnValue(getJobTemplatesResponse);
       spyOn(workflowService, 'updateWorkflow').and.returnValue(updateWorkflowResponse);
 
       expect(underTest.workflowUpdate).toBeObservable(expected);
@@ -747,26 +713,6 @@ describe('WorkflowsEffects', () => {
 
     it('should display failure when service fails to load workflows from history', () => {
       //TODO: Implement test. I need help from you guys. (Problem could be how we combine multiple observables in effects)
-    });
-  });
-
-  describe('getWorkflowFormParts', () => {
-    it('should return workflow form parts', () => {
-      const sensorDynamicPart: DynamicFormPart = DynamicFormPartFactory.create('sensorDynamicPart', [
-        FormPartFactory.create('name1', 'property1', 'type1', PartValidationFactory.create(true)),
-      ]);
-      const jobDynamicParts: DynamicFormPart = DynamicFormPartFactory.create('jobDynamicPart', [
-        FormPartFactory.create('name2', 'property2', 'type2', PartValidationFactory.create(true)),
-      ]);
-      const dynamicFormParts: DynamicFormParts = DynamicFormPartsFactory.create([sensorDynamicPart], [jobDynamicParts]);
-
-      const result = underTest.getWorkflowFormParts(dynamicFormParts);
-      expect(result).toBeDefined();
-      expect(result.dynamicParts).toBe(dynamicFormParts);
-      expect(result.detailsParts).toBe(workflowFormPartsSequences.allDetails);
-      expect(result.sensorSwitchPart).toBe(workflowFormPartsConsts.SENSOR.SENSOR_TYPE);
-      expect(result.staticJobPart).toBe(workflowFormPartsConsts.JOB.JOB_NAME);
-      expect(result.jobSwitchPart).toBe(workflowFormPartsConsts.JOB.JOB_TEMPLATE_ID);
     });
   });
 
@@ -1044,32 +990,7 @@ describe('WorkflowsEffects', () => {
       const expected = cold('--a', {
         a: {
           type: WorkflowsActions.LOAD_WORKFLOW_SUCCESS,
-          payload: {
-            workflow: workflow,
-            detailsData: [
-              WorkflowEntryModelFactory.create(workflowFormParts.DETAILS.WORKFLOW_NAME.property, workflow.name),
-              WorkflowEntryModelFactory.create(workflowFormParts.DETAILS.PROJECT_NAME.property, workflow.project),
-              WorkflowEntryModelFactory.create(workflowFormParts.DETAILS.IS_ACTIVE.property, workflow.isActive),
-            ],
-            sensorData: [
-              WorkflowEntryModelFactory.create(workflowFormParts.SENSOR.SENSOR_TYPE.property, workflow.sensor.properties.sensorType),
-            ],
-            jobsData: [
-              jasmine.objectContaining({
-                order: 0,
-                entries: [
-                  WorkflowEntryModelFactory.create(
-                    workflowFormParts.JOB.JOB_TEMPLATE_ID.property,
-                    workflow.dagDefinitionJoined.jobDefinitions[0].jobTemplateId,
-                  ),
-                  WorkflowEntryModelFactory.create(
-                    workflowFormParts.JOB.JOB_NAME.property,
-                    workflow.dagDefinitionJoined.jobDefinitions[0].name,
-                  ),
-                ],
-              }),
-            ],
-          },
+          payload: workflow,
         },
       });
 
@@ -1204,6 +1125,94 @@ describe('WorkflowsEffects', () => {
       expect(utilServiceSpy).toHaveBeenCalledWith(expectedErrorMessagesGroup);
       expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
       expect(toastrServiceSpy).toHaveBeenCalledWith('sometext', texts.IMPORT_WORKFLOWS_BULK_FAILURE_TITLE, jasmine.anything());
+    });
+  });
+
+  describe('workflowRevert', () => {
+    it('should load workflow from history', () => {
+      const payload = 1;
+      const response = WorkflowJoinedModelFactory.createEmpty();
+
+      const action = new RevertWorkflow(payload);
+      mockActions = cold('-a', { a: action });
+      const getHistoryWorkflowResponse = cold('-a|', { a: response });
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowActions.REVERT_WORKFLOW_SUCCESS,
+          payload: response,
+        },
+      });
+
+      spyOn(workflowHistoryService, 'getWorkflowFromHistory').and.returnValue(getHistoryWorkflowResponse);
+
+      expect(underTest.workflowRevert).toBeObservable(expected);
+    });
+
+    it('should display failure when service fails to load workflow from history', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'error');
+      const payload = 1;
+
+      const action = new RevertWorkflow(payload);
+      mockActions = cold('-a', { a: action });
+
+      const getHistoryWorkflowResponse = cold('-#|');
+      spyOn(workflowHistoryService, 'getWorkflowFromHistory').and.returnValue(getHistoryWorkflowResponse);
+
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowActions.REVERT_WORKFLOW_FAILURE,
+        },
+      });
+      expect(underTest.workflowRevert).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.LOAD_WORKFLOW_FROM_HISTORY_FAILURE_NOTIFICATION);
+    });
+  });
+
+  describe('sortJobsInWorkflow', () => {
+    it('should return input workflow if workflow contains 0 jobs', () => {
+      const workflow = WorkflowJoinedModelFactory.createEmpty();
+      const inputWorkflow = { ...workflow, dagDefinitionJoined: { ...workflow.dagDefinitionJoined, jobDefinitions: [] } };
+
+      const result = underTest.sortJobsInWorkflow(inputWorkflow);
+
+      expect(result).toEqual(inputWorkflow);
+    });
+
+    it('should return input workflow with sorted jobs', () => {
+      const workflow = WorkflowJoinedModelFactory.createEmpty();
+      const firstJob = JobDefinitionModelFactory.createDefault(0);
+      const secondJob = JobDefinitionModelFactory.createDefault(1);
+      const thirdJob = JobDefinitionModelFactory.createDefault(2);
+
+      const inputWorkflow = {
+        ...workflow,
+        dagDefinitionJoined: { ...workflow.dagDefinitionJoined, jobDefinitions: [thirdJob, secondJob, firstJob] },
+      };
+      const expectedWorkflow = {
+        ...workflow,
+        dagDefinitionJoined: { ...workflow.dagDefinitionJoined, jobDefinitions: [firstJob, secondJob, thirdJob] },
+      };
+
+      const result = underTest.sortJobsInWorkflow(inputWorkflow);
+
+      expect(result).toEqual(expectedWorkflow);
+    });
+
+    it('should return input workflow if jobs are already sorted', () => {
+      const workflow = WorkflowJoinedModelFactory.createEmpty();
+      const firstJob = JobDefinitionModelFactory.createDefault(0);
+      const secondJob = JobDefinitionModelFactory.createDefault(1);
+      const thirdJob = JobDefinitionModelFactory.createDefault(2);
+
+      const inputWorkflow = {
+        ...workflow,
+        dagDefinitionJoined: { ...workflow.dagDefinitionJoined, jobDefinitions: [firstJob, secondJob, thirdJob] },
+      };
+
+      const result = underTest.sortJobsInWorkflow(inputWorkflow);
+
+      expect(result).toEqual(inputWorkflow);
     });
   });
 });

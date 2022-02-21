@@ -15,4 +15,8 @@
 
 export const jobTemplateModes = {
   SHOW: 'show',
+  CREATE: 'create',
+  EDIT: 'edit',
+  REVERT: 'revert',
+  COMPARISON: 'comparison',
 };

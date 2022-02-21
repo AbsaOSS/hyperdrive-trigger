@@ -24,7 +24,6 @@ import { JobTemplateModelFactory } from '../../../../models/jobTemplate.model';
 import { Store } from '@ngrx/store';
 import { AppState } from '../../../../stores/app.reducers';
 import { ClrDatagridStateInterface } from '@clr/angular';
-import { JobTypeFactory } from '../../../../models/jobType.model';
 import { ShellTemplateParametersModel } from '../../../../models/jobTemplateParameters.model';
 
 describe('JobTemplatesHomeComponent', () => {
@@ -35,9 +34,7 @@ describe('JobTemplatesHomeComponent', () => {
 
   const initialAppState = {
     jobTemplates: {
-      jobTemplates: [
-        JobTemplateModelFactory.create(0, 'name', 'formConfig', JobTypeFactory.create('Shell'), ShellTemplateParametersModel.createEmpty()),
-      ],
+      jobTemplates: [JobTemplateModelFactory.create(0, 'name', ShellTemplateParametersModel.createEmpty())],
       total: 2,
       page: 3,
       loading: false,

@@ -20,9 +20,10 @@ import java.time.LocalDateTime
 import org.quartz.JobKey
 import org.quartz.impl.matchers.GroupMatcher
 import org.scalatest._
-import za.co.absa.hyperdrive.trigger.api.rest.services.{DagInstanceService, DagInstanceServiceImpl, JobTemplateFixture, JobTemplateResolutionServiceImpl, JobTemplateService, JobTemplateServiceImpl}
-import za.co.absa.hyperdrive.trigger.configuration.application.{GeneralConfig, KafkaConfig, SchedulerConfig, TestGeneralConfig, TestKafkaConfig, TestSchedulerConfig}
+import za.co.absa.hyperdrive.trigger.api.rest.services.{DagInstanceService, DagInstanceServiceImpl, JobTemplateFixture, JobTemplateResolutionServiceImpl, JobTemplateService, JobTemplateServiceImpl, JobTemplateValidationServiceImpl}
+import za.co.absa.hyperdrive.trigger.configuration.application.{GeneralConfig, KafkaConfig, RecurringSensorConfig, SchedulerConfig, TestGeneralConfig, TestKafkaConfig, TestRecurringSensorConfig, TestSchedulerConfig}
 import za.co.absa.hyperdrive.trigger.models._
+import za.co.absa.hyperdrive.trigger.models.enums.JobTypes
 import za.co.absa.hyperdrive.trigger.persistance._
 import za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.Sensors
@@ -34,15 +35,18 @@ class TimeSensorIntegrationPostgresTest extends FlatSpec with Matchers with Befo
   private val schedulerConfig: SchedulerConfig = TestSchedulerConfig()
   private val kafkaConfig: KafkaConfig = TestKafkaConfig()
   private val generalConfig: GeneralConfig = TestGeneralConfig()
+  private val recurringSensorConfig = TestRecurringSensorConfig()
   private val sensorRepository: SensorRepositoryImpl = new SensorRepositoryImpl(dbProvider, schedulerConfig)
   private val workflowHistoryRepository: WorkflowHistoryRepositoryImpl = new WorkflowHistoryRepositoryImpl(dbProvider)
   private val workflowRepository: WorkflowRepositoryImpl = new WorkflowRepositoryImpl(dbProvider, workflowHistoryRepository)
   private val eventRepository: EventRepositoryImpl = new EventRepositoryImpl(dbProvider)
   private val dagDefinitionRepository: DagDefinitionRepositoryImpl = new DagDefinitionRepositoryImpl(dbProvider)
   private val dagInstanceRepository: DagInstanceRepositoryImpl = new DagInstanceRepositoryImpl(dbProvider)
-  private val jobTemplateRepository: JobTemplateRepositoryImpl = new JobTemplateRepositoryImpl(dbProvider)
+  private val jobTemplateHistoryRepository: JobTemplateHistoryRepositoryImpl = new JobTemplateHistoryRepositoryImpl(dbProvider)
+  private val jobTemplateRepository: JobTemplateRepositoryImpl = new JobTemplateRepositoryImpl(dbProvider, jobTemplateHistoryRepository)
   private val jobTemplateResolutionService: JobTemplateResolutionServiceImpl = new JobTemplateResolutionServiceImpl
-  private val jobTemplateService: JobTemplateService = new JobTemplateServiceImpl(jobTemplateRepository, jobTemplateResolutionService)
+  private val jobTemplateValidationService: JobTemplateValidationServiceImpl = new JobTemplateValidationServiceImpl(jobTemplateRepository)
+  private val jobTemplateService: JobTemplateService = new JobTemplateServiceImpl(jobTemplateRepository, jobTemplateResolutionService, jobTemplateValidationService)
   private val dagInstanceService: DagInstanceService = new DagInstanceServiceImpl(jobTemplateService)
 
   override def beforeAll: Unit = {
@@ -60,20 +64,22 @@ class TimeSensorIntegrationPostgresTest extends FlatSpec with Matchers with Befo
 
   it should "persist an event when the time sensor is fired" in {
     val processor = new EventProcessor(eventRepository, dagDefinitionRepository, dagInstanceRepository, dagInstanceService)
-    val sensors = new Sensors(processor, sensorRepository, dagInstanceRepository, kafkaConfig, generalConfig, schedulerConfig)
+    val sensors = new Sensors(processor, sensorRepository, dagInstanceRepository, kafkaConfig, generalConfig,
+      schedulerConfig, recurringSensorConfig)
     val cronExpression = "0/3 * * * * ?"
+    val testUser = "test-user"
 
     val sparkTemplate = JobTemplateFixture.GenericSparkJobTemplate
-    val sparkTemplateId = await(jobTemplateRepository.insertJobTemplate(sparkTemplate)).right.get
+    val sparkTemplateId = await(jobTemplateRepository.insertJobTemplate(sparkTemplate, testUser))
 
     // Persist workflow, sensor and dagDefinition
     val properties = TimeSensorProperties(cronExpression = cronExpression)
     val sensor = Sensor[SensorProperties](-1L, properties)
 
-    val jobParameters1 = SparkDefinitionParameters(jobJar = Option("spark-job.jar"), mainClass = Option("TheMainClass"))
-    val jobDefinition1 = JobDefinition(-1L, sparkTemplateId, "Time-Sensor Job 1", jobParameters1, 1)
-    val jobParameters2 = SparkDefinitionParameters(jobJar = Option("spark-job-2.jar"), mainClass = Option("TheMainClass"))
-    val jobDefinition2 = JobDefinition(-1L, sparkTemplateId, "Time-Sensor Job 2", jobParameters2, 2)
+    val jobParameters1 = SparkDefinitionParameters(jobType = JobTypes.Spark, jobJar = Option("spark-job.jar"), mainClass = Option("TheMainClass"))
+    val jobDefinition1 = JobDefinition(-1L, Some(sparkTemplateId), "Time-Sensor Job 1", jobParameters1, 1)
+    val jobParameters2 = SparkDefinitionParameters(jobType = JobTypes.Spark, jobJar = Option("spark-job-2.jar"), mainClass = Option("TheMainClass"))
+    val jobDefinition2 = JobDefinition(-1L, Some(sparkTemplateId), "Time-Sensor Job 2", jobParameters2, 2)
 
     val dagDefinitionJoined = DagDefinitionJoined(-1L, Seq(jobDefinition1, jobDefinition2))
     val workflowJoined = WorkflowJoined("Time-Sensor Workflow", true, "some-project", LocalDateTime.now(), None, None, sensor, dagDefinitionJoined)

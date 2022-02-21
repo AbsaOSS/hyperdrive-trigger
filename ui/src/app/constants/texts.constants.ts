@@ -14,6 +14,9 @@
  */
 
 export const texts = {
+  LOAD_WORKFLOWS_FAILURE_NOTIFICATION: "Sorry, workflows couldn't be loaded. Please try again.",
+  SEARCH_WORKFLOWS_FAILURE_NOTIFICATION: "Sorry, workflows couldn't be loaded. Please try again.",
+
   DELETE_WORKFLOW_CONFIRMATION_TITLE: 'Delete workflow',
   DELETE_WORKFLOW_CONFIRMATION_CONTENT: 'Are you sure you want to delete this workflow? The operation cannot be reverted.',
   DELETE_WORKFLOW_SUCCESS_NOTIFICATION: 'Workflow has been deleted.',
@@ -79,6 +82,7 @@ export const texts = {
 
   LOAD_HISTORY_FOR_WORKFLOW_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
   LOAD_WORKFLOWS_FROM_HISTORY_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
+  LOAD_WORKFLOW_FROM_HISTORY_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
 
   CRON_QUARTZ_INVALID_FOR_USER_FRIENDLY: 'Invalid quartz expression for user friendly input. Default will be used.',
 
@@ -102,6 +106,26 @@ export const texts = {
 
   LOAD_JOB_TEMPLATE_FAILURE_NOTIFICATION: "Sorry, job template couldn't be loaded. Please try again.",
   LOAD_JOB_TEMPLATES_FAILURE_NOTIFICATION: "Sorry, job templates couldn't be loaded. Please try again.",
+
+  CREATE_JOB_TEMPLATE_CONFIRMATION_TITLE: 'Create job template',
+  CREATE_JOB_TEMPLATE_CONFIRMATION_CONTENT: 'Are you sure you want to create a new job template?',
+  CREATE_JOB_TEMPLATE_SUCCESS_NOTIFICATION: 'Job template has been created.',
+  CREATE_JOB_TEMPLATE_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
+
+  UPDATE_JOB_TEMPLATE_CONFIRMATION_TITLE: 'Update job template',
+  UPDATE_JOB_TEMPLATE_CONFIRMATION_CONTENT: 'Are you sure you want to update the job template?',
+  UPDATE_JOB_TEMPLATE_SUCCESS_NOTIFICATION: 'Job template has been updated.',
+  UPDATE_JOB_TEMPLATE_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
+
+  DELETE_JOB_TEMPLATE_CONFIRMATION_TITLE: 'Delete job template',
+  DELETE_JOB_TEMPLATE_CONFIRMATION_CONTENT: 'Are you sure you want to delete this job template? The operation cannot be reverted.',
+  DELETE_JOB_TEMPLATE_SUCCESS_NOTIFICATION: 'Job template has been deleted.',
+  DELETE_JOB_TEMPLATE_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
+
+  GET_JOB_TEMPLATE_USAGE_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
+
+  LOAD_HISTORY_FOR_JOB_TEMPLATE_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
+  LOAD_JOB_TEMPLATES_FROM_HISTORY_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
 
   CREATE_NOTIFICATION_RULE_CONFIRMATION_TITLE: 'Create notification rule',
   CREATE_NOTIFICATION_RULE_CONFIRMATION_CONTENT: 'Are you sure you want to create a new notification rule?',

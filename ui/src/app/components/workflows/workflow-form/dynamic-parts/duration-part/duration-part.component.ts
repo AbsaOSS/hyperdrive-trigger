@@ -13,11 +13,8 @@
  * limitations under the License.
  */
 
-import { Component, Input, OnInit } from '@angular/core';
-import { Subject } from 'rxjs';
-import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ControlContainer, NgForm } from '@angular/forms';
-import { PartValidation, PartValidationFactory } from '../../../../../models/workflowFormParts.model';
 import { UuidUtil } from '../../../../../utils/uuid/uuid.util';
 import { texts } from 'src/app/constants/texts.constants';
 
@@ -29,15 +26,15 @@ import { texts } from 'src/app/constants/texts.constants';
 })
 export class DurationPartComponent implements OnInit {
   uuid = UuidUtil.createUUID();
-  texts = texts;
   @Input() isShow: boolean;
   @Input() name: string;
   @Input() value: number;
-  @Input() property: string;
-  @Input() valueChanges: Subject<WorkflowEntryModel>;
-  @Input() partValidation: PartValidation;
+  @Output() valueChange: EventEmitter<number> = new EventEmitter();
+  @Input() isRequired = false;
   @Input() helperText: string;
-  partValidationSafe: PartValidation;
+
+  texts = texts;
+
   days: number;
   hours: number;
   minutes: number;
@@ -53,11 +50,10 @@ export class DurationPartComponent implements OnInit {
 
   ngOnInit(): void {
     if (!this.value) {
-      this.valueChanged(0);
+      this.modelChanged(0);
     } else {
       this.convertFromTotalSeconds(this.value);
     }
-    this.partValidationSafe = PartValidationFactory.create(this.partValidation?.isRequired ?? true);
   }
 
   convertFromTotalSeconds(totalSeconds: number): void {
@@ -78,27 +74,26 @@ export class DurationPartComponent implements OnInit {
 
   daysChanged(days: number): void {
     this.days = days;
-    this.valueChanged(this.convertToTotalSeconds());
+    this.modelChanged(this.convertToTotalSeconds());
   }
 
   hoursChanged(hours: number): void {
     this.hours = hours;
-    this.valueChanged(this.convertToTotalSeconds());
+    this.modelChanged(this.convertToTotalSeconds());
   }
 
   minutesChanged(minutes: number): void {
     this.minutes = minutes;
-    this.valueChanged(this.convertToTotalSeconds());
+    this.modelChanged(this.convertToTotalSeconds());
   }
 
   secondsChanged(seconds: number): void {
     this.seconds = seconds;
-    this.valueChanged(this.convertToTotalSeconds());
+    this.modelChanged(this.convertToTotalSeconds());
   }
 
-  valueChanged(value: number): void {
-    this.value = value;
+  modelChanged(value: number) {
     this.convertFromTotalSeconds(value);
-    this.valueChanges.next(WorkflowEntryModelFactory.create(this.property, this.value));
+    this.valueChange.emit(value);
   }
 }

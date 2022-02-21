@@ -32,14 +32,14 @@
   </button>
 </div>
 
-<form clrForm (ngSubmit)="mode != notificationRuleModes.EDIT ? createNotificationRule() : updateNotificationRule()"
+<form clrForm (ngSubmit)="mode != notificationRuleModes.EDIT && mode != notificationRuleModes.REVERT ? createNotificationRule() : updateNotificationRule()"
       #notificationRulesForm="ngForm" novalidate>
   <div class="btn-group" *ngIf="!isReadOnlyMode()">
-    <button type="submit" class="btn btn-sm btn-secondary" *ngIf="mode != notificationRuleModes.EDIT">
+    <button type="submit" class="btn btn-sm btn-secondary" *ngIf="mode != notificationRuleModes.EDIT && mode != notificationRuleModes.REVERT">
       <clr-icon shape="check"></clr-icon>
       Create new notification rule
     </button>
-    <button type="submit" class="btn btn-sm btn-secondary" [disabled]="!formHasChanged()" *ngIf="mode == notificationRuleModes.EDIT">
+    <button type="submit" class="btn btn-sm btn-secondary" [disabled]="!formHasChanged()" *ngIf="mode == notificationRuleModes.EDIT || mode == notificationRuleModes.REVERT">
       <clr-icon shape="check"></clr-icon>
       Update notification rule
     </button>
@@ -71,54 +71,52 @@
         <app-boolean-part
           [isShow]="isReadOnlyMode()"
           [name]="'Is Active'"
-          [valueChanges]="changes"
-          [value]="notificationRule?.isActive"
-          [property]="'isActive'">
+          (valueChange)="isActiveChange($event)"
+          [value]="notificationRule?.isActive">
         </app-boolean-part>
         <app-string-with-suggestions-part
           [isShow]="isReadOnlyMode()"
           [name]="'Project'"
-          [valueChanges]="changes"
           [value]="notificationRule?.project"
-          [property]="'project'"
+          (valueChange)="projectChange($event)"
           [options]="projects"
-          [partValidation]="optional"
+          [isRequired]="false"
+          [maxLength]="1000"
+          [minLength]="1"
           [helperText]="'Leave empty to match all projects. Don\'t use the asterisk (*)'">
         </app-string-with-suggestions-part>
         <app-string-part
           [isShow]="isReadOnlyMode()"
           [name]="'Workflow Prefix'"
-          [valueChanges]="changes"
           [value]="notificationRule?.workflowPrefix"
-          [property]="'workflowPrefix'"
-          [partValidation]="optional"
+          (valueChange)="workflowPrefixChange($event)"
+          [isRequired]="false"
+          [maxLength]="1000"
+          [minLength]="1"
           [helperText]="'Leave empty to match all workflows. Don\'t use the asterisk (*)'">
         </app-string-part>
         <app-duration-part
           [isShow]="isReadOnlyMode()"
           [name]="'Waiting period after last successful run'"
-          [valueChanges]="changes"
           [value]="notificationRule?.minElapsedSecondsSinceLastSuccess"
-          [property]="'minElapsedSecondsSinceLastSuccess'"
-          [partValidation]="required"
+          (valueChange)="waitingPeriodChange($event)"
+          [isRequired]="true"
           [helperText]="'After a successful run, no notifications are sent during the waiting period, to avoid spurious notifications. Set to zero to ignore this feature'">
         </app-duration-part>
         <app-combobox-part
           [isShow]="isReadOnlyMode()"
           [name]="'Statuses'"
-          [valueChanges]="changes"
           [value]="notificationRuleStatuses"
-          [property]="'statuses'"
+          (valueChange)="statusesChange($event)"
           [options]="getStatuses()"
-          [partValidation]="required">
+          [isRequired]="true">
         </app-combobox-part>
         <app-string-sequence-part
           [isShow]="isReadOnlyMode()"
           [name]="'Recipients'"
-          [valueChanges]="changes"
           [value]="notificationRule?.recipients"
-          [property]="'recipients'"
-          [partValidation]="required">
+          (valueChange)="recipientsChange($event)"
+          [isRequired]="true">
         </app-string-sequence-part>
       </div>
     </div>

@@ -28,6 +28,7 @@ import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, Matchers, OptionValues}
 import za.co.absa.hyperdrive.trigger.TestUtils.await
 import za.co.absa.hyperdrive.trigger.configuration.application.DefaultTestSparkConfig
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses
+import za.co.absa.hyperdrive.trigger.models.enums.JobTypes
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.{InQueue, JobStatus, Submitting}
 import za.co.absa.hyperdrive.trigger.models.{JobInstance, SparkInstanceParameters}
 
@@ -142,7 +143,7 @@ class SparkEmrClusterServiceTest extends AsyncFlatSpec with Matchers with Mockit
             .withState(stepState))))
 
       // when
-      await(underTest.handleMissingYarnStatusForJobStatusSubmitting(jobInstance, mockUpdateJob.updateJob))
+      await(underTest.handleMissingYarnStatus(jobInstance, mockUpdateJob.updateJob))
 
       // then
       val jobInstanceCaptor: ArgumentCaptor[JobInstance] = ArgumentCaptor.forClass(classOf[JobInstance])
@@ -181,7 +182,7 @@ class SparkEmrClusterServiceTest extends AsyncFlatSpec with Matchers with Mockit
     })
 
     // when
-    await(underTest.handleMissingYarnStatusForJobStatusSubmitting(jobInstance, mockUpdateJob.updateJob))
+    await(underTest.handleMissingYarnStatus(jobInstance, mockUpdateJob.updateJob))
 
     // then
     val jobInstanceCaptor: ArgumentCaptor[JobInstance] = ArgumentCaptor.forClass(classOf[JobInstance])
@@ -199,7 +200,7 @@ class SparkEmrClusterServiceTest extends AsyncFlatSpec with Matchers with Mockit
     when(mockEmrClient.listSteps(any())).thenReturn(new ListStepsResult().withSteps(Seq[StepSummary]().asJava))
 
     // when
-    await(underTest.handleMissingYarnStatusForJobStatusSubmitting(jobInstance, mockUpdateJob.updateJob))
+    await(underTest.handleMissingYarnStatus(jobInstance, mockUpdateJob.updateJob))
 
     // then
     val jobInstanceCaptor: ArgumentCaptor[JobInstance] = ArgumentCaptor.forClass(classOf[JobInstance])
@@ -212,6 +213,7 @@ class SparkEmrClusterServiceTest extends AsyncFlatSpec with Matchers with Mockit
     JobInstance(
       jobName = "jobName",
       jobParameters = SparkInstanceParameters(
+        jobType = JobTypes.Spark,
         jobJar = "job.jar",
         mainClass = "mainClass",
         appArguments = List("arg1", "arg2", "key1=value1", "key2=value2"),

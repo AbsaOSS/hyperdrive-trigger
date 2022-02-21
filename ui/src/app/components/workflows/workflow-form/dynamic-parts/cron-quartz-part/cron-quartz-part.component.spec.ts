@@ -14,10 +14,8 @@
  */
 
 import { TestBed, waitForAsync } from '@angular/core/testing';
-import { Subject } from 'rxjs';
 
 import { CronQuartzPartComponent } from './cron-quartz-part.component';
-import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { UtilService } from '../../../../../services/util/util.service';
@@ -53,30 +51,24 @@ describe('CronQuartzPartComponent', () => {
 
   describe('ngOnInit', () => {
     it('should set default cron expression when value is undefined', () => {
-      const property = 'property';
-
       underTest.value = undefined;
-      underTest.property = property;
-      underTest.valueChanges = new Subject<WorkflowEntryModel>();
 
-      const valueChangesSpy = spyOn(underTest.valueChanges, 'next');
+      spyOn(underTest.valueChange, 'emit');
       const utilServiceSpy = spyOn(utilService, 'getQuartzDetail');
       underTest.ngOnInit();
 
       expect(underTest.value).toEqual(underTest.defaultCronExpression);
-      expect(valueChangesSpy).toHaveBeenCalled();
-      expect(valueChangesSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(property, underTest.defaultCronExpression));
+
+      expect(underTest.valueChange.emit).toHaveBeenCalled();
+      expect(underTest.valueChange.emit).toHaveBeenCalledWith(underTest.defaultCronExpression);
       expect(utilServiceSpy).toHaveBeenCalled();
       expect(utilServiceSpy).toHaveBeenCalledWith(underTest.defaultCronExpression);
     });
 
     it('should set free text when input cron expression is invalid', () => {
-      const property = 'property';
       const value = 'value';
 
       underTest.value = value;
-      underTest.property = property;
-      underTest.valueChanges = new Subject<WorkflowEntryModel>();
 
       underTest.ngOnInit();
 
@@ -86,12 +78,9 @@ describe('CronQuartzPartComponent', () => {
     });
 
     it('should set user friendly when input cron expression is suitable for user friendly', () => {
-      const property = 'property';
       const value = '0 0 2 ? * * *';
 
       underTest.value = value;
-      underTest.property = property;
-      underTest.valueChanges = new Subject<WorkflowEntryModel>();
 
       underTest.ngOnInit();
 
@@ -103,52 +92,42 @@ describe('CronQuartzPartComponent', () => {
 
   describe('onInputTypeChange', () => {
     it('when is switched to free text, free text field should be set and validation should be called', () => {
-      const property = 'property';
       const valuePrevious = '';
       const valueUpdated = '0 0 2 ? * * *';
 
       underTest.value = valueUpdated;
       underTest.freeText = valuePrevious;
-      underTest.property = property;
-      underTest.valueChanges = new Subject<WorkflowEntryModel>();
       underTest.validation = undefined;
-      const valueChangesSpy = spyOn(underTest.valueChanges, 'next');
+      spyOn(underTest.valueChange, 'emit');
 
       underTest.onInputTypeChange(InputTypes.FREE_TEXT);
 
       expect(underTest.inputType).toEqual(InputTypes.FREE_TEXT);
       expect(underTest.freeText).toEqual(valueUpdated);
       expect(underTest.validation).toBeDefined();
-      expect(valueChangesSpy).toHaveBeenCalled();
-      expect(valueChangesSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(property, valueUpdated));
+      expect(underTest.valueChange.emit).toHaveBeenCalled();
+      expect(underTest.valueChange.emit).toHaveBeenCalledWith(valueUpdated);
     });
 
     it('when is switched to user friendly and expression could not be used defualt should be used', () => {
-      const property = 'property';
-
       underTest.value = 'wrong expression';
-      underTest.property = property;
-      underTest.valueChanges = new Subject<WorkflowEntryModel>();
 
-      const valueChangesSpy = spyOn(underTest.valueChanges, 'next');
       const toastrServiceSpy = spyOn(toastrService, 'warning');
+      spyOn(underTest.valueChange, 'emit');
 
       underTest.onInputTypeChange(InputTypes.USER_FRIENDLY);
 
       expect(underTest.value).toEqual(underTest.defaultCronExpression);
-      expect(valueChangesSpy).toHaveBeenCalled();
-      expect(valueChangesSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(property, underTest.defaultCronExpression));
+      expect(underTest.valueChange.emit).toHaveBeenCalled();
+      expect(underTest.valueChange.emit).toHaveBeenCalledWith(underTest.defaultCronExpression);
       expect(toastrServiceSpy).toHaveBeenCalled();
       expect(toastrServiceSpy).toHaveBeenCalledWith(texts.CRON_QUARTZ_INVALID_FOR_USER_FRIENDLY);
     });
 
     it('when is switched to user friendly and expression could be used all required fields should be set', () => {
-      const property = 'property';
       const value = '0 0 2 ? * * *';
 
       underTest.value = value;
-      underTest.property = property;
-      underTest.valueChanges = new Subject<WorkflowEntryModel>();
 
       underTest.onInputTypeChange(InputTypes.USER_FRIENDLY);
 
@@ -160,20 +139,17 @@ describe('CronQuartzPartComponent', () => {
 
   describe('onFreeTextChange', () => {
     it('when free text is changed, it should dispatch value change and call validation service', () => {
-      const property = 'property';
       const expression = '0 0 5 ? * * *';
 
       underTest.value = undefined;
-      underTest.property = property;
-      underTest.valueChanges = new Subject<WorkflowEntryModel>();
 
-      const valueChangesSpy = spyOn(underTest.valueChanges, 'next');
+      spyOn(underTest.valueChange, 'emit');
       const utilServiceSpy = spyOn(utilService, 'getQuartzDetail');
       underTest.onFreeTextChange(expression);
 
       expect(underTest.value).toEqual(expression);
-      expect(valueChangesSpy).toHaveBeenCalled();
-      expect(valueChangesSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(property, expression));
+      expect(underTest.valueChange.emit).toHaveBeenCalled();
+      expect(underTest.valueChange.emit).toHaveBeenCalledWith(expression);
       expect(utilServiceSpy).toHaveBeenCalled();
       expect(utilServiceSpy).toHaveBeenCalledWith(expression);
     });
@@ -181,21 +157,18 @@ describe('CronQuartzPartComponent', () => {
 
   describe('modelChanged', () => {
     it('when model change is called, it should dispatch value change', () => {
-      const property = 'property';
       const expressionOld = '0 0 5 ? * * *';
       const expressionUpdated = '0 0 6 ? * * *';
 
       underTest.value = expressionOld;
-      underTest.property = property;
-      underTest.valueChanges = new Subject<WorkflowEntryModel>();
+      spyOn(underTest.valueChange, 'emit');
       underTest.validation = undefined;
 
-      const valueChangesSpy = spyOn(underTest.valueChanges, 'next');
       underTest.modelChanged(expressionUpdated);
 
       expect(underTest.value).toEqual(expressionUpdated);
-      expect(valueChangesSpy).toHaveBeenCalled();
-      expect(valueChangesSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(property, expressionUpdated));
+      expect(underTest.valueChange.emit).toHaveBeenCalled();
+      expect(underTest.valueChange.emit).toHaveBeenCalledWith(expressionUpdated);
     });
   });
 
@@ -232,22 +205,19 @@ describe('CronQuartzPartComponent', () => {
     it('when day changes should dispatch value change with updated expression', () => {
       const initialValue = 5;
       const updatedValue = 6;
-      const property = 'property';
       const result = [...underTest.everyDayUserFriendly.prefix, updatedValue, ...underTest.everyDayUserFriendly.suffix].join(' ');
 
-      underTest.valueChanges = new Subject<WorkflowEntryModel>();
-      underTest.property = property;
       underTest.value = undefined;
       underTest.day = initialValue;
 
-      const valueChangesSpy = spyOn(underTest.valueChanges, 'next');
+      spyOn(underTest.valueChange, 'emit');
 
       underTest.onDayChange(updatedValue);
 
       expect(underTest.day).toEqual(updatedValue);
       expect(underTest.value).toEqual(result);
-      expect(valueChangesSpy).toHaveBeenCalled();
-      expect(valueChangesSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(property, result));
+      expect(underTest.valueChange.emit).toHaveBeenCalled();
+      expect(underTest.valueChange.emit).toHaveBeenCalledWith(result);
     });
   });
 
@@ -255,22 +225,19 @@ describe('CronQuartzPartComponent', () => {
     it('when hour at changes should dispatch value change with updated expression', () => {
       const initialValue = 5;
       const updatedValue = 6;
-      const property = 'property';
       const result = [...underTest.everyHourUserFriendly.prefix, updatedValue, ...underTest.everyHourUserFriendly.suffix].join(' ');
 
-      underTest.valueChanges = new Subject<WorkflowEntryModel>();
-      underTest.property = property;
       underTest.value = undefined;
       underTest.hourAt = initialValue;
 
-      const valueChangesSpy = spyOn(underTest.valueChanges, 'next');
+      spyOn(underTest.valueChange, 'emit');
 
       underTest.onHourAtChange(updatedValue);
 
       expect(underTest.hourAt).toEqual(updatedValue);
       expect(underTest.value).toEqual(result);
-      expect(valueChangesSpy).toHaveBeenCalled();
-      expect(valueChangesSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(property, result));
+      expect(underTest.valueChange.emit).toHaveBeenCalled();
+      expect(underTest.valueChange.emit).toHaveBeenCalledWith(result);
     });
   });
 
@@ -278,26 +245,23 @@ describe('CronQuartzPartComponent', () => {
     it('when hour every changes should dispatch value change with updated expression', () => {
       const initialValue = 5;
       const updatedValue = 6;
-      const property = 'property';
       const result = [
         ...underTest.everyHourEveryUserFriendly.prefix,
         `0/${updatedValue}`,
         ...underTest.everyHourEveryUserFriendly.suffix,
       ].join(' ');
 
-      underTest.valueChanges = new Subject<WorkflowEntryModel>();
-      underTest.property = property;
       underTest.value = undefined;
       underTest.hourEvery = initialValue;
 
-      const valueChangesSpy = spyOn(underTest.valueChanges, 'next');
+      spyOn(underTest.valueChange, 'emit');
 
       underTest.onHourEveryChange(updatedValue);
 
       expect(underTest.hourEvery).toEqual(updatedValue);
       expect(underTest.value).toEqual(result);
-      expect(valueChangesSpy).toHaveBeenCalled();
-      expect(valueChangesSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(property, result));
+      expect(underTest.valueChange.emit).toHaveBeenCalled();
+      expect(underTest.valueChange.emit).toHaveBeenCalledWith(result);
     });
   });
 

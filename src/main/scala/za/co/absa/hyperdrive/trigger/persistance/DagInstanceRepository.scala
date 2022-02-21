@@ -19,6 +19,7 @@ import org.springframework.stereotype
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
 import za.co.absa.hyperdrive.trigger.models.{DagInstance, DagInstanceJoined, Event}
 
+import java.time.LocalDateTime
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -29,13 +30,15 @@ trait DagInstanceRepository extends Repository {
 
   def insertJoinedDagInstance(dagInstanceJoined: DagInstanceJoined)(implicit executionContext: ExecutionContext): Future[Unit]
 
-  def getDagsToRun(runningIds: Seq[Long], size: Int, assignedWorkflowIds: Seq[Long])(implicit executionContext: ExecutionContext): Future[Seq[DagInstance]]
+  def getDagsToRun(runningWorkflowIds: Seq[Long], size: Int, assignedWorkflowIds: Seq[Long])(implicit executionContext: ExecutionContext): Future[Seq[DagInstance]]
 
   def update(dagInstance: DagInstance): Future[Unit]
 
   def hasRunningDagInstance(workflowId: Long)(implicit executionContext: ExecutionContext): Future[Boolean]
 
   def hasInQueueDagInstance(workflowId: Long)(implicit executionContext: ExecutionContext): Future[Boolean]
+
+  def countDagInstancesFrom(workflowId: Long, fromDate: LocalDateTime)(implicit executionContext: ExecutionContext): Future[Int]
 }
 
 @stereotype.Repository
@@ -71,21 +74,24 @@ class DagInstanceRepositoryImpl @Inject()(val dbProvider: DatabaseProvider) exte
     } yield ()
   }
 
-  def getDagsToRun(runningIds: Seq[Long], size: Int, assignedWorkflowIds: Seq[Long])(implicit executionContext: ExecutionContext): Future[Seq[DagInstance]] = {
-    val prefilteredResult = db.run(
-      dagInstanceTable.filter { di =>
-        !di.workflowId.in(
-          dagInstanceTable.filter(_.id.inSet(runningIds)).map(_.workflowId)
-        )
-      }
-        .filter(_.status.inSet(DagInstanceStatuses.nonFinalStatuses))
-        .filter(_.workflowId inSetBind assignedWorkflowIds)
-        .result
-    )
+  def getDagsToRun(runningWorkflowIds: Seq[Long], size: Int, assignedWorkflowIds: Seq[Long])(implicit executionContext: ExecutionContext): Future[Seq[DagInstance]] = {
+    val dagIdsQuery = dagInstanceTable
+      .filter(_.status inSet DagInstanceStatuses.nonFinalStatuses)
+      .filter(_.workflowId inSetBind assignedWorkflowIds)
+      .filterNot(_.workflowId inSet runningWorkflowIds)
+      .groupBy(_.workflowId)
+      .map(group => group._2.map(_.id).min)
+      .sorted
+      .take(size)
 
-    prefilteredResult.map(di =>
-      di.groupBy(_.workflowId).flatMap(_._2.sortBy(_.id).take(1)).take(size).toSeq
-    )
+    val dagsToRunQuery = for {
+      dagId <- dagIdsQuery
+      dag <- dagInstanceTable.filter(_.id === dagId)
+    } yield {
+      dag
+    }
+
+    db.run(dagsToRunQuery.result)
   }
 
   override def update(dagInstance: DagInstance): Future[Unit] = db.run(
@@ -109,4 +115,13 @@ class DagInstanceRepositoryImpl @Inject()(val dbProvider: DatabaseProvider) exte
     )
   }
 
+  override def countDagInstancesFrom(workflowId: Long, fromDate: LocalDateTime)(implicit executionContext: ExecutionContext): Future[Int] = {
+    db.run(
+      dagInstanceTable
+        .filter(_.workflowId === workflowId)
+        .filter(_.started >= fromDate)
+        .length
+        .result
+    )
+  }
 }

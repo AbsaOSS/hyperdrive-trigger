@@ -24,15 +24,16 @@ import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, Matchers}
 import za.co.absa.hyperdrive.trigger.TestUtils.await
 import za.co.absa.hyperdrive.trigger.configuration.application.TestGeneralConfig
 import za.co.absa.hyperdrive.trigger.models._
-import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobTypes}
+import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
 import za.co.absa.hyperdrive.trigger.models.errors.ApiErrorTypes.{BulkOperationErrorType, GenericErrorType}
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, ApiException, DatabaseError, ValidationError}
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, WorkflowRepository}
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
 class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar with BeforeAndAfter {
+  override implicit def executionContext: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+
   private val workflowRepository = mock[WorkflowRepository]
   private val dagInstanceRepository = mock[DagInstanceRepository]
   private val dagInstanceService = mock[DagInstanceService]
@@ -157,43 +158,41 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
 
   "WorkflowService.getProjects" should "should return no project on no workflows" in {
     // given
-    when(workflowRepository.getWorkflows()(any[ExecutionContext])).thenReturn(Future{Seq()})
+    when(workflowRepository.getProjects()(any[ExecutionContext])).thenReturn(Future{Seq()})
 
     // when
     val result: Seq[Project] = await(underTest.getProjects())
 
     // then
-    verify(workflowRepository, times(1)).getWorkflows()
+    verify(workflowRepository, times(1)).getProjects()
     result shouldBe Seq.empty[Project]
   }
 
   "WorkflowService.getProjects" should "should return projects on some workflows" in {
     // given
-    val workflows = Seq(
-      Workflow(
-        name = "workflowA",
-        isActive = true,
-        project = "projectA",
-        created = LocalDateTime.now(),
-        updated = None,
-        id = 0
+    val projects = Seq(
+      Project(
+        "projectA",
+        Seq(WorkflowIdentity(
+          0,
+          "workflowA"
+        ))
       ),
-      Workflow(
-        name = "workflowB",
-        isActive = false,
-        project = "projectB",
-        created = LocalDateTime.now(),
-        updated = None,
-        id = 1
+      Project(
+        "projectB",
+        Seq(WorkflowIdentity(
+          1,
+          "workflowB"
+        ))
       )
     )
-    when(workflowRepository.getWorkflows()(any[ExecutionContext])).thenReturn(Future{workflows})
+    when(workflowRepository.getProjects()(any[ExecutionContext])).thenReturn(Future{projects})
 
     // when
     val result: Seq[Project] = await(underTest.getProjects())
 
     // then
-    verify(workflowRepository, times(1)).getWorkflows()
+    verify(workflowRepository, times(1)).getProjects()
     result.length shouldBe 2
   }
 
@@ -309,6 +308,8 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
     // given
     val workflowJoined1 = WorkflowFixture.createWorkflowJoined().copy(schedulerInstanceId = Some(42))
     val workflowJoined2 = WorkflowFixture.createTimeBasedShellScriptWorkflow("project").copy()
+    val workflowIds = Seq(21L, 22L)
+
     val jobTemplates1 = Seq(JobTemplateFixture.GenericSparkJobTemplate, JobTemplateFixture.GenericShellJobTemplate)
     val jobTemplates2 = Seq(JobTemplateFixture.GenericShellJobTemplate)
     val workflowImports = Seq(
@@ -321,21 +322,17 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
     )
     val newJobTemplatesIdMap = newJobTemplates.map(t => t.name -> t.id).toMap
 
-    val workflows = workflowImports.map(_.workflowJoined.toWorkflow)
-    val expectedProjects = Seq(
-      Project(workflowJoined1.project, Seq(workflowJoined1.toWorkflow)),
-      Project(workflowJoined2.project, Seq(workflowJoined2.toWorkflow))
-    )
+    val expectedWorkflows = Seq(workflowJoined1, workflowJoined2)
     when(jobTemplateService.getJobTemplateIdsByNames(any())(any[ExecutionContext])).thenReturn(Future{newJobTemplatesIdMap})
     when(workflowValidationService.validateOnInsert(any[Seq[WorkflowJoined]])(any())).thenReturn(Future{})
-    when(workflowRepository.insertWorkflows(any(), any())(any())).thenReturn(Future { Seq(21L, 22L) })
-    when(workflowRepository.getWorkflows()(any[ExecutionContext])).thenReturn(Future{workflows})
+    when(workflowRepository.insertWorkflows(any(), any())(any())).thenReturn(Future { workflowIds })
+    when(workflowRepository.getWorkflows(eqTo(workflowIds))(any[ExecutionContext])).thenReturn(Future{expectedWorkflows})
 
     // when
     val actualProjects = await(underTest.importWorkflows(workflowImports))
 
     // then
-    actualProjects should contain theSameElementsAs expectedProjects
+    actualProjects should contain theSameElementsAs expectedWorkflows
     val stringsCaptor: ArgumentCaptor[Seq[String]] = ArgumentCaptor.forClass(classOf[Seq[String]])
     verify(jobTemplateService).getJobTemplateIdsByNames(stringsCaptor.capture())(any())
     stringsCaptor.getValue should contain theSameElementsAs workflowImports.flatMap(_.jobTemplates.map(_.name)).distinct
@@ -343,8 +340,8 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
     val validateOnInsertCaptor: ArgumentCaptor[Seq[WorkflowJoined]] = ArgumentCaptor.forClass(classOf[Seq[WorkflowJoined]])
     verify(workflowValidationService).validateOnInsert(validateOnInsertCaptor.capture())(any())
     val convertedWorkflows = validateOnInsertCaptor.getValue
-    convertedWorkflows.head.dagDefinitionJoined.jobDefinitions.map(_.jobTemplateId) should contain theSameElementsInOrderAs Seq(11, 12)
-    convertedWorkflows(1).dagDefinitionJoined.jobDefinitions.head.jobTemplateId shouldBe 12
+    convertedWorkflows.head.dagDefinitionJoined.jobDefinitions.flatMap(_.jobTemplateId) should contain theSameElementsInOrderAs Seq(11, 12)
+    convertedWorkflows(1).dagDefinitionJoined.jobDefinitions.head.jobTemplateId.get shouldBe 12
 
     val insertWorkflowsCaptor: ArgumentCaptor[Seq[WorkflowJoined]] = ArgumentCaptor.forClass(classOf[Seq[WorkflowJoined]])
     verify(workflowRepository).insertWorkflows(insertWorkflowsCaptor.capture(), eqTo(userName))(any())
@@ -453,8 +450,8 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
 
     val result = await(underTest.convertToWorkflowJoined(workflowImport))
 
-    result.dagDefinitionJoined.jobDefinitions.head.jobTemplateId shouldBe 11
-    result.dagDefinitionJoined.jobDefinitions(1).jobTemplateId shouldBe 12
+    result.dagDefinitionJoined.jobDefinitions.head.jobTemplateId.get shouldBe 11
+    result.dagDefinitionJoined.jobDefinitions(1).jobTemplateId.get shouldBe 12
     result.schedulerInstanceId shouldBe None
   }
 

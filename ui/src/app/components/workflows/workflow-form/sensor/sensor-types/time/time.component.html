@@ -16,7 +16,6 @@
 <app-cron-quartz-part
   [isShow]="isShow"
   [name]="'Run at'"
-  [valueChanges]="sensorChanges"
-  [value]="WorkflowEntryUtil.getValue('properties.cronExpression', sensorData)"
-  [property]="'properties.cronExpression'">
+  (valueChange)="runAtChange($event)"
+  [value]="sensorProperties?.cronExpression">
 </app-cron-quartz-part>

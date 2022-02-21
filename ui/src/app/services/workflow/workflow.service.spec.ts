@@ -19,11 +19,10 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 import { api } from '../../constants/api.constants';
 import { WorkflowService } from './workflow.service';
 import { ProjectModelFactory } from '../../models/project.model';
-import { WorkflowModelFactory } from '../../models/workflow.model';
+import { WorkflowModel, WorkflowModelFactory } from '../../models/workflow.model';
 import { WorkflowJoinedModelFactory } from '../../models/workflowJoined.model';
-import { jobTemplateFormConfigs } from '../../constants/jobTemplates.constants';
-import { JobTemplateModelFactory } from '../../models/jobTemplate.model';
-import { SparkTemplateParametersModel } from '../../models/jobTemplateParameters.model';
+import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
+import { TableSearchRequestModelFactory } from '../../models/search/tableSearchRequest.model';
 
 describe('WorkflowService', () => {
   let underTest: WorkflowService;
@@ -61,6 +60,34 @@ describe('WorkflowService', () => {
     const req = httpTestingController.expectOne(api.GET_PROJECTS);
     expect(req.request.method).toEqual('GET');
     req.flush([...projects]);
+  });
+
+  it('getWorkflows() should return workflows', () => {
+    const workflows = [WorkflowModelFactory.create('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 0)];
+
+    underTest.getWorkflows().subscribe(
+      (data) => expect(data).toEqual(workflows),
+      (error) => fail(error),
+    );
+
+    const req = httpTestingController.expectOne(api.GET_WORKFLOWS);
+    expect(req.request.method).toEqual('GET');
+    req.flush([...workflows]);
+  });
+
+  it('searchWorkflows() should return workflows search response', () => {
+    const workflows = [WorkflowModelFactory.create('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 0)];
+    const searchResponseModel = new TableSearchResponseModel<WorkflowModel>(workflows, 1);
+    const request = TableSearchRequestModelFactory.create(0, 100);
+
+    underTest.searchWorkflows(request).subscribe(
+      (data) => expect(data).toEqual(searchResponseModel),
+      (error) => fail(error),
+    );
+
+    const req = httpTestingController.expectOne(api.SEARCH_WORKFLOWS);
+    expect(req.request.method).toEqual('POST');
+    req.flush(searchResponseModel);
   });
 
   it('getWorkflow() should return workflow data', () => {
@@ -149,19 +176,18 @@ describe('WorkflowService', () => {
     req.flush(workflow);
   });
 
-  it('importWorkflows() should return project list', () => {
+  it('importWorkflows() should return inserted workflows', () => {
     const workflow = WorkflowModelFactory.create('workflowName', true, 'projectName', new Date(Date.now()), new Date(Date.now()), 0);
-    const projects = [ProjectModelFactory.create('newProject', [workflow])];
     const file: File = new File(['content'], 'workflows.zip');
 
     underTest.importWorkflows(file).subscribe(
-      (data) => expect(data).toEqual(projects),
+      (data) => expect(data).toEqual([workflow]),
       (error) => fail(error),
     );
 
     const req = httpTestingController.expectOne(api.IMPORT_WORKFLOWS);
     expect(req.request.method).toEqual('POST');
-    req.flush(projects);
+    req.flush([workflow]);
   });
 
   it('createWorkflow() should return created workflow', () => {
@@ -217,39 +243,5 @@ describe('WorkflowService', () => {
     const req = httpTestingController.expectOne(api.RUN_WORKFLOWS);
     expect(req.request.method).toEqual('PUT');
     req.flush(new Boolean(response));
-  });
-
-  it('getWorkflowDynamicFormParts() should return no form parts if no templates are present', () => {
-    underTest.getWorkflowDynamicFormParts().subscribe(
-      (data) => expect(data.dynamicFormParts.jobDynamicParts.length).toEqual(0),
-      (error) => fail(error),
-    );
-
-    const req = httpTestingController.expectOne(encodeURI(api.GET_JOB_TEMPLATES));
-    expect(req.request.method).toEqual('GET');
-    req.flush([]);
-  });
-
-  it('getWorkflowDynamicFormParts() should return only the shell-job form part if no other templates are present', () => {
-    const templateName = 'Some Shell Job';
-    underTest.getWorkflowDynamicFormParts().subscribe(
-      (data) => {
-        expect(data.dynamicFormParts.jobDynamicParts.length).toEqual(1);
-        expect(data.dynamicFormParts.jobDynamicParts[0].label).toEqual(templateName);
-      },
-      (error) => fail(error),
-    );
-
-    const req = httpTestingController.expectOne(encodeURI(api.GET_JOB_TEMPLATES));
-    expect(req.request.method).toEqual('GET');
-    req.flush([
-      JobTemplateModelFactory.create(
-        0,
-        templateName,
-        jobTemplateFormConfigs.SHELL,
-        { name: 'Spark' },
-        SparkTemplateParametersModel.createEmpty(),
-      ),
-    ]);
   });
 });

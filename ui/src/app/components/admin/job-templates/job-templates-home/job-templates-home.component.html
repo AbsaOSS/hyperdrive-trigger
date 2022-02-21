@@ -17,6 +17,10 @@
 
   <clr-dg-action-bar>
     <div class="btn-group">
+      <button type="button" class="btn btn-sm btn-secondary" [routerLink]="[absoluteRoutes.CREATE_JOB_TEMPLATE]">
+        <clr-icon shape="plus"></clr-icon>
+        Create new job template
+      </button>
       <button type="button" class="btn btn-sm btn-secondary" (click)="clearFilters()">
         <clr-icon shape="trash"></clr-icon>
         Clear filters
@@ -40,14 +44,6 @@
       </app-string-filter>
     </clr-dg-filter>
   </clr-dg-column>
-  <clr-dg-column [clrDgField]="jobTemplateColumns.FORM_CONFIG">
-    <ng-container *clrDgHideableColumn="{hidden: false}">Form config</ng-container>
-    <clr-dg-filter [clrDgFilter]="fromConfigFilter">
-      <app-string-filter #fromConfigFilter [property]="jobTemplateColumns.FORM_CONFIG"
-                         [removeFiltersSubject]="removeFiltersSubject">
-      </app-string-filter>
-    </clr-dg-filter>
-  </clr-dg-column>
   <clr-dg-column>
     <ng-container *clrDgHideableColumn="{hidden: false}">Job type</ng-container>
   </clr-dg-column>
@@ -59,12 +55,36 @@
         <clr-icon shape="eye"></clr-icon>
         Show
       </button>
+      <button type="button" class="action-item" [routerLink]="[absoluteRoutes.EDIT_JOB_TEMPLATE, jobTemplate.id]">
+        <clr-icon shape="pencil"></clr-icon>
+        Edit
+      </button>
+      <button type="button" class="action-item" (click)="deleteJobTemplate(jobTemplate.id)">
+        <clr-icon shape="close"></clr-icon>
+        Delete
+      </button>
+      <button type="button" class="action-item" [routerLink]="[absoluteRoutes.JOB_TEMPLATE_HISTORY(jobTemplate.id)]">
+        <clr-icon shape="history"></clr-icon>
+        Show History
+      </button>
     </clr-dg-action-overflow>
 
     <clr-dg-cell (dblclick)="showJobTemplate(jobTemplate.id)">{{jobTemplate.name}}</clr-dg-cell>
-    <clr-dg-cell (dblclick)="showJobTemplate(jobTemplate.id)">{{jobTemplate.formConfig}}</clr-dg-cell>
     <clr-dg-cell (dblclick)="showJobTemplate(jobTemplate.id)">{{jobTemplate.jobParameters.jobType}}</clr-dg-cell>
   </clr-dg-row>
+
+  <ng-template clrIfDetail let-jobTemplateUsage (clrIfDetailChange)="onJobTemplateUsageOpenClose($event)">
+    <clr-dg-detail>
+      <clr-dg-detail-header>
+        <strong>Job template name: </strong>{{jobTemplateUsage.name}}<br/>
+        <strong>Job type: </strong>{{jobTemplateUsage.jobParameters.jobType}}<br/>
+        <strong>Job template usage: </strong>
+      </clr-dg-detail-header>
+      <clr-dg-detail-body>
+        <app-job-template-usage [jobTemplateId]="jobTemplateUsage.id" [refreshSubject]="refreshSubject"></app-job-template-usage>
+      </clr-dg-detail-body>
+    </clr-dg-detail>
+  </ng-template>
 
   <clr-dg-footer>
     <clr-dg-pagination #pagination [clrDgPageSize]="50" [(clrDgPage)]="page"

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { Component, Input } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-recurring',
@@ -21,8 +21,6 @@ import { Component, Input } from '@angular/core';
   styleUrls: ['./recurring.component.scss'],
 })
 export class RecurringComponent {
-  @Input() isShow: boolean;
-
   constructor() {
     // do nothing
   }
