@@ -24,6 +24,8 @@ export const api = {
   KILL_JOB: '/jobInstances/{applicationId}/kill',
 
   GET_PROJECTS: '/workflows/projects',
+  GET_WORKFLOWS: '/workflows',
+  SEARCH_WORKFLOWS: '/workflows/search',
   GET_WORKFLOW: '/workflow',
   DELETE_WORKFLOW: '/workflows',
   EXPORT_WORKFLOWS: '/workflows/export',
@@ -38,10 +40,18 @@ export const api = {
   GET_HISTORY_FOR_WORKFLOW: '/workflowHistory',
   GET_WORKFLOWS_FROM_HISTORY: '/workflowsFromHistory',
   GET_JOBS_FOR_RUN: '/jobsForRun',
+  GET_WORKFLOW_FROM_HISTORY: '/workflowFromHistory',
 
   GET_JOB_TEMPLATES: '/jobTemplates',
   SEARCH_JOB_TEMPLATES: '/jobTemplates/search',
   GET_JOB_TEMPLATE: '/jobTemplate',
+  CREATE_JOB_TEMPLATE: '/jobTemplate',
+  UPDATE_JOB_TEMPLATE: '/jobTemplates',
+  DELETE_JOB_TEMPLATE: '/jobTemplates',
+  GET_JOB_TEMPLATE_USAGE: '/jobTemplates/{id}/workflows',
+  GET_HISTORY_FOR_JOB_TEMPLATE: '/jobTemplateHistory',
+  GET_JOB_TEMPLATES_FROM_HISTORY: '/jobTemplatesFromHistory',
+  GET_JOB_TEMPLATE_FROM_HISTORY: '/jobTemplateFromHistory',
 
   CREATE_NOTIFICATION_RULE: '/notificationRule',
   GET_NOTIFICATION_RULES: '/notificationRules',
@@ -52,6 +62,7 @@ export const api = {
   GET_HISTORY_FOR_NOTIFICATION_RULE: '/notificationRuleHistory',
   GET_NOTIFICATION_RULES_FROM_HISTORY: '/notificationRulesFromHistory',
   GET_QUARTZ_DETAIL: '/util/quartzDetail',
+  GET_NOTIFICATION_RULE_FROM_HISTORY: '/notificationRuleFromHistory',
 };
 
 export const SKIP_BASE_URL_INTERCEPTOR = 'Skip-base-url-interceptor';

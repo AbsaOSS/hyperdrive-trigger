@@ -147,7 +147,7 @@ export function notificationRulesReducer(state: State = initialState, action: No
         ...state,
         notificationRuleAction: {
           ...state.notificationRuleAction,
-          notificationRule: { ...state.notificationRuleAction.notificationRule, [action.payload.property]: action.payload.value },
+          notificationRule: action.payload,
         },
       };
     case NotificationRulesActions.SET_EMPTY_NOTIFICATION_RULE:
@@ -219,6 +219,34 @@ export function notificationRulesReducer(state: State = initialState, action: No
         ...state,
         history: {
           ...initialState.history,
+          loading: false,
+        },
+      };
+    case NotificationRulesActions.REVERT_NOTIFICATION_RULE:
+      return {
+        ...state,
+        notificationRuleAction: {
+          ...initialState.notificationRuleAction,
+          id: action.payload,
+          loading: true,
+        },
+      };
+    case NotificationRulesActions.REVERT_NOTIFICATION_RULE_SUCCESS:
+      return {
+        ...state,
+        notificationRuleAction: {
+          ...state.notificationRuleAction,
+          loading: false,
+          initialNotificationRule: undefined,
+          notificationRule: action.payload,
+          backendValidationErrors: [],
+        },
+      };
+    case NotificationRulesActions.REVERT_NOTIFICATION_RULE_FAILURE:
+      return {
+        ...state,
+        notificationRuleAction: {
+          ...initialState.notificationRuleAction,
           loading: false,
         },
       };

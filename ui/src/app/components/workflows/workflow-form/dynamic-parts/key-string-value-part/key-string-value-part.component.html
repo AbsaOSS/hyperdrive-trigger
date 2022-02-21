@@ -24,13 +24,13 @@
         [ngModel]="val[0]"
         (ngModelChange)="ngModelChanged($event, i,0)"
         required
-        [minlength]="partValidation.minLength"
-        [maxlength]="partValidation.maxLength"
+        [minlength]="minLength"
+        [maxlength]="maxLength"
       />
       <clr-control-helper>Key {{i+1}}</clr-control-helper>
       <clr-control-error *clrIfError="'required'">{{texts.FORM_VALIDATION_MUST_BE_FILLED(name)}}</clr-control-error>
-      <clr-control-error *clrIfError="'minlength'">{{texts.FORM_VALIDATION_MIN_LENGTH(name, partValidationSafe.minLength)}}</clr-control-error>
-      <clr-control-error *clrIfError="'maxlength'">{{texts.FORM_VALIDATION_MAX_LENGTH(name, partValidationSafe.maxLength)}}</clr-control-error>
+      <clr-control-error *clrIfError="'minlength'">{{texts.FORM_VALIDATION_MIN_LENGTH(name, minLength)}}</clr-control-error>
+      <clr-control-error *clrIfError="'maxlength'">{{texts.FORM_VALIDATION_MAX_LENGTH(name, maxLength)}}</clr-control-error>
     </clr-control-container>
 
 
@@ -42,13 +42,13 @@
         [ngModel]="val[1]"
         (ngModelChange)="ngModelChanged($event, i,1)"
         required
-        [minlength]="partValidation.minLength"
-        [maxlength]="partValidation.maxLength"
+        [minlength]="minLength"
+        [maxlength]="maxLength"
       />
       <clr-control-helper>Value {{i+1}}</clr-control-helper>
       <clr-control-error *clrIfError="'required'">{{texts.FORM_VALIDATION_MUST_BE_FILLED(name)}}</clr-control-error>
-      <clr-control-error *clrIfError="'minlength'">{{texts.FORM_VALIDATION_MIN_LENGTH(name, partValidationSafe.minLength)}}</clr-control-error>
-      <clr-control-error *clrIfError="'maxlength'">{{texts.FORM_VALIDATION_MAX_LENGTH(name, partValidationSafe.maxLength)}}</clr-control-error>
+      <clr-control-error *clrIfError="'minlength'">{{texts.FORM_VALIDATION_MIN_LENGTH(name, minLength)}}</clr-control-error>
+      <clr-control-error *clrIfError="'maxlength'">{{texts.FORM_VALIDATION_MAX_LENGTH(name, maxLength)}}</clr-control-error>
       <button type="button" class="btn btn-link" (click)="onDelete(i)">
         <clr-icon shape="trash"></clr-icon>
       </button>
@@ -61,7 +61,7 @@
 
 <clr-control-container *ngIf="mapOfValues.length == 0 && !isShow">
   <label>{{name}}</label>
-  <input [name]="name" clrControl [ngModel]="undefined" [required]="partValidationSafe.isRequired" type="hidden"/>
+  <input [name]="name" clrControl [ngModel]="undefined" [required]="isRequired" type="hidden"/>
   <clr-control-error *clrIfError="'required'">{{texts.FORM_VALIDATION_AT_LEAST_ONE_DEFINED}}</clr-control-error>
 
   <button type="button" class="btn btn-link" (click)="onAdd()">

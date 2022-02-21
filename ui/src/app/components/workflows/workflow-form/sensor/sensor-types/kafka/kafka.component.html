@@ -16,24 +16,24 @@
 <app-string-part
   [isShow]="isShow"
   [name]="'Topic'"
-  [valueChanges]="sensorChanges"
-  [value]="WorkflowEntryUtil.getValue('properties.topic', sensorData)"
-  [property]="'properties.topic'"
-  [partValidation]="PartValidationFactory.create(true, undefined, 1)">
+  (valueChange)="topicChange($event)"
+  [value]="sensorProperties?.topic"
+  [isRequired]=true
+  [minLength]=1>
 </app-string-part>
 <app-string-sequence-part
   [isShow]="isShow"
   [name]="'Kafka servers'"
-  [valueChanges]="sensorChanges"
-  [value]="WorkflowEntryUtil.getValue('properties.servers', sensorData)"
-  [property]="'properties.servers'"
-  [partValidation]="PartValidationFactory.create(true, undefined, 1)">
+  [value]="sensorProperties?.servers"
+  (valueChange)="kafkaServersChange($event)"
+  [isRequired]=true
+  [minLength]=1>
 </app-string-sequence-part>
 <app-key-string-value-part
   [isShow]="isShow"
   [name]="'Match properties'"
-  [valueChanges]="sensorChanges"
-  [value]="WorkflowEntryUtil.getValue('properties.matchProperties', sensorData)"
-  [property]="'properties.matchProperties'"
-  [partValidation]="PartValidationFactory.create(false, undefined, 1)">
+  [value]="sensorProperties?.matchProperties"
+  (valueChange)="matchPropertiesChange($event)"
+  [isRequired]=false
+  [minLength]=1>
 </app-key-string-value-part>

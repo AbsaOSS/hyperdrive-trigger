@@ -13,21 +13,15 @@
  * limitations under the License.
  */
 
-import { Component, EventEmitter, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { AppState, selectWorkflowState } from '../../../stores/app.reducers';
-import { Subject, Subscription } from 'rxjs';
-import { Action, Store } from '@ngrx/store';
-import { StartWorkflowInitialization, ImportWorkflow } from '../../../stores/workflows/workflows.actions';
+import { Subscription } from 'rxjs';
+import { Store } from '@ngrx/store';
+import { StartWorkflowInitialization, ImportWorkflow, RevertWorkflow } from '../../../stores/workflows/workflows.actions';
 import { workflowModes } from '../../../models/enums/workflowModes.constants';
-import { absoluteRoutes } from '../../../constants/routes.constants';
-import { PreviousRouteService } from '../../../services/previousRoute/previous-route.service';
-import { ConfirmationDialogService } from '../../../services/confirmation-dialog/confirmation-dialog.service';
-import { WorkflowEntryModel } from '../../../models/workflowEntry.model';
-import { JobEntryModel } from '../../../models/jobEntry.model';
-import { WorkflowFormPartsModel } from '../../../models/workflowFormParts.model';
-import { WorkflowFormDataModel } from '../../../models/workflowFormData.model';
 import { JobTemplateModel } from '../../../models/jobTemplate.model';
+import { WorkflowJoinedModel } from '../../../models/workflowJoined.model';
 
 @Component({
   selector: 'app-workflow',
@@ -35,44 +29,26 @@ import { JobTemplateModel } from '../../../models/jobTemplate.model';
   styleUrls: ['./workflow.component.scss'],
 })
 export class WorkflowComponent implements OnInit, OnDestroy {
-  @ViewChild('workflowForm') workflowForm;
-  @Output() jobsUnfold: EventEmitter<any> = new EventEmitter();
-
-  loading = true;
-  mode: string;
   id: number;
-  isWorkflowActive: boolean;
+  mode: string;
+  loading = true;
+  initialWorkflow: WorkflowJoinedModel;
+  workflowForForm: WorkflowJoinedModel;
+  projects: string[] = [];
+  jobTemplates: JobTemplateModel[];
   backendValidationErrors: string[];
 
   workflowModes = workflowModes;
-  absoluteRoutes = absoluteRoutes;
 
   paramsSubscription: Subscription;
   workflowSubscription: Subscription;
 
-  workflowData: {
-    details: WorkflowEntryModel[];
-    sensor: WorkflowEntryModel[];
-    jobs: JobEntryModel[];
-  };
-  initialWorkflowData: WorkflowFormDataModel;
-  workflowFormParts: WorkflowFormPartsModel;
-
-  jobTemplates: JobTemplateModel[];
-
-  changes: Subject<Action> = new Subject<Action>();
-  changesSubscription: Subscription;
-
-  constructor(
-    private store: Store<AppState>,
-    private confirmationDialogService: ConfirmationDialogService,
-    private previousRouteService: PreviousRouteService,
-    private router: Router,
-    route: ActivatedRoute,
-  ) {
+  constructor(private store: Store<AppState>, route: ActivatedRoute) {
     this.paramsSubscription = route.params.subscribe((parameters) => {
       if (parameters.mode == this.workflowModes.IMPORT) {
         this.store.dispatch(new ImportWorkflow());
+      } else if (parameters.mode == this.workflowModes.REVERT) {
+        this.store.dispatch(new RevertWorkflow(parameters.id));
       } else {
         this.store.dispatch(new StartWorkflowInitialization({ id: parameters.id, mode: parameters.mode }));
       }
@@ -81,18 +57,14 @@ export class WorkflowComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.workflowSubscription = this.store.select(selectWorkflowState).subscribe((state) => {
-      this.loading = state.workflowAction.loading;
-      this.mode = state.workflowAction.mode;
       this.id = state.workflowAction.id;
-      this.isWorkflowActive = !!state.workflowAction.workflow ? state.workflowAction.workflow.isActive : false;
-      this.backendValidationErrors = state.workflowAction.backendValidationErrors;
-      this.workflowFormParts = state.workflowAction.workflowFormParts;
-      this.workflowData = state.workflowAction.workflowFormData;
-      this.initialWorkflowData = state.workflowAction.initialWorkflowFormData;
+      this.mode = state.workflowAction.mode;
+      this.loading = state.workflowAction.loading;
+      this.initialWorkflow = state.workflowAction.workflow;
+      this.workflowForForm = state.workflowAction.workflowForForm;
+      this.projects = state.projects.map((project) => project.name);
       this.jobTemplates = state.jobTemplates;
-    });
-    this.changesSubscription = this.changes.subscribe((state) => {
-      this.store.dispatch(state);
+      this.backendValidationErrors = state.workflowAction.backendValidationErrors;
     });
   }
 

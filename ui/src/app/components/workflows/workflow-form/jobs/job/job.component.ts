@@ -13,80 +13,89 @@
  * limitations under the License.
  */
 
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { Subject, Subscription } from 'rxjs';
-import { Action } from '@ngrx/store';
-import { WorkflowJobChanged, WorkflowJobTypeSwitched } from '../../../../../stores/workflows/workflows.actions';
-import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
-import { JobEntryModel } from '../../../../../models/jobEntry.model';
-import { jobTemplateFormConfigs } from '../../../../../constants/jobTemplates.constants';
-import { WorkflowEntryUtil } from 'src/app/utils/workflowEntry/workflowEntry.util';
-import { PartValidationFactory } from 'src/app/models/workflowFormParts.model';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { JobTemplateModel } from '../../../../../models/jobTemplate.model';
+import { jobTypes, jobTypesMap } from '../../../../../constants/jobTypes.constants';
+import {
+  HyperdriveDefinitionParametersModel,
+  JobDefinitionParameters,
+  ShellDefinitionParametersModel,
+  SparkDefinitionParametersModel,
+} from '../../../../../models/jobDefinitionParameters.model';
+import { JobDefinitionModel } from '../../../../../models/jobDefinition.model';
+import { JobTemplateParameters } from '../../../../../models/jobTemplateParameters.model';
+import { JobTemplateChangeEventModel } from '../../../../../models/jobTemplateChangeEvent';
 
 @Component({
   selector: 'app-job',
   templateUrl: './job.component.html',
   styleUrls: ['./job.component.scss'],
 })
-export class JobComponent implements OnInit, OnDestroy {
-  readonly JOB_TEMPLATE_PROPERTY = 'jobTemplateId';
-
-  @Input() jobId: string;
+export class JobComponent {
   @Input() isShow: boolean;
-  @Input() jobsData: JobEntryModel[];
+  @Input() job: JobDefinitionModel;
+  @Output() jobChange = new EventEmitter();
   @Input() jobTemplates: JobTemplateModel[];
-  @Input() changes: Subject<Action>;
 
-  jobTemplateFormConfigs = jobTemplateFormConfigs;
-  WorkflowEntryUtil = WorkflowEntryUtil;
-  PartValidationFactory = PartValidationFactory;
+  jobTemplateChanges: EventEmitter<JobTemplateChangeEventModel> = new EventEmitter();
 
-  jobChanges: Subject<WorkflowEntryModel> = new Subject<WorkflowEntryModel>();
-  jobChangesSubscription: Subscription;
+  jobTypesMap = jobTypesMap;
+  jobTypes = jobTypes;
 
   constructor() {
     // do nothing
   }
 
-  ngOnInit(): void {
-    this.jobChangesSubscription = this.jobChanges.subscribe((jobChange) => {
-      if (jobChange.property == this.JOB_TEMPLATE_PROPERTY) {
-        this.changes.next(
-          new WorkflowJobTypeSwitched({
-            jobId: this.jobId,
-            jobEntry: WorkflowEntryModelFactory.create(jobChange.property, jobChange.value),
-          }),
-        );
-      } else {
-        this.changes.next(
-          new WorkflowJobChanged({ jobId: this.jobId, jobEntry: WorkflowEntryModelFactory.create(jobChange.property, jobChange.value) }),
-        );
+  nameChange(name: string) {
+    this.job = { ...this.job, name: name };
+    this.jobChange.emit(this.job);
+  }
+
+  jobTypeChange(jobType: string) {
+    this.job = this.clearJobParameters(jobType);
+    this.jobChange.emit(this.job);
+  }
+
+  jobTemplateChange(jobTemplateId: string) {
+    this.job = { ...this.job, jobTemplateId: jobTemplateId };
+    this.jobChange.emit(this.job);
+    this.jobTemplateChanges.emit(new JobTemplateChangeEventModel(jobTemplateId, this.getSelectedJobTemplateParameters()));
+  }
+
+  jobParametersChange(jobParameters: JobDefinitionParameters) {
+    this.job = { ...this.job, jobParameters: jobParameters };
+    this.jobChange.emit(this.job);
+  }
+
+  private clearJobParameters(value: string): JobDefinitionModel {
+    switch (value) {
+      case jobTypes.HYPERDRIVE: {
+        return { ...this.job, jobTemplateId: undefined, jobParameters: HyperdriveDefinitionParametersModel.createEmpty() };
       }
-    });
+      case jobTypes.SPARK: {
+        return { ...this.job, jobTemplateId: undefined, jobParameters: SparkDefinitionParametersModel.createEmpty() };
+      }
+      case jobTypes.SHELL: {
+        return { ...this.job, jobTemplateId: undefined, jobParameters: ShellDefinitionParametersModel.createEmpty() };
+      }
+    }
   }
 
   getJobTemplates(): Map<string, string> {
-    return new Map(this.jobTemplates.map((part) => [part.id.toString(), part.name]));
+    return new Map(
+      this.jobTemplates
+        .filter((jobTemplate) => {
+          return jobTemplate.jobParameters.jobType == this.job.jobParameters.jobType;
+        })
+        .map((jobTemplate) => [jobTemplate.id.toString(), jobTemplate.name]),
+    );
   }
 
-  getSelectedFormConfig(): string {
-    const selectedJob = this.getSelectedJobTemplateId();
-    const selectedJobTemplate = this.jobTemplates.find((jobTemplate) => jobTemplate.id == selectedJob);
-    return selectedJobTemplate?.formConfig ?? jobTemplateFormConfigs.SPARK;
+  getSelectedJobTemplateParameters(): JobTemplateParameters {
+    return this.jobTemplates.find((jobTemplate) => jobTemplate.id.toString() == this.job.jobTemplateId)?.jobParameters;
   }
 
-  getJobData(): WorkflowEntryModel[] {
-    const jobDataOption = this.jobsData.find((job) => job.jobId == this.jobId);
-    return !!jobDataOption ? jobDataOption.entries : [];
-  }
-
-  getSelectedJobTemplateId() {
-    const selected = this.getJobData().find((value) => value.property == this.JOB_TEMPLATE_PROPERTY);
-    return !!selected ? selected.value : undefined;
-  }
-
-  ngOnDestroy(): void {
-    !!this.jobChangesSubscription && this.jobChangesSubscription.unsubscribe();
+  isJobTemplateSelected(): boolean {
+    return this.job?.jobTemplateId !== undefined && this.job?.jobTemplateId !== null;
   }
 }

@@ -16,6 +16,7 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
+import za.co.absa.hyperdrive.trigger.models.enums.JobTypes
 import za.co.absa.hyperdrive.trigger.models.{JobTemplate, ShellTemplateParameters, SparkTemplateParameters}
 
 object JobTemplateFixture {
@@ -23,18 +24,16 @@ object JobTemplateFixture {
   val GenericSparkJobTemplate: JobTemplate = {
     JobTemplate(
       name = "Generic Spark Job Template",
-      jobParameters = SparkTemplateParameters(jobJar = None, mainClass = None),
-      id = 1,
-      formConfig = "Spark"
+      jobParameters = SparkTemplateParameters(jobType = JobTypes.Spark, jobJar = "testJobJar.jar", mainClass = "testMainClass"),
+      id = 1
     )
   }
 
   val GenericShellJobTemplate: JobTemplate = {
     JobTemplate(
       name = "Generic Shell Job Template",
-      jobParameters = ShellTemplateParameters(scriptLocation = None),
-      id = 2,
-      formConfig = "Shell"
+      jobParameters = ShellTemplateParameters(scriptLocation = "testShellScript.sh"),
+      id = 2
     )
   }
 }

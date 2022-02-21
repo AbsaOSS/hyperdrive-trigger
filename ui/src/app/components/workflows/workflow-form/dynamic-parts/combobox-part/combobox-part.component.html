@@ -21,7 +21,7 @@
     [name]="name+uuid"
     [ngModel]="value"
     (ngModelChange)="modelChanged($event)"
-    [required]="partValidationSafe.isRequired"
+    [required]="isRequired"
     clrMulti="true">
     <ng-container *clrOptionSelected="let selected">
       {{selected}}

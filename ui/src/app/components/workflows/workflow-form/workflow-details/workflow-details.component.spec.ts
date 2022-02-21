@@ -16,20 +16,11 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { WorkflowDetailsComponent } from './workflow-details.component';
-import { WorkflowEntryModelFactory } from '../../../../models/workflowEntry.model';
-import { WorkflowDetailsChanged } from '../../../../stores/workflows/workflows.actions';
-import { Subject } from 'rxjs';
-import { Action } from '@ngrx/store';
+import { WorkflowJoinedModelFactory } from '../../../../models/workflowJoined.model';
 
 describe('WorkflowDetailsComponent', () => {
   let fixture: ComponentFixture<WorkflowDetailsComponent>;
   let underTest: WorkflowDetailsComponent;
-
-  const sensorData = [
-    { property: 'propertyOne', value: 'valueOne' },
-    { property: 'propertyTwo', value: 'valueTwo' },
-  ];
-  const parts = [];
 
   beforeEach(
     waitForAsync(() => {
@@ -44,30 +35,43 @@ describe('WorkflowDetailsComponent', () => {
     underTest = fixture.componentInstance;
 
     //set test data
-    underTest.data = sensorData;
-    underTest.parts = parts;
-    underTest.changes = new Subject<Action>();
+    underTest.details = WorkflowJoinedModelFactory.createEmpty();
   });
 
   it('should create', () => {
     expect(underTest).toBeTruthy();
   });
 
-  it(
-    'should dispatch workflow details change when value is received',
-    waitForAsync(() => {
-      const usedWorkflowEntry = WorkflowEntryModelFactory.create('property', 'value');
-      fixture.detectChanges();
-      fixture.whenStable().then(() => {
-        const storeSpy = spyOn(underTest.changes, 'next');
-        underTest.detailsChanges.next(usedWorkflowEntry);
-        fixture.detectChanges();
+  it('should emit updated details when nameChange() is called', () => {
+    spyOn(underTest.detailsChange, 'emit');
+    const newName = 'newName';
+    const newSensorProperties = { ...underTest.details, name: newName };
 
-        fixture.whenStable().then(() => {
-          expect(storeSpy).toHaveBeenCalledTimes(1);
-          expect(storeSpy).toHaveBeenCalledWith(new WorkflowDetailsChanged(usedWorkflowEntry));
-        });
-      });
-    }),
-  );
+    underTest.nameChange(newName);
+
+    expect(underTest.detailsChange.emit).toHaveBeenCalled();
+    expect(underTest.detailsChange.emit).toHaveBeenCalledWith(newSensorProperties);
+  });
+
+  it('should emit updated details when projectChange() is called', () => {
+    spyOn(underTest.detailsChange, 'emit');
+    const newProject = 'newProject';
+    const newSensorProperties = { ...underTest.details, project: newProject };
+
+    underTest.projectChange(newProject);
+
+    expect(underTest.detailsChange.emit).toHaveBeenCalled();
+    expect(underTest.detailsChange.emit).toHaveBeenCalledWith(newSensorProperties);
+  });
+
+  it('should emit updated details when isActiveChange() is called', () => {
+    spyOn(underTest.detailsChange, 'emit');
+    const newIsActive = underTest.details.isActive;
+    const newSensorProperties = { ...underTest.details, isActive: newIsActive };
+
+    underTest.isActiveChange(newIsActive);
+
+    expect(underTest.detailsChange.emit).toHaveBeenCalled();
+    expect(underTest.detailsChange.emit).toHaveBeenCalledWith(newSensorProperties);
+  });
 });

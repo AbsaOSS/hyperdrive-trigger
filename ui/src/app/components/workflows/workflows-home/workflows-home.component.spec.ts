@@ -17,7 +17,6 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { WorkflowsHomeComponent } from './workflows-home.component';
 import { provideMockStore } from '@ngrx/store/testing';
-import { ProjectModelFactory } from '../../../models/project.model';
 import { WorkflowModelFactory } from '../../../models/workflow.model';
 import { ConfirmationDialogService } from '../../../services/confirmation-dialog/confirmation-dialog.service';
 import { Store } from '@ngrx/store';
@@ -30,12 +29,12 @@ import { ClrDatagridStateInterface } from '@clr/angular';
 import {
   DeleteWorkflow,
   SwitchWorkflowActiveState,
-  SetWorkflowsSort,
   LoadJobsForRun,
   ExportWorkflows,
   SetWorkflowFile,
   ImportWorkflows,
   RunWorkflows,
+  SearchWorkflows,
 } from '../../../stores/workflows/workflows.actions';
 
 describe('WorkflowsHomeComponent', () => {
@@ -47,17 +46,19 @@ describe('WorkflowsHomeComponent', () => {
 
   const initialAppState = {
     workflows: {
-      projects: [
-        ProjectModelFactory.create('projectOne', [
+      workflowsSearch: {
+        loading: true,
+        workflows: [
           WorkflowModelFactory.create('workflowOne', undefined, undefined, undefined, undefined, undefined),
-        ]),
-        ProjectModelFactory.create('projectTwo', [
           WorkflowModelFactory.create('workflowTwo', undefined, undefined, undefined, undefined, undefined),
-        ]),
-      ],
+        ],
+        total: 2,
+        searchRequest: undefined,
+      },
+      workflowAction: {
+        loading: false,
+      },
     },
-    workflowsSort: undefined,
-    workflowsFilters: undefined,
   };
 
   beforeEach(
@@ -87,9 +88,13 @@ describe('WorkflowsHomeComponent', () => {
     waitForAsync(() => {
       fixture.detectChanges();
       fixture.whenStable().then(() => {
-        expect(underTest.workflows).toEqual([].concat(...initialAppState.workflows.projects.map((project) => project.workflows)));
-        expect(underTest.sort).toEqual(initialAppState.workflowsSort);
-        expect(underTest.filters).toBeUndefined();
+        expect(underTest.workflows).toEqual([...initialAppState.workflows.workflowsSearch.workflows]);
+        expect(underTest.total).toEqual(initialAppState.workflows.workflowsSearch.total);
+        expect(underTest.sort).toEqual(undefined);
+        expect(underTest.filters).toEqual([]);
+        expect(underTest.pageFrom).toEqual(0);
+        expect(underTest.pageSize).toEqual(100);
+        expect(underTest.page).toEqual(0 / 100 + 1);
       });
     }),
   );
@@ -295,7 +300,6 @@ describe('WorkflowsHomeComponent', () => {
       subject.next(true);
 
       fixture.detectChanges();
-      expect(underTest.ignoreRefresh).toBeTrue();
       fixture.whenStable().then(() => {
         expect(storeSpy).toHaveBeenCalled();
         expect(storeSpy).toHaveBeenCalledWith(new DeleteWorkflow(id));
@@ -316,7 +320,6 @@ describe('WorkflowsHomeComponent', () => {
       subject.next(false);
 
       fixture.detectChanges();
-      expect(underTest.ignoreRefresh).toBeTrue();
       fixture.whenStable().then(() => {
         expect(storeSpy).toHaveBeenCalledTimes(0);
       });
@@ -337,7 +340,6 @@ describe('WorkflowsHomeComponent', () => {
       subject.next(true);
 
       fixture.detectChanges();
-      expect(underTest.ignoreRefresh).toBeTrue();
       fixture.whenStable().then(() => {
         expect(storeSpy).toHaveBeenCalled();
         expect(storeSpy).toHaveBeenCalledWith(
@@ -364,7 +366,6 @@ describe('WorkflowsHomeComponent', () => {
       subject.next(false);
 
       fixture.detectChanges();
-      expect(underTest.ignoreRefresh).toBeFalse();
       fixture.whenStable().then(() => {
         expect(storeSpy).toHaveBeenCalledTimes(0);
       });
@@ -448,31 +449,31 @@ describe('WorkflowsHomeComponent', () => {
 
   describe('onClarityDgRefresh', () => {
     it(
-      'should dispatch SetWorkflowsSort when ignoreRefresh is false',
+      'should dispatch SearchWorkflows when ignoreRefresh is false',
       waitForAsync(() => {
         underTest.ignoreRefresh = false;
+        underTest.loading = true;
+        underTest.filters = [];
 
         const subject = new Subject<boolean>();
         const storeSpy = spyOn(store, 'dispatch');
-        const state: ClrDatagridStateInterface = {};
 
-        underTest.onClarityDgRefresh(state);
+        underTest.refresh();
         subject.next(true);
 
         fixture.detectChanges();
-        expect(underTest.ignoreRefresh).toBeFalse();
-        expect(underTest.sort).toBeUndefined();
-        expect(underTest.filters).toBeUndefined();
 
         fixture.whenStable().then(() => {
           expect(storeSpy).toHaveBeenCalled();
-          expect(storeSpy).toHaveBeenCalledWith(new SetWorkflowsSort(underTest.sort));
+          expect(storeSpy).toHaveBeenCalledWith(
+            new SearchWorkflows({ from: 0, size: 0, sort: undefined, containsFilterAttributes: [], booleanFilterAttributes: [] }),
+          );
         });
       }),
     );
 
     it(
-      'onClarityDgRefresh() should not dispatch SetWorkflowsSort and SetWorkflowsFilters when ignoreRefresh is true',
+      'onClarityDgRefresh() should not dispatch SearchWorkflows when ignoreRefresh is true',
       waitForAsync(() => {
         underTest.ignoreRefresh = true;
 

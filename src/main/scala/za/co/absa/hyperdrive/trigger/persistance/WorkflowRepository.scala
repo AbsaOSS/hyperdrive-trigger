@@ -18,9 +18,11 @@ package za.co.absa.hyperdrive.trigger.persistance
 import java.time.LocalDateTime
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype
+import za.co.absa.hyperdrive.trigger.models.dagRuns.DagRun
 import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses
 import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses.SchedulerInstanceStatus
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, GenericDatabaseError}
+import za.co.absa.hyperdrive.trigger.models.search.{TableSearchRequest, TableSearchResponse}
 import za.co.absa.hyperdrive.trigger.models.{ProjectInfo, _}
 
 import javax.inject.Inject
@@ -38,12 +40,14 @@ trait WorkflowRepository extends Repository {
   def getWorkflow(id: Long)(implicit ec: ExecutionContext): Future[WorkflowJoined]
   def getWorkflows(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[WorkflowJoined]]
   def getWorkflows()(implicit ec: ExecutionContext): Future[Seq[Workflow]]
+  def searchWorkflows(searchRequest: TableSearchRequest)(implicit ec: ExecutionContext): Future[TableSearchResponse[Workflow]]
   def getWorkflowsByProjectName(projectName: String)(implicit ec: ExecutionContext): Future[Seq[Workflow]]
   def deleteWorkflow(id: Long, user: String)(implicit ec: ExecutionContext): Future[Unit]
   def updateWorkflow(workflow: WorkflowJoined, user: String)(implicit ec: ExecutionContext): Future[Unit]
   def switchWorkflowActiveState(id: Long, user: String)(implicit ec: ExecutionContext): Future[Unit]
   def updateWorkflowsIsActive(ids: Seq[Long], isActiveNewValue: Boolean, user: String)(implicit ec: ExecutionContext): Future[Unit]
-  def getProjects()(implicit ec: ExecutionContext): Future[Seq[String]]
+  def getProjects()(implicit ec: ExecutionContext): Future[Seq[Project]]
+  def getProjectNames()(implicit ec: ExecutionContext): Future[Seq[String]]
   def getProjectsInfo()(implicit ec: ExecutionContext): Future[Seq[ProjectInfo]]
   def existsProject(project: String)(implicit ec: ExecutionContext): Future[Boolean]
   def releaseWorkflowAssignmentsOfDeactivatedInstances()(implicit ec: ExecutionContext): Future[(Int, Int)]
@@ -147,7 +151,7 @@ class WorkflowRepositoryImpl @Inject()(
             sensor = s,
             dagDefinitionJoined = DagDefinitionJoined(
               workflowId = dd.workflowId,
-              jobDefinitions = wsddjd.map(_._4),
+              jobDefinitions = wsddjd.map(_._4).sortBy(_.order),
               id = dd.id
             ),
             id = w.id
@@ -171,8 +175,12 @@ class WorkflowRepositoryImpl @Inject()(
   }
 
   override def getWorkflows()(implicit ec: ExecutionContext): Future[Seq[Workflow]] = db.run(
-    workflowTable.sortBy(_.name).result
+    workflowTable.sortBy(workflow => (workflow.project, workflow.name)).result
   )
+
+  override def searchWorkflows(searchRequest: TableSearchRequest)(implicit ec: ExecutionContext): Future[TableSearchResponse[Workflow]] = {
+    db.run(workflowTable.search(searchRequest))
+  }
 
   override def getWorkflowsByProjectName(projectName: String)(implicit ec: ExecutionContext): Future[Seq[Workflow]] = db.run(
     workflowTable.filter(_.project === projectName).sortBy(_.name).result
@@ -275,7 +283,18 @@ class WorkflowRepositoryImpl @Inject()(
     )
   }
 
-  override def getProjects()(implicit ec: ExecutionContext): Future[Seq[String]] = db.run(
+  override def getProjects()(implicit ec: ExecutionContext): Future[Seq[Project]] = {
+    db.run(
+      workflowTable.map(workflow => (workflow.project, workflow.name, workflow.id)).result
+    ).map(_.groupBy(_._1).map { case (project, workflows) =>
+      val workflowIdentities = workflows.map { case (_, name, id) =>
+        WorkflowIdentity(id, name)
+      }
+      Project(project, workflowIdentities)
+    }.toSeq)
+  }
+
+  override def getProjectNames()(implicit ec: ExecutionContext): Future[Seq[String]] = db.run(
     workflowTable.map(_.project).distinct.sortBy(_.value).result
   )
 

@@ -13,11 +13,8 @@
  * limitations under the License.
  */
 
-import { Component, Input, OnInit } from '@angular/core';
-import { Subject } from 'rxjs';
-import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
+import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { ControlContainer, NgForm } from '@angular/forms';
-import { PartValidation, PartValidationFactory } from '../../../../../models/workflowFormParts.model';
 import { UuidUtil } from '../../../../../utils/uuid/uuid.util';
 import { texts } from 'src/app/constants/texts.constants';
 
@@ -29,35 +26,29 @@ import { texts } from 'src/app/constants/texts.constants';
 })
 export class StringPartComponent implements OnInit {
   uiid = UuidUtil.createUUID();
-  texts = texts;
   @Input() isShow: boolean;
   @Input() name: string;
   @Input() value: string;
-  @Input() property: string;
-  @Input() valueChanges: Subject<WorkflowEntryModel>;
-  @Input() partValidation: PartValidation;
+  @Output() valueChange = new EventEmitter();
+  @Input() isRequired = false;
+  @Input() minLength = 1;
+  @Input() maxLength: number = Number.MAX_SAFE_INTEGER;
   @Input() helperText: string;
-  partValidationSafe: PartValidation;
 
   maxFieldSize = 100;
+  texts = texts;
 
   constructor() {
     // do nothing
   }
 
-  ngOnInit(): void {
-    if (!this.value) {
-      this.modelChanged('');
-    }
-    this.partValidationSafe = PartValidationFactory.create(
-      this.partValidation?.isRequired ?? true,
-      this.partValidation?.maxLength ?? Number.MAX_SAFE_INTEGER,
-      this.partValidation?.minLength ?? 1,
-    );
+  modelChanged(value: string) {
+    this.valueChange.emit(value.trim());
   }
 
-  modelChanged(value: string) {
-    this.value = value.trim();
-    this.valueChanges.next(WorkflowEntryModelFactory.create(this.property, this.value));
+  ngOnInit(): void {
+    if (!this.value && this.isRequired) {
+      this.modelChanged('');
+    }
   }
 }

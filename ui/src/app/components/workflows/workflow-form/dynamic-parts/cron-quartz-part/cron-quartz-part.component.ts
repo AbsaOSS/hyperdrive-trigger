@@ -13,9 +13,8 @@
  * limitations under the License.
  */
 
-import { Component, Input, OnInit } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
-import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Observable } from 'rxjs';
 import {
   DayValues,
   Frequencies,
@@ -29,6 +28,7 @@ import { ToastrService } from 'ngx-toastr';
 import { texts } from '../../../../../constants/texts.constants';
 import { ControlContainer, NgForm } from '@angular/forms';
 import { UuidUtil } from '../../../../../utils/uuid/uuid.util';
+import { defaultCronExpression } from '../../../../../constants/cronExpression.constants';
 
 @Component({
   selector: 'app-cron-quartz-part',
@@ -40,11 +40,10 @@ export class CronQuartzPartComponent implements OnInit {
   @Input() isShow: boolean;
   @Input() name: string;
   @Input() value: string;
-  @Input() property: string;
-  @Input() valueChanges: Subject<WorkflowEntryModel>;
+  @Output() valueChange: EventEmitter<string> = new EventEmitter();
 
   uiid = UuidUtil.createUUID();
-  defaultCronExpression = '0 0/25 * ? * * *';
+  defaultCronExpression = defaultCronExpression;
   everyDayUserFriendly: UserFriendlyConstruction = { prefix: ['0', '0'], suffix: ['?', '*', '*', '*'], position: 2 };
   everyHourUserFriendly: UserFriendlyConstruction = { prefix: ['0'], suffix: ['*', '?', '*', '*', '*'], position: 1 };
   everyHourEveryUserFriendly: UserFriendlyConstruction = { prefix: ['0'], suffix: ['*', '?', '*', '*', '*'], position: 1 };
@@ -191,9 +190,9 @@ export class CronQuartzPartComponent implements OnInit {
     }
   }
 
-  modelChanged(value: string): void {
+  modelChanged(value: string) {
     this.value = value.trim();
-    this.valueChanges.next(WorkflowEntryModelFactory.create(this.property, this.value));
+    this.valueChange.emit(this.value);
   }
 }
 

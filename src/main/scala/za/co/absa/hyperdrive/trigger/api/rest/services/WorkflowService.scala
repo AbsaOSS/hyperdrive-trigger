@@ -15,14 +15,13 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
-import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
-import za.co.absa.hyperdrive.trigger.models.{Project, ProjectInfo, Workflow, WorkflowImportExportWrapper, WorkflowJoined}
+import za.co.absa.hyperdrive.trigger.models.{JobDefinition, Project, ProjectInfo, Workflow, WorkflowImportExportWrapper, WorkflowJoined}
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, BulkOperationError, GenericError}
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, WorkflowRepository}
 import org.slf4j.LoggerFactory
 import za.co.absa.hyperdrive.trigger.configuration.application.GeneralConfig
+import za.co.absa.hyperdrive.trigger.models.search.{TableSearchRequest, TableSearchResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -38,6 +37,8 @@ trait WorkflowService {
   def getWorkflow(id: Long)(implicit ec: ExecutionContext): Future[WorkflowJoined]
 
   def getWorkflows()(implicit ec: ExecutionContext): Future[Seq[Workflow]]
+
+  def searchWorkflows(searchRequest: TableSearchRequest)(implicit ec: ExecutionContext): Future[TableSearchResponse[Workflow]]
 
   def getWorkflowsByProjectName(projectName: String)(implicit ec: ExecutionContext): Future[Seq[Workflow]]
 
@@ -61,7 +62,7 @@ trait WorkflowService {
 
   def exportWorkflows(workflowIds: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[WorkflowImportExportWrapper]]
 
-  def importWorkflows(workflowImports: Seq[WorkflowImportExportWrapper])(implicit ec: ExecutionContext): Future[Seq[Project]]
+  def importWorkflows(workflowImports: Seq[WorkflowImportExportWrapper])(implicit ec: ExecutionContext): Future[Seq[WorkflowJoined]]
 
   def convertToWorkflowJoined(workflowImport: WorkflowImportExportWrapper)(implicit ec: ExecutionContext): Future[WorkflowJoined]
 }
@@ -72,7 +73,7 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
                           override val dagInstanceService: DagInstanceService,
                           override val jobTemplateService: JobTemplateService,
                           override val workflowValidationService: WorkflowValidationService,
-                          generalConfig: GeneralConfig) extends WorkflowService {
+                          generalConfig: GeneralConfig) extends WorkflowService with UserDetailsService {
 
   private val serviceLogger = LoggerFactory.getLogger(this.getClass)
 
@@ -93,6 +94,10 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
 
   def getWorkflows()(implicit ec: ExecutionContext): Future[Seq[Workflow]] = {
     workflowRepository.getWorkflows()
+  }
+
+  def searchWorkflows(searchRequest: TableSearchRequest)(implicit ec: ExecutionContext): Future[TableSearchResponse[Workflow]] = {
+    workflowRepository.searchWorkflows(searchRequest)
   }
 
   def getWorkflowsByProjectName(projectName: String)(implicit ec: ExecutionContext): Future[Seq[Workflow]] = {
@@ -146,15 +151,11 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
   }
 
   override def getProjectNames()(implicit ec: ExecutionContext): Future[Set[String]] = {
-    workflowRepository.getProjects().map(_.toSet)
+    workflowRepository.getProjectNames().map(_.toSet)
   }
 
   override def getProjects()(implicit ec: ExecutionContext): Future[Seq[Project]] = {
-    workflowRepository.getWorkflows().map { workflows =>
-      workflows.groupBy(_.project).map {
-        case (projectName, workflows) => Project(projectName, workflows)
-      }.toSeq
-    }
+    workflowRepository.getProjects()
   }
 
   override def getProjectsInfo()(implicit ec: ExecutionContext): Future[Seq[ProjectInfo]] = {
@@ -213,27 +214,27 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
   override def exportWorkflows(workflowIds: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[WorkflowImportExportWrapper]] = {
     for {
       workflows <- workflowRepository.getWorkflows(workflowIds)
-      allJobTemplateIds = workflows.flatMap(_.dagDefinitionJoined.jobDefinitions.map(_.jobTemplateId)).distinct
+      allJobTemplateIds = workflows.flatMap(_.dagDefinitionJoined.jobDefinitions.flatMap(_.jobTemplateId)).distinct
       allJobTemplates <- jobTemplateService.getJobTemplatesByIds(allJobTemplateIds)
     } yield {
       workflows.map(workflow => {
-        val jobTemplateIds = workflow.dagDefinitionJoined.jobDefinitions.map(_.jobTemplateId).distinct
+        val jobTemplateIds = workflow.dagDefinitionJoined.jobDefinitions.flatMap(_.jobTemplateId).distinct
         val jobTemplates = allJobTemplates.filter(jobTemplate => jobTemplateIds.contains(jobTemplate.id))
         WorkflowImportExportWrapper(workflow, jobTemplates)
       })
     }
   }
 
-  override def importWorkflows(workflowImports: Seq[WorkflowImportExportWrapper])(implicit ec: ExecutionContext): Future[Seq[Project]] = {
+  override def importWorkflows(workflowImports: Seq[WorkflowImportExportWrapper])(implicit ec: ExecutionContext): Future[Seq[WorkflowJoined]] = {
     val userName = getUserName.apply()
     for {
       workflowJoineds <- convertToWorkflowJoineds(workflowImports)
       deactivatedWorkflows = workflowJoineds.map(workflowJoined => workflowJoined.copy(isActive = false))
       _ <- workflowValidationService.validateOnInsert(deactivatedWorkflows)
-      _ <- workflowRepository.insertWorkflows(deactivatedWorkflows, userName)
-      projects <- getProjects()
+      workflowIds <- workflowRepository.insertWorkflows(deactivatedWorkflows, userName)
+      workflows <- workflowRepository.getWorkflows(workflowIds)
     } yield {
-      projects
+      workflows
     }
   }
 
@@ -282,8 +283,12 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
             val workflowWithResolvedJobTemplateIds = workflowImport.workflowJoined
               .copy(dagDefinitionJoined = workflowImport.workflowJoined.dagDefinitionJoined
                 .copy(jobDefinitions = workflowImport.workflowJoined.dagDefinitionJoined.jobDefinitions
-                  .map(jobDefinition => jobDefinition.copy(jobTemplateId = getNewId(jobDefinition.jobTemplateId)))))
-
+                  .map {
+                    case jobDefinition @ JobDefinition(_, Some(jobTemplateId), _, _, _, _) =>
+                      jobDefinition.copy(jobTemplateId = Some(getNewId(jobTemplateId)))
+                    case jobDefinition @ JobDefinition(_, None, _, _, _, _) =>
+                      jobDefinition
+                  }))
             Right(workflowWithResolvedJobTemplateIds)
           }
         }
@@ -303,9 +308,5 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
 
   private def resetSchedulerInstanceId(workflowJoineds: Seq[WorkflowJoined]): Seq[WorkflowJoined] = {
     workflowJoineds.map(_.copy(schedulerInstanceId = None))
-  }
-
-  private[services] def getUserName: () => String = {
-    SecurityContextHolder.getContext.getAuthentication.getPrincipal.asInstanceOf[UserDetails].getUsername.toLowerCase
   }
 }

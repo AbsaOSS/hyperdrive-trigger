@@ -42,45 +42,45 @@ class DagInstanceRepositoryTest extends FlatSpec with Matchers with BeforeAndAft
   }
 
   "dagInstanceRepository.getDagsToRun" should "return zero dag instances when db is empty" in {
-    val runningIds = Seq.empty[Long]
+    val runningWorkflowIds = Seq.empty[Long]
     val size = 10
-    val result = await(dagInstanceRepository.getDagsToRun(runningIds, size, Seq()))
+    val result = await(dagInstanceRepository.getDagsToRun(runningWorkflowIds, size, Seq()))
     result.isEmpty shouldBe true
   }
 
   "dagInstanceRepository.getDagsToRun" should "return one running dag for each workflow" in {
     createTestData()
-    val runningIds = Seq.empty[Long]
+    val runningWorkflowIds = Seq.empty[Long]
     val allWorkflowIds = TestData.workflows.map(_.id)
     val size = 10
-    val result = await(dagInstanceRepository.getDagsToRun(runningIds, size, allWorkflowIds))
+    val result = await(dagInstanceRepository.getDagsToRun(runningWorkflowIds, size, allWorkflowIds))
     result.size shouldBe 2
   }
 
   "dagInstanceRepository.getDagsToRun" should "filter out all dags" in {
     createTestData()
-    val runningIds = TestData.dagInstances.map(_.id)
+    val runningWorkflowIds = TestData.dagInstances.map(_.workflowId)
     val allWorkflowIds = TestData.workflows.map(_.id)
     val size = 10
-    val result = await(dagInstanceRepository.getDagsToRun(runningIds, size, allWorkflowIds))
+    val result = await(dagInstanceRepository.getDagsToRun(runningWorkflowIds, size, allWorkflowIds))
     result.size shouldBe 0
   }
 
   "dagInstanceRepository.getDagsToRun" should "filter out running dags" in {
     createTestData()
-    val runningIds = TestData.runningDagInstances.map(_.id)
+    val runningWorkflowIds = TestData.runningDagInstances.map(_.workflowId)
     val allWorkflowIds = TestData.workflows.map(_.id)
     val size = 10
-    val result = await(dagInstanceRepository.getDagsToRun(runningIds, size, allWorkflowIds))
+    val result = await(dagInstanceRepository.getDagsToRun(runningWorkflowIds, size, allWorkflowIds))
     result.foreach(_.status shouldBe DagInstanceStatuses.InQueue)
   }
 
   "dagInstanceRepository.getDagsToRun" should "return one running dag for each workflow with limited size" in {
     createTestData()
-    val runningIds = Seq.empty[Long]
+    val runningWorkflowIds = Seq.empty[Long]
     val allWorkflowIds = TestData.workflows.map(_.id)
     val size = 1
-    val result = await(dagInstanceRepository.getDagsToRun(runningIds, size, allWorkflowIds))
+    val result = await(dagInstanceRepository.getDagsToRun(runningWorkflowIds, size, allWorkflowIds))
     result.size shouldBe 1
   }
 
@@ -93,11 +93,11 @@ class DagInstanceRepositoryTest extends FlatSpec with Matchers with BeforeAndAft
     run(workflowTable.forceInsertAll(workflows))
     run(dagInstanceTable.forceInsertAll(dagInstances))
 
-    val runningIds = Seq.empty[Long]
+    val runningWorkflowIds = Seq.empty[Long]
     val assignedWorkflowIds = workflowIds.take(10)
     val size = 1000
 
-    val result = await(dagInstanceRepository.getDagsToRun(runningIds, size, assignedWorkflowIds))
+    val result = await(dagInstanceRepository.getDagsToRun(runningWorkflowIds, size, assignedWorkflowIds))
     result.size shouldBe 10
     result.map(_.workflowId) should contain theSameElementsAs assignedWorkflowIds
   }
@@ -126,4 +126,9 @@ class DagInstanceRepositoryTest extends FlatSpec with Matchers with BeforeAndAft
     result shouldBe false
   }
 
+  "dagInstanceRepository.countDagInstancesFrom" should "count dag instances from a certain datetime" in {
+    createTestData()
+    val result = await(dagInstanceRepository.countDagInstancesFrom(TestData.w1.id, LocalDateTime.now().minusMinutes(30L)))
+    result shouldBe 2
+  }
 }

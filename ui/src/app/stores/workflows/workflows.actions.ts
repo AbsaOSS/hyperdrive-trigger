@@ -16,15 +16,11 @@
 import { Action } from '@ngrx/store';
 import { ProjectModel } from '../../models/project.model';
 import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
-import { WorkflowFormPartsModel } from '../../models/workflowFormParts.model';
-import { WorkflowEntryModel } from '../../models/workflowEntry.model';
-import { JobEntryModel } from '../../models/jobEntry.model';
 import { WorkflowModel } from '../../models/workflow.model';
-import { SortAttributesModel } from '../../models/search/sortAttributes.model';
-import { HistoryModel } from '../../models/historyModel';
-import { WorkflowFormDataModel } from '../../models/workflowFormData.model';
+import { HistoryModel, WorkflowHistoryModel } from '../../models/historyModel';
 import { JobForRunModel } from '../../models/jobForRun.model';
 import { JobTemplateModel } from '../../models/jobTemplate.model';
+import { TableSearchRequestModel } from '../../models/search/tableSearchRequest.model';
 
 export const INITIALIZE_WORKFLOWS = 'INITIALIZE_WORKFLOWS';
 export const INITIALIZE_WORKFLOWS_SUCCESS = 'INITIALIZE_WORKFLOWS_SUCCESS';
@@ -36,16 +32,8 @@ export const LOAD_WORKFLOW_SUCCESS = 'LOAD_WORKFLOW_SUCCESS';
 export const LOAD_WORKFLOW_FAILURE_INCORRECT_ID = 'LOAD_WORKFLOW_FAILURE_INCORRECT_ID';
 export const LOAD_WORKFLOW_FAILURE = 'LOAD_WORKFLOW_FAILURE';
 
+export const WORKFLOW_CHANGED = 'WORKFLOW_CHANGED';
 export const WORKFLOW_ACTION_CHANGED = 'WORKFLOW_ACTION_CHANGED';
-export const WORKFLOW_DETAILS_CHANGED = 'WORKFLOW_DETAILS_CHANGED';
-export const WORKFLOW_SENSOR_CHANGED = 'WORKFLOW_SENSOR_CHANGED';
-export const WORKFLOW_SENSOR_TYPE_SWITCHED = 'WORKFLOW_SENSOR_TYPE_SWITCHED';
-export const WORKFLOW_ADD_EMPTY_JOB = 'WORKFLOW_ADD_EMPTY_JOB';
-export const WORKFLOW_REMOVE_JOB = 'WORKFLOW_REMOVE_JOB';
-export const WORKFLOW_COPY_JOB = 'WORKFLOW_COPY_JOB';
-export const WORKFLOW_JOB_CHANGED = 'WORKFLOW_JOB_CHANGED';
-export const WORKFLOW_JOB_TYPE_SWITCHED = 'WORKFLOW_JOB_TYPE_SWITCHED';
-export const WORKFLOW_JOBS_REORDER = 'WORKFLOW_JOBS_REORDER';
 
 export const DELETE_WORKFLOW = 'DELETE_WORKFLOW';
 export const DELETE_WORKFLOW_SUCCESS = 'DELETE_WORKFLOW_SUCCESS';
@@ -69,8 +57,9 @@ export const UPDATE_WORKFLOW_FAILURE = 'UPDATE_WORKFLOW_FAILURE';
 
 export const REMOVE_BACKEND_VALIDATION_ERROR = 'REMOVE_BACKEND_VALIDATION_ERROR';
 
-export const SET_WORKFLOWS_SORT = 'SET_WORKFLOWS_SORT';
-export const SET_WORKFLOWS_FILTERS = 'SET_WORKFLOWS_FILTERS';
+export const SEARCH_WORKFLOWS = 'SEARCH_WORKFLOWS';
+export const SEARCH_WORKFLOWS_SUCCESS = 'SEARCH_WORKFLOWS_SUCCESS';
+export const SEARCH_WORKFLOWS_FAILURE = 'SEARCH_WORKFLOWS_FAILURE';
 
 export const LOAD_JOBS_FOR_RUN = 'LOAD_JOBS_FOR_RUN';
 export const LOAD_JOBS_FOR_RUN_SUCCESS = 'LOAD_JOBS_FOR_RUN_SUCCESS';
@@ -99,13 +88,22 @@ export const IMPORT_WORKFLOWS = 'IMPORT_WORKFLOWS';
 export const IMPORT_WORKFLOWS_SUCCESS = 'IMPORT_WORKFLOWS_SUCCESS';
 export const IMPORT_WORKFLOWS_FAILURE = 'IMPORT_WORKFLOWS_FAILURE';
 
+export const REVERT_WORKFLOW = 'REVERT_WORKFLOW';
+export const REVERT_WORKFLOW_SUCCESS = 'REVERT_WORKFLOW_SUCCESS';
+export const REVERT_WORKFLOW_FAILURE = 'REVERT_WORKFLOW_FAILURE';
+
 export class InitializeWorkflows implements Action {
   readonly type = INITIALIZE_WORKFLOWS;
 }
 
 export class InitializeWorkflowsSuccess implements Action {
   readonly type = INITIALIZE_WORKFLOWS_SUCCESS;
-  constructor(public payload: { projects: ProjectModel[]; workflowFormParts: WorkflowFormPartsModel; jobTemplates: JobTemplateModel[] }) {}
+  constructor(
+    public payload: {
+      projects: ProjectModel[];
+      jobTemplates: JobTemplateModel[];
+    },
+  ) {}
 }
 
 export class InitializeWorkflowsFailure implements Action {
@@ -119,18 +117,12 @@ export class StartWorkflowInitialization implements Action {
 
 export class SetEmptyWorkflow implements Action {
   readonly type = SET_EMPTY_WORKFLOW;
+  constructor(public payload: WorkflowJoinedModel) {}
 }
 
 export class LoadWorkflowSuccess implements Action {
   readonly type = LOAD_WORKFLOW_SUCCESS;
-  constructor(
-    public payload: {
-      workflow: WorkflowJoinedModel;
-      detailsData: WorkflowEntryModel[];
-      sensorData: WorkflowEntryModel[];
-      jobsData: JobEntryModel[];
-    },
-  ) {}
+  constructor(public payload: WorkflowJoinedModel) {}
 }
 
 export class LoadWorkflowFailure implements Action {
@@ -141,54 +133,14 @@ export class LoadWorkflowFailureIncorrectId implements Action {
   readonly type = LOAD_WORKFLOW_FAILURE_INCORRECT_ID;
 }
 
-export class WorkflowActionChanged implements Action {
-  readonly type = WORKFLOW_ACTION_CHANGED;
+export class WorkflowChanged implements Action {
+  readonly type = WORKFLOW_CHANGED;
   constructor(public payload: WorkflowJoinedModel) {}
 }
 
-export class WorkflowDetailsChanged implements Action {
-  readonly type = WORKFLOW_DETAILS_CHANGED;
-  constructor(public payload: WorkflowEntryModel) {}
-}
-
-export class WorkflowSensorChanged implements Action {
-  readonly type = WORKFLOW_SENSOR_CHANGED;
-  constructor(public payload: WorkflowEntryModel) {}
-}
-
-export class WorkflowSensorTypeSwitched implements Action {
-  readonly type = WORKFLOW_SENSOR_TYPE_SWITCHED;
-  constructor(public payload: WorkflowEntryModel) {}
-}
-
-export class WorkflowAddEmptyJob implements Action {
-  readonly type = WORKFLOW_ADD_EMPTY_JOB;
-  constructor(public payload: number) {}
-}
-
-export class WorkflowRemoveJob implements Action {
-  readonly type = WORKFLOW_REMOVE_JOB;
-  constructor(public payload: string) {}
-}
-
-export class WorkflowCopyJob implements Action {
-  readonly type = WORKFLOW_COPY_JOB;
-  constructor(public payload: string) {}
-}
-
-export class WorkflowJobChanged implements Action {
-  readonly type = WORKFLOW_JOB_CHANGED;
-  constructor(public payload: { jobId: string; jobEntry: WorkflowEntryModel }) {}
-}
-
-export class WorkflowJobTypeSwitched implements Action {
-  readonly type = WORKFLOW_JOB_TYPE_SWITCHED;
-  constructor(public payload: { jobId: string; jobEntry: WorkflowEntryModel }) {}
-}
-
-export class WorkflowJobsReorder implements Action {
-  readonly type = WORKFLOW_JOBS_REORDER;
-  constructor(public payload: { initialJobPosition: number; updatedJobPosition: number }) {}
+export class WorkflowActionChanged implements Action {
+  readonly type = WORKFLOW_ACTION_CHANGED;
+  constructor(public payload: WorkflowJoinedModel) {}
 }
 
 export class DeleteWorkflow implements Action {
@@ -266,14 +218,18 @@ export class RemoveBackendValidationError implements Action {
   constructor(public payload: number) {}
 }
 
-export class SetWorkflowsSort implements Action {
-  readonly type = SET_WORKFLOWS_SORT;
-  constructor(public payload: SortAttributesModel) {}
+export class SearchWorkflows implements Action {
+  readonly type = SEARCH_WORKFLOWS;
+  constructor(public payload: TableSearchRequestModel) {}
 }
 
-export class SetWorkflowsFilters implements Action {
-  readonly type = SET_WORKFLOWS_FILTERS;
-  constructor(public payload: any[]) {}
+export class SearchWorkflowsSuccess implements Action {
+  readonly type = SEARCH_WORKFLOWS_SUCCESS;
+  constructor(public payload: { workflows: WorkflowModel[]; total: number }) {}
+}
+
+export class SearchWorkflowsFailure implements Action {
+  readonly type = SEARCH_WORKFLOWS_FAILURE;
 }
 
 export class LoadJobsForRun implements Action {
@@ -327,11 +283,8 @@ export class LoadWorkflowsFromHistorySuccess implements Action {
   readonly type = LOAD_WORKFLOWS_FROM_HISTORY_SUCCESS;
   constructor(
     public payload: {
-      workflowFormParts: WorkflowFormPartsModel;
-      leftWorkflowHistoryData: WorkflowFormDataModel;
-      leftWorkflowHistory: HistoryModel;
-      rightWorkflowHistoryData: WorkflowFormDataModel;
-      rightWorkflowHistory: HistoryModel;
+      leftWorkflowHistory: WorkflowHistoryModel;
+      rightWorkflowHistory: WorkflowHistoryModel;
       jobTemplates: JobTemplateModel[];
     },
   ) {}
@@ -370,11 +323,25 @@ export class ImportWorkflows implements Action {
 
 export class ImportWorkflowsSuccess implements Action {
   readonly type = IMPORT_WORKFLOWS_SUCCESS;
-  constructor(public payload: ProjectModel[]) {}
+  constructor(public payload: WorkflowModel[]) {}
 }
 
 export class ImportWorkflowsFailure implements Action {
   readonly type = IMPORT_WORKFLOWS_FAILURE;
+}
+
+export class RevertWorkflow implements Action {
+  readonly type = REVERT_WORKFLOW;
+  constructor(public payload: number) {}
+}
+
+export class RevertWorkflowSuccess implements Action {
+  readonly type = REVERT_WORKFLOW_SUCCESS;
+  constructor(public payload: WorkflowJoinedModel) {}
+}
+
+export class RevertWorkflowFailure implements Action {
+  readonly type = REVERT_WORKFLOW_FAILURE;
 }
 
 export type WorkflowsActions =
@@ -386,16 +353,8 @@ export type WorkflowsActions =
   | LoadWorkflowSuccess
   | LoadWorkflowFailure
   | LoadWorkflowFailureIncorrectId
+  | WorkflowChanged
   | WorkflowActionChanged
-  | WorkflowDetailsChanged
-  | WorkflowSensorChanged
-  | WorkflowSensorTypeSwitched
-  | WorkflowAddEmptyJob
-  | WorkflowRemoveJob
-  | WorkflowCopyJob
-  | WorkflowJobChanged
-  | WorkflowJobTypeSwitched
-  | WorkflowJobsReorder
   | DeleteWorkflow
   | DeleteWorkflowSuccess
   | DeleteWorkflowFailure
@@ -412,8 +371,9 @@ export type WorkflowsActions =
   | UpdateWorkflowSuccess
   | UpdateWorkflowFailure
   | RemoveBackendValidationError
-  | SetWorkflowsSort
-  | SetWorkflowsFilters
+  | SearchWorkflows
+  | SearchWorkflowsSuccess
+  | SearchWorkflowsFailure
   | LoadJobsForRun
   | LoadJobsForRunSuccess
   | LoadJobsForRunFailure
@@ -433,4 +393,7 @@ export type WorkflowsActions =
   | ImportWorkflowFailure
   | ImportWorkflows
   | ImportWorkflowsSuccess
-  | ImportWorkflowsFailure;
+  | ImportWorkflowsFailure
+  | RevertWorkflow
+  | RevertWorkflowSuccess
+  | RevertWorkflowFailure;

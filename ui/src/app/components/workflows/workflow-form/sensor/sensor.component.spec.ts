@@ -16,21 +16,12 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { SensorComponent } from './sensor.component';
-import { WorkflowSensorChanged, WorkflowSensorTypeSwitched } from '../../../../stores/workflows/workflows.actions';
-import { WorkflowEntryModelFactory } from '../../../../models/workflowEntry.model';
-import { Subject } from 'rxjs';
-import { Action } from '@ngrx/store';
-import { sensorTypes } from '../../../../constants/sensorTypes.constants';
+import { SensorModelFactory } from '../../../../models/sensor.model';
+import { KafkaSensorProperties, RecurringSensorProperties } from '../../../../models/sensorProperties.model';
 
 describe('SensorComponent', () => {
   let fixture: ComponentFixture<SensorComponent>;
   let underTest: SensorComponent;
-
-  const sensorData = [
-    { property: 'propertyOne', value: 'valueOne' },
-    { property: 'propertyTwo', value: 'valueTwo' },
-    { property: 'properties.sensorType', value: 'optionTwo' },
-  ];
 
   beforeEach(
     waitForAsync(() => {
@@ -45,74 +36,32 @@ describe('SensorComponent', () => {
     underTest = fixture.componentInstance;
 
     //set test data
-    underTest.sensorData = sensorData;
-    underTest.changes = new Subject<Action>();
+    underTest.sensor = SensorModelFactory.createEmptyWithParams(KafkaSensorProperties.createEmpty());
   });
 
   it('should create', () => {
     expect(underTest).toBeTruthy();
   });
 
-  it(
-    'should dispatch workflow sensor change when value is received',
-    waitForAsync(() => {
-      const usedWorkflowEntry = WorkflowEntryModelFactory.create('property', 'value');
-      fixture.detectChanges();
-      fixture.whenStable().then(() => {
-        const storeSpy = spyOn(underTest.changes, 'next');
-        underTest.sensorChanges.next(usedWorkflowEntry);
-        fixture.detectChanges();
+  it('should emit updated sensor when sensorPropertiesChange() is called', () => {
+    const newSensorProperties = { ...underTest.sensor.properties, topic: 'newTopicName' };
+    const newSensor = { ...underTest.sensor, properties: newSensorProperties };
 
-        fixture.whenStable().then(() => {
-          expect(storeSpy).toHaveBeenCalledTimes(1);
-          expect(storeSpy).toHaveBeenCalledWith(new WorkflowSensorChanged(usedWorkflowEntry));
-        });
-      });
-    }),
-  );
+    spyOn(underTest.sensorChange, 'emit');
+    underTest.sensorPropertiesChange(newSensorProperties);
 
-  it(
-    'should dispatch workflow sensor type switch when value for switch is received',
-    waitForAsync(() => {
-      const usedWorkflowEntry = WorkflowEntryModelFactory.create(underTest.SENSOR_TYPE_PROPERTY, 'value');
+    expect(underTest.sensorChange.emit).toHaveBeenCalled();
+    expect(underTest.sensorChange.emit).toHaveBeenCalledWith(newSensor);
+  });
 
-      fixture.detectChanges();
-      fixture.whenStable().then(() => {
-        const storeSpy = spyOn(underTest.changes, 'next');
-        underTest.sensorChanges.next(usedWorkflowEntry);
-        fixture.detectChanges();
+  it('should emit updated sensor with empty parameters when sensorTypeChange() is called', () => {
+    const newSensorProperties = RecurringSensorProperties.createEmpty();
+    const newSensor = { ...underTest.sensor, properties: newSensorProperties };
 
-        fixture.whenStable().then(() => {
-          expect(storeSpy).toHaveBeenCalledTimes(1);
-          expect(storeSpy).toHaveBeenCalledWith(new WorkflowSensorTypeSwitched(usedWorkflowEntry));
-        });
-      });
-    }),
-  );
+    spyOn(underTest.sensorChange, 'emit');
+    underTest.sensorTypeChange(newSensorProperties.sensorType);
 
-  it(
-    'getSelectedSensorType() should return absa-kafka sensor type when no sensor is selected',
-    waitForAsync(() => {
-      underTest.sensorData = [];
-      fixture.detectChanges();
-      fixture.whenStable().then(() => {
-        const resultLeft = underTest.getSelectedSensorType();
-
-        expect(resultLeft).toEqual(sensorTypes.ABSA_KAFKA);
-      });
-    }),
-  );
-
-  it(
-    'getSelectedSensorType() should return sensor type when sensor is selected',
-    waitForAsync(() => {
-      fixture.detectChanges();
-      fixture.whenStable().then(() => {
-        const resultLeft = underTest.getSelectedSensorType();
-        const resultRight = sensorData[2].value;
-
-        expect(resultLeft).toEqual(resultRight);
-      });
-    }),
-  );
+    expect(underTest.sensorChange.emit).toHaveBeenCalled();
+    expect(underTest.sensorChange.emit).toHaveBeenCalledWith(newSensor);
+  });
 });

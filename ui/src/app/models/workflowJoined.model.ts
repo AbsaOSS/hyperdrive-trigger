@@ -13,8 +13,11 @@
  * limitations under the License.
  */
 
-import { SensorModel } from './sensor.model';
-import { DagDefinitionJoinedModel } from './dagDefinitionJoined.model';
+import { SensorModel, SensorModelFactory } from './sensor.model';
+import { DagDefinitionJoinedModel, DagDefinitionJoinedModelFactory } from './dagDefinitionJoined.model';
+import { TimeSensorProperties } from './sensorProperties.model';
+import { JobDefinitionModelFactory } from './jobDefinition.model';
+import { HyperdriveDefinitionParametersModel } from './jobDefinitionParameters.model';
 
 export type WorkflowJoinedModel = {
   name: string;
@@ -47,6 +50,23 @@ export class WorkflowJoinedModelFactory {
       dagDefinitionJoined: dagDefinitionJoined,
       id: id,
       updated: updated,
+    };
+  }
+
+  static createEmpty(): WorkflowJoinedModel {
+    return {
+      name: '',
+      isActive: false,
+      project: '',
+      created: undefined,
+      sensor: SensorModelFactory.createEmptyWithParams(TimeSensorProperties.createEmpty()),
+      dagDefinitionJoined: DagDefinitionJoinedModelFactory.create(
+        undefined,
+        [JobDefinitionModelFactory.create(undefined, '', undefined, HyperdriveDefinitionParametersModel.createEmpty(), 0, undefined)],
+        undefined,
+      ),
+      id: 0,
+      updated: undefined,
     };
   }
 }

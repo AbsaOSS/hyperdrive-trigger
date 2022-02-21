@@ -15,6 +15,8 @@
 
 package za.co.absa.hyperdrive.trigger.models
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+
 import java.time.LocalDateTime
 
 case class Workflow(
@@ -37,7 +39,7 @@ case class WorkflowJoined(
   project: String,
   created: LocalDateTime = LocalDateTime.now(),
   updated: Option[LocalDateTime],
-  schedulerInstanceId: Option[Long] = None,
+  @JsonDeserialize(contentAs = classOf[java.lang.Long]) schedulerInstanceId: Option[Long] = None,
   sensor: Sensor[SensorProperties],
   dagDefinitionJoined: DagDefinitionJoined,
   id: Long = 0

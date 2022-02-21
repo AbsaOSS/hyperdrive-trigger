@@ -28,6 +28,7 @@ import {
   GetNotificationRule,
   LoadHistoryForNotificationRule,
   LoadNotificationRulesFromHistory,
+  RevertNotificationRule,
   SearchNotificationRules,
   UpdateNotificationRule,
 } from './notification-rules.actions';
@@ -484,6 +485,49 @@ describe('NotificationRulesEffects', () => {
       expect(underTest.notificationRulesFromHistoryLoad).toBeObservable(expected);
       expect(toastrServiceSpyError).toHaveBeenCalledTimes(1);
       expect(toastrServiceSpyError).toHaveBeenCalledWith(texts.LOAD_NOTIFICATION_RULES_FROM_HISTORY_FAILURE_NOTIFICATION);
+    });
+  });
+
+  describe('notificationRuleRevert', () => {
+    it('should load notification rule from history', () => {
+      const payload = 1;
+      const notificationRule = dummyNotificationRule;
+
+      const response = dummyNotificationRule;
+
+      const action = new RevertNotificationRule(payload);
+      mockActions = cold('-a', { a: action });
+      const getHistoryNotificationRuleResponse = cold('-a|', { a: response });
+      const expected = cold('--a', {
+        a: {
+          type: NotificationRulesActions.REVERT_NOTIFICATION_RULE_SUCCESS,
+          payload: response,
+        },
+      });
+
+      notificationRuleHistoryServiceSpy.getNotificationRuleFromHistory.and.returnValue(getHistoryNotificationRuleResponse);
+
+      expect(underTest.notificationRuleRevert).toBeObservable(expected);
+    });
+
+    it('should display failure when service fails to load notification rule from history', () => {
+      const toastrServiceSpyError = toastrServiceSpy.error;
+      const payload = 1;
+
+      const action = new RevertNotificationRule(payload);
+      mockActions = cold('-a', { a: action });
+
+      const getHistoryNotificationRuleResponse = cold('-#|');
+      notificationRuleHistoryServiceSpy.getNotificationRuleFromHistory.and.returnValue(getHistoryNotificationRuleResponse);
+
+      const expected = cold('--a', {
+        a: {
+          type: NotificationRulesActions.REVERT_NOTIFICATION_RULE_FAILURE,
+        },
+      });
+      expect(underTest.notificationRuleRevert).toBeObservable(expected);
+      expect(toastrServiceSpyError).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpyError).toHaveBeenCalledWith(texts.LOAD_NOTIFICATION_RULE_FAILURE_NOTIFICATION);
     });
   });
 });

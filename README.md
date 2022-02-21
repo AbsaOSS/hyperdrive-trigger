@@ -181,40 +181,24 @@ http://localhost:4200/#
  
 ## Docker image
 
-For development purposes, hyperdrive-trigger can be executed as a docker image.
-The provided docker composition consists of one container for the hyperdrive-trigger application and a container for the Postgres database. 
-Additionally, there will be a persistent volume for the database.
-It is currently not possible to start spark-jobs using this docker composition.
-
-To create the docker image, build the application and create the image using the following command. Please replace `<current_version>` accordingly.
+From the project root directory, run the Docker build command
 ```
-mvn clean package
-docker build --build-arg WAR_FILE=target/hyperdrive-trigger-<current_version>.war -t absaoss/hyperdrive-trigger .
+docker build -t {your-image-name:your-tag} .
 ```
 
-To start the application, type
+### Building Docker with Maven
+The Docker image can also be built using Maven, with the [https://github.com/spotify/dockerfile-maven](Spotify Dockerfile Maven plugin).
+
+From the project root directory, run the Maven install command with the docker profile enabled (see below):
 ```
-docker-compose up
+mvn clean install \
+  -D skipTests \                  # Skip unit and integration tests
+  -D docker \                     # Activate "docker" profile
+  -D dockerfile.repositoryUrl=my  # The name prefix of the final Docker image(s)
 ```
 
-Access the application at 
-```
-http://localhost:8082/hyperdrive_trigger
-```
-
-To stop the application, type
-```
-docker-compose down
-```
-
-This will stop the containers, but the database data will not be removed.
-
-To remove database data, type
-```
-docker container prune
-docker volume prune
-```
-This removes stopped containers and volumes that are not referenced by any containers.
+This will create a docker image with the name `my/hyperdrive-trigger`, tagged as `{project_version-{commit-id}` and `latest`
+e.g. `my/hyperdrive-trigger:0.5.3-SNAPSHOT-6514d3f22a4dcd73a734c614db96694e7ebc6efc`, and `my/hyperdrive-trigger:latest`
 
 ## Web Application Archive
  

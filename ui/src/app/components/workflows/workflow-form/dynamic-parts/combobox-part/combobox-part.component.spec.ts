@@ -17,8 +17,6 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { ComboboxPartComponent } from './combobox-part.component';
 import { FormsModule, NgForm } from '@angular/forms';
-import { Subject } from 'rxjs';
-import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
 
 describe('ComboboxPartComponent', () => {
   let fixture: ComponentFixture<ComboboxPartComponent>;
@@ -46,16 +44,11 @@ describe('ComboboxPartComponent', () => {
   it('should change value and publish change on user input', () => {
     const newValue1 = 'threeValue';
     const newValue2 = 'fourValue';
-    const propertyName = 'property';
 
-    const testedSubject = new Subject<WorkflowEntryModel>();
-    const subjectSpy = spyOn(testedSubject, 'next');
-
-    underTest.property = propertyName;
-    underTest.valueChanges = testedSubject;
+    spyOn(underTest.valueChange, 'emit');
 
     underTest.modelChanged([newValue1, newValue2]);
-    expect(subjectSpy).toHaveBeenCalled();
-    expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, [newValue1, newValue2]));
+    expect(underTest.valueChange.emit).toHaveBeenCalled();
+    expect(underTest.valueChange.emit).toHaveBeenCalledWith([newValue1, newValue2]);
   });
 });

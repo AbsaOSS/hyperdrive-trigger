@@ -13,98 +13,124 @@
  * limitations under the License.
  */
 
-import { AfterViewChecked, Component, EventEmitter, Input, OnDestroy, OnInit } from '@angular/core';
-import { workflowModes } from '../../../../models/enums/workflowModes.constants';
-import { Subject, Subscription } from 'rxjs';
-import { Action } from '@ngrx/store';
-import { WorkflowFormPartsModel } from '../../../../models/workflowFormParts.model';
-import {
-  WorkflowAddEmptyJob,
-  WorkflowCopyJob,
-  WorkflowJobsReorder,
-  WorkflowRemoveJob,
-} from '../../../../stores/workflows/workflows.actions';
-import { JobEntryModel } from '../../../../models/jobEntry.model';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { JobTemplateModel } from '../../../../models/jobTemplate.model';
+import { DagDefinitionJoinedModel } from '../../../../models/dagDefinitionJoined.model';
+import { JobDefinitionModel, JobDefinitionModelFactory } from '../../../../models/jobDefinition.model';
 
 @Component({
   selector: 'app-jobs',
   templateUrl: './jobs.component.html',
   styleUrls: ['./jobs.component.scss'],
 })
-export class JobsComponent implements OnDestroy, OnInit, AfterViewChecked {
-  @Input() jobsUnfold: EventEmitter<any>;
-  @Input() mode: string;
-  @Input() workflowFormParts: WorkflowFormPartsModel;
-  @Input() jobsData: JobEntryModel[];
+export class JobsComponent {
+  @Input() isShow: boolean;
+  @Input() jobs: DagDefinitionJoinedModel;
+  @Output() jobsChange = new EventEmitter();
   @Input() jobTemplates: JobTemplateModel[];
-  @Input() changes: Subject<Action>;
 
-  workflowModes = workflowModes;
-
-  hiddenJobs: Set<string>;
-
-  jobsUnfoldSubscription: Subscription;
+  hiddenJobs: Set<number>;
 
   constructor() {
     this.hiddenJobs = new Set();
   }
 
-  ngOnInit(): void {
-    this.jobsUnfoldSubscription = this.jobsUnfold.subscribe((event) => {
-      this.hiddenJobs.clear();
-    });
-  }
-
-  ngAfterViewChecked(): void {
-    if (this.jobsData.length == 0) {
-      this.changes.next(new WorkflowAddEmptyJob(0));
-    }
-  }
-
-  trackByFn(index, item: JobEntryModel) {
-    return item.jobId;
-  }
-
-  toggleJob(jobId: string): void {
-    if (this.hiddenJobs.has(jobId)) {
-      this.hiddenJobs.delete(jobId);
+  toggleJob(jobOrder: number): void {
+    if (this.hiddenJobs.has(jobOrder)) {
+      this.hiddenJobs.delete(jobOrder);
     } else {
-      this.hiddenJobs.add(jobId);
+      this.hiddenJobs.add(jobOrder);
     }
   }
 
-  isJobHidden(jobId: string): boolean {
-    return this.hiddenJobs.has(jobId);
+  isJobHidden(jobOrder: number): boolean {
+    return this.hiddenJobs.has(jobOrder);
   }
 
   addJob() {
-    this.changes.next(new WorkflowAddEmptyJob(this.jobsData.length));
+    const newJob = JobDefinitionModelFactory.createDefault(this.jobs.jobDefinitions.length);
+    this.jobs = { ...this.jobs, jobDefinitions: [...this.jobs.jobDefinitions, newJob] };
+    this.jobsChange.emit(this.jobs);
   }
 
-  removeJob(jobId: string): void {
-    this.changes.next(new WorkflowRemoveJob(jobId));
+  removeJob(jobOrder: number): void {
+    const jobs = [...this.jobs.jobDefinitions];
+    const updatedJobs = jobs.filter((item) => item.order !== jobOrder);
+
+    if (updatedJobs.length == 0) {
+      const emptyJob = JobDefinitionModelFactory.createDefault(0);
+      this.jobs = { ...this.jobs, jobDefinitions: [emptyJob] };
+    } else {
+      const reorderedJobs = updatedJobs.map((jobOrig) => {
+        if (jobOrig.order > jobOrder) {
+          return { ...jobOrig, order: jobOrig.order - 1 };
+        } else {
+          return jobOrig;
+        }
+      });
+      this.jobs = { ...this.jobs, jobDefinitions: reorderedJobs };
+    }
+    this.jobsChange.emit(this.jobs);
   }
 
-  copyJob(jobId: string): void {
-    this.changes.next(new WorkflowCopyJob(jobId));
+  copyJob(jobOrder: number): void {
+    const index = this.jobs.jobDefinitions.findIndex((jobToUpdate) => jobToUpdate.order == jobOrder);
+    this.jobs = {
+      ...this.jobs,
+      jobDefinitions: [...this.jobs.jobDefinitions, { ...this.jobs.jobDefinitions[index], order: this.jobs.jobDefinitions.length }],
+    };
+    this.jobsChange.emit(this.jobs);
   }
 
-  getJobName(jobId: string) {
-    const jobDataOption = this.jobsData.find((job) => job.jobId === jobId);
-    const jobData = !!jobDataOption ? jobDataOption.entries : [];
-
-    const nameOption = jobData.find((value) => value.property === this.workflowFormParts.staticJobPart.property);
-    return !!nameOption ? nameOption.value : '';
+  jobChange(value: JobDefinitionModel) {
+    const newJobsData = [...this.jobs.jobDefinitions];
+    const index = newJobsData.findIndex((jobToUpdate) => jobToUpdate.order == value.order);
+    newJobsData[index] = value;
+    this.jobs = { ...this.jobs, jobDefinitions: newJobsData };
+    this.jobsChange.emit(this.jobs);
   }
 
   reorderJobs(initialJobPosition: number, updatedJobPosition: number) {
     if (initialJobPosition !== updatedJobPosition) {
-      this.changes.next(new WorkflowJobsReorder({ initialJobPosition, updatedJobPosition }));
+      this.jobs = { ...this.jobs, jobDefinitions: this.switchJobs(this.jobs.jobDefinitions, initialJobPosition, updatedJobPosition) };
+      this.hiddenJobs = this.switchHiddenJobs(this.hiddenJobs, initialJobPosition, updatedJobPosition);
+      this.jobsChange.emit(this.jobs);
     }
   }
 
-  ngOnDestroy(): void {
-    !!this.jobsUnfoldSubscription && this.jobsUnfoldSubscription.unsubscribe();
+  switchJobs(jobEntries: JobDefinitionModel[], initialJobPosition: number, updatedJobPosition: number): JobDefinitionModel[] {
+    return jobEntries
+      .map((jobEntry) => {
+        if (jobEntry.order === initialJobPosition) {
+          return { ...jobEntry, order: updatedJobPosition };
+        }
+        if (jobEntry.order === updatedJobPosition) {
+          return { ...jobEntry, order: initialJobPosition };
+        }
+        return jobEntry;
+      })
+      .sort((projectLeft, projectRight) => projectLeft.order - projectRight.order);
+  }
+
+  switchHiddenJobs(hiddenJobs: Set<number>, initialJobPosition, updatedJobPosition): Set<number> {
+    const updatedHiddenJobs: Set<number> = new Set<number>([...hiddenJobs]);
+
+    if (hiddenJobs.has(initialJobPosition)) {
+      updatedHiddenJobs.add(updatedJobPosition);
+    } else {
+      updatedHiddenJobs.delete(updatedJobPosition);
+    }
+
+    if (hiddenJobs.has(updatedJobPosition)) {
+      updatedHiddenJobs.add(initialJobPosition);
+    } else {
+      updatedHiddenJobs.delete(initialJobPosition);
+    }
+
+    return updatedHiddenJobs;
+  }
+
+  trackByFn(index, job: JobDefinitionModel) {
+    return job.order;
   }
 }

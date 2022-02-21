@@ -13,11 +13,8 @@
  * limitations under the License.
  */
 
-import { Component, Input, OnInit } from '@angular/core';
-import { Subject } from 'rxjs';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import cloneDeep from 'lodash-es/cloneDeep';
-import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
-import { PartValidation, PartValidationFactory } from '../../../../../models/workflowFormParts.model';
 import { UuidUtil } from '../../../../../utils/uuid/uuid.util';
 import { texts } from 'src/app/constants/texts.constants';
 
@@ -28,31 +25,25 @@ import { texts } from 'src/app/constants/texts.constants';
 })
 export class KeyStringValuePartComponent implements OnInit {
   uiid = UuidUtil.createUUID();
-  texts = texts;
   @Input() isShow: boolean;
   @Input() name: string;
   @Input() value: Record<string, any>;
-  @Input() property: string;
-  @Input() valueChanges: Subject<WorkflowEntryModel>;
-  @Input() partValidation: PartValidation;
-  partValidationSafe: PartValidation;
+  @Output() valueChange = new EventEmitter();
+  @Input() isRequired = false;
+  @Input() minLength = 1;
+  @Input() maxLength: number = Number.MAX_SAFE_INTEGER;
 
   mapOfValues: [string, string][] = [];
-
   maxFieldSize = 100;
 
-  ngOnInit(): void {
-    this.partValidationSafe = PartValidationFactory.create(
-      this.partValidation?.isRequired ?? true,
-      this.partValidation?.maxLength ?? Number.MAX_SAFE_INTEGER,
-      this.partValidation?.minLength ?? 1,
-    );
+  texts = texts;
 
+  ngOnInit(): void {
     for (const prop in this.value) {
       this.mapOfValues.push([prop, this.value[prop]]);
     }
     if (!this.mapOfValues || this.mapOfValues.length == 0) {
-      this.modelChanged(this.partValidationSafe.isRequired ? [['', '']] : []);
+      this.modelChanged(this.isRequired ? [['', '']] : []);
     }
   }
 
@@ -69,7 +60,7 @@ export class KeyStringValuePartComponent implements OnInit {
   onDelete(index: number) {
     const clonedValue: [string, string][] = cloneDeep(this.mapOfValues);
 
-    this.mapOfValues.length === 1 && this.partValidationSafe.isRequired ? (clonedValue[index] = ['', '']) : clonedValue.splice(index, 1);
+    this.mapOfValues.length === 1 && this.isRequired ? (clonedValue[index] = ['', '']) : clonedValue.splice(index, 1);
 
     this.modelChanged(clonedValue);
   }
@@ -87,6 +78,6 @@ export class KeyStringValuePartComponent implements OnInit {
     });
     this.value = valueInObject;
     this.mapOfValues = value;
-    this.valueChanges.next(WorkflowEntryModelFactory.create(this.property, valueInObject));
+    this.valueChange.emit(valueInObject);
   }
 }

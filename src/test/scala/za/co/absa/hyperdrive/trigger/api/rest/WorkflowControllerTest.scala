@@ -31,10 +31,11 @@ import za.co.absa.hyperdrive.trigger.configuration.application.TestGeneralConfig
 import za.co.absa.hyperdrive.trigger.models.errors.ApiException
 import za.co.absa.hyperdrive.trigger.models.{Project, Workflow, WorkflowImportExportWrapper}
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class WorkflowControllerTest extends AsyncFlatSpec with Matchers with MockitoSugar with BeforeAndAfter {
+  override implicit def executionContext: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+
   private val workflowService = mock[WorkflowService]
   private val underTest = new WorkflowController(workflowService, TestGeneralConfig())
 
@@ -121,17 +122,14 @@ class WorkflowControllerTest extends AsyncFlatSpec with Matchers with MockitoSug
     val byteArray = createZip(zipEntries)
     val zip = new MockMultipartFile("the.zip", byteArray)
 
-    val projects = Seq(
-      Project(w1.project, Seq(w1.toWorkflow)),
-      Project(w2.project, Seq(w2.toWorkflow))
-    )
-    when(workflowService.importWorkflows(any())(any())).thenReturn(Future { projects })
+    val workflows = Seq(w1, w2)
+    when(workflowService.importWorkflows(any())(any())).thenReturn(Future { workflows })
 
     // when
     val result = underTest.importWorkflows(zip).get()
 
     // then
-    result shouldBe projects
+    result shouldBe workflows
     val workflowWrappersCaptor: ArgumentCaptor[Seq[WorkflowImportExportWrapper]] =
       ArgumentCaptor.forClass(classOf[Seq[WorkflowImportExportWrapper]])
     verify(workflowService).importWorkflows(workflowWrappersCaptor.capture())(any())

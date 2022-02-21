@@ -17,8 +17,9 @@
 package za.co.absa.hyperdrive.trigger
 
 import org.scalatest.{FlatSpec, Matchers}
-import za.co.absa.hyperdrive.trigger.api.rest.services.WorkflowFixture
+import za.co.absa.hyperdrive.trigger.api.rest.services.{JobTemplateFixture, WorkflowFixture}
 import za.co.absa.hyperdrive.trigger.configuration.application._
+import za.co.absa.hyperdrive.trigger.models.enums.JobTypes
 import za.co.absa.hyperdrive.trigger.persistance._
 
 import java.time.Duration
@@ -32,7 +33,7 @@ class ApplicationStartPostgresTest extends FlatSpec with Matchers with SpringInt
   @Inject() var hyperDriverManager: HyperDriverManager = _
   @Inject() var workflowHistoryRepository: WorkflowHistoryRepository = _
   @Inject() var workflowRepository: WorkflowRepository = _
-
+  @Inject() var jobTemplateRepository: JobTemplateRepository = _
   @Inject() var authConfig: AuthConfig = _
   @Inject() var generalConfig: GeneralConfig = _
   @Inject() var healthConfig: HealthConfig = _
@@ -87,9 +88,21 @@ class ApplicationStartPostgresTest extends FlatSpec with Matchers with SpringInt
     notificationConfig.senderAddress shouldBe "sender <sender@abc.com>"
     notificationConfig.enabled shouldBe true
 
+    val testUser = "test-user"
+
     hyperDriverManager.isManagerRunning shouldBe true
-    val workflowJoined = WorkflowFixture.createWorkflowJoined()
-    await(workflowRepository.insertWorkflow(workflowJoined, "test-user"))
+    val jobTemplateSpark = JobTemplateFixture.GenericSparkJobTemplate
+    val jobTemplateShell = JobTemplateFixture.GenericShellJobTemplate
+    await(jobTemplateRepository.insertJobTemplate(jobTemplateSpark, testUser))
+    await(jobTemplateRepository.insertJobTemplate(jobTemplateShell, testUser))
+    val jobTemplates = await(jobTemplateRepository.getJobTemplates())
+
+    val workflowJoined = WorkflowFixture.createWorkflowJoined(
+      sparkJobTemplateId = jobTemplates.find(_.jobParameters.jobType == JobTypes.Spark).map(_.id).get,
+      shellJobTemplateId = jobTemplates.find(_.jobParameters.jobType == JobTypes.Shell).map(_.id).get
+    )
+
+    await(workflowRepository.insertWorkflow(workflowJoined, testUser))
     val workflows = await(workflowRepository.getWorkflows())
     workflows.size shouldBe 1
     workflows.head.name shouldBe workflowJoined.name

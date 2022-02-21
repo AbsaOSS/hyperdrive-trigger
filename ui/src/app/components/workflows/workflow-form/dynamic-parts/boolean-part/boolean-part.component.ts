@@ -13,9 +13,7 @@
  * limitations under the License.
  */
 
-import { Component, Input, OnInit } from '@angular/core';
-import { Subject } from 'rxjs';
-import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ControlContainer, NgForm } from '@angular/forms';
 import { UuidUtil } from '../../../../../utils/uuid/uuid.util';
 
@@ -30,8 +28,7 @@ export class BooleanPartComponent implements OnInit {
   @Input() isShow: boolean;
   @Input() name: string;
   @Input() value: boolean;
-  @Input() property: string;
-  @Input() valueChanges: Subject<WorkflowEntryModel>;
+  @Output() valueChange: EventEmitter<boolean> = new EventEmitter();
 
   constructor() {
     // do nothing
@@ -44,7 +41,6 @@ export class BooleanPartComponent implements OnInit {
   }
 
   modelChanged(value: boolean) {
-    this.value = value;
-    this.valueChanges.next(WorkflowEntryModelFactory.create(this.property, this.value));
+    this.valueChange.emit(value);
   }
 }

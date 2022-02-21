@@ -112,7 +112,11 @@ class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstance
   }
 
   private def enqueueDags(assignedWorkflowIds: Seq[Long], emptySlotsSize: Int): Future[Unit] = {
-    dagInstanceRepository.getDagsToRun(runningDags.keys.map(_.dagId).toSeq, emptySlotsSize, assignedWorkflowIds).map {
+    dagInstanceRepository.getDagsToRun(
+      runningDags.keys.map(_.workflowId).toSeq.distinct,
+      emptySlotsSize,
+      assignedWorkflowIds
+    ).map {
       _.foreach { dag =>
         logger.debug(s"Deploying dag = ${dag.id}")
         runningDags.put(RunningDagsKey(dag.id, dag.workflowId), executors.executeDag(dag))

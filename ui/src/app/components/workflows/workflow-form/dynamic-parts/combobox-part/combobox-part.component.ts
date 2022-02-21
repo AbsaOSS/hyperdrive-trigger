@@ -13,11 +13,8 @@
  * limitations under the License.
  */
 
-import { Component, Input, OnInit } from '@angular/core';
-import { Subject } from 'rxjs';
-import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ControlContainer, NgForm } from '@angular/forms';
-import { PartValidation, PartValidationFactory } from '../../../../../models/workflowFormParts.model';
 import { UuidUtil } from '../../../../../utils/uuid/uuid.util';
 import { texts } from 'src/app/constants/texts.constants';
 
@@ -29,15 +26,14 @@ import { texts } from 'src/app/constants/texts.constants';
 })
 export class ComboboxPartComponent implements OnInit {
   uuid = UuidUtil.createUUID();
-  texts = texts;
   @Input() isShow: boolean;
   @Input() name: string;
   @Input() value: any[];
-  @Input() property: string;
+  @Output() valueChange: EventEmitter<any[]> = new EventEmitter();
   @Input() options: Map<any, string>;
-  @Input() valueChanges: Subject<WorkflowEntryModel>;
-  @Input() partValidation: PartValidation;
-  partValidationSafe: PartValidation;
+  @Input() isRequired = false;
+
+  texts = texts;
 
   constructor() {
     // do nothing
@@ -47,12 +43,10 @@ export class ComboboxPartComponent implements OnInit {
     if (!this.options) {
       this.options = new Map();
     }
-    this.partValidationSafe = PartValidationFactory.create(this.partValidation?.isRequired ?? true);
   }
 
-  modelChanged(value: any[]): void {
-    this.value = value;
-    this.valueChanges.next(WorkflowEntryModelFactory.create(this.property, this.value));
+  modelChanged(value: any[]) {
+    this.valueChange.emit(value);
   }
 
   trackByFn(index, item) {

@@ -17,8 +17,6 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { BooleanPartComponent } from './boolean-part.component';
 import { DebugElement, Predicate } from '@angular/core';
-import { Subject } from 'rxjs';
-import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
 import { By } from '@angular/platform-browser';
 import { FormsModule, NgForm } from '@angular/forms';
 
@@ -56,22 +54,18 @@ describe('BooleanPartComponent', () => {
         waitForAsync(() => {
           const oldValue = parameter;
           const newValue = false;
-          const propertyName = 'property';
-          const testedSubject = new Subject<WorkflowEntryModel>();
-          const subjectSpy = spyOn(testedSubject, 'next');
+          spyOn(underTest.valueChange, 'emit');
 
           underTest.isShow = false;
           underTest.name = 'name';
           underTest.value = oldValue;
-          underTest.property = propertyName;
-          underTest.valueChanges = testedSubject;
           fixture.detectChanges();
 
           fixture.whenStable().then(() => {
             const result = fixture.debugElement.query(inputSelector).nativeElement.checked;
             expect(result).toBe(newValue);
-            expect(subjectSpy).toHaveBeenCalledTimes(1);
-            expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValue));
+            expect(underTest.valueChange.emit).toHaveBeenCalled();
+            expect(underTest.valueChange.emit).toHaveBeenCalledWith(newValue);
           });
         }),
       );
@@ -79,19 +73,15 @@ describe('BooleanPartComponent', () => {
   });
 
   it(
-    'should change value and publish change on user input',
+    'should change value and emit change on user input',
     waitForAsync(() => {
       const oldValue = false;
       const newValue = true;
-      const propertyName = 'property';
-      const testedSubject = new Subject<WorkflowEntryModel>();
-      const subjectSpy = spyOn(testedSubject, 'next');
+      spyOn(underTest.valueChange, 'emit');
 
       underTest.isShow = false;
       underTest.name = 'name';
       underTest.value = oldValue;
-      underTest.property = propertyName;
-      underTest.valueChanges = testedSubject;
 
       fixture.detectChanges();
       fixture.whenStable().then(() => {
@@ -103,8 +93,8 @@ describe('BooleanPartComponent', () => {
         fixture.whenStable().then(() => {
           const testedValue = fixture.debugElement.query(inputSelector).nativeElement.checked;
           expect(testedValue).toBe(newValue);
-          expect(subjectSpy).toHaveBeenCalled();
-          expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValue));
+          expect(underTest.valueChange.emit).toHaveBeenCalled();
+          expect(underTest.valueChange.emit).toHaveBeenCalledWith(newValue);
         });
       });
     }),

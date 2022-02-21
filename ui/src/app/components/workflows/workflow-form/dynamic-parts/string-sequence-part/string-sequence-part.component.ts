@@ -13,11 +13,8 @@
  * limitations under the License.
  */
 
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { Subject } from 'rxjs';
-import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { ControlContainer, NgForm } from '@angular/forms';
-import { PartValidation, PartValidationFactory } from '../../../../../models/workflowFormParts.model';
 import { UuidUtil } from '../../../../../utils/uuid/uuid.util';
 import { texts } from 'src/app/constants/texts.constants';
 
@@ -29,27 +26,23 @@ import { texts } from 'src/app/constants/texts.constants';
 })
 export class StringSequencePartComponent implements OnInit, OnChanges {
   uiid = UuidUtil.createUUID();
-  texts = texts;
   @Input() isShow: boolean;
   @Input() name: string;
   @Input() value: string[];
-  @Input() property: string;
-  @Input() valueChanges: Subject<WorkflowEntryModel>;
-  @Input() partValidation: PartValidation;
-  partValidationSafe: PartValidation;
+  @Output() valueChange: EventEmitter<string[]> = new EventEmitter();
+  @Input() isRequired = false;
+  @Input() minLength = 1;
+  @Input() maxLength: number = Number.MAX_SAFE_INTEGER;
 
   maxFieldSize = 100;
+
+  texts = texts;
 
   constructor() {
     // do nothing
   }
 
   ngOnInit(): void {
-    this.partValidationSafe = PartValidationFactory.create(
-      this.partValidation?.isRequired ?? true,
-      this.partValidation?.maxLength ?? Number.MAX_SAFE_INTEGER,
-      this.partValidation?.minLength ?? 1,
-    );
     this.setDefaultValue();
   }
 
@@ -63,7 +56,7 @@ export class StringSequencePartComponent implements OnInit, OnChanges {
 
   onDeleteValue(index: number) {
     const clonedValue = Object.assign([], this.value);
-    this.value.length === 1 && this.partValidationSafe.isRequired ? (clonedValue[0] = '') : clonedValue.splice(index, 1);
+    this.value.length === 1 && this.isRequired ? (clonedValue[0] = '') : clonedValue.splice(index, 1);
     this.modelChanged(clonedValue);
   }
 
@@ -79,12 +72,11 @@ export class StringSequencePartComponent implements OnInit, OnChanges {
     this.modelChanged(clonedValue);
   }
 
-  modelChanged(value: string[]) {
-    this.value = value.map((val) => val.trim());
-    this.valueChanges.next(WorkflowEntryModelFactory.create(this.property, this.value));
+  setDefaultValue() {
+    if (!this.value) this.modelChanged(this.isRequired ? [''] : []);
   }
 
-  setDefaultValue() {
-    if (!this.value) this.modelChanged(this.partValidation.isRequired ? [''] : []);
+  modelChanged(value: string[]) {
+    this.valueChange.emit(value.map((val) => val.trim()));
   }
 }

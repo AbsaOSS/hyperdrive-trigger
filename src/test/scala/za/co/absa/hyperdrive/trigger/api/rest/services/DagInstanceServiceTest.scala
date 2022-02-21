@@ -21,12 +21,13 @@ import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, Matchers}
 import za.co.absa.hyperdrive.trigger.TestUtils.await
 import za.co.absa.hyperdrive.trigger.models.{ResolvedJobDefinition, ShellInstanceParameters, SparkInstanceParameters}
-import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobStatuses}
+import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobStatuses, JobTypes}
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
 class DagInstanceServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar with BeforeAndAfter {
+  override implicit def executionContext: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+
   private val jobTemplateService = mock[JobTemplateService]
   private val underTest = new DagInstanceServiceImpl(jobTemplateService)
 
@@ -90,11 +91,12 @@ class DagInstanceServiceTest extends AsyncFlatSpec with Matchers with MockitoSug
   }
 
 
-  private def createResolvedJobDefinitions() = {
+  private def createResolvedJobDefinitions(): Seq[ResolvedJobDefinition] = {
     Seq(
       ResolvedJobDefinition(
         name = "Spark Job",
         jobParameters = SparkInstanceParameters(
+          jobType = JobTypes.Spark,
           jobJar = "/dir/driver.jar",
           mainClass = "aaa.bbb.TestClass"
         ),

@@ -62,4 +62,17 @@ class UtilControllerTest extends FlatSpec with Matchers with MockitoSugar with B
     result.explained shouldBe "Specifying both a Day of Month and Day of Week is not supported. Either one or the other should be declared as \"?\""
   }
 
+  it should "return an expression itself in description if the cron expression is too complex" in {
+    // given
+    val expression = "0 22-25,29-32,35-38,50-56,10-20/2 * ? * * *"
+
+    // when
+    val result = underTest.getQuartzDetail(expression)
+
+    // then
+    result.expression shouldBe expression
+    result.isValid shouldBe true
+    result.explained shouldBe s"Could not explain the expression: $expression"
+  }
+
 }

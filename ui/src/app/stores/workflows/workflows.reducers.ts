@@ -14,42 +14,39 @@
  */
 
 import * as WorkflowsActions from '../workflows/workflows.actions';
-import { ProjectModel, ProjectModelFactory } from '../../models/project.model';
+import { ProjectModel, ProjectModelFactory, WorkflowIdentityModelFactory } from '../../models/project.model';
 import { WorkflowJoinedModel } from '../../models/workflowJoined.model';
-import { WorkflowFormPartsModel } from '../../models/workflowFormParts.model';
-import { JobEntryModel, JobEntryModelFactory } from '../../models/jobEntry.model';
-import { SortAttributesModel } from '../../models/search/sortAttributes.model';
-import { WorkflowFormDataModel } from '../../models/workflowFormData.model';
-import { HistoryModel } from '../../models/historyModel';
+import { HistoryModel, WorkflowHistoryModel } from '../../models/historyModel';
 import { JobForRunModel } from '../../models/jobForRun.model';
 import { workflowModes } from '../../models/enums/workflowModes.constants';
 import { JobTemplateModel } from '../../models/jobTemplate.model';
+import { WorkflowModel } from '../../models/workflow.model';
+import { TableSearchRequestModel } from '../../models/search/tableSearchRequest.model';
 
 export interface State {
+  workflowsSearch: {
+    loading: boolean;
+    workflows: WorkflowModel[];
+    total: number;
+    searchRequest: TableSearchRequestModel;
+  };
   projects: ProjectModel[];
+  jobTemplates: JobTemplateModel[];
   loading: boolean;
   workflowAction: {
     id: number;
     mode: string;
     loading: boolean;
     workflow: WorkflowJoinedModel;
-    workflowFormParts: WorkflowFormPartsModel;
+    workflowForForm: WorkflowJoinedModel;
     backendValidationErrors: string[];
-    workflowFormData: WorkflowFormDataModel;
-    initialWorkflowFormData: WorkflowFormDataModel;
     workflowFile: File;
   };
-  jobTemplates: JobTemplateModel[];
-  workflowsSort: SortAttributesModel;
-  workflowsFilters: any[];
   history: {
     loading: boolean;
     workflowHistory: HistoryModel[];
-    workflowFormParts: WorkflowFormPartsModel;
-    leftWorkflowHistoryData: WorkflowFormDataModel;
-    leftWorkflowHistory: HistoryModel;
-    rightWorkflowHistoryData: WorkflowFormDataModel;
-    rightWorkflowHistory: HistoryModel;
+    leftWorkflowHistory: WorkflowHistoryModel;
+    rightWorkflowHistory: WorkflowHistoryModel;
   };
   jobsForRun: {
     isOpen: boolean;
@@ -61,37 +58,28 @@ export interface State {
 }
 
 const initialState: State = {
+  workflowsSearch: {
+    loading: true,
+    workflows: [],
+    total: 0,
+    searchRequest: undefined,
+  },
   projects: [],
+  jobTemplates: [],
   loading: true,
   workflowAction: {
     id: undefined,
     mode: undefined,
-    loading: true,
+    loading: false,
     workflow: undefined,
-    workflowFormParts: undefined,
+    workflowForForm: undefined,
     backendValidationErrors: [],
-    workflowFormData: {
-      details: [],
-      sensor: [],
-      jobs: [],
-    },
-    initialWorkflowFormData: {
-      details: [],
-      sensor: [],
-      jobs: [],
-    },
     workflowFile: undefined,
   },
-  jobTemplates: [],
-  workflowsSort: undefined,
-  workflowsFilters: undefined,
   history: {
     loading: true,
     workflowHistory: [],
-    workflowFormParts: undefined,
-    leftWorkflowHistoryData: undefined,
     leftWorkflowHistory: undefined,
-    rightWorkflowHistoryData: undefined,
     rightWorkflowHistory: undefined,
   },
   jobsForRun: {
@@ -103,67 +91,56 @@ const initialState: State = {
   },
 };
 
-function removeJob(jobId: string, jobsOriginal: JobEntryModel[]): JobEntryModel[] {
-  const jobs = [...jobsOriginal];
-  const removeIndex = jobs.findIndex((job) => job.jobId === jobId);
-  const removeOrder = jobs[removeIndex].order;
-  jobs.splice(removeIndex, 1);
-  return jobs.map((jobOrig) => {
-    if (jobOrig.order > removeOrder) {
-      const job = { ...jobOrig };
-      job.order -= 1;
-      return job;
-    } else {
-      return jobOrig;
-    }
-  });
-}
-
-export function sortProjectsAndWorkflows(projects: ProjectModel[]): ProjectModel[] {
-  let sortedProjects = projects.sort((projectLeft, projectRight) => projectLeft.name.localeCompare(projectRight.name));
-  sortedProjects = [...sortedProjects].map((project: ProjectModel) => {
-    const sortedWorkflows = [...project.workflows].sort((workflowLeft, workflowRight) =>
-      workflowLeft.name.localeCompare(workflowRight.name),
-    );
-    return { ...project, workflows: sortedWorkflows };
-  });
-  return sortedProjects;
-}
-
-export function switchJobs(jobEntries: JobEntryModel[], initialJobPosition: number, updatedJobPosition: number): JobEntryModel[] {
-  return jobEntries
-    .map((jobEntry) => {
-      if (jobEntry.order === initialJobPosition) {
-        return { ...jobEntry, order: updatedJobPosition };
-      }
-      if (jobEntry.order === updatedJobPosition) {
-        return { ...jobEntry, order: initialJobPosition };
-      }
-      return jobEntry;
-    })
-    .sort((projectLeft, projectRight) => projectLeft.order - projectRight.order);
-}
-
 export function workflowsReducer(state: State = initialState, action: WorkflowsActions.WorkflowsActions) {
   switch (action.type) {
     case WorkflowsActions.INITIALIZE_WORKFLOWS:
       return { ...state, loading: true };
     case WorkflowsActions.INITIALIZE_WORKFLOWS_SUCCESS:
       let sortedProjects = [...action.payload.projects];
-      sortedProjects = sortProjectsAndWorkflows(sortedProjects);
+      sortedProjects = sortProjects(sortedProjects);
       return {
         ...state,
         loading: false,
         projects: sortedProjects,
         jobTemplates: action.payload.jobTemplates,
-        workflowAction: {
-          ...state.workflowAction,
-          workflowFormParts: action.payload.workflowFormParts,
-        },
       };
     case WorkflowsActions.INITIALIZE_WORKFLOWS_FAILURE:
-      return { ...initialState, loading: false };
-
+      return { ...state, contentLoading: false };
+    case WorkflowsActions.SEARCH_WORKFLOWS:
+      return {
+        ...state,
+        workflowsSearch: {
+          ...state.workflowsSearch,
+          searchRequest: action.payload,
+          loading: true,
+        },
+      };
+    case WorkflowsActions.SEARCH_WORKFLOWS_SUCCESS:
+      return {
+        ...state,
+        workflowsSearch: {
+          ...state.workflowsSearch,
+          workflows: action.payload.workflows,
+          total: action.payload.total,
+          loading: false,
+        },
+        workflowAction: {
+          ...state.workflowAction,
+          loading: false,
+        },
+      };
+    case WorkflowsActions.SEARCH_WORKFLOWS_FAILURE:
+      return {
+        ...state,
+        workflowsSearch: {
+          ...state.workflowsSearch,
+          loading: false,
+        },
+        workflowAction: {
+          ...state.workflowAction,
+          loading: false,
+        },
+      };
     case WorkflowsActions.START_WORKFLOW_INITIALIZATION:
       return {
         ...state,
@@ -179,25 +156,19 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         ...state,
         workflowAction: {
           ...initialState.workflowAction,
-          workflowFormParts: state.workflowAction.workflowFormParts,
+          workflow: action.payload,
+          workflowForForm: action.payload,
           loading: false,
         },
       };
     case WorkflowsActions.LOAD_WORKFLOW_SUCCESS:
-      const workflowFormData = {
-        ...state.workflowAction.workflowFormData,
-        details: action.payload.detailsData,
-        sensor: action.payload.sensorData,
-        jobs: action.payload.jobsData,
-      };
       return {
         ...state,
         workflowAction: {
           ...state.workflowAction,
-          workflow: action.payload.workflow,
+          workflow: action.payload,
+          workflowForForm: action.payload,
           loading: false,
-          workflowFormData: workflowFormData,
-          initialWorkflowFormData: workflowFormData,
         },
       };
     case WorkflowsActions.LOAD_WORKFLOW_FAILURE:
@@ -216,144 +187,13 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
           loading: false,
         },
       };
-    case WorkflowsActions.WORKFLOW_DETAILS_CHANGED:
-      const detailsData = [
-        ...state.workflowAction.workflowFormData.details.filter((item) => item.property !== action.payload.property),
-        action.payload,
-      ];
+    case WorkflowsActions.WORKFLOW_CHANGED:
       return {
         ...state,
         workflowAction: {
           ...state.workflowAction,
-          workflowFormData: {
-            ...state.workflowAction.workflowFormData,
-            details: [...detailsData],
-          },
-        },
-      };
-    case WorkflowsActions.WORKFLOW_SENSOR_CHANGED:
-      const sensorData = [
-        ...state.workflowAction.workflowFormData.sensor.filter((item) => item.property !== action.payload.property),
-        action.payload,
-      ];
-      return {
-        ...state,
-        workflowAction: {
-          ...state.workflowAction,
-          workflowFormData: {
-            ...state.workflowAction.workflowFormData,
-            sensor: [...sensorData],
-          },
-        },
-      };
-    case WorkflowsActions.WORKFLOW_SENSOR_TYPE_SWITCHED:
-      return {
-        ...state,
-        workflowAction: {
-          ...state.workflowAction,
-          workflowFormData: {
-            ...state.workflowAction.workflowFormData,
-            sensor: [...initialState.workflowAction.workflowFormData.sensor, action.payload],
-          },
-        },
-      };
-    case WorkflowsActions.WORKFLOW_ADD_EMPTY_JOB:
-      const emptyJobData = JobEntryModelFactory.createWithUuid(action.payload, []);
-      const jobs = [...state.workflowAction.workflowFormData.jobs, emptyJobData];
-      return {
-        ...state,
-        workflowAction: {
-          ...state.workflowAction,
-          workflowFormData: {
-            ...state.workflowAction.workflowFormData,
-            jobs: [...jobs],
-          },
-        },
-      };
-    case WorkflowsActions.WORKFLOW_REMOVE_JOB: {
-      const jobId: string = action.payload;
-      const jobsAfterRemoval = removeJob(jobId, state.workflowAction.workflowFormData.jobs);
-      return {
-        ...state,
-        workflowAction: {
-          ...state.workflowAction,
-          workflowFormData: {
-            ...state.workflowAction.workflowFormData,
-            jobs: [...jobsAfterRemoval],
-          },
-        },
-      };
-    }
-    case WorkflowsActions.WORKFLOW_COPY_JOB: {
-      const copyIndex: number = state.workflowAction.workflowFormData.jobs.findIndex((job) => job.jobId === action.payload);
-
-      const copiedJobData = JobEntryModelFactory.createWithUuid(
-        state.workflowAction.workflowFormData.jobs.length,
-        copyIndex !== null && copyIndex !== undefined ? state.workflowAction.workflowFormData.jobs[copyIndex].entries : [],
-      );
-      const jobs = [...state.workflowAction.workflowFormData.jobs, copiedJobData];
-      return {
-        ...state,
-        workflowAction: {
-          ...state.workflowAction,
-          workflowFormData: {
-            ...state.workflowAction.workflowFormData,
-            jobs: [...jobs],
-          },
-        },
-      };
-    }
-    case WorkflowsActions.WORKFLOW_JOB_CHANGED: {
-      const oldJob = state.workflowAction.workflowFormData.jobs.find((job) => job.jobId === action.payload.jobId);
-      const filteredOldJobData = oldJob.entries.filter((jobEntry) => jobEntry.property !== action.payload.jobEntry.property);
-      const updatedJobData = [...filteredOldJobData, action.payload.jobEntry];
-      const updatedJobsData = [
-        ...state.workflowAction.workflowFormData.jobs.filter((jobEntry) => jobEntry.jobId !== action.payload.jobId),
-        JobEntryModelFactory.create(oldJob.jobId, oldJob.order, updatedJobData),
-      ];
-      return {
-        ...state,
-        workflowAction: {
-          ...state.workflowAction,
-          workflowFormData: {
-            ...state.workflowAction.workflowFormData,
-            jobs: [...initialState.workflowAction.workflowFormData.jobs, ...updatedJobsData],
-          },
-        },
-      };
-    }
-    case WorkflowsActions.WORKFLOW_JOB_TYPE_SWITCHED:
-      const oldJob = state.workflowAction.workflowFormData.jobs.find((job) => job.jobId === action.payload.jobId);
-      const cleanedJobData = JobEntryModelFactory.create(oldJob.jobId, oldJob.order, [action.payload.jobEntry]);
-
-      const cleanedJobsData = [
-        ...state.workflowAction.workflowFormData.jobs.filter((item) => item.jobId !== action.payload.jobId),
-        cleanedJobData,
-      ];
-      return {
-        ...state,
-        workflowAction: {
-          ...state.workflowAction,
-          workflowFormData: {
-            ...state.workflowAction.workflowFormData,
-            jobs: [...initialState.workflowAction.workflowFormData.jobs, ...cleanedJobsData],
-          },
-        },
-      };
-    case WorkflowsActions.WORKFLOW_JOBS_REORDER:
-      const updatedJobs = switchJobs(
-        [...state.workflowAction.workflowFormData.jobs],
-        action.payload.initialJobPosition,
-        action.payload.updatedJobPosition,
-      );
-      return {
-        ...state,
-        workflowAction: {
-          ...state.workflowAction,
-          workflowFormData: {
-            ...state.workflowAction.workflowFormData,
-            jobs: updatedJobs,
-          },
+          workflowForForm: action.payload,
+          loading: false,
         },
       };
     case WorkflowsActions.DELETE_WORKFLOW:
@@ -361,8 +201,8 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         ...state,
         workflowAction: {
           ...state.workflowAction,
+          loading: true,
         },
-        loading: true,
       };
     case WorkflowsActions.DELETE_WORKFLOW_SUCCESS:
       let newProjects = state.projects.map((project) => {
@@ -377,76 +217,64 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         projects: [...newProjects],
         workflowAction: {
           ...state.workflowAction,
+          loading: false,
         },
-        loading: false,
       };
     case WorkflowsActions.DELETE_WORKFLOW_FAILURE:
       return {
         ...state,
         workflowAction: {
           ...state.workflowAction,
+          loading: false,
         },
-        loading: false,
       };
     case WorkflowsActions.SWITCH_WORKFLOW_ACTIVE_STATE:
       return {
         ...state,
         workflowAction: {
           ...state.workflowAction,
+          loading: true,
         },
-        loading: true,
       };
     case WorkflowsActions.SWITCH_WORKFLOW_ACTIVE_STATE_SUCCESS:
-      const updatedProjects = state.projects.map((project) => {
-        return ProjectModelFactory.create(
-          project.name,
-          project.workflows.map((workflow) => {
-            return workflow.id == action.payload ? { ...workflow, isActive: !workflow.isActive } : workflow;
-          }),
-        );
-      });
-      const sortedUpdatedProjects = sortProjectsAndWorkflows([...updatedProjects]);
       return {
         ...state,
-        projects: [...sortedUpdatedProjects],
         workflowAction: {
           ...state.workflowAction,
+          workflow: {
+            ...state.workflowAction.workflow,
+            isActive: !state.workflowAction.workflow,
+          },
+          workflowForForm: {
+            ...state.workflowAction.workflowForForm,
+            isActive: !state.workflowAction.workflowForForm,
+          },
+          loading: false,
         },
-        loading: false,
       };
     case WorkflowsActions.SWITCH_WORKFLOW_ACTIVE_STATE_FAILURE:
       return {
         ...state,
         workflowAction: {
           ...state.workflowAction,
+          loading: false,
         },
-        loading: false,
       };
     case WorkflowsActions.UPDATE_WORKFLOWS_IS_ACTIVE:
       return {
         ...state,
         workflowAction: {
           ...state.workflowAction,
+          loading: true,
         },
-        loading: true,
       };
     case WorkflowsActions.UPDATE_WORKFLOWS_IS_ACTIVE_SUCCESS: {
-      const updatedProjects = state.projects.map((project) => {
-        return ProjectModelFactory.create(
-          project.name,
-          project.workflows.map((workflow) => {
-            return action.payload.ids.includes(workflow.id) ? { ...workflow, isActive: action.payload.isActiveNewValue } : workflow;
-          }),
-        );
-      });
-      const sortedUpdatedProjects = sortProjectsAndWorkflows([...updatedProjects]);
       return {
         ...state,
-        projects: [...sortedUpdatedProjects],
         workflowAction: {
           ...state.workflowAction,
+          loading: false,
         },
-        loading: false,
       };
     }
     case WorkflowsActions.UPDATE_WORKFLOWS_IS_ACTIVE_FAILURE:
@@ -454,8 +282,8 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         ...state,
         workflowAction: {
           ...state.workflowAction,
+          loading: false,
         },
-        loading: false,
       };
     case WorkflowsActions.CREATE_WORKFLOW:
       return {
@@ -466,15 +294,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         },
       };
     case WorkflowsActions.CREATE_WORKFLOW_SUCCESS:
-      let projects;
-      if (state.projects.some((project) => project.name == action.payload.project)) {
-        projects = state.projects.map((project) =>
-          project.name == action.payload.project ? { ...project, workflows: [...project.workflows, action.payload] } : project,
-        );
-      } else {
-        projects = [...state.projects, ProjectModelFactory.create(action.payload.project, [action.payload])];
-      }
-      projects = sortProjectsAndWorkflows([...projects]);
+      const projects = sortProjects([...addWorkflow([action.payload], state.projects)]);
       return {
         ...state,
         projects: [...projects],
@@ -510,13 +330,18 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
       let updatedProjects;
       if (state.projects.some((project) => project.name == action.payload.project)) {
         updatedProjects = projectsWithoutWorkflow.map((project) =>
-          project.name == action.payload.project ? { ...project, workflows: [...project.workflows, action.payload] } : project,
+          project.name == action.payload.project
+            ? { ...project, workflows: [...project.workflows, WorkflowIdentityModelFactory.create(action.payload.id, action.payload.name)] }
+            : project,
         );
       } else {
-        updatedProjects = [...projectsWithoutWorkflow, ProjectModelFactory.create(action.payload.project, [action.payload])];
+        updatedProjects = [
+          ...projectsWithoutWorkflow,
+          ProjectModelFactory.create(action.payload.project, [WorkflowIdentityModelFactory.create(action.payload.id, action.payload.name)]),
+        ];
       }
       updatedProjects = updatedProjects.filter((project) => project.workflows.length !== 0);
-      const sortUpdatedProjects = sortProjectsAndWorkflows([...updatedProjects]);
+      const sortUpdatedProjects = sortProjects([...updatedProjects]);
       return {
         ...state,
         projects: [...sortUpdatedProjects],
@@ -545,16 +370,6 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
             ...state.workflowAction.backendValidationErrors.slice(action.payload + 1),
           ],
         },
-      };
-    case WorkflowsActions.SET_WORKFLOWS_SORT:
-      return {
-        ...state,
-        workflowsSort: action.payload,
-      };
-    case WorkflowsActions.SET_WORKFLOWS_FILTERS:
-      return {
-        ...state,
-        workflowsFilters: action.payload,
       };
     case WorkflowsActions.LOAD_HISTORY_FOR_WORKFLOW:
       return {
@@ -595,10 +410,7 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         history: {
           ...state.history,
           loading: false,
-          workflowFormParts: action.payload.workflowFormParts,
-          leftWorkflowHistoryData: action.payload.leftWorkflowHistoryData,
           leftWorkflowHistory: action.payload.leftWorkflowHistory,
-          rightWorkflowHistoryData: action.payload.rightWorkflowHistoryData,
           rightWorkflowHistory: action.payload.rightWorkflowHistory,
         },
         jobTemplates: action.payload.jobTemplates,
@@ -702,12 +514,11 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         loading: true,
       };
     case WorkflowsActions.IMPORT_WORKFLOWS_SUCCESS: {
-      let sortedProjects = [...action.payload];
-      sortedProjects = sortProjectsAndWorkflows(sortedProjects);
+      const projects = sortProjects([...addWorkflow(action.payload, state.projects)]);
       return {
         ...state,
         loading: false,
-        projects: sortedProjects,
+        projects: [...projects],
       };
     }
     case WorkflowsActions.IMPORT_WORKFLOWS_FAILURE:
@@ -715,7 +526,66 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         ...state,
         loading: false,
       };
+    case WorkflowsActions.REVERT_WORKFLOW:
+      return {
+        ...state,
+        workflowAction: {
+          ...initialState.workflowAction,
+          mode: workflowModes.REVERT,
+          id: action.payload,
+          loading: true,
+        },
+      };
+    case WorkflowsActions.REVERT_WORKFLOW_SUCCESS:
+      return {
+        ...state,
+        workflowAction: {
+          ...state.workflowAction,
+          loading: false,
+          workflow: undefined,
+          workflowForForm: action.payload,
+          backendValidationErrors: [],
+        },
+      };
+    case WorkflowsActions.REVERT_WORKFLOW_FAILURE:
+      return {
+        ...state,
+        workflowAction: {
+          ...initialState.workflowAction,
+          loading: false,
+        },
+      };
     default:
       return state;
   }
+}
+
+export function sortProjects(projects: ProjectModel[]): ProjectModel[] {
+  let sortedProjects = projects.sort((projectLeft, projectRight) => projectLeft.name.localeCompare(projectRight.name));
+  sortedProjects = [...sortedProjects].map((project: ProjectModel) => {
+    const sortedWorkflows = [...project.workflows].sort((workflowLeft, workflowRight) =>
+      workflowLeft.name.localeCompare(workflowRight.name),
+    );
+    return { ...project, workflows: sortedWorkflows };
+  });
+  return sortedProjects;
+}
+
+export function addWorkflow(workflows: WorkflowModel[], projects: ProjectModel[]): ProjectModel[] {
+  let updatedProjects = [...projects];
+  workflows.forEach((workflow) => {
+    if (updatedProjects.some((project) => project.name == workflow.project)) {
+      updatedProjects = updatedProjects.map((project) =>
+        project.name == workflow.project
+          ? { ...project, workflows: [...project.workflows, WorkflowIdentityModelFactory.create(workflow.id, workflow.name)] }
+          : project,
+      );
+    } else {
+      updatedProjects = [
+        ...updatedProjects,
+        ProjectModelFactory.create(workflow.project, [WorkflowIdentityModelFactory.create(workflow.id, workflow.name)]),
+      ];
+    }
+  });
+  return updatedProjects;
 }

@@ -13,10 +13,7 @@
  * limitations under the License.
  */
 
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
-import { WorkflowEntryModel } from '../../../models/workflowEntry.model';
-import { JobEntryModel } from '../../../models/jobEntry.model';
-import { WorkflowFormPartsModel } from '../../../models/workflowFormParts.model';
+import { Component, Input, OnDestroy, ViewChild } from '@angular/core';
 import { workflowModes } from 'src/app/models/enums/workflowModes.constants';
 import { absoluteRoutes } from 'src/app/constants/routes.constants';
 import { ConfirmationDialogTypes } from '../../../constants/confirmationDialogTypes.constants';
@@ -29,49 +26,43 @@ import {
   RemoveBackendValidationError,
   SwitchWorkflowActiveState,
   UpdateWorkflow,
+  WorkflowChanged,
 } from '../../../stores/workflows/workflows.actions';
-import { Action, Store } from '@ngrx/store';
-import { AppState, selectWorkflowState } from '../../../stores/app.reducers';
-import { Subject, Subscription } from 'rxjs';
+import { Store } from '@ngrx/store';
+import { AppState } from '../../../stores/app.reducers';
+import { Subscription } from 'rxjs';
 import { ConfirmationDialogService } from '../../../services/confirmation-dialog/confirmation-dialog.service';
 import { PreviousRouteService } from '../../../services/previousRoute/previous-route.service';
 import { Router } from '@angular/router';
-import cloneDeep from 'lodash-es/cloneDeep';
 import isEqual from 'lodash-es/isEqual';
-import { WorkflowFormDataModel } from '../../../models/workflowFormData.model';
 import { JobTemplateModel } from '../../../models/jobTemplate.model';
+import { WorkflowJoinedModel } from '../../../models/workflowJoined.model';
+import { SensorModel } from '../../../models/sensor.model';
+import { DagDefinitionJoinedModel } from '../../../models/dagDefinitionJoined.model';
 
 @Component({
   selector: 'app-workflow-form',
   templateUrl: './workflow-form.component.html',
   styleUrls: ['./workflow-form.component.scss'],
 })
-export class WorkflowFormComponent implements OnInit, OnDestroy {
+export class WorkflowFormComponent implements OnDestroy {
   @ViewChild('workflowForm') workflowForm;
-  @Output() jobsUnfold: EventEmitter<any> = new EventEmitter();
-  @Input() workflowData: WorkflowFormDataModel;
-  @Input() initialWorkflowData: WorkflowFormDataModel;
-  @Input() workflowFormParts: WorkflowFormPartsModel;
-  @Input() jobTemplates: JobTemplateModel[];
   @Input() id: number;
   @Input() mode: string;
+  @Input() initialWorkflow: WorkflowJoinedModel;
+  @Input() workflowForForm: WorkflowJoinedModel;
+  @Input() projects: string[];
+  @Input() jobTemplates: JobTemplateModel[];
   @Input() backendValidationErrors: string[];
-  @Input() changes: Subject<Action>;
-  @Input() isWorkflowActive;
-
-  workflowModes = workflowModes;
-  absoluteRoutes = absoluteRoutes;
 
   isDetailsAccordionHidden = false;
   isSensorAccordionHidden = false;
   isJobsAccordionHidden = false;
 
-  projects: string[] = [];
+  workflowModes = workflowModes;
+  absoluteRoutes = absoluteRoutes;
 
-  paramsSubscription: Subscription;
-  workflowSubscription: Subscription;
-  confirmationDialogServiceSubscription: Subscription = null;
-  workflowsSubscription: Subscription = null;
+  confirmationDialogServiceSubscription: Subscription;
 
   constructor(
     private store: Store<AppState>,
@@ -80,40 +71,23 @@ export class WorkflowFormComponent implements OnInit, OnDestroy {
     private router: Router,
   ) {}
 
-  ngOnInit(): void {
-    this.workflowsSubscription = this.store.select(selectWorkflowState).subscribe((state) => {
-      this.projects = state.projects.map((project) => project.name);
-    });
+  detailsChange(value: WorkflowJoinedModel) {
+    this.workflowForForm = value;
+    this.store.dispatch(new WorkflowChanged(this.workflowForForm));
+  }
+
+  sensorChange(value: SensorModel) {
+    this.workflowForForm = { ...this.workflowForForm, sensor: value };
+    this.store.dispatch(new WorkflowChanged(this.workflowForForm));
+  }
+
+  jobsChange(value: DagDefinitionJoinedModel) {
+    this.workflowForForm = { ...this.workflowForForm, dagDefinitionJoined: value };
+    this.store.dispatch(new WorkflowChanged(this.workflowForForm));
   }
 
   hasWorkflowChanged(): boolean {
-    return !(
-      this.areWorkflowEntriesEqual(this.workflowData.details, this.initialWorkflowData.details) &&
-      this.areWorkflowEntriesEqual(this.workflowData.sensor, this.initialWorkflowData.sensor) &&
-      this.areJobsEqual(this.workflowData.jobs, this.initialWorkflowData.jobs)
-    );
-  }
-
-  areWorkflowEntriesEqual(leftEntries: WorkflowEntryModel[], rightEntries: WorkflowEntryModel[]): boolean {
-    function compareEntries(left: WorkflowEntryModel[], right: WorkflowEntryModel[]): boolean[] {
-      return left.map((leftEntry) =>
-        right.some((rightEntry) => isEqual(rightEntry.value, leftEntry.value) && rightEntry.property == leftEntry.property),
-      );
-    }
-
-    return [...compareEntries(leftEntries, rightEntries), ...compareEntries(rightEntries, leftEntries)].every((entry) => entry);
-  }
-
-  areJobsEqual(leftJobEntry: JobEntryModel[], rightJobEntry: JobEntryModel[]): boolean {
-    if (leftJobEntry.length != rightJobEntry.length) {
-      return false;
-    } else {
-      const leftJobEntrySorted = leftJobEntry.slice().sort((left, right) => left.order - right.order);
-      const rightJobEntrySorted = rightJobEntry.slice().sort((left, right) => left.order - right.order);
-      return leftJobEntrySorted
-        .map((job, index) => this.areWorkflowEntriesEqual(job.entries, rightJobEntrySorted[index].entries))
-        .every((entry) => entry);
-    }
+    return !isEqual(this.workflowForForm, this.initialWorkflow);
   }
 
   toggleDetailsAccordion() {
@@ -132,11 +106,6 @@ export class WorkflowFormComponent implements OnInit, OnDestroy {
     this.isDetailsAccordionHidden = false;
     this.isSensorAccordionHidden = false;
     this.isJobsAccordionHidden = false;
-    this.jobsUnfold.emit();
-  }
-
-  getJobsData(): JobEntryModel[] {
-    return cloneDeep(this.workflowData.jobs).sort((first, second) => first.order - second.order);
   }
 
   switchWorkflowActiveState(id: number) {
@@ -144,16 +113,17 @@ export class WorkflowFormComponent implements OnInit, OnDestroy {
       .confirm(
         ConfirmationDialogTypes.YesOrNo,
         texts.SWITCH_WORKFLOW_ACTIVE_STATE_TITLE,
-        texts.SWITCH_WORKFLOW_ACTIVE_STATE_CONTENT(this.isWorkflowActive),
+        texts.SWITCH_WORKFLOW_ACTIVE_STATE_CONTENT(this.initialWorkflow.isActive),
       )
       .subscribe((confirmed) => {
         if (confirmed)
           this.store.dispatch(
             new SwitchWorkflowActiveState({
               id: id,
-              currentActiveState: this.isWorkflowActive,
+              currentActiveState: this.initialWorkflow.isActive,
             }),
           );
+        this.confirmationDialogServiceSubscription.unsubscribe();
       });
   }
 
@@ -170,6 +140,7 @@ export class WorkflowFormComponent implements OnInit, OnDestroy {
       .confirm(ConfirmationDialogTypes.Delete, texts.DELETE_WORKFLOW_CONFIRMATION_TITLE, texts.DELETE_WORKFLOW_CONFIRMATION_CONTENT)
       .subscribe((confirmed) => {
         if (confirmed) this.store.dispatch(new DeleteWorkflow(id));
+        this.confirmationDialogServiceSubscription.unsubscribe();
       });
   }
 
@@ -179,6 +150,7 @@ export class WorkflowFormComponent implements OnInit, OnDestroy {
         .confirm(ConfirmationDialogTypes.YesOrNo, texts.CREATE_WORKFLOW_CONFIRMATION_TITLE, texts.CREATE_WORKFLOW_CONFIRMATION_CONTENT)
         .subscribe((confirmed) => {
           if (confirmed) this.store.dispatch(new CreateWorkflow());
+          this.confirmationDialogServiceSubscription.unsubscribe();
         });
     } else {
       this.showHiddenParts();
@@ -191,6 +163,7 @@ export class WorkflowFormComponent implements OnInit, OnDestroy {
         .confirm(ConfirmationDialogTypes.YesOrNo, texts.UPDATE_WORKFLOW_CONFIRMATION_TITLE, texts.UPDATE_WORKFLOW_CONFIRMATION_CONTENT)
         .subscribe((confirmed) => {
           if (confirmed) this.store.dispatch(new UpdateWorkflow());
+          this.confirmationDialogServiceSubscription.unsubscribe();
         });
     } else {
       this.showHiddenParts();
@@ -211,9 +184,6 @@ export class WorkflowFormComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    !!this.workflowSubscription && this.workflowSubscription.unsubscribe();
-    !!this.paramsSubscription && this.paramsSubscription.unsubscribe();
     !!this.confirmationDialogServiceSubscription && this.confirmationDialogServiceSubscription.unsubscribe();
-    !!this.workflowsSubscription && this.workflowsSubscription.unsubscribe();
   }
 }

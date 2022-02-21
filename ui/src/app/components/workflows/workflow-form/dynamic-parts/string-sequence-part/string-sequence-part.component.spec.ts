@@ -19,9 +19,6 @@ import { StringSequencePartComponent } from './string-sequence-part.component';
 import { DebugElement, Predicate } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { FormsModule, NgForm } from '@angular/forms';
-import { Subject } from 'rxjs';
-import { WorkflowEntryModel, WorkflowEntryModelFactory } from '../../../../../models/workflowEntry.model';
-import { PartValidation, PartValidationFactory } from '../../../../../models/workflowFormParts.model';
 
 describe('StringSequencePartComponent', () => {
   let fixture: ComponentFixture<StringSequencePartComponent>;
@@ -57,25 +54,17 @@ describe('StringSequencePartComponent', () => {
         waitForAsync(() => {
           const oldValue = parameter;
           const newValue = [''];
-          const propertyName = 'property';
-          const testedSubject = new Subject<WorkflowEntryModel>();
-          const subjectSpy = spyOn(testedSubject, 'next');
-          const partValidation = PartValidationFactory.create(true, 5, 50);
+          spyOn(underTest.valueChange, 'emit');
 
           underTest.isShow = false;
+          underTest.isRequired = true;
           underTest.name = 'name';
           underTest.value = oldValue;
-          underTest.property = propertyName;
-          underTest.valueChanges = testedSubject;
-          underTest.partValidation = partValidation;
           fixture.detectChanges();
 
           fixture.whenStable().then(() => {
-            const results = fixture.debugElement.queryAll(inputSelector);
-            expect(results.length == 1).toBeTrue();
-            expect(results[0].nativeElement.value).toBe(newValue[0]);
-            expect(subjectSpy).toHaveBeenCalledTimes(1);
-            expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValue));
+            expect(underTest.valueChange.emit).toHaveBeenCalled();
+            expect(underTest.valueChange.emit).toHaveBeenCalledWith(newValue);
           });
         }),
       );
@@ -83,23 +72,17 @@ describe('StringSequencePartComponent', () => {
   });
 
   it(
-    'should change value and publish change on user input',
+    'should change value and emit change on user input',
     waitForAsync(() => {
       const oldItem = 'two';
       const newItem = 'changed';
       const oldValue = ['one', oldItem, 'three'];
       const newValue = ['one', newItem, 'three'];
-      const propertyName = 'property';
-      const testedSubject = new Subject<WorkflowEntryModel>();
-      const subjectSpy = spyOn(testedSubject, 'next');
-      const partValidation = PartValidationFactory.create(true, 5, 50);
+      spyOn(underTest.valueChange, 'emit');
 
       underTest.isShow = false;
       underTest.name = 'name';
       underTest.value = oldValue;
-      underTest.property = propertyName;
-      underTest.valueChanges = testedSubject;
-      underTest.partValidation = partValidation;
 
       fixture.detectChanges();
       fixture.whenStable().then(() => {
@@ -112,29 +95,23 @@ describe('StringSequencePartComponent', () => {
         fixture.whenStable().then(() => {
           const testedValue = fixture.debugElement.queryAll(inputSelector)[1].nativeElement.value;
           expect(testedValue).toBe(newItem);
-          expect(subjectSpy).toHaveBeenCalled();
-          expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValue));
+          expect(underTest.valueChange.emit).toHaveBeenCalled();
+          expect(underTest.valueChange.emit).toHaveBeenCalledWith(newValue);
         });
       });
     }),
   );
 
   it(
-    'onDeleteValue() should remove element from value and publish change',
+    'onDeleteValue() should remove element from value and emit change',
     waitForAsync(() => {
       const oldValue = ['one', 'two', 'three'];
       const newValue = ['one', 'three'];
-      const propertyName = 'property';
-      const testedSubject = new Subject<WorkflowEntryModel>();
-      const subjectSpy = spyOn(testedSubject, 'next');
-      const partValidation = PartValidationFactory.create(true, 5, 50);
+      spyOn(underTest.valueChange, 'emit');
 
       underTest.isShow = false;
       underTest.name = 'name';
       underTest.value = oldValue;
-      underTest.property = propertyName;
-      underTest.valueChanges = testedSubject;
-      underTest.partValidation = partValidation;
 
       fixture.detectChanges();
       fixture.whenStable().then(() => {
@@ -142,32 +119,23 @@ describe('StringSequencePartComponent', () => {
 
         fixture.detectChanges();
         fixture.whenStable().then(() => {
-          const testedValue = fixture.debugElement.queryAll(inputSelector);
-          const result = testedValue.map((element) => element.nativeElement.value);
-          expect(result).toEqual(newValue);
-          expect(subjectSpy).toHaveBeenCalled();
-          expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValue));
+          expect(underTest.valueChange.emit).toHaveBeenCalled();
+          expect(underTest.valueChange.emit).toHaveBeenCalledWith(newValue);
         });
       });
     }),
   );
 
   it(
-    'onAddValue() should add empty string to value and publish change',
+    'onAddValue() should add empty string to value and emit change',
     waitForAsync(() => {
       const oldValue = ['one', 'two'];
       const newValue = ['one', 'two', ''];
-      const propertyName = 'property';
-      const testedSubject = new Subject<WorkflowEntryModel>();
-      const subjectSpy = spyOn(testedSubject, 'next');
-      const partValidation = PartValidationFactory.create(true, 5, 50);
+      spyOn(underTest.valueChange, 'emit');
 
       underTest.isShow = false;
       underTest.name = 'name';
       underTest.value = oldValue;
-      underTest.property = propertyName;
-      underTest.valueChanges = testedSubject;
-      underTest.partValidation = partValidation;
 
       fixture.detectChanges();
       fixture.whenStable().then(() => {
@@ -175,11 +143,8 @@ describe('StringSequencePartComponent', () => {
 
         fixture.detectChanges();
         fixture.whenStable().then(() => {
-          const testedValue = fixture.debugElement.queryAll(inputSelector);
-          const result = testedValue.map((element) => element.nativeElement.value);
-          expect(result).toEqual(newValue);
-          expect(subjectSpy).toHaveBeenCalled();
-          expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, newValue));
+          expect(underTest.valueChange.emit).toHaveBeenCalled();
+          expect(underTest.valueChange.emit).toHaveBeenCalledWith(newValue);
         });
       });
     }),
@@ -189,16 +154,11 @@ describe('StringSequencePartComponent', () => {
     'setDefaultValue() should set array with empty string when value is undefined and field is required',
     waitForAsync(() => {
       const value = undefined;
-      const propertyName = 'property';
-      const testedSubject = new Subject<WorkflowEntryModel>();
-      const subjectSpy = spyOn(testedSubject, 'next');
-      const partValidation = PartValidationFactory.create(true, 5, 50);
+      spyOn(underTest.valueChange, 'emit');
 
       underTest.isShow = false;
+      underTest.isRequired = true;
       underTest.value = value;
-      underTest.property = propertyName;
-      underTest.valueChanges = testedSubject;
-      underTest.partValidation = partValidation;
 
       fixture.detectChanges();
       fixture.whenStable().then(() => {
@@ -206,11 +166,9 @@ describe('StringSequencePartComponent', () => {
 
         fixture.detectChanges();
         fixture.whenStable().then(() => {
-          const testedValue = underTest.value;
           const expectedValue = [''];
-          expect(testedValue).toEqual(expectedValue);
-          expect(subjectSpy).toHaveBeenCalled();
-          expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, expectedValue));
+          expect(underTest.valueChange.emit).toHaveBeenCalled();
+          expect(underTest.valueChange.emit).toHaveBeenCalledWith(expectedValue);
         });
       });
     }),
@@ -220,16 +178,11 @@ describe('StringSequencePartComponent', () => {
     'setDefaultValue() should set empty array when value is undefined and field is not required',
     waitForAsync(() => {
       const value = undefined;
-      const propertyName = 'property';
-      const testedSubject = new Subject<WorkflowEntryModel>();
-      const subjectSpy = spyOn(testedSubject, 'next');
-      const partValidation = PartValidationFactory.create(false, 5, 50);
+      spyOn(underTest.valueChange, 'emit');
 
       underTest.isShow = false;
+      underTest.isRequired = false;
       underTest.value = value;
-      underTest.property = propertyName;
-      underTest.valueChanges = testedSubject;
-      underTest.partValidation = partValidation;
 
       fixture.detectChanges();
       fixture.whenStable().then(() => {
@@ -237,11 +190,9 @@ describe('StringSequencePartComponent', () => {
 
         fixture.detectChanges();
         fixture.whenStable().then(() => {
-          const testedValue = underTest.value;
           const expectedValue = [];
-          expect(testedValue).toEqual(expectedValue);
-          expect(subjectSpy).toHaveBeenCalled();
-          expect(subjectSpy).toHaveBeenCalledWith(WorkflowEntryModelFactory.create(propertyName, expectedValue));
+          expect(underTest.valueChange.emit).toHaveBeenCalled();
+          expect(underTest.valueChange.emit).toHaveBeenCalledWith(expectedValue);
         });
       });
     }),
@@ -251,16 +202,10 @@ describe('StringSequencePartComponent', () => {
     'setDefaultValue() should do nothing when value is not undefined',
     waitForAsync(() => {
       const value = [''];
-      const propertyName = 'property';
-      const testedSubject = new Subject<WorkflowEntryModel>();
-      const subjectSpy = spyOn(testedSubject, 'next');
-      const partValidation = PartValidationFactory.create(false, 5, 50);
+      spyOn(underTest.valueChange, 'emit');
 
       underTest.isShow = false;
       underTest.value = value;
-      underTest.property = propertyName;
-      underTest.valueChanges = testedSubject;
-      underTest.partValidation = partValidation;
 
       fixture.detectChanges();
       fixture.whenStable().then(() => {
@@ -268,9 +213,7 @@ describe('StringSequencePartComponent', () => {
 
         fixture.detectChanges();
         fixture.whenStable().then(() => {
-          const testedValue = underTest.value;
-          expect(testedValue).toEqual(value);
-          expect(subjectSpy).toHaveBeenCalledTimes(0);
+          expect(underTest.valueChange.emit).toHaveBeenCalledTimes(0);
         });
       });
     }),
