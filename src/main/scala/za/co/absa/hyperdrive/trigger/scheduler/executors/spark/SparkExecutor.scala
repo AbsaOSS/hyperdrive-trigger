@@ -46,9 +46,7 @@ object SparkExecutor {
         case Seq(first) => updateJob(jobInstance.copy(
           applicationId = Some(first.id),
           jobStatus = getStatus(first.finalStatus)))
-        case _ if jobInstance.jobStatus == Submitting =>
-          sparkClusterService.handleMissingYarnStatusForJobStatusSubmitting(jobInstance, updateJob)
-        case _ => updateJob(jobInstance.copy(jobStatus = Lost))
+        case _ => sparkClusterService.handleMissingYarnStatus(jobInstance, updateJob)
       }
     }
   }

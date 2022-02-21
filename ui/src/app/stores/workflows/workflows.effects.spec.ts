@@ -1168,4 +1168,51 @@ describe('WorkflowsEffects', () => {
       expect(toastrServiceSpy).toHaveBeenCalledWith(texts.LOAD_WORKFLOW_FROM_HISTORY_FAILURE_NOTIFICATION);
     });
   });
+
+  describe('sortJobsInWorkflow', () => {
+    it('should return input workflow if workflow contains 0 jobs', () => {
+      const workflow = WorkflowJoinedModelFactory.createEmpty();
+      const inputWorkflow = { ...workflow, dagDefinitionJoined: { ...workflow.dagDefinitionJoined, jobDefinitions: [] } };
+
+      const result = underTest.sortJobsInWorkflow(inputWorkflow);
+
+      expect(result).toEqual(inputWorkflow);
+    });
+
+    it('should return input workflow with sorted jobs', () => {
+      const workflow = WorkflowJoinedModelFactory.createEmpty();
+      const firstJob = JobDefinitionModelFactory.createDefault(0);
+      const secondJob = JobDefinitionModelFactory.createDefault(1);
+      const thirdJob = JobDefinitionModelFactory.createDefault(2);
+
+      const inputWorkflow = {
+        ...workflow,
+        dagDefinitionJoined: { ...workflow.dagDefinitionJoined, jobDefinitions: [thirdJob, secondJob, firstJob] },
+      };
+      const expectedWorkflow = {
+        ...workflow,
+        dagDefinitionJoined: { ...workflow.dagDefinitionJoined, jobDefinitions: [firstJob, secondJob, thirdJob] },
+      };
+
+      const result = underTest.sortJobsInWorkflow(inputWorkflow);
+
+      expect(result).toEqual(expectedWorkflow);
+    });
+
+    it('should return input workflow if jobs are already sorted', () => {
+      const workflow = WorkflowJoinedModelFactory.createEmpty();
+      const firstJob = JobDefinitionModelFactory.createDefault(0);
+      const secondJob = JobDefinitionModelFactory.createDefault(1);
+      const thirdJob = JobDefinitionModelFactory.createDefault(2);
+
+      const inputWorkflow = {
+        ...workflow,
+        dagDefinitionJoined: { ...workflow.dagDefinitionJoined, jobDefinitions: [firstJob, secondJob, thirdJob] },
+      };
+
+      const result = underTest.sortJobsInWorkflow(inputWorkflow);
+
+      expect(result).toEqual(inputWorkflow);
+    });
+  });
 });
