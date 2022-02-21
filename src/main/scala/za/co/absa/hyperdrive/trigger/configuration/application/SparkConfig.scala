@@ -47,9 +47,7 @@ class SparkConfig (
 
 class SparkYarnSinkConfig (
   val submitTimeout: Int,
-  val hadoopConfDir: String,
   val master: String,
-  val sparkHome: String,
   @Name("filesToDeploy")
   filesToDeployInternal: String,
   @Name("additionalConfs")

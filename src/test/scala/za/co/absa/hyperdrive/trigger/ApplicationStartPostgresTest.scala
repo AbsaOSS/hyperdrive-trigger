@@ -78,8 +78,6 @@ class ApplicationStartPostgresTest extends FlatSpec with Matchers with SpringInt
     kafkaConfig.properties.getProperty("security.protocol") shouldBe "PLAINTEXT"
     sparkConfig.submitApi shouldBe "yarn"
     sparkConfig.hadoopResourceManagerUrlBase shouldBe "http://localhost:8088"
-    sparkConfig.yarn.hadoopConfDir shouldBe "/opt/hadoop"
-    sparkConfig.yarn.sparkHome shouldBe "/opt/spark"
     sparkConfig.yarn.master shouldBe "yarn"
     sparkConfig.yarn.submitTimeout shouldBe 160000
     sparkConfig.yarn.filesToDeploy shouldBe Seq()
