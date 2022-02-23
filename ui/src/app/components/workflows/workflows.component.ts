@@ -52,15 +52,13 @@ export class WorkflowsComponent implements AfterViewInit, OnDestroy {
   }
 
   isProjectClosed(project: string, workflows: WorkflowIdentityModel[]): boolean {
-    const isOpen =
-      this.openedProjects.has(project) || workflows.some((workflow: WorkflowIdentityModel) => this.isWorkflowHighlighted(workflow.id));
-    if (isOpen && !this.openedProjects.has(project)) {
+    if (!this.openedProjects.has(project) && workflows.some((workflow: WorkflowIdentityModel) => this.isWorkflowHighlighted(workflow.id))) {
       this.openedProjects.add(project);
     }
-    return !isOpen;
+    return !this.openedProjects.has(project);
   }
 
-  openCloseProject(project: string) {
+  toggleProject(project: string) {
     if (this.openedProjects.has(project)) {
       this.openedProjects.delete(project);
     } else {

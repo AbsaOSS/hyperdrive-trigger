@@ -96,27 +96,27 @@ describe('WorkflowsComponent', () => {
   });
 
   it(
-    'openCloseProject() should toggle a project',
+    'toggleProject() should toggle a project',
     waitForAsync(() => {
       const project = 'project';
       const projectOther = 'projectOther';
 
       expect(underTest.openedProjects.size).toEqual(0);
 
-      underTest.openCloseProject(project);
+      underTest.toggleProject(project);
       expect(underTest.openedProjects.size).toEqual(1);
       expect(underTest.openedProjects).toContain(project);
 
-      underTest.openCloseProject(projectOther);
+      underTest.toggleProject(projectOther);
       expect(underTest.openedProjects.size).toEqual(2);
       expect(underTest.openedProjects).toContain(project);
       expect(underTest.openedProjects).toContain(projectOther);
 
-      underTest.openCloseProject(project);
+      underTest.toggleProject(project);
       expect(underTest.openedProjects.size).toEqual(1);
       expect(underTest.openedProjects).toContain(projectOther);
 
-      underTest.openCloseProject(projectOther);
+      underTest.toggleProject(projectOther);
       expect(underTest.openedProjects.size).toEqual(0);
     }),
   );
