@@ -213,6 +213,7 @@ export class WorkflowsHomeComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   refresh() {
+    this.selected = [];
     const searchRequestModel: TableSearchRequestModel = {
       from: this.pageFrom,
       size: this.pageSize,
