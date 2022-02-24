@@ -79,7 +79,7 @@
     <clr-dropdown>
       <button type="button" class="btn btn-sm btn-secondary" [disabled]="selected.length <= 0" clrDropdownTrigger>
         Bulk Actions
-        <clr-icon shape="caret down"></clr-icon>
+        <clr-icon shape="angle down"></clr-icon>
       </button>
       <clr-dropdown-menu clrPosition="bottom-left" *clrIfOpen>
         <div aria-label="Activate" clrDropdownItem [clrDisabled]="isActivateSelectedWorkflowsDisabled(selected)" (click)="activateSelectedWorkflows(selected)">
@@ -108,8 +108,8 @@
       </button>
       <clr-dropdown>
         <button type="button" class="btn btn-sm btn-secondary" clrDropdownTrigger>
-          <clr-icon shape="import"></clr-icon>
           Import
+            <clr-icon shape="angle down"></clr-icon>
         </button>
         <clr-dropdown-menu clrPosition="bottom-left" *clrIfOpen>
           <div aria-label="Single workflow (.json)" clrDropdownItem (click)="openImportWorkflowModal()">

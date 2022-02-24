@@ -17,3 +17,11 @@ clr-datagrid {
   height: 100%;
   width: 100%;
 }
+
+.dropdown .dropdown-toggle.btn clr-icon {
+  &[shape^=angle]{
+    position: unset;
+    top: unset;
+    transform: translate3d(0,-0.05rem,0);
+  }
+}
