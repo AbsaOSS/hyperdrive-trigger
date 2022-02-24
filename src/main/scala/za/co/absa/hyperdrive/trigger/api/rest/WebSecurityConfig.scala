@@ -79,12 +79,9 @@ class WebSecurityConfig @Inject()(val beanFactory: BeanFactory, authConfig: Auth
         .authorizeRequests()
         .antMatchers(
           "/", "/index.html",
-          "/main-es5*.js",
-          "/main-es2015*.js",
-          "/polyfills-es5*.js",
-          "/polyfills-es2015*.js",
-          "/runtime-es5*.js",
-          "/runtime-es2015*.js",
+          "/main*.js",
+          "/polyfills*.js",
+          "/runtime*.js",
           "/scripts*.js",
           "/styles*.css",
           "/favicon.ico",

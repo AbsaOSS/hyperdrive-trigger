@@ -38,7 +38,7 @@
         <clr-dropdown>
           <button class="nav-text" clrDropdownTrigger>
             Admin
-            <clr-icon shape="caret down"></clr-icon>
+            <clr-icon shape="angle down"></clr-icon>
           </button>
           <clr-dropdown-menu *clrIfOpen clrPosition="bottom-right">
             <a clrDropdownItem routerLinkActive="active" routerLink="{{routes.JOB_TEMPLATES}}">Job templates</a>
@@ -51,7 +51,7 @@
       <clr-dropdown>
         <button class="nav-text" clrDropdownTrigger aria-label="open user profile">
           {{username}}
-          <clr-icon shape="caret down"></clr-icon>
+          <clr-icon shape="angle down"></clr-icon>
         </button>
         <clr-dropdown-menu *clrIfOpen clrPosition="bottom-right">
           <a clrDropdownItem (click)="onLogOut()">Log out</a>
