@@ -28,11 +28,11 @@
       All workflows
     </a>
     <section class="nav-group collapsible" *ngFor="let project of projects; let index = index;">
-      <input [id]="index" type="checkbox" checked>
+      <input [id]="index" type="checkbox" [checked]="isProjectClosed(project.name, project.workflows)" (change)="toggleProject(project.name)">
       <label [for]="index">{{project.name}}</label>
       <ul class="nav-list" *ngFor="let workflow of project.workflows">
         <li>
-          <a routerLinkActive="active"
+          <a [class]="isWorkflowHighlighted(workflow.id) ? 'active' : null"
              [routerLink]="[absoluteRoutes.SHOW_WORKFLOW, workflow.id]"
              class="nav-link">{{workflow.name}}</a>
         </li>
