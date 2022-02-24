@@ -14,12 +14,13 @@
  */
 
 import { AfterViewInit, Component, OnDestroy } from '@angular/core';
-import { ProjectModel } from '../../models/project.model';
+import { ProjectModel, WorkflowIdentityModel } from '../../models/project.model';
 import { Store } from '@ngrx/store';
 import { AppState, selectWorkflowState } from '../../stores/app.reducers';
 import { Subscription } from 'rxjs';
 import { InitializeWorkflows } from '../../stores/workflows/workflows.actions';
 import { absoluteRoutes } from '../../constants/routes.constants';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-workflows',
@@ -31,10 +32,11 @@ export class WorkflowsComponent implements AfterViewInit, OnDestroy {
 
   loading = true;
   projects: ProjectModel[] = [];
+  openedProjects: Set<string> = new Set<string>();
 
   absoluteRoutes = absoluteRoutes;
 
-  constructor(private store: Store<AppState>) {
+  constructor(private store: Store<AppState>, private router: Router) {
     this.store.dispatch(new InitializeWorkflows());
   }
 
@@ -43,6 +45,25 @@ export class WorkflowsComponent implements AfterViewInit, OnDestroy {
       this.loading = state.loading;
       this.projects = state.projects;
     });
+  }
+
+  isWorkflowHighlighted(id: number): boolean {
+    return this.router.url.split('/').some((part) => part === id.toString());
+  }
+
+  isProjectClosed(project: string, workflows: WorkflowIdentityModel[]): boolean {
+    if (!this.openedProjects.has(project) && workflows.some((workflow: WorkflowIdentityModel) => this.isWorkflowHighlighted(workflow.id))) {
+      this.openedProjects.add(project);
+    }
+    return !this.openedProjects.has(project);
+  }
+
+  toggleProject(project: string) {
+    if (this.openedProjects.has(project)) {
+      this.openedProjects.delete(project);
+    } else {
+      this.openedProjects.add(project);
+    }
   }
 
   ngOnDestroy(): void {
