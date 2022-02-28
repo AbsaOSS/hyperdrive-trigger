@@ -156,6 +156,13 @@ trait RepositoryTestBase extends Repository {
     val dr5 = DagRun(workflowId = 5, workflowName = "workflowName5", projectName = "projectName3", jobCount = 2, started = LocalDateTime.now().plusDays(5), finished = None, status = DagInstanceStatuses.Running.name, triggeredBy = triggeredBy, id = 304)
     val dagRuns: Seq[DagRun] = Seq(dr1, dr2, dr3, dr4, dr5)
 
+    val getDagRuns = {
+      dagInstances.map { di =>
+        val w = workflows.find(_.id == di.workflowId.toInt).get
+        DagRun(w.id, w.name, w.project, 0, di.started, di.finished, di.status.name, di.triggeredBy, di.id)
+      }
+    }
+
     val jt1 = JobTemplate(name = "jobTemplate1", SparkTemplateParameters(jobType = JobTypes.Spark, jobJar = "testJobJar.jar", mainClass = "testMainClass", appArguments = List("value1", "value2"), additionalJars = List("value1", "value2"), additionalFiles = List("value1", "value2"), additionalSparkConfig = Map("key" -> "value")), id = 100)
     val jt2 = JobTemplate(name = "jobTemplate2", ShellTemplateParameters(scriptLocation = "testScript.sh"), id = 101)
     val jobTemplates = Seq(jt1, jt2)
