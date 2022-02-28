@@ -63,8 +63,8 @@ class DagRunRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll
     )
 
     val result: TableSearchResponse[DagRun] = await(dagRunRepository.searchDagRuns(searchRequest))
-    result.total shouldBe TestData.getDagRuns.size
-    result.items shouldBe TestData.getDagRuns
+    result.total shouldBe TestData.dagRuns.size
+    result.items shouldBe TestData.dagRuns
   }
 
   "dagRunRepository.searchDagRuns" should "using from and size should return paginated dag runs" in {
@@ -76,7 +76,7 @@ class DagRunRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll
     )
 
     val result: TableSearchResponse[DagRun] = await(dagRunRepository.searchDagRuns(searchRequest))
-    result.total shouldBe TestData.getDagRuns.size
+    result.total shouldBe TestData.dagRuns.size
     result.items.size shouldBe 2
   }
 
@@ -89,9 +89,9 @@ class DagRunRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll
     )
 
     val result: TableSearchResponse[DagRun] = await(dagRunRepository.searchDagRuns(searchRequest))
-    result.total shouldBe TestData.getDagRuns.size
-    result.items.size shouldBe TestData.getDagRuns.size
-    result.items shouldBe TestData.getDagRuns.sortBy(_.workflowName)
+    result.total shouldBe TestData.dagRuns.size
+    result.items.size shouldBe TestData.dagRuns.size
+    result.items shouldBe TestData.dagRuns.sortBy(_.workflowName)
   }
 
   "dagRunRepository.searchDagRuns" should "using sort by started (desc order) should return sorted dag runs" in {
@@ -103,9 +103,9 @@ class DagRunRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll
     )
 
     val result: TableSearchResponse[DagRun] = await(dagRunRepository.searchDagRuns(searchRequest))
-    result.total shouldBe TestData.getDagRuns.size
-    result.items.size shouldBe TestData.getDagRuns.size
-    val expected = TestData.getDagRuns.sortWith((first, second) => first.started.isAfter(second.started))
+    result.total shouldBe TestData.dagRuns.size
+    result.items.size shouldBe TestData.dagRuns.size
+    val expected = TestData.dagRuns.sortWith((first, second) => first.started.isAfter(second.started))
     result.items shouldBe expected
   }
 
@@ -124,7 +124,7 @@ class DagRunRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll
 
     val result = await(dagRunRepository.searchDagRuns(searchRequest))
 
-    val expected = TestData.getDagRuns.filter(dagRun => dagRun.started.isBefore(LocalDateTime.now().minusMinutes(20L)))
+    val expected = TestData.dagRuns.filter(dagRun => dagRun.started.isBefore(LocalDateTime.now().minusMinutes(20L)))
     result.total should be > 0
     result.total shouldBe expected.size
     result.items should contain theSameElementsAs expected
