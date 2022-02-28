@@ -61,11 +61,11 @@ class DagRunRepositoryImpl @Inject()(val dbProvider: DatabaseProvider) extends D
     val queryOrderBy = searchRequest.sort match {
       case Some(SortAttributes(by, order)) =>
         sql"""
-          ORDER BY #${fieldMapping(by)} #${orderByMapping(order)}
+          ORDER BY #${fieldMapping(by)} #${orderByMapping(order)}, dag_instance.id DESC
           """
       case None =>
         sql"""
-          ORDER BY dag_instance.id
+          ORDER BY dag_instance.id DESC
           """
     }
     val dagIdsQueryLimitOffset =

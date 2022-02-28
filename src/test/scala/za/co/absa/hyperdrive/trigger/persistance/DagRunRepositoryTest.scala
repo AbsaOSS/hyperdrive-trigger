@@ -15,16 +15,13 @@
 
 package za.co.absa.hyperdrive.trigger.persistance
 
-import org.scalatest.{FlatSpec, _}
-import slick.jdbc.SetParameter.{SetInt, SetString, SetStringOption}
-import slick.jdbc.{ActionBasedSQLInterpolation, GetResult, MacroTreeBuilder, PositionedParameters, SQLActionBuilder, SetParameter}
+import org.scalatest._
 import za.co.absa.hyperdrive.trigger.models.dagRuns.DagRun
-import za.co.absa.hyperdrive.trigger.models.search.{DateTimeRangeFilterAttributes, IntRangeFilterAttributes, SortAttributes, TableSearchRequest, TableSearchResponse}
+import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
+import za.co.absa.hyperdrive.trigger.models.search.{ContainsFilterAttributes, DateTimeRangeFilterAttributes, EqualsMultipleFilterAttributes, SortAttributes, TableSearchRequest, TableSearchResponse}
 
-import java.time.LocalDateTime
+import java.time.{LocalDateTime, ZoneId}
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-import scala.reflect.macros.blackbox
 
 class DagRunRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryH2TestBase {
 
@@ -54,7 +51,7 @@ class DagRunRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll
     result.items shouldBe Seq.empty[DagRun]
   }
 
-  "dagRunRepository.searchDagRuns" should "return all dag runs with no search query" in {
+  "dagRunRepository.searchDagRuns" should "return all dag runs with no search query ordered by id desc" in {
     createTestData()
     val searchRequest: TableSearchRequest = TableSearchRequest(
       sort = None,
@@ -64,7 +61,7 @@ class DagRunRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll
 
     val result: TableSearchResponse[DagRun] = await(dagRunRepository.searchDagRuns(searchRequest))
     result.total shouldBe TestData.dagRuns.size
-    result.items shouldBe TestData.dagRuns
+    result.items should contain theSameElementsInOrderAs TestData.dagRuns.sortBy(_.id).reverse
   }
 
   "dagRunRepository.searchDagRuns" should "using from and size should return paginated dag runs" in {
@@ -91,7 +88,7 @@ class DagRunRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll
     val result: TableSearchResponse[DagRun] = await(dagRunRepository.searchDagRuns(searchRequest))
     result.total shouldBe TestData.dagRuns.size
     result.items.size shouldBe TestData.dagRuns.size
-    result.items shouldBe TestData.dagRuns.sortBy(_.workflowName)
+    result.items should contain theSameElementsInOrderAs TestData.dagRuns.sortBy(r => (r.workflowName, -r.id))
   }
 
   "dagRunRepository.searchDagRuns" should "using sort by started (desc order) should return sorted dag runs" in {
@@ -105,18 +102,22 @@ class DagRunRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll
     val result: TableSearchResponse[DagRun] = await(dagRunRepository.searchDagRuns(searchRequest))
     result.total shouldBe TestData.dagRuns.size
     result.items.size shouldBe TestData.dagRuns.size
-    val expected = TestData.dagRuns.sortWith((first, second) => first.started.isAfter(second.started))
-    result.items shouldBe expected
+    val expected = TestData.dagRuns.sortBy(r => (-r.started.atZone(ZoneId.systemDefault()).toEpochSecond, -r.id))
+    result.items should contain theSameElementsInOrderAs expected
   }
 
   "dagRunRepository.searchDagRuns" should "apply filters" in {
     createTestData()
 
-    val dateTimeRangeFilterSeq = Option(Seq(
+    val dateTimeRangeFilter = Some(Seq(
       DateTimeRangeFilterAttributes(field = "started", start = None, end = Some(LocalDateTime.now().minusMinutes(20L)))
     ))
-    val searchRequest: TableSearchRequest = TableSearchRequest(
-      dateTimeRangeFilterAttributes = dateTimeRangeFilterSeq,
+    val equalsMultipleFilter = Some(Seq(
+      EqualsMultipleFilterAttributes(field = "status", values = List(DagInstanceStatuses.InQueue.name))
+    ))
+    val searchRequest = TableSearchRequest(
+      dateTimeRangeFilterAttributes = dateTimeRangeFilter,
+      equalsMultipleFilterAttributes = equalsMultipleFilter,
       sort = None,
       from = 0,
       size = Integer.MAX_VALUE
@@ -124,9 +125,36 @@ class DagRunRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll
 
     val result = await(dagRunRepository.searchDagRuns(searchRequest))
 
-    val expected = TestData.dagRuns.filter(dagRun => dagRun.started.isBefore(LocalDateTime.now().minusMinutes(20L)))
+    val expected = TestData.dagRuns.filter(dagRun =>
+      dagRun.started.isBefore(LocalDateTime.now().minusMinutes(20L)) &&
+      dagRun.status == DagInstanceStatuses.InQueue.name
+    )
     result.total should be > 0
     result.total shouldBe expected.size
+    result.items should contain theSameElementsAs expected
+  }
+
+  it should "apply contains filters" in {
+    createTestData()
+    val containsFilters = Some(Seq(
+      ContainsFilterAttributes(field = "workflowName", value = "flow1"),
+      ContainsFilterAttributes(field = "status", value = "Que")
+    ))
+
+    val searchRequest = TableSearchRequest(
+      containsFilterAttributes = containsFilters,
+      sort = None,
+      from = 0,
+      size = Integer.MAX_VALUE
+    )
+
+    val result = await(dagRunRepository.searchDagRuns(searchRequest))
+    val expected = TestData.dagRuns.filter(dagRun =>
+      dagRun.workflowName.contains("flow1") &&
+      dagRun.status.contains("Que")
+    )
+
+    result.total should be > 0
     result.items should contain theSameElementsAs expected
   }
 }
