@@ -14,4 +14,4 @@
  */
 
 CREATE INDEX dag_instance_started_idx ON dag_instance (started);
-DROP dag_run_view;
+DROP VIEW dag_run_view;
