@@ -16,7 +16,6 @@
 export const dagRunColumns = {
   WORKFLOW_NAME: 'workflowName',
   PROJECT_NAME: 'projectName',
-  JOB_COUNT: 'jobCount',
   STARTED: 'started',
   FINISHED: 'finished',
   STATUS: 'status',
