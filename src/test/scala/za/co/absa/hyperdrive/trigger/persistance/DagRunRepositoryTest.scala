@@ -18,7 +18,7 @@ package za.co.absa.hyperdrive.trigger.persistance
 import org.scalatest._
 import za.co.absa.hyperdrive.trigger.models.dagRuns.DagRun
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
-import za.co.absa.hyperdrive.trigger.models.search.{ContainsFilterAttributes, DateTimeRangeFilterAttributes, EqualsMultipleFilterAttributes, SortAttributes, TableSearchRequest, TableSearchResponse}
+import za.co.absa.hyperdrive.trigger.models.search.{ContainsFilterAttributes, DateTimeRangeFilterAttributes, EqualsMultipleFilterAttributes, LongFilterAttributes, SortAttributes, TableSearchRequest, TableSearchResponse}
 
 import java.time.{LocalDateTime, ZoneId}
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -138,7 +138,9 @@ class DagRunRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll
     createTestData()
     val containsFilters = Some(Seq(
       ContainsFilterAttributes(field = "workflowName", value = "flow1"),
-      ContainsFilterAttributes(field = "status", value = "Que")
+      ContainsFilterAttributes(field = "status", value = "Que"),
+      ContainsFilterAttributes(field = "triggeredBy", value = TestData.triggeredBy),
+      ContainsFilterAttributes(field = "projectName", value = "project")
     ))
 
     val searchRequest = TableSearchRequest(
@@ -155,6 +157,69 @@ class DagRunRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll
     )
 
     result.total should be > 0
+    result.items should contain theSameElementsAs expected
+  }
+
+  it should "apply filter by workflowId" in {
+    createTestData()
+    val longFilters = Some(Seq(
+      LongFilterAttributes(field = "workflowId", value = 100L)
+    ))
+
+    val searchRequest = TableSearchRequest(
+      longFilterAttributes = longFilters,
+      sort = None,
+      from = 0,
+      size = Integer.MAX_VALUE
+    )
+
+    val result = await(dagRunRepository.searchDagRuns(searchRequest))
+    val expected = TestData.dagRuns.filter(_.workflowId == 100L)
+
+    result.total should be > 0
+    result.items should contain theSameElementsAs expected
+  }
+
+  it should "apply filter by dag instance id" in {
+    createTestData()
+    val longFilters = Some(Seq(
+      LongFilterAttributes(field = "id", value = 200L)
+    ))
+
+    val searchRequest = TableSearchRequest(
+      longFilterAttributes = longFilters,
+      sort = None,
+      from = 0,
+      size = Integer.MAX_VALUE
+    )
+
+    val result = await(dagRunRepository.searchDagRuns(searchRequest))
+    val expected = TestData.dagRuns.filter(_.id == 200L)
+
+    result.total should be > 0
+    result.items should contain theSameElementsAs expected
+  }
+
+  it should "apply filter by finished" in {
+    createTestData()
+
+    val dateTimeRangeFilter = Some(Seq(
+      DateTimeRangeFilterAttributes(field = "finished", start = None, end = Some(LocalDateTime.now().plusMinutes(20L)))
+    ))
+
+    val searchRequest = TableSearchRequest(
+      dateTimeRangeFilterAttributes = dateTimeRangeFilter,
+      sort = None,
+      from = 0,
+      size = Integer.MAX_VALUE
+    )
+
+    val result = await(dagRunRepository.searchDagRuns(searchRequest))
+
+    val expected = TestData.dagRuns.filter(dagRun =>
+      dagRun.finished.exists(_.isBefore(LocalDateTime.now().plusMinutes(20L))))
+    result.total should be > 0
+    result.total shouldBe expected.size
     result.items should contain theSameElementsAs expected
   }
 }

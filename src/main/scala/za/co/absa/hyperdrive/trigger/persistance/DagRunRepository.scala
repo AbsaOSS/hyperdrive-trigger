@@ -40,7 +40,7 @@ class DagRunRepositoryImpl @Inject()(val dbProvider: DatabaseProvider) extends D
     "started" -> "dag_instance.started",
     "finished" -> "dag_instance.finished",
     "status" -> "dag_instance.status",
-    "triggeredBy" -> "dag_instance.triggeredBy",
+    "triggeredBy" -> "dag_instance.triggered_by",
     "id" -> "dag_instance.id"
   )
 
