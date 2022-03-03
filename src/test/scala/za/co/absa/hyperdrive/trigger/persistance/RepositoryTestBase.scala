@@ -42,7 +42,6 @@ trait RepositoryTestBase extends Repository {
       dagInstanceTable.schema.create,
       jobInstanceTable.schema.create,
       eventTable.schema.create,
-      dagRunTable.schema.create,
       notificationRuleTable.schema.create,
       notificationRuleHistoryTable.schema.create
     )
@@ -51,7 +50,6 @@ trait RepositoryTestBase extends Repository {
 
   def schemaDrop(): Unit = {
     val schema = DBIO.seq(
-      dagRunTable.schema.dropIfExists,
       eventTable.schema.drop,
       jobInstanceTable.schema.drop,
       dagInstanceTable.schema.drop,
@@ -81,7 +79,6 @@ trait RepositoryTestBase extends Repository {
       dagDefinitionTable.delete,
       workflowTable.delete,
       workflowHistoryTable.delete,
-      dagRunTable.delete,
       schedulerInstanceTable.delete,
       notificationRuleTable.delete,
       notificationRuleHistoryTable.delete
@@ -92,7 +89,6 @@ trait RepositoryTestBase extends Repository {
   def createTestData(): Unit = {
     run(workflowTable.forceInsertAll(TestData.workflows))
     run(dagInstanceTable.forceInsertAll(TestData.dagInstances))
-    run(dagRunTable.forceInsertAll(TestData.dagRuns))
     run(sensorTable.forceInsertAll(TestSensors.allSensors.map(_._1)))
     run(jobTemplateTable.forceInsertAll(TestData.jobTemplates))
     run(dagDefinitionTable.forceInsertAll(TestData.dagDefinitions))
@@ -128,33 +124,34 @@ trait RepositoryTestBase extends Repository {
 
   object TestData {
     val triggeredBy = "Triggered by"
+    val now = LocalDateTime.now()
 
-    val w1 = Workflow(name = "workflow1", isActive = true, project = "project1", created = LocalDateTime.now(), updated = None, id = 100)
-    val w2 = Workflow(name = "workflow2", isActive = true, project = "project1", created = LocalDateTime.now(), updated = None, id = 101)
-    val w3 = Workflow(name = "workflow3", isActive = true, project = "project2", created = LocalDateTime.now(), updated = None, id = 102)
-    val w4 = Workflow(name = "workflow4", isActive = true, project = "project2", created = LocalDateTime.now(), updated = None, id = 103)
-    val w5 = Workflow(name = "workflow5", isActive = false, project = "project2", created = LocalDateTime.now(), updated = None, id = 104)
-    val w6 = Workflow(name = "workflow6", isActive = false, project = "project2", created = LocalDateTime.now(), updated = None, id = 105)
-    val w7 = Workflow(name = "workflow7", isActive = false, project = "project2", created = LocalDateTime.now(), updated = None, id = 106)
+    val w1 = Workflow(name = "workflow1", isActive = true, project = "project1", created = now, updated = None, id = 100)
+    val w2 = Workflow(name = "workflow2", isActive = true, project = "project1", created = now, updated = None, id = 101)
+    val w3 = Workflow(name = "workflow3", isActive = true, project = "project2", created = now, updated = None, id = 102)
+    val w4 = Workflow(name = "workflow4", isActive = true, project = "project2", created = now, updated = None, id = 103)
+    val w5 = Workflow(name = "workflow5", isActive = false, project = "project2", created = now, updated = None, id = 104)
+    val w6 = Workflow(name = "workflow6", isActive = false, project = "project2", created = now, updated = None, id = 105)
+    val w7 = Workflow(name = "workflow7", isActive = false, project = "project2", created = now, updated = None, id = 106)
 
     val workflows: Seq[Workflow] = Seq(w1, w2, w3, w4, w5, w6, w7)
 
-    val w1di1 = DagInstance(status = DagInstanceStatuses.InQueue, triggeredBy = triggeredBy, started = LocalDateTime.now().minusHours(2L), finished = None, workflowId = w1.id, id = 200)
-    val w1di2 = DagInstance(status = DagInstanceStatuses.InQueue, triggeredBy = triggeredBy, started = LocalDateTime.now().minusHours(1L), finished = None, workflowId = w1.id, id = 201)
-    val w1di3 = DagInstance(status = DagInstanceStatuses.Running, triggeredBy = triggeredBy, started = LocalDateTime.now().minusHours(1L), finished = None, workflowId = w1.id, id = 202)
-    val w1di4 = DagInstance(status = DagInstanceStatuses.Succeeded, triggeredBy = triggeredBy, started = LocalDateTime.now(), finished = Some(LocalDateTime.now()), workflowId = w1.id, id = 203)
-    val w1di5 = DagInstance(status = DagInstanceStatuses.Failed, triggeredBy = triggeredBy, started = LocalDateTime.now(), finished = Some(LocalDateTime.now()), workflowId = w1.id, id = 204)
-    val w2di1 = DagInstance(status = DagInstanceStatuses.InQueue, triggeredBy = triggeredBy, started = LocalDateTime.now(), finished = None, workflowId = w2.id, id = 205)
-    val w2di2 = DagInstance(status = DagInstanceStatuses.Running, triggeredBy = triggeredBy, started = LocalDateTime.now(), finished = None, workflowId = w2.id, id = 206)
+    val w1di1 = DagInstance(status = DagInstanceStatuses.InQueue, triggeredBy = triggeredBy, started = now.minusHours(2L), finished = None, workflowId = w1.id, id = 200)
+    val w1di2 = DagInstance(status = DagInstanceStatuses.InQueue, triggeredBy = triggeredBy, started = now.minusHours(1L), finished = None, workflowId = w1.id, id = 221)
+    val w1di3 = DagInstance(status = DagInstanceStatuses.Running, triggeredBy = triggeredBy, started = now.minusHours(1L), finished = None, workflowId = w1.id, id = 202)
+    val w1di4 = DagInstance(status = DagInstanceStatuses.Succeeded, triggeredBy = triggeredBy, started = now, finished = Some(now), workflowId = w1.id, id = 203)
+    val w1di5 = DagInstance(status = DagInstanceStatuses.Failed, triggeredBy = triggeredBy, started = now, finished = Some(now), workflowId = w1.id, id = 224)
+    val w2di1 = DagInstance(status = DagInstanceStatuses.InQueue, triggeredBy = triggeredBy, started = now, finished = None, workflowId = w2.id, id = 205)
+    val w2di2 = DagInstance(status = DagInstanceStatuses.Running, triggeredBy = triggeredBy, started = now, finished = None, workflowId = w2.id, id = 206)
     val dagInstances: Seq[DagInstance] = Seq(w1di1, w1di2, w1di3, w1di4, w1di5, w2di1, w2di2)
     val runningDagInstances : Seq[DagInstance] = Seq(w1di3, w2di2)
 
-    val dr1 = DagRun(workflowId = 1, workflowName = "workflowName1", projectName = "projectName1", jobCount = 5, started = LocalDateTime.now().plusDays(1), finished = None, status = DagInstanceStatuses.InQueue.name, triggeredBy = triggeredBy, id = 300)
-    val dr2 = DagRun(workflowId = 2, workflowName = "workflowName2", projectName = "projectName1", jobCount = 3, started = LocalDateTime.now().plusDays(3), finished = Option(LocalDateTime.now()), status = DagInstanceStatuses.Failed.name, triggeredBy = triggeredBy, id = 301)
-    val dr3 = DagRun(workflowId = 3, workflowName = "workflowName3", projectName = "projectName2", jobCount = 7, started = LocalDateTime.now().minusDays(2), finished = Option(LocalDateTime.now()), status = DagInstanceStatuses.Succeeded.name, triggeredBy = triggeredBy, id = 302)
-    val dr4 = DagRun(workflowId = 4, workflowName = "workflowName4", projectName = "projectName3", jobCount = 1, started = LocalDateTime.now().minusDays(1), finished = Option(LocalDateTime.now()), status = DagInstanceStatuses.Succeeded.name, triggeredBy = triggeredBy, id = 303)
-    val dr5 = DagRun(workflowId = 5, workflowName = "workflowName5", projectName = "projectName3", jobCount = 2, started = LocalDateTime.now().plusDays(5), finished = None, status = DagInstanceStatuses.Running.name, triggeredBy = triggeredBy, id = 304)
-    val dagRuns: Seq[DagRun] = Seq(dr1, dr2, dr3, dr4, dr5)
+    val dagRuns = {
+      dagInstances.map { di =>
+        val w = workflows.find(_.id == di.workflowId.toInt).get
+        DagRun(w.id, w.name, w.project, 0, di.started, di.finished, di.status.name, di.triggeredBy, di.id)
+      }
+    }
 
     val jt1 = JobTemplate(name = "jobTemplate1", SparkTemplateParameters(jobType = JobTypes.Spark, jobJar = "testJobJar.jar", mainClass = "testMainClass", appArguments = List("value1", "value2"), additionalJars = List("value1", "value2"), additionalFiles = List("value1", "value2"), additionalSparkConfig = Map("key" -> "value")), id = 100)
     val jt2 = JobTemplate(name = "jobTemplate2", ShellTemplateParameters(scriptLocation = "testScript.sh"), id = 101)
@@ -191,11 +188,11 @@ trait RepositoryTestBase extends Repository {
     )
 
     val nr1 = NotificationRule(isActive = true, Some("project"), Some("ABC XYZ"), None, Seq(DagInstanceStatuses.Failed, DagInstanceStatuses.Succeeded),
-      Seq("abc@xyz.com", "def@xyz.com"), created = LocalDateTime.now().plusDays(2), updated = None, id = 11L)
+      Seq("abc@xyz.com", "def@xyz.com"), created = now.plusDays(2), updated = None, id = 11L)
     val nr2 = NotificationRule(isActive = true, Some("project2"), Some("DEF_123"), None, Seq(DagInstanceStatuses.Failed, DagInstanceStatuses.Skipped),
-      Seq("ghi.jkl@xyz.com"), created = LocalDateTime.now().plusDays(1), updated = None, id = 12L)
+      Seq("ghi.jkl@xyz.com"), created = now.plusDays(1), updated = None, id = 12L)
     val nr3 = NotificationRule(isActive = true, Some("project3"), Some("ABC ABC"), None, Seq(DagInstanceStatuses.Skipped),
-      Seq("abc@xyz.com", "mno@xyz.com"), created = LocalDateTime.now(),updated = None, id = 13L)
+      Seq("abc@xyz.com", "mno@xyz.com"), created = now,updated = None, id = 13L)
     val notificationRules = Seq(nr1, nr2, nr3)
   }
 

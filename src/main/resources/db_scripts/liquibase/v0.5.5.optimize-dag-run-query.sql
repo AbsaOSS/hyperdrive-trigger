@@ -13,11 +13,5 @@
  * limitations under the License.
  */
 
-export const dagRunColumns = {
-  WORKFLOW_NAME: 'workflowName',
-  PROJECT_NAME: 'projectName',
-  STARTED: 'started',
-  FINISHED: 'finished',
-  STATUS: 'status',
-  TRIGGERED_BY: 'triggeredBy',
-};
+CREATE INDEX dag_instance_started_idx ON dag_instance (started);
+DROP VIEW dag_run_view;

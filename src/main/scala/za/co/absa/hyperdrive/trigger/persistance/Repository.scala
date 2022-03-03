@@ -25,7 +25,6 @@ trait Repository
     with JobInstanceTable
     with SensorTable
     with WorkflowTable
-    with DagRunTable
     with WorkflowHistoryTable
     with JobTemplateTable
     with JobTemplateHistoryTable

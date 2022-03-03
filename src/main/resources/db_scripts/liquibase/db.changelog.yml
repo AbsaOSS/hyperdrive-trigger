@@ -77,3 +77,6 @@ databaseChangeLog:
   - include:
       relativeToChangelogFile: true
       file: v0.5.3.add-job-template-history.yml
+  - include:
+      relativeToChangelogFile: true
+      file: v0.5.5.optimize-dag-run-query.yml
