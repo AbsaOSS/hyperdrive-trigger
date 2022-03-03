@@ -184,28 +184,7 @@ alter table "workflow"
   references "scheduler_instance"("id")
   on update NO ACTION on delete NO ACTION;
 
-create view "dag_run_view" AS
-select
-    dag_instance.id as "id",
-    workflow.name as "workflow_name",
-    workflow.project as "project_name",
-    COALESCE(jobInstanceCount.count, 0) as "job_count",
-    dag_instance.started as "started",
-    dag_instance.finished as "finished",
-    dag_instance.status as "status",
-    dag_instance.triggered_by as "triggered_by",
-    workflow.id as "workflow_id"
-from dag_instance
-left join (
-    select job_instance.dag_instance_id, count(1) as "count"
-    from job_instance
-    group by dag_instance_id
-) as jobInstanceCount
-    on jobInstanceCount.dag_instance_id = dag_instance.id
-left join workflow
-    on workflow.id = dag_instance.workflow_id;
-
 CREATE INDEX job_instance_dag_instance_idx ON job_instance (dag_instance_id);
 CREATE INDEX dag_instance_workflow_id_idx ON dag_instance (workflow_id);
+CREATE INDEX dag_instance_started_idx ON dag_instance (started);
 CREATE INDEX workflow_scheduler_inst_id_idx ON workflow (scheduler_instance_id);
-

@@ -107,8 +107,6 @@ class ApplicationStartPostgresTest extends FlatSpec with Matchers with SpringInt
     workflows.size shouldBe 1
     workflows.head.name shouldBe workflowJoined.name
 
-    import api._
-    run(sqlu"drop view dag_run_view")
     schemaDrop()
   }
 }
