@@ -67,7 +67,7 @@ class SparkYarnClusterServiceImpl @Inject()(
   private def getSparkLauncher(id: String, jobName: String, jobParameters: SparkInstanceParameters)
                               (implicit sparkConfig: SparkConfig): InProcessLauncher = {
     val config = sparkConfig.yarn
-    val sparkLauncher = new InProcessLauncher()
+    val sparkLauncher = new NoBackendInProcessLauncher()
       .setMaster(config.master)
       .setDeployMode("cluster")
       .setMainClass(jobParameters.mainClass)
