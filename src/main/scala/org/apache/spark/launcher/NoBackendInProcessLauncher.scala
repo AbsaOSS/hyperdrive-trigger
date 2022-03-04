@@ -16,13 +16,26 @@
 
 package org.apache.spark.launcher
 
+import org.slf4j.LoggerFactory
+
 class NoBackendInProcessLauncher extends InProcessLauncher {
 
+  private val logger = LoggerFactory.getLogger(this.getClass)
   override def startApplication(listeners: SparkAppHandle.Listener*): SparkAppHandle = {
-    val launcher = super.startApplication(listeners:_*)
-    this.builder.conf.remove("spark.launcher.port")
-    this.builder.conf.remove("spark.launcher.secret")
+    if (builder.isClientMode(builder.getEffectiveConfig)) {
+      logger.warn("It's not recommended to run client-mode applications using InProcessLauncher.")
+    }
+    val main = findSparkSubmit()
+    val server = LauncherServer.getOrCreateServer()
+
+    val handle = new InProcessAppHandle(server)
+    listeners.foreach(handle.addListener)
+
     setConf("spark.yarn.submit.waitAppCompletion", "false")
-    launcher
+    import scala.collection.JavaConverters._
+    val sparkArgs = builder.buildSparkSubmitArgs().asScala.toArray
+    val appName = CommandBuilderUtils.firstNonEmpty(builder.appName, builder.mainClass, "<unknown>")
+    handle.start(appName, main, sparkArgs)
+    handle
   }
 }
