@@ -16,7 +16,7 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.executors.spark
 
-import org.apache.spark.launcher.{InProcessLauncher, SparkAppHandle, SparkLauncher}
+import org.apache.spark.launcher.{InProcessLauncher, NoBackendInProcessLauncher, SparkAppHandle, SparkLauncher}
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.configuration.application.SparkConfig
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.{Lost, SubmissionTimeout, Submitting}

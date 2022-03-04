@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.scheduler.executors.spark
-
-import org.apache.spark.launcher.{InProcessLauncher, SparkAppHandle}
+package org.apache.spark.launcher
 
 class NoBackendInProcessLauncher extends InProcessLauncher {
 
   override def startApplication(listeners: SparkAppHandle.Listener*): SparkAppHandle = {
     val launcher = super.startApplication(listeners:_*)
-    setConf("spark.launcher.port", null)
-    setConf("spark.launcher.secret", null)
+    this.builder.conf.remove("spark.launcher.port")
+    this.builder.conf.remove("spark.launcher.secret")
     setConf("spark.yarn.submit.waitAppCompletion", "false")
     launcher
   }
