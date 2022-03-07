@@ -24,14 +24,19 @@ import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.{JobStatus, Lost, 
 import za.co.absa.hyperdrive.trigger.models.{JobInstance, SparkInstanceParameters}
 
 import java.util.UUID.randomUUID
+import java.util.concurrent
 import java.util.concurrent.{CountDownLatch, TimeUnit}
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 
 @Service
-class SparkYarnClusterServiceImpl @Inject()(implicit sparkConfig: SparkConfig) extends SparkClusterService {
-  override def submitJob(jobInstance: JobInstance, jobParameters: SparkInstanceParameters, updateJob: JobInstance => Future[Unit])
-                        (implicit executionContext: ExecutionContext): Future[Unit] = {
+class SparkYarnClusterServiceImpl @Inject()(
+  implicit sparkConfig: SparkConfig,
+  executionContextProvider: SparkClusterServiceExecutionContextProvider) extends SparkClusterService {
+  private implicit val executionContext: ExecutionContext = executionContextProvider.executionContext
+
+  override def submitJob(jobInstance: JobInstance, jobParameters: SparkInstanceParameters,
+                         updateJob: JobInstance => Future[Unit]) : Future[Unit] = {
     val id = randomUUID().toString
     val ji = jobInstance.copy(executorJobId = Some(id), jobStatus = Submitting)
     updateJob(ji).map { _ =>
@@ -52,8 +57,7 @@ class SparkYarnClusterServiceImpl @Inject()(implicit sparkConfig: SparkConfig) e
     }
   }
 
-  override def handleMissingYarnStatus(jobInstance: JobInstance, updateJob: JobInstance => Future[Unit])
-                                      (implicit executionContext: ExecutionContext): Future[Unit] = {
+  override def handleMissingYarnStatus(jobInstance: JobInstance, updateJob: JobInstance => Future[Unit]): Future[Unit] = {
     val status = jobInstance.jobStatus match {
       case s if s == Submitting => SubmissionTimeout
       case _ => Lost

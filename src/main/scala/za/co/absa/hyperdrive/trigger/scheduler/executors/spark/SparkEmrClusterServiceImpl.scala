@@ -33,13 +33,17 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
 @Service
-class SparkEmrClusterServiceImpl @Inject()(sparkConfig: SparkConfig, emrClusterProvider: EmrClusterProviderService) extends SparkClusterService {
+class SparkEmrClusterServiceImpl @Inject()(
+  sparkConfig: SparkConfig,
+  emrClusterProvider: EmrClusterProviderService,
+  executionContextProvider: SparkClusterServiceExecutionContextProvider) extends SparkClusterService {
+  private implicit val executionContext: ExecutionContext = executionContextProvider.executionContext
   private val logger = LoggerFactory.getLogger(this.getClass)
   private val commandRunnerJar = "command-runner.jar"
   private lazy val emr = emrClusterProvider.get()
 
-  override def submitJob(jobInstance: JobInstance, jobParameters: SparkInstanceParameters, updateJob: JobInstance => Future[Unit])
-                        (implicit executionContext: ExecutionContext): Future[Unit] = {
+  override def submitJob(jobInstance: JobInstance, jobParameters: SparkInstanceParameters,
+                         updateJob: JobInstance => Future[Unit]): Future[Unit] = {
     val id = randomUUID().toString
     val jiSubmitting = jobInstance.copy(executorJobId = Some(id), jobStatus = Submitting)
     updateJob(jiSubmitting).map { _ =>
@@ -67,8 +71,7 @@ class SparkEmrClusterServiceImpl @Inject()(sparkConfig: SparkConfig, emrClusterP
     }
   }
 
-  override def handleMissingYarnStatus(jobInstance: JobInstance, updateJob: JobInstance => Future[Unit])
-                                      (implicit executionContext: ExecutionContext): Future[Unit] = {
+  override def handleMissingYarnStatus(jobInstance: JobInstance, updateJob: JobInstance => Future[Unit]): Future[Unit] = {
     val updatedJobInstance = jobInstance.stepId match {
       case Some(stepId) =>
         val jobStatus = getStateByStepId(stepId, jobInstance)
