@@ -37,7 +37,7 @@ class SparkEmrClusterServiceImpl @Inject()(
   sparkConfig: SparkConfig,
   emrClusterProvider: EmrClusterProviderService,
   executionContextProvider: SparkClusterServiceExecutionContextProvider) extends SparkClusterService {
-  private implicit val executionContext: ExecutionContext = executionContextProvider.executionContext
+  private implicit val executionContext: ExecutionContext = executionContextProvider.get()
   private val logger = LoggerFactory.getLogger(this.getClass)
   private val commandRunnerJar = "command-runner.jar"
   private lazy val emr = emrClusterProvider.get()

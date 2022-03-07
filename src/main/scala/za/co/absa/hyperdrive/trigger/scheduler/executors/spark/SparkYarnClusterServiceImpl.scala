@@ -20,20 +20,19 @@ import org.apache.spark.launcher.{SparkAppHandle, SparkLauncher}
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.configuration.application.SparkConfig
-import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.{JobStatus, Lost, SubmissionTimeout, Submitting}
+import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.{Lost, SubmissionTimeout, Submitting}
 import za.co.absa.hyperdrive.trigger.models.{JobInstance, SparkInstanceParameters}
 
 import java.util.UUID.randomUUID
-import java.util.concurrent
 import java.util.concurrent.{CountDownLatch, TimeUnit}
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
+import scala.concurrent.{ExecutionContext, Future}
 
 @Service
 class SparkYarnClusterServiceImpl @Inject()(
   implicit sparkConfig: SparkConfig,
   executionContextProvider: SparkClusterServiceExecutionContextProvider) extends SparkClusterService {
-  private implicit val executionContext: ExecutionContext = executionContextProvider.executionContext
+  private implicit val executionContext: ExecutionContext = executionContextProvider.get()
 
   override def submitJob(jobInstance: JobInstance, jobParameters: SparkInstanceParameters,
                          updateJob: JobInstance => Future[Unit]) : Future[Unit] = {

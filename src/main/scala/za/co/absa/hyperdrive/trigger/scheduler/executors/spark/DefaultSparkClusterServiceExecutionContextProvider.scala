@@ -16,8 +16,18 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.executors.spark
 
+import org.springframework.stereotype.Component
+import za.co.absa.hyperdrive.trigger.configuration.application.SparkConfig
+
+import java.util.concurrent
+import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-trait SparkClusterServiceExecutionContextProvider {
-  def get(): ExecutionContext
+@Component
+class DefaultSparkClusterServiceExecutionContextProvider @Inject()(val sparkConfig: SparkConfig)
+  extends SparkClusterServiceExecutionContextProvider {
+  lazy val executionContext: ExecutionContext =
+    ExecutionContext.fromExecutor(concurrent.Executors.newFixedThreadPool(sparkConfig.sparkSubmitThreadPoolSize))
+
+  override def get(): ExecutionContext = executionContext
 }
