@@ -128,7 +128,7 @@ describe('WorkflowsEffects', () => {
       const getProjectsResponse = cold('-a|', { a: projects });
       const getJobTemplatesResponse = cold('-a|', { a: jobTemplates });
 
-      const expected = cold('---a', {
+      const expected = cold('--a', {
         a: {
           type: WorkflowsActions.INITIALIZE_WORKFLOWS_SUCCESS,
           payload: { projects: projects, jobTemplates: jobTemplates },

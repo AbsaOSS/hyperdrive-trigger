@@ -34,7 +34,7 @@ import { HistoryModel, HistoryPairModel, WorkflowHistoryModel } from '../../mode
 import { WorkflowHistoryService } from '../../services/workflowHistory/workflow-history.service';
 import { JobService } from '../../services/job/job.service';
 import { JobForRunModel } from '../../models/jobForRun.model';
-import { EMPTY, forkJoin } from 'rxjs';
+import { combineLatest, EMPTY } from 'rxjs';
 import { ApiErrorModel } from '../../models/errors/apiError.model';
 import { BulkOperationErrorModel } from '../../models/errors/bulkOperationError.model';
 import { UtilService } from '../../services/util/util.service';
@@ -62,7 +62,7 @@ export class WorkflowsEffects {
     switchMap((action: WorkflowActions.InitializeWorkflows) => {
       const projects = this.workflowService.getProjects();
       const jobTemplates = this.workflowService.getJobTemplates();
-      return forkJoin([projects, jobTemplates]).pipe(
+      return combineLatest([projects, jobTemplates]).pipe(
         switchMap(([projects, jobTemplates]: [ProjectModel[], JobTemplateModel[]]) => {
           return [
             {
