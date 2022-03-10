@@ -100,6 +100,8 @@ import { JobTemplatesFormComponent } from './components/admin/job-templates/job-
 import { JobTemplateHistoryComponent } from './components/admin/job-templates/job-template-history/job-template-history.component';
 import { JobTemplateComparisonComponent } from './components/admin/job-templates/job-template-history/job-template-comparison/job-template-comparison.component';
 import { JobTemplateUsageComponent } from './components/admin/job-templates/job-templates-home/job-template-usage/job-template-usage.component';
+import { NonEmptyValidator } from './components/workflows/workflow-form/dynamic-parts/string-sequence-part/validator/non-empty.validator';
+import { LengthValidator } from './components/workflows/workflow-form/dynamic-parts/string-sequence-part/validator/length.validator';
 
 @NgModule({
   declarations: [
@@ -137,6 +139,8 @@ import { JobTemplateUsageComponent } from './components/admin/job-templates/job-
     CronQuartzPartComponent,
     ConfirmationDialogComponent,
     CronQuartzExpressionValidator,
+    NonEmptyValidator,
+    LengthValidator,
     WorkflowHistoryComponent,
     WorkflowComparisonComponent,
     WorkflowFormComponent,
