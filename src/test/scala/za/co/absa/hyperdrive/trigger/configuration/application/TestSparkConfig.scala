@@ -23,7 +23,8 @@ case class TestSparkConfig(
   yarn: TestSparkYarnSinkConfig,
   emr: TestSparkEmrSinkConfig,
   hadoopResourceManagerUrlBase: String,
-  userUsedToKillJob: String
+  userUsedToKillJob: String,
+  sparkSubmitThreadPoolSize: Int
 ) {
   def toSparkConfig: SparkConfig = {
     val yarnConfig = if (yarn != null) yarn.toSparkYarnSinkConfig else null
@@ -33,7 +34,8 @@ case class TestSparkConfig(
       yarnConfig,
       emrConfig,
       hadoopResourceManagerUrlBase,
-      userUsedToKillJob
+      userUsedToKillJob,
+      sparkSubmitThreadPoolSize
     )
   }
 }

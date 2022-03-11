@@ -41,7 +41,7 @@ class SparkConfigNestedClassesValidatorTest extends FlatSpec with MockitoSugar w
       master = "yarn",
       sparkHome = "/opt/spark",
       filesToDeployInternal = "/opt/file1,/opt/file2",
-      additionalConfsInternal = new Properties()
+      additionalConfsInternal = new Properties(),
     ),
     emr = TestSparkEmrSinkConfig(
       clusterId = null,
@@ -51,7 +51,8 @@ class SparkConfigNestedClassesValidatorTest extends FlatSpec with MockitoSugar w
       additionalConfsInternal = null
     ),
     hadoopResourceManagerUrlBase = "http://localhost:8088",
-    userUsedToKillJob = "spark-user"
+    userUsedToKillJob = "spark-user",
+    sparkSubmitThreadPoolSize = 10,
   )
 
   before {

@@ -127,6 +127,7 @@ kafkaSource.properties.sasl.jaas.config=
 ```
 ```
 #Spark yarn sink properties. Properties used to deploy and run Spark job in Yarn. Not all are required. Adjust according to your use case.
+spark.submit.thread.pool.size=
 sparkYarnSink.hadoopResourceManagerUrlBase=
 sparkYarnSink.hadoopConfDir=
 sparkYarnSink.sparkHome=

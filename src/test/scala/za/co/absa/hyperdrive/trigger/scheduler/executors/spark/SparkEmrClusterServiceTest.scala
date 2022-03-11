@@ -54,10 +54,12 @@ class SparkEmrClusterServiceTest extends AsyncFlatSpec with Matchers with Mockit
       "spark.executor.extraJavaOptions" -> "-DGlobalExecutorOpt"
     )
   )
-  private val testEmrClusterProvider: EmrClusterProviderService = new EmrClusterProviderService {
-    override def get(): AmazonElasticMapReduce = mockEmrClient
-  }
-  private val underTest = new SparkEmrClusterServiceImpl(sparkConfig, testEmrClusterProvider)
+  private val testEmrClusterProvider: EmrClusterProviderService = () => mockEmrClient
+  private val testSparkClusterServiceExecutionContextProvider: SparkClusterServiceExecutionContextProvider =
+    () => scala.concurrent.ExecutionContext.Implicits.global
+
+  private val underTest = new SparkEmrClusterServiceImpl(sparkConfig, testEmrClusterProvider,
+    testSparkClusterServiceExecutionContextProvider)
 
   before {
     reset(mockUpdateJob)
