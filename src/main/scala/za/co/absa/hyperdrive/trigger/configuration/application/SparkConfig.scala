@@ -42,7 +42,10 @@ class SparkConfig (
   val hadoopResourceManagerUrlBase: String,
   @DefaultValue(Array("Unknown"))
   @Name("sparkYarnSink.userUsedToKillJob")
-  val userUsedToKillJob: String
+  val userUsedToKillJob: String,
+  @DefaultValue(Array("10"))
+  @Name("spark.submit.thread.pool.size")
+  val sparkSubmitThreadPoolSize: Int
 )
 
 class SparkYarnSinkConfig (
