@@ -27,11 +27,12 @@ object DefaultTestSparkConfig {
     hadoopResourceManagerUrlBase: String = "",
     filesToDeploy: Seq[String] = Seq(),
     additionalConfs: Map[String, String] = Map(),
-    userUsedToKillJob: String = "Unknown"
+    userUsedToKillJob: String = "Unknown",
+    sparkSubmitThreadPoolSize: Int = 10,
   ): SparkConfig = {
     new SparkConfig("yarn", new SparkYarnSinkConfig(submitTimeout, hadoopConfDir, master, sparkHome,
       filesToDeploy.mkString(","), toProperties(additionalConfs)), null, hadoopResourceManagerUrlBase,
-      userUsedToKillJob
+      userUsedToKillJob, sparkSubmitThreadPoolSize
     )
   }
 
@@ -42,10 +43,12 @@ object DefaultTestSparkConfig {
     hadoopResourceManagerUrlBase: String = "",
     filesToDeploy: Seq[String] = Seq(),
     additionalConfs: Map[String, String] = Map(),
-    userUsedToKillJob: String = "Unknown"
+    userUsedToKillJob: String = "Unknown",
+    sparkSubmitThreadPoolSize: Int = 10,
   ): SparkConfig = {
     new SparkConfig("emr", null, new SparkEmrSinkConfig(clusterId, awsProfile, region,
-      filesToDeploy.mkString(","), toProperties(additionalConfs)), hadoopResourceManagerUrlBase, userUsedToKillJob
+      filesToDeploy.mkString(","), toProperties(additionalConfs)), hadoopResourceManagerUrlBase, userUsedToKillJob,
+      sparkSubmitThreadPoolSize
     )
   }
 
