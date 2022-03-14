@@ -33,10 +33,10 @@ describe('WorkflowsComponent', () => {
       loading: true,
       projects: [
         ProjectModelFactory.create('projectOne', [
-          WorkflowModelFactory.create('workflowOne', undefined, undefined, undefined, undefined, undefined),
+          WorkflowModelFactory.create('workflowOne', undefined, undefined, undefined, undefined, undefined, undefined),
         ]),
         ProjectModelFactory.create('projectTwo', [
-          WorkflowModelFactory.create('workflowTwo', undefined, undefined, undefined, undefined, undefined),
+          WorkflowModelFactory.create('workflowTwo', undefined, undefined, undefined, undefined, undefined, undefined),
         ]),
       ],
     },

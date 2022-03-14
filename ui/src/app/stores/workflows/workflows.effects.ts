@@ -275,6 +275,7 @@ export class WorkflowsEffects {
             result.project,
             result.created,
             result.updated,
+            result.version,
             result.id,
           );
           this.toastrService.success(texts.CREATE_WORKFLOW_SUCCESS_NOTIFICATION);
@@ -322,6 +323,7 @@ export class WorkflowsEffects {
             result.project,
             result.created,
             result.updated,
+            result.version,
             result.id,
           );
           this.toastrService.success(texts.UPDATE_WORKFLOW_SUCCESS_NOTIFICATION);

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -14,13 +13,5 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models.tables
-
-import slick.lifted.Rep
-
-trait SearchableTable {
-
-  def fieldMapping: Map[String, Rep[_]]
-  def defaultSortColumn: Rep[_]
-
-}
+alter table "workflow" add column "version" BIGINT NOT NULL DEFAULT 1;
+alter table "workflow" alter column "version" drop default;

@@ -48,7 +48,7 @@ describe('WorkflowService', () => {
   it('getProjects() should return projects', () => {
     const projects = [
       ProjectModelFactory.create('projectName1', [
-        WorkflowModelFactory.create('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 0),
+        WorkflowModelFactory.create('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 1, 0),
       ]),
     ];
 
@@ -63,7 +63,9 @@ describe('WorkflowService', () => {
   });
 
   it('getWorkflows() should return workflows', () => {
-    const workflows = [WorkflowModelFactory.create('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 0)];
+    const workflows = [
+      WorkflowModelFactory.create('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 1, 0),
+    ];
 
     underTest.getWorkflows().subscribe(
       (data) => expect(data).toEqual(workflows),
@@ -76,7 +78,9 @@ describe('WorkflowService', () => {
   });
 
   it('searchWorkflows() should return workflows search response', () => {
-    const workflows = [WorkflowModelFactory.create('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 0)];
+    const workflows = [
+      WorkflowModelFactory.create('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 1, 0),
+    ];
     const searchResponseModel = new TableSearchResponseModel<WorkflowModel>(workflows, 1);
     const request = TableSearchRequestModelFactory.create(0, 100);
 
@@ -91,7 +95,7 @@ describe('WorkflowService', () => {
   });
 
   it('getWorkflow() should return workflow data', () => {
-    const workflow = WorkflowJoinedModelFactory.create('name', true, 'project', undefined, undefined, undefined, 0);
+    const workflow = WorkflowJoinedModelFactory.create('name', true, 'project', undefined, undefined, undefined, 1, 0);
 
     underTest.getWorkflow(workflow.id).subscribe(
       (data) => expect(data).toEqual(workflow),
@@ -163,7 +167,7 @@ describe('WorkflowService', () => {
   });
 
   it('importWorkflow() should return imported workflow', () => {
-    const workflow = WorkflowJoinedModelFactory.create('name', true, 'project', undefined, undefined, undefined, 0);
+    const workflow = WorkflowJoinedModelFactory.create('name', true, 'project', undefined, undefined, undefined, 1, 0);
     const file: File = new File(['content'], 'filename.json');
 
     underTest.importWorkflow(file).subscribe(
@@ -177,7 +181,7 @@ describe('WorkflowService', () => {
   });
 
   it('importWorkflows() should return inserted workflows', () => {
-    const workflow = WorkflowModelFactory.create('workflowName', true, 'projectName', new Date(Date.now()), new Date(Date.now()), 0);
+    const workflow = WorkflowModelFactory.create('workflowName', true, 'projectName', new Date(Date.now()), new Date(Date.now()), 1, 0);
     const file: File = new File(['content'], 'workflows.zip');
 
     underTest.importWorkflows(file).subscribe(
@@ -191,7 +195,7 @@ describe('WorkflowService', () => {
   });
 
   it('createWorkflow() should return created workflow', () => {
-    const workflow = WorkflowJoinedModelFactory.create('name', true, 'project', undefined, undefined, undefined, 0);
+    const workflow = WorkflowJoinedModelFactory.create('name', true, 'project', undefined, undefined, undefined, 1, 0);
 
     underTest.createWorkflow(workflow).subscribe(
       (data) => expect(data).toEqual(workflow),
@@ -204,7 +208,7 @@ describe('WorkflowService', () => {
   });
 
   it('updateWorkflow() should return updated workflow', () => {
-    const workflow = WorkflowJoinedModelFactory.create('name', true, 'project', undefined, undefined, undefined, 0);
+    const workflow = WorkflowJoinedModelFactory.create('name', true, 'project', undefined, undefined, undefined, 1, 0);
 
     underTest.updateWorkflow(workflow).subscribe(
       (data) => expect(data).toEqual(workflow),

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -14,12 +13,12 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models.tables
-
-import java.time.LocalDateTime
+package za.co.absa.hyperdrive.trigger.models.tables.tableExtensions.searchableTable
 
 import slick.lifted.ProvenShape
+import za.co.absa.hyperdrive.trigger.models.tables.{JdbcTypeMapper, Profile}
 
+import java.time.LocalDateTime
 
 trait TestSearchableTable extends SearchableTableQuery {
   this: Profile with JdbcTypeMapper =>

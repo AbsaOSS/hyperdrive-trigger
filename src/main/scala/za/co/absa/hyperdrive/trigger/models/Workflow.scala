@@ -25,6 +25,7 @@ case class Workflow(
   project: String,
   created: LocalDateTime = LocalDateTime.now(),
   updated: Option[LocalDateTime],
+  version: Long,
   schedulerInstanceId: Option[Long] = None,
   id: Long = 0
 )
@@ -39,6 +40,7 @@ case class WorkflowJoined(
   project: String,
   created: LocalDateTime = LocalDateTime.now(),
   updated: Option[LocalDateTime],
+  version: Long,
   @JsonDeserialize(contentAs = classOf[java.lang.Long]) schedulerInstanceId: Option[Long] = None,
   sensor: Sensor[SensorProperties],
   dagDefinitionJoined: DagDefinitionJoined,
@@ -51,6 +53,7 @@ case class WorkflowJoined(
       project = this.project,
       created = this.created,
       updated = this.updated,
+      version = this.version,
       schedulerInstanceId = this.schedulerInstanceId,
       id = this.id
     )

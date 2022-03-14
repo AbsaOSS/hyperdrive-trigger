@@ -176,12 +176,11 @@ class WorkflowRepositoryPostgresTest extends FlatSpec with Matchers with BeforeA
     actualHistoryEntries shouldBe empty
   }
 
-  "updateWorkflow" should "update a workflow, but not created time" in {
+  "updateWorkflow" should "update a workflow" in {
     // given
     insertJobTemplates()
     val workflowV1 = TestDataJoined.wj1
     val workflowId = await(workflowRepository.insertWorkflow(workflowV1, "the-user"))
-    val createdTime = await(db.run(workflowTable.result)).head.created
     val sensorId = await(db.run(sensorTable.result)).head.id
     val dagDefinitionId = await(db.run(dagDefinitionTable.result)).head.id
     val workflowV2 = TestDataJoined.wj2.copy(
@@ -202,7 +201,7 @@ class WorkflowRepositoryPostgresTest extends FlatSpec with Matchers with BeforeA
     actualWorkflow.name shouldBe workflowV2.name
     actualWorkflow.isActive shouldBe workflowV2.isActive
     actualWorkflow.project shouldBe workflowV2.project
-    actualWorkflow.created shouldBe createdTime
+    actualWorkflow.created shouldBe workflowV2.created
 
     val actualSensors = await(db.run(sensorTable.result))
     actualSensors should have size 1
@@ -233,24 +232,6 @@ class WorkflowRepositoryPostgresTest extends FlatSpec with Matchers with BeforeA
 
     // then
     result.apiErrors should contain only GenericDatabaseError
-  }
-
-  it should "not update the scheduler instance id" in {
-    // given
-    insertJobTemplates()
-    insertSchedulerInstances()
-    val assignedScheduler = TestData.schedulerInstances.head.id
-    val workflowToInsert = TestDataJoined.wj1
-    val workflowId = await(workflowRepository.insertWorkflow(workflowToInsert, "the-user"))
-    await(workflowRepository.acquireWorkflowAssignments(Seq(workflowId), assignedScheduler))
-    val workflowJoined = await(workflowRepository.getWorkflow(workflowId)).copy(schedulerInstanceId = None)
-
-    // when
-    await(workflowRepository.updateWorkflow(workflowJoined, "the-user"))
-
-    // then
-    val actualWorkflow = await(db.run(workflowTable.result)).head
-    actualWorkflow.schedulerInstanceId shouldBe Some(assignedScheduler)
   }
 
   "existsOtherWorkflow" should "return the already existing workflow names" in {
@@ -490,6 +471,20 @@ class WorkflowRepositoryPostgresTest extends FlatSpec with Matchers with BeforeA
     instances.map(_.status) should contain only SchedulerInstanceStatuses.Active
   }
 
+  "getProjects()" should "return workflow identities grouped by project name" in {
+    // given
+    createTestData()
+    val expected = TestData.workflows.groupBy(_.project).map{ case (project, workflows) =>
+      Project(project, workflows.map(workflow => WorkflowIdentity(workflow.id, workflow.name)))
+    }
+
+    // when
+    val result = await(workflowRepository.getProjects())
+
+    // then
+    result shouldBe expected
+  }
+
   "releaseWorkflowAssignments" should "remove the instanceId if the workflow is owned by the instanceId" in {
     // given
     val instance0 = TestData.schedulerInstances.head.copy(status = SchedulerInstanceStatuses.Active)
@@ -586,20 +581,6 @@ class WorkflowRepositoryPostgresTest extends FlatSpec with Matchers with BeforeA
 
   it should "return None if there are no workflows" in {
     await(workflowRepository.getMaxWorkflowId) shouldBe None
-  }
-
-  "getProjects()" should "return workflow identities grouped by project name" in {
-    // given
-    createTestData()
-    val expected = TestData.workflows.groupBy(_.project).map{ case (project, workflows) =>
-      Project(project, workflows.map(workflow => WorkflowIdentity(workflow.id, workflow.name)))
-    }
-
-    // when
-    val result = await(workflowRepository.getProjects())
-
-    // then
-    result shouldBe expected
   }
 
   "searchWorkflows" should "return zero workflows when db is empty" in {
