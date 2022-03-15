@@ -14,35 +14,57 @@
   -->
 
 <div *ngIf="!isShow">
-  <clr-control-container *ngFor="let val of value; let i = index; trackBy: trackByFn;">
-    <label *ngIf="i == 0">{{name}}</label>
-    <input [name]="name+ '-'+i+uiid" clrControl [readOnly]="isShow" type="text" [ngModel]="val"
-           (ngModelChange)="ngModelChanged($event, i)"
-           required
-           [minlength]="minLength"
-           [maxlength]="maxLength"/>
-    <clr-control-error *clrIfError="'required'">{{texts.FORM_VALIDATION_MUST_BE_FILLED(name)}}</clr-control-error>
-    <clr-control-error *clrIfError="'minlength'">{{texts.FORM_VALIDATION_MIN_LENGTH(name, minLength)}}</clr-control-error>
-    <clr-control-error *clrIfError="'maxlength'">{{texts.FORM_VALIDATION_MAX_LENGTH(name, maxLength)}}</clr-control-error>
+  <div *ngIf="!isFreeText">
+    <clr-control-container *ngFor="let val of value; let i = index; trackBy: trackByFn;">
+      <label *ngIf="i == 0">{{name}}</label>
+      <input [name]="name+ '-'+i+uiid" clrControl [readOnly]="isShow" type="text" [ngModel]="val"
+             (ngModelChange)="ngModelChanged($event, i)"
+             required
+             [minlength]="minLength"
+             [maxlength]="maxLength"/>
+      <clr-control-error *clrIfError="'required'">{{texts.FORM_VALIDATION_MUST_BE_FILLED(name)}}</clr-control-error>
+      <clr-control-error *clrIfError="'minlength'">{{texts.FORM_VALIDATION_MIN_LENGTH(name, minLength)}}</clr-control-error>
+      <clr-control-error *clrIfError="'maxlength'">{{texts.FORM_VALIDATION_MAX_LENGTH(name, maxLength)}}</clr-control-error>
 
-    <button *ngIf="!isShow" type="button" class="btn btn-link" (click)="onDeleteValue(i)">
-      <clr-icon shape="trash"></clr-icon>
-    </button>
+      <button *ngIf="!isShow" type="button" class="btn btn-link" (click)="onDeleteValue(i)">
+        <clr-icon shape="trash"></clr-icon>
+      </button>
 
-    <button type="button" class="btn btn-link" *ngIf="!isShow && value?.length - 1 === i" (click)="onAddValue()">
-      <clr-icon shape="plus"></clr-icon>
-    </button>
-  </clr-control-container>
+      <button type="button" class="btn btn-link" *ngIf="!isShow && value?.length - 1 === i" (click)="onAddValue()">
+        <clr-icon shape="plus"></clr-icon>
+      </button>
+    </clr-control-container>
 
-  <clr-control-container *ngIf="value?.length == 0 && !isShow">
-    <label>{{name}}</label>
-    <input [name]="name+uiid" clrControl [ngModel]="undefined" [required]="isRequired" type="hidden"/>
-    <clr-control-error *clrIfError="'required'">{{texts.FORM_VALIDATION_MUST_BE_FILLED(name)}}</clr-control-error>
+    <clr-control-container *ngIf="value?.length == 0 && !isShow">
+      <label>{{name}}</label>
+      <input [name]="name+uiid" clrControl [ngModel]="undefined" [required]="isRequired" type="hidden"/>
+      <clr-control-error *clrIfError="'required'">{{texts.FORM_VALIDATION_MUST_BE_FILLED(name)}}</clr-control-error>
 
-    <button type="button" class="btn btn-link" (click)="onAddValue()">
-      <clr-icon shape="plus"></clr-icon>
-    </button>
-  </clr-control-container>
+      <button type="button" class="btn btn-link" (click)="onAddValue()">
+        <clr-icon shape="plus"></clr-icon>
+      </button>
+    </clr-control-container>
+  </div>
+
+  <div *ngIf="isFreeText">
+    <clr-textarea-container>
+      <label>{{name}}</label>
+      <textarea #freeTextInput [name]="name+uiid+'freetext'" [ngModel]="getFreeTextInputValue()"
+                (ngModelChange)="freeTextInputChange($event)" clrTextarea
+                [required]="isRequired"
+                [lengthValidator]="{min: minLength, max: maxLength}"></textarea>
+      <clr-control-error *clrIfError="'required'">{{texts.FORM_VALIDATION_MUST_BE_FILLED(name)}}</clr-control-error>
+      <clr-control-error *clrIfError="'lengthValidator'">{{texts.FORM_VALIDATION_MIN_MAX_LENGTH(name, minLength, maxLength)}}</clr-control-error>
+    </clr-textarea-container>
+  </div>
+
+  <clr-toggle-container>
+    <label></label>
+    <clr-checkbox-wrapper>
+      <input [name]="name+uiid+'freetexttoggle'" type="checkbox" clrToggle [(ngModel)]="isFreeText"/>
+      <label>Free text input</label>
+    </clr-checkbox-wrapper>
+  </clr-toggle-container>
 </div>
 
 

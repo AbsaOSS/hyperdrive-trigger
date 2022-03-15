@@ -218,4 +218,102 @@ describe('StringSequencePartComponent', () => {
       });
     }),
   );
+
+  it(
+    'getFreeTextInputValue() should return concatenated string',
+    waitForAsync(() => {
+      const emptyArray = [];
+      const arrayWithOnlyEmptyElements = ['', ''];
+      const arrayWithEmptyElements = ['', 'a', '', 'b', ''];
+      const arrayWithoutEmptyElements = ['a', 'b', 'c', 'd'];
+
+      underTest.value = emptyArray;
+      expect(underTest.getFreeTextInputValue()).toEqual('');
+
+      underTest.value = arrayWithOnlyEmptyElements;
+      expect(underTest.getFreeTextInputValue()).toEqual('\n');
+
+      underTest.value = arrayWithEmptyElements;
+      expect(underTest.getFreeTextInputValue()).toEqual('\na\n\nb\n');
+
+      underTest.value = arrayWithoutEmptyElements;
+      expect(underTest.getFreeTextInputValue()).toEqual('a\nb\nc\nd');
+    }),
+  );
+
+  it(
+    'freeTextInputChange() should change value and emit change on user input - empty array',
+    waitForAsync(() => {
+      const newValue = '';
+      const expectedNewValue = [];
+      spyOn(underTest.valueChange, 'emit');
+
+      underTest.isShow = false;
+
+      underTest.freeTextInputChange(newValue);
+
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(underTest.valueChange.emit).toHaveBeenCalled();
+        expect(underTest.valueChange.emit).toHaveBeenCalledWith(expectedNewValue);
+      });
+    }),
+  );
+
+  it(
+    'freeTextInputChange() should change value and emit change on user input - array with only empty elements',
+    waitForAsync(() => {
+      const newValue = '\n';
+      const expectedNewValue = ['', ''];
+      spyOn(underTest.valueChange, 'emit');
+
+      underTest.isShow = false;
+
+      underTest.freeTextInputChange(newValue);
+
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(underTest.valueChange.emit).toHaveBeenCalled();
+        expect(underTest.valueChange.emit).toHaveBeenCalledWith(expectedNewValue);
+      });
+    }),
+  );
+
+  it(
+    'freeTextInputChange() should change value and emit change on user input - array with empty elements',
+    waitForAsync(() => {
+      const newValue = '\na\n\nb\n';
+      const expectedNewValue = ['', 'a', '', 'b', ''];
+      spyOn(underTest.valueChange, 'emit');
+
+      underTest.isShow = false;
+
+      underTest.freeTextInputChange(newValue);
+
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(underTest.valueChange.emit).toHaveBeenCalled();
+        expect(underTest.valueChange.emit).toHaveBeenCalledWith(expectedNewValue);
+      });
+    }),
+  );
+
+  it(
+    'freeTextInputChange() should change value and emit change on user input - array without empty elements',
+    waitForAsync(() => {
+      const newValue = 'a\nb\nc\nd';
+      const expectedNewValue = ['a', 'b', 'c', 'd'];
+      spyOn(underTest.valueChange, 'emit');
+
+      underTest.isShow = false;
+
+      underTest.freeTextInputChange(newValue);
+
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        expect(underTest.valueChange.emit).toHaveBeenCalled();
+        expect(underTest.valueChange.emit).toHaveBeenCalledWith(expectedNewValue);
+      });
+    }),
+  );
 });
