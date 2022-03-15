@@ -41,7 +41,7 @@ class NotificationSenderTest extends FlatSpec with MockitoSugar with Matchers wi
   private val environment = "TEST"
 
   private val underTest = new NotificationSenderImpl(notificationRuleService, emailService,
-    DefaultTestSparkConfig(hadoopResourceManagerUrlBase = clusterBaseUrl), TestNotificationConfig(enabled = true, senderAddress),
+    DefaultTestSparkConfig(hadoopResourceManagerUrlBase = clusterBaseUrl).yarn, TestNotificationConfig(enabled = true, senderAddress),
     TestGeneralConfig(environment = environment))
 
   before {
