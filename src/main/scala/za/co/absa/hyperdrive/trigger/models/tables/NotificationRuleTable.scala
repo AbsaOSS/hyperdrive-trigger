@@ -20,6 +20,7 @@ import slick.lifted.ProvenShape
 import za.co.absa.hyperdrive.trigger.models.NotificationRule
 import za.co.absa.hyperdrive.trigger.models.NotificationRule.Recipients
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses.DagInstanceStatus
+import za.co.absa.hyperdrive.trigger.models.tables.tableExtensions.searchableTable.{SearchableTable, SearchableTableQuery}
 
 import java.time.LocalDateTime
 
