@@ -46,14 +46,15 @@ class SparkEmrClusterServiceTest extends AsyncFlatSpec with Matchers with Mockit
 
   private val mockUpdateJob = mock[HasUpdateJob]
   private val mockEmrClient = mock[AmazonElasticMapReduce]
-  private val sparkConfig = DefaultTestSparkConfig.emr(
+  private val sparkConfig = DefaultTestSparkConfig(
+    submitApi = "emr",
     filesToDeploy = Seq("/global/file/1", "/global/file/2"),
     additionalConfs = Map(
       "spark.driver.memory" -> "1g",
       "spark.driver.extraJavaOptions" -> "-DGlobalDriverOpt",
       "spark.executor.extraJavaOptions" -> "-DGlobalExecutorOpt"
     )
-  )
+  ).emr
   private val testEmrClusterProvider: EmrClusterProviderService = () => mockEmrClient
   private val testSparkClusterServiceExecutionContextProvider: SparkClusterServiceExecutionContextProvider =
     () => scala.concurrent.ExecutionContext.Implicits.global

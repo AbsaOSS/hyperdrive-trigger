@@ -33,27 +33,17 @@ class SparkConfigNestedClassesValidatorTest extends FlatSpec with MockitoSugar w
   private val mockContext = mock[ConstraintValidatorContext]
   private val mockConstraintViolationBuilder = mock[ConstraintViolationBuilder]
   private val sparkSubmitApi = "spark.submitApi"
-  private val baseSparkConfig = TestSparkConfig(
-    submitApi = "yarn",
-    yarn = TestSparkYarnSinkConfig(
+  private val baseSparkYarnConfig = DefaultTestSparkConfig(
       submitTimeout = 160000,
       hadoopConfDir = "/opt/hadoop",
-      master = "yarn",
       sparkHome = "/opt/spark",
-      filesToDeployInternal = "/opt/file1,/opt/file2",
-      additionalConfsInternal = new Properties(),
-    ),
-    emr = TestSparkEmrSinkConfig(
+      filesToDeploy = Seq("/opt/file1", "/opt/file2"),
+      additionalConfs = Map(),
       clusterId = null,
-      awsProfileInternal = null,
-      regionInternal = null,
-      filesToDeployInternal = null,
-      additionalConfsInternal = null
-    ),
     hadoopResourceManagerUrlBase = "http://localhost:8088",
     userUsedToKillJob = "spark-user",
-    sparkSubmitThreadPoolSize = 10,
   )
+  private val baseSparkEmrConfig = baseSparkYarnConfig.copy(submitApi = "emr")
 
   before {
     reset(mockContext, mockConstraintViolationBuilder)
@@ -63,7 +53,7 @@ class SparkConfigNestedClassesValidatorTest extends FlatSpec with MockitoSugar w
   }
 
   "isValid" should "return true for submitApi = yarn" in {
-    val config = baseSparkConfig.toSparkConfig
+    val config = baseSparkYarnConfig.yarn
 
     val isValid = underTest.isValid(config, mockContext)
 
@@ -71,10 +61,7 @@ class SparkConfigNestedClassesValidatorTest extends FlatSpec with MockitoSugar w
   }
 
   it should "return true for submitApi = emr" in {
-    val config = baseSparkConfig.copy(
-      submitApi = "emr",
-      emr = baseSparkConfig.emr.copy(clusterId = "abc")
-    ).toSparkConfig
+    val config = baseSparkEmrConfig.copy(clusterId = "abc").emr
 
     val isValid = underTest.isValid(config, mockContext)
 
@@ -83,9 +70,9 @@ class SparkConfigNestedClassesValidatorTest extends FlatSpec with MockitoSugar w
 
   it should "return false if submitApi is yarn but no yarn config is given" in {
     // given
-    val config = baseSparkConfig
-      .copy(yarn = null)
-      .toSparkConfig
+    val config = baseSparkEmrConfig
+      .copy(submitApi = "yarn")
+      .emr
 
     // when
     val isValid = underTest.isValid(config, mockContext)
@@ -97,9 +84,9 @@ class SparkConfigNestedClassesValidatorTest extends FlatSpec with MockitoSugar w
 
   it should "return false if submitApi is emr but no emr config is given" in {
     // given
-    val config = baseSparkConfig
-      .copy(submitApi = "emr", emr = null)
-      .toSparkConfig
+    val config = baseSparkYarnConfig
+      .copy(submitApi = "emr")
+      .yarn
 
     // when
     val isValid = underTest.isValid(config, mockContext)
@@ -111,12 +98,12 @@ class SparkConfigNestedClassesValidatorTest extends FlatSpec with MockitoSugar w
 
   it should "return false if there are constraint violations in the yarn config" in {
     // given
-    val config = baseSparkConfig.copy(yarn = baseSparkConfig.yarn.copy(
+    val config = baseSparkYarnConfig.copy(
       submitTimeout = 0,
       hadoopConfDir = "",
       master = "",
       sparkHome = ""
-    )).toSparkConfig
+    ).yarn
 
     // when
     val isValid = underTest.isValid(config, mockContext)
@@ -136,10 +123,9 @@ class SparkConfigNestedClassesValidatorTest extends FlatSpec with MockitoSugar w
 
   it should "return false if there are constraint violations in the emr config" in {
     // given
-    val config = baseSparkConfig
-      .copy(submitApi = "emr",
-        emr = baseSparkConfig.emr.copy(regionInternal = "non-existing-aws-region"))
-      .toSparkConfig
+    val config = baseSparkEmrConfig
+      .copy(clusterId = "")
+      .emr
 
     // when
     val isValid = underTest.isValid(config, mockContext)
@@ -147,18 +133,17 @@ class SparkConfigNestedClassesValidatorTest extends FlatSpec with MockitoSugar w
     // then
     isValid shouldBe false
     val stringCaptor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
-    verify(mockConstraintViolationBuilder, times(2)).addPropertyNode(stringCaptor.capture())
+    verify(mockConstraintViolationBuilder).addPropertyNode(stringCaptor.capture())
     import scala.collection.JavaConverters._
     stringCaptor.getAllValues.asScala should contain theSameElementsAs Seq(
-      "spark.emr.clusterId",
-      "spark.emr.region"
+      "spark.emr.clusterId"
     )
   }
 
   it should "return false if submitApi is neither yarn nor emr" in {
-    val config = baseSparkConfig
+    val config = baseSparkYarnConfig
       .copy(submitApi = "non-existent submit api")
-      .toSparkConfig
+      .yarn
 
     underTest.isValid(config, mockContext)
 
