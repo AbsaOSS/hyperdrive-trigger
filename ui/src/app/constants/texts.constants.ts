@@ -95,6 +95,9 @@ export const texts = {
   FORM_VALIDATION_MAX_LENGTH(name: string, length: number): string {
     return `${name} must be at most ${length} characters long!`;
   },
+  FORM_VALIDATION_MIN_MAX_LENGTH(name: string, min: number, max: number): string {
+    return `Each line in ${name} must be at least ${min} and at most ${max} characters long!`;
+  },
   FORM_VALIDATION_AT_LEAST_ONE_DEFINED(): string {
     return `At least one must be defined!`;
   },
