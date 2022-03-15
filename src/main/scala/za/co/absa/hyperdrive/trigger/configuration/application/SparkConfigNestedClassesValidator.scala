@@ -16,11 +16,9 @@
 
 package za.co.absa.hyperdrive.trigger.configuration.application
 
-import com.amazonaws.regions.Regions
 import org.hibernate.validator.internal.constraintvalidators.bv.{NotBlankValidator, NotNullValidator}
 
 import javax.validation.{ConstraintValidator, ConstraintValidatorContext}
-import scala.util.Try
 
 class SparkConfigNestedClassesValidator extends ConstraintValidator[SparkConfigNestedClasses, SparkConfig]{
 
@@ -69,13 +67,11 @@ class SparkConfigNestedClassesValidator extends ConstraintValidator[SparkConfigN
     if (emrIsNull) {
       false
     } else {
-      val regionValid = sparkConfig.emr.region.isEmpty || Try(Regions.fromName(sparkConfig.emr.region.get)).isSuccess
       validateConstraints(Seq(
         Constraint(notNullValidator.isValid(sparkConfig.emr, context),
           sparkSubmitApi, s"If $sparkSubmitApi is emr, spark.emr arguments are required"),
         Constraint(notBlankValidator.isValid(sparkConfig.emr.clusterId, context),
-          "spark.emr.clusterId", notBlankMessage),
-        Constraint(regionValid, "spark.emr.region", "must be a valid aws region string")
+          "spark.emr.clusterId", notBlankMessage)
       ))
     }
   }
