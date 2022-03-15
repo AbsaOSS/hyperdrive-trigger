@@ -215,11 +215,10 @@ class WorkflowRepositoryImpl @Inject()(
   }
 
   override def updateWorkflow(workflow: WorkflowJoined, user: String)(implicit ec: ExecutionContext): Future[Unit] = {
-    val version = workflow.version
-    val w = workflow.toWorkflow.copy(updated = Option(LocalDateTime.now()), version = workflow.version + 1)
+    val w = workflow.toWorkflow.copy(updated = Option(LocalDateTime.now()))
     db.run(
       (for {
-        w <- workflowTable.filter(_.id === workflow.id).updateWithOptimisticLocking(w, version)
+        w <- workflowTable.filter(_.id === workflow.id).updateWithOptimisticLocking(w, w.version)
         s <- sensorTable.filter(_.workflowId === workflow.id).update(workflow.sensor)
         dd <- dagDefinitionTable.filter(_.workflowId === workflow.id).update(workflow.dagDefinitionJoined.toDag())
         deleteJds <- jobDefinitionTable.filter(_.dagDefinitionId === workflow.dagDefinitionJoined.id).delete

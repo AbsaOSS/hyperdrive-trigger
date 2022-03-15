@@ -26,22 +26,20 @@ trait OptimisticLockingTableQuery {
 
   import api._
 
-  implicit class OptimisticLockTableQueryExtension[T <: OptimisticLockingTable with AbstractTable[_]](tableQuery: TableQuery[T]) {
-
-    def updateWithOptimisticLocking(value: T#TableElementType, version: Long)(implicit ec: ExecutionContext): DBIOAction[Int, NoStream, Effect.Write] = {
-      tableQuery.subquery.updateWithOptimisticLocking(value, version)
-    }
-  }
-
   implicit class OptimisticLockQueryExtension[E <: OptimisticLockingTable with AbstractTable[_], U, C[_]](query: Query[E, U, C]) {
-    def updateWithOptimisticLocking(value: U, version: Long)(implicit ec: ExecutionContext): DBIOAction[Int, NoStream, Effect.Write] = {
-      query.filter(_.version === version).update(value).map { result =>
-        if (result == 0) {
-          throw new OptimisticLockingException
-        } else {
-          result
+    def updateWithOptimisticLocking(value: U, version: Long)(implicit ec: ExecutionContext): DBIOAction[Int, NoStream, Effect.Write with Effect.Transactional] = {
+      val updateEntityQuery = query.filter(_.version === version).update(value)
+      val updateVersionField = query.filter(_.version === version).map(_.version).update(version + 1)
+
+      (for {
+        updateEntityResult <- updateEntityQuery
+        updateVersionResult <- updateVersionField
+      } yield  {
+        (updateEntityResult, updateVersionResult) match {
+          case (1, 1) => 1
+          case _ => throw new OptimisticLockingException
         }
-      }
+      }).transactionally
     }
   }
 }

@@ -344,6 +344,14 @@ export class WorkflowsEffects {
                 payload: errorResponse.map((err) => err.message),
               },
             ];
+          } else if (ApiUtil.isOptimisticLockingError(errorResponse)) {
+            this.toastrService.error(texts.UPDATE_WORKFLOW_OPTIMISTIC_LOCKING_FAILURE_NOTIFICATION);
+            return [
+              {
+                type: WorkflowActions.UPDATE_WORKFLOW_FAILURE,
+                payload: [],
+              },
+            ];
           } else {
             this.toastrService.error(texts.UPDATE_WORKFLOW_FAILURE_NOTIFICATION);
             return [
