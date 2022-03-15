@@ -13,13 +13,14 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models.tables
+package za.co.absa.hyperdrive.trigger.models.tables.tableExtensions.searchableTable
 
-import java.time.LocalDateTime
 import slick.ast.BaseTypedType
 import slick.lifted.{AbstractTable, ColumnOrdered}
-import za.co.absa.hyperdrive.trigger.models.search.{BooleanFilterAttributes, ContainsFilterAttributes, DateTimeRangeFilterAttributes, EqualsMultipleFilterAttributes, IntRangeFilterAttributes, LongFilterAttributes, SortAttributes, TableSearchRequest, TableSearchResponse}
+import za.co.absa.hyperdrive.trigger.models.search._
+import za.co.absa.hyperdrive.trigger.models.tables.{JdbcTypeMapper, Profile}
 
+import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext
 
 trait SearchableTableQuery {

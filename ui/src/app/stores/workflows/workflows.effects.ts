@@ -275,6 +275,7 @@ export class WorkflowsEffects {
             result.project,
             result.created,
             result.updated,
+            result.version,
             result.id,
           );
           this.toastrService.success(texts.CREATE_WORKFLOW_SUCCESS_NOTIFICATION);
@@ -322,6 +323,7 @@ export class WorkflowsEffects {
             result.project,
             result.created,
             result.updated,
+            result.version,
             result.id,
           );
           this.toastrService.success(texts.UPDATE_WORKFLOW_SUCCESS_NOTIFICATION);
@@ -340,6 +342,14 @@ export class WorkflowsEffects {
               {
                 type: WorkflowActions.UPDATE_WORKFLOW_FAILURE,
                 payload: errorResponse.map((err) => err.message),
+              },
+            ];
+          } else if (ApiUtil.isOptimisticLockingError(errorResponse)) {
+            this.toastrService.error(texts.UPDATE_WORKFLOW_OPTIMISTIC_LOCKING_FAILURE_NOTIFICATION);
+            return [
+              {
+                type: WorkflowActions.UPDATE_WORKFLOW_FAILURE,
+                payload: [],
               },
             ];
           } else {

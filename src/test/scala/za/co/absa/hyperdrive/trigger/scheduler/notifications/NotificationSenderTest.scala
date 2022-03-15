@@ -152,6 +152,7 @@ class NotificationSenderTest extends FlatSpec with MockitoSugar with Matchers wi
     Workflow(
       name = "workflow",
       isActive = true,
+      version = 1,
       project = "project",
       created = LocalDateTime.now(),
       updated = None

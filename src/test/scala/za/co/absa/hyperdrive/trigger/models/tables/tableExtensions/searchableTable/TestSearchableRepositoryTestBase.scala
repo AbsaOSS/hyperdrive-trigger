@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -14,12 +13,11 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models.tables
+package za.co.absa.hyperdrive.trigger.models.tables.tableExtensions.searchableTable
+
+import za.co.absa.hyperdrive.trigger.persistance.RepositoryH2TestBase
 
 import java.time.LocalDateTime
-
-import slick.lifted.ProvenShape
-import za.co.absa.hyperdrive.trigger.persistance.RepositoryH2TestBase
 
 trait TestSearchableRepositoryTestBase extends RepositoryH2TestBase with TestSearchableTable {
 

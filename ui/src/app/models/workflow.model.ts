@@ -19,11 +19,20 @@ export type WorkflowModel = {
   project: string;
   created: Date;
   updated: Date;
+  version: number;
   id: number;
 };
 
 export class WorkflowModelFactory {
-  static create(name: string, isActive: boolean, project: string, created: Date, updated: Date, id: number): WorkflowModel {
-    return { name: name, isActive: isActive, project: project, created: created, updated: updated, id: id };
+  static create(
+    name: string,
+    isActive: boolean,
+    project: string,
+    created: Date,
+    updated: Date,
+    version: number,
+    id: number,
+  ): WorkflowModel {
+    return { name: name, isActive: isActive, project: project, created: created, updated: updated, version: version, id: id };
   }
 }

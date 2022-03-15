@@ -33,7 +33,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class WorkflowBalancingServiceTest extends FlatSpec with MockitoSugar with Matchers with BeforeAndAfter {
   private val workflowRepository = mock[WorkflowRepository]
   private val underTest = new WorkflowBalancingServiceImpl(workflowRepository)
-  private val baseWorkflow = Workflow(name = "workflow", isActive = true, project = "project", updated = None)
+  private val baseWorkflow = Workflow(name = "workflow", isActive = true, project = "project", updated = None, version = 1)
 
   before {
     reset(workflowRepository)

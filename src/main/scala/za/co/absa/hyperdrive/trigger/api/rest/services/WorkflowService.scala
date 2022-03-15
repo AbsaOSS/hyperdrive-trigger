@@ -128,6 +128,8 @@ class WorkflowServiceImpl(override val workflowRepository: WorkflowRepository,
       id = originalWorkflow.id,
       created = originalWorkflow.created,
       updated = originalWorkflow.updated,
+      version = workflow.version,
+      schedulerInstanceId = originalWorkflow.schedulerInstanceId,
       sensor = workflow.sensor.copy(
         id = originalWorkflow.sensor.id,
         workflowId = originalWorkflow.id,

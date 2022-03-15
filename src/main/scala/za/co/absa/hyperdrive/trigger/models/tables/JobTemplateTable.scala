@@ -16,6 +16,7 @@
 package za.co.absa.hyperdrive.trigger.models.tables
 
 import slick.lifted.ProvenShape
+import za.co.absa.hyperdrive.trigger.models.tables.tableExtensions.searchableTable.{SearchableTable, SearchableTableQuery}
 import za.co.absa.hyperdrive.trigger.models.{JobTemplate, JobTemplateParameters}
 
 trait JobTemplateTable extends SearchableTableQuery {
