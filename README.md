@@ -77,13 +77,29 @@ Adjusted application properties have to be provided. An application properties t
 version=@project.version@
 # Enviroment where application will be running
 environment=Local
+# Maximum number of workflows that can be trigger in bulk (Default value 10)
+application.maximumNumberOfWorkflowsInBulkRun=10
+```
+```
+# Unique app id, for easier application identification
+appUniqueId=
+```
+```
+# Health check settings
+health.databaseConnection.timeoutMillis=120000
+health.yarnConnection.testEndpoint=/cluster/cluster
+health.yarnConnection.timeoutMillis=60000
 ```
 ```
 # How will users authenticate. Available options: inmemory, ldap
 auth.mechanism=inmemory
+#If set all users that does not have admim role will not have access to admin protected endpoints
+auth.admin.role=
 # INMEMORY authentication: username and password defined here will be used for authentication.
 auth.inmemory.user=user
 auth.inmemory.password=password
+auth.inmemory.admin.user=admin-user
+auth.inmemory.admin.password=admin-passowrd
 # LDAP authentication: props template that has to be defined in case of LDAP authentication
 auth.ad.domain=
 auth.ad.server=
@@ -91,24 +107,29 @@ auth.ldap.search.base=
 auth.ldap.search.filter=
 ```
 ```
-# Unique app id, for easier application identification
-appUniqueId=
-```
-```
 # Core properties.
 # How many threads to use for each part of the "scheduler".
 # Heart beat interval in milliseconds.
 # Lag threshold, before instance is deactivated by another instance.
+scheduler.autostart=true
 scheduler.thread.pool.size=10
 scheduler.sensors.thread.pool.size=20
+scheduler.sensors.changedSensorsChunkQuerySize=100
 scheduler.executors.thread.pool.size=30
 scheduler.jobs.parallel.number=100
 scheduler.heart.beat=5000
 scheduler.lag.threshold=20000
 ```
 ```
+# Propeties used to send notifications to users.
+notification.enabled=false
+notification.sender.address=
+spring.mail.host=
+spring.mail.port=
+```
+```
 #Kafka sensor properties. Not all are required. Adjust according to your use case.
-kafkaSource.group.id=hyper_drive_${appUniqueId}
+kafkaSource.group.id.prefix=hyper_drive_${appUniqueId}
 kafkaSource.key.deserializer=org.apache.kafka.common.serialization.StringDeserializer
 kafkaSource.value.deserializer=org.apache.kafka.common.serialization.StringDeserializer
 kafkaSource.poll.duration=500
@@ -126,13 +147,20 @@ kafkaSource.properties.sasl.mechanism=
 kafkaSource.properties.sasl.jaas.config=
 ```
 ```
-#Spark yarn sink properties. Properties used to deploy and run Spark job in Yarn. Not all are required. Adjust according to your use case.
-spark.submit.thread.pool.size=
-sparkYarnSink.hadoopResourceManagerUrlBase=
+# Recurring sensor properties.
+recurring-sensor.maxJobsPerDuration=8
+recurring-sensor.duration=1h
+```
+```
+#Spark properties. Properties used to deploy and run Spark job. Not all are required. Adjust according to your use case.
+#Where spark jobs will be executed. Available options: yarn, emr.
+spark.submitApi=
+
+#Submit api = YARN
+sparkYarnSink.submitTimeout=160000
 sparkYarnSink.hadoopConfDir=
 sparkYarnSink.sparkHome=
 sparkYarnSink.master=yarn
-sparkYarnSink.submitTimeout=160000
 sparkYarnSink.filesToDeploy=
 sparkYarnSink.additionalConfs.spark.ui.port=
 sparkYarnSink.additionalConfs.spark.executor.extraJavaOptions=
@@ -145,6 +173,16 @@ sparkYarnSink.additionalConfs.spark.yarn.keytab=
 sparkYarnSink.additionalConfs.spark.yarn.principal=
 sparkYarnSink.additionalConfs.spark.shuffle.service.enabled=true
 sparkYarnSink.additionalConfs.spark.dynamicAllocation.enabled=true
+
+#Submit api = EMR
+spark.emr.clusterId=
+spark.emr.filesToDeploy=
+spark.emr.additionalConfs=
+
+#Common properties for Submit api = YARN and EMR
+sparkYarnSink.hadoopResourceManagerUrlBase=
+sparkYarnSink.userUsedToKillJob=
+spark.submit.thread.pool.size=
 ```
 ```
 #Postgresql properties for connection to trigger database
