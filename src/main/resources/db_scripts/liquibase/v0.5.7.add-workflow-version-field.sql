@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -14,17 +13,5 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models.errors
-
-object ApiErrorTypes {
-
-  sealed abstract class ApiErrorType(val name: String) {
-    override def toString: String = name
-  }
-
-  case object DatabaseErrorType extends ApiErrorType("databaseError")
-  case object OptimisticLockingErrorType extends ApiErrorType("optimisticLockingError")
-  case object ValidationErrorType extends ApiErrorType("validationError")
-  case object GenericErrorType extends ApiErrorType("genericError")
-  case object BulkOperationErrorType extends ApiErrorType("bulkOperationError")
-}
+alter table "workflow" add column "version" BIGINT NOT NULL DEFAULT 1;
+alter table "workflow" alter column "version" drop default;

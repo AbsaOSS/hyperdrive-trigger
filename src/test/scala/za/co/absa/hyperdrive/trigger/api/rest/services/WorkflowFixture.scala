@@ -46,6 +46,7 @@ object WorkflowFixture {
       created = LocalDateTime.of(2020, 2, 29, 10, 59, 34),
       updated = None,
       project = "testProject",
+      version = 1,
       sensor = Sensor(
         workflowId = 10,
         properties = KafkaSensorProperties(
@@ -91,6 +92,7 @@ object WorkflowFixture {
       created = randomDate(),
       updated = if (randomBoolean()) Some(randomDate()) else None,
       project = projectName,
+      version = 1,
       sensor = Sensor(
         workflowId = 0,
         properties = AbsaKafkaSensorProperties(
@@ -175,6 +177,7 @@ object WorkflowFixture {
       created = randomDate(),
       updated = if (randomBoolean()) Some(randomDate()) else None,
       project = projectName,
+      version = 1,
       sensor = Sensor(
         workflowId = 0,
         properties = TimeSensorProperties(
@@ -205,6 +208,7 @@ object WorkflowFixture {
       created = randomDate(),
       updated = if (randomBoolean()) Some(randomDate()) else None,
       project = "project",
+      version = 1,
       sensor = Sensor(
         workflowId = 0,
         properties = TimeSensorProperties(
@@ -235,6 +239,7 @@ object WorkflowFixture {
       created = randomDate(),
       updated = if (randomBoolean()) Some(randomDate()) else None,
       project = "project",
+      version = 1,
       sensor = Sensor(
         workflowId = 0,
         properties = TimeSensorProperties(

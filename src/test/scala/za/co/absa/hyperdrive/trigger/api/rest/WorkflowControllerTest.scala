@@ -138,8 +138,8 @@ class WorkflowControllerTest extends AsyncFlatSpec with Matchers with MockitoSug
 
   it should "throw an exception if there's a parsing error" in {
     // given
-    val w1 = Workflow("name1", isActive = true, project = "project1", updated = None)
-    val w2 = Workflow("name2", isActive = true, project = "project2", updated = None)
+    val w1 = Workflow("name1", isActive = true, project = "project1", updated = None, version = 1)
+    val w2 = Workflow("name2", isActive = true, project = "project2", updated = None, version = 1)
     val zipEntries = Seq(w1, w2).map(w => w.name ->
       ObjectMapperSingleton.getObjectMapper.writeValueAsBytes(w)).toMap
     val byteArray = createZip(zipEntries)

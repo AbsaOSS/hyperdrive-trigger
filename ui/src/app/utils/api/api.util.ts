@@ -40,4 +40,8 @@ export class ApiUtil {
   static isBackendValidationError(errorResponse: any): boolean {
     return this.isApiError(errorResponse) && errorResponse.every((err) => err.errorType.name == 'validationError');
   }
+
+  static isOptimisticLockingError(errorResponse: any): boolean {
+    return this.isApiError(errorResponse) && errorResponse.every((err) => err.errorType.name == 'optimisticLockingError');
+  }
 }

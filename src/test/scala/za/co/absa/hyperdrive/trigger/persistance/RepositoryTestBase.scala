@@ -126,13 +126,13 @@ trait RepositoryTestBase extends Repository {
     val triggeredBy = "Triggered by"
     val now = LocalDateTime.now()
 
-    val w1 = Workflow(name = "workflow1", isActive = true, project = "project1", created = now, updated = None, id = 100)
-    val w2 = Workflow(name = "workflow2", isActive = true, project = "project1", created = now, updated = None, id = 101)
-    val w3 = Workflow(name = "workflow3", isActive = true, project = "project2", created = now, updated = None, id = 102)
-    val w4 = Workflow(name = "workflow4", isActive = true, project = "project2", created = now, updated = None, id = 103)
-    val w5 = Workflow(name = "workflow5", isActive = false, project = "project2", created = now, updated = None, id = 104)
-    val w6 = Workflow(name = "workflow6", isActive = false, project = "project2", created = now, updated = None, id = 105)
-    val w7 = Workflow(name = "workflow7", isActive = false, project = "project2", created = now, updated = None, id = 106)
+    val w1 = Workflow(name = "workflow1", isActive = true, project = "project1", created = now, updated = None, version = 1, id = 100)
+    val w2 = Workflow(name = "workflow2", isActive = true, project = "project1", created = now, updated = None, version = 1, id = 101)
+    val w3 = Workflow(name = "workflow3", isActive = true, project = "project2", created = now, updated = None, version = 1, id = 102)
+    val w4 = Workflow(name = "workflow4", isActive = true, project = "project2", created = now, updated = None, version = 1, id = 103)
+    val w5 = Workflow(name = "workflow5", isActive = false, project = "project2", created = now, updated = None, version = 1, id = 104)
+    val w6 = Workflow(name = "workflow6", isActive = false, project = "project2", created = now, updated = None, version = 1, id = 105)
+    val w7 = Workflow(name = "workflow7", isActive = false, project = "project2", created = now, updated = None, version = 1, id = 106)
 
     val workflows: Seq[Workflow] = Seq(w1, w2, w3, w4, w5, w6, w7)
 
@@ -220,6 +220,7 @@ trait RepositoryTestBase extends Repository {
         workflow.project,
         workflow.created,
         workflow.updated,
+        workflow.version,
         workflow.schedulerInstanceId,
         sensor,
         dagDefinitionJoined,

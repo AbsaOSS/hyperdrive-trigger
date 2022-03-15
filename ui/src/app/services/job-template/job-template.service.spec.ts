@@ -152,8 +152,8 @@ describe('JobTemplateService', () => {
 
   it('getJobTemplateUsage() should return all workflows where job template is used', () => {
     const workflows = [
-      WorkflowModelFactory.create('workflowOne', undefined, undefined, undefined, undefined, undefined),
-      WorkflowModelFactory.create('workflowTwo', undefined, undefined, undefined, undefined, undefined),
+      WorkflowModelFactory.create('workflowOne', undefined, undefined, undefined, undefined, undefined, undefined),
+      WorkflowModelFactory.create('workflowTwo', undefined, undefined, undefined, undefined, undefined, undefined),
     ];
     const jobTemplateId = 1;
 

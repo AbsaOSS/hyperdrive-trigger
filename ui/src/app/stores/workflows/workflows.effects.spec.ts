@@ -146,10 +146,10 @@ describe('WorkflowsEffects', () => {
 
       const projects = [
         ProjectModelFactory.create('projectName1', [
-          WorkflowModelFactory.create('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 0),
+          WorkflowModelFactory.create('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 1, 0),
         ]),
         ProjectModelFactory.create('projectName2', [
-          WorkflowModelFactory.create('workflowName2', true, 'projectName2', new Date(Date.now()), new Date(Date.now()), 1),
+          WorkflowModelFactory.create('workflowName2', true, 'projectName2', new Date(Date.now()), new Date(Date.now()), 1, 1),
         ]),
       ];
 
@@ -175,7 +175,9 @@ describe('WorkflowsEffects', () => {
 
   describe('workflowsSearch', () => {
     it('should return workflows search response', () => {
-      const workflows = [WorkflowModelFactory.create('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 0)];
+      const workflows = [
+        WorkflowModelFactory.create('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 1, 0),
+      ];
       const searchResponseModel = new TableSearchResponseModel<WorkflowModel>(workflows, 1);
       const searchRequest = TableSearchRequestModelFactory.create(0, 100);
 
@@ -269,6 +271,7 @@ describe('WorkflowsEffects', () => {
         undefined,
         SensorModelFactory.create(10, new RecurringSensorProperties(), 10),
         DagDefinitionJoinedModelFactory.create(10, [jobDefinition], 10),
+        1,
         10,
       );
 
@@ -545,6 +548,7 @@ describe('WorkflowsEffects', () => {
         undefined,
         SensorModelFactory.create(10, undefined, 10),
         DagDefinitionJoinedModelFactory.create(10, [JobDefinitionModelFactory.create(10, 'name', '1', undefined, 0, 10)], 10),
+        1,
         10,
       );
       const createWorkflowSuccessPayload: WorkflowModel = WorkflowModelFactory.create(
@@ -553,6 +557,7 @@ describe('WorkflowsEffects', () => {
         workflow.project,
         workflow.created,
         workflow.updated,
+        workflow.version,
         workflow.id,
       );
 
@@ -631,6 +636,7 @@ describe('WorkflowsEffects', () => {
         undefined,
         SensorModelFactory.create(10, undefined, 10),
         DagDefinitionJoinedModelFactory.create(10, [JobDefinitionModelFactory.create(10, 'name', '1', undefined, 0, 10)], 10),
+        1,
         10,
       );
       const updateWorkflowSuccessPayload: WorkflowModel = WorkflowModelFactory.create(
@@ -639,6 +645,7 @@ describe('WorkflowsEffects', () => {
         workflow.project,
         workflow.created,
         workflow.updated,
+        workflow.version,
         workflow.id,
       );
 
@@ -979,6 +986,7 @@ describe('WorkflowsEffects', () => {
         undefined,
         SensorModelFactory.create(10, new RecurringSensorProperties(), 10),
         DagDefinitionJoinedModelFactory.create(10, [jobDefinition], 10),
+        1,
         10,
       );
 
@@ -1050,9 +1058,9 @@ describe('WorkflowsEffects', () => {
   describe('workflowsImport', () => {
     it('should import multiple workflows', () => {
       const toastrServiceSpy = spyOn(toastrService, 'success');
-      const w1 = WorkflowModelFactory.create('w1', true, 'p1', new Date(Date.now()), new Date(Date.now()), 1);
-      const w2 = WorkflowModelFactory.create('w2', true, 'p1', new Date(Date.now()), new Date(Date.now()), 2);
-      const w3 = WorkflowModelFactory.create('w3', true, 'p2', new Date(Date.now()), new Date(Date.now()), 3);
+      const w1 = WorkflowModelFactory.create('w1', true, 'p1', new Date(Date.now()), new Date(Date.now()), 1, 1);
+      const w2 = WorkflowModelFactory.create('w2', true, 'p1', new Date(Date.now()), new Date(Date.now()), 1, 2);
+      const w3 = WorkflowModelFactory.create('w3', true, 'p2', new Date(Date.now()), new Date(Date.now()), 1, 3);
       const projects = [ProjectModelFactory.create('p1', [w1, w2]), ProjectModelFactory.create('p2', [w3])];
 
       const file: File = new File(['content'], 'workflows.zip');

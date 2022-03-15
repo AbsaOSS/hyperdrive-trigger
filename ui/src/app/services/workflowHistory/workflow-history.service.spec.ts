@@ -58,7 +58,7 @@ describe('WorkflowHistoryService', () => {
   });
 
   it('getWorkflowFromHistory() should return history workflow', () => {
-    const workflow = WorkflowJoinedModelFactory.create('name', true, 'project', undefined, undefined, undefined, 0);
+    const workflow = WorkflowJoinedModelFactory.create('name', true, 'project', undefined, undefined, undefined, 0, 0);
 
     underTest.getWorkflowFromHistory(workflow.id).subscribe(
       (data) => expect(data).toEqual(workflow),
@@ -76,7 +76,7 @@ describe('WorkflowHistoryService', () => {
 
     const history = HistoryModelFactory.create(2, new Date(Date.now()), 'userName', { name: 'Create' });
 
-    const workflow = WorkflowJoinedModelFactory.create('name', true, 'project', undefined, undefined, undefined, 0);
+    const workflow = WorkflowJoinedModelFactory.create('name', true, 'project', undefined, undefined, undefined, undefined, 0);
 
     const workflowHistoriesForComparison: HistoryPairModel<WorkflowHistoryModel> = {
       leftHistory: WorkflowHistoryModelFactory.create(history, leftWorkflowHistoryId, workflow),

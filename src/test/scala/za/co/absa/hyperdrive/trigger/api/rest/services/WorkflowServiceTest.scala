@@ -156,6 +156,43 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
     result.apiErrors.head shouldBe error
   }
 
+  it should "update a workflow, but not created time" in {
+    val originalWorkflow = WorkflowFixture.createWorkflowJoined()
+    val updatedWorkflow = originalWorkflow.copy(name = "newName", created = LocalDateTime.of(2020, 2, 29, 10, 59, 34))
+    val workflowJoinedCaptor: ArgumentCaptor[WorkflowJoined] = ArgumentCaptor.forClass(classOf[WorkflowJoined])
+
+    when(workflowRepository.getWorkflow(eqTo(originalWorkflow.id))(any[ExecutionContext])).thenReturn(Future{originalWorkflow}).thenReturn(Future{updatedWorkflow})
+    when(workflowValidationService.validateOnUpdate(eqTo(originalWorkflow), eqTo(updatedWorkflow))(any[ExecutionContext])).thenReturn(Future{})
+    when(workflowRepository.updateWorkflow(any[WorkflowJoined], any[String])(any[ExecutionContext])).thenReturn(Future{(): Unit})
+
+    // when
+    val result = await(underTest.updateWorkflow(updatedWorkflow))
+
+    // then
+    verify(workflowRepository).updateWorkflow(workflowJoinedCaptor.capture(), any[String])(any[ExecutionContext])
+    workflowJoinedCaptor.getValue.created shouldBe originalWorkflow.created
+    result shouldBe updatedWorkflow
+  }
+
+  it should "not update the scheduler instance id" in {
+    // given
+    val originalWorkflow = WorkflowFixture.createWorkflowJoined()
+    val updatedWorkflow = originalWorkflow.copy(name = "newName", schedulerInstanceId = Some(999))
+    val workflowJoinedCaptor: ArgumentCaptor[WorkflowJoined] = ArgumentCaptor.forClass(classOf[WorkflowJoined])
+
+    when(workflowRepository.getWorkflow(eqTo(originalWorkflow.id))(any[ExecutionContext])).thenReturn(Future{originalWorkflow}).thenReturn(Future{updatedWorkflow})
+    when(workflowValidationService.validateOnUpdate(eqTo(originalWorkflow), eqTo(updatedWorkflow))(any[ExecutionContext])).thenReturn(Future{})
+    when(workflowRepository.updateWorkflow(any[WorkflowJoined], any[String])(any[ExecutionContext])).thenReturn(Future{(): Unit})
+
+    // when
+    val result = await(underTest.updateWorkflow(updatedWorkflow))
+
+    // then
+    verify(workflowRepository).updateWorkflow(workflowJoinedCaptor.capture(), any[String])(any[ExecutionContext])
+    workflowJoinedCaptor.getValue.schedulerInstanceId shouldBe originalWorkflow.schedulerInstanceId
+    result shouldBe updatedWorkflow
+  }
+
   "WorkflowService.getProjects" should "should return no project on no workflows" in {
     // given
     when(workflowRepository.getProjects()(any[ExecutionContext])).thenReturn(Future{Seq()})

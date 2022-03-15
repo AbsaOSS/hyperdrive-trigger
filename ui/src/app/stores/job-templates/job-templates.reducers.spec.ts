@@ -482,8 +482,8 @@ describe('JobTemplatesReducers', () => {
 
   it('should set loading to false and workflows on get job template usage success', () => {
     const workflows = [
-      WorkflowModelFactory.create('workflowOne', undefined, undefined, undefined, undefined, undefined),
-      WorkflowModelFactory.create('workflowTwo', undefined, undefined, undefined, undefined, undefined),
+      WorkflowModelFactory.create('workflowOne', undefined, undefined, undefined, undefined, undefined, undefined),
+      WorkflowModelFactory.create('workflowTwo', undefined, undefined, undefined, undefined, undefined, undefined),
     ];
     const jobTemplatesAction = new GetJobTemplateUsageSuccess(workflows);
 

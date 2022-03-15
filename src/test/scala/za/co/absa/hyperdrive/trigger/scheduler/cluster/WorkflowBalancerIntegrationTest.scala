@@ -43,7 +43,7 @@ class WorkflowBalancerIntegrationTest extends FlatSpec with Matchers with Before
   private val workflowBalancingService: WorkflowBalancingService = new WorkflowBalancingServiceImpl(workflowRepository)
   private val schedulerConfig = TestSchedulerConfig()
 
-  private val baseWorkflow = Workflow(name = "workflow", isActive = true, project = "project", updated = None)
+  private val baseWorkflow = Workflow(name = "workflow", isActive = true, project = "project", updated = None, version = 1)
   private val random = new scala.util.Random(0)
   override def beforeAll: Unit = {
     schemaSetup()

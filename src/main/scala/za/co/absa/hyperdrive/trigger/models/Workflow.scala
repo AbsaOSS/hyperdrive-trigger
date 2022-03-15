@@ -16,6 +16,7 @@
 package za.co.absa.hyperdrive.trigger.models
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import za.co.absa.hyperdrive.trigger.models.tables.tableExtensions.optimisticLocking.OptimisticLockingEntity
 
 import java.time.LocalDateTime
 
@@ -25,9 +26,12 @@ case class Workflow(
   project: String,
   created: LocalDateTime = LocalDateTime.now(),
   updated: Option[LocalDateTime],
+  override val version: Long,
   schedulerInstanceId: Option[Long] = None,
   id: Long = 0
-)
+) extends OptimisticLockingEntity[Workflow] {
+  def updateVersion(newVersion: Long): Workflow = this.copy(version = newVersion)
+}
 
 case class WorkflowState(
   isActive: Boolean
@@ -39,6 +43,7 @@ case class WorkflowJoined(
   project: String,
   created: LocalDateTime = LocalDateTime.now(),
   updated: Option[LocalDateTime],
+  version: Long,
   @JsonDeserialize(contentAs = classOf[java.lang.Long]) schedulerInstanceId: Option[Long] = None,
   sensor: Sensor[SensorProperties],
   dagDefinitionJoined: DagDefinitionJoined,
@@ -51,6 +56,7 @@ case class WorkflowJoined(
       project = this.project,
       created = this.created,
       updated = this.updated,
+      version = this.version,
       schedulerInstanceId = this.schedulerInstanceId,
       id = this.id
     )

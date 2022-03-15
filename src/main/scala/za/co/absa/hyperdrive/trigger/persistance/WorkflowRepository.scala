@@ -18,11 +18,12 @@ package za.co.absa.hyperdrive.trigger.persistance
 import java.time.LocalDateTime
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype
-import za.co.absa.hyperdrive.trigger.models.dagRuns.DagRun
 import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses
 import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses.SchedulerInstanceStatus
-import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, GenericDatabaseError}
+import za.co.absa.hyperdrive.trigger.models.errors.ApiErrorTypes.OptimisticLockingErrorType
+import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, DatabaseError, GenericDatabaseError}
 import za.co.absa.hyperdrive.trigger.models.search.{TableSearchRequest, TableSearchResponse}
+import za.co.absa.hyperdrive.trigger.models.tables.tableExtensions.optimisticLocking.OptimisticLockingException
 import za.co.absa.hyperdrive.trigger.models.{ProjectInfo, _}
 
 import javax.inject.Inject
@@ -55,6 +56,7 @@ trait WorkflowRepository extends Repository {
   def acquireWorkflowAssignments(workflowIds: Seq[Long], instanceId: Long)(implicit ec: ExecutionContext): Future[Int]
   def getWorkflowsBySchedulerInstance(instanceId: Long)(implicit ec: ExecutionContext): Future[Seq[Workflow]]
   def getMaxWorkflowId(implicit ec: ExecutionContext): Future[Option[Long]]
+  def getWorkflowVersion(id: Long)(implicit ec: ExecutionContext): Future[Long]
 }
 
 @stereotype.Repository
@@ -147,6 +149,7 @@ class WorkflowRepositoryImpl @Inject()(
             project = w.project,
             created = w.created,
             updated = w.updated,
+            version = w.version,
             schedulerInstanceId = w.schedulerInstanceId,
             sensor = s,
             dagDefinitionJoined = DagDefinitionJoined(
@@ -215,9 +218,7 @@ class WorkflowRepositoryImpl @Inject()(
     val w = workflow.toWorkflow.copy(updated = Option(LocalDateTime.now()))
     db.run(
       (for {
-        w <- workflowTable.filter(_.id === workflow.id)
-          .map(t => (t.name, t.isActive, t.project, t.updated))
-          .update((w.name, w.isActive, w.project, w.updated))
+        w <- workflowTable.filter(_.id === workflow.id).updateWithOptimisticLocking(w)
         s <- sensorTable.filter(_.workflowId === workflow.id).update(workflow.sensor)
         dd <- dagDefinitionTable.filter(_.workflowId === workflow.id).update(workflow.dagDefinitionJoined.toDag())
         deleteJds <- jobDefinitionTable.filter(_.dagDefinitionId === workflow.dagDefinitionJoined.id).delete
@@ -230,6 +231,9 @@ class WorkflowRepositoryImpl @Inject()(
         ).flatMap(_.map(_ => result))
       ).transactionally.asTry.map {
         case Success(_) => (): Unit
+        case Failure(ex: OptimisticLockingException) =>
+          repositoryLogger.error(s"Optimistic locking error occurred when updating workflow $workflow", ex)
+          throw new ApiException(DatabaseError("Workflow was updated in the meantime", OptimisticLockingErrorType))
         case Failure(ex) =>
           repositoryLogger.error(s"Unexpected error occurred when updating workflow $workflow", ex)
           throw new ApiException(GenericDatabaseError)
@@ -342,5 +346,11 @@ class WorkflowRepositoryImpl @Inject()(
 
   override def getMaxWorkflowId(implicit ec: ExecutionContext): Future[Option[Long]] = db.run(
     workflowTable.map(_.id).max.result
+  )
+
+  override def getWorkflowVersion(id: Long)(implicit ec: ExecutionContext): Future[Long] = db.run(
+    workflowTable.filter(_.id === id).map(_.version).result.map(
+      _.headOption.getOrElse(throw new Exception(s"Workflow with id ${id} does not exist."))
+    )
   )
 }

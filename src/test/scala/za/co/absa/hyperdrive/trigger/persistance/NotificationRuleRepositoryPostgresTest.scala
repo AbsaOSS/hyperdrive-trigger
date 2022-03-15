@@ -49,7 +49,7 @@ class NotificationRuleRepositoryPostgresTest extends FlatSpec with Matchers with
 
   "getMatchingNotificationRules" should "return rules matching the project name" in {
     val workflowId = 1L
-    val w1 = Workflow(name = "workflow1", isActive = true, project = "project1", created = LocalDateTime.now(), updated = None, id = workflowId)
+    val w1 = Workflow(name = "workflow1", isActive = true, project = "project1", created = LocalDateTime.now(), updated = None, version = 1, id = workflowId)
     val nr = createDummyNotificationRule()
     val nr10 = nr.copy(project = Some("PROJECT1"), id = 10L)
     val nr11 = nr.copy(project = Some("project1"), id = 11L)
@@ -72,7 +72,7 @@ class NotificationRuleRepositoryPostgresTest extends FlatSpec with Matchers with
 
   it should "return rules matching the workflow name" in {
     val workflowId = 1L
-    val w1 = Workflow(name = "workflow1", isActive = true, project = "project1", created = LocalDateTime.now(), updated = None, id = workflowId)
+    val w1 = Workflow(name = "workflow1", isActive = true, project = "project1", created = LocalDateTime.now(), updated = None, version = 1, id = workflowId)
     val nr = createDummyNotificationRule()
     val nr10 = nr.copy(workflowPrefix = Some("WORK"), id = 10L)
     val nr11 = nr.copy(workflowPrefix = Some("workflow1"), id = 11L)
@@ -90,7 +90,7 @@ class NotificationRuleRepositoryPostgresTest extends FlatSpec with Matchers with
 
   it should "return rules matching the status" in {
     val workflowId = 1L
-    val w1 = Workflow(name = "workflow1", isActive = true, project = "project1", created = LocalDateTime.now(), updated = None, id = workflowId)
+    val w1 = Workflow(name = "workflow1", isActive = true, project = "project1", created = LocalDateTime.now(), updated = None, version = 1, id = workflowId)
     val nr = createDummyNotificationRule()
     val nr10 = nr.copy(statuses = Seq(Failed, Succeeded), id = 10L)
     val nr11 = nr.copy(statuses = Seq(Failed), id = 11L)
@@ -108,7 +108,7 @@ class NotificationRuleRepositoryPostgresTest extends FlatSpec with Matchers with
   it should "return rules whose threshold for the time since the last success is lower than the actual time since last success" in {
     val currentTime = LocalDateTime.now()
     val workflowId = 1L
-    val w1 = Workflow(name = "workflow1", isActive = true, project = "project1", created = LocalDateTime.now(), updated = None, id = workflowId)
+    val w1 = Workflow(name = "workflow1", isActive = true, project = "project1", created = LocalDateTime.now(), updated = None, version = 1, id = workflowId)
     val startedTime = currentTime.minusHours(8)
     val di1 = DagInstance(status = Running, triggeredBy = "user", started = startedTime, finished = None, workflowId = w1.id, id = 202)
     val di2 = DagInstance(status = Succeeded, triggeredBy = "user", started = startedTime, finished = None, workflowId = w1.id, id = 203)
@@ -131,7 +131,7 @@ class NotificationRuleRepositoryPostgresTest extends FlatSpec with Matchers with
 
   it should "return rules if no dag instances exist yet even if a threshold is set" in {
     val workflowId = 1L
-    val w1 = Workflow(name = "workflow1", isActive = true, project = "project1", created = LocalDateTime.now(), updated = None, id = workflowId)
+    val w1 = Workflow(name = "workflow1", isActive = true, project = "project1", created = LocalDateTime.now(), updated = None, version = 1, id = workflowId)
     val nr = createDummyNotificationRule()
     val nr10 = nr.copy(minElapsedSecondsSinceLastSuccess = Some(2 * 60 * 60), id = 10L)
     val nr11 = nr.copy(minElapsedSecondsSinceLastSuccess = None, id = 11L)
@@ -147,7 +147,7 @@ class NotificationRuleRepositoryPostgresTest extends FlatSpec with Matchers with
 
   it should "not return any inactive notification rules" in {
     val workflowId = 1L
-    val w1 = Workflow(name = "workflow1", isActive = true, project = "project1", created = LocalDateTime.now(), updated = None, id = workflowId)
+    val w1 = Workflow(name = "workflow1", isActive = true, project = "project1", created = LocalDateTime.now(), updated = None, version = 1, id = workflowId)
     val nr = createDummyNotificationRule()
     val nr10 = nr.copy(project = Some("PROJECT1"), id = 10L)
     val nr11 = nr.copy(workflowPrefix = Some("work"), id = 11L)

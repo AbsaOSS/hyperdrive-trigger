@@ -52,9 +52,9 @@ describe('WorkflowsReducers', () => {
   describe('addWorkflow', () => {
     it('should add workflows into empty projects', () => {
       const projects = [];
-      const w1p1 = WorkflowModelFactory.create('workflowName1', true, 'projectName1', undefined, undefined, 1);
-      const w2p1 = WorkflowModelFactory.create('workflowName2', true, 'projectName1', undefined, undefined, 2);
-      const w3p2 = WorkflowModelFactory.create('workflowName3', true, 'projectName2', undefined, undefined, 3);
+      const w1p1 = WorkflowModelFactory.create('workflowName1', true, 'projectName1', undefined, undefined, 1, 1);
+      const w2p1 = WorkflowModelFactory.create('workflowName2', true, 'projectName1', undefined, undefined, 1, 2);
+      const w3p2 = WorkflowModelFactory.create('workflowName3', true, 'projectName2', undefined, undefined, 1, 3);
 
       const result = addWorkflow([w1p1, w2p1, w3p2], projects);
       expect(result.length).toEqual(2);
@@ -65,13 +65,13 @@ describe('WorkflowsReducers', () => {
     it('should add workflows into non empty projects', () => {
       const projects = [
         ProjectModelFactory.create('projectName1', [
-          WorkflowModelFactory.create('workflowName1', true, 'projectName1', undefined, undefined, 1),
+          WorkflowModelFactory.create('workflowName1', true, 'projectName1', undefined, undefined, 1, 1),
         ]),
         ProjectModelFactory.create('projectName2', [
-          WorkflowModelFactory.create('workflowName3', true, 'projectName2', undefined, undefined, 3),
+          WorkflowModelFactory.create('workflowName3', true, 'projectName2', undefined, undefined, 1, 3),
         ]),
       ];
-      const w2p1 = WorkflowModelFactory.create('workflowName2', true, 'projectName1', undefined, undefined, 2);
+      const w2p1 = WorkflowModelFactory.create('workflowName2', true, 'projectName1', undefined, undefined, 1, 2);
 
       const result = addWorkflow([w2p1], projects);
       expect(result.length).toEqual(2);

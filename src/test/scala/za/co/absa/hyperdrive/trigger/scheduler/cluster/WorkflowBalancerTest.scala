@@ -35,7 +35,7 @@ class WorkflowBalancerTest extends AsyncFlatSpec with MockitoSugar with Matchers
   private val schedulerInstanceService = mock[SchedulerInstanceService]
   private val workflowBalancingService = mock[WorkflowBalancingService]
   private val schedulerConfig = TestSchedulerConfig()
-  private val baseWorkflow = Workflow(name = "workflow", isActive = true, project = "project", updated = None)
+  private val baseWorkflow = Workflow(name = "workflow", isActive = true, project = "project", updated = None, version = 1)
 
   before {
     reset(schedulerInstanceService)

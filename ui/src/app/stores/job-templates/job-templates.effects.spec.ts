@@ -487,7 +487,7 @@ describe('JobTemplatesEffects', () => {
   describe('jobTemplateUsageGet', () => {
     it('should return job template usage', () => {
       const id = 0;
-      const workflow = WorkflowModelFactory.create('workflowOne', undefined, undefined, undefined, undefined, undefined);
+      const workflow = WorkflowModelFactory.create('workflowOne', undefined, undefined, undefined, undefined, undefined, undefined);
 
       const action = new GetJobTemplateUsage(id);
       mockActions = cold('-a', { a: action });

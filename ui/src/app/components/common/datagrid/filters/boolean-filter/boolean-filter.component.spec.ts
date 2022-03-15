@@ -43,7 +43,7 @@ describe('BooleanFilterComponent', () => {
       const underTest = fixture.componentInstance;
       underTest.value = { isTrue: true, isFalse: undefined };
       underTest.property = 'isActive';
-      const workflow = WorkflowModelFactory.create('workflowName', true, 'projectName', new Date(Date.now()), new Date(Date.now()), 0);
+      const workflow = WorkflowModelFactory.create('workflowName', true, 'projectName', new Date(Date.now()), new Date(Date.now()), 1, 0);
 
       expect(underTest.accepts(workflow)).toBeTrue();
     });
@@ -52,7 +52,7 @@ describe('BooleanFilterComponent', () => {
       const underTest = fixture.componentInstance;
       underTest.value = { isTrue: true, isFalse: false };
       underTest.property = 'isActive';
-      const workflow = WorkflowModelFactory.create('workflowName', false, 'projectName', new Date(Date.now()), new Date(Date.now()), 0);
+      const workflow = WorkflowModelFactory.create('workflowName', false, 'projectName', new Date(Date.now()), new Date(Date.now()), 1, 0);
 
       expect(underTest.accepts(workflow)).toBeFalse();
     });
@@ -61,7 +61,7 @@ describe('BooleanFilterComponent', () => {
       const underTest = fixture.componentInstance;
       underTest.value = { isTrue: false, isFalse: false };
       underTest.property = 'isActive';
-      const workflow = WorkflowModelFactory.create('workflowName', true, 'projectName', new Date(Date.now()), new Date(Date.now()), 0);
+      const workflow = WorkflowModelFactory.create('workflowName', true, 'projectName', new Date(Date.now()), new Date(Date.now()), 1, 0);
 
       expect(underTest.accepts(workflow)).toBeFalse();
     });
@@ -70,7 +70,7 @@ describe('BooleanFilterComponent', () => {
       const underTest = fixture.componentInstance;
       underTest.value = { isTrue: undefined, isFalse: true };
       underTest.property = 'isActive';
-      const workflow = WorkflowModelFactory.create('workflowName', false, 'projectName', new Date(Date.now()), new Date(Date.now()), 0);
+      const workflow = WorkflowModelFactory.create('workflowName', false, 'projectName', new Date(Date.now()), new Date(Date.now()), 1, 0);
 
       expect(underTest.accepts(workflow)).toBeTrue();
     });
@@ -79,7 +79,7 @@ describe('BooleanFilterComponent', () => {
       const underTest = fixture.componentInstance;
       underTest.value = { isTrue: undefined, isFalse: true };
       underTest.property = 'isActive';
-      const workflow = WorkflowModelFactory.create('workflowName', true, 'projectName', new Date(Date.now()), new Date(Date.now()), 0);
+      const workflow = WorkflowModelFactory.create('workflowName', true, 'projectName', new Date(Date.now()), new Date(Date.now()), 1, 0);
 
       expect(underTest.accepts(workflow)).toBeFalse();
     });
@@ -88,7 +88,7 @@ describe('BooleanFilterComponent', () => {
       const underTest = fixture.componentInstance;
       underTest.value = { isTrue: undefined, isFalse: false };
       underTest.property = 'isActive';
-      const workflow = WorkflowModelFactory.create('workflowName', false, 'projectName', new Date(Date.now()), new Date(Date.now()), 0);
+      const workflow = WorkflowModelFactory.create('workflowName', false, 'projectName', new Date(Date.now()), new Date(Date.now()), 1, 0);
 
       expect(underTest.accepts(workflow)).toBeFalse();
     });

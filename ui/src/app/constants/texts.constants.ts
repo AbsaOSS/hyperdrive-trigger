@@ -69,6 +69,8 @@ export const texts = {
   UPDATE_WORKFLOW_CONFIRMATION_CONTENT: 'Are you sure you want to update the workflow?',
   UPDATE_WORKFLOW_SUCCESS_NOTIFICATION: 'Workflow has been updated.',
   UPDATE_WORKFLOW_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
+  UPDATE_WORKFLOW_OPTIMISTIC_LOCKING_FAILURE_NOTIFICATION:
+    'Sorry, workflow was updated in the meantime. Please refresh and apply your changes again.',
 
   EXPORT_WORKFLOWS_SUCCESS_NOTIFICATION: 'Export successful.',
   EXPORT_WORKFLOWS_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',

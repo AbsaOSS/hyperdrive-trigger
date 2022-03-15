@@ -86,7 +86,7 @@ class DagInstanceRepositoryTest extends FlatSpec with Matchers with BeforeAndAft
 
   it should "only return dagInstances of assigned workflows" in {
     val workflowIds = 0L to 99L
-    val baseWorkflow = Workflow(name = "workflow", isActive = true, project = "project", updated = None)
+    val baseWorkflow = Workflow(name = "workflow", isActive = true, project = "project", updated = None, version = 1)
     val baseDagInstance = DagInstance(DagInstanceStatuses.InQueue, "triggeredBy", -1L, LocalDateTime.now(), None)
     val workflows = workflowIds.map(i => baseWorkflow.copy(id = i, name = s"name$i"))
     val dagInstances = workflowIds.map(i => baseDagInstance.copy(workflowId = i, id = 1000 + i))

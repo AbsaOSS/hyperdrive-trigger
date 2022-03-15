@@ -13,14 +13,13 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models.tables
-
-import java.time.LocalDateTime
+package za.co.absa.hyperdrive.trigger.models.tables.tableExtensions.searchableTable
 
 import org.scalatest.{FlatSpec, _}
 import za.co.absa.hyperdrive.trigger.models.search
 import za.co.absa.hyperdrive.trigger.models.search._
 
+import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class SearchableTableQueryTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with TestSearchableRepositoryTestBase {
