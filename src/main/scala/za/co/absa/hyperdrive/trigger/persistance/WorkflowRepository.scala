@@ -218,7 +218,7 @@ class WorkflowRepositoryImpl @Inject()(
     val w = workflow.toWorkflow.copy(updated = Option(LocalDateTime.now()))
     db.run(
       (for {
-        w <- workflowTable.filter(_.id === workflow.id).updateWithOptimisticLocking(w, w.version)
+        w <- workflowTable.filter(_.id === workflow.id).updateWithOptimisticLocking(w)
         s <- sensorTable.filter(_.workflowId === workflow.id).update(workflow.sensor)
         dd <- dagDefinitionTable.filter(_.workflowId === workflow.id).update(workflow.dagDefinitionJoined.toDag())
         deleteJds <- jobDefinitionTable.filter(_.dagDefinitionId === workflow.dagDefinitionJoined.id).delete

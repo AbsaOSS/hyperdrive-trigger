@@ -23,7 +23,10 @@ trait TestOptimisticLockingTable extends OptimisticLockingTableQuery {
 
   import api._
 
-  case class TestOptimisticLockingEntity(id: Long, stringValue: String, version: Long)
+  case class TestOptimisticLockingEntity(id: Long, stringValue: String, override val version: Long)
+    extends OptimisticLockingEntity[TestOptimisticLockingEntity] {
+    override def updateVersion(newVersion: Long): TestOptimisticLockingEntity = copy(version = newVersion)
+  }
 
 
   final class TestOptimisticLockingTable(tag: Tag)
