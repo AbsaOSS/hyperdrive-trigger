@@ -46,18 +46,18 @@ class OptimisticLockingTableQueryTest extends FlatSpec with Matchers with Before
     val updateRequest = TestOptimisticLockingData.t1.copy(stringValue = "changed")
     val id = updateRequest.id
 
-    val result = await(db.run(underTest.filter(_.id === id).updateWithOptimisticLocking(updateRequest, updateRequest.version)))
+    val result = await(db.run(underTest.filter(_.id === id).updateWithOptimisticLocking(updateRequest)))
 
     result shouldBe 1
   }
 
   it should "return error if input version is not the same as version in database" in {
     val initialVersion = TestOptimisticLockingData.t2.version - 1
-    val updateRequest = TestOptimisticLockingData.t2.copy(stringValue = "changed")
+    val updateRequest = TestOptimisticLockingData.t2.copy(stringValue = "changed", version = initialVersion)
     val id = TestOptimisticLockingData.t2.id
 
     val result = the [Exception] thrownBy await(
-      db.run(underTest.filter(_.id === id).updateWithOptimisticLocking(updateRequest, initialVersion))
+      db.run(underTest.filter(_.id === id).updateWithOptimisticLocking(updateRequest))
     )
 
     result shouldBe a[OptimisticLockingException]

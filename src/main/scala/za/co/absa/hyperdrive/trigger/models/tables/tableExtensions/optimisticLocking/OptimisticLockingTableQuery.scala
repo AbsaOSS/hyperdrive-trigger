@@ -27,19 +27,14 @@ trait OptimisticLockingTableQuery {
   import api._
 
   implicit class OptimisticLockQueryExtension[E <: OptimisticLockingTable with AbstractTable[_], U, C[_]](query: Query[E, U, C]) {
-    def updateWithOptimisticLocking(value: U, version: Long)(implicit ec: ExecutionContext): DBIOAction[Int, NoStream, Effect.Write with Effect.Transactional] = {
-      val updateEntityQuery = query.filter(_.version === version).update(value)
-      val updateVersionField = query.filter(_.version === version).map(_.version).update(version + 1)
-
-      (for {
-        updateEntityResult <- updateEntityQuery
-        updateVersionResult <- updateVersionField
-      } yield  {
-        (updateEntityResult, updateVersionResult) match {
-          case (1, 1) => 1
-          case _ => throw new OptimisticLockingException
+    def updateWithOptimisticLocking(value: OptimisticLockingEntity[U])(implicit ec: ExecutionContext): DBIOAction[Int, NoStream, Effect.Write with Effect.Transactional] = {
+      query.filter(_.version === value.version).update(value.updateVersion(value.version + 1)).map { result =>
+        if (result == 0) {
+          throw new OptimisticLockingException
+        } else {
+          result
         }
-      }).transactionally
+      }
     }
   }
 }
