@@ -86,9 +86,9 @@ appUniqueId=
 ```
 ```
 # Health check settings
-health.databaseConnection.timeoutMillis=60000
+health.databaseConnection.timeoutMillis=120000
 health.yarnConnection.testEndpoint=/cluster/cluster
-health.yarnConnection.timeoutMillis=60000
+health.yarnConnection.timeoutMillis=120000
 ```
 ```
 # How will users authenticate. Available options: inmemory, ldap
