@@ -86,7 +86,7 @@ appUniqueId=
 ```
 ```
 # Health check settings
-health.databaseConnection.timeoutMillis=120000
+health.databaseConnection.timeoutMillis=60000
 health.yarnConnection.testEndpoint=/cluster/cluster
 health.yarnConnection.timeoutMillis=60000
 ```
@@ -94,12 +94,12 @@ health.yarnConnection.timeoutMillis=60000
 # How will users authenticate. Available options: inmemory, ldap
 auth.mechanism=inmemory
 #If set, all users that do not have admim role will not have access to admin protected endpoints
-auth.admin.role=
+auth.admin.role=ROLE_ADMIN
 # INMEMORY authentication: username and password defined here will be used for authentication.
-auth.inmemory.user=user
-auth.inmemory.password=password
-auth.inmemory.admin.user=admin-user
-auth.inmemory.admin.password=admin-passowrd
+auth.inmemory.user=hyperdriver-user
+auth.inmemory.password=hyperdriver-password
+auth.inmemory.admin.user=hyperdriver-admin-user
+auth.inmemory.admin.password=hyperdriver-admin-password
 # LDAP authentication: props template that has to be defined in case of LDAP authentication
 auth.ad.domain=
 auth.ad.server=
@@ -130,10 +130,10 @@ spring.mail.port=
 ```
 #Kafka sensor properties. Not all are required. Adjust according to your use case.
 kafkaSource.group.id.prefix=hyper_drive_${appUniqueId}
-kafkaSource.key.deserializer=org.apache.kafka.common.serialization.StringDeserializer
-kafkaSource.value.deserializer=org.apache.kafka.common.serialization.StringDeserializer
 kafkaSource.poll.duration=500
-kafkaSource.max.poll.records=3
+kafkaSource.properties.key.deserializer=org.apache.kafka.common.serialization.StringDeserializer
+kafkaSource.properties.value.deserializer=org.apache.kafka.common.serialization.StringDeserializer
+kafkaSource.properties.max.poll.records=3
 kafkaSource.properties.enable.auto.commit=false
 kafkaSource.properties.auto.offset.reset=latest
 kafkaSource.properties.security.protocol=
@@ -148,18 +148,18 @@ kafkaSource.properties.sasl.jaas.config=
 ```
 ```
 # Recurring sensor properties.
-recurring-sensor.maxJobsPerDuration=8
-recurring-sensor.duration=1h
+recurringSensor.maxJobsPerDuration=8
+recurringSensor.duration=1h
 ```
 ```
 #Spark properties. Properties used to deploy and run Spark job. Not all are required. Adjust according to your use case.
 #Where spark jobs will be executed. Available options: yarn, emr.
-spark.submitApi=
+spark.submitApi=yarn
 
 #Submit api = YARN
 sparkYarnSink.submitTimeout=160000
-sparkYarnSink.hadoopConfDir=
-sparkYarnSink.sparkHome=
+sparkYarnSink.hadoopConfDir=/opt/hadoop
+sparkYarnSink.sparkHome=/opt/spark
 sparkYarnSink.master=yarn
 sparkYarnSink.filesToDeploy=
 sparkYarnSink.additionalConfs.spark.ui.port=
@@ -193,7 +193,9 @@ db.password=
 db.keepAliveConnection=true
 db.connectionPool=HikariCP
 db.numThreads=4
+
 db.skip.liquibase=false
+spring.liquibase.change-log=classpath:/db_scripts/liquibase/db.changelog.yml
 ```
 
 ## Embedded Tomcat
