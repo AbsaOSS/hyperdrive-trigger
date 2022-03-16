@@ -77,7 +77,7 @@ Adjusted application properties have to be provided. An application properties t
 version=@project.version@
 # Enviroment where application will be running
 environment=Local
-# Maximum number of workflows that can be trigger in bulk (Default value 10)
+# Maximum number of workflows that can be triggered in bulk (Default value 10)
 application.maximumNumberOfWorkflowsInBulkRun=10
 ```
 ```
@@ -93,7 +93,7 @@ health.yarnConnection.timeoutMillis=60000
 ```
 # How will users authenticate. Available options: inmemory, ldap
 auth.mechanism=inmemory
-#If set all users that does not have admim role will not have access to admin protected endpoints
+#If set, all users that do not have admim role will not have access to admin protected endpoints
 auth.admin.role=
 # INMEMORY authentication: username and password defined here will be used for authentication.
 auth.inmemory.user=user
@@ -182,7 +182,7 @@ spark.emr.additionalConfs=
 #Common properties for Submit api = YARN and EMR
 sparkYarnSink.hadoopResourceManagerUrlBase=
 sparkYarnSink.userUsedToKillJob=
-spark.submit.thread.pool.size=
+spark.submit.thread.pool.size=10
 ```
 ```
 #Postgresql properties for connection to trigger database
