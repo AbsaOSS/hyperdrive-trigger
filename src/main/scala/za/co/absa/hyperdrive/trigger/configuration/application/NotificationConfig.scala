@@ -31,8 +31,8 @@ class NotificationConfig (
   @DefaultValue(Array(""))
   @Name("sender.address")
   val senderAddress: String,
-  @DefaultValue("0ms")
+  @DefaultValue(Array("0ms"))
   val delay: Duration,
-  @DefaultValue("5")
+  @DefaultValue(Array("5"))
   val maxRetries: Integer
 )

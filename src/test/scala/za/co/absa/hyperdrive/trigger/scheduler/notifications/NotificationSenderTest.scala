@@ -67,6 +67,7 @@ class NotificationSenderTest extends FlatSpec with MockitoSugar with Matchers wi
 
     // when
     await(underTest.createNotifications(di, Seq(ji)))
+    underTest.sendNotifications()
 
     // then
     val recipientsCaptor: ArgumentCaptor[Seq[String]] = ArgumentCaptor.forClass(classOf[Seq[String]])
@@ -115,6 +116,7 @@ class NotificationSenderTest extends FlatSpec with MockitoSugar with Matchers wi
 
     // when
     await(underTest.createNotifications(di, Seq(ji2, ji1)))
+    underTest.sendNotifications()
 
     // then
     val messagesCaptor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
