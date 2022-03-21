@@ -24,6 +24,7 @@ import za.co.absa.hyperdrive.trigger.configuration.application.SchedulerConfig
 import za.co.absa.hyperdrive.trigger.persistance._
 import za.co.absa.hyperdrive.trigger.scheduler.cluster.{SchedulerInstanceAlreadyDeactivatedException, WorkflowBalancer}
 import za.co.absa.hyperdrive.trigger.scheduler.executors.Executors
+import za.co.absa.hyperdrive.trigger.scheduler.notifications.NotificationSender
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.Sensors
 
 import scala.collection.mutable
@@ -32,7 +33,8 @@ import scala.util.{Failure, Success}
 
 @Component
 class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstanceRepository: DagInstanceRepository,
-                             workflowBalancer: WorkflowBalancer, schedulerConfig: SchedulerConfig) {
+                             workflowBalancer: WorkflowBalancer, notificationSender: NotificationSender,
+                             schedulerConfig: SchedulerConfig) {
 
   case class RunningDagsKey(dagId: Long, workflowId: Long)
 
@@ -49,6 +51,7 @@ class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstance
   private var runningSensors = Future.successful((): Unit)
   private var runningEnqueue = Future.successful((): Unit)
   private var runningAssignWorkflows = Future.successful((): Unit)
+  private var runningSendingNotifications = Future.successful((): Unit)
   private val runningDags = mutable.Map.empty[RunningDagsKey, Future[Unit]]
 
   def startManager(): Unit = {
@@ -62,6 +65,7 @@ class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstance
           while (isManagerRunningAtomic.get()) {
             logger.debug("Running manager heart beat.")
             assignWorkflows(firstIteration)
+            sendNotifications()
             firstIteration = false
             Thread.sleep(HEART_BEAT)
           }
@@ -153,6 +157,18 @@ class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstance
           logger.debug("Running enqueue finished successfully.")
         case Failure(exception) =>
           logger.error(s"Running enqueue finished with exception.", exception)
+      }
+    }
+  }
+
+  private def sendNotifications(): Unit = {
+    if (runningSendingNotifications.isCompleted) {
+      runningSendingNotifications = Future { notificationSender.sendNotifications() }
+      runningSendingNotifications.onComplete {
+        case Success(_) =>
+          logger.debug("Running sending notifications finished successfully.")
+        case Failure(exception) =>
+          logger.error(s"Running sending notifications finished with exception.", exception)
       }
     }
   }

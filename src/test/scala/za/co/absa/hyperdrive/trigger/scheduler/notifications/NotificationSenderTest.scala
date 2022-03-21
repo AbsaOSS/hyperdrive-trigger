@@ -23,7 +23,7 @@ import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
 import za.co.absa.hyperdrive.trigger.TestUtils.await
 import za.co.absa.hyperdrive.trigger.api.rest.services.NotificationRuleService
-import za.co.absa.hyperdrive.trigger.configuration.application.{TestGeneralConfig, TestNotificationConfig, DefaultTestSparkConfig}
+import za.co.absa.hyperdrive.trigger.configuration.application.{DefaultTestSparkConfig, TestGeneralConfig, TestNotificationConfig}
 import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.InQueue
 import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobStatuses}
@@ -66,7 +66,7 @@ class NotificationSenderTest extends FlatSpec with MockitoSugar with Matchers wi
     )
 
     // when
-    await(underTest.sendNotifications(di, Seq(ji)))
+    await(underTest.createNotifications(di, Seq(ji)))
 
     // then
     val recipientsCaptor: ArgumentCaptor[Seq[String]] = ArgumentCaptor.forClass(classOf[Seq[String]])
@@ -114,7 +114,7 @@ class NotificationSenderTest extends FlatSpec with MockitoSugar with Matchers wi
     )
 
     // when
-    await(underTest.sendNotifications(di, Seq(ji2, ji1)))
+    await(underTest.createNotifications(di, Seq(ji2, ji1)))
 
     // then
     val messagesCaptor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
