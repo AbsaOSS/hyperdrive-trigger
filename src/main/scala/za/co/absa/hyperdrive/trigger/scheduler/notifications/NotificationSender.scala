@@ -50,7 +50,12 @@ class NotificationSenderImpl(notificationRuleService: NotificationRuleService, e
   def createNotifications(dagInstance: DagInstance, jobInstances: Seq[JobInstance])(implicit ec: ExecutionContext): Future[Unit] = {
     if (notificationEnabled) {
       notificationRuleService.getMatchingNotificationRules(dagInstance.workflowId, dagInstance.status).map {
-        case Some((rules, workflow)) => rules.foreach(rule => createMessage(rule, workflow, dagInstance, jobInstances))
+        case Some((rules, workflow)) => rules
+          .map(rule => createMessage(rule, workflow, dagInstance, jobInstances))
+          .foreach { message =>
+            logger.debug(s"Adding to queue message ${message.subject} from ${sender} to ${message.recipients}")
+            messageQueue.add(message)
+          }
         case None =>
           logger.debug(s"No rules matching workflow ID ${dagInstance.workflowId} with status ${dagInstance.status} found")
           Future.successful()
@@ -69,20 +74,23 @@ class NotificationSenderImpl(notificationRuleService: NotificationRuleService, e
     messages.foreach { message =>
       Thread.sleep(notificationConfig.delay.toMillis)
       try {
+        logger.debug(s"Sending message ${message.subject} from ${sender} to ${message.recipients}")
         emailService.sendMessageToBccRecipients(sender, message.recipients, message.subject, message.text)
       } catch {
         case e: MailException =>
           if (message.attempts >= notificationConfig.maxRetries) {
             logger.error(s"Failed to send message ${message.subject} from ${sender} to ${message.recipients}", e)
+            throw e
+          } else {
+            logger.warn(s"Could not send message ${message.subject} from ${sender} to ${message.recipients}. Adding back to queue")
+            messageQueue.add(message.copy(attempts = message.attempts + 1))
           }
-          logger.warn(s"Could not send message ${message.subject} from ${sender} to ${message.recipients}. Retrying")
-          messageQueue.add(message.copy(attempts = message.attempts + 1))
       }
     }
   }
 
   private def createMessage(notificationRule: NotificationRule, workflow: Workflow, dagInstance: DagInstance,
-                            jobInstances: Seq[JobInstance]): Unit = {
+                            jobInstances: Seq[JobInstance]) = {
     val subject = s"Hyperdrive Notifications, ${environment}: Workflow ${workflow.name} ${dagInstance.status.name}"
     val footer = "This message has been generated automatically. Please don't reply to it.\n\nHyperdriveDevTeam"
     val messageMap = mutable.LinkedHashMap(
@@ -102,8 +110,6 @@ class NotificationSenderImpl(notificationRuleService: NotificationRuleService, e
     )
     messageMap += ("Notification rule ID" -> notificationRule.id.toString)
     val message = messageMap.map { case (key, value) => s"$key: $value"}.reduce(_ + "\n" + _) + "\n\n" + footer
-
-    logger.debug(s"Sending message ${subject} from ${sender} to ${notificationRule.recipients}")
-    messageQueue.add(Message(notificationRule.recipients, subject, message, 1))
+    Message(notificationRule.recipients, subject, message, 1)
   }
 }

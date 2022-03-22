@@ -19,8 +19,10 @@ package za.co.absa.hyperdrive.trigger.scheduler.notifications
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito.{reset, times, verify, when}
+import org.mockito.invocation.InvocationOnMock
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
+import org.springframework.mail.{MailException, MailSendException}
 import za.co.absa.hyperdrive.trigger.TestUtils.await
 import za.co.absa.hyperdrive.trigger.api.rest.services.NotificationRuleService
 import za.co.absa.hyperdrive.trigger.configuration.application.{DefaultTestSparkConfig, TestGeneralConfig, TestNotificationConfig}
@@ -40,9 +42,7 @@ class NotificationSenderTest extends FlatSpec with MockitoSugar with Matchers wi
   private val senderAddress = "sender <sender@abc.com>"
   private val environment = "TEST"
 
-  private val underTest = new NotificationSenderImpl(notificationRuleService, emailService,
-    DefaultTestSparkConfig(hadoopResourceManagerUrlBase = clusterBaseUrl).yarn, TestNotificationConfig(enabled = true, senderAddress),
-    TestGeneralConfig(environment = environment))
+  private val underTest = createNotificationRuleService()
 
   before {
     reset(notificationRuleService)
@@ -124,6 +124,35 @@ class NotificationSenderTest extends FlatSpec with MockitoSugar with Matchers wi
     messagesCaptor.getValue should include(s"Failed application: $clusterBaseUrl/cluster/app/application_9876_4567")
   }
 
+  it should "retry sending the message at most maxRetries times" in {
+    // given
+    val maxRetries = 5
+    val testService = createNotificationRuleService(maxRetries)
+    val di = createDagInstance()
+    val ji = createJobInstance().copy(jobStatus = JobStatuses.Succeeded)
+    val nr1 = createNotificationRule().copy(id = 1, recipients = Seq("abc@def.com", "xyz@def.com"))
+    val w = createWorkflow()
+
+    when(notificationRuleService.getMatchingNotificationRules(eqTo(di.workflowId), eqTo(di.status))(any())).thenReturn(
+      Future { Some(Seq(nr1), w) }
+    )
+    when(emailService.sendMessageToBccRecipients(any(), any(), any(), any())).thenThrow(new MailSendException("Fail"))
+
+    // when
+    await(testService.createNotifications(di, Seq(ji)))
+    (0 until maxRetries - 1).foreach(_ => testService.sendNotifications())
+    val ex = the[MailException] thrownBy testService.sendNotifications()
+    testService.sendNotifications()
+    testService.sendNotifications()
+
+    // then
+    ex.getMessage shouldBe "Fail"
+    val expectedSubject = s"Hyperdrive Notifications, ${environment}: Workflow ${w.name} ${di.status.name}"
+    verify(emailService, times(maxRetries)).sendMessageToBccRecipients(eqTo(senderAddress),
+      any(), eqTo(expectedSubject), any())
+
+  }
+
   private def createDagInstance() = {
     DagInstance(
       status = DagInstanceStatuses.Succeeded,
@@ -165,5 +194,12 @@ class NotificationSenderTest extends FlatSpec with MockitoSugar with Matchers wi
     NotificationRule(true, Some("project"), Some("ABC XYZ"), None,
       Seq(DagInstanceStatuses.Skipped, DagInstanceStatuses.Failed),
       Seq("abc.def@ghi.com"), updated = None)
+  }
+
+  private def createNotificationRuleService(maxRetries: Int = 1) = {
+    new NotificationSenderImpl(notificationRuleService, emailService,
+      DefaultTestSparkConfig(hadoopResourceManagerUrlBase = clusterBaseUrl).yarn,
+      TestNotificationConfig(enabled = true, senderAddress, maxRetries),
+      TestGeneralConfig(environment = environment))
   }
 }
