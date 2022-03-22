@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { ComponentFixture, fakeAsync, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing';
 import { WorkflowsComponent } from './workflows.component';
 import { provideMockStore } from '@ngrx/store/testing';
 import { ProjectModelFactory, WorkflowIdentityModelFactory } from '../../models/project.model';
@@ -196,6 +196,7 @@ describe('WorkflowsComponent', () => {
         const storeSpy = spyOn(store, 'dispatch');
         underTest.projectsFilterChange(newFilterValue);
         fixture.detectChanges();
+        tick(500);
 
         fixture.whenStable().then(() => {
           expect(storeSpy).toHaveBeenCalledTimes(1);
