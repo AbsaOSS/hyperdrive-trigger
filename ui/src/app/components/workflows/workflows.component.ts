@@ -52,7 +52,7 @@ export class WorkflowsComponent implements AfterViewInit, OnDestroy {
     });
 
     this.projectsFilterSubscription = this.projectsFilterChanges
-      // .pipe(debounceTime(500), distinctUntilChanged())
+      .pipe(debounceTime(500), distinctUntilChanged())
       .subscribe((projectsFilter) => {
         this.store.dispatch(new FilterProjects(projectsFilter));
       });
