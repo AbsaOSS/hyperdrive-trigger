@@ -27,6 +27,20 @@
        [routerLink]="[absoluteRoutes.WORKFLOWS_HOME]">
       All workflows
     </a>
+
+    <clr-control-container class="search-sidenav">
+      <clr-icon shape="search"></clr-icon>
+      <input clrControl
+             name="search-sidenav"
+             type="text"
+             placeholder="Search workflows..."
+             autocomplete="off"
+             [ngModel]="projectsFilter"
+             (ngModelChange)="projectsFilterChange($event)"/>
+    </clr-control-container>
+
+    <p class="search-sidenav" *ngIf="projects.length === 0"><b>No workflows found!</b></p>
+
     <section class="nav-group collapsible" *ngFor="let project of projects; let index = index;">
       <input [id]="index" type="checkbox" [checked]="isProjectClosed(project.name, project.workflows)" (change)="toggleProject(project.name)">
       <label [for]="index">{{project.name}}</label>

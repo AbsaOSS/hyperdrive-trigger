@@ -13,32 +13,42 @@
  * limitations under the License.
  */
 
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, waitForAsync } from '@angular/core/testing';
 import { WorkflowsComponent } from './workflows.component';
 import { provideMockStore } from '@ngrx/store/testing';
 import { ProjectModelFactory, WorkflowIdentityModelFactory } from '../../models/project.model';
 import { WorkflowModelFactory } from '../../models/workflow.model';
 import { RouterTestingModule } from '@angular/router/testing';
 import { Router, Routes } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { AppState } from '../../stores/app.reducers';
+import { FilterProjects } from '../../stores/workflows/workflows.actions';
 
 describe('WorkflowsComponent', () => {
   let fixture: ComponentFixture<WorkflowsComponent>;
   let underTest: WorkflowsComponent;
   let router: Router;
+  let store: Store<AppState>;
 
   const routes = [{ path: 'workflows/show/:id', component: {} }] as Routes;
+
+  const projects = [
+    ProjectModelFactory.create('projectOne', [
+      WorkflowModelFactory.create('workflowOne', undefined, undefined, undefined, undefined, undefined, undefined),
+    ]),
+    ProjectModelFactory.create('projectTwo', [
+      WorkflowModelFactory.create('workflowTwo', undefined, undefined, undefined, undefined, undefined, undefined),
+    ]),
+  ];
 
   const initialAppState = {
     workflows: {
       loading: true,
-      projects: [
-        ProjectModelFactory.create('projectOne', [
-          WorkflowModelFactory.create('workflowOne', undefined, undefined, undefined, undefined, undefined, undefined),
-        ]),
-        ProjectModelFactory.create('projectTwo', [
-          WorkflowModelFactory.create('workflowTwo', undefined, undefined, undefined, undefined, undefined, undefined),
-        ]),
-      ],
+      projects: {
+        initialProjects: projects,
+        filteredProjects: projects,
+        projectsFilter: '',
+      },
     },
   };
 
@@ -50,6 +60,7 @@ describe('WorkflowsComponent', () => {
         imports: [RouterTestingModule.withRoutes(routes)],
       }).compileComponents();
       router = TestBed.inject(Router);
+      store = TestBed.inject(Store);
     }),
   );
 
@@ -173,5 +184,24 @@ describe('WorkflowsComponent', () => {
         });
       }),
     );
+  });
+
+  describe('projectsFilterChange', () => {
+    it('should dispatch filter projects action when filter is changed', fakeAsync(() => {
+      const newFilterValue = 'newFilterValue';
+      const usedAction = new FilterProjects(newFilterValue);
+
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        const storeSpy = spyOn(store, 'dispatch');
+        underTest.projectsFilterChange(newFilterValue);
+        fixture.detectChanges();
+
+        fixture.whenStable().then(() => {
+          expect(storeSpy).toHaveBeenCalledTimes(1);
+          expect(storeSpy).toHaveBeenCalledWith(usedAction);
+        });
+      });
+    }));
   });
 });
