@@ -59,7 +59,7 @@ class Executors @Inject()(dagInstanceRepository: DagInstanceRepository, jobInsta
         val fut = for {
           _ <- jobInstanceRepository.updateJobsStatus(jobInstances.filter(!_.jobStatus.isFinalStatus).map(_.id), JobStatuses.FailedPreviousJob)
           _ <- dagInstanceRepository.update(updatedDagInstance)
-          _ <- notificationSender.sendNotifications(updatedDagInstance, jobInstances)
+          _ <- notificationSender.createNotifications(updatedDagInstance, jobInstances)
         } yield {}
         fut.onComplete {
           case Failure(exception) => logger.error(s"Updating status failed for failed run. Dag instance id = ${dagInstance.id}", exception)
@@ -70,7 +70,7 @@ class Executors @Inject()(dagInstanceRepository: DagInstanceRepository, jobInsta
         val updatedDagInstance = dagInstance.copy(status = DagInstanceStatuses.Succeeded, finished = Option(LocalDateTime.now()))
         val fut = for {
           _ <- dagInstanceRepository.update(updatedDagInstance)
-          _ <- notificationSender.sendNotifications(updatedDagInstance, jobInstances)
+          _ <- notificationSender.createNotifications(updatedDagInstance, jobInstances)
         } yield {}
         fut.onComplete {
           case Failure(exception) => logger.error(s"Updating status failed for successful run. Dag instance id = ${dagInstance.id}", exception)
