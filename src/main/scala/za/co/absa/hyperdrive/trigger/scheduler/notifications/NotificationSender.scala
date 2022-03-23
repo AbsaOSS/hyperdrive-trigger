@@ -79,16 +79,11 @@ class NotificationSenderImpl(notificationRuleService: NotificationRuleService, e
         logger.debug(s"Sending message ${message.subject} from ${sender} to ${message.recipients}")
         emailService.sendMessageToBccRecipients(sender, message.recipients, message.subject, message.text)
       } catch {
-        case e: MailException =>
-          if (message.attempts >= notificationConfig.maxRetries) {
-            logger.error(s"Failed to send message ${message.subject} from ${sender} to ${message.recipients}", e)
-          } else {
-            logger.warn(s"Could not send message ${message.subject} from ${sender} to ${message.recipients}. Adding back to queue")
-            messageQueue.add(message.copy(attempts = message.attempts + 1))
-          }
-        case NonFatal(e) =>
+        case NonFatal(e) if message.attempts >= notificationConfig.maxRetries =>
           logger.error(s"Failed to send message ${message.subject} from ${sender} to ${message.recipients}", e)
-          throw e
+        case NonFatal(_) =>
+          logger.warn(s"Could not send message ${message.subject} from ${sender} to ${message.recipients}. Adding back to queue")
+          messageQueue.add(message.copy(attempts = message.attempts + 1))
       }
     }
   }

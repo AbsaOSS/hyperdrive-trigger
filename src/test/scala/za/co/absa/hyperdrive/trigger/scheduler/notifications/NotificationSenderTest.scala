@@ -172,11 +172,9 @@ class NotificationSenderTest extends FlatSpec with MockitoSugar with Matchers wi
     // when
     await(underTest.createNotifications(di1, Seq(ji)))
     await(underTest.createNotifications(di2, Seq(ji)))
-    val ex = the[Exception] thrownBy underTest.sendNotifications()
     underTest.sendNotifications()
 
     // then
-    ex.getMessage shouldBe "Fail"
     val expectedSubject1 = s"Hyperdrive Notifications, ${environment}: Workflow ${w.name} ${di1.status.name}"
     val expectedSubject2 = s"Hyperdrive Notifications, ${environment}: Workflow ${w.name} ${di2.status.name}"
     verify(emailService).sendMessageToBccRecipients(eqTo(senderAddress), eqTo(nr1.recipients), eqTo(expectedSubject1), any())
