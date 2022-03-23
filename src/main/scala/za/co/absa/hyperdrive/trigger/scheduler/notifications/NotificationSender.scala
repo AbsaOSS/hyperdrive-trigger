@@ -27,6 +27,7 @@ import java.time.format.DateTimeFormatter
 import java.util.concurrent.ConcurrentLinkedQueue
 import scala.collection.mutable
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
 
 trait NotificationSender {
   def createNotifications(dagInstance: DagInstance, jobInstances: Seq[JobInstance])(implicit ec: ExecutionContext): Future[Unit]
@@ -67,11 +68,12 @@ class NotificationSenderImpl(notificationRuleService: NotificationRuleService, e
   }
 
   def sendNotifications(): Unit = {
-    import scala.collection.JavaConverters._
-    val messages = messageQueue.iterator().asScala.toList
-    messageQueue.removeAll(messages.asJava)
-
-    messages.foreach { message =>
+    var messageOpt: Option[Message] = None
+    while ({
+      messageOpt = Option(messageQueue.poll())
+      messageOpt.isDefined
+    }) {
+      val message = messageOpt.get
       Thread.sleep(notificationConfig.delay.toMillis)
       try {
         logger.debug(s"Sending message ${message.subject} from ${sender} to ${message.recipients}")
@@ -80,11 +82,13 @@ class NotificationSenderImpl(notificationRuleService: NotificationRuleService, e
         case e: MailException =>
           if (message.attempts >= notificationConfig.maxRetries) {
             logger.error(s"Failed to send message ${message.subject} from ${sender} to ${message.recipients}", e)
-            throw e
           } else {
             logger.warn(s"Could not send message ${message.subject} from ${sender} to ${message.recipients}. Adding back to queue")
             messageQueue.add(message.copy(attempts = message.attempts + 1))
           }
+        case NonFatal(e) =>
+          logger.error(s"Failed to send message ${message.subject} from ${sender} to ${message.recipients}", e)
+          throw e
       }
     }
   }

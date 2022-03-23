@@ -140,17 +140,47 @@ class NotificationSenderTest extends FlatSpec with MockitoSugar with Matchers wi
 
     // when
     await(testService.createNotifications(di, Seq(ji)))
-    (0 until maxRetries - 1).foreach(_ => testService.sendNotifications())
-    val ex = the[MailException] thrownBy testService.sendNotifications()
     testService.sendNotifications()
     testService.sendNotifications()
 
     // then
-    ex.getMessage shouldBe "Fail"
     val expectedSubject = s"Hyperdrive Notifications, ${environment}: Workflow ${w.name} ${di.status.name}"
     verify(emailService, times(maxRetries)).sendMessageToBccRecipients(eqTo(senderAddress),
       any(), eqTo(expectedSubject), any())
+  }
 
+  it should "send subsequent messages even if a previous message threw an exception" in {
+    // given
+    val di1 = createDagInstance().copy(status = DagInstanceStatuses.Succeeded)
+    val di2 = createDagInstance().copy(status = DagInstanceStatuses.Failed)
+    val ji = createJobInstance()
+
+    val nr1 = createNotificationRule().copy(recipients = Seq("abc@xyz.com"))
+    val nr2 = createNotificationRule().copy(recipients = Seq("def@xyz.com"))
+    val w = createWorkflow()
+
+    when(notificationRuleService.getMatchingNotificationRules(eqTo(di1.workflowId), eqTo(di1.status))(any())).thenReturn(
+      Future { Some(Seq(nr1), w) }
+    )
+    when(notificationRuleService.getMatchingNotificationRules(eqTo(di2.workflowId), eqTo(di2.status))(any())).thenReturn(
+      Future { Some(Seq(nr2), w) }
+    )
+
+    when(emailService.sendMessageToBccRecipients(any(), eqTo(nr1.recipients), any(), any()))
+      .thenThrow(new RuntimeException("Fail"))
+
+    // when
+    await(underTest.createNotifications(di1, Seq(ji)))
+    await(underTest.createNotifications(di2, Seq(ji)))
+    val ex = the[Exception] thrownBy underTest.sendNotifications()
+    underTest.sendNotifications()
+
+    // then
+    ex.getMessage shouldBe "Fail"
+    val expectedSubject1 = s"Hyperdrive Notifications, ${environment}: Workflow ${w.name} ${di1.status.name}"
+    val expectedSubject2 = s"Hyperdrive Notifications, ${environment}: Workflow ${w.name} ${di2.status.name}"
+    verify(emailService).sendMessageToBccRecipients(eqTo(senderAddress), eqTo(nr1.recipients), eqTo(expectedSubject1), any())
+    verify(emailService).sendMessageToBccRecipients(eqTo(senderAddress), eqTo(nr2.recipients), eqTo(expectedSubject2), any())
   }
 
   private def createDagInstance() = {
