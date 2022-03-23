@@ -62,7 +62,7 @@ export class WorkflowComponent implements OnInit, OnDestroy {
       this.loading = state.workflowAction.loading;
       this.initialWorkflow = state.workflowAction.workflow;
       this.workflowForForm = state.workflowAction.workflowForForm;
-      this.projects = state.projects.map((project) => project.name);
+      this.projects = state.projects.initialProjects.map((project) => project.name);
       this.jobTemplates = state.jobTemplates;
       this.backendValidationErrors = state.workflowAction.backendValidationErrors;
     });

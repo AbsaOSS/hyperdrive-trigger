@@ -35,3 +35,12 @@
 .sidenav-content {
   padding-right: 0.3rem
 }
+
+.search-sidenav {
+  margin: 1.2rem 0 0 1.2rem;
+  width: 100%;
+}
+
+:host ::ng-deep input {
+  width: 100%;
+}

@@ -30,7 +30,11 @@ export interface State {
     total: number;
     searchRequest: TableSearchRequestModel;
   };
-  projects: ProjectModel[];
+  projects: {
+    initialProjects: ProjectModel[];
+    filteredProjects: ProjectModel[];
+    projectsFilter: string;
+  };
   jobTemplates: JobTemplateModel[];
   loading: boolean;
   workflowAction: {
@@ -64,7 +68,11 @@ const initialState: State = {
     total: 0,
     searchRequest: undefined,
   },
-  projects: [],
+  projects: {
+    initialProjects: [],
+    filteredProjects: [],
+    projectsFilter: '',
+  },
   jobTemplates: [],
   loading: true,
   workflowAction: {
@@ -101,7 +109,11 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
       return {
         ...state,
         loading: false,
-        projects: sortedProjects,
+        projects: {
+          ...state.projects,
+          initialProjects: sortedProjects,
+          filteredProjects: filterProjects(state.projects.projectsFilter, sortedProjects),
+        },
         jobTemplates: action.payload.jobTemplates,
       };
     case WorkflowsActions.INITIALIZE_WORKFLOWS_FAILURE:
@@ -139,6 +151,15 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         workflowAction: {
           ...state.workflowAction,
           loading: false,
+        },
+      };
+    case WorkflowsActions.FILTER_PROJECTS:
+      return {
+        ...state,
+        projects: {
+          ...state.projects,
+          projectsFilter: action.payload,
+          filteredProjects: [...filterProjects(action.payload, state.projects.initialProjects)],
         },
       };
     case WorkflowsActions.START_WORKFLOW_INITIALIZATION:
@@ -205,16 +226,21 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         },
       };
     case WorkflowsActions.DELETE_WORKFLOW_SUCCESS:
-      let newProjects = state.projects.map((project) => {
+      let newProjects = state.projects.initialProjects.map((project) => {
         return ProjectModelFactory.create(
           project.name,
           project.workflows.filter((workflow) => workflow.id != action.payload),
         );
       });
       newProjects = newProjects.filter((project) => project.workflows.length !== 0);
+
       return {
         ...state,
-        projects: [...newProjects],
+        projects: {
+          ...state.projects,
+          initialProjects: [...newProjects],
+          filteredProjects: [...filterProjects(state.projects.projectsFilter, newProjects)],
+        },
         workflowAction: {
           ...state.workflowAction,
           loading: false,
@@ -294,10 +320,14 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         },
       };
     case WorkflowsActions.CREATE_WORKFLOW_SUCCESS:
-      const projects = sortProjects([...addWorkflow([action.payload], state.projects)]);
+      const projects = sortProjects([...addWorkflow([action.payload], state.projects.initialProjects)]);
       return {
         ...state,
-        projects: [...projects],
+        projects: {
+          ...state.projects,
+          initialProjects: [...projects],
+          filteredProjects: [...filterProjects(state.projects.projectsFilter, projects)],
+        },
         workflowAction: {
           ...state.workflowAction,
           loading: false,
@@ -321,14 +351,14 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         },
       };
     case WorkflowsActions.UPDATE_WORKFLOW_SUCCESS: {
-      const projectsWithoutWorkflow = state.projects.map((project) => {
+      const projectsWithoutWorkflow = state.projects.initialProjects.map((project) => {
         return ProjectModelFactory.create(
           project.name,
           project.workflows.filter((workflow) => workflow.id != action.payload.id),
         );
       });
       let updatedProjects;
-      if (state.projects.some((project) => project.name == action.payload.project)) {
+      if (state.projects.initialProjects.some((project) => project.name == action.payload.project)) {
         updatedProjects = projectsWithoutWorkflow.map((project) =>
           project.name == action.payload.project
             ? { ...project, workflows: [...project.workflows, WorkflowIdentityModelFactory.create(action.payload.id, action.payload.name)] }
@@ -344,7 +374,11 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
       const sortUpdatedProjects = sortProjects([...updatedProjects]);
       return {
         ...state,
-        projects: [...sortUpdatedProjects],
+        projects: {
+          ...state.projects,
+          initialProjects: [...sortUpdatedProjects],
+          filteredProjects: [...filterProjects(state.projects.projectsFilter, sortUpdatedProjects)],
+        },
         workflowAction: {
           ...state.workflowAction,
           loading: false,
@@ -514,11 +548,16 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
         loading: true,
       };
     case WorkflowsActions.IMPORT_WORKFLOWS_SUCCESS: {
-      const projects = sortProjects([...addWorkflow(action.payload, state.projects)]);
+      const projects = sortProjects([...addWorkflow(action.payload, state.projects.initialProjects)]);
+
       return {
         ...state,
         loading: false,
-        projects: [...projects],
+        projects: {
+          ...state.projects,
+          initialProjects: [...projects],
+          filteredProjects: [...filterProjects(state.projects.projectsFilter, projects)],
+        },
       };
     }
     case WorkflowsActions.IMPORT_WORKFLOWS_FAILURE:
@@ -558,6 +597,17 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
     default:
       return state;
   }
+}
+
+export function filterProjects(projectsFilter: string, projects: ProjectModel[]): ProjectModel[] {
+  return [...projects]
+    .map((project) => {
+      return ProjectModelFactory.create(
+        project.name,
+        project.workflows.filter((workflow) => workflow.name.toLowerCase().includes(projectsFilter.toLowerCase())),
+      );
+    })
+    .filter((project) => project.workflows.length !== 0);
 }
 
 export function sortProjects(projects: ProjectModel[]): ProjectModel[] {

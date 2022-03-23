@@ -14,7 +14,7 @@
  */
 
 import { ProjectModelFactory, WorkflowIdentityModelFactory } from '../../models/project.model';
-import { sortProjects, addWorkflow } from './workflows.reducers';
+import { sortProjects, addWorkflow, filterProjects } from './workflows.reducers';
 import { WorkflowModelFactory } from '../../models/workflow.model';
 
 describe('WorkflowsReducers', () => {
@@ -77,6 +77,38 @@ describe('WorkflowsReducers', () => {
       expect(result.length).toEqual(2);
       expect(result[0].workflows.length).toEqual(2);
       expect(result[1].workflows.length).toEqual(1);
+    });
+  });
+
+  describe('filterProjects', () => {
+    it('should filter projects', () => {
+      const projects = [
+        ProjectModelFactory.create('projectName2', [
+          WorkflowIdentityModelFactory.create(5, 'workflowName5'),
+          WorkflowIdentityModelFactory.create(1, 'workflowName1'),
+          WorkflowIdentityModelFactory.create(4, 'workflowName4'),
+          WorkflowIdentityModelFactory.create(3, 'workflowName3'),
+          WorkflowIdentityModelFactory.create(2, 'workflowName2'),
+        ]),
+        ProjectModelFactory.create('projectName1', [
+          WorkflowIdentityModelFactory.create(7, 'workflowName7'),
+          WorkflowIdentityModelFactory.create(6, 'workflowName6'),
+        ]),
+        ProjectModelFactory.create('projectName3', [
+          WorkflowIdentityModelFactory.create(0, 'workflowName0'),
+          WorkflowIdentityModelFactory.create(10, 'workflowName10'),
+          WorkflowIdentityModelFactory.create(8, 'workflowName8'),
+          WorkflowIdentityModelFactory.create(9, 'workflowName9'),
+        ]),
+      ];
+
+      const filterByEmptyString = filterProjects('', projects);
+      const filterByExactMatch = filterProjects('workflowName0', projects);
+      const filterByPartialMatch = filterProjects('workflowName1', projects);
+
+      expect(filterByEmptyString).toEqual(projects);
+      expect(filterByExactMatch.length).toEqual(1);
+      expect(filterByPartialMatch.length).toEqual(2);
     });
   });
 });

@@ -35,7 +35,11 @@ describe('WorkflowComponent', () => {
 
   const initialAppState = {
     workflows: {
-      projects: [],
+      projects: {
+        initialProjects: [],
+        filteredProjects: [],
+        projectsFilter: '',
+      },
       workflowAction: {
         loading: true,
         mode: 'mode',

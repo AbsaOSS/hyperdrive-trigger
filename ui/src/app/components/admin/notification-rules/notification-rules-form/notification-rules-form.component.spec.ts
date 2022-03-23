@@ -55,6 +55,11 @@ describe('NotificationRulesForm', () => {
     1,
   );
 
+  const projects = [
+    { name: 'projectA', workflows: [] },
+    { name: 'projectB', workflows: [] },
+  ];
+
   const initialAppState = {
     notificationRules: {
       notificationRuleAction: {
@@ -64,10 +69,11 @@ describe('NotificationRulesForm', () => {
       },
     },
     workflows: {
-      projects: [
-        { name: 'projectA', workflows: [] },
-        { name: 'projectB', workflows: [] },
-      ],
+      projects: {
+        initialProjects: projects,
+        filteredProjects: projects,
+        projectsFilter: '',
+      },
     },
   };
 

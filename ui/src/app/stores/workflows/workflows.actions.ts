@@ -61,6 +61,8 @@ export const SEARCH_WORKFLOWS = 'SEARCH_WORKFLOWS';
 export const SEARCH_WORKFLOWS_SUCCESS = 'SEARCH_WORKFLOWS_SUCCESS';
 export const SEARCH_WORKFLOWS_FAILURE = 'SEARCH_WORKFLOWS_FAILURE';
 
+export const FILTER_PROJECTS = 'FILTER_PROJECTS';
+
 export const LOAD_JOBS_FOR_RUN = 'LOAD_JOBS_FOR_RUN';
 export const LOAD_JOBS_FOR_RUN_SUCCESS = 'LOAD_JOBS_FOR_RUN_SUCCESS';
 export const LOAD_JOBS_FOR_RUN_FAILURE = 'LOAD_JOBS_FOR_RUN_FAILURE';
@@ -232,6 +234,11 @@ export class SearchWorkflowsFailure implements Action {
   readonly type = SEARCH_WORKFLOWS_FAILURE;
 }
 
+export class FilterProjects implements Action {
+  readonly type = FILTER_PROJECTS;
+  constructor(public payload: string) {}
+}
+
 export class LoadJobsForRun implements Action {
   readonly type = LOAD_JOBS_FOR_RUN;
   constructor(public payload: number) {}
@@ -374,6 +381,7 @@ export type WorkflowsActions =
   | SearchWorkflows
   | SearchWorkflowsSuccess
   | SearchWorkflowsFailure
+  | FilterProjects
   | LoadJobsForRun
   | LoadJobsForRunSuccess
   | LoadJobsForRunFailure
