@@ -16,11 +16,14 @@
 
 package za.co.absa.hyperdrive.trigger.configuration.application
 
+import java.time.Duration
+
 object TestNotificationConfig {
   def apply(
     enabled: Boolean = false,
-    senderAddress: String = ""
+    senderAddress: String = "",
+    maxRetries: Int = 1
   ): NotificationConfig = {
-    new NotificationConfig(enabled, senderAddress)
+    new NotificationConfig(enabled, senderAddress, delay = Duration.ZERO, maxRetries)
   }
 }
