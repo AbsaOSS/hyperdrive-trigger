@@ -22,7 +22,8 @@ class NoBackendInProcessLauncher extends InProcessLauncher {
 
   private val logger = LoggerFactory.getLogger(this.getClass)
   override def startApplication(listeners: SparkAppHandle.Listener*): SparkAppHandle = {
-    if (builder.isClientMode(builder.getEffectiveConfig)) {
+    import scala.collection.JavaConverters._
+    if (builder.isClientMode(Map[String, String]().asJava)) {
       logger.warn("It's not recommended to run client-mode applications using InProcessLauncher.")
     }
     val main = findSparkSubmit()
