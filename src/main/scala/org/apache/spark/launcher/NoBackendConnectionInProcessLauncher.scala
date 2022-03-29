@@ -18,7 +18,7 @@ package org.apache.spark.launcher
 
 import org.slf4j.LoggerFactory
 
-class NoBackendInProcessLauncher extends InProcessLauncher {
+class NoBackendConnectionInProcessLauncher extends InProcessLauncher {
 
   private val logger = LoggerFactory.getLogger(this.getClass)
   override def startApplication(listeners: SparkAppHandle.Listener*): SparkAppHandle = {
@@ -32,8 +32,10 @@ class NoBackendInProcessLauncher extends InProcessLauncher {
     val handle = new InProcessAppHandle(server)
     listeners.foreach(handle.addListener)
 
+    builder.conf.remove(LauncherProtocol.CONF_LAUNCHER_PORT)
+    builder.conf.remove(LauncherProtocol.CONF_LAUNCHER_SECRET)
     setConf("spark.yarn.submit.waitAppCompletion", "false")
-    import scala.collection.JavaConverters._
+
     val sparkArgs = builder.buildSparkSubmitArgs().asScala.toArray
     val appName = CommandBuilderUtils.firstNonEmpty(builder.appName, builder.mainClass, "<unknown>")
     handle.start(appName, main, sparkArgs)

@@ -16,7 +16,7 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.executors.spark
 
-import org.apache.spark.launcher.{InProcessLauncher, NoBackendInProcessLauncher, SparkAppHandle, SparkLauncher}
+import org.apache.spark.launcher.{InProcessLauncher, NoBackendConnectionInProcessLauncher, SparkAppHandle, SparkLauncher}
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.configuration.application.SparkConfig
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.{Lost, SubmissionTimeout, Submitting}
@@ -67,7 +67,7 @@ class SparkYarnClusterServiceImpl @Inject()(
   private def getSparkLauncher(id: String, jobName: String, jobParameters: SparkInstanceParameters)
                               (implicit sparkConfig: SparkConfig): InProcessLauncher = {
     val config = sparkConfig.yarn
-    val sparkLauncher = new NoBackendInProcessLauncher()
+    val sparkLauncher = new NoBackendConnectionInProcessLauncher()
       .setMaster(config.master)
       .setDeployMode("cluster")
       .setMainClass(jobParameters.mainClass)
