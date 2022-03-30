@@ -124,6 +124,8 @@ scheduler.lag.threshold=20000
 # Propeties used to send notifications to users.
 notification.enabled=false
 notification.sender.address=
+notification.max.retries=5
+notification.delay=0ms
 spring.mail.host=
 spring.mail.port=
 ```
