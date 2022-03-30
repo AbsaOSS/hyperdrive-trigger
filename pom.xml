@@ -190,6 +190,8 @@
             <artifactId>kafka_${scala.compat.version}</artifactId>
             <version>${kafka.version}</version>
         </dependency>
+
+        <!-- Dependencies for Spark InProcessLauncher -->
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-yarn_${scala.compat.version}</artifactId>
@@ -240,6 +242,8 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- End Dependencies for Spark InProcessLauncher -->
+
         <dependency>
             <groupId>com.typesafe.play</groupId>
             <artifactId>play-json_${scala.compat.version}</artifactId>

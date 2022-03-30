@@ -32,8 +32,13 @@ class NoBackendConnectionInProcessLauncher extends InProcessLauncher {
     val handle = new InProcessAppHandle(server)
     listeners.foreach(handle.addListener)
 
+    // Remove launcher config to make sure that no backend connection is created
+    // See org.apache.spark.launcher.LauncherBackend:connect
     builder.conf.remove(LauncherProtocol.CONF_LAUNCHER_PORT)
     builder.conf.remove(LauncherProtocol.CONF_LAUNCHER_SECRET)
+
+    // Set waitAppCompletion to false to ensure fire and forget mode
+    // See org.apache.spark.deploy.yarn.Client:run
     setConf("spark.yarn.submit.waitAppCompletion", "false")
 
     val sparkArgs = builder.buildSparkSubmitArgs().asScala.toArray
