@@ -16,8 +16,7 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.executors.spark
 
-import org.apache.spark.launcher.{SparkAppHandle, SparkLauncher}
-import org.slf4j.LoggerFactory
+import org.apache.spark.launcher.{InProcessLauncher, NoBackendConnectionInProcessLauncher, SparkAppHandle, SparkLauncher}
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.configuration.application.SparkConfig
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.{Lost, SubmissionTimeout, Submitting}
@@ -66,23 +65,17 @@ class SparkYarnClusterServiceImpl @Inject()(
   }
 
   private def getSparkLauncher(id: String, jobName: String, jobParameters: SparkInstanceParameters)
-                              (implicit sparkConfig: SparkConfig): SparkLauncher = {
-    import scala.collection.JavaConverters._
+                              (implicit sparkConfig: SparkConfig): InProcessLauncher = {
     val config = sparkConfig.yarn
-    val sparkLauncher = new SparkLauncher(Map(
-      "HADOOP_CONF_DIR" -> config.hadoopConfDir,
-      "SPARK_PRINT_LAUNCH_COMMAND" -> "1"
-    ).asJava)
+    val sparkLauncher = new NoBackendConnectionInProcessLauncher()
       .setMaster(config.master)
       .setDeployMode("cluster")
       .setMainClass(jobParameters.mainClass)
       .setAppResource(jobParameters.jobJar)
-      .setSparkHome(config.sparkHome)
       .setAppName(jobName)
       .setConf("spark.yarn.tags", id)
       .addAppArgs(jobParameters.appArguments.toSeq:_*)
       .addSparkArg("--verbose")
-      .redirectToLog(LoggerFactory.getLogger(s"SparkExecutor.executorJobId=$id").getName)
     config.filesToDeploy.foreach(file => sparkLauncher.addFile(file))
     config.additionalConfs.foreach(conf => sparkLauncher.setConf(conf._1, conf._2))
     jobParameters.additionalJars.foreach(sparkLauncher.addJar)

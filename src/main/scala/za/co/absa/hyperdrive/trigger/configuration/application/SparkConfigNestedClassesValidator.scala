@@ -50,12 +50,8 @@ class SparkConfigNestedClassesValidator extends ConstraintValidator[SparkConfigN
       validateConstraints(Seq(
         Constraint(sparkConfig.yarn.submitTimeout > 0,
           "sparkYarnSink.submitTimeout", "must be > 0"),
-        Constraint(notBlankValidator.isValid(sparkConfig.yarn.hadoopConfDir, context),
-          "sparkYarnSink.hadoopConfDir", notBlankMessage),
         Constraint(notBlankValidator.isValid(sparkConfig.yarn.master, context),
-          "sparkYarnSink.master", notBlankMessage),
-        Constraint(notBlankValidator.isValid(sparkConfig.yarn.sparkHome, context),
-          "sparkYarnSink.sparkHome", notBlankMessage)
+          "sparkYarnSink.master", notBlankMessage)
       ))
     }
   }

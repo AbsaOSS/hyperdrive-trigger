@@ -160,8 +160,6 @@ spark.submitApi=yarn
 
 #Submit api = YARN
 sparkYarnSink.submitTimeout=160000
-sparkYarnSink.hadoopConfDir=/opt/hadoop
-sparkYarnSink.sparkHome=/opt/spark
 sparkYarnSink.master=yarn
 sparkYarnSink.filesToDeploy=
 sparkYarnSink.additionalConfs.spark.ui.port=
@@ -199,6 +197,13 @@ db.numThreads=4
 db.skip.liquibase=false
 spring.liquibase.change-log=classpath:/db_scripts/liquibase/db.changelog.yml
 ```
+
+## Tomcat configuration
+The Hadoop configuration directory needs to be added as the environment variable `HADOOP_CONF_DIR` and it has to be added to the web application's classpath.
+
+- The environment variable can be added in `<tomcat-root>/bin/setenv.sh`, e.g. `HADOOP_CONF_DIR=/opt/hadoop`.
+- To add the Hadoop configuration directory to the application classpath, 
+in the file `<tomcat-base>/conf/catalina.properties`, append to the key `shared.loader` the hadoop conf dir, e.g. `shared.loader="/opt/hadoop"`.
 
 ## Embedded Tomcat
 
