@@ -32,6 +32,7 @@ import { ApiUtil } from '../../utils/api/api.util';
 import { HistoryModel, HistoryPairModel } from '../../models/historyModel';
 import { NotificationRuleHistoryService } from '../../services/notificationRuleHistory/notification-rule-history.service';
 import { NotificationRuleHistoryModel } from '../../models/notificationRuleHistoryModel';
+import { WorkflowModel } from "../../models/workflow.model";
 
 @Injectable()
 export class NotificationRulesEffects {
@@ -87,6 +88,34 @@ export class NotificationRulesEffects {
           return [
             {
               type: NotificationRulesActions.GET_NOTIFICATION_RULE_FAILURE,
+            },
+          ];
+        }),
+      );
+    }),
+  );
+
+  @Effect({ dispatch: true })
+  notificationRuleUsageGet = this.actions.pipe(
+    ofType(NotificationRulesActions.GET_NOTIFICATION_RULE_USAGE),
+    switchMap((action: NotificationRulesActions.GetNotificationRuleUsage) => {
+      return this.notificationRuleService.getNotificationUsage(action.payload).pipe(
+        mergeMap((workflows: WorkflowModel[]) => {
+          return [
+            {
+              type: NotificationRulesActions.GET_NOTIFICATION_RULE_USAGE_SUCCESS,
+              payload: workflows.sort(
+                (workflowLeft, workflowRight) =>
+                  workflowLeft.project.localeCompare(workflowRight.project) || workflowLeft.name.localeCompare(workflowRight.name),
+              ),
+            },
+          ];
+        }),
+        catchError(() => {
+          this.toastrService.error(texts.GET_NOTIFICATION_RULE_USAGE_FAILURE_NOTIFICATION);
+          return [
+            {
+              type: NotificationRulesActions.GET_NOTIFICATION_RULE_USAGE_FAILURE,
             },
           ];
         }),
