@@ -19,6 +19,7 @@ import { TableSearchResponseModel } from '../../models/search/tableSearchRespons
 import { NotificationRuleModel } from '../../models/notificationRule.model';
 import { HistoryModel } from '../../models/historyModel';
 import { NotificationRuleHistoryModel } from '../../models/notificationRuleHistoryModel';
+import { WorkflowModel } from "../../models/workflow.model";
 
 export const SEARCH_NOTIFICATION_RULES = 'SEARCH_NOTIFICATION_RULES';
 export const SEARCH_NOTIFICATION_RULES_SUCCESS = 'SEARCH_NOTIFICATION_RULES_SUCCESS';
@@ -27,6 +28,10 @@ export const SEARCH_NOTIFICATION_RULES_FAILURE = 'SEARCH_NOTIFICATION_RULES_FAIL
 export const GET_NOTIFICATION_RULE = 'GET_NOTIFICATION_RULE';
 export const GET_NOTIFICATION_RULE_SUCCESS = 'GET_NOTIFICATION_RULE_SUCCESS';
 export const GET_NOTIFICATION_RULE_FAILURE = 'GET_NOTIFICATION_RULE_FAILURE';
+
+export const GET_NOTIFICATION_RULE_USAGE = 'GET_NOTIFICATION_RULE_USAGE';
+export const GET_NOTIFICATION_RULE_USAGE_SUCCESS = 'GET_NOTIFICATION_RULE_USAGE_SUCCESS';
+export const GET_NOTIFICATION_RULE_USAGE_FAILURE = 'GET_NOTIFICATION_RULE_USAGE_FAILURE';
 
 export const CREATE_NOTIFICATION_RULE = 'CREATE_NOTIFICATION_RULE';
 export const CREATE_NOTIFICATION_RULE_SUCCESS = 'CREATE_NOTIFICATION_RULE_SUCCESS';
@@ -82,6 +87,20 @@ export class GetNotificationRuleSuccess implements Action {
 
 export class GetNotificationRuleFailure implements Action {
   readonly type = GET_NOTIFICATION_RULE_FAILURE;
+}
+
+export class GetNotificationRuleUsage implements Action {
+  readonly type = GET_NOTIFICATION_RULE_USAGE;
+  constructor(public payload: number) {}
+}
+
+export class GetNotificationRuleUsageSuccess implements Action {
+  readonly type = GET_NOTIFICATION_RULE_USAGE_SUCCESS;
+  constructor(public payload: WorkflowModel[]) {}
+}
+
+export class GetNotificationRuleUsageFailure implements Action {
+  readonly type = GET_NOTIFICATION_RULE_USAGE_FAILURE;
 }
 
 export class CreateNotificationRule implements Action {
@@ -197,6 +216,9 @@ export type NotificationRulesActions =
   | GetNotificationRule
   | GetNotificationRuleSuccess
   | GetNotificationRuleFailure
+  | GetNotificationRuleUsage
+  | GetNotificationRuleUsageSuccess
+  | GetNotificationRuleUsageFailure
   | UpdateNotificationRule
   | UpdateNotificationRuleSuccess
   | UpdateNotificationRuleFailure
