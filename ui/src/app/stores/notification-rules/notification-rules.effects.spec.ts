@@ -25,7 +25,8 @@ import { NotificationRulesEffects } from './notification-rules.effects';
 import {
   CreateNotificationRule,
   DeleteNotificationRule,
-  GetNotificationRule, GetNotificationRuleUsage,
+  GetNotificationRule,
+  GetNotificationRuleUsage,
   LoadHistoryForNotificationRule,
   LoadNotificationRulesFromHistory,
   RevertNotificationRule,
@@ -46,7 +47,7 @@ import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import { HistoryModel, HistoryModelFactory, HistoryPairModel } from '../../models/historyModel';
 import { NotificationRuleHistoryService } from '../../services/notificationRuleHistory/notification-rule-history.service';
 import { NotificationRuleHistoryModel, NotificationRuleHistoryModelFactory } from '../../models/notificationRuleHistoryModel';
-import { WorkflowModelFactory } from "../../models/workflow.model";
+import { WorkflowModelFactory } from '../../models/workflow.model';
 
 describe('NotificationRulesEffects', () => {
   let underTest: NotificationRulesEffects;

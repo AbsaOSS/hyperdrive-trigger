@@ -21,7 +21,7 @@ import { Observable, throwError } from 'rxjs';
 import { NotificationRuleModel } from '../../models/notificationRule.model';
 import { TableSearchRequestModel } from '../../models/search/tableSearchRequest.model';
 import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
-import { WorkflowModel } from "../../models/workflow.model";
+import { WorkflowModel } from '../../models/workflow.model';
 
 @Injectable({
   providedIn: 'root',

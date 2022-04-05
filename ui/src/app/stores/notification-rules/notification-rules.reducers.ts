@@ -17,7 +17,7 @@ import { NotificationRuleModel, NotificationRuleModelFactory } from '../../model
 import * as NotificationRulesActions from '../notification-rules/notification-rules.actions';
 import { HistoryModel } from '../../models/historyModel';
 import { NotificationRuleHistoryModel } from '../../models/notificationRuleHistoryModel';
-import { WorkflowModel } from "../../models/workflow.model";
+import { WorkflowModel } from '../../models/workflow.model';
 
 export interface State {
   notificationRules: NotificationRuleModel[];

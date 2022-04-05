@@ -22,7 +22,7 @@ import { NotificationRuleModel, NotificationRuleModelFactory } from '../../model
 import { dagInstanceStatuses } from '../../models/enums/dagInstanceStatuses.constants';
 import { TableSearchRequestModel } from '../../models/search/tableSearchRequest.model';
 import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
-import { WorkflowModelFactory } from "../../models/workflow.model";
+import { WorkflowModelFactory } from '../../models/workflow.model';
 
 describe('NotificationRuleService', () => {
   let underTest: NotificationRuleService;

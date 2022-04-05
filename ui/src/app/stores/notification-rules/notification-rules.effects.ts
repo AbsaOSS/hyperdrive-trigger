@@ -32,7 +32,7 @@ import { ApiUtil } from '../../utils/api/api.util';
 import { HistoryModel, HistoryPairModel } from '../../models/historyModel';
 import { NotificationRuleHistoryService } from '../../services/notificationRuleHistory/notification-rule-history.service';
 import { NotificationRuleHistoryModel } from '../../models/notificationRuleHistoryModel';
-import { WorkflowModel } from "../../models/workflow.model";
+import { WorkflowModel } from '../../models/workflow.model';
 
 @Injectable()
 export class NotificationRulesEffects {

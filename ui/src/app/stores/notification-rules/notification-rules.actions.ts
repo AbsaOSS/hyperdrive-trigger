@@ -19,7 +19,7 @@ import { TableSearchResponseModel } from '../../models/search/tableSearchRespons
 import { NotificationRuleModel } from '../../models/notificationRule.model';
 import { HistoryModel } from '../../models/historyModel';
 import { NotificationRuleHistoryModel } from '../../models/notificationRuleHistoryModel';
-import { WorkflowModel } from "../../models/workflow.model";
+import { WorkflowModel } from '../../models/workflow.model';
 
 export const SEARCH_NOTIFICATION_RULES = 'SEARCH_NOTIFICATION_RULES';
 export const SEARCH_NOTIFICATION_RULES_SUCCESS = 'SEARCH_NOTIFICATION_RULES_SUCCESS';
