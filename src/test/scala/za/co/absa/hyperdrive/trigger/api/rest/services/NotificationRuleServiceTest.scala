@@ -178,4 +178,16 @@ class NotificationRuleServiceTest extends AsyncFlatSpec with Matchers with Mocki
     result.value shouldBe matchingRules
   }
 
+  "getMatchingWorkflows" should "return matching workflows" in {
+    // given
+    val notificationRuleId = 1
+    val workflows = Seq(Workflow("workflow1", isActive = true, "project1", LocalDateTime.now(), None, 1, None, 42L))
+    when(notificationRuleRepository.getMatchingWorkflows(eqTo(notificationRuleId))(any[ExecutionContext])).thenReturn(Future(workflows))
+
+    // when
+    val result = await(underTest.getMatchingWorkflows(notificationRuleId))
+
+    // then
+    result shouldBe workflows
+  }
 }

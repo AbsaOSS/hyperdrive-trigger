@@ -162,6 +162,67 @@ class NotificationRuleRepositoryPostgresTest extends FlatSpec with Matchers with
     result.value._2 shouldBe w1
   }
 
+  "getMatchingWorkflows" should "return matching workflows" in {
+    val w1 = Workflow(name = "workflow1", project = "project1", isActive = true, created = LocalDateTime.now(), updated = None, version = 1, id = 0)
+    val w2 = Workflow(name = "workflow2", project = "project1", isActive = true, created = LocalDateTime.now(), updated = None, version = 1, id = 1)
+    val w3 = Workflow(name = "workflow3", project = "project2", isActive = true, created = LocalDateTime.now(), updated = None, version = 1, id = 2)
+    val w4 = Workflow(name = "workflow14", project = "project3", isActive = true, created = LocalDateTime.now(), updated = None, version = 1, id = 3)
+
+    val nr = createDummyNotificationRule()
+    val nr1 = nr.copy(workflowPrefix = None, project = Some("PROJECT1"), id = 1)
+    val nr2 = nr.copy(workflowPrefix = None, project = Some("project2"), id = 2)
+    val nr3 = nr.copy(workflowPrefix = None, project = Some(""), id = 3)
+    val nr4 = nr.copy(workflowPrefix = None, project = None, id = 4)
+    val nr5 = nr.copy(workflowPrefix = None, project = Some("project"), id = 5)
+
+    val nr6 = nr.copy(workflowPrefix = Some("WORKFLOW"), project = None, id = 6)
+    val nr7 = nr.copy(workflowPrefix = Some("WoRkFlOw1"), project = None, id = 7)
+    val nr8 = nr.copy(workflowPrefix = Some(""), project = None, id = 8)
+    val nr9 = nr.copy(workflowPrefix = None, project = None, id = 9)
+    val nr10 = nr.copy(workflowPrefix = Some("xyz"), project = None, id = 10)
+
+    val nr11 = nr.copy(workflowPrefix = Some("wor"), project = Some("PROJECT1"), id = 11)
+
+    await(db.run(workflowTable.forceInsertAll(Seq(w1, w2, w3, w4))))
+    await(db.run(notificationRuleTable.forceInsertAll(Seq(nr1, nr2, nr3, nr4, nr5, nr6, nr7, nr8, nr9, nr10, nr11))))
+
+    //Match on project
+    val result1 = await(notificationRuleRepository.getMatchingWorkflows(nr2.id))
+    result1 should contain theSameElementsAs Seq(w3)
+    //Match on project only, ignoring case
+    val result2 = await(notificationRuleRepository.getMatchingWorkflows(nr1.id))
+    result2 should contain theSameElementsAs Seq(w1, w2)
+    //Match on project only - empty string
+    val result3 = await(notificationRuleRepository.getMatchingWorkflows(nr3.id))
+    result3 should contain theSameElementsAs Seq(w1, w2, w3, w4)
+    //Match on project only - none
+    val result4 = await(notificationRuleRepository.getMatchingWorkflows(nr4.id))
+    result4 should contain theSameElementsAs Seq(w1, w2, w3, w4)
+    //Match on project only - no matching workflow
+    val result5 = await(notificationRuleRepository.getMatchingWorkflows(nr5.id))
+    result5 should contain theSameElementsAs Seq()
+
+    //Match on workflow prefix only, ignoring case - match all
+    val result6 = await(notificationRuleRepository.getMatchingWorkflows(nr6.id))
+    result6 should contain theSameElementsAs Seq(w1, w2, w3, w4)
+    //Match on workflow prefix only - partial match
+    val result7 = await(notificationRuleRepository.getMatchingWorkflows(nr7.id))
+    result7 should contain theSameElementsAs Seq(w1, w4)
+    //Match on workflow prefix only - empty string
+    val result8 = await(notificationRuleRepository.getMatchingWorkflows(nr8.id))
+    result8 should contain theSameElementsAs Seq(w1, w2, w3, w4)
+    //Match on workflow prefix only - none
+    val result9 = await(notificationRuleRepository.getMatchingWorkflows(nr9.id))
+    result9 should contain theSameElementsAs Seq(w1, w2, w3, w4)
+    //Match on workflow prefix only - no matching workflow
+    val result10 = await(notificationRuleRepository.getMatchingWorkflows(nr10.id))
+    result10 should contain theSameElementsAs Seq()
+
+    //Match on workflow prefix and project
+    val result11 = await(notificationRuleRepository.getMatchingWorkflows(nr11.id))
+    result11 should contain theSameElementsAs Seq(w1, w2)
+  }
+
   private def createDummyNotificationRule() = {
     NotificationRule(isActive = true, None, None, None, Seq(DagInstanceStatuses.Failed), Seq("abc@xyz.com"),
       created = LocalDateTime.now(), updated = None, id = -1L)

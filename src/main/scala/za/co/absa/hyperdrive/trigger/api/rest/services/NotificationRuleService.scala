@@ -42,6 +42,7 @@ trait NotificationRuleService {
 
   def getMatchingNotificationRules(workflowId: Long, status: DagInstanceStatus)(implicit ec: ExecutionContext): Future[Option[(Seq[NotificationRule], Workflow)]]
 
+  def getMatchingWorkflows(id: Long)(implicit ec: ExecutionContext): Future[Seq[Workflow]]
 }
 
 @Service
@@ -83,5 +84,9 @@ class NotificationRuleServiceImpl(override val notificationRuleRepository: Notif
 
   override def getMatchingNotificationRules(workflowId: Long, status: DagInstanceStatus)(implicit ec: ExecutionContext): Future[Option[(Seq[NotificationRule], Workflow)]] = {
     notificationRuleRepository.getMatchingNotificationRules(workflowId, status, LocalDateTime.now())
+  }
+
+  override def getMatchingWorkflows(id: Long)(implicit ec: ExecutionContext): Future[Seq[Workflow]] = {
+    notificationRuleRepository.getMatchingWorkflows(id)
   }
 }

@@ -45,6 +45,8 @@ trait NotificationRuleRepository extends Repository {
 
   def getMatchingNotificationRules(workflowId: Long, status: DagInstanceStatus, currentTime: LocalDateTime)(implicit ec: ExecutionContext): Future[Option[(Seq[NotificationRule], Workflow)]]
 
+  def getMatchingWorkflows(id: Long)(implicit ec: ExecutionContext): Future[Seq[Workflow]]
+
 }
 
 @stereotype.Repository
@@ -133,6 +135,24 @@ class NotificationRuleRepositoryImpl @Inject()(
           case (r, Some(w)) => Some(r, w)
           case (r, None) => None
         }
+    )
+  }
+
+  override def getMatchingWorkflows(id: Long)(implicit ec: ExecutionContext): Future[Seq[Workflow]] = {
+    db.run(
+      getNotificationRuleInternal(id).flatMap { notificationRule =>
+        workflowTable
+          .filter { workflow =>
+            val workflowPrefix = notificationRule.workflowPrefix.getOrElse("")
+            LiteralColumn[Boolean](workflowPrefix.isEmpty) ||
+              workflow.name.toLowerCase.like(workflowPrefix.toLowerCase ++ "%")
+          }
+          .filter { workflow =>
+            val project = notificationRule.project.getOrElse("")
+            LiteralColumn[Boolean](project.isEmpty) ||
+              workflow.project.toLowerCase === project.toLowerCase
+          }.result
+      }
     )
   }
 
