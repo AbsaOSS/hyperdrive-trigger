@@ -195,7 +195,7 @@ describe('NotificationRulesEffects', () => {
 
       notificationRuleServiceSpy.getNotificationUsage.and.returnValue(notificationRuleUsageResponse);
 
-      expect(underTest.notificationRuleGet).toBeObservable(expected);
+      expect(underTest.notificationRuleUsageGet).toBeObservable(expected);
     });
 
     it('should return notification rule usage failure if notificationRuleService.getNotificationUsage responds with an error', () => {
@@ -211,7 +211,7 @@ describe('NotificationRulesEffects', () => {
           type: NotificationRulesActions.GET_NOTIFICATION_RULE_USAGE_FAILURE,
         },
       });
-      expect(underTest.notificationRuleGet).toBeObservable(expected);
+      expect(underTest.notificationRuleUsageGet).toBeObservable(expected);
       expect(toastrServiceSpyError).toHaveBeenCalledTimes(1);
       expect(toastrServiceSpyError).toHaveBeenCalledWith(texts.GET_NOTIFICATION_RULE_USAGE_FAILURE_NOTIFICATION);
     });
