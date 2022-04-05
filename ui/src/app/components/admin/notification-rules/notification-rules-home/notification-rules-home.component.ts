@@ -52,6 +52,8 @@ export class NotificationRulesHomeComponent implements AfterViewInit, OnDestroy 
   loading = true;
   filters: FilterAttributes[] = [];
 
+  openedNotificationRuleUsage: NotificationRuleModel = null;
+
   notificationRuleColumns = notificationRuleColumns;
   absoluteRoutes = absoluteRoutes;
 
@@ -82,9 +84,12 @@ export class NotificationRulesHomeComponent implements AfterViewInit, OnDestroy 
   }
 
   refresh() {
-    const searchRequestModel = TableSearchRequestModelFactory.create(this.pageFrom, this.pageSize, this.sort, this.filters);
-    this.store.dispatch(new SearchNotificationRules(searchRequestModel));
-    this.refreshSubject.next(true);
+    if (!this.openedNotificationRuleUsage) {
+      const searchRequestModel = TableSearchRequestModelFactory.create(this.pageFrom, this.pageSize, this.sort, this.filters);
+      this.store.dispatch(new SearchNotificationRules(searchRequestModel));
+    } else {
+      this.refreshSubject.next(true);
+    }
   }
 
   clearFilters() {
@@ -111,6 +116,10 @@ export class NotificationRulesHomeComponent implements AfterViewInit, OnDestroy 
       .subscribe((confirmed) => {
         if (confirmed) this.store.dispatch(new DeleteNotificationRule(id));
       });
+  }
+
+  onNotificationRuleUsageOpenClose(event: NotificationRuleModel) {
+    this.openedNotificationRuleUsage = event;
   }
 
   ngOnDestroy(): void {
