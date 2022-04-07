@@ -169,8 +169,8 @@ class NotificationRuleRepositoryPostgresTest extends FlatSpec with Matchers with
     val w4 = Workflow(name = "workflow14", project = "project3", isActive = true, created = LocalDateTime.now(), updated = None, version = 1, id = 3)
 
     val nr = createDummyNotificationRule()
-    val nr1 = nr.copy(workflowPrefix = None, project = Some("PROJECT1"), id = 1)
-    val nr2 = nr.copy(workflowPrefix = None, project = Some("project2"), id = 2)
+    val nr1 = nr.copy(workflowPrefix = None, project = Some("project2"), id = 1)
+    val nr2 = nr.copy(workflowPrefix = None, project = Some("PROJECT1"), id = 2)
     val nr3 = nr.copy(workflowPrefix = None, project = Some(""), id = 3)
     val nr4 = nr.copy(workflowPrefix = None, project = None, id = 4)
     val nr5 = nr.copy(workflowPrefix = None, project = Some("project"), id = 5)
@@ -187,10 +187,10 @@ class NotificationRuleRepositoryPostgresTest extends FlatSpec with Matchers with
     await(db.run(notificationRuleTable.forceInsertAll(Seq(nr1, nr2, nr3, nr4, nr5, nr6, nr7, nr8, nr9, nr10, nr11))))
 
     //Match on project
-    val result1 = await(notificationRuleRepository.getMatchingWorkflows(nr2.id))
+    val result1 = await(notificationRuleRepository.getMatchingWorkflows(nr1.id))
     result1 should contain theSameElementsAs Seq(w3)
     //Match on project only, ignoring case
-    val result2 = await(notificationRuleRepository.getMatchingWorkflows(nr1.id))
+    val result2 = await(notificationRuleRepository.getMatchingWorkflows(nr2.id))
     result2 should contain theSameElementsAs Seq(w1, w2)
     //Match on project only - empty string
     val result3 = await(notificationRuleRepository.getMatchingWorkflows(nr3.id))
