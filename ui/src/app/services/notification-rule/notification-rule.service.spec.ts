@@ -22,6 +22,7 @@ import { NotificationRuleModel, NotificationRuleModelFactory } from '../../model
 import { dagInstanceStatuses } from '../../models/enums/dagInstanceStatuses.constants';
 import { TableSearchRequestModel } from '../../models/search/tableSearchRequest.model';
 import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
+import { WorkflowModelFactory } from '../../models/workflow.model';
 
 describe('NotificationRuleService', () => {
   let underTest: NotificationRuleService;
@@ -68,6 +69,23 @@ describe('NotificationRuleService', () => {
     const req = httpTestingController.expectOne(api.GET_NOTIFICATION_RULE + `?id=${notificationRule.id}`);
     expect(req.request.method).toEqual('GET');
     req.flush(notificationRule);
+  });
+
+  it('getNotificationUsage() should return all workflows where notification rule match workflow', () => {
+    const workflows = [
+      WorkflowModelFactory.create('workflowOne', undefined, undefined, undefined, undefined, undefined, undefined),
+      WorkflowModelFactory.create('workflowTwo', undefined, undefined, undefined, undefined, undefined, undefined),
+    ];
+    const notificationRuleId = 1;
+
+    underTest.getNotificationUsage(notificationRuleId).subscribe(
+      (data) => expect(data).toEqual(workflows),
+      (error) => fail(error),
+    );
+
+    const req = httpTestingController.expectOne(api.GET_NOTIFICATION_RULE_USAGE.replace('{id}', notificationRuleId.toString()));
+    expect(req.request.method).toEqual('GET');
+    req.flush(workflows);
   });
 
   it('updateNotificationRule() should return updated notificationRule', () => {

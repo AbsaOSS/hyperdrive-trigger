@@ -101,6 +101,7 @@ import { JobTemplateHistoryComponent } from './components/admin/job-templates/jo
 import { JobTemplateComparisonComponent } from './components/admin/job-templates/job-template-history/job-template-comparison/job-template-comparison.component';
 import { JobTemplateUsageComponent } from './components/admin/job-templates/job-templates-home/job-template-usage/job-template-usage.component';
 import { LengthValidator } from './components/workflows/workflow-form/dynamic-parts/string-sequence-part/validator/length.validator';
+import { NotificationRuleUsageComponent } from './components/admin/notification-rules/notification-rules-home/notification-rule-usage/notification-rule-usage.component';
 
 @NgModule({
   declarations: [
@@ -160,6 +161,7 @@ import { LengthValidator } from './components/workflows/workflow-form/dynamic-pa
     NotificationRuleComponent,
     NotificationRulesComponent,
     NotificationRulesHomeComponent,
+    NotificationRuleUsageComponent,
     NotificationRulesFormComponent,
     NotificationRuleComparisonComponent,
     NotificationRuleHistoryComponent,
