@@ -53,6 +53,10 @@ describe('NotificationRulesReducers', () => {
       notificationRule: undefined,
       backendValidationErrors: undefined,
     },
+    usage: {
+      loading: false,
+      workflows: [],
+    },
     history: {
       loading: true,
       historyEntries: [],

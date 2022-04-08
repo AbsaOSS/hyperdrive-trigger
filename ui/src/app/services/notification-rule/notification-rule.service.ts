@@ -21,6 +21,7 @@ import { Observable, throwError } from 'rxjs';
 import { NotificationRuleModel } from '../../models/notificationRule.model';
 import { TableSearchRequestModel } from '../../models/search/tableSearchRequest.model';
 import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
+import { WorkflowModel } from '../../models/workflow.model';
 
 @Injectable({
   providedIn: 'root',
@@ -46,6 +47,12 @@ export class NotificationRuleService {
 
     return this.httpClient
       .get<NotificationRuleModel>(api.GET_NOTIFICATION_RULE, { params: params, observe: 'response' })
+      .pipe(map((response) => response.body));
+  }
+
+  getNotificationUsage(id: number): Observable<WorkflowModel[]> {
+    return this.httpClient
+      .get<WorkflowModel[]>(api.GET_NOTIFICATION_RULE_USAGE.replace('{id}', id.toString()), { observe: 'response' })
       .pipe(map((response) => response.body));
   }
 

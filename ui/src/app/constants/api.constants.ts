@@ -59,6 +59,7 @@ export const api = {
   UPDATE_NOTIFICATION_RULE: '/notificationRule',
   DELETE_NOTIFICATION_RULE: '/notificationRule',
   SEARCH_NOTIFICATION_RULES: '/notificationRules/search',
+  GET_NOTIFICATION_RULE_USAGE: '/notificationRules/{id}/workflows',
   GET_HISTORY_FOR_NOTIFICATION_RULE: '/notificationRuleHistory',
   GET_NOTIFICATION_RULES_FROM_HISTORY: '/notificationRulesFromHistory',
   GET_QUARTZ_DETAIL: '/util/quartzDetail',

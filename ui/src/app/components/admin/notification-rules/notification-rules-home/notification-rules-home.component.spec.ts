@@ -20,24 +20,42 @@ import { provideMockStore } from '@ngrx/store/testing';
 import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { absoluteRoutes } from '../../../../constants/routes.constants';
-import { JobTemplateModelFactory } from '../../../../models/jobTemplate.model';
 import { Store } from '@ngrx/store';
 import { AppState } from '../../../../stores/app.reducers';
 import { ClrDatagridStateInterface } from '@clr/angular';
-import { ShellTemplateParametersModel } from '../../../../models/jobTemplateParameters.model';
+import { NotificationRuleModelFactory } from '../../../../models/notificationRule.model';
+import { dagInstanceStatuses } from '../../../../models/enums/dagInstanceStatuses.constants';
 
-describe('JobTemplatesHomeComponent', () => {
+describe('NotificationRulesHomeComponent', () => {
   let underTest: NotificationRulesHomeComponent;
   let fixture: ComponentFixture<NotificationRulesHomeComponent>;
   let router: Router;
   let store: Store<AppState>;
 
+  const dummyNotificationRule = NotificationRuleModelFactory.create(
+    true,
+    'Project 1',
+    undefined,
+    7200,
+    [dagInstanceStatuses.SUCCEEDED.name, dagInstanceStatuses.FAILED.name],
+    ['abc@xyz.com'],
+    new Date(Date.now()),
+    undefined,
+    1,
+  );
+
   const initialAppState = {
-    jobTemplates: {
-      jobTemplates: [JobTemplateModelFactory.create(0, 'name', ShellTemplateParametersModel.createEmpty())],
-      total: 2,
-      page: 3,
-      loading: false,
+    notificationRules: {
+      notificationRuleAction: {
+        id: 10,
+        loading: false,
+        mode: undefined,
+        notificationRule: dummyNotificationRule,
+      },
+      usage: {
+        loading: false,
+        workflows: [],
+      },
     },
   };
 
@@ -67,7 +85,7 @@ describe('JobTemplatesHomeComponent', () => {
     'onClarityDgRefresh() should dispatch SearchJobTemplates action',
     waitForAsync(() => {
       const storeSpy = spyOn(store, 'dispatch');
-      const removeFiltersSubjectSpy = spyOn(underTest.refreshSubject, 'next');
+      const refreshSubjectSpy = spyOn(underTest.refreshSubject, 'next');
       const clrDatagridState: ClrDatagridStateInterface = {
         page: {
           from: 1,
@@ -81,24 +99,40 @@ describe('JobTemplatesHomeComponent', () => {
         },
         filters: [],
       };
+      underTest.openedNotificationRuleUsage = null;
 
       underTest.onClarityDgRefresh(clrDatagridState);
 
-      expect(removeFiltersSubjectSpy).toHaveBeenCalledTimes(1);
+      expect(refreshSubjectSpy).toHaveBeenCalledTimes(0);
       expect(storeSpy).toHaveBeenCalledTimes(1);
     }),
   );
 
   it(
-    'refresh() should dispatch SearchJobTemplates action',
+    'refresh() should dispatch SearchJobTemplates action when notification rule usage is not opened',
     waitForAsync(() => {
       const storeSpy = spyOn(store, 'dispatch');
-      const removeFiltersSubjectSpy = spyOn(underTest.refreshSubject, 'next');
+      const refreshSubjectSpy = spyOn(underTest.refreshSubject, 'next');
+      underTest.openedNotificationRuleUsage = null;
 
       underTest.refresh();
 
-      expect(removeFiltersSubjectSpy).toHaveBeenCalledTimes(1);
+      expect(refreshSubjectSpy).toHaveBeenCalledTimes(0);
       expect(storeSpy).toHaveBeenCalledTimes(1);
+    }),
+  );
+
+  it(
+    'refresh() should dispatch SearchJobTemplates action when notification rule usage is opened',
+    waitForAsync(() => {
+      const storeSpy = spyOn(store, 'dispatch');
+      const refreshSubjectSpy = spyOn(underTest.refreshSubject, 'next');
+      underTest.openedNotificationRuleUsage = NotificationRuleModelFactory.createEmpty();
+
+      underTest.refresh();
+
+      expect(refreshSubjectSpy).toHaveBeenCalledTimes(1);
+      expect(storeSpy).toHaveBeenCalledTimes(0);
     }),
   );
 

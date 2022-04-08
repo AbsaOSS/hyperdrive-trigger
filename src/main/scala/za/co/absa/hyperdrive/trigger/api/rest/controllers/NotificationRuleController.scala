@@ -59,4 +59,9 @@ class NotificationRuleController @Inject()(notificationRuleService: Notification
   def searchNotificationRules(@RequestBody searchRequest: TableSearchRequest): CompletableFuture[TableSearchResponse[NotificationRule]] = {
     notificationRuleService.searchNotificationRules(searchRequest).toJava.toCompletableFuture
   }
+
+  @GetMapping(path = Array("/notificationRules/{id}/workflows"))
+  def getMatchingWorkflows(@PathVariable id: Long): CompletableFuture[Seq[Workflow]] = {
+    notificationRuleService.getMatchingWorkflows(id).toJava.toCompletableFuture
+  }
 }
