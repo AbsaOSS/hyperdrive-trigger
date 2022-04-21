@@ -91,7 +91,7 @@ class Executors @Inject()(dagInstanceRepository: DagInstanceRepository, jobInsta
           }
         }
         fut.onComplete {
-          case Success(_) => logger.debug(s"Executing job. Job instance id = ${jobInstance}")
+          case Success(_) => logger.debug(s"Executing job. Job instance = ${jobInstance}")
           case Failure(exception) => {
             logger.error(s"Executing job failed. Job instance id = ${jobInstance}.", exception)
           }
@@ -101,6 +101,7 @@ class Executors @Inject()(dagInstanceRepository: DagInstanceRepository, jobInsta
   }
 
   private def updateJob(jobInstance: JobInstance): Future[Unit] = {
+    logger.info(s"Job updated. ID = ${jobInstance.id} STATUS = ${jobInstance.jobStatus} EXECUTOR_ID = ${jobInstance.executorJobId}")
     jobInstanceRepository.updateJob(jobInstance)
   }
 

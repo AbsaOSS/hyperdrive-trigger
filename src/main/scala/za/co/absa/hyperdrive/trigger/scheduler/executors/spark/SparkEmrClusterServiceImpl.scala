@@ -62,8 +62,8 @@ class SparkEmrClusterServiceImpl @Inject()(
 
       val response = emr.addJobFlowSteps(jobFlowStepsRequest)
       val stepId = response.getStepIds.asScala.headOption
-      logger.info(s"Added jobFlowStepsRequest ${jobFlowStepsRequest} for executorId ${id} and stepId $stepId}")
-      logger.info(response.toString)
+      logger.debug(s"Added jobFlowStepsRequest ${jobFlowStepsRequest} for executorId ${id} and stepId $stepId}")
+      logger.debug(response.toString)
       stepId
     }.flatMap { stepId =>
       val jiStepId = jiSubmitting.copy(stepId = stepId)

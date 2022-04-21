@@ -40,7 +40,7 @@ object ShellExecutor {
     updateJob(jobInstance.copy(jobStatus = Running)).map { _ =>
       Try {
         jobParameters.scriptLocation.!(new ProcessLogger {
-          override def out(s: => String): Unit = logger.info(s)
+          override def out(s: => String): Unit = logger.debug(s)
           override def err(s: => String): Unit = logger.error(s)
           override def buffer[T](f: => T): T = f
         })
