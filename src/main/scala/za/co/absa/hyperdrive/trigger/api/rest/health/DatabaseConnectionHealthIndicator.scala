@@ -32,7 +32,7 @@ import scala.util.{Failure, Success, Try}
 class DatabaseConnectionHealthIndicator @Inject()(val dbProvider: DatabaseProvider, healthConfig: HealthConfig) extends HealthIndicator
   with Repository {
   import api._
-  private val logger = LoggerFactory.getLogger(this.getClass)
+  private val log = LoggerFactory.getLogger(this.getClass)
   val dbConnection: Duration = Duration(healthConfig.databaseConnectionTimeoutMillis, TimeUnit.MILLISECONDS)
   override protected def health(): Health = {
     Try {
@@ -41,7 +41,7 @@ class DatabaseConnectionHealthIndicator @Inject()(val dbProvider: DatabaseProvid
       case Success(_) =>
         Health.up().build()
       case Failure(e) =>
-        logger.error("Database connection is down", e)
+        log.error("Database connection is down", e)
         Health.down().withException(e).build()
     }
   }
