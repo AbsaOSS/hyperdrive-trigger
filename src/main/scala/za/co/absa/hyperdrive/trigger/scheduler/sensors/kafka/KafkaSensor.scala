@@ -63,7 +63,7 @@ class KafkaSensor(
       }
     })
   } catch {
-    case e: Exception => logger.debug(s"$logMsgPrefix. Exception during subscribe.", e)
+    case e: Exception => logger.error(s"$logMsgPrefix. Exception during subscribe.", e)
   }
 
   override def poll(): Future[Unit] = {
@@ -108,7 +108,7 @@ class KafkaSensor(
     val payload = Try(
       Json.parse(record.value())
     ).getOrElse {
-      logger.debug(s"$logMsgPrefix. Invalid message.")
+      logger.error(s"$logMsgPrefix. Invalid message.")
       Json.parse(s"""{"errorMessage": "${record.value()}"}""")
     }
     Event(sourceEventId, sensorDefinition.id, payload)

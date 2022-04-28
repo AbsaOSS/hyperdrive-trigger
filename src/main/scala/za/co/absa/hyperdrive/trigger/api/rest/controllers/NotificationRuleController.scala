@@ -15,7 +15,6 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.controllers
 
-import org.slf4j.LoggerFactory
 import org.springframework.web.bind.annotation._
 import za.co.absa.hyperdrive.trigger.api.rest.services.NotificationRuleService
 import za.co.absa.hyperdrive.trigger.models._
@@ -28,7 +27,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 @RestController
 class NotificationRuleController @Inject()(notificationRuleService: NotificationRuleService) {
-  private val logger = LoggerFactory.getLogger(this.getClass)
 
   @PutMapping(path = Array("/notificationRule"))
   def createNotificationRule(@RequestBody notificationRule: NotificationRule): CompletableFuture[NotificationRule] = {

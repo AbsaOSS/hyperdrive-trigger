@@ -69,7 +69,7 @@ class LiquibaseConfiguration(properties: LiquibaseProperties, dbConfig: Database
     if (!unrunChangeSets.isEmpty) {
       liquibase.update(contexts)
     } else {
-      configLogger.debug("Database schema is up-to-date")
+      configLogger.info("Database schema is up-to-date")
     }
   }
 

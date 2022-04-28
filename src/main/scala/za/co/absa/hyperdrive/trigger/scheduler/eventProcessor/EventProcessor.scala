@@ -32,7 +32,7 @@ class EventProcessor(eventRepository: EventRepository,
 
   def eventProcessor(triggeredBy: String)(events: Seq[Event], sensorId: Long)(implicit ec: ExecutionContext): Future[Boolean] = {
     val fut = processEvents(events, sensorId, triggeredBy)
-    logger.debug(s"Processing events. Sensor id: $sensorId. Events: ${events.map(_.id)}")
+    logger.info(s"Processing events. Sensor id: $sensorId. Events: ${events.map(_.id)}")
     fut
   }
 

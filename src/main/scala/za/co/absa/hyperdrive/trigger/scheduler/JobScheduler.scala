@@ -63,7 +63,7 @@ class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstance
       runningScheduler =
         Future {
           while (isManagerRunningAtomic.get()) {
-            logger.debug("Running manager heart beat.")
+            logger.info("Running manager heart beat.")
             assignWorkflows(firstIteration)
             sendNotifications()
             firstIteration = false
@@ -72,7 +72,7 @@ class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstance
         }
       runningScheduler.onComplete {
         case Success(_) =>
-          logger.debug("Manager stopped.")
+          logger.info("Manager stopped.")
         case Failure(exception) =>
           logger.error(s"Manager stopped with exception.", exception)
       }
