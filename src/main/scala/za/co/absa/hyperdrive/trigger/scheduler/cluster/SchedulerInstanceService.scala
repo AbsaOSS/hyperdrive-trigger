@@ -48,7 +48,7 @@ class SchedulerInstanceServiceImpl @Inject()(schedulerInstanceRepository: Schedu
         Future{}
       }
       deactivatedCount <- schedulerInstanceRepository.deactivateLaggingInstances(instanceId, currentHeartbeat, lagThreshold)
-      _ = if (deactivatedCount != 0) logger.debug(s"Deactivated $deactivatedCount instances at current heartbeat $currentHeartbeat")
+      _ = if (deactivatedCount != 0) logger.info(s"Deactivated $deactivatedCount instances at current heartbeat $currentHeartbeat")
       allInstances <- schedulerInstanceRepository.getAllInstances()
     } yield allInstances
   }

@@ -45,7 +45,7 @@ class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: Sensor
   private val sensors: mutable.Map[Long, Sensor[ _<: SensorProperties]] = mutable.Map.empty[Long, Sensor[ _<: SensorProperties]]
 
   def processEvents(assignedWorkflowIds: Seq[Long], firstIteration: Boolean): Future[Unit] = {
-    logger.debug(s"Processing events. Sensors: ${sensors.keys}")
+    logger.info(s"Processing events. Sensors: ${sensors.keys}")
     removeReleasedSensors(assignedWorkflowIds)
     val fut = for {
       _ <- removeInactiveSensors()
@@ -57,7 +57,7 @@ class Sensors @Inject()(eventProcessor: EventProcessor, sensorRepository: Sensor
     }
 
     fut.onComplete {
-      case Success(_) => logger.debug("Processing events successful")
+      case Success(_) => logger.info("Processing events successful")
       case Failure(exception) => {
         logger.debug("Processing events failed.", exception)
       }

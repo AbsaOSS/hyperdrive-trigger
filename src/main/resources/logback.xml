@@ -43,7 +43,7 @@
         </layout>
     </appender>
 
-    <logger name="za.co.absa.hyperdrive.trigger" level="debug" additivity="false">
+    <logger name="za.co.absa.hyperdrive.trigger" level="info" additivity="false">
         <appender-ref ref="FILE-ROLLING"/>
         <appender-ref ref="Console" />
     </logger>
