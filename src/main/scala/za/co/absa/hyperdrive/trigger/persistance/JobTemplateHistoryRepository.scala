@@ -66,14 +66,18 @@ class JobTemplateHistoryRepositoryImpl @Inject()(val dbProvider: DatabaseProvide
   }
 
   override def getHistoryForJobTemplate(jobTemplateId: Long)(implicit ec: ExecutionContext): Future[Seq[History]] = {
-    db.run(jobTemplateHistoryTable.getHistoryForEntity(jobTemplateId))
+    db.run(jobTemplateHistoryTable.getHistoryForEntity(jobTemplateId).withErrorHandling())
   }
 
   override def getJobTemplateFromHistory(jobTemplateHistoryId: Long)(implicit ec: ExecutionContext): Future[JobTemplate] = {
-    db.run(jobTemplateHistoryTable.getHistoryEntity(jobTemplateHistoryId).map(_.jobTemplate))
+    db.run(jobTemplateHistoryTable.getHistoryEntity(jobTemplateHistoryId).map(_.jobTemplate).withErrorHandling())
   }
 
   override def getJobTemplatesFromHistory(leftJobTemplateHistoryId: Long, rightJobTemplateHistoryId: Long)(implicit ec: ExecutionContext): Future[HistoryPair[JobTemplateHistory]] = {
-    db.run(jobTemplateHistoryTable.getEntitiesFromHistory(leftJobTemplateHistoryId, rightJobTemplateHistoryId))
+    db.run(
+      jobTemplateHistoryTable
+        .getEntitiesFromHistory(leftJobTemplateHistoryId, rightJobTemplateHistoryId)
+        .withErrorHandling()
+    )
   }
 }
