@@ -18,7 +18,6 @@ package za.co.absa.hyperdrive.trigger.persistance
 import java.time.LocalDateTime
 import org.springframework.stereotype
 import za.co.absa.hyperdrive.trigger.models.JobInstance
-import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.JobStatus
 
 import javax.inject.Inject
@@ -35,15 +34,27 @@ class JobInstanceRepositoryImpl @Inject()(val dbProvider: DatabaseProvider) exte
   import api._
 
   override def updateJob(job: JobInstance)(implicit ec: ExecutionContext): Future[Unit] = db.run {
-    jobInstanceTable.filter(_.id === job.id).update(job.copy(updated = Option(LocalDateTime.now()))).andThen(DBIO.successful((): Unit))
+    jobInstanceTable.filter(_.id === job.id)
+      .update(job.copy(updated = Option(LocalDateTime.now())))
+      .andThen(DBIO.successful((): Unit))
+      .withErrorHandling()
   }
 
   def updateJobsStatus(ids: Seq[Long], status: JobStatus)(implicit ec: ExecutionContext): Future[Unit] = db.run(
-    jobInstanceTable.filter(_.id inSet ids).map(ji => (ji.jobStatus, ji.updated)).update((status, Option(LocalDateTime.now()))).transactionally
+    jobInstanceTable
+      .filter(_.id inSet ids)
+      .map(ji => (ji.jobStatus, ji.updated))
+      .update((status, Option(LocalDateTime.now())))
+      .transactionally
+      .withErrorHandling()
   ).map(_ => (): Unit)
 
   override def getJobInstances(dagInstanceId: Long)(implicit ec: ExecutionContext): Future[Seq[JobInstance]] = db.run(
-    jobInstanceTable.filter(_.dagInstanceId === dagInstanceId).sortBy(_.id).result
+    jobInstanceTable
+      .filter(_.dagInstanceId === dagInstanceId)
+      .sortBy(_.id)
+      .result
+      .withErrorHandling()
   )
 
 }

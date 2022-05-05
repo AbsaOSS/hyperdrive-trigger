@@ -15,15 +15,13 @@
 
 package za.co.absa.hyperdrive.trigger.persistance
 
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype
-import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, GenericDatabaseError, ValidationError}
+import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, ValidationError}
 import za.co.absa.hyperdrive.trigger.models.{JobTemplate, Workflow}
 import za.co.absa.hyperdrive.trigger.models.search.{TableSearchRequest, TableSearchResponse}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success}
 
 trait JobTemplateRepository extends Repository {
   val jobTemplateHistoryRepository: JobTemplateHistoryRepository
@@ -37,22 +35,21 @@ trait JobTemplateRepository extends Repository {
   def updateJobTemplate(jobTemplate: JobTemplate, user: String)(implicit ec: ExecutionContext): Future[Unit]
   def deleteJobTemplate(id: Long, user: String)(implicit ec: ExecutionContext): Future[Unit]
   def existsOtherJobTemplate(name: String, id: Long)(implicit ec: ExecutionContext): Future[Boolean]
-  def getWorkflowsByJobTemplate(id: Long): Future[Seq[Workflow]]
+  def getWorkflowsByJobTemplate(id: Long)(implicit ec: ExecutionContext): Future[Seq[Workflow]]
 }
 
 @stereotype.Repository
 class JobTemplateRepositoryImpl @Inject()(val dbProvider: DatabaseProvider, override val jobTemplateHistoryRepository: JobTemplateHistoryRepository) extends JobTemplateRepository {
   import api._
-  private val repositoryLogger = LoggerFactory.getLogger(this.getClass)
 
   override def getJobTemplate(id: Long)(implicit ec: ExecutionContext): Future[JobTemplate] = db.run(
-    jobTemplateTable.filter(_.id === id).result.map(_.headOption.getOrElse(
+    jobTemplateTable.filter(_.id === id).result.withErrorHandling().map(_.headOption.getOrElse(
       throw new ApiException(ValidationError(s"Job template with id ${id} does not exist.")))
     )
   )
 
   override def getJobTemplatesByIds(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[JobTemplate]] = db.run(
-    jobTemplateTable.filter(_.id inSetBind ids).result
+    jobTemplateTable.filter(_.id inSetBind ids).result.withErrorHandling()
   )
 
   override def insertJobTemplate(jobTemplate: JobTemplate, user: String)(implicit ec: ExecutionContext): Future[Long] = {
@@ -63,33 +60,30 @@ class JobTemplateRepositoryImpl @Inject()(val dbProvider: DatabaseProvider, over
         _ <- jobTemplateHistoryRepository.create(insertedJobTemplate, user)
       } yield {
         jobTemplateId
-      }).transactionally.asTry.map {
-        case Success(jobTemplateId) => jobTemplateId
-        case Failure(ex) =>
-          repositoryLogger.error(s"Unexpected error occurred when inserting jobTemplate $jobTemplate", ex)
-          throw new ApiException(GenericDatabaseError)
-      }
+      }).transactionally.withErrorHandling(s"Unexpected error occurred when inserting jobTemplate $jobTemplate")
     )
   }
 
   override def getJobTemplates()(implicit ec: ExecutionContext): Future[Seq[JobTemplate]] = db.run(
-    jobTemplateTable.result
+    jobTemplateTable.result.withErrorHandling()
   )
 
   override def getJobTemplateIdsByNames(names: Seq[String])(implicit ec: ExecutionContext): Future[Map[String, Long]] = db.run(
     jobTemplateTable
       .filter(_.name inSetBind names)
       .map(jobTemplate => jobTemplate.name -> jobTemplate.id)
-      .result
+      .result.withErrorHandling()
   ).flatMap(seq => Future{seq.toMap})
 
   override def searchJobTemplates(searchRequest: TableSearchRequest)(implicit ec: ExecutionContext): Future[TableSearchResponse[JobTemplate]] = {
-    db.run(jobTemplateTable.search(searchRequest))
+    db.run(jobTemplateTable.search(searchRequest).withErrorHandling())
   }
 
   private def getSingleJobTemplate(id: Long)(implicit ec: ExecutionContext): DBIO[JobTemplate] = {
-    jobTemplateTable.filter(_.id === id).result.map(jobTemplates => {
-      jobTemplates.headOption.getOrElse(throw new Exception(s"Job template with id ${id} does not exist."))
+    jobTemplateTable.filter(_.id === id).result.withErrorHandling().map(jobTemplates => {
+      jobTemplates.headOption.getOrElse(
+        throw new ApiException(ValidationError(s"Job template with id ${id} does not exist."))
+      )
     })
   }
 
@@ -101,12 +95,7 @@ class JobTemplateRepositoryImpl @Inject()(val dbProvider: DatabaseProvider, over
         _ <- jobTemplateHistoryRepository.update(updatedJobTemplate, user)
       } yield {
         (): Unit
-      }).transactionally.asTry.map {
-        case Success(_) => (): Unit
-        case Failure(ex) =>
-          repositoryLogger.error(s"Unexpected error occurred when updating job template $jobTemplate", ex)
-          throw new ApiException(GenericDatabaseError)
-      }
+      }).transactionally.withErrorHandling(s"Unexpected error occurred when updating job template $jobTemplate")
     )
   }
 
@@ -118,12 +107,7 @@ class JobTemplateRepositoryImpl @Inject()(val dbProvider: DatabaseProvider, over
     ).flatMap(_ =>
       jobTemplateTable.filter(_.id === id).delete andThen
         DBIO.successful((): Unit)
-    ).transactionally.asTry.map {
-      case Success(_) => (): Unit
-      case Failure(ex) =>
-        repositoryLogger.error(s"Unexpected error occurred when deleting job template $id", ex)
-        throw new ApiException(GenericDatabaseError)
-    })
+    ).transactionally.withErrorHandling(s"Unexpected error occurred when deleting job template $id"))
   }
 
   override def existsOtherJobTemplate(name: String, id: Long)(implicit ec: ExecutionContext): Future[Boolean] = db.run(
@@ -131,9 +115,10 @@ class JobTemplateRepositoryImpl @Inject()(val dbProvider: DatabaseProvider, over
       .filter(_.id =!= id)
       .exists
       .result
+      .withErrorHandling()
   )
 
-  override def getWorkflowsByJobTemplate(id: Long): Future[Seq[Workflow]] = db.run((
+  override def getWorkflowsByJobTemplate(id: Long)(implicit ec: ExecutionContext): Future[Seq[Workflow]] = db.run((
     for {
       dagDefinitionId <- jobDefinitionTable.filter(_.jobTemplateId === id).map(_.dagDefinitionId).distinct
       workflowId <- dagDefinitionTable.filter(_.id === dagDefinitionId).map(_.workflowId)
@@ -141,5 +126,5 @@ class JobTemplateRepositoryImpl @Inject()(val dbProvider: DatabaseProvider, over
     } yield {
       workflow
     }
-  ).result)
+  ).result.withErrorHandling())
 }

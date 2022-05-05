@@ -66,17 +66,22 @@ class NotificationRuleHistoryRepositoryImpl @Inject()(val dbProvider: DatabasePr
   }
 
   override def getHistoryForNotificationRule(notificationRuleId: Long)(implicit ec: ExecutionContext): Future[Seq[History]] = {
-    db.run(notificationRuleHistoryTable.getHistoryForEntity(notificationRuleId))
+    db.run(notificationRuleHistoryTable.getHistoryForEntity(notificationRuleId).withErrorHandling())
   }
 
   override def getNotificationRuleFromHistory(notificationRuleHistoryId: Long)(implicit ec: ExecutionContext): Future[NotificationRule] = {
-    db.run(notificationRuleHistoryTable.getHistoryEntity(notificationRuleHistoryId).map(_.notificationRule))
+    db.run(
+      notificationRuleHistoryTable
+        .getHistoryEntity(notificationRuleHistoryId)
+        .map(_.notificationRule)
+        .withErrorHandling()
+    )
   }
 
   override def getNotificationRulesFromHistory(leftNotificationRuleHistoryId: Long, rightNotificationRuleHistoryId: Long)
   (implicit ec: ExecutionContext): Future[HistoryPair[NotificationRuleHistory]] = {
     db.run(notificationRuleHistoryTable.getEntitiesFromHistory(
       leftNotificationRuleHistoryId, rightNotificationRuleHistoryId
-    ))
+    ).withErrorHandling())
   }
 }

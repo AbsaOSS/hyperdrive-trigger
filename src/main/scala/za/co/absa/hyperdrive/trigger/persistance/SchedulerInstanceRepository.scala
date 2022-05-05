@@ -23,7 +23,6 @@ import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses.Sche
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success}
 
 trait SchedulerInstanceRepository extends Repository {
   def insertInstance()(implicit ec: ExecutionContext): Future[Long]
@@ -48,11 +47,7 @@ class SchedulerInstanceRepositoryImpl @Inject()(val dbProvider: DatabaseProvider
         instanceId <- schedulerInstanceTable returning schedulerInstanceTable.map(_.id) += instance
       } yield {
         instanceId
-      }).asTry.map {
-        case Success(instanceId) => instanceId
-        case Failure(ex) =>
-          throw new IllegalStateException(s"Unexpected error occurred when inserting instance $instance", ex)
-      }
+      }).withErrorHandling(s"Unexpected error occurred when inserting instance $instance")
     }
   }
 
@@ -61,6 +56,7 @@ class SchedulerInstanceRepositoryImpl @Inject()(val dbProvider: DatabaseProvider
       .filter(_.status === LiteralColumn[SchedulerInstanceStatus](SchedulerInstanceStatuses.Active))
       .map(_.lastHeartbeat)
       .update(newHeartbeat)
+      .withErrorHandling()
   }
 
   override def deactivateLaggingInstances(instanceId: Long, currentHeartbeat: LocalDateTime, lagTolerance: Duration)(implicit ec: ExecutionContext): Future[Int] = db.run {
@@ -69,9 +65,10 @@ class SchedulerInstanceRepositoryImpl @Inject()(val dbProvider: DatabaseProvider
       .filter(_.id =!= instanceId)
       .map(_.status)
       .update(SchedulerInstanceStatuses.Deactivated)
+      .withErrorHandling()
   }
 
   override def getAllInstances()(implicit ec: ExecutionContext): Future[Seq[SchedulerInstance]] = db.run {
-    schedulerInstanceTable.result
+    schedulerInstanceTable.result.withErrorHandling()
   }
 }

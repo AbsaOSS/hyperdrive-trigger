@@ -41,7 +41,7 @@ class SensorRepositoryImpl @Inject()(val dbProvider: DatabaseProvider, val sched
         && (workflow.id inSetBind assignedWorkflowIds))
     } yield {
       sensor
-    }).result
+    }).result.withErrorHandling()
   }
 
   override def getInactiveSensors(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[Long]] = db.run {(
@@ -50,7 +50,7 @@ class SensorRepositoryImpl @Inject()(val dbProvider: DatabaseProvider, val sched
       workflow <- workflowTable if workflow.id === sensor.workflowId && !workflow.isActive
     } yield {
       sensor.id
-    }).result
+    }).result.withErrorHandling()
   }
 
   override def getChangedSensors(originalSensorsPropertiesWithId: Seq[(Long, SensorProperties)])(implicit ec: ExecutionContext): Future[Seq[Sensor[_ <: SensorProperties]]] = {
@@ -67,7 +67,7 @@ class SensorRepositoryImpl @Inject()(val dbProvider: DatabaseProvider, val sched
         .getOrElse(false: Rep[Boolean])
     } yield {
       sensor
-    }).result
+    }).result.withErrorHandling()
   }
 
   private def sensorIsDifferent(sensor: SensorTable, sensorId: Long, originalSensorProperties: SensorProperties): Rep[Boolean] = {

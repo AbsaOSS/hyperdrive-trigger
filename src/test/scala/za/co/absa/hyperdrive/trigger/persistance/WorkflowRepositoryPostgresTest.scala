@@ -332,7 +332,7 @@ class WorkflowRepositoryPostgresTest extends FlatSpec with Matchers with BeforeA
 
     val exception = the [Exception] thrownBy await(workflowRepositoryMocked.switchWorkflowActiveState(workflowId, "testUser"))
 
-    exception.getMessage shouldBe "Could not insert history entry"
+    exception.getMessage shouldBe "Unexpected error occurred"
   }
 
   "updateWorkflowsIsActive" should "activate the workflows" in {
@@ -379,7 +379,7 @@ class WorkflowRepositoryPostgresTest extends FlatSpec with Matchers with BeforeA
 
     val exception = the [Exception] thrownBy await(workflowRepositoryMocked.updateWorkflowsIsActive(workflowIds, isActiveNewValue = true, "testUser"))
 
-    exception.getMessage shouldBe "Could not insert history entry"
+    exception.getMessage shouldBe "Unexpected error occurred"
     val actualWorkflows = await(workflowRepositoryMocked.getWorkflows())
     actualWorkflows.map(_.updated) should contain only None
     val actualHistoryEntries = await(db.run(workflowHistoryTable.result))

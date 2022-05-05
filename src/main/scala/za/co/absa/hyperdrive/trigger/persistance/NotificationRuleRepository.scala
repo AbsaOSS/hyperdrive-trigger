@@ -15,18 +15,16 @@
 
 package za.co.absa.hyperdrive.trigger.persistance
 
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype
 import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses.{DagInstanceStatus, dagInstanceStatus2String}
-import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, GenericDatabaseError, ValidationError}
+import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, ValidationError}
 import za.co.absa.hyperdrive.trigger.models.search.{TableSearchRequest, TableSearchResponse}
 
 import java.time.LocalDateTime
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success}
 
 trait NotificationRuleRepository extends Repository {
   val notificationRuleHistoryRepository: NotificationRuleHistoryRepository
@@ -56,19 +54,6 @@ class NotificationRuleRepositoryImpl @Inject()(
   extends NotificationRuleRepository {
 
   import api._
-
-  private val repositoryLogger = LoggerFactory.getLogger(this.getClass)
-
-  private implicit class DBIOActionOps[T](val action: api.DBIO[T]) {
-    def withErrorHandling(errorMessage: String)(implicit ec: ExecutionContext): DBIOAction[T, NoStream, Effect.All] = {
-      action.asTry.map {
-        case Success(value) => value
-        case Failure(ex) =>
-          repositoryLogger.error(errorMessage, ex)
-          throw new ApiException(GenericDatabaseError)
-      }
-    }
-  }
 
   override def insertNotificationRule(notificationRule: NotificationRule, user: String)(implicit ec: ExecutionContext): Future[Long] = {
     db.run(insertNotificationRuleInternal(notificationRule, user)
@@ -130,6 +115,7 @@ class NotificationRuleRepositoryImpl @Inject()(
         }
         .map { case ((n, w), _) => (n, w)}
         .result
+        .withErrorHandling()
         .map(notificationRuleWorkflows => (notificationRuleWorkflows.map(_._1), notificationRuleWorkflows.headOption.map(_._2)))
         .map { 
           case (r, Some(w)) => Some(r, w)
@@ -151,7 +137,7 @@ class NotificationRuleRepositoryImpl @Inject()(
             val project = notificationRule.project.getOrElse("")
             LiteralColumn[Boolean](project.isEmpty) ||
               workflow.project.toLowerCase === project.toLowerCase
-          }.result
+          }.result.withErrorHandling()
       }
     )
   }

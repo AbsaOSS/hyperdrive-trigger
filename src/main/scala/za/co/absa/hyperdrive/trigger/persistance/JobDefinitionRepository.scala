@@ -36,7 +36,7 @@ class JobDefinitionRepositoryImpl @Inject()(val dbProvider: DatabaseProvider) ex
       jobDefinition <- jobDefinitionTable.map(row => (row.dagDefinitionId, row.name, row.order, row.id)) if dagDefinition.id === jobDefinition._1
     } yield {
       jobDefinition
-    }).result.map(_.map(row => JobForRun(row._2, row._3, row._4)))
+    }).result.withErrorHandling().map(_.map(row => JobForRun(row._2, row._3, row._4)))
   }
 
 }

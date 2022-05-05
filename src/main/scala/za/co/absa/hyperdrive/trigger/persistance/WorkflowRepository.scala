@@ -21,7 +21,7 @@ import org.springframework.stereotype
 import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses
 import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses.SchedulerInstanceStatus
 import za.co.absa.hyperdrive.trigger.models.errors.ApiErrorTypes.OptimisticLockingErrorType
-import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, DatabaseError, GenericDatabaseError}
+import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, DatabaseError, GenericDatabaseError, ValidationError}
 import za.co.absa.hyperdrive.trigger.models.search.{TableSearchRequest, TableSearchResponse}
 import za.co.absa.hyperdrive.trigger.models.tables.tableExtensions.optimisticLocking.OptimisticLockingException
 import za.co.absa.hyperdrive.trigger.models.{ProjectInfo, _}
@@ -72,12 +72,7 @@ class WorkflowRepositoryImpl @Inject()(
   override def insertWorkflow(workflow: WorkflowJoined, user: String)(implicit ec: ExecutionContext): Future[Long] = {
     db.run(
       insertWorkflowInternal(workflow, user)
-        .transactionally.asTry.map {
-          case Success(workflowId) => workflowId
-          case Failure(ex) =>
-            repositoryLogger.error(s"Unexpected error occurred when inserting workflow $workflow", ex)
-            throw new ApiException(GenericDatabaseError)
-        }
+        .transactionally.withErrorHandling(s"Unexpected error occurred when inserting workflow $workflow")
     )
   }
 
@@ -102,17 +97,12 @@ class WorkflowRepositoryImpl @Inject()(
         .map(workflow => insertWorkflowInternal(workflow, user).map(id => Seq(id)))
         .reduceLeftOption(_.zipWith(_)(_ ++ _))
         .getOrElse(DBIO.successful(Seq()))
-        .transactionally.asTry.map {
-          case Success(ids) => ids
-          case Failure(ex) =>
-            repositoryLogger.error(s"Unexpected error occurred when inserting workflows $workflows", ex)
-            throw new ApiException(GenericDatabaseError)
-        }
+        .transactionally.withErrorHandling(s"Unexpected error occurred when inserting workflows $workflows")
     )
   }
 
   override def existsWorkflows(names: Seq[String])(implicit ec: ExecutionContext): Future[Seq[String]] = db.run(
-    workflowTable.filter(_.name inSetBind names).map(_.name).result
+    workflowTable.filter(_.name inSetBind names).map(_.name).result.withErrorHandling()
   )
 
   override def existsOtherWorkflow(name: String, id: Long)(implicit ec: ExecutionContext): Future[Boolean] = db.run(
@@ -120,12 +110,14 @@ class WorkflowRepositoryImpl @Inject()(
       .filter(_.id =!= id)
       .exists
       .result
+      .withErrorHandling()
   )
 
   override def existsWorkflowWithPrefix(workflowPrefix: String)(implicit ec: ExecutionContext): Future[Boolean] = db.run(
     workflowTable.filter(w => w.name.toLowerCase.like(LiteralColumn[String](s"${workflowPrefix.toLowerCase}%")))
       .exists
       .result
+      .withErrorHandling()
   )
 
   private def getWorkflowJoineds(ids: Seq[Long])(implicit ec: ExecutionContext): DBIO[Seq[WorkflowJoined]] = {
@@ -165,28 +157,30 @@ class WorkflowRepositoryImpl @Inject()(
 
   private def getSingleWorkflowJoined(id: Long)(implicit ec: ExecutionContext): DBIO[WorkflowJoined] = {
     getWorkflowJoineds(Seq(id)).map(workflowJoineds => {
-      workflowJoineds.headOption.getOrElse(throw new Exception(s"Workflow with id ${id} does not exist."))
+      workflowJoineds
+        .headOption
+        .getOrElse(throw new ApiException(ValidationError(s"Workflow with id ${id} does not exist.")))
     })
   }
 
   override def getWorkflow(id: Long)(implicit ec: ExecutionContext): Future[WorkflowJoined] = {
-    db.run(getSingleWorkflowJoined(id))
+    db.run(getSingleWorkflowJoined(id).withErrorHandling())
   }
 
   override def getWorkflows(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[WorkflowJoined]] = {
-    db.run(getWorkflowJoineds(ids))
+    db.run(getWorkflowJoineds(ids).withErrorHandling())
   }
 
   override def getWorkflows()(implicit ec: ExecutionContext): Future[Seq[Workflow]] = db.run(
-    workflowTable.sortBy(workflow => (workflow.project, workflow.name)).result
+    workflowTable.sortBy(workflow => (workflow.project, workflow.name)).result.withErrorHandling()
   )
 
   override def searchWorkflows(searchRequest: TableSearchRequest)(implicit ec: ExecutionContext): Future[TableSearchResponse[Workflow]] = {
-    db.run(workflowTable.search(searchRequest))
+    db.run(workflowTable.search(searchRequest).withErrorHandling())
   }
 
   override def getWorkflowsByProjectName(projectName: String)(implicit ec: ExecutionContext): Future[Seq[Workflow]] = db.run(
-    workflowTable.filter(_.project === projectName).sortBy(_.name).result
+    workflowTable.filter(_.project === projectName).sortBy(_.name).result.withErrorHandling()
   )
 
   override def deleteWorkflow(id: Long, user: String)(implicit ec: ExecutionContext): Future[Unit] = {
@@ -211,7 +205,7 @@ class WorkflowRepositoryImpl @Inject()(
         deleteDagDef.delete andThen
         deleteWorkflow.delete andThen
         DBIO.successful((): Unit
-    )).transactionally)
+    )).transactionally.withErrorHandling())
   }
 
   override def updateWorkflow(workflow: WorkflowJoined, user: String)(implicit ec: ExecutionContext): Future[Unit] = {
@@ -263,9 +257,9 @@ class WorkflowRepositoryImpl @Inject()(
         if (result == 1) {
           DBIO.successful((): Unit)
         } else {
-          DBIO.failed(new Exception("Update workflow exception"))
+          DBIO.failed(new ApiException(ValidationError(s"Workflow with id ${id} does not exist.")))
         }
-      }).transactionally
+      }).transactionally.withErrorHandling()
     )
   }
 
@@ -283,13 +277,13 @@ class WorkflowRepositoryImpl @Inject()(
       updateIdsAction
         .andThen(insertHistoryEntryActions)
         .andThen(DBIO.successful())
-        .transactionally
+        .transactionally.withErrorHandling()
     )
   }
 
   override def getProjects()(implicit ec: ExecutionContext): Future[Seq[Project]] = {
     db.run(
-      workflowTable.map(workflow => (workflow.project, workflow.name, workflow.id)).result
+      workflowTable.map(workflow => (workflow.project, workflow.name, workflow.id)).result.withErrorHandling()
     ).map(_.groupBy(_._1).map { case (project, workflows) =>
       val workflowIdentities = workflows.map { case (_, name, id) =>
         WorkflowIdentity(id, name)
@@ -299,15 +293,22 @@ class WorkflowRepositoryImpl @Inject()(
   }
 
   override def getProjectNames()(implicit ec: ExecutionContext): Future[Seq[String]] = db.run(
-    workflowTable.map(_.project).distinct.sortBy(_.value).result
+    workflowTable.map(_.project).distinct.sortBy(_.value).result.withErrorHandling()
   )
 
   override def getProjectsInfo()(implicit ec: ExecutionContext): Future[Seq[ProjectInfo]] = db.run(
-    workflowTable.map(_.project).groupBy(_.value).map(e => (e._1, e._2.length)).sortBy(_._1).result.map(_.map((ProjectInfo.apply _).tupled(_)))
+    workflowTable
+      .map(_.project)
+      .groupBy(_.value)
+      .map(e => (e._1, e._2.length))
+      .sortBy(_._1)
+      .result
+      .withErrorHandling()
+      .map(_.map((ProjectInfo.apply _).tupled(_)))
   )
 
   override def existsProject(project: String)(implicit ec: ExecutionContext): Future[Boolean] = db.run(
-    workflowTable.filter(_.project.toLowerCase === project.toLowerCase).exists.result
+    workflowTable.filter(_.project.toLowerCase === project.toLowerCase).exists.result.withErrorHandling()
   )
 
   override def releaseWorkflowAssignmentsOfDeactivatedInstances()(implicit ec: ExecutionContext): Future[(Int, Int)] = db.run(
@@ -323,7 +324,7 @@ class WorkflowRepositoryImpl @Inject()(
           .filter(_.status === LiteralColumn[SchedulerInstanceStatus](SchedulerInstanceStatuses.Deactivated))
           .delete
       } yield (workflowUpdatedCount, instancesDeletedCount)
-    ).transactionally
+    ).transactionally.withErrorHandling()
     )
 
   override def releaseWorkflowAssignments(workflowIds: Seq[Long], instanceId: Long)(implicit ec: ExecutionContext): Future[Int] = db.run(
@@ -331,6 +332,7 @@ class WorkflowRepositoryImpl @Inject()(
       .filter(_.id inSetBind workflowIds)
       .map(_.schedulerInstanceId)
       .update(None)
+      .withErrorHandling()
   )
 
   override def acquireWorkflowAssignments(workflowIds: Seq[Long], instanceId: Long)(implicit ec: ExecutionContext): Future[Int] = db.run(
@@ -338,19 +340,20 @@ class WorkflowRepositoryImpl @Inject()(
       .filter(_.id inSetBind workflowIds)
       .map(_.schedulerInstanceId)
       .update(Some(instanceId))
+      .withErrorHandling()
   )
 
   override def getWorkflowsBySchedulerInstance(instanceId: Long)(implicit ec: ExecutionContext): Future[Seq[Workflow]] = db.run(
-    workflowTable.filter(_.schedulerInstanceId === instanceId).result
+    workflowTable.filter(_.schedulerInstanceId === instanceId).result.withErrorHandling()
   )
 
   override def getMaxWorkflowId(implicit ec: ExecutionContext): Future[Option[Long]] = db.run(
-    workflowTable.map(_.id).max.result
+    workflowTable.map(_.id).max.result.withErrorHandling()
   )
 
   override def getWorkflowVersion(id: Long)(implicit ec: ExecutionContext): Future[Long] = db.run(
-    workflowTable.filter(_.id === id).map(_.version).result.map(
-      _.headOption.getOrElse(throw new Exception(s"Workflow with id ${id} does not exist."))
+    workflowTable.filter(_.id === id).map(_.version).result.withErrorHandling().map(
+      _.headOption.getOrElse(throw new ApiException(ValidationError(s"Workflow with id ${id} does not exist.")))
     )
   )
 }

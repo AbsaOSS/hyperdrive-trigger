@@ -31,7 +31,7 @@ trait Repository
     with SchedulerInstanceTable
     with NotificationRuleTable
     with NotificationRuleHistoryTable
-    with Profile with JdbcTypeMapper {
+    with Profile with JdbcTypeMapper with DBErrorHandling {
 
   val dbProvider: DatabaseProvider
   lazy val db: DatabaseProvider.profile.backend.DatabaseDef = dbProvider.db

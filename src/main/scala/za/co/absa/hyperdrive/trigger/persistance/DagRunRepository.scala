@@ -125,12 +125,12 @@ class DagRunRepositoryImpl @Inject()(val dbProvider: DatabaseProvider) extends D
     val dagRunsQueryAction = dagRunsQuery.as[DagRun]
 
     db.run(
-      for {
+      (for {
         l <- countQueryAction
         r <- dagRunsQueryAction
       } yield {
         TableSearchResponse[DagRun](items = r, total = l)
-      }
+      }).withErrorHandling()
     )
   }
 
