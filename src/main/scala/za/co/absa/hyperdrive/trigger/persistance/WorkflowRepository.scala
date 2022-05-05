@@ -259,7 +259,7 @@ class WorkflowRepositoryImpl @Inject()(
         } else {
           DBIO.failed(new ApiException(ValidationError(s"Workflow with id ${id} does not exist.")))
         }
-      }).transactionally
+      }).transactionally.withErrorHandling()
     )
   }
 
@@ -352,7 +352,7 @@ class WorkflowRepositoryImpl @Inject()(
   )
 
   override def getWorkflowVersion(id: Long)(implicit ec: ExecutionContext): Future[Long] = db.run(
-    workflowTable.filter(_.id === id).map(_.version).result.map(
+    workflowTable.filter(_.id === id).map(_.version).result.withErrorHandling().map(
       _.headOption.getOrElse(throw new ApiException(ValidationError(s"Workflow with id ${id} does not exist.")))
     )
   )
