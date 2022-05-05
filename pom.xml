@@ -86,7 +86,7 @@
         <play-ahc-ws-standalone.version>2.0.2</play-ahc-ws-standalone.version>
         <jackson-module.version>2.11.0</jackson-module.version>
         <alchim31>3.2.0</alchim31>
-        <spring.version>2.6.1</spring.version>
+        <spring.version>2.6.6</spring.version>
         <quartz.version>2.3.2</quartz.version>
         <log4j.version>2.17.1</log4j.version>
         <slf4j.log4j2.version>1.7.26</slf4j.log4j2.version>
