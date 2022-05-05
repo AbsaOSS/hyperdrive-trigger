@@ -16,6 +16,7 @@
 package za.co.absa.hyperdrive.trigger.models.tables
 
 import slick.lifted.AbstractTable
+import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, ValidationError}
 import za.co.absa.hyperdrive.trigger.models.{History, HistoryPair}
 
 import scala.concurrent.ExecutionContext
@@ -45,7 +46,7 @@ trait HistoryTableQuery {
 
       queryResult.map(
         _.headOption.getOrElse(
-          throw new Exception(s"Entity with #${id} doesn't exist on ${ru.typeOf[T]}.")
+          throw new ApiException(ValidationError(s"Entity with #${id} doesn't exist on ${ru.typeOf[T]}."))
         )
       )
     }
@@ -58,7 +59,7 @@ trait HistoryTableQuery {
       queryResult.map(
         _.headOption.map{ tuple => HistoryPair[T#TableElementType](tuple._1, tuple._2)
         }.getOrElse(
-          throw new Exception(s"Entities with #${leftId} or #${rightId} don't exist on ${ru.typeOf[T]}.")
+          throw new ApiException(ValidationError(s"Entities with #${leftId} or #${rightId} don't exist on ${ru.typeOf[T]}."))
         )
       )
     }
