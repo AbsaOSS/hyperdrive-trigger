@@ -18,7 +18,7 @@ package za.co.absa.hyperdrive.trigger.persistance
 import org.scalatest.{FlatSpec, _}
 import za.co.absa.hyperdrive.trigger.models.NotificationRule
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
-import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, GenericDatabaseError}
+import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, GenericDatabaseError, ValidationError}
 import za.co.absa.hyperdrive.trigger.models.search.{ContainsFilterAttributes, SortAttributes, TableSearchRequest, TableSearchResponse}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -113,7 +113,7 @@ class NotificationRuleRepositoryTest extends FlatSpec with Matchers with BeforeA
 
   it should "throw an exception if the notification rule doesn't exist" in {
     val exception = the [ApiException] thrownBy await(h2NotificationRuleRepository.getNotificationRule(42))
-    exception.apiErrors should contain only GenericDatabaseError
+    exception.apiErrors.foreach(_ shouldBe a[ValidationError])
   }
 
   "getNotificationRules" should "get all notification rules" in {
@@ -178,7 +178,7 @@ class NotificationRuleRepositoryTest extends FlatSpec with Matchers with BeforeA
   it should "throw an exception if the notification rule doesn't exist" in {
     val exception = the [ApiException] thrownBy await(h2NotificationRuleRepository.updateNotificationRule(
       TestData.nr1, updateUser))
-    exception.apiErrors should contain only GenericDatabaseError
+    exception.apiErrors.foreach(_ shouldBe a[ValidationError])
   }
 
   "deleteNotificationRule" should "delete the notification rule" in {
@@ -205,7 +205,7 @@ class NotificationRuleRepositoryTest extends FlatSpec with Matchers with BeforeA
   it should "throw an exception if the notification rule doesn't exist" in {
     val exception = the [ApiException] thrownBy await(h2NotificationRuleRepository.deleteNotificationRule(
       TestData.nr1.id, deleteUser))
-    exception.apiErrors should contain only GenericDatabaseError
+    exception.apiErrors.foreach(_ shouldBe a[ValidationError])
   }
 
   "searchJobTemplates" should "return notification rules sorted by workflow prefix" in {

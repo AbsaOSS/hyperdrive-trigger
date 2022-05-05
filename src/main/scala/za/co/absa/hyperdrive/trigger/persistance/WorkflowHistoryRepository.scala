@@ -66,14 +66,16 @@ class WorkflowHistoryRepositoryImpl @Inject()(val dbProvider: DatabaseProvider)
   }
 
   override def getHistoryForWorkflow(workflowId: Long)(implicit ec: ExecutionContext): Future[Seq[History]] = {
-    db.run(workflowHistoryTable.getHistoryForEntity(workflowId))
+    db.run(workflowHistoryTable.getHistoryForEntity(workflowId).withErrorHandling())
   }
 
   override def getWorkflowFromHistory(workflowHistoryId: Long)(implicit ec: ExecutionContext): Future[WorkflowJoined] = {
-    db.run(workflowHistoryTable.getHistoryEntity(workflowHistoryId).map(_.workflow))
+    db.run(workflowHistoryTable.getHistoryEntity(workflowHistoryId).map(_.workflow).withErrorHandling())
   }
 
   override def getWorkflowsFromHistory(leftWorkflowHistoryId: Long, rightWorkflowHistoryId: Long)(implicit ec: ExecutionContext): Future[HistoryPair[WorkflowHistory]] = {
-    db.run(workflowHistoryTable.getEntitiesFromHistory(leftWorkflowHistoryId, rightWorkflowHistoryId))
+    db.run(
+      workflowHistoryTable.getEntitiesFromHistory(leftWorkflowHistoryId, rightWorkflowHistoryId).withErrorHandling()
+    )
   }
 }
