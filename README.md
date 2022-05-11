@@ -255,6 +255,9 @@ Hyperdrive-trigger can be packaged as a Web Application Archive and executed in 
 - Without tests: `mvn clean package -DskipTests`
 - With unit tests: `mvn clean package`
 
+To build Hyperdrive-Trigger without the hortonworks hadoop binaries, specify the property `exclude-hortonworks`, e.g.
+`mvn clean package -Dexclude-hortonworks`
+
 ## Liquibase
 The liquibase maven plugin may be used to issue liquibase commands. To use it, copy 
 `/etc/liquibase/liquibase-maven-plugin.properties.template` to `/etc/liquibase/liquibase-maven-plugin.properties` and modify it as needed.
