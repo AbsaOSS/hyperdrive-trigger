@@ -61,20 +61,14 @@
         </developer>
     </developers>
 
-    <repositories>
-        <repository>
-            <id>hortonworks</id>
-            <url>https://repo.hortonworks.com/content/repositories/releases/</url>
-        </repository>
-    </repositories>
-
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <scala.compat.version>2.12</scala.compat.version>
         <spark.version>2.4.4</spark.version>
-        <hadoop.version>2.7.3.2.6.1.0-129</hadoop.version>
+        <hadoop.version>2.7.3</hadoop.version>
+        <hadoop.scope>provided</hadoop.scope>
         <slick.version>3.3.3</slick.version>
         <tminglei.version>0.19.6</tminglei.version>
         <slick-hikaricp.version>3.3.1</slick-hikaricp.version>
@@ -215,26 +209,31 @@
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-yarn-api</artifactId>
             <version>${hadoop.version}</version>
+            <scope>${hadoop.scope}</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-yarn-common</artifactId>
             <version>${hadoop.version}</version>
+            <scope>${hadoop.scope}</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-yarn-server-common</artifactId>
             <version>${hadoop.version}</version>
+            <scope>${hadoop.scope}</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-yarn-client</artifactId>
             <version>${hadoop.version}</version>
+            <scope>${hadoop.scope}</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-client</artifactId>
             <version>${hadoop.version}</version>
+            <scope>${hadoop.scope}</scope>
             <exclusions>
                 <exclusion>
                     <groupId>com.google.code.gson</groupId>
@@ -641,6 +640,24 @@
     </build>
 
     <profiles>
+        <profile>
+            <id>hortonworks</id>
+            <activation>
+                <property>
+                    <name>!exclude-hortonworks</name>
+                </property>
+            </activation>
+            <repositories>
+                <repository>
+                    <id>hortonworks</id>
+                    <url>https://repo.hortonworks.com/content/repositories/releases/</url>
+                </repository>
+            </repositories>
+            <properties>
+                <hadoop.version>2.7.3.2.6.1.0-129</hadoop.version>
+                <hadoop.scope>compile</hadoop.scope>
+            </properties>
+        </profile>
         <profile>
             <id>testdata</id>
             <activation>
