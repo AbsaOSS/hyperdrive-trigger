@@ -74,7 +74,7 @@ class SparkYarnClusterServiceImpl @Inject()(
       .setAppResource(jobParameters.jobJar)
       .setAppName(jobName)
       .setConf("spark.yarn.tags", id)
-      .addAppArgs(jobParameters.appArguments.toSeq:_*)
+      .addAppArgs(jobParameters.appArguments.toSeq.map(fix_json_for_yarn):_*)
       .addSparkArg("--verbose")
     config.filesToDeploy.foreach(file => sparkLauncher.addFile(file))
     config.additionalConfs.foreach(conf => sparkLauncher.setConf(conf._1, conf._2))
@@ -85,5 +85,14 @@ class SparkYarnClusterServiceImpl @Inject()(
       .foreach(conf => sparkLauncher.setConf(conf._1, conf._2))
 
     sparkLauncher
+  }
+
+  /*
+    Fixed inspired by https://stackoverflow.com/questions/43040793/scala-via-spark-with-yarn-curly-brackets-string-missing
+    See https://issues.apache.org/jira/browse/SPARK-17814
+    Due to YARN bug above, we need to replace all occurrences of {{ or }}, with { { or } }
+   */
+  private def fix_json_for_yarn(arg: String): String = {
+    arg.replace("}}", "} }").replace("{{", "{ {")
   }
 }
