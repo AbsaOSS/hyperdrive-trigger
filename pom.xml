@@ -672,7 +672,6 @@
                 <artifactId>mvn-scalafmt_${scala.compat.version}</artifactId>
                 <version>1.1.1640084764.9f463a9</version>
                 <configuration>
-                    <validateOnly>true</validateOnly>
                     <configLocation>${project.basedir}/.scalafmt.conf</configLocation>
                 </configuration>
             </plugin>
