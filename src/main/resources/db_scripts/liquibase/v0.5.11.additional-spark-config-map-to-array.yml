@@ -15,11 +15,11 @@
 
 databaseChangeLog:
   - changeSet:
-      id: v0.5.12.additional-spark-config-map-to-array
-      logicalFilePath: v0.5.12.additional-spark-config-map-to-array
+      id: v0.5.11.additional-spark-config-map-to-array
+      logicalFilePath: v0.5.11.additional-spark-config-map-to-array
       author: HyperdriveDevTeam@absa.africa
       context: default
       changes:
         - sqlFile:
             relativeToChangelogFile: true
-            path: v0.5.12.additional-spark-config-map-to-array.sql
+            path: v0.5.11.additional-spark-config-map-to-array.sql
