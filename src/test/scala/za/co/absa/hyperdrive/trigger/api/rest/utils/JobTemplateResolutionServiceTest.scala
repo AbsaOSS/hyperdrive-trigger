@@ -17,8 +17,20 @@ package za.co.absa.hyperdrive.trigger.api.rest.utils
 
 import org.scalatest.{FlatSpec, Matchers}
 import za.co.absa.hyperdrive.trigger.models.enums.JobTypes
-import za.co.absa.hyperdrive.trigger.models.{DagDefinitionJoined, JobDefinition, ShellDefinitionParameters, ShellInstanceParameters, ShellTemplateParameters, SparkDefinitionParameters, SparkInstanceParameters, SparkTemplateParameters}
-import za.co.absa.hyperdrive.trigger.api.rest.services.JobTemplateFixture.{GenericShellJobTemplate, GenericSparkJobTemplate}
+import za.co.absa.hyperdrive.trigger.models.{
+  DagDefinitionJoined,
+  JobDefinition,
+  ShellDefinitionParameters,
+  ShellInstanceParameters,
+  ShellTemplateParameters,
+  SparkDefinitionParameters,
+  SparkInstanceParameters,
+  SparkTemplateParameters
+}
+import za.co.absa.hyperdrive.trigger.api.rest.services.JobTemplateFixture.{
+  GenericShellJobTemplate,
+  GenericSparkJobTemplate
+}
 import za.co.absa.hyperdrive.trigger.api.rest.services.JobTemplateResolutionServiceImpl
 
 class JobTemplateResolutionServiceTest extends FlatSpec with Matchers {
@@ -42,56 +54,72 @@ class JobTemplateResolutionServiceTest extends FlatSpec with Matchers {
 
   it should "resolve templates for multiple JobDefinitions" in {
     // given
-    val jobParameters1 = SparkDefinitionParameters(jobType = JobTypes.Spark, jobJar = Option("jobJar"), mainClass = Option("mainClass"), additionalSparkConfig = Map("key1" -> "value1"))
+    val jobParameters1 = SparkDefinitionParameters(
+      jobType = JobTypes.Spark,
+      jobJar = Option("jobJar"),
+      mainClass = Option("mainClass"),
+      additionalSparkConfig = Map("key1" -> "value1")
+    )
     val jobTemplate1 = GenericSparkJobTemplate.copy(id = 1)
-    val jobDefinition1 = createJobDefinition().copy(jobTemplateId = Some(jobTemplate1.id), jobParameters = jobParameters1)
+    val jobDefinition1 =
+      createJobDefinition().copy(jobTemplateId = Some(jobTemplate1.id), jobParameters = jobParameters1)
 
     val jobParameters2 = ShellDefinitionParameters(scriptLocation = Option("scriptLocation"))
     val jobTemplate2 = GenericShellJobTemplate.copy(id = 2)
-    val jobDefinition2 = createJobDefinition().copy(jobTemplateId = Some(jobTemplate2.id), jobParameters = jobParameters2)
+    val jobDefinition2 =
+      createJobDefinition().copy(jobTemplateId = Some(jobTemplate2.id), jobParameters = jobParameters2)
 
     val dagDefinitionJoined = DagDefinitionJoined(jobDefinitions = Seq(jobDefinition1, jobDefinition2))
 
     // when
-    val resolvedJobDefinitions = underTest.resolveDagDefinitionJoined(dagDefinitionJoined, Seq(jobTemplate1, jobTemplate2))
+    val resolvedJobDefinitions =
+      underTest.resolveDagDefinitionJoined(dagDefinitionJoined, Seq(jobTemplate1, jobTemplate2))
 
     // then
     resolvedJobDefinitions should have size 2
     resolvedJobDefinitions.head.jobParameters.jobType shouldBe JobTypes.Spark
-    resolvedJobDefinitions.head.jobParameters.asInstanceOf[SparkInstanceParameters].additionalSparkConfig should contain theSameElementsAs Map("key1" -> "value1")
+    resolvedJobDefinitions.head.jobParameters
+      .asInstanceOf[SparkInstanceParameters]
+      .additionalSparkConfig should contain theSameElementsAs Map("key1" -> "value1")
     resolvedJobDefinitions(1).jobParameters.jobType shouldBe JobTypes.Shell
-    resolvedJobDefinitions(1).jobParameters.asInstanceOf[ShellInstanceParameters].scriptLocation shouldBe jobParameters2.scriptLocation.get
+    resolvedJobDefinitions(1).jobParameters
+      .asInstanceOf[ShellInstanceParameters]
+      .scriptLocation shouldBe jobParameters2.scriptLocation.get
   }
 
   it should "merge shell types" in {
     // given
-    val shellJobParametersNoScript = ShellDefinitionParameters(
-      scriptLocation = None
-    )
-    val shellJobParametersWithScript = ShellDefinitionParameters(
-      scriptLocation = Option("jobScript.sh")
-    )
-    val shellTemplateParametersWithScript = ShellTemplateParameters(
-      scriptLocation = "templateScript.sh"
-    )
+    val shellJobParametersNoScript = ShellDefinitionParameters(scriptLocation = None)
+    val shellJobParametersWithScript = ShellDefinitionParameters(scriptLocation = Option("jobScript.sh"))
+    val shellTemplateParametersWithScript = ShellTemplateParameters(scriptLocation = "templateScript.sh")
     val jobTemplateWithScript = GenericShellJobTemplate.copy(jobParameters = shellTemplateParametersWithScript, id = 2)
 
     // when
     val templateScriptDefined = underTest.resolveDagDefinitionJoined(
-      createDagDefinitionJoined(createJobDefinition().copy(jobTemplateId = Some(jobTemplateWithScript.id), jobParameters = shellJobParametersNoScript)),
+      createDagDefinitionJoined(
+        createJobDefinition()
+          .copy(jobTemplateId = Some(jobTemplateWithScript.id), jobParameters = shellJobParametersNoScript)
+      ),
       Seq(jobTemplateWithScript)
     )
     val bothScriptsDefined = underTest.resolveDagDefinitionJoined(
-      createDagDefinitionJoined(createJobDefinition().copy(jobTemplateId = Some(jobTemplateWithScript.id), jobParameters = shellJobParametersWithScript)),
+      createDagDefinitionJoined(
+        createJobDefinition()
+          .copy(jobTemplateId = Some(jobTemplateWithScript.id), jobParameters = shellJobParametersWithScript)
+      ),
       Seq(jobTemplateWithScript)
     )
 
     // then
     templateScriptDefined.head.jobParameters.jobType shouldBe JobTypes.Shell
-    templateScriptDefined.head.jobParameters.asInstanceOf[ShellInstanceParameters].scriptLocation shouldBe shellTemplateParametersWithScript.scriptLocation
+    templateScriptDefined.head.jobParameters
+      .asInstanceOf[ShellInstanceParameters]
+      .scriptLocation shouldBe shellTemplateParametersWithScript.scriptLocation
 
     bothScriptsDefined.head.jobParameters.jobType shouldBe JobTypes.Shell
-    bothScriptsDefined.head.jobParameters.asInstanceOf[ShellInstanceParameters].scriptLocation shouldBe shellJobParametersWithScript.scriptLocation.get
+    bothScriptsDefined.head.jobParameters
+      .asInstanceOf[ShellInstanceParameters]
+      .scriptLocation shouldBe shellJobParametersWithScript.scriptLocation.get
   }
 
   it should "merge spark types" in {
@@ -112,7 +140,8 @@ class JobTemplateResolutionServiceTest extends FlatSpec with Matchers {
       appArguments = List("jobAppArgument1", "jobAppArgument2", "appArgument"),
       additionalJars = List("jobJar1", "jobJar2", "jar"),
       additionalFiles = List("jobFile1", "jobFile2", "file"),
-      additionalSparkConfig = Map("jobKey1" -> "jobValue1", "jobKey2" -> "jobValue2", "sharedKey1" -> "jobValueSharedKey1")
+      additionalSparkConfig =
+        Map("jobKey1" -> "jobValue1", "jobKey2" -> "jobValue2", "sharedKey1" -> "jobValueSharedKey1")
     )
     val sparkTemplateParametersDefined = SparkTemplateParameters(
       jobType = JobTypes.Spark,
@@ -121,36 +150,76 @@ class JobTemplateResolutionServiceTest extends FlatSpec with Matchers {
       appArguments = List("templateAppArgument1", "templateAppArgument2", "appArgument"),
       additionalJars = List("templateJar1", "templateJar2", "jar"),
       additionalFiles = List("templateFile1", "templateFile2", "file"),
-      additionalSparkConfig = Map("templateKey1" -> "templateValue1", "templateKey2" -> "templateValue2", "sharedKey1" -> "templateValueSharedKey1")
+      additionalSparkConfig = Map(
+        "templateKey1" -> "templateValue1",
+        "templateKey2" -> "templateValue2",
+        "sharedKey1" -> "templateValueSharedKey1"
+      )
     )
     val jobTemplateDefined = GenericShellJobTemplate.copy(jobParameters = sparkTemplateParametersDefined, id = 2)
 
     // when
     val templateDefined = underTest.resolveDagDefinitionJoined(
-      createDagDefinitionJoined(createJobDefinition().copy(jobTemplateId = Some(jobTemplateDefined.id), jobParameters = sparkJobParametersUndefined)),
+      createDagDefinitionJoined(
+        createJobDefinition()
+          .copy(jobTemplateId = Some(jobTemplateDefined.id), jobParameters = sparkJobParametersUndefined)
+      ),
       Seq(jobTemplateDefined)
     )
     val bothScriptsDefined = underTest.resolveDagDefinitionJoined(
-      createDagDefinitionJoined(createJobDefinition().copy(jobTemplateId = Some(jobTemplateDefined.id), jobParameters = sparkJobParametersDefined)),
+      createDagDefinitionJoined(
+        createJobDefinition()
+          .copy(jobTemplateId = Some(jobTemplateDefined.id), jobParameters = sparkJobParametersDefined)
+      ),
       Seq(jobTemplateDefined)
     )
 
     // then
     templateDefined.head.jobParameters.jobType shouldBe JobTypes.Spark
-    templateDefined.head.jobParameters.asInstanceOf[SparkInstanceParameters].jobJar shouldBe sparkTemplateParametersDefined.jobJar
-    templateDefined.head.jobParameters.asInstanceOf[SparkInstanceParameters].mainClass shouldBe sparkTemplateParametersDefined.mainClass
-    templateDefined.head.jobParameters.asInstanceOf[SparkInstanceParameters].appArguments should contain theSameElementsAs sparkTemplateParametersDefined.appArguments
-    templateDefined.head.jobParameters.asInstanceOf[SparkInstanceParameters].additionalJars should contain theSameElementsAs sparkTemplateParametersDefined.additionalJars
-    templateDefined.head.jobParameters.asInstanceOf[SparkInstanceParameters].additionalFiles should contain theSameElementsAs sparkTemplateParametersDefined.additionalFiles
-    templateDefined.head.jobParameters.asInstanceOf[SparkInstanceParameters].additionalSparkConfig should contain theSameElementsAs sparkTemplateParametersDefined.additionalSparkConfig
+    templateDefined.head.jobParameters
+      .asInstanceOf[SparkInstanceParameters]
+      .jobJar shouldBe sparkTemplateParametersDefined.jobJar
+    templateDefined.head.jobParameters
+      .asInstanceOf[SparkInstanceParameters]
+      .mainClass shouldBe sparkTemplateParametersDefined.mainClass
+    templateDefined.head.jobParameters
+      .asInstanceOf[SparkInstanceParameters]
+      .appArguments should contain theSameElementsAs sparkTemplateParametersDefined.appArguments
+    templateDefined.head.jobParameters
+      .asInstanceOf[SparkInstanceParameters]
+      .additionalJars should contain theSameElementsAs sparkTemplateParametersDefined.additionalJars
+    templateDefined.head.jobParameters
+      .asInstanceOf[SparkInstanceParameters]
+      .additionalFiles should contain theSameElementsAs sparkTemplateParametersDefined.additionalFiles
+    templateDefined.head.jobParameters
+      .asInstanceOf[SparkInstanceParameters]
+      .additionalSparkConfig should contain theSameElementsAs sparkTemplateParametersDefined.additionalSparkConfig
 
     bothScriptsDefined.head.jobParameters.jobType shouldBe JobTypes.Spark
-    bothScriptsDefined.head.jobParameters.asInstanceOf[SparkInstanceParameters].jobJar shouldBe sparkJobParametersDefined.jobJar.get
-    bothScriptsDefined.head.jobParameters.asInstanceOf[SparkInstanceParameters].mainClass shouldBe sparkJobParametersDefined.mainClass.get
-    bothScriptsDefined.head.jobParameters.asInstanceOf[SparkInstanceParameters].appArguments should contain theSameElementsAs sparkJobParametersDefined.appArguments ++ sparkTemplateParametersDefined.appArguments
-    bothScriptsDefined.head.jobParameters.asInstanceOf[SparkInstanceParameters].additionalJars should contain theSameElementsAs sparkJobParametersDefined.additionalJars ++ sparkTemplateParametersDefined.additionalJars
-    bothScriptsDefined.head.jobParameters.asInstanceOf[SparkInstanceParameters].additionalFiles should contain theSameElementsAs sparkJobParametersDefined.additionalFiles ++ sparkTemplateParametersDefined.additionalFiles
-    bothScriptsDefined.head.jobParameters.asInstanceOf[SparkInstanceParameters].additionalSparkConfig should contain theSameElementsAs Map("templateKey1" -> "templateValue1", "templateKey2" -> "templateValue2", "jobKey1" -> "jobValue1", "jobKey2" -> "jobValue2", "sharedKey1" -> "jobValueSharedKey1")
+    bothScriptsDefined.head.jobParameters
+      .asInstanceOf[SparkInstanceParameters]
+      .jobJar shouldBe sparkJobParametersDefined.jobJar.get
+    bothScriptsDefined.head.jobParameters
+      .asInstanceOf[SparkInstanceParameters]
+      .mainClass shouldBe sparkJobParametersDefined.mainClass.get
+    bothScriptsDefined.head.jobParameters
+      .asInstanceOf[SparkInstanceParameters]
+      .appArguments should contain theSameElementsAs sparkJobParametersDefined.appArguments ++ sparkTemplateParametersDefined.appArguments
+    bothScriptsDefined.head.jobParameters
+      .asInstanceOf[SparkInstanceParameters]
+      .additionalJars should contain theSameElementsAs sparkJobParametersDefined.additionalJars ++ sparkTemplateParametersDefined.additionalJars
+    bothScriptsDefined.head.jobParameters
+      .asInstanceOf[SparkInstanceParameters]
+      .additionalFiles should contain theSameElementsAs sparkJobParametersDefined.additionalFiles ++ sparkTemplateParametersDefined.additionalFiles
+    bothScriptsDefined.head.jobParameters
+      .asInstanceOf[SparkInstanceParameters]
+      .additionalSparkConfig should contain theSameElementsAs Map(
+      "templateKey1" -> "templateValue1",
+      "templateKey2" -> "templateValue2",
+      "jobKey1" -> "jobValue1",
+      "jobKey2" -> "jobValue2",
+      "sharedKey1" -> "jobValueSharedKey1"
+    )
   }
 
   it should "merge hyperdrive types" in {
@@ -171,7 +240,8 @@ class JobTemplateResolutionServiceTest extends FlatSpec with Matchers {
       appArguments = List("jobAppArgument1", "jobAppArgument2", "appArgument"),
       additionalJars = List("jobJar1", "jobJar2", "jar"),
       additionalFiles = List("jobFile1", "jobFile2", "file"),
-      additionalSparkConfig = Map("jobKey1" -> "jobValue1", "jobKey2" -> "jobValue2", "sharedKey1" -> "jobValueSharedKey1")
+      additionalSparkConfig =
+        Map("jobKey1" -> "jobValue1", "jobKey2" -> "jobValue2", "sharedKey1" -> "jobValueSharedKey1")
     )
     val sparkTemplateParametersDefined = SparkTemplateParameters(
       jobType = JobTypes.Hyperdrive,
@@ -180,36 +250,76 @@ class JobTemplateResolutionServiceTest extends FlatSpec with Matchers {
       appArguments = List("templateAppArgument1", "templateAppArgument2", "appArgument"),
       additionalJars = List("templateJar1", "templateJar2", "jar"),
       additionalFiles = List("templateFile1", "templateFile2", "file"),
-      additionalSparkConfig = Map("templateKey1" -> "templateValue1", "templateKey2" -> "templateValue2", "sharedKey1" -> "templateValueSharedKey1")
+      additionalSparkConfig = Map(
+        "templateKey1" -> "templateValue1",
+        "templateKey2" -> "templateValue2",
+        "sharedKey1" -> "templateValueSharedKey1"
+      )
     )
     val jobTemplateDefined = GenericShellJobTemplate.copy(jobParameters = sparkTemplateParametersDefined, id = 2)
 
     // when
     val templateDefined = underTest.resolveDagDefinitionJoined(
-      createDagDefinitionJoined(createJobDefinition().copy(jobTemplateId = Some(jobTemplateDefined.id), jobParameters = hyperdriveJobParametersUndefined)),
+      createDagDefinitionJoined(
+        createJobDefinition()
+          .copy(jobTemplateId = Some(jobTemplateDefined.id), jobParameters = hyperdriveJobParametersUndefined)
+      ),
       Seq(jobTemplateDefined)
     )
     val bothScriptsDefined = underTest.resolveDagDefinitionJoined(
-      createDagDefinitionJoined(createJobDefinition().copy(jobTemplateId = Some(jobTemplateDefined.id), jobParameters = hyperdriveJobParametersDefined)),
+      createDagDefinitionJoined(
+        createJobDefinition()
+          .copy(jobTemplateId = Some(jobTemplateDefined.id), jobParameters = hyperdriveJobParametersDefined)
+      ),
       Seq(jobTemplateDefined)
     )
 
     // then
     templateDefined.head.jobParameters.jobType shouldBe JobTypes.Spark
-    templateDefined.head.jobParameters.asInstanceOf[SparkInstanceParameters].jobJar shouldBe sparkTemplateParametersDefined.jobJar
-    templateDefined.head.jobParameters.asInstanceOf[SparkInstanceParameters].mainClass shouldBe sparkTemplateParametersDefined.mainClass
-    templateDefined.head.jobParameters.asInstanceOf[SparkInstanceParameters].appArguments should contain theSameElementsAs sparkTemplateParametersDefined.appArguments
-    templateDefined.head.jobParameters.asInstanceOf[SparkInstanceParameters].additionalJars should contain theSameElementsAs sparkTemplateParametersDefined.additionalJars
-    templateDefined.head.jobParameters.asInstanceOf[SparkInstanceParameters].additionalFiles should contain theSameElementsAs sparkTemplateParametersDefined.additionalFiles
-    templateDefined.head.jobParameters.asInstanceOf[SparkInstanceParameters].additionalSparkConfig should contain theSameElementsAs sparkTemplateParametersDefined.additionalSparkConfig
+    templateDefined.head.jobParameters
+      .asInstanceOf[SparkInstanceParameters]
+      .jobJar shouldBe sparkTemplateParametersDefined.jobJar
+    templateDefined.head.jobParameters
+      .asInstanceOf[SparkInstanceParameters]
+      .mainClass shouldBe sparkTemplateParametersDefined.mainClass
+    templateDefined.head.jobParameters
+      .asInstanceOf[SparkInstanceParameters]
+      .appArguments should contain theSameElementsAs sparkTemplateParametersDefined.appArguments
+    templateDefined.head.jobParameters
+      .asInstanceOf[SparkInstanceParameters]
+      .additionalJars should contain theSameElementsAs sparkTemplateParametersDefined.additionalJars
+    templateDefined.head.jobParameters
+      .asInstanceOf[SparkInstanceParameters]
+      .additionalFiles should contain theSameElementsAs sparkTemplateParametersDefined.additionalFiles
+    templateDefined.head.jobParameters
+      .asInstanceOf[SparkInstanceParameters]
+      .additionalSparkConfig should contain theSameElementsAs sparkTemplateParametersDefined.additionalSparkConfig
 
     bothScriptsDefined.head.jobParameters.jobType shouldBe JobTypes.Spark
-    bothScriptsDefined.head.jobParameters.asInstanceOf[SparkInstanceParameters].jobJar shouldBe sparkTemplateParametersDefined.jobJar
-    bothScriptsDefined.head.jobParameters.asInstanceOf[SparkInstanceParameters].mainClass shouldBe sparkTemplateParametersDefined.mainClass
-    bothScriptsDefined.head.jobParameters.asInstanceOf[SparkInstanceParameters].appArguments should contain theSameElementsAs hyperdriveJobParametersDefined.appArguments ++ sparkTemplateParametersDefined.appArguments
-    bothScriptsDefined.head.jobParameters.asInstanceOf[SparkInstanceParameters].additionalJars should contain theSameElementsAs hyperdriveJobParametersDefined.additionalJars ++ sparkTemplateParametersDefined.additionalJars
-    bothScriptsDefined.head.jobParameters.asInstanceOf[SparkInstanceParameters].additionalFiles should contain theSameElementsAs hyperdriveJobParametersDefined.additionalFiles ++ sparkTemplateParametersDefined.additionalFiles
-    bothScriptsDefined.head.jobParameters.asInstanceOf[SparkInstanceParameters].additionalSparkConfig should contain theSameElementsAs Map("templateKey1" -> "templateValue1", "templateKey2" -> "templateValue2", "jobKey1" -> "jobValue1", "jobKey2" -> "jobValue2", "sharedKey1" -> "jobValueSharedKey1")
+    bothScriptsDefined.head.jobParameters
+      .asInstanceOf[SparkInstanceParameters]
+      .jobJar shouldBe sparkTemplateParametersDefined.jobJar
+    bothScriptsDefined.head.jobParameters
+      .asInstanceOf[SparkInstanceParameters]
+      .mainClass shouldBe sparkTemplateParametersDefined.mainClass
+    bothScriptsDefined.head.jobParameters
+      .asInstanceOf[SparkInstanceParameters]
+      .appArguments should contain theSameElementsAs hyperdriveJobParametersDefined.appArguments ++ sparkTemplateParametersDefined.appArguments
+    bothScriptsDefined.head.jobParameters
+      .asInstanceOf[SparkInstanceParameters]
+      .additionalJars should contain theSameElementsAs hyperdriveJobParametersDefined.additionalJars ++ sparkTemplateParametersDefined.additionalJars
+    bothScriptsDefined.head.jobParameters
+      .asInstanceOf[SparkInstanceParameters]
+      .additionalFiles should contain theSameElementsAs hyperdriveJobParametersDefined.additionalFiles ++ sparkTemplateParametersDefined.additionalFiles
+    bothScriptsDefined.head.jobParameters
+      .asInstanceOf[SparkInstanceParameters]
+      .additionalSparkConfig should contain theSameElementsAs Map(
+      "templateKey1" -> "templateValue1",
+      "templateKey2" -> "templateValue2",
+      "jobKey1" -> "jobValue1",
+      "jobKey2" -> "jobValue2",
+      "sharedKey1" -> "jobValueSharedKey1"
+    )
   }
 
   it should "in additionalSparkConfig, concatenate the values if the key is extraJavaOptions" in {
@@ -242,10 +352,12 @@ class JobTemplateResolutionServiceTest extends FlatSpec with Matchers {
 
     // then
     val resolvedJobDefinition = resolvedJobDefinitions.head
-    resolvedJobDefinition.jobParameters.asInstanceOf[SparkInstanceParameters].additionalSparkConfig should contain theSameElementsAs Map(
-        "spark.driver.extraJavaOptions" -> "-template.prop=templateDriver -user.prop=userDriver",
-        "spark.executor.extraJavaOptions" -> "-template.prop=templateExecutor -user.prop=userExecutor"
-      )
+    resolvedJobDefinition.jobParameters
+      .asInstanceOf[SparkInstanceParameters]
+      .additionalSparkConfig should contain theSameElementsAs Map(
+      "spark.driver.extraJavaOptions" -> "-template.prop=templateDriver -user.prop=userDriver",
+      "spark.executor.extraJavaOptions" -> "-template.prop=templateExecutor -user.prop=userExecutor"
+    )
   }
 
   it should "throw an error if the jobTemplate is of the different type as job definiton" in {
@@ -255,7 +367,8 @@ class JobTemplateResolutionServiceTest extends FlatSpec with Matchers {
     val dagDefinitionJoined = createDagDefinitionJoined(jobDefinition)
 
     // when
-    val result = intercept[IllegalArgumentException](underTest.resolveDagDefinitionJoined(dagDefinitionJoined, Seq(jobTemplate)))
+    val result =
+      intercept[IllegalArgumentException](underTest.resolveDagDefinitionJoined(dagDefinitionJoined, Seq(jobTemplate)))
 
     // then
     result.getMessage should include("Could not mix different job types.")
@@ -273,11 +386,10 @@ class JobTemplateResolutionServiceTest extends FlatSpec with Matchers {
     result.getMessage should include("template with id 1")
   }
 
-  private def createDagDefinitionJoined(jobDefinition: JobDefinition) = {
+  private def createDagDefinitionJoined(jobDefinition: JobDefinition) =
     DagDefinitionJoined(jobDefinitions = Seq(jobDefinition))
-  }
 
-  private def createJobDefinition() = {
+  private def createJobDefinition() =
     JobDefinition(
       dagDefinitionId = 53,
       name = "JobDefinition0",
@@ -285,5 +397,4 @@ class JobTemplateResolutionServiceTest extends FlatSpec with Matchers {
       order = 2,
       id = 42
     )
-  }
 }

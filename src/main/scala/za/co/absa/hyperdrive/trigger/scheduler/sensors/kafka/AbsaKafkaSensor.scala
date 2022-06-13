@@ -27,7 +27,7 @@ class AbsaKafkaSensor(
   sensorDefinition: SensorDefition[AbsaKafkaSensorProperties],
   consumeFromLatest: Boolean = false
 )(implicit kafkaConfig: KafkaConfig, generalConfig: GeneralConfig, executionContext: ExecutionContext)
-  extends PollSensor[AbsaKafkaSensorProperties](eventsProcessor, sensorDefinition, executionContext) {
+    extends PollSensor[AbsaKafkaSensorProperties](eventsProcessor, sensorDefinition, executionContext) {
 
   val kafkaSensor = new KafkaSensor(
     eventsProcessor,

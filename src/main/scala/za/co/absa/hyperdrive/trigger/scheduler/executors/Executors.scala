@@ -22,7 +22,12 @@ import za.co.absa.hyperdrive.trigger.models.{DagInstance, JobInstance, ShellInst
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.InvalidExecutor
 import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobStatuses}
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, JobInstanceRepository}
-import za.co.absa.hyperdrive.trigger.scheduler.executors.spark.{SparkClusterService, SparkEmrClusterServiceImpl, SparkExecutor, SparkYarnClusterServiceImpl}
+import za.co.absa.hyperdrive.trigger.scheduler.executors.spark.{
+  SparkClusterService,
+  SparkEmrClusterServiceImpl,
+  SparkExecutor,
+  SparkYarnClusterServiceImpl
+}
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.BeanFactory
 import za.co.absa.hyperdrive.trigger.scheduler.executors.shell.ShellExecutor
@@ -34,9 +39,14 @@ import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success}
 
 @Component
-class Executors @Inject()(dagInstanceRepository: DagInstanceRepository, jobInstanceRepository: JobInstanceRepository,
-                          notificationSender: NotificationSender, beanFactory: BeanFactory,
-                          implicit val sparkConfig: SparkConfig, schedulerConfig: SchedulerConfig) {
+class Executors @Inject() (
+  dagInstanceRepository: DagInstanceRepository,
+  jobInstanceRepository: JobInstanceRepository,
+  notificationSender: NotificationSender,
+  beanFactory: BeanFactory,
+  implicit val sparkConfig: SparkConfig,
+  schedulerConfig: SchedulerConfig
+) {
   private val logger = LoggerFactory.getLogger(this.getClass)
   private implicit val executionContext: ExecutionContextExecutor =
     ExecutionContext.fromExecutor(concurrent.Executors.newFixedThreadPool(schedulerConfig.executors.threadPoolSize))
@@ -52,28 +62,33 @@ class Executors @Inject()(dagInstanceRepository: DagInstanceRepository, jobInsta
     }
   }
 
-  def executeDag(dagInstance: DagInstance): Future[Unit] = {
+  def executeDag(dagInstance: DagInstance): Future[Unit] =
     jobInstanceRepository.getJobInstances(dagInstance.id).flatMap {
       case jobInstances if jobInstances.exists(_.jobStatus.isFailed) =>
-        val updatedDagInstance = dagInstance.copy(status = DagInstanceStatuses.Failed, finished = Option(LocalDateTime.now()))
+        val updatedDagInstance =
+          dagInstance.copy(status = DagInstanceStatuses.Failed, finished = Option(LocalDateTime.now()))
         val fut = for {
-          _ <- jobInstanceRepository.updateJobsStatus(jobInstances.filter(!_.jobStatus.isFinalStatus).map(_.id), JobStatuses.FailedPreviousJob)
+          _ <- jobInstanceRepository
+            .updateJobsStatus(jobInstances.filter(!_.jobStatus.isFinalStatus).map(_.id), JobStatuses.FailedPreviousJob)
           _ <- dagInstanceRepository.update(updatedDagInstance)
           _ <- notificationSender.createNotifications(updatedDagInstance, jobInstances)
         } yield {}
         fut.onComplete {
-          case Failure(exception) => logger.error(s"Updating status failed for failed run. Dag instance id = ${dagInstance.id}", exception)
+          case Failure(exception) =>
+            logger.error(s"Updating status failed for failed run. Dag instance id = ${dagInstance.id}", exception)
           case _ =>
         }
         fut
       case jobInstances if jobInstances.forall(ji => ji.jobStatus.isFinalStatus && !ji.jobStatus.isFailed) =>
-        val updatedDagInstance = dagInstance.copy(status = DagInstanceStatuses.Succeeded, finished = Option(LocalDateTime.now()))
+        val updatedDagInstance =
+          dagInstance.copy(status = DagInstanceStatuses.Succeeded, finished = Option(LocalDateTime.now()))
         val fut = for {
           _ <- dagInstanceRepository.update(updatedDagInstance)
           _ <- notificationSender.createNotifications(updatedDagInstance, jobInstances)
         } yield {}
         fut.onComplete {
-          case Failure(exception) => logger.error(s"Updating status failed for successful run. Dag instance id = ${dagInstance.id}", exception)
+          case Failure(exception) =>
+            logger.error(s"Updating status failed for successful run. Dag instance id = ${dagInstance.id}", exception)
           case _ =>
         }
         fut
@@ -81,11 +96,12 @@ class Executors @Inject()(dagInstanceRepository: DagInstanceRepository, jobInsta
         val jobInstance = jobInstances.filter(!_.jobStatus.isFinalStatus).sortBy(_.order).headOption
         val fut = dagInstanceRepository.update(dagInstance.copy(status = DagInstanceStatuses.Running)).flatMap { _ =>
           jobInstance match {
-            case Some(ji) => ji.jobParameters match {
-              case spark: SparkInstanceParameters => SparkExecutor.execute(ji, spark, updateJob, sparkClusterService)
-              case shell: ShellInstanceParameters => ShellExecutor.execute(ji, shell, updateJob)
-              case _ => updateJob(ji.copy(jobStatus = InvalidExecutor))
-            }
+            case Some(ji) =>
+              ji.jobParameters match {
+                case spark: SparkInstanceParameters => SparkExecutor.execute(ji, spark, updateJob, sparkClusterService)
+                case shell: ShellInstanceParameters => ShellExecutor.execute(ji, shell, updateJob)
+                case _                              => updateJob(ji.copy(jobStatus = InvalidExecutor))
+              }
             case None =>
               Future.successful((): Unit)
           }
@@ -98,10 +114,11 @@ class Executors @Inject()(dagInstanceRepository: DagInstanceRepository, jobInsta
         }
         fut
     }
-  }
 
   private def updateJob(jobInstance: JobInstance): Future[Unit] = {
-    logger.info(s"Job updated. ID = ${jobInstance.id} STATUS = ${jobInstance.jobStatus} EXECUTOR_ID = ${jobInstance.executorJobId}")
+    logger.info(
+      s"Job updated. ID = ${jobInstance.id} STATUS = ${jobInstance.jobStatus} EXECUTOR_ID = ${jobInstance.executorJobId}"
+    )
     jobInstanceRepository.updateJob(jobInstance)
   }
 

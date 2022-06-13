@@ -28,8 +28,10 @@ case class TableSearchRequest(
 ) {
   def getContainsFilterAttributes: Seq[ContainsFilterAttributes] = containsFilterAttributes.getOrElse(Seq())
   def getIntRangeFilterAttributes: Seq[IntRangeFilterAttributes] = intRangeFilterAttributes.getOrElse(Seq())
-  def getDateTimeRangeFilterAttributes: Seq[DateTimeRangeFilterAttributes] = dateTimeRangeFilterAttributes.getOrElse(Seq())
-  def getEqualsMultipleFilterAttributes: Seq[EqualsMultipleFilterAttributes] = equalsMultipleFilterAttributes.getOrElse(Seq())
+  def getDateTimeRangeFilterAttributes: Seq[DateTimeRangeFilterAttributes] =
+    dateTimeRangeFilterAttributes.getOrElse(Seq())
+  def getEqualsMultipleFilterAttributes: Seq[EqualsMultipleFilterAttributes] =
+    equalsMultipleFilterAttributes.getOrElse(Seq())
   def getLongFilterAttributes: Seq[LongFilterAttributes] = longFilterAttributes.getOrElse(Seq())
   def getBooleanFilterAttributes: Seq[BooleanFilterAttributes] = booleanFilterAttributes.getOrElse(Seq())
 }

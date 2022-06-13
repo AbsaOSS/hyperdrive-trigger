@@ -18,27 +18,36 @@ package za.co.absa.hyperdrive.trigger.persistance
 import org.scalatest.{FlatSpec, _}
 import za.co.absa.hyperdrive.trigger.models.{JobTemplate, Workflow}
 import za.co.absa.hyperdrive.trigger.models.errors.ApiException
-import za.co.absa.hyperdrive.trigger.models.search.{ContainsFilterAttributes, SortAttributes, TableSearchRequest, TableSearchResponse}
+import za.co.absa.hyperdrive.trigger.models.search.{
+  ContainsFilterAttributes,
+  SortAttributes,
+  TableSearchRequest,
+  TableSearchResponse
+}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class JobTemplateRepositoryPostgresTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryPostgresTestBase {
+class JobTemplateRepositoryPostgresTest
+    extends FlatSpec
+    with Matchers
+    with BeforeAndAfterAll
+    with BeforeAndAfterEach
+    with RepositoryPostgresTestBase {
 
   val jobTemplateHistoryRepository: JobTemplateHistoryRepository = new JobTemplateHistoryRepositoryImpl(dbProvider)
-  val jobTemplateRepository: JobTemplateRepository = new JobTemplateRepositoryImpl(dbProvider, jobTemplateHistoryRepository)
+  val jobTemplateRepository: JobTemplateRepository =
+    new JobTemplateRepositoryImpl(dbProvider, jobTemplateHistoryRepository)
 
   override def beforeAll: Unit = {
     super.beforeAll()
     schemaSetup()
   }
 
-  override def afterAll: Unit = {
+  override def afterAll: Unit =
     schemaDrop()
-  }
 
-  override def afterEach: Unit = {
+  override def afterEach: Unit =
     clearData()
-  }
 
   "getJobTemplatesByIds" should "return a job template by ids" in {
     insertJobTemplates()
@@ -62,11 +71,7 @@ class JobTemplateRepositoryPostgresTest extends FlatSpec with Matchers with Befo
   }
 
   "searchJobTemplates" should "return zero job templates when db is empty" in {
-    val searchRequest: TableSearchRequest = TableSearchRequest(
-      sort = None,
-      from = 0,
-      size = Integer.MAX_VALUE
-    )
+    val searchRequest: TableSearchRequest = TableSearchRequest(sort = None, from = 0, size = Integer.MAX_VALUE)
 
     val result: TableSearchResponse[JobTemplate] = await(jobTemplateRepository.searchJobTemplates(searchRequest))
     result.total shouldBe 0
@@ -75,11 +80,7 @@ class JobTemplateRepositoryPostgresTest extends FlatSpec with Matchers with Befo
 
   "searchJobTemplates" should "return all job templates with no search query" in {
     insertJobTemplates()
-    val searchRequest: TableSearchRequest = TableSearchRequest(
-      sort = None,
-      from = 0,
-      size = Integer.MAX_VALUE
-    )
+    val searchRequest: TableSearchRequest = TableSearchRequest(sort = None, from = 0, size = Integer.MAX_VALUE)
 
     val result: TableSearchResponse[JobTemplate] = await(jobTemplateRepository.searchJobTemplates(searchRequest))
     result.total shouldBe TestData.jobTemplates.size
@@ -88,11 +89,7 @@ class JobTemplateRepositoryPostgresTest extends FlatSpec with Matchers with Befo
 
   "searchJobTemplates" should "using from and size should return paginated job templates" in {
     insertJobTemplates()
-    val searchRequest: TableSearchRequest = TableSearchRequest(
-      sort = None,
-      from = 1,
-      size = 1
-    )
+    val searchRequest: TableSearchRequest = TableSearchRequest(sort = None, from = 1, size = 1)
 
     val result: TableSearchResponse[JobTemplate] = await(jobTemplateRepository.searchJobTemplates(searchRequest))
     result.total shouldBe TestData.jobTemplates.size
@@ -101,11 +98,8 @@ class JobTemplateRepositoryPostgresTest extends FlatSpec with Matchers with Befo
 
   "searchJobTemplates" should "using sort by template name (asc order) should return sorted job templates" in {
     insertJobTemplates()
-    val searchRequest: TableSearchRequest = TableSearchRequest(
-      sort = Option(SortAttributes(by = "name", order = 1)),
-      from = 0,
-      size = Integer.MAX_VALUE
-    )
+    val searchRequest: TableSearchRequest =
+      TableSearchRequest(sort = Option(SortAttributes(by = "name", order = 1)), from = 0, size = Integer.MAX_VALUE)
 
     val result: TableSearchResponse[JobTemplate] = await(jobTemplateRepository.searchJobTemplates(searchRequest))
     result.total shouldBe TestData.jobTemplates.size
@@ -115,11 +109,8 @@ class JobTemplateRepositoryPostgresTest extends FlatSpec with Matchers with Befo
 
   "searchJobTemplates" should "using sort by template name (desc order) should return sorted job templates" in {
     insertJobTemplates()
-    val searchRequest: TableSearchRequest = TableSearchRequest(
-      sort = Option(SortAttributes(by = "name", order = -1)),
-      from = 0,
-      size = Integer.MAX_VALUE
-    )
+    val searchRequest: TableSearchRequest =
+      TableSearchRequest(sort = Option(SortAttributes(by = "name", order = -1)), from = 0, size = Integer.MAX_VALUE)
 
     val result: TableSearchResponse[JobTemplate] = await(jobTemplateRepository.searchJobTemplates(searchRequest))
     result.total shouldBe TestData.jobTemplates.size
@@ -130,9 +121,8 @@ class JobTemplateRepositoryPostgresTest extends FlatSpec with Matchers with Befo
   "searchJobTemplates" should "apply filters" in {
     insertJobTemplates()
 
-    val containsFilterAttributes = Option(Seq(
-      ContainsFilterAttributes(field = "name", value = TestData.jobTemplates.head.name)
-    ))
+    val containsFilterAttributes =
+      Option(Seq(ContainsFilterAttributes(field = "name", value = TestData.jobTemplates.head.name)))
     val searchRequest: TableSearchRequest = TableSearchRequest(
       containsFilterAttributes = containsFilterAttributes,
       sort = None,
@@ -161,7 +151,7 @@ class JobTemplateRepositoryPostgresTest extends FlatSpec with Matchers with Befo
     insertJobTemplates()
     val jobTemplateId = 999111
 
-    val exception = the [ApiException] thrownBy await(jobTemplateRepository.getJobTemplate(jobTemplateId))
+    val exception = the[ApiException] thrownBy await(jobTemplateRepository.getJobTemplate(jobTemplateId))
 
     exception.getMessage shouldBe s"Job template with id ${jobTemplateId} does not exist."
   }

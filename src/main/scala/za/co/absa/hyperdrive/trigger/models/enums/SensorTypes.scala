@@ -30,14 +30,13 @@ object SensorTypes {
 
   val sensorTypes: Set[SensorType] = Set(Kafka, AbsaKafka, Time, Recurring)
 
-  def convertSensorTypeNameToSensorType(sensorType: String): SensorType = {
-    SensorTypes.sensorTypes.find(_.name == sensorType).getOrElse(
-      throw new Exception(s"Couldn't find SensorType: $sensorType")
-    )
-  }
+  def convertSensorTypeNameToSensorType(sensorType: String): SensorType =
+    SensorTypes.sensorTypes
+      .find(_.name == sensorType)
+      .getOrElse(throw new Exception(s"Couldn't find SensorType: $sensorType"))
 
   implicit val sensorTypesFormat: Format[SensorType] = Format[SensorType](
     JsPath.read[String].map(convertSensorTypeNameToSensorType),
-    Writes[SensorType] { sensorType => JsString(sensorType.name) }
+    Writes[SensorType](sensorType => JsString(sensorType.name))
   )
 }

@@ -29,32 +29,45 @@ import za.co.absa.hyperdrive.trigger.persistance.NotificationRuleRepository
 import java.time.LocalDateTime
 import scala.concurrent.{ExecutionContext, Future}
 
-class NotificationRuleServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar with BeforeAndAfter with OptionValues {
+class NotificationRuleServiceTest
+    extends AsyncFlatSpec
+    with Matchers
+    with MockitoSugar
+    with BeforeAndAfter
+    with OptionValues {
   override implicit def executionContext: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
   private val notificationRuleRepository = mock[NotificationRuleRepository]
   private val notificationRuleValidationService = mock[NotificationRuleValidationService]
   private val userName = "some-user"
-  private val underTest = new NotificationRuleServiceImpl(notificationRuleRepository, notificationRuleValidationService){
-    override private[services] def getUserName: () => String = () => userName
-  }
+  private val underTest =
+    new NotificationRuleServiceImpl(notificationRuleRepository, notificationRuleValidationService) {
+      override private[services] def getUserName: () => String = () => userName
+    }
 
   before {
     reset(notificationRuleRepository)
   }
 
-  private def createNotificationRule() = {
-    NotificationRule(true, Some("project"), Some("ABC XYZ"), None,
+  private def createNotificationRule() =
+    NotificationRule(
+      true,
+      Some("project"),
+      Some("ABC XYZ"),
+      None,
       Seq(DagInstanceStatuses.Skipped, DagInstanceStatuses.Failed),
-      Seq("abc.def@ghi.com"), updated = None)
-  }
-
+      Seq("abc.def@ghi.com"),
+      updated = None
+    )
 
   "createNotificationRule" should "create a notification rule" in {
     // given
     val rule = createNotificationRule()
-    when(notificationRuleRepository.insertNotificationRule(eqTo(rule), eqTo(userName))(any[ExecutionContext])).thenReturn(Future{rule.id})
-    when(notificationRuleValidationService.validate(eqTo(rule))(any[ExecutionContext]())).thenReturn(Future{(): Unit})
+    when(notificationRuleRepository.insertNotificationRule(eqTo(rule), eqTo(userName))(any[ExecutionContext]))
+      .thenReturn(Future(rule.id))
+    when(notificationRuleValidationService.validate(eqTo(rule))(any[ExecutionContext]())).thenReturn(Future {
+      (): Unit
+    })
 
     // when
     val result = await(underTest.createNotificationRule(rule))
@@ -67,12 +80,13 @@ class NotificationRuleServiceTest extends AsyncFlatSpec with Matchers with Mocki
   it should "throw an exception if the validation failed" in {
     // given
     val rule = createNotificationRule()
-    when(notificationRuleRepository.insertNotificationRule(eqTo(rule), eqTo(userName))(any[ExecutionContext])).thenReturn(Future{rule.id})
-    when(notificationRuleValidationService.validate(eqTo(rule))(any[ExecutionContext]())).thenReturn(
-      Future.failed(new ApiException(Seq(ValidationError("error")))))
+    when(notificationRuleRepository.insertNotificationRule(eqTo(rule), eqTo(userName))(any[ExecutionContext]))
+      .thenReturn(Future(rule.id))
+    when(notificationRuleValidationService.validate(eqTo(rule))(any[ExecutionContext]()))
+      .thenReturn(Future.failed(new ApiException(Seq(ValidationError("error")))))
 
     // when
-    val result = the [ApiException] thrownBy await(underTest.createNotificationRule(rule))
+    val result = the[ApiException] thrownBy await(underTest.createNotificationRule(rule))
 
     // then
     result.apiErrors.head.message shouldBe "error"
@@ -81,7 +95,9 @@ class NotificationRuleServiceTest extends AsyncFlatSpec with Matchers with Mocki
   "getNotificationRule" should "get a notification rule" in {
     // given
     val rule = createNotificationRule()
-    when(notificationRuleRepository.getNotificationRule(eqTo(rule.id))(any[ExecutionContext])).thenReturn(Future{rule})
+    when(notificationRuleRepository.getNotificationRule(eqTo(rule.id))(any[ExecutionContext])).thenReturn(Future {
+      rule
+    })
 
     // when
     val result = await(underTest.getNotificationRule(rule.id))
@@ -94,7 +110,9 @@ class NotificationRuleServiceTest extends AsyncFlatSpec with Matchers with Mocki
     // given
     val rule = createNotificationRule()
     val rule2 = rule.copy(id = 42)
-    when(notificationRuleRepository.getNotificationRules()(any[ExecutionContext])).thenReturn(Future{Seq(rule, rule2)})
+    when(notificationRuleRepository.getNotificationRules()(any[ExecutionContext])).thenReturn(Future {
+      Seq(rule, rule2)
+    })
 
     // when
     val result = await(underTest.getNotificationRules())
@@ -107,8 +125,10 @@ class NotificationRuleServiceTest extends AsyncFlatSpec with Matchers with Mocki
     // given
     val rule = createNotificationRule()
     when(notificationRuleRepository.updateNotificationRule(eqTo(rule), eqTo(userName))(any[ExecutionContext]))
-      .thenReturn(Future{(): Unit})
-    when(notificationRuleValidationService.validate(eqTo(rule))(any[ExecutionContext]())).thenReturn(Future{(): Unit})
+      .thenReturn(Future((): Unit))
+    when(notificationRuleValidationService.validate(eqTo(rule))(any[ExecutionContext]())).thenReturn(Future {
+      (): Unit
+    })
 
     // when
     val result = await(underTest.updateNotificationRule(rule))
@@ -121,12 +141,13 @@ class NotificationRuleServiceTest extends AsyncFlatSpec with Matchers with Mocki
   it should "throw an exception if the validation failed" in {
     // given
     val rule = createNotificationRule()
-    when(notificationRuleRepository.updateNotificationRule(eqTo(rule), eqTo(userName))(any[ExecutionContext])).thenReturn(Future{(): Unit})
-    when(notificationRuleValidationService.validate(eqTo(rule))(any[ExecutionContext]())).thenReturn(
-      Future.failed(new ApiException(Seq(ValidationError("error")))))
+    when(notificationRuleRepository.updateNotificationRule(eqTo(rule), eqTo(userName))(any[ExecutionContext]))
+      .thenReturn(Future((): Unit))
+    when(notificationRuleValidationService.validate(eqTo(rule))(any[ExecutionContext]()))
+      .thenReturn(Future.failed(new ApiException(Seq(ValidationError("error")))))
 
     // when
-    val result = the [ApiException] thrownBy await(underTest.updateNotificationRule(rule))
+    val result = the[ApiException] thrownBy await(underTest.updateNotificationRule(rule))
 
     // then
     result.apiErrors.head.message shouldBe "error"
@@ -136,7 +157,7 @@ class NotificationRuleServiceTest extends AsyncFlatSpec with Matchers with Mocki
     // given
     val rule = createNotificationRule()
     when(notificationRuleRepository.deleteNotificationRule(eqTo(rule.id), eqTo(userName))(any[ExecutionContext]))
-      .thenReturn(Future{(): Unit})
+      .thenReturn(Future((): Unit))
 
     // when
     val result = await(underTest.deleteNotificationRule(rule.id))
@@ -154,7 +175,7 @@ class NotificationRuleServiceTest extends AsyncFlatSpec with Matchers with Mocki
     val searchResponse = TableSearchResponse(items = rules, total = rules.length)
 
     when(notificationRuleRepository.searchNotificationRules(eqTo(searchRequest))(any[ExecutionContext]))
-      .thenReturn(Future{searchResponse})
+      .thenReturn(Future(searchResponse))
 
     // when
     val result = await(underTest.searchNotificationRules(searchRequest))
@@ -168,8 +189,13 @@ class NotificationRuleServiceTest extends AsyncFlatSpec with Matchers with Mocki
     val rule = createNotificationRule()
     val workflow = Workflow("workflow1", isActive = true, "project1", LocalDateTime.now(), None, 1, None, 42L)
     val matchingRules = (Seq(rule), workflow)
-    when(notificationRuleRepository.getMatchingNotificationRules(eqTo(42L), eqTo(DagInstanceStatuses.Failed),
-      any[LocalDateTime]())(any[ExecutionContext])).thenReturn(Future{Some(matchingRules)})
+    when(
+      notificationRuleRepository.getMatchingNotificationRules(
+        eqTo(42L),
+        eqTo(DagInstanceStatuses.Failed),
+        any[LocalDateTime]()
+      )(any[ExecutionContext])
+    ).thenReturn(Future(Some(matchingRules)))
 
     // when
     val result = await(underTest.getMatchingNotificationRules(42L, DagInstanceStatuses.Failed))
@@ -182,7 +208,8 @@ class NotificationRuleServiceTest extends AsyncFlatSpec with Matchers with Mocki
     // given
     val notificationRuleId: Long = 1
     val workflows = Seq(Workflow("workflow1", isActive = true, "project1", LocalDateTime.now(), None, 1, None, 42L))
-    when(notificationRuleRepository.getMatchingWorkflows(eqTo(notificationRuleId))(any[ExecutionContext])).thenReturn(Future(workflows))
+    when(notificationRuleRepository.getMatchingWorkflows(eqTo(notificationRuleId))(any[ExecutionContext]))
+      .thenReturn(Future(workflows))
 
     // when
     val result = await(underTest.getMatchingWorkflows(notificationRuleId))

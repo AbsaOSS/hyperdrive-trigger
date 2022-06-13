@@ -23,40 +23,48 @@ import org.scalatest.{FlatSpec, _}
 import za.co.absa.hyperdrive.trigger.models.{Project, Workflow, WorkflowIdentity}
 import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, GenericDatabaseError}
-import za.co.absa.hyperdrive.trigger.models.search.{BooleanFilterAttributes, BooleanValues, SortAttributes, TableSearchRequest, TableSearchResponse}
+import za.co.absa.hyperdrive.trigger.models.search.{
+  BooleanFilterAttributes,
+  BooleanValues,
+  SortAttributes,
+  TableSearchRequest,
+  TableSearchResponse
+}
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class WorkflowRepositoryPostgresTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach
-  with RepositoryPostgresTestBase with MockitoSugar {
+class WorkflowRepositoryPostgresTest
+    extends FlatSpec
+    with Matchers
+    with BeforeAndAfterAll
+    with BeforeAndAfterEach
+    with RepositoryPostgresTestBase
+    with MockitoSugar {
 
   import api._
 
   val workflowHistoryRepositoryMock: WorkflowHistoryRepository = mock[WorkflowHistoryRepository]
   val workflowHistoryRepository: WorkflowHistoryRepository = new WorkflowHistoryRepositoryImpl(dbProvider)
 
-  val workflowRepositoryMocked: WorkflowRepository = new WorkflowRepositoryImpl(dbProvider, workflowHistoryRepositoryMock)
+  val workflowRepositoryMocked: WorkflowRepository =
+    new WorkflowRepositoryImpl(dbProvider, workflowHistoryRepositoryMock)
 
   val workflowRepository: WorkflowRepository = new WorkflowRepositoryImpl(dbProvider, workflowHistoryRepository)
-
 
   override def beforeAll: Unit = {
     super.beforeAll()
     schemaSetup()
   }
 
-  override def afterAll: Unit = {
+  override def afterAll: Unit =
     schemaDrop()
-  }
 
-  override def beforeEach: Unit = {
+  override def beforeEach: Unit =
     reset(workflowHistoryRepositoryMock)
-  }
 
-  override def afterEach: Unit = {
+  override def afterEach: Unit =
     clearData()
-  }
 
   "insertWorkflow" should "insert a workflow" in {
     // given
@@ -84,7 +92,9 @@ class WorkflowRepositoryPostgresTest extends FlatSpec with Matchers with BeforeA
 
     val actualJobDefinitions = await(db.run(jobDefinitionTable.result))
     actualJobDefinitions should have size 2
-    actualJobDefinitions.map(_.name) should contain theSameElementsAs workflowToInsert.dagDefinitionJoined.jobDefinitions.map(_.name)
+    actualJobDefinitions.map(
+      _.name
+    ) should contain theSameElementsAs workflowToInsert.dagDefinitionJoined.jobDefinitions.map(_.name)
 
     val actualHistoryEntries = await(db.run(workflowHistoryTable.result))
     actualHistoryEntries should have size 1
@@ -99,7 +109,7 @@ class WorkflowRepositoryPostgresTest extends FlatSpec with Matchers with BeforeA
     val workflowToInsert = TestDataJoined.wj1.copy(name = tooLongWorkflowName)
 
     // when
-    val result = the [ApiException] thrownBy await(workflowRepository.insertWorkflow(workflowToInsert, "the-user"))
+    val result = the[ApiException] thrownBy await(workflowRepository.insertWorkflow(workflowToInsert, "the-user"))
 
     // then
     result.apiErrors should contain only GenericDatabaseError
@@ -135,7 +145,9 @@ class WorkflowRepositoryPostgresTest extends FlatSpec with Matchers with BeforeA
 
     val actualJobDefinitions = await(db.run(jobDefinitionTable.result))
     actualJobDefinitions should have size 3
-    actualJobDefinitions.map(_.name) should contain theSameElementsAs workflowToInsert.flatMap(_.dagDefinitionJoined.jobDefinitions.map(_.name))
+    actualJobDefinitions.map(_.name) should contain theSameElementsAs workflowToInsert.flatMap(
+      _.dagDefinitionJoined.jobDefinitions.map(_.name)
+    )
 
     val actualHistoryEntries = await(db.run(workflowHistoryTable.result))
     actualHistoryEntries should have size 2
@@ -162,7 +174,7 @@ class WorkflowRepositoryPostgresTest extends FlatSpec with Matchers with BeforeA
     val workflowsToInsert = Seq(TestDataJoined.wj1, TestDataJoined.wj2.copy(name = tooLongWorkflowName))
 
     // when
-    val result = the [ApiException] thrownBy await(workflowRepository.insertWorkflows(workflowsToInsert, "the-user"))
+    val result = the[ApiException] thrownBy await(workflowRepository.insertWorkflows(workflowsToInsert, "the-user"))
 
     // then
     result.apiErrors should contain only GenericDatabaseError
@@ -186,9 +198,7 @@ class WorkflowRepositoryPostgresTest extends FlatSpec with Matchers with BeforeA
     val workflowV2 = TestDataJoined.wj2.copy(
       id = workflowId,
       sensor = TestDataJoined.wj2.sensor.copy(id = sensorId, workflowId = workflowId),
-      dagDefinitionJoined = TestDataJoined.wj2.dagDefinitionJoined.copy(
-        id = dagDefinitionId,
-        workflowId = workflowId)
+      dagDefinitionJoined = TestDataJoined.wj2.dagDefinitionJoined.copy(id = dagDefinitionId, workflowId = workflowId)
     )
 
     // when
@@ -210,7 +220,9 @@ class WorkflowRepositoryPostgresTest extends FlatSpec with Matchers with BeforeA
 
     val actualJobDefinitions = await(db.run(jobDefinitionTable.result))
     actualJobDefinitions should have size workflowV2.dagDefinitionJoined.jobDefinitions.size
-    actualJobDefinitions.map(_.name) should contain theSameElementsAs workflowV2.dagDefinitionJoined.jobDefinitions.map(_.name)
+    actualJobDefinitions.map(_.name) should contain theSameElementsAs workflowV2.dagDefinitionJoined.jobDefinitions.map(
+      _.name
+    )
 
     val actualHistoryEntries = await(db.run(workflowHistoryTable.result))
     actualHistoryEntries should have size 2
@@ -228,7 +240,7 @@ class WorkflowRepositoryPostgresTest extends FlatSpec with Matchers with BeforeA
     val workflowV2 = TestDataJoined.wj2.copy(name = tooLongWorkflowName, id = workflowId)
 
     // when
-    val result = the [ApiException] thrownBy await(workflowRepository.updateWorkflow(workflowV2, "the-user"))
+    val result = the[ApiException] thrownBy await(workflowRepository.updateWorkflow(workflowV2, "the-user"))
 
     // then
     result.apiErrors should contain only GenericDatabaseError
@@ -249,7 +261,6 @@ class WorkflowRepositoryPostgresTest extends FlatSpec with Matchers with BeforeA
 
     existingWorkflowNames shouldBe empty
   }
-
 
   it should "return an empty set given an empty set" in {
     createTestData()
@@ -282,7 +293,7 @@ class WorkflowRepositoryPostgresTest extends FlatSpec with Matchers with BeforeA
   }
 
   it should "throw an exception if the workflow doesn't exist" in {
-    val exception = the [Exception] thrownBy await(workflowRepository.getWorkflow(42))
+    val exception = the[Exception] thrownBy await(workflowRepository.getWorkflow(42))
     exception.getMessage should include("42")
   }
 
@@ -294,15 +305,17 @@ class WorkflowRepositoryPostgresTest extends FlatSpec with Matchers with BeforeA
 
     actualWorkflows.map(_.toWorkflow) should contain theSameElementsAs expectedWorkflows.map(_.toWorkflow)
     actualWorkflows.map(_.sensor) should contain theSameElementsAs expectedWorkflows.map(_.sensor)
-    actualWorkflows.map(_.dagDefinitionJoined.toDag()) should contain theSameElementsAs expectedWorkflows.map(_.dagDefinitionJoined.toDag())
-    actualWorkflows.flatMap(_.dagDefinitionJoined.jobDefinitions) should contain theSameElementsAs expectedWorkflows.flatMap(_.dagDefinitionJoined.jobDefinitions)
+    actualWorkflows.map(_.dagDefinitionJoined.toDag()) should contain theSameElementsAs expectedWorkflows.map(
+      _.dagDefinitionJoined.toDag()
+    )
+    actualWorkflows.flatMap(_.dagDefinitionJoined.jobDefinitions) should contain theSameElementsAs expectedWorkflows
+      .flatMap(_.dagDefinitionJoined.jobDefinitions)
   }
 
   it should "return an empty seq if no workflows are found" in {
     val actualWorkflows = await(workflowRepository.getWorkflows(Seq(42)))
     actualWorkflows shouldBe empty
   }
-
 
   "switchWorkflowActiveState" should "switch the active state and create a history entry" in {
     createTestData()
@@ -320,7 +333,7 @@ class WorkflowRepositoryPostgresTest extends FlatSpec with Matchers with BeforeA
   }
 
   it should "fail if the workflow doesn't exist" in {
-    val exception = the [Exception] thrownBy await(workflowRepositoryMocked.switchWorkflowActiveState(42L, "testUser"))
+    val exception = the[Exception] thrownBy await(workflowRepositoryMocked.switchWorkflowActiveState(42L, "testUser"))
 
     exception.getMessage should include("42")
   }
@@ -328,9 +341,11 @@ class WorkflowRepositoryPostgresTest extends FlatSpec with Matchers with BeforeA
   it should "fail if inserting the history entry fails" in {
     createTestData()
     val workflowId = TestData.w1.id
-    when(workflowHistoryRepositoryMock.update(any(), any())(any[ExecutionContext])).thenReturn(DBIO.failed(new Exception("Could not insert history entry")))
+    when(workflowHistoryRepositoryMock.update(any(), any())(any[ExecutionContext]))
+      .thenReturn(DBIO.failed(new Exception("Could not insert history entry")))
 
-    val exception = the [Exception] thrownBy await(workflowRepositoryMocked.switchWorkflowActiveState(workflowId, "testUser"))
+    val exception =
+      the[Exception] thrownBy await(workflowRepositoryMocked.switchWorkflowActiveState(workflowId, "testUser"))
 
     exception.getMessage shouldBe "Unexpected error occurred"
   }
@@ -364,7 +379,7 @@ class WorkflowRepositoryPostgresTest extends FlatSpec with Matchers with BeforeA
   it should "do nothing when called with an empty seq" in {
     createTestData()
 
-    await(workflowRepository.updateWorkflowsIsActive(Seq(), isActiveNewValue = true,"testUser"))
+    await(workflowRepository.updateWorkflowsIsActive(Seq(), isActiveNewValue = true, "testUser"))
 
     val actualWorkflows = await(workflowRepository.getWorkflows())
     actualWorkflows.map(_.updated) should contain only None
@@ -375,9 +390,12 @@ class WorkflowRepositoryPostgresTest extends FlatSpec with Matchers with BeforeA
   it should "not change the active state of any workflow if inserting the history entry fails" in {
     createTestData()
     val workflowIds = TestData.workflows.map(_.id)
-    when(workflowHistoryRepositoryMock.update(any(), any())(any[ExecutionContext])).thenReturn(DBIO.failed(new Exception("Could not insert history entry")))
+    when(workflowHistoryRepositoryMock.update(any(), any())(any[ExecutionContext]))
+      .thenReturn(DBIO.failed(new Exception("Could not insert history entry")))
 
-    val exception = the [Exception] thrownBy await(workflowRepositoryMocked.updateWorkflowsIsActive(workflowIds, isActiveNewValue = true, "testUser"))
+    val exception = the[Exception] thrownBy await(
+      workflowRepositoryMocked.updateWorkflowsIsActive(workflowIds, isActiveNewValue = true, "testUser")
+    )
 
     exception.getMessage shouldBe "Unexpected error occurred"
     val actualWorkflows = await(workflowRepositoryMocked.getWorkflows())
@@ -397,7 +415,9 @@ class WorkflowRepositoryPostgresTest extends FlatSpec with Matchers with BeforeA
     val workflowIds = TestData.workflows.map(_.id) :+ nonExistentWorkflowId
 
     // when
-    val exception = the [Exception] thrownBy await(workflowRepository.updateWorkflowsIsActive(workflowIds, isActiveNewValue = true, "testUser"))
+    val exception = the[Exception] thrownBy await(
+      workflowRepository.updateWorkflowsIsActive(workflowIds, isActiveNewValue = true, "testUser")
+    )
 
     // then
     exception.getMessage should include("9999")
@@ -474,7 +494,7 @@ class WorkflowRepositoryPostgresTest extends FlatSpec with Matchers with BeforeA
   "getProjects()" should "return workflow identities grouped by project name" in {
     // given
     createTestData()
-    val expected = TestData.workflows.groupBy(_.project).map{ case (project, workflows) =>
+    val expected = TestData.workflows.groupBy(_.project).map { case (project, workflows) =>
       Project(project, workflows.map(workflow => WorkflowIdentity(workflow.id, workflow.name)))
     }
 
@@ -584,11 +604,7 @@ class WorkflowRepositoryPostgresTest extends FlatSpec with Matchers with BeforeA
   }
 
   "searchWorkflows" should "return zero workflows when db is empty" in {
-    val searchRequest: TableSearchRequest = TableSearchRequest(
-      sort = None,
-      from = 0,
-      size = Integer.MAX_VALUE
-    )
+    val searchRequest: TableSearchRequest = TableSearchRequest(sort = None, from = 0, size = Integer.MAX_VALUE)
 
     val result: TableSearchResponse[Workflow] = await(workflowRepository.searchWorkflows(searchRequest))
     result.total shouldBe 0
@@ -597,11 +613,7 @@ class WorkflowRepositoryPostgresTest extends FlatSpec with Matchers with BeforeA
 
   it should "return all workflows with no search query" in {
     createTestData()
-    val searchRequest: TableSearchRequest = TableSearchRequest(
-      sort = None,
-      from = 0,
-      size = Integer.MAX_VALUE
-    )
+    val searchRequest: TableSearchRequest = TableSearchRequest(sort = None, from = 0, size = Integer.MAX_VALUE)
 
     val result: TableSearchResponse[Workflow] = await(workflowRepository.searchWorkflows(searchRequest))
     result.total shouldBe TestData.workflows.size
@@ -610,11 +622,7 @@ class WorkflowRepositoryPostgresTest extends FlatSpec with Matchers with BeforeA
 
   it should "using from and size should return paginated workflows" in {
     createTestData()
-    val searchRequest: TableSearchRequest = TableSearchRequest(
-      sort = None,
-      from = 2,
-      size = 2
-    )
+    val searchRequest: TableSearchRequest = TableSearchRequest(sort = None, from = 2, size = 2)
 
     val result: TableSearchResponse[Workflow] = await(workflowRepository.searchWorkflows(searchRequest))
     result.total shouldBe TestData.workflows.size
@@ -623,11 +631,8 @@ class WorkflowRepositoryPostgresTest extends FlatSpec with Matchers with BeforeA
 
   it should "using sort by workflow name (asc order) should return sorted workflows" in {
     createTestData()
-    val searchRequest: TableSearchRequest = TableSearchRequest(
-      sort = Option(SortAttributes(by = "name", order = 1)),
-      from = 0,
-      size = Integer.MAX_VALUE
-    )
+    val searchRequest: TableSearchRequest =
+      TableSearchRequest(sort = Option(SortAttributes(by = "name", order = 1)), from = 0, size = Integer.MAX_VALUE)
 
     val result: TableSearchResponse[Workflow] = await(workflowRepository.searchWorkflows(searchRequest))
     result.total shouldBe TestData.workflows.size
@@ -637,11 +642,8 @@ class WorkflowRepositoryPostgresTest extends FlatSpec with Matchers with BeforeA
 
   it should "using sort by id (desc order) should return sorted workflows" in {
     createTestData()
-    val searchRequest: TableSearchRequest = TableSearchRequest(
-      sort = Option(SortAttributes(by = "id", order = -1)),
-      from = 0,
-      size = Integer.MAX_VALUE
-    )
+    val searchRequest: TableSearchRequest =
+      TableSearchRequest(sort = Option(SortAttributes(by = "id", order = -1)), from = 0, size = Integer.MAX_VALUE)
 
     val result: TableSearchResponse[Workflow] = await(workflowRepository.searchWorkflows(searchRequest))
     result.total shouldBe TestData.workflows.size
@@ -652,9 +654,8 @@ class WorkflowRepositoryPostgresTest extends FlatSpec with Matchers with BeforeA
   it should "apply filters" in {
     createTestData()
 
-    val booleanFilterAttributes = Option(Seq(
-      BooleanFilterAttributes(field = "isActive", BooleanValues(isTrue = false, isFalse = true))
-    ))
+    val booleanFilterAttributes =
+      Option(Seq(BooleanFilterAttributes(field = "isActive", BooleanValues(isTrue = false, isFalse = true))))
     val searchRequest: TableSearchRequest = TableSearchRequest(
       booleanFilterAttributes = booleanFilterAttributes,
       sort = None,

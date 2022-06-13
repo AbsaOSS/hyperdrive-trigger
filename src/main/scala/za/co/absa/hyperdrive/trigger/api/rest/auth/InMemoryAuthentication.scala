@@ -23,13 +23,13 @@ import za.co.absa.hyperdrive.trigger.configuration.application.AuthConfig
 import javax.inject.Inject
 
 @Component
-class InMemoryAuthentication @Inject()(authConfig: AuthConfig) extends HyperdriverAuthentication {
+class InMemoryAuthentication @Inject() (authConfig: AuthConfig) extends HyperdriverAuthentication {
   private val ROLE_USER = "ROLE_USER"
   val username: String = authConfig.inMemoryUser
   val password: String = authConfig.inMemoryPassword
   val adminUsername: String = authConfig.inMemoryAdminUser
   val adminPassword: String = authConfig.inMemoryAdminPassword
-  val adminRole: Option[String] =  authConfig.adminRole
+  val adminRole: Option[String] = authConfig.adminRole
 
   def validateParams() {
     if (username.isEmpty || password.isEmpty) {
@@ -39,7 +39,8 @@ class InMemoryAuthentication @Inject()(authConfig: AuthConfig) extends Hyperdriv
 
   override def configure(auth: AuthenticationManagerBuilder) {
     this.validateParams()
-    auth.inMemoryAuthentication()
+    auth
+      .inMemoryAuthentication()
       .passwordEncoder(NoOpPasswordEncoder.getInstance())
       .withUser(username)
       .password(password)

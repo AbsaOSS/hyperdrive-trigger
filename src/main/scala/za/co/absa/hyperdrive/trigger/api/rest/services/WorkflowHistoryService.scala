@@ -27,7 +27,9 @@ trait WorkflowHistoryService {
 
   def getHistoryForWorkflow(workflowId: Long)(implicit ec: ExecutionContext): Future[Seq[History]]
   def getWorkflowFromHistory(workflowHistoryId: Long)(implicit ec: ExecutionContext): Future[WorkflowJoined]
-  def getWorkflowsFromHistory(leftWorkflowHistoryId: Long, rightWorkflowHistoryId: Long)(implicit ec: ExecutionContext): Future[HistoryPair[WorkflowHistory]]
+  def getWorkflowsFromHistory(leftWorkflowHistoryId: Long, rightWorkflowHistoryId: Long)(implicit
+    ec: ExecutionContext
+  ): Future[HistoryPair[WorkflowHistory]]
 }
 
 @Service
@@ -36,21 +38,20 @@ class WorkflowHistoryServiceImpl(
   override val workflowRepository: WorkflowRepository
 ) extends WorkflowHistoryService {
 
-  override def getHistoryForWorkflow(workflowId: Long)(implicit ec: ExecutionContext): Future[Seq[History]] = {
+  override def getHistoryForWorkflow(workflowId: Long)(implicit ec: ExecutionContext): Future[Seq[History]] =
     workflowHistoryRepository.getHistoryForWorkflow(workflowId)
-  }
 
-  override def getWorkflowFromHistory(workflowHistoryId: Long)(implicit ec: ExecutionContext): Future[WorkflowJoined] = {
+  override def getWorkflowFromHistory(workflowHistoryId: Long)(implicit ec: ExecutionContext): Future[WorkflowJoined] =
     for {
       workflowFromHistory <- workflowHistoryRepository.getWorkflowFromHistory(workflowHistoryId)
       version <- workflowRepository.getWorkflowVersion(workflowFromHistory.id)
     } yield {
       workflowFromHistory.copy(version = version)
     }
-  }
 
-  override def getWorkflowsFromHistory(leftWorkflowHistoryId: Long, rightWorkflowHistoryId: Long)(implicit ec: ExecutionContext): Future[HistoryPair[WorkflowHistory]] = {
+  override def getWorkflowsFromHistory(leftWorkflowHistoryId: Long, rightWorkflowHistoryId: Long)(implicit
+    ec: ExecutionContext
+  ): Future[HistoryPair[WorkflowHistory]] =
     workflowHistoryRepository.getWorkflowsFromHistory(leftWorkflowHistoryId, rightWorkflowHistoryId)
-  }
 
 }

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -16,6 +15,4 @@
 
 package za.co.absa.hyperdrive.trigger.models.search
 
-case class ContainsFilterAttributes( override val field: String,
-                                     value: String
-                                   ) extends FilterAttributes
+case class ContainsFilterAttributes(override val field: String, value: String) extends FilterAttributes
