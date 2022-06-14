@@ -25,19 +25,15 @@ trait SchedulerInstanceTable {
   this: Profile with JdbcTypeMapper =>
   import api._
 
-  final class SchedulerInstanceTable(tag: Tag) extends Table[SchedulerInstance](tag, _tableName = "scheduler_instance") {
+  final class SchedulerInstanceTable(tag: Tag)
+      extends Table[SchedulerInstance](tag, _tableName = "scheduler_instance") {
 
     def id: Rep[Long] = column[Long]("id", O.PrimaryKey, O.AutoInc, O.SqlType("BIGSERIAL"))
     def status: Rep[SchedulerInstanceStatus] = column[SchedulerInstanceStatus]("status")
     def lastHeartbeat: Rep[LocalDateTime] = column[LocalDateTime]("last_heartbeat")
 
     def * : ProvenShape[SchedulerInstance] = (id, status, lastHeartbeat) <> (
-      tuple =>
-        SchedulerInstance.apply(
-          id = tuple._1,
-          status = tuple._2,
-          lastHeartbeat = tuple._3
-        ),
+      tuple => SchedulerInstance.apply(id = tuple._1, status = tuple._2, lastHeartbeat = tuple._3),
       SchedulerInstance.unapply
     )
 

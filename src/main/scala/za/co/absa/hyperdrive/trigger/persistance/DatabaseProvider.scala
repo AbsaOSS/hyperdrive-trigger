@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -22,7 +21,7 @@ import za.co.absa.hyperdrive.trigger.configuration.application.DatabaseConfig
 import javax.inject.Inject
 
 @Component
-class DatabaseProvider @Inject()(databaseConfig: DatabaseConfig) {
+class DatabaseProvider @Inject() (databaseConfig: DatabaseConfig) {
   import za.co.absa.hyperdrive.trigger.persistance.DatabaseProvider._
   lazy val db: profile.backend.DatabaseDef =
     profile.api.Database.forConfig(path = "", config = databaseConfig.dbConfig)

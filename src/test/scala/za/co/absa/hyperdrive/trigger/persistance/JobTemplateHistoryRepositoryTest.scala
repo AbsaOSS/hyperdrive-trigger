@@ -22,33 +22,39 @@ import za.co.absa.hyperdrive.trigger.models.enums.DBOperation.DBOperation
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class JobTemplateHistoryRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryH2TestBase {
+class JobTemplateHistoryRepositoryTest
+    extends FlatSpec
+    with Matchers
+    with BeforeAndAfterAll
+    with BeforeAndAfterEach
+    with RepositoryH2TestBase {
   import api._
 
   private val h2JobTemplateHistoryRepository: JobTemplateHistoryRepository =
-    new JobTemplateHistoryRepositoryImpl(dbProvider) with H2Profile  {
+    new JobTemplateHistoryRepositoryImpl(dbProvider) with H2Profile {
       override val profile = h2Profile
     }
 
   private val h2jobTemplateHistoryTable = h2JobTemplateHistoryRepository.jobTemplateHistoryTable
 
-  override def beforeAll: Unit = {
+  override def beforeAll: Unit =
     schemaSetup()
-  }
 
-  override def afterAll: Unit = {
+  override def afterAll: Unit =
     schemaDrop()
-  }
 
-  override def afterEach: Unit = {
+  override def afterEach: Unit =
     clearData()
-  }
 
-  private def verifyHistory(historyEntries: Seq[History], historyId: Long, user: String, dbOperation: DBOperation): Boolean = {
-    historyEntries.exists(history => {
+  private def verifyHistory(
+    historyEntries: Seq[History],
+    historyId: Long,
+    user: String,
+    dbOperation: DBOperation
+  ): Boolean =
+    historyEntries.exists { history =>
       history.id == historyId && history.changedBy == user && history.operation == dbOperation
-    })
-  }
+    }
 
   "jobTemplateHistoryRepository create/update/delete/getHistoryForWorkflow/getJobTemplatesFromHistory" should "create workflow history record with correct values" in {
     val nrCreate = TestData.jt1
@@ -60,7 +66,8 @@ class JobTemplateHistoryRepositoryTest extends FlatSpec with Matchers with Befor
 
     val result = await(db.run(h2jobTemplateHistoryTable.result))
     val getHistoryForWorkflowResult = await(h2JobTemplateHistoryRepository.getHistoryForJobTemplate(nrCreate.id))
-    val getJobTemplatesFromHistoryResult = await(h2JobTemplateHistoryRepository.getJobTemplatesFromHistory(createId, updateId))
+    val getJobTemplatesFromHistoryResult =
+      await(h2JobTemplateHistoryRepository.getJobTemplatesFromHistory(createId, updateId))
 
     result.size shouldBe 3
     val historyEntries = result.map(_.history)

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -26,8 +25,11 @@ import java.time.Duration
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class ApplicationStartPostgresTest extends FlatSpec with Matchers with SpringIntegrationTest
-  with RepositoryPostgresTestBase {
+class ApplicationStartPostgresTest
+    extends FlatSpec
+    with Matchers
+    with SpringIntegrationTest
+    with RepositoryPostgresTestBase {
 
   @Inject() var injectedDbProvider: DatabaseProvider = _
   @Inject() var hyperDriverManager: HyperDriverManager = _
@@ -72,8 +74,12 @@ class ApplicationStartPostgresTest extends FlatSpec with Matchers with SpringInt
     healthConfig.yarnConnectionTimeoutMillis shouldBe None
     kafkaConfig.groupIdPrefix shouldBe "hyper_drive"
     kafkaConfig.pollDuration shouldBe 500
-    kafkaConfig.properties.getProperty("key.deserializer") shouldBe "org.apache.kafka.common.serialization.StringDeserializer"
-    kafkaConfig.properties.getProperty("value.deserializer") shouldBe "org.apache.kafka.common.serialization.StringDeserializer"
+    kafkaConfig.properties.getProperty(
+      "key.deserializer"
+    ) shouldBe "org.apache.kafka.common.serialization.StringDeserializer"
+    kafkaConfig.properties.getProperty(
+      "value.deserializer"
+    ) shouldBe "org.apache.kafka.common.serialization.StringDeserializer"
     kafkaConfig.properties.getProperty("max.poll.records") shouldBe "100"
     kafkaConfig.properties.getProperty("security.protocol") shouldBe "PLAINTEXT"
     sparkConfig.submitApi shouldBe "yarn"

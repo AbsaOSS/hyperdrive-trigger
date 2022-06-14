@@ -15,7 +15,4 @@
 
 package za.co.absa.hyperdrive.trigger.models.search
 
-case class TableSearchResponse[T](
-  items: Seq[T],
-  total: Int
-)
+case class TableSearchResponse[T](items: Seq[T], total: Int)

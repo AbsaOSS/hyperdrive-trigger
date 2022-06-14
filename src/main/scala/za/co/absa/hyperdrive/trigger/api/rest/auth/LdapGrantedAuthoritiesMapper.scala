@@ -24,11 +24,12 @@ import java.util
 class LdapGrantedAuthoritiesMapper extends GrantedAuthoritiesMapper {
   import scala.collection.JavaConversions._
 
-  override def mapAuthorities(grantedAuthorities: util.Collection[_ <: GrantedAuthority]): util.Collection[_ <: GrantedAuthority] = {
+  override def mapAuthorities(
+    grantedAuthorities: util.Collection[_ <: GrantedAuthority]
+  ): util.Collection[_ <: GrantedAuthority] =
     if (grantedAuthorities == null) {
       AuthorityUtils.NO_AUTHORITIES
     } else {
       grantedAuthorities.map(grantedAuthority => new SimpleGrantedAuthority(grantedAuthority.getAuthority)).toList
     }
-  }
 }

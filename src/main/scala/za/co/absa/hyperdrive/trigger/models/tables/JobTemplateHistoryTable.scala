@@ -26,7 +26,9 @@ trait JobTemplateHistoryTable extends HistoryTableQuery {
 
   import api._
 
-  final class JobTemplateHistoryTable(tag: Tag) extends Table[JobTemplateHistory](tag, _tableName = "job_template_history") with HistoryTable {
+  final class JobTemplateHistoryTable(tag: Tag)
+      extends Table[JobTemplateHistory](tag, _tableName = "job_template_history")
+      with HistoryTable {
     override def id: Rep[Long] = column[Long]("id", O.PrimaryKey, O.AutoInc, O.SqlType("BIGSERIAL"))
     override def changedOn: Rep[LocalDateTime] = column[LocalDateTime]("changed_on")
     override def changedBy: Rep[String] = column[String]("changed_by")
@@ -46,16 +48,17 @@ trait JobTemplateHistoryTable extends HistoryTableQuery {
           jobTemplateId = jobTemplateTuple._5,
           jobTemplate = jobTemplateTuple._6
         ),
-      (jobTemplateHistory: JobTemplateHistory) => Option(
-        (
-          jobTemplateHistory.history.id,
-          jobTemplateHistory.history.changedOn,
-          jobTemplateHistory.history.changedBy,
-          jobTemplateHistory.history.operation,
-          jobTemplateHistory.jobTemplateId,
-          jobTemplateHistory.jobTemplate
+      (jobTemplateHistory: JobTemplateHistory) =>
+        Option(
+          (
+            jobTemplateHistory.history.id,
+            jobTemplateHistory.history.changedOn,
+            jobTemplateHistory.history.changedBy,
+            jobTemplateHistory.history.operation,
+            jobTemplateHistory.jobTemplateId,
+            jobTemplateHistory.jobTemplate
+          )
         )
-      )
     )
   }
 

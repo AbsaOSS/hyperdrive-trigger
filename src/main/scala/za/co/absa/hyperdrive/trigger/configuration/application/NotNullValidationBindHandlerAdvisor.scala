@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -30,10 +29,10 @@ class NotNullValidationBindHandler(bindHandler: BindHandler) extends AbstractBin
 
   override def onFinish(name: ConfigurationPropertyName, target: Bindable[_], context: BindContext, result: Object) {
     val hasNotNullConstraint = target.getAnnotations.exists {
-      case _: NotNull => true
+      case _: NotNull  => true
       case _: NotBlank => true
       case _: NotEmpty => true
-      case _ => false
+      case _           => false
     }
 
     if (hasNotNullConstraint && result == null) {

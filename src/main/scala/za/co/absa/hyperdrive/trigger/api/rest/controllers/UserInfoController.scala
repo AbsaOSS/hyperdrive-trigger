@@ -20,7 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation._
 
-@RestController 
+@RestController
 class UserInfoController {
 
   @GetMapping(path = Array("/user/info"))

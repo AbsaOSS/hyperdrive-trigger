@@ -33,7 +33,6 @@ case class JobInstance(
   id: Long = 0
 )
 
-
 case class JobInstanceJoined(
   jobName: String,
   event: Event,

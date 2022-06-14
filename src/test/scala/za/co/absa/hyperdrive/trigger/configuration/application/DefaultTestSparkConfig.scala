@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -18,7 +17,7 @@ package za.co.absa.hyperdrive.trigger.configuration.application
 
 import java.util.Properties
 
-case class DefaultTestSparkConfig (
+case class DefaultTestSparkConfig(
   submitApi: String = "yarn",
   submitTimeout: Int = 1000,
   master: String = "yarn",
@@ -27,17 +26,25 @@ case class DefaultTestSparkConfig (
   additionalConfs: Map[String, String] = Map(),
   userUsedToKillJob: String = "Unknown",
   sparkSubmitThreadPoolSize: Int = 10,
-  clusterId: String = "j-2AXXXXXXGAPLF",
+  clusterId: String = "j-2AXXXXXXGAPLF"
 ) {
   def yarn: SparkConfig =
-    new SparkConfig(submitApi, new SparkYarnSinkConfig(submitTimeout, master,
-      filesToDeploy.mkString(","), toProperties(additionalConfs)), null, hadoopResourceManagerUrlBase,
-      userUsedToKillJob, sparkSubmitThreadPoolSize
+    new SparkConfig(
+      submitApi,
+      new SparkYarnSinkConfig(submitTimeout, master, filesToDeploy.mkString(","), toProperties(additionalConfs)),
+      null,
+      hadoopResourceManagerUrlBase,
+      userUsedToKillJob,
+      sparkSubmitThreadPoolSize
     )
 
   def emr: SparkConfig =
-    new SparkConfig(submitApi, null, new SparkEmrSinkConfig(clusterId,
-      filesToDeploy.mkString(","), toProperties(additionalConfs)), hadoopResourceManagerUrlBase, userUsedToKillJob,
+    new SparkConfig(
+      submitApi,
+      null,
+      new SparkEmrSinkConfig(clusterId, filesToDeploy.mkString(","), toProperties(additionalConfs)),
+      hadoopResourceManagerUrlBase,
+      userUsedToKillJob,
       sparkSubmitThreadPoolSize
     )
 

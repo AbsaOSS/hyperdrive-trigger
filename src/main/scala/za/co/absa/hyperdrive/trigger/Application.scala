@@ -42,6 +42,7 @@ class Application() {
   def objectMapper(): ObjectMapper = ObjectMapperSingleton.getObjectMapper
 
   @Bean
-  def notNullValidationBindHandlerAdvisor(): NotNullValidationBindHandlerAdvisor = new NotNullValidationBindHandlerAdvisor()
+  def notNullValidationBindHandlerAdvisor(): NotNullValidationBindHandlerAdvisor =
+    new NotNullValidationBindHandlerAdvisor()
 
 }

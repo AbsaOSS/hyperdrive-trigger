@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -18,7 +17,8 @@ package za.co.absa.hyperdrive.trigger.models.search
 
 import java.time.LocalDateTime
 
-case class DateTimeRangeFilterAttributes(override val field: String,
-                                         start: Option[LocalDateTime],
-                                         end: Option[LocalDateTime]
-                                        ) extends FilterAttributes
+case class DateTimeRangeFilterAttributes(
+  override val field: String,
+  start: Option[LocalDateTime],
+  end: Option[LocalDateTime]
+) extends FilterAttributes

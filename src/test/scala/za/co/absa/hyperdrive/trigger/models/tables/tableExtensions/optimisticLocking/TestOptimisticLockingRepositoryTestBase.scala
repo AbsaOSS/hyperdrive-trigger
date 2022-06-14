@@ -26,9 +26,8 @@ trait TestOptimisticLockingRepositoryTestBase extends RepositoryH2TestBase with 
 
   def dropTable(): Unit = run(testOptimisticLockingTable.delete)
 
-  def createOptimisticLockingTestData(): Unit = {
+  def createOptimisticLockingTestData(): Unit =
     run(testOptimisticLockingTable.forceInsertAll(TestOptimisticLockingData.testOptimisticLockingEntities))
-  }
 
   object TestOptimisticLockingData {
     val t1 = TestOptimisticLockingEntity(id = 1, stringValue = "value1", version = 1)

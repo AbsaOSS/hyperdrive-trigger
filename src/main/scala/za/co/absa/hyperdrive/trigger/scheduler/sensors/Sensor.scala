@@ -26,13 +26,12 @@ trait Sensor[T <: SensorProperties] {
   val eventsProcessor: (Seq[Event], Long) => Future[Boolean]
   val sensorDefinition: za.co.absa.hyperdrive.trigger.models.Sensor[T]
   implicit val executionContext: ExecutionContext
-  def close(): Unit = {
+  def close(): Unit =
     try {
       closeInternal()
     } catch {
       case NonFatal(e) => logger.warn(s"Couldn't close sensor ${sensorDefinition.id} - ${sensorDefinition}", e)
     }
-  }
   def closeInternal(): Unit
 }
 

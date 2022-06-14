@@ -267,6 +267,11 @@ Then, the liquibase maven plugin can be executed, e.g.
 - `mvn liquibase:dropAll` to drop all tables, views etc.
 - `mvn liquibase:update` to apply all pending changesets
 
+## License and formatting
+- `mvn apache-rat:check` to verify required copyright headers
+- `mvn scalafmt:format -Dformat.validateOnly=true` to validate scala files formatting
+- `mvn scalafmt:format` or `mvn scalafmt:format -Dformat.validateOnly=false` to apply correct scala file formatting
+
 # User Interface
 - **Workflows**: Overview of all workflows.
 ![](/docs/img/all_workflows.png)

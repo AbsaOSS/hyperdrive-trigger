@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -29,7 +28,7 @@ import scala.annotation.meta.field
 @ConstructorBinding
 @Validated
 @SparkConfigNestedClasses
-class SparkConfig (
+class SparkConfig(
   @DefaultValue(Array("yarn"))
   @Name("spark.submitApi")
   val submitApi: String,
@@ -48,7 +47,7 @@ class SparkConfig (
   val sparkSubmitThreadPoolSize: Int
 )
 
-class SparkYarnSinkConfig (
+class SparkYarnSinkConfig(
   val submitTimeout: Int,
   val master: String,
   @Name("filesToDeploy")
@@ -60,7 +59,7 @@ class SparkYarnSinkConfig (
   val additionalConfs: Map[String, String] = transformProperties(additionalConfsInternal)
 }
 
-class SparkEmrSinkConfig (
+class SparkEmrSinkConfig(
   val clusterId: String,
   @Name("filesToDeploy")
   filesToDeployInternal: String,

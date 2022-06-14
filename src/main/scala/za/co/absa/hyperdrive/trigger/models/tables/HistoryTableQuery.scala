@@ -27,40 +27,49 @@ trait HistoryTableQuery {
 
   import api._
 
-  implicit class HistoryTableQueryExtension[T <: HistoryTable with AbstractTable[_]: ru.TypeTag](tableQuery: TableQuery[T]) {
-    def getHistoryForEntity(entityId: Long)(implicit ec: ExecutionContext): DBIOAction[Seq[History], NoStream, Effect.Read] = {
+  implicit class HistoryTableQueryExtension[T <: HistoryTable with AbstractTable[_]: ru.TypeTag](
+    tableQuery: TableQuery[T]
+  ) {
+    def getHistoryForEntity(
+      entityId: Long
+    )(implicit ec: ExecutionContext): DBIOAction[Seq[History], NoStream, Effect.Read] = {
       val queryResult = tableQuery
-        .filter(_.entityId === entityId).map(
-        row => (row.id, row.changedOn, row.changedBy, row.operation)
-      ).result
+        .filter(_.entityId === entityId)
+        .map(row => (row.id, row.changedOn, row.changedBy, row.operation))
+        .result
 
-      queryResult.map(
-        _.map(result => History.tupled(result))
-      )
+      queryResult.map(_.map(result => History.tupled(result)))
     }
 
-    def getHistoryEntity(id: Long)(implicit ec: ExecutionContext): DBIOAction[T#TableElementType, NoStream, Effect.Read] = {
+    def getHistoryEntity(
+      id: Long
+    )(implicit ec: ExecutionContext): DBIOAction[T#TableElementType, NoStream, Effect.Read] = {
       val queryResult = tableQuery
         .filter(_.id === id)
         .result
 
       queryResult.map(
-        _.headOption.getOrElse(
-          throw new ApiException(ValidationError(s"Entity with #${id} doesn't exist on ${ru.typeOf[T]}."))
-        )
+        _.headOption
+          .getOrElse(throw new ApiException(ValidationError(s"Entity with #${id} doesn't exist on ${ru.typeOf[T]}.")))
       )
     }
 
-    def getEntitiesFromHistory(leftId: Long, rightId: Long)(implicit ec: ExecutionContext): DBIOAction[HistoryPair[T#TableElementType], NoStream, Effect.Read] = {
+    def getEntitiesFromHistory(leftId: Long, rightId: Long)(implicit
+      ec: ExecutionContext
+    ): DBIOAction[HistoryPair[T#TableElementType], NoStream, Effect.Read] = {
       val queryResult = tableQuery
-        .join(tableQuery).on(_.id === leftId && _.id === rightId)
+        .join(tableQuery)
+        .on(_.id === leftId && _.id === rightId)
         .result
 
       queryResult.map(
-        _.headOption.map{ tuple => HistoryPair[T#TableElementType](tuple._1, tuple._2)
-        }.getOrElse(
-          throw new ApiException(ValidationError(s"Entities with #${leftId} or #${rightId} don't exist on ${ru.typeOf[T]}."))
-        )
+        _.headOption
+          .map(tuple => HistoryPair[T#TableElementType](tuple._1, tuple._2))
+          .getOrElse(
+            throw new ApiException(
+              ValidationError(s"Entities with #${leftId} or #${rightId} don't exist on ${ru.typeOf[T]}.")
+            )
+          )
       )
     }
   }

@@ -15,7 +15,4 @@
 
 package za.co.absa.hyperdrive.trigger.models
 
-case class WorkflowImportExportWrapper(
-  workflowJoined: WorkflowJoined,
-  jobTemplates: Seq[JobTemplate]
-)
+case class WorkflowImportExportWrapper(workflowJoined: WorkflowJoined, jobTemplates: Seq[JobTemplate])

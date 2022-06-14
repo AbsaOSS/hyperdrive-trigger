@@ -15,8 +15,4 @@
 
 package za.co.absa.hyperdrive.trigger.models
 
-case class ResolvedJobDefinition(
-  name: String,
-  jobParameters: JobInstanceParameters,
-  order: Int
-)
+case class ResolvedJobDefinition(name: String, jobParameters: JobInstanceParameters, order: Int)

@@ -36,55 +36,51 @@ case class AbsaKafkaSensorProperties(
   servers: List[String] = List.empty[String],
   ingestionToken: String
 ) extends SensorProperties {
-  def toKafkaSensorProperties: KafkaSensorProperties = {
-    KafkaSensorProperties(
-      topic = topic,
-      servers = servers,
-      matchProperties = Map("ingestionToken" -> ingestionToken)
-    )
-  }
+  def toKafkaSensorProperties: KafkaSensorProperties =
+    KafkaSensorProperties(topic = topic, servers = servers, matchProperties = Map("ingestionToken" -> ingestionToken))
 }
 
-case class RecurringSensorProperties(
-  sensorType: SensorType = SensorTypes.Recurring
-) extends SensorProperties
+case class RecurringSensorProperties(sensorType: SensorType = SensorTypes.Recurring) extends SensorProperties
 
-case class TimeSensorProperties(
-  sensorType: SensorType = SensorTypes.Time,
-  cronExpression: String
-) extends SensorProperties
+case class TimeSensorProperties(sensorType: SensorType = SensorTypes.Time, cronExpression: String)
+    extends SensorProperties
 
 object KafkaSensorProperties {
-  implicit val kafkaFormat: OFormat[KafkaSensorProperties] = Json.using[Json.WithDefaultValues].format[KafkaSensorProperties]
+  implicit val kafkaFormat: OFormat[KafkaSensorProperties] =
+    Json.using[Json.WithDefaultValues].format[KafkaSensorProperties]
 }
 
 object AbsaKafkaSensorProperties {
-  implicit val absaKafkaFormat: OFormat[AbsaKafkaSensorProperties] = Json.using[Json.WithDefaultValues].format[AbsaKafkaSensorProperties]
+  implicit val absaKafkaFormat: OFormat[AbsaKafkaSensorProperties] =
+    Json.using[Json.WithDefaultValues].format[AbsaKafkaSensorProperties]
 }
 
 object RecurringSensorProperties {
-  implicit val recurringFormat: OFormat[RecurringSensorProperties] = Json.using[Json.WithDefaultValues].format[RecurringSensorProperties]
+  implicit val recurringFormat: OFormat[RecurringSensorProperties] =
+    Json.using[Json.WithDefaultValues].format[RecurringSensorProperties]
 }
 
 object TimeSensorProperties {
-  implicit val timeFormat: OFormat[TimeSensorProperties] = Json.using[Json.WithDefaultValues].format[TimeSensorProperties]
+  implicit val timeFormat: OFormat[TimeSensorProperties] =
+    Json.using[Json.WithDefaultValues].format[TimeSensorProperties]
 }
 
 object SensorProperties {
   implicit val sensorPropertiesFormat: Format[SensorProperties] = new Format[SensorProperties] {
-    override def reads(json: JsValue): JsResult[SensorProperties] = {
+    override def reads(json: JsValue): JsResult[SensorProperties] =
       (json \ "sensorType").as[String] match {
-        case SensorTypes.Kafka.name => KafkaSensorProperties.kafkaFormat.reads(json)
+        case SensorTypes.Kafka.name     => KafkaSensorProperties.kafkaFormat.reads(json)
         case SensorTypes.AbsaKafka.name => AbsaKafkaSensorProperties.absaKafkaFormat.reads(json)
         case SensorTypes.Recurring.name => RecurringSensorProperties.recurringFormat.reads(json)
-        case SensorTypes.Time.name => TimeSensorProperties.timeFormat.reads(json)
+        case SensorTypes.Time.name      => TimeSensorProperties.timeFormat.reads(json)
       }
-    }
 
     override def writes(sensorProperties: SensorProperties): JsValue = sensorProperties match {
       case kafkaProperties: KafkaSensorProperties => KafkaSensorProperties.kafkaFormat.writes(kafkaProperties)
-      case absaKafkaProperties: AbsaKafkaSensorProperties => AbsaKafkaSensorProperties.absaKafkaFormat.writes(absaKafkaProperties)
-      case recurringProperties: RecurringSensorProperties => RecurringSensorProperties.recurringFormat.writes(recurringProperties)
+      case absaKafkaProperties: AbsaKafkaSensorProperties =>
+        AbsaKafkaSensorProperties.absaKafkaFormat.writes(absaKafkaProperties)
+      case recurringProperties: RecurringSensorProperties =>
+        RecurringSensorProperties.recurringFormat.writes(recurringProperties)
       case timeSensorProperties: TimeSensorProperties => TimeSensorProperties.timeFormat.writes(timeSensorProperties)
     }
   }

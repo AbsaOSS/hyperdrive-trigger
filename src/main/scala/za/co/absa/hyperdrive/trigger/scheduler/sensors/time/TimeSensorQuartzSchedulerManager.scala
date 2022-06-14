@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -24,7 +23,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.scheduling.SchedulingException
 
 /**
- * Quartz Scheduler for Time Sensors.
+ *  Quartz Scheduler for Time Sensors.
  */
 object TimeSensorQuartzSchedulerManager {
   private val logger = LoggerFactory.getLogger(this.getClass)

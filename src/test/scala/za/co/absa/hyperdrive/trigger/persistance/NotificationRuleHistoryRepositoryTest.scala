@@ -24,33 +24,39 @@ import za.co.absa.hyperdrive.trigger.models.enums.DBOperation.DBOperation
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class NotificationRuleHistoryRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryH2TestBase {
+class NotificationRuleHistoryRepositoryTest
+    extends FlatSpec
+    with Matchers
+    with BeforeAndAfterAll
+    with BeforeAndAfterEach
+    with RepositoryH2TestBase {
   import api._
 
   private val h2NotificationRuleHistoryRepository: NotificationRuleHistoryRepository =
-    new NotificationRuleHistoryRepositoryImpl(dbProvider) with H2Profile  {
+    new NotificationRuleHistoryRepositoryImpl(dbProvider) with H2Profile {
       override val profile = h2Profile
     }
 
   private val h2NotificationRuleHistoryTable = h2NotificationRuleHistoryRepository.notificationRuleHistoryTable
 
-  override def beforeAll: Unit = {
+  override def beforeAll: Unit =
     schemaSetup()
-  }
 
-  override def afterAll: Unit = {
+  override def afterAll: Unit =
     schemaDrop()
-  }
 
-  override def afterEach: Unit = {
+  override def afterEach: Unit =
     clearData()
-  }
 
-  private def verifyHistory(historyEntries: Seq[History], historyId: Long, user: String, dbOperation: DBOperation): Boolean = {
-    historyEntries.exists(history => {
+  private def verifyHistory(
+    historyEntries: Seq[History],
+    historyId: Long,
+    user: String,
+    dbOperation: DBOperation
+  ): Boolean =
+    historyEntries.exists { history =>
       history.id == historyId && history.changedBy == user && history.operation == dbOperation
-    })
-  }
+    }
 
   "notificationRuleHistoryRepository create/update/delete/getHistoryForWorkflow" should "create workflow history record with correct values" in {
     val nrCreate = TestData.nr1

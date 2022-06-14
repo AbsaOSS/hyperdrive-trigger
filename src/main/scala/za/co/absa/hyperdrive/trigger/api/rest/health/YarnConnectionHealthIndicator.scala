@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -25,7 +24,8 @@ import javax.inject.Inject
 import scala.util.{Failure, Success, Try}
 
 @Component
-class YarnConnectionHealthIndicator @Inject()(sparkConfig: SparkConfig, healthConfig: HealthConfig) extends HealthIndicator {
+class YarnConnectionHealthIndicator @Inject() (sparkConfig: SparkConfig, healthConfig: HealthConfig)
+    extends HealthIndicator {
   val successCode = 200
 
   override protected def health(): Health = {
@@ -39,13 +39,14 @@ class YarnConnectionHealthIndicator @Inject()(sparkConfig: SparkConfig, healthCo
         connection.getResponseCode == successCode
       })
     ) match {
-      case Success(healthy) => if (healthy) {
-        Health.up.build()
-      } else {
-        Health.down().build()
-      }
+      case Success(healthy) =>
+        if (healthy) {
+          Health.up.build()
+        } else {
+          Health.down().build()
+        }
       case Failure(ex: MalformedURLException) => Health.unknown().withException(ex).build()
-      case Failure(ex) => Health.down().withException(ex).build()
+      case Failure(ex)                        => Health.down().withException(ex).build()
     }
   }
 }

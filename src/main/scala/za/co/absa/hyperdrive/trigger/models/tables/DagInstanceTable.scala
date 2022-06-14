@@ -23,7 +23,7 @@ import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses.DagInstanc
 
 trait DagInstanceTable {
   this: Profile with JdbcTypeMapper with WorkflowTable =>
-  import  api._
+  import api._
 
   final class DagInstanceTable(tag: Tag) extends Table[DagInstance](tag, _tableName = "dag_instance") {
 

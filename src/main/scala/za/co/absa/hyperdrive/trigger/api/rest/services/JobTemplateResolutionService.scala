@@ -22,18 +22,24 @@ import za.co.absa.hyperdrive.trigger.models._
 import scala.util.{Failure, Success, Try}
 
 trait JobTemplateResolutionService {
-  def resolveDagDefinitionJoined(dagDefinitionJoined: DagDefinitionJoined, jobTemplates: Seq[JobTemplate]): Seq[ResolvedJobDefinition]
+  def resolveDagDefinitionJoined(
+    dagDefinitionJoined: DagDefinitionJoined,
+    jobTemplates: Seq[JobTemplate]
+  ): Seq[ResolvedJobDefinition]
 }
 
 @Service
 class JobTemplateResolutionServiceImpl extends JobTemplateResolutionService {
-  def resolveDagDefinitionJoined(dagDefinitionJoined: DagDefinitionJoined, jobTemplates: Seq[JobTemplate]): Seq[ResolvedJobDefinition] = {
+  def resolveDagDefinitionJoined(
+    dagDefinitionJoined: DagDefinitionJoined,
+    jobTemplates: Seq[JobTemplate]
+  ): Seq[ResolvedJobDefinition] = {
     val jobTemplatesLookup = jobTemplates.map(t => t.id -> t).toMap
     dagDefinitionJoined.jobDefinitions.map {
       case jd @ JobDefinition(_, Some(jobTemplateId), _, _, _, _) =>
         val jobTemplate = Try(jobTemplatesLookup(jobTemplateId)) match {
           case Success(value) => value
-          case Failure(_) => throw new NoSuchElementException(s"Couldn't find template with id ${jobTemplateId}")
+          case Failure(_)     => throw new NoSuchElementException(s"Couldn't find template with id ${jobTemplateId}")
         }
         resolveJobDefinition(jd, jobTemplate)
       case jd @ JobDefinition(_, None, _, _, _, _) => resolveJobDefinition(jd)
@@ -42,7 +48,15 @@ class JobTemplateResolutionServiceImpl extends JobTemplateResolutionService {
 
   private def resolveJobDefinition(jobDefinition: JobDefinition): ResolvedJobDefinition = {
     val jobParameters = jobDefinition.jobParameters match {
-      case SparkDefinitionParameters(jobType, jobJar, mainClass, appArguments, additionalJars, additionalFiles, additionalSparkConfig) =>
+      case SparkDefinitionParameters(
+            jobType,
+            jobJar,
+            mainClass,
+            appArguments,
+            additionalJars,
+            additionalFiles,
+            additionalSparkConfig
+          ) =>
         SparkInstanceParameters(
           jobType = jobType,
           jobJar = jobJar.getOrElse(""),
@@ -53,27 +67,23 @@ class JobTemplateResolutionServiceImpl extends JobTemplateResolutionService {
           additionalSparkConfig = additionalSparkConfig
         )
       case ShellDefinitionParameters(_, scriptLocation) =>
-        ShellInstanceParameters(
-          scriptLocation = scriptLocation.getOrElse("")
-        )
+        ShellInstanceParameters(scriptLocation = scriptLocation.getOrElse(""))
     }
 
-    ResolvedJobDefinition(
-      name = jobDefinition.name,
-      jobParameters = jobParameters,
-      order = jobDefinition.order
-    )
+    ResolvedJobDefinition(name = jobDefinition.name, jobParameters = jobParameters, order = jobDefinition.order)
   }
 
-  private def resolveJobDefinition(jobDefinition: JobDefinition, jobTemplate: JobTemplate): ResolvedJobDefinition = {
+  private def resolveJobDefinition(jobDefinition: JobDefinition, jobTemplate: JobTemplate): ResolvedJobDefinition =
     ResolvedJobDefinition(
       name = jobDefinition.name,
       jobParameters = mergeJobParameters(jobDefinition.jobParameters, jobTemplate.jobParameters),
       order = jobDefinition.order
     )
-  }
 
-  private def mergeJobParameters(primary: JobDefinitionParameters, secondary: JobTemplateParameters): JobInstanceParameters = {
+  private def mergeJobParameters(
+    primary: JobDefinitionParameters,
+    secondary: JobTemplateParameters
+  ): JobInstanceParameters =
     (primary, secondary) match {
       case (definitionParams: SparkDefinitionParameters, templateParams: SparkTemplateParameters) =>
         mergeSparkParameters(definitionParams, templateParams)
@@ -82,24 +92,26 @@ class JobTemplateResolutionServiceImpl extends JobTemplateResolutionService {
       case _ =>
         throw new IllegalArgumentException("Could not mix different job types.")
     }
-  }
 
-  private def mergeSparkParameters(definitionParams: SparkDefinitionParameters, templateParams: SparkTemplateParameters): SparkInstanceParameters = {
+  private def mergeSparkParameters(
+    definitionParams: SparkDefinitionParameters,
+    templateParams: SparkTemplateParameters
+  ): SparkInstanceParameters =
     SparkInstanceParameters(
       jobJar = mergeOptionString(definitionParams.jobJar, templateParams.jobJar),
       mainClass = mergeOptionString(definitionParams.mainClass, templateParams.mainClass),
       appArguments = mergeLists(definitionParams.appArguments, templateParams.appArguments),
       additionalJars = mergeLists(definitionParams.additionalJars, templateParams.additionalJars),
       additionalFiles = mergeLists(definitionParams.additionalFiles, templateParams.additionalFiles),
-      additionalSparkConfig = mergeMaps(definitionParams.additionalSparkConfig, templateParams.additionalSparkConfig, mergeSortedMapEntries)
+      additionalSparkConfig =
+        mergeMaps(definitionParams.additionalSparkConfig, templateParams.additionalSparkConfig, mergeSortedMapEntries)
     )
-  }
 
-  private def mergeShellParameters(definitionParams: ShellDefinitionParameters, templateParams: ShellTemplateParameters): ShellInstanceParameters = {
-    ShellInstanceParameters(
-      scriptLocation = definitionParams.scriptLocation.getOrElse(templateParams.scriptLocation)
-    )
-  }
+  private def mergeShellParameters(
+    definitionParams: ShellDefinitionParameters,
+    templateParams: ShellTemplateParameters
+  ): ShellInstanceParameters =
+    ShellInstanceParameters(scriptLocation = definitionParams.scriptLocation.getOrElse(templateParams.scriptLocation))
 
   private def mergeOptionString(primary: Option[String], secondary: String): String =
     primary.getOrElse(secondary)
@@ -107,19 +119,19 @@ class JobTemplateResolutionServiceImpl extends JobTemplateResolutionService {
   private def mergeLists(primary: List[String], secondary: List[String]): List[String] =
     secondary ++ primary
 
-  private def mergeSortedMapEntries(key: String, firstValue: String, secondValue: String): String = {
+  private def mergeSortedMapEntries(key: String, firstValue: String, secondValue: String): String =
     if (KeysToMerge.contains(key)) {
       s"$secondValue$MergedValuesSeparator$firstValue".trim
     } else {
       firstValue
     }
-  }
 
   private def mergeMaps[T](primary: Map[String, T], secondary: Map[String, T], mergeFn: (String, T, T) => T) = {
     val sharedKeys = primary.keySet.intersect(secondary.keySet)
     primary.filterKeys(key => !sharedKeys.contains(key)) ++
-    secondary.filterKeys(key => !sharedKeys.contains(key)) ++
-    primary.filterKeys(key => sharedKeys.contains(key))
-        .map{ case (key, value) => key -> mergeFn.apply(key, value, secondary(key))}
+      secondary.filterKeys(key => !sharedKeys.contains(key)) ++
+      primary
+        .filterKeys(key => sharedKeys.contains(key))
+        .map { case (key, value) => key -> mergeFn.apply(key, value, secondary(key)) }
   }
 }

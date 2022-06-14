@@ -19,7 +19,12 @@ import play.api.libs.json._
 
 object DagInstanceStatuses {
 
-  sealed abstract class DagInstanceStatus(val name: String, val isFinalStatus: Boolean, val isFailed: Boolean, val isRunning: Boolean) {
+  sealed abstract class DagInstanceStatus(
+    val name: String,
+    val isFinalStatus: Boolean,
+    val isFailed: Boolean,
+    val isRunning: Boolean
+  ) {
     override def toString: String = name
   }
 
@@ -29,18 +34,17 @@ object DagInstanceStatuses {
   case object Failed extends DagInstanceStatus("Failed", true, true, false)
   case object Skipped extends DagInstanceStatus("Skipped", true, false, false)
 
-  val statuses: Set[DagInstanceStatus] = Set(InQueue,Running,Succeeded,Failed,Skipped)
+  val statuses: Set[DagInstanceStatus] = Set(InQueue, Running, Succeeded, Failed, Skipped)
   val nonFinalStatuses: Set[DagInstanceStatus] = statuses.filter(!_.isFinalStatus)
 
-  def convertStatusNameToDagInstanceStatus(statusName: String): DagInstanceStatus = {
-    DagInstanceStatuses.statuses.find(_.name == statusName).getOrElse(
-      throw new Exception(s"Couldn't find DagInstanceStatus: $statusName")
-    )
-  }
+  def convertStatusNameToDagInstanceStatus(statusName: String): DagInstanceStatus =
+    DagInstanceStatuses.statuses
+      .find(_.name == statusName)
+      .getOrElse(throw new Exception(s"Couldn't find DagInstanceStatus: $statusName"))
 
   implicit val dagInstanceStatusesFormat: Format[Seq[DagInstanceStatus]] = Format[Seq[DagInstanceStatus]](
     JsPath.read[Seq[String]].map(_.map(convertStatusNameToDagInstanceStatus)),
-    Writes[Seq[DagInstanceStatus]] { statuses => JsArray(statuses.map(dagInstanceStatus2String).sorted.map(JsString))}
+    Writes[Seq[DagInstanceStatus]](statuses => JsArray(statuses.map(dagInstanceStatus2String).sorted.map(JsString)))
   )
 
   def dagInstanceStatus2String(status: DagInstanceStatus): String = status.name

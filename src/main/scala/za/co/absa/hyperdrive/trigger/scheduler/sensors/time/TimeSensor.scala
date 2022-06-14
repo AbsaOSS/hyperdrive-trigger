@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -24,20 +23,20 @@ import za.co.absa.hyperdrive.trigger.models.{Sensor => SensorDefition}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class TimeSensor(eventsProcessor: (Seq[Event], Long) => Future[Boolean],
-                 sensorDefinition: SensorDefition[TimeSensorProperties],
-                 scheduler: Scheduler
-                )(implicit executionContext: ExecutionContext) 
-                  extends PushSensor[TimeSensorProperties](eventsProcessor, sensorDefinition, executionContext) {
+class TimeSensor(
+  eventsProcessor: (Seq[Event], Long) => Future[Boolean],
+  sensorDefinition: SensorDefition[TimeSensorProperties],
+  scheduler: Scheduler
+)(implicit executionContext: ExecutionContext)
+    extends PushSensor[TimeSensorProperties](eventsProcessor, sensorDefinition, executionContext) {
   val jobKey: JobKey = new JobKey(sensorDefinition.id.toString, TimeSensor.JOB_GROUP_NAME)
   val jobTriggerKey: TriggerKey = new TriggerKey(jobKey.getName, TimeSensor.JOB_TRIGGER_GROUP_NAME)
 
   override def push: Seq[Event] => Future[Unit] = (events: Seq[Event]) =>
     eventsProcessor.apply(events, sensorDefinition.id).map(_ => (): Unit)
 
-  override def closeInternal(): Unit = {
+  override def closeInternal(): Unit =
     scheduler.deleteJob(jobKey)
-  }
 
   def launchQuartzJob(cronExpression: CronExpression, sensorId: Long): Unit = {
     val jobDetail = buildJobDetail(sensorId)
@@ -49,7 +48,8 @@ class TimeSensor(eventsProcessor: (Seq[Event], Long) => Future[Boolean],
     val jobDataMap = new JobDataMap()
     jobDataMap.put(TimeSensor.PUSH_FUNCTION_JOB_DATA_MAP_KEY, push)
     jobDataMap.put(TimeSensor.SENSOR_ID_JOB_DATA_MAP_KEY, sensorId)
-    JobBuilder.newJob(classOf[TimeSensorQuartzJob])
+    JobBuilder
+      .newJob(classOf[TimeSensorQuartzJob])
       .withIdentity(jobKey)
       .withDescription(s"Quartz-Job for TimeSensor (#$sensorId)")
       .usingJobData(jobDataMap)
@@ -57,15 +57,15 @@ class TimeSensor(eventsProcessor: (Seq[Event], Long) => Future[Boolean],
       .build
   }
 
-  private def buildJobTrigger(jobDetail: JobDetail, cronExpression: CronExpression): Trigger = {
-    TriggerBuilder.newTrigger()
+  private def buildJobTrigger(jobDetail: JobDetail, cronExpression: CronExpression): Trigger =
+    TriggerBuilder
+      .newTrigger()
       .forJob(jobDetail)
       .withIdentity(jobTriggerKey)
       .withDescription("Time Based Cron Trigger")
       .withSchedule(cronSchedule(cronExpression).withMisfireHandlingInstructionFireAndProceed())
       .startNow()
       .build()
-  }
 }
 
 object TimeSensor {
@@ -75,9 +75,10 @@ object TimeSensor {
   val JOB_GROUP_NAME: String = "time-sensor-job-group"
   val JOB_TRIGGER_GROUP_NAME: String = "time-sensor-job-trigger-group"
 
-  def apply(eventsProcessor: (Seq[Event], Long) => Future[Boolean],
-            sensorDefinition: SensorDefition[TimeSensorProperties])
-           (implicit executionContext: ExecutionContext): TimeSensor = {
+  def apply(
+    eventsProcessor: (Seq[Event], Long) => Future[Boolean],
+    sensorDefinition: SensorDefition[TimeSensorProperties]
+  )(implicit executionContext: ExecutionContext): TimeSensor = {
     val quartzScheduler = TimeSensorQuartzSchedulerManager.getScheduler
     val sensor = new TimeSensor(eventsProcessor, sensorDefinition, quartzScheduler)
 
@@ -90,16 +91,19 @@ object TimeSensor {
 
   private def validateJobKeys(jobKey: JobKey, triggerKey: TriggerKey, scheduler: Scheduler, sensorId: Long): Unit = {
     if (scheduler.checkExists(jobKey)) {
-      throw new IllegalArgumentException(s"A Quartz Job with key ($jobKey) already exists. Cannot create job for sensor (#$sensorId)")
+      throw new IllegalArgumentException(
+        s"A Quartz Job with key ($jobKey) already exists. Cannot create job for sensor (#$sensorId)"
+      )
     }
     if (scheduler.checkExists(triggerKey)) {
-      throw new IllegalArgumentException(s"A Quartz Job-Trigger with key ($triggerKey) already exists. Cannot create job for sensor (#$sensorId)")
+      throw new IllegalArgumentException(
+        s"A Quartz Job-Trigger with key ($triggerKey) already exists. Cannot create job for sensor (#$sensorId)"
+      )
     }
   }
 
-  private def validateCronExpression(cronExpression: String, sensorId: Long): Unit = {
+  private def validateCronExpression(cronExpression: String, sensorId: Long): Unit =
     if (!CronExpression.isValidExpression(cronExpression)) {
       throw new IllegalArgumentException(s"Invalid cron expression $cronExpression for sensor (#$sensorId)")
     }
-  }
 }

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -22,15 +21,21 @@ import za.co.absa.hyperdrive.trigger.models.{JobInstance, SparkInstanceParameter
 import scala.concurrent.{ExecutionContext, Future}
 
 trait SparkClusterService {
-  def submitJob(jobInstance: JobInstance, jobParameters: SparkInstanceParameters,
-                updateJob: JobInstance => Future[Unit]): Future[Unit]
+  def submitJob(
+    jobInstance: JobInstance,
+    jobParameters: SparkInstanceParameters,
+    updateJob: JobInstance => Future[Unit]
+  ): Future[Unit]
 
   def handleMissingYarnStatus(jobInstance: JobInstance, updateJob: JobInstance => Future[Unit]): Future[Unit]
 
-  protected def mergeAdditionalSparkConfig(globalConfig: Map[String, String], jobConfig: Map[String, String]): Map[String, String] =
-    KeysToMerge.map(key => {
+  protected def mergeAdditionalSparkConfig(
+    globalConfig: Map[String, String],
+    jobConfig: Map[String, String]
+  ): Map[String, String] =
+    KeysToMerge.map { key =>
       val globalValue = globalConfig.getOrElse(key, "")
       val jobValue = jobConfig.getOrElse(key, "")
       key -> s"$globalValue$MergedValuesSeparator$jobValue".trim
-    }).toMap
+    }.toMap
 }

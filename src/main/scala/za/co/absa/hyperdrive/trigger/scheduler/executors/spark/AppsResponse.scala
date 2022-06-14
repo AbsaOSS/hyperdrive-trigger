@@ -17,12 +17,7 @@ package za.co.absa.hyperdrive.trigger.scheduler.executors.spark
 
 import play.api.libs.json.{Json, OFormat}
 
-case class App(
-                id: String,
-                name: String,
-                state: String,
-                finalStatus: String
-              )
+case class App(id: String, name: String, state: String, finalStatus: String)
 
 case class Apps(app: Seq[App])
 

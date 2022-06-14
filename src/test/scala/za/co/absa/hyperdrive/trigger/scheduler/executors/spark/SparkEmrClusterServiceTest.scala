@@ -16,7 +16,18 @@
 package za.co.absa.hyperdrive.trigger.scheduler.executors.spark
 
 import com.amazonaws.services.elasticmapreduce.AmazonElasticMapReduce
-import com.amazonaws.services.elasticmapreduce.model.{ActionOnFailure, AddJobFlowStepsRequest, AddJobFlowStepsResult, DescribeStepResult, ListStepsRequest, ListStepsResult, Step, StepState, StepStatus, StepSummary}
+import com.amazonaws.services.elasticmapreduce.model.{
+  ActionOnFailure,
+  AddJobFlowStepsRequest,
+  AddJobFlowStepsResult,
+  DescribeStepResult,
+  ListStepsRequest,
+  ListStepsResult,
+  Step,
+  StepState,
+  StepStatus,
+  StepSummary
+}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, times, verify, when}
@@ -36,8 +47,13 @@ import java.time.LocalDateTime
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
-class SparkEmrClusterServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar with OptionValues
-  with TableDrivenPropertyChecks with BeforeAndAfter {
+class SparkEmrClusterServiceTest
+    extends AsyncFlatSpec
+    with Matchers
+    with MockitoSugar
+    with OptionValues
+    with TableDrivenPropertyChecks
+    with BeforeAndAfter {
   implicit override def executionContext: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
   private trait HasUpdateJob {
@@ -59,8 +75,8 @@ class SparkEmrClusterServiceTest extends AsyncFlatSpec with Matchers with Mockit
   private val testSparkClusterServiceExecutionContextProvider: SparkClusterServiceExecutionContextProvider =
     () => scala.concurrent.ExecutionContext.Implicits.global
 
-  private val underTest = new SparkEmrClusterServiceImpl(sparkConfig, testEmrClusterProvider,
-    testSparkClusterServiceExecutionContextProvider)
+  private val underTest =
+    new SparkEmrClusterServiceImpl(sparkConfig, testEmrClusterProvider, testSparkClusterServiceExecutionContextProvider)
 
   before {
     reset(mockUpdateJob)
@@ -98,7 +114,8 @@ class SparkEmrClusterServiceTest extends AsyncFlatSpec with Matchers with Mockit
     val jiWithStepId = jobInstanceCaptor.getAllValues.asScala(1)
     jiWithStepId.stepId.value shouldBe stepId
 
-    val addJobFlowStepsRequestCaptor: ArgumentCaptor[AddJobFlowStepsRequest] = ArgumentCaptor.forClass(classOf[AddJobFlowStepsRequest])
+    val addJobFlowStepsRequestCaptor: ArgumentCaptor[AddJobFlowStepsRequest] =
+      ArgumentCaptor.forClass(classOf[AddJobFlowStepsRequest])
     verify(mockEmrClient).addJobFlowSteps(addJobFlowStepsRequestCaptor.capture())
     val addJobFlowStepsRequest = addJobFlowStepsRequestCaptor.getValue
     addJobFlowStepsRequest.getJobFlowId shouldBe sparkConfig.emr.clusterId
@@ -107,19 +124,33 @@ class SparkEmrClusterServiceTest extends AsyncFlatSpec with Matchers with Mockit
     stepConfig.getHadoopJarStep.getJar shouldBe "command-runner.jar"
     stepConfig.getHadoopJarStep.getArgs should contain theSameElementsInOrderAs Seq(
       "spark-submit",
-      "--deploy-mode", "cluster",
-      "--conf", "spark.executor.extraJavaOptions=-DGlobalExecutorOpt -DLocalExecutorOpt",
-      "--conf", "spark.driver.memory=2g",
-      "--conf", "spark.driver.extraJavaOptions=-DGlobalDriverOpt -DLocalDriverOpt",
-      "--conf", s"spark.yarn.tags=$executorJobId",
-      "--conf", "spark.executor.memory=2g",
-      "--class", "mainClass",
-      "--name", "jobName",
-      "--files", "/global/file/1,/global/file/2,some/file/1,some/file/2",
-      "--jars", "1.jar,2.jar",
+      "--deploy-mode",
+      "cluster",
+      "--conf",
+      "spark.executor.extraJavaOptions=-DGlobalExecutorOpt -DLocalExecutorOpt",
+      "--conf",
+      "spark.driver.memory=2g",
+      "--conf",
+      "spark.driver.extraJavaOptions=-DGlobalDriverOpt -DLocalDriverOpt",
+      "--conf",
+      s"spark.yarn.tags=$executorJobId",
+      "--conf",
+      "spark.executor.memory=2g",
+      "--class",
+      "mainClass",
+      "--name",
+      "jobName",
+      "--files",
+      "/global/file/1,/global/file/2,some/file/1,some/file/2",
+      "--jars",
+      "1.jar,2.jar",
       "--verbose",
       "job.jar",
-      "arg1", "arg2", "key1=value1", "key2=value2")
+      "arg1",
+      "arg2",
+      "key1=value1",
+      "key2=value2"
+    )
     stepConfig.getActionOnFailure shouldBe ActionOnFailure.CONTINUE.toString
     stepConfig.getName shouldBe jobInstance.jobName + "_" + executorJobId
   }
@@ -135,15 +166,21 @@ class SparkEmrClusterServiceTest extends AsyncFlatSpec with Matchers with Mockit
     (StepState.INTERRUPTED, JobStatuses.Failed)
   )
 
-  forAll(cases) {(stepState: StepState, jobStatus: JobStatus) =>
+  forAll(cases) { (stepState: StepState, jobStatus: JobStatus) =>
     "handleMissingYarnStatusForJobStatusSubmitting" should s"update the job status ${jobStatus}, when state is ${stepState}" in {
       // given
       val jobInstance = createJobInstance().copy(stepId = Some("abcd"))
       when(mockUpdateJob.updateJob(any())).thenReturn(Future {})
-      when(mockEmrClient.describeStep(any())).thenReturn(new DescribeStepResult()
-        .withStep(new Step()
-          .withStatus(new StepStatus()
-            .withState(stepState))))
+      when(mockEmrClient.describeStep(any())).thenReturn(
+        new DescribeStepResult()
+          .withStep(
+            new Step()
+              .withStatus(
+                new StepStatus()
+                  .withState(stepState)
+              )
+          )
+      )
 
       // when
       await(underTest.handleMissingYarnStatus(jobInstance, mockUpdateJob.updateJob))
@@ -170,7 +207,7 @@ class SparkEmrClusterServiceTest extends AsyncFlatSpec with Matchers with Mockit
       .withName(s"${jobName}_${executorJobId}")
       .withStatus(new StepStatus().withState(StepState.RUNNING))
     val jobInstance = createJobInstance().copy(jobName = jobName, executorJobId = Some(executorJobId))
-    when(mockUpdateJob.updateJob(any())).thenReturn(Future{})
+    when(mockUpdateJob.updateJob(any())).thenReturn(Future {})
     when(mockEmrClient.listSteps(any())).thenAnswer(new Answer[ListStepsResult] {
       override def answer(invocation: InvocationOnMock): ListStepsResult = {
         val marker = invocation.getArgument[ListStepsRequest](0).getMarker
@@ -199,7 +236,7 @@ class SparkEmrClusterServiceTest extends AsyncFlatSpec with Matchers with Mockit
     import scala.collection.JavaConverters._
     val executorJobId = UUID.randomUUID().toString
     val jobInstance = createJobInstance().copy(executorJobId = Some(executorJobId))
-    when(mockUpdateJob.updateJob(any())).thenReturn(Future{})
+    when(mockUpdateJob.updateJob(any())).thenReturn(Future {})
     when(mockEmrClient.listSteps(any())).thenReturn(new ListStepsResult().withSteps(Seq[StepSummary]().asJava))
 
     // when
@@ -212,7 +249,7 @@ class SparkEmrClusterServiceTest extends AsyncFlatSpec with Matchers with Mockit
     ji.jobStatus shouldBe JobStatuses.Lost
   }
 
-  private def createJobInstance() = {
+  private def createJobInstance() =
     JobInstance(
       jobName = "jobName",
       jobParameters = SparkInstanceParameters(
@@ -226,7 +263,8 @@ class SparkEmrClusterServiceTest extends AsyncFlatSpec with Matchers with Mockit
           "spark.driver.extraJavaOptions" -> "-DLocalDriverOpt",
           "spark.executor.extraJavaOptions" -> "-DLocalExecutorOpt",
           "spark.driver.memory" -> "2g",
-          "spark.executor.memory" -> "2g")
+          "spark.executor.memory" -> "2g"
+        )
       ),
       jobStatus = InQueue,
       executorJobId = None,
@@ -237,12 +275,10 @@ class SparkEmrClusterServiceTest extends AsyncFlatSpec with Matchers with Mockit
       order = 0,
       dagInstanceId = 0
     )
-  }
 
-  private def createTestStepSummary(id: Int) = {
+  private def createTestStepSummary(id: Int) =
     new StepSummary()
       .withId(s"$id")
       .withName(s"job_$id")
       .withStatus(new StepStatus().withState(StepState.RUNNING))
-  }
 }

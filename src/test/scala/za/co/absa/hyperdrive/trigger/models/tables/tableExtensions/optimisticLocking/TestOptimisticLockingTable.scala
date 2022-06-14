@@ -24,23 +24,19 @@ trait TestOptimisticLockingTable extends OptimisticLockingTableQuery {
   import api._
 
   case class TestOptimisticLockingEntity(id: Long, stringValue: String, override val version: Long)
-    extends OptimisticLockingEntity[TestOptimisticLockingEntity] {
+      extends OptimisticLockingEntity[TestOptimisticLockingEntity] {
     override def updateVersion(newVersion: Long): TestOptimisticLockingEntity = copy(version = newVersion)
   }
 
-
   final class TestOptimisticLockingTable(tag: Tag)
-    extends Table[TestOptimisticLockingEntity](tag, _tableName = "test_optimistic_locking_entity")
+      extends Table[TestOptimisticLockingEntity](tag, _tableName = "test_optimistic_locking_entity")
       with OptimisticLockingTable {
     def id: Rep[Long] = column[Long]("id")
     def stringField: Rep[String] = column[String]("string_field")
     def version: Rep[Long] = column[Long]("version")
 
-    override def * : ProvenShape[TestOptimisticLockingEntity] = (
-      id,
-      stringField,
-      version
-      ).mapTo[TestOptimisticLockingEntity]
+    override def * : ProvenShape[TestOptimisticLockingEntity] =
+      (id, stringField, version).mapTo[TestOptimisticLockingEntity]
   }
 
   lazy val testOptimisticLockingTable = TableQuery[TestOptimisticLockingTable]

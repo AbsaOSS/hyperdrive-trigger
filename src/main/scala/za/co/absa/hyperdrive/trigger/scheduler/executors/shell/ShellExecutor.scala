@@ -26,17 +26,20 @@ import scala.util.Try
 object ShellExecutor {
   private val logger = LoggerFactory.getLogger(this.getClass)
 
-  def execute(jobInstance: JobInstance, jobParameters: ShellInstanceParameters, updateJob: JobInstance => Future[Unit])
-             (implicit executionContext: ExecutionContext): Future[Unit] = {
+  def execute(jobInstance: JobInstance, jobParameters: ShellInstanceParameters, updateJob: JobInstance => Future[Unit])(
+    implicit executionContext: ExecutionContext
+  ): Future[Unit] =
     jobInstance.jobStatus match {
       case status if status == InQueue => executeJob(jobInstance, jobParameters, updateJob)
       case status if status == Running => updateJob(jobInstance.copy(jobStatus = Failed))
-      case _ => updateJob(jobInstance.copy(jobStatus = Lost))
+      case _                           => updateJob(jobInstance.copy(jobStatus = Lost))
     }
-  }
 
-  private def executeJob(jobInstance: JobInstance, jobParameters: ShellInstanceParameters, updateJob: JobInstance => Future[Unit])
-                        (implicit executionContext: ExecutionContext): Future[Unit] = {
+  private def executeJob(
+    jobInstance: JobInstance,
+    jobParameters: ShellInstanceParameters,
+    updateJob: JobInstance => Future[Unit]
+  )(implicit executionContext: ExecutionContext): Future[Unit] =
     updateJob(jobInstance.copy(jobStatus = Running)).map { _ =>
       Try {
         jobParameters.scriptLocation.!(new ProcessLogger {
@@ -49,5 +52,4 @@ object ShellExecutor {
       case 0 => updateJob(jobInstance.copy(jobStatus = Succeeded))
       case _ => updateJob(jobInstance.copy(jobStatus = Failed))
     }
-  }
 }

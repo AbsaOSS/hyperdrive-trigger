@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -27,7 +26,7 @@ import scala.annotation.meta.field
 @ConfigurationProperties("kafka-source")
 @ConstructorBinding
 @Validated
-class KafkaConfig (
+class KafkaConfig(
   @(KafkaSensorProperties @field)(message = "key.deserializer, value.deserializer or max.poll.records is not defined")
   val properties: Properties,
   @Name("group.id.prefix")

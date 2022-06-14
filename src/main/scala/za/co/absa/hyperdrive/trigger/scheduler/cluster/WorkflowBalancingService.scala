@@ -26,27 +26,36 @@ import scala.concurrent.{ExecutionContext, Future}
 
 trait WorkflowBalancingService {
 
-  def getWorkflowsAssignment(runningWorkflowIds: Iterable[Long], instances: Seq[SchedulerInstance], myInstanceId: Long)
-                            (implicit ec: ExecutionContext): Future[(Seq[Workflow], Boolean)]
+  def getWorkflowsAssignment(runningWorkflowIds: Iterable[Long], instances: Seq[SchedulerInstance], myInstanceId: Long)(
+    implicit ec: ExecutionContext
+  ): Future[(Seq[Workflow], Boolean)]
 
   def getMaxWorkflowId()(implicit ec: ExecutionContext): Future[Option[Long]]
 }
 
 @Service
-class WorkflowBalancingServiceImpl @Inject()(workflowRepository: WorkflowRepository) extends WorkflowBalancingService {
+class WorkflowBalancingServiceImpl @Inject() (workflowRepository: WorkflowRepository) extends WorkflowBalancingService {
   private val logger = LoggerFactory.getLogger(this.getClass)
 
-  override def getWorkflowsAssignment(runningWorkflowIds: Iterable[Long], instances: Seq[SchedulerInstance], myInstanceId: Long)
-                                     (implicit ec: ExecutionContext): Future[(Seq[Workflow], Boolean)] = {
+  override def getWorkflowsAssignment(
+    runningWorkflowIds: Iterable[Long],
+    instances: Seq[SchedulerInstance],
+    myInstanceId: Long
+  )(implicit ec: ExecutionContext): Future[(Seq[Workflow], Boolean)] = {
     val activeInstances = instances.filter(_.status == SchedulerInstanceStatuses.Active)
     val myRank = getRank(activeInstances, myInstanceId)
-    logger.info(s"Rebalancing workflows on scheduler instance id = $myInstanceId, rank = $myRank," +
-      s" active instance ids = ${activeInstances.map(_.id).sorted}, retaining workflow ids = ${runningWorkflowIds}")
+    logger.info(
+      s"Rebalancing workflows on scheduler instance id = $myInstanceId, rank = $myRank," +
+        s" active instance ids = ${activeInstances.map(_.id).sorted}, retaining workflow ids = ${runningWorkflowIds}"
+    )
     for {
-      (releasedWorkflowsCount, instancesDeletedCount) <- workflowRepository.releaseWorkflowAssignmentsOfDeactivatedInstances()
+      (releasedWorkflowsCount, instancesDeletedCount) <- workflowRepository
+        .releaseWorkflowAssignmentsOfDeactivatedInstances()
       _ = if (releasedWorkflowsCount > 0) {
-        logger.info(s"Scheduler instance id = $myInstanceId released $releasedWorkflowsCount workflows of " +
-          s"$instancesDeletedCount deactivated instances")
+        logger.info(
+          s"Scheduler instance id = $myInstanceId released $releasedWorkflowsCount workflows of " +
+            s"$instancesDeletedCount deactivated instances"
+        )
       }
       allWorkflows <- workflowRepository.getWorkflows()
       targetWorkflowIds = allWorkflows.filter(_.id % activeInstances.size == myRank).map(_.id)
@@ -62,15 +71,16 @@ class WorkflowBalancingServiceImpl @Inject()(workflowRepository: WorkflowReposit
     } yield {
       val acquiredWorkflowIds = acquiredWorkflows.map(_.id)
       val targetWorkflowAssignmentReached = acquiredWorkflowIds.toSet == targetWorkflowIds.toSet
-      logger.debug(s"Scheduler instance id = $myInstanceId acquired workflow ids ${acquiredWorkflowIds.sorted}" +
-        s" with missing target workflow ids = ${targetWorkflowIds.diff(acquiredWorkflowIds).sorted}")
+      logger.debug(
+        s"Scheduler instance id = $myInstanceId acquired workflow ids ${acquiredWorkflowIds.sorted}" +
+          s" with missing target workflow ids = ${targetWorkflowIds.diff(acquiredWorkflowIds).sorted}"
+      )
       (acquiredWorkflows, targetWorkflowAssignmentReached)
     }
   }
 
-  override def getMaxWorkflowId()(implicit ec: ExecutionContext): Future[Option[Long]] = {
+  override def getMaxWorkflowId()(implicit ec: ExecutionContext): Future[Option[Long]] =
     workflowRepository.getMaxWorkflowId
-  }
 
   private def getRank(instances: Seq[SchedulerInstance], myInstanceId: Long): Int = {
     val idRankMap = instances
@@ -78,7 +88,10 @@ class WorkflowBalancingServiceImpl @Inject()(workflowRepository: WorkflowReposit
       .zipWithIndex
       .map { case (instance, index) => instance.id -> index }
       .toMap
-    idRankMap.getOrElse(myInstanceId, throw new NoSuchElementException(s"Could not find instanceId $myInstanceId in $idRankMap"))
+    idRankMap.getOrElse(
+      myInstanceId,
+      throw new NoSuchElementException(s"Could not find instanceId $myInstanceId in $idRankMap")
+    )
   }
 
 }

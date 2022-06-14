@@ -15,8 +15,4 @@
 
 package za.co.absa.hyperdrive.trigger.models
 
-case class WorkflowHistory(
-  history: History,
-  workflowId: Long,
-  workflow: WorkflowJoined
-)
+case class WorkflowHistory(history: History, workflowId: Long, workflow: WorkflowJoined)

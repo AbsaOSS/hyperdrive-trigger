@@ -27,10 +27,10 @@ trait JobDefinitionService {
 }
 
 @Service
-class JobDefinitionServiceImpl(override val jobDefinitionRepository: JobDefinitionRepository) extends JobDefinitionService {
+class JobDefinitionServiceImpl(override val jobDefinitionRepository: JobDefinitionRepository)
+    extends JobDefinitionService {
 
-  override def getJobsForRun(workflowId: Long)(implicit ec: ExecutionContext): Future[Seq[JobForRun]] = {
+  override def getJobsForRun(workflowId: Long)(implicit ec: ExecutionContext): Future[Seq[JobForRun]] =
     jobDefinitionRepository.getJobsForRun(workflowId)
-  }
 
 }

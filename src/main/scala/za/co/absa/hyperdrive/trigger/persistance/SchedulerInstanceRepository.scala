@@ -29,18 +29,19 @@ trait SchedulerInstanceRepository extends Repository {
 
   def updateHeartbeat(id: Long, newHeartbeat: LocalDateTime)(implicit ec: ExecutionContext): Future[Int]
 
-  def deactivateLaggingInstances(instanceId: Long, currentHeartbeat: LocalDateTime, lagTolerance: Duration)(implicit ec: ExecutionContext): Future[Int]
+  def deactivateLaggingInstances(instanceId: Long, currentHeartbeat: LocalDateTime, lagTolerance: Duration)(implicit
+    ec: ExecutionContext
+  ): Future[Int]
 
   def getAllInstances()(implicit ec: ExecutionContext): Future[Seq[SchedulerInstance]]
 }
 
 @stereotype.Repository
-class SchedulerInstanceRepositoryImpl @Inject()(val dbProvider: DatabaseProvider)
-  extends SchedulerInstanceRepository {
+class SchedulerInstanceRepositoryImpl @Inject() (val dbProvider: DatabaseProvider) extends SchedulerInstanceRepository {
 
   import api._
 
-  override def insertInstance()(implicit ec: ExecutionContext): Future[Long] = {
+  override def insertInstance()(implicit ec: ExecutionContext): Future[Long] =
     db.run {
       val instance = SchedulerInstance(status = SchedulerInstanceStatuses.Active, lastHeartbeat = LocalDateTime.now())
       (for {
@@ -49,18 +50,22 @@ class SchedulerInstanceRepositoryImpl @Inject()(val dbProvider: DatabaseProvider
         instanceId
       }).withErrorHandling(s"Unexpected error occurred when inserting instance $instance")
     }
-  }
 
-  override def updateHeartbeat(id: Long, newHeartbeat: LocalDateTime)(implicit ec: ExecutionContext): Future[Int] = db.run {
-    schedulerInstanceTable.filter(_.id === id)
-      .filter(_.status === LiteralColumn[SchedulerInstanceStatus](SchedulerInstanceStatuses.Active))
-      .map(_.lastHeartbeat)
-      .update(newHeartbeat)
-      .withErrorHandling()
-  }
+  override def updateHeartbeat(id: Long, newHeartbeat: LocalDateTime)(implicit ec: ExecutionContext): Future[Int] =
+    db.run {
+      schedulerInstanceTable
+        .filter(_.id === id)
+        .filter(_.status === LiteralColumn[SchedulerInstanceStatus](SchedulerInstanceStatuses.Active))
+        .map(_.lastHeartbeat)
+        .update(newHeartbeat)
+        .withErrorHandling()
+    }
 
-  override def deactivateLaggingInstances(instanceId: Long, currentHeartbeat: LocalDateTime, lagTolerance: Duration)(implicit ec: ExecutionContext): Future[Int] = db.run {
-    schedulerInstanceTable.filter(i => i.lastHeartbeat < currentHeartbeat.minusSeconds(lagTolerance.getSeconds))
+  override def deactivateLaggingInstances(instanceId: Long, currentHeartbeat: LocalDateTime, lagTolerance: Duration)(
+    implicit ec: ExecutionContext
+  ): Future[Int] = db.run {
+    schedulerInstanceTable
+      .filter(i => i.lastHeartbeat < currentHeartbeat.minusSeconds(lagTolerance.getSeconds))
       .filter(_.status === LiteralColumn[SchedulerInstanceStatus](SchedulerInstanceStatuses.Active))
       .filter(_.id =!= instanceId)
       .map(_.status)

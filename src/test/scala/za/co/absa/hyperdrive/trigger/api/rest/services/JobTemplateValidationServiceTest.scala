@@ -39,23 +39,29 @@ class JobTemplateValidationServiceTest extends AsyncFlatSpec with Matchers with 
   "validate" should "succeed if entity is valid" in {
     // given
     val jobTemplate = GenericShellJobTemplate
-    when(jobTemplateRepository.existsOtherJobTemplate(eqTo(jobTemplate.name), eqTo(jobTemplate.id))(any[ExecutionContext])).thenReturn(Future{false})
+    when(
+      jobTemplateRepository.existsOtherJobTemplate(eqTo(jobTemplate.name), eqTo(jobTemplate.id))(any[ExecutionContext])
+    ).thenReturn(Future(false))
 
     // when
     val result: Unit = await(underTest.validate(jobTemplate))
 
     // then
-    verify(jobTemplateRepository).existsOtherJobTemplate(eqTo(jobTemplate.name), eqTo(jobTemplate.id))(any[ExecutionContext])
+    verify(jobTemplateRepository).existsOtherJobTemplate(eqTo(jobTemplate.name), eqTo(jobTemplate.id))(
+      any[ExecutionContext]
+    )
     result shouldBe ()
   }
 
   "validate" should "fail if the job template name is not unique" in {
     // given
     val jobTemplate = GenericShellJobTemplate
-    when(jobTemplateRepository.existsOtherJobTemplate(eqTo(jobTemplate.name), eqTo(jobTemplate.id))(any[ExecutionContext])).thenReturn(Future{true})
+    when(
+      jobTemplateRepository.existsOtherJobTemplate(eqTo(jobTemplate.name), eqTo(jobTemplate.id))(any[ExecutionContext])
+    ).thenReturn(Future(true))
 
     // when
-    val result = the [ApiException] thrownBy await(underTest.validate(jobTemplate))
+    val result = the[ApiException] thrownBy await(underTest.validate(jobTemplate))
 
     // then
     result.apiErrors should have size 1
@@ -65,10 +71,12 @@ class JobTemplateValidationServiceTest extends AsyncFlatSpec with Matchers with 
   "validate" should "fail if the job template name is empty" in {
     // given
     val jobTemplate = GenericShellJobTemplate.copy(name = "")
-    when(jobTemplateRepository.existsOtherJobTemplate(eqTo(jobTemplate.name), eqTo(jobTemplate.id))(any[ExecutionContext])).thenReturn(Future{false})
+    when(
+      jobTemplateRepository.existsOtherJobTemplate(eqTo(jobTemplate.name), eqTo(jobTemplate.id))(any[ExecutionContext])
+    ).thenReturn(Future(false))
 
     // when
-    val result = the [ApiException] thrownBy await(underTest.validate(jobTemplate))
+    val result = the[ApiException] thrownBy await(underTest.validate(jobTemplate))
 
     // then
     result.apiErrors should have size 1

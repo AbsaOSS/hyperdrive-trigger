@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -20,14 +19,6 @@ import za.co.absa.hyperdrive.trigger.models.enums.DBOperation.DBOperation
 
 import java.time.LocalDateTime
 
-case class History(
-  id: Long = 0,
-  changedOn: LocalDateTime,
-  changedBy: String,
-  operation: DBOperation
-)
+case class History(id: Long = 0, changedOn: LocalDateTime, changedBy: String, operation: DBOperation)
 
-case class HistoryPair[T](
-  leftHistory: T,
-  rightHistory: T
-)
+case class HistoryPair[T](leftHistory: T, rightHistory: T)

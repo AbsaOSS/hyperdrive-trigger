@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -27,11 +26,13 @@ object TestSchedulerConfig {
     sensorsThreadPoolSize: Int = 20,
     sensorsChangedSensorsChunkQuerySize: Int = 100,
     executorsThreadPoolSize: Int = 30
-  ): SchedulerConfig = {
+  ): SchedulerConfig =
     new SchedulerConfig(
-      heartBeat, maxParallelJobs, autostart, lagThreshold,
+      heartBeat,
+      maxParallelJobs,
+      autostart,
+      lagThreshold,
       new Sensors(sensorsThreadPoolSize, sensorsChangedSensorsChunkQuerySize),
       new Executors(executorsThreadPoolSize)
     )
-  }
 }

@@ -24,13 +24,21 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 trait DagInstanceRepository extends Repository {
-  def insertJoinedDagInstancesWithEvents(dagInstancesJoined: Seq[(DagInstanceJoined, Event)])(implicit executionContext: ExecutionContext): Future[Unit]
+  def insertJoinedDagInstancesWithEvents(dagInstancesJoined: Seq[(DagInstanceJoined, Event)])(implicit
+    executionContext: ExecutionContext
+  ): Future[Unit]
 
-  def insertJoinedDagInstances(dagInstancesJoined: Seq[DagInstanceJoined])(implicit executionContext: ExecutionContext): Future[Unit]
+  def insertJoinedDagInstances(dagInstancesJoined: Seq[DagInstanceJoined])(implicit
+    executionContext: ExecutionContext
+  ): Future[Unit]
 
-  def insertJoinedDagInstance(dagInstanceJoined: DagInstanceJoined)(implicit executionContext: ExecutionContext): Future[Unit]
+  def insertJoinedDagInstance(dagInstanceJoined: DagInstanceJoined)(implicit
+    executionContext: ExecutionContext
+  ): Future[Unit]
 
-  def getDagsToRun(runningWorkflowIds: Seq[Long], size: Int, assignedWorkflowIds: Seq[Long])(implicit executionContext: ExecutionContext): Future[Seq[DagInstance]]
+  def getDagsToRun(runningWorkflowIds: Seq[Long], size: Int, assignedWorkflowIds: Seq[Long])(implicit
+    executionContext: ExecutionContext
+  ): Future[Seq[DagInstance]]
 
   def update(dagInstance: DagInstance)(implicit executionContext: ExecutionContext): Future[Unit]
 
@@ -38,43 +46,63 @@ trait DagInstanceRepository extends Repository {
 
   def hasInQueueDagInstance(workflowId: Long)(implicit executionContext: ExecutionContext): Future[Boolean]
 
-  def countDagInstancesFrom(workflowId: Long, fromDate: LocalDateTime)(implicit executionContext: ExecutionContext): Future[Int]
+  def countDagInstancesFrom(workflowId: Long, fromDate: LocalDateTime)(implicit
+    executionContext: ExecutionContext
+  ): Future[Int]
 }
 
 @stereotype.Repository
-class DagInstanceRepositoryImpl @Inject()(val dbProvider: DatabaseProvider) extends DagInstanceRepository {
+class DagInstanceRepositoryImpl @Inject() (val dbProvider: DatabaseProvider) extends DagInstanceRepository {
   import api._
 
-  override def insertJoinedDagInstancesWithEvents(dagInstancesJoined: Seq[(DagInstanceJoined, Event)])(implicit executionContext: ExecutionContext): Future[Unit] = db.run(
-    DBIO.sequence {
-      dagInstancesJoined.map { dagInstanceJoined =>
-        for {
-          di <- dagInstanceTable returning dagInstanceTable.map(_.id) += dagInstanceJoined._1.toDagInstance
-          e <- eventTable += dagInstanceJoined._2.copy(dagInstanceId = Option(di))
-          jis <- jobInstanceTable ++= dagInstanceJoined._1.jobInstances.map(_.copy(dagInstanceId = di))
-        } yield ()
-      }
-    }.transactionally.withErrorHandling()
-  ).map(_ => (): Unit)
+  override def insertJoinedDagInstancesWithEvents(
+    dagInstancesJoined: Seq[(DagInstanceJoined, Event)]
+  )(implicit executionContext: ExecutionContext): Future[Unit] = db
+    .run(
+      DBIO
+        .sequence {
+          dagInstancesJoined.map { dagInstanceJoined =>
+            for {
+              di <- dagInstanceTable returning dagInstanceTable.map(_.id) += dagInstanceJoined._1.toDagInstance
+              e <- eventTable += dagInstanceJoined._2.copy(dagInstanceId = Option(di))
+              jis <- jobInstanceTable ++= dagInstanceJoined._1.jobInstances.map(_.copy(dagInstanceId = di))
+            } yield ()
+          }
+        }
+        .transactionally
+        .withErrorHandling()
+    )
+    .map(_ => (): Unit)
 
-  override def insertJoinedDagInstances(dagInstancesJoined: Seq[DagInstanceJoined])(implicit executionContext: ExecutionContext): Future[Unit] = db.run(
-    DBIO.sequence {
-      dagInstancesJoined.map(dagInstanceJoined => insertJoinedDagInstanceInternal(dagInstanceJoined))
-    }.transactionally.withErrorHandling()
-  ).map(_ => (): Unit)
+  override def insertJoinedDagInstances(
+    dagInstancesJoined: Seq[DagInstanceJoined]
+  )(implicit executionContext: ExecutionContext): Future[Unit] = db
+    .run(
+      DBIO
+        .sequence {
+          dagInstancesJoined.map(dagInstanceJoined => insertJoinedDagInstanceInternal(dagInstanceJoined))
+        }
+        .transactionally
+        .withErrorHandling()
+    )
+    .map(_ => (): Unit)
 
-  override def insertJoinedDagInstance(dagInstanceJoined: DagInstanceJoined)(implicit executionContext: ExecutionContext): Future[Unit] = db.run(
-    insertJoinedDagInstanceInternal(dagInstanceJoined).transactionally.withErrorHandling()
-  ).map(_ => (): Unit)
+  override def insertJoinedDagInstance(dagInstanceJoined: DagInstanceJoined)(implicit
+    executionContext: ExecutionContext
+  ): Future[Unit] =
+    db.run(insertJoinedDagInstanceInternal(dagInstanceJoined).transactionally.withErrorHandling()).map(_ => (): Unit)
 
-  private def insertJoinedDagInstanceInternal(dagInstanceJoined: DagInstanceJoined)(implicit executionContext: ExecutionContext): DBIOAction[Unit, NoStream, Effect.Write] = {
+  private def insertJoinedDagInstanceInternal(
+    dagInstanceJoined: DagInstanceJoined
+  )(implicit executionContext: ExecutionContext): DBIOAction[Unit, NoStream, Effect.Write] =
     for {
       di <- dagInstanceTable returning dagInstanceTable.map(_.id) += dagInstanceJoined.toDagInstance
       jis <- jobInstanceTable ++= dagInstanceJoined.jobInstances.map(_.copy(dagInstanceId = di))
     } yield ()
-  }
 
-  def getDagsToRun(runningWorkflowIds: Seq[Long], size: Int, assignedWorkflowIds: Seq[Long])(implicit executionContext: ExecutionContext): Future[Seq[DagInstance]] = {
+  def getDagsToRun(runningWorkflowIds: Seq[Long], size: Int, assignedWorkflowIds: Seq[Long])(implicit
+    executionContext: ExecutionContext
+  ): Future[Seq[DagInstance]] = {
     val dagIdsQuery = dagInstanceTable
       .filter(_.status inSet DagInstanceStatuses.nonFinalStatuses)
       .filter(_.workflowId inSetBind assignedWorkflowIds)
@@ -102,24 +130,31 @@ class DagInstanceRepositoryImpl @Inject()(val dbProvider: DatabaseProvider) exte
       .withErrorHandling()
   )
 
-  override def hasRunningDagInstance(workflowId: Long)(implicit executionContext: ExecutionContext): Future[Boolean] = {
+  override def hasRunningDagInstance(workflowId: Long)(implicit executionContext: ExecutionContext): Future[Boolean] =
     db.run(
-      dagInstanceTable.filter(
-        dagInstance =>
+      dagInstanceTable
+        .filter(dagInstance =>
           dagInstance.workflowId === workflowId && dagInstance.status.inSet(DagInstanceStatuses.nonFinalStatuses)
-      ).exists.result.withErrorHandling()
+        )
+        .exists
+        .result
+        .withErrorHandling()
     )
-  }
 
-  override def hasInQueueDagInstance(workflowId: Long)(implicit executionContext: ExecutionContext): Future[Boolean] = {
+  override def hasInQueueDagInstance(workflowId: Long)(implicit executionContext: ExecutionContext): Future[Boolean] =
     db.run(
-      dagInstanceTable.filter(dagInstance =>
-        dagInstance.workflowId === workflowId && dagInstance.status.inSetBind(Set(DagInstanceStatuses.InQueue))
-      ).exists.result.withErrorHandling()
+      dagInstanceTable
+        .filter(dagInstance =>
+          dagInstance.workflowId === workflowId && dagInstance.status.inSetBind(Set(DagInstanceStatuses.InQueue))
+        )
+        .exists
+        .result
+        .withErrorHandling()
     )
-  }
 
-  override def countDagInstancesFrom(workflowId: Long, fromDate: LocalDateTime)(implicit executionContext: ExecutionContext): Future[Int] = {
+  override def countDagInstancesFrom(workflowId: Long, fromDate: LocalDateTime)(implicit
+    executionContext: ExecutionContext
+  ): Future[Int] =
     db.run(
       dagInstanceTable
         .filter(_.workflowId === workflowId)
@@ -128,5 +163,4 @@ class DagInstanceRepositoryImpl @Inject()(val dbProvider: DatabaseProvider) exte
         .result
         .withErrorHandling()
     )
-  }
 }

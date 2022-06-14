@@ -28,28 +28,41 @@ trait NotificationRuleService {
   val notificationRuleRepository: NotificationRuleRepository
   val notificationRuleValidationService: NotificationRuleValidationService
 
-  def createNotificationRule(notificationRule: NotificationRule)(implicit ec: ExecutionContext): Future[NotificationRule]
+  def createNotificationRule(notificationRule: NotificationRule)(implicit
+    ec: ExecutionContext
+  ): Future[NotificationRule]
 
   def getNotificationRule(id: Long)(implicit ec: ExecutionContext): Future[NotificationRule]
 
   def getNotificationRules()(implicit ec: ExecutionContext): Future[Seq[NotificationRule]]
 
-  def updateNotificationRule(notificationRule: NotificationRule)(implicit ec: ExecutionContext): Future[NotificationRule]
+  def updateNotificationRule(notificationRule: NotificationRule)(implicit
+    ec: ExecutionContext
+  ): Future[NotificationRule]
 
   def deleteNotificationRule(id: Long)(implicit ec: ExecutionContext): Future[Boolean]
 
-  def searchNotificationRules(tableSearchRequest: TableSearchRequest)(implicit ec: ExecutionContext): Future[TableSearchResponse[NotificationRule]]
+  def searchNotificationRules(tableSearchRequest: TableSearchRequest)(implicit
+    ec: ExecutionContext
+  ): Future[TableSearchResponse[NotificationRule]]
 
-  def getMatchingNotificationRules(workflowId: Long, status: DagInstanceStatus)(implicit ec: ExecutionContext): Future[Option[(Seq[NotificationRule], Workflow)]]
+  def getMatchingNotificationRules(workflowId: Long, status: DagInstanceStatus)(implicit
+    ec: ExecutionContext
+  ): Future[Option[(Seq[NotificationRule], Workflow)]]
 
   def getMatchingWorkflows(id: Long)(implicit ec: ExecutionContext): Future[Seq[Workflow]]
 }
 
 @Service
-class NotificationRuleServiceImpl(override val notificationRuleRepository: NotificationRuleRepository,
-                                  override val notificationRuleValidationService: NotificationRuleValidationService) extends NotificationRuleService with UserDetailsService {
+class NotificationRuleServiceImpl(
+  override val notificationRuleRepository: NotificationRuleRepository,
+  override val notificationRuleValidationService: NotificationRuleValidationService
+) extends NotificationRuleService
+    with UserDetailsService {
 
-  override def createNotificationRule(notificationRule: NotificationRule)(implicit ec: ExecutionContext): Future[NotificationRule] = {
+  override def createNotificationRule(
+    notificationRule: NotificationRule
+  )(implicit ec: ExecutionContext): Future[NotificationRule] = {
     val userName = getUserName.apply()
     for {
       _ <- notificationRuleValidationService.validate(notificationRule)
@@ -57,15 +70,15 @@ class NotificationRuleServiceImpl(override val notificationRuleRepository: Notif
     } yield notificationRule.copy(id = id)
   }
 
-  override def getNotificationRule(id: Long)(implicit ec: ExecutionContext): Future[NotificationRule] = {
+  override def getNotificationRule(id: Long)(implicit ec: ExecutionContext): Future[NotificationRule] =
     notificationRuleRepository.getNotificationRule(id)
-  }
 
-  override def getNotificationRules()(implicit ec: ExecutionContext): Future[Seq[NotificationRule]] = {
+  override def getNotificationRules()(implicit ec: ExecutionContext): Future[Seq[NotificationRule]] =
     notificationRuleRepository.getNotificationRules()
-  }
 
-  override def updateNotificationRule(notificationRule: NotificationRule)(implicit ec: ExecutionContext): Future[NotificationRule] = {
+  override def updateNotificationRule(
+    notificationRule: NotificationRule
+  )(implicit ec: ExecutionContext): Future[NotificationRule] = {
     val userName = getUserName.apply()
     for {
       _ <- notificationRuleValidationService.validate(notificationRule)
@@ -78,15 +91,16 @@ class NotificationRuleServiceImpl(override val notificationRuleRepository: Notif
     notificationRuleRepository.deleteNotificationRule(id, userName).map(_ => true)
   }
 
-  override def searchNotificationRules(tableSearchRequest: TableSearchRequest)(implicit ec: ExecutionContext): Future[TableSearchResponse[NotificationRule]] = {
+  override def searchNotificationRules(tableSearchRequest: TableSearchRequest)(implicit
+    ec: ExecutionContext
+  ): Future[TableSearchResponse[NotificationRule]] =
     notificationRuleRepository.searchNotificationRules(tableSearchRequest)
-  }
 
-  override def getMatchingNotificationRules(workflowId: Long, status: DagInstanceStatus)(implicit ec: ExecutionContext): Future[Option[(Seq[NotificationRule], Workflow)]] = {
+  override def getMatchingNotificationRules(workflowId: Long, status: DagInstanceStatus)(implicit
+    ec: ExecutionContext
+  ): Future[Option[(Seq[NotificationRule], Workflow)]] =
     notificationRuleRepository.getMatchingNotificationRules(workflowId, status, LocalDateTime.now())
-  }
 
-  override def getMatchingWorkflows(id: Long)(implicit ec: ExecutionContext): Future[Seq[Workflow]] = {
+  override def getMatchingWorkflows(id: Long)(implicit ec: ExecutionContext): Future[Seq[Workflow]] =
     notificationRuleRepository.getMatchingWorkflows(id)
-  }
 }

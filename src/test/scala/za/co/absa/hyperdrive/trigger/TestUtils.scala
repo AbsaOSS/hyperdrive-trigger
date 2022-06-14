@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -22,7 +21,6 @@ import scala.concurrent.{Await, Future}
 import scala.concurrent.duration.Duration
 
 object TestUtils {
-  def await[T](future: Future[T]): T = {
+  def await[T](future: Future[T]): T =
     Await.result(future, Duration(120, TimeUnit.SECONDS))
-  }
 }

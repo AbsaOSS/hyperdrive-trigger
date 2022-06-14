@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -25,7 +24,7 @@ import java.time.Duration
 @ConfigurationProperties("recurring-sensor")
 @ConstructorBinding
 @Validated
-class RecurringSensorConfig (
+class RecurringSensorConfig(
   @DefaultValue(Array("8"))
   val maxJobsPerDuration: Int,
   @DefaultValue(Array("1h"))

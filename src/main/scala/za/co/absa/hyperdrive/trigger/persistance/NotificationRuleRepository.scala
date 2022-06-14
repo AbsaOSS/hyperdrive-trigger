@@ -29,67 +29,86 @@ import scala.concurrent.{ExecutionContext, Future}
 trait NotificationRuleRepository extends Repository {
   val notificationRuleHistoryRepository: NotificationRuleHistoryRepository
 
-  def insertNotificationRule(notificationRule: NotificationRule, user: String)(implicit ec: ExecutionContext): Future[Long]
+  def insertNotificationRule(notificationRule: NotificationRule, user: String)(implicit
+    ec: ExecutionContext
+  ): Future[Long]
 
   def getNotificationRule(id: Long)(implicit ec: ExecutionContext): Future[NotificationRule]
 
   def getNotificationRules()(implicit ec: ExecutionContext): Future[Seq[NotificationRule]]
 
-  def updateNotificationRule(notificationRule: NotificationRule, user: String)(implicit ec: ExecutionContext): Future[Unit]
+  def updateNotificationRule(notificationRule: NotificationRule, user: String)(implicit
+    ec: ExecutionContext
+  ): Future[Unit]
 
   def deleteNotificationRule(id: Long, user: String)(implicit ec: ExecutionContext): Future[Unit]
 
-  def searchNotificationRules(tableSearchRequest: TableSearchRequest)(implicit ec: ExecutionContext): Future[TableSearchResponse[NotificationRule]]
+  def searchNotificationRules(tableSearchRequest: TableSearchRequest)(implicit
+    ec: ExecutionContext
+  ): Future[TableSearchResponse[NotificationRule]]
 
-  def getMatchingNotificationRules(workflowId: Long, status: DagInstanceStatus, currentTime: LocalDateTime)(implicit ec: ExecutionContext): Future[Option[(Seq[NotificationRule], Workflow)]]
+  def getMatchingNotificationRules(workflowId: Long, status: DagInstanceStatus, currentTime: LocalDateTime)(implicit
+    ec: ExecutionContext
+  ): Future[Option[(Seq[NotificationRule], Workflow)]]
 
   def getMatchingWorkflows(id: Long)(implicit ec: ExecutionContext): Future[Seq[Workflow]]
 
 }
 
 @stereotype.Repository
-class NotificationRuleRepositoryImpl @Inject()(
+class NotificationRuleRepositoryImpl @Inject() (
   val dbProvider: DatabaseProvider,
-  override val notificationRuleHistoryRepository: NotificationRuleHistoryRepository)
-  extends NotificationRuleRepository {
+  override val notificationRuleHistoryRepository: NotificationRuleHistoryRepository
+) extends NotificationRuleRepository {
 
   import api._
 
-  override def insertNotificationRule(notificationRule: NotificationRule, user: String)(implicit ec: ExecutionContext): Future[Long] = {
-    db.run(insertNotificationRuleInternal(notificationRule, user)
-      .transactionally
-      .withErrorHandling(s"Unexpected error occurred when inserting notificationRule $notificationRule")
+  override def insertNotificationRule(notificationRule: NotificationRule, user: String)(implicit
+    ec: ExecutionContext
+  ): Future[Long] =
+    db.run(
+      insertNotificationRuleInternal(notificationRule, user).transactionally
+        .withErrorHandling(s"Unexpected error occurred when inserting notificationRule $notificationRule")
     )
-  }
 
   override def getNotificationRule(id: Long)(implicit ec: ExecutionContext): Future[NotificationRule] =
-    db.run(getNotificationRuleInternal(id)
-      .withErrorHandling(s"Unexpected error occurred when getting notificationRule with id $id")
+    db.run(
+      getNotificationRuleInternal(id)
+        .withErrorHandling(s"Unexpected error occurred when getting notificationRule with id $id")
     )
 
   override def getNotificationRules()(implicit ec: ExecutionContext): Future[Seq[NotificationRule]] =
-    db.run(notificationRuleTable.result
-      .withErrorHandling("Unexpected error occurred when getting notificationRules")
+    db.run(
+      notificationRuleTable.result
+        .withErrorHandling("Unexpected error occurred when getting notificationRules")
     )
 
-  override def updateNotificationRule(notificationRule: NotificationRule, user: String)(implicit ec: ExecutionContext): Future[Unit] =
-    db.run(updateNotificationRuleInternal(notificationRule, user)
-      .transactionally
-      .withErrorHandling(s"Unexpected error occurred when updating notificationRule $notificationRule")
+  override def updateNotificationRule(notificationRule: NotificationRule, user: String)(implicit
+    ec: ExecutionContext
+  ): Future[Unit] =
+    db.run(
+      updateNotificationRuleInternal(notificationRule, user).transactionally
+        .withErrorHandling(s"Unexpected error occurred when updating notificationRule $notificationRule")
     )
 
   override def deleteNotificationRule(id: Long, user: String)(implicit ec: ExecutionContext): Future[Unit] =
-    db.run(deleteNotificationRuleInternal(id, user)
-      .transactionally
-      .withErrorHandling(s"Unexpected error occurred when deleting notificationRule with id $id")
+    db.run(
+      deleteNotificationRuleInternal(id, user).transactionally
+        .withErrorHandling(s"Unexpected error occurred when deleting notificationRule with id $id")
     )
 
-  override def searchNotificationRules(searchRequest: TableSearchRequest)(implicit ec: ExecutionContext): Future[TableSearchResponse[NotificationRule]] =
-    db.run(notificationRuleTable.search(searchRequest)
-      .withErrorHandling(s"Unexpected error occurred when searching notification rules with request ${searchRequest}")
+  override def searchNotificationRules(
+    searchRequest: TableSearchRequest
+  )(implicit ec: ExecutionContext): Future[TableSearchResponse[NotificationRule]] =
+    db.run(
+      notificationRuleTable
+        .search(searchRequest)
+        .withErrorHandling(s"Unexpected error occurred when searching notification rules with request ${searchRequest}")
     )
 
-  override def getMatchingNotificationRules(workflowId: Long, status: DagInstanceStatus, currentTime: LocalDateTime)(implicit ec: ExecutionContext): Future[Option[(Seq[NotificationRule], Workflow)]] = {
+  override def getMatchingNotificationRules(workflowId: Long, status: DagInstanceStatus, currentTime: LocalDateTime)(
+    implicit ec: ExecutionContext
+  ): Future[Option[(Seq[NotificationRule], Workflow)]] = {
     val lastSucceededDagSubQuery = dagInstanceTable
       .filter(_.status.inSet(Set(DagInstanceStatuses.Succeeded)))
       .filter(_.workflowId === LiteralColumn[Long](workflowId).bind)
@@ -101,48 +120,59 @@ class NotificationRuleRepositoryImpl @Inject()(
       notificationRuleTable
         .filter(_.isActive)
         .filter(_.statuses.??(LiteralColumn[String](dagInstanceStatus2String(status))))
-        .join(workflowTable).on((_, w) => w.id === LiteralColumn[Long](workflowId).bind)
-        .filter { case (n, w) => n.workflowPrefix.isEmpty ||
+        .join(workflowTable)
+        .on((_, w) => w.id === LiteralColumn[Long](workflowId).bind)
+        .filter { case (n, w) =>
+          n.workflowPrefix.isEmpty ||
           n.workflowPrefix.length === 0 ||
-          w.name.toLowerCase.like(n.workflowPrefix.toLowerCase ++ LiteralColumn[String]("%"))}
-        .filter { case (n, w) => n.project.isEmpty ||
-          n.project.length === 0 ||
-          w.project.toLowerCase === n.project.toLowerCase}
-        .joinLeft(lastSucceededDagSubQuery)
-        .filter { case ((n, _), lastSuccess) => lastSuccess.isEmpty ||
-            n.minElapsedSecondsSinceLastSuccess.isEmpty ||
-            (LiteralColumn[LocalDateTime](currentTime) - lastSuccess.flatten).part("epoch") >= n.minElapsedSecondsSinceLastSuccess.asColumnOf[Double]
+          w.name.toLowerCase.like(n.workflowPrefix.toLowerCase ++ LiteralColumn[String]("%"))
         }
-        .map { case ((n, w), _) => (n, w)}
+        .filter { case (n, w) =>
+          n.project.isEmpty ||
+          n.project.length === 0 ||
+          w.project.toLowerCase === n.project.toLowerCase
+        }
+        .joinLeft(lastSucceededDagSubQuery)
+        .filter { case ((n, _), lastSuccess) =>
+          lastSuccess.isEmpty ||
+          n.minElapsedSecondsSinceLastSuccess.isEmpty ||
+          (LiteralColumn[LocalDateTime](currentTime) - lastSuccess.flatten).part(
+            "epoch"
+          ) >= n.minElapsedSecondsSinceLastSuccess.asColumnOf[Double]
+        }
+        .map { case ((n, w), _) => (n, w) }
         .result
         .withErrorHandling()
-        .map(notificationRuleWorkflows => (notificationRuleWorkflows.map(_._1), notificationRuleWorkflows.headOption.map(_._2)))
-        .map { 
+        .map(notificationRuleWorkflows =>
+          (notificationRuleWorkflows.map(_._1), notificationRuleWorkflows.headOption.map(_._2))
+        )
+        .map {
           case (r, Some(w)) => Some(r, w)
-          case (r, None) => None
+          case (r, None)    => None
         }
     )
   }
 
-  override def getMatchingWorkflows(id: Long)(implicit ec: ExecutionContext): Future[Seq[Workflow]] = {
-    db.run(
-      getNotificationRuleInternal(id).flatMap { notificationRule =>
-        workflowTable
-          .filter { workflow =>
-            val workflowPrefix = notificationRule.workflowPrefix.getOrElse("")
-            LiteralColumn[Boolean](workflowPrefix.isEmpty) ||
-              workflow.name.toLowerCase.like(workflowPrefix.toLowerCase ++ "%")
-          }
-          .filter { workflow =>
-            val project = notificationRule.project.getOrElse("")
-            LiteralColumn[Boolean](project.isEmpty) ||
-              workflow.project.toLowerCase === project.toLowerCase
-          }.result.withErrorHandling()
-      }
-    )
-  }
+  override def getMatchingWorkflows(id: Long)(implicit ec: ExecutionContext): Future[Seq[Workflow]] =
+    db.run(getNotificationRuleInternal(id).flatMap { notificationRule =>
+      workflowTable
+        .filter { workflow =>
+          val workflowPrefix = notificationRule.workflowPrefix.getOrElse("")
+          LiteralColumn[Boolean](workflowPrefix.isEmpty) ||
+          workflow.name.toLowerCase.like(workflowPrefix.toLowerCase ++ "%")
+        }
+        .filter { workflow =>
+          val project = notificationRule.project.getOrElse("")
+          LiteralColumn[Boolean](project.isEmpty) ||
+          workflow.project.toLowerCase === project.toLowerCase
+        }
+        .result
+        .withErrorHandling()
+    })
 
-  private def insertNotificationRuleInternal(notificationRule: NotificationRule, user: String)(implicit ec: ExecutionContext) = {
+  private def insertNotificationRuleInternal(notificationRule: NotificationRule, user: String)(implicit
+    ec: ExecutionContext
+  ) = {
     val notificationRuleToInsert = notificationRule.copy(created = LocalDateTime.now())
     for {
       id <- notificationRuleTable returning notificationRuleTable.map(_.id) += notificationRuleToInsert
@@ -153,24 +183,29 @@ class NotificationRuleRepositoryImpl @Inject()(
     }
   }
 
-  private def getNotificationRuleInternal(id: Long)(implicit ec: ExecutionContext): DBIO[NotificationRule] = {
-    notificationRuleTable.filter(_.id === id).result.map(_.headOption.getOrElse(
-      throw new ApiException(ValidationError(s"Notification Rule with id ${id} does not exist.")))
-    )
-  }
+  private def getNotificationRuleInternal(id: Long)(implicit ec: ExecutionContext): DBIO[NotificationRule] =
+    notificationRuleTable
+      .filter(_.id === id)
+      .result
+      .map(
+        _.headOption
+          .getOrElse(throw new ApiException(ValidationError(s"Notification Rule with id ${id} does not exist.")))
+      )
 
-  private def updateNotificationRuleInternal(notificationRule: NotificationRule, user: String)(implicit ec: ExecutionContext) = {
+  private def updateNotificationRuleInternal(notificationRule: NotificationRule, user: String)(implicit
+    ec: ExecutionContext
+  ) =
     for {
-      _ <- notificationRuleTable.filter(_.id === notificationRule.id)
+      _ <- notificationRuleTable
+        .filter(_.id === notificationRule.id)
         .update(notificationRule.copy(updated = Option(LocalDateTime.now())))
       notificationRuleUpdated <- getNotificationRuleInternal(notificationRule.id)
       _ <- notificationRuleHistoryRepository.update(notificationRuleUpdated, user)
     } yield {
       (): Unit
     }
-  }
 
-  private def deleteNotificationRuleInternal(id: Long, user: String)(implicit ec: ExecutionContext) = {
+  private def deleteNotificationRuleInternal(id: Long, user: String)(implicit ec: ExecutionContext) =
     for {
       notificationRuleToDelete <- getNotificationRuleInternal(id)
       _ <- notificationRuleHistoryRepository.delete(notificationRuleToDelete, user)
@@ -178,5 +213,4 @@ class NotificationRuleRepositoryImpl @Inject()(
     } yield {
       (): Unit
     }
-  }
 }

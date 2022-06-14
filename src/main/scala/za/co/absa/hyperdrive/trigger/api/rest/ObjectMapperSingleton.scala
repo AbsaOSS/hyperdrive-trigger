@@ -28,7 +28,6 @@ import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes.SensorType
 import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobStatuses, JobTypes, SensorTypes}
 import com.fasterxml.jackson.databind._
 
-
 object ObjectMapperSingleton {
   private class SensorTypesDeserializer extends JsonDeserializer[SensorType] {
     override def deserialize(p: JsonParser, ctxt: DeserializationContext): SensorType = {
@@ -63,9 +62,12 @@ object ObjectMapperSingleton {
   }
 
   private class DagInstanceStatusesSerializer extends JsonSerializer[DagInstanceStatus] {
-    override def serialize(value: DagInstanceStatus, jsonGenerator: JsonGenerator, serializerProvider: SerializerProvider): Unit = {
+    override def serialize(
+      value: DagInstanceStatus,
+      jsonGenerator: JsonGenerator,
+      serializerProvider: SerializerProvider
+    ): Unit =
       jsonGenerator.writeString(value.name)
-    }
   }
 
   private class JobDefinitionParametersDeserializer extends JsonDeserializer[JobDefinitionParameters] {
@@ -76,9 +78,12 @@ object ObjectMapperSingleton {
   }
 
   private class JobDefinitionParametersSerializer extends JsonSerializer[JobDefinitionParameters] {
-    override def serialize(value: JobDefinitionParameters, jsonGenerator: JsonGenerator, serializerProvider: SerializerProvider): Unit = {
+    override def serialize(
+      value: JobDefinitionParameters,
+      jsonGenerator: JsonGenerator,
+      serializerProvider: SerializerProvider
+    ): Unit =
       jsonGenerator.writeRawValue(Json.toJson(value).toString())
-    }
   }
 
   private class JobTemplateParametersDeserializer extends JsonDeserializer[JobTemplateParameters] {
@@ -89,9 +94,12 @@ object ObjectMapperSingleton {
   }
 
   private class JobTemplateParametersSerializer extends JsonSerializer[JobTemplateParameters] {
-    override def serialize(value: JobTemplateParameters, jsonGenerator: JsonGenerator, serializerProvider: SerializerProvider): Unit = {
+    override def serialize(
+      value: JobTemplateParameters,
+      jsonGenerator: JsonGenerator,
+      serializerProvider: SerializerProvider
+    ): Unit =
       jsonGenerator.writeRawValue(Json.toJson(value).toString())
-    }
   }
 
   private class SensorPropertiesDeserializer extends JsonDeserializer[SensorProperties] {
@@ -102,9 +110,12 @@ object ObjectMapperSingleton {
   }
 
   private class SensorPropertiesSerializer extends JsonSerializer[SensorProperties] {
-    override def serialize(value: SensorProperties, jsonGenerator: JsonGenerator, serializerProvider: SerializerProvider): Unit = {
+    override def serialize(
+      value: SensorProperties,
+      jsonGenerator: JsonGenerator,
+      serializerProvider: SerializerProvider
+    ): Unit =
       jsonGenerator.writeRawValue(Json.toJson(value).toString())
-    }
   }
 
   private val module = new SimpleModule()

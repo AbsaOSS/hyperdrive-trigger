@@ -23,27 +23,28 @@ import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class SchedulerInstanceRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryH2TestBase {
+class SchedulerInstanceRepositoryTest
+    extends FlatSpec
+    with Matchers
+    with BeforeAndAfterAll
+    with BeforeAndAfterEach
+    with RepositoryH2TestBase {
   import api._
 
   val schedulerInstanceRepository: SchedulerInstanceRepository =
     new SchedulerInstanceRepositoryImpl(dbProvider) { override val profile = h2Profile }
 
-  override def beforeAll: Unit = {
+  override def beforeAll: Unit =
     schemaSetup()
-  }
 
-  override def afterAll: Unit = {
+  override def afterAll: Unit =
     schemaDrop()
-  }
 
-  override def beforeEach: Unit = {
+  override def beforeEach: Unit =
     run(schedulerInstanceTable.forceInsertAll(TestData.schedulerInstances))
-  }
 
-  override def afterEach: Unit = {
+  override def afterEach: Unit =
     clearData()
-  }
 
   "insertInstance" should "insert an instance in active state" in {
     val now = LocalDateTime.now()

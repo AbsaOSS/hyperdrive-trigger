@@ -32,9 +32,14 @@ import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success}
 
 @Component
-class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstanceRepository: DagInstanceRepository,
-                             workflowBalancer: WorkflowBalancer, notificationSender: NotificationSender,
-                             schedulerConfig: SchedulerConfig) {
+class JobScheduler @Inject() (
+  sensors: Sensors,
+  executors: Executors,
+  dagInstanceRepository: DagInstanceRepository,
+  workflowBalancer: WorkflowBalancer,
+  notificationSender: NotificationSender,
+  schedulerConfig: SchedulerConfig
+) {
 
   case class RunningDagsKey(dagId: Long, workflowId: Long)
 
@@ -60,16 +65,15 @@ class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstance
       isManagerRunningAtomic.set(true)
       sensors.prepareSensors()
       var firstIteration = true
-      runningScheduler =
-        Future {
-          while (isManagerRunningAtomic.get()) {
-            logger.info("Running manager heart beat.")
-            assignWorkflows(firstIteration)
-            sendNotifications()
-            firstIteration = false
-            Thread.sleep(HEART_BEAT)
-          }
+      runningScheduler = Future {
+        while (isManagerRunningAtomic.get()) {
+          logger.info("Running manager heart beat.")
+          assignWorkflows(firstIteration)
+          sendNotifications()
+          firstIteration = false
+          Thread.sleep(HEART_BEAT)
         }
+      }
       runningScheduler.onComplete {
         case Success(_) =>
           logger.info("Manager stopped.")
@@ -87,18 +91,17 @@ class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstance
     runningScheduler
   }
 
-  def isManagerRunning: Boolean = {
+  def isManagerRunning: Boolean =
     !runningScheduler.isCompleted
-  }
 
-  private def assignWorkflows(firstIteration: Boolean): Unit = {
+  private def assignWorkflows(firstIteration: Boolean): Unit =
     if (runningAssignWorkflows.isCompleted) {
-      runningAssignWorkflows = workflowBalancer.getAssignedWorkflows(runningDags.keys.map(_.workflowId).toSeq)
-        .recover {
-          case e: SchedulerInstanceAlreadyDeactivatedException =>
-            logger.error("Stopping scheduler because the instance has already been deactivated", e)
-            stopManager()
-            throw e
+      runningAssignWorkflows = workflowBalancer
+        .getAssignedWorkflows(runningDags.keys.map(_.workflowId).toSeq)
+        .recover { case e: SchedulerInstanceAlreadyDeactivatedException =>
+          logger.error("Stopping scheduler because the instance has already been deactivated", e)
+          stopManager()
+          throw e
         }
         .map(_.map(_.id))
         .map { assignedWorkflowIds =>
@@ -113,31 +116,26 @@ class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstance
           logger.error(s"Running assign workflows finished with exception.", exception)
       }
     }
-  }
 
-  private def enqueueDags(assignedWorkflowIds: Seq[Long], emptySlotsSize: Int): Future[Unit] = {
-    dagInstanceRepository.getDagsToRun(
-      runningDags.keys.map(_.workflowId).toSeq.distinct,
-      emptySlotsSize,
-      assignedWorkflowIds
-    ).map {
-      _.foreach { dag =>
-        logger.debug(s"Deploying dag = ${dag.id}")
-        runningDags.put(RunningDagsKey(dag.id, dag.workflowId), executors.executeDag(dag))
+  private def enqueueDags(assignedWorkflowIds: Seq[Long], emptySlotsSize: Int): Future[Unit] =
+    dagInstanceRepository
+      .getDagsToRun(runningDags.keys.map(_.workflowId).toSeq.distinct, emptySlotsSize, assignedWorkflowIds)
+      .map {
+        _.foreach { dag =>
+          logger.debug(s"Deploying dag = ${dag.id}")
+          runningDags.put(RunningDagsKey(dag.id, dag.workflowId), executors.executeDag(dag))
+        }
       }
-    }
-  }
 
-  private def removeFinishedDags(): Unit = {
+  private def removeFinishedDags(): Unit =
     if (runningEnqueue.isCompleted) {
       runningDags.foreach {
         case (id, fut) if fut.isCompleted => runningDags.remove(id)
-        case _ => ()
+        case _                            => ()
       }
     }
-  }
 
-  private def processEvents(assignedWorkflowIds: Seq[Long], firstIteration: Boolean): Unit = {
+  private def processEvents(assignedWorkflowIds: Seq[Long], firstIteration: Boolean): Unit =
     if (runningSensors.isCompleted) {
       runningSensors = sensors.processEvents(assignedWorkflowIds, firstIteration)
       runningSensors.onComplete {
@@ -147,9 +145,8 @@ class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstance
           logger.error(s"Running sensors finished with exception.", exception)
       }
     }
-  }
 
-  private def enqueueDags(assignedWorkflowIds: Seq[Long]): Unit = {
+  private def enqueueDags(assignedWorkflowIds: Seq[Long]): Unit =
     if (runningDags.size < NUM_OF_PAR_TASKS && runningEnqueue.isCompleted) {
       runningEnqueue = enqueueDags(assignedWorkflowIds, Math.max(0, NUM_OF_PAR_TASKS - runningDags.size))
       runningEnqueue.onComplete {
@@ -159,11 +156,10 @@ class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstance
           logger.error(s"Running enqueue finished with exception.", exception)
       }
     }
-  }
 
-  private def sendNotifications(): Unit = {
+  private def sendNotifications(): Unit =
     if (runningSendingNotifications.isCompleted) {
-      runningSendingNotifications = Future { notificationSender.sendNotifications() }
+      runningSendingNotifications = Future(notificationSender.sendNotifications())
       runningSendingNotifications.onComplete {
         case Success(_) =>
           logger.debug("Running sending notifications finished successfully.")
@@ -171,6 +167,5 @@ class JobScheduler @Inject()(sensors: Sensors, executors: Executors, dagInstance
           logger.error(s"Running sending notifications finished with exception.", exception)
       }
     }
-  }
 
 }

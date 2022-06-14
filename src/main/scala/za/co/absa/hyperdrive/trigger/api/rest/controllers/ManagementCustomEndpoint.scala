@@ -36,10 +36,12 @@ class ManagementCustomEndpoint {
   @GetMapping(path = Array("/"))
   def getLogArchives: ResponseEntity[Seq[String]] = {
     val logsDir = new File(env.getProperty("logging.file.path"))
-    val result = if(logsDir.exists && logsDir.isDirectory) {
-      logsDir.listFiles.filter {
-        e => e.isFile && e.getName.endsWith(".gz")
-      }.map(_.getName)
+    val result = if (logsDir.exists && logsDir.isDirectory) {
+      logsDir.listFiles
+        .filter { e =>
+          e.isFile && e.getName.endsWith(".gz")
+        }
+        .map(_.getName)
     } else {
       Array[String]()
     }
@@ -58,7 +60,8 @@ class ManagementCustomEndpoint {
     val logFilePath = Paths.get(logFile.getAbsolutePath)
     val resource = new ByteArrayResource(Files.readAllBytes(logFilePath))
 
-    ResponseEntity.ok()
+    ResponseEntity
+      .ok()
       .headers(header)
       .contentLength(logFile.length())
       .contentType(MediaType.parseMediaType("application/octet-stream"))

@@ -15,8 +15,4 @@
 
 package za.co.absa.hyperdrive.trigger.models
 
-case class AppInfo(
-  environment: String,
-  version: String,
-  resourceManagerUrl: String
-)
+case class AppInfo(environment: String, version: String, resourceManagerUrl: String)

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -19,10 +18,6 @@ package za.co.absa.hyperdrive.trigger.configuration.application
 import java.time.Duration
 
 object TestRecurringSensorConfig {
-  def apply(
-    maxJobsPerDuration: Int = 8,
-    duration: Duration = Duration.ofHours(1L)
-  ): RecurringSensorConfig = {
+  def apply(maxJobsPerDuration: Int = 8, duration: Duration = Duration.ofHours(1L)): RecurringSensorConfig =
     new RecurringSensorConfig(maxJobsPerDuration, duration)
-  }
 }

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -28,8 +27,12 @@ import za.co.absa.hyperdrive.trigger.persistance.{DatabaseProvider, Repository}
 
 @Configuration
 @EnableConfigurationProperties(Array(classOf[LiquibaseProperties]))
-class LiquibaseConfiguration(properties: LiquibaseProperties, dbConfig: DatabaseConfig, val dbProvider: DatabaseProvider)
-  extends SpringLiquibase with Repository {
+class LiquibaseConfiguration(
+  properties: LiquibaseProperties,
+  dbConfig: DatabaseConfig,
+  val dbProvider: DatabaseProvider
+) extends SpringLiquibase
+    with Repository {
   private val configLogger = LoggerFactory.getLogger(this.getClass)
   private val skipLiquibase: Boolean = dbConfig.skipLiquibase
 
@@ -37,13 +40,12 @@ class LiquibaseConfiguration(properties: LiquibaseProperties, dbConfig: Database
   // used to reference this class in the @DependsOn annotation
   def liquibaseConfigurationMarker(): Boolean = true
 
-  override def afterPropertiesSet(): Unit = {
+  override def afterPropertiesSet(): Unit =
     if (!skipLiquibase) {
       configureLiquibase()
     } else {
       configLogger.info("Skipping Liquibase")
     }
-  }
 
   private def configureLiquibase(): Unit = {
     configLogger.info("Configuring Liquibase")
@@ -54,12 +56,12 @@ class LiquibaseConfiguration(properties: LiquibaseProperties, dbConfig: Database
       liquibaseOpt = Option(createLiquibase(connection))
       liquibaseOpt match {
         case Some(liquibase) => updateMigrations(liquibase)
-        case None => configLogger.error("Could not configure liquibase")
+        case None            => configLogger.error("Could not configure liquibase")
       }
     } finally {
       liquibaseOpt.flatMap(liquibase => Option(liquibase.getDatabase)) match {
         case Some(database) => database.close()
-        case None => connection.close()
+        case None           => connection.close()
       }
     }
   }

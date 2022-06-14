@@ -26,20 +26,24 @@ trait JobTemplateHistoryService {
 
   def getHistoryForJobTemplate(jobTemplateId: Long)(implicit ec: ExecutionContext): Future[Seq[History]]
   def getJobTemplateFromHistory(jobTemplateHistoryId: Long)(implicit ec: ExecutionContext): Future[JobTemplate]
-  def getJobTemplatesFromHistory(leftJobTemplateHistoryId: Long, rightJobTemplateHistoryId: Long)(implicit ec: ExecutionContext): Future[HistoryPair[JobTemplateHistory]]
+  def getJobTemplatesFromHistory(leftJobTemplateHistoryId: Long, rightJobTemplateHistoryId: Long)(implicit
+    ec: ExecutionContext
+  ): Future[HistoryPair[JobTemplateHistory]]
 }
 
 @Service
-class JobTemplateHistoryServiceImpl(override val jobTemplateHistoryRepository: JobTemplateHistoryRepository) extends JobTemplateHistoryService {
-  override def getHistoryForJobTemplate(jobTemplateId: Long)(implicit ec: ExecutionContext): Future[Seq[History]] = {
+class JobTemplateHistoryServiceImpl(override val jobTemplateHistoryRepository: JobTemplateHistoryRepository)
+    extends JobTemplateHistoryService {
+  override def getHistoryForJobTemplate(jobTemplateId: Long)(implicit ec: ExecutionContext): Future[Seq[History]] =
     jobTemplateHistoryRepository.getHistoryForJobTemplate(jobTemplateId)
-  }
 
-  override def getJobTemplateFromHistory(jobTemplateHistoryId: Long)(implicit ec: ExecutionContext): Future[JobTemplate] = {
+  override def getJobTemplateFromHistory(jobTemplateHistoryId: Long)(implicit
+    ec: ExecutionContext
+  ): Future[JobTemplate] =
     jobTemplateHistoryRepository.getJobTemplateFromHistory(jobTemplateHistoryId)
-  }
 
-  override def getJobTemplatesFromHistory(leftJobTemplateHistoryId: Long, rightJobTemplateHistoryId: Long)(implicit ec: ExecutionContext): Future[HistoryPair[JobTemplateHistory]] = {
+  override def getJobTemplatesFromHistory(leftJobTemplateHistoryId: Long, rightJobTemplateHistoryId: Long)(implicit
+    ec: ExecutionContext
+  ): Future[HistoryPair[JobTemplateHistory]] =
     jobTemplateHistoryRepository.getJobTemplatesFromHistory(leftJobTemplateHistoryId, rightJobTemplateHistoryId)
-  }
 }

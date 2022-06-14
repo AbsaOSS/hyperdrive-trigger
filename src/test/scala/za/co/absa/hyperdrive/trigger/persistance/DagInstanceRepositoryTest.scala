@@ -24,22 +24,26 @@ import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class DagInstanceRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryH2TestBase {
+class DagInstanceRepositoryTest
+    extends FlatSpec
+    with Matchers
+    with BeforeAndAfterAll
+    with BeforeAndAfterEach
+    with RepositoryH2TestBase {
 
   import api._
-  val dagInstanceRepository: DagInstanceRepository = new DagInstanceRepositoryImpl(dbProvider) { override val profile = h2Profile }
+  val dagInstanceRepository: DagInstanceRepository = new DagInstanceRepositoryImpl(dbProvider) {
+    override val profile = h2Profile
+  }
 
-  override def beforeAll: Unit = {
+  override def beforeAll: Unit =
     schemaSetup()
-  }
 
-  override def afterAll: Unit = {
+  override def afterAll: Unit =
     schemaDrop()
-  }
 
-  override def afterEach: Unit = {
+  override def afterEach: Unit =
     clearData()
-  }
 
   "dagInstanceRepository.getDagsToRun" should "return zero dag instances when db is empty" in {
     val runningWorkflowIds = Seq.empty[Long]
@@ -128,7 +132,8 @@ class DagInstanceRepositoryTest extends FlatSpec with Matchers with BeforeAndAft
 
   "dagInstanceRepository.countDagInstancesFrom" should "count dag instances from a certain datetime" in {
     createTestData()
-    val result = await(dagInstanceRepository.countDagInstancesFrom(TestData.w1.id, LocalDateTime.now().minusMinutes(30L)))
+    val result =
+      await(dagInstanceRepository.countDagInstancesFrom(TestData.w1.id, LocalDateTime.now().minusMinutes(30L)))
     result shouldBe 2
   }
 }

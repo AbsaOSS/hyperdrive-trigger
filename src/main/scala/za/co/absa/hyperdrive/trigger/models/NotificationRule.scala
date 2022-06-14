@@ -22,7 +22,6 @@ import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses.DagInstanc
 
 import java.time.LocalDateTime
 
-
 case class NotificationRule(
   isActive: Boolean,
   project: Option[String],
@@ -38,5 +37,6 @@ case class NotificationRule(
 
 object NotificationRule {
   type Recipients = Seq[String]
-  implicit val notificationRuleFormat: OFormat[NotificationRule] = Json.using[Json.WithDefaultValues].format[NotificationRule]
+  implicit val notificationRuleFormat: OFormat[NotificationRule] =
+    Json.using[Json.WithDefaultValues].format[NotificationRule]
 }

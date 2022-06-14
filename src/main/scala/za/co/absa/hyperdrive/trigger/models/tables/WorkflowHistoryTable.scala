@@ -26,7 +26,9 @@ trait WorkflowHistoryTable extends HistoryTableQuery {
 
   import api._
 
-  final class WorkflowHistoryTable(tag: Tag) extends Table[WorkflowHistory](tag, _tableName = "workflow_history") with HistoryTable {
+  final class WorkflowHistoryTable(tag: Tag)
+      extends Table[WorkflowHistory](tag, _tableName = "workflow_history")
+      with HistoryTable {
     override def id: Rep[Long] = column[Long]("id", O.PrimaryKey, O.AutoInc, O.SqlType("BIGSERIAL"))
     override def changedOn: Rep[LocalDateTime] = column[LocalDateTime]("changed_on")
     override def changedBy: Rep[String] = column[String]("changed_by")
@@ -46,16 +48,17 @@ trait WorkflowHistoryTable extends HistoryTableQuery {
           workflowId = workflowTuple._5,
           workflow = workflowTuple._6
         ),
-      (workflowHistory: WorkflowHistory) => Option(
-        (
-          workflowHistory.history.id,
-          workflowHistory.history.changedOn,
-          workflowHistory.history.changedBy,
-          workflowHistory.history.operation,
-          workflowHistory.workflowId,
-          workflowHistory.workflow
+      (workflowHistory: WorkflowHistory) =>
+        Option(
+          (
+            workflowHistory.history.id,
+            workflowHistory.history.changedOn,
+            workflowHistory.history.changedBy,
+            workflowHistory.history.operation,
+            workflowHistory.workflowId,
+            workflowHistory.workflow
+          )
         )
-      )
     )
   }
 

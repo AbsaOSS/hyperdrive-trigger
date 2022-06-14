@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -34,12 +33,12 @@ class SparkConfigNestedClassesValidatorTest extends FlatSpec with MockitoSugar w
   private val mockConstraintViolationBuilder = mock[ConstraintViolationBuilder]
   private val sparkSubmitApi = "spark.submitApi"
   private val baseSparkYarnConfig = DefaultTestSparkConfig(
-      submitTimeout = 160000,
-      filesToDeploy = Seq("/opt/file1", "/opt/file2"),
-      additionalConfs = Map(),
-      clusterId = null,
+    submitTimeout = 160000,
+    filesToDeploy = Seq("/opt/file1", "/opt/file2"),
+    additionalConfs = Map(),
+    clusterId = null,
     hadoopResourceManagerUrlBase = "http://localhost:8088",
-    userUsedToKillJob = "spark-user",
+    userUsedToKillJob = "spark-user"
   )
   private val baseSparkEmrConfig = baseSparkYarnConfig.copy(submitApi = "emr")
 
@@ -96,10 +95,7 @@ class SparkConfigNestedClassesValidatorTest extends FlatSpec with MockitoSugar w
 
   it should "return false if there are constraint violations in the yarn config" in {
     // given
-    val config = baseSparkYarnConfig.copy(
-      submitTimeout = 0,
-      master = ""
-    ).yarn
+    val config = baseSparkYarnConfig.copy(submitTimeout = 0, master = "").yarn
 
     // when
     val isValid = underTest.isValid(config, mockContext)
@@ -111,7 +107,7 @@ class SparkConfigNestedClassesValidatorTest extends FlatSpec with MockitoSugar w
     import scala.collection.JavaConverters._
     stringCaptor.getAllValues.asScala should contain theSameElementsAs Seq(
       "sparkYarnSink.submitTimeout",
-      "sparkYarnSink.master",
+      "sparkYarnSink.master"
     )
   }
 
@@ -129,9 +125,7 @@ class SparkConfigNestedClassesValidatorTest extends FlatSpec with MockitoSugar w
     val stringCaptor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
     verify(mockConstraintViolationBuilder).addPropertyNode(stringCaptor.capture())
     import scala.collection.JavaConverters._
-    stringCaptor.getAllValues.asScala should contain theSameElementsAs Seq(
-      "spark.emr.clusterId"
-    )
+    stringCaptor.getAllValues.asScala should contain theSameElementsAs Seq("spark.emr.clusterId")
   }
 
   it should "return false if submitApi is neither yarn nor emr" in {

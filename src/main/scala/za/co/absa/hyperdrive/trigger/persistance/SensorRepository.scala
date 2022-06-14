@@ -23,20 +23,26 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 trait SensorRepository extends Repository {
-  def getNewActiveAssignedSensors(idsToFilter: Seq[Long], assignedWorkflowIds: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[Sensor[_ <: SensorProperties]]]
+  def getNewActiveAssignedSensors(idsToFilter: Seq[Long], assignedWorkflowIds: Seq[Long])(implicit
+    ec: ExecutionContext
+  ): Future[Seq[Sensor[_ <: SensorProperties]]]
   def getInactiveSensors(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[Long]]
-  def getChangedSensors(originalSensorsPropertiesWithId: Seq[(Long, SensorProperties)])(implicit ec: ExecutionContext): Future[Seq[Sensor[_ <:SensorProperties]]]
+  def getChangedSensors(originalSensorsPropertiesWithId: Seq[(Long, SensorProperties)])(implicit
+    ec: ExecutionContext
+  ): Future[Seq[Sensor[_ <: SensorProperties]]]
 }
 
 @stereotype.Repository
-class SensorRepositoryImpl @Inject()(val dbProvider: DatabaseProvider, val schedulerConfig: SchedulerConfig)
-  extends SensorRepository {
+class SensorRepositoryImpl @Inject() (val dbProvider: DatabaseProvider, val schedulerConfig: SchedulerConfig)
+    extends SensorRepository {
   import api._
 
-  override def getNewActiveAssignedSensors(idsToFilter: Seq[Long], assignedWorkflowIds: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[Sensor[_ <: SensorProperties]]] = db.run {(
-    for {
+  override def getNewActiveAssignedSensors(idsToFilter: Seq[Long], assignedWorkflowIds: Seq[Long])(implicit
+    ec: ExecutionContext
+  ): Future[Seq[Sensor[_ <: SensorProperties]]] = db.run {
+    (for {
       sensor <- sensorTable if !(sensor.id inSet idsToFilter)
-      workflow <- workflowTable if(workflow.id === sensor.workflowId
+      workflow <- workflowTable if (workflow.id === sensor.workflowId
         && workflow.isActive
         && (workflow.id inSetBind assignedWorkflowIds))
     } yield {
@@ -44,8 +50,8 @@ class SensorRepositoryImpl @Inject()(val dbProvider: DatabaseProvider, val sched
     }).result.withErrorHandling()
   }
 
-  override def getInactiveSensors(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[Long]] = db.run {(
-    for {
+  override def getInactiveSensors(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[Long]] = db.run {
+    (for {
       sensor <- sensorTable if sensor.id inSet ids
       workflow <- workflowTable if workflow.id === sensor.workflowId && !workflow.isActive
     } yield {
@@ -53,14 +59,22 @@ class SensorRepositoryImpl @Inject()(val dbProvider: DatabaseProvider, val sched
     }).result.withErrorHandling()
   }
 
-  override def getChangedSensors(originalSensorsPropertiesWithId: Seq[(Long, SensorProperties)])(implicit ec: ExecutionContext): Future[Seq[Sensor[_ <: SensorProperties]]] = {
-    Future.sequence(
-      originalSensorsPropertiesWithId.grouped(schedulerConfig.sensors.changedSensorsChunkQuerySize).toSeq.map(group => getChangedSensorsInternal(group))
-    ).map(_.flatten)
-  }
+  override def getChangedSensors(
+    originalSensorsPropertiesWithId: Seq[(Long, SensorProperties)]
+  )(implicit ec: ExecutionContext): Future[Seq[Sensor[_ <: SensorProperties]]] =
+    Future
+      .sequence(
+        originalSensorsPropertiesWithId
+          .grouped(schedulerConfig.sensors.changedSensorsChunkQuerySize)
+          .toSeq
+          .map(group => getChangedSensorsInternal(group))
+      )
+      .map(_.flatten)
 
-  private def getChangedSensorsInternal(originalSensorsPropertiesWithId: Seq[(Long, SensorProperties)])(implicit ec: ExecutionContext): Future[Seq[Sensor[_ <:SensorProperties]]] = db.run {(
-    for {
+  private def getChangedSensorsInternal(
+    originalSensorsPropertiesWithId: Seq[(Long, SensorProperties)]
+  )(implicit ec: ExecutionContext): Future[Seq[Sensor[_ <: SensorProperties]]] = db.run {
+    (for {
       sensor <- sensorTable if originalSensorsPropertiesWithId
         .map(originalSensor => sensorIsDifferent(sensor, originalSensor._1, originalSensor._2))
         .reduceLeftOption(_ || _)
@@ -70,7 +84,10 @@ class SensorRepositoryImpl @Inject()(val dbProvider: DatabaseProvider, val sched
     }).result.withErrorHandling()
   }
 
-  private def sensorIsDifferent(sensor: SensorTable, sensorId: Long, originalSensorProperties: SensorProperties): Rep[Boolean] = {
+  private def sensorIsDifferent(
+    sensor: SensorTable,
+    sensorId: Long,
+    originalSensorProperties: SensorProperties
+  ): Rep[Boolean] =
     sensor.id === sensorId && sensor.properties =!= originalSensorProperties
-  }
 }

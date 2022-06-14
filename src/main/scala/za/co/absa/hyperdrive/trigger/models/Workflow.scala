@@ -33,9 +33,7 @@ case class Workflow(
   def updateVersion(newVersion: Long): Workflow = this.copy(version = newVersion)
 }
 
-case class WorkflowState(
-  isActive: Boolean
-)
+case class WorkflowState(isActive: Boolean)
 
 case class WorkflowJoined(
   name: String,
@@ -48,8 +46,8 @@ case class WorkflowJoined(
   sensor: Sensor[SensorProperties],
   dagDefinitionJoined: DagDefinitionJoined,
   id: Long = 0
-){
-  def toWorkflow: Workflow = {
+) {
+  def toWorkflow: Workflow =
     Workflow(
       name = this.name,
       isActive = this.isActive,
@@ -60,5 +58,4 @@ case class WorkflowJoined(
       schedulerInstanceId = this.schedulerInstanceId,
       id = this.id
     )
-  }
 }

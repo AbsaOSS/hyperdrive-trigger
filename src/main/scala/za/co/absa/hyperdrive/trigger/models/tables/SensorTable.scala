@@ -32,18 +32,8 @@ trait SensorTable {
       foreignKey("sensor_workflow_fk", workflowId, TableQuery[WorkflowTable])(_.id)
 
     def * : ProvenShape[Sensor[SensorProperties]] = (workflowId, properties, id) <> (
-      sensorTuple =>
-        Sensor.apply(
-          workflowId = sensorTuple._1,
-          properties = sensorTuple._2,
-          id = sensorTuple._3
-        ),
-      (sensor: Sensor[SensorProperties]) =>
-        Option(
-          sensor.workflowId,
-          sensor.properties,
-          sensor.id
-        )
+      sensorTuple => Sensor.apply(workflowId = sensorTuple._1, properties = sensorTuple._2, id = sensorTuple._3),
+      (sensor: Sensor[SensorProperties]) => Option(sensor.workflowId, sensor.properties, sensor.id)
     )
   }
 

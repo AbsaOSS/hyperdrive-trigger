@@ -26,40 +26,35 @@ import scala.compat.java8.FutureConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 @RestController
-class NotificationRuleController @Inject()(notificationRuleService: NotificationRuleService) {
+class NotificationRuleController @Inject() (notificationRuleService: NotificationRuleService) {
 
   @PutMapping(path = Array("/notificationRule"))
-  def createNotificationRule(@RequestBody notificationRule: NotificationRule): CompletableFuture[NotificationRule] = {
+  def createNotificationRule(@RequestBody notificationRule: NotificationRule): CompletableFuture[NotificationRule] =
     notificationRuleService.createNotificationRule(notificationRule).toJava.toCompletableFuture
-  }
 
   @GetMapping(path = Array("/notificationRule"))
-  def getNotificationRule(@RequestParam id: Long): CompletableFuture[NotificationRule] = {
+  def getNotificationRule(@RequestParam id: Long): CompletableFuture[NotificationRule] =
     notificationRuleService.getNotificationRule(id).toJava.toCompletableFuture
-  }
 
   @GetMapping(path = Array("/notificationRules"))
-  def getNotificationRules(): CompletableFuture[Seq[NotificationRule]] = {
+  def getNotificationRules(): CompletableFuture[Seq[NotificationRule]] =
     notificationRuleService.getNotificationRules().toJava.toCompletableFuture
-  }
 
   @PostMapping(path = Array("/notificationRule"))
-  def updateNotificationRule(@RequestBody notificationRule: NotificationRule): CompletableFuture[NotificationRule] = {
+  def updateNotificationRule(@RequestBody notificationRule: NotificationRule): CompletableFuture[NotificationRule] =
     notificationRuleService.updateNotificationRule(notificationRule).toJava.toCompletableFuture
-  }
 
   @DeleteMapping(path = Array("/notificationRule"))
-  def deleteNotificationRule(@RequestParam id: Long): CompletableFuture[Boolean] = {
+  def deleteNotificationRule(@RequestParam id: Long): CompletableFuture[Boolean] =
     notificationRuleService.deleteNotificationRule(id).toJava.toCompletableFuture
-  }
 
   @PostMapping(path = Array("/notificationRules/search"))
-  def searchNotificationRules(@RequestBody searchRequest: TableSearchRequest): CompletableFuture[TableSearchResponse[NotificationRule]] = {
+  def searchNotificationRules(
+    @RequestBody searchRequest: TableSearchRequest
+  ): CompletableFuture[TableSearchResponse[NotificationRule]] =
     notificationRuleService.searchNotificationRules(searchRequest).toJava.toCompletableFuture
-  }
 
   @GetMapping(path = Array("/notificationRules/{id}/workflows"))
-  def getMatchingWorkflows(@PathVariable id: Long): CompletableFuture[Seq[Workflow]] = {
+  def getMatchingWorkflows(@PathVariable id: Long): CompletableFuture[Seq[Workflow]] =
     notificationRuleService.getMatchingWorkflows(id).toJava.toCompletableFuture
-  }
 }

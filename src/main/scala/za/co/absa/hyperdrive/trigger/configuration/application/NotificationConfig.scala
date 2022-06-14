@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -25,7 +24,7 @@ import java.time.Duration
 @ConfigurationProperties("notification")
 @ConstructorBinding
 @Validated
-class NotificationConfig (
+class NotificationConfig(
   @DefaultValue(Array("false"))
   val enabled: Boolean,
   @DefaultValue(Array(""))

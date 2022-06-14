@@ -40,7 +40,9 @@ class DagInstanceServiceTest extends AsyncFlatSpec with Matchers with MockitoSug
     val dagDefinitionJoined = WorkflowFixture.createWorkflowJoined().dagDefinitionJoined
     val resolvedJobDefinitions = createResolvedJobDefinitions()
     val triggeredBy = "triggered-by"
-    when(jobTemplateService.resolveJobTemplate(any())(any[ExecutionContext])).thenReturn(Future{resolvedJobDefinitions})
+    when(jobTemplateService.resolveJobTemplate(any())(any[ExecutionContext])).thenReturn(Future {
+      resolvedJobDefinitions
+    })
 
     // when
     val dagInstance = await(underTest.createDagInstance(dagDefinitionJoined, triggeredBy))
@@ -76,7 +78,9 @@ class DagInstanceServiceTest extends AsyncFlatSpec with Matchers with MockitoSug
     val dagDefinitionJoined = WorkflowFixture.createWorkflowJoined().dagDefinitionJoined
     val resolvedJobDefinitions = createResolvedJobDefinitions()
     val triggeredBy = "triggered-by"
-    when(jobTemplateService.resolveJobTemplate(any())(any[ExecutionContext])).thenReturn(Future{resolvedJobDefinitions})
+    when(jobTemplateService.resolveJobTemplate(any())(any[ExecutionContext])).thenReturn(Future {
+      resolvedJobDefinitions
+    })
 
     // when
     val dagInstance = await(underTest.createDagInstance(dagDefinitionJoined, triggeredBy, skip = true))
@@ -90,8 +94,7 @@ class DagInstanceServiceTest extends AsyncFlatSpec with Matchers with MockitoSug
 
   }
 
-
-  private def createResolvedJobDefinitions(): Seq[ResolvedJobDefinition] = {
+  private def createResolvedJobDefinitions(): Seq[ResolvedJobDefinition] =
     Seq(
       ResolvedJobDefinition(
         name = "Spark Job",
@@ -104,11 +107,8 @@ class DagInstanceServiceTest extends AsyncFlatSpec with Matchers with MockitoSug
       ),
       ResolvedJobDefinition(
         name = "Shell Job",
-        jobParameters = ShellInstanceParameters(
-          scriptLocation = "testShellScript.sh"
-        ),
+        jobParameters = ShellInstanceParameters(scriptLocation = "testShellScript.sh"),
         order = 2
       )
     )
-  }
 }

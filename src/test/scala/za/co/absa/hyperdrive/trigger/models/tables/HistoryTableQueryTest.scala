@@ -18,27 +18,28 @@ package za.co.absa.hyperdrive.trigger.models.tables
 import org.scalatest._
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class HistoryTableQueryTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with TestHistoryRepositoryTestBase {
+class HistoryTableQueryTest
+    extends FlatSpec
+    with Matchers
+    with BeforeAndAfterAll
+    with BeforeAndAfterEach
+    with TestHistoryRepositoryTestBase {
 
   behavior of "HistoryTableQuery"
 
   val underTest = testHistoryTable
 
-  override def beforeAll: Unit = {
+  override def beforeAll: Unit =
     createSchema()
-  }
 
-  override def afterAll: Unit = {
+  override def afterAll: Unit =
     dropSchema()
-  }
 
-  override def beforeEach: Unit = {
+  override def beforeEach: Unit =
     createHistoryTestData()
-  }
 
-  override def afterEach: Unit = {
+  override def afterEach: Unit =
     dropTable()
-  }
 
   "getHistoryForEntity" should "return empty array when db does not contain history record for specific entity id" in {
     val workflowId = 999
@@ -53,7 +54,7 @@ class HistoryTableQueryTest extends FlatSpec with Matchers with BeforeAndAfterAl
   }
 
   it should "throw db exception when history entity does not exist" in {
-    val exceptionResult = the [Exception] thrownBy
+    val exceptionResult = the[Exception] thrownBy
       await(db.run(underTest.getHistoryEntity(999)))
     exceptionResult.getMessage shouldBe s"Entity with #${999} doesn't exist on HistoryTableQueryTest.this.TestHistoryTable."
   }
@@ -65,7 +66,7 @@ class HistoryTableQueryTest extends FlatSpec with Matchers with BeforeAndAfterAl
   }
 
   it should "throw db exception when one of the history records does not exist" in {
-    val exceptionResult = the [Exception] thrownBy
+    val exceptionResult = the[Exception] thrownBy
       await(db.run(underTest.getEntitiesFromHistory(TestHistoryData.t1.id, 999)))
 
     exceptionResult.getMessage shouldBe s"Entities with #${TestHistoryData.t1.id} or #999 don't exist on HistoryTableQueryTest.this.TestHistoryTable."

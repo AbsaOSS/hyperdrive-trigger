@@ -25,33 +25,44 @@ import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
 import org.springframework.security.config.annotation.web.builders.{HttpSecurity, WebSecurity}
-import org.springframework.security.config.annotation.web.configuration.{EnableWebSecurity, WebSecurityConfigurerAdapter}
+import org.springframework.security.config.annotation.web.configuration.{
+  EnableWebSecurity,
+  WebSecurityConfigurerAdapter
+}
 import org.springframework.security.core.{Authentication, AuthenticationException}
 import org.springframework.security.web.AuthenticationEntryPoint
-import org.springframework.security.web.authentication.logout.{HttpStatusReturningLogoutSuccessHandler, LogoutSuccessHandler}
-import org.springframework.security.web.authentication.{AuthenticationFailureHandler, SimpleUrlAuthenticationFailureHandler, SimpleUrlAuthenticationSuccessHandler}
+import org.springframework.security.web.authentication.logout.{
+  HttpStatusReturningLogoutSuccessHandler,
+  LogoutSuccessHandler
+}
+import org.springframework.security.web.authentication.{
+  AuthenticationFailureHandler,
+  SimpleUrlAuthenticationFailureHandler,
+  SimpleUrlAuthenticationSuccessHandler
+}
 import org.springframework.security.web.csrf.CsrfToken
 import org.springframework.stereotype.Component
-import za.co.absa.hyperdrive.trigger.api.rest.auth.{HyperdriverAuthentication, InMemoryAuthentication, LdapAuthentication}
+import za.co.absa.hyperdrive.trigger.api.rest.auth.{
+  HyperdriverAuthentication,
+  InMemoryAuthentication,
+  LdapAuthentication
+}
 import za.co.absa.hyperdrive.trigger.configuration.application.AuthConfig
 
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-class WebSecurityConfig @Inject()(val beanFactory: BeanFactory, authConfig: AuthConfig) {
+class WebSecurityConfig @Inject() (val beanFactory: BeanFactory, authConfig: AuthConfig) {
   private val logger = LoggerFactory.getLogger(this.getClass)
 
   val authMechanism: String = authConfig.mechanism
 
   @Bean
-  def authenticationFailureHandler(): AuthenticationFailureHandler = {
+  def authenticationFailureHandler(): AuthenticationFailureHandler =
     new SimpleUrlAuthenticationFailureHandler()
-  }
 
   @Bean
-  def logoutSuccessHandler(): LogoutSuccessHandler = {
+  def logoutSuccessHandler(): LogoutSuccessHandler =
     new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK)
-  }
-
 
   @Configuration
   class ApiWebSecurityConfigurationAdapter @Inject() (
@@ -61,24 +72,22 @@ class WebSecurityConfig @Inject()(val beanFactory: BeanFactory, authConfig: Auth
     logoutSuccessHandler: LogoutSuccessHandler
   ) extends WebSecurityConfigurerAdapter {
 
-    override def configure(web: WebSecurity): Unit = {
+    override def configure(web: WebSecurity): Unit =
       // Disable security for isManager endpoint
       web.ignoring.antMatchers("/admin/isManager")
-    }
 
     override def configure(http: HttpSecurity) {
       http
         .csrf()
         .ignoringAntMatchers("/login")
         .and()
-
         .exceptionHandling()
         .authenticationEntryPoint(restAuthenticationEntryPoint)
         .and()
-
         .authorizeRequests()
         .antMatchers(
-          "/", "/index.html",
+          "/",
+          "/index.html",
           "/main*.js",
           "/polyfills*.js",
           "/runtime*.js",
@@ -92,14 +101,12 @@ class WebSecurityConfig @Inject()(val beanFactory: BeanFactory, authConfig: Auth
         .anyRequest()
         .authenticated()
         .and()
-
         .formLogin()
         .loginProcessingUrl("/login")
         .successHandler(authenticationSuccessHandler)
         .failureHandler(authenticationFailureHandler)
         .permitAll()
         .and()
-
         .logout()
         .logoutUrl("/logout")
         .logoutSuccessHandler(logoutSuccessHandler)
@@ -109,11 +116,10 @@ class WebSecurityConfig @Inject()(val beanFactory: BeanFactory, authConfig: Auth
         .invalidateHttpSession(true)
     }
 
-    override def configure(auth: AuthenticationManagerBuilder): Unit = {
+    override def configure(auth: AuthenticationManagerBuilder): Unit =
       this.getAuthentication().configure(auth)
-    }
 
-    private def getAuthentication(): HyperdriverAuthentication = {
+    private def getAuthentication(): HyperdriverAuthentication =
       authMechanism.toLowerCase match {
         case "inmemory" => {
           logger.info(s"Using $authMechanism authentication")
@@ -125,12 +131,10 @@ class WebSecurityConfig @Inject()(val beanFactory: BeanFactory, authConfig: Auth
         }
         case _ => throw new IllegalArgumentException("Invalid authentication mechanism - use one of: inmemory, ldap")
       }
-    }
 
     @Bean
-    override def authenticationManagerBean(): AuthenticationManager = {
+    override def authenticationManagerBean(): AuthenticationManager =
       super.authenticationManagerBean()
-    }
   }
 
   @Component
@@ -139,9 +143,8 @@ class WebSecurityConfig @Inject()(val beanFactory: BeanFactory, authConfig: Auth
       request: HttpServletRequest,
       response: HttpServletResponse,
       authException: AuthenticationException
-    ): Unit = {
+    ): Unit =
       response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized")
-    }
   }
 
   @Component

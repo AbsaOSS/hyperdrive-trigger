@@ -30,21 +30,29 @@ trait SearchableTableQuery {
 
   implicit class SearchableTableQueryExtension[T <: SearchableTable with AbstractTable[_]](tableQuery: TableQuery[T]) {
 
-    def search(request: TableSearchRequest)(implicit ec: ExecutionContext): DBIOAction[TableSearchResponse[T#TableElementType], NoStream, Effect.Read] = {
+    def search(
+      request: TableSearchRequest
+    )(implicit ec: ExecutionContext): DBIOAction[TableSearchResponse[T#TableElementType], NoStream, Effect.Read] = {
       val initQuery: Query[T, T#TableElementType, Seq] = tableQuery
 
       val withContains = request.getContainsFilterAttributes.foldLeft(initQuery)((query, attributes) =>
-        query.filter(table => applyContainsFilter(attributes, table.fieldMapping)))
+        query.filter(table => applyContainsFilter(attributes, table.fieldMapping))
+      )
       val withIntRange = request.getIntRangeFilterAttributes.foldLeft(withContains)((query, attributes) =>
-        query.filter(table => applyIntRangeFilter(attributes, table.fieldMapping)))
+        query.filter(table => applyIntRangeFilter(attributes, table.fieldMapping))
+      )
       val filteredQuery = request.getDateTimeRangeFilterAttributes.foldLeft(withIntRange)((query, attributes) =>
-        query.filter(table => applyDateTimeRangeFilter(attributes, table.fieldMapping)))
+        query.filter(table => applyDateTimeRangeFilter(attributes, table.fieldMapping))
+      )
       val withMultiEquals = request.getEqualsMultipleFilterAttributes.foldLeft(filteredQuery)((query, attributes) =>
-        query.filter(table => applyEqualsMultipleFilter(attributes, table.fieldMapping)))
+        query.filter(table => applyEqualsMultipleFilter(attributes, table.fieldMapping))
+      )
       val withLongFilter = request.getLongFilterAttributes.foldLeft(withMultiEquals)((query, attributes) =>
-        query.filter(table => applyLongFilter(attributes, table.fieldMapping)))
+        query.filter(table => applyLongFilter(attributes, table.fieldMapping))
+      )
       val withBooleanFilter = request.getBooleanFilterAttributes.foldLeft(withLongFilter)((query, attributes) =>
-        query.filter(table => applyBooleanFilter(attributes, table.fieldMapping)))
+        query.filter(table => applyBooleanFilter(attributes, table.fieldMapping))
+      )
 
       val length = withBooleanFilter.length.result
 
@@ -62,22 +70,34 @@ trait SearchableTableQuery {
       }
     }
 
-    private def applyContainsFilter(attributes: ContainsFilterAttributes, fieldMapping: Map[String, Rep[_]]): Rep[Boolean] = {
+    private def applyContainsFilter(
+      attributes: ContainsFilterAttributes,
+      fieldMapping: Map[String, Rep[_]]
+    ): Rep[Boolean] = {
       val tableField = fieldMapping(attributes.field).asInstanceOf[Rep[String]]
       tableField like s"%${attributes.value}%"
     }
 
-    private def applyIntRangeFilter(attributes: IntRangeFilterAttributes, fieldMapping: Map[String, Rep[_]]): Rep[Boolean] = {
+    private def applyIntRangeFilter(
+      attributes: IntRangeFilterAttributes,
+      fieldMapping: Map[String, Rep[_]]
+    ): Rep[Boolean] = {
       val tableField = fieldMapping(attributes.field).asInstanceOf[Rep[Int]]
       applyRangeFilter(tableField, attributes.start, attributes.end)
     }
 
-    private def applyDateTimeRangeFilter(attributes: DateTimeRangeFilterAttributes, fieldMapping: Map[String, Rep[_]]): Rep[Boolean] = {
+    private def applyDateTimeRangeFilter(
+      attributes: DateTimeRangeFilterAttributes,
+      fieldMapping: Map[String, Rep[_]]
+    ): Rep[Boolean] = {
       val tableField = fieldMapping(attributes.field).asInstanceOf[Rep[LocalDateTime]]
       applyRangeFilter(tableField, attributes.start, attributes.end)
     }
 
-    private def applyEqualsMultipleFilter(attributes: EqualsMultipleFilterAttributes, fieldMapping: Map[String, Rep[_]]): Rep[Boolean] = {
+    private def applyEqualsMultipleFilter(
+      attributes: EqualsMultipleFilterAttributes,
+      fieldMapping: Map[String, Rep[_]]
+    ): Rep[Boolean] = {
       val tableField = fieldMapping(attributes.field).asInstanceOf[Rep[String]]
       tableField inSetBind attributes.values
     }
@@ -87,12 +107,14 @@ trait SearchableTableQuery {
       tableField === attributes.value
     }
 
-    private def applyRangeFilter[B: BaseTypedType](tableField: Rep[B], start: Option[B], end: Option[B]): Rep[Boolean] = {
+    private def applyRangeFilter[B: BaseTypedType](tableField: Rep[B], start: Option[B], end: Option[B]): Rep[Boolean] =
       start.map(date => tableField >= date).getOrElse(LiteralColumn(true)) &&
         end.map(date => tableField <= date).getOrElse(LiteralColumn(true))
-    }
 
-    private def applyBooleanFilter(attributes: BooleanFilterAttributes, fieldMapping: Map[String, Rep[_]]): Rep[Boolean] = {
+    private def applyBooleanFilter(
+      attributes: BooleanFilterAttributes,
+      fieldMapping: Map[String, Rep[_]]
+    ): Rep[Boolean] = {
       val tableField = fieldMapping(attributes.field).asInstanceOf[Rep[Boolean]]
       if (attributes.value.isTrue == attributes.value.isFalse) {
         LiteralColumn(1) === LiteralColumn(1)
@@ -103,13 +125,18 @@ trait SearchableTableQuery {
       }
     }
 
-    private def sortFields(sortOpt: Option[SortAttributes], fieldMapping: Map[String, Rep[_]], defaultSortColumn: Rep[_]): ColumnOrdered[_] = {
+    private def sortFields(
+      sortOpt: Option[SortAttributes],
+      fieldMapping: Map[String, Rep[_]],
+      defaultSortColumn: Rep[_]
+    ): ColumnOrdered[_] = {
       val sortParameters = sortOpt match {
         case Some(sort) => (fieldMapping(sort.by), sort.order)
-        case None => (defaultSortColumn, 1)
+        case None       => (defaultSortColumn, 1)
       }
 
-      val ordering: slick.ast.Ordering.Direction = if (sortParameters._2 == -1) slick.ast.Ordering.Desc else slick.ast.Ordering.Asc
+      val ordering: slick.ast.Ordering.Direction =
+        if (sortParameters._2 == -1) slick.ast.Ordering.Desc else slick.ast.Ordering.Asc
       ColumnOrdered(sortParameters._1, slick.ast.Ordering(ordering))
     }
 

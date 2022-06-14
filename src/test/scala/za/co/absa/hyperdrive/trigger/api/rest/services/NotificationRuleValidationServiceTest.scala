@@ -40,15 +40,19 @@ class NotificationRuleValidationServiceTest extends AsyncFlatSpec with Matchers 
   "validate" should "succeed if entity is valid" in {
     // given
     val notificationRule = createNotificationRule()
-    when(workflowRepository.existsProject(eqTo(notificationRule.project.get))(any[ExecutionContext])).thenReturn(Future{true})
-    when(workflowRepository.existsWorkflowWithPrefix(eqTo(notificationRule.workflowPrefix.get))(any[ExecutionContext])).thenReturn(Future{true})
+    when(workflowRepository.existsProject(eqTo(notificationRule.project.get))(any[ExecutionContext]))
+      .thenReturn(Future(true))
+    when(workflowRepository.existsWorkflowWithPrefix(eqTo(notificationRule.workflowPrefix.get))(any[ExecutionContext]))
+      .thenReturn(Future(true))
 
     // when
     await(underTest.validate(notificationRule))
 
     // then
     verify(workflowRepository).existsProject(eqTo(notificationRule.project.get))(any[ExecutionContext])
-    verify(workflowRepository).existsWorkflowWithPrefix(eqTo(notificationRule.workflowPrefix.get))(any[ExecutionContext])
+    verify(workflowRepository).existsWorkflowWithPrefix(eqTo(notificationRule.workflowPrefix.get))(
+      any[ExecutionContext]
+    )
     succeed
   }
 
@@ -81,8 +85,10 @@ class NotificationRuleValidationServiceTest extends AsyncFlatSpec with Matchers 
   it should "succeed if minElapsedSeconds is > 0" in {
     // given
     val notificationRule = createNotificationRule().copy(minElapsedSecondsSinceLastSuccess = Some(123))
-    when(workflowRepository.existsProject(eqTo(notificationRule.project.get))(any[ExecutionContext])).thenReturn(Future{true})
-    when(workflowRepository.existsWorkflowWithPrefix(eqTo(notificationRule.workflowPrefix.get))(any[ExecutionContext])).thenReturn(Future{true})
+    when(workflowRepository.existsProject(eqTo(notificationRule.project.get))(any[ExecutionContext]))
+      .thenReturn(Future(true))
+    when(workflowRepository.existsWorkflowWithPrefix(eqTo(notificationRule.workflowPrefix.get))(any[ExecutionContext]))
+      .thenReturn(Future(true))
 
     // when
     await(underTest.validate(notificationRule))
@@ -94,11 +100,13 @@ class NotificationRuleValidationServiceTest extends AsyncFlatSpec with Matchers 
   it should "fail if the project doesn't exist" in {
     // given
     val notificationRule = createNotificationRule()
-    when(workflowRepository.existsProject(eqTo(notificationRule.project.get))(any[ExecutionContext])).thenReturn(Future{false})
-    when(workflowRepository.existsWorkflowWithPrefix(eqTo(notificationRule.workflowPrefix.get))(any[ExecutionContext])).thenReturn(Future{true})
+    when(workflowRepository.existsProject(eqTo(notificationRule.project.get))(any[ExecutionContext]))
+      .thenReturn(Future(false))
+    when(workflowRepository.existsWorkflowWithPrefix(eqTo(notificationRule.workflowPrefix.get))(any[ExecutionContext]))
+      .thenReturn(Future(true))
 
     // when
-    val result = the [ApiException] thrownBy await(underTest.validate(notificationRule))
+    val result = the[ApiException] thrownBy await(underTest.validate(notificationRule))
 
     // then
     result.apiErrors should have size 1
@@ -108,25 +116,31 @@ class NotificationRuleValidationServiceTest extends AsyncFlatSpec with Matchers 
   it should "fail if the workflow prefix doesn't match any workflows" in {
     // given
     val notificationRule = createNotificationRule()
-    when(workflowRepository.existsProject(eqTo(notificationRule.project.get))(any[ExecutionContext])).thenReturn(Future{true})
-    when(workflowRepository.existsWorkflowWithPrefix(eqTo(notificationRule.workflowPrefix.get))(any[ExecutionContext])).thenReturn(Future{false})
+    when(workflowRepository.existsProject(eqTo(notificationRule.project.get))(any[ExecutionContext]))
+      .thenReturn(Future(true))
+    when(workflowRepository.existsWorkflowWithPrefix(eqTo(notificationRule.workflowPrefix.get))(any[ExecutionContext]))
+      .thenReturn(Future(false))
 
     // when
-    val result = the [ApiException] thrownBy await(underTest.validate(notificationRule))
+    val result = the[ApiException] thrownBy await(underTest.validate(notificationRule))
 
     // then
     result.apiErrors should have size 1
-    result.apiErrors.head shouldBe ValidationError(s"No workflow with prefix ${notificationRule.workflowPrefix.get} exists")
+    result.apiErrors.head shouldBe ValidationError(
+      s"No workflow with prefix ${notificationRule.workflowPrefix.get} exists"
+    )
   }
 
   it should "fail if any email address is invalid" in {
     // given
     val notificationRule = createNotificationRule().copy(recipients = Seq("abc@xyz.com", "abc@com", "abc.def.ghi"))
-    when(workflowRepository.existsProject(eqTo(notificationRule.project.get))(any[ExecutionContext])).thenReturn(Future{true})
-    when(workflowRepository.existsWorkflowWithPrefix(eqTo(notificationRule.workflowPrefix.get))(any[ExecutionContext])).thenReturn(Future{true})
+    when(workflowRepository.existsProject(eqTo(notificationRule.project.get))(any[ExecutionContext]))
+      .thenReturn(Future(true))
+    when(workflowRepository.existsWorkflowWithPrefix(eqTo(notificationRule.workflowPrefix.get))(any[ExecutionContext]))
+      .thenReturn(Future(true))
 
     // when
-    val result = the [ApiException] thrownBy await(underTest.validate(notificationRule))
+    val result = the[ApiException] thrownBy await(underTest.validate(notificationRule))
 
     // then
     result.apiErrors should have size 2
@@ -139,11 +153,13 @@ class NotificationRuleValidationServiceTest extends AsyncFlatSpec with Matchers 
   it should "fail if minElapsedSeconds is < 0" in {
     // given
     val notificationRule = createNotificationRule().copy(minElapsedSecondsSinceLastSuccess = Some(-1))
-    when(workflowRepository.existsProject(eqTo(notificationRule.project.get))(any[ExecutionContext])).thenReturn(Future{true})
-    when(workflowRepository.existsWorkflowWithPrefix(eqTo(notificationRule.workflowPrefix.get))(any[ExecutionContext])).thenReturn(Future{true})
+    when(workflowRepository.existsProject(eqTo(notificationRule.project.get))(any[ExecutionContext]))
+      .thenReturn(Future(true))
+    when(workflowRepository.existsWorkflowWithPrefix(eqTo(notificationRule.workflowPrefix.get))(any[ExecutionContext]))
+      .thenReturn(Future(true))
 
     // when
-    val result = the [ApiException] thrownBy await(underTest.validate(notificationRule))
+    val result = the[ApiException] thrownBy await(underTest.validate(notificationRule))
 
     // then
     result.apiErrors should have size 1
@@ -153,11 +169,13 @@ class NotificationRuleValidationServiceTest extends AsyncFlatSpec with Matchers 
   it should "return all validation errors" in {
     // given
     val notificationRule = createNotificationRule().copy(recipients = Seq("abc@com"))
-    when(workflowRepository.existsProject(eqTo(notificationRule.project.get))(any[ExecutionContext])).thenReturn(Future{false})
-    when(workflowRepository.existsWorkflowWithPrefix(eqTo(notificationRule.workflowPrefix.get))(any[ExecutionContext])).thenReturn(Future{false})
+    when(workflowRepository.existsProject(eqTo(notificationRule.project.get))(any[ExecutionContext]))
+      .thenReturn(Future(false))
+    when(workflowRepository.existsWorkflowWithPrefix(eqTo(notificationRule.workflowPrefix.get))(any[ExecutionContext]))
+      .thenReturn(Future(false))
 
     // when
-    val result = the [ApiException] thrownBy await(underTest.validate(notificationRule))
+    val result = the[ApiException] thrownBy await(underTest.validate(notificationRule))
 
     // then
     result.apiErrors should have size 3
@@ -168,10 +186,15 @@ class NotificationRuleValidationServiceTest extends AsyncFlatSpec with Matchers 
     )
   }
 
-  private def createNotificationRule() = {
-    NotificationRule(true, Some("project"), Some("ABC XYZ"), None,
+  private def createNotificationRule() =
+    NotificationRule(
+      true,
+      Some("project"),
+      Some("ABC XYZ"),
+      None,
       Seq(DagInstanceStatuses.Skipped, DagInstanceStatuses.Failed),
-      Seq("abc.def@ghi.com"), updated = None)
-  }
+      Seq("abc.def@ghi.com"),
+      updated = None
+    )
 
 }

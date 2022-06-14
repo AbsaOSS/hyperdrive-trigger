@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -23,13 +22,12 @@ import za.co.absa.hyperdrive.trigger.HyperDriverManager
 import javax.inject.Inject
 
 @Component
-class SchedulerHealthIndicator @Inject()(manager: HyperDriverManager) extends HealthIndicator {
+class SchedulerHealthIndicator @Inject() (manager: HyperDriverManager) extends HealthIndicator {
 
-  override protected def health(): Health = {
+  override protected def health(): Health =
     if (manager.isManagerRunning) {
       Health.up().build()
     } else {
       Health.down().build()
     }
-  }
 }

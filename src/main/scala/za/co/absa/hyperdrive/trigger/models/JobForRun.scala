@@ -15,8 +15,4 @@
 
 package za.co.absa.hyperdrive.trigger.models
 
-case class JobForRun(
-  name: String,
-  order: Int,
-  id: Long
-)
+case class JobForRun(name: String, order: Int, id: Long)

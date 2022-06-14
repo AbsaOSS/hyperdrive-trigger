@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -27,7 +26,7 @@ import javax.validation.constraints.NotNull
 @ConfigurationProperties
 @ConstructorBinding
 @Validated
-class DatabaseConfig (
+class DatabaseConfig(
   @Name("db")
   @NotNull
   val dbProperties: Properties,

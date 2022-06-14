@@ -16,14 +16,19 @@
 package za.co.absa.hyperdrive.trigger.models.tables
 
 import slick.lifted.ProvenShape
-import za.co.absa.hyperdrive.trigger.models.tables.tableExtensions.searchableTable.{SearchableTable, SearchableTableQuery}
+import za.co.absa.hyperdrive.trigger.models.tables.tableExtensions.searchableTable.{
+  SearchableTable,
+  SearchableTableQuery
+}
 import za.co.absa.hyperdrive.trigger.models.{JobTemplate, JobTemplateParameters}
 
 trait JobTemplateTable extends SearchableTableQuery {
   this: Profile with JdbcTypeMapper =>
   import api._
 
-  final class JobTemplateTable(tag: Tag) extends Table[JobTemplate](tag, _tableName = "job_template") with SearchableTable {
+  final class JobTemplateTable(tag: Tag)
+      extends Table[JobTemplate](tag, _tableName = "job_template")
+      with SearchableTable {
 
     def name: Rep[String] = column[String]("name", O.Unique)
     def jobParameters: Rep[JobTemplateParameters] = column[JobTemplateParameters]("job_parameters", O.SqlType("JSONB"))
@@ -31,23 +36,11 @@ trait JobTemplateTable extends SearchableTableQuery {
 
     def * : ProvenShape[JobTemplate] = (name, jobParameters, id) <> (
       jobTemplateTuple =>
-        JobTemplate.apply(
-          name = jobTemplateTuple._1,
-          jobParameters = jobTemplateTuple._2,
-          id = jobTemplateTuple._3
-        ),
-      (jobTemplate: JobTemplate) =>
-        Option(
-          jobTemplate.name,
-          jobTemplate.jobParameters,
-          jobTemplate.id
-        )
+        JobTemplate.apply(name = jobTemplateTuple._1, jobParameters = jobTemplateTuple._2, id = jobTemplateTuple._3),
+      (jobTemplate: JobTemplate) => Option(jobTemplate.name, jobTemplate.jobParameters, jobTemplate.id)
     )
 
-    override def fieldMapping: Map[String, Rep[_]] = Map(
-      "name" -> this.name,
-      "id" -> this.id
-    )
+    override def fieldMapping: Map[String, Rep[_]] = Map("name" -> this.name, "id" -> this.id)
 
     override def defaultSortColumn: Rep[_] = id
   }

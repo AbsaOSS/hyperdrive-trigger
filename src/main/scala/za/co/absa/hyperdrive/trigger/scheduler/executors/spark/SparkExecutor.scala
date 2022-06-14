@@ -26,42 +26,43 @@ import za.co.absa.hyperdrive.trigger.scheduler.executors.spark.{FinalStatuses =>
 import scala.concurrent.{ExecutionContext, Future}
 
 object SparkExecutor {
-  def execute(jobInstance: JobInstance, jobParameters: SparkInstanceParameters, updateJob: JobInstance => Future[Unit],
-              sparkClusterService: SparkClusterService)
-             (implicit executionContext: ExecutionContext, sparkConfig: SparkConfig): Future[Unit] = {
+  def execute(
+    jobInstance: JobInstance,
+    jobParameters: SparkInstanceParameters,
+    updateJob: JobInstance => Future[Unit],
+    sparkClusterService: SparkClusterService
+  )(implicit executionContext: ExecutionContext, sparkConfig: SparkConfig): Future[Unit] =
     jobInstance.executorJobId match {
-      case None => sparkClusterService.submitJob(jobInstance, jobParameters, updateJob)
+      case None                => sparkClusterService.submitJob(jobInstance, jobParameters, updateJob)
       case Some(executorJobId) => updateJobStatus(executorJobId, jobInstance, updateJob, sparkClusterService)
     }
-  }
 
-  private def updateJobStatus(executorJobId: String, jobInstance: JobInstance, updateJob: JobInstance => Future[Unit],
-                              sparkClusterService: SparkClusterService)
-                             (implicit executionContext: ExecutionContext, sparkConfig: SparkConfig): Future[Unit] = {
+  private def updateJobStatus(
+    executorJobId: String,
+    jobInstance: JobInstance,
+    updateJob: JobInstance => Future[Unit],
+    sparkClusterService: SparkClusterService
+  )(implicit executionContext: ExecutionContext, sparkConfig: SparkConfig): Future[Unit] =
     WSClientProvider.getWSClient.url(getStatusUrl(executorJobId)).get().map { response =>
       (Json.fromJson[AppsResponse](response.body[JsValue]).asOpt match {
         case Some(asd) => asd.apps.app
-        case None => Seq.empty
+        case None      => Seq.empty
       }) match {
-        case Seq(first) => updateJob(jobInstance.copy(
-          applicationId = Some(first.id),
-          jobStatus = getStatus(first.finalStatus)))
+        case Seq(first) =>
+          updateJob(jobInstance.copy(applicationId = Some(first.id), jobStatus = getStatus(first.finalStatus)))
         case _ => sparkClusterService.handleMissingYarnStatus(jobInstance, updateJob)
       }
     }
-  }
 
-  private def getStatusUrl(executorJobId: String)(implicit sparkConfig: SparkConfig): String = {
+  private def getStatusUrl(executorJobId: String)(implicit sparkConfig: SparkConfig): String =
     s"${sparkConfig.hadoopResourceManagerUrlBase}/ws/v1/cluster/apps?applicationTags=$executorJobId"
-  }
 
-  private def getStatus(finalStatus: String): JobStatus = {
+  private def getStatus(finalStatus: String): JobStatus =
     finalStatus match {
       case fs if fs == YarnFinalStatuses.Undefined.name => Running
       case fs if fs == YarnFinalStatuses.Succeeded.name => Succeeded
-      case fs if fs == YarnFinalStatuses.Failed.name => Failed
-      case fs if fs == YarnFinalStatuses.Killed.name => Killed
-      case _ => Lost
+      case fs if fs == YarnFinalStatuses.Failed.name    => Failed
+      case fs if fs == YarnFinalStatuses.Killed.name    => Killed
+      case _                                            => Lost
     }
-  }
 }

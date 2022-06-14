@@ -24,19 +24,25 @@ import za.co.absa.hyperdrive.trigger.persistance._
 import scala.concurrent.{ExecutionContext, Future}
 
 @Component
-class EventProcessor(eventRepository: EventRepository,
+class EventProcessor(
+  eventRepository: EventRepository,
   dagDefinitionRepository: DagDefinitionRepository,
   dagInstanceRepository: DagInstanceRepository,
-  dagInstanceService: DagInstanceService) {
+  dagInstanceService: DagInstanceService
+) {
   private val logger = LoggerFactory.getLogger(this.getClass)
 
-  def eventProcessor(triggeredBy: String)(events: Seq[Event], sensorId: Long)(implicit ec: ExecutionContext): Future[Boolean] = {
+  def eventProcessor(
+    triggeredBy: String
+  )(events: Seq[Event], sensorId: Long)(implicit ec: ExecutionContext): Future[Boolean] = {
     val fut = processEvents(events, sensorId, triggeredBy)
     logger.info(s"Processing events. Sensor id: $sensorId. Events: ${events.map(_.id)}")
     fut
   }
 
-  private def processEvents(events: Seq[Event], sensorId: Long, triggeredBy: String)(implicit ec: ExecutionContext): Future[Boolean] = {
+  private def processEvents(events: Seq[Event], sensorId: Long, triggeredBy: String)(implicit
+    ec: ExecutionContext
+  ): Future[Boolean] =
     eventRepository.getExistEvents(events.map(_.sensorEventId)).flatMap { eventsIdsInDB =>
       val newEvents = events.filter(e => !eventsIdsInDB.contains(e.sensorEventId))
       if (newEvents.nonEmpty) {
@@ -44,7 +50,8 @@ class EventProcessor(eventRepository: EventRepository,
           case Some(joinedDagDefinition) =>
             for {
               hasInQueueDagInstance <- dagInstanceRepository.hasInQueueDagInstance(joinedDagDefinition.workflowId)
-              dagInstanceJoined <- dagInstanceService.createDagInstance(joinedDagDefinition, triggeredBy, hasInQueueDagInstance)
+              dagInstanceJoined <- dagInstanceService
+                .createDagInstance(joinedDagDefinition, triggeredBy, hasInQueueDagInstance)
               dagInstanceJoinedEvents = newEvents.map(event => (dagInstanceJoined, event))
               _ <- dagInstanceRepository.insertJoinedDagInstancesWithEvents(dagInstanceJoinedEvents)
             } yield {
@@ -57,6 +64,5 @@ class EventProcessor(eventRepository: EventRepository,
         Future.successful(true)
       }
     }
-  }
 
 }

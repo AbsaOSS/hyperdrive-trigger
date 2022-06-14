@@ -27,12 +27,10 @@ import scala.compat.java8.FutureConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 @RestController
-class DagRunController @Inject()(dagRunService: DagRunService) {
+class DagRunController @Inject() (dagRunService: DagRunService) {
 
   @PostMapping(path = Array("/dagRuns/search"))
-  def searchDagRuns(@RequestBody searchRequest: TableSearchRequest): CompletableFuture[TableSearchResponse[DagRun]] = {
+  def searchDagRuns(@RequestBody searchRequest: TableSearchRequest): CompletableFuture[TableSearchResponse[DagRun]] =
     dagRunService.searchDagRuns(searchRequest).toJava.toCompletableFuture
-  }
 
 }
-

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -24,7 +23,7 @@ import za.co.absa.hyperdrive.trigger.configuration.application.ConfigUtil.toNonE
 @ConfigurationProperties("auth")
 @ConstructorBinding
 @Validated
-class AuthConfig (
+class AuthConfig(
   @DefaultValue(Array(""))
   val mechanism: String,
   @DefaultValue(Array(""))
