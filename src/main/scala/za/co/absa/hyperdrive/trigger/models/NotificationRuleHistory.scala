@@ -15,8 +15,4 @@
 
 package za.co.absa.hyperdrive.trigger.models
 
-case class NotificationRuleHistory(
-  history: History,
-  notificationRuleId: Long,
-  notificationRule: NotificationRule
-)
+case class NotificationRuleHistory(history: History, notificationRuleId: Long, notificationRule: NotificationRule)

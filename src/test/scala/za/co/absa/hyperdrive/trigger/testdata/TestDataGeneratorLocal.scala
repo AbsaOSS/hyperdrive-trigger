@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -33,8 +32,12 @@ import za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class TestDataGeneratorLocal extends FlatSpec with Matchers with SpringIntegrationTest with LocalDatabaseConfig
-  with BeforeAndAfterAll {
+class TestDataGeneratorLocal
+    extends FlatSpec
+    with Matchers
+    with SpringIntegrationTest
+    with LocalDatabaseConfig
+    with BeforeAndAfterAll {
 
   @Inject() var workflowService: WorkflowService = _
   @Inject() var eventProcessor: EventProcessor = _
@@ -79,15 +82,15 @@ class TestDataGeneratorLocal extends FlatSpec with Matchers with SpringIntegrati
   it should "insert job runs for active sensors" taggedAs PersistingData in {
     val allWorkflowIds = await(workflowService.getWorkflows()).map(_.id)
     val sensors = await(sensorRepository.getNewActiveAssignedSensors(Seq.empty, allWorkflowIds))
-    sensors.foreach(sensor => {
+    sensors.foreach { sensor =>
       val event = Event(UUID.randomUUID().toString, sensor.id, JsObject.empty)
       val properties = RecurringSensorProperties()
       val result = await(eventProcessor.eventProcessor("triggered by")(Seq(event), sensor.id))
       result shouldBe true
-    })
+    }
 
     val dagInstances = await(dagInstanceRepository.getDagsToRun(Seq.empty, 1000, allWorkflowIds))
-    dagInstances.foreach(dagInstance => {
+    dagInstances.foreach { dagInstance =>
       val finished = Some(dagInstance.started.plusSeconds(random.nextInt(86400)))
       val updatedDagInstance = random.nextInt(4) match {
         case 1 => dagInstance.copy(status = DagInstanceStatuses.Running)
@@ -96,6 +99,6 @@ class TestDataGeneratorLocal extends FlatSpec with Matchers with SpringIntegrati
         case _ => dagInstance
       }
       await(dagInstanceRepository.update(updatedDagInstance))
-    })
+    }
   }
 }

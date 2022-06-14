@@ -15,8 +15,4 @@
 
 package za.co.absa.hyperdrive.trigger.models
 
-case class JobTemplateHistory(
-  history: History,
-  jobTemplateId: Long,
-  jobTemplate: JobTemplate
-)
+case class JobTemplateHistory(history: History, jobTemplateId: Long, jobTemplate: JobTemplate)

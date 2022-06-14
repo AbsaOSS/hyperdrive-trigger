@@ -26,7 +26,9 @@ trait NotificationRuleHistoryTable extends HistoryTableQuery {
 
   import api._
 
-  final class NotificationRuleHistoryTable(tag: Tag) extends Table[NotificationRuleHistory](tag, _tableName = "notification_rule_history") with HistoryTable {
+  final class NotificationRuleHistoryTable(tag: Tag)
+      extends Table[NotificationRuleHistory](tag, _tableName = "notification_rule_history")
+      with HistoryTable {
     override def id: Rep[Long] = column[Long]("id", O.PrimaryKey, O.AutoInc, O.SqlType("BIGSERIAL"))
     override def changedOn: Rep[LocalDateTime] = column[LocalDateTime]("changed_on")
     override def changedBy: Rep[String] = column[String]("changed_by")
@@ -34,29 +36,31 @@ trait NotificationRuleHistoryTable extends HistoryTableQuery {
     override def entityId: Rep[Long] = column[Long]("notification_rule_id")
     def notificationRule: Rep[NotificationRule] = column[NotificationRule]("notification_rule", O.SqlType("JSONB"))
 
-    def * : ProvenShape[NotificationRuleHistory] = (id, changedOn, changedBy, operation, entityId, notificationRule) <> (
-      notificationRuleTuple =>
-        NotificationRuleHistory.apply(
-          history = History.apply(
-            id = notificationRuleTuple._1,
-            changedOn = notificationRuleTuple._2,
-            changedBy = notificationRuleTuple._3,
-            operation = notificationRuleTuple._4
+    def * : ProvenShape[NotificationRuleHistory] =
+      (id, changedOn, changedBy, operation, entityId, notificationRule) <> (
+        notificationRuleTuple =>
+          NotificationRuleHistory.apply(
+            history = History.apply(
+              id = notificationRuleTuple._1,
+              changedOn = notificationRuleTuple._2,
+              changedBy = notificationRuleTuple._3,
+              operation = notificationRuleTuple._4
+            ),
+            notificationRuleId = notificationRuleTuple._5,
+            notificationRule = notificationRuleTuple._6
           ),
-          notificationRuleId = notificationRuleTuple._5,
-          notificationRule = notificationRuleTuple._6
-        ),
-      (notificationRuleHistory: NotificationRuleHistory) => Option(
-        (
-          notificationRuleHistory.history.id,
-          notificationRuleHistory.history.changedOn,
-          notificationRuleHistory.history.changedBy,
-          notificationRuleHistory.history.operation,
-          notificationRuleHistory.notificationRuleId,
-          notificationRuleHistory.notificationRule
-        )
+        (notificationRuleHistory: NotificationRuleHistory) =>
+          Option(
+            (
+              notificationRuleHistory.history.id,
+              notificationRuleHistory.history.changedOn,
+              notificationRuleHistory.history.changedBy,
+              notificationRuleHistory.history.operation,
+              notificationRuleHistory.notificationRuleId,
+              notificationRuleHistory.notificationRule
+            )
+          )
       )
-    )
   }
 
   lazy val notificationRuleHistoryTable = TableQuery[NotificationRuleHistoryTable]

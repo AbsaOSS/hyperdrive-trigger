@@ -26,12 +26,10 @@ import scala.compat.java8.FutureConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 @RestController
-class JobDefinitionController @Inject()(jobDefinitionService: JobDefinitionService) {
+class JobDefinitionController @Inject() (jobDefinitionService: JobDefinitionService) {
 
   @GetMapping(path = Array("/jobsForRun"))
-  def getJobsForRun(@RequestParam workflowId: Long): CompletableFuture[Seq[JobForRun]] = {
+  def getJobsForRun(@RequestParam workflowId: Long): CompletableFuture[Seq[JobForRun]] =
     jobDefinitionService.getJobsForRun(workflowId).toJava.toCompletableFuture
-  }
 
 }
-

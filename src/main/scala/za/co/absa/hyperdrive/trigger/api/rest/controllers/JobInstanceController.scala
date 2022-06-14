@@ -25,17 +25,14 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.compat.java8.FutureConverters._
 
 @RestController
-class JobInstanceController @Inject()(jobInstanceService: JobInstanceService) {
+class JobInstanceController @Inject() (jobInstanceService: JobInstanceService) {
 
   @GetMapping(path = Array("/jobInstances"))
-  def getJobInstances(@RequestParam dagInstanceId: Long): CompletableFuture[Seq[JobInstance]] = {
+  def getJobInstances(@RequestParam dagInstanceId: Long): CompletableFuture[Seq[JobInstance]] =
     jobInstanceService.getJobInstances(dagInstanceId).toJava.toCompletableFuture
-  }
 
   @PostMapping(path = Array("/jobInstances/{applicationId}/kill"))
-  def killJob(@PathVariable applicationId: String): CompletableFuture[Boolean] = {
+  def killJob(@PathVariable applicationId: String): CompletableFuture[Boolean] =
     jobInstanceService.killJob(applicationId).toJava.toCompletableFuture
-  }
 
 }
-

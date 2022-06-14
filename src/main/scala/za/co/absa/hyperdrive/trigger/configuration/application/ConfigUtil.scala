@@ -18,9 +18,8 @@ package za.co.absa.hyperdrive.trigger.configuration.application
 import java.util.Properties
 
 private[application] object ConfigUtil {
-  def toNonEmptyOption(string: String): Option[String] = {
-    Option(string).collect { case x if x.trim.nonEmpty => x}
-  }
+  def toNonEmptyOption(string: String): Option[String] =
+    Option(string).collect { case x if x.trim.nonEmpty => x }
 
   def splitString(value: String, regex: String): Seq[String] = Option(value)
     .map(_.split(regex).toSeq)
@@ -30,6 +29,7 @@ private[application] object ConfigUtil {
   def transformProperties(properties: Properties): Map[String, String] = {
     import scala.collection.JavaConverters._
     Option(properties)
-      .map(_.asScala.toMap).getOrElse(Map())
+      .map(_.asScala.toMap)
+      .getOrElse(Map())
   }
 }

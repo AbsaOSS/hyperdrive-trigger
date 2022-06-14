@@ -19,14 +19,24 @@ import org.scalatest.{FlatSpec, _}
 import za.co.absa.hyperdrive.trigger.models.NotificationRule
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, GenericDatabaseError, ValidationError}
-import za.co.absa.hyperdrive.trigger.models.search.{ContainsFilterAttributes, SortAttributes, TableSearchRequest, TableSearchResponse}
+import za.co.absa.hyperdrive.trigger.models.search.{
+  ContainsFilterAttributes,
+  SortAttributes,
+  TableSearchRequest,
+  TableSearchResponse
+}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class NotificationRuleRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryH2TestBase {
+class NotificationRuleRepositoryTest
+    extends FlatSpec
+    with Matchers
+    with BeforeAndAfterAll
+    with BeforeAndAfterEach
+    with RepositoryH2TestBase {
   import api._
   private val h2NotificationRuleHistoryRepository: NotificationRuleHistoryRepository =
-    new NotificationRuleHistoryRepositoryImpl(dbProvider) with H2Profile  {
+    new NotificationRuleHistoryRepositoryImpl(dbProvider) with H2Profile {
       override val profile = h2Profile
     }
 
@@ -47,17 +57,14 @@ class NotificationRuleRepositoryTest extends FlatSpec with Matchers with BeforeA
   private val emailDef = "def@xyz.com"
   private val emailGhi = "ghi@xyz.com"
 
-  override def beforeAll: Unit = {
+  override def beforeAll: Unit =
     schemaSetup()
-  }
 
-  override def afterAll: Unit = {
+  override def afterAll: Unit =
     schemaDrop()
-  }
 
-  override def afterEach: Unit = {
+  override def afterEach: Unit =
     clearData()
-  }
 
   "insertNotificationRule" should "insert a notification rule" in {
     val expected = TestData.nr1
@@ -87,7 +94,11 @@ class NotificationRuleRepositoryTest extends FlatSpec with Matchers with BeforeA
 
     // then
     val insertedRule = await(db.run(h2NotificationRuleTable.result)).head
-    insertedRule.statuses should contain theSameElementsInOrderAs Seq(DagInstanceStatuses.Failed, DagInstanceStatuses.Skipped, DagInstanceStatuses.Succeeded)
+    insertedRule.statuses should contain theSameElementsInOrderAs Seq(
+      DagInstanceStatuses.Failed,
+      DagInstanceStatuses.Skipped,
+      DagInstanceStatuses.Succeeded
+    )
     insertedRule.recipients should contain theSameElementsInOrderAs Seq(emailAbc, emailDef, emailGhi)
   }
 
@@ -96,8 +107,9 @@ class NotificationRuleRepositoryTest extends FlatSpec with Matchers with BeforeA
     val invalidNotificationRule = TestData.nr1.copy(statuses = null)
 
     // when
-    val result = the [ApiException] thrownBy await(h2NotificationRuleRepository.insertNotificationRule(
-      invalidNotificationRule, testUser))
+    val result = the[ApiException] thrownBy await(
+      h2NotificationRuleRepository.insertNotificationRule(invalidNotificationRule, testUser)
+    )
 
     // then
     result.apiErrors should contain only GenericDatabaseError
@@ -112,7 +124,7 @@ class NotificationRuleRepositoryTest extends FlatSpec with Matchers with BeforeA
   }
 
   it should "throw an exception if the notification rule doesn't exist" in {
-    val exception = the [ApiException] thrownBy await(h2NotificationRuleRepository.getNotificationRule(42))
+    val exception = the[ApiException] thrownBy await(h2NotificationRuleRepository.getNotificationRule(42))
     exception.apiErrors.foreach(_ shouldBe a[ValidationError])
   }
 
@@ -154,10 +166,7 @@ class NotificationRuleRepositoryTest extends FlatSpec with Matchers with BeforeA
 
   it should "sort statuses and recipients" in {
     // given
-    val rule = TestData.nr1.copy(
-      statuses = Seq(DagInstanceStatuses.Succeeded),
-      recipients = Seq(emailDef)
-    )
+    val rule = TestData.nr1.copy(statuses = Seq(DagInstanceStatuses.Succeeded), recipients = Seq(emailDef))
 
     await(h2NotificationRuleRepository.insertNotificationRule(rule, testUser))
     val insertedRule = await(db.run(h2NotificationRuleTable.result)).head
@@ -171,13 +180,17 @@ class NotificationRuleRepositoryTest extends FlatSpec with Matchers with BeforeA
 
     // then
     val updatedRule = await(db.run(h2NotificationRuleTable.result)).head
-    updatedRule.statuses should contain theSameElementsInOrderAs Seq(DagInstanceStatuses.Failed, DagInstanceStatuses.Skipped, DagInstanceStatuses.Succeeded)
+    updatedRule.statuses should contain theSameElementsInOrderAs Seq(
+      DagInstanceStatuses.Failed,
+      DagInstanceStatuses.Skipped,
+      DagInstanceStatuses.Succeeded
+    )
     updatedRule.recipients should contain theSameElementsInOrderAs Seq(emailAbc, emailDef, emailGhi)
   }
 
   it should "throw an exception if the notification rule doesn't exist" in {
-    val exception = the [ApiException] thrownBy await(h2NotificationRuleRepository.updateNotificationRule(
-      TestData.nr1, updateUser))
+    val exception =
+      the[ApiException] thrownBy await(h2NotificationRuleRepository.updateNotificationRule(TestData.nr1, updateUser))
     exception.apiErrors.foreach(_ shouldBe a[ValidationError])
   }
 
@@ -203,16 +216,14 @@ class NotificationRuleRepositoryTest extends FlatSpec with Matchers with BeforeA
   }
 
   it should "throw an exception if the notification rule doesn't exist" in {
-    val exception = the [ApiException] thrownBy await(h2NotificationRuleRepository.deleteNotificationRule(
-      TestData.nr1.id, deleteUser))
+    val exception =
+      the[ApiException] thrownBy await(h2NotificationRuleRepository.deleteNotificationRule(TestData.nr1.id, deleteUser))
     exception.apiErrors.foreach(_ shouldBe a[ValidationError])
   }
 
   "searchJobTemplates" should "return notification rules sorted by workflow prefix" in {
     await(db.run(h2NotificationRuleTable.forceInsertAll(Seq(TestData.nr1, TestData.nr2, TestData.nr3))))
-    val containsFilterAttributes = Option(Seq(
-      ContainsFilterAttributes(field = "project", value = "proj")
-    ))
+    val containsFilterAttributes = Option(Seq(ContainsFilterAttributes(field = "project", value = "proj")))
     val searchRequest: TableSearchRequest = TableSearchRequest(
       containsFilterAttributes = containsFilterAttributes,
       sort = Option(SortAttributes(by = "workflowPrefix", order = 1)),
@@ -220,7 +231,8 @@ class NotificationRuleRepositoryTest extends FlatSpec with Matchers with BeforeA
       size = Integer.MAX_VALUE
     )
 
-    val result: TableSearchResponse[NotificationRule] = await(h2NotificationRuleRepository.searchNotificationRules(searchRequest))
+    val result: TableSearchResponse[NotificationRule] =
+      await(h2NotificationRuleRepository.searchNotificationRules(searchRequest))
     result.total shouldBe TestData.notificationRules.size
     result.items.size shouldBe TestData.notificationRules.size
     result.items should contain theSameElementsInOrderAs Seq(TestData.nr3, TestData.nr1, TestData.nr2)
@@ -228,9 +240,7 @@ class NotificationRuleRepositoryTest extends FlatSpec with Matchers with BeforeA
 
   it should "return notification rules sorted by created" in {
     await(db.run(h2NotificationRuleTable.forceInsertAll(Seq(TestData.nr1, TestData.nr2, TestData.nr3))))
-    val containsFilterAttributes = Option(Seq(
-      ContainsFilterAttributes(field = "project", value = "proj")
-    ))
+    val containsFilterAttributes = Option(Seq(ContainsFilterAttributes(field = "project", value = "proj")))
     val searchRequest: TableSearchRequest = TableSearchRequest(
       containsFilterAttributes = containsFilterAttributes,
       sort = Option(SortAttributes(by = "created", order = 1)),
@@ -238,7 +248,8 @@ class NotificationRuleRepositoryTest extends FlatSpec with Matchers with BeforeA
       size = Integer.MAX_VALUE
     )
 
-    val result: TableSearchResponse[NotificationRule] = await(h2NotificationRuleRepository.searchNotificationRules(searchRequest))
+    val result: TableSearchResponse[NotificationRule] =
+      await(h2NotificationRuleRepository.searchNotificationRules(searchRequest))
     result.total shouldBe TestData.notificationRules.size
     result.items.size shouldBe TestData.notificationRules.size
     result.items should contain theSameElementsInOrderAs Seq(TestData.nr3, TestData.nr2, TestData.nr1)

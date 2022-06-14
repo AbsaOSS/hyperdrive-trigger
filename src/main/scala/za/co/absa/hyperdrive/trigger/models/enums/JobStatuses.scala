@@ -17,7 +17,12 @@ package za.co.absa.hyperdrive.trigger.models.enums
 
 object JobStatuses {
 
-  sealed abstract class JobStatus(val name: String, val isFinalStatus: Boolean, val isFailed: Boolean, val isRunning: Boolean) {
+  sealed abstract class JobStatus(
+    val name: String,
+    val isFinalStatus: Boolean,
+    val isFailed: Boolean,
+    val isRunning: Boolean
+  ) {
     override def toString: String = name
   }
 
@@ -33,7 +38,19 @@ object JobStatuses {
   case object FailedPreviousJob extends JobStatus("FailedPreviousJob", true, true, false)
   case object Skipped extends JobStatus("Skipped", true, false, false)
 
-  val statuses: Set[JobStatus] = Set(InQueue,Submitting,Running,Lost,Succeeded,Failed,Killed,SubmissionTimeout,InvalidExecutor,FailedPreviousJob,Skipped)
+  val statuses: Set[JobStatus] = Set(
+    InQueue,
+    Submitting,
+    Running,
+    Lost,
+    Succeeded,
+    Failed,
+    Killed,
+    SubmissionTimeout,
+    InvalidExecutor,
+    FailedPreviousJob,
+    Skipped
+  )
   val finalStatuses: Set[JobStatus] = statuses.filter(!_.isFinalStatus)
   val nonFinalStatuses: Set[JobStatus] = statuses.filter(_.isFinalStatus)
 }

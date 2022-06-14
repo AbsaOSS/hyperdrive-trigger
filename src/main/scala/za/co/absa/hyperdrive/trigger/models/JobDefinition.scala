@@ -25,4 +25,3 @@ case class JobDefinition(
   order: Int,
   id: Long = 0
 )
-

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -24,8 +23,8 @@ import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 @Component
-class DefaultSparkClusterServiceExecutionContextProvider @Inject()(val sparkConfig: SparkConfig)
-  extends SparkClusterServiceExecutionContextProvider {
+class DefaultSparkClusterServiceExecutionContextProvider @Inject() (val sparkConfig: SparkConfig)
+    extends SparkClusterServiceExecutionContextProvider {
   lazy val executionContext: ExecutionContext =
     ExecutionContext.fromExecutor(concurrent.Executors.newFixedThreadPool(sparkConfig.sparkSubmitThreadPoolSize))
 

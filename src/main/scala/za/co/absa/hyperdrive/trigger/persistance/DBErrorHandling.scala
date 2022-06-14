@@ -29,15 +29,14 @@ private[persistance] trait DBErrorHandling {
   private val repositoryLogger = LoggerFactory.getLogger(this.getClass)
 
   protected implicit class DBIOActionOps[T](val action: api.DBIO[T]) {
-    def withErrorHandling(errorMessage: String)(implicit ec: ExecutionContext): DBIOAction[T, NoStream, Effect.All] = {
+    def withErrorHandling(errorMessage: String)(implicit ec: ExecutionContext): DBIOAction[T, NoStream, Effect.All] =
       action.asTry.map {
-        case Success(value) => value
+        case Success(value)            => value
         case Failure(ex: ApiException) => throw ex
         case Failure(ex) =>
           repositoryLogger.error(errorMessage, ex)
           throw new ApiException(GenericDatabaseError)
       }
-    }
 
     def withErrorHandling()(implicit ec: ExecutionContext): DBIOAction[T, NoStream, Effect.All] =
       this.withErrorHandling("Unexpected database error occurred")

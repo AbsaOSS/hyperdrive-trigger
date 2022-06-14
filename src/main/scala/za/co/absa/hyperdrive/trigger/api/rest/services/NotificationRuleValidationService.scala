@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -31,7 +30,8 @@ trait NotificationRuleValidationService {
 }
 
 @Service
-class NotificationRuleValidationServiceImpl (override val workflowRepository: WorkflowRepository) extends NotificationRuleValidationService {
+class NotificationRuleValidationServiceImpl(override val workflowRepository: WorkflowRepository)
+    extends NotificationRuleValidationService {
   private val emailValidator = EmailValidator.getInstance()
 
   def validate(notificationRule: NotificationRule)(implicit ec: ExecutionContext): Future[Unit] = {
@@ -39,56 +39,60 @@ class NotificationRuleValidationServiceImpl (override val workflowRepository: Wo
       notificationRule.project
         .flatMap(emptyStringToNone)
         .map(validateProjectExists)
-        .getOrElse(Future{Seq()}),
+        .getOrElse(Future(Seq())),
       notificationRule.workflowPrefix
         .flatMap(emptyStringToNone)
         .map(validateWorkflowsWithPrefixExists)
-        .getOrElse(Future{Seq()}),
+        .getOrElse(Future(Seq())),
       validateEmailAddresses(notificationRule.recipients),
       validateMinElapsedSeconds(notificationRule.minElapsedSecondsSinceLastSuccess)
     )
     ValidationServiceUtil.reduce(validators)
   }
 
-  private def emptyStringToNone(str: String): Option[String] = {
-    if(str.isEmpty) {
+  private def emptyStringToNone(str: String): Option[String] =
+    if (str.isEmpty) {
       None
     } else {
       Some(str)
     }
-  }
 
-  private def validateProjectExists(project: String)(implicit ec: ExecutionContext): Future[Seq[ValidationError]] = {
-    workflowRepository.existsProject(project)
-      .map(exists => if (exists) {
-        Seq()
-      } else {
-        Seq(ValidationError(s"No project with name $project exists"))
-      })
-  }
+  private def validateProjectExists(project: String)(implicit ec: ExecutionContext): Future[Seq[ValidationError]] =
+    workflowRepository
+      .existsProject(project)
+      .map(exists =>
+        if (exists) {
+          Seq()
+        } else {
+          Seq(ValidationError(s"No project with name $project exists"))
+        }
+      )
 
-  private def validateWorkflowsWithPrefixExists(workflowPrefix: String)(implicit ec: ExecutionContext): Future[Seq[ValidationError]] = {
-    workflowRepository.existsWorkflowWithPrefix(workflowPrefix)
-      .map(exists => if (exists) {
-        Seq()
-      } else {
-        Seq(ValidationError(s"No workflow with prefix $workflowPrefix exists"))
-      })
-  }
+  private def validateWorkflowsWithPrefixExists(
+    workflowPrefix: String
+  )(implicit ec: ExecutionContext): Future[Seq[ValidationError]] =
+    workflowRepository
+      .existsWorkflowWithPrefix(workflowPrefix)
+      .map(exists =>
+        if (exists) {
+          Seq()
+        } else {
+          Seq(ValidationError(s"No workflow with prefix $workflowPrefix exists"))
+        }
+      )
 
-  private def validateEmailAddresses(emailAddresses: Seq[String]): Future[Seq[ValidationError]] = {
+  private def validateEmailAddresses(emailAddresses: Seq[String]): Future[Seq[ValidationError]] =
     Future.successful(
-      emailAddresses.filterNot(address => emailValidator.isValid(address))
+      emailAddresses
+        .filterNot(address => emailValidator.isValid(address))
         .map(address => ValidationError(s"Recipient $address is not a valid e-mail address"))
     )
-  }
 
-  private def validateMinElapsedSeconds(minElapsedSeconds: Option[Long]): Future[Seq[ValidationError]] = {
+  private def validateMinElapsedSeconds(minElapsedSeconds: Option[Long]): Future[Seq[ValidationError]] =
     Future.successful(
       minElapsedSeconds
         .filter(_ < 0)
         .map(v => Seq(ValidationError(s"Min elapsed seconds since last success cannot be negative, is $v")))
         .getOrElse(Seq())
     )
-  }
 }

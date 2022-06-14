@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -25,7 +24,7 @@ import javax.validation.constraints.NotNull
 @ConfigurationProperties("health")
 @ConstructorBinding
 @Validated
-class HealthConfig (
+class HealthConfig(
   @DefaultValue(Array("120000"))
   @Name("databaseConnection.timeoutMillis")
   val databaseConnectionTimeoutMillis: Int = 120000,
