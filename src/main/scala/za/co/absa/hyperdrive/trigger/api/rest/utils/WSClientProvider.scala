@@ -23,7 +23,6 @@ import play.api.libs.ws.ahc.StandaloneAhcWSClient
 object WSClientProvider {
   private val wsClient: StandaloneWSClient = StandaloneAhcWSClient()(ActorMaterializer()(ActorSystem()))
 
-  def getWSClient: StandaloneWSClient = {
+  def getWSClient: StandaloneWSClient =
     wsClient
-  }
 }

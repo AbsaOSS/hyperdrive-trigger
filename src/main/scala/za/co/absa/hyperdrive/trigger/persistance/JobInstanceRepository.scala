@@ -30,24 +30,27 @@ trait JobInstanceRepository extends Repository {
 }
 
 @stereotype.Repository
-class JobInstanceRepositoryImpl @Inject()(val dbProvider: DatabaseProvider) extends JobInstanceRepository {
+class JobInstanceRepositoryImpl @Inject() (val dbProvider: DatabaseProvider) extends JobInstanceRepository {
   import api._
 
   override def updateJob(job: JobInstance)(implicit ec: ExecutionContext): Future[Unit] = db.run {
-    jobInstanceTable.filter(_.id === job.id)
+    jobInstanceTable
+      .filter(_.id === job.id)
       .update(job.copy(updated = Option(LocalDateTime.now())))
       .andThen(DBIO.successful((): Unit))
       .withErrorHandling()
   }
 
-  def updateJobsStatus(ids: Seq[Long], status: JobStatus)(implicit ec: ExecutionContext): Future[Unit] = db.run(
-    jobInstanceTable
-      .filter(_.id inSet ids)
-      .map(ji => (ji.jobStatus, ji.updated))
-      .update((status, Option(LocalDateTime.now())))
-      .transactionally
-      .withErrorHandling()
-  ).map(_ => (): Unit)
+  def updateJobsStatus(ids: Seq[Long], status: JobStatus)(implicit ec: ExecutionContext): Future[Unit] = db
+    .run(
+      jobInstanceTable
+        .filter(_.id inSet ids)
+        .map(ji => (ji.jobStatus, ji.updated))
+        .update((status, Option(LocalDateTime.now())))
+        .transactionally
+        .withErrorHandling()
+    )
+    .map(_ => (): Unit)
 
   override def getJobInstances(dagInstanceId: Long)(implicit ec: ExecutionContext): Future[Seq[JobInstance]] = db.run(
     jobInstanceTable

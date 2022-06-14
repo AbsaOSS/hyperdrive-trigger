@@ -33,26 +33,27 @@ trait JobInstanceService {
 }
 
 @Service
-class JobInstanceServiceImpl(override val jobInstanceRepository: JobInstanceRepository,
-                             sparkConfig: SparkConfig) extends JobInstanceService {
+class JobInstanceServiceImpl(override val jobInstanceRepository: JobInstanceRepository, sparkConfig: SparkConfig)
+    extends JobInstanceService {
 
-  override def getJobInstances(dagInstanceId: Long)(implicit ec: ExecutionContext): Future[Seq[JobInstance]] = {
+  override def getJobInstances(dagInstanceId: Long)(implicit ec: ExecutionContext): Future[Seq[JobInstance]] =
     jobInstanceRepository.getJobInstances(dagInstanceId)
-  }
 
   override def killJob(applicationId: String)(implicit ec: ExecutionContext): Future[Boolean] = {
     val url: String =
       s"${sparkConfig.hadoopResourceManagerUrlBase}/ws/v1/cluster/apps/$applicationId/state?user.name=${sparkConfig.userUsedToKillJob}"
-    val data = Json.obj(
-      "state" -> "KILLED"
-    )
+    val data = Json.obj("state" -> "KILLED")
 
     Try {
-      WSClientProvider.getWSClient.url(url).put(data).map { response =>
-        response.status == 200 || response.status == 202
-      }.recoverWith {
-        case _ => Future.successful(false)
-      }
+      WSClientProvider.getWSClient
+        .url(url)
+        .put(data)
+        .map { response =>
+          response.status == 200 || response.status == 202
+        }
+        .recoverWith { case _ =>
+          Future.successful(false)
+        }
     }.getOrElse(Future.successful(false))
   }
 }

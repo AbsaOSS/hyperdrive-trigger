@@ -27,7 +27,8 @@ trait JobDefinitionTable {
     def dagDefinitionId: Rep[Long] = column[Long]("dag_definition_id")
     def jobTemplateId: Rep[Option[Long]] = column[Option[Long]]("job_template_id")
     def name: Rep[String] = column[String]("name")
-    def jobParameters: Rep[JobDefinitionParameters] = column[JobDefinitionParameters]("job_parameters", O.SqlType("JSONB"))
+    def jobParameters: Rep[JobDefinitionParameters] =
+      column[JobDefinitionParameters]("job_parameters", O.SqlType("JSONB"))
     def order: Rep[Int] = column[Int]("order")
     def id: Rep[Long] = column[Long]("id", O.PrimaryKey, O.AutoInc, O.SqlType("BIGSERIAL"))
 
@@ -37,8 +38,7 @@ trait JobDefinitionTable {
     def jobTemplate_fk: ForeignKeyQuery[JobTemplateTable, JobTemplate] =
       foreignKey("job_definition_job_template_fk", jobTemplateId, TableQuery[JobTemplateTable])(_.id)
 
-    def * : ProvenShape[JobDefinition] = (dagDefinitionId, jobTemplateId, name, jobParameters,
-      order, id) <> (
+    def * : ProvenShape[JobDefinition] = (dagDefinitionId, jobTemplateId, name, jobParameters, order, id) <> (
       jobDefinitionTuple =>
         JobDefinition.apply(
           dagDefinitionId = jobDefinitionTuple._1,

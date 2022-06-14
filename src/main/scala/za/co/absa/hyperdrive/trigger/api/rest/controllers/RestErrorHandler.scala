@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -34,7 +33,10 @@ class RestErrorHandler {
   }
 
   @ExceptionHandler(Array(classOf[HttpMessageNotReadableException]))
-  def handleMethodArgumentNotValidException(ex: HttpMessageNotReadableException, request: WebRequest): ResponseEntity[Object] = {
+  def handleMethodArgumentNotValidException(
+    ex: HttpMessageNotReadableException,
+    request: WebRequest
+  ): ResponseEntity[Object] = {
     logger.error("Probably Jackson Deserialization failed", ex)
     new ResponseEntity(HttpStatus.BAD_REQUEST)
   }

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -22,7 +21,6 @@ object TestGeneralConfig {
     environment: String = "Unknown",
     version: String = "Unknown",
     appUniqueId: String = "20e3f97d-88ac-453c-9524-0166e2c221c5"
-  ): GeneralConfig = {
+  ): GeneralConfig =
     new GeneralConfig(maximumNumberOfWorkflowsInBulkRun, environment, version, appUniqueId)
-  }
 }

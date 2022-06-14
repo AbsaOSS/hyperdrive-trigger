@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -16,7 +15,5 @@
 
 package za.co.absa.hyperdrive.trigger.models.search
 
-case class IntRangeFilterAttributes( override val field: String,
-                                     start: Option[Int],
-                                     end: Option[Int]
-                                   ) extends FilterAttributes
+case class IntRangeFilterAttributes(override val field: String, start: Option[Int], end: Option[Int])
+    extends FilterAttributes

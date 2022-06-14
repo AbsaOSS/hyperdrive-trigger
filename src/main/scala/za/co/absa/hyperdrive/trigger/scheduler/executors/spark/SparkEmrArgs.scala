@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -16,7 +15,7 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.executors.spark
 
-case class SparkEmrArgs (
+case class SparkEmrArgs(
   mainClass: String,
   jobJar: String,
   appName: String,
@@ -31,11 +30,11 @@ case class SparkEmrArgs (
     val filesArgs = if (files.nonEmpty) Seq("--files", files.mkString(",")) else Seq()
     val jarsArgs = if (additionalJars.nonEmpty) Seq("--jars", additionalJars.mkString(",")) else Seq()
     Seq("spark-submit") ++
-      sparkSubmitConfs.flatMap {
-        case (key, value) => Seq(key, value)
+      sparkSubmitConfs.flatMap { case (key, value) =>
+        Seq(key, value)
       } ++
-      confs.flatMap {
-        case (key, value) => Seq("--conf", s"$key=$value")
+      confs.flatMap { case (key, value) =>
+        Seq("--conf", s"$key=$value")
       } ++
       Seq("--class", mainClass) ++
       Seq("--name", appName) ++

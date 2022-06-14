@@ -27,11 +27,15 @@ trait JobTemplateService {
   val jobTemplateValidationService: JobTemplateValidationService
 
   def getJobTemplate(id: Long)(implicit ec: ExecutionContext): Future[JobTemplate]
-  def resolveJobTemplate(dagDefinition: DagDefinitionJoined)(implicit ec: ExecutionContext): Future[Seq[ResolvedJobDefinition]]
+  def resolveJobTemplate(dagDefinition: DagDefinitionJoined)(implicit
+    ec: ExecutionContext
+  ): Future[Seq[ResolvedJobDefinition]]
   def getJobTemplates()(implicit ec: ExecutionContext): Future[Seq[JobTemplate]]
   def getJobTemplatesByIds(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[JobTemplate]]
   def getJobTemplateIdsByNames(names: Seq[String])(implicit ec: ExecutionContext): Future[Map[String, Long]]
-  def searchJobTemplates(searchRequest: TableSearchRequest)(implicit ec: ExecutionContext): Future[TableSearchResponse[JobTemplate]]
+  def searchJobTemplates(searchRequest: TableSearchRequest)(implicit
+    ec: ExecutionContext
+  ): Future[TableSearchResponse[JobTemplate]]
   def createJobTemplate(jobTemplate: JobTemplate)(implicit ec: ExecutionContext): Future[JobTemplate]
   def updateJobTemplate(jobTemplate: JobTemplate)(implicit ec: ExecutionContext): Future[JobTemplate]
   def deleteJobTemplate(id: Long)(implicit ec: ExecutionContext): Future[Boolean]
@@ -39,16 +43,22 @@ trait JobTemplateService {
 }
 
 @Service
-class JobTemplateServiceImpl(override val jobTemplateRepository: JobTemplateRepository, jobTemplateResolutionService: JobTemplateResolutionService, override val jobTemplateValidationService: JobTemplateValidationService) extends JobTemplateService with UserDetailsService {
-  override def getJobTemplate(id: Long)(implicit ec: ExecutionContext): Future[JobTemplate] = {
+class JobTemplateServiceImpl(
+  override val jobTemplateRepository: JobTemplateRepository,
+  jobTemplateResolutionService: JobTemplateResolutionService,
+  override val jobTemplateValidationService: JobTemplateValidationService
+) extends JobTemplateService
+    with UserDetailsService {
+  override def getJobTemplate(id: Long)(implicit ec: ExecutionContext): Future[JobTemplate] =
     jobTemplateRepository.getJobTemplate(id)
-  }
 
-  override def resolveJobTemplate(dagDefinitionJoined: DagDefinitionJoined)(implicit ec: ExecutionContext): Future[Seq[ResolvedJobDefinition]] = {
+  override def resolveJobTemplate(
+    dagDefinitionJoined: DagDefinitionJoined
+  )(implicit ec: ExecutionContext): Future[Seq[ResolvedJobDefinition]] = {
     val jobTemplateIds = dagDefinitionJoined.jobDefinitions.flatMap(_.jobTemplateId)
-    jobTemplateRepository.getJobTemplatesByIds(jobTemplateIds).map(
-      jobTemplates => jobTemplateResolutionService.resolveDagDefinitionJoined(dagDefinitionJoined, jobTemplates)
-    )
+    jobTemplateRepository
+      .getJobTemplatesByIds(jobTemplateIds)
+      .map(jobTemplates => jobTemplateResolutionService.resolveDagDefinitionJoined(dagDefinitionJoined, jobTemplates))
   }
 
   override def getJobTemplates()(implicit ec: ExecutionContext): Future[Seq[JobTemplate]] =
@@ -60,9 +70,10 @@ class JobTemplateServiceImpl(override val jobTemplateRepository: JobTemplateRepo
   override def getJobTemplateIdsByNames(names: Seq[String])(implicit ec: ExecutionContext): Future[Map[String, Long]] =
     jobTemplateRepository.getJobTemplateIdsByNames(names)
 
-  override def searchJobTemplates(searchRequest: TableSearchRequest)(implicit ec: ExecutionContext): Future[TableSearchResponse[JobTemplate]] = {
+  override def searchJobTemplates(searchRequest: TableSearchRequest)(implicit
+    ec: ExecutionContext
+  ): Future[TableSearchResponse[JobTemplate]] =
     jobTemplateRepository.searchJobTemplates(searchRequest)
-  }
 
   override def createJobTemplate(jobTemplate: JobTemplate)(implicit ec: ExecutionContext): Future[JobTemplate] = {
     val userName = getUserName.apply()

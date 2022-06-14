@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -19,12 +18,9 @@ package za.co.absa.hyperdrive.trigger.configuration.application
 import java.util.Properties
 
 object TestDatabaseConfig {
-  def apply(
-    propertiesMap: Map[String, String],
-    skipLiquibase: Boolean = false
-  ): DatabaseConfig = {
+  def apply(propertiesMap: Map[String, String], skipLiquibase: Boolean = false): DatabaseConfig = {
     val properties = new Properties()
-    propertiesMap.foreach { case (key, value) => properties.setProperty(key, value)}
+    propertiesMap.foreach { case (key, value) => properties.setProperty(key, value) }
     new DatabaseConfig(properties, skipLiquibase)
   }
 }

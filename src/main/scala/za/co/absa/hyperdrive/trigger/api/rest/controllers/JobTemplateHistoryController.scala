@@ -25,21 +25,24 @@ import scala.compat.java8.FutureConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 @RestController
-class JobTemplateHistoryController @Inject()(jobTemplateHistoryService: JobTemplateHistoryService) {
+class JobTemplateHistoryController @Inject() (jobTemplateHistoryService: JobTemplateHistoryService) {
 
   @GetMapping(path = Array("/jobTemplateHistory"))
-  def getHistoryForJobTemplate(@RequestParam jobTemplateId: Long): CompletableFuture[Seq[History]] = {
+  def getHistoryForJobTemplate(@RequestParam jobTemplateId: Long): CompletableFuture[Seq[History]] =
     jobTemplateHistoryService.getHistoryForJobTemplate(jobTemplateId).toJava.toCompletableFuture
-  }
 
   @GetMapping(path = Array("/jobTemplateFromHistory"))
-  def getJobTemplateFromHistory(@RequestParam jobTemplateHistoryId: Long): CompletableFuture[JobTemplate] = {
+  def getJobTemplateFromHistory(@RequestParam jobTemplateHistoryId: Long): CompletableFuture[JobTemplate] =
     jobTemplateHistoryService.getJobTemplateFromHistory(jobTemplateHistoryId).toJava.toCompletableFuture
-  }
 
   @GetMapping(path = Array("/jobTemplatesFromHistory"))
-  def getJobTemplatesFromHistory(@RequestParam leftJobTemplateHistoryId: Long, @RequestParam rightJobTemplateHistoryId: Long): CompletableFuture[HistoryPair[JobTemplateHistory]] = {
-    jobTemplateHistoryService.getJobTemplatesFromHistory(leftJobTemplateHistoryId, rightJobTemplateHistoryId).toJava.toCompletableFuture
-  }
+  def getJobTemplatesFromHistory(
+    @RequestParam leftJobTemplateHistoryId: Long,
+    @RequestParam rightJobTemplateHistoryId: Long
+  ): CompletableFuture[HistoryPair[JobTemplateHistory]] =
+    jobTemplateHistoryService
+      .getJobTemplatesFromHistory(leftJobTemplateHistoryId, rightJobTemplateHistoryId)
+      .toJava
+      .toCompletableFuture
 
 }

@@ -38,111 +38,111 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Try
 
 @RestController
-class WorkflowController @Inject()(workflowService: WorkflowService, generalConfig: GeneralConfig) {
+class WorkflowController @Inject() (workflowService: WorkflowService, generalConfig: GeneralConfig) {
   private val logger = LoggerFactory.getLogger(this.getClass)
 
   val environment: String = generalConfig.environment
 
   @PutMapping(path = Array("/workflow"))
-  def createWorkflow(@RequestBody workflow: WorkflowJoined): CompletableFuture[WorkflowJoined] = {
+  def createWorkflow(@RequestBody workflow: WorkflowJoined): CompletableFuture[WorkflowJoined] =
     workflowService.createWorkflow(workflow).toJava.toCompletableFuture
-  }
 
   @GetMapping(path = Array("/workflow"))
-  def getWorkflow(@RequestParam id: Long): CompletableFuture[WorkflowJoined] = {
+  def getWorkflow(@RequestParam id: Long): CompletableFuture[WorkflowJoined] =
     workflowService.getWorkflow(id).toJava.toCompletableFuture
-  }
 
   @GetMapping(path = Array("/workflows"))
-  def getWorkflows(): CompletableFuture[Seq[Workflow]] = {
+  def getWorkflows(): CompletableFuture[Seq[Workflow]] =
     workflowService.getWorkflows.toJava.toCompletableFuture
-  }
 
   @PostMapping(path = Array("/workflows/search"))
-  def searchWorkflows(@RequestBody searchRequest: TableSearchRequest): CompletableFuture[TableSearchResponse[Workflow]] = {
+  def searchWorkflows(
+    @RequestBody searchRequest: TableSearchRequest
+  ): CompletableFuture[TableSearchResponse[Workflow]] =
     workflowService.searchWorkflows(searchRequest).toJava.toCompletableFuture
-  }
 
   @GetMapping(path = Array("/workflowsByProjectName"))
-  def getWorkflowsByProjectName(@RequestParam projectName: String): CompletableFuture[Seq[Workflow]] = {
+  def getWorkflowsByProjectName(@RequestParam projectName: String): CompletableFuture[Seq[Workflow]] =
     workflowService.getWorkflowsByProjectName(projectName).toJava.toCompletableFuture
-  }
 
   @DeleteMapping(path = Array("/workflows"))
-  def deleteWorkflow(@RequestParam id: Long): CompletableFuture[Boolean] = {
+  def deleteWorkflow(@RequestParam id: Long): CompletableFuture[Boolean] =
     workflowService.deleteWorkflow(id).toJava.toCompletableFuture
-  }
 
   @PostMapping(path = Array("/workflows"))
-  def updateWorkflow(@RequestBody workflow: WorkflowJoined): CompletableFuture[WorkflowJoined] = {
+  def updateWorkflow(@RequestBody workflow: WorkflowJoined): CompletableFuture[WorkflowJoined] =
     workflowService.updateWorkflow(workflow).toJava.toCompletableFuture
-  }
 
   @PostMapping(path = Array("/workflows/{id}/switchActiveState"))
-  def switchWorkflowActiveState(@PathVariable id: Long): CompletableFuture[Boolean] = {
+  def switchWorkflowActiveState(@PathVariable id: Long): CompletableFuture[Boolean] =
     workflowService.switchWorkflowActiveState(id).toJava.toCompletableFuture
-  }
 
   @PostMapping(path = Array("/workflows/isActive"))
-  def updateWorkflowsIsActive(@RequestBody jobIdsWrapper: JobIdsWrapper, @RequestParam isActiveNewValue: Boolean): CompletableFuture[Boolean] = {
+  def updateWorkflowsIsActive(
+    @RequestBody jobIdsWrapper: JobIdsWrapper,
+    @RequestParam isActiveNewValue: Boolean
+  ): CompletableFuture[Boolean] =
     workflowService.updateWorkflowsIsActive(jobIdsWrapper.jobIds, isActiveNewValue).toJava.toCompletableFuture
-  }
 
   @GetMapping(path = Array("/workflows/projectNames"))
-  def getProjectNames(): CompletableFuture[Set[String]] = {
+  def getProjectNames(): CompletableFuture[Set[String]] =
     workflowService.getProjectNames.toJava.toCompletableFuture
-  }
 
   @GetMapping(path = Array("/workflows/projects"))
-  def getProjects(): CompletableFuture[Seq[Project]] = {
+  def getProjects(): CompletableFuture[Seq[Project]] =
     workflowService.getProjects.toJava.toCompletableFuture
-  }
 
   @GetMapping(path = Array("/workflows/projectsInfo"))
-  def getProjectsInfo(): CompletableFuture[Seq[ProjectInfo]] = {
+  def getProjectsInfo(): CompletableFuture[Seq[ProjectInfo]] =
     workflowService.getProjectsInfo().toJava.toCompletableFuture
-  }
 
   @PutMapping(path = Array("/workflows/run"))
-  def runWorkflows(@RequestBody workflowIdsWrapper: WorkflowIdsWrapper): CompletableFuture[Boolean] = {
+  def runWorkflows(@RequestBody workflowIdsWrapper: WorkflowIdsWrapper): CompletableFuture[Boolean] =
     workflowService.runWorkflows(workflowIdsWrapper.workflowIds).toJava.toCompletableFuture
-  }
 
   @PutMapping(path = Array("/workflow/jobs/run"))
-  def runWorkflowJobs(@RequestParam workflowId: Long, @RequestBody jobIdsWrapper: JobIdsWrapper): CompletableFuture[Boolean] = {
+  def runWorkflowJobs(
+    @RequestParam workflowId: Long,
+    @RequestBody jobIdsWrapper: JobIdsWrapper
+  ): CompletableFuture[Boolean] =
     workflowService.runWorkflowJobs(workflowId, jobIdsWrapper.jobIds).toJava.toCompletableFuture
-  }
 
   @GetMapping(path = Array("/workflows/export"))
-  def exportWorkflows(@RequestParam jobIds: Array[Long]): CompletableFuture[ResponseEntity[ByteArrayResource]] = {
-    workflowService.exportWorkflows(jobIds).map { exportItems =>
-      if (exportItems.isEmpty) {
-        val jobIdsString = jobIds.map(_.toString).reduce(_ + ", " + _)
-        throw new ApiException(GenericError(s"The requested workflows with ids $jobIdsString don't exist."))
+  def exportWorkflows(@RequestParam jobIds: Array[Long]): CompletableFuture[ResponseEntity[ByteArrayResource]] =
+    workflowService
+      .exportWorkflows(jobIds)
+      .map { exportItems =>
+        if (exportItems.isEmpty) {
+          val jobIdsString = jobIds.map(_.toString).reduce(_ + ", " + _)
+          throw new ApiException(GenericError(s"The requested workflows with ids $jobIdsString don't exist."))
+        } else if (exportItems.size == 1) {
+          exportWorkflowAsJson(exportItems.head)
+        } else {
+          exportWorkflowsAsZip(exportItems)
+        }
       }
-      else if (exportItems.size == 1) {
-        exportWorkflowAsJson(exportItems.head)
-      } else {
-        exportWorkflowsAsZip(exportItems)
-      }
-    }.toJava.toCompletableFuture
-  }
+      .toJava
+      .toCompletableFuture
 
-  private def exportWorkflowsAsZip(workflowExports: Seq[WorkflowImportExportWrapper])(implicit ec: ExecutionContext): ResponseEntity[ByteArrayResource] = {
+  private def exportWorkflowsAsZip(
+    workflowExports: Seq[WorkflowImportExportWrapper]
+  )(implicit ec: ExecutionContext): ResponseEntity[ByteArrayResource] = {
     val baos = new ByteArrayOutputStream()
     val zos = new ZipOutputStream(baos)
-    workflowExports.foreach(workflowExport => {
-      val byteArray = ObjectMapperSingleton.getObjectMapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(workflowExport)
+    workflowExports.foreach { workflowExport =>
+      val byteArray =
+        ObjectMapperSingleton.getObjectMapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(workflowExport)
       val zipEntry = new ZipEntry(s"${workflowExport.workflowJoined.name}.json")
       zos.putNextEntry(zipEntry)
       zos.write(byteArray, 0, byteArray.size)
       zos.closeEntry()
-    })
+    }
 
     zos.close()
     baos.close()
 
-    ResponseEntity.ok()
+    ResponseEntity
+      .ok()
       .contentType(MediaType.parseMediaType("application/zip"))
       .header(HttpHeaders.CONTENT_DISPOSITION, s"attachment; filename=workflows-${environment}.zip")
       .body(new ByteArrayResource(baos.toByteArray))
@@ -152,7 +152,8 @@ class WorkflowController @Inject()(workflowService: WorkflowService, generalConf
     val resource = new ByteArrayResource(
       ObjectMapperSingleton.getObjectMapper.writerWithDefaultPrettyPrinter.writeValueAsBytes(workflowExport)
     )
-    ResponseEntity.ok()
+    ResponseEntity
+      .ok()
       .contentType(MediaType.parseMediaType("application/json"))
       .header(HttpHeaders.CONTENT_DISPOSITION, s"attachment; filename=${workflowExport.workflowJoined.name}.json")
       .body(resource)
@@ -160,7 +161,8 @@ class WorkflowController @Inject()(workflowService: WorkflowService, generalConf
 
   @PostMapping(path = Array("/workflow/import"))
   def importWorkflow(@RequestPart("file") file: MultipartFile): CompletableFuture[WorkflowJoined] = {
-    val workflowImport = ObjectMapperSingleton.getObjectMapper.readValue(file.getBytes, classOf[WorkflowImportExportWrapper])
+    val workflowImport =
+      ObjectMapperSingleton.getObjectMapper.readValue(file.getBytes, classOf[WorkflowImportExportWrapper])
     workflowService.convertToWorkflowJoined(workflowImport).toJava.toCompletableFuture
   }
 
@@ -170,10 +172,8 @@ class WorkflowController @Inject()(workflowService: WorkflowService, generalConf
     if (zipEntries.isEmpty) {
       throw new ApiException(GenericError("The given zip file does not contain any workflows"))
     }
-    val workflowImports = zipEntries.map {
-      case (entryName, byteArray) => entryName -> Try(
-        ObjectMapperSingleton.getObjectMapper.readValue(byteArray, classOf[WorkflowImportExportWrapper])
-      )
+    val workflowImports = zipEntries.map { case (entryName, byteArray) =>
+      entryName -> Try(ObjectMapperSingleton.getObjectMapper.readValue(byteArray, classOf[WorkflowImportExportWrapper]))
     }
 
     val parsingErrors = workflowImports
@@ -213,7 +213,7 @@ class WorkflowController @Inject()(workflowService: WorkflowService, generalConf
   private def readEntry(zis: ZipInputStream) = {
     val byteArray = new Array[Byte](1)
     val baos = new ByteArrayOutputStream()
-    while(zis.read(byteArray) > 0) {
+    while (zis.read(byteArray) > 0) {
       baos.write(byteArray)
     }
     baos.toByteArray

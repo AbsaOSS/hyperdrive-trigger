@@ -25,13 +25,14 @@ trait TestSearchableTable extends SearchableTableQuery {
 
   import api._
 
-  case class TestSearchableEntity(longValue: Long,
-                                  stringValue: String,
-                                  stringValue2: String,
-                                  stringValue3: String,
-                                  localDateTimeValue: LocalDateTime,
-                                  booleanValue: Boolean
-                                 )
+  case class TestSearchableEntity(
+    longValue: Long,
+    stringValue: String,
+    stringValue2: String,
+    stringValue3: String,
+    localDateTimeValue: LocalDateTime,
+    booleanValue: Boolean
+  )
 
   object TestSearchableTableFieldNames {
     val longField = "longField"
@@ -42,7 +43,9 @@ trait TestSearchableTable extends SearchableTableQuery {
     val booleanField = "booleanField"
   }
 
-  final class TestSearchableTable(tag: Tag) extends Table[TestSearchableEntity](tag, _tableName = "test_searchable_entity") with SearchableTable {
+  final class TestSearchableTable(tag: Tag)
+      extends Table[TestSearchableEntity](tag, _tableName = "test_searchable_entity")
+      with SearchableTable {
     def longField: Rep[Long] = column[Long]("long_field")
 
     def stringField: Rep[String] = column[String]("string_field")
@@ -55,7 +58,8 @@ trait TestSearchableTable extends SearchableTableQuery {
 
     def booleanField: Rep[Boolean] = column[Boolean]("boolean_field")
 
-    override def * : ProvenShape[TestSearchableEntity] = (longField, stringField, stringField2, stringField3, localDateTimeField, booleanField).mapTo[TestSearchableEntity]
+    override def * : ProvenShape[TestSearchableEntity] =
+      (longField, stringField, stringField2, stringField3, localDateTimeField, booleanField).mapTo[TestSearchableEntity]
 
     override def fieldMapping: Map[String, Rep[_]] = Map(
       TestSearchableTableFieldNames.longField -> longField,

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -30,30 +29,30 @@ trait JobTemplateValidationService {
 }
 
 @Service
-class JobTemplateValidationServiceImpl (override val jobTemplateRepository: JobTemplateRepository) extends JobTemplateValidationService {
+class JobTemplateValidationServiceImpl(override val jobTemplateRepository: JobTemplateRepository)
+    extends JobTemplateValidationService {
 
   def validate(jobTemplate: JobTemplate)(implicit ec: ExecutionContext): Future[Unit] = {
-    val validators = Seq(
-      validateJobTemplateNameIsNotEmpty(jobTemplate.name),
-      validateWorkflowIsUnique(jobTemplate)
-    )
+    val validators = Seq(validateJobTemplateNameIsNotEmpty(jobTemplate.name), validateWorkflowIsUnique(jobTemplate))
     ValidationServiceUtil.reduce(validators)
   }
 
   private def validateJobTemplateNameIsNotEmpty(jobTemplateName: String): Future[Seq[ApiError]] = {
     val errors = jobTemplateName match {
       case name if name.isEmpty => Seq(ValidationError("Job template name must not be empty"))
-      case _ => Seq.empty
+      case _                    => Seq.empty
     }
     Future.successful(errors)
   }
 
-  private def validateWorkflowIsUnique(jobTemplate: JobTemplate)(implicit ec: ExecutionContext): Future[Seq[ApiError]] = {
-    jobTemplateRepository.existsOtherJobTemplate(jobTemplate.name, jobTemplate.id)
-      .map(exists => if (exists) {
-        Seq(ValidationError("Job template name already exists"))
-      } else {
-        Seq.empty
-      })
-  }
+  private def validateWorkflowIsUnique(jobTemplate: JobTemplate)(implicit ec: ExecutionContext): Future[Seq[ApiError]] =
+    jobTemplateRepository
+      .existsOtherJobTemplate(jobTemplate.name, jobTemplate.id)
+      .map(exists =>
+        if (exists) {
+          Seq(ValidationError("Job template name already exists"))
+        } else {
+          Seq.empty
+        }
+      )
 }

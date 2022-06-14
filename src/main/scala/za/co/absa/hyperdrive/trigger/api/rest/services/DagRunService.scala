@@ -24,14 +24,17 @@ import scala.concurrent.{ExecutionContext, Future}
 
 trait DagRunService {
   val dagRunRepository: DagRunRepository
-  def searchDagRuns(searchRequest: TableSearchRequest)(implicit ec: ExecutionContext): Future[TableSearchResponse[DagRun]]
+  def searchDagRuns(searchRequest: TableSearchRequest)(implicit
+    ec: ExecutionContext
+  ): Future[TableSearchResponse[DagRun]]
 }
 
 @Service
 class DagRunServiceImpl(override val dagRunRepository: DagRunRepository) extends DagRunService {
 
-  override def searchDagRuns(searchRequest: TableSearchRequest)(implicit ec: ExecutionContext): Future[TableSearchResponse[DagRun]] = {
+  override def searchDagRuns(searchRequest: TableSearchRequest)(implicit
+    ec: ExecutionContext
+  ): Future[TableSearchResponse[DagRun]] =
     dagRunRepository.searchDagRuns(searchRequest)
-  }
 
 }

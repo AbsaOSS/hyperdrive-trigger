@@ -26,8 +26,12 @@ trait OptimisticLockingTableQuery {
 
   import api._
 
-  implicit class OptimisticLockQueryExtension[E <: OptimisticLockingTable with AbstractTable[_], U, C[_]](query: Query[E, U, C]) {
-    def updateWithOptimisticLocking(value: OptimisticLockingEntity[U])(implicit ec: ExecutionContext): DBIOAction[Int, NoStream, Effect.Write with Effect.Transactional] = {
+  implicit class OptimisticLockQueryExtension[E <: OptimisticLockingTable with AbstractTable[_], U, C[_]](
+    query: Query[E, U, C]
+  ) {
+    def updateWithOptimisticLocking(
+      value: OptimisticLockingEntity[U]
+    )(implicit ec: ExecutionContext): DBIOAction[Int, NoStream, Effect.Write with Effect.Transactional] =
       query.filter(_.version === value.version).update(value.updateVersion(value.version + 1)).map { result =>
         if (result == 0) {
           throw new OptimisticLockingException
@@ -35,6 +39,5 @@ trait OptimisticLockingTableQuery {
           result
         }
       }
-    }
   }
 }

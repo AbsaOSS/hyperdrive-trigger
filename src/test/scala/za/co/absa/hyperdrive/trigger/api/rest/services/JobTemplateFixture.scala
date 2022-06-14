@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -24,7 +23,8 @@ object JobTemplateFixture {
   val GenericSparkJobTemplate: JobTemplate = {
     JobTemplate(
       name = "Generic Spark Job Template",
-      jobParameters = SparkTemplateParameters(jobType = JobTypes.Spark, jobJar = "testJobJar.jar", mainClass = "testMainClass"),
+      jobParameters =
+        SparkTemplateParameters(jobType = JobTypes.Spark, jobJar = "testJobJar.jar", mainClass = "testMainClass"),
       id = 1
     )
   }

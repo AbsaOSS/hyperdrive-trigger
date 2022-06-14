@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -31,9 +30,8 @@ trait TestHistoryRepositoryTestBase extends RepositoryH2TestBase with TestHistor
 
   def dropTable(): Unit = run(testHistoryTable.delete)
 
-  def createHistoryTestData(): Unit = {
+  def createHistoryTestData(): Unit =
     run(testHistoryTable.forceInsertAll(TestHistoryData.testHistoryEntities))
-  }
 
   object TestHistoryData {
     val t1 = TestHistoryEntity(

@@ -29,20 +29,31 @@ trait TestSearchableRepositoryTestBase extends RepositoryH2TestBase with TestSea
 
   def dropTable(): Unit = run(testSearchableTable.delete)
 
-  def createFilterTestData(): Unit = {
+  def createFilterTestData(): Unit =
     run(testSearchableTable.forceInsertAll(TestSearchableData.testSearchableEntities))
-  }
 
   object TestSearchableData {
-    val t1 = TestSearchableEntity(longValue = 1, stringValue = "value1", stringValue2 = "str1", stringValue3 = "bar",
+    val t1 = TestSearchableEntity(
+      longValue = 1,
+      stringValue = "value1",
+      stringValue2 = "str1",
+      stringValue3 = "bar",
       localDateTimeValue = LocalDateTime.of(2020, 3, 1, 12, 30, 5),
       booleanValue = false
     )
-    val t2 = TestSearchableEntity(longValue = 2, stringValue = "value2", stringValue2 = "str2", stringValue3 = "bar",
+    val t2 = TestSearchableEntity(
+      longValue = 2,
+      stringValue = "value2",
+      stringValue2 = "str2",
+      stringValue3 = "bar",
       localDateTimeValue = LocalDateTime.of(2005, 3, 1, 12, 30, 5),
       booleanValue = true
     )
-    val t3 = TestSearchableEntity(longValue = 3, stringValue = "value3", stringValue2 = "str3", stringValue3 = "foo",
+    val t3 = TestSearchableEntity(
+      longValue = 3,
+      stringValue = "value3",
+      stringValue2 = "str3",
+      stringValue3 = "foo",
       localDateTimeValue = LocalDateTime.of(2025, 3, 1, 12, 30, 5),
       booleanValue = false
     )
