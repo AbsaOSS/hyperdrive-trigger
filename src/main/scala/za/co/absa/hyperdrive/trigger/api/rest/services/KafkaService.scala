@@ -28,8 +28,8 @@ import javax.inject.Inject
 import scala.collection.mutable
 
 trait KafkaService {
-    def getKafkaProperties(jobDefinition: ResolvedJobDefinition): Option[(String, Properties)]
-    def getEndOffsets(topic: String, consumerProperties: Properties): Map[Int, Long]
+  def getKafkaProperties(jobDefinition: ResolvedJobDefinition): Option[(String, Properties)]
+  def getEndOffsets(topic: String, consumerProperties: Properties): Map[Int, Long]
 }
 
 @Service
@@ -41,16 +41,21 @@ class KafkaServiceImpl @Inject() (kafkaConfig: KafkaConfig, generalConfig: Gener
   private val HyperdriveKafkaExtraOptionsKey = "reader.option.kafka"
 
   override def getKafkaProperties(jobDefinition: ResolvedJobDefinition): Option[(String, Properties)] = {
-    if (jobDefinition.jobParameters.jobType != JobTypes.Hyperdrive ||
-      !jobDefinition.jobParameters.isInstanceOf[SparkInstanceParameters]) {
+    if (
+      jobDefinition.jobParameters.jobType != JobTypes.Hyperdrive ||
+      !jobDefinition.jobParameters.isInstanceOf[SparkInstanceParameters]
+    ) {
       None
     } else {
       val args = jobDefinition.jobParameters.asInstanceOf[SparkInstanceParameters].appArguments
-      val topicOpt = args.find(_.startsWith(s"$HyperdriveKafkaTopicKey="))
+      val topicOpt = args
+        .find(_.startsWith(s"$HyperdriveKafkaTopicKey="))
         .map(_.replace(s"$HyperdriveKafkaTopicKey=", ""))
-      val kafkaBrokersOpt = args.find(_.startsWith(s"$HyperdriveKafkaBrokersKey="))
+      val kafkaBrokersOpt = args
+        .find(_.startsWith(s"$HyperdriveKafkaBrokersKey="))
         .map(_.replace(s"$HyperdriveKafkaBrokersKey=", ""))
-      val kafkaArgs = args.filter(_.startsWith(s"$HyperdriveKafkaExtraOptionsKey."))
+      val kafkaArgs = args
+        .filter(_.startsWith(s"$HyperdriveKafkaExtraOptionsKey."))
         .map(_.replace(s"$HyperdriveKafkaExtraOptionsKey.", ""))
         .filter(_.contains("="))
         .map { s =>
@@ -61,15 +66,17 @@ class KafkaServiceImpl @Inject() (kafkaConfig: KafkaConfig, generalConfig: Gener
         }
         .toMap
       val properties = new Properties()
-      kafkaArgs.foreach { case (key, value) => properties.setProperty(key, value)}
+      kafkaArgs.foreach { case (key, value) => properties.setProperty(key, value) }
 
       (topicOpt, kafkaBrokersOpt) match {
         case (Some(topic), Some(kafkaBrokers)) =>
           properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBrokers)
           Some(topic, properties)
         case (_, _) =>
-          logger.warn(s"Topic and/or bootstrap servers could not be found in app arguments for jobDefinition" +
-            s" ${jobDefinition.name}. Topic: ${topicOpt}, Bootstrap servers: ${kafkaBrokersOpt}")
+          logger.warn(
+            s"Topic and/or bootstrap servers could not be found in app arguments for jobDefinition" +
+              s" ${jobDefinition.name}. Topic: ${topicOpt}, Bootstrap servers: ${kafkaBrokersOpt}"
+          )
           None
       }
     }
@@ -78,19 +85,22 @@ class KafkaServiceImpl @Inject() (kafkaConfig: KafkaConfig, generalConfig: Gener
   override def getEndOffsets(topic: String, consumerProperties: Properties): Map[Int, Long] = {
     val groupId = s"${kafkaConfig.groupIdPrefix}-${generalConfig.appUniqueId}-getEndOffsets"
     consumerProperties.put(ConsumerConfig.GROUP_ID_CONFIG, groupId)
-    val consumer = kafkaConsumersCache.getOrElse(consumerProperties, {
-      val consumer = new KafkaConsumer[String, String](consumerProperties)
-      kafkaConsumersCache.put(consumerProperties, consumer)
-      consumer
-    })
+    val consumer = kafkaConsumersCache
+      .getOrElse(consumerProperties, {
+                   val consumer = new KafkaConsumer[String, String](consumerProperties)
+                   kafkaConsumersCache.put(consumerProperties, consumer)
+                   consumer
+                 }
+      )
 
     import scala.collection.JavaConverters._
     val partitionInfo = consumer.partitionsFor(topic).asScala
     val topicPartitions = partitionInfo.map(p => new TopicPartition(p.topic(), p.partition()))
-    consumer.endOffsets(topicPartitions.asJava)
+    consumer
+      .endOffsets(topicPartitions.asJava)
       .asScala
-      .map {
-        case (topicPartition: TopicPartition, offset: java.lang.Long) => topicPartition.partition() -> offset.longValue()
+      .map { case (topicPartition: TopicPartition, offset: java.lang.Long) =>
+        topicPartition.partition() -> offset.longValue()
       }
       .toMap
   }
