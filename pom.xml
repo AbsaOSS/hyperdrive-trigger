@@ -67,7 +67,7 @@
 
         <scala.compat.version>2.12</scala.compat.version>
         <spark.version>2.4.4</spark.version>
-        <hadoop.version>2.7.3</hadoop.version>
+        <hadoop.version>2.10.2</hadoop.version>
         <hadoop.scope>provided</hadoop.scope>
         <slick.version>3.3.3</slick.version>
         <tminglei.version>0.19.6</tminglei.version>
