@@ -75,6 +75,7 @@
         <postgresql>42.3.3</postgresql>
         <kafka.version>2.2.0</kafka.version>
         <embedded.kafka.version>2.2.0</embedded.kafka.version>
+        <hyperdrive.version>4.6.0</hyperdrive.version>
         <play-json.version>2.7.3</play-json.version>
         <play-ws-standalone.version>2.0.3</play-ws-standalone.version>
         <play-ahc-ws-standalone.version>2.0.2</play-ahc-ws-standalone.version>
@@ -108,6 +109,7 @@
         <commons-validator.version>1.7</commons-validator.version>
         <hibernate.validator.version>6.2.0.Final</hibernate.validator.version>
         <aws.java.sdk.bom.version>1.12.29</aws.java.sdk.bom.version>
+        <absa.commons.version>1.0.3</absa.commons.version>
 
         <!-- Deployment -->
         <gpg.plugin.version>1.6</gpg.plugin.version>
@@ -183,6 +185,12 @@
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka_${scala.compat.version}</artifactId>
             <version>${kafka.version}</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/za.co.absa.hyperdrive/driver -->
+        <dependency>
+            <groupId>za.co.absa.hyperdrive</groupId>
+            <artifactId>driver_${scala.compat.version}</artifactId>
+            <version>${hyperdrive.version}</version>
         </dependency>
 
         <!-- Dependencies for Spark InProcessLauncher -->
@@ -392,6 +400,12 @@
             <groupId>io.github.embeddedkafka</groupId>
             <artifactId>embedded-kafka_${scala.compat.version}</artifactId>
             <version>${embedded.kafka.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>za.co.absa.commons</groupId>
+            <artifactId>commons_${scala.compat.version}</artifactId>
+            <version>${absa.commons.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
