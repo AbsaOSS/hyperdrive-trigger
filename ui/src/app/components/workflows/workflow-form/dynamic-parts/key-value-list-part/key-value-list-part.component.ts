@@ -28,7 +28,7 @@ export class KeyValueListPartComponent implements OnInit {
   uiid = UuidUtil.createUUID();
   @Input() isShow: boolean;
   @Input() name: string;
-  @Input() value: KeyValueModel[] = [];
+  @Input() value: KeyValueModel[];
   @Output() valueChange = new EventEmitter();
   @Input() isRequired = false;
   @Input() minLength = 1;
@@ -39,7 +39,7 @@ export class KeyValueListPartComponent implements OnInit {
   texts = texts;
 
   ngOnInit(): void {
-    if (!this.value || this.value.length == 0) {
+    if (!this.value) {
       this.modelChanged(this.isRequired ? [KeyValueModelFactory.create('', '')] : []);
     }
   }
@@ -73,6 +73,7 @@ export class KeyValueListPartComponent implements OnInit {
   }
 
   modelChanged(value: KeyValueModel[]) {
+    this.value = value;
     this.valueChange.emit(value.map((val) => KeyValueModelFactory.create(val.key.trim(), val.value.trim())));
   }
 }

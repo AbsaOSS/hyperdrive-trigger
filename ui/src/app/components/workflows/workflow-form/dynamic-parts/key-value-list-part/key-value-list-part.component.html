@@ -52,14 +52,14 @@
       <button type="button" class="btn btn-link" (click)="onDelete(i)">
         <clr-icon shape="trash"></clr-icon>
       </button>
-      <button type="button" class="btn btn-link" *ngIf="value.length - 1 === i" (click)="onAdd()">
+      <button type="button" class="btn btn-link" *ngIf="value?.length - 1 === i" (click)="onAdd()">
         <clr-icon shape="plus"></clr-icon>
       </button>
     </clr-control-container>
   </div>
 </div>
 
-<clr-control-container *ngIf="value.length == 0 && !isShow">
+<clr-control-container *ngIf="value?.length == 0 && !isShow">
   <label>{{name}}</label>
   <input [name]="name" clrControl [ngModel]="undefined" [required]="isRequired" type="hidden"/>
   <clr-control-error *clrIfError="'required'">{{texts.FORM_VALIDATION_AT_LEAST_ONE_DEFINED}}</clr-control-error>
