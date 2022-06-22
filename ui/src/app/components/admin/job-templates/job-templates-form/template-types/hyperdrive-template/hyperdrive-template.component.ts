@@ -15,7 +15,7 @@
 
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { HyperdriveTemplateParametersModel } from '../../../../../../models/jobTemplateParameters.model';
-import { HyperdriveDefinitionParametersModel } from '../../../../../../models/jobDefinitionParameters.model';
+import { KeyValueModel } from "../../../../../../models/keyValue.model";
 
 @Component({
   selector: 'app-hyperdrive-template',
@@ -51,7 +51,7 @@ export class HyperdriveTemplateComponent {
     this.jobParametersChange.emit({ ...this.jobParameters, appArguments: appArguments });
   }
 
-  additionalSparkConfigChange(additionalSparkConfig: Map<string, string>) {
+  additionalSparkConfigChange(additionalSparkConfig: KeyValueModel[]) {
     this.jobParametersChange.emit({ ...this.jobParameters, additionalSparkConfig: additionalSparkConfig });
   }
 }
