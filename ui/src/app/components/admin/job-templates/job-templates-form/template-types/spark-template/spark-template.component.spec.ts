@@ -15,6 +15,7 @@
 
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { SparkTemplateComponent } from './spark-template.component';
+import {KeyValueModelFactory} from "../../../../../../models/keyValue.model";
 
 describe('SparkTemplateComponent', () => {
   let fixture: ComponentFixture<SparkTemplateComponent>;
@@ -94,11 +95,11 @@ describe('SparkTemplateComponent', () => {
 
   it('should emit updated job parameters when additionalSparkConfigChange() is called', () => {
     spyOn(underTest.jobParametersChange, 'emit');
-    const newAdditionalSparkConfigs = new Map<string, string>([
-      ['newAdditionalSparkConfigKey1', 'newAdditionalSparkConfigValue1'],
-      ['newAdditionalSparkConfigKey2', 'newAdditionalSparkConfigValue2'],
-      ['newAdditionalSparkConfigKey3', 'newAdditionalSparkConfigValue3'],
-    ]);
+    const newAdditionalSparkConfigs = [
+      KeyValueModelFactory.create('newAdditionalSparkConfigKey1', 'newAdditionalSparkConfigValue1'),
+      KeyValueModelFactory.create('newAdditionalSparkConfigKey2', 'newAdditionalSparkConfigValue2'),
+      KeyValueModelFactory.create('newAdditionalSparkConfigKey3', 'newAdditionalSparkConfigValue3'),
+    ];
     const newJobParameters = { ...underTest.jobParameters, additionalSparkConfig: newAdditionalSparkConfigs };
 
     underTest.additionalSparkConfigChange(newAdditionalSparkConfigs);
