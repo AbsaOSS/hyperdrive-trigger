@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -25,11 +24,11 @@ import za.co.absa.hyperdrive.trigger.configuration.application.DefaultTestSparkC
 import za.co.absa.hyperdrive.trigger.models.enums.JobTypes
 import za.co.absa.hyperdrive.trigger.models.{ResolvedJobDefinition, ShellInstanceParameters, SparkInstanceParameters}
 
-
 class HyperdriveOffsetComparisonServiceTest extends FlatSpec with Matchers with BeforeAndAfter with MockitoSugar {
   private val hdfsService = mock[HdfsService]
   private val kafkaService = mock[KafkaService]
-  private val underTest = new HyperdriveOffsetComparisonServiceImpl(DefaultTestSparkConfig().yarn, hdfsService, kafkaService)
+  private val underTest =
+    new HyperdriveOffsetComparisonServiceImpl(DefaultTestSparkConfig().yarn, hdfsService, kafkaService)
 
   before {
     reset(hdfsService)
@@ -80,10 +79,12 @@ class HyperdriveOffsetComparisonServiceTest extends FlatSpec with Matchers with 
   }
 
   "getHdfsParameters" should "get the hdfs parameters from the configs" in {
-    val config = DefaultTestSparkConfig().copy(additionalConfs = Map(
-      "spark.yarn.keytab" -> "/path/to/keytab",
-      "spark.yarn.principal" -> "principal"
-    ))
+    val config = DefaultTestSparkConfig().copy(additionalConfs =
+      Map(
+        "spark.yarn.keytab" -> "/path/to/keytab",
+        "spark.yarn.principal" -> "principal"
+      )
+    )
     val underTest = new HyperdriveOffsetComparisonServiceImpl(config.yarn, hdfsService, kafkaService)
     val appArguments = Map(
       "writer.common.checkpoint.location" -> "/checkpoint/path/my-topic"
@@ -96,7 +97,6 @@ class HyperdriveOffsetComparisonServiceTest extends FlatSpec with Matchers with 
     params.get.principal shouldBe "principal"
     params.get.checkpointLocation shouldBe "/checkpoint/path/my-topic"
   }
-
 
   "getKafkaParameters" should "get kafka properties from a resolved job definition" in {
     val jobDefinition = ResolvedJobDefinition(
@@ -190,10 +190,12 @@ class HyperdriveOffsetComparisonServiceTest extends FlatSpec with Matchers with 
   }
 
   "isNewJobInstanceRequired" should "return false if the kafka and checkpoint folder offsets are the same" in {
-    val config = DefaultTestSparkConfig().copy(additionalConfs = Map(
-      "spark.yarn.keytab" -> "/path/to/keytab",
-      "spark.yarn.principal" -> "principal"
-    ))
+    val config = DefaultTestSparkConfig().copy(additionalConfs =
+      Map(
+        "spark.yarn.keytab" -> "/path/to/keytab",
+        "spark.yarn.principal" -> "principal"
+      )
+    )
     val underTest = new HyperdriveOffsetComparisonServiceImpl(config.yarn, hdfsService, kafkaService)
     val jobDefinition = ResolvedJobDefinition(
       "job",
@@ -228,10 +230,12 @@ class HyperdriveOffsetComparisonServiceTest extends FlatSpec with Matchers with 
   }
 
   it should "return true if no offset file is present" in {
-    val config = DefaultTestSparkConfig().copy(additionalConfs = Map(
-      "spark.yarn.keytab" -> "/path/to/keytab",
-      "spark.yarn.principal" -> "principal"
-    ))
+    val config = DefaultTestSparkConfig().copy(additionalConfs =
+      Map(
+        "spark.yarn.keytab" -> "/path/to/keytab",
+        "spark.yarn.principal" -> "principal"
+      )
+    )
     val underTest = new HyperdriveOffsetComparisonServiceImpl(config.yarn, hdfsService, kafkaService)
     val jobDefinition = ResolvedJobDefinition(
       "job",
@@ -253,12 +257,13 @@ class HyperdriveOffsetComparisonServiceTest extends FlatSpec with Matchers with 
     result shouldBe true
   }
 
-
   it should "return true if the offset is not committed" in {
-    val config = DefaultTestSparkConfig().copy(additionalConfs = Map(
-      "spark.yarn.keytab" -> "/path/to/keytab",
-      "spark.yarn.principal" -> "principal"
-    ))
+    val config = DefaultTestSparkConfig().copy(additionalConfs =
+      Map(
+        "spark.yarn.keytab" -> "/path/to/keytab",
+        "spark.yarn.principal" -> "principal"
+      )
+    )
     val underTest = new HyperdriveOffsetComparisonServiceImpl(config.yarn, hdfsService, kafkaService)
     val jobDefinition = ResolvedJobDefinition(
       "job",
@@ -281,10 +286,12 @@ class HyperdriveOffsetComparisonServiceTest extends FlatSpec with Matchers with 
   }
 
   it should "return true if a offset file could not be parsed" in {
-    val config = DefaultTestSparkConfig().copy(additionalConfs = Map(
-      "spark.yarn.keytab" -> "/path/to/keytab",
-      "spark.yarn.principal" -> "principal"
-    ))
+    val config = DefaultTestSparkConfig().copy(additionalConfs =
+      Map(
+        "spark.yarn.keytab" -> "/path/to/keytab",
+        "spark.yarn.principal" -> "principal"
+      )
+    )
     val underTest = new HyperdriveOffsetComparisonServiceImpl(config.yarn, hdfsService, kafkaService)
     val jobDefinition = ResolvedJobDefinition(
       "job",
@@ -313,10 +320,12 @@ class HyperdriveOffsetComparisonServiceTest extends FlatSpec with Matchers with 
   }
 
   it should "return true if the checkpoints offset does not contain the topic" in {
-    val config = DefaultTestSparkConfig().copy(additionalConfs = Map(
-      "spark.yarn.keytab" -> "/path/to/keytab",
-      "spark.yarn.principal" -> "principal"
-    ))
+    val config = DefaultTestSparkConfig().copy(additionalConfs =
+      Map(
+        "spark.yarn.keytab" -> "/path/to/keytab",
+        "spark.yarn.principal" -> "principal"
+      )
+    )
     val underTest = new HyperdriveOffsetComparisonServiceImpl(config.yarn, hdfsService, kafkaService)
     val jobDefinition = ResolvedJobDefinition(
       "job",
@@ -345,10 +354,12 @@ class HyperdriveOffsetComparisonServiceTest extends FlatSpec with Matchers with 
   }
 
   it should "return true if the kafka offsets and checkpoint offset do not have the same set of partitions" in {
-    val config = DefaultTestSparkConfig().copy(additionalConfs = Map(
-      "spark.yarn.keytab" -> "/path/to/keytab",
-      "spark.yarn.principal" -> "principal"
-    ))
+    val config = DefaultTestSparkConfig().copy(additionalConfs =
+      Map(
+        "spark.yarn.keytab" -> "/path/to/keytab",
+        "spark.yarn.principal" -> "principal"
+      )
+    )
     val underTest = new HyperdriveOffsetComparisonServiceImpl(config.yarn, hdfsService, kafkaService)
     val jobDefinition = ResolvedJobDefinition(
       "job",
@@ -379,10 +390,12 @@ class HyperdriveOffsetComparisonServiceTest extends FlatSpec with Matchers with 
   }
 
   it should "return true if the kafka offsets and checkpoint offsets are not the same" in {
-    val config = DefaultTestSparkConfig().copy(additionalConfs = Map(
-      "spark.yarn.keytab" -> "/path/to/keytab",
-      "spark.yarn.principal" -> "principal"
-    ))
+    val config = DefaultTestSparkConfig().copy(additionalConfs =
+      Map(
+        "spark.yarn.keytab" -> "/path/to/keytab",
+        "spark.yarn.principal" -> "principal"
+      )
+    )
     val underTest = new HyperdriveOffsetComparisonServiceImpl(config.yarn, hdfsService, kafkaService)
     val jobDefinition = ResolvedJobDefinition(
       "job",

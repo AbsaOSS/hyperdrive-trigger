@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -24,7 +23,6 @@ import za.co.absa.commons.io.TempDirectory
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
-
 
 class HdfsServiceTest extends FlatSpec with Matchers with BeforeAndAfter with MockitoSugar {
   private val ugiWrapper = mock[UserGroupInformationWrapper]
@@ -66,7 +64,7 @@ class HdfsServiceTest extends FlatSpec with Matchers with BeforeAndAfter with Mo
     val tmpFile = Files.createTempFile(baseDirPath, "hdfsServiceTest", "")
     val parseFn: Iterator[String] => Seq[Int] = _ => throw new Exception()
 
-    val result = the [Exception] thrownBy underTest.parseFileAndClose(tmpFile.toAbsolutePath.toString, parseFn)
+    val result = the[Exception] thrownBy underTest.parseFileAndClose(tmpFile.toAbsolutePath.toString, parseFn)
 
     result.getMessage should include(tmpFile.toAbsolutePath.toString)
   }
@@ -161,7 +159,7 @@ class HdfsServiceTest extends FlatSpec with Matchers with BeforeAndAfter with Mo
 
   it should "return None if the commits folder is empty" in {
     val tmpCheckpointDir = Files.createTempDirectory(baseDirPath, "checkpoints")
-    Files.createDirectory(tmpCheckpointDir.resolve( "commits"))
+    Files.createDirectory(tmpCheckpointDir.resolve("commits"))
 
     val result = underTest.getLatestCommitBatchId(tmpCheckpointDir.toAbsolutePath.toString)
 
@@ -179,12 +177,12 @@ class HdfsServiceTest extends FlatSpec with Matchers with BeforeAndAfter with Mo
   }
 
   private def createOffsetFile(checkpointDir: Path, batchId: Int) = {
-    val tmpCommitsDir = Files.createDirectory(checkpointDir.resolve( "offsets"))
+    val tmpCommitsDir = Files.createDirectory(checkpointDir.resolve("offsets"))
     (0 to batchId).map(i => Files.createFile(tmpCommitsDir.resolve(s"$i")))
   }
 
   private def createCommitFile(checkpointDir: Path, batchId: Int) = {
-    val tmpCommitsDir = Files.createDirectory(checkpointDir.resolve( "commits"))
+    val tmpCommitsDir = Files.createDirectory(checkpointDir.resolve("commits"))
     (0 to batchId).map(i => Files.createFile(tmpCommitsDir.resolve(s"$i")))
   }
 }

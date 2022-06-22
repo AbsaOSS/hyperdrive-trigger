@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -40,14 +39,14 @@ trait HdfsService {
   def getLatestOffsetBatchId(checkpointDir: String): Option[Long]
 }
 
-class HdfsParameters (
+class HdfsParameters(
   val keytab: String,
   val principal: String,
   val checkpointLocation: String
 )
 
 @Service
-class HdfsServiceImpl @Inject()(userGroupInformationWrapper: UserGroupInformationWrapper) extends HdfsService {
+class HdfsServiceImpl @Inject() (userGroupInformationWrapper: UserGroupInformationWrapper) extends HdfsService {
   private val logger = LoggerFactory.getLogger(this.getClass)
   private val mapper = new ObjectMapper().registerModule(DefaultScalaModule)
   private val offsetsDirName = "offsets"
@@ -56,7 +55,7 @@ class HdfsServiceImpl @Inject()(userGroupInformationWrapper: UserGroupInformatio
   private lazy val fs = FileSystem.get(conf)
 
   /**
-   * See org.apache.spark.sql.execution.streaming.HDFSMetadataLog
+   *  See org.apache.spark.sql.execution.streaming.HDFSMetadataLog
    */
   private val batchFilesFilter = new PathFilter {
     override def accept(path: Path): Boolean = {
@@ -71,12 +70,11 @@ class HdfsServiceImpl @Inject()(userGroupInformationWrapper: UserGroupInformatio
   }
 
   /**
-   *
-   * @param pathStr path to the file as a string
-   * @param parseFn function that parses the file line by line. Caution: It must materialize the content,
+   *  @param pathStr path to the file as a string
+   *  @param parseFn function that parses the file line by line. Caution: It must materialize the content,
    *                because the file is closed after the method completes. E.g. it must not return an iterator.
-   * @tparam R type of the parsed value
-   * @return None if the file doesn't exist, Some with the parsed content
+   *  @tparam R type of the parsed value
+   *  @return None if the file doesn't exist, Some with the parsed content
    */
   override def parseFileAndClose[R](pathStr: String, parseFn: Iterator[String] => R): Option[R] = {
     val path = new Path(pathStr)
@@ -99,15 +97,15 @@ class HdfsServiceImpl @Inject()(userGroupInformationWrapper: UserGroupInformatio
   }
 
   /**
-   * see org.apache.spark.sql.execution.streaming.OffsetSeqLog
-   * and org.apache.spark.sql.kafka010.JsonUtils
-   * for details on the assumed format
+   *  see org.apache.spark.sql.execution.streaming.OffsetSeqLog
+   *  and org.apache.spark.sql.kafka010.JsonUtils
+   *  for details on the assumed format
    */
   override def parseKafkaOffsetStream(lines: Iterator[String]): TopicPartitionOffsets = {
     val SERIALIZED_VOID_OFFSET = "-"
     def parseOffset(value: String): Option[TopicPartitionOffsets] = value match {
       case SERIALIZED_VOID_OFFSET => None
-      case json => Some(mapper.readValue(json, classOf[TopicPartitionOffsets]))
+      case json                   => Some(mapper.readValue(json, classOf[TopicPartitionOffsets]))
     }
     if (!lines.hasNext) {
       throw new IllegalStateException("Incomplete log file")
@@ -124,8 +122,7 @@ class HdfsServiceImpl @Inject()(userGroupInformationWrapper: UserGroupInformatio
   }
 
   /**
-   *
-   * @return an Option of a String, Boolean pair. The string contains the path to the latest offset file, while the
+   *  @return an Option of a String, Boolean pair. The string contains the path to the latest offset file, while the
    *         boolean is true if the offset is committed (i.e. a corresponding commit file exists), and false otherwise.
    *         None is returned if the offset file does not exist. If the offset file does not exist, the corresponding
    *         commit file is assumed to also not exist.
@@ -137,7 +134,7 @@ class HdfsServiceImpl @Inject()(userGroupInformationWrapper: UserGroupInformatio
       val commitBatchIdOpt = getLatestCommitBatchId(params.checkpointLocation)
       val committed = commitBatchIdOpt match {
         case Some(commitBatchId) => offsetBatchId == commitBatchId
-        case None => false
+        case None                => false
       }
       val path = new Path(s"${params.checkpointLocation}/${offsetsDirName}/${offsetBatchId}")
       (path.toString, committed)
@@ -160,9 +157,10 @@ class HdfsServiceImpl @Inject()(userGroupInformationWrapper: UserGroupInformatio
 
   private def getLatestBatchId(path: Path): Option[Long] = {
     if (fs.exists(path)) {
-      fs.listStatus(path, batchFilesFilter).map {
-        status => status.getPath.getName.toLong
-      }
+      fs.listStatus(path, batchFilesFilter)
+        .map { status =>
+          status.getPath.getName.toLong
+        }
         .sorted
         .lastOption
     } else {

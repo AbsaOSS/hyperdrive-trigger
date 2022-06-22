@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -36,10 +35,10 @@ trait HyperdriveOffsetComparisonService {
 }
 
 @Service
-class HyperdriveOffsetComparisonServiceImpl @Inject()(
-  sparkConfig: SparkConfig,
-  hdfsService: HdfsService,
-  kafkaService: KafkaService) extends HyperdriveOffsetComparisonService {
+class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
+                                                       hdfsService: HdfsService,
+                                                       kafkaService: KafkaService
+) extends HyperdriveOffsetComparisonService {
   private val logger = LoggerFactory.getLogger(this.getClass)
   private val HyperdriveCheckpointKey = "writer.common.checkpoint.location"
   private val HyperdriveKafkaTopicKey = "reader.kafka.topic"
@@ -55,8 +54,8 @@ class HyperdriveOffsetComparisonServiceImpl @Inject()(
       val args = jobParameters.appArguments
       val config = CommandLineIngestionDriver.parseConfiguration(args.toArray)
       import scala.collection.JavaConverters._
-      val resolvedArgs = config.getKeys.asScala.map {
-        k => k -> config.getString(k)
+      val resolvedArgs = config.getKeys.asScala.map { k =>
+        k -> config.getString(k)
       }.toMap
       Some(resolvedArgs)
     }
@@ -70,8 +69,10 @@ class HyperdriveOffsetComparisonServiceImpl @Inject()(
     } yield new HdfsParameters(keytab, principal, checkpointLocation)
 
     if (hdfsParameters.isEmpty) {
-      logger.warn(s"Could not extract hdfs parameters from spark config ${sparkConfig}" +
-        s" and resolved app arguments ${resolvedAppArguments}")
+      logger.warn(
+        s"Could not extract hdfs parameters from spark config ${sparkConfig}" +
+          s" and resolved app arguments ${resolvedAppArguments}"
+      )
     }
 
     hdfsParameters
@@ -109,7 +110,9 @@ class HyperdriveOffsetComparisonServiceImpl @Inject()(
       }
 
       if (kafkaParameters.isEmpty) {
-        logger.warn(s"Could not find required kafka parameters in job definition ${jobDefinition.name} with args ${args}")
+        logger.warn(
+          s"Could not find required kafka parameters in job definition ${jobDefinition.name} with args ${args}"
+        )
       }
       kafkaParameters
     }
@@ -127,17 +130,22 @@ class HyperdriveOffsetComparisonServiceImpl @Inject()(
     } yield latestOffsetFilePath
 
     if (latestOffsetFilePath.isEmpty || !latestOffsetFilePath.get._2) {
-      logger.debug(s"New job instance required because offset does not exist or is not committed ${latestOffsetFilePath}")
+      logger.debug(
+        s"New job instance required because offset does not exist or is not committed ${latestOffsetFilePath}"
+      )
       true
     } else {
       val allKafkaOffsetsConsumedOpt = for {
         kafkaParameters <- getKafkaParameters(jobDefinition)
-        hdfsAllOffsets <- Try(hdfsService.parseFileAndClose(latestOffsetFilePath.get._1, hdfsService.parseKafkaOffsetStream))
-          .recover {
-            case e: Exception =>
-              logger.warn(s"Couldn't parse file ${latestOffsetFilePath.get._1}", e)
-              None
-          }.toOption.flatten
+        hdfsAllOffsets <- Try(
+          hdfsService.parseFileAndClose(latestOffsetFilePath.get._1, hdfsService.parseKafkaOffsetStream)
+        )
+          .recover { case e: Exception =>
+            logger.warn(s"Couldn't parse file ${latestOffsetFilePath.get._1}", e)
+            None
+          }
+          .toOption
+          .flatten
         hdfsOffsets <- hdfsAllOffsets.get(kafkaParameters._1) match {
           case Some(v) => Some(v)
           case None =>
@@ -147,14 +155,14 @@ class HyperdriveOffsetComparisonServiceImpl @Inject()(
         kafkaOffsets = kafkaService.getEndOffsets(kafkaParameters._1, kafkaParameters._2)
       } yield {
         val isSamePartitions = kafkaOffsets.keySet == hdfsOffsets.keySet
-        isSamePartitions && kafkaOffsets.forall {
-          case (partition, kafkaPartitionOffset) => hdfsOffsets(partition) == kafkaPartitionOffset
+        isSamePartitions && kafkaOffsets.forall { case (partition, kafkaPartitionOffset) =>
+          hdfsOffsets(partition) == kafkaPartitionOffset
         }
       }
 
       allKafkaOffsetsConsumedOpt match {
         case Some(allKafkaOffsetsConsumed) => !allKafkaOffsetsConsumed
-        case None => true
+        case None                          => true
       }
     }
   }

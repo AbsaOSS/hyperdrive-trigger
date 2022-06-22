@@ -29,7 +29,7 @@ trait KafkaService {
   def getEndOffsets(topic: String, consumerProperties: Properties): Map[Int, Long]
 }
 
-class KafkaConsumerParameters (
+class KafkaConsumerParameters(
   val topic: String,
   val properties: Properties
 )
