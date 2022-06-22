@@ -1,3 +1,5 @@
+
+
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -17,30 +19,33 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import cloneDeep from 'lodash-es/cloneDeep';
 import { UuidUtil } from '../../../../../utils/uuid/uuid.util';
 import { texts } from 'src/app/constants/texts.constants';
-import { KeyValueModel, KeyValueModelFactory } from '../../../../../models/keyValue.model';
 
 @Component({
-  selector: 'app-key-string-value-part',
-  templateUrl: './key-string-value-part.component.html',
-  styleUrls: ['./key-string-value-part.component.scss'],
+  selector: 'app-key-value-map-part',
+  templateUrl: './key-value-map-part.component.html',
+  styleUrls: ['./key-value-map-part.component.scss'],
 })
-export class KeyStringValuePartComponent implements OnInit {
+export class KeyValueMapPartComponent implements OnInit {
   uiid = UuidUtil.createUUID();
   @Input() isShow: boolean;
   @Input() name: string;
-  @Input() value: KeyValueModel[] = [];
+  @Input() value: Record<string, any>;
   @Output() valueChange = new EventEmitter();
   @Input() isRequired = false;
   @Input() minLength = 1;
   @Input() maxLength: number = Number.MAX_SAFE_INTEGER;
 
+  mapOfValues: [string, string][] = [];
   maxFieldSize = 100;
 
   texts = texts;
 
   ngOnInit(): void {
-    if (!this.value || this.value.length == 0) {
-      this.modelChanged(this.isRequired ? [KeyValueModelFactory.create('', '')] : []);
+    for (const prop in this.value) {
+      this.mapOfValues.push([prop, this.value[prop]]);
+    }
+    if (!this.mapOfValues || this.mapOfValues.length == 0) {
+      this.modelChanged(this.isRequired ? [['', '']] : []);
     }
   }
 
@@ -49,30 +54,32 @@ export class KeyStringValuePartComponent implements OnInit {
   }
 
   onAdd() {
-    const clonedValue: KeyValueModel[] = cloneDeep(this.value);
-    clonedValue.push(KeyValueModelFactory.create('', ''));
+    const clonedValue: [string, string][] = cloneDeep(this.mapOfValues);
+    clonedValue.push(['', '']);
     this.modelChanged(clonedValue);
   }
 
   onDelete(index: number) {
-    const clonedValue: KeyValueModel[] = cloneDeep(this.value);
+    const clonedValue: [string, string][] = cloneDeep(this.mapOfValues);
 
-    this.value.length === 1 && this.isRequired ? (clonedValue[index] = KeyValueModelFactory.create('', '')) : clonedValue.splice(index, 1);
-
-    this.modelChanged(clonedValue);
-  }
-
-  ngModelChanged(value: string, index: number, isKey: boolean) {
-    const clonedValue: KeyValueModel[] = cloneDeep(this.value);
-    if (isKey)
-      clonedValue[index] = KeyValueModelFactory.create(value, clonedValue[index].value);
-    else
-      clonedValue[index] = KeyValueModelFactory.create(clonedValue[index].key, value);
+    this.mapOfValues.length === 1 && this.isRequired ? (clonedValue[index] = ['', '']) : clonedValue.splice(index, 1);
 
     this.modelChanged(clonedValue);
   }
 
-  modelChanged(value: KeyValueModel[]) {
-    this.valueChange.emit(value.map((val) => KeyValueModelFactory.create(val.key.trim(), val.value.trim())));
+  ngModelChanged(value: string, index: number, key: number) {
+    const clonedValue: [string, string][] = cloneDeep(this.mapOfValues);
+    clonedValue[index][key] = value;
+    this.modelChanged(clonedValue);
+  }
+
+  modelChanged(value: [string, string][]) {
+    const valueInObject = {};
+    value.forEach((val) => {
+      valueInObject[`${val[0]}`.toString().trim()] = val[1].trim();
+    });
+    this.value = valueInObject;
+    this.mapOfValues = value;
+    this.valueChange.emit(valueInObject);
   }
 }
