@@ -80,8 +80,13 @@ class SparkYarnClusterServiceImpl @Inject()(
     config.additionalConfs.foreach(conf => sparkLauncher.setConf(conf._1, conf._2))
     jobParameters.additionalJars.foreach(sparkLauncher.addJar)
     jobParameters.additionalFiles.foreach(sparkLauncher.addFile)
-    jobParameters.additionalSparkConfig.foreach(conf => sparkLauncher.setConf(conf._1, conf._2))
-    mergeAdditionalSparkConfig(config.additionalConfs, jobParameters.additionalSparkConfig)
+    jobParameters.additionalSparkConfig.foreach(conf => sparkLauncher.setConf(conf.key, conf.value))
+    mergeAdditionalSparkConfig(
+      config.additionalConfs,
+      jobParameters.additionalSparkConfig.map(additionalSparkConfig =>
+        additionalSparkConfig.key -> additionalSparkConfig.value
+      ).toMap
+    )
       .foreach(conf => sparkLauncher.setConf(conf._1, conf._2))
 
     sparkLauncher

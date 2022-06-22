@@ -91,7 +91,15 @@ class JobTemplateResolutionServiceImpl extends JobTemplateResolutionService {
       appArguments = mergeLists(definitionParams.appArguments, templateParams.appArguments),
       additionalJars = mergeLists(definitionParams.additionalJars, templateParams.additionalJars),
       additionalFiles = mergeLists(definitionParams.additionalFiles, templateParams.additionalFiles),
-      additionalSparkConfig = mergeMaps(definitionParams.additionalSparkConfig, templateParams.additionalSparkConfig, mergeSortedMapEntries)
+      additionalSparkConfig = mergeMaps(
+        definitionParams.additionalSparkConfig.map(additionalSparkConfig =>
+          additionalSparkConfig.key -> additionalSparkConfig.value
+        ).toMap,
+        templateParams.additionalSparkConfig.map(additionalSparkConfig =>
+          additionalSparkConfig.key -> additionalSparkConfig.value
+        ).toMap,
+        mergeSortedMapEntries
+      ).map(additionalSparkConfig => AdditionalSparkConfig(additionalSparkConfig._1, additionalSparkConfig._2)).toList
     )
   }
 
