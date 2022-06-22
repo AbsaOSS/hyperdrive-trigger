@@ -80,7 +80,7 @@ class JobTemplateResolutionServiceTest extends FlatSpec with Matchers {
     resolvedJobDefinitions.head.jobParameters.jobType shouldBe JobTypes.Spark
     resolvedJobDefinitions.head.jobParameters
       .asInstanceOf[SparkInstanceParameters]
-      .additionalSparkConfig should contain theSameElementsAs Map("key1" -> "value1")
+      .additionalSparkConfig should contain theSameElementsAs List(AdditionalSparkConfig("key1", "value1"))
     resolvedJobDefinitions(1).jobParameters.jobType shouldBe JobTypes.Shell
     resolvedJobDefinitions(1).jobParameters
       .asInstanceOf[ShellInstanceParameters]
@@ -226,11 +226,12 @@ class JobTemplateResolutionServiceTest extends FlatSpec with Matchers {
       .additionalFiles should contain theSameElementsAs sparkJobParametersDefined.additionalFiles ++ sparkTemplateParametersDefined.additionalFiles
     bothScriptsDefined.head.jobParameters
       .asInstanceOf[SparkInstanceParameters]
-      .additionalSparkConfig should contain theSameElementsAs Map("templateKey1" -> "templateValue1",
-                                                                  "templateKey2" -> "templateValue2",
-                                                                  "jobKey1" -> "jobValue1",
-                                                                  "jobKey2" -> "jobValue2",
-                                                                  "sharedKey1" -> "jobValueSharedKey1"
+      .additionalSparkConfig should contain theSameElementsAs List(
+      AdditionalSparkConfig("templateKey1", "templateValue1"),
+      AdditionalSparkConfig("templateKey2", "templateValue2"),
+      AdditionalSparkConfig("jobKey1", "jobValue1"),
+      AdditionalSparkConfig("jobKey2", "jobValue2"),
+      AdditionalSparkConfig("sharedKey1", "jobValueSharedKey1")
     )
   }
 
@@ -330,11 +331,12 @@ class JobTemplateResolutionServiceTest extends FlatSpec with Matchers {
       .additionalFiles should contain theSameElementsAs hyperdriveJobParametersDefined.additionalFiles ++ sparkTemplateParametersDefined.additionalFiles
     bothScriptsDefined.head.jobParameters
       .asInstanceOf[SparkInstanceParameters]
-      .additionalSparkConfig should contain theSameElementsAs Map("templateKey1" -> "templateValue1",
-                                                                  "templateKey2" -> "templateValue2",
-                                                                  "jobKey1" -> "jobValue1",
-                                                                  "jobKey2" -> "jobValue2",
-                                                                  "sharedKey1" -> "jobValueSharedKey1"
+      .additionalSparkConfig should contain theSameElementsAs List(
+      AdditionalSparkConfig("templateKey1", "templateValue1"),
+      AdditionalSparkConfig("templateKey2", "templateValue2"),
+      AdditionalSparkConfig("jobKey1", "jobValue1"),
+      AdditionalSparkConfig("jobKey2", "jobValue2"),
+      AdditionalSparkConfig("sharedKey1", "jobValueSharedKey1")
     )
   }
 
@@ -370,9 +372,11 @@ class JobTemplateResolutionServiceTest extends FlatSpec with Matchers {
     val resolvedJobDefinition = resolvedJobDefinitions.head
     resolvedJobDefinition.jobParameters
       .asInstanceOf[SparkInstanceParameters]
-      .additionalSparkConfig should contain theSameElementsAs Map(
-      "spark.driver.extraJavaOptions" -> "-template.prop=templateDriver -user.prop=userDriver",
-      "spark.executor.extraJavaOptions" -> "-template.prop=templateExecutor -user.prop=userExecutor"
+      .additionalSparkConfig should contain theSameElementsAs List(
+      AdditionalSparkConfig("spark.driver.extraJavaOptions", "-template.prop=templateDriver -user.prop=userDriver"),
+      AdditionalSparkConfig("spark.executor.extraJavaOptions",
+                            "-template.prop=templateExecutor -user.prop=userExecutor"
+      )
     )
   }
 
