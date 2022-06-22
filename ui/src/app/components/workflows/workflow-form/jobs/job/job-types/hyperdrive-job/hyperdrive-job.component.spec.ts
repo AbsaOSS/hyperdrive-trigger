@@ -21,7 +21,7 @@ import { hyperdriveTypesFields } from '../../../../../../../constants/hyperdrive
 import { HyperdriveTemplateParametersModel } from '../../../../../../../models/jobTemplateParameters.model';
 import { JobTemplateChangeEventModel } from '../../../../../../../models/jobTemplateChangeEvent';
 import { EventEmitter } from '@angular/core';
-import {KeyValueModel, KeyValueModelFactory} from "../../../../../../../models/keyValue.model";
+import { KeyValueModel, KeyValueModelFactory } from '../../../../../../../models/keyValue.model';
 
 describe('HyperdriveJobComponent', () => {
   let fixture: ComponentFixture<HyperdriveJobComponent>;

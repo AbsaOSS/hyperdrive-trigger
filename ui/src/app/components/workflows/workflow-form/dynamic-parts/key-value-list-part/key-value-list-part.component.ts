@@ -64,10 +64,8 @@ export class KeyValueListPartComponent implements OnInit {
 
   ngModelChanged(value: string, index: number, isKey: boolean) {
     const clonedValue: KeyValueModel[] = cloneDeep(this.value);
-    if (isKey)
-      clonedValue[index] = KeyValueModelFactory.create(value, clonedValue[index].value);
-    else
-      clonedValue[index] = KeyValueModelFactory.create(clonedValue[index].key, value);
+    if (isKey) clonedValue[index] = KeyValueModelFactory.create(value, clonedValue[index].value);
+    else clonedValue[index] = KeyValueModelFactory.create(clonedValue[index].key, value);
 
     this.modelChanged(clonedValue);
   }

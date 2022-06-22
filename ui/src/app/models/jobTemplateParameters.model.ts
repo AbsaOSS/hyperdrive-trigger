@@ -14,7 +14,7 @@
  */
 
 import { jobTypes } from '../constants/jobTypes.constants';
-import { KeyValueModel } from "./keyValue.model";
+import { KeyValueModel } from './keyValue.model';
 
 export interface JobTemplateParameters {
   jobType: string;

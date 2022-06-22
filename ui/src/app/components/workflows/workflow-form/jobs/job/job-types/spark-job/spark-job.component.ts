@@ -17,7 +17,7 @@ import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angu
 import { SparkDefinitionParametersModel } from '../../../../../../../models/jobDefinitionParameters.model';
 import { Subscription } from 'rxjs';
 import { JobTemplateChangeEventModel } from '../../../../../../../models/jobTemplateChangeEvent';
-import {KeyValueModel} from "../../../../../../../models/keyValue.model";
+import { KeyValueModel } from '../../../../../../../models/keyValue.model';
 
 @Component({
   selector: 'app-spark-job',

@@ -20,7 +20,7 @@ import { SparkDefinitionParametersModel } from '../../../../../../../models/jobD
 import { EventEmitter } from '@angular/core';
 import { JobTemplateChangeEventModel } from '../../../../../../../models/jobTemplateChangeEvent';
 import { SparkTemplateParametersModel } from '../../../../../../../models/jobTemplateParameters.model';
-import {KeyValueModelFactory} from "../../../../../../../models/keyValue.model";
+import { KeyValueModelFactory } from '../../../../../../../models/keyValue.model';
 
 describe('SparkJobComponent', () => {
   let fixture: ComponentFixture<SparkJobComponent>;

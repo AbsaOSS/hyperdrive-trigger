@@ -19,7 +19,7 @@ import { KeyValueListPartComponent } from './key-value-list-part.component';
 import { DebugElement, Predicate } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { FormsModule, NgForm } from '@angular/forms';
-import { KeyValueModelFactory } from "../../../../../models/keyValue.model";
+import { KeyValueModelFactory } from '../../../../../models/keyValue.model';
 
 describe('KeyValueMapPartComponent', () => {
   let fixture: ComponentFixture<KeyValueListPartComponent>;
@@ -177,10 +177,7 @@ describe('KeyValueMapPartComponent', () => {
         KeyValueModelFactory.create('keyThree', 'valueThree'),
       ];
 
-      const newValueObject = [
-        KeyValueModelFactory.create('keyOne', 'valueOne'),
-        KeyValueModelFactory.create('keyThree', 'valueThree'),
-      ];
+      const newValueObject = [KeyValueModelFactory.create('keyOne', 'valueOne'), KeyValueModelFactory.create('keyThree', 'valueThree')];
 
       spyOn(underTest.valueChange, 'emit');
 
@@ -205,10 +202,7 @@ describe('KeyValueMapPartComponent', () => {
   it(
     'onAdd() should add empty string key value element to value and publish change',
     waitForAsync(() => {
-      const oldValueObject = [
-        KeyValueModelFactory.create('keyOne', 'valueOne'),
-        KeyValueModelFactory.create('keyTwo', 'valueTwo'),
-      ];
+      const oldValueObject = [KeyValueModelFactory.create('keyOne', 'valueOne'), KeyValueModelFactory.create('keyTwo', 'valueTwo')];
 
       const newValueObject = [
         KeyValueModelFactory.create('keyOne', 'valueOne'),

@@ -15,7 +15,7 @@
 
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { SparkTemplateComponent } from './spark-template.component';
-import {KeyValueModelFactory} from "../../../../../../models/keyValue.model";
+import { KeyValueModelFactory } from '../../../../../../models/keyValue.model';
 
 describe('SparkTemplateComponent', () => {
   let fixture: ComponentFixture<SparkTemplateComponent>;

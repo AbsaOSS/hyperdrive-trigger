@@ -15,7 +15,7 @@
 
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { HyperdriveTemplateParametersModel } from '../../../../../../models/jobTemplateParameters.model';
-import { KeyValueModel } from "../../../../../../models/keyValue.model";
+import { KeyValueModel } from '../../../../../../models/keyValue.model';
 
 @Component({
   selector: 'app-hyperdrive-template',

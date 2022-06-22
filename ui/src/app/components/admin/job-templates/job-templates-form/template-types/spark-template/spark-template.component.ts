@@ -15,7 +15,7 @@
 
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { SparkTemplateParametersModel } from '../../../../../../models/jobTemplateParameters.model';
-import { KeyValueModel } from "../../../../../../models/keyValue.model";
+import { KeyValueModel } from '../../../../../../models/keyValue.model';
 
 @Component({
   selector: 'app-spark-template',

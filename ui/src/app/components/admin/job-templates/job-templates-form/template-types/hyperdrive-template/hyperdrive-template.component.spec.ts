@@ -15,7 +15,7 @@
 
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { HyperdriveTemplateComponent } from './hyperdrive-template.component';
-import {KeyValueModelFactory} from "../../../../../../models/keyValue.model";
+import { KeyValueModelFactory } from '../../../../../../models/keyValue.model';
 
 describe('HyperdriveTemplateComponent', () => {
   let fixture: ComponentFixture<HyperdriveTemplateComponent>;
