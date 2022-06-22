@@ -88,8 +88,7 @@ class HdfsServiceImpl @Inject()(userGroupInformationWrapper: UserGroupInformatio
       } catch {
         case e: Exception =>
           // re-throw the exception with the log file path added
-          throw new Exception(
-            s"Failed to parse file $path. ${e.getMessage}", e)
+          throw new Exception(s"Failed to parse file $path", e)
       } finally {
         IOUtils.closeQuietly(input)
       }

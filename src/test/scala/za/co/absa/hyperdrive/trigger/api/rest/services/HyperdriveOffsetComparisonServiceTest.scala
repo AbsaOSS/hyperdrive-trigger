@@ -280,7 +280,7 @@ class HyperdriveOffsetComparisonServiceTest extends FlatSpec with Matchers with 
     result shouldBe true
   }
 
-  it should "return true if a offset file could not be read" in {
+  it should "return true if a offset file could not be parsed" in {
     val config = DefaultTestSparkConfig().copy(additionalConfs = Map(
       "spark.yarn.keytab" -> "/path/to/keytab",
       "spark.yarn.principal" -> "principal"
@@ -302,7 +302,8 @@ class HyperdriveOffsetComparisonServiceTest extends FlatSpec with Matchers with 
     )
 
     when(hdfsService.getLatestOffsetFilePath(any())).thenReturn(Some(("1", true)))
-    when(hdfsService.parseFileAndClose(any(), any[Iterator[String] => Map[String, Map[Int, Long]]]())).thenReturn(None)
+    when(hdfsService.parseFileAndClose(any(), any[Iterator[String] => Map[String, Map[Int, Long]]]()))
+      .thenThrow(new RuntimeException("Failed to parse"))
 
     val result = underTest.isNewJobInstanceRequired(jobDefinition)
 

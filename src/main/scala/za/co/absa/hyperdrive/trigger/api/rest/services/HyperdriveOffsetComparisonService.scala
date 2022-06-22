@@ -26,6 +26,7 @@ import za.co.absa.hyperdrive.trigger.models.{ResolvedJobDefinition, SparkInstanc
 
 import java.util.Properties
 import javax.inject.Inject
+import scala.util.Try
 
 trait HyperdriveOffsetComparisonService {
   def getResolvedAppArguments(jobDefinition: ResolvedJobDefinition): Option[Map[String, String]]
@@ -131,7 +132,12 @@ class HyperdriveOffsetComparisonServiceImpl @Inject()(
     } else {
       val allKafkaOffsetsConsumedOpt = for {
         kafkaParameters <- getKafkaParameters(jobDefinition)
-        hdfsAllOffsets <- hdfsService.parseFileAndClose(latestOffsetFilePath.get._1, hdfsService.parseKafkaOffsetStream)
+        hdfsAllOffsets <- Try(hdfsService.parseFileAndClose(latestOffsetFilePath.get._1, hdfsService.parseKafkaOffsetStream))
+          .recover {
+            case e: Exception =>
+              logger.warn(s"Couldn't parse file ${latestOffsetFilePath.get._1}", e)
+              None
+          }.toOption.flatten
         hdfsOffsets <- hdfsAllOffsets.get(kafkaParameters._1) match {
           case Some(v) => Some(v)
           case None =>
@@ -140,8 +146,8 @@ class HyperdriveOffsetComparisonServiceImpl @Inject()(
         }
         kafkaOffsets = kafkaService.getEndOffsets(kafkaParameters._1, kafkaParameters._2)
       } yield {
-        val equalKeys = kafkaOffsets.keySet == hdfsOffsets.keySet
-        equalKeys && kafkaOffsets.forall {
+        val isSamePartitions = kafkaOffsets.keySet == hdfsOffsets.keySet
+        isSamePartitions && kafkaOffsets.forall {
           case (partition, kafkaPartitionOffset) => hdfsOffsets(partition) == kafkaPartitionOffset
         }
       }

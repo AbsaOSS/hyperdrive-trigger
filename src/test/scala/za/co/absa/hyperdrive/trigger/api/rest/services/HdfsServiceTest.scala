@@ -62,6 +62,15 @@ class HdfsServiceTest extends FlatSpec with Matchers with BeforeAndAfter with Mo
     result shouldBe None
   }
 
+  it should "rethrow an exception if parsing throws an error" in {
+    val tmpFile = Files.createTempFile(baseDirPath, "hdfsServiceTest", "")
+    val parseFn: Iterator[String] => Seq[Int] = _ => throw new Exception()
+
+    val result = the [Exception] thrownBy underTest.parseFileAndClose(tmpFile.toAbsolutePath.toString, parseFn)
+
+    result.getMessage should include(tmpFile.toAbsolutePath.toString)
+  }
+
   "parseKafkaOffsetStream" should "parse an offset file" in {
     val lines = Seq(
       "v1",
