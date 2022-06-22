@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -31,7 +30,7 @@ case class SparkTemplateParameters(
   appArguments: List[String] = List.empty[String],
   additionalJars: List[String] = List.empty[String],
   additionalFiles: List[String] = List.empty[String],
-  additionalSparkConfig: Map[String, String] = Map.empty[String, String]
+  additionalSparkConfig: List[AdditionalSparkConfig] = List.empty[AdditionalSparkConfig]
 ) extends JobTemplateParameters
 
 case class ShellTemplateParameters(
