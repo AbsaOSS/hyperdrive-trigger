@@ -30,7 +30,7 @@ import za.co.absa.hyperdrive.trigger.configuration.application.DefaultTestSparkC
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses
 import za.co.absa.hyperdrive.trigger.models.enums.JobTypes
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.{InQueue, JobStatus, Submitting}
-import za.co.absa.hyperdrive.trigger.models.{JobInstance, SparkInstanceParameters}
+import za.co.absa.hyperdrive.trigger.models.{AdditionalSparkConfig, JobInstance, SparkInstanceParameters}
 
 import java.time.LocalDateTime
 import java.util.UUID
@@ -222,11 +222,12 @@ class SparkEmrClusterServiceTest extends AsyncFlatSpec with Matchers with Mockit
         appArguments = List("arg1", "arg2", "key1=value1", "key2=value2"),
         additionalJars = List("1.jar", "2.jar"),
         additionalFiles = List("some/file/1", "some/file/2"),
-        additionalSparkConfig = Map(
-          "spark.driver.extraJavaOptions" -> "-DLocalDriverOpt",
-          "spark.executor.extraJavaOptions" -> "-DLocalExecutorOpt",
-          "spark.driver.memory" -> "2g",
-          "spark.executor.memory" -> "2g")
+        additionalSparkConfig = List(
+          AdditionalSparkConfig("spark.driver.extraJavaOptions", "-DLocalDriverOpt"),
+          AdditionalSparkConfig("spark.executor.extraJavaOptions", "-DLocalExecutorOpt"),
+          AdditionalSparkConfig("spark.driver.memory", "2g"),
+          AdditionalSparkConfig("spark.executor.memory", "2g")
+        )
       ),
       jobStatus = InQueue,
       executorJobId = None,

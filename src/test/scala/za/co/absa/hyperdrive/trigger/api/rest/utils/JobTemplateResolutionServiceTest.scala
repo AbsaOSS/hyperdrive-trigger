@@ -17,7 +17,7 @@ package za.co.absa.hyperdrive.trigger.api.rest.utils
 
 import org.scalatest.{FlatSpec, Matchers}
 import za.co.absa.hyperdrive.trigger.models.enums.JobTypes
-import za.co.absa.hyperdrive.trigger.models.{DagDefinitionJoined, JobDefinition, ShellDefinitionParameters, ShellInstanceParameters, ShellTemplateParameters, SparkDefinitionParameters, SparkInstanceParameters, SparkTemplateParameters}
+import za.co.absa.hyperdrive.trigger.models.{AdditionalSparkConfig, DagDefinitionJoined, JobDefinition, ShellDefinitionParameters, ShellInstanceParameters, ShellTemplateParameters, SparkDefinitionParameters, SparkInstanceParameters, SparkTemplateParameters}
 import za.co.absa.hyperdrive.trigger.api.rest.services.JobTemplateFixture.{GenericShellJobTemplate, GenericSparkJobTemplate}
 import za.co.absa.hyperdrive.trigger.api.rest.services.JobTemplateResolutionServiceImpl
 
@@ -42,7 +42,7 @@ class JobTemplateResolutionServiceTest extends FlatSpec with Matchers {
 
   it should "resolve templates for multiple JobDefinitions" in {
     // given
-    val jobParameters1 = SparkDefinitionParameters(jobType = JobTypes.Spark, jobJar = Option("jobJar"), mainClass = Option("mainClass"), additionalSparkConfig = Map("key1" -> "value1"))
+    val jobParameters1 = SparkDefinitionParameters(jobType = JobTypes.Spark, jobJar = Option("jobJar"), mainClass = Option("mainClass"), additionalSparkConfig = List(AdditionalSparkConfig("key1", "value1")))
     val jobTemplate1 = GenericSparkJobTemplate.copy(id = 1)
     val jobDefinition1 = createJobDefinition().copy(jobTemplateId = Some(jobTemplate1.id), jobParameters = jobParameters1)
 
@@ -103,7 +103,7 @@ class JobTemplateResolutionServiceTest extends FlatSpec with Matchers {
       appArguments = List.empty[String],
       additionalJars = List.empty[String],
       additionalFiles = List.empty[String],
-      additionalSparkConfig = Map.empty[String, String]
+      additionalSparkConfig = List.empty[AdditionalSparkConfig]
     )
     val sparkJobParametersDefined = SparkDefinitionParameters(
       jobType = JobTypes.Spark,
@@ -112,7 +112,11 @@ class JobTemplateResolutionServiceTest extends FlatSpec with Matchers {
       appArguments = List("jobAppArgument1", "jobAppArgument2", "appArgument"),
       additionalJars = List("jobJar1", "jobJar2", "jar"),
       additionalFiles = List("jobFile1", "jobFile2", "file"),
-      additionalSparkConfig = Map("jobKey1" -> "jobValue1", "jobKey2" -> "jobValue2", "sharedKey1" -> "jobValueSharedKey1")
+      additionalSparkConfig = List(
+        AdditionalSparkConfig("jobKey1", "jobValue1"),
+        AdditionalSparkConfig("jobKey2", "jobValue2"),
+        AdditionalSparkConfig("sharedKey1", "jobValueSharedKey1")
+      )
     )
     val sparkTemplateParametersDefined = SparkTemplateParameters(
       jobType = JobTypes.Spark,
@@ -121,7 +125,11 @@ class JobTemplateResolutionServiceTest extends FlatSpec with Matchers {
       appArguments = List("templateAppArgument1", "templateAppArgument2", "appArgument"),
       additionalJars = List("templateJar1", "templateJar2", "jar"),
       additionalFiles = List("templateFile1", "templateFile2", "file"),
-      additionalSparkConfig = Map("templateKey1" -> "templateValue1", "templateKey2" -> "templateValue2", "sharedKey1" -> "templateValueSharedKey1")
+      additionalSparkConfig = List(
+        AdditionalSparkConfig("templateKey1", "templateValue1"),
+        AdditionalSparkConfig("templateKey2", "templateValue2"),
+        AdditionalSparkConfig("sharedKey1", "templateValueSharedKey1")
+      )
     )
     val jobTemplateDefined = GenericShellJobTemplate.copy(jobParameters = sparkTemplateParametersDefined, id = 2)
 
@@ -162,7 +170,7 @@ class JobTemplateResolutionServiceTest extends FlatSpec with Matchers {
       appArguments = List.empty[String],
       additionalJars = List.empty[String],
       additionalFiles = List.empty[String],
-      additionalSparkConfig = Map.empty[String, String]
+      additionalSparkConfig = List.empty[AdditionalSparkConfig]
     )
     val hyperdriveJobParametersDefined = SparkDefinitionParameters(
       jobType = JobTypes.Hyperdrive,
@@ -171,7 +179,11 @@ class JobTemplateResolutionServiceTest extends FlatSpec with Matchers {
       appArguments = List("jobAppArgument1", "jobAppArgument2", "appArgument"),
       additionalJars = List("jobJar1", "jobJar2", "jar"),
       additionalFiles = List("jobFile1", "jobFile2", "file"),
-      additionalSparkConfig = Map("jobKey1" -> "jobValue1", "jobKey2" -> "jobValue2", "sharedKey1" -> "jobValueSharedKey1")
+      additionalSparkConfig = List(
+        AdditionalSparkConfig("jobKey1", "jobValue1"),
+        AdditionalSparkConfig("jobKey2", "jobValue2"),
+        AdditionalSparkConfig("sharedKey1", "jobValueSharedKey1")
+      )
     )
     val sparkTemplateParametersDefined = SparkTemplateParameters(
       jobType = JobTypes.Hyperdrive,
@@ -180,7 +192,11 @@ class JobTemplateResolutionServiceTest extends FlatSpec with Matchers {
       appArguments = List("templateAppArgument1", "templateAppArgument2", "appArgument"),
       additionalJars = List("templateJar1", "templateJar2", "jar"),
       additionalFiles = List("templateFile1", "templateFile2", "file"),
-      additionalSparkConfig = Map("templateKey1" -> "templateValue1", "templateKey2" -> "templateValue2", "sharedKey1" -> "templateValueSharedKey1")
+      additionalSparkConfig = List(
+        AdditionalSparkConfig("templateKey1", "templateValue1"),
+        AdditionalSparkConfig("templateKey2", "templateValue2"),
+        AdditionalSparkConfig("sharedKey1", "templateValueSharedKey1")
+      )
     )
     val jobTemplateDefined = GenericShellJobTemplate.copy(jobParameters = sparkTemplateParametersDefined, id = 2)
 
@@ -218,18 +234,18 @@ class JobTemplateResolutionServiceTest extends FlatSpec with Matchers {
       jobType = JobTypes.Spark,
       jobJar = None,
       mainClass = None,
-      additionalSparkConfig = Map(
-        "spark.driver.extraJavaOptions" -> "-user.prop=userDriver",
-        "spark.executor.extraJavaOptions" -> "-user.prop=userExecutor"
+      additionalSparkConfig = List(
+        AdditionalSparkConfig("spark.driver.extraJavaOptions","-user.prop=userDriver"),
+        AdditionalSparkConfig("spark.executor.extraJavaOptions", "-user.prop=userExecutor")
       )
     )
     val templateParameters = SparkTemplateParameters(
       jobType = JobTypes.Spark,
       jobJar = "jobJar",
       mainClass = "mainClass",
-      additionalSparkConfig = Map(
-        "spark.driver.extraJavaOptions" -> "-template.prop=templateDriver",
-        "spark.executor.extraJavaOptions" -> "-template.prop=templateExecutor"
+      additionalSparkConfig = List(
+        AdditionalSparkConfig("spark.driver.extraJavaOptions", "-template.prop=templateDriver"),
+          AdditionalSparkConfig("spark.executor.extraJavaOptions", "-template.prop=templateExecutor")
       )
     )
 

@@ -17,7 +17,7 @@
 package za.co.absa.hyperdrive.trigger.persistance
 
 import za.co.absa.hyperdrive.trigger.TestUtils
-import za.co.absa.hyperdrive.trigger.models.{AbsaKafkaSensorProperties, DagDefinition, DagDefinitionJoined, DagInstance, JobDefinition, JobTemplate, KafkaSensorProperties, NotificationRule, SchedulerInstance, Sensor, SensorProperties, ShellTemplateParameters, SparkDefinitionParameters, SparkTemplateParameters, TimeSensorProperties, Workflow, WorkflowJoined}
+import za.co.absa.hyperdrive.trigger.models.{AbsaKafkaSensorProperties, AdditionalSparkConfig, DagDefinition, DagDefinitionJoined, DagInstance, JobDefinition, JobTemplate, KafkaSensorProperties, NotificationRule, SchedulerInstance, Sensor, SensorProperties, ShellTemplateParameters, SparkDefinitionParameters, SparkTemplateParameters, TimeSensorProperties, Workflow, WorkflowJoined}
 import za.co.absa.hyperdrive.trigger.models.dagRuns.DagRun
 import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobTypes, SchedulerInstanceStatuses}
 
@@ -153,7 +153,7 @@ trait RepositoryTestBase extends Repository {
       }
     }
 
-    val jt1 = JobTemplate(name = "jobTemplate1", SparkTemplateParameters(jobType = JobTypes.Spark, jobJar = "testJobJar.jar", mainClass = "testMainClass", appArguments = List("value1", "value2"), additionalJars = List("value1", "value2"), additionalFiles = List("value1", "value2"), additionalSparkConfig = Map("key" -> "value")), id = 100)
+    val jt1 = JobTemplate(name = "jobTemplate1", SparkTemplateParameters(jobType = JobTypes.Spark, jobJar = "testJobJar.jar", mainClass = "testMainClass", appArguments = List("value1", "value2"), additionalJars = List("value1", "value2"), additionalFiles = List("value1", "value2"), additionalSparkConfig = List(AdditionalSparkConfig("key", "value"))), id = 100)
     val jt2 = JobTemplate(name = "jobTemplate2", ShellTemplateParameters(scriptLocation = "testScript.sh"), id = 101)
     val jobTemplates = Seq(jt1, jt2)
 
