@@ -96,9 +96,9 @@ class SparkYarnClusterServiceImpl @Inject() (implicit
     jobParameters.additionalSparkConfig.foreach(conf => sparkLauncher.setConf(conf.key, conf.value))
     mergeAdditionalSparkConfig(
       config.additionalConfs,
-      jobParameters.additionalSparkConfig.map(additionalSparkConfig =>
-        additionalSparkConfig.key -> additionalSparkConfig.value
-      ).toMap
+      jobParameters.additionalSparkConfig
+        .map(additionalSparkConfig => additionalSparkConfig.key -> additionalSparkConfig.value)
+        .toMap
     )
       .foreach(conf => sparkLauncher.setConf(conf._1, conf._2))
 

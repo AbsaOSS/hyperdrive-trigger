@@ -22,18 +22,22 @@ import za.co.absa.hyperdrive.trigger.models._
 import scala.util.{Failure, Success, Try}
 
 trait JobTemplateResolutionService {
-  def resolveDagDefinitionJoined(dagDefinitionJoined: DagDefinitionJoined, jobTemplates: Seq[JobTemplate]): Seq[ResolvedJobDefinition]
+  def resolveDagDefinitionJoined(dagDefinitionJoined: DagDefinitionJoined,
+                                 jobTemplates: Seq[JobTemplate]
+  ): Seq[ResolvedJobDefinition]
 }
 
 @Service
 class JobTemplateResolutionServiceImpl extends JobTemplateResolutionService {
-  def resolveDagDefinitionJoined(dagDefinitionJoined: DagDefinitionJoined, jobTemplates: Seq[JobTemplate]): Seq[ResolvedJobDefinition] = {
+  def resolveDagDefinitionJoined(dagDefinitionJoined: DagDefinitionJoined,
+                                 jobTemplates: Seq[JobTemplate]
+  ): Seq[ResolvedJobDefinition] = {
     val jobTemplatesLookup = jobTemplates.map(t => t.id -> t).toMap
     dagDefinitionJoined.jobDefinitions.map {
       case jd @ JobDefinition(_, Some(jobTemplateId), _, _, _, _) =>
         val jobTemplate = Try(jobTemplatesLookup(jobTemplateId)) match {
           case Success(value) => value
-          case Failure(_) => throw new NoSuchElementException(s"Couldn't find template with id ${jobTemplateId}")
+          case Failure(_)     => throw new NoSuchElementException(s"Couldn't find template with id ${jobTemplateId}")
         }
         resolveJobDefinition(jd, jobTemplate)
       case jd @ JobDefinition(_, None, _, _, _, _) => resolveJobDefinition(jd)
@@ -42,7 +46,14 @@ class JobTemplateResolutionServiceImpl extends JobTemplateResolutionService {
 
   private def resolveJobDefinition(jobDefinition: JobDefinition): ResolvedJobDefinition = {
     val jobParameters = jobDefinition.jobParameters match {
-      case SparkDefinitionParameters(jobType, jobJar, mainClass, appArguments, additionalJars, additionalFiles, additionalSparkConfig) =>
+      case SparkDefinitionParameters(jobType,
+                                     jobJar,
+                                     mainClass,
+                                     appArguments,
+                                     additionalJars,
+                                     additionalFiles,
+                                     additionalSparkConfig
+          ) =>
         SparkInstanceParameters(
           jobType = jobType,
           jobJar = jobJar.getOrElse(""),
@@ -73,7 +84,9 @@ class JobTemplateResolutionServiceImpl extends JobTemplateResolutionService {
     )
   }
 
-  private def mergeJobParameters(primary: JobDefinitionParameters, secondary: JobTemplateParameters): JobInstanceParameters = {
+  private def mergeJobParameters(primary: JobDefinitionParameters,
+                                 secondary: JobTemplateParameters
+  ): JobInstanceParameters = {
     (primary, secondary) match {
       case (definitionParams: SparkDefinitionParameters, templateParams: SparkTemplateParameters) =>
         mergeSparkParameters(definitionParams, templateParams)
@@ -84,7 +97,9 @@ class JobTemplateResolutionServiceImpl extends JobTemplateResolutionService {
     }
   }
 
-  private def mergeSparkParameters(definitionParams: SparkDefinitionParameters, templateParams: SparkTemplateParameters): SparkInstanceParameters = {
+  private def mergeSparkParameters(definitionParams: SparkDefinitionParameters,
+                                   templateParams: SparkTemplateParameters
+  ): SparkInstanceParameters = {
     SparkInstanceParameters(
       jobJar = mergeOptionString(definitionParams.jobJar, templateParams.jobJar),
       mainClass = mergeOptionString(definitionParams.mainClass, templateParams.mainClass),
@@ -92,18 +107,20 @@ class JobTemplateResolutionServiceImpl extends JobTemplateResolutionService {
       additionalJars = mergeLists(definitionParams.additionalJars, templateParams.additionalJars),
       additionalFiles = mergeLists(definitionParams.additionalFiles, templateParams.additionalFiles),
       additionalSparkConfig = mergeMaps(
-        definitionParams.additionalSparkConfig.map(additionalSparkConfig =>
-          additionalSparkConfig.key -> additionalSparkConfig.value
-        ).toMap,
-        templateParams.additionalSparkConfig.map(additionalSparkConfig =>
-          additionalSparkConfig.key -> additionalSparkConfig.value
-        ).toMap,
+        definitionParams.additionalSparkConfig
+          .map(additionalSparkConfig => additionalSparkConfig.key -> additionalSparkConfig.value)
+          .toMap,
+        templateParams.additionalSparkConfig
+          .map(additionalSparkConfig => additionalSparkConfig.key -> additionalSparkConfig.value)
+          .toMap,
         mergeSortedMapEntries
       ).map(additionalSparkConfig => AdditionalSparkConfig(additionalSparkConfig._1, additionalSparkConfig._2)).toList
     )
   }
 
-  private def mergeShellParameters(definitionParams: ShellDefinitionParameters, templateParams: ShellTemplateParameters): ShellInstanceParameters = {
+  private def mergeShellParameters(definitionParams: ShellDefinitionParameters,
+                                   templateParams: ShellTemplateParameters
+  ): ShellInstanceParameters = {
     ShellInstanceParameters(
       scriptLocation = definitionParams.scriptLocation.getOrElse(templateParams.scriptLocation)
     )
@@ -126,8 +143,9 @@ class JobTemplateResolutionServiceImpl extends JobTemplateResolutionService {
   private def mergeMaps[T](primary: Map[String, T], secondary: Map[String, T], mergeFn: (String, T, T) => T) = {
     val sharedKeys = primary.keySet.intersect(secondary.keySet)
     primary.filterKeys(key => !sharedKeys.contains(key)) ++
-    secondary.filterKeys(key => !sharedKeys.contains(key)) ++
-    primary.filterKeys(key => sharedKeys.contains(key))
-        .map{ case (key, value) => key -> mergeFn.apply(key, value, secondary(key))}
+      secondary.filterKeys(key => !sharedKeys.contains(key)) ++
+      primary
+        .filterKeys(key => sharedKeys.contains(key))
+        .map { case (key, value) => key -> mergeFn.apply(key, value, secondary(key)) }
   }
 }

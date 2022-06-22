@@ -140,14 +140,14 @@ class SparkEmrClusterServiceImpl @Inject() (
     val sparkSubmitConfs = Map("--deploy-mode" -> "cluster")
     val confs = Map("spark.yarn.tags" -> id) ++
       config.additionalConfs ++
-      jobParameters.additionalSparkConfig.map(additionalSparkConfig =>
-        additionalSparkConfig.key -> additionalSparkConfig.value
-      ).toMap ++
+      jobParameters.additionalSparkConfig
+        .map(additionalSparkConfig => additionalSparkConfig.key -> additionalSparkConfig.value)
+        .toMap ++
       mergeAdditionalSparkConfig(
         config.additionalConfs,
-        jobParameters.additionalSparkConfig.map(additionalSparkConfig =>
-          additionalSparkConfig.key -> additionalSparkConfig.value
-        ).toMap
+        jobParameters.additionalSparkConfig
+          .map(additionalSparkConfig => additionalSparkConfig.key -> additionalSparkConfig.value)
+          .toMap
       )
     val files = config.filesToDeploy ++ jobParameters.additionalFiles
     SparkEmrArgs(
