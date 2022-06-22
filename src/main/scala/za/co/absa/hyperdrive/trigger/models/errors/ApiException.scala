@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -23,23 +22,18 @@ class ApiException(val apiErrors: Seq[ApiError]) extends RuntimeException {
     initCause(cause)
   }
 
-  def this() {
+  def this() =
     this(Seq())
-  }
 
-  def this(cause: Throwable) {
+  def this(cause: Throwable) =
     this(Seq(), cause)
-  }
 
-  def this(apiError: ApiError) {
+  def this(apiError: ApiError) =
     this(Seq(apiError))
-  }
 
-  def this(apiError: ApiError, cause: Throwable) {
+  def this(apiError: ApiError, cause: Throwable) =
     this(Seq(apiError), cause)
-  }
 
-  override def getMessage: String = {
+  override def getMessage: String =
     apiErrors.map(_.message).reduce(_ + ". " + _)
-  }
 }

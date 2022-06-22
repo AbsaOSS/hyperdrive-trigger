@@ -29,26 +29,38 @@ trait SchedulerInstanceService {
 
   def registerNewInstance()(implicit ec: ExecutionContext): Future[Long]
 
-  def updateSchedulerStatus(instanceId: Long, lagThreshold: Duration)(implicit ec: ExecutionContext): Future[Seq[SchedulerInstance]]
+  def updateSchedulerStatus(instanceId: Long, lagThreshold: Duration)(implicit
+    ec: ExecutionContext
+  ): Future[Seq[SchedulerInstance]]
 }
 
 @Service
-class SchedulerInstanceServiceImpl @Inject()(schedulerInstanceRepository: SchedulerInstanceRepository) extends SchedulerInstanceService {
+class SchedulerInstanceServiceImpl @Inject() (schedulerInstanceRepository: SchedulerInstanceRepository)
+    extends SchedulerInstanceService {
   private val logger = LoggerFactory.getLogger(this.getClass)
 
-  override def registerNewInstance()(implicit ec: ExecutionContext): Future[Long] = schedulerInstanceRepository.insertInstance()
+  override def registerNewInstance()(implicit ec: ExecutionContext): Future[Long] =
+    schedulerInstanceRepository.insertInstance()
 
-  override def updateSchedulerStatus(instanceId: Long, lagThreshold: Duration)(implicit ec: ExecutionContext): Future[Seq[SchedulerInstance]] = {
+  override def updateSchedulerStatus(instanceId: Long, lagThreshold: Duration)(implicit
+    ec: ExecutionContext
+  ): Future[Seq[SchedulerInstance]] = {
     val currentHeartbeat = LocalDateTime.now()
     for {
       updatedCount <- schedulerInstanceRepository.updateHeartbeat(instanceId, currentHeartbeat)
-      _ <- if (updatedCount == 0) {
-        Future.failed(new SchedulerInstanceAlreadyDeactivatedException)
-      } else {
-        Future{}
-      }
-      deactivatedCount <- schedulerInstanceRepository.deactivateLaggingInstances(instanceId, currentHeartbeat, lagThreshold)
-      _ = if (deactivatedCount != 0) logger.info(s"Deactivated $deactivatedCount instances at current heartbeat $currentHeartbeat")
+      _ <-
+        if (updatedCount == 0) {
+          Future.failed(new SchedulerInstanceAlreadyDeactivatedException)
+        } else {
+          Future {}
+        }
+      deactivatedCount <- schedulerInstanceRepository.deactivateLaggingInstances(
+        instanceId,
+        currentHeartbeat,
+        lagThreshold
+      )
+      _ = if (deactivatedCount != 0)
+        logger.info(s"Deactivated $deactivatedCount instances at current heartbeat $currentHeartbeat")
       allInstances <- schedulerInstanceRepository.getAllInstances()
     } yield allInstances
   }

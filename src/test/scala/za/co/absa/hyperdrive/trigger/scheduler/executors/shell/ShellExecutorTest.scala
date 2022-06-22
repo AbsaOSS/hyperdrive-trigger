@@ -29,7 +29,12 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 
-class ShellExecutorTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with MockitoSugar {
+class ShellExecutorTest
+    extends FlatSpec
+    with Matchers
+    with BeforeAndAfterAll
+    with BeforeAndAfterEach
+    with MockitoSugar {
 
   private val updateJobStub: JobInstance => Future[Unit] = mock[JobInstance => Future[Unit]]
 
@@ -47,18 +52,18 @@ class ShellExecutorTest extends FlatSpec with Matchers with BeforeAndAfterAll wi
     dagInstanceId = 0
   )
 
-  override def beforeEach: Unit = {
+  override def beforeEach: Unit =
     org.mockito.Mockito.reset(updateJobStub)
-  }
 
   "ShellExecutor.execute" should "succeeded job when everything is set correctly" in {
     when(updateJobStub.apply(any[JobInstance])).thenReturn(Future.successful((): Unit))
     val shellParameters = ShellInstanceParameters.apply(scriptLocation = testScriptLocation)
-    val testInput = testJobInstance.copy(
-      jobParameters = shellParameters
-    )
+    val testInput = testJobInstance.copy(jobParameters = shellParameters)
 
-    Await.result(ShellExecutor.execute(testInput, shellParameters, updateJobStub.apply), Duration(120, TimeUnit.SECONDS))
+    Await.result(
+      ShellExecutor.execute(testInput, shellParameters, updateJobStub.apply),
+      Duration(120, TimeUnit.SECONDS)
+    )
 
     verify(updateJobStub, times(2)).apply(ArgumentMatchers.any())
     verify(updateJobStub, times(1)).apply(ArgumentMatchers.eq(testInput.copy(jobStatus = Running)))
@@ -70,10 +75,13 @@ class ShellExecutorTest extends FlatSpec with Matchers with BeforeAndAfterAll wi
     val testInput = testJobInstance.copy(jobStatus = Running)
     val shellParameters: ShellInstanceParameters = testInput.jobParameters match {
       case shellParameters: ShellInstanceParameters => shellParameters
-      case _ => throw new Exception("Incorrect job instance parameters")
+      case _                                        => throw new Exception("Incorrect job instance parameters")
     }
 
-    Await.result(ShellExecutor.execute(testInput, shellParameters, updateJobStub.apply), Duration(120, TimeUnit.SECONDS))
+    Await.result(
+      ShellExecutor.execute(testInput, shellParameters, updateJobStub.apply),
+      Duration(120, TimeUnit.SECONDS)
+    )
 
     verify(updateJobStub).apply(ArgumentMatchers.eq(testInput.copy(jobStatus = Failed)))
   }
@@ -81,10 +89,11 @@ class ShellExecutorTest extends FlatSpec with Matchers with BeforeAndAfterAll wi
   "ShellExecutor.execute" should "fail job when script cant be found" in {
     when(updateJobStub.apply(any[JobInstance])).thenReturn(Future.successful((): Unit))
     val shellParameters = ShellInstanceParameters(scriptLocation = "/invalidLocation/invalidScriptName.sh")
-    val testInput = testJobInstance.copy(
-      jobParameters = shellParameters
+    val testInput = testJobInstance.copy(jobParameters = shellParameters)
+    Await.result(
+      ShellExecutor.execute(testInput, shellParameters, updateJobStub.apply),
+      Duration(120, TimeUnit.SECONDS)
     )
-    Await.result(ShellExecutor.execute(testInput, shellParameters, updateJobStub.apply), Duration(120, TimeUnit.SECONDS))
 
     verify(updateJobStub, times(2)).apply(ArgumentMatchers.any())
     verify(updateJobStub, times(1)).apply(ArgumentMatchers.eq(testInput.copy(jobStatus = Running)))
@@ -97,10 +106,13 @@ class ShellExecutorTest extends FlatSpec with Matchers with BeforeAndAfterAll wi
 
     val shellParameters: ShellInstanceParameters = testInput.jobParameters match {
       case shellParameters: ShellInstanceParameters => shellParameters
-      case _ => throw new Exception("Incorrect job instance parameters")
+      case _                                        => throw new Exception("Incorrect job instance parameters")
     }
 
-    Await.result(ShellExecutor.execute(testInput, shellParameters, updateJobStub.apply), Duration(120, TimeUnit.SECONDS))
+    Await.result(
+      ShellExecutor.execute(testInput, shellParameters, updateJobStub.apply),
+      Duration(120, TimeUnit.SECONDS)
+    )
 
     verify(updateJobStub).apply(ArgumentMatchers.eq(testInput.copy(jobStatus = Lost)))
   }

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -21,11 +20,10 @@ import org.apache.kafka.clients.consumer.ConsumerConfig
 import java.util.Properties
 import javax.validation.{ConstraintValidator, ConstraintValidatorContext}
 
-class KafkaSensorPropertiesValidator extends ConstraintValidator[KafkaSensorProperties, Properties]{
-  override def isValid(properties: Properties, constraintValidatorContext: ConstraintValidatorContext): Boolean = {
+class KafkaSensorPropertiesValidator extends ConstraintValidator[KafkaSensorProperties, Properties] {
+  override def isValid(properties: Properties, constraintValidatorContext: ConstraintValidatorContext): Boolean =
     properties != null &&
       properties.containsKey(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG) &&
       properties.containsKey(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG) &&
       properties.containsKey(ConsumerConfig.MAX_POLL_RECORDS_CONFIG)
-  }
 }

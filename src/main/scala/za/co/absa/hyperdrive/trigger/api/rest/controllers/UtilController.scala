@@ -27,19 +27,18 @@ import java.util.Locale
 class UtilController {
 
   @GetMapping(path = Array("/util/quartzDetail"))
-  def getQuartzDetail(@RequestParam expression: String): QuartzExpressionDetail = {
+  def getQuartzDetail(@RequestParam expression: String): QuartzExpressionDetail =
     try {
-      val description = CronExpressionDescriptor.getDescription(expression, new Options() {
-        {
-          setLocale(Locale.UK)
-          setVerbose(true)
+      val description = CronExpressionDescriptor.getDescription(
+        expression,
+        new Options() {
+          {
+            setLocale(Locale.UK)
+            setVerbose(true)
+          }
         }
-      })
-      QuartzExpressionDetail(
-        expression = expression,
-        isValid = true,
-        explained = description
       )
+      QuartzExpressionDetail(expression = expression, isValid = true, explained = description)
     } catch {
       case e: CronExpressionParseException if CronExpression.isValidExpression(expression) =>
         QuartzExpressionDetail(
@@ -48,11 +47,6 @@ class UtilController {
           explained = s"Could not explain the expression: $expression"
         )
       case e: CronExpressionParseException =>
-        QuartzExpressionDetail(
-          expression = expression,
-          isValid = false,
-          explained = e.getMessage
-        )
+        QuartzExpressionDetail(expression = expression, isValid = false, explained = e.getMessage)
     }
-  }
 }

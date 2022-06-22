@@ -17,15 +17,24 @@ package za.co.absa.hyperdrive.trigger.models.tables
 
 import java.time.LocalDateTime
 import slick.lifted.{ForeignKeyQuery, ProvenShape}
-import za.co.absa.hyperdrive.trigger.models.tables.tableExtensions.optimisticLocking.{OptimisticLockingTable, OptimisticLockingTableQuery}
-import za.co.absa.hyperdrive.trigger.models.tables.tableExtensions.searchableTable.{SearchableTable, SearchableTableQuery}
+import za.co.absa.hyperdrive.trigger.models.tables.tableExtensions.optimisticLocking.{
+  OptimisticLockingTable,
+  OptimisticLockingTableQuery
+}
+import za.co.absa.hyperdrive.trigger.models.tables.tableExtensions.searchableTable.{
+  SearchableTable,
+  SearchableTableQuery
+}
 import za.co.absa.hyperdrive.trigger.models.{SchedulerInstance, Workflow}
 
 trait WorkflowTable extends SearchableTableQuery with OptimisticLockingTableQuery {
   this: Profile with SchedulerInstanceTable with JdbcTypeMapper =>
-  import  api._
+  import api._
 
-  final class WorkflowTable(tag: Tag) extends Table[Workflow](tag, _tableName = "workflow") with SearchableTable with OptimisticLockingTable {
+  final class WorkflowTable(tag: Tag)
+      extends Table[Workflow](tag, _tableName = "workflow")
+      with SearchableTable
+      with OptimisticLockingTable {
     def name: Rep[String] = column[String]("name", O.Unique, O.Length(45))
     def isActive: Rep[Boolean] = column[Boolean]("is_active")
     def project: Rep[String] = column[String]("project")

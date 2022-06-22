@@ -21,10 +21,9 @@ import org.springframework.stereotype.Component
 import za.co.absa.hyperdrive.trigger.configuration.application.AuthConfig
 
 @Component("authUtils")
-class AuthUtils @Autowired()(authConfig: AuthConfig) {
+class AuthUtils @Autowired() (authConfig: AuthConfig) {
   private val adminRole: Option[String] = authConfig.adminRole
 
-  def hasAdminRole(auth: Authentication): Boolean = {
+  def hasAdminRole(auth: Authentication): Boolean =
     adminRole.forall(auth.getAuthorities.toArray(Array[GrantedAuthority]()).map(auth => auth.getAuthority).contains(_))
-  }
 }

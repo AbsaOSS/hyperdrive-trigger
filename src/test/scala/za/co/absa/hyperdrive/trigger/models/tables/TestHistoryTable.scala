@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -21,7 +20,6 @@ import za.co.absa.hyperdrive.trigger.models.enums.DBOperation.DBOperation
 
 import java.time.LocalDateTime
 
-
 trait TestHistoryTable extends HistoryTableQuery {
   this: Profile with JdbcTypeMapper =>
 
@@ -35,14 +33,17 @@ trait TestHistoryTable extends HistoryTableQuery {
     entityId: Long
   )
 
-  final class TestHistoryTable(tag: Tag) extends Table[TestHistoryEntity](tag, _tableName = "test_entity_history") with HistoryTable {
+  final class TestHistoryTable(tag: Tag)
+      extends Table[TestHistoryEntity](tag, _tableName = "test_entity_history")
+      with HistoryTable {
     override def id: Rep[Long] = column[Long]("id")
     override def changedOn: Rep[LocalDateTime] = column[LocalDateTime]("changed_on")
     override def changedBy: Rep[String] = column[String]("changed_by")
     override def operation: Rep[DBOperation] = column[DBOperation]("operation")
     override def entityId: Rep[Long] = column[Long]("entity_id")
 
-    override def * : ProvenShape[TestHistoryEntity] = (id, changedOn, changedBy, operation, entityId).mapTo[TestHistoryEntity]
+    override def * : ProvenShape[TestHistoryEntity] =
+      (id, changedOn, changedBy, operation, entityId).mapTo[TestHistoryEntity]
   }
 
   lazy val testHistoryTable = TableQuery[TestHistoryTable]

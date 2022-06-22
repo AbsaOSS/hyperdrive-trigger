@@ -19,28 +19,29 @@ import org.scalatest.{FlatSpec, _}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class OptimisticLockingTableQueryTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with TestOptimisticLockingRepositoryTestBase {
+class OptimisticLockingTableQueryTest
+    extends FlatSpec
+    with Matchers
+    with BeforeAndAfterAll
+    with BeforeAndAfterEach
+    with TestOptimisticLockingRepositoryTestBase {
   import api._
 
   behavior of "OptimisticLockingTableQuery"
 
   val underTest = testOptimisticLockingTable
 
-  override def beforeAll: Unit = {
+  override def beforeAll: Unit =
     createSchema()
-  }
 
-  override def afterAll: Unit = {
+  override def afterAll: Unit =
     dropSchema()
-  }
 
-  override def beforeEach: Unit = {
+  override def beforeEach: Unit =
     createOptimisticLockingTestData()
-  }
 
-  override def afterEach: Unit = {
+  override def afterEach: Unit =
     dropTable()
-  }
 
   it should "update entity if input version is the same as version in database" in {
     val updateRequest = TestOptimisticLockingData.t1.copy(stringValue = "changed")
@@ -56,9 +57,8 @@ class OptimisticLockingTableQueryTest extends FlatSpec with Matchers with Before
     val updateRequest = TestOptimisticLockingData.t2.copy(stringValue = "changed", version = initialVersion)
     val id = TestOptimisticLockingData.t2.id
 
-    val result = the [Exception] thrownBy await(
-      db.run(underTest.filter(_.id === id).updateWithOptimisticLocking(updateRequest))
-    )
+    val result =
+      the[Exception] thrownBy await(db.run(underTest.filter(_.id === id).updateWithOptimisticLocking(updateRequest)))
 
     result shouldBe a[OptimisticLockingException]
   }

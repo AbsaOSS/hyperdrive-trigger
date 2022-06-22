@@ -25,12 +25,16 @@ import scala.util.Try
 trait RepositoryH2TestBase extends RepositoryTestBase {
   val h2Profile = slick.jdbc.H2Profile
   override val profile = h2Profile
-  override val dbProvider: DatabaseProvider = new DatabaseProvider(TestDatabaseConfig(Map(
-    "connectionPool" -> "disabled",
-    "url" -> "jdbc:h2:mem:hyperdriver;INIT=create domain if not exists JSONB as text;MODE=PostgreSQL;DATABASE_TO_UPPER=false",
-    "driver" -> "org.h2.Driver",
-    "keepAliveConnection" -> "true"
-  )))
+  override val dbProvider: DatabaseProvider = new DatabaseProvider(
+    TestDatabaseConfig(
+      Map(
+        "connectionPool" -> "disabled",
+        "url" -> "jdbc:h2:mem:hyperdriver;INIT=create domain if not exists JSONB as text;MODE=PostgreSQL;DATABASE_TO_UPPER=false",
+        "driver" -> "org.h2.Driver",
+        "keepAliveConnection" -> "true"
+      )
+    )
+  )
 }
 
 trait H2Profile extends Profile {
@@ -38,9 +42,8 @@ trait H2Profile extends Profile {
     override implicit val playJsonTypeMapper: JdbcType[JsValue] =
       MappedColumnType.base[JsValue, String](
         payload => payload.toString(),
-        payloadString => Try(Json.parse(payloadString)).getOrElse(
-          throw new Exception(s"Couldn't parse payload: $payloadString")
-        )
+        payloadString =>
+          Try(Json.parse(payloadString)).getOrElse(throw new Exception(s"Couldn't parse payload: $payloadString"))
       )
   }
 }

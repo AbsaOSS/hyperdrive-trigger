@@ -30,14 +30,20 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
 
 trait NotificationSender {
-  def createNotifications(dagInstance: DagInstance, jobInstances: Seq[JobInstance])(implicit ec: ExecutionContext): Future[Unit]
+  def createNotifications(dagInstance: DagInstance, jobInstances: Seq[JobInstance])(implicit
+    ec: ExecutionContext
+  ): Future[Unit]
   def sendNotifications(): Unit
 }
 
 @Component
-class NotificationSenderImpl(notificationRuleService: NotificationRuleService, emailService: EmailService,
-                             sparkConfig: SparkConfig, notificationConfig: NotificationConfig,
-                             generalConfig: GeneralConfig) extends NotificationSender {
+class NotificationSenderImpl(
+  notificationRuleService: NotificationRuleService,
+  emailService: EmailService,
+  sparkConfig: SparkConfig,
+  notificationConfig: NotificationConfig,
+  generalConfig: GeneralConfig
+) extends NotificationSender {
   private case class Message(recipients: Seq[String], subject: String, text: String, attempts: Int)
 
   private val logger = LoggerFactory.getLogger(this.getClass)
@@ -48,24 +54,27 @@ class NotificationSenderImpl(notificationRuleService: NotificationRuleService, e
   private val dateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
   private val messageQueue = new ConcurrentLinkedQueue[Message]
 
-  def createNotifications(dagInstance: DagInstance, jobInstances: Seq[JobInstance])(implicit ec: ExecutionContext): Future[Unit] = {
+  def createNotifications(dagInstance: DagInstance, jobInstances: Seq[JobInstance])(implicit
+    ec: ExecutionContext
+  ): Future[Unit] =
     if (notificationEnabled) {
       notificationRuleService.getMatchingNotificationRules(dagInstance.workflowId, dagInstance.status).map {
-        case Some((rules, workflow)) => rules
-          .map(rule => createMessage(rule, workflow, dagInstance, jobInstances))
-          .foreach { message =>
-            logger.debug(s"Adding to queue message ${message.subject} from ${sender} to ${message.recipients}")
-            messageQueue.add(message)
-          }
+        case Some((rules, workflow)) =>
+          rules
+            .map(rule => createMessage(rule, workflow, dagInstance, jobInstances))
+            .foreach { message =>
+              logger.debug(s"Adding to queue message ${message.subject} from ${sender} to ${message.recipients}")
+              messageQueue.add(message)
+            }
         case None =>
-          logger.debug(s"No rules matching workflow ID ${dagInstance.workflowId} with status ${dagInstance.status} found")
+          logger
+            .debug(s"No rules matching workflow ID ${dagInstance.workflowId} with status ${dagInstance.status} found")
           Future.successful()
       }
     } else {
       logger.debug(s"Attempting to send notifications for ${dagInstance}, but it is disabled")
-      Future{}
+      Future {}
     }
-  }
 
   def sendNotifications(): Unit = {
     var messageOpt: Option[Message] = None
@@ -82,14 +91,20 @@ class NotificationSenderImpl(notificationRuleService: NotificationRuleService, e
         case NonFatal(e) if message.attempts >= notificationConfig.maxRetries =>
           logger.error(s"Failed to send message ${message.subject} from ${sender} to ${message.recipients}", e)
         case NonFatal(_) =>
-          logger.warn(s"Could not send message ${message.subject} from ${sender} to ${message.recipients}. Adding back to queue")
+          logger.warn(
+            s"Could not send message ${message.subject} from ${sender} to ${message.recipients}. Adding back to queue"
+          )
           messageQueue.add(message.copy(attempts = message.attempts + 1))
       }
     }
   }
 
-  private def createMessage(notificationRule: NotificationRule, workflow: Workflow, dagInstance: DagInstance,
-                            jobInstances: Seq[JobInstance]) = {
+  private def createMessage(
+    notificationRule: NotificationRule,
+    workflow: Workflow,
+    dagInstance: DagInstance,
+    jobInstances: Seq[JobInstance]
+  ) = {
     val subject = s"Hyperdrive Notifications, ${environment}: Workflow ${workflow.name} ${dagInstance.status.name}"
     val footer = "This message has been generated automatically. Please don't reply to it.\n\nHyperdriveDevTeam"
     val messageMap = mutable.LinkedHashMap(
@@ -100,15 +115,15 @@ class NotificationSenderImpl(notificationRuleService: NotificationRuleService, e
       "Finished" -> dagInstance.finished.map(_.format(dateTimeFormatter)).getOrElse("Couldn't get finish time"),
       "Status" -> dagInstance.status.name
     )
-    jobInstances.sortBy(_.order)(Ordering.Int.reverse).find(_.jobStatus.isFailed).map(_.applicationId.map(
-      appId => {
-          val applicationUrl = s"${yarnBaseUrl.stripSuffix("/")}/cluster/app/${appId}"
-          messageMap += ("Failed application" -> applicationUrl)
-        }
-      )
-    )
+    jobInstances
+      .sortBy(_.order)(Ordering.Int.reverse)
+      .find(_.jobStatus.isFailed)
+      .map(_.applicationId.map { appId =>
+        val applicationUrl = s"${yarnBaseUrl.stripSuffix("/")}/cluster/app/${appId}"
+        messageMap += ("Failed application" -> applicationUrl)
+      })
     messageMap += ("Notification rule ID" -> notificationRule.id.toString)
-    val message = messageMap.map { case (key, value) => s"$key: $value"}.reduce(_ + "\n" + _) + "\n\n" + footer
+    val message = messageMap.map { case (key, value) => s"$key: $value" }.reduce(_ + "\n" + _) + "\n\n" + footer
     Message(notificationRule.recipients, subject, message, 1)
   }
 }

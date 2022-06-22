@@ -598,22 +598,6 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.apache.rat</groupId>
-                <artifactId>apache-rat-plugin</artifactId>
-                <configuration>
-                    <excludes combine.children="append">
-                        <exclude>**/node/**</exclude>
-                        <exclude>**/node_modules/**</exclude>
-                        <exclude>**/build.yml</exclude>
-                        <exclude>**/.editorconfig</exclude>
-                        <exclude>.dockerignore</exclude>
-                        <exclude>**/.gitkeep</exclude>
-                        <exclude>src/main/resources/banner.txt</exclude>
-                        <exclude>**/CODEOWNERS</exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>pl.project13.maven</groupId>
                 <artifactId>git-commit-id-plugin</artifactId>
                 <version>${git.commit.id.maven.plugin.version}</version>
@@ -634,6 +618,60 @@
                         <includeOnlyProperty>^git.commit.id.(abbrev|full)$</includeOnlyProperty>
                     </includeOnlyProperties>
                     <commitIdGenerationMode>full</commitIdGenerationMode>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.rat</groupId>
+                <artifactId>apache-rat-plugin</artifactId>
+                <configuration>
+                    <addDefaultLicenseMatchers>false</addDefaultLicenseMatchers>
+                    <consoleOutput>true</consoleOutput>
+                    <excludes combine.children="append">
+                        <exclude>**/node/**</exclude>
+                        <exclude>**/node_modules/**</exclude>
+                        <exclude>**/.editorconfig</exclude>
+                        <exclude>.dockerignore</exclude>
+                        <exclude>**/.gitkeep</exclude>
+                        <exclude>src/main/resources/banner.txt</exclude>
+                        <exclude>**/CODEOWNERS</exclude>
+                        <exclude>ui/.angular/**</exclude>
+                        <exclude>ui/**.json</exclude>
+                        <exclude>ui/e2e/tsconfig.json</exclude>
+                        <exclude>ui/src/proxy.conf.json</exclude>
+                        <exclude>logs/**</exclude>
+                    </excludes>
+                    <licenses>
+                        <license implementation="org.apache.rat.analysis.license.FullTextMatchingLicense">
+                            <licenseFamilyCategory>AL2</licenseFamilyCategory>
+                            <licenseFamilyName>Apache License 2</licenseFamilyName>
+                            <fullText>Copyright 2018 ABSA Group Limited
+
+                                Licensed under the Apache License, Version 2.0 (the "License");
+                                you may not use this file except in compliance with the License.
+                                You may obtain a copy of the License at
+                                http://www.apache.org/licenses/LICENSE-2.0
+
+                                Unless required by applicable law or agreed to in writing, software
+                                distributed under the License is distributed on an "AS IS" BASIS,
+                                WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                                See the License for the specific language governing permissions and
+                                limitations under the License.
+                            </fullText>
+                        </license>
+                    </licenses>
+                    <licenseFamilies>
+                        <licenseFamily implementation="org.apache.rat.license.SimpleLicenseFamily">
+                            <familyName>Apache License 2</familyName>
+                        </licenseFamily>
+                    </licenseFamilies>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.antipathy</groupId>
+                <artifactId>mvn-scalafmt_${scala.compat.version}</artifactId>
+                <version>1.1.1640084764.9f463a9</version>
+                <configuration>
+                    <configLocation>${project.basedir}/.scalafmt.conf</configLocation>
                 </configuration>
             </plugin>
         </plugins>

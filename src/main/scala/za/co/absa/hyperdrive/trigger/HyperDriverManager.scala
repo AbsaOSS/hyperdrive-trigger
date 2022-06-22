@@ -29,21 +29,17 @@ import scala.concurrent.Future
 class HyperDriverManager @Inject() (jobScheduler: JobScheduler, schedulerConfig: SchedulerConfig) {
 
   @PostConstruct
-  def init(): Unit = {
+  def init(): Unit =
     if (schedulerConfig.autostart) {
       startManager()
     }
-  }
 
-  def isManagerRunning: Boolean = {
+  def isManagerRunning: Boolean =
     jobScheduler.isManagerRunning
-  }
 
-  def startManager(): Unit = {
+  def startManager(): Unit =
     jobScheduler.startManager()
-  }
 
-  def stopManager: Future[Unit] = {
+  def stopManager: Future[Unit] =
     jobScheduler.stopManager()
-  }
 }

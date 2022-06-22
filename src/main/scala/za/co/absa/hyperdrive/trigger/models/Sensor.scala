@@ -15,8 +15,4 @@
 
 package za.co.absa.hyperdrive.trigger.models
 
-case class Sensor[T <: SensorProperties](
-  workflowId: Long = 0,
-  properties: T,
-  id: Long = 0
-)
+case class Sensor[T <: SensorProperties](workflowId: Long = 0, properties: T, id: Long = 0)

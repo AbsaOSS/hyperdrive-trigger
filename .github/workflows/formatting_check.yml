@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 
-name: build
+name: formatting check
 
 on:
   pull_request:
@@ -21,14 +21,14 @@ on:
       - '**'
 
 jobs:
-  build:
+  license-test:
+    name: formatting check
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 1.8
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
-      - name: Run tests
-        run: mvn clean test --no-transfer-progress -Pall-tests
+      - name: Run formatting check
+        run: mvn --no-transfer-progress scalafmt:format -Dformat.validateOnly=true
