@@ -27,7 +27,7 @@ import za.co.absa.hyperdrive.trigger.models.{ResolvedJobDefinition, SparkInstanc
 import java.util.Properties
 import javax.inject.Inject
 
-trait ResolvedJobDefinitionService {
+trait HyperdriveOffsetComparisonService {
   def getResolvedAppArguments(jobDefinition: ResolvedJobDefinition): Option[Map[String, String]]
   def getHdfsParameters(resolvedAppArguments: Map[String, String]): Option[HdfsParameters]
   def getKafkaParameters(jobDefinition: ResolvedJobDefinition): Option[(String, Properties)]
@@ -35,10 +35,10 @@ trait ResolvedJobDefinitionService {
 }
 
 @Service
-class ResolvedJobDefinitionServiceImpl @Inject()(
+class HyperdriveOffsetComparisonServiceImpl @Inject()(
   sparkConfig: SparkConfig,
   hdfsService: HdfsService,
-  kafkaService: KafkaService) extends ResolvedJobDefinitionService {
+  kafkaService: KafkaService) extends HyperdriveOffsetComparisonService {
   private val logger = LoggerFactory.getLogger(this.getClass)
   private val HyperdriveCheckpointKey = "writer.common.checkpoint.location"
   private val HyperdriveKafkaTopicKey = "reader.kafka.topic"
@@ -140,7 +140,7 @@ class ResolvedJobDefinitionServiceImpl @Inject()(
         }
         kafkaOffsets = kafkaService.getEndOffsets(kafkaParameters._1, kafkaParameters._2)
       } yield {
-        val equalKeys = kafkaOffsets.keySet.intersect(hdfsOffsets.keySet).isEmpty
+        val equalKeys = kafkaOffsets.keySet == hdfsOffsets.keySet
         equalKeys && kafkaOffsets.forall {
           case (partition, kafkaPartitionOffset) => hdfsOffsets(partition) == kafkaPartitionOffset
         }
