@@ -33,10 +33,6 @@ trait HdfsService {
   def parseFileAndClose[R](pathStr: String, parseFn: Iterator[String] => R): Option[R]
   def parseKafkaOffsetStream(lines: Iterator[String]): TopicPartitionOffsets
   def getLatestOffsetFilePath(params: HdfsParameters): Option[(String, Boolean)]
-
-  def getLatestCommitBatchId(checkpointDir: String): Option[Long]
-
-  def getLatestOffsetBatchId(checkpointDir: String): Option[Long]
 }
 
 class HdfsParameters(
@@ -145,12 +141,12 @@ class HdfsServiceImpl @Inject() (userGroupInformationWrapper: UserGroupInformati
     offsetFilePath
   }
 
-  override def getLatestCommitBatchId(checkpointDir: String): Option[Long] = {
+  def getLatestCommitBatchId(checkpointDir: String): Option[Long] = {
     val commitsDir = new Path(s"$checkpointDir/$commitsDirName")
     getLatestBatchId(commitsDir)
   }
 
-  override def getLatestOffsetBatchId(checkpointDir: String): Option[Long] = {
+  def getLatestOffsetBatchId(checkpointDir: String): Option[Long] = {
     val offsetsDir = new Path(s"$checkpointDir/$offsetsDirName")
     getLatestBatchId(offsetsDir)
   }

@@ -111,6 +111,24 @@ class HdfsServiceTest extends FlatSpec with Matchers with BeforeAndAfter with Mo
     result.get._2 shouldBe true
   }
 
+  it should "get the latest offset file, and committed = true, if the commits folder is empty" in {
+    val tmpCheckpointDir = Files.createTempDirectory(baseDirPath, "checkpoints")
+    createOffsetFile(tmpCheckpointDir, 12)
+    Files.createDirectory(tmpCheckpointDir.resolve("commits"))
+
+    val params = new HdfsParameters(
+      keytab = "",
+      principal = "",
+      checkpointLocation = tmpCheckpointDir.toAbsolutePath.toString
+    )
+
+    val result = underTest.getLatestOffsetFilePath(params)
+
+    result.isDefined shouldBe true
+    result.get._1 shouldBe s"${tmpCheckpointDir.toAbsolutePath.toString}/offsets/12"
+    result.get._2 shouldBe false
+  }
+
   it should "get the latest offset file, and it is not committed" in {
     val tmpCheckpointDir = Files.createTempDirectory(baseDirPath, "checkpoints")
     createOffsetFile(tmpCheckpointDir, 12)
@@ -129,7 +147,7 @@ class HdfsServiceTest extends FlatSpec with Matchers with BeforeAndAfter with Mo
     result.get._2 shouldBe false
   }
 
-  it should "return None if the offset file does not exist" in {
+  it should "return None if the checkpoints folder does not exist" in {
     val params = new HdfsParameters(
       keytab = "",
       principal = "",
@@ -141,39 +159,17 @@ class HdfsServiceTest extends FlatSpec with Matchers with BeforeAndAfter with Mo
     result.isDefined shouldBe false
   }
 
-  "getLatestCommitBatchId" should "get the latest batch id" in {
-    val tmpCheckpointDir = Files.createTempDirectory(baseDirPath, "checkpoints")
-    createCommitFile(tmpCheckpointDir, 12)
+  it should "return None if the offsets folder is empty" in {
+    val params = new HdfsParameters(
+      keytab = "",
+      principal = "",
+      checkpointLocation = "checkpoints"
+    )
+    Files.createTempDirectory(baseDirPath, "checkpoints")
 
-    val result = underTest.getLatestCommitBatchId(tmpCheckpointDir.toAbsolutePath.toString)
-
-    result.isDefined shouldBe true
-    result.get shouldBe 12
-  }
-
-  it should "return None if the checkpoints folder does not exist" in {
-    val result = underTest.getLatestCommitBatchId("non-existent")
+    val result = underTest.getLatestOffsetFilePath(params)
 
     result.isDefined shouldBe false
-  }
-
-  it should "return None if the commits folder is empty" in {
-    val tmpCheckpointDir = Files.createTempDirectory(baseDirPath, "checkpoints")
-    Files.createDirectory(tmpCheckpointDir.resolve("commits"))
-
-    val result = underTest.getLatestCommitBatchId(tmpCheckpointDir.toAbsolutePath.toString)
-
-    result.isDefined shouldBe false
-  }
-
-  "getLatestOffsetBatchId" should "get the latest batch id" in {
-    val tmpCheckpointDir = Files.createTempDirectory(baseDirPath, "checkpoints")
-    createOffsetFile(tmpCheckpointDir, 7)
-
-    val result = underTest.getLatestOffsetBatchId(tmpCheckpointDir.toAbsolutePath.toString)
-
-    result.isDefined shouldBe true
-    result.get shouldBe 7
   }
 
   private def createOffsetFile(checkpointDir: Path, batchId: Int) = {

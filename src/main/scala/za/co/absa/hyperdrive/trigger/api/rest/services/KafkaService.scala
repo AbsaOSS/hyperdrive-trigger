@@ -29,11 +29,6 @@ trait KafkaService {
   def getEndOffsets(topic: String, consumerProperties: Properties): Map[Int, Long]
 }
 
-class KafkaConsumerParameters(
-  val topic: String,
-  val properties: Properties
-)
-
 @Service
 class KafkaServiceImpl @Inject() (kafkaConfig: KafkaConfig, generalConfig: GeneralConfig) extends KafkaService {
   private val logger = LoggerFactory.getLogger(this.getClass)
