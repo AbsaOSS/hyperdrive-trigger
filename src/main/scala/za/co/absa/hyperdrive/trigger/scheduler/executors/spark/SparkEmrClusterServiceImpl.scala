@@ -138,7 +138,7 @@ class SparkEmrClusterServiceImpl @Inject() (
   private def getSparkArgs(id: String, jobName: String, jobParameters: SparkInstanceParameters) = {
     val config = sparkConfig.emr
     val sparkSubmitConfs = Map("--deploy-mode" -> "cluster")
-    val confs = Map("spark.yarn.tags" -> id) ++
+    val confs = Map("spark.app.name" -> jobName, "spark.yarn.tags" -> id) ++
       config.additionalConfs ++
       jobParameters.additionalSparkConfig ++
       mergeAdditionalSparkConfig(config.additionalConfs, jobParameters.additionalSparkConfig)

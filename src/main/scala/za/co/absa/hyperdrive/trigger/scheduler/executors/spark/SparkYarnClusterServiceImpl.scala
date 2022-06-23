@@ -86,6 +86,7 @@ class SparkYarnClusterServiceImpl @Inject() (implicit
       .setMainClass(jobParameters.mainClass)
       .setAppResource(jobParameters.jobJar)
       .setAppName(jobName)
+      .setConf("spark.app.name", jobName)
       .setConf("spark.yarn.tags", id)
       .addAppArgs(jobParameters.appArguments.toSeq.map(fix_json_for_yarn): _*)
       .addSparkArg("--verbose")
