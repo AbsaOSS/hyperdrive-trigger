@@ -129,6 +129,8 @@ class SparkEmrClusterServiceTest
       "--conf",
       "spark.executor.extraJavaOptions=-DGlobalExecutorOpt -DLocalExecutorOpt",
       "--conf",
+      s"spark.app.name=${jobInstance.jobName}",
+      "--conf",
       "spark.driver.memory=2g",
       "--conf",
       "spark.driver.extraJavaOptions=-DGlobalDriverOpt -DLocalDriverOpt",
