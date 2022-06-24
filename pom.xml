@@ -75,7 +75,7 @@
         <postgresql>42.3.3</postgresql>
         <kafka.version>2.2.0</kafka.version>
         <embedded.kafka.version>2.2.0</embedded.kafka.version>
-        <hyperdrive.version>4.6.0</hyperdrive.version>
+        <commons.configuration2.version>2.7</commons.configuration2.version> <!-- Same as in Hyperdrive -->
         <play-json.version>2.7.3</play-json.version>
         <play-ws-standalone.version>2.0.3</play-ws-standalone.version>
         <play-ahc-ws-standalone.version>2.0.2</play-ahc-ws-standalone.version>
@@ -186,11 +186,10 @@
             <artifactId>kafka_${scala.compat.version}</artifactId>
             <version>${kafka.version}</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/za.co.absa.hyperdrive/driver -->
         <dependency>
-            <groupId>za.co.absa.hyperdrive</groupId>
-            <artifactId>driver_${scala.compat.version}</artifactId>
-            <version>${hyperdrive.version}</version>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-configuration2</artifactId>
+            <version>${commons.configuration2.version}</version>
         </dependency>
 
         <!-- Dependencies for Spark InProcessLauncher -->

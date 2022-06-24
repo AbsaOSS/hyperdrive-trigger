@@ -15,10 +15,13 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
+import org.apache.commons.configuration2.builder.BasicConfigurationBuilder
+import org.apache.commons.configuration2.builder.fluent.Parameters
+import org.apache.commons.configuration2.convert.DefaultListDelimiterHandler
+import org.apache.commons.configuration2.{BaseConfiguration, Configuration}
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import za.co.absa.hyperdrive.driver.drivers.CommandLineIngestionDriver
 import za.co.absa.hyperdrive.trigger.configuration.application.SparkConfig
 import za.co.absa.hyperdrive.trigger.models.enums.JobTypes
 import za.co.absa.hyperdrive.trigger.models.{ResolvedJobDefinition, SparkInstanceParameters}
@@ -44,6 +47,8 @@ class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
   private val HyperdriveKafkaTopicKey = "reader.kafka.topic"
   private val HyperdriveKafkaBrokersKey = "reader.kafka.brokers"
   private val HyperdriveKafkaExtraOptionsKey = "reader.option.kafka"
+  private val PropertyDelimiter = "="
+  private val ListDelimiter = ','
 
   override def getResolvedAppArguments(jobDefinition: ResolvedJobDefinition): Option[Map[String, String]] = {
     if (isHyperdriveJob(jobDefinition)) {
@@ -52,7 +57,7 @@ class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
     } else {
       val jobParameters = jobDefinition.jobParameters.asInstanceOf[SparkInstanceParameters]
       val args = jobParameters.appArguments
-      val config = CommandLineIngestionDriver.parseConfiguration(args.toArray)
+      val config = parseConfiguration(args.toArray)
       import scala.collection.JavaConverters._
       val resolvedArgs = config.getKeys.asScala.map { k =>
         k -> config.getString(k)
@@ -164,6 +169,26 @@ class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
         case Some(allKafkaOffsetsConsumed) => !allKafkaOffsetsConsumed
         case None                          => true
       }
+    }
+  }
+
+  private def parseConfiguration(settings: Array[String]): Configuration = {
+    val configuration = new BasicConfigurationBuilder[BaseConfiguration](classOf[BaseConfiguration])
+      .configure(new Parameters()
+        .basic()
+        .setListDelimiterHandler(new DefaultListDelimiterHandler(ListDelimiter)))
+      .getConfiguration
+
+    settings.foreach(setOrThrow(_, configuration))
+    configuration
+  }
+
+  private def setOrThrow(setting: String, configuration: Configuration): Unit = {
+    if(!setting.contains(PropertyDelimiter)) {
+      throw new IllegalArgumentException(s"Invalid setting format: $setting")
+    } else {
+      val settingKeyValue = setting.split(PropertyDelimiter, 2)
+      configuration.setProperty(settingKeyValue(0).trim, settingKeyValue(1).trim)
     }
   }
 }
