@@ -39,10 +39,11 @@ trait SparkClusterService {
       key -> s"$globalValue${SparkExtraJavaOptions.MergedValuesSeparator}$jobValue".trim
     }
     val tagsOptions = SparkTags.KeysToMerge.map { key =>
-      val globalValue = globalConfig.getOrElse(key, "")
-      val jobValue = jobConfig.getOrElse(key, "")
+      val globalValue = globalConfig.get(key)
+      val jobValue = jobConfig.get(key)
       key -> (
-        globalValue.split(SparkTags.MergedValuesSeparator) ++ jobValue.split(SparkTags.MergedValuesSeparator)
+        globalValue.map(_.split(SparkTags.MergedValuesSeparator)).getOrElse(Array.empty[String]) ++
+          jobValue.map(_.split(SparkTags.MergedValuesSeparator)).getOrElse(Array.empty[String])
       ).toSet[String].map(_.trim).mkString(SparkTags.MergedValuesSeparator)
     }
     (extraJavaOptionsMerge ++ tagsOptions).toMap
