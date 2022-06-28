@@ -68,25 +68,18 @@ class JobTemplateResolutionServiceImpl extends JobTemplateResolutionService {
           additionalSparkConfig = additionalSparkConfig
         )
       case ShellDefinitionParameters(_, scriptLocation) =>
-        ShellInstanceParameters(
-          scriptLocation = scriptLocation.getOrElse("")
-        )
+        ShellInstanceParameters(scriptLocation = scriptLocation.getOrElse(""))
     }
 
-    ResolvedJobDefinition(
-      name = jobDefinition.name,
-      jobParameters = jobParameters,
-      order = jobDefinition.order
-    )
+    ResolvedJobDefinition(name = jobDefinition.name, jobParameters = jobParameters, order = jobDefinition.order)
   }
 
-  private def resolveJobDefinition(jobDefinition: JobDefinition, jobTemplate: JobTemplate): ResolvedJobDefinition = {
+  private def resolveJobDefinition(jobDefinition: JobDefinition, jobTemplate: JobTemplate): ResolvedJobDefinition =
     ResolvedJobDefinition(
       name = jobDefinition.name,
       jobParameters = mergeJobParameters(jobDefinition.jobParameters, jobTemplate.jobParameters),
       order = jobDefinition.order
     )
-  }
 
   private def mergeJobParameters(primary: JobDefinitionParameters,
                                  secondary: JobTemplateParameters
@@ -101,8 +94,9 @@ class JobTemplateResolutionServiceImpl extends JobTemplateResolutionService {
     }
   }
 
-  private def mergeSparkParameters(definitionParams: SparkDefinitionParameters,
-                                   templateParams: SparkTemplateParameters
+  private def mergeSparkParameters(
+    definitionParams: SparkDefinitionParameters,
+    templateParams: SparkTemplateParameters
   ): SparkInstanceParameters = {
     SparkInstanceParameters(
       jobJar = mergeOptionString(definitionParams.jobJar, templateParams.jobJar),
@@ -118,13 +112,11 @@ class JobTemplateResolutionServiceImpl extends JobTemplateResolutionService {
     )
   }
 
-  private def mergeShellParameters(definitionParams: ShellDefinitionParameters,
-                                   templateParams: ShellTemplateParameters
-  ): ShellInstanceParameters = {
-    ShellInstanceParameters(
-      scriptLocation = definitionParams.scriptLocation.getOrElse(templateParams.scriptLocation)
-    )
-  }
+  private def mergeShellParameters(
+    definitionParams: ShellDefinitionParameters,
+    templateParams: ShellTemplateParameters
+  ): ShellInstanceParameters =
+    ShellInstanceParameters(scriptLocation = definitionParams.scriptLocation.getOrElse(templateParams.scriptLocation))
 
   private def mergeOptionString(primary: Option[String], secondary: String): String =
     primary.getOrElse(secondary)

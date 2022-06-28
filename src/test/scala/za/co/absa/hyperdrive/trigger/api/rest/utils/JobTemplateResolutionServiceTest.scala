@@ -90,31 +90,23 @@ class JobTemplateResolutionServiceTest extends FlatSpec with Matchers {
 
   it should "merge shell types" in {
     // given
-    val shellJobParametersNoScript = ShellDefinitionParameters(
-      scriptLocation = None
-    )
-    val shellJobParametersWithScript = ShellDefinitionParameters(
-      scriptLocation = Option("jobScript.sh")
-    )
-    val shellTemplateParametersWithScript = ShellTemplateParameters(
-      scriptLocation = "templateScript.sh"
-    )
+    val shellJobParametersNoScript = ShellDefinitionParameters(scriptLocation = None)
+    val shellJobParametersWithScript = ShellDefinitionParameters(scriptLocation = Option("jobScript.sh"))
+    val shellTemplateParametersWithScript = ShellTemplateParameters(scriptLocation = "templateScript.sh")
     val jobTemplateWithScript = GenericShellJobTemplate.copy(jobParameters = shellTemplateParametersWithScript, id = 2)
 
     // when
     val templateScriptDefined = underTest.resolveDagDefinitionJoined(
       createDagDefinitionJoined(
-        createJobDefinition().copy(jobTemplateId = Some(jobTemplateWithScript.id),
-                                   jobParameters = shellJobParametersNoScript
-        )
+        createJobDefinition()
+          .copy(jobTemplateId = Some(jobTemplateWithScript.id), jobParameters = shellJobParametersNoScript)
       ),
       Seq(jobTemplateWithScript)
     )
     val bothScriptsDefined = underTest.resolveDagDefinitionJoined(
       createDagDefinitionJoined(
-        createJobDefinition().copy(jobTemplateId = Some(jobTemplateWithScript.id),
-                                   jobParameters = shellJobParametersWithScript
-        )
+        createJobDefinition()
+          .copy(jobTemplateId = Some(jobTemplateWithScript.id), jobParameters = shellJobParametersWithScript)
       ),
       Seq(jobTemplateWithScript)
     )
@@ -276,17 +268,17 @@ class JobTemplateResolutionServiceTest extends FlatSpec with Matchers {
     // when
     val templateDefined = underTest.resolveDagDefinitionJoined(
       createDagDefinitionJoined(
-        createJobDefinition().copy(jobTemplateId = Some(jobTemplateDefined.id),
-                                   jobParameters = hyperdriveJobParametersUndefined
+        createJobDefinition().copy(
+          jobTemplateId = Some(jobTemplateDefined.id),
+          jobParameters = hyperdriveJobParametersUndefined
         )
       ),
       Seq(jobTemplateDefined)
     )
     val bothScriptsDefined = underTest.resolveDagDefinitionJoined(
       createDagDefinitionJoined(
-        createJobDefinition().copy(jobTemplateId = Some(jobTemplateDefined.id),
-                                   jobParameters = hyperdriveJobParametersDefined
-        )
+        createJobDefinition()
+          .copy(jobTemplateId = Some(jobTemplateDefined.id), jobParameters = hyperdriveJobParametersDefined)
       ),
       Seq(jobTemplateDefined)
     )

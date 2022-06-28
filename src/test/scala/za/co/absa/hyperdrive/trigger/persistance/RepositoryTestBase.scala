@@ -371,34 +371,34 @@ trait RepositoryTestBase extends Repository {
       ),
       TestData.w2
     )
-    val activeKafka: (Sensor[SensorProperties], Workflow) =
-      (Sensor(
-         TestData.w3.id,
-         KafkaSensorProperties(topic = "", servers = List.empty[String], matchProperties = Map.empty[String, String]),
-         102
-       ),
-       TestData.w3
-      )
+    val activeKafka: (Sensor[SensorProperties], Workflow) = (
+      Sensor(
+        TestData.w3.id,
+        KafkaSensorProperties(topic = "", servers = List.empty[String], matchProperties = Map.empty[String, String]),
+        102
+      ),
+      TestData.w3
+    )
     val activeTimeW101: (Sensor[SensorProperties], Workflow) =
       (Sensor(TestData.w4.id, TimeSensorProperties(cronExpression = ""), 103), TestData.w4)
     val inactiveTime: (Sensor[SensorProperties], Workflow) =
       (Sensor(TestData.w5.id, TimeSensorProperties(cronExpression = ""), 104), TestData.w5)
-    val inactiveAbsaKafka: (Sensor[SensorProperties], Workflow) =
-      (Sensor(
-         TestData.w6.id,
-         AbsaKafkaSensorProperties(topic = "", servers = List.empty[String], ingestionToken = ""),
-         105
-       ),
-       TestData.w6
-      )
-    val inactiveKafka: (Sensor[SensorProperties], Workflow) =
-      (Sensor(
-         TestData.w7.id,
-         KafkaSensorProperties(topic = "", servers = List.empty[String], matchProperties = Map.empty[String, String]),
-         106
-       ),
-       TestData.w7
-      )
+    val inactiveAbsaKafka: (Sensor[SensorProperties], Workflow) = (
+      Sensor(
+        TestData.w6.id,
+        AbsaKafkaSensorProperties(topic = "", servers = List.empty[String], ingestionToken = ""),
+        105
+      ),
+      TestData.w6
+    )
+    val inactiveKafka: (Sensor[SensorProperties], Workflow) = (
+      Sensor(
+        TestData.w7.id,
+        KafkaSensorProperties(topic = "", servers = List.empty[String], matchProperties = Map.empty[String, String]),
+        106
+      ),
+      TestData.w7
+    )
 
     val allSensors: Seq[(Sensor[SensorProperties], Workflow)] =
       Seq(activeTimeW100, activeAbsaKafka, activeKafka, activeTimeW101, inactiveTime, inactiveAbsaKafka, inactiveKafka)
