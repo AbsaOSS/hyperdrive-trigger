@@ -174,9 +174,11 @@ class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
 
   private def parseConfiguration(settings: Array[String]): Configuration = {
     val configuration = new BasicConfigurationBuilder[BaseConfiguration](classOf[BaseConfiguration])
-      .configure(new Parameters()
-        .basic()
-        .setListDelimiterHandler(new DefaultListDelimiterHandler(ListDelimiter)))
+      .configure(
+        new Parameters()
+          .basic()
+          .setListDelimiterHandler(new DefaultListDelimiterHandler(ListDelimiter))
+      )
       .getConfiguration
 
     settings.foreach(setOrThrow(_, configuration))
@@ -184,7 +186,7 @@ class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
   }
 
   private def setOrThrow(setting: String, configuration: Configuration): Unit = {
-    if(!setting.contains(PropertyDelimiter)) {
+    if (!setting.contains(PropertyDelimiter)) {
       throw new IllegalArgumentException(s"Invalid setting format: $setting")
     } else {
       val settingKeyValue = setting.split(PropertyDelimiter, 2)
