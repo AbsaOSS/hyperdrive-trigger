@@ -251,7 +251,7 @@ class SparkEmrClusterServiceTest
     ji.jobStatus shouldBe JobStatuses.Lost
   }
 
-  private def createJobInstance() = {
+  private def createJobInstance() =
     JobInstance(
       jobName = "jobName",
       jobParameters = SparkInstanceParameters(
@@ -277,12 +277,10 @@ class SparkEmrClusterServiceTest
       order = 0,
       dagInstanceId = 0
     )
-  }
 
-  private def createTestStepSummary(id: Int) = {
+  private def createTestStepSummary(id: Int) =
     new StepSummary()
       .withId(s"$id")
       .withName(s"job_$id")
       .withStatus(new StepStatus().withState(StepState.RUNNING))
-  }
 }

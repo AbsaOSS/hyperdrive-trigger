@@ -55,10 +55,11 @@ class JobTemplateResolutionServiceTest extends FlatSpec with Matchers {
 
   it should "resolve templates for multiple JobDefinitions" in {
     // given
-    val jobParameters1 = SparkDefinitionParameters(jobType = JobTypes.Spark,
-                                                   jobJar = Option("jobJar"),
-                                                   mainClass = Option("mainClass"),
-                                                   additionalSparkConfig = List(AdditionalSparkConfig("key1", "value1"))
+    val jobParameters1 = SparkDefinitionParameters(
+      jobType = JobTypes.Spark,
+      jobJar = Option("jobJar"),
+      mainClass = Option("mainClass"),
+      additionalSparkConfig = List(AdditionalSparkConfig("key1", "value1"))
     )
     val jobTemplate1 = GenericSparkJobTemplate.copy(id = 1)
     val jobDefinition1 =
@@ -172,17 +173,15 @@ class JobTemplateResolutionServiceTest extends FlatSpec with Matchers {
     // when
     val templateDefined = underTest.resolveDagDefinitionJoined(
       createDagDefinitionJoined(
-        createJobDefinition().copy(jobTemplateId = Some(jobTemplateDefined.id),
-                                   jobParameters = sparkJobParametersUndefined
-        )
+        createJobDefinition()
+          .copy(jobTemplateId = Some(jobTemplateDefined.id), jobParameters = sparkJobParametersUndefined)
       ),
       Seq(jobTemplateDefined)
     )
     val bothScriptsDefined = underTest.resolveDagDefinitionJoined(
       createDagDefinitionJoined(
-        createJobDefinition().copy(jobTemplateId = Some(jobTemplateDefined.id),
-                                   jobParameters = sparkJobParametersDefined
-        )
+        createJobDefinition()
+          .copy(jobTemplateId = Some(jobTemplateDefined.id), jobParameters = sparkJobParametersDefined)
       ),
       Seq(jobTemplateDefined)
     )
@@ -406,11 +405,10 @@ class JobTemplateResolutionServiceTest extends FlatSpec with Matchers {
     result.getMessage should include("template with id 1")
   }
 
-  private def createDagDefinitionJoined(jobDefinition: JobDefinition) = {
+  private def createDagDefinitionJoined(jobDefinition: JobDefinition) =
     DagDefinitionJoined(jobDefinitions = Seq(jobDefinition))
-  }
 
-  private def createJobDefinition() = {
+  private def createJobDefinition() =
     JobDefinition(
       dagDefinitionId = 53,
       name = "JobDefinition0",
@@ -418,5 +416,4 @@ class JobTemplateResolutionServiceTest extends FlatSpec with Matchers {
       order = 2,
       id = 42
     )
-  }
 }

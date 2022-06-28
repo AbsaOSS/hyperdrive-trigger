@@ -23,15 +23,17 @@ import za.co.absa.hyperdrive.trigger.api.rest.utils.Extensions.{SparkConfigList,
 import scala.util.{Failure, Success, Try}
 
 trait JobTemplateResolutionService {
-  def resolveDagDefinitionJoined(dagDefinitionJoined: DagDefinitionJoined,
-                                 jobTemplates: Seq[JobTemplate]
+  def resolveDagDefinitionJoined(
+    dagDefinitionJoined: DagDefinitionJoined,
+    jobTemplates: Seq[JobTemplate]
   ): Seq[ResolvedJobDefinition]
 }
 
 @Service
 class JobTemplateResolutionServiceImpl extends JobTemplateResolutionService {
-  def resolveDagDefinitionJoined(dagDefinitionJoined: DagDefinitionJoined,
-                                 jobTemplates: Seq[JobTemplate]
+  def resolveDagDefinitionJoined(
+    dagDefinitionJoined: DagDefinitionJoined,
+    jobTemplates: Seq[JobTemplate]
   ): Seq[ResolvedJobDefinition] = {
     val jobTemplatesLookup = jobTemplates.map(t => t.id -> t).toMap
     dagDefinitionJoined.jobDefinitions.map {
@@ -47,13 +49,14 @@ class JobTemplateResolutionServiceImpl extends JobTemplateResolutionService {
 
   private def resolveJobDefinition(jobDefinition: JobDefinition): ResolvedJobDefinition = {
     val jobParameters = jobDefinition.jobParameters match {
-      case SparkDefinitionParameters(jobType,
-                                     jobJar,
-                                     mainClass,
-                                     appArguments,
-                                     additionalJars,
-                                     additionalFiles,
-                                     additionalSparkConfig
+      case SparkDefinitionParameters(
+            jobType,
+            jobJar,
+            mainClass,
+            appArguments,
+            additionalJars,
+            additionalFiles,
+            additionalSparkConfig
           ) =>
         SparkInstanceParameters(
           jobType = jobType,
@@ -129,13 +132,12 @@ class JobTemplateResolutionServiceImpl extends JobTemplateResolutionService {
   private def mergeLists(primary: List[String], secondary: List[String]): List[String] =
     secondary ++ primary
 
-  private def mergeSortedMapEntries(key: String, firstValue: String, secondValue: String): String = {
+  private def mergeSortedMapEntries(key: String, firstValue: String, secondValue: String): String =
     if (KeysToMerge.contains(key)) {
       s"$secondValue$MergedValuesSeparator$firstValue".trim
     } else {
       firstValue
     }
-  }
 
   private def mergeMaps[T](primary: Map[String, T], secondary: Map[String, T], mergeFn: (String, T, T) => T) = {
     val sharedKeys = primary.keySet.intersect(secondary.keySet)
