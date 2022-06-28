@@ -268,10 +268,8 @@ class JobTemplateResolutionServiceTest extends FlatSpec with Matchers {
     // when
     val templateDefined = underTest.resolveDagDefinitionJoined(
       createDagDefinitionJoined(
-        createJobDefinition().copy(
-          jobTemplateId = Some(jobTemplateDefined.id),
-          jobParameters = hyperdriveJobParametersUndefined
-        )
+        createJobDefinition()
+          .copy(jobTemplateId = Some(jobTemplateDefined.id), jobParameters = hyperdriveJobParametersUndefined)
       ),
       Seq(jobTemplateDefined)
     )

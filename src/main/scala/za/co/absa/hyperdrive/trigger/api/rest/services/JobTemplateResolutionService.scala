@@ -81,8 +81,9 @@ class JobTemplateResolutionServiceImpl extends JobTemplateResolutionService {
       order = jobDefinition.order
     )
 
-  private def mergeJobParameters(primary: JobDefinitionParameters,
-                                 secondary: JobTemplateParameters
+  private def mergeJobParameters(
+    primary: JobDefinitionParameters,
+    secondary: JobTemplateParameters
   ): JobInstanceParameters = {
     (primary, secondary) match {
       case (definitionParams: SparkDefinitionParameters, templateParams: SparkTemplateParameters) =>
@@ -97,7 +98,7 @@ class JobTemplateResolutionServiceImpl extends JobTemplateResolutionService {
   private def mergeSparkParameters(
     definitionParams: SparkDefinitionParameters,
     templateParams: SparkTemplateParameters
-  ): SparkInstanceParameters = {
+  ): SparkInstanceParameters =
     SparkInstanceParameters(
       jobJar = mergeOptionString(definitionParams.jobJar, templateParams.jobJar),
       mainClass = mergeOptionString(definitionParams.mainClass, templateParams.mainClass),
@@ -110,7 +111,6 @@ class JobTemplateResolutionServiceImpl extends JobTemplateResolutionService {
         mergeSortedMapEntries
       ).toAdditionalSparkConfigList
     )
-  }
 
   private def mergeShellParameters(
     definitionParams: ShellDefinitionParameters,
