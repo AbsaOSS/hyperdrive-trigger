@@ -20,7 +20,7 @@
       <input
         clrControl
         type="text"
-        [id]="name+i+0+uiid"
+        [id]="name+uiid+'key'+i"
         [ngModel]="val[0]"
         (ngModelChange)="ngModelChanged($event, i,0)"
         required
@@ -38,7 +38,7 @@
       <input
         clrControl
         type="text"
-        [id]="name+i+1+uiid"
+        [id]="name+uiid+'key'+i"
         [ngModel]="val[1]"
         (ngModelChange)="ngModelChanged($event, i,1)"
         required
