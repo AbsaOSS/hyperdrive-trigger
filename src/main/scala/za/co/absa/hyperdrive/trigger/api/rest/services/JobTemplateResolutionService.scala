@@ -84,7 +84,7 @@ class JobTemplateResolutionServiceImpl extends JobTemplateResolutionService {
   private def mergeJobParameters(
     primary: JobDefinitionParameters,
     secondary: JobTemplateParameters
-  ): JobInstanceParameters = {
+  ): JobInstanceParameters =
     (primary, secondary) match {
       case (definitionParams: SparkDefinitionParameters, templateParams: SparkTemplateParameters) =>
         mergeSparkParameters(definitionParams, templateParams)
@@ -93,7 +93,6 @@ class JobTemplateResolutionServiceImpl extends JobTemplateResolutionService {
       case _ =>
         throw new IllegalArgumentException("Could not mix different job types.")
     }
-  }
 
   private def mergeSparkParameters(
     definitionParams: SparkDefinitionParameters,
