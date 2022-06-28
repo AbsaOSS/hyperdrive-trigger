@@ -16,10 +16,7 @@
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
 import org.springframework.stereotype.Service
-import za.co.absa.hyperdrive.trigger.configuration.application.JobDefinitionConfig.{
-  SparkExtraJavaOptions,
-  SparkTags
-}
+import za.co.absa.hyperdrive.trigger.configuration.application.JobDefinitionConfig.{SparkExtraJavaOptions, SparkTags}
 import za.co.absa.hyperdrive.trigger.models._
 
 import scala.util.{Failure, Success, Try}

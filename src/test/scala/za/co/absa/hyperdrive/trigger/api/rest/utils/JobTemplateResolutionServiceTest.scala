@@ -367,7 +367,7 @@ class JobTemplateResolutionServiceTest extends FlatSpec with Matchers {
       jobJar = None,
       mainClass = None,
       additionalSparkConfig = Map(
-        "spark.yarn.tags" -> "first,second,third",
+        "spark.yarn.tags" -> "first,second,third"
       )
     )
     val templateParameters = SparkTemplateParameters(
@@ -375,7 +375,7 @@ class JobTemplateResolutionServiceTest extends FlatSpec with Matchers {
       jobJar = "jobJar",
       mainClass = "mainClass",
       additionalSparkConfig = Map(
-        "spark.yarn.tags" -> "third,first,fourth",
+        "spark.yarn.tags" -> "third,first,fourth"
       )
     )
 
@@ -391,10 +391,9 @@ class JobTemplateResolutionServiceTest extends FlatSpec with Matchers {
     resolvedJobDefinition.jobParameters
       .asInstanceOf[SparkInstanceParameters]
       .additionalSparkConfig should contain theSameElementsAs Map(
-      "spark.yarn.tags" -> "third,first,fourth,second",
+      "spark.yarn.tags" -> "third,first,fourth,second"
     )
   }
-
 
   it should "throw an error if the jobTemplate is of the different type as job definiton" in {
     // given
