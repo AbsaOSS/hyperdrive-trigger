@@ -86,3 +86,4 @@ databaseChangeLog:
   - include:
       relativeToChangelogFile: true
       file: v0.5.11.additional-spark-config-map-to-array.yml
+      
