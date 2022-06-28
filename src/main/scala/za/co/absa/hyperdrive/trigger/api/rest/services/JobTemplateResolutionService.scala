@@ -16,7 +16,10 @@
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
 import org.springframework.stereotype.Service
-import za.co.absa.hyperdrive.trigger.configuration.application.JobDefinitionConfig.{KeysToMerge, MergedValuesSeparator}
+import za.co.absa.hyperdrive.trigger.configuration.application.JobDefinitionConfig.{
+  SparkExtraJavaOptions,
+  SparkTags
+}
 import za.co.absa.hyperdrive.trigger.models._
 
 import scala.util.{Failure, Success, Try}
@@ -120,8 +123,12 @@ class JobTemplateResolutionServiceImpl extends JobTemplateResolutionService {
     secondary ++ primary
 
   private def mergeSortedMapEntries(key: String, firstValue: String, secondValue: String): String =
-    if (KeysToMerge.contains(key)) {
-      s"$secondValue$MergedValuesSeparator$firstValue".trim
+    if (SparkExtraJavaOptions.KeysToMerge.contains(key)) {
+      s"$secondValue${SparkExtraJavaOptions.MergedValuesSeparator}$firstValue".trim
+    } else if (SparkTags.KeysToMerge.contains(key)) {
+      (
+        secondValue.split(SparkTags.MergedValuesSeparator) ++ firstValue.split(SparkTags.MergedValuesSeparator)
+      ).toSet[String].map(_.trim).mkString(SparkTags.MergedValuesSeparator)
     } else {
       firstValue
     }
