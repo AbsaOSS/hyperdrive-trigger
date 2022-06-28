@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.configuration.application.SparkConfig
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.{Lost, SubmissionTimeout, Submitting}
 import za.co.absa.hyperdrive.trigger.models.{JobInstance, SparkInstanceParameters}
+import za.co.absa.hyperdrive.trigger.api.rest.utils.Extensions._
 
 import java.util.UUID.randomUUID
 import java.util.concurrent.{CountDownLatch, TimeUnit}
@@ -97,9 +98,7 @@ class SparkYarnClusterServiceImpl @Inject() (implicit
     jobParameters.additionalSparkConfig.foreach(conf => sparkLauncher.setConf(conf.key, conf.value))
     mergeAdditionalSparkConfig(
       config.additionalConfs,
-      jobParameters.additionalSparkConfig
-        .map(additionalSparkConfig => additionalSparkConfig.key -> additionalSparkConfig.value)
-        .toMap
+      jobParameters.additionalSparkConfig.toKeyValueMap
     )
       .foreach(conf => sparkLauncher.setConf(conf._1, conf._2))
 

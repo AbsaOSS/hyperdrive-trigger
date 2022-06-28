@@ -17,11 +17,14 @@ package za.co.absa.hyperdrive.trigger.api.rest.utils
 
 import za.co.absa.hyperdrive.trigger.models.AdditionalSparkConfig
 
-import scala.language.implicitConversions
-
 object Extensions {
   implicit class SparkConfigList(list: List[AdditionalSparkConfig]) {
     def toKeyValueMap: Map[String, String] =
       list.map(element => element.key -> element.value).toMap
+  }
+
+  implicit class SparkConfigMap(map: Map[String, String]) {
+    def toAdditionalSparkConfigList: List[AdditionalSparkConfig] =
+      map.map(element => AdditionalSparkConfig(element._1, element._2)).toList
   }
 }
