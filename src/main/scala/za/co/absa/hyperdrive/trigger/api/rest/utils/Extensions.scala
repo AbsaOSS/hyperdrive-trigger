@@ -20,8 +20,8 @@ import za.co.absa.hyperdrive.trigger.models.AdditionalSparkConfig
 import scala.language.implicitConversions
 
 object Extensions {
-  implicit class SparkConfigList(list: List[AdditionalSparkConfig])  {
-    def toKeyValueMap:  Map[String, String] =
+  implicit class SparkConfigList(list: List[AdditionalSparkConfig]) {
+    def toKeyValueMap: Map[String, String] =
       list.map(element => element.key -> element.value).toMap
   }
 }
