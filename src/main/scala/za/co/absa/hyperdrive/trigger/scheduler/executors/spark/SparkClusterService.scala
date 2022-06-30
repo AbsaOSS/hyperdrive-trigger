@@ -41,11 +41,12 @@ trait SparkClusterService {
     val tagsOptions = SparkTags.KeysToMerge.map { key =>
       val globalValue = globalConfig.get(key)
       val jobValue = jobConfig.get(key)
-      key -> (
+      val value = (
         globalValue.map(_.split(SparkTags.MergedValuesSeparator)).getOrElse(Array.empty[String]) ++
           jobValue.map(_.split(SparkTags.MergedValuesSeparator)).getOrElse(Array.empty[String])
       ).toSet[String].map(_.trim).mkString(SparkTags.MergedValuesSeparator)
+      if (value.nonEmpty) Some(key -> value) else None
     }
-    (extraJavaOptionsMerge ++ tagsOptions).toMap
+    (extraJavaOptionsMerge ++ tagsOptions.flatten).toMap
   }
 }
