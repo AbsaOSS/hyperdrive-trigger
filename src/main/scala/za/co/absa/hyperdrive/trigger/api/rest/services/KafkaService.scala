@@ -17,13 +17,12 @@ package za.co.absa.hyperdrive.trigger.api.rest.services
 
 import org.apache.kafka.clients.consumer.{ConsumerConfig, KafkaConsumer}
 import org.apache.kafka.common.TopicPartition
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.configuration.application.{GeneralConfig, KafkaConfig}
 
 import java.util.Properties
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
-import scala.collection.mutable
 
 trait KafkaService {
   def getEndOffsets(topic: String, consumerProperties: Properties): Map[Int, Long]
@@ -31,13 +30,14 @@ trait KafkaService {
 
 @Service
 class KafkaServiceImpl @Inject() (kafkaConfig: KafkaConfig, generalConfig: GeneralConfig) extends KafkaService {
-  private val logger = LoggerFactory.getLogger(this.getClass)
-  private val kafkaConsumersCache: mutable.Map[Properties, KafkaConsumer[String, String]] = mutable.Map()
+  private val kafkaConsumersCache = new ConcurrentHashMap[Properties, KafkaConsumer[String, String]]()
 
   override def getEndOffsets(topic: String, consumerProperties: Properties): Map[Int, Long] = {
     val groupId = s"${kafkaConfig.groupIdPrefix}-${generalConfig.appUniqueId}-getEndOffsets"
     consumerProperties.put(ConsumerConfig.GROUP_ID_CONFIG, groupId)
+    import scala.collection.JavaConverters._
     val consumer = kafkaConsumersCache
+      .asScala
       .getOrElse(consumerProperties, {
                    val consumer = new KafkaConsumer[String, String](consumerProperties)
                    kafkaConsumersCache.put(consumerProperties, consumer)
@@ -45,7 +45,6 @@ class KafkaServiceImpl @Inject() (kafkaConfig: KafkaConfig, generalConfig: Gener
                  }
       )
 
-    import scala.collection.JavaConverters._
     val partitionInfo = consumer.partitionsFor(topic).asScala
     val topicPartitions = partitionInfo.map(p => new TopicPartition(p.topic(), p.partition()))
     consumer
