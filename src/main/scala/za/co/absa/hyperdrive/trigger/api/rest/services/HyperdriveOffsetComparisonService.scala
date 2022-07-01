@@ -28,13 +28,13 @@ import za.co.absa.hyperdrive.trigger.models.{ResolvedJobDefinition, SparkInstanc
 
 import java.util.Properties
 import javax.inject.Inject
-import scala.util.Try
+import scala.concurrent.{ExecutionContext, Future}
 
 trait HyperdriveOffsetComparisonService {
   def getResolvedAppArguments(jobDefinition: ResolvedJobDefinition): Option[Map[String, String]]
   def getHdfsParameters(resolvedAppArguments: Map[String, String]): Option[HdfsParameters]
   def getKafkaParameters(jobDefinition: ResolvedJobDefinition): Option[(String, Properties)]
-  def isNewJobInstanceRequired(jobDefinition: ResolvedJobDefinition): Boolean
+  def isNewJobInstanceRequired(jobDefinition: ResolvedJobDefinition)(implicit ec: ExecutionContext): Future[Boolean]
 }
 
 @Service
@@ -51,7 +51,7 @@ class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
   private val ListDelimiter = ','
 
   override def getResolvedAppArguments(jobDefinition: ResolvedJobDefinition): Option[Map[String, String]] = {
-    if (isHyperdriveJob(jobDefinition)) {
+    if (!isHyperdriveJob(jobDefinition)) {
       logger.warn(s"Job Definition ${jobDefinition} is not a Hyperdrive Job!")
       None
     } else {
@@ -84,7 +84,7 @@ class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
   }
 
   override def getKafkaParameters(jobDefinition: ResolvedJobDefinition): Option[(String, Properties)] = {
-    if (isHyperdriveJob(jobDefinition)) {
+    if (!isHyperdriveJob(jobDefinition)) {
       logger.warn(s"Job Definition ${jobDefinition} is not a Hyperdrive Job!")
       None
     } else {
@@ -124,51 +124,78 @@ class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
   }
 
   private def isHyperdriveJob(jobDefinition: ResolvedJobDefinition) =
-    jobDefinition.jobParameters.jobType != JobTypes.Hyperdrive ||
-      !jobDefinition.jobParameters.isInstanceOf[SparkInstanceParameters]
+    jobDefinition.jobParameters.jobType == JobTypes.Hyperdrive &&
+      jobDefinition.jobParameters.isInstanceOf[SparkInstanceParameters]
 
-  override def isNewJobInstanceRequired(jobDefinition: ResolvedJobDefinition): Boolean = {
-    val latestOffsetFilePath = for {
-      resolvedAppArguments <- getResolvedAppArguments(jobDefinition)
-      hdfsParameters <- getHdfsParameters(resolvedAppArguments)
-      latestOffsetFilePath <- hdfsService.getLatestOffsetFilePath(hdfsParameters)
-    } yield latestOffsetFilePath
+  def isNewJobInstanceRequired(jobDefinition: ResolvedJobDefinition)(implicit ec: ExecutionContext): Future[Boolean] = {
+    val hdfsParametersOpt = getResolvedAppArguments(jobDefinition).flatMap(getHdfsParameters)
+    val kafkaParametersOpt = getKafkaParameters(jobDefinition)
 
-    if (latestOffsetFilePath.isEmpty || !latestOffsetFilePath.get._2) {
-      logger.debug(
-        s"New job instance required because offset does not exist or is not committed ${latestOffsetFilePath}"
-      )
-      true
-    } else {
-      val allKafkaOffsetsConsumedOpt = for {
-        kafkaParameters <- getKafkaParameters(jobDefinition)
-        hdfsAllOffsets <- Try(
-          hdfsService.parseFileAndClose(latestOffsetFilePath.get._1, hdfsService.parseKafkaOffsetStream)
-        )
-          .recover { case e: Exception =>
-            logger.warn(s"Couldn't parse file ${latestOffsetFilePath.get._1}", e)
-            None
-          }
-          .toOption
-          .flatten
-        hdfsOffsets <- hdfsAllOffsets.get(kafkaParameters._1) match {
+    if (hdfsParametersOpt.isEmpty) {
+      logger.debug(s"Hdfs parameters were not found in job definition ${jobDefinition}")
+    }
+    if (kafkaParametersOpt.isEmpty) {
+      logger.debug(s"Kafka parameters were not found in job definition ${jobDefinition}")
+    }
+
+    val hdfsOffsetsOptFut: Future[Option[Map[Int, Long]]] = Future {
+      val latestOffsetOpt = for {
+        hdfsParameters <- hdfsParametersOpt
+        latestOffset <- hdfsService.getLatestOffsetFilePath(hdfsParameters)
+      } yield { latestOffset }
+      if (latestOffsetOpt.isEmpty || !latestOffsetOpt.get._2) {
+        logger.debug(s"Offset does not exist or is not committed ${latestOffsetOpt}")
+        None
+      } else {
+        latestOffsetOpt
+      }
+    }.flatMap {
+        case None => Future { None }
+        case Some(_) if kafkaParametersOpt.isEmpty => Future { None }
+        case Some(latestOffset) => Future {
+          hdfsService.parseFileAndClose(latestOffset._1, hdfsService.parseKafkaOffsetStream)
+        }.recover { case e: Exception =>
+          logger.warn(s"Couldn't parse file ${latestOffset._1}", e)
+          None
+        }
+    }.map { hdfsAllOffsetsOpt =>
+      hdfsAllOffsetsOpt.flatMap { hdfsAllOffsets =>
+        val kafkaParameters = kafkaParametersOpt.get
+        hdfsAllOffsets.get(kafkaParameters._1) match {
           case Some(v) => Some(v)
           case None =>
             logger.warn(s"Could not find offsets for topic ${kafkaParameters._1} in hdfs offsets ${hdfsAllOffsets}")
             None
         }
-        kafkaOffsets = kafkaService.getEndOffsets(kafkaParameters._1, kafkaParameters._2)
-      } yield {
-        val isSamePartitions = kafkaOffsets.keySet == hdfsOffsets.keySet
-        isSamePartitions && kafkaOffsets.forall { case (partition, kafkaPartitionOffset) =>
-          hdfsOffsets(partition) == kafkaPartitionOffset
-        }
       }
+    }
 
-      allKafkaOffsetsConsumedOpt match {
-        case Some(allKafkaOffsetsConsumed) => !allKafkaOffsetsConsumed
-        case None                          => true
+    val kafkaOffsetsOptFut: Future[Option[Map[Int, Long]]] = Future {
+      kafkaParametersOpt.map { kafkaParameters =>
+        kafkaService.getEndOffsets(kafkaParameters._1, kafkaParameters._2)
       }
+    }
+
+    val isNewJobInstanceRequiredFut = for {
+      hdfsOffsetsOpt <- hdfsOffsetsOptFut
+      kafkaOffsetsOpt <- kafkaOffsetsOptFut
+    } yield {
+      (hdfsOffsetsOpt, kafkaOffsetsOpt) match {
+        case (Some(hdfsOffsets), Some(kafkaOffsets)) =>
+          val isSamePartitions = kafkaOffsets.keySet == hdfsOffsets.keySet
+          val allOffsetsConsumed = isSamePartitions && kafkaOffsets.nonEmpty && kafkaOffsets.forall { case (partition, kafkaPartitionOffset) =>
+            hdfsOffsets(partition) == kafkaPartitionOffset
+          }
+          !allOffsetsConsumed
+        // TODO: Add logic to return false when topic doesn't exist, or topic is empty
+        case _ => true
+      }
+    }
+
+    isNewJobInstanceRequiredFut.recover {
+      case e: Exception =>
+        logger.warn("An error occurred while getting offsets", e)
+        true
     }
   }
 
