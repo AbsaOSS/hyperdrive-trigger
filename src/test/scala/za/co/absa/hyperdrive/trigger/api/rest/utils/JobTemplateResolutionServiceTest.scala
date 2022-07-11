@@ -399,8 +399,8 @@ class JobTemplateResolutionServiceTest extends FlatSpec with Matchers {
     val resolvedJobDefinition = resolvedJobDefinitions.head
     resolvedJobDefinition.jobParameters
       .asInstanceOf[SparkInstanceParameters]
-      .additionalSparkConfig should contain theSameElementsAs Map(
-      "spark.yarn.tags" -> "third,first,fourth,second"
+      .additionalSparkConfig should contain theSameElementsAs List(
+      AdditionalSparkConfig("spark.yarn.tags", "third,first,fourth,second")
     )
   }
 
