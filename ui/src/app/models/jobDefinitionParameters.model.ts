@@ -14,6 +14,7 @@
  */
 
 import { jobTypes } from '../constants/jobTypes.constants';
+import { KeyValueModel } from './keyValue.model';
 
 export interface JobDefinitionParameters {
   jobType: string;
@@ -24,7 +25,7 @@ export class SparkDefinitionParametersModel implements JobDefinitionParameters {
   appArguments: string[];
   additionalJars: string[];
   additionalFiles: string[];
-  additionalSparkConfig: Map<string, string>;
+  additionalSparkConfig: KeyValueModel[];
   jobJar?: string;
   mainClass?: string;
 
@@ -36,7 +37,7 @@ export class SparkDefinitionParametersModel implements JobDefinitionParameters {
       appArguments: [],
       additionalJars: [],
       additionalFiles: [],
-      additionalSparkConfig: new Map(),
+      additionalSparkConfig: [],
     };
   }
 }
@@ -46,7 +47,7 @@ export class HyperdriveDefinitionParametersModel implements JobDefinitionParamet
   appArguments: string[];
   additionalJars: string[];
   additionalFiles: string[];
-  additionalSparkConfig: Map<string, string>;
+  additionalSparkConfig: KeyValueModel[];
   jobJar?: string;
   mainClass?: string;
 
@@ -58,7 +59,7 @@ export class HyperdriveDefinitionParametersModel implements JobDefinitionParamet
       appArguments: [],
       additionalJars: [],
       additionalFiles: [],
-      additionalSparkConfig: new Map(),
+      additionalSparkConfig: [],
     };
   }
 }

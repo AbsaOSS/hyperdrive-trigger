@@ -45,14 +45,14 @@
   [isRequired]=false
   [minLength]=1>
 </app-string-sequence-part>
-<app-key-string-value-part
+<app-key-value-list-part
   [isShow]="isShow"
   [name]="'Additional Spark Config'"
   [value]="jobParameters?.additionalSparkConfig"
   (valueChange)="additionalSparkConfigChange($event)"
   [isRequired]=false
   [minLength]=1>
-</app-key-string-value-part>
+</app-key-value-list-part>
 <app-string-sequence-part
   [isShow]="isShow"
   [name]="'App arguments'"

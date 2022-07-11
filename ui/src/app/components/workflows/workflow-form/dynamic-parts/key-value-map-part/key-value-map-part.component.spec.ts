@@ -15,22 +15,22 @@
 
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
-import { KeyStringValuePartComponent } from './key-string-value-part.component';
+import { KeyValueMapPartComponent } from './key-value-map-part.component';
 import { DebugElement, Predicate } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { FormsModule, NgForm } from '@angular/forms';
 import set from 'lodash/set';
 
-describe('KeyStringValuePartComponent', () => {
-  let fixture: ComponentFixture<KeyStringValuePartComponent>;
-  let underTest: KeyStringValuePartComponent;
+describe('KeyValueMapPartComponent', () => {
+  let fixture: ComponentFixture<KeyValueMapPartComponent>;
+  let underTest: KeyValueMapPartComponent;
 
   const inputSelector: Predicate<DebugElement> = By.css('input[type="text"]');
 
   beforeEach(
     waitForAsync(() => {
       TestBed.configureTestingModule({
-        declarations: [KeyStringValuePartComponent],
+        declarations: [KeyValueMapPartComponent],
         imports: [FormsModule],
         providers: [NgForm],
       }).compileComponents();
@@ -38,7 +38,7 @@ describe('KeyStringValuePartComponent', () => {
   );
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(KeyStringValuePartComponent);
+    fixture = TestBed.createComponent(KeyValueMapPartComponent);
     underTest = fixture.componentInstance;
   });
 
