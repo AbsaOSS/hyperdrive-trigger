@@ -375,16 +375,16 @@ class JobTemplateResolutionServiceTest extends FlatSpec with Matchers {
       jobType = JobTypes.Spark,
       jobJar = None,
       mainClass = None,
-      additionalSparkConfig = Map(
-        "spark.yarn.tags" -> "first,second,third"
+      additionalSparkConfig = List(
+        AdditionalSparkConfig("spark.yarn.tags", "first,second,third")
       )
     )
     val templateParameters = SparkTemplateParameters(
       jobType = JobTypes.Spark,
       jobJar = "jobJar",
       mainClass = "mainClass",
-      additionalSparkConfig = Map(
-        "spark.yarn.tags" -> "third,first,fourth"
+      additionalSparkConfig = List(
+        AdditionalSparkConfig("spark.yarn.tags", "third,first,fourth")
       )
     )
 
