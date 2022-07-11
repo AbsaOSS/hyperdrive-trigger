@@ -18,6 +18,7 @@ package za.co.absa.hyperdrive.trigger.api.rest.services
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.configuration.application.JobDefinitionConfig.{SparkExtraJavaOptions, SparkTags}
 import za.co.absa.hyperdrive.trigger.models._
+import za.co.absa.hyperdrive.trigger.api.rest.utils.Extensions.{SparkConfigList, SparkConfigMap}
 
 import scala.util.{Failure, Success, Try}
 
@@ -103,8 +104,11 @@ class JobTemplateResolutionServiceImpl extends JobTemplateResolutionService {
       appArguments = mergeLists(definitionParams.appArguments, templateParams.appArguments),
       additionalJars = mergeLists(definitionParams.additionalJars, templateParams.additionalJars),
       additionalFiles = mergeLists(definitionParams.additionalFiles, templateParams.additionalFiles),
-      additionalSparkConfig =
-        mergeMaps(definitionParams.additionalSparkConfig, templateParams.additionalSparkConfig, mergeSortedMapEntries)
+      additionalSparkConfig = mergeMaps(
+        definitionParams.additionalSparkConfig.toKeyValueMap,
+        templateParams.additionalSparkConfig.toKeyValueMap,
+        mergeSortedMapEntries
+      ).toAdditionalSparkConfigList
     )
 
   private def mergeShellParameters(

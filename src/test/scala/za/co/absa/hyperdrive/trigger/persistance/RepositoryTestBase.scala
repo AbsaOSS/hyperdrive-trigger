@@ -18,6 +18,7 @@ package za.co.absa.hyperdrive.trigger.persistance
 import za.co.absa.hyperdrive.trigger.TestUtils
 import za.co.absa.hyperdrive.trigger.models.{
   AbsaKafkaSensorProperties,
+  AdditionalSparkConfig,
   DagDefinition,
   DagDefinitionJoined,
   DagInstance,
@@ -279,7 +280,7 @@ trait RepositoryTestBase extends Repository {
         appArguments = List("value1", "value2"),
         additionalJars = List("value1", "value2"),
         additionalFiles = List("value1", "value2"),
-        additionalSparkConfig = Map("key" -> "value")
+        additionalSparkConfig = List(AdditionalSparkConfig("key", "value"))
       ),
       id = 100
     )

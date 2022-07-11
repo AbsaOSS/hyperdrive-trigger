@@ -55,7 +55,8 @@ import { StringPartComponent } from './components/workflows/workflow-form/dynami
 import { BooleanPartComponent } from './components/workflows/workflow-form/dynamic-parts/boolean-part/boolean-part.component';
 import { SelectPartComponent } from './components/workflows/workflow-form/dynamic-parts/select-part/select-part.component';
 import { StringSequencePartComponent } from './components/workflows/workflow-form/dynamic-parts/string-sequence-part/string-sequence-part.component';
-import { KeyStringValuePartComponent } from './components/workflows/workflow-form/dynamic-parts/key-string-value-part/key-string-value-part.component';
+import { KeyValueMapPartComponent } from './components/workflows/workflow-form/dynamic-parts/key-value-map-part/key-value-map-part.component';
+import { KeyValueListPartComponent } from './components/workflows/workflow-form/dynamic-parts/key-value-list-part/key-value-list-part.component';
 import { GuidPartComponent } from './components/workflows/workflow-form/dynamic-parts/guid-part/guid-part.component';
 import { CronQuartzPartComponent } from './components/workflows/workflow-form/dynamic-parts/cron-quartz-part/cron-quartz-part.component';
 import { JobComponent } from './components/workflows/workflow-form/jobs/job/job.component';
@@ -134,7 +135,8 @@ import { NotificationRuleUsageComponent } from './components/admin/notification-
     DurationPartComponent,
     SelectPartComponent,
     StringSequencePartComponent,
-    KeyStringValuePartComponent,
+    KeyValueListPartComponent,
+    KeyValueMapPartComponent,
     GuidPartComponent,
     CronQuartzPartComponent,
     ConfirmationDialogComponent,

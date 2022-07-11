@@ -26,6 +26,7 @@ import {
 import { HyperdriveTemplateParametersModel } from '../../../../../../../models/jobTemplateParameters.model';
 import { HyperdriveUtil } from '../../../../../../../utils/hyperdrive/hyperdrive.util';
 import { JobTemplateChangeEventModel } from '../../../../../../../models/jobTemplateChangeEvent';
+import { KeyValueModel } from '../../../../../../../models/keyValue.model';
 
 @Component({
   selector: 'app-hyperdrive-job',
@@ -165,7 +166,7 @@ export class HyperdriveJobComponent implements OnInit, OnDestroy {
     });
   }
 
-  additionalSparkConfigChange(additionalSparkConfig: Map<string, string>) {
+  additionalSparkConfigChange(additionalSparkConfig: KeyValueModel[]) {
     this.jobParametersChange.emit({ ...this.jobParameters, additionalSparkConfig: additionalSparkConfig });
   }
 

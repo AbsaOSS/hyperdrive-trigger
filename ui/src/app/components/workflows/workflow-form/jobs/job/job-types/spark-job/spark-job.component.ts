@@ -17,6 +17,7 @@ import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angu
 import { SparkDefinitionParametersModel } from '../../../../../../../models/jobDefinitionParameters.model';
 import { Subscription } from 'rxjs';
 import { JobTemplateChangeEventModel } from '../../../../../../../models/jobTemplateChangeEvent';
+import { KeyValueModel } from '../../../../../../../models/keyValue.model';
 
 @Component({
   selector: 'app-spark-job',
@@ -64,7 +65,7 @@ export class SparkJobComponent implements OnInit, OnDestroy {
     this.jobParametersChange.emit({ ...this.jobParameters, appArguments: appArguments });
   }
 
-  additionalSparkConfigChange(additionalSparkConfig: Map<string, string>) {
+  additionalSparkConfigChange(additionalSparkConfig: KeyValueModel[]) {
     this.jobParametersChange.emit({ ...this.jobParameters, additionalSparkConfig: additionalSparkConfig });
   }
 

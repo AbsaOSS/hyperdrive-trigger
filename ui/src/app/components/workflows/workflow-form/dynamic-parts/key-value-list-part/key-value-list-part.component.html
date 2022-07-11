@@ -14,15 +14,15 @@
   -->
 
 <div *ngIf="!isShow">
-  <div *ngFor="let val of mapOfValues; let i = index; trackBy: trackByFn;">
+  <div *ngFor="let val of value; let i = index; trackBy: trackByFn;">
     <clr-control-container>
       <label *ngIf="i == 0">{{name}}</label>
       <input
         clrControl
         type="text"
-        [id]="name+i+0+uiid"
-        [ngModel]="val[0]"
-        (ngModelChange)="ngModelChanged($event, i,0)"
+        [id]="name+uiid+'key'+i"
+        [ngModel]="val.key"
+        (ngModelChange)="ngModelChanged($event, i, true)"
         required
         [minlength]="minLength"
         [maxlength]="maxLength"
@@ -38,9 +38,9 @@
       <input
         clrControl
         type="text"
-        [id]="name+i+1+uiid"
-        [ngModel]="val[1]"
-        (ngModelChange)="ngModelChanged($event, i,1)"
+        [id]="name+uiid+'value'+i"
+        [ngModel]="val.value"
+        (ngModelChange)="ngModelChanged($event, i, false)"
         required
         [minlength]="minLength"
         [maxlength]="maxLength"
@@ -52,14 +52,14 @@
       <button type="button" class="btn btn-link" (click)="onDelete(i)">
         <clr-icon shape="trash"></clr-icon>
       </button>
-      <button type="button" class="btn btn-link" *ngIf="mapOfValues.length - 1 === i" (click)="onAdd()">
+      <button type="button" class="btn btn-link" *ngIf="value?.length - 1 === i" (click)="onAdd()">
         <clr-icon shape="plus"></clr-icon>
       </button>
     </clr-control-container>
   </div>
 </div>
 
-<clr-control-container *ngIf="mapOfValues.length == 0 && !isShow">
+<clr-control-container *ngIf="value?.length == 0 && !isShow">
   <label>{{name}}</label>
   <input [name]="name" clrControl [ngModel]="undefined" [required]="isRequired" type="hidden"/>
   <clr-control-error *clrIfError="'required'">{{texts.FORM_VALIDATION_AT_LEAST_ONE_DEFINED}}</clr-control-error>
@@ -70,18 +70,18 @@
 </clr-control-container>
 
 <div *ngIf="isShow">
-  <div *ngFor="let val of mapOfValues; let i = index; trackBy: trackByFn;">
+  <div *ngFor="let val of value; let i = index; trackBy: trackByFn;">
     <div class="clr-form-control clr-row">
       <label class="clr-control-label clr-col-12 clr-col-md-2" *ngIf="i == 0">{{name}}</label>
       <label class="clr-control-label clr-col-12 clr-col-md-2" *ngIf="i != 0"></label>
       <span class="clr-control-container clr-col-md-10 clr-col-12 breakableSpan">
-        Key {{i+1}}: {{val[0]}}
+        Key {{i+1}}: {{val.key}}
       </span>
     </div>
     <div class="clr-form-control clr-row">
       <label class="clr-control-label clr-col-12 clr-col-md-2"></label>
       <span class="clr-control-container clr-col-md-10 clr-col-12 breakableSpan">
-        Value {{i+1}}: {{val[1]}}
+        Value {{i+1}}: {{val.value}}
       </span>
     </div>
   </div>
