@@ -19,11 +19,11 @@ import { UuidUtil } from '../../../../../utils/uuid/uuid.util';
 import { texts } from 'src/app/constants/texts.constants';
 
 @Component({
-  selector: 'app-key-string-value-part',
-  templateUrl: './key-string-value-part.component.html',
-  styleUrls: ['./key-string-value-part.component.scss'],
+  selector: 'app-key-value-map-part',
+  templateUrl: './key-value-map-part.component.html',
+  styleUrls: ['./key-value-map-part.component.scss'],
 })
-export class KeyStringValuePartComponent implements OnInit {
+export class KeyValueMapPartComponent implements OnInit {
   uiid = UuidUtil.createUUID();
   @Input() isShow: boolean;
   @Input() name: string;

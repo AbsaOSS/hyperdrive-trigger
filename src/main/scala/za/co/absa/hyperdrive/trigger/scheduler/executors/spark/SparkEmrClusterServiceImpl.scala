@@ -39,6 +39,7 @@ import javax.inject.Inject
 import scala.annotation.tailrec
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
+import za.co.absa.hyperdrive.trigger.api.rest.utils.Extensions.SparkConfigList
 
 @Service
 class SparkEmrClusterServiceImpl @Inject() (
@@ -140,8 +141,11 @@ class SparkEmrClusterServiceImpl @Inject() (
     val sparkSubmitConfs = Map("--deploy-mode" -> "cluster")
     val confs = Map("spark.app.name" -> jobName, "spark.yarn.tags" -> id) ++
       config.additionalConfs ++
-      jobParameters.additionalSparkConfig ++
-      mergeAdditionalSparkConfig(config.additionalConfs, jobParameters.additionalSparkConfig)
+      jobParameters.additionalSparkConfig.toKeyValueMap ++
+      mergeAdditionalSparkConfig(
+        config.additionalConfs,
+        jobParameters.additionalSparkConfig.toKeyValueMap
+      )
     val files = config.filesToDeploy ++ jobParameters.additionalFiles
     SparkEmrArgs(
       mainClass = jobParameters.mainClass,

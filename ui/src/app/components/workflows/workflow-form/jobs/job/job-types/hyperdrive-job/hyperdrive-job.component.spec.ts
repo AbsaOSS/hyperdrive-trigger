@@ -21,6 +21,7 @@ import { hyperdriveTypesFields } from '../../../../../../../constants/hyperdrive
 import { HyperdriveTemplateParametersModel } from '../../../../../../../models/jobTemplateParameters.model';
 import { JobTemplateChangeEventModel } from '../../../../../../../models/jobTemplateChangeEvent';
 import { EventEmitter } from '@angular/core';
+import { KeyValueModel, KeyValueModelFactory } from '../../../../../../../models/keyValue.model';
 
 describe('HyperdriveJobComponent', () => {
   let fixture: ComponentFixture<HyperdriveJobComponent>;
@@ -246,11 +247,11 @@ describe('HyperdriveJobComponent', () => {
 
   it('should emit updated job parameters when additionalSparkConfigChange() is called', () => {
     spyOn(underTest.jobParametersChange, 'emit');
-    const newAdditionalSparkConfigs = new Map<string, string>([
-      ['newAdditionalSparkConfigKey1', 'newAdditionalSparkConfigValue1'],
-      ['newAdditionalSparkConfigKey2', 'newAdditionalSparkConfigValue2'],
-      ['newAdditionalSparkConfigKey3', 'newAdditionalSparkConfigValue3'],
-    ]);
+    const newAdditionalSparkConfigs = [
+      KeyValueModelFactory.create('newAdditionalSparkConfigKey1', 'newAdditionalSparkConfigValue1'),
+      KeyValueModelFactory.create('newAdditionalSparkConfigKey2', 'newAdditionalSparkConfigValue2'),
+      KeyValueModelFactory.create('newAdditionalSparkConfigKey3', 'newAdditionalSparkConfigValue3'),
+    ];
     const newJobParameters = { ...underTest.jobParameters, additionalSparkConfig: newAdditionalSparkConfigs };
 
     underTest.additionalSparkConfigChange(newAdditionalSparkConfigs);
