@@ -88,7 +88,6 @@ class SparkYarnClusterServiceImpl @Inject() (implicit
       .setAppResource(jobParameters.jobJar)
       .setAppName(jobName)
       .setConf("spark.app.name", jobName)
-      .setConf("spark.yarn.tags", id)
       .addAppArgs(jobParameters.appArguments.toSeq.map(fix_json_for_yarn): _*)
       .addSparkArg("--verbose")
     config.filesToDeploy.foreach(file => sparkLauncher.addFile(file))
@@ -97,10 +96,9 @@ class SparkYarnClusterServiceImpl @Inject() (implicit
     jobParameters.additionalFiles.foreach(sparkLauncher.addFile)
     jobParameters.additionalSparkConfig.foreach(conf => sparkLauncher.setConf(conf.key, conf.value))
     mergeAdditionalSparkConfig(
-      config.additionalConfs,
+      config.additionalConfs ++ Map("spark.yarn.tags" -> id),
       jobParameters.additionalSparkConfig.toKeyValueMap
-    )
-      .foreach(conf => sparkLauncher.setConf(conf._1, conf._2))
+    ).foreach(conf => sparkLauncher.setConf(conf._1, conf._2))
 
     sparkLauncher
   }

@@ -369,6 +369,41 @@ class JobTemplateResolutionServiceTest extends FlatSpec with Matchers {
     )
   }
 
+  it should "in additionalSparkConfig, concatenate the values and filter duplicates if the key is spark.yarn.tags" in {
+    // given
+    val userParameters = SparkDefinitionParameters(
+      jobType = JobTypes.Spark,
+      jobJar = None,
+      mainClass = None,
+      additionalSparkConfig = List(
+        AdditionalSparkConfig("spark.yarn.tags", "first,second,third")
+      )
+    )
+    val templateParameters = SparkTemplateParameters(
+      jobType = JobTypes.Spark,
+      jobJar = "jobJar",
+      mainClass = "mainClass",
+      additionalSparkConfig = List(
+        AdditionalSparkConfig("spark.yarn.tags", "third,first,fourth")
+      )
+    )
+
+    val jobTemplate = GenericSparkJobTemplate.copy(jobParameters = templateParameters)
+    val jobDefinition = createJobDefinition().copy(jobTemplateId = Some(jobTemplate.id), jobParameters = userParameters)
+    val dagDefinitionJoined = createDagDefinitionJoined(jobDefinition)
+
+    // when
+    val resolvedJobDefinitions = underTest.resolveDagDefinitionJoined(dagDefinitionJoined, Seq(jobTemplate))
+
+    // then
+    val resolvedJobDefinition = resolvedJobDefinitions.head
+    resolvedJobDefinition.jobParameters
+      .asInstanceOf[SparkInstanceParameters]
+      .additionalSparkConfig should contain theSameElementsAs List(
+      AdditionalSparkConfig("spark.yarn.tags", "third,first,fourth,second")
+    )
+  }
+
   it should "throw an error if the jobTemplate is of the different type as job definiton" in {
     // given
     val jobTemplate = GenericShellJobTemplate
