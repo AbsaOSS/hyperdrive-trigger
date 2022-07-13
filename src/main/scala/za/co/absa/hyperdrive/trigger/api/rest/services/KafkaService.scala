@@ -49,20 +49,22 @@ class KafkaServiceImpl @Inject() (kafkaConfig: KafkaConfig, generalConfig: Gener
   private def getOffsets(topic: String, properties: Properties, offsetFn: OffsetFunction): Map[Int, Long] = {
     val groupId = s"${kafkaConfig.groupIdPrefix}-${generalConfig.appUniqueId}-kafkaService"
     properties.put(ConsumerConfig.GROUP_ID_CONFIG, groupId)
-    val consumer = kafkaConsumersCache
-      .asScala
+    val consumer = kafkaConsumersCache.asScala
       .getOrElse(properties, {
-        val consumer = createKafkaConsumer(properties)
-        kafkaConsumersCache.put(properties, consumer)
-        consumer
-      })
+                   val consumer = createKafkaConsumer(properties)
+                   kafkaConsumersCache.put(properties, consumer)
+                   consumer
+                 }
+      )
     val partitionInfo = Option(consumer.partitionsFor(topic)).map(_.asScala).getOrElse(Seq())
     val topicPartitions = partitionInfo.map(p => new TopicPartition(p.topic(), p.partition()))
     val offsets = offsetFn match {
       case KafkaServiceImpl.BeginningOffsets => consumer.beginningOffsets(topicPartitions.asJava)
-      case KafkaServiceImpl.EndOffsets => consumer.endOffsets(topicPartitions.asJava)
+      case KafkaServiceImpl.EndOffsets       => consumer.endOffsets(topicPartitions.asJava)
     }
-    Option(offsets).map(_.asScala).getOrElse(Map())
+    Option(offsets)
+      .map(_.asScala)
+      .getOrElse(Map())
       .map { case (topicPartition: TopicPartition, offset: java.lang.Long) =>
         topicPartition.partition() -> offset.longValue()
       }

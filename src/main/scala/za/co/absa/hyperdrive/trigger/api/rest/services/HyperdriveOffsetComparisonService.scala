@@ -156,7 +156,7 @@ class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
             } else {
               getCheckpointOffsets(jobDefinition, kafkaParametersOpt).map {
                 case Some(checkpointOffsets) => !offsetsConsumed(checkpointOffsets, kafkaEndOffsets)
-                case _ => true
+                case _                       => true
               }
             }
           case _ => Future { true }
@@ -164,15 +164,15 @@ class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
       }
     }
 
-    isNewJobInstanceRequiredFut.recover {
-      case e: Exception =>
-        logger.warn("An error occurred while getting offsets", e)
-        true
+    isNewJobInstanceRequiredFut.recover { case e: Exception =>
+      logger.warn("An error occurred while getting offsets", e)
+      true
     }
   }
 
-  private def getCheckpointOffsets(jobDefinition: ResolvedJobDefinition, kafkaParametersOpt: Option[(String, Properties)])
-                               (implicit ec: ExecutionContext): Future[Option[Map[Int, Long]]] = {
+  private def getCheckpointOffsets(jobDefinition: ResolvedJobDefinition,
+                                   kafkaParametersOpt: Option[(String, Properties)]
+  )(implicit ec: ExecutionContext): Future[Option[Map[Int, Long]]] = {
     val hdfsParametersOpt = getResolvedAppArguments(jobDefinition).flatMap(getHdfsParameters)
 
     if (hdfsParametersOpt.isEmpty) {
@@ -191,14 +191,15 @@ class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
         latestOffsetOpt
       }
     }.flatMap {
-      case None => Future { None }
+      case None                                  => Future { None }
       case Some(_) if kafkaParametersOpt.isEmpty => Future { None }
-      case Some(latestOffset) => Future {
-        hdfsService.parseFileAndClose(latestOffset._1, hdfsService.parseKafkaOffsetStream)
-      }.recover { case e: Exception =>
-        logger.warn(s"Couldn't parse file ${latestOffset._1}", e)
-        None
-      }
+      case Some(latestOffset) =>
+        Future {
+          hdfsService.parseFileAndClose(latestOffset._1, hdfsService.parseKafkaOffsetStream)
+        }.recover { case e: Exception =>
+          logger.warn(s"Couldn't parse file ${latestOffset._1}", e)
+          None
+        }
     }.map { hdfsAllOffsetsOpt =>
       hdfsAllOffsetsOpt.flatMap { hdfsAllOffsets =>
         val kafkaParameters = kafkaParametersOpt.get
@@ -236,9 +237,9 @@ class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
 
   private def offsetsEqual(offsets1: Map[Int, Long], offsets2: Map[Int, Long]) = {
     offsets1.keySet == offsets2.keySet &&
-      offsets1.forall { case (partition, offset1) =>
-        offset1 == offsets2(partition)
-      }
+    offsets1.forall { case (partition, offset1) =>
+      offset1 == offsets2(partition)
+    }
   }
 
   private def offsetsConsumed(checkpointOffsets: Map[Int, Long], kafkaOffsets: Map[Int, Long]) = {
