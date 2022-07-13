@@ -33,6 +33,7 @@ trait HdfsService {
   def parseFileAndClose[R](pathStr: String, parseFn: Iterator[String] => R): Option[R]
   def parseKafkaOffsetStream(lines: Iterator[String]): TopicPartitionOffsets
   def getLatestOffsetFilePath(params: HdfsParameters): Option[(String, Boolean)]
+  def loginUserFromKeytab(principal: String, keytab: String): Unit
 }
 
 class HdfsParameters(
@@ -124,7 +125,6 @@ class HdfsServiceImpl @Inject() (userGroupInformationWrapper: UserGroupInformati
    *         commit file is assumed to also not exist.
    */
   override def getLatestOffsetFilePath(params: HdfsParameters): Option[(String, Boolean)] = {
-    userGroupInformationWrapper.loginUserFromKeytab(params.principal, params.keytab)
     val offsetBatchIdOpt = getLatestOffsetBatchId(params.checkpointLocation)
     val offsetFilePath = offsetBatchIdOpt.map { offsetBatchId =>
       val commitBatchIdOpt = getLatestCommitBatchId(params.checkpointLocation)
@@ -141,12 +141,16 @@ class HdfsServiceImpl @Inject() (userGroupInformationWrapper: UserGroupInformati
     offsetFilePath
   }
 
-  def getLatestCommitBatchId(checkpointDir: String): Option[Long] = {
+  override def loginUserFromKeytab(principal: String, keytab: String): Unit = {
+    userGroupInformationWrapper.loginUserFromKeytab(principal, keytab)
+  }
+
+  private def getLatestCommitBatchId(checkpointDir: String): Option[Long] = {
     val commitsDir = new Path(s"$checkpointDir/$commitsDirName")
     getLatestBatchId(commitsDir)
   }
 
-  def getLatestOffsetBatchId(checkpointDir: String): Option[Long] = {
+  private def getLatestOffsetBatchId(checkpointDir: String): Option[Long] = {
     val offsetsDir = new Path(s"$checkpointDir/$offsetsDirName")
     getLatestBatchId(offsetsDir)
   }

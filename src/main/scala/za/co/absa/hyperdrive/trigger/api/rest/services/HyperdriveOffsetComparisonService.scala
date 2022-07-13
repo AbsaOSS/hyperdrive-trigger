@@ -182,6 +182,7 @@ class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
     Future {
       val latestOffsetOpt = for {
         hdfsParameters <- hdfsParametersOpt
+        _ = hdfsService.loginUserFromKeytab(hdfsParameters.principal, hdfsParameters.keytab)
         latestOffset <- hdfsService.getLatestOffsetFilePath(hdfsParameters)
       } yield { latestOffset }
       if (latestOffsetOpt.isEmpty || !latestOffsetOpt.get._2) {
