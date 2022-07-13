@@ -14,6 +14,7 @@
  */
 
 import { jobTypes } from '../constants/jobTypes.constants';
+import { KeyValueModel } from './keyValue.model';
 
 export interface JobTemplateParameters {
   jobType: string;
@@ -24,7 +25,7 @@ export class SparkTemplateParametersModel implements JobTemplateParameters {
   appArguments: string[];
   additionalJars: string[];
   additionalFiles: string[];
-  additionalSparkConfig: Map<string, string>;
+  additionalSparkConfig: KeyValueModel[];
   jobJar: string;
   mainClass: string;
 
@@ -34,7 +35,7 @@ export class SparkTemplateParametersModel implements JobTemplateParameters {
       appArguments: [],
       additionalJars: [],
       additionalFiles: [],
-      additionalSparkConfig: new Map(),
+      additionalSparkConfig: [],
       jobJar: '',
       mainClass: '',
     };
@@ -46,7 +47,7 @@ export class HyperdriveTemplateParametersModel implements JobTemplateParameters 
   appArguments: string[];
   additionalJars: string[];
   additionalFiles: string[];
-  additionalSparkConfig: Map<string, string>;
+  additionalSparkConfig: KeyValueModel[];
   jobJar: string;
   mainClass: string;
 
@@ -58,7 +59,7 @@ export class HyperdriveTemplateParametersModel implements JobTemplateParameters 
       appArguments: [],
       additionalJars: [],
       additionalFiles: [],
-      additionalSparkConfig: new Map(),
+      additionalSparkConfig: [],
     };
   }
 }

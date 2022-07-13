@@ -13,16 +13,13 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.configuration.application
+export type KeyValueModel = {
+  key: string;
+  value: string;
+};
 
-object JobDefinitionConfig {
-  object SparkExtraJavaOptions {
-    val KeysToMerge = Set("spark.executor.extraJavaOptions", "spark.driver.extraJavaOptions")
-    val MergedValuesSeparator = " "
-  }
-
-  object SparkTags {
-    val KeysToMerge = Set("spark.yarn.tags")
-    val MergedValuesSeparator = ","
+export class KeyValueModelFactory {
+  static create(key: string, value: string): KeyValueModel {
+    return { key: key, value: value };
   }
 }

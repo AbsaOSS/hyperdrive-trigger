@@ -13,22 +13,13 @@
  * limitations under the License.
  */
 
-export type JobParametersModel = {
-  variables: Map<string, string>;
-  maps: Map<string, Set<string>>;
-  keyValuePairs: Map<string, Map<string, string>>;
-};
+package za.co.absa.hyperdrive.trigger.models
 
-export class JobParametersModelFactory {
-  static create(
-    variables: Map<string, string>,
-    maps: Map<string, Set<string>>,
-    keyValuePairs: Map<string, Map<string, string>>,
-  ): JobParametersModel {
-    return { variables: variables, maps: maps, keyValuePairs: keyValuePairs };
-  }
+import play.api.libs.json.{Json, OFormat}
 
-  static createEmpty(): JobParametersModel {
-    return this.create(new Map(), new Map(), new Map());
-  }
+case class AdditionalSparkConfig(key: String, value: String)
+
+object AdditionalSparkConfig {
+  implicit val additionalSparkConfigFormat: OFormat[AdditionalSparkConfig] =
+    Json.using[Json.WithDefaultValues].format[AdditionalSparkConfig]
 }

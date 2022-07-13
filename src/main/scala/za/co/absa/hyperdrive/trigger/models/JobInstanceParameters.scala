@@ -30,7 +30,7 @@ case class SparkInstanceParameters(
   appArguments: List[String] = List.empty[String],
   additionalJars: List[String] = List.empty[String],
   additionalFiles: List[String] = List.empty[String],
-  additionalSparkConfig: Map[String, String] = Map.empty[String, String]
+  additionalSparkConfig: List[AdditionalSparkConfig] = List.empty[AdditionalSparkConfig]
 ) extends JobInstanceParameters
 
 case class ShellInstanceParameters(jobType: JobType = JobTypes.Shell, scriptLocation: String)

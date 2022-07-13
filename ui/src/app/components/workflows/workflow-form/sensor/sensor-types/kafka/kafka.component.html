@@ -29,11 +29,11 @@
   [isRequired]=true
   [minLength]=1>
 </app-string-sequence-part>
-<app-key-string-value-part
+<app-key-value-map-part
   [isShow]="isShow"
   [name]="'Match properties'"
   [value]="sensorProperties?.matchProperties"
   (valueChange)="matchPropertiesChange($event)"
   [isRequired]=false
   [minLength]=1>
-</app-key-string-value-part>
+</app-key-value-map-part>

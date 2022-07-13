@@ -1,4 +1,4 @@
-/*
+/*!
  * Copyright 2018 ABSA Group Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,17 +12,3 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package za.co.absa.hyperdrive.trigger.configuration.application
-
-object JobDefinitionConfig {
-  object SparkExtraJavaOptions {
-    val KeysToMerge = Set("spark.executor.extraJavaOptions", "spark.driver.extraJavaOptions")
-    val MergedValuesSeparator = " "
-  }
-
-  object SparkTags {
-    val KeysToMerge = Set("spark.yarn.tags")
-    val MergedValuesSeparator = ","
-  }
-}
