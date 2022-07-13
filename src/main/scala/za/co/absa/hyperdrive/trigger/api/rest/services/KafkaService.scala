@@ -18,41 +18,61 @@ package za.co.absa.hyperdrive.trigger.api.rest.services
 import org.apache.kafka.clients.consumer.{ConsumerConfig, KafkaConsumer}
 import org.apache.kafka.common.TopicPartition
 import org.springframework.stereotype.Service
+import za.co.absa.hyperdrive.trigger.api.rest.services.KafkaServiceImpl.{BeginningOffsets, EndOffsets, OffsetFunction}
 import za.co.absa.hyperdrive.trigger.configuration.application.{GeneralConfig, KafkaConfig}
 
 import java.util.Properties
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
+import scala.collection.JavaConverters._
 
 trait KafkaService {
+  def getBeginningOffsets(topic: String, consumerProperties: Properties): Map[Int, Long]
   def getEndOffsets(topic: String, consumerProperties: Properties): Map[Int, Long]
 }
 
 @Service
 class KafkaServiceImpl @Inject() (kafkaConfig: KafkaConfig, generalConfig: GeneralConfig) extends KafkaService {
+
   private val kafkaConsumersCache = new ConcurrentHashMap[Properties, KafkaConsumer[String, String]]()
 
+  override def getBeginningOffsets(topic: String, consumerProperties: Properties): Map[Int, Long] = {
+    getOffsets(topic, consumerProperties, BeginningOffsets)
+  }
+
   override def getEndOffsets(topic: String, consumerProperties: Properties): Map[Int, Long] = {
-    val groupId = s"${kafkaConfig.groupIdPrefix}-${generalConfig.appUniqueId}-getEndOffsets"
-    consumerProperties.put(ConsumerConfig.GROUP_ID_CONFIG, groupId)
-    import scala.collection.JavaConverters._
+    getOffsets(topic, consumerProperties, EndOffsets)
+  }
+
+  def createKafkaConsumer(properties: Properties) = new KafkaConsumer[String, String](properties)
+
+  private def getOffsets(topic: String, properties: Properties, offsetFn: OffsetFunction): Map[Int, Long] = {
+    val groupId = s"${kafkaConfig.groupIdPrefix}-${generalConfig.appUniqueId}-kafkaService"
+    properties.put(ConsumerConfig.GROUP_ID_CONFIG, groupId)
     val consumer = kafkaConsumersCache
       .asScala
-      .getOrElse(consumerProperties, {
-                   val consumer = new KafkaConsumer[String, String](consumerProperties)
-                   kafkaConsumersCache.put(consumerProperties, consumer)
-                   consumer
-                 }
-      )
-
-    val partitionInfo = consumer.partitionsFor(topic).asScala
+      .getOrElse(properties, {
+        val consumer = createKafkaConsumer(properties)
+        kafkaConsumersCache.put(properties, consumer)
+        consumer
+      })
+    val partitionInfo = Option(consumer.partitionsFor(topic)).map(_.asScala).getOrElse(Seq())
     val topicPartitions = partitionInfo.map(p => new TopicPartition(p.topic(), p.partition()))
-    consumer
-      .endOffsets(topicPartitions.asJava)
-      .asScala
+    val offsets = offsetFn match {
+      case KafkaServiceImpl.BeginningOffsets => consumer.beginningOffsets(topicPartitions.asJava)
+      case KafkaServiceImpl.EndOffsets => consumer.endOffsets(topicPartitions.asJava)
+    }
+    Option(offsets).map(_.asScala).getOrElse(Map())
       .map { case (topicPartition: TopicPartition, offset: java.lang.Long) =>
         topicPartition.partition() -> offset.longValue()
       }
       .toMap
   }
+
+}
+
+object KafkaServiceImpl {
+  sealed abstract class OffsetFunction
+  case object BeginningOffsets extends OffsetFunction
+  case object EndOffsets extends OffsetFunction
 }
