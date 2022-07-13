@@ -21,7 +21,12 @@ import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito.when
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{FlatSpec, Matchers}
-import za.co.absa.hyperdrive.trigger.configuration.application.{GeneralConfig, KafkaConfig, TestGeneralConfig, TestKafkaConfig}
+import za.co.absa.hyperdrive.trigger.configuration.application.{
+  GeneralConfig,
+  KafkaConfig,
+  TestGeneralConfig,
+  TestKafkaConfig
+}
 
 import java.util.Properties
 
