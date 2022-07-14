@@ -24,17 +24,17 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.configuration.application.SparkConfig
 import za.co.absa.hyperdrive.trigger.models.enums.JobTypes
-import za.co.absa.hyperdrive.trigger.models.{ResolvedJobDefinition, SparkInstanceParameters}
+import za.co.absa.hyperdrive.trigger.models.{JobInstanceParameters, SparkInstanceParameters}
 
 import java.util.Properties
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 trait HyperdriveOffsetComparisonService {
-  def getResolvedAppArguments(jobDefinition: ResolvedJobDefinition): Option[Map[String, String]]
+  def getResolvedAppArguments(jobParameters: JobInstanceParameters): Option[Map[String, String]]
   def getHdfsParameters(resolvedAppArguments: Map[String, String]): Option[HdfsParameters]
-  def getKafkaParameters(jobDefinition: ResolvedJobDefinition): Option[(String, Properties)]
-  def isNewJobInstanceRequired(jobDefinition: ResolvedJobDefinition)(implicit ec: ExecutionContext): Future[Boolean]
+  def getKafkaParameters(jobParameters: JobInstanceParameters): Option[(String, Properties)]
+  def isNewJobInstanceRequired(jobParameters: JobInstanceParameters)(implicit ec: ExecutionContext): Future[Boolean]
 }
 
 @Service
@@ -50,13 +50,13 @@ class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
   private val PropertyDelimiter = "="
   private val ListDelimiter = ','
 
-  override def getResolvedAppArguments(jobDefinition: ResolvedJobDefinition): Option[Map[String, String]] = {
-    if (!isHyperdriveJob(jobDefinition)) {
-      logger.warn(s"Job Definition ${jobDefinition} is not a Hyperdrive Job!")
+  override def getResolvedAppArguments(jobParameters: JobInstanceParameters): Option[Map[String, String]] = {
+    if (!isHyperdriveJob(jobParameters)) {
+      logger.warn(s"Job Parameters ${jobParameters} is not a Hyperdrive Job!")
       None
     } else {
-      val jobParameters = jobDefinition.jobParameters.asInstanceOf[SparkInstanceParameters]
-      val args = jobParameters.appArguments
+      val sparkParameters = jobParameters.asInstanceOf[SparkInstanceParameters]
+      val args = sparkParameters.appArguments
       val config = parseConfiguration(args.toArray)
       import scala.collection.JavaConverters._
       val resolvedArgs = config.getKeys.asScala.map { k =>
@@ -83,12 +83,12 @@ class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
     hdfsParameters
   }
 
-  override def getKafkaParameters(jobDefinition: ResolvedJobDefinition): Option[(String, Properties)] = {
-    if (!isHyperdriveJob(jobDefinition)) {
-      logger.warn(s"Job Definition ${jobDefinition} is not a Hyperdrive Job!")
+  override def getKafkaParameters(jobParameters: JobInstanceParameters): Option[(String, Properties)] = {
+    if (!isHyperdriveJob(jobParameters)) {
+      logger.warn(s"Job Definition ${jobParameters} is not a Hyperdrive Job!")
       None
     } else {
-      val args = jobDefinition.jobParameters.asInstanceOf[SparkInstanceParameters].appArguments
+      val args = jobParameters.asInstanceOf[SparkInstanceParameters].appArguments
       val kafkaParameters = for {
         topic <- args
           .find(_.startsWith(s"$HyperdriveKafkaTopicKey="))
@@ -116,21 +116,21 @@ class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
 
       if (kafkaParameters.isEmpty) {
         logger.warn(
-          s"Could not find required kafka parameters in job definition ${jobDefinition.name} with args ${args}"
+          s"Could not find required kafka parameters in job parameters ${jobParameters} with args ${args}"
         )
       }
       kafkaParameters
     }
   }
 
-  private def isHyperdriveJob(jobDefinition: ResolvedJobDefinition) =
-    jobDefinition.jobParameters.jobType == JobTypes.Hyperdrive &&
-      jobDefinition.jobParameters.isInstanceOf[SparkInstanceParameters]
+  private def isHyperdriveJob(jobParameters: JobInstanceParameters) =
+    jobParameters.jobType == JobTypes.Hyperdrive &&
+      jobParameters.isInstanceOf[SparkInstanceParameters]
 
-  def isNewJobInstanceRequired(jobDefinition: ResolvedJobDefinition)(implicit ec: ExecutionContext): Future[Boolean] = {
-    val kafkaParametersOpt = getKafkaParameters(jobDefinition)
+  def isNewJobInstanceRequired(jobParameters: JobInstanceParameters)(implicit ec: ExecutionContext): Future[Boolean] = {
+    val kafkaParametersOpt = getKafkaParameters(jobParameters)
     if (kafkaParametersOpt.isEmpty) {
-      logger.debug(s"Kafka parameters were not found in job definition ${jobDefinition}")
+      logger.debug(s"Kafka parameters were not found in job definition ${jobParameters}")
     }
 
     val kafkaEndOffsetsOptFut = Future {
@@ -154,7 +154,7 @@ class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
             } else if (offsetsEqual(kafkaBeginningOffsets, kafkaEndOffsets)) { // topic is empty
               Future { false }
             } else {
-              getCheckpointOffsets(jobDefinition, kafkaParametersOpt).map {
+              getCheckpointOffsets(jobParameters, kafkaParametersOpt).map {
                 case Some(checkpointOffsets) => !offsetsConsumed(checkpointOffsets, kafkaEndOffsets)
                 case _                       => true
               }
@@ -170,13 +170,13 @@ class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
     }
   }
 
-  private def getCheckpointOffsets(jobDefinition: ResolvedJobDefinition,
+  private def getCheckpointOffsets(jobParameters: JobInstanceParameters,
                                    kafkaParametersOpt: Option[(String, Properties)]
   )(implicit ec: ExecutionContext): Future[Option[Map[Int, Long]]] = {
-    val hdfsParametersOpt = getResolvedAppArguments(jobDefinition).flatMap(getHdfsParameters)
+    val hdfsParametersOpt = getResolvedAppArguments(jobParameters).flatMap(getHdfsParameters)
 
     if (hdfsParametersOpt.isEmpty) {
-      logger.debug(s"Hdfs parameters were not found in job definition ${jobDefinition}")
+      logger.debug(s"Hdfs parameters were not found in job definition ${jobParameters}")
     }
 
     Future {
