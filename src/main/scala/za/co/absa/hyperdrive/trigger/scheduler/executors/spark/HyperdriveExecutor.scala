@@ -17,7 +17,9 @@ package za.co.absa.hyperdrive.trigger.scheduler.executors.spark
 
 import za.co.absa.hyperdrive.trigger.api.rest.services.HyperdriveOffsetComparisonService
 import za.co.absa.hyperdrive.trigger.configuration.application.SparkConfig
+import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses
 import za.co.absa.hyperdrive.trigger.models.{JobInstance, SparkInstanceParameters}
+import za.co.absa.hyperdrive.trigger.scheduler.executors.spark.HyperdriveExecutor.submitJob
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -34,8 +36,11 @@ object HyperdriveExecutor {
       case Some(executorJobId) => SparkExecutor.updateJobStatus(executorJobId, jobInstance, updateJob, sparkClusterService)
     }
 
-  private def submitJob(sparkClusterService: SparkClusterService, offsetComparisonService: HyperdriveOffsetComparisonService, jobInstance: JobInstance, jobParameters: SparkInstanceParameters, updateJob: JobInstance => Future[Unit]) = {
-    offsetComparisonService.isNewJobInstanceRequired()
-    sparkClusterService.submitJob(jobInstance, jobParameters, updateJob)
+  private def submitJob(sparkClusterService: SparkClusterService, offsetComparisonService: HyperdriveOffsetComparisonService, jobInstance: JobInstance, jobParameters: SparkInstanceParameters, updateJob: JobInstance => Future[Unit])(implicit executionContext: ExecutionContext) = {
+    for {
+      newJobRequired <- offsetComparisonService.isNewJobInstanceRequired(jobInstance.jobParameters)
+      _ <- sparkClusterService.submitJob(jobInstance, jobParameters, updateJob) if newJobRequired
+      _ <- updateJob(jobInstance.copy(jobStatus = JobStatuses.NoData)) if !newJobRequired
+    } yield ()
   }
 }

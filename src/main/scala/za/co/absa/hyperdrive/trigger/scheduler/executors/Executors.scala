@@ -20,18 +20,14 @@ import java.util.concurrent
 import javax.inject.Inject
 import za.co.absa.hyperdrive.trigger.models.{DagInstance, JobInstance, ShellInstanceParameters, SparkInstanceParameters}
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.InvalidExecutor
-import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobStatuses}
+import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobStatuses, JobTypes}
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, JobInstanceRepository}
-import za.co.absa.hyperdrive.trigger.scheduler.executors.spark.{
-  SparkClusterService,
-  SparkEmrClusterServiceImpl,
-  SparkExecutor,
-  SparkYarnClusterServiceImpl
-}
+import za.co.absa.hyperdrive.trigger.scheduler.executors.spark.{HyperdriveExecutor, SparkClusterService, SparkEmrClusterServiceImpl, SparkExecutor, SparkYarnClusterServiceImpl}
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.BeanFactory
 import za.co.absa.hyperdrive.trigger.scheduler.executors.shell.ShellExecutor
 import org.springframework.stereotype.Component
+import za.co.absa.hyperdrive.trigger.api.rest.services.HyperdriveOffsetComparisonService
 import za.co.absa.hyperdrive.trigger.configuration.application.{SchedulerConfig, SparkConfig}
 import za.co.absa.hyperdrive.trigger.scheduler.notifications.NotificationSender
 
@@ -45,7 +41,8 @@ class Executors @Inject() (
   notificationSender: NotificationSender,
   beanFactory: BeanFactory,
   implicit val sparkConfig: SparkConfig,
-  schedulerConfig: SchedulerConfig
+  schedulerConfig: SchedulerConfig,
+  hyperdriveOffsetComparisonService: HyperdriveOffsetComparisonService,
 ) {
   private val logger = LoggerFactory.getLogger(this.getClass)
   private implicit val executionContext: ExecutionContextExecutor =
@@ -98,6 +95,7 @@ class Executors @Inject() (
           jobInstance match {
             case Some(ji) =>
               ji.jobParameters match {
+                case hyperdrive: SparkInstanceParameters if hyperdrive.jobType == JobTypes.Hyperdrive => HyperdriveExecutor.execute(ji, hyperdrive, updateJob, sparkClusterService, hyperdriveOffsetComparisonService)
                 case spark: SparkInstanceParameters => SparkExecutor.execute(ji, spark, updateJob, sparkClusterService)
                 case shell: ShellInstanceParameters => ShellExecutor.execute(ji, shell, updateJob)
                 case _                              => updateJob(ji.copy(jobStatus = InvalidExecutor))
