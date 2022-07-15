@@ -25,7 +25,7 @@ import za.co.absa.hyperdrive.trigger.models.enums.JobTypes
 import za.co.absa.hyperdrive.trigger.models.{ShellInstanceParameters, SparkInstanceParameters}
 
 class HyperdriveOffsetComparisonServiceTest extends AsyncFlatSpec with Matchers with BeforeAndAfter with MockitoSugar {
-  private val hdfsService = mock[HdfsService]
+  private val hdfsService = mock[CheckpointService]
   private val kafkaService = mock[KafkaService]
   private val underTest =
     new HyperdriveOffsetComparisonServiceImpl(DefaultTestSparkConfig().yarn, hdfsService, kafkaService)
@@ -167,7 +167,7 @@ class HyperdriveOffsetComparisonServiceTest extends AsyncFlatSpec with Matchers 
     val jobParameters = getJobParameters
 
     when(hdfsService.getLatestOffsetFilePath(any())).thenReturn(Some(("/checkpoint/path/some-topic/offsets/21", true)))
-    when(hdfsService.parseFileAndClose(any(), any[Iterator[String] => Map[String, Map[Int, Long]]]()))
+    when(hdfsService.getOffsetsFromFile(any()))
       .thenReturn(Option(Map("some-topic" -> Map(2 -> 2021L, 0 -> 21L, 1 -> 1021L))))
     when(kafkaService.getBeginningOffsets(any(), any())).thenReturn(Map(0 -> 0L, 1 -> 1L, 2 -> 2L))
     when(kafkaService.getEndOffsets(any(), any())).thenReturn(Map(0 -> 21L, 1 -> 1021L, 2 -> 2021L))
@@ -180,7 +180,7 @@ class HyperdriveOffsetComparisonServiceTest extends AsyncFlatSpec with Matchers 
       hdfsParametersCaptor.getValue.keytab shouldBe "/path/to/keytab"
       hdfsParametersCaptor.getValue.principal shouldBe "principal"
       hdfsParametersCaptor.getValue.checkpointLocation shouldBe "/checkpoint/path/some-topic"
-      verify(hdfsService).parseFileAndClose(eqTo("/checkpoint/path/some-topic/offsets/21"), any())
+      verify(hdfsService).getOffsetsFromFile(eqTo("/checkpoint/path/some-topic/offsets/21"))
       verify(kafkaService).getEndOffsets(eqTo("some-topic"), any())
       result shouldBe false
     }
@@ -260,14 +260,14 @@ class HyperdriveOffsetComparisonServiceTest extends AsyncFlatSpec with Matchers 
     when(kafkaService.getBeginningOffsets(any(), any())).thenReturn(Map(0 -> 0L))
     when(kafkaService.getEndOffsets(any(), any())).thenReturn(Map(0 -> 100L))
     when(hdfsService.getLatestOffsetFilePath(any())).thenReturn(Some(("1", true)))
-    when(hdfsService.parseFileAndClose(any(), any[Iterator[String] => Map[String, Map[Int, Long]]]()))
+    when(hdfsService.getOffsetsFromFile(any()))
       .thenThrow(new RuntimeException("Failed to parse"))
 
     val resultFut = underTest.isNewJobInstanceRequired(jobParameters)
 
     resultFut.map { result =>
       verify(hdfsService).getLatestOffsetFilePath(any())
-      verify(hdfsService).parseFileAndClose(any(), any())
+      verify(hdfsService).getOffsetsFromFile(any())
       result shouldBe true
     }
   }
@@ -280,14 +280,14 @@ class HyperdriveOffsetComparisonServiceTest extends AsyncFlatSpec with Matchers 
     when(kafkaService.getBeginningOffsets(any(), any())).thenReturn(Map(0 -> 0L))
     when(kafkaService.getEndOffsets(any(), any())).thenReturn(Map(0 -> 100L))
     when(hdfsService.getLatestOffsetFilePath(any())).thenReturn(Some(("1", true)))
-    when(hdfsService.parseFileAndClose(any(), any[Iterator[String] => Map[String, Map[Int, Long]]]()))
+    when(hdfsService.getOffsetsFromFile(any()))
       .thenReturn(Option(Map("some-other-topic" -> Map(0 -> 21L))))
 
     val resultFut = underTest.isNewJobInstanceRequired(jobParameters)
 
     resultFut.map { result =>
       verify(hdfsService).getLatestOffsetFilePath(any())
-      verify(hdfsService).parseFileAndClose(any(), any())
+      verify(hdfsService).getOffsetsFromFile(any())
       result shouldBe true
     }
   }
@@ -298,7 +298,7 @@ class HyperdriveOffsetComparisonServiceTest extends AsyncFlatSpec with Matchers 
     val jobParameters = getJobParameters
 
     when(hdfsService.getLatestOffsetFilePath(any())).thenReturn(Some(("1", true)))
-    when(hdfsService.parseFileAndClose(any(), any[Iterator[String] => Map[String, Map[Int, Long]]]()))
+    when(hdfsService.getOffsetsFromFile(any()))
       .thenReturn(Option(Map("some-topic" -> Map(0 -> 21L))))
     when(kafkaService.getBeginningOffsets(any(), any())).thenReturn(Map(0 -> 0L, 1 -> 1L, 2 -> 2L))
     when(kafkaService.getEndOffsets(any(), any())).thenReturn(Map(0 -> 21L, 1 -> 1021L, 2 -> 2021L))
@@ -307,7 +307,7 @@ class HyperdriveOffsetComparisonServiceTest extends AsyncFlatSpec with Matchers 
 
     resultFut.map { result =>
       verify(hdfsService).getLatestOffsetFilePath(any())
-      verify(hdfsService).parseFileAndClose(any(), any())
+      verify(hdfsService).getOffsetsFromFile(any())
       verify(kafkaService).getEndOffsets(any(), any())
       result shouldBe true
     }
@@ -319,7 +319,7 @@ class HyperdriveOffsetComparisonServiceTest extends AsyncFlatSpec with Matchers 
     val jobParameters = getJobParameters
 
     when(hdfsService.getLatestOffsetFilePath(any())).thenReturn(Some(("1", true)))
-    when(hdfsService.parseFileAndClose(any(), any[Iterator[String] => Map[String, Map[Int, Long]]]()))
+    when(hdfsService.getOffsetsFromFile(any()))
       .thenReturn(Option(Map("some-topic" -> Map(0 -> 42L, 1 -> 55L))))
     when(kafkaService.getBeginningOffsets(any(), any())).thenReturn(Map(0 -> 0L, 1 -> 0L))
     when(kafkaService.getEndOffsets(any(), any())).thenReturn(Map(0 -> 42L, 1 -> 7L))
@@ -328,7 +328,7 @@ class HyperdriveOffsetComparisonServiceTest extends AsyncFlatSpec with Matchers 
 
     resultFut.map { result =>
       verify(hdfsService).getLatestOffsetFilePath(any())
-      verify(hdfsService).parseFileAndClose(any(), any())
+      verify(hdfsService).getOffsetsFromFile(any())
       verify(kafkaService).getEndOffsets(any(), any())
       result shouldBe true
     }

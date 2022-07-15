@@ -39,7 +39,7 @@ trait HyperdriveOffsetComparisonService {
 
 @Service
 class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
-                                                       hdfsService: HdfsService,
+                                                       checkpointService: CheckpointService,
                                                        kafkaService: KafkaService
 ) extends HyperdriveOffsetComparisonService {
   private val logger = LoggerFactory.getLogger(this.getClass)
@@ -182,8 +182,8 @@ class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
     Future {
       val latestOffsetOpt = for {
         hdfsParameters <- hdfsParametersOpt
-        _ = hdfsService.loginUserFromKeytab(hdfsParameters.principal, hdfsParameters.keytab)
-        latestOffset <- hdfsService.getLatestOffsetFilePath(hdfsParameters)
+        _ = checkpointService.loginUserFromKeytab(hdfsParameters.principal, hdfsParameters.keytab)
+        latestOffset <- checkpointService.getLatestOffsetFilePath(hdfsParameters)
       } yield { latestOffset }
       if (latestOffsetOpt.isEmpty || !latestOffsetOpt.get._2) {
         logger.debug(s"Offset does not exist or is not committed ${latestOffsetOpt}")
@@ -196,7 +196,7 @@ class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
       case Some(_) if kafkaParametersOpt.isEmpty => Future { None }
       case Some(latestOffset) =>
         Future {
-          hdfsService.parseFileAndClose(latestOffset._1, hdfsService.parseKafkaOffsetStream)
+          checkpointService.getOffsetsFromFile(latestOffset._1)
         }.recover { case e: Exception =>
           logger.warn(s"Couldn't parse file ${latestOffset._1}", e)
           None

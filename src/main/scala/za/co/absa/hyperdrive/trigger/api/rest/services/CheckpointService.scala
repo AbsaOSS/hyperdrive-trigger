@@ -27,11 +27,10 @@ import java.nio.charset.StandardCharsets.UTF_8
 import javax.inject.Inject
 import scala.io.Source
 
-trait HdfsService {
+trait CheckpointService {
   type TopicPartitionOffsets = Map[String, Map[Int, Long]]
 
-  def parseFileAndClose[R](pathStr: String, parseFn: Iterator[String] => R): Option[R]
-  def parseKafkaOffsetStream(lines: Iterator[String]): TopicPartitionOffsets
+  def getOffsetsFromFile(path: String): Option[TopicPartitionOffsets]
   def getLatestOffsetFilePath(params: HdfsParameters): Option[(String, Boolean)]
   def loginUserFromKeytab(principal: String, keytab: String): Unit
 }
@@ -43,7 +42,7 @@ class HdfsParameters(
 )
 
 @Service
-class HdfsServiceImpl @Inject() (userGroupInformationWrapper: UserGroupInformationWrapper) extends HdfsService {
+class CheckpointServiceImpl @Inject()(userGroupInformationWrapper: UserGroupInformationWrapper) extends CheckpointService {
   private val logger = LoggerFactory.getLogger(this.getClass)
   private val mapper = new ObjectMapper().registerModule(DefaultScalaModule)
   private val offsetsDirName = "offsets"
@@ -66,56 +65,8 @@ class HdfsServiceImpl @Inject() (userGroupInformationWrapper: UserGroupInformati
     }
   }
 
-  /**
-   *  @param pathStr path to the file as a string
-   *  @param parseFn function that parses the file line by line. Caution: It must materialize the content,
-   *                because the file is closed after the method completes. E.g. it must not return an iterator.
-   *  @tparam R type of the parsed value
-   *  @return None if the file doesn't exist, Some with the parsed content
-   */
-  override def parseFileAndClose[R](pathStr: String, parseFn: Iterator[String] => R): Option[R] = {
-    val path = new Path(pathStr)
-    if (fs.exists(path)) {
-      val input = fs.open(path)
-      try {
-        val lines = Source.fromInputStream(input, UTF_8.name()).getLines()
-        Some(parseFn(lines))
-      } catch {
-        case e: Exception =>
-          // re-throw the exception with the log file path added
-          throw new Exception(s"Failed to parse file $path", e)
-      } finally {
-        IOUtils.closeQuietly(input)
-      }
-    } else {
-      logger.debug(s"Could not find file $path")
-      None
-    }
-  }
-
-  /**
-   *  see org.apache.spark.sql.execution.streaming.OffsetSeqLog
-   *  and org.apache.spark.sql.kafka010.JsonUtils
-   *  for details on the assumed format
-   */
-  override def parseKafkaOffsetStream(lines: Iterator[String]): TopicPartitionOffsets = {
-    val SERIALIZED_VOID_OFFSET = "-"
-    def parseOffset(value: String): Option[TopicPartitionOffsets] = value match {
-      case SERIALIZED_VOID_OFFSET => None
-      case json                   => Some(mapper.readValue(json, classOf[TopicPartitionOffsets]))
-    }
-    if (!lines.hasNext) {
-      throw new IllegalStateException("Incomplete log file")
-    }
-
-    lines.next() // skip version
-    lines.next() // skip metadata
-    lines
-      .map(parseOffset)
-      .filter(_.isDefined)
-      .map(_.get)
-      .toSeq
-      .head
+  override def getOffsetsFromFile(path: String): Option[TopicPartitionOffsets] = {
+    parseFileAndClose(path, parseKafkaOffsetStream)
   }
 
   /**
@@ -143,6 +94,58 @@ class HdfsServiceImpl @Inject() (userGroupInformationWrapper: UserGroupInformati
 
   override def loginUserFromKeytab(principal: String, keytab: String): Unit = {
     userGroupInformationWrapper.loginUserFromKeytab(principal, keytab)
+  }
+
+  /**
+   *  @param pathStr path to the file as a string
+   *  @param parseFn function that parses the file line by line. Caution: It must materialize the content,
+   *                because the file is closed after the method completes. E.g. it must not return an iterator.
+   *  @tparam R type of the parsed value
+   *  @return None if the file doesn't exist, Some with the parsed content
+   */
+  private def parseFileAndClose[R](pathStr: String, parseFn: Iterator[String] => R): Option[R] = {
+    val path = new Path(pathStr)
+    if (fs.exists(path)) {
+      val input = fs.open(path)
+      try {
+        val lines = Source.fromInputStream(input, UTF_8.name()).getLines()
+        Some(parseFn(lines))
+      } catch {
+        case e: Exception =>
+          // re-throw the exception with the log file path added
+          throw new Exception(s"Failed to parse file $path", e)
+      } finally {
+        IOUtils.closeQuietly(input)
+      }
+    } else {
+      logger.debug(s"Could not find file $path")
+      None
+    }
+  }
+
+  /**
+   *  see org.apache.spark.sql.execution.streaming.OffsetSeqLog
+   *  and org.apache.spark.sql.kafka010.JsonUtils
+   *  for details on the assumed format
+   */
+  private def parseKafkaOffsetStream(lines: Iterator[String]): TopicPartitionOffsets = {
+    val SERIALIZED_VOID_OFFSET = "-"
+    def parseOffset(value: String): Option[TopicPartitionOffsets] = value match {
+      case SERIALIZED_VOID_OFFSET => None
+      case json                   => Some(mapper.readValue(json, classOf[TopicPartitionOffsets]))
+    }
+    if (!lines.hasNext) {
+      throw new IllegalStateException("Incomplete log file")
+    }
+
+    lines.next() // skip version
+    lines.next() // skip metadata
+    lines
+      .map(parseOffset)
+      .filter(_.isDefined)
+      .map(_.get)
+      .toSeq
+      .head
   }
 
   private def getLatestCommitBatchId(checkpointDir: String): Option[Long] = {
