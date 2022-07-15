@@ -18,11 +18,12 @@ package za.co.absa.hyperdrive.trigger.api.rest.services
 import org.apache.kafka.clients.consumer.{ConsumerConfig, KafkaConsumer}
 import org.apache.kafka.common.TopicPartition
 import org.springframework.stereotype.Service
+import org.springframework.util.ConcurrentLruCache
 import za.co.absa.hyperdrive.trigger.api.rest.services.KafkaServiceImpl.{BeginningOffsets, EndOffsets, OffsetFunction}
-import za.co.absa.hyperdrive.trigger.configuration.application.{GeneralConfig, KafkaConfig}
+import za.co.absa.hyperdrive.trigger.configuration.application.GeneralConfig
 
 import java.util.Properties
-import java.util.concurrent.ConcurrentHashMap
+import java.util.UUID.randomUUID
 import javax.inject.Inject
 import scala.collection.JavaConverters._
 
@@ -32,9 +33,10 @@ trait KafkaService {
 }
 
 @Service
-class KafkaServiceImpl @Inject() (kafkaConfig: KafkaConfig, generalConfig: GeneralConfig) extends KafkaService {
+class KafkaServiceImpl @Inject() (generalConfig: GeneralConfig) extends KafkaService {
 
-  private val kafkaConsumersCache = new ConcurrentHashMap[Properties, KafkaConsumer[String, String]]()
+  private val kafkaConsumersCache = new ConcurrentLruCache[Properties, KafkaConsumer[String, String]](
+    generalConfig.kafkaConsumersCacheSize, createKafkaConsumer)
 
   override def getBeginningOffsets(topic: String, consumerProperties: Properties): Map[Int, Long] = {
     getOffsets(topic, consumerProperties, BeginningOffsets)
@@ -47,15 +49,9 @@ class KafkaServiceImpl @Inject() (kafkaConfig: KafkaConfig, generalConfig: Gener
   def createKafkaConsumer(properties: Properties) = new KafkaConsumer[String, String](properties)
 
   private def getOffsets(topic: String, properties: Properties, offsetFn: OffsetFunction): Map[Int, Long] = {
-    val groupId = s"${kafkaConfig.groupIdPrefix}-${generalConfig.appUniqueId}-kafkaService"
+    val groupId = s"hyperdrive-trigger-kafkaService-${randomUUID().toString}"
     properties.put(ConsumerConfig.GROUP_ID_CONFIG, groupId)
-    val consumer = kafkaConsumersCache.asScala
-      .getOrElse(properties, {
-                   val consumer = createKafkaConsumer(properties)
-                   kafkaConsumersCache.put(properties, consumer)
-                   consumer
-                 }
-      )
+    val consumer = kafkaConsumersCache.get(properties)
     val partitionInfo = Option(consumer.partitionsFor(topic)).map(_.asScala).getOrElse(Seq())
     val topicPartitions = partitionInfo.map(p => new TopicPartition(p.topic(), p.partition()))
     val offsets = offsetFn match {

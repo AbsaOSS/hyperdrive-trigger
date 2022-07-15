@@ -21,23 +21,18 @@ import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito.when
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{FlatSpec, Matchers}
-import za.co.absa.hyperdrive.trigger.configuration.application.{
-  GeneralConfig,
-  KafkaConfig,
-  TestGeneralConfig,
-  TestKafkaConfig
-}
+import za.co.absa.hyperdrive.trigger.configuration.application.{GeneralConfig, TestGeneralConfig}
 
 import java.util.Properties
 
 class KafkaServiceTest extends FlatSpec with MockitoSugar with Matchers {
 
   private val mockKafkaConsumer = mock[KafkaConsumer[String, String]]
-  class KafkaServiceTestImpl(kafkaConfig: KafkaConfig, generalConfig: GeneralConfig)
-      extends KafkaServiceImpl(kafkaConfig, generalConfig) {
+  class KafkaServiceTestImpl(generalConfig: GeneralConfig)
+      extends KafkaServiceImpl(generalConfig) {
     override def createKafkaConsumer(properties: Properties): KafkaConsumer[String, String] = mockKafkaConsumer
   }
-  private val underTest = new KafkaServiceTestImpl(TestKafkaConfig(), TestGeneralConfig())
+  private val underTest = new KafkaServiceTestImpl(TestGeneralConfig())
 
   "getEndOffsets" should "return a map of end offsets" in {
     import scala.collection.JavaConverters._
