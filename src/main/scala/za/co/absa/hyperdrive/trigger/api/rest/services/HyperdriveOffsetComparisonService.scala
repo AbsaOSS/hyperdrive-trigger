@@ -47,7 +47,18 @@ class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
   private val PropertyDelimiter = "="
   private val ListDelimiter = ','
 
-
+  /**
+   *
+   * @param jobParameters Parameters for the job instance. Should contain at least
+   *                      - reader.kafka.topic
+   *                      - reader.kafka.brokers
+   *                      - writer.common.checkpoint.location
+   * @param ec ExecutionContext
+   * @return - false if the job instance can be skipped. This is determined if the checkpoint offset is equal
+   *         to the latest offsets on the kafka topic. A job instance can also be skipped if the kafka topic doesn't exist
+   *         or if it's empty.
+   *         - true otherwise
+   */
   def isNewJobInstanceRequired(jobParameters: JobInstanceParameters)(implicit ec: ExecutionContext): Future[Boolean] = {
     val kafkaParametersOpt = getKafkaParameters(jobParameters)
     if (kafkaParametersOpt.isEmpty) {
@@ -70,13 +81,18 @@ class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
       kafkaBeginningOffsetsOptFut.flatMap { kafkaBeginningOffsetsOpt =>
         (kafkaBeginningOffsetsOpt, kafkaEndOffsetsOpt) match {
           case (Some(kafkaBeginningOffsets), Some(kafkaEndOffsets)) =>
-            if (kafkaBeginningOffsets.isEmpty) { // topic does not exist
+            if (kafkaBeginningOffsets.isEmpty) {
+              logger.info(s"Topic ${kafkaParametersOpt.get._1} does not exist. Skipping job instance" )
               Future { false }
-            } else if (offsetsEqual(kafkaBeginningOffsets, kafkaEndOffsets)) { // topic is empty
+            } else if (offsetsEqual(kafkaBeginningOffsets, kafkaEndOffsets)) {
+              logger.info(s"Topic ${kafkaParametersOpt.get._1} is empty. Skipping job instance")
               Future { false }
             } else {
               getCheckpointOffsets(jobParameters, kafkaParametersOpt).map {
-                case Some(checkpointOffsets) => !offsetsConsumed(checkpointOffsets, kafkaEndOffsets)
+                case Some(checkpointOffsets) =>
+                  val allConsumed = offsetsConsumed(checkpointOffsets, kafkaEndOffsets)
+                  logger.info(s"All offsets consumed for topic ${kafkaParametersOpt.get._1}. Skipping job instance")
+                  !allConsumed
                 case _                       => true
               }
             }
