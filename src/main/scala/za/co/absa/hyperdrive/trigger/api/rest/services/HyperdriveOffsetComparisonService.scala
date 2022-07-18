@@ -46,6 +46,7 @@ class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
   private val HyperdriveKafkaExtraOptionsKey = "reader.option.kafka"
   private val PropertyDelimiter = "="
   private val ListDelimiter = ','
+  private val defaultDeserializer = "org.apache.kafka.common.serialization.StringDeserializer"
 
   /**
    *  @param jobParameters Parameters for the job instance. Should contain at least
@@ -166,6 +167,8 @@ class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
       } yield {
         val properties = new Properties()
         properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, brokers)
+        properties.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, defaultDeserializer)
+        properties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, defaultDeserializer)
         extraArgs.foreach { case (key, value) => properties.setProperty(key, value) }
         (topic, properties)
       }
