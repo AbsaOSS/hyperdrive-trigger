@@ -19,7 +19,6 @@ import za.co.absa.hyperdrive.trigger.api.rest.services.HyperdriveOffsetCompariso
 import za.co.absa.hyperdrive.trigger.configuration.application.SparkConfig
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses
 import za.co.absa.hyperdrive.trigger.models.{JobInstance, SparkInstanceParameters}
-import za.co.absa.hyperdrive.trigger.scheduler.executors.spark.HyperdriveExecutor.submitJob
 
 import scala.concurrent.{ExecutionContext, Future}
 

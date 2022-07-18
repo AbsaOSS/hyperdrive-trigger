@@ -45,7 +45,7 @@
         <clr-icon *ngSwitchCase="jobStatuses.FAILED" shape="error-standard" class="is-solid" style="color: red"></clr-icon>
         <clr-icon *ngSwitchCase="jobStatuses.SKIPPED" shape="fast-forward" class="is-solid" style="color: grey"></clr-icon>
         <clr-icon *ngSwitchCase="jobStatuses.SUBMISSION_TIMEOUT" shape="clock" class="has-badge is-solid" style="color: orangered"></clr-icon>
-        <clr-icon *ngSwitchCase="jobStatuses.NO_DATA" shape="exclamation-circle" class="is-solid" style="color: orangered"></clr-icon>
+        <clr-icon *ngSwitchCase="jobStatuses.NO_DATA" shape="exclamation-triangle" class="is-solid" style="color: grey"></clr-icon>
         <clr-icon *ngSwitchDefault shape="help" class="is-solid" style="color: darkgoldenrod"></clr-icon>
         {{jobInstance.jobStatus.name}}
       </clr-dg-cell>

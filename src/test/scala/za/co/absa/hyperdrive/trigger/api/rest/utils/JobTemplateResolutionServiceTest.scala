@@ -282,7 +282,7 @@ class JobTemplateResolutionServiceTest extends FlatSpec with Matchers {
     )
 
     // then
-    templateDefined.head.jobParameters.jobType shouldBe JobTypes.Spark
+    templateDefined.head.jobParameters.jobType shouldBe JobTypes.Hyperdrive
     templateDefined.head.jobParameters
       .asInstanceOf[SparkInstanceParameters]
       .jobJar shouldBe sparkTemplateParametersDefined.jobJar
@@ -302,7 +302,7 @@ class JobTemplateResolutionServiceTest extends FlatSpec with Matchers {
       .asInstanceOf[SparkInstanceParameters]
       .additionalSparkConfig should contain theSameElementsAs sparkTemplateParametersDefined.additionalSparkConfig
 
-    bothScriptsDefined.head.jobParameters.jobType shouldBe JobTypes.Spark
+    bothScriptsDefined.head.jobParameters.jobType shouldBe JobTypes.Hyperdrive
     bothScriptsDefined.head.jobParameters
       .asInstanceOf[SparkInstanceParameters]
       .jobJar shouldBe sparkTemplateParametersDefined.jobJar
