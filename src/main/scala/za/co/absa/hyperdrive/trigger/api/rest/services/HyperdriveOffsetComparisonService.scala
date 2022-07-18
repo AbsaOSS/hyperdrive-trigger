@@ -31,9 +31,6 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 trait HyperdriveOffsetComparisonService {
-  def getResolvedAppArguments(jobParameters: JobInstanceParameters): Option[Map[String, String]]
-  def getHdfsParameters(resolvedAppArguments: Map[String, String]): Option[HdfsParameters]
-  def getKafkaParameters(jobParameters: JobInstanceParameters): Option[(String, Properties)]
   def isNewJobInstanceRequired(jobParameters: JobInstanceParameters)(implicit ec: ExecutionContext): Future[Boolean]
 }
 
@@ -50,82 +47,6 @@ class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
   private val PropertyDelimiter = "="
   private val ListDelimiter = ','
 
-  override def getResolvedAppArguments(jobParameters: JobInstanceParameters): Option[Map[String, String]] = {
-    if (!isHyperdriveJob(jobParameters)) {
-      logger.warn(s"Job Parameters ${jobParameters} is not a Hyperdrive Job!")
-      None
-    } else {
-      val sparkParameters = jobParameters.asInstanceOf[SparkInstanceParameters]
-      val args = sparkParameters.appArguments
-      val config = parseConfiguration(args.toArray)
-      import scala.collection.JavaConverters._
-      val resolvedArgs = config.getKeys.asScala.map { k =>
-        k -> config.getString(k)
-      }.toMap
-      Some(resolvedArgs)
-    }
-  }
-
-  override def getHdfsParameters(resolvedAppArguments: Map[String, String]): Option[HdfsParameters] = {
-    val hdfsParameters = for {
-      keytab <- sparkConfig.yarn.additionalConfs.get("spark.yarn.keytab")
-      principal <- sparkConfig.yarn.additionalConfs.get("spark.yarn.principal")
-      checkpointLocation <- resolvedAppArguments.get(HyperdriveCheckpointKey)
-    } yield new HdfsParameters(keytab, principal, checkpointLocation)
-
-    if (hdfsParameters.isEmpty) {
-      logger.warn(
-        s"Could not extract hdfs parameters from spark config ${sparkConfig}" +
-          s" and resolved app arguments ${resolvedAppArguments}"
-      )
-    }
-
-    hdfsParameters
-  }
-
-  override def getKafkaParameters(jobParameters: JobInstanceParameters): Option[(String, Properties)] = {
-    if (!isHyperdriveJob(jobParameters)) {
-      logger.warn(s"Job Definition ${jobParameters} is not a Hyperdrive Job!")
-      None
-    } else {
-      val args = jobParameters.asInstanceOf[SparkInstanceParameters].appArguments
-      val kafkaParameters = for {
-        topic <- args
-          .find(_.startsWith(s"$HyperdriveKafkaTopicKey="))
-          .map(_.replace(s"$HyperdriveKafkaTopicKey=", ""))
-        brokers <- args
-          .find(_.startsWith(s"$HyperdriveKafkaBrokersKey="))
-          .map(_.replace(s"$HyperdriveKafkaBrokersKey=", ""))
-        extraArgs = args
-          .filter(_.startsWith(s"$HyperdriveKafkaExtraOptionsKey."))
-          .map(_.replace(s"$HyperdriveKafkaExtraOptionsKey.", ""))
-          .filter(_.contains("="))
-          .map { s =>
-            val keyValue = s.split("=", 2)
-            val key = keyValue(0).trim
-            val value = keyValue(1).trim
-            (key, value)
-          }
-          .toMap
-      } yield {
-        val properties = new Properties()
-        properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, brokers)
-        extraArgs.foreach { case (key, value) => properties.setProperty(key, value) }
-        (topic, properties)
-      }
-
-      if (kafkaParameters.isEmpty) {
-        logger.warn(
-          s"Could not find required kafka parameters in job parameters ${jobParameters} with args ${args}"
-        )
-      }
-      kafkaParameters
-    }
-  }
-
-  private def isHyperdriveJob(jobParameters: JobInstanceParameters) =
-    jobParameters.jobType == JobTypes.Hyperdrive &&
-      jobParameters.isInstanceOf[SparkInstanceParameters]
 
   def isNewJobInstanceRequired(jobParameters: JobInstanceParameters)(implicit ec: ExecutionContext): Future[Boolean] = {
     val kafkaParametersOpt = getKafkaParameters(jobParameters)
@@ -169,6 +90,83 @@ class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
       true
     }
   }
+
+  private def getResolvedAppArguments(jobParameters: JobInstanceParameters): Option[Map[String, String]] = {
+    if (!isHyperdriveJob(jobParameters)) {
+      logger.warn(s"Job Parameters ${jobParameters} is not a Hyperdrive Job!")
+      None
+    } else {
+      val sparkParameters = jobParameters.asInstanceOf[SparkInstanceParameters]
+      val args = sparkParameters.appArguments
+      val config = parseConfiguration(args.toArray)
+      import scala.collection.JavaConverters._
+      val resolvedArgs = config.getKeys.asScala.map { k =>
+        k -> config.getString(k)
+      }.toMap
+      Some(resolvedArgs)
+    }
+  }
+
+  private def getHdfsParameters(resolvedAppArguments: Map[String, String]): Option[HdfsParameters] = {
+    val hdfsParameters = for {
+      keytab <- sparkConfig.yarn.additionalConfs.get("spark.yarn.keytab")
+      principal <- sparkConfig.yarn.additionalConfs.get("spark.yarn.principal")
+      checkpointLocation <- resolvedAppArguments.get(HyperdriveCheckpointKey)
+    } yield new HdfsParameters(keytab, principal, checkpointLocation)
+
+    if (hdfsParameters.isEmpty) {
+      logger.warn(
+        s"Could not extract hdfs parameters from spark config ${sparkConfig}" +
+          s" and resolved app arguments ${resolvedAppArguments}"
+      )
+    }
+
+    hdfsParameters
+  }
+
+  private def getKafkaParameters(jobParameters: JobInstanceParameters): Option[(String, Properties)] = {
+    if (!isHyperdriveJob(jobParameters)) {
+      logger.warn(s"Job Definition ${jobParameters} is not a Hyperdrive Job!")
+      None
+    } else {
+      val args = jobParameters.asInstanceOf[SparkInstanceParameters].appArguments
+      val kafkaParameters = for {
+        topic <- args
+          .find(_.startsWith(s"$HyperdriveKafkaTopicKey="))
+          .map(_.replace(s"$HyperdriveKafkaTopicKey=", ""))
+        brokers <- args
+          .find(_.startsWith(s"$HyperdriveKafkaBrokersKey="))
+          .map(_.replace(s"$HyperdriveKafkaBrokersKey=", ""))
+        extraArgs = args
+          .filter(_.startsWith(s"$HyperdriveKafkaExtraOptionsKey."))
+          .map(_.replace(s"$HyperdriveKafkaExtraOptionsKey.", ""))
+          .filter(_.contains("="))
+          .map { s =>
+            val keyValue = s.split("=", 2)
+            val key = keyValue(0).trim
+            val value = keyValue(1).trim
+            (key, value)
+          }
+          .toMap
+      } yield {
+        val properties = new Properties()
+        properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, brokers)
+        extraArgs.foreach { case (key, value) => properties.setProperty(key, value) }
+        (topic, properties)
+      }
+
+      if (kafkaParameters.isEmpty) {
+        logger.warn(
+          s"Could not find required kafka parameters in job parameters ${jobParameters} with args ${args}"
+        )
+      }
+      kafkaParameters
+    }
+  }
+
+  private def isHyperdriveJob(jobParameters: JobInstanceParameters) =
+    jobParameters.jobType == JobTypes.Hyperdrive &&
+      jobParameters.isInstanceOf[SparkInstanceParameters]
 
   private def getCheckpointOffsets(jobParameters: JobInstanceParameters,
                                    kafkaParametersOpt: Option[(String, Properties)]

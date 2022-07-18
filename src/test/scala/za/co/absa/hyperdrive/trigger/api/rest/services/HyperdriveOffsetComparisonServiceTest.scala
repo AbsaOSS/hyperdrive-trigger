@@ -25,149 +25,23 @@ import za.co.absa.hyperdrive.trigger.models.enums.JobTypes
 import za.co.absa.hyperdrive.trigger.models.{ShellInstanceParameters, SparkInstanceParameters}
 
 class HyperdriveOffsetComparisonServiceTest extends AsyncFlatSpec with Matchers with BeforeAndAfter with MockitoSugar {
-  private val hdfsService = mock[CheckpointService]
+  private val checkpointService = mock[CheckpointService]
   private val kafkaService = mock[KafkaService]
   private val underTest =
-    new HyperdriveOffsetComparisonServiceImpl(DefaultTestSparkConfig().yarn, hdfsService, kafkaService)
+    new HyperdriveOffsetComparisonServiceImpl(DefaultTestSparkConfig().yarn, checkpointService, kafkaService)
 
   before {
-    reset(hdfsService)
+    reset(checkpointService)
     reset(kafkaService)
-  }
-
-  "getResolvedAppArguments" should "return the resolved app arguments" in {
-    val jobParameters = SparkInstanceParameters(
-      jobType = JobTypes.Hyperdrive,
-      jobJar = "job.jar",
-      mainClass = "mainClass",
-      appArguments = List(
-        "reader.kafka.topic=my-topic",
-        "writer.common.checkpoint.location=/checkpoint/path/${reader.kafka.topic}"
-      )
-    )
-    val result = underTest.getResolvedAppArguments(jobParameters)
-
-    result.isDefined shouldBe true
-    result.get should contain theSameElementsAs Map(
-      "reader.kafka.topic" -> "my-topic",
-      "writer.common.checkpoint.location" -> "/checkpoint/path/my-topic"
-    )
-  }
-
-  it should "return None if the job type is not hyperdrive" in {
-    val jobParameters = SparkInstanceParameters(
-      jobType = JobTypes.Spark,
-      jobJar = "job.jar",
-      mainClass = "mainClass",
-      appArguments = List(
-        "reader.kafka.topic=my-topic",
-        "writer.common.checkpoint.location=/checkpoint/path/${reader.kafka.topic}"
-      )
-    )
-
-    val result = underTest.getResolvedAppArguments(jobParameters)
-
-    result shouldBe None
-  }
-
-  "getHdfsParameters" should "get the hdfs parameters from the configs" in {
-    val config = DefaultTestSparkConfig().copy(additionalConfs =
-      Map(
-        "spark.yarn.keytab" -> "/path/to/keytab",
-        "spark.yarn.principal" -> "principal"
-      )
-    )
-    val underTest = new HyperdriveOffsetComparisonServiceImpl(config.yarn, hdfsService, kafkaService)
-    val appArguments = Map(
-      "writer.common.checkpoint.location" -> "/checkpoint/path/my-topic"
-    )
-
-    val params = underTest.getHdfsParameters(appArguments)
-
-    params.isDefined shouldBe true
-    params.get.keytab shouldBe "/path/to/keytab"
-    params.get.principal shouldBe "principal"
-    params.get.checkpointLocation shouldBe "/checkpoint/path/my-topic"
-  }
-
-  "getKafkaParameters" should "get kafka properties from a resolved job definition" in {
-    val jobParameters = SparkInstanceParameters(
-      jobType = JobTypes.Hyperdrive,
-      jobJar = "job.jar",
-      mainClass = "mainClass",
-      appArguments = List(
-        "reader.kafka.topic=some-topic",
-        "reader.kafka.brokers=http://localhost:9092",
-        "reader.option.kafka.security.protocol=PLAINTEXT"
-      )
-    )
-
-    val result = underTest.getKafkaParameters(jobParameters)
-
-    result.isDefined shouldBe true
-    result.get._1 shouldBe "some-topic"
-    val properties = result.get._2
-    properties.getProperty("bootstrap.servers") shouldBe "http://localhost:9092"
-    properties.getProperty("security.protocol") shouldBe "PLAINTEXT"
-  }
-
-  it should "return None if the topic is not in the app arguments" in {
-    val jobParameters = SparkInstanceParameters(
-      jobType = JobTypes.Hyperdrive,
-      jobJar = "job.jar",
-      mainClass = "mainClass",
-      appArguments = List("reader.kafka.brokers=http://localhost:9092")
-    )
-
-    val result = underTest.getKafkaParameters(jobParameters)
-
-    result shouldBe None
-  }
-
-  it should "return None if the kafka brokers are not in the app arguments" in {
-    val jobParameters = SparkInstanceParameters(
-      jobType = JobTypes.Hyperdrive,
-      jobJar = "job.jar",
-      mainClass = "mainClass",
-      appArguments = List("reader.kafka.topic=some-topic")
-    )
-
-    val result = underTest.getKafkaParameters(jobParameters)
-
-    result shouldBe None
-  }
-
-  it should "return None if the job type is not Hyperdrive" in {
-    val jobParameters = SparkInstanceParameters(
-      jobType = JobTypes.Spark,
-      jobJar = "job.jar",
-      mainClass = "mainClass",
-      appArguments = List("reader.kafka.topic=some-topic", "reader.kafka.brokers=http://localhost:9092")
-    )
-
-    val result = underTest.getKafkaParameters(jobParameters)
-
-    result shouldBe None
-  }
-
-  it should "return None if the jobParameters are not SparkInstanceParameters" in {
-    val jobParameters = ShellInstanceParameters(
-      jobType = JobTypes.Hyperdrive,
-      scriptLocation = "script.sh"
-    )
-
-    val result = underTest.getKafkaParameters(jobParameters)
-
-    result shouldBe None
   }
 
   "isNewJobInstanceRequired" should "return false if the kafka and checkpoint folder offsets are the same" in {
     val config = getSparkConfig
-    val underTest = new HyperdriveOffsetComparisonServiceImpl(config.yarn, hdfsService, kafkaService)
+    val underTest = new HyperdriveOffsetComparisonServiceImpl(config.yarn, checkpointService, kafkaService)
     val jobParameters = getJobParameters
 
-    when(hdfsService.getLatestOffsetFilePath(any())).thenReturn(Some(("/checkpoint/path/some-topic/offsets/21", true)))
-    when(hdfsService.getOffsetsFromFile(any()))
+    when(checkpointService.getLatestOffsetFilePath(any())).thenReturn(Some(("/checkpoint/path/some-topic/offsets/21", true)))
+    when(checkpointService.getOffsetsFromFile(any()))
       .thenReturn(Option(Map("some-topic" -> Map(2 -> 2021L, 0 -> 21L, 1 -> 1021L))))
     when(kafkaService.getBeginningOffsets(any(), any())).thenReturn(Map(0 -> 0L, 1 -> 1L, 2 -> 2L))
     when(kafkaService.getEndOffsets(any(), any())).thenReturn(Map(0 -> 21L, 1 -> 1021L, 2 -> 2021L))
@@ -176,19 +50,74 @@ class HyperdriveOffsetComparisonServiceTest extends AsyncFlatSpec with Matchers 
 
     resultFut.map { result =>
       val hdfsParametersCaptor: ArgumentCaptor[HdfsParameters] = ArgumentCaptor.forClass(classOf[HdfsParameters])
-      verify(hdfsService).getLatestOffsetFilePath(hdfsParametersCaptor.capture())
+      verify(checkpointService).getLatestOffsetFilePath(hdfsParametersCaptor.capture())
       hdfsParametersCaptor.getValue.keytab shouldBe "/path/to/keytab"
       hdfsParametersCaptor.getValue.principal shouldBe "principal"
       hdfsParametersCaptor.getValue.checkpointLocation shouldBe "/checkpoint/path/some-topic"
-      verify(hdfsService).getOffsetsFromFile(eqTo("/checkpoint/path/some-topic/offsets/21"))
+      verify(checkpointService).getOffsetsFromFile(eqTo("/checkpoint/path/some-topic/offsets/21"))
       verify(kafkaService).getEndOffsets(eqTo("some-topic"), any())
       result shouldBe false
     }
   }
 
+  it should "return true if the job type is not hyperdrive" in {
+    val jobParameters = getJobParameters.copy(jobType = JobTypes.Spark)
+
+    val resultFut = underTest.isNewJobInstanceRequired(jobParameters)
+
+    resultFut.map { result =>
+      verify(checkpointService, never()).getLatestOffsetFilePath(any())
+      verify(checkpointService, never()).getOffsetsFromFile(any())
+      verify(kafkaService, never()).getEndOffsets(any(), any())
+      result shouldBe true
+    }
+  }
+
+  it should "return true if the topic is not in the app arguments" in {
+    val jobParameters = getJobParameters.copy(appArguments = List("reader.kafka.brokers=http://localhost:9092"))
+
+    val resultFut = underTest.isNewJobInstanceRequired(jobParameters)
+
+    resultFut.map { result =>
+      verify(checkpointService, never()).getLatestOffsetFilePath(any())
+      verify(checkpointService, never()).getOffsetsFromFile(any())
+      verify(kafkaService, never()).getEndOffsets(any(), any())
+      result shouldBe true
+    }
+  }
+
+  it should "return true if the kafka brokers are not in the app arguments" in {
+    val jobParameters = getJobParameters.copy(appArguments = List("reader.kafka.topic=my-topic"))
+
+    val resultFut = underTest.isNewJobInstanceRequired(jobParameters)
+
+    resultFut.map { result =>
+      verify(checkpointService, never()).getLatestOffsetFilePath(any())
+      verify(checkpointService, never()).getOffsetsFromFile(any())
+      verify(kafkaService, never()).getEndOffsets(any(), any())
+      result shouldBe true
+    }
+  }
+
+  it should "return true if the jobParameters are not SparkInstanceParameters" in {
+    val jobParameters = ShellInstanceParameters(
+      jobType = JobTypes.Hyperdrive,
+      scriptLocation = "script.sh"
+    )
+
+    val resultFut = underTest.isNewJobInstanceRequired(jobParameters)
+
+    resultFut.map { result =>
+      verify(checkpointService, never()).getLatestOffsetFilePath(any())
+      verify(checkpointService, never()).getOffsetsFromFile(any())
+      verify(kafkaService, never()).getEndOffsets(any(), any())
+      result shouldBe true
+    }
+  }
+
   it should "return false if the kafka topic does not exist" in {
     val config = getSparkConfig
-    val underTest = new HyperdriveOffsetComparisonServiceImpl(config.yarn, hdfsService, kafkaService)
+    val underTest = new HyperdriveOffsetComparisonServiceImpl(config.yarn, checkpointService, kafkaService)
     val jobParameters = getJobParameters
 
     when(kafkaService.getBeginningOffsets(any(), any())).thenReturn(Map[Int, Long]())
@@ -197,14 +126,14 @@ class HyperdriveOffsetComparisonServiceTest extends AsyncFlatSpec with Matchers 
     val resultFut = underTest.isNewJobInstanceRequired(jobParameters)
 
     resultFut.map { result =>
-      verify(hdfsService, never()).getLatestOffsetFilePath(any())
+      verify(checkpointService, never()).getLatestOffsetFilePath(any())
       result shouldBe false
     }
   }
 
   it should "return false if the kafka topic is empty" in {
     val config = getSparkConfig
-    val underTest = new HyperdriveOffsetComparisonServiceImpl(config.yarn, hdfsService, kafkaService)
+    val underTest = new HyperdriveOffsetComparisonServiceImpl(config.yarn, checkpointService, kafkaService)
     val jobParameters = getJobParameters
 
     when(kafkaService.getBeginningOffsets(any(), any())).thenReturn(Map(0 -> 21L, 1 -> 42L))
@@ -213,92 +142,92 @@ class HyperdriveOffsetComparisonServiceTest extends AsyncFlatSpec with Matchers 
     val resultFut = underTest.isNewJobInstanceRequired(jobParameters)
 
     resultFut.map { result =>
-      verify(hdfsService, never()).getLatestOffsetFilePath(any())
+      verify(checkpointService, never()).getLatestOffsetFilePath(any())
       result shouldBe false
     }
   }
 
   it should "return true if no offset file is present" in {
     val config = getSparkConfig
-    val underTest = new HyperdriveOffsetComparisonServiceImpl(config.yarn, hdfsService, kafkaService)
+    val underTest = new HyperdriveOffsetComparisonServiceImpl(config.yarn, checkpointService, kafkaService)
     val jobParameters = getJobParameters
 
     when(kafkaService.getBeginningOffsets(any(), any())).thenReturn(Map(0 -> 0L))
     when(kafkaService.getEndOffsets(any(), any())).thenReturn(Map(0 -> 100L))
-    when(hdfsService.getLatestOffsetFilePath(any())).thenReturn(None)
+    when(checkpointService.getLatestOffsetFilePath(any())).thenReturn(None)
 
     val resultFut = underTest.isNewJobInstanceRequired(jobParameters)
 
     resultFut.map { result =>
-      verify(hdfsService).getLatestOffsetFilePath(any())
+      verify(checkpointService).getLatestOffsetFilePath(any())
       result shouldBe true
     }
   }
 
   it should "return true if the offset is not committed" in {
     val config = getSparkConfig
-    val underTest = new HyperdriveOffsetComparisonServiceImpl(config.yarn, hdfsService, kafkaService)
+    val underTest = new HyperdriveOffsetComparisonServiceImpl(config.yarn, checkpointService, kafkaService)
     val jobParameters = getJobParameters
 
     when(kafkaService.getBeginningOffsets(any(), any())).thenReturn(Map(0 -> 0L))
     when(kafkaService.getEndOffsets(any(), any())).thenReturn(Map(0 -> 100L))
-    when(hdfsService.getLatestOffsetFilePath(any())).thenReturn(Some(("1", false)))
+    when(checkpointService.getLatestOffsetFilePath(any())).thenReturn(Some(("1", false)))
 
     val resultFut = underTest.isNewJobInstanceRequired(jobParameters)
 
     resultFut.map { result =>
-      verify(hdfsService).getLatestOffsetFilePath(any())
+      verify(checkpointService).getLatestOffsetFilePath(any())
       result shouldBe true
     }
   }
 
   it should "return true if a offset file could not be parsed" in {
     val config = getSparkConfig
-    val underTest = new HyperdriveOffsetComparisonServiceImpl(config.yarn, hdfsService, kafkaService)
+    val underTest = new HyperdriveOffsetComparisonServiceImpl(config.yarn, checkpointService, kafkaService)
     val jobParameters = getJobParameters
 
     when(kafkaService.getBeginningOffsets(any(), any())).thenReturn(Map(0 -> 0L))
     when(kafkaService.getEndOffsets(any(), any())).thenReturn(Map(0 -> 100L))
-    when(hdfsService.getLatestOffsetFilePath(any())).thenReturn(Some(("1", true)))
-    when(hdfsService.getOffsetsFromFile(any()))
+    when(checkpointService.getLatestOffsetFilePath(any())).thenReturn(Some(("1", true)))
+    when(checkpointService.getOffsetsFromFile(any()))
       .thenThrow(new RuntimeException("Failed to parse"))
 
     val resultFut = underTest.isNewJobInstanceRequired(jobParameters)
 
     resultFut.map { result =>
-      verify(hdfsService).getLatestOffsetFilePath(any())
-      verify(hdfsService).getOffsetsFromFile(any())
+      verify(checkpointService).getLatestOffsetFilePath(any())
+      verify(checkpointService).getOffsetsFromFile(any())
       result shouldBe true
     }
   }
 
   it should "return true if the checkpoints offset does not contain the topic" in {
     val config = getSparkConfig
-    val underTest = new HyperdriveOffsetComparisonServiceImpl(config.yarn, hdfsService, kafkaService)
+    val underTest = new HyperdriveOffsetComparisonServiceImpl(config.yarn, checkpointService, kafkaService)
     val jobParameters = getJobParameters
 
     when(kafkaService.getBeginningOffsets(any(), any())).thenReturn(Map(0 -> 0L))
     when(kafkaService.getEndOffsets(any(), any())).thenReturn(Map(0 -> 100L))
-    when(hdfsService.getLatestOffsetFilePath(any())).thenReturn(Some(("1", true)))
-    when(hdfsService.getOffsetsFromFile(any()))
+    when(checkpointService.getLatestOffsetFilePath(any())).thenReturn(Some(("1", true)))
+    when(checkpointService.getOffsetsFromFile(any()))
       .thenReturn(Option(Map("some-other-topic" -> Map(0 -> 21L))))
 
     val resultFut = underTest.isNewJobInstanceRequired(jobParameters)
 
     resultFut.map { result =>
-      verify(hdfsService).getLatestOffsetFilePath(any())
-      verify(hdfsService).getOffsetsFromFile(any())
+      verify(checkpointService).getLatestOffsetFilePath(any())
+      verify(checkpointService).getOffsetsFromFile(any())
       result shouldBe true
     }
   }
 
   it should "return true if the kafka offsets and checkpoint offset do not have the same set of partitions" in {
     val config = getSparkConfig
-    val underTest = new HyperdriveOffsetComparisonServiceImpl(config.yarn, hdfsService, kafkaService)
+    val underTest = new HyperdriveOffsetComparisonServiceImpl(config.yarn, checkpointService, kafkaService)
     val jobParameters = getJobParameters
 
-    when(hdfsService.getLatestOffsetFilePath(any())).thenReturn(Some(("1", true)))
-    when(hdfsService.getOffsetsFromFile(any()))
+    when(checkpointService.getLatestOffsetFilePath(any())).thenReturn(Some(("1", true)))
+    when(checkpointService.getOffsetsFromFile(any()))
       .thenReturn(Option(Map("some-topic" -> Map(0 -> 21L))))
     when(kafkaService.getBeginningOffsets(any(), any())).thenReturn(Map(0 -> 0L, 1 -> 1L, 2 -> 2L))
     when(kafkaService.getEndOffsets(any(), any())).thenReturn(Map(0 -> 21L, 1 -> 1021L, 2 -> 2021L))
@@ -306,8 +235,8 @@ class HyperdriveOffsetComparisonServiceTest extends AsyncFlatSpec with Matchers 
     val resultFut = underTest.isNewJobInstanceRequired(jobParameters)
 
     resultFut.map { result =>
-      verify(hdfsService).getLatestOffsetFilePath(any())
-      verify(hdfsService).getOffsetsFromFile(any())
+      verify(checkpointService).getLatestOffsetFilePath(any())
+      verify(checkpointService).getOffsetsFromFile(any())
       verify(kafkaService).getEndOffsets(any(), any())
       result shouldBe true
     }
@@ -315,11 +244,11 @@ class HyperdriveOffsetComparisonServiceTest extends AsyncFlatSpec with Matchers 
 
   it should "return true if the kafka offsets and checkpoint offsets are not the same" in {
     val config = getSparkConfig
-    val underTest = new HyperdriveOffsetComparisonServiceImpl(config.yarn, hdfsService, kafkaService)
+    val underTest = new HyperdriveOffsetComparisonServiceImpl(config.yarn, checkpointService, kafkaService)
     val jobParameters = getJobParameters
 
-    when(hdfsService.getLatestOffsetFilePath(any())).thenReturn(Some(("1", true)))
-    when(hdfsService.getOffsetsFromFile(any()))
+    when(checkpointService.getLatestOffsetFilePath(any())).thenReturn(Some(("1", true)))
+    when(checkpointService.getOffsetsFromFile(any()))
       .thenReturn(Option(Map("some-topic" -> Map(0 -> 42L, 1 -> 55L))))
     when(kafkaService.getBeginningOffsets(any(), any())).thenReturn(Map(0 -> 0L, 1 -> 0L))
     when(kafkaService.getEndOffsets(any(), any())).thenReturn(Map(0 -> 42L, 1 -> 7L))
@@ -327,8 +256,8 @@ class HyperdriveOffsetComparisonServiceTest extends AsyncFlatSpec with Matchers 
     val resultFut = underTest.isNewJobInstanceRequired(jobParameters)
 
     resultFut.map { result =>
-      verify(hdfsService).getLatestOffsetFilePath(any())
-      verify(hdfsService).getOffsetsFromFile(any())
+      verify(checkpointService).getLatestOffsetFilePath(any())
+      verify(checkpointService).getOffsetsFromFile(any())
       verify(kafkaService).getEndOffsets(any(), any())
       result shouldBe true
     }
