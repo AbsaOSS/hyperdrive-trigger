@@ -38,9 +38,9 @@ object HyperdriveExecutor {
 
   private def submitJob(sparkClusterService: SparkClusterService, offsetComparisonService: HyperdriveOffsetComparisonService, jobInstance: JobInstance, jobParameters: SparkInstanceParameters, updateJob: JobInstance => Future[Unit])(implicit executionContext: ExecutionContext) = {
     for {
-      newJobRequired <- offsetComparisonService.isNewJobInstanceRequired(jobInstance.jobParameters)
-      _ <- sparkClusterService.submitJob(jobInstance, jobParameters, updateJob) if newJobRequired
-      _ <- updateJob(jobInstance.copy(jobStatus = JobStatuses.NoData)) if !newJobRequired
+      newJobRequired <- offsetComparisonService.isNewJobInstanceRequired(jobParameters)
+      _ <- if (newJobRequired) sparkClusterService.submitJob(jobInstance, jobParameters, updateJob)
+      else updateJob(jobInstance.copy(jobStatus = JobStatuses.NoData))
     } yield ()
   }
 }
