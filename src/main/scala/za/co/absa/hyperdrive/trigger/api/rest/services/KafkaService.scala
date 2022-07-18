@@ -36,7 +36,9 @@ trait KafkaService {
 class KafkaServiceImpl @Inject() (generalConfig: GeneralConfig) extends KafkaService {
 
   private val kafkaConsumersCache = new ConcurrentLruCache[Properties, KafkaConsumer[String, String]](
-    generalConfig.kafkaConsumersCacheSize, createKafkaConsumer)
+    generalConfig.kafkaConsumersCacheSize,
+    createKafkaConsumer
+  )
 
   override def getBeginningOffsets(topic: String, consumerProperties: Properties): Map[Int, Long] = {
     getOffsets(topic, consumerProperties, BeginningOffsets)

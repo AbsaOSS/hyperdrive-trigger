@@ -42,7 +42,8 @@ class HdfsParameters(
 )
 
 @Service
-class CheckpointServiceImpl @Inject()(userGroupInformationWrapper: UserGroupInformationWrapper) extends CheckpointService {
+class CheckpointServiceImpl @Inject() (userGroupInformationWrapper: UserGroupInformationWrapper)
+    extends CheckpointService {
   private val logger = LoggerFactory.getLogger(this.getClass)
   private val mapper = new ObjectMapper().registerModule(DefaultScalaModule)
   private val offsetsDirName = "offsets"

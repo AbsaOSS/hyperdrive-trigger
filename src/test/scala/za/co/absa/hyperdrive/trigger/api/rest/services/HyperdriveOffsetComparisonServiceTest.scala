@@ -40,7 +40,8 @@ class HyperdriveOffsetComparisonServiceTest extends AsyncFlatSpec with Matchers 
     val underTest = new HyperdriveOffsetComparisonServiceImpl(config.yarn, checkpointService, kafkaService)
     val jobParameters = getJobParameters
 
-    when(checkpointService.getLatestOffsetFilePath(any())).thenReturn(Some(("/checkpoint/path/some-topic/offsets/21", true)))
+    when(checkpointService.getLatestOffsetFilePath(any()))
+      .thenReturn(Some(("/checkpoint/path/some-topic/offsets/21", true)))
     when(checkpointService.getOffsetsFromFile(any()))
       .thenReturn(Option(Map("some-topic" -> Map(2 -> 2021L, 0 -> 21L, 1 -> 1021L))))
     when(kafkaService.getBeginningOffsets(any(), any())).thenReturn(Map(0 -> 0L, 1 -> 1L, 2 -> 2L))

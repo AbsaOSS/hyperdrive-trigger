@@ -48,13 +48,12 @@ class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
   private val ListDelimiter = ','
 
   /**
-   *
-   * @param jobParameters Parameters for the job instance. Should contain at least
+   *  @param jobParameters Parameters for the job instance. Should contain at least
    *                      - reader.kafka.topic
    *                      - reader.kafka.brokers
    *                      - writer.common.checkpoint.location
-   * @param ec ExecutionContext
-   * @return - false if the job instance can be skipped. This is determined if the checkpoint offset is equal
+   *  @param ec ExecutionContext
+   *  @return - false if the job instance can be skipped. This is determined if the checkpoint offset is equal
    *         to the latest offsets on the kafka topic. A job instance can also be skipped if the kafka topic doesn't exist
    *         or if it's empty.
    *         - true otherwise
@@ -82,7 +81,7 @@ class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
         (kafkaBeginningOffsetsOpt, kafkaEndOffsetsOpt) match {
           case (Some(kafkaBeginningOffsets), Some(kafkaEndOffsets)) =>
             if (kafkaBeginningOffsets.isEmpty) {
-              logger.info(s"Topic ${kafkaParametersOpt.get._1} does not exist. Skipping job instance" )
+              logger.info(s"Topic ${kafkaParametersOpt.get._1} does not exist. Skipping job instance")
               Future { false }
             } else if (offsetsEqual(kafkaBeginningOffsets, kafkaEndOffsets)) {
               logger.info(s"Topic ${kafkaParametersOpt.get._1} is empty. Skipping job instance")
@@ -93,7 +92,7 @@ class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
                   val allConsumed = offsetsConsumed(checkpointOffsets, kafkaEndOffsets)
                   logger.info(s"All offsets consumed for topic ${kafkaParametersOpt.get._1}. Skipping job instance")
                   !allConsumed
-                case _                       => true
+                case _ => true
               }
             }
           case _ => Future { true }
