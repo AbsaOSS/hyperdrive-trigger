@@ -29,7 +29,8 @@ class KafkaServiceTest extends FlatSpec with MockitoSugar with Matchers {
 
   private val mockKafkaConsumer = mock[KafkaConsumer[String, String]]
   class KafkaServiceTestImpl(generalConfig: GeneralConfig) extends KafkaServiceImpl(generalConfig) {
-    override def createKafkaConsumer(propertiesThreadId: (Properties, Long)): KafkaConsumer[String, String] = mockKafkaConsumer
+    override def createKafkaConsumer(propertiesThreadId: (Properties, Long)): KafkaConsumer[String, String] =
+      mockKafkaConsumer
   }
   private val underTest = new KafkaServiceTestImpl(TestGeneralConfig())
 
