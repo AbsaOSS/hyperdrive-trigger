@@ -35,7 +35,7 @@ trait KafkaService {
 @Service
 class KafkaServiceImpl @Inject() (generalConfig: GeneralConfig) extends KafkaService {
 
-  private val kafkaConsumersCache = new ConcurrentLruCache[Properties, KafkaConsumer[String, String]](
+  private val kafkaConsumersCache = new ConcurrentLruCache[(Properties, Long), KafkaConsumer[String, String]](
     generalConfig.kafkaConsumersCacheSize,
     createKafkaConsumer
   )
@@ -48,12 +48,12 @@ class KafkaServiceImpl @Inject() (generalConfig: GeneralConfig) extends KafkaSer
     getOffsets(topic, consumerProperties, EndOffsets)
   }
 
-  def createKafkaConsumer(properties: Properties) = new KafkaConsumer[String, String](properties)
+  def createKafkaConsumer(propertiesThreadId: (Properties, Long)) = new KafkaConsumer[String, String](propertiesThreadId._1)
 
   private def getOffsets(topic: String, properties: Properties, offsetFn: OffsetFunction): Map[Int, Long] = {
     val groupId = s"hyperdrive-trigger-kafkaService-${randomUUID().toString}"
     properties.put(ConsumerConfig.GROUP_ID_CONFIG, groupId)
-    val consumer = kafkaConsumersCache.get(properties)
+    val consumer = kafkaConsumersCache.get((properties, Thread.currentThread().getId))
     val partitionInfo = Option(consumer.partitionsFor(topic)).map(_.asScala).getOrElse(Seq())
     val topicPartitions = partitionInfo.map(p => new TopicPartition(p.topic(), p.partition()))
     val offsets = offsetFn match {
