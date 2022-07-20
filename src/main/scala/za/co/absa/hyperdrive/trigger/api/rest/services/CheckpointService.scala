@@ -19,20 +19,24 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import org.apache.commons.io.IOUtils
 import org.apache.hadoop.fs.{FileSystem, Path, PathFilter}
+import org.apache.hadoop.security.UserGroupInformation
 import org.apache.spark.deploy.SparkHadoopUtil
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import za.co.absa.hyperdrive.trigger.api.rest.utils.ScalaUtil.swap
 
 import java.nio.charset.StandardCharsets.UTF_8
 import javax.inject.Inject
 import scala.io.Source
+import scala.util.Try
 
 trait CheckpointService {
   type TopicPartitionOffsets = Map[String, Map[Int, Long]]
 
-  def getOffsetsFromFile(path: String): Option[TopicPartitionOffsets]
-  def getLatestOffsetFilePath(params: HdfsParameters): Option[(String, Boolean)]
-  def loginUserFromKeytab(principal: String, keytab: String): Unit
+  def getOffsetsFromFile(path: String)(implicit ugi: UserGroupInformation): Try[Option[TopicPartitionOffsets]]
+  def getLatestOffsetFilePath(params: HdfsParameters)(implicit
+    ugi: UserGroupInformation
+  ): Try[Option[(String, Boolean)]]
 }
 
 class HdfsParameters(
@@ -42,8 +46,7 @@ class HdfsParameters(
 )
 
 @Service
-class CheckpointServiceImpl @Inject() (userGroupInformationWrapper: UserGroupInformationWrapper)
-    extends CheckpointService {
+class CheckpointServiceImpl @Inject() (hdfsService: HdfsService) extends CheckpointService {
   private val logger = LoggerFactory.getLogger(this.getClass)
   private val mapper = new ObjectMapper().registerModule(DefaultScalaModule)
   private val offsetsDirName = "offsets"
@@ -66,7 +69,9 @@ class CheckpointServiceImpl @Inject() (userGroupInformationWrapper: UserGroupInf
     }
   }
 
-  override def getOffsetsFromFile(path: String): Option[TopicPartitionOffsets] = {
+  override def getOffsetsFromFile(
+    path: String
+  )(implicit ugi: UserGroupInformation): Try[Option[TopicPartitionOffsets]] = {
     parseFileAndClose(path, parseKafkaOffsetStream)
   }
 
@@ -76,25 +81,25 @@ class CheckpointServiceImpl @Inject() (userGroupInformationWrapper: UserGroupInf
    *         None is returned if the offset file does not exist. If the offset file does not exist, the corresponding
    *         commit file is assumed to also not exist.
    */
-  override def getLatestOffsetFilePath(params: HdfsParameters): Option[(String, Boolean)] = {
-    val offsetBatchIdOpt = getLatestOffsetBatchId(params.checkpointLocation)
-    val offsetFilePath = offsetBatchIdOpt.map { offsetBatchId =>
-      val commitBatchIdOpt = getLatestCommitBatchId(params.checkpointLocation)
-      val committed = commitBatchIdOpt match {
-        case Some(commitBatchId) => offsetBatchId == commitBatchId
-        case None                => false
+  override def getLatestOffsetFilePath(
+    params: HdfsParameters
+  )(implicit ugi: UserGroupInformation): Try[Option[(String, Boolean)]] = {
+    getLatestOffsetBatchId(params.checkpointLocation).flatMap { offsetBatchIdOpt =>
+      val offsetFilePath = offsetBatchIdOpt.map { offsetBatchId =>
+        getLatestCommitBatchId(params.checkpointLocation).map { commitBatchIdOpt =>
+          val committed = commitBatchIdOpt match {
+            case Some(commitBatchId) => offsetBatchId == commitBatchId
+            case None                => false
+          }
+          val path = new Path(s"${params.checkpointLocation}/${offsetsDirName}/${offsetBatchId}")
+          (path.toString, committed)
+        }
       }
-      val path = new Path(s"${params.checkpointLocation}/${offsetsDirName}/${offsetBatchId}")
-      (path.toString, committed)
+      if (offsetFilePath.isEmpty) {
+        logger.debug(s"No offset files exist under checkpoint location ${params.checkpointLocation}")
+      }
+      swap(offsetFilePath)
     }
-    if (offsetFilePath.isEmpty) {
-      logger.debug(s"No offset files exist under checkpoint location ${params.checkpointLocation}")
-    }
-    offsetFilePath
-  }
-
-  override def loginUserFromKeytab(principal: String, keytab: String): Unit = {
-    userGroupInformationWrapper.loginUserFromKeytab(principal, keytab)
   }
 
   /**
@@ -104,23 +109,29 @@ class CheckpointServiceImpl @Inject() (userGroupInformationWrapper: UserGroupInf
    *  @tparam R type of the parsed value
    *  @return None if the file doesn't exist, Some with the parsed content
    */
-  private def parseFileAndClose[R](pathStr: String, parseFn: Iterator[String] => R): Option[R] = {
+  private def parseFileAndClose[R](pathStr: String, parseFn: Iterator[String] => R)(implicit
+    ugi: UserGroupInformation
+  ): Try[Option[R]] = {
     val path = new Path(pathStr)
-    if (fs.exists(path)) {
-      val input = fs.open(path)
-      try {
-        val lines = Source.fromInputStream(input, UTF_8.name()).getLines()
-        Some(parseFn(lines))
-      } catch {
-        case e: Exception =>
-          // re-throw the exception with the log file path added
-          throw new Exception(s"Failed to parse file $path", e)
-      } finally {
-        IOUtils.closeQuietly(input)
+    hdfsService.exists(path).flatMap { exists =>
+      if (exists) {
+        hdfsService.open(path).map { input =>
+          try {
+            val lines = Source.fromInputStream(input, UTF_8.name()).getLines()
+            Some(parseFn(lines))
+          } catch {
+            case e: Exception =>
+              // re-throw the exception with the log file path added
+              throw new Exception(s"Failed to parse file $path", e)
+          } finally {
+            IOUtils.closeQuietly(input)
+          }
+        }
+
+      } else {
+        logger.debug(s"Could not find file $path")
+        Try(None)
       }
-    } else {
-      logger.debug(s"Could not find file $path")
-      None
     }
   }
 
@@ -149,27 +160,32 @@ class CheckpointServiceImpl @Inject() (userGroupInformationWrapper: UserGroupInf
       .head
   }
 
-  private def getLatestCommitBatchId(checkpointDir: String): Option[Long] = {
+  private def getLatestCommitBatchId(checkpointDir: String)(implicit ugi: UserGroupInformation): Try[Option[Long]] = {
     val commitsDir = new Path(s"$checkpointDir/$commitsDirName")
     getLatestBatchId(commitsDir)
   }
 
-  private def getLatestOffsetBatchId(checkpointDir: String): Option[Long] = {
+  private def getLatestOffsetBatchId(checkpointDir: String)(implicit ugi: UserGroupInformation): Try[Option[Long]] = {
     val offsetsDir = new Path(s"$checkpointDir/$offsetsDirName")
     getLatestBatchId(offsetsDir)
   }
 
-  private def getLatestBatchId(path: Path): Option[Long] = {
-    if (fs.exists(path)) {
-      fs.listStatus(path, batchFilesFilter)
-        .map { status =>
-          status.getPath.getName.toLong
+  private def getLatestBatchId(path: Path)(implicit ugi: UserGroupInformation): Try[Option[Long]] = {
+    hdfsService.exists(path).flatMap { exists =>
+      if (exists) {
+        hdfsService.listStatus(path, batchFilesFilter).map { statuses =>
+          statuses
+            .map { status =>
+              status.getPath.getName.toLong
+            }
+            .sorted
+            .lastOption
+
         }
-        .sorted
-        .lastOption
-    } else {
-      logger.debug(s"Could not find path $path")
-      None
+      } else {
+        logger.debug(s"Could not find path $path")
+        Try(None)
+      }
     }
   }
 }

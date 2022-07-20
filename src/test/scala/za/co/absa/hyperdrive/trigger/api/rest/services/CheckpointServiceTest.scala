@@ -15,25 +15,34 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
+import org.apache.hadoop.fs
+import org.apache.hadoop.fs.{FileStatus, FileSystem}
+import org.apache.hadoop.security.UserGroupInformation
+import org.apache.spark.deploy.SparkHadoopUtil
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.doNothing
+import org.mockito.Mockito.{reset, when}
+import org.mockito.invocation.InvocationOnMock
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
 import za.co.absa.commons.io.TempDirectory
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
+import scala.util.{Failure, Try}
 
 class CheckpointServiceTest extends FlatSpec with Matchers with BeforeAndAfter with MockitoSugar {
-  private val ugiWrapper = mock[UserGroupInformationWrapper]
-  doNothing().when(ugiWrapper).loginUserFromKeytab(any(), any())
-  private val underTest = new CheckpointServiceImpl(ugiWrapper)
+  private val hdfsService = mock[HdfsService]
+  private val ugi = mock[UserGroupInformation]
+  private val underTest = new CheckpointServiceImpl(hdfsService)
   private var baseDir: TempDirectory = _
   private var baseDirPath: Path = _
+  private lazy val conf = SparkHadoopUtil.get.conf
+  private val localFs = FileSystem.get(conf)
 
   before {
     baseDir = TempDirectory("HdfsServiceTest").deleteOnExit()
     baseDirPath = baseDir.path.toAbsolutePath
+    reset(hdfsService)
   }
 
   after {
@@ -41,32 +50,37 @@ class CheckpointServiceTest extends FlatSpec with Matchers with BeforeAndAfter w
   }
 
   "getOffsetFromFile" should "return None if the file does not exist" in {
-    val result = underTest.getOffsetsFromFile("non-existent")
+    when(hdfsService.exists(any())(any())).thenReturn(Try(false))
 
-    result shouldBe None
+    val result = underTest.getOffsetsFromFile("non-existent")(ugi)
+
+    result shouldBe Try(None)
   }
 
   it should "throw an exception if parsing throws an error" in {
-    val tmpFile = Files.createTempFile(baseDirPath, "hdfsServiceTest", "")
+    when(hdfsService.exists(any())(any())).thenReturn(Try(true))
+    when(hdfsService.open(any())(any())).thenReturn(Try(createInputStream("")))
 
-    val result = the[Exception] thrownBy underTest.getOffsetsFromFile(tmpFile.toAbsolutePath.toString)
+    val result = underTest.getOffsetsFromFile("some-file")(ugi)
 
-    result.getMessage should include(tmpFile.toAbsolutePath.toString)
+    result.isFailure shouldBe true
+    result.failed.get.getMessage should include("some-file")
   }
 
   it should "parse an offset file" in {
-    val tmpFile = Files.createTempFile(baseDirPath, "hdfsServiceTest", "")
     val lines = Seq(
       "v1",
       raw"""{"batchWatermarkMs":0,"batchTimestampMs":1633360640176}""",
       raw"""{"my.topic":{"2":2021,"1":1021,"3":3021,"0":21}, "my.other.topic":{"0":0}}"""
     ).mkString("\n")
-    Files.write(tmpFile, lines.getBytes(StandardCharsets.UTF_8))
+    when(hdfsService.exists(any())(any())).thenReturn(Try(true))
+    when(hdfsService.open(any())(any())).thenReturn(Try(createInputStream(lines)))
 
-    val resultOpt = underTest.getOffsetsFromFile(tmpFile.toAbsolutePath.toString)
+    val resultTryOpt = underTest.getOffsetsFromFile("some-file")(ugi)
 
-    resultOpt.isDefined shouldBe true
-    val result = resultOpt.get
+    resultTryOpt.isSuccess shouldBe true
+    resultTryOpt.get.isDefined shouldBe true
+    val result = resultTryOpt.get.get
     result.size shouldBe 2
     result.head._1 shouldBe "my.topic"
     result.head._2 should contain theSameElementsAs Map("2" -> 2021, "1" -> 1021, "3" -> 3021, "0" -> 21)
@@ -74,92 +88,119 @@ class CheckpointServiceTest extends FlatSpec with Matchers with BeforeAndAfter w
     result.toSeq(1)._2 should contain theSameElementsAs Map("0" -> 0)
   }
 
-  "getLatestOffsetFile" should "get the latest offset file, and it is committed" in {
-    val tmpCheckpointDir = Files.createTempDirectory(baseDirPath, "checkpoints")
-    createOffsetFile(tmpCheckpointDir, 12)
-    createCommitFile(tmpCheckpointDir, 12)
+  it should "return Failure if an exception occurred while accessing the file system" in {
+    when(hdfsService.exists(any())(any())).thenReturn(Failure(new RuntimeException("Failed")))
 
-    val params = new HdfsParameters(
-      keytab = "",
-      principal = "",
-      checkpointLocation = tmpCheckpointDir.toAbsolutePath.toString
-    )
+    val result = underTest.getOffsetsFromFile("some-file")(ugi)
 
-    val result = underTest.getLatestOffsetFilePath(params)
-
-    result.isDefined shouldBe true
-    result.get._1 shouldBe s"${tmpCheckpointDir.toAbsolutePath.toString}/offsets/12"
-    result.get._2 shouldBe true
+    result.isFailure shouldBe true
   }
 
-  it should "get the latest offset file, and committed = true, if the commits folder is empty" in {
-    val tmpCheckpointDir = Files.createTempDirectory(baseDirPath, "checkpoints")
-    createOffsetFile(tmpCheckpointDir, 12)
-    Files.createDirectory(tmpCheckpointDir.resolve("commits"))
+  "getLatestOffsetFile" should "get the latest offset file, and it is committed" in {
+    when(hdfsService.exists(any())(any())).thenReturn(Try(true))
+    when(hdfsService.listStatus(any(), any())(any())).thenReturn(Try(createOffsetFiles(12)))
+    val params = getHdfsParameters
 
-    val params = new HdfsParameters(
-      keytab = "",
-      principal = "",
-      checkpointLocation = tmpCheckpointDir.toAbsolutePath.toString
-    )
+    val resultTryOpt = underTest.getLatestOffsetFilePath(params)(ugi)
 
-    val result = underTest.getLatestOffsetFilePath(params)
+    resultTryOpt.isSuccess shouldBe true
+    resultTryOpt.get.isDefined shouldBe true
+    val result = resultTryOpt.get.get
+    result._1 shouldBe s"/checkpoints/offsets/12"
+    result._2 shouldBe true
+  }
 
-    result.isDefined shouldBe true
-    result.get._1 shouldBe s"${tmpCheckpointDir.toAbsolutePath.toString}/offsets/12"
-    result.get._2 shouldBe false
+  it should "get the latest offset file, and committed = false, if the commits folder is empty" in {
+    when(hdfsService.exists(any())(any())).thenReturn(Try(true))
+    when(hdfsService.listStatus(any(), any())(any())).thenAnswer((invocation: InvocationOnMock) => {
+      val path = invocation.getArgument[fs.Path](0)
+      if (path.toString.contains("offsets")) {
+        Try(createOffsetFiles(12))
+      } else {
+        Try(Array[FileStatus]())
+      }
+    })
+    val params = getHdfsParameters
+
+    val resultTryOpt = underTest.getLatestOffsetFilePath(params)(ugi)
+
+    resultTryOpt.isSuccess shouldBe true
+    resultTryOpt.get.isDefined shouldBe true
+    val result = resultTryOpt.get.get
+    result._1 shouldBe "/checkpoints/offsets/12"
+    result._2 shouldBe false
   }
 
   it should "get the latest offset file, and it is not committed" in {
-    val tmpCheckpointDir = Files.createTempDirectory(baseDirPath, "checkpoints")
-    createOffsetFile(tmpCheckpointDir, 12)
-    createCommitFile(tmpCheckpointDir, 11)
+    when(hdfsService.exists(any())(any())).thenReturn(Try(true))
+    when(hdfsService.listStatus(any(), any())(any())).thenAnswer((invocation: InvocationOnMock) => {
+      val path = invocation.getArgument[fs.Path](0)
+      if (path.toString.contains("offsets")) {
+        Try(createOffsetFiles(12))
+      } else {
+        Try(createOffsetFiles(11))
+      }
+    })
+    val params = getHdfsParameters
 
-    val params = new HdfsParameters(
-      keytab = "",
-      principal = "",
-      checkpointLocation = tmpCheckpointDir.toAbsolutePath.toString
-    )
+    val resultTryOpt = underTest.getLatestOffsetFilePath(params)(ugi)
 
-    val result = underTest.getLatestOffsetFilePath(params)
-
-    result.isDefined shouldBe true
-    result.get._1 shouldBe s"${tmpCheckpointDir.toAbsolutePath.toString}/offsets/12"
-    result.get._2 shouldBe false
+    resultTryOpt.isSuccess shouldBe true
+    resultTryOpt.get.isDefined shouldBe true
+    val result = resultTryOpt.get.get
+    result._1 shouldBe "/checkpoints/offsets/12"
+    result._2 shouldBe false
   }
 
   it should "return None if the checkpoints folder does not exist" in {
-    val params = new HdfsParameters(
-      keytab = "",
-      principal = "",
-      checkpointLocation = "non-existent"
-    )
+    when(hdfsService.exists(any())(any())).thenReturn(Try(false))
+    val params = getHdfsParameters
 
-    val result = underTest.getLatestOffsetFilePath(params)
+    val result = underTest.getLatestOffsetFilePath(params)(ugi)
 
-    result.isDefined shouldBe false
+    result.isSuccess shouldBe true
+    result.get.isDefined shouldBe false
   }
 
   it should "return None if the offsets folder is empty" in {
-    val params = new HdfsParameters(
+    when(hdfsService.exists(any())(any())).thenReturn(Try(true))
+    when(hdfsService.listStatus(any(), any())(any())).thenReturn(Try(Array[FileStatus]()))
+    val params = getHdfsParameters
+
+    val result = underTest.getLatestOffsetFilePath(params)(ugi)
+
+    result.isSuccess shouldBe true
+    result.get.isDefined shouldBe false
+  }
+
+  it should "return Failure if an exception occurred while accessing the file system" in {
+    val params = getHdfsParameters
+    when(hdfsService.exists(any())(any())).thenReturn(Failure(new RuntimeException("Failed")))
+
+    val result = underTest.getLatestOffsetFilePath(params)(ugi)
+
+    result.isFailure shouldBe true
+  }
+
+  private def createOffsetFiles(maxBatchId: Int) = {
+    (0 to maxBatchId).map { i =>
+      val fst = new FileStatus()
+      fst.setPath(new fs.Path(s"abc/def/$i"))
+      fst
+    }
+  }.toArray
+
+  private def getHdfsParameters = {
+    new HdfsParameters(
       keytab = "",
       principal = "",
-      checkpointLocation = "checkpoints"
+      checkpointLocation = "/checkpoints"
     )
-    Files.createTempDirectory(baseDirPath, "checkpoints")
-
-    val result = underTest.getLatestOffsetFilePath(params)
-
-    result.isDefined shouldBe false
   }
 
-  private def createOffsetFile(checkpointDir: Path, batchId: Int) = {
-    val tmpCommitsDir = Files.createDirectory(checkpointDir.resolve("offsets"))
-    (0 to batchId).map(i => Files.createFile(tmpCommitsDir.resolve(s"$i")))
-  }
-
-  private def createCommitFile(checkpointDir: Path, batchId: Int) = {
-    val tmpCommitsDir = Files.createDirectory(checkpointDir.resolve("commits"))
-    (0 to batchId).map(i => Files.createFile(tmpCommitsDir.resolve(s"$i")))
+  private def createInputStream(str: String) = {
+    val tmpFile = Files.createTempFile(baseDirPath, "checkpoint-service-test", ".txt")
+    Files.write(tmpFile, str.getBytes(StandardCharsets.UTF_8))
+    localFs.open(new fs.Path(tmpFile.toString), 4096)
   }
 }

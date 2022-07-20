@@ -19,6 +19,7 @@ import org.apache.commons.configuration2.builder.BasicConfigurationBuilder
 import org.apache.commons.configuration2.builder.fluent.Parameters
 import org.apache.commons.configuration2.convert.DefaultListDelimiterHandler
 import org.apache.commons.configuration2.{BaseConfiguration, Configuration}
+import org.apache.hadoop.security.UserGroupInformation
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -37,6 +38,7 @@ trait HyperdriveOffsetComparisonService {
 @Service
 class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
                                                        checkpointService: CheckpointService,
+                                                       userGroupInformationService: UserGroupInformationService,
                                                        kafkaService: KafkaService
 ) extends HyperdriveOffsetComparisonService {
   private val logger = LoggerFactory.getLogger(this.getClass)
@@ -189,34 +191,35 @@ class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
   private def getCheckpointOffsets(jobParameters: JobInstanceParameters,
                                    kafkaParametersOpt: Option[(String, Properties)]
   )(implicit ec: ExecutionContext): Future[Option[Map[Int, Long]]] = {
-    val hdfsParametersOpt = getResolvedAppArguments(jobParameters).flatMap(getHdfsParameters)
+    case class UGIOffset(ugi: UserGroupInformation, latestOffset: (String, Boolean))
+    val hdfsParametersOpt: Option[HdfsParameters] = getResolvedAppArguments(jobParameters).flatMap(getHdfsParameters)
 
     if (hdfsParametersOpt.isEmpty) {
       logger.debug(s"Hdfs parameters were not found in job definition ${jobParameters}")
     }
 
     Future {
-      val latestOffsetOpt = for {
+      val ugiOffset = for {
         hdfsParameters <- hdfsParametersOpt
-        _ = checkpointService.loginUserFromKeytab(hdfsParameters.principal, hdfsParameters.keytab)
-        latestOffset <- checkpointService.getLatestOffsetFilePath(hdfsParameters)
-      } yield { latestOffset }
-      if (latestOffsetOpt.isEmpty || !latestOffsetOpt.get._2) {
-        logger.debug(s"Offset does not exist or is not committed ${latestOffsetOpt}")
+        ugi = userGroupInformationService.loginUserFromKeytab(hdfsParameters.principal, hdfsParameters.keytab)
+        latestOffset <- checkpointService.getLatestOffsetFilePath(hdfsParameters)(ugi).get
+      } yield { UGIOffset(ugi, latestOffset) }
+      if (ugiOffset.isEmpty || !ugiOffset.get.latestOffset._2) {
+        logger.debug(s"Offset does not exist or is not committed ${ugiOffset.map(_.latestOffset)}")
         None
       } else {
-        latestOffsetOpt
+        ugiOffset
       }
     }.flatMap {
       case None                                  => Future { None }
       case Some(_) if kafkaParametersOpt.isEmpty => Future { None }
-      case Some(latestOffset) =>
-        Future {
-          checkpointService.getOffsetsFromFile(latestOffset._1)
-        }.recover { case e: Exception =>
-          logger.warn(s"Couldn't parse file ${latestOffset._1}", e)
-          None
-        }
+      case Some(ugiOffset) =>
+        Future
+          .fromTry(checkpointService.getOffsetsFromFile(ugiOffset.latestOffset._1)(ugiOffset.ugi))
+          .recover { case e: Exception =>
+            logger.warn(s"Couldn't parse file ${ugiOffset.latestOffset._1}", e)
+            None
+          }
     }.map { hdfsAllOffsetsOpt =>
       hdfsAllOffsetsOpt.flatMap { hdfsAllOffsets =>
         val kafkaParameters = kafkaParametersOpt.get

@@ -17,6 +17,7 @@ package za.co.absa.hyperdrive.trigger.api.rest.services
 
 import org.apache.kafka.clients.consumer.{ConsumerConfig, KafkaConsumer}
 import org.apache.kafka.common.TopicPartition
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.util.ConcurrentLruCache
 import za.co.absa.hyperdrive.trigger.api.rest.services.KafkaServiceImpl.{BeginningOffsets, EndOffsets, OffsetFunction}
@@ -34,7 +35,7 @@ trait KafkaService {
 
 @Service
 class KafkaServiceImpl @Inject() (generalConfig: GeneralConfig) extends KafkaService {
-
+  private val logger = LoggerFactory.getLogger(this.getClass)
   private val kafkaConsumersCache = new ConcurrentLruCache[(Properties, Long), KafkaConsumer[String, String]](
     generalConfig.kafkaConsumersCacheSize,
     createKafkaConsumer
@@ -48,8 +49,13 @@ class KafkaServiceImpl @Inject() (generalConfig: GeneralConfig) extends KafkaSer
     getOffsets(topic, consumerProperties, EndOffsets)
   }
 
-  def createKafkaConsumer(propertiesThreadId: (Properties, Long)) =
+  def createKafkaConsumer(propertiesThreadId: (Properties, Long)): KafkaConsumer[String, String] = {
+    logger.info(
+      s"Creating new Kafka Consumer for thread id ${propertiesThreadId._2} and" +
+        s" properties ${propertiesThreadId._1}. Current cache size is ${kafkaConsumersCache.size()}"
+    )
     new KafkaConsumer[String, String](propertiesThreadId._1)
+  }
 
   private def getOffsets(topic: String, properties: Properties, offsetFn: OffsetFunction): Map[Int, Long] = {
     val groupId = s"hyperdrive-trigger-kafkaService-${randomUUID().toString}"

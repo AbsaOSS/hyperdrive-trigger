@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -14,17 +13,17 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.api.rest.services
+package za.co.absa.hyperdrive.trigger.api.rest.utils
 
-import org.apache.hadoop.security.UserGroupInformation
-import org.springframework.stereotype.Service
+import scala.util.Try
 
-trait UserGroupInformationWrapper {
-  def loginUserFromKeytab(principal: String, keytab: String): Unit
-}
-
-@Service
-class UserGroupInformationWrapperImpl extends UserGroupInformationWrapper {
-  override def loginUserFromKeytab(principal: String, keytab: String): Unit =
-    UserGroupInformation.loginUserFromKeytab(principal, keytab)
+object ScalaUtil {
+  def swap[T](optTry: Option[Try[T]]): Try[Option[T]] = {
+    import scala.util.{Failure, Success}
+    optTry match {
+      case Some(Success(t)) => Success(Some(t))
+      case Some(Failure(e)) => Failure(e)
+      case None             => Success(None)
+    }
+  }
 }
