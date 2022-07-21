@@ -101,7 +101,7 @@ class HdfsServiceImpl extends HdfsService {
     } yield parseResult
   }
 
-  private lazy val fs = FileSystem.get(conf)
+  private def fs = FileSystem.get(conf)
 
   private def doAs[T](fn: => T)(implicit ugi: UserGroupInformation) = {
     ugi.doAs(new PrivilegedExceptionAction[T] {
