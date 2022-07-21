@@ -32,8 +32,8 @@ trait JobTemplateHistoryRepository extends Repository {
 
   def getHistoryForJobTemplate(jobTemplateId: Long)(implicit ec: ExecutionContext): Future[Seq[History]]
   def getJobTemplateFromHistory(jobTemplateHistoryId: Long)(implicit ec: ExecutionContext): Future[JobTemplate]
-  def getJobTemplatesFromHistory(leftJobTemplateHistoryId: Long, rightJobTemplateHistoryId: Long)(implicit
-    ec: ExecutionContext
+  def getJobTemplatesFromHistory(leftJobTemplateHistoryId: Long, rightJobTemplateHistoryId: Long)(
+    implicit ec: ExecutionContext
   ): Future[HistoryPair[JobTemplateHistory]]
 }
 
@@ -42,8 +42,8 @@ class JobTemplateHistoryRepositoryImpl @Inject() (val dbProvider: DatabaseProvid
     extends JobTemplateHistoryRepository {
   import api._
 
-  private def insert(jobTemplate: JobTemplate, user: String, operation: DBOperation)(implicit
-    ec: ExecutionContext
+  private def insert(jobTemplate: JobTemplate, user: String, operation: DBOperation)(
+    implicit ec: ExecutionContext
   ): DBIO[Long] = {
     val jobTemplateHistory = JobTemplateHistory(
       history = History(changedOn = LocalDateTime.now(), changedBy = user, operation = operation),
@@ -53,31 +53,31 @@ class JobTemplateHistoryRepositoryImpl @Inject() (val dbProvider: DatabaseProvid
     jobTemplateHistoryTable returning jobTemplateHistoryTable.map(_.id) += jobTemplateHistory
   }
 
-  override private[persistance] def create(jobTemplate: JobTemplate, user: String)(implicit
-    ec: ExecutionContext
+  override private[persistance] def create(jobTemplate: JobTemplate, user: String)(
+    implicit ec: ExecutionContext
   ): DBIO[Long] =
     this.insert(jobTemplate, user, Create)
 
-  override private[persistance] def update(jobTemplate: JobTemplate, user: String)(implicit
-    ec: ExecutionContext
+  override private[persistance] def update(jobTemplate: JobTemplate, user: String)(
+    implicit ec: ExecutionContext
   ): DBIO[Long] =
     this.insert(jobTemplate, user, Update)
 
-  override private[persistance] def delete(jobTemplate: JobTemplate, user: String)(implicit
-    ec: ExecutionContext
+  override private[persistance] def delete(jobTemplate: JobTemplate, user: String)(
+    implicit ec: ExecutionContext
   ): DBIO[Long] =
     this.insert(jobTemplate, user, Delete)
 
   override def getHistoryForJobTemplate(jobTemplateId: Long)(implicit ec: ExecutionContext): Future[Seq[History]] =
     db.run(jobTemplateHistoryTable.getHistoryForEntity(jobTemplateId).withErrorHandling())
 
-  override def getJobTemplateFromHistory(jobTemplateHistoryId: Long)(implicit
-    ec: ExecutionContext
+  override def getJobTemplateFromHistory(jobTemplateHistoryId: Long)(
+    implicit ec: ExecutionContext
   ): Future[JobTemplate] =
     db.run(jobTemplateHistoryTable.getHistoryEntity(jobTemplateHistoryId).map(_.jobTemplate).withErrorHandling())
 
-  override def getJobTemplatesFromHistory(leftJobTemplateHistoryId: Long, rightJobTemplateHistoryId: Long)(implicit
-    ec: ExecutionContext
+  override def getJobTemplatesFromHistory(leftJobTemplateHistoryId: Long, rightJobTemplateHistoryId: Long)(
+    implicit ec: ExecutionContext
   ): Future[HistoryPair[JobTemplateHistory]] =
     db.run(
       jobTemplateHistoryTable

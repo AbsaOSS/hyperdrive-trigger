@@ -32,8 +32,8 @@ trait WorkflowHistoryRepository extends Repository {
 
   def getHistoryForWorkflow(workflowId: Long)(implicit ec: ExecutionContext): Future[Seq[History]]
   def getWorkflowFromHistory(workflowHistoryId: Long)(implicit ec: ExecutionContext): Future[WorkflowJoined]
-  def getWorkflowsFromHistory(leftWorkflowHistoryId: Long, rightWorkflowHistoryId: Long)(implicit
-    ec: ExecutionContext
+  def getWorkflowsFromHistory(leftWorkflowHistoryId: Long, rightWorkflowHistoryId: Long)(
+    implicit ec: ExecutionContext
   ): Future[HistoryPair[WorkflowHistory]]
 }
 
@@ -41,8 +41,8 @@ trait WorkflowHistoryRepository extends Repository {
 class WorkflowHistoryRepositoryImpl @Inject() (val dbProvider: DatabaseProvider) extends WorkflowHistoryRepository {
   import api._
 
-  private def insert(workflow: WorkflowJoined, user: String, operation: DBOperation)(implicit
-    ec: ExecutionContext
+  private def insert(workflow: WorkflowJoined, user: String, operation: DBOperation)(
+    implicit ec: ExecutionContext
   ): DBIO[Long] = {
     val workflowHistory = WorkflowHistory(
       history = History(changedOn = LocalDateTime.now(), changedBy = user, operation = operation),
@@ -52,18 +52,18 @@ class WorkflowHistoryRepositoryImpl @Inject() (val dbProvider: DatabaseProvider)
     workflowHistoryTable returning workflowHistoryTable.map(_.id) += workflowHistory
   }
 
-  override private[persistance] def create(workflow: WorkflowJoined, user: String)(implicit
-    ec: ExecutionContext
+  override private[persistance] def create(workflow: WorkflowJoined, user: String)(
+    implicit ec: ExecutionContext
   ): DBIO[Long] =
     this.insert(workflow, user, Create)
 
-  override private[persistance] def update(workflow: WorkflowJoined, user: String)(implicit
-    ec: ExecutionContext
+  override private[persistance] def update(workflow: WorkflowJoined, user: String)(
+    implicit ec: ExecutionContext
   ): DBIO[Long] =
     this.insert(workflow, user, Update)
 
-  override private[persistance] def delete(workflow: WorkflowJoined, user: String)(implicit
-    ec: ExecutionContext
+  override private[persistance] def delete(workflow: WorkflowJoined, user: String)(
+    implicit ec: ExecutionContext
   ): DBIO[Long] =
     this.insert(workflow, user, Delete)
 
@@ -73,8 +73,8 @@ class WorkflowHistoryRepositoryImpl @Inject() (val dbProvider: DatabaseProvider)
   override def getWorkflowFromHistory(workflowHistoryId: Long)(implicit ec: ExecutionContext): Future[WorkflowJoined] =
     db.run(workflowHistoryTable.getHistoryEntity(workflowHistoryId).map(_.workflow).withErrorHandling())
 
-  override def getWorkflowsFromHistory(leftWorkflowHistoryId: Long, rightWorkflowHistoryId: Long)(implicit
-    ec: ExecutionContext
+  override def getWorkflowsFromHistory(leftWorkflowHistoryId: Long, rightWorkflowHistoryId: Long)(
+    implicit ec: ExecutionContext
   ): Future[HistoryPair[WorkflowHistory]] =
     db.run(
       workflowHistoryTable.getEntitiesFromHistory(leftWorkflowHistoryId, rightWorkflowHistoryId).withErrorHandling()

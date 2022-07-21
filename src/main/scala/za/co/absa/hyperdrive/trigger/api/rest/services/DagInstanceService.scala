@@ -25,16 +25,16 @@ import scala.concurrent.{ExecutionContext, Future}
 
 trait DagInstanceService {
   val jobTemplateService: JobTemplateService
-  def createDagInstance(dagDefinitionJoined: DagDefinitionJoined, triggeredBy: String, skip: Boolean = false)(implicit
-    ec: ExecutionContext
+  def createDagInstance(dagDefinitionJoined: DagDefinitionJoined, triggeredBy: String, skip: Boolean = false)(
+    implicit ec: ExecutionContext
   ): Future[DagInstanceJoined]
 }
 
 @Service
 class DagInstanceServiceImpl(override val jobTemplateService: JobTemplateService) extends DagInstanceService {
 
-  override def createDagInstance(dagDefinitionJoined: DagDefinitionJoined, triggeredBy: String, skip: Boolean)(implicit
-    ec: ExecutionContext
+  override def createDagInstance(dagDefinitionJoined: DagDefinitionJoined, triggeredBy: String, skip: Boolean)(
+    implicit ec: ExecutionContext
   ): Future[DagInstanceJoined] = {
     val initialDagInstanceStatus = if (skip) DagInstanceStatuses.Skipped else DagInstanceStatuses.InQueue
     val now = LocalDateTime.now()

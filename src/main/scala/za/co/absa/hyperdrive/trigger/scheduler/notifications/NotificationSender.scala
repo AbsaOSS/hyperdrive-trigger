@@ -30,8 +30,8 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
 
 trait NotificationSender {
-  def createNotifications(dagInstance: DagInstance, jobInstances: Seq[JobInstance])(implicit
-    ec: ExecutionContext
+  def createNotifications(dagInstance: DagInstance, jobInstances: Seq[JobInstance])(
+    implicit ec: ExecutionContext
   ): Future[Unit]
   def sendNotifications(): Unit
 }
@@ -54,8 +54,8 @@ class NotificationSenderImpl(
   private val dateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
   private val messageQueue = new ConcurrentLinkedQueue[Message]
 
-  def createNotifications(dagInstance: DagInstance, jobInstances: Seq[JobInstance])(implicit
-    ec: ExecutionContext
+  def createNotifications(dagInstance: DagInstance, jobInstances: Seq[JobInstance])(
+    implicit ec: ExecutionContext
   ): Future[Unit] =
     if (notificationEnabled) {
       notificationRuleService.getMatchingNotificationRules(dagInstance.workflowId, dagInstance.status).map {

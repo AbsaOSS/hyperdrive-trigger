@@ -22,8 +22,8 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 trait DagDefinitionRepository extends Repository {
-  def getJoinedDagDefinition(sensorId: Long)(implicit
-    executionContext: ExecutionContext
+  def getJoinedDagDefinition(sensorId: Long)(
+    implicit executionContext: ExecutionContext
   ): Future[Option[DagDefinitionJoined]]
 }
 

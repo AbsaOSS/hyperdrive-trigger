@@ -29,8 +29,8 @@ trait SchedulerInstanceRepository extends Repository {
 
   def updateHeartbeat(id: Long, newHeartbeat: LocalDateTime)(implicit ec: ExecutionContext): Future[Int]
 
-  def deactivateLaggingInstances(instanceId: Long, currentHeartbeat: LocalDateTime, lagTolerance: Duration)(implicit
-    ec: ExecutionContext
+  def deactivateLaggingInstances(instanceId: Long, currentHeartbeat: LocalDateTime, lagTolerance: Duration)(
+    implicit ec: ExecutionContext
   ): Future[Int]
 
   def getAllInstances()(implicit ec: ExecutionContext): Future[Seq[SchedulerInstance]]

@@ -31,8 +31,8 @@ trait JobTemplateRepository extends Repository {
   def getJobTemplatesByIds(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[JobTemplate]]
   def getJobTemplates()(implicit ec: ExecutionContext): Future[Seq[JobTemplate]]
   def getJobTemplateIdsByNames(names: Seq[String])(implicit ec: ExecutionContext): Future[Map[String, Long]]
-  def searchJobTemplates(searchRequest: TableSearchRequest)(implicit
-    ec: ExecutionContext
+  def searchJobTemplates(searchRequest: TableSearchRequest)(
+    implicit ec: ExecutionContext
   ): Future[TableSearchResponse[JobTemplate]]
   def updateJobTemplate(jobTemplate: JobTemplate, user: String)(implicit ec: ExecutionContext): Future[Unit]
   def deleteJobTemplate(id: Long, user: String)(implicit ec: ExecutionContext): Future[Unit]
@@ -81,8 +81,8 @@ class JobTemplateRepositoryImpl @Inject() (
         .withErrorHandling()
     ).flatMap(seq => Future(seq.toMap))
 
-  override def searchJobTemplates(searchRequest: TableSearchRequest)(implicit
-    ec: ExecutionContext
+  override def searchJobTemplates(searchRequest: TableSearchRequest)(
+    implicit ec: ExecutionContext
   ): Future[TableSearchResponse[JobTemplate]] =
     db.run(jobTemplateTable.search(searchRequest).withErrorHandling())
 

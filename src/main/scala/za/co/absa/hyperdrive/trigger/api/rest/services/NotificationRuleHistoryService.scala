@@ -25,11 +25,11 @@ trait NotificationRuleHistoryService {
   val historyRepository: NotificationRuleHistoryRepository
 
   def getHistoryForNotificationRule(workflowId: Long)(implicit ec: ExecutionContext): Future[Seq[History]]
-  def getNotificationRuleFromHistory(notificationRuleHistoryId: Long)(implicit
-    ec: ExecutionContext
+  def getNotificationRuleFromHistory(notificationRuleHistoryId: Long)(
+    implicit ec: ExecutionContext
   ): Future[NotificationRule]
-  def getNotificationRulesFromHistory(leftHistoryId: Long, rightHistoryId: Long)(implicit
-    ec: ExecutionContext
+  def getNotificationRulesFromHistory(leftHistoryId: Long, rightHistoryId: Long)(
+    implicit ec: ExecutionContext
   ): Future[HistoryPair[NotificationRuleHistory]]
 }
 
@@ -37,18 +37,18 @@ trait NotificationRuleHistoryService {
 class NotificationRuleHistoryServiceImpl(override val historyRepository: NotificationRuleHistoryRepository)
     extends NotificationRuleHistoryService {
 
-  override def getHistoryForNotificationRule(notificationRuleId: Long)(implicit
-    ec: ExecutionContext
+  override def getHistoryForNotificationRule(notificationRuleId: Long)(
+    implicit ec: ExecutionContext
   ): Future[Seq[History]] =
     historyRepository.getHistoryForNotificationRule(notificationRuleId)
 
-  override def getNotificationRuleFromHistory(notificationRuleHistoryId: Long)(implicit
-    ec: ExecutionContext
+  override def getNotificationRuleFromHistory(notificationRuleHistoryId: Long)(
+    implicit ec: ExecutionContext
   ): Future[NotificationRule] =
     historyRepository.getNotificationRuleFromHistory(notificationRuleHistoryId)
 
-  override def getNotificationRulesFromHistory(leftHistoryId: Long, rightHistoryId: Long)(implicit
-    ec: ExecutionContext
+  override def getNotificationRulesFromHistory(leftHistoryId: Long, rightHistoryId: Long)(
+    implicit ec: ExecutionContext
   ): Future[HistoryPair[NotificationRuleHistory]] =
     historyRepository.getNotificationRulesFromHistory(leftHistoryId, rightHistoryId)
 }

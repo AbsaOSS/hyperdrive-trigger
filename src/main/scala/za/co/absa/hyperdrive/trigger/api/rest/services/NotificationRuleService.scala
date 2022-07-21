@@ -28,26 +28,26 @@ trait NotificationRuleService {
   val notificationRuleRepository: NotificationRuleRepository
   val notificationRuleValidationService: NotificationRuleValidationService
 
-  def createNotificationRule(notificationRule: NotificationRule)(implicit
-    ec: ExecutionContext
+  def createNotificationRule(notificationRule: NotificationRule)(
+    implicit ec: ExecutionContext
   ): Future[NotificationRule]
 
   def getNotificationRule(id: Long)(implicit ec: ExecutionContext): Future[NotificationRule]
 
   def getNotificationRules()(implicit ec: ExecutionContext): Future[Seq[NotificationRule]]
 
-  def updateNotificationRule(notificationRule: NotificationRule)(implicit
-    ec: ExecutionContext
+  def updateNotificationRule(notificationRule: NotificationRule)(
+    implicit ec: ExecutionContext
   ): Future[NotificationRule]
 
   def deleteNotificationRule(id: Long)(implicit ec: ExecutionContext): Future[Boolean]
 
-  def searchNotificationRules(tableSearchRequest: TableSearchRequest)(implicit
-    ec: ExecutionContext
+  def searchNotificationRules(tableSearchRequest: TableSearchRequest)(
+    implicit ec: ExecutionContext
   ): Future[TableSearchResponse[NotificationRule]]
 
-  def getMatchingNotificationRules(workflowId: Long, status: DagInstanceStatus)(implicit
-    ec: ExecutionContext
+  def getMatchingNotificationRules(workflowId: Long, status: DagInstanceStatus)(
+    implicit ec: ExecutionContext
   ): Future[Option[(Seq[NotificationRule], Workflow)]]
 
   def getMatchingWorkflows(id: Long)(implicit ec: ExecutionContext): Future[Seq[Workflow]]
@@ -91,13 +91,13 @@ class NotificationRuleServiceImpl(
     notificationRuleRepository.deleteNotificationRule(id, userName).map(_ => true)
   }
 
-  override def searchNotificationRules(tableSearchRequest: TableSearchRequest)(implicit
-    ec: ExecutionContext
+  override def searchNotificationRules(tableSearchRequest: TableSearchRequest)(
+    implicit ec: ExecutionContext
   ): Future[TableSearchResponse[NotificationRule]] =
     notificationRuleRepository.searchNotificationRules(tableSearchRequest)
 
-  override def getMatchingNotificationRules(workflowId: Long, status: DagInstanceStatus)(implicit
-    ec: ExecutionContext
+  override def getMatchingNotificationRules(workflowId: Long, status: DagInstanceStatus)(
+    implicit ec: ExecutionContext
   ): Future[Option[(Seq[NotificationRule], Workflow)]] =
     notificationRuleRepository.getMatchingNotificationRules(workflowId, status, LocalDateTime.now())
 

@@ -41,15 +41,15 @@ trait WorkflowRepository extends Repository {
   def getWorkflow(id: Long)(implicit ec: ExecutionContext): Future[WorkflowJoined]
   def getWorkflows(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[WorkflowJoined]]
   def getWorkflows()(implicit ec: ExecutionContext): Future[Seq[Workflow]]
-  def searchWorkflows(searchRequest: TableSearchRequest)(implicit
-    ec: ExecutionContext
+  def searchWorkflows(searchRequest: TableSearchRequest)(
+    implicit ec: ExecutionContext
   ): Future[TableSearchResponse[Workflow]]
   def getWorkflowsByProjectName(projectName: String)(implicit ec: ExecutionContext): Future[Seq[Workflow]]
   def deleteWorkflow(id: Long, user: String)(implicit ec: ExecutionContext): Future[Unit]
   def updateWorkflow(workflow: WorkflowJoined, user: String)(implicit ec: ExecutionContext): Future[Unit]
   def switchWorkflowActiveState(id: Long, user: String)(implicit ec: ExecutionContext): Future[Unit]
-  def updateWorkflowsIsActive(ids: Seq[Long], isActiveNewValue: Boolean, user: String)(implicit
-    ec: ExecutionContext
+  def updateWorkflowsIsActive(ids: Seq[Long], isActiveNewValue: Boolean, user: String)(
+    implicit ec: ExecutionContext
   ): Future[Unit]
   def getProjects()(implicit ec: ExecutionContext): Future[Seq[Project]]
   def getProjectNames()(implicit ec: ExecutionContext): Future[Seq[String]]
@@ -96,8 +96,8 @@ class WorkflowRepositoryImpl @Inject() (
         .flatMap(_.map(_ => id))
     }
 
-  override def insertWorkflows(workflows: Seq[WorkflowJoined], user: String)(implicit
-    ec: ExecutionContext
+  override def insertWorkflows(workflows: Seq[WorkflowJoined], user: String)(
+    implicit ec: ExecutionContext
   ): Future[Seq[Long]] =
     db.run(
       workflows
@@ -180,8 +180,8 @@ class WorkflowRepositoryImpl @Inject() (
   override def getWorkflows()(implicit ec: ExecutionContext): Future[Seq[Workflow]] =
     db.run(workflowTable.sortBy(workflow => (workflow.project, workflow.name)).result.withErrorHandling())
 
-  override def searchWorkflows(searchRequest: TableSearchRequest)(implicit
-    ec: ExecutionContext
+  override def searchWorkflows(searchRequest: TableSearchRequest)(
+    implicit ec: ExecutionContext
   ): Future[TableSearchResponse[Workflow]] =
     db.run(workflowTable.search(searchRequest).withErrorHandling())
 
@@ -277,8 +277,8 @@ class WorkflowRepositoryImpl @Inject() (
     )
   }
 
-  override def updateWorkflowsIsActive(ids: Seq[Long], isActiveNewValue: Boolean, user: String)(implicit
-    ec: ExecutionContext
+  override def updateWorkflowsIsActive(ids: Seq[Long], isActiveNewValue: Boolean, user: String)(
+    implicit ec: ExecutionContext
   ): Future[Unit] = {
     val updateIdsAction = workflowTable
       .filter(_.id inSetBind ids)
@@ -345,8 +345,8 @@ class WorkflowRepositoryImpl @Inject() (
       ).transactionally.withErrorHandling()
     )
 
-  override def releaseWorkflowAssignments(workflowIds: Seq[Long], instanceId: Long)(implicit
-    ec: ExecutionContext
+  override def releaseWorkflowAssignments(workflowIds: Seq[Long], instanceId: Long)(
+    implicit ec: ExecutionContext
   ): Future[Int] = db.run(
     workflowTable
       .filter(_.schedulerInstanceId === instanceId)
@@ -356,8 +356,8 @@ class WorkflowRepositoryImpl @Inject() (
       .withErrorHandling()
   )
 
-  override def acquireWorkflowAssignments(workflowIds: Seq[Long], instanceId: Long)(implicit
-    ec: ExecutionContext
+  override def acquireWorkflowAssignments(workflowIds: Seq[Long], instanceId: Long)(
+    implicit ec: ExecutionContext
   ): Future[Int] = db.run(
     workflowTable
       .filter(_.schedulerInstanceId.isEmpty)
