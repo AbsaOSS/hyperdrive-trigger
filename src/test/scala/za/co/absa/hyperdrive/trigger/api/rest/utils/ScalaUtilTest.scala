@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -13,15 +14,23 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.configuration.application
+package za.co.absa.hyperdrive.trigger.api.rest.utils
 
-object TestGeneralConfig {
-  def apply(
-    maximumNumberOfWorkflowsInBulkRun: Int = 10,
-    environment: String = "Unknown",
-    version: String = "Unknown",
-    appUniqueId: String = "20e3f97d-88ac-453c-9524-0166e2c221c5",
-    kafkaConsumersCacheSize: Int = 50
-  ): GeneralConfig =
-    new GeneralConfig(maximumNumberOfWorkflowsInBulkRun, environment, version, appUniqueId, kafkaConsumersCacheSize)
+import org.scalatest.{FlatSpec, Matchers}
+import za.co.absa.hyperdrive.trigger.api.rest.utils.ScalaUtil.swap
+
+import scala.util.{Failure, Success}
+
+class ScalaUtilTest extends FlatSpec with Matchers {
+  "swap" should "swap Option[Try] to Try[Option]" in {
+    val ex = new RuntimeException("Failed")
+    val someSuccess = Some(Success(42))
+    val someFailure = Some(Failure(ex))
+    val none = None
+
+    swap(someSuccess) shouldBe Success(Some(42))
+    swap(someFailure) shouldBe Failure(ex)
+    swap(none) shouldBe Success(None)
+  }
+
 }

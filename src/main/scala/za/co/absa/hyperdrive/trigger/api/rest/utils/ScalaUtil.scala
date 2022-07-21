@@ -13,15 +13,16 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.configuration.application
+package za.co.absa.hyperdrive.trigger.api.rest.utils
 
-object TestGeneralConfig {
-  def apply(
-    maximumNumberOfWorkflowsInBulkRun: Int = 10,
-    environment: String = "Unknown",
-    version: String = "Unknown",
-    appUniqueId: String = "20e3f97d-88ac-453c-9524-0166e2c221c5",
-    kafkaConsumersCacheSize: Int = 50
-  ): GeneralConfig =
-    new GeneralConfig(maximumNumberOfWorkflowsInBulkRun, environment, version, appUniqueId, kafkaConsumersCacheSize)
+import scala.util.{Failure, Success, Try}
+
+object ScalaUtil {
+  def swap[T](optTry: Option[Try[T]]): Try[Option[T]] = {
+    optTry match {
+      case Some(Success(t)) => Success(Some(t))
+      case Some(Failure(e)) => Failure(e)
+      case None             => Success(None)
+    }
+  }
 }
