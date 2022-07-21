@@ -54,8 +54,8 @@ trait HistoryTableQuery {
       )
     }
 
-    def getEntitiesFromHistory(leftId: Long, rightId: Long)(implicit
-      ec: ExecutionContext
+    def getEntitiesFromHistory(leftId: Long, rightId: Long)(
+      implicit ec: ExecutionContext
     ): DBIOAction[HistoryPair[T#TableElementType], NoStream, Effect.Read] = {
       val queryResult = tableQuery
         .join(tableQuery)

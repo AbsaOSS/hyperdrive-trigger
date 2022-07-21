@@ -103,8 +103,8 @@ class SparkConfigNestedClassesValidator extends ConstraintValidator[SparkConfigN
     constraints.map(_.isValid).reduce(_ && _)
   }
 
-  private def addConstraintViolation(field: String, message: String)(implicit
-    context: ConstraintValidatorContext
+  private def addConstraintViolation(field: String, message: String)(
+    implicit context: ConstraintValidatorContext
   ): Unit =
     context
       .buildConstraintViolationWithTemplate(message)

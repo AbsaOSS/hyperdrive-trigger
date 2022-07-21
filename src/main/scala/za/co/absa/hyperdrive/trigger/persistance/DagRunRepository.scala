@@ -37,8 +37,8 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 trait DagRunRepository extends Repository {
-  def searchDagRuns(searchRequest: TableSearchRequest)(implicit
-    ec: ExecutionContext
+  def searchDagRuns(searchRequest: TableSearchRequest)(
+    implicit ec: ExecutionContext
   ): Future[TableSearchResponse[DagRun]]
 }
 

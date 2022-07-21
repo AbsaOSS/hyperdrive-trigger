@@ -31,8 +31,8 @@ trait HdfsService {
   def exists(path: Path)(implicit ugi: UserGroupInformation): Try[Boolean]
   def open(path: Path)(implicit ugi: UserGroupInformation): Try[FSDataInputStream]
   def listStatus(path: Path, filter: PathFilter)(implicit ugi: UserGroupInformation): Try[Array[FileStatus]]
-  def parseFileAndClose[R](pathStr: String, parseFn: Iterator[String] => R)(implicit
-    ugi: UserGroupInformation
+  def parseFileAndClose[R](pathStr: String, parseFn: Iterator[String] => R)(
+    implicit ugi: UserGroupInformation
   ): Try[Option[R]]
 }
 
@@ -56,8 +56,8 @@ class HdfsServiceImpl extends HdfsService {
     }
   }
 
-  override def listStatus(path: Path, filter: PathFilter)(implicit
-    ugi: UserGroupInformation
+  override def listStatus(path: Path, filter: PathFilter)(
+    implicit ugi: UserGroupInformation
   ): Try[Array[FileStatus]] = {
     Try {
       doAs {
@@ -73,8 +73,8 @@ class HdfsServiceImpl extends HdfsService {
    *  @tparam R type of the parsed value
    *  @return None if the file doesn't exist, Some with the parsed content
    */
-  override def parseFileAndClose[R](pathStr: String, parseFn: Iterator[String] => R)(implicit
-    ugi: UserGroupInformation
+  override def parseFileAndClose[R](pathStr: String, parseFn: Iterator[String] => R)(
+    implicit ugi: UserGroupInformation
   ): Try[Option[R]] = {
     for {
       path <- Try(new Path(pathStr))

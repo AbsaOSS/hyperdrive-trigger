@@ -40,8 +40,8 @@ class EventProcessor(
     fut
   }
 
-  private def processEvents(events: Seq[Event], sensorId: Long, triggeredBy: String)(implicit
-    ec: ExecutionContext
+  private def processEvents(events: Seq[Event], sensorId: Long, triggeredBy: String)(
+    implicit ec: ExecutionContext
   ): Future[Boolean] =
     eventRepository.getExistEvents(events.map(_.sensorEventId)).flatMap { eventsIdsInDB =>
       val newEvents = events.filter(e => !eventsIdsInDB.contains(e.sensorEventId))

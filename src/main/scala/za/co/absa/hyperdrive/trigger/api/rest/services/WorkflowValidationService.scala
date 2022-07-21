@@ -42,8 +42,8 @@ trait WorkflowValidationService {
 
   def validateOnInsert(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[Unit]
   def validateOnInsert(workflows: Seq[WorkflowJoined])(implicit ec: ExecutionContext): Future[Unit]
-  def validateOnUpdate(originalWorkflow: WorkflowJoined, updatedWorkflow: WorkflowJoined)(implicit
-    ec: ExecutionContext
+  def validateOnUpdate(originalWorkflow: WorkflowJoined, updatedWorkflow: WorkflowJoined)(
+    implicit ec: ExecutionContext
   ): Future[Unit]
 }
 
@@ -69,8 +69,8 @@ class WorkflowValidationServiceImpl @Inject() (
     ValidationServiceUtil.reduce(validators)
   }
 
-  override def validateOnUpdate(originalWorkflow: WorkflowJoined, updatedWorkflow: WorkflowJoined)(implicit
-    ec: ExecutionContext
+  override def validateOnUpdate(originalWorkflow: WorkflowJoined, updatedWorkflow: WorkflowJoined)(
+    implicit ec: ExecutionContext
   ): Future[Unit] = {
     val validators = Seq(
       validateWorkflowIsUnique(updatedWorkflow),
@@ -128,8 +128,8 @@ class WorkflowValidationServiceImpl @Inject() (
     Future.successful(errors)
   }
 
-  private[services] def validateWorkflowData(originalWorkflow: WorkflowJoined, updatedWorkflow: WorkflowJoined)(implicit
-    ec: ExecutionContext
+  private[services] def validateWorkflowData(originalWorkflow: WorkflowJoined, updatedWorkflow: WorkflowJoined)(
+    implicit ec: ExecutionContext
   ): Future[Seq[ApiError]] = {
     val workflowDetailsVerification = Seq(
       originalWorkflow.name == updatedWorkflow.name,
