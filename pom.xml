@@ -75,7 +75,7 @@
         <postgresql>42.3.3</postgresql>
         <kafka.version>2.2.0</kafka.version>
         <embedded.kafka.version>2.2.0</embedded.kafka.version>
-        <commons.configuration2.version>2.7</commons.configuration2.version> <!-- Same as in Hyperdrive -->
+        <commons.configuration2.version>2.8.0</commons.configuration2.version> <!-- Same as in Hyperdrive -->
         <play-json.version>2.7.3</play-json.version>
         <play-ws-standalone.version>2.0.3</play-ws-standalone.version>
         <play-ahc-ws-standalone.version>2.0.2</play-ahc-ws-standalone.version>
