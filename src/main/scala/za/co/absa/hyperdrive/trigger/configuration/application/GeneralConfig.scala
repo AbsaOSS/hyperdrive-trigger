@@ -34,5 +34,7 @@ class GeneralConfig(
   @DefaultValue(Array("Unknown"))
   val version: String,
   @(NotBlank @field)
-  val appUniqueId: String
+  val appUniqueId: String,
+  @DefaultValue(Array("50"))
+  val kafkaConsumersCacheSize: Int
 )

@@ -130,6 +130,10 @@ spring.mail.host=
 spring.mail.port=
 ```
 ```
+# Kafka Service properties. Used for per-workflow Kafka consumers
+kafka.consumers.cache.size=50
+```
+```
 #Kafka sensor properties. Not all are required. Adjust according to your use case.
 kafkaSource.group.id.prefix=hyper_drive_${appUniqueId}
 kafkaSource.poll.duration=500
