@@ -101,6 +101,9 @@ class HdfsServiceImpl extends HdfsService {
     } yield parseResult
   }
 
+  /**
+   * Must not be a lazy val, because different users should get different FileSystems. FileSystem is cached internally.
+   */
   private def fs = FileSystem.get(conf)
 
   private def doAs[T](fn: => T)(implicit ugi: UserGroupInformation) = {
