@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -45,12 +44,17 @@ class HyperdriveExecutorTest extends AsyncFlatSpec with MockitoSugar with Before
     val jobInstance = getJobInstance
     val jobInstanceParameters = jobInstance.jobParameters.asInstanceOf[SparkInstanceParameters]
 
-    when(offsetComparisonServiceMock.isNewJobInstanceRequired(any())(any())).thenReturn(Future{true})
-    when(sparkClusterServiceMock.submitJob(any(), any(), any())).thenReturn(Future {(): Unit})
-    when(updateJobStub.apply(any[JobInstance])).thenReturn(Future {(): Unit})
+    when(offsetComparisonServiceMock.isNewJobInstanceRequired(any())(any())).thenReturn(Future { true })
+    when(sparkClusterServiceMock.submitJob(any(), any(), any())).thenReturn(Future { (): Unit })
+    when(updateJobStub.apply(any[JobInstance])).thenReturn(Future { (): Unit })
 
     implicit val sparkConfig: SparkConfig = DefaultTestSparkConfig().yarn
-    val resultFut = HyperdriveExecutor.execute(jobInstance, jobInstanceParameters, updateJobStub, sparkClusterServiceMock, offsetComparisonServiceMock)
+    val resultFut = HyperdriveExecutor.execute(jobInstance,
+                                               jobInstanceParameters,
+                                               updateJobStub,
+                                               sparkClusterServiceMock,
+                                               offsetComparisonServiceMock
+    )
 
     resultFut.map { _ =>
       verify(sparkClusterServiceMock).submitJob(any(), any(), any())
@@ -63,12 +67,17 @@ class HyperdriveExecutorTest extends AsyncFlatSpec with MockitoSugar with Before
     val jobInstance = getJobInstance
     val jobInstanceParameters = jobInstance.jobParameters.asInstanceOf[SparkInstanceParameters]
 
-    when(offsetComparisonServiceMock.isNewJobInstanceRequired(any())(any())).thenReturn(Future{false})
-    when(sparkClusterServiceMock.submitJob(any(), any(), any())).thenReturn(Future {(): Unit})
-    when(updateJobStub.apply(any[JobInstance])).thenReturn(Future {(): Unit})
+    when(offsetComparisonServiceMock.isNewJobInstanceRequired(any())(any())).thenReturn(Future { false })
+    when(sparkClusterServiceMock.submitJob(any(), any(), any())).thenReturn(Future { (): Unit })
+    when(updateJobStub.apply(any[JobInstance])).thenReturn(Future { (): Unit })
 
     implicit val sparkConfig: SparkConfig = DefaultTestSparkConfig().yarn
-    val resultFut = HyperdriveExecutor.execute(jobInstance, jobInstanceParameters, updateJobStub, sparkClusterServiceMock, offsetComparisonServiceMock)
+    val resultFut = HyperdriveExecutor.execute(jobInstance,
+                                               jobInstanceParameters,
+                                               updateJobStub,
+                                               sparkClusterServiceMock,
+                                               offsetComparisonServiceMock
+    )
 
     resultFut.map { _ =>
       verify(sparkClusterServiceMock, never()).submitJob(any(), any(), any())

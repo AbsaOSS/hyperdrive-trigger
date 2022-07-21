@@ -31,15 +31,22 @@ object HyperdriveExecutor {
     offsetComparisonService: HyperdriveOffsetComparisonService
   )(implicit executionContext: ExecutionContext, sparkConfig: SparkConfig): Future[Unit] =
     jobInstance.executorJobId match {
-      case None                => submitJob(sparkClusterService, offsetComparisonService, jobInstance, jobParameters, updateJob)
-      case Some(executorJobId) => SparkExecutor.updateJobStatus(executorJobId, jobInstance, updateJob, sparkClusterService)
+      case None => submitJob(sparkClusterService, offsetComparisonService, jobInstance, jobParameters, updateJob)
+      case Some(executorJobId) =>
+        SparkExecutor.updateJobStatus(executorJobId, jobInstance, updateJob, sparkClusterService)
     }
 
-  private def submitJob(sparkClusterService: SparkClusterService, offsetComparisonService: HyperdriveOffsetComparisonService, jobInstance: JobInstance, jobParameters: SparkInstanceParameters, updateJob: JobInstance => Future[Unit])(implicit executionContext: ExecutionContext) = {
+  private def submitJob(sparkClusterService: SparkClusterService,
+                        offsetComparisonService: HyperdriveOffsetComparisonService,
+                        jobInstance: JobInstance,
+                        jobParameters: SparkInstanceParameters,
+                        updateJob: JobInstance => Future[Unit]
+  )(implicit executionContext: ExecutionContext) = {
     for {
       newJobRequired <- offsetComparisonService.isNewJobInstanceRequired(jobParameters)
-      _ <- if (newJobRequired) sparkClusterService.submitJob(jobInstance, jobParameters, updateJob)
-      else updateJob(jobInstance.copy(jobStatus = JobStatuses.NoData))
+      _ <-
+        if (newJobRequired) sparkClusterService.submitJob(jobInstance, jobParameters, updateJob)
+        else updateJob(jobInstance.copy(jobStatus = JobStatuses.NoData))
     } yield ()
   }
 }
