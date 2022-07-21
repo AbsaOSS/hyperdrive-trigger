@@ -102,7 +102,7 @@ class HdfsServiceImpl extends HdfsService {
   }
 
   /**
-   * Must not be a lazy val, because different users should get different FileSystems. FileSystem is cached internally.
+   *  Must not be a lazy val, because different users should get different FileSystems. FileSystem is cached internally.
    */
   private def fs = FileSystem.get(conf)
 
