@@ -23,12 +23,12 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 trait SensorRepository extends Repository {
-  def getNewActiveAssignedSensors(idsToFilter: Seq[Long], assignedWorkflowIds: Seq[Long])(implicit
-    ec: ExecutionContext
+  def getNewActiveAssignedSensors(idsToFilter: Seq[Long], assignedWorkflowIds: Seq[Long])(
+    implicit ec: ExecutionContext
   ): Future[Seq[Sensor[_ <: SensorProperties]]]
   def getInactiveSensors(ids: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[Long]]
-  def getChangedSensors(originalSensorsPropertiesWithId: Seq[(Long, SensorProperties)])(implicit
-    ec: ExecutionContext
+  def getChangedSensors(originalSensorsPropertiesWithId: Seq[(Long, SensorProperties)])(
+    implicit ec: ExecutionContext
   ): Future[Seq[Sensor[_ <: SensorProperties]]]
 }
 
@@ -37,8 +37,8 @@ class SensorRepositoryImpl @Inject() (val dbProvider: DatabaseProvider, val sche
     extends SensorRepository {
   import api._
 
-  override def getNewActiveAssignedSensors(idsToFilter: Seq[Long], assignedWorkflowIds: Seq[Long])(implicit
-    ec: ExecutionContext
+  override def getNewActiveAssignedSensors(idsToFilter: Seq[Long], assignedWorkflowIds: Seq[Long])(
+    implicit ec: ExecutionContext
   ): Future[Seq[Sensor[_ <: SensorProperties]]] = db.run {
     (for {
       sensor <- sensorTable if !(sensor.id inSet idsToFilter)

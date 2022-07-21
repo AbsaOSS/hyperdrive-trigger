@@ -30,8 +30,8 @@ trait CheckpointService {
   type TopicPartitionOffsets = Map[String, Map[Int, Long]]
 
   def getOffsetsFromFile(path: String)(implicit ugi: UserGroupInformation): Try[Option[TopicPartitionOffsets]]
-  def getLatestOffsetFilePath(params: HdfsParameters)(implicit
-    ugi: UserGroupInformation
+  def getLatestOffsetFilePath(params: HdfsParameters)(
+    implicit ugi: UserGroupInformation
   ): Try[Option[(String, Boolean)]]
 }
 

@@ -29,26 +29,26 @@ import scala.concurrent.{ExecutionContext, Future}
 trait NotificationRuleRepository extends Repository {
   val notificationRuleHistoryRepository: NotificationRuleHistoryRepository
 
-  def insertNotificationRule(notificationRule: NotificationRule, user: String)(implicit
-    ec: ExecutionContext
+  def insertNotificationRule(notificationRule: NotificationRule, user: String)(
+    implicit ec: ExecutionContext
   ): Future[Long]
 
   def getNotificationRule(id: Long)(implicit ec: ExecutionContext): Future[NotificationRule]
 
   def getNotificationRules()(implicit ec: ExecutionContext): Future[Seq[NotificationRule]]
 
-  def updateNotificationRule(notificationRule: NotificationRule, user: String)(implicit
-    ec: ExecutionContext
+  def updateNotificationRule(notificationRule: NotificationRule, user: String)(
+    implicit ec: ExecutionContext
   ): Future[Unit]
 
   def deleteNotificationRule(id: Long, user: String)(implicit ec: ExecutionContext): Future[Unit]
 
-  def searchNotificationRules(tableSearchRequest: TableSearchRequest)(implicit
-    ec: ExecutionContext
+  def searchNotificationRules(tableSearchRequest: TableSearchRequest)(
+    implicit ec: ExecutionContext
   ): Future[TableSearchResponse[NotificationRule]]
 
-  def getMatchingNotificationRules(workflowId: Long, status: DagInstanceStatus, currentTime: LocalDateTime)(implicit
-    ec: ExecutionContext
+  def getMatchingNotificationRules(workflowId: Long, status: DagInstanceStatus, currentTime: LocalDateTime)(
+    implicit ec: ExecutionContext
   ): Future[Option[(Seq[NotificationRule], Workflow)]]
 
   def getMatchingWorkflows(id: Long)(implicit ec: ExecutionContext): Future[Seq[Workflow]]
@@ -63,8 +63,8 @@ class NotificationRuleRepositoryImpl @Inject() (
 
   import api._
 
-  override def insertNotificationRule(notificationRule: NotificationRule, user: String)(implicit
-    ec: ExecutionContext
+  override def insertNotificationRule(notificationRule: NotificationRule, user: String)(
+    implicit ec: ExecutionContext
   ): Future[Long] =
     db.run(
       insertNotificationRuleInternal(notificationRule, user).transactionally
@@ -83,8 +83,8 @@ class NotificationRuleRepositoryImpl @Inject() (
         .withErrorHandling("Unexpected error occurred when getting notificationRules")
     )
 
-  override def updateNotificationRule(notificationRule: NotificationRule, user: String)(implicit
-    ec: ExecutionContext
+  override def updateNotificationRule(notificationRule: NotificationRule, user: String)(
+    implicit ec: ExecutionContext
   ): Future[Unit] =
     db.run(
       updateNotificationRuleInternal(notificationRule, user).transactionally
@@ -170,8 +170,8 @@ class NotificationRuleRepositoryImpl @Inject() (
         .withErrorHandling()
     })
 
-  private def insertNotificationRuleInternal(notificationRule: NotificationRule, user: String)(implicit
-    ec: ExecutionContext
+  private def insertNotificationRuleInternal(notificationRule: NotificationRule, user: String)(
+    implicit ec: ExecutionContext
   ) = {
     val notificationRuleToInsert = notificationRule.copy(created = LocalDateTime.now())
     for {
@@ -192,8 +192,8 @@ class NotificationRuleRepositoryImpl @Inject() (
           .getOrElse(throw new ApiException(ValidationError(s"Notification Rule with id ${id} does not exist.")))
       )
 
-  private def updateNotificationRuleInternal(notificationRule: NotificationRule, user: String)(implicit
-    ec: ExecutionContext
+  private def updateNotificationRuleInternal(notificationRule: NotificationRule, user: String)(
+    implicit ec: ExecutionContext
   ) =
     for {
       _ <- notificationRuleTable

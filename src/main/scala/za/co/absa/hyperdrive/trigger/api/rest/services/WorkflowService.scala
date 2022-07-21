@@ -45,8 +45,8 @@ trait WorkflowService {
 
   def getWorkflows()(implicit ec: ExecutionContext): Future[Seq[Workflow]]
 
-  def searchWorkflows(searchRequest: TableSearchRequest)(implicit
-    ec: ExecutionContext
+  def searchWorkflows(searchRequest: TableSearchRequest)(
+    implicit ec: ExecutionContext
   ): Future[TableSearchResponse[Workflow]]
 
   def getWorkflowsByProjectName(projectName: String)(implicit ec: ExecutionContext): Future[Seq[Workflow]]
@@ -71,12 +71,12 @@ trait WorkflowService {
 
   def exportWorkflows(workflowIds: Seq[Long])(implicit ec: ExecutionContext): Future[Seq[WorkflowImportExportWrapper]]
 
-  def importWorkflows(workflowImports: Seq[WorkflowImportExportWrapper])(implicit
-    ec: ExecutionContext
+  def importWorkflows(workflowImports: Seq[WorkflowImportExportWrapper])(
+    implicit ec: ExecutionContext
   ): Future[Seq[WorkflowJoined]]
 
-  def convertToWorkflowJoined(workflowImport: WorkflowImportExportWrapper)(implicit
-    ec: ExecutionContext
+  def convertToWorkflowJoined(workflowImport: WorkflowImportExportWrapper)(
+    implicit ec: ExecutionContext
   ): Future[WorkflowJoined]
 }
 
@@ -110,8 +110,8 @@ class WorkflowServiceImpl(
   def getWorkflows()(implicit ec: ExecutionContext): Future[Seq[Workflow]] =
     workflowRepository.getWorkflows()
 
-  def searchWorkflows(searchRequest: TableSearchRequest)(implicit
-    ec: ExecutionContext
+  def searchWorkflows(searchRequest: TableSearchRequest)(
+    implicit ec: ExecutionContext
   ): Future[TableSearchResponse[Workflow]] =
     workflowRepository.searchWorkflows(searchRequest)
 
@@ -158,8 +158,8 @@ class WorkflowServiceImpl(
     workflowRepository.switchWorkflowActiveState(id, userName).map(_ => true)
   }
 
-  override def updateWorkflowsIsActive(ids: Seq[Long], isActiveNewValue: Boolean)(implicit
-    ec: ExecutionContext
+  override def updateWorkflowsIsActive(ids: Seq[Long], isActiveNewValue: Boolean)(
+    implicit ec: ExecutionContext
   ): Future[Boolean] = {
     val userName = getUserName.apply()
     workflowRepository.updateWorkflowsIsActive(ids, isActiveNewValue, userName).map(_ => true)

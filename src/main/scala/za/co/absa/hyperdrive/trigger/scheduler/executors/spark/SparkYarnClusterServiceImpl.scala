@@ -33,8 +33,8 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 @Service
-class SparkYarnClusterServiceImpl @Inject() (implicit
-  sparkConfig: SparkConfig,
+class SparkYarnClusterServiceImpl @Inject() (
+  implicit sparkConfig: SparkConfig,
   executionContextProvider: SparkClusterServiceExecutionContextProvider
 ) extends SparkClusterService {
   private implicit val executionContext: ExecutionContext = executionContextProvider.get()
@@ -77,8 +77,8 @@ class SparkYarnClusterServiceImpl @Inject() (implicit
     updateJob(jobInstance.copy(jobStatus = status))
   }
 
-  private def getSparkLauncher(id: String, jobName: String, jobParameters: SparkInstanceParameters)(implicit
-    sparkConfig: SparkConfig
+  private def getSparkLauncher(id: String, jobName: String, jobParameters: SparkInstanceParameters)(
+    implicit sparkConfig: SparkConfig
   ): InProcessLauncher = {
     val config = sparkConfig.yarn
     val sparkLauncher = new NoBackendConnectionInProcessLauncher()

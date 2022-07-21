@@ -29,8 +29,8 @@ trait SchedulerInstanceService {
 
   def registerNewInstance()(implicit ec: ExecutionContext): Future[Long]
 
-  def updateSchedulerStatus(instanceId: Long, lagThreshold: Duration)(implicit
-    ec: ExecutionContext
+  def updateSchedulerStatus(instanceId: Long, lagThreshold: Duration)(
+    implicit ec: ExecutionContext
   ): Future[Seq[SchedulerInstance]]
 }
 
@@ -42,8 +42,8 @@ class SchedulerInstanceServiceImpl @Inject() (schedulerInstanceRepository: Sched
   override def registerNewInstance()(implicit ec: ExecutionContext): Future[Long] =
     schedulerInstanceRepository.insertInstance()
 
-  override def updateSchedulerStatus(instanceId: Long, lagThreshold: Duration)(implicit
-    ec: ExecutionContext
+  override def updateSchedulerStatus(instanceId: Long, lagThreshold: Duration)(
+    implicit ec: ExecutionContext
   ): Future[Seq[SchedulerInstance]] = {
     val currentHeartbeat = LocalDateTime.now()
     for {

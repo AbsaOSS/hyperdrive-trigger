@@ -26,19 +26,19 @@ import scala.concurrent.{ExecutionContext, Future}
 trait NotificationRuleHistoryRepository extends Repository {
   import slick.dbio.DBIO
 
-  private[persistance] def create(notificationRule: NotificationRule, user: String)(implicit
-    ec: ExecutionContext
+  private[persistance] def create(notificationRule: NotificationRule, user: String)(
+    implicit ec: ExecutionContext
   ): DBIO[Long]
-  private[persistance] def update(notificationRule: NotificationRule, user: String)(implicit
-    ec: ExecutionContext
+  private[persistance] def update(notificationRule: NotificationRule, user: String)(
+    implicit ec: ExecutionContext
   ): DBIO[Long]
-  private[persistance] def delete(notificationRule: NotificationRule, user: String)(implicit
-    ec: ExecutionContext
+  private[persistance] def delete(notificationRule: NotificationRule, user: String)(
+    implicit ec: ExecutionContext
   ): DBIO[Long]
 
   def getHistoryForNotificationRule(notificationRuleId: Long)(implicit ec: ExecutionContext): Future[Seq[History]]
-  def getNotificationRuleFromHistory(notificationRuleHistoryId: Long)(implicit
-    ec: ExecutionContext
+  def getNotificationRuleFromHistory(notificationRuleHistoryId: Long)(
+    implicit ec: ExecutionContext
   ): Future[NotificationRule]
   def getNotificationRulesFromHistory(leftNotificationRuleHistoryId: Long, rightNotificationRuleHistoryId: Long)(
     implicit ec: ExecutionContext
@@ -50,8 +50,8 @@ class NotificationRuleHistoryRepositoryImpl @Inject() (val dbProvider: DatabaseP
     extends NotificationRuleHistoryRepository {
   import api._
 
-  private def insert(notificationRule: NotificationRule, user: String, operation: DBOperation)(implicit
-    ec: ExecutionContext
+  private def insert(notificationRule: NotificationRule, user: String, operation: DBOperation)(
+    implicit ec: ExecutionContext
   ): DBIO[Long] = {
     val notificationRuleHistory = NotificationRuleHistory(
       history = History(changedOn = LocalDateTime.now(), changedBy = user, operation = operation),
@@ -61,23 +61,23 @@ class NotificationRuleHistoryRepositoryImpl @Inject() (val dbProvider: DatabaseP
     notificationRuleHistoryTable returning notificationRuleHistoryTable.map(_.id) += notificationRuleHistory
   }
 
-  override private[persistance] def create(notificationRule: NotificationRule, user: String)(implicit
-    ec: ExecutionContext
+  override private[persistance] def create(notificationRule: NotificationRule, user: String)(
+    implicit ec: ExecutionContext
   ): DBIO[Long] =
     this.insert(notificationRule, user, Create)
 
-  override private[persistance] def update(notificationRule: NotificationRule, user: String)(implicit
-    ec: ExecutionContext
+  override private[persistance] def update(notificationRule: NotificationRule, user: String)(
+    implicit ec: ExecutionContext
   ): DBIO[Long] =
     this.insert(notificationRule, user, Update)
 
-  override private[persistance] def delete(notificationRule: NotificationRule, user: String)(implicit
-    ec: ExecutionContext
+  override private[persistance] def delete(notificationRule: NotificationRule, user: String)(
+    implicit ec: ExecutionContext
   ): DBIO[Long] =
     this.insert(notificationRule, user, Delete)
 
-  override def getHistoryForNotificationRule(notificationRuleId: Long)(implicit
-    ec: ExecutionContext
+  override def getHistoryForNotificationRule(notificationRuleId: Long)(
+    implicit ec: ExecutionContext
   ): Future[Seq[History]] =
     db.run(notificationRuleHistoryTable.getHistoryForEntity(notificationRuleId).withErrorHandling())
 
