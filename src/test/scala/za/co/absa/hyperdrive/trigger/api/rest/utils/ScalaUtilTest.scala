@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -15,14 +16,21 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.utils
 
-import scala.util.{Failure, Success, Try}
+import org.scalatest.{FlatSpec, Matchers}
+import za.co.absa.hyperdrive.trigger.api.rest.utils.ScalaUtil.swap
 
-object ScalaUtil {
-  def swap[T](optTry: Option[Try[T]]): Try[Option[T]] = {
-    optTry match {
-      case Some(Success(t)) => Success(Some(t))
-      case Some(Failure(e)) => Failure(e)
-      case None             => Success(None)
-    }
+import scala.util.{Failure, Success}
+
+class ScalaUtilTest extends FlatSpec with Matchers {
+  "swap" should "swap Option[Try] to Try[Option]" in {
+    val ex = new RuntimeException("Failed")
+    val someSuccess = Some(Success(42))
+    val someFailure = Some(Failure(ex))
+    val none = None
+
+    swap(someSuccess) shouldBe Success(Some(42))
+    swap(someFailure) shouldBe Failure(ex)
+    swap(none) shouldBe Success(None)
   }
+
 }

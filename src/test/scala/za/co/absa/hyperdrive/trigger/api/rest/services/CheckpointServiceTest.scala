@@ -16,84 +16,65 @@
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
 import org.apache.hadoop.fs
-import org.apache.hadoop.fs.{FileStatus, FileSystem}
+import org.apache.hadoop.fs.FileStatus
 import org.apache.hadoop.security.UserGroupInformation
-import org.apache.spark.deploy.SparkHadoopUtil
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, when}
+import org.mockito.Mockito.{reset, verify, when}
 import org.mockito.invocation.InvocationOnMock
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
-import za.co.absa.commons.io.TempDirectory
 
-import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Path}
 import scala.util.{Failure, Try}
 
 class CheckpointServiceTest extends FlatSpec with Matchers with BeforeAndAfter with MockitoSugar {
   private val hdfsService = mock[HdfsService]
   private val ugi = mock[UserGroupInformation]
   private val underTest = new CheckpointServiceImpl(hdfsService)
-  private var baseDir: TempDirectory = _
-  private var baseDirPath: Path = _
-  private lazy val conf = SparkHadoopUtil.get.conf
-  private val localFs = FileSystem.get(conf)
 
   before {
-    baseDir = TempDirectory("HdfsServiceTest").deleteOnExit()
-    baseDirPath = baseDir.path.toAbsolutePath
     reset(hdfsService)
   }
 
-  after {
-    baseDir.delete()
-  }
-
-  "getOffsetFromFile" should "return None if the file does not exist" in {
-    when(hdfsService.exists(any())(any())).thenReturn(Try(false))
+  "getOffsetFromFile" should "return None if parsing failed" in {
+    when(hdfsService.parseFileAndClose(any(), any())(any())).thenReturn(Try(None))
 
     val result = underTest.getOffsetsFromFile("non-existent")(ugi)
 
     result shouldBe Try(None)
   }
 
-  it should "throw an exception if parsing throws an error" in {
-    when(hdfsService.exists(any())(any())).thenReturn(Try(true))
-    when(hdfsService.open(any())(any())).thenReturn(Try(createInputStream("")))
+  it should "return the parsed contents" in {
+    val offsets = Map(
+      "topic" -> Map(0 -> 1000L)
+    )
+    when(hdfsService.parseFileAndClose[underTest.TopicPartitionOffsets](any(), any())(any()))
+      .thenReturn(Try(Some(offsets)))
 
-    val result = underTest.getOffsetsFromFile("some-file")(ugi)
+    val result = underTest.getOffsetsFromFile("any")(ugi)
 
-    result.isFailure shouldBe true
-    result.failed.get.getMessage should include("some-file")
+    result shouldBe Try(Some(offsets))
   }
 
   it should "parse an offset file" in {
+    underTest.getOffsetsFromFile("any")(ugi)
+    val fnCaptor: ArgumentCaptor[Iterator[String] => underTest.TopicPartitionOffsets] =
+      ArgumentCaptor.forClass(classOf[Iterator[String] => underTest.TopicPartitionOffsets])
+    verify(hdfsService).parseFileAndClose(any(), fnCaptor.capture())(any())
+    val parseFn = fnCaptor.getValue
     val lines = Seq(
       "v1",
       raw"""{"batchWatermarkMs":0,"batchTimestampMs":1633360640176}""",
       raw"""{"my.topic":{"2":2021,"1":1021,"3":3021,"0":21}, "my.other.topic":{"0":0}}"""
-    ).mkString("\n")
-    when(hdfsService.exists(any())(any())).thenReturn(Try(true))
-    when(hdfsService.open(any())(any())).thenReturn(Try(createInputStream(lines)))
+    ).toIterator
 
-    val resultTryOpt = underTest.getOffsetsFromFile("some-file")(ugi)
+    val result = parseFn.apply(lines)
 
-    resultTryOpt.isSuccess shouldBe true
-    resultTryOpt.get.isDefined shouldBe true
-    val result = resultTryOpt.get.get
     result.size shouldBe 2
     result.head._1 shouldBe "my.topic"
     result.head._2 should contain theSameElementsAs Map("2" -> 2021, "1" -> 1021, "3" -> 3021, "0" -> 21)
     result.toSeq(1)._1 shouldBe "my.other.topic"
     result.toSeq(1)._2 should contain theSameElementsAs Map("0" -> 0)
-  }
-
-  it should "return Failure if an exception occurred while accessing the file system" in {
-    when(hdfsService.exists(any())(any())).thenReturn(Failure(new RuntimeException("Failed")))
-
-    val result = underTest.getOffsetsFromFile("some-file")(ugi)
-
-    result.isFailure shouldBe true
   }
 
   "getLatestOffsetFile" should "get the latest offset file, and it is committed" in {
@@ -196,11 +177,5 @@ class CheckpointServiceTest extends FlatSpec with Matchers with BeforeAndAfter w
       principal = "",
       checkpointLocation = "/checkpoints"
     )
-  }
-
-  private def createInputStream(str: String) = {
-    val tmpFile = Files.createTempFile(baseDirPath, "checkpoint-service-test", ".txt")
-    Files.write(tmpFile, str.getBytes(StandardCharsets.UTF_8))
-    localFs.open(new fs.Path(tmpFile.toString), 4096)
   }
 }

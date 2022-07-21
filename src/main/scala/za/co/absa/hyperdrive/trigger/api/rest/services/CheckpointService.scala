@@ -17,17 +17,13 @@ package za.co.absa.hyperdrive.trigger.api.rest.services
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
-import org.apache.commons.io.IOUtils
-import org.apache.hadoop.fs.{FileSystem, Path, PathFilter}
+import org.apache.hadoop.fs.{Path, PathFilter}
 import org.apache.hadoop.security.UserGroupInformation
-import org.apache.spark.deploy.SparkHadoopUtil
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.api.rest.utils.ScalaUtil.swap
 
-import java.nio.charset.StandardCharsets.UTF_8
 import javax.inject.Inject
-import scala.io.Source
 import scala.util.Try
 
 trait CheckpointService {
@@ -51,8 +47,6 @@ class CheckpointServiceImpl @Inject() (hdfsService: HdfsService) extends Checkpo
   private val mapper = new ObjectMapper().registerModule(DefaultScalaModule)
   private val offsetsDirName = "offsets"
   private val commitsDirName = "commits"
-  private lazy val conf = SparkHadoopUtil.get.conf
-  private lazy val fs = FileSystem.get(conf)
 
   /**
    *  See org.apache.spark.sql.execution.streaming.HDFSMetadataLog
@@ -72,7 +66,7 @@ class CheckpointServiceImpl @Inject() (hdfsService: HdfsService) extends Checkpo
   override def getOffsetsFromFile(
     path: String
   )(implicit ugi: UserGroupInformation): Try[Option[TopicPartitionOffsets]] = {
-    parseFileAndClose(path, parseKafkaOffsetStream)
+    hdfsService.parseFileAndClose(path, parseKafkaOffsetStream)
   }
 
   /**
@@ -99,39 +93,6 @@ class CheckpointServiceImpl @Inject() (hdfsService: HdfsService) extends Checkpo
         logger.debug(s"No offset files exist under checkpoint location ${params.checkpointLocation}")
       }
       swap(offsetFilePath)
-    }
-  }
-
-  /**
-   *  @param pathStr path to the file as a string
-   *  @param parseFn function that parses the file line by line. Caution: It must materialize the content,
-   *                because the file is closed after the method completes. E.g. it must not return an iterator.
-   *  @tparam R type of the parsed value
-   *  @return None if the file doesn't exist, Some with the parsed content
-   */
-  private def parseFileAndClose[R](pathStr: String, parseFn: Iterator[String] => R)(implicit
-    ugi: UserGroupInformation
-  ): Try[Option[R]] = {
-    val path = new Path(pathStr)
-    hdfsService.exists(path).flatMap { exists =>
-      if (exists) {
-        hdfsService.open(path).map { input =>
-          try {
-            val lines = Source.fromInputStream(input, UTF_8.name()).getLines()
-            Some(parseFn(lines))
-          } catch {
-            case e: Exception =>
-              // re-throw the exception with the log file path added
-              throw new Exception(s"Failed to parse file $path", e)
-          } finally {
-            IOUtils.closeQuietly(input)
-          }
-        }
-
-      } else {
-        logger.debug(s"Could not find file $path")
-        Try(None)
-      }
     }
   }
 
