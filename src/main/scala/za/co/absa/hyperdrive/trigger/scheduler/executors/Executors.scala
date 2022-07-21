@@ -101,7 +101,8 @@ class Executors @Inject() (
           jobInstance match {
             case Some(ji) =>
               ji.jobParameters match {
-                case hyperdrive: SparkInstanceParameters if hyperdrive.jobType == JobTypes.Hyperdrive =>
+                case hyperdrive: SparkInstanceParameters
+                    if hyperdrive.jobType == JobTypes.Hyperdrive && useHyperExecutor(hyperdrive) =>
                   HyperdriveExecutor
                     .execute(ji, hyperdrive, updateJob, sparkClusterService, hyperdriveOffsetComparisonService)
                 case spark: SparkInstanceParameters => SparkExecutor.execute(ji, spark, updateJob, sparkClusterService)
@@ -120,6 +121,12 @@ class Executors @Inject() (
         }
         fut
     }
+
+  private def useHyperExecutor(parameters: SparkInstanceParameters) = {
+    schedulerConfig.executors.enableHyperdriveExecutor &&
+    parameters.jobType == JobTypes.Hyperdrive &&
+    parameters.appArguments.contains("useHyperdriveExecutor")
+  }
 
   private def updateJob(jobInstance: JobInstance): Future[Unit] = {
     logger.info(
