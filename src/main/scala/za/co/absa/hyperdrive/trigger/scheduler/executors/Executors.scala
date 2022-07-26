@@ -125,7 +125,7 @@ class Executors @Inject() (
   private def useHyperExecutor(parameters: SparkInstanceParameters) = {
     schedulerConfig.executors.enableHyperdriveExecutor &&
     parameters.jobType == JobTypes.Hyperdrive &&
-    parameters.appArguments.contains("useHyperdriveExecutor")
+    parameters.appArguments.contains("useHyperdriveExecutor=true")
   }
 
   private def updateJob(jobInstance: JobInstance): Future[Unit] = {
