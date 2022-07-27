@@ -82,6 +82,18 @@ class Executors @Inject() (
           case _ =>
         }
         fut
+      case jobInstances if jobInstances.forall(ji => ji.jobStatus.isFinalStatus && ji.jobStatus == JobStatuses.NoData) =>
+        val updatedDagInstance =
+          dagInstance.copy(status = DagInstanceStatuses.Skipped, finished = Option(LocalDateTime.now()))
+        val fut = for {
+          _ <- dagInstanceRepository.update(updatedDagInstance)
+        } yield {}
+        fut.onComplete {
+          case Failure(exception) =>
+            logger.error(s"Updating status failed for skipped run. Dag instance id = ${dagInstance.id}", exception)
+          case _ =>
+        }
+        fut
       case jobInstances if jobInstances.forall(ji => ji.jobStatus.isFinalStatus && !ji.jobStatus.isFailed) =>
         val updatedDagInstance =
           dagInstance.copy(status = DagInstanceStatuses.Succeeded, finished = Option(LocalDateTime.now()))
