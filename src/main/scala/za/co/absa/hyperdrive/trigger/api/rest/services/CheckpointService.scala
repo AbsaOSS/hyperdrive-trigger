@@ -15,10 +15,10 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import org.apache.hadoop.fs.{Path, PathFilter}
 import org.apache.hadoop.security.UserGroupInformation
+import org.json4s.jackson.Serialization
+import org.json4s.{Formats, NoTypeHints}
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.api.rest.utils.ScalaUtil.swap
@@ -44,9 +44,9 @@ class HdfsParameters(
 @Service
 class CheckpointServiceImpl @Inject() (hdfsService: HdfsService) extends CheckpointService {
   private val logger = LoggerFactory.getLogger(this.getClass)
-  private val mapper = new ObjectMapper().registerModule(DefaultScalaModule)
   private val offsetsDirName = "offsets"
   private val commitsDirName = "commits"
+  private implicit val formats: Formats = Serialization.formats(NoTypeHints)
 
   /**
    *  See org.apache.spark.sql.execution.streaming.HDFSMetadataLog
@@ -101,11 +101,12 @@ class CheckpointServiceImpl @Inject() (hdfsService: HdfsService) extends Checkpo
    *  and org.apache.spark.sql.kafka010.JsonUtils
    *  for details on the assumed format
    */
+
   private def parseKafkaOffsetStream(lines: Iterator[String]): TopicPartitionOffsets = {
     val SERIALIZED_VOID_OFFSET = "-"
     def parseOffset(value: String): Option[TopicPartitionOffsets] = value match {
       case SERIALIZED_VOID_OFFSET => None
-      case json                   => Some(mapper.readValue(json, classOf[TopicPartitionOffsets]))
+      case json                   => Some(Serialization.read[TopicPartitionOffsets](json))
     }
     if (!lines.hasNext) {
       throw new IllegalStateException("Incomplete log file")
