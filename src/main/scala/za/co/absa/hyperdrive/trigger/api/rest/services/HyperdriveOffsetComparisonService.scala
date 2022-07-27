@@ -96,8 +96,10 @@ class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
                   if (allConsumed) {
                     logger.info(s"All offsets consumed for topic ${kafkaParametersOpt.get._1}. Skipping job instance")
                   } else {
-                    logger.debug(s"Some offsets haven't been consumed yet for topic ${kafkaParametersOpt.get._1}. Kafka offsets: ${kafkaEndOffsets}, " +
-                      s"Checkpoint offsets: ${checkpointOffsets}")
+                    logger.debug(
+                      s"Some offsets haven't been consumed yet for topic ${kafkaParametersOpt.get._1}. Kafka offsets: ${kafkaEndOffsets}, " +
+                        s"Checkpoint offsets: ${checkpointOffsets}"
+                    )
                   }
                   !allConsumed
                 case _ => true

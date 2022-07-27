@@ -82,7 +82,8 @@ class Executors @Inject() (
           case _ =>
         }
         fut
-      case jobInstances if jobInstances.forall(ji => ji.jobStatus.isFinalStatus && ji.jobStatus == JobStatuses.NoData) =>
+      case jobInstances
+          if jobInstances.forall(ji => ji.jobStatus.isFinalStatus && ji.jobStatus == JobStatuses.NoData) =>
         val updatedDagInstance =
           dagInstance.copy(status = DagInstanceStatuses.Skipped, finished = Option(LocalDateTime.now()))
         val fut = for {
