@@ -94,12 +94,10 @@ class SchedulerInstanceRepositoryTest
   }
 
   "getCurrentDateTime" should "return database current date time" in {
+    val expectedBefore = LocalDateTime.now()
     val result = await(schedulerInstanceRepository.getCurrentDateTime())
-    val expected = LocalDateTime.now()
-    result.getYear shouldBe expected.getYear
-    result.getMonth shouldBe expected.getMonth
-    result.getDayOfWeek shouldBe expected.getDayOfWeek
-    result.getHour shouldBe expected.getHour
-    result.getMinute shouldBe expected.getMinute
+    val expectedAfter = LocalDateTime.now()
+    result isAfter expectedBefore
+    result isBefore expectedAfter
   }
 }
