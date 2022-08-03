@@ -72,9 +72,9 @@ class CheckpointServiceTest extends FlatSpec with Matchers with BeforeAndAfter w
 
     result.size shouldBe 2
     result.head._1 shouldBe "my.topic"
-    result.head._2 should contain theSameElementsAs Map("2" -> 2021, "1" -> 1021, "3" -> 3021, "0" -> 21)
+    result.head._2 should contain theSameElementsAs Map(2 -> 2021L, 1 -> 1021L, 3 -> 3021L, 0 -> 21L)
     result.toSeq(1)._1 shouldBe "my.other.topic"
-    result.toSeq(1)._2 should contain theSameElementsAs Map("0" -> 0)
+    result.toSeq(1)._2 should contain theSameElementsAs Map(0 -> 0L)
   }
 
   "getLatestOffsetFile" should "get the latest offset file, and it is committed" in {
