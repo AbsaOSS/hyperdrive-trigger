@@ -90,12 +90,7 @@ export class RunDetailComponent implements OnInit, OnDestroy {
   }
 
   getKillableJob(): JobInstanceModel {
-    return this.jobInstances.find(
-      (jobInstance) =>
-        jobInstance.jobStatus.name == jobStatuses.RUNNING &&
-        jobInstance.jobParameters.jobType.name == jobTypes.SPARK &&
-        jobInstance.applicationId,
-    );
+    return this.jobInstances.find((jobInstance) => jobInstance.jobStatus.name == jobStatuses.RUNNING && jobInstance.applicationId);
   }
 
   canKillJob(): boolean {
