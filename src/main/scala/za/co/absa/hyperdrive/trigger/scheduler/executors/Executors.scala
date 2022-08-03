@@ -20,9 +20,10 @@ import java.util.concurrent
 import javax.inject.Inject
 import za.co.absa.hyperdrive.trigger.models.{DagInstance, JobInstance, ShellInstanceParameters, SparkInstanceParameters}
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.InvalidExecutor
-import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobStatuses}
+import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobStatuses, JobTypes}
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, JobInstanceRepository}
 import za.co.absa.hyperdrive.trigger.scheduler.executors.spark.{
+  HyperdriveExecutor,
   SparkClusterService,
   SparkEmrClusterServiceImpl,
   SparkExecutor,
@@ -32,6 +33,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.BeanFactory
 import za.co.absa.hyperdrive.trigger.scheduler.executors.shell.ShellExecutor
 import org.springframework.stereotype.Component
+import za.co.absa.hyperdrive.trigger.api.rest.services.HyperdriveOffsetComparisonService
 import za.co.absa.hyperdrive.trigger.configuration.application.{SchedulerConfig, SparkConfig}
 import za.co.absa.hyperdrive.trigger.scheduler.notifications.NotificationSender
 
@@ -45,7 +47,8 @@ class Executors @Inject() (
   notificationSender: NotificationSender,
   beanFactory: BeanFactory,
   implicit val sparkConfig: SparkConfig,
-  schedulerConfig: SchedulerConfig
+  schedulerConfig: SchedulerConfig,
+  hyperdriveOffsetComparisonService: HyperdriveOffsetComparisonService
 ) {
   private val logger = LoggerFactory.getLogger(this.getClass)
   private implicit val executionContext: ExecutionContextExecutor =
@@ -79,6 +82,19 @@ class Executors @Inject() (
           case _ =>
         }
         fut
+      case jobInstances
+          if jobInstances.forall(ji => ji.jobStatus.isFinalStatus && ji.jobStatus == JobStatuses.NoData) =>
+        val updatedDagInstance =
+          dagInstance.copy(status = DagInstanceStatuses.Skipped, finished = Option(LocalDateTime.now()))
+        val fut = for {
+          _ <- dagInstanceRepository.update(updatedDagInstance)
+        } yield {}
+        fut.onComplete {
+          case Failure(exception) =>
+            logger.error(s"Updating status failed for skipped run. Dag instance id = ${dagInstance.id}", exception)
+          case _ =>
+        }
+        fut
       case jobInstances if jobInstances.forall(ji => ji.jobStatus.isFinalStatus && !ji.jobStatus.isFailed) =>
         val updatedDagInstance =
           dagInstance.copy(status = DagInstanceStatuses.Succeeded, finished = Option(LocalDateTime.now()))
@@ -98,6 +114,10 @@ class Executors @Inject() (
           jobInstance match {
             case Some(ji) =>
               ji.jobParameters match {
+                case hyperdrive: SparkInstanceParameters
+                    if hyperdrive.jobType == JobTypes.Hyperdrive && useHyperExecutor(hyperdrive) =>
+                  HyperdriveExecutor
+                    .execute(ji, hyperdrive, updateJob, sparkClusterService, hyperdriveOffsetComparisonService)
                 case spark: SparkInstanceParameters => SparkExecutor.execute(ji, spark, updateJob, sparkClusterService)
                 case shell: ShellInstanceParameters => ShellExecutor.execute(ji, shell, updateJob)
                 case _                              => updateJob(ji.copy(jobStatus = InvalidExecutor))
@@ -114,6 +134,12 @@ class Executors @Inject() (
         }
         fut
     }
+
+  private def useHyperExecutor(parameters: SparkInstanceParameters) = {
+    schedulerConfig.executors.enableHyperdriveExecutor &&
+    parameters.jobType == JobTypes.Hyperdrive &&
+    parameters.appArguments.contains("useHyperdriveExecutor=true")
+  }
 
   private def updateJob(jobInstance: JobInstance): Future[Unit] = {
     logger.info(

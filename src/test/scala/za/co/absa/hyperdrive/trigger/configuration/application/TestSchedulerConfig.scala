@@ -33,6 +33,6 @@ object TestSchedulerConfig {
       autostart,
       lagThreshold,
       new Sensors(sensorsThreadPoolSize, sensorsChangedSensorsChunkQuerySize),
-      new Executors(executorsThreadPoolSize)
+      new Executors(executorsThreadPoolSize, true)
     )
 }

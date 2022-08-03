@@ -19,6 +19,8 @@ import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.configuration.application.JobDefinitionConfig.{SparkExtraJavaOptions, SparkTags}
 import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.api.rest.utils.Extensions.{SparkConfigList, SparkConfigMap}
+import za.co.absa.hyperdrive.trigger.models.enums.JobTypes
+import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
 
 import scala.util.{Failure, Success, Try}
 
@@ -99,6 +101,7 @@ class JobTemplateResolutionServiceImpl extends JobTemplateResolutionService {
     templateParams: SparkTemplateParameters
   ): SparkInstanceParameters =
     SparkInstanceParameters(
+      jobType = mergeSparkJobType(definitionParams.jobType, templateParams.jobType),
       jobJar = mergeOptionString(definitionParams.jobJar, templateParams.jobJar),
       mainClass = mergeOptionString(definitionParams.mainClass, templateParams.mainClass),
       appArguments = mergeLists(definitionParams.appArguments, templateParams.appArguments),
@@ -110,6 +113,14 @@ class JobTemplateResolutionServiceImpl extends JobTemplateResolutionService {
         mergeSortedMapEntries
       ).toAdditionalSparkConfigList
     )
+
+  private def mergeSparkJobType(definitionJobType: JobType, templateJobType: JobType) = {
+    if (definitionJobType == templateJobType) {
+      definitionJobType
+    } else {
+      JobTypes.Spark
+    }
+  }
 
   private def mergeShellParameters(
     definitionParams: ShellDefinitionParameters,
