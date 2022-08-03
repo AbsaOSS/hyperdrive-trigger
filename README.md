@@ -209,6 +209,24 @@ The Hadoop configuration directory needs to be added as the environment variable
 - To add the Hadoop configuration directory to the application classpath, 
 in the file `<tomcat-base>/conf/catalina.properties`, append to the key `shared.loader` the hadoop conf dir, e.g. `shared.loader="/opt/hadoop"`.
 
+### Symbolic links on user-defined files
+With [Feature #700: Skip dag instance creation if no new message is available in Kafka](https://github.com/AbsaOSS/hyperdrive-trigger/issues/700),
+the application needs to access files that are defined in job templates for Hyperdrive jobs. Especially, it will need 
+to access any files specified under `reader.option.kafka` to configure Kafka consumers, e.g. keystore, truststore
+and keytabs under the same path as the Spark job would see them.
+
+For example, a (resolved) job template may include
+- Additional files: `/etc/config/keystore.jks#keystore.jks`
+- App arguments: `reader.option.kafka.ssl.keystore.location=keystore.jks`
+
+In this case, obviously `/etc/config/keystore.jks` needs to exist to submit the job, but additionally, 
+`<tomcat-root-directory>/keystore.jks` needs to exist such that the web application can access the file under the same path
+as the Spark job would, in order to be able to create a Kafka consumer using the same configuration as the Spark job. This
+may obviously be achieved using symbolic links.
+
+For access to HDFS, `spark.yarn.keytab` and `spark.yarn.principal` from the application properties are used for authentication.
+No symbolic links are required.
+
 ## Embedded Tomcat
 
 For development purposes, hyperdrive-trigger can be executed as an application with an embedded tomcat. Please check out branch **feature/embedded-tomcat-2** to use it.

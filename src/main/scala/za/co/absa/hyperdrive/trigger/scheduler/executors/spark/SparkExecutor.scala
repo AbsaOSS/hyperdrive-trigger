@@ -37,7 +37,7 @@ object SparkExecutor {
       case Some(executorJobId) => updateJobStatus(executorJobId, jobInstance, updateJob, sparkClusterService)
     }
 
-  private def updateJobStatus(
+  private[spark] def updateJobStatus(
     executorJobId: String,
     jobInstance: JobInstance,
     updateJob: JobInstance => Future[Unit],
