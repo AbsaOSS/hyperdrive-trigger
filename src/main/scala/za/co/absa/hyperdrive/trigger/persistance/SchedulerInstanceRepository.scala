@@ -21,6 +21,7 @@ import za.co.absa.hyperdrive.trigger.models.SchedulerInstance
 import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses
 import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses.SchedulerInstanceStatus
 
+import java.sql.Timestamp
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -34,6 +35,8 @@ trait SchedulerInstanceRepository extends Repository {
   ): Future[Int]
 
   def getAllInstances()(implicit ec: ExecutionContext): Future[Seq[SchedulerInstance]]
+
+  def getCurrentDateTime()(implicit ec: ExecutionContext): Future[LocalDateTime]
 }
 
 @stereotype.Repository
@@ -76,4 +79,8 @@ class SchedulerInstanceRepositoryImpl @Inject() (val dbProvider: DatabaseProvide
   override def getAllInstances()(implicit ec: ExecutionContext): Future[Seq[SchedulerInstance]] = db.run {
     schedulerInstanceTable.result.withErrorHandling()
   }
+
+  override def getCurrentDateTime()(implicit ec: ExecutionContext): Future[LocalDateTime] =
+    db.run(sql"SELECT now()::timestamp".as[Timestamp]).map(_.head.toLocalDateTime)
+
 }
