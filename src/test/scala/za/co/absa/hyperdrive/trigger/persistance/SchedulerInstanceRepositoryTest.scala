@@ -97,7 +97,7 @@ class SchedulerInstanceRepositoryTest
     val expectedBefore = LocalDateTime.now()
     val result = await(schedulerInstanceRepository.getCurrentDateTime())
     val expectedAfter = LocalDateTime.now()
-    result isAfter expectedBefore
-    result isBefore expectedAfter
+    (result isAfter expectedBefore) || (result equals expectedBefore) shouldBe true
+    (result isBefore expectedAfter) || (result equals expectedAfter) shouldBe true
   }
 }
