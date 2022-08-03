@@ -92,4 +92,12 @@ class SchedulerInstanceRepositoryTest
     val result = await(schedulerInstanceRepository.getAllInstances())
     result should contain theSameElementsAs TestData.schedulerInstances
   }
+
+  "getCurrentDateTime" should "return database current date time" in {
+    val expectedBefore = LocalDateTime.now()
+    val result = await(schedulerInstanceRepository.getCurrentDateTime())
+    val expectedAfter = LocalDateTime.now()
+    (result isAfter expectedBefore) || (result equals expectedBefore) shouldBe true
+    (result isBefore expectedAfter) || (result equals expectedAfter) shouldBe true
+  }
 }

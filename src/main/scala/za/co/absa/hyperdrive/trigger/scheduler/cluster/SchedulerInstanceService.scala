@@ -17,7 +17,7 @@ package za.co.absa.hyperdrive.trigger.scheduler.cluster
 
 import org.slf4j.LoggerFactory
 
-import java.time.{Duration, LocalDateTime}
+import java.time.Duration
 import javax.inject.Inject
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.models.SchedulerInstance
@@ -45,8 +45,8 @@ class SchedulerInstanceServiceImpl @Inject() (schedulerInstanceRepository: Sched
   override def updateSchedulerStatus(instanceId: Long, lagThreshold: Duration)(
     implicit ec: ExecutionContext
   ): Future[Seq[SchedulerInstance]] = {
-    val currentHeartbeat = LocalDateTime.now()
     for {
+      currentHeartbeat <- schedulerInstanceRepository.getCurrentDateTime()
       updatedCount <- schedulerInstanceRepository.updateHeartbeat(instanceId, currentHeartbeat)
       _ <-
         if (updatedCount == 0) {
