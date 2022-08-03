@@ -101,7 +101,6 @@ class CheckpointServiceImpl @Inject() (hdfsService: HdfsService) extends Checkpo
    *  and org.apache.spark.sql.kafka010.JsonUtils
    *  for details on the assumed format
    */
-
   private def parseKafkaOffsetStream(lines: Iterator[String]): TopicPartitionOffsets = {
     val SERIALIZED_VOID_OFFSET = "-"
     def parseOffset(value: String): Option[TopicPartitionOffsets] = value match {
