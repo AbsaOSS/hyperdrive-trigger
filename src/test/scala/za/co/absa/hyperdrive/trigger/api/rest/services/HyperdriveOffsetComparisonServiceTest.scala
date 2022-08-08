@@ -126,7 +126,7 @@ class HyperdriveOffsetComparisonServiceTest extends AsyncFlatSpec with Matchers 
     }
   }
 
-  it should "return false if the kafka topic does not exist" in {
+  it should "return true if the kafka topic does not exist" in {
     val config = getSparkConfig
     val underTest = new HyperdriveOffsetComparisonServiceImpl(config.yarn, checkpointService, ugiService, kafkaService)
     val jobParameters = getJobParameters
@@ -138,7 +138,7 @@ class HyperdriveOffsetComparisonServiceTest extends AsyncFlatSpec with Matchers 
 
     resultFut.map { result =>
       verify(checkpointService, never()).getLatestOffsetFilePath(any())(any())
-      result shouldBe false
+      result shouldBe true
     }
   }
 
