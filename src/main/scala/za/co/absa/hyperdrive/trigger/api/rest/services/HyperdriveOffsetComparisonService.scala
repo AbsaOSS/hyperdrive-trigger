@@ -82,11 +82,8 @@ class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
     val isNewJobInstanceRequiredFut = kafkaEndOffsetsOptFut.flatMap { kafkaEndOffsetsOpt =>
       kafkaBeginningOffsetsOptFut.flatMap { kafkaBeginningOffsetsOpt =>
         (kafkaBeginningOffsetsOpt, kafkaEndOffsetsOpt) match {
-          case (Some(kafkaBeginningOffsets), Some(kafkaEndOffsets)) =>
-            if (kafkaBeginningOffsets.isEmpty) {
-              logger.info(s"Topic ${kafkaParametersOpt.get._1} does not exist. Skipping job instance")
-              Future { false }
-            } else if (offsetsEqual(kafkaBeginningOffsets, kafkaEndOffsets)) {
+          case (Some(kafkaBeginningOffsets), Some(kafkaEndOffsets)) if kafkaBeginningOffsets.nonEmpty =>
+            if (offsetsEqual(kafkaBeginningOffsets, kafkaEndOffsets)) {
               logger.info(s"Topic ${kafkaParametersOpt.get._1} is empty. Skipping job instance")
               Future { false }
             } else {
