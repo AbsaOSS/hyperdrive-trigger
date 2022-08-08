@@ -21,7 +21,6 @@ import { AppState, selectApplicationState, selectRunState } from '../../../store
 import { GetDagRunDetail, KillJob } from '../../../stores/runs/runs.actions';
 import { Subject, Subscription } from 'rxjs';
 import { AppInfoModel } from '../../../models/appInfo.model';
-import { jobTypes } from '../../../constants/jobTypes.constants';
 import { ToastrService } from 'ngx-toastr';
 import { texts } from '../../../constants/texts.constants';
 import { ConfirmationDialogService } from '../../../services/confirmation-dialog/confirmation-dialog.service';
@@ -90,12 +89,7 @@ export class RunDetailComponent implements OnInit, OnDestroy {
   }
 
   getKillableJob(): JobInstanceModel {
-    return this.jobInstances.find(
-      (jobInstance) =>
-        jobInstance.jobStatus.name == jobStatuses.RUNNING &&
-        jobInstance.jobParameters.jobType.name == jobTypes.SPARK &&
-        jobInstance.applicationId,
-    );
+    return this.jobInstances.find((jobInstance) => jobInstance.jobStatus.name == jobStatuses.RUNNING && jobInstance.applicationId);
   }
 
   canKillJob(): boolean {
