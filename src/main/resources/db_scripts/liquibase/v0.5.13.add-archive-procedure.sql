@@ -103,7 +103,7 @@ BEGIN
     INSERT INTO archive_dag_instance (status, workflow_id, id, started, finished, triggered_by)
     SELECT di.status, di.workflow_id, di.id, di.started, di.finished, di.triggered_by
     FROM dag_instance di
-             JOIN dag_instance_ids_to_archive diita ON di.id = diita.id
+    JOIN dag_instance_ids_to_archive diita ON di.id = diita.id
     ON CONFLICT (id) DO NOTHING;
     GET DIAGNOSTICS _cnt = ROW_COUNT;
     RAISE NOTICE 'Archived % dag instances from % to %', _cnt, i_min_id, i_max_id;
@@ -111,7 +111,7 @@ BEGIN
     INSERT INTO archive_job_instance (job_name, job_status, executor_job_id, created, updated, "order", dag_instance_id, id, application_id, step_id)
     SELECT ji.job_name, ji.job_status, ji.executor_job_id, ji.created, ji.updated, ji."order", ji.dag_instance_id, ji.id, ji.application_id, ji.step_id
     FROM job_instance ji
-             JOIN dag_instance_ids_to_archive diita ON ji.dag_instance_id = diita.id
+    JOIN dag_instance_ids_to_archive diita ON ji.dag_instance_id = diita.id
     ON CONFLICT (id) DO NOTHING;
     GET DIAGNOSTICS _cnt = ROW_COUNT;
     RAISE NOTICE 'Archived % job instances', _cnt;
@@ -119,7 +119,7 @@ BEGIN
     INSERT INTO archive_event (sensor_event_id, sensor_id, dag_instance_id, id, payload)
     SELECT e.sensor_event_id, e.sensor_id, e.dag_instance_id, e.id, e.payload
     FROM "event" e
-             JOIN dag_instance_ids_to_archive diita ON e.dag_instance_id = diita.id
+    JOIN dag_instance_ids_to_archive diita ON e.dag_instance_id = diita.id
     ON CONFLICT (id) DO NOTHING;
     GET DIAGNOSTICS _cnt = ROW_COUNT;
     RAISE NOTICE 'Archived % events', _cnt;
@@ -127,13 +127,13 @@ BEGIN
     RAISE NOTICE 'Going to delete dag instances';
 
     DELETE FROM job_instance ji
-        USING dag_instance_ids_to_archive diita
+    USING dag_instance_ids_to_archive diita
     WHERE ji.dag_instance_id = diita.id;
     GET DIAGNOSTICS _cnt = ROW_COUNT;
     RAISE NOTICE 'Deleted % job instances', _cnt;
 
     DELETE FROM "event" e
-        USING dag_instance_ids_to_archive diita
+    USING dag_instance_ids_to_archive diita
     WHERE e.dag_instance_id = diita.id;
     GET DIAGNOSTICS _cnt = ROW_COUNT;
     RAISE NOTICE 'Deleted % events', _cnt;
