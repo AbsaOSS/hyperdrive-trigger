@@ -17,7 +17,7 @@ CREATE OR REPLACE PROCEDURE archive_dag_instances(
     IN i_from_ts timestamp default to_timestamp('1970-01-01', 'yyyy-mm-dd'),
     IN i_to_ts timestamp default now() - interval '6 months',
     IN i_max_records int default 50000000,
-    IN i_chunk_size int default 100000
+    IN i_chunk_size int default 50000
 )
 AS $$
 -------------------------------------------------------------------------------
@@ -38,8 +38,8 @@ AS $$
 --                        Default: 1970-01-01
 --      i_to_ts         - Upper bound for dag instance started timestamp to archive.
 --                        Default: now minus 6 months
---      i_max_records   - Maximum number of dag instances to archive. Default: 50M
---      i_chunk_size    - Chunk size of transaction. Default: 100K
+--      i_max_records   - Maximum number of dag instances to archive. Default: 50M (unlimited)
+--      i_chunk_size    - Chunk size of transaction. Default: 50K
 --
 -------------------------------------------------------------------------------
 DECLARE
