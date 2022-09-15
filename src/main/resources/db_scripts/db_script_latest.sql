@@ -227,12 +227,11 @@ CREATE INDEX dag_instance_started_idx ON dag_instance (started);
 CREATE INDEX workflow_scheduler_inst_id_idx ON workflow (scheduler_instance_id);
 CREATE INDEX event_dag_instance_idx ON "event" (dag_instance_id);
 
-
 CREATE OR REPLACE PROCEDURE archive_dag_instances(
     IN i_from_ts timestamp default to_timestamp('1970-01-01', 'yyyy-mm-dd'),
     IN i_to_ts timestamp default now() - interval '6 months',
     IN i_max_records int default 50000000,
-    IN i_chunk_size int default 100000
+    IN i_chunk_size int default 50000
 )
 AS $$
 -------------------------------------------------------------------------------
@@ -253,8 +252,8 @@ AS $$
 --                        Default: 1970-01-01
 --      i_to_ts         - Upper bound for dag instance started timestamp to archive.
 --                        Default: now minus 6 months
---      i_max_records   - Maximum number of dag instances to archive. Default: 50M
---      i_chunk_size    - Chunk size of transaction. Default: 100K
+--      i_max_records   - Maximum number of dag instances to archive. Default: 50M (unlimited)
+--      i_chunk_size    - Chunk size of transaction. Default: 50K
 --
 -------------------------------------------------------------------------------
 DECLARE
@@ -318,7 +317,7 @@ BEGIN
     INSERT INTO archive_dag_instance (status, workflow_id, id, started, finished, triggered_by)
     SELECT di.status, di.workflow_id, di.id, di.started, di.finished, di.triggered_by
     FROM dag_instance di
-             JOIN dag_instance_ids_to_archive diita ON di.id = diita.id
+    JOIN dag_instance_ids_to_archive diita ON di.id = diita.id
     ON CONFLICT (id) DO NOTHING;
     GET DIAGNOSTICS _cnt = ROW_COUNT;
     RAISE NOTICE 'Archived % dag instances from % to %', _cnt, i_min_id, i_max_id;
@@ -326,7 +325,7 @@ BEGIN
     INSERT INTO archive_job_instance (job_name, job_status, executor_job_id, created, updated, "order", dag_instance_id, id, application_id, step_id)
     SELECT ji.job_name, ji.job_status, ji.executor_job_id, ji.created, ji.updated, ji."order", ji.dag_instance_id, ji.id, ji.application_id, ji.step_id
     FROM job_instance ji
-             JOIN dag_instance_ids_to_archive diita ON ji.dag_instance_id = diita.id
+    JOIN dag_instance_ids_to_archive diita ON ji.dag_instance_id = diita.id
     ON CONFLICT (id) DO NOTHING;
     GET DIAGNOSTICS _cnt = ROW_COUNT;
     RAISE NOTICE 'Archived % job instances', _cnt;
@@ -334,7 +333,7 @@ BEGIN
     INSERT INTO archive_event (sensor_event_id, sensor_id, dag_instance_id, id, payload)
     SELECT e.sensor_event_id, e.sensor_id, e.dag_instance_id, e.id, e.payload
     FROM "event" e
-             JOIN dag_instance_ids_to_archive diita ON e.dag_instance_id = diita.id
+    JOIN dag_instance_ids_to_archive diita ON e.dag_instance_id = diita.id
     ON CONFLICT (id) DO NOTHING;
     GET DIAGNOSTICS _cnt = ROW_COUNT;
     RAISE NOTICE 'Archived % events', _cnt;
@@ -342,13 +341,13 @@ BEGIN
     RAISE NOTICE 'Going to delete dag instances';
 
     DELETE FROM job_instance ji
-        USING dag_instance_ids_to_archive diita
+    USING dag_instance_ids_to_archive diita
     WHERE ji.dag_instance_id = diita.id;
     GET DIAGNOSTICS _cnt = ROW_COUNT;
     RAISE NOTICE 'Deleted % job instances', _cnt;
 
     DELETE FROM "event" e
-        USING dag_instance_ids_to_archive diita
+    USING dag_instance_ids_to_archive diita
     WHERE e.dag_instance_id = diita.id;
     GET DIAGNOSTICS _cnt = ROW_COUNT;
     RAISE NOTICE 'Deleted % events', _cnt;
@@ -366,3 +365,4 @@ BEGIN
     RAISE NOTICE '=============';
 END;
 $$ LANGUAGE plpgsql;
+
