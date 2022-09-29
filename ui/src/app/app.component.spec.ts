@@ -73,10 +73,10 @@ describe('AppComponent', () => {
       const compiled = fixture.nativeElement;
       expect(compiled.querySelector('.title').textContent).toBe('Hyperdrive');
       expect(compiled.querySelectorAll('.header-actions')[1].textContent).toContain('test-user');
-    })
+    });
   });
 
-  it('should render neither the title nor the username if the user is not authenticated',() => {
+  it('should render neither the title nor the username if the user is not authenticated', () => {
     mockStore.overrideSelector(selectAuthState, { ...initialAuthState, isAuthenticated: false });
     mockStore.refreshState();
     fixture.detectChanges();
@@ -85,7 +85,7 @@ describe('AppComponent', () => {
       const compiled = fixture.nativeElement;
       expect(compiled.querySelector('.title')).toBeFalsy();
       expect(compiled.querySelector('.header-actions')).toBeFalsy();
-    })
+    });
   });
 
   it('isActive(base) should return true if current route contains base', () => {
