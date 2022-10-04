@@ -91,8 +91,8 @@
         <testcontainers.postgresql.version>1.15.3</testcontainers.postgresql.version>
         <mockito.version>2.25.0</mockito.version>
         <cron-expression-descriptor.version>1.2</cron-expression-descriptor.version>
-        <node.version>12.22.10</node.version>
-        <npm.version>6.13.4</npm.version>
+        <node.version>16.17.1</node.version>
+        <npm.version>8.15.0</npm.version>
         <scala-maven-plugin.version>3.2.1</scala-maven-plugin.version>
         <maven-resources-plugin.version>3.1.0</maven-resources-plugin.version>
         <maven.ant.plugin.version>1.8</maven.ant.plugin.version>
