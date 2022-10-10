@@ -20,6 +20,7 @@ import org.apache.hadoop.fs._
 import org.apache.hadoop.security.UserGroupInformation
 import org.apache.spark.deploy.SparkHadoopUtil
 import org.slf4j.LoggerFactory
+import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Service
 
 import java.nio.charset.StandardCharsets.UTF_8
@@ -36,6 +37,7 @@ trait HdfsService {
   ): Try[Option[R]]
 }
 
+@Lazy
 @Service
 class HdfsServiceImpl extends HdfsService {
   private val logger = LoggerFactory.getLogger(this.getClass)
