@@ -31,6 +31,7 @@ import za.co.absa.hyperdrive.trigger.scheduler.executors.spark.{
 }
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.BeanFactory
+import org.springframework.context.annotation.Lazy
 import za.co.absa.hyperdrive.trigger.scheduler.executors.shell.ShellExecutor
 import org.springframework.stereotype.Component
 import za.co.absa.hyperdrive.trigger.api.rest.services.HyperdriveOffsetComparisonService
@@ -47,7 +48,8 @@ class Executors @Inject() (
   notificationSender: NotificationSender,
   beanFactory: BeanFactory,
   implicit val sparkConfig: SparkConfig,
-  schedulerConfig: SchedulerConfig
+  schedulerConfig: SchedulerConfig,
+  @Lazy hyperdriveOffsetComparisonService: HyperdriveOffsetComparisonService
 ) {
   private val logger = LoggerFactory.getLogger(this.getClass)
   private implicit val executionContext: ExecutionContextExecutor =
@@ -63,14 +65,6 @@ class Executors @Inject() (
       case _ => throw new IllegalArgumentException("Invalid spark cluster api - use one of: yarn, emr")
     }
   }
-  private val hyperdriveOffsetComparisonService: Option[HyperdriveOffsetComparisonService] =
-    if (schedulerConfig.executors.enableHyperdriveExecutor) {
-      logger.info(s"Hyperdrive offset comparison service enabled")
-      Some(beanFactory.getBean(classOf[HyperdriveOffsetComparisonService]))
-    } else {
-      logger.info("Not using Hyperdrive offset comparison service")
-      None
-    }
 
   def executeDag(dagInstance: DagInstance): Future[Unit] =
     jobInstanceRepository.getJobInstances(dagInstance.id).flatMap {
@@ -124,7 +118,7 @@ class Executors @Inject() (
                 case hyperdrive: SparkInstanceParameters
                     if hyperdrive.jobType == JobTypes.Hyperdrive && useHyperExecutor(hyperdrive) =>
                   HyperdriveExecutor
-                    .execute(ji, hyperdrive, updateJob, sparkClusterService, hyperdriveOffsetComparisonService.get)
+                    .execute(ji, hyperdrive, updateJob, sparkClusterService, hyperdriveOffsetComparisonService)
                 case spark: SparkInstanceParameters => SparkExecutor.execute(ji, spark, updateJob, sparkClusterService)
                 case shell: ShellInstanceParameters => ShellExecutor.execute(ji, shell, updateJob)
                 case _                              => updateJob(ji.copy(jobStatus = InvalidExecutor))
@@ -143,7 +137,7 @@ class Executors @Inject() (
     }
 
   private def useHyperExecutor(parameters: SparkInstanceParameters) = {
-    hyperdriveOffsetComparisonService.isDefined &&
+    schedulerConfig.executors.enableHyperdriveExecutor &&
     parameters.jobType == JobTypes.Hyperdrive &&
     parameters.appArguments.contains("useHyperdriveExecutor=true")
   }
