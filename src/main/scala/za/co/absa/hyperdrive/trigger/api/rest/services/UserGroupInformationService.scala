@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -17,12 +16,14 @@
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
 import org.apache.hadoop.security.UserGroupInformation
+import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Service
 
 trait UserGroupInformationService {
   def loginUserFromKeytab(principal: String, keytab: String): UserGroupInformation
 }
 
+@Lazy
 @Service
 class UserGroupInformationServiceImpl extends UserGroupInformationService {
   override def loginUserFromKeytab(principal: String, keytab: String): UserGroupInformation =
