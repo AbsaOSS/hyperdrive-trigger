@@ -20,6 +20,7 @@ import org.apache.hadoop.security.UserGroupInformation
 import org.json4s.jackson.Serialization
 import org.json4s.{Formats, NoTypeHints}
 import org.slf4j.LoggerFactory
+import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.api.rest.utils.ScalaUtil.swap
 
@@ -41,8 +42,9 @@ class HdfsParameters(
   val checkpointLocation: String
 )
 
+@Lazy
 @Service
-class CheckpointServiceImpl @Inject() (hdfsService: HdfsService) extends CheckpointService {
+class CheckpointServiceImpl @Inject() (@Lazy hdfsService: HdfsService) extends CheckpointService {
   private val logger = LoggerFactory.getLogger(this.getClass)
   private val offsetsDirName = "offsets"
   private val commitsDirName = "commits"
