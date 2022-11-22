@@ -92,4 +92,6 @@ databaseChangeLog:
   - include:
       relativeToChangelogFile: true
       file: v0.5.13.add-archive-procedure.yml
-    
+  - include:
+      relativeToChangelogFile: true
+      file: v0.5.14.add-column-to-kafka-absa_kafka-sensor-properties.yml

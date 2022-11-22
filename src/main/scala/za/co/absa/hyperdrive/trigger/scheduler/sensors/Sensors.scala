@@ -61,13 +61,13 @@ class Sensors @Inject() (
   private val sensors: mutable.Map[Long, Sensor[_ <: SensorProperties]] =
     mutable.Map.empty[Long, Sensor[_ <: SensorProperties]]
 
-  def processEvents(assignedWorkflowIds: Seq[Long], firstIteration: Boolean): Future[Unit] = {
+  def processEvents(assignedWorkflowIds: Seq[Long]): Future[Unit] = {
     logger.info(s"Processing events. Sensors: ${sensors.keys}")
     removeReleasedSensors(assignedWorkflowIds)
     val fut = for {
       _ <- removeInactiveSensors()
       _ <- updateChangedSensors()
-      _ <- addNewSensors(assignedWorkflowIds, firstIteration)
+      _ <- addNewSensors(assignedWorkflowIds)
       _ <- pollEvents()
     } yield {
       (): Unit
@@ -97,15 +97,13 @@ class Sensors @Inject() (
   }
 
   private def updateChangedSensors(): Future[Unit] = {
-    val kafkaSensorConsumeFromLatest = false // by construction, this query never returns sensor that changed its
-    // activation state, therefore the consumer never has to consume from the latest
     sensorRepository
       .getChangedSensors(
         sensors.values.map(sensor => (sensor.sensorDefinition.id, sensor.sensorDefinition.properties)).toSeq
       )
       .map(_.foreach { sensor =>
         stopSensor(sensor.id)
-        startSensor(sensor, kafkaSensorConsumeFromLatest)
+        startSensor(sensor)
       })
   }
 
@@ -126,21 +124,20 @@ class Sensors @Inject() (
     sensors.remove(id)
   }
 
-  private def addNewSensors(assignedWorkflowIds: Seq[Long], firstIteration: Boolean): Future[Unit] = {
+  private def addNewSensors(assignedWorkflowIds: Seq[Long]): Future[Unit] = {
     val activeSensors = sensors.keys.toSeq
     sensorRepository.getNewActiveAssignedSensors(activeSensors, assignedWorkflowIds).map {
-      _.foreach(sensor => startSensor(sensor, kafkaSensorConsumeFromLatest = !firstIteration))
+      _.foreach(sensor => startSensor(sensor))
     }
   }
 
-  private def startSensor(sensor: SensorDefition[_ <: SensorProperties], kafkaSensorConsumeFromLatest: Boolean) =
+  private def startSensor(sensor: SensorDefition[_ <: SensorProperties]) =
     sensor.properties match {
       case kafkaSensorProperties: KafkaSensorProperties =>
         Try(
           new KafkaSensor(
             eventProcessor.eventProcessor(s"Sensor - ${sensor.properties.sensorType.name}"),
-            sensor.copy(properties = kafkaSensorProperties),
-            kafkaSensorConsumeFromLatest
+            sensor.copy(properties = kafkaSensorProperties)
           )
         ) match {
           case Success(s) => sensors.put(sensor.id, s)
@@ -150,8 +147,7 @@ class Sensors @Inject() (
         Try(
           new AbsaKafkaSensor(
             eventProcessor.eventProcessor(s"Sensor - ${sensor.properties.sensorType.name}"),
-            sensor.copy(properties = absaKafkaSensorProperties),
-            kafkaSensorConsumeFromLatest
+            sensor.copy(properties = absaKafkaSensorProperties)
           )
         ) match {
           case Success(s) => sensors.put(sensor.id, s)
