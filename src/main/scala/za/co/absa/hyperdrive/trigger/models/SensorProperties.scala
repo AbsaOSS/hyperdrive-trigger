@@ -27,17 +27,24 @@ case class KafkaSensorProperties(
   sensorType: SensorType = SensorTypes.Kafka,
   topic: String,
   servers: List[String] = List.empty[String],
-  matchProperties: Map[String, String] = Map.empty[String, String]
+  matchProperties: Map[String, String] = Map.empty[String, String],
+  catchUpOnMissedMessages: Boolean
 ) extends SensorProperties
 
 case class AbsaKafkaSensorProperties(
   sensorType: SensorType = SensorTypes.AbsaKafka,
   topic: String,
   servers: List[String] = List.empty[String],
-  ingestionToken: String
+  ingestionToken: String,
+  catchUpOnMissedMessages: Boolean
 ) extends SensorProperties {
   def toKafkaSensorProperties: KafkaSensorProperties =
-    KafkaSensorProperties(topic = topic, servers = servers, matchProperties = Map("ingestionToken" -> ingestionToken))
+    KafkaSensorProperties(
+      topic = topic,
+      servers = servers,
+      matchProperties = Map("ingestionToken" -> ingestionToken),
+      catchUpOnMissedMessages = catchUpOnMissedMessages
+    )
 }
 
 case class RecurringSensorProperties(sensorType: SensorType = SensorTypes.Recurring) extends SensorProperties

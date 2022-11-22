@@ -26,9 +26,10 @@ export class KafkaSensorProperties implements SensorProperties {
   topic: string;
   servers: string[];
   matchProperties: Map<string, string>;
+  catchUpOnMissedMessages: boolean;
 
   static createEmpty(): KafkaSensorProperties {
-    return { sensorType: sensorTypes.KAFKA, topic: '', servers: [''], matchProperties: new Map() };
+    return { sensorType: sensorTypes.KAFKA, topic: '', servers: [''], matchProperties: new Map(), catchUpOnMissedMessages: true };
   }
 }
 
@@ -37,9 +38,10 @@ export class AbsaKafkaSensorProperties implements SensorProperties {
   topic: string;
   servers: string[];
   ingestionToken: string;
+  catchUpOnMissedMessages: boolean;
 
   static createEmpty(): AbsaKafkaSensorProperties {
-    return { sensorType: sensorTypes.ABSA_KAFKA, topic: '', servers: [''], ingestionToken: UuidUtil.createUUID() };
+    return { sensorType: sensorTypes.ABSA_KAFKA, topic: '', servers: [''], ingestionToken: UuidUtil.createUUID(), catchUpOnMissedMessages: true };
   }
 }
 

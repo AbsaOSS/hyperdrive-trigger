@@ -37,3 +37,11 @@
   [isRequired]=false
   [minLength]=1>
 </app-key-value-map-part>
+<app-boolean-part
+  [isShow]="isShow"
+  [name]="'Catch up on missed messages'"
+  [value]="sensorProperties?.matchProperties"
+  (valueChange)="matchPropertiesChange($event)"
+  [isRequired]=false
+  [minLength]=1>
+</app-boolean-part>
