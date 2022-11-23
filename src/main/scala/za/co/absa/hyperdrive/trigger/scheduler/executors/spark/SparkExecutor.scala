@@ -19,10 +19,13 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.JsonBodyReadables._
 import za.co.absa.hyperdrive.trigger.api.rest.utils.WSClientProvider
 import za.co.absa.hyperdrive.trigger.configuration.application.SparkConfig
+import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses._
 import za.co.absa.hyperdrive.trigger.models.{JobInstance, SparkInstanceParameters}
 import za.co.absa.hyperdrive.trigger.scheduler.executors.spark.{FinalStatuses => YarnFinalStatuses}
 
+import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 import scala.concurrent.{ExecutionContext, Future}
 
 object SparkExecutor {
@@ -50,6 +53,12 @@ object SparkExecutor {
       }) match {
         case Seq(first) =>
           updateJob(jobInstance.copy(applicationId = Some(first.id), jobStatus = getStatus(first.finalStatus)))
+        case _
+          if jobInstance.jobStatus == JobStatuses.Submitting && jobInstance.updated
+            .map(lastUpdated => ChronoUnit.MILLIS.between(lastUpdated, LocalDateTime.now()))
+            .exists(_ < sparkConfig.yarn.submitTimeout) =>
+          //Do nothing for submit timeout period to avoid two parallel job submissions/executions
+          Future((): Unit)
         case _ => sparkClusterService.handleMissingYarnStatus(jobInstance, updateJob)
       }
     }
