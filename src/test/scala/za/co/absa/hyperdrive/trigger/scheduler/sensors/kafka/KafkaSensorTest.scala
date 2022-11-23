@@ -70,7 +70,13 @@ class KafkaSensorTest extends FlatSpec with MockitoSugar with Matchers with Befo
 
   it should "invoke the eventProcessor when messages are sent while consumer is unsubscribed" in {
     val notificationMessage = raw"""{"$matchPropertyKey": "$ingestionToken"}"""
-    executeTestCase(TestKafkaConfig(alwaysSeekToEnd = false), Seq(), Seq(notificationMessage), Seq(), Some(notificationMessage))
+    executeTestCase(
+      TestKafkaConfig(alwaysSeekToEnd = false),
+      Seq(),
+      Seq(notificationMessage),
+      Seq(),
+      Some(notificationMessage)
+    )
   }
 
   it should "not invoke the eventProcessor when consuming only non-matching notifications" in {

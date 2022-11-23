@@ -24,7 +24,7 @@ import za.co.absa.hyperdrive.trigger.models.{Sensor => SensorDefition}
 
 class AbsaKafkaSensor(
   eventsProcessor: (Seq[Event], Long) => Future[Boolean],
-  sensorDefinition: SensorDefition[AbsaKafkaSensorProperties],
+  sensorDefinition: SensorDefition[AbsaKafkaSensorProperties]
 )(implicit kafkaConfig: KafkaConfig, generalConfig: GeneralConfig, executionContext: ExecutionContext)
     extends PollSensor[AbsaKafkaSensorProperties](eventsProcessor, sensorDefinition, executionContext) {
 
