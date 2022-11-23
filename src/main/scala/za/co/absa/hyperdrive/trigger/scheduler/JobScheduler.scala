@@ -99,7 +99,7 @@ class JobScheduler @Inject() (
       runningAssignWorkflows = workflowBalancer
         .getAssignedWorkflows(runningDags.keys.map(_.workflowId).toSeq)
         .recover { case e: SchedulerInstanceAlreadyDeactivatedException =>
-          logger.error("Restarting scheduler because the instance has been deactivated other instance", e)
+          logger.error("Restarting scheduler because the instance has been deactivated by other instance", e)
           sensors.cleanUpSensors()
           workflowBalancer.resetSchedulerInstanceId()
           throw e
