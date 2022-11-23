@@ -86,8 +86,7 @@ class JobScheduler @Inject() (
   def stopManager(): Future[Unit] = {
     logger.info("Stopping Manager")
     isManagerRunningAtomic.set(false)
-    sensors.cleanUpSensors()
-    workflowBalancer.resetSchedulerInstanceId()
+    cleanUp()
     runningScheduler
   }
 
@@ -99,9 +98,8 @@ class JobScheduler @Inject() (
       runningAssignWorkflows = workflowBalancer
         .getAssignedWorkflows(runningDags.keys.map(_.workflowId).toSeq)
         .recover { case e: SchedulerInstanceAlreadyDeactivatedException =>
-          logger.error("Restarting scheduler because the instance has been deactivated by other instance", e)
-          sensors.cleanUpSensors()
-          workflowBalancer.resetSchedulerInstanceId()
+          logger.warn("Restarting scheduler because the instance has been deactivated by other instance", e)
+          cleanUp()
           throw e
         }
         .map(_.map(_.id))
@@ -169,4 +167,8 @@ class JobScheduler @Inject() (
       }
     }
 
+  private def cleanUp(): Unit = {
+    sensors.cleanUpSensors()
+    workflowBalancer.resetSchedulerInstanceId()
+  }
 }
