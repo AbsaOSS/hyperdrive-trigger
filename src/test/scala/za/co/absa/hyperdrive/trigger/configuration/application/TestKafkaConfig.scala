@@ -19,11 +19,11 @@ package za.co.absa.hyperdrive.trigger.configuration.application
 import java.util.Properties
 
 object TestKafkaConfig {
-  def apply(): KafkaConfig = {
+  def apply(alwaysSeekToEnd: Boolean = true): KafkaConfig = {
     val properties = new Properties()
     properties.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer")
     properties.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer")
     properties.put("max.poll.records", "100")
-    new KafkaConfig(properties, "groupIdPrefix", 500)
+    new KafkaConfig(properties, "groupIdPrefix", 500, alwaysSeekToEnd)
   }
 }

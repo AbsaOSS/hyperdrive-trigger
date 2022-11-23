@@ -44,7 +44,6 @@ class KafkaSensorTest extends FlatSpec with MockitoSugar with Matchers with Befo
   private val ingestionToken = "95fce3e7-2468-46fa-9456-74919497528c"
   private val kafkaPort = 12345
   private val kafkaUrl = s"localhost:${kafkaPort}"
-  private implicit val testKafkaConfig: KafkaConfig = TestKafkaConfig()
   private implicit val testGeneralConfig: GeneralConfig = TestGeneralConfig()
 
   before {
@@ -56,7 +55,7 @@ class KafkaSensorTest extends FlatSpec with MockitoSugar with Matchers with Befo
     val notificationMessage = raw"""{"$matchPropertyKey": "$ingestionToken"}"""
     val otherMessage = raw"""{"$matchPropertyKey": "some-other-message"}"""
     executeTestCase(
-      consumeFromLatest = false,
+      TestKafkaConfig(alwaysSeekToEnd = false),
       Seq(),
       Seq(),
       Seq(otherMessage, notificationMessage, notificationMessage, otherMessage),
@@ -66,27 +65,28 @@ class KafkaSensorTest extends FlatSpec with MockitoSugar with Matchers with Befo
 
   it should "not invoke the eventProcessor when messages have already been consumed" in {
     val notificationMessage = raw"""{"$matchPropertyKey": "$ingestionToken"}"""
-    executeTestCase(consumeFromLatest = false, Seq(notificationMessage), Seq(), Seq(), None)
+    executeTestCase(TestKafkaConfig(alwaysSeekToEnd = false), Seq(notificationMessage), Seq(), Seq(), None)
   }
 
   it should "invoke the eventProcessor when messages are sent while consumer is unsubscribed" in {
     val notificationMessage = raw"""{"$matchPropertyKey": "$ingestionToken"}"""
-    executeTestCase(consumeFromLatest = false, Seq(), Seq(notificationMessage), Seq(), Some(notificationMessage))
+    executeTestCase(TestKafkaConfig(alwaysSeekToEnd = false), Seq(), Seq(notificationMessage), Seq(), Some(notificationMessage))
   }
 
   it should "not invoke the eventProcessor when consuming only non-matching notifications" in {
     val otherMessage = raw"""{"$matchPropertyKey": "some-other-message"}"""
-    executeTestCase(consumeFromLatest = false, Seq(), Seq(), Seq(otherMessage, otherMessage), None)
+    executeTestCase(TestKafkaConfig(alwaysSeekToEnd = false), Seq(), Seq(), Seq(otherMessage, otherMessage), None)
   }
 
   "KafkaSensor.poll with consumeFromLatest=true" should "not invoke the eventProcessor when messages are sent while consumer is unsubscribed" in {
     val notificationMessage = raw"""{"$matchPropertyKey": "$ingestionToken"}"""
-    executeTestCase(consumeFromLatest = true, Seq(), Seq(notificationMessage), Seq(), None)
+    executeTestCase(TestKafkaConfig(alwaysSeekToEnd = true), Seq(), Seq(notificationMessage), Seq(), None)
   }
 
   "KafkaSensor.poll" should "have a separate group id for each sensor" in {
     // given
     implicit val config: EmbeddedKafkaConfig = EmbeddedKafkaConfig(kafkaPort = kafkaPort, zooKeeperPort = 12346)
+    implicit val testKafkaConfig: KafkaConfig = TestKafkaConfig(alwaysSeekToEnd = true)
     val notificationTopic = "notifications"
     val eventProcessor1 = mock[EventProcessor]
     val eventProcessor2 = mock[EventProcessor]
@@ -112,11 +112,11 @@ class KafkaSensorTest extends FlatSpec with MockitoSugar with Matchers with Befo
 
     withRunningKafka {
       val producer = createProducer()
-      val kafkaSensor1 = new AbsaKafkaSensor(eventProcessor1.eventProcessor("test"), sensor1, consumeFromLatest = true)
+      val kafkaSensor1 = new AbsaKafkaSensor(eventProcessor1.eventProcessor("test"), sensor1)
       for (_ <- 0 to maxPollRetries) { // hope that consumer will have been assigned partition and is ready to poll
         await(kafkaSensor1.poll())
       }
-      val kafkaSensor2 = new AbsaKafkaSensor(eventProcessor2.eventProcessor("test"), sensor2, consumeFromLatest = true)
+      val kafkaSensor2 = new AbsaKafkaSensor(eventProcessor2.eventProcessor("test"), sensor2)
       for (_ <- 0 to maxPollRetries) { // hope that consumer will have been assigned partition and is ready to poll
         await(kafkaSensor2.poll())
       }
@@ -131,7 +131,7 @@ class KafkaSensorTest extends FlatSpec with MockitoSugar with Matchers with Befo
   }
 
   private def executeTestCase(
-    consumeFromLatest: Boolean,
+    implicit testKafkaConfig: KafkaConfig,
     messagesBeforeUnsubscription: Seq[String],
     messagesWhileUnsubscribed: Seq[String],
     messagesAfterResubscription: Seq[String],
@@ -154,7 +154,7 @@ class KafkaSensorTest extends FlatSpec with MockitoSugar with Matchers with Befo
       val producer = createProducer()
       // when
 
-      val kafkaSensor1 = new AbsaKafkaSensor(eventProcessor1.eventProcessor("test"), sensor, consumeFromLatest)
+      val kafkaSensor1 = new AbsaKafkaSensor(eventProcessor1.eventProcessor("test"), sensor)
       for (_ <- 0 to maxPollRetries) { // hope that consumer will have been assigned partition and is ready to poll
         await(kafkaSensor1.poll())
       }
@@ -164,7 +164,7 @@ class KafkaSensorTest extends FlatSpec with MockitoSugar with Matchers with Befo
 
       publishToKafka(producer, notificationTopic, messagesWhileUnsubscribed)
 
-      val kafkaSensor2 = new AbsaKafkaSensor(eventProcessor2.eventProcessor("test"), sensor, consumeFromLatest)
+      val kafkaSensor2 = new AbsaKafkaSensor(eventProcessor2.eventProcessor("test"), sensor)
       for (_ <- 0 to maxPollRetries) { // hope that consumer will have been assigned partition and is ready to poll
         await(kafkaSensor2.poll())
       }

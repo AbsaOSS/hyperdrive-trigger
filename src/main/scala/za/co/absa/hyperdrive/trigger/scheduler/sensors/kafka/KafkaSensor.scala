@@ -33,7 +33,6 @@ import za.co.absa.hyperdrive.trigger.models.{Sensor => SensorDefition}
 class KafkaSensor(
   eventsProcessor: (Seq[Event], Long) => Future[Boolean],
   sensorDefinition: SensorDefition[KafkaSensorProperties],
-  consumeFromLatest: Boolean = false
 )(implicit kafkaConfig: KafkaConfig, generalConfig: GeneralConfig, executionContext: ExecutionContext)
     extends PollSensor[KafkaSensorProperties](eventsProcessor, sensorDefinition, executionContext) {
 
@@ -59,7 +58,7 @@ class KafkaSensor(
         }
 
         override def onPartitionsAssigned(partitions: util.Collection[TopicPartition]): Unit =
-          if (consumeFromLatest) {
+          if (kafkaConfig.alwaysSeekToEnd) {
             consumer.seekToEnd(partitions)
           }
       }
