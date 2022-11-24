@@ -29,6 +29,8 @@ import java.time.temporal.ChronoUnit
 import scala.concurrent.{ExecutionContext, Future}
 
 object SparkExecutor {
+  private val ExtraSubmitTimeout = 60000
+
   def execute(
     jobInstance: JobInstance,
     jobParameters: SparkInstanceParameters,
@@ -54,10 +56,10 @@ object SparkExecutor {
         case Seq(first) =>
           updateJob(jobInstance.copy(applicationId = Some(first.id), jobStatus = getStatus(first.finalStatus)))
         case _
-            // It relays on the same value set for sparkYarnSink.submitTimeout in multi instance deployment
+            // It relies on the same value set for sparkYarnSink.submitTimeout in multi instance deployment
             if jobInstance.jobStatus == JobStatuses.Submitting && jobInstance.updated
               .map(lastUpdated => ChronoUnit.MILLIS.between(lastUpdated, LocalDateTime.now()))
-              .exists(_ < sparkConfig.yarn.submitTimeout + 60000) =>
+              .exists(_ < sparkConfig.yarn.submitTimeout + ExtraSubmitTimeout) =>
           // Do nothing for submit timeout period to avoid two parallel job submissions/executions
           Future((): Unit)
         case _ => sparkClusterService.handleMissingYarnStatus(jobInstance, updateJob)
