@@ -83,7 +83,7 @@ class SensorsTest extends FlatSpec with MockitoSugar with Matchers with BeforeAn
 
     // when
     underTest.prepareSensors()
-    await(underTest.processEvents(Seq(workflowId), firstIteration = false))
+    await(underTest.processEvents(Seq(workflowId)))
 
     verifyQuartzJobExists(sensorId, cronExpression)
 
@@ -119,11 +119,11 @@ class SensorsTest extends FlatSpec with MockitoSugar with Matchers with BeforeAn
 
     // when, then
     underTest.prepareSensors()
-    await(underTest.processEvents(Seq(workflowId, workflowId2), firstIteration = false))
+    await(underTest.processEvents(Seq(workflowId, workflowId2)))
     verifyQuartzJobExists(sensorId, cronExpression)
     verifyQuartzJobExists(sensorId2, cronExpression2)
 
-    await(underTest.processEvents(Seq(workflowId, workflowId2), firstIteration = false))
+    await(underTest.processEvents(Seq(workflowId, workflowId2)))
     verifyQuartzJobNotExists(sensorId)
     verifyQuartzJobExists(sensorId2, cronExpression2)
 
@@ -164,15 +164,15 @@ class SensorsTest extends FlatSpec with MockitoSugar with Matchers with BeforeAn
 
     // when, then
     underTest.prepareSensors()
-    await(underTest.processEvents(Seq(workflowId, workflowId2, workflowId3), firstIteration = false))
+    await(underTest.processEvents(Seq(workflowId, workflowId2, workflowId3)))
     verifyQuartzJobExists(sensorId, cronExpression)
     verifyQuartzJobExists(sensorId2, cronExpression2)
-    await(underTest.processEvents(Seq(workflowId, workflowId2, workflowId3), firstIteration = false))
+    await(underTest.processEvents(Seq(workflowId, workflowId2, workflowId3)))
     verifyQuartzJobNotExists(sensorId)
     verifyQuartzJobNotExists(sensorId2)
     verifyQuartzJobExists(sensorId3, cronExpression3)
 
-    await(underTest.processEvents(Seq(workflowId, workflowId2, workflowId3), firstIteration = false))
+    await(underTest.processEvents(Seq(workflowId, workflowId2, workflowId3)))
     verifyQuartzJobExists(sensorId, cronExpression)
     verifyQuartzJobNotExists(sensorId3)
 
@@ -211,10 +211,10 @@ class SensorsTest extends FlatSpec with MockitoSugar with Matchers with BeforeAn
 
     // when, then
     underTest.prepareSensors()
-    await(underTest.processEvents(Seq(workflowId, workflowId2), firstIteration = false))
+    await(underTest.processEvents(Seq(workflowId, workflowId2)))
     verifyQuartzJobExists(sensorId, cronExpression)
     verifyQuartzJobExists(sensorId2, cronExpression2)
-    await(underTest.processEvents(Seq(workflowId, workflowId2), firstIteration = false))
+    await(underTest.processEvents(Seq(workflowId, workflowId2)))
     verifyQuartzJobExists(sensorId, changedCronExpression)
     verifyQuartzJobExists(sensorId2, cronExpression2)
 
@@ -245,15 +245,15 @@ class SensorsTest extends FlatSpec with MockitoSugar with Matchers with BeforeAn
     )
 
     underTest.prepareSensors()
-    await(underTest.processEvents(assignedWorkflowIdsT0, firstIteration = false))
+    await(underTest.processEvents(assignedWorkflowIdsT0))
     assignedSensorsT0.map(_.id).foreach(verifyQuartzJobExists)
     verifyExactlyNQuartzJobsExist(assignedSensorsT0.size)
 
-    await(underTest.processEvents(assignedWorkflowIdsT1, firstIteration = false))
+    await(underTest.processEvents(assignedWorkflowIdsT1))
     assignedSensorsT1.map(_.id).foreach(verifyQuartzJobExists)
     verifyExactlyNQuartzJobsExist(assignedSensorsT1.size)
 
-    await(underTest.processEvents(assignedWorkflowIdsT2, firstIteration = false))
+    await(underTest.processEvents(assignedWorkflowIdsT2))
     assignedSensorsT2.map(_.id).foreach(verifyQuartzJobExists)
     verifyExactlyNQuartzJobsExist(assignedSensorsT2.size)
     underTest.cleanUpSensors()
