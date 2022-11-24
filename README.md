@@ -137,6 +137,7 @@ kafka.consumers.cache.size=50
 #Kafka sensor properties. Not all are required. Adjust according to your use case.
 kafkaSource.group.id.prefix=hyper_drive_${appUniqueId}
 kafkaSource.poll.duration=500
+kafkaSource.always.catchup=true
 kafkaSource.properties.key.deserializer=org.apache.kafka.common.serialization.StringDeserializer
 kafkaSource.properties.value.deserializer=org.apache.kafka.common.serialization.StringDeserializer
 kafkaSource.properties.max.poll.records=3

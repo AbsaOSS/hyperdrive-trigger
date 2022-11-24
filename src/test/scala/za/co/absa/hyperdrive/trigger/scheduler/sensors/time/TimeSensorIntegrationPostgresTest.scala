@@ -140,7 +140,7 @@ class TimeSensorIntegrationPostgresTest
 
     // Start Quartz and register sensor
     sensors.prepareSensors()
-    await(sensors.processEvents(Seq(workflowId), firstIteration = false))
+    await(sensors.processEvents(Seq(workflowId)))
 
     // Check that event was persisted
     Thread.sleep(5000)
@@ -151,7 +151,7 @@ class TimeSensorIntegrationPostgresTest
     val jobKey = insertedWorkflow.sensor.id.toString
     await(
       sensors
-        .processEvents(Seq(workflowId), firstIteration = false)
+        .processEvents(Seq(workflowId))
         .map { _ =>
           val scheduler = TimeSensorQuartzSchedulerManager.getScheduler
           val jobKeys = scheduler.getJobKeys(GroupMatcher.groupEquals[JobKey](TimeSensor.JOB_GROUP_NAME))
@@ -165,7 +165,7 @@ class TimeSensorIntegrationPostgresTest
     await(workflowRepository.switchWorkflowActiveState(workflow.id, userName))
     await(
       sensors
-        .processEvents(Seq(workflowId), firstIteration = false)
+        .processEvents(Seq(workflowId))
         .map { _ =>
           val scheduler = TimeSensorQuartzSchedulerManager.getScheduler
           val jobKeysAfterClose = scheduler.getJobKeys(GroupMatcher.groupEquals[JobKey](TimeSensor.JOB_GROUP_NAME))
