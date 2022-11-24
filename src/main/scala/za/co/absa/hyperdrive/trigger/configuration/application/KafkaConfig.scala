@@ -35,7 +35,7 @@ class KafkaConfig(
   @Name("poll.duration")
   @NotNull
   val pollDuration: Long,
-  @DefaultValue(Array("false"))
-  @Name("always.seek.to.end")
-  val alwaysSeekToEnd: Boolean
+  @DefaultValue(Array("true"))
+  @Name("always.catchup")
+  val alwaysCatchup: Boolean
 )

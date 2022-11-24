@@ -58,7 +58,7 @@ class KafkaSensor(
         }
 
         override def onPartitionsAssigned(partitions: util.Collection[TopicPartition]): Unit =
-          if (kafkaConfig.alwaysSeekToEnd) {
+          if (!kafkaConfig.alwaysCatchup) {
             consumer.seekToEnd(partitions)
           }
       }

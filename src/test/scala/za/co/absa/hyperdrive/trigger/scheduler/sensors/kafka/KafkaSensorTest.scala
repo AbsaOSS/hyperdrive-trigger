@@ -55,7 +55,7 @@ class KafkaSensorTest extends FlatSpec with MockitoSugar with Matchers with Befo
     val notificationMessage = raw"""{"$matchPropertyKey": "$ingestionToken"}"""
     val otherMessage = raw"""{"$matchPropertyKey": "some-other-message"}"""
     executeTestCase(
-      TestKafkaConfig(alwaysSeekToEnd = false),
+      TestKafkaConfig(alwaysCatchup = true),
       Seq(),
       Seq(),
       Seq(otherMessage, notificationMessage, notificationMessage, otherMessage),
@@ -65,13 +65,13 @@ class KafkaSensorTest extends FlatSpec with MockitoSugar with Matchers with Befo
 
   it should "not invoke the eventProcessor when messages have already been consumed" in {
     val notificationMessage = raw"""{"$matchPropertyKey": "$ingestionToken"}"""
-    executeTestCase(TestKafkaConfig(alwaysSeekToEnd = false), Seq(notificationMessage), Seq(), Seq(), None)
+    executeTestCase(TestKafkaConfig(alwaysCatchup = true), Seq(notificationMessage), Seq(), Seq(), None)
   }
 
   it should "invoke the eventProcessor when messages are sent while consumer is unsubscribed" in {
     val notificationMessage = raw"""{"$matchPropertyKey": "$ingestionToken"}"""
     executeTestCase(
-      TestKafkaConfig(alwaysSeekToEnd = false),
+      TestKafkaConfig(alwaysCatchup = true),
       Seq(),
       Seq(notificationMessage),
       Seq(),
@@ -81,18 +81,18 @@ class KafkaSensorTest extends FlatSpec with MockitoSugar with Matchers with Befo
 
   it should "not invoke the eventProcessor when consuming only non-matching notifications" in {
     val otherMessage = raw"""{"$matchPropertyKey": "some-other-message"}"""
-    executeTestCase(TestKafkaConfig(alwaysSeekToEnd = false), Seq(), Seq(), Seq(otherMessage, otherMessage), None)
+    executeTestCase(TestKafkaConfig(alwaysCatchup = true), Seq(), Seq(), Seq(otherMessage, otherMessage), None)
   }
 
   "KafkaSensor.poll with consumeFromLatest=true" should "not invoke the eventProcessor when messages are sent while consumer is unsubscribed" in {
     val notificationMessage = raw"""{"$matchPropertyKey": "$ingestionToken"}"""
-    executeTestCase(TestKafkaConfig(alwaysSeekToEnd = true), Seq(), Seq(notificationMessage), Seq(), None)
+    executeTestCase(TestKafkaConfig(alwaysCatchup = false), Seq(), Seq(notificationMessage), Seq(), None)
   }
 
   "KafkaSensor.poll" should "have a separate group id for each sensor" in {
     // given
     implicit val config: EmbeddedKafkaConfig = EmbeddedKafkaConfig(kafkaPort = kafkaPort, zooKeeperPort = 12346)
-    implicit val testKafkaConfig: KafkaConfig = TestKafkaConfig(alwaysSeekToEnd = true)
+    implicit val testKafkaConfig: KafkaConfig = TestKafkaConfig(alwaysCatchup = false)
     val notificationTopic = "notifications"
     val eventProcessor1 = mock[EventProcessor]
     val eventProcessor2 = mock[EventProcessor]
