@@ -15,7 +15,7 @@
 
 package za.co.absa.hyperdrive.trigger.configuration.application
 
-import org.springframework.boot.context.properties.bind.Name
+import org.springframework.boot.context.properties.bind.{DefaultValue, Name}
 import org.springframework.boot.context.properties.{ConfigurationProperties, ConstructorBinding}
 import org.springframework.validation.annotation.Validated
 
@@ -34,5 +34,8 @@ class KafkaConfig(
   val groupIdPrefix: String,
   @Name("poll.duration")
   @NotNull
-  val pollDuration: Long
+  val pollDuration: Long,
+  @DefaultValue(Array("true"))
+  @Name("always.catchup")
+  val alwaysCatchup: Boolean
 )

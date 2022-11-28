@@ -64,13 +64,11 @@ class JobScheduler @Inject() (
     if (!isManagerRunningAtomic.get() && runningScheduler.isCompleted) {
       isManagerRunningAtomic.set(true)
       sensors.prepareSensors()
-      var firstIteration = true
       runningScheduler = Future {
         while (isManagerRunningAtomic.get()) {
           logger.info("Running manager heart beat.")
-          assignWorkflows(firstIteration)
+          assignWorkflows()
           sendNotifications()
-          firstIteration = false
           Thread.sleep(HEART_BEAT)
         }
       }
@@ -93,7 +91,7 @@ class JobScheduler @Inject() (
   def isManagerRunning: Boolean =
     !runningScheduler.isCompleted
 
-  private def assignWorkflows(firstIteration: Boolean): Unit =
+  private def assignWorkflows(): Unit =
     if (runningAssignWorkflows.isCompleted) {
       runningAssignWorkflows = workflowBalancer
         .getAssignedWorkflows(runningDags.keys.map(_.workflowId).toSeq)
@@ -105,7 +103,7 @@ class JobScheduler @Inject() (
         .map(_.map(_.id))
         .map { assignedWorkflowIds =>
           removeFinishedDags()
-          processEvents(assignedWorkflowIds, firstIteration)
+          processEvents(assignedWorkflowIds)
           enqueueDags(assignedWorkflowIds)
         }
       runningAssignWorkflows.onComplete {
@@ -134,9 +132,9 @@ class JobScheduler @Inject() (
       }
     }
 
-  private def processEvents(assignedWorkflowIds: Seq[Long], firstIteration: Boolean): Unit =
+  private def processEvents(assignedWorkflowIds: Seq[Long]): Unit =
     if (runningSensors.isCompleted) {
-      runningSensors = sensors.processEvents(assignedWorkflowIds, firstIteration)
+      runningSensors = sensors.processEvents(assignedWorkflowIds)
       runningSensors.onComplete {
         case Success(_) =>
           logger.debug("Running sensors finished successfully.")
