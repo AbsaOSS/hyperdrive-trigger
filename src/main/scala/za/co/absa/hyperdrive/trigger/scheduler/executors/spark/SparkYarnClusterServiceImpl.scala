@@ -36,7 +36,7 @@ class SparkYarnClusterServiceImpl @Inject() (
 ) extends SparkClusterService {
   private implicit val executionContext: ExecutionContext = executionContextProvider.get()
   private val SparkYarnPrincipalProp = "spark.yarn.principal"
-  private val SparkYarnKeytab = "spark.yarn.keytab"
+  private val SparkYarnKeytabProp = "spark.yarn.keytab"
 
   override def submitJob(
     jobInstance: JobInstance,
@@ -58,7 +58,8 @@ class SparkYarnClusterServiceImpl @Inject() (
           // do nothing
         }
       }
-      val sparkAppHandle = startSparkJob(getSparkLauncher(id, ji.jobName, jobParameters), sparkAppHandleListener, jobParameters)
+      val sparkAppHandle =
+        startSparkJob(getSparkLauncher(id, ji.jobName, jobParameters), sparkAppHandleListener, jobParameters)
       latch.await(submitTimeout, TimeUnit.MILLISECONDS)
       sparkAppHandle.kill()
     }
@@ -102,9 +103,12 @@ class SparkYarnClusterServiceImpl @Inject() (
     sparkLauncher
   }
 
-  private def startSparkJob(inProcessLauncher: InProcessLauncher, sparkAppHandleListener: SparkAppHandle.Listener, jobParameters: SparkInstanceParameters): SparkAppHandle = {
+  private def startSparkJob(inProcessLauncher: InProcessLauncher,
+                            sparkAppHandleListener: SparkAppHandle.Listener,
+                            jobParameters: SparkInstanceParameters
+  ): SparkAppHandle = {
     val user = jobParameters.additionalSparkConfig.find(_.key == SparkYarnPrincipalProp).map(_.value)
-    val keytab = jobParameters.additionalSparkConfig.find(_.key == SparkYarnKeytab).map(_.value)
+    val keytab = jobParameters.additionalSparkConfig.find(_.key == SparkYarnKeytabProp).map(_.value)
     (user, keytab) match {
       case (Some(u), Some(k)) =>
         val ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(u, k)
