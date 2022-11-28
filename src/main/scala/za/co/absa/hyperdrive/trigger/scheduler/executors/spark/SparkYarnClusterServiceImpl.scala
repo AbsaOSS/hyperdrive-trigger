@@ -113,7 +113,7 @@ class SparkYarnClusterServiceImpl @Inject() (
       case (Some(u), Some(k)) =>
         val ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(u, k)
         ugi.doAs(new PrivilegedExceptionAction[SparkAppHandle]() {
-          override def run(): Unit = {
+          override def run(): SparkAppHandle = {
             inProcessLauncher.startApplication(sparkAppHandleListener)
           }
         })
