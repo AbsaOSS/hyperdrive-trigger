@@ -48,10 +48,6 @@ create table "job_definition" (
 
 create table "sensor" (
   "workflow_id" BIGINT NOT NULL,
-  "sensor_type_old" VARCHAR,
-  "variables_old" VARCHAR,
-  "maps_old" VARCHAR,
-  "match_properties_old" VARCHAR,
   "id" BIGSERIAL NOT NULL PRIMARY KEY,
   "properties" JSONB NOT NULL DEFAULT '{}'
 );
@@ -90,7 +86,6 @@ create table "workflow_history" (
 create table "job_template" (
   "name" VARCHAR NOT NULL UNIQUE,
   "id" BIGSERIAL NOT NULL PRIMARY KEY,
-  "form_config_old" VARCHAR DEFAULT 'NotUsed',
   "job_parameters" JSONB NOT NULL DEFAULT '{}'
 );
 
