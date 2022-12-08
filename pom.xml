@@ -651,6 +651,7 @@
                         <exclude>**/.gitkeep</exclude>
                         <exclude>src/main/resources/banner.txt</exclude>
                         <exclude>**/CODEOWNERS</exclude>
+                        <exclude>**/ISSUE_TEMPLATE/*.md</exclude>
                         <exclude>ui/.angular/**</exclude>
                         <exclude>ui/**.json</exclude>
                         <exclude>ui/e2e/tsconfig.json</exclude>
