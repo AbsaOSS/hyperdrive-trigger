@@ -307,9 +307,9 @@ archived, but discarded.
 The archival process can be executed with the following DB procedure
 ```sql
 CALL archive_dag_instances(
-i_to_ts => (now() - interval '12 months')::timestamp,
+i_to_ts => (now() - interval '3 months')::timestamp,
 i_max_records => 200000,
-i_chunk_size => 40000
+i_chunk_size => 10000
 );
 ```
 This would archive all dag instances (and referenced job instances and events), which were created over 12 months ago.
