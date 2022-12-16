@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { ActivatedRoute } from '@angular/router';
@@ -27,7 +27,7 @@ import { LoadHistoryForNotificationRule } from '../../../../stores/notification-
   templateUrl: './notification-rule-history.component.html',
   styleUrls: ['./notification-rule-history.component.scss'],
 })
-export class NotificationRuleHistoryComponent implements OnInit {
+export class NotificationRuleHistoryComponent implements OnInit, OnDestroy {
   notificationRulesSubscription: Subscription = null;
   paramsSubscription: Subscription;
 
@@ -59,5 +59,10 @@ export class NotificationRuleHistoryComponent implements OnInit {
     const hasEmptySlotForSelect = this.selected.length < 2;
     const isAlreadySelected = this.selected.some((history: HistoryModel) => history === inputHistory);
     return hasEmptySlotForSelect || isAlreadySelected;
+  }
+
+  ngOnDestroy(): void {
+    !!this.notificationRulesSubscription && this.notificationRulesSubscription.unsubscribe();
+    !!this.paramsSubscription && this.paramsSubscription.unsubscribe();
   }
 }

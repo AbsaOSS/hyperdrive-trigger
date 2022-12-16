@@ -295,6 +295,26 @@ Then, the liquibase maven plugin can be executed, e.g.
 - `mvn scalafmt:format -Dformat.validateOnly=true` to validate scala files formatting
 - `mvn scalafmt:format` or `mvn scalafmt:format -Dformat.validateOnly=false` to apply correct scala file formatting
 
+# Database maintenance
+
+## Clean job instances table
+If required, old rows from the `job_instance` table can be moved to the `archive_job_instance` table, to reduce the
+table size of `job_instance` in order to speed up queries. The rows are first copied to the destination table and then 
+deleted from the source table. Along with job instances, referenced `dag_instance`s and `event`s are archived in 
+respective tables as well. Importantly, the `job_parameters` column of `job_instance` is not
+archived, but discarded.
+
+The archival process can be executed with the following DB procedure
+```sql
+CALL archive_dag_instances(
+i_to_ts => (now() - interval '12 months')::timestamp,
+i_max_records => 200000,
+i_chunk_size => 40000
+);
+```
+This would archive all dag instances (and referenced job instances and events), which were created over 12 months ago.
+It is advisable to run this query while the database is in maintenance mode, but it can also be run otherwise.
+
 # User Interface
 - **Workflows**: Overview of all workflows.
 ![](/docs/img/all_workflows.png)
