@@ -25,7 +25,7 @@
     "@cds/core": "^5.6.4",
     "@clr/angular": "^13.11.1",
     "@clr/icons": "13.0.2",
-    "@clr/ui": "13.0.2",
+    "@clr/ui": "13.11.1",
     "@ngrx/effects": "^14.3.2",
     "@ngrx/router-store": "^14.3.2",
     "@ngrx/store": "^14.3.2",
