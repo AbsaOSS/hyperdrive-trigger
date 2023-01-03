@@ -6,7 +6,7 @@
     "start": "ng serve --open",
     "build": "ng build --aot --configuration production --base-href /hyperdrive_trigger/",
     "test": "ng test",
-    "test:ci": "ng test --karmaConfig=karma.conf.ci.js",
+    "test:ci": "ng test --karma-config=karma.conf.ci.js",
     "lint": "tsc --noEmit && eslint 'src/**/*.{js,ts}' --quiet --fix",
     "lint:ci": "tsc --noEmit && eslint 'src/**/*.{js,ts}'",
     "e2e": "ng e2e"
