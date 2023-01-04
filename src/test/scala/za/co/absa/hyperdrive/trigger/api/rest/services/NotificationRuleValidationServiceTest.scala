@@ -18,7 +18,7 @@ package za.co.absa.hyperdrive.trigger.api.rest.services
 import org.mockito.ArgumentMatchers.{eq => eqTo, _}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
-import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, Matchers}
+import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, Matchers, ParallelTestExecution}
 import za.co.absa.hyperdrive.trigger.TestUtils.await
 import za.co.absa.hyperdrive.trigger.models.NotificationRule
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
@@ -27,9 +27,8 @@ import za.co.absa.hyperdrive.trigger.persistance.WorkflowRepository
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class NotificationRuleValidationServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar with BeforeAndAfter {
+class NotificationRuleValidationServiceTest extends AsyncFlatSpec with ParallelTestExecution with Matchers with MockitoSugar with BeforeAndAfter {
   override implicit def executionContext: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
-
 
   private val workflowRepository = mock[WorkflowRepository]
   private val underTest = new NotificationRuleValidationServiceImpl(workflowRepository)
