@@ -27,7 +27,12 @@ import za.co.absa.hyperdrive.trigger.persistance.WorkflowRepository
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class NotificationRuleValidationServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar with BeforeAndAfter with ParallelTestExecution {
+class NotificationRuleValidationServiceTest
+    extends AsyncFlatSpec
+    with Matchers
+    with MockitoSugar
+    with BeforeAndAfter
+    with ParallelTestExecution {
   override implicit def executionContext: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
   private val workflowRepository = mock[WorkflowRepository]
