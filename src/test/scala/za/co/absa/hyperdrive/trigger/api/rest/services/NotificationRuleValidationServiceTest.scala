@@ -30,6 +30,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class NotificationRuleValidationServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar with BeforeAndAfter {
   override implicit def executionContext: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
+
   private val workflowRepository = mock[WorkflowRepository]
   private val underTest = new NotificationRuleValidationServiceImpl(workflowRepository)
 
