@@ -14,7 +14,7 @@
  */
 
 import { TestBed, waitForAsync } from '@angular/core/testing';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import { LengthValidator } from './length.validator';
 
 describe('LengthValidator', () => {
@@ -35,24 +35,24 @@ describe('LengthValidator', () => {
 
   it('validate() should return null when is valid', () => {
     underTest.length = { min: 1, max: 1000 };
-    const control = new FormControl('SomeValue');
+    const control = new UntypedFormControl('SomeValue');
 
     expect(underTest.validate(control)).toBeNull();
   });
 
   it('validate() should return null when is valid', () => {
     underTest.length = { min: 1, max: 1000 };
-    const control = new FormControl('');
+    const control = new UntypedFormControl('');
 
     expect(underTest.validate(control)).toBeNull();
   });
 
   it('validate() should return invalid when input is invalid', () => {
     underTest.length = { min: 2, max: 5 };
-    expect(underTest.validate(new FormControl('a'))).toEqual({ lengthValidator: true });
-    expect(underTest.validate(new FormControl('abcdef'))).toEqual({ lengthValidator: true });
-    expect(underTest.validate(new FormControl('abc\n'))).toEqual({ lengthValidator: true });
-    expect(underTest.validate(new FormControl('\nabc'))).toEqual({ lengthValidator: true });
-    expect(underTest.validate(new FormControl('abcd\ne'))).toEqual({ lengthValidator: true });
+    expect(underTest.validate(new UntypedFormControl('a'))).toEqual({ lengthValidator: true });
+    expect(underTest.validate(new UntypedFormControl('abcdef'))).toEqual({ lengthValidator: true });
+    expect(underTest.validate(new UntypedFormControl('abc\n'))).toEqual({ lengthValidator: true });
+    expect(underTest.validate(new UntypedFormControl('\nabc'))).toEqual({ lengthValidator: true });
+    expect(underTest.validate(new UntypedFormControl('abcd\ne'))).toEqual({ lengthValidator: true });
   });
 });
