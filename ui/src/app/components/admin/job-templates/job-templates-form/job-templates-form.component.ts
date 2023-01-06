@@ -164,6 +164,13 @@ export class JobTemplatesFormComponent implements OnDestroy {
     return this.mode == jobTemplateModes.SHOW || this.mode == jobTemplateModes.COMPARISON;
   }
 
+  getJobTypes(value: string): Map<string, string> {
+    if (value == this.jobTypes.SHELL) {
+      return this.jobTypesMap;
+    }
+    return new Map([...this.jobTypesMap.entries()].filter(([k, v]) => v !== this.jobTypes.SHELL));
+  }
+
   ngOnDestroy(): void {
     !!this.confirmationDialogServiceSubscription && this.confirmationDialogServiceSubscription.unsubscribe();
   }

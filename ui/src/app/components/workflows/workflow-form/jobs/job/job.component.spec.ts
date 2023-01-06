@@ -22,7 +22,7 @@ import {
   ShellTemplateParametersModel,
   SparkTemplateParametersModel,
 } from '../../../../../models/jobTemplateParameters.model';
-import { jobTypes } from '../../../../../constants/jobTypes.constants';
+import { jobTypes, jobTypesMap } from '../../../../../constants/jobTypes.constants';
 import { JobDefinitionModelFactory } from '../../../../../models/jobDefinition.model';
 import { ShellDefinitionParametersModel } from '../../../../../models/jobDefinitionParameters.model';
 import { JobTemplateChangeEventModel } from '../../../../../models/jobTemplateChangeEvent';
@@ -119,6 +119,28 @@ describe('JobComponent', () => {
       fixture.whenStable().then(() => {
         const result = underTest.getJobTemplates();
         expect(result).toEqual(new Map([[hyperdriveTemplate.id.toString(), hyperdriveTemplate.name]]));
+      });
+    }),
+  );
+
+  it(
+    'getJobTypes() should return all job types if input type is shell',
+    waitForAsync(() => {
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        const result = underTest.getJobTypes(jobTypes.SHELL);
+        expect(result).toEqual(jobTypesMap);
+      });
+    }),
+  );
+
+  it(
+    'getJobTypes() should return job types without shell if input type is not shell',
+    waitForAsync(() => {
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        const result = underTest.getJobTypes(jobTypes.SPARK);
+        expect(result.size).toEqual(jobTypesMap.size - 1);
       });
     }),
   );

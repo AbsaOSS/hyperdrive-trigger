@@ -85,7 +85,7 @@
           [name]="'Job type'"
           [value]="jobTemplate?.jobParameters?.jobType"
           (valueChange)="jobTypeChange($event)"
-          [options]="jobTypesMap"
+          [options]="getJobTypes(jobTemplate?.jobParameters?.jobType)"
           [isRequired]="true">
         </app-select-part>
       </div>
