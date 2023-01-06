@@ -91,6 +91,13 @@ export class JobComponent {
     );
   }
 
+  getJobTypes(value: string): Map<string, string> {
+    if (value == this.jobTypes.SHELL) {
+      return this.jobTypesMap;
+    }
+    return new Map([...this.jobTypesMap.entries()].filter(([k, v]) => v !== this.jobTypes.SHELL));
+  }
+
   getSelectedJobTemplateParameters(): JobTemplateParameters {
     return this.jobTemplates.find((jobTemplate) => jobTemplate.id.toString() == this.job.jobTemplateId)?.jobParameters;
   }

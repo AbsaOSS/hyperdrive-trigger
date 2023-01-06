@@ -26,7 +26,7 @@
   [isShow]="isShow"
   [name]="'Job type'"
   [value]="job?.jobParameters?.jobType"
-  [options]="jobTypesMap"
+  [options]="getJobTypes(job?.jobParameters?.jobType)"
   (valueChange)="jobTypeChange($event)"
   [isRequired]="true">
 </app-select-part>
