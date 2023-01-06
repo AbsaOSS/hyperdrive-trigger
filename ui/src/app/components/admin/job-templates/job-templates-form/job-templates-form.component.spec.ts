@@ -34,7 +34,7 @@ import {
   UpdateJobTemplate,
 } from '../../../../stores/job-templates/job-templates.actions';
 import { absoluteRoutes } from '../../../../constants/routes.constants';
-import { jobTypes } from '../../../../constants/jobTypes.constants';
+import { jobTypes, jobTypesMap } from '../../../../constants/jobTypes.constants';
 import { ShellTemplateParametersModel } from '../../../../models/jobTemplateParameters.model';
 
 describe('JobTemplatesFormComponent', () => {
@@ -327,4 +327,26 @@ describe('JobTemplatesFormComponent', () => {
     underTest.toggleJobTemplateParametersAccordion();
     expect(underTest.isJobTemplateParametersHidden).toBeTrue();
   });
+
+  it(
+    'getJobTypes() should return all job types if input type is shell',
+    waitForAsync(() => {
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        const result = underTest.getJobTypes(jobTypes.SHELL);
+        expect(result).toEqual(jobTypesMap);
+      });
+    }),
+  );
+
+  it(
+    'getJobTypes() should return job types without shell if input type is not shell',
+    waitForAsync(() => {
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        const result = underTest.getJobTypes(jobTypes.SPARK);
+        expect(result.size).toEqual(jobTypesMap.size - 1);
+      });
+    }),
+  );
 });
