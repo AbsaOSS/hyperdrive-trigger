@@ -19,7 +19,6 @@ import org.mockito.ArgumentMatchers.{eq => eqTo, _}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, Matchers}
-import za.co.absa.hyperdrive.trigger.TestUtils.await
 import za.co.absa.hyperdrive.trigger.models.NotificationRule
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, ValidationError}
@@ -46,14 +45,14 @@ class NotificationRuleValidationServiceTest extends AsyncFlatSpec with Matchers 
       .thenReturn(Future(true))
 
     // when
-    await(underTest.validate(notificationRule))
-
-    // then
-    verify(workflowRepository).existsProject(eqTo(notificationRule.project.get))(any[ExecutionContext])
-    verify(workflowRepository).existsWorkflowWithPrefix(eqTo(notificationRule.workflowPrefix.get))(
-      any[ExecutionContext]
-    )
-    succeed
+    underTest.validate(notificationRule).map { _ =>
+      // then
+      verify(workflowRepository).existsProject(eqTo(notificationRule.project.get))(any[ExecutionContext])
+      verify(workflowRepository).existsWorkflowWithPrefix(eqTo(notificationRule.workflowPrefix.get))(
+        any[ExecutionContext]
+      )
+      succeed
+    }
   }
 
   it should "succeed if neither project nor workflowPrefix are specified" in {
@@ -61,12 +60,12 @@ class NotificationRuleValidationServiceTest extends AsyncFlatSpec with Matchers 
     val notificationRule = createNotificationRule().copy(project = None, workflowPrefix = None)
 
     // when
-    await(underTest.validate(notificationRule))
-
-    // then
-    verify(workflowRepository, never()).existsProject(any())(any())
-    verify(workflowRepository, never()).existsWorkflowWithPrefix(any())(any())
-    succeed
+    underTest.validate(notificationRule).map { _ =>
+      // then
+      verify(workflowRepository, never()).existsProject(any())(any())
+      verify(workflowRepository, never()).existsWorkflowWithPrefix(any())(any())
+      succeed
+    }
   }
 
   it should "succeed if both project and workflowPrefix are empty" in {
@@ -74,12 +73,12 @@ class NotificationRuleValidationServiceTest extends AsyncFlatSpec with Matchers 
     val notificationRule = createNotificationRule().copy(project = Some(""), workflowPrefix = Some(""))
 
     // when
-    await(underTest.validate(notificationRule))
-
-    // then
-    verify(workflowRepository, never()).existsProject(any())(any())
-    verify(workflowRepository, never()).existsWorkflowWithPrefix(any())(any())
-    succeed
+    underTest.validate(notificationRule).map { _ =>
+      // then
+      verify(workflowRepository, never()).existsProject(any())(any())
+      verify(workflowRepository, never()).existsWorkflowWithPrefix(any())(any())
+      succeed
+    }
   }
 
   it should "succeed if minElapsedSeconds is > 0" in {
@@ -91,10 +90,10 @@ class NotificationRuleValidationServiceTest extends AsyncFlatSpec with Matchers 
       .thenReturn(Future(true))
 
     // when
-    await(underTest.validate(notificationRule))
-
-    // then
-    succeed
+    underTest.validate(notificationRule).map { _ =>
+      // then
+      succeed
+    }
   }
 
   it should "fail if the project doesn't exist" in {
@@ -106,11 +105,12 @@ class NotificationRuleValidationServiceTest extends AsyncFlatSpec with Matchers 
       .thenReturn(Future(true))
 
     // when
-    val result = the[ApiException] thrownBy await(underTest.validate(notificationRule))
-
-    // then
-    result.apiErrors should have size 1
-    result.apiErrors.head shouldBe ValidationError(s"No project with name ${notificationRule.project.get} exists")
+    underTest.validate(notificationRule).failed.map { error =>
+      // then
+      val result = error.asInstanceOf[ApiException]
+      result.apiErrors should have size 1
+      result.apiErrors.head shouldBe ValidationError(s"No project with name ${notificationRule.project.get} exists")
+    }
   }
 
   it should "fail if the workflow prefix doesn't match any workflows" in {
@@ -122,13 +122,14 @@ class NotificationRuleValidationServiceTest extends AsyncFlatSpec with Matchers 
       .thenReturn(Future(false))
 
     // when
-    val result = the[ApiException] thrownBy await(underTest.validate(notificationRule))
-
-    // then
-    result.apiErrors should have size 1
-    result.apiErrors.head shouldBe ValidationError(
-      s"No workflow with prefix ${notificationRule.workflowPrefix.get} exists"
-    )
+    underTest.validate(notificationRule).failed.map { error =>
+      val result = error.asInstanceOf[ApiException]
+      // then
+      result.apiErrors should have size 1
+      result.apiErrors.head shouldBe ValidationError(
+        s"No workflow with prefix ${notificationRule.workflowPrefix.get} exists"
+      )
+    }
   }
 
   it should "fail if any email address is invalid" in {
@@ -140,14 +141,15 @@ class NotificationRuleValidationServiceTest extends AsyncFlatSpec with Matchers 
       .thenReturn(Future(true))
 
     // when
-    val result = the[ApiException] thrownBy await(underTest.validate(notificationRule))
-
-    // then
-    result.apiErrors should have size 2
-    result.apiErrors should contain theSameElementsAs Seq(
-      ValidationError(s"Recipient abc@com is not a valid e-mail address"),
-      ValidationError(s"Recipient abc.def.ghi is not a valid e-mail address")
-    )
+    underTest.validate(notificationRule).failed.map { error =>
+      val result = error.asInstanceOf[ApiException]
+      // then
+      result.apiErrors should have size 2
+      result.apiErrors should contain theSameElementsAs Seq(
+        ValidationError(s"Recipient abc@com is not a valid e-mail address"),
+        ValidationError(s"Recipient abc.def.ghi is not a valid e-mail address")
+      )
+    }
   }
 
   it should "fail if minElapsedSeconds is < 0" in {
@@ -159,11 +161,12 @@ class NotificationRuleValidationServiceTest extends AsyncFlatSpec with Matchers 
       .thenReturn(Future(true))
 
     // when
-    val result = the[ApiException] thrownBy await(underTest.validate(notificationRule))
-
-    // then
-    result.apiErrors should have size 1
-    result.apiErrors.head.message shouldBe "Min elapsed seconds since last success cannot be negative, is -1"
+    underTest.validate(notificationRule).failed.map { error =>
+      val result = error.asInstanceOf[ApiException]
+      // then
+      result.apiErrors should have size 1
+      result.apiErrors.head.message shouldBe "Min elapsed seconds since last success cannot be negative, is -1"
+    }
   }
 
   it should "return all validation errors" in {
@@ -175,15 +178,16 @@ class NotificationRuleValidationServiceTest extends AsyncFlatSpec with Matchers 
       .thenReturn(Future(false))
 
     // when
-    val result = the[ApiException] thrownBy await(underTest.validate(notificationRule))
-
-    // then
-    result.apiErrors should have size 3
-    result.apiErrors should contain theSameElementsAs Seq(
-      ValidationError(s"No workflow with prefix ${notificationRule.workflowPrefix.get} exists"),
-      ValidationError(s"No project with name ${notificationRule.project.get} exists"),
-      ValidationError(s"Recipient abc@com is not a valid e-mail address")
-    )
+    underTest.validate(notificationRule).failed.map { error =>
+      val result = error.asInstanceOf[ApiException]
+      // then
+      result.apiErrors should have size 3
+      result.apiErrors should contain theSameElementsAs Seq(
+        ValidationError(s"No workflow with prefix ${notificationRule.workflowPrefix.get} exists"),
+        ValidationError(s"No project with name ${notificationRule.project.get} exists"),
+        ValidationError(s"Recipient abc@com is not a valid e-mail address")
+      )
+    }
   }
 
   private def createNotificationRule() =
