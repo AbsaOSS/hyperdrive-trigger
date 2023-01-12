@@ -57,7 +57,5 @@ class Sensors(
 class Executors(
   @NotNull
   @Name("thread.pool.size")
-  val threadPoolSize: Int,
-  @DefaultValue(Array("true"))
-  val enableHyperdriveExecutor: Boolean
+  val threadPoolSize: Int
 )
