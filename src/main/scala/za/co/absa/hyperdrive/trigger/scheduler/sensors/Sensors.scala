@@ -74,7 +74,7 @@ class Sensors @Inject() (
     }
 
     fut.onComplete {
-      case Success(_) => logger.info("Processing events successful")
+      case Success(_)         => logger.info("Processing events successful")
       case Failure(exception) => logger.debug("Processing events failed.", exception)
     }
 

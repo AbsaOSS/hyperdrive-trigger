@@ -58,7 +58,7 @@ class RecurringSensorTest extends FlatSpec with MockitoSugar with Matchers with 
     val result: Unit = await(underTest.poll())
 
     // then
-    result shouldBe((): Unit)
+    result shouldBe ((): Unit)
     verify(eventProcessor, never()).eventProcessor(any[String])(any[Seq[Event]], any[Long])(any[ExecutionContext])
   }
 
@@ -80,7 +80,7 @@ class RecurringSensorTest extends FlatSpec with MockitoSugar with Matchers with 
     val result: Unit = await(underTest.poll())
 
     // then
-    result shouldBe((): Unit)
+    result shouldBe ((): Unit)
     verify(eventProcessor, never()).eventProcessor(any[String])(any[Seq[Event]], any[Long])(any[ExecutionContext])
   }
 
@@ -106,7 +106,7 @@ class RecurringSensorTest extends FlatSpec with MockitoSugar with Matchers with 
     val result: Unit = await(underTest.poll())
 
     // then
-    result shouldBe((): Unit)
+    result shouldBe ((): Unit)
     verify(eventProcessor, times(1)).eventProcessor(eqTo(triggeredBy))(any[Seq[Event]], any[Long])(
       any[ExecutionContext]
     )

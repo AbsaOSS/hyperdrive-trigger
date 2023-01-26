@@ -30,8 +30,9 @@ class LdapGrantedAuthoritiesMapper extends GrantedAuthoritiesMapper {
     if (grantedAuthorities == null) {
       AuthorityUtils.NO_AUTHORITIES
     } else {
-      grantedAuthorities.asScala.map(
-        grantedAuthority => new SimpleGrantedAuthority(grantedAuthority.getAuthority)
-      ).toList.asJava
+      grantedAuthorities.asScala
+        .map(grantedAuthority => new SimpleGrantedAuthority(grantedAuthority.getAuthority))
+        .toList
+        .asJava
     }
 }

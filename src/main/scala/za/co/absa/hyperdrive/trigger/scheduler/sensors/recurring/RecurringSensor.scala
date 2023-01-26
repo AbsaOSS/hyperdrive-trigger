@@ -67,7 +67,7 @@ class RecurringSensor(
       }
 
     fut.onComplete {
-      case Success(_) => logger.debug(s"$logMsgPrefix. Polling successful")
+      case Success(_)         => logger.debug(s"$logMsgPrefix. Polling successful")
       case Failure(exception) => logger.debug(s"$logMsgPrefix. Polling failed.", exception)
     }
     fut

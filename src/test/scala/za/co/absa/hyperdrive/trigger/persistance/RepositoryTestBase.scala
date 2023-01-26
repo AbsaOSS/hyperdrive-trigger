@@ -284,7 +284,8 @@ trait RepositoryTestBase extends Repository {
       ),
       id = 100
     )
-    val jt2: JobTemplate = JobTemplate(name = "jobTemplate2", ShellTemplateParameters(scriptLocation = "testScript.sh"), id = 101)
+    val jt2: JobTemplate =
+      JobTemplate(name = "jobTemplate2", ShellTemplateParameters(scriptLocation = "testScript.sh"), id = 101)
     val jobTemplates: Seq[JobTemplate] = Seq(jt1, jt2)
 
     val dd1: DagDefinition = DagDefinition(workflowId = w1.id, id = 400)
@@ -304,14 +305,22 @@ trait RepositoryTestBase extends Repository {
       order = 1,
       id = -1
     )
-    val jd1dd1: JobDefinition = genericJd.copy(dagDefinitionId = 400, jobTemplateId = Some(100), name = "jd1dd1", order = 1, id = 501)
-    val jd2dd1: JobDefinition = genericJd.copy(dagDefinitionId = 400, jobTemplateId = Some(101), name = "jd2dd1", order = 2, id = 502)
-    val jd1dd2: JobDefinition = genericJd.copy(dagDefinitionId = 401, jobTemplateId = Some(101), name = "jd1dd2", order = 1, id = 503)
-    val jd1dd3: JobDefinition = genericJd.copy(dagDefinitionId = 402, jobTemplateId = Some(101), name = "jd1dd3", order = 1, id = 504)
-    val jd1dd4: JobDefinition = genericJd.copy(dagDefinitionId = 403, jobTemplateId = Some(101), name = "jd1dd4", order = 1, id = 505)
-    val jd1dd5: JobDefinition = genericJd.copy(dagDefinitionId = 404, jobTemplateId = Some(101), name = "jd1dd5", order = 1, id = 506)
-    val jd1dd6: JobDefinition = genericJd.copy(dagDefinitionId = 405, jobTemplateId = Some(101), name = "jd1dd6", order = 1, id = 507)
-    val jd1dd7: JobDefinition = genericJd.copy(dagDefinitionId = 406, jobTemplateId = Some(101), name = "jd1dd7", order = 1, id = 508)
+    val jd1dd1: JobDefinition =
+      genericJd.copy(dagDefinitionId = 400, jobTemplateId = Some(100), name = "jd1dd1", order = 1, id = 501)
+    val jd2dd1: JobDefinition =
+      genericJd.copy(dagDefinitionId = 400, jobTemplateId = Some(101), name = "jd2dd1", order = 2, id = 502)
+    val jd1dd2: JobDefinition =
+      genericJd.copy(dagDefinitionId = 401, jobTemplateId = Some(101), name = "jd1dd2", order = 1, id = 503)
+    val jd1dd3: JobDefinition =
+      genericJd.copy(dagDefinitionId = 402, jobTemplateId = Some(101), name = "jd1dd3", order = 1, id = 504)
+    val jd1dd4: JobDefinition =
+      genericJd.copy(dagDefinitionId = 403, jobTemplateId = Some(101), name = "jd1dd4", order = 1, id = 505)
+    val jd1dd5: JobDefinition =
+      genericJd.copy(dagDefinitionId = 404, jobTemplateId = Some(101), name = "jd1dd5", order = 1, id = 506)
+    val jd1dd6: JobDefinition =
+      genericJd.copy(dagDefinitionId = 405, jobTemplateId = Some(101), name = "jd1dd6", order = 1, id = 507)
+    val jd1dd7: JobDefinition =
+      genericJd.copy(dagDefinitionId = 406, jobTemplateId = Some(101), name = "jd1dd7", order = 1, id = 508)
 
     val jobDefinitions: Seq[JobDefinition] = Seq(jd1dd1, jd2dd1, jd1dd2, jd1dd3, jd1dd4, jd1dd5, jd1dd6, jd1dd7)
 
@@ -411,7 +420,8 @@ trait RepositoryTestBase extends Repository {
       TestData.dd1,
       Seq(TestData.jd1dd1, TestData.jd2dd1)
     )
-    val wj2: WorkflowJoined = createWorkflowJoined(TestData.w2, TestSensors.activeAbsaKafka._1, TestData.dd2, Seq(TestData.jd1dd2))
+    val wj2: WorkflowJoined =
+      createWorkflowJoined(TestData.w2, TestSensors.activeAbsaKafka._1, TestData.dd2, Seq(TestData.jd1dd2))
 
     private def createWorkflowJoined(
       workflow: Workflow,

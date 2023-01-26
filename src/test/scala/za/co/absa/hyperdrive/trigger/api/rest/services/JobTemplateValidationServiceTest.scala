@@ -50,7 +50,7 @@ class JobTemplateValidationServiceTest extends AsyncFlatSpec with Matchers with 
     verify(jobTemplateRepository).existsOtherJobTemplate(eqTo(jobTemplate.name), eqTo(jobTemplate.id))(
       any[ExecutionContext]
     )
-    result shouldBe((): Unit)
+    result shouldBe ((): Unit)
   }
 
   "validate" should "fail if the job template name is not unique" in {
