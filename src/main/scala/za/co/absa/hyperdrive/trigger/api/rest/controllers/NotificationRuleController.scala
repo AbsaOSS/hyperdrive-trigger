@@ -37,7 +37,7 @@ class NotificationRuleController @Inject() (notificationRuleService: Notificatio
     notificationRuleService.getNotificationRule(id).toJava.toCompletableFuture
 
   @GetMapping(path = Array("/notificationRules"))
-  def getNotificationRules(): CompletableFuture[Seq[NotificationRule]] =
+  def getNotificationRules: CompletableFuture[Seq[NotificationRule]] =
     notificationRuleService.getNotificationRules().toJava.toCompletableFuture
 
   @PostMapping(path = Array("/notificationRule"))

@@ -76,15 +76,15 @@ class TimeSensorIntegrationPostgresTest
     new JobTemplateServiceImpl(jobTemplateRepository, jobTemplateResolutionService, jobTemplateValidationService)
   private val dagInstanceService: DagInstanceService = new DagInstanceServiceImpl(jobTemplateService)
 
-  override def beforeAll: Unit = {
+  override def beforeAll(): Unit = {
     super.beforeAll()
     schemaSetup()
   }
 
-  override def afterAll: Unit =
+  override def afterAll(): Unit =
     schemaDrop()
 
-  override def afterEach: Unit =
+  override def afterEach(): Unit =
     clearData()
 
   it should "persist an event when the time sensor is fired" in {
@@ -125,7 +125,7 @@ class TimeSensorIntegrationPostgresTest
     val dagDefinitionJoined = DagDefinitionJoined(-1L, Seq(jobDefinition1, jobDefinition2))
     val workflowJoined = WorkflowJoined(
       "Time-Sensor Workflow",
-      true,
+      isActive = true,
       "some-project",
       LocalDateTime.now(),
       None,

@@ -28,7 +28,6 @@ import za.co.absa.hyperdrive.trigger.TestUtils.await
 import za.co.absa.hyperdrive.trigger.configuration.application.{
   GeneralConfig,
   KafkaConfig,
-  RecurringSensorConfig,
   SchedulerConfig,
   TestGeneralConfig,
   TestKafkaConfig,
@@ -258,8 +257,8 @@ class SensorsTest extends FlatSpec with MockitoSugar with Matchers with BeforeAn
     verifyExactlyNQuartzJobsExist(assignedSensorsT2.size)
     underTest.cleanUpSensors()
 
-    val sensorsCaptor: ArgumentCaptor[Seq[Tuple2[Long, SensorProperties]]] =
-      ArgumentCaptor.forClass(classOf[Seq[Tuple2[Long, SensorProperties]]])
+    val sensorsCaptor: ArgumentCaptor[Seq[(Long, SensorProperties)]] =
+      ArgumentCaptor.forClass(classOf[Seq[(Long, SensorProperties)]])
     verify(sensorRepository, times(3)).getChangedSensors(sensorsCaptor.capture())(any())
     sensorsCaptor.getAllValues.get(0) shouldBe Seq()
     sensorsCaptor.getAllValues.get(1) should contain theSameElementsAs assignedSensorsT1.map(sensor =>

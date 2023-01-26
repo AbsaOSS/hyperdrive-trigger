@@ -40,6 +40,4 @@ object FinalStatuses {
   case object Failed extends FinalStatus("FAILED")
   case object Killed extends FinalStatus("KILLED")
 
-  val finalStatuses: Set[FinalStatus] = Set(Undefined, Succeeded, Failed, Killed)
-
 }

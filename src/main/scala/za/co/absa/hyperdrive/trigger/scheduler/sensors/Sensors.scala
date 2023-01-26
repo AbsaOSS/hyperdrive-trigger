@@ -75,9 +75,7 @@ class Sensors @Inject() (
 
     fut.onComplete {
       case Success(_) => logger.info("Processing events successful")
-      case Failure(exception) => {
-        logger.debug("Processing events failed.", exception)
-      }
+      case Failure(exception) => logger.debug("Processing events failed.", exception)
     }
 
     fut
@@ -97,8 +95,6 @@ class Sensors @Inject() (
   }
 
   private def updateChangedSensors(): Future[Unit] = {
-    val kafkaSensorConsumeFromLatest = false // by construction, this query never returns sensor that changed its
-    // activation state, therefore the consumer never has to consume from the latest
     sensorRepository
       .getChangedSensors(
         sensors.values.map(sensor => (sensor.sensorDefinition.id, sensor.sensorDefinition.properties)).toSeq

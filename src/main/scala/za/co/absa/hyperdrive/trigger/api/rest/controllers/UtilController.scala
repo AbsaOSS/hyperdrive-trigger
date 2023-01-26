@@ -40,7 +40,7 @@ class UtilController {
       )
       QuartzExpressionDetail(expression = expression, isValid = true, explained = description)
     } catch {
-      case e: CronExpressionParseException if CronExpression.isValidExpression(expression) =>
+      case _: CronExpressionParseException if CronExpression.isValidExpression(expression) =>
         QuartzExpressionDetail(
           expression = expression,
           isValid = true,

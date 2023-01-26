@@ -35,7 +35,7 @@ case class GenericError(override val message: String, override val errorType: Ap
     extends ApiError
 
 case class BulkOperationError(workflowIdentifier: String, innerError: ApiError) extends ApiError {
-  override val message: String = s"${workflowIdentifier}: ${innerError.message}"
+  override val message: String = s"$workflowIdentifier: ${innerError.message}"
   override val errorType: ApiErrorType = BulkOperationErrorType
 
   override def unwrapError(): ApiError = innerError

@@ -23,7 +23,6 @@ class SparkConfigNestedClassesValidator extends ConstraintValidator[SparkConfigN
 
   private val notNullValidator = new NotNullValidator
   private val notBlankValidator = new NotBlankValidator
-  private val notNullMessage = "must not be null"
   private val notBlankMessage = "must no be blank"
   private val sparkSubmitApi = "spark.submitApi"
   private case class Constraint(isValid: Boolean, field: String, message: String)
