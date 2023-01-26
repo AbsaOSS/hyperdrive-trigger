@@ -21,7 +21,6 @@ import { DagRunService } from '../../services/dagRun/dag-run.service';
 import { JobInstanceModel } from '../../models/jobInstance.model';
 import { DagRunModel } from '../../models/dagRuns/dagRun.model';
 import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
-import { KILL_JOB, KillJob } from '../runs/runs.actions';
 import { ToastrService } from 'ngx-toastr';
 import { texts } from '../../constants/texts.constants';
 

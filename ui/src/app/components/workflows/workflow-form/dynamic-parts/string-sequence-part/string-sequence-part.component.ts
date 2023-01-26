@@ -55,11 +55,11 @@ export class StringSequencePartComponent implements OnInit, OnChanges, AfterCont
     }
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
+  ngOnChanges({}: SimpleChanges): void {
     this.setDefaultValue();
   }
 
-  trackByFn(index, item) {
+  trackByFn(index, {}) {
     return index;
   }
 

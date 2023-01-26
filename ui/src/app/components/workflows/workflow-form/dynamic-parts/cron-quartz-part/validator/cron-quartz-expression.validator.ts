@@ -29,7 +29,7 @@ export class CronQuartzExpressionValidator implements Validator {
     // do nothing
   }
 
-  validate(c: UntypedFormControl) {
+  validate({}: UntypedFormControl) {
     if (this.params) {
       return null;
     } else {

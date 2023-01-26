@@ -57,8 +57,8 @@ export class AuthEffects {
   @Effect({ dispatch: true })
   logOut: Observable<any> = this.actions.pipe(
     ofType(AuthActions.LOGOUT),
-    switchMap((_) => this.authService.logout()),
-    mergeMap((_) => [{ type: AuthActions.LOGOUT_SUCCESS }]),
+    switchMap(({}) => this.authService.logout()),
+    mergeMap(({}) => [{ type: AuthActions.LOGOUT_SUCCESS }]),
   );
 
   @Effect({ dispatch: false })

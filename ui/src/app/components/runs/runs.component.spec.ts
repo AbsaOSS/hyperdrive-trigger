@@ -16,15 +16,13 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { RunsComponent } from './runs.component';
-import { MockStore, provideMockStore } from '@ngrx/store/testing';
-import * as fromApp from '../../stores/app.reducers';
+import { provideMockStore } from '@ngrx/store/testing';
 import { ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
 
 describe('RunsComponent', () => {
   let component: RunsComponent;
   let fixture: ComponentFixture<RunsComponent>;
-  let mockStore: MockStore<fromApp.AppState>;
 
   const initialAppState = {
     auth: {},

@@ -168,7 +168,7 @@ export class JobTemplatesFormComponent implements OnDestroy {
     if (value == this.jobTypes.SHELL) {
       return this.jobTypesMap;
     }
-    return new Map([...this.jobTypesMap.entries()].filter(([k, v]) => v !== this.jobTypes.SHELL));
+    return new Map([...this.jobTypesMap.entries()].filter(([{}, v]) => v !== this.jobTypes.SHELL));
   }
 
   ngOnDestroy(): void {
