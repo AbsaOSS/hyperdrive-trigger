@@ -59,7 +59,7 @@ export class WorkflowsEffects {
   @Effect({ dispatch: true })
   workflowsInitialize = this.actions.pipe(
     ofType(WorkflowActions.INITIALIZE_WORKFLOWS),
-    switchMap((_: WorkflowActions.InitializeWorkflows) => {
+    switchMap(() => {
       const projects = this.workflowService.getProjects();
       const jobTemplates = this.workflowService.getJobTemplates();
       return combineLatest([projects, jobTemplates]).pipe(
