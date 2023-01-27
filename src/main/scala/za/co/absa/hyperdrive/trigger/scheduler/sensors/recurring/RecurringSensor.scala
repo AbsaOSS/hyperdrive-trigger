@@ -53,8 +53,8 @@ class RecurringSensor(
             .flatMap { count =>
               if (count >= recurringSensorConfig.maxJobsPerDuration) {
                 logger.warn(
-                  s"Skipping dag instance creation, because ${count} dag instances have been created since" +
-                    s" ${cutOffTime}, but the allowed maximum is ${recurringSensorConfig.maxJobsPerDuration} "
+                  s"Skipping dag instance creation, because $count dag instances have been created since" +
+                    s" $cutOffTime, but the allowed maximum is ${recurringSensorConfig.maxJobsPerDuration} "
                 )
                 Future.successful((): Unit)
               } else {
@@ -67,10 +67,8 @@ class RecurringSensor(
       }
 
     fut.onComplete {
-      case Success(_) => logger.debug(s"$logMsgPrefix. Polling successful")
-      case Failure(exception) => {
-        logger.debug(s"$logMsgPrefix. Polling failed.", exception)
-      }
+      case Success(_)         => logger.debug(s"$logMsgPrefix. Polling successful")
+      case Failure(exception) => logger.debug(s"$logMsgPrefix. Polling failed.", exception)
     }
     fut
   }

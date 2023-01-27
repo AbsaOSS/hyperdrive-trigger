@@ -74,7 +74,7 @@ class NotificationSenderTest extends FlatSpec with MockitoSugar with Matchers wi
     // then
     val recipientsCaptor: ArgumentCaptor[Seq[String]] = ArgumentCaptor.forClass(classOf[Seq[String]])
     val messagesCaptor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
-    val expectedSubject = s"Hyperdrive Notifications, ${environment}: Workflow ${w.name} ${di.status.name}"
+    val expectedSubject = s"Hyperdrive Notifications, $environment: Workflow ${w.name} ${di.status.name}"
     val expectedMessageBase =
       raw"""Environment: TEST
            |Project: ${w.project}
@@ -83,10 +83,10 @@ class NotificationSenderTest extends FlatSpec with MockitoSugar with Matchers wi
            |Finished: 2020-03-02T14:30:00
            |Status: Succeeded""".stripMargin
     val expectedMessage1 =
-      raw"""${expectedMessageBase}
+      raw"""$expectedMessageBase
            |Notification rule ID: ${nr1.id}""".stripMargin
     val expectedMessage2 =
-      raw"""${expectedMessageBase}
+      raw"""$expectedMessageBase
            |Notification rule ID: ${nr2.id}""".stripMargin
 
     verify(emailService, times(2)).sendMessageToBccRecipients(
@@ -150,7 +150,7 @@ class NotificationSenderTest extends FlatSpec with MockitoSugar with Matchers wi
     testService.sendNotifications()
 
     // then
-    val expectedSubject = s"Hyperdrive Notifications, ${environment}: Workflow ${w.name} ${di.status.name}"
+    val expectedSubject = s"Hyperdrive Notifications, $environment: Workflow ${w.name} ${di.status.name}"
     verify(emailService, times(maxRetries)).sendMessageToBccRecipients(
       eqTo(senderAddress),
       any(),
@@ -183,8 +183,8 @@ class NotificationSenderTest extends FlatSpec with MockitoSugar with Matchers wi
     underTest.sendNotifications()
 
     // then
-    val expectedSubject1 = s"Hyperdrive Notifications, ${environment}: Workflow ${w.name} ${di1.status.name}"
-    val expectedSubject2 = s"Hyperdrive Notifications, ${environment}: Workflow ${w.name} ${di2.status.name}"
+    val expectedSubject1 = s"Hyperdrive Notifications, $environment: Workflow ${w.name} ${di1.status.name}"
+    val expectedSubject2 = s"Hyperdrive Notifications, $environment: Workflow ${w.name} ${di2.status.name}"
     verify(emailService).sendMessageToBccRecipients(
       eqTo(senderAddress),
       eqTo(nr1.recipients),
@@ -235,7 +235,7 @@ class NotificationSenderTest extends FlatSpec with MockitoSugar with Matchers wi
 
   private def createNotificationRule() =
     NotificationRule(
-      true,
+      isActive = true,
       Some("project"),
       Some("ABC XYZ"),
       None,

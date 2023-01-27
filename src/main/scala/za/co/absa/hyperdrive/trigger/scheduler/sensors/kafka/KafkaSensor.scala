@@ -76,9 +76,8 @@ class KafkaSensor(
 
     fut.onComplete {
       case Success(_) => logger.debug(s"$logMsgPrefix. Polling successful")
-      case Failure(exception) => {
+      case Failure(exception) =>
         logger.debug(s"$logMsgPrefix. Polling failed.", exception)
-      }
     }
 
     fut

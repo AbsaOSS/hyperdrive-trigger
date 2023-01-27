@@ -76,7 +76,7 @@ class WebSecurityConfig @Inject() (val beanFactory: BeanFactory, authConfig: Aut
       // Disable security for isManager endpoint
       web.ignoring.antMatchers("/admin/isManager")
 
-    override def configure(http: HttpSecurity) {
+    override def configure(http: HttpSecurity): Unit = {
       http
         .csrf()
         .ignoringAntMatchers("/login")
@@ -117,18 +117,16 @@ class WebSecurityConfig @Inject() (val beanFactory: BeanFactory, authConfig: Aut
     }
 
     override def configure(auth: AuthenticationManagerBuilder): Unit =
-      this.getAuthentication().configure(auth)
+      this.getAuthentication.configure(auth)
 
-    private def getAuthentication(): HyperdriverAuthentication =
+    private def getAuthentication: HyperdriverAuthentication =
       authMechanism.toLowerCase match {
-        case "inmemory" => {
+        case "inmemory" =>
           logger.info(s"Using $authMechanism authentication")
           beanFactory.getBean(classOf[InMemoryAuthentication])
-        }
-        case "ldap" => {
+        case "ldap" =>
           logger.info(s"Using $authMechanism authentication")
           beanFactory.getBean(classOf[LdapAuthentication])
-        }
         case _ => throw new IllegalArgumentException("Invalid authentication mechanism - use one of: inmemory, ldap")
       }
 

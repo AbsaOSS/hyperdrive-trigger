@@ -52,15 +52,15 @@ class WorkflowRepositoryPostgresTest
 
   val workflowRepository: WorkflowRepository = new WorkflowRepositoryImpl(dbProvider, workflowHistoryRepository)
 
-  override def beforeAll: Unit = {
+  override def beforeAll(): Unit = {
     super.beforeAll()
     schemaSetup()
   }
 
-  override def afterAll: Unit =
+  override def afterAll(): Unit =
     schemaDrop()
 
-  override def beforeEach: Unit =
+  override def beforeEach(): Unit =
     reset(workflowHistoryRepositoryMock)
 
   override def afterEach: Unit =
@@ -305,8 +305,8 @@ class WorkflowRepositoryPostgresTest
 
     actualWorkflows.map(_.toWorkflow) should contain theSameElementsAs expectedWorkflows.map(_.toWorkflow)
     actualWorkflows.map(_.sensor) should contain theSameElementsAs expectedWorkflows.map(_.sensor)
-    actualWorkflows.map(_.dagDefinitionJoined.toDag()) should contain theSameElementsAs expectedWorkflows.map(
-      _.dagDefinitionJoined.toDag()
+    actualWorkflows.map(_.dagDefinitionJoined.toDag) should contain theSameElementsAs expectedWorkflows.map(
+      _.dagDefinitionJoined.toDag
     )
     actualWorkflows.flatMap(_.dagDefinitionJoined.jobDefinitions) should contain theSameElementsAs expectedWorkflows
       .flatMap(_.dagDefinitionJoined.jobDefinitions)

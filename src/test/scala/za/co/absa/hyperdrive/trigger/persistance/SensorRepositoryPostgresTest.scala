@@ -36,15 +36,15 @@ class SensorRepositoryPostgresTest
   import TestSensors._
   val sensorRepository: SensorRepository = new SensorRepositoryImpl(dbProvider, TestSchedulerConfig())
 
-  override def beforeAll: Unit = {
+  override def beforeAll(): Unit = {
     super.beforeAll()
     schemaSetup()
   }
 
-  override def afterAll: Unit =
+  override def afterAll(): Unit =
     schemaDrop()
 
-  override def afterEach: Unit =
+  override def afterEach(): Unit =
     clearData()
 
   "sensorRepository.getNewActiveAssignedSensors" should "return sensors with active workflows, except sensors excluded by id" in {

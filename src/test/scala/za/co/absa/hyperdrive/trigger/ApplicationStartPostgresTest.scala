@@ -51,7 +51,7 @@ class ApplicationStartPostgresTest
   override def beforeAll(): Unit = {
     import scala.collection.JavaConverters._
     databaseConfig.dbProperties.asScala.foreach { case (key, value) =>
-      System.setProperty(s"db.${key}", value)
+      System.setProperty(s"db.$key", value)
     }
 
     super.beforeAll()
