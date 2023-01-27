@@ -57,14 +57,14 @@ export class AuthEffects {
   @Effect({ dispatch: true })
   logOut: Observable<any> = this.actions.pipe(
     ofType(AuthActions.LOGOUT),
-    switchMap(({}) => this.authService.logout()),
-    mergeMap(({}) => [{ type: AuthActions.LOGOUT_SUCCESS }]),
+    switchMap(() => this.authService.logout()),
+    mergeMap(() => [{ type: AuthActions.LOGOUT_SUCCESS }]),
   );
 
   @Effect({ dispatch: false })
   logOutSuccess: Observable<any> = this.actions.pipe(
     ofType(AuthActions.LOGOUT_SUCCESS),
-    tap((_) => {
+    tap(() => {
       this.router.navigateByUrl(absoluteRoutes.WELCOME);
     }),
   );

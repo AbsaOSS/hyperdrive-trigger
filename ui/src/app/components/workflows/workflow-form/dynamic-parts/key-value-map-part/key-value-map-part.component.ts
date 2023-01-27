@@ -47,7 +47,7 @@ export class KeyValueMapPartComponent implements OnInit {
     }
   }
 
-  trackByFn(index, {}) {
+  trackByFn(index, _) {
     return index;
   }
 

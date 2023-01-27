@@ -127,7 +127,7 @@ export class NotificationRulesEffects {
   notificationRuleCreate = this.actions.pipe(
     ofType(NotificationRulesActions.CREATE_NOTIFICATION_RULE),
     withLatestFrom(this.store.select(selectNotificationRulesState)),
-    switchMap(([action, state]: [NotificationRulesActions.CreateNotificationRule, fromNotificationRules.State]) => {
+    switchMap(([_, state]: [NotificationRulesActions.CreateNotificationRule, fromNotificationRules.State]) => {
       return this.notificationRuleService.createNotificationRule(state.notificationRuleAction.notificationRule).pipe(
         mergeMap((notificationRule: NotificationRuleModel) => {
           this.toastrService.success(texts.CREATE_NOTIFICATION_RULE_SUCCESS_NOTIFICATION);
@@ -166,7 +166,7 @@ export class NotificationRulesEffects {
   notificationRuleUpdate = this.actions.pipe(
     ofType(NotificationRulesActions.UPDATE_NOTIFICATION_RULE),
     withLatestFrom(this.store.select(selectNotificationRulesState)),
-    switchMap(([action, state]: [NotificationRulesActions.UpdateNotificationRule, fromNotificationRules.State]) => {
+    switchMap(([_, state]: [NotificationRulesActions.UpdateNotificationRule, fromNotificationRules.State]) => {
       return this.notificationRuleService.updateNotificationRule(state.notificationRuleAction.notificationRule).pipe(
         mergeMap((notificationRule: NotificationRuleModel) => {
           this.toastrService.success(texts.UPDATE_NOTIFICATION_RULE_SUCCESS_NOTIFICATION);

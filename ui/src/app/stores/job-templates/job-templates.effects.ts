@@ -126,7 +126,7 @@ export class JobTemplatesEffects {
   jobTemplateCreate = this.actions.pipe(
     ofType(JobTemplatesActions.CREATE_JOB_TEMPLATE),
     withLatestFrom(this.store.select(selectJobTemplatesState)),
-    switchMap(([action, state]: [JobTemplatesActions.CreateJobTemplate, fromJobTemplates.State]) => {
+    switchMap(([_, state]: [JobTemplatesActions.CreateJobTemplate, fromJobTemplates.State]) => {
       return this.jobTemplateService.createJobTemplate(state.jobTemplateAction.jobTemplate).pipe(
         mergeMap((jobTemplate: JobTemplateModel) => {
           this.toastrService.success(texts.CREATE_JOB_TEMPLATE_SUCCESS_NOTIFICATION);
@@ -165,7 +165,7 @@ export class JobTemplatesEffects {
   jobTemplateUpdate = this.actions.pipe(
     ofType(JobTemplatesActions.UPDATE_JOB_TEMPLATE),
     withLatestFrom(this.store.select(selectJobTemplatesState)),
-    switchMap(([action, state]: [JobTemplatesActions.UpdateJobTemplate, fromJobTemplates.State]) => {
+    switchMap(([_, state]: [JobTemplatesActions.UpdateJobTemplate, fromJobTemplates.State]) => {
       return this.jobTemplateService.updateJobTemplate(state.jobTemplateAction.jobTemplate).pipe(
         mergeMap((jobTemplate: JobTemplateModel) => {
           this.toastrService.success(texts.UPDATE_JOB_TEMPLATE_SUCCESS_NOTIFICATION);

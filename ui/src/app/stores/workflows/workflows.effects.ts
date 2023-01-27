@@ -59,7 +59,7 @@ export class WorkflowsEffects {
   @Effect({ dispatch: true })
   workflowsInitialize = this.actions.pipe(
     ofType(WorkflowActions.INITIALIZE_WORKFLOWS),
-    switchMap((action: WorkflowActions.InitializeWorkflows) => {
+    switchMap((_: WorkflowActions.InitializeWorkflows) => {
       const projects = this.workflowService.getProjects();
       const jobTemplates = this.workflowService.getJobTemplates();
       return combineLatest([projects, jobTemplates]).pipe(
@@ -117,8 +117,7 @@ export class WorkflowsEffects {
   @Effect({ dispatch: true })
   workflowInitializationStart = this.actions.pipe(
     ofType(WorkflowActions.START_WORKFLOW_INITIALIZATION),
-    withLatestFrom(this.store.select(selectWorkflowState)),
-    switchMap(([action, state]: [WorkflowActions.StartWorkflowInitialization, fromWorkflows.State]) => {
+    switchMap((action: WorkflowActions.StartWorkflowInitialization) => {
       if (action.payload.mode === workflowModes.CREATE) {
         return [
           {
@@ -266,7 +265,7 @@ export class WorkflowsEffects {
   workflowCreate = this.actions.pipe(
     ofType(WorkflowActions.CREATE_WORKFLOW),
     withLatestFrom(this.store.select(selectWorkflowState)),
-    switchMap(([action, state]: [WorkflowActions.CreateWorkflow, fromWorkflows.State]) => {
+    switchMap(([_, state]: [WorkflowActions.CreateWorkflow, fromWorkflows.State]) => {
       return this.workflowService.createWorkflow(state.workflowAction.workflowForForm).pipe(
         mergeMap((result: WorkflowJoinedModel) => {
           const workflow: WorkflowModel = WorkflowModelFactory.create(
@@ -314,7 +313,7 @@ export class WorkflowsEffects {
   workflowUpdate = this.actions.pipe(
     ofType(WorkflowActions.UPDATE_WORKFLOW),
     withLatestFrom(this.store.select(selectWorkflowState)),
-    switchMap(([action, state]: [WorkflowActions.CreateWorkflow, fromWorkflows.State]) => {
+    switchMap(([_, state]: [WorkflowActions.CreateWorkflow, fromWorkflows.State]) => {
       return this.workflowService.updateWorkflow(state.workflowAction.workflowForForm).pipe(
         mergeMap((result: WorkflowJoinedModel) => {
           const workflow: WorkflowModel = WorkflowModelFactory.create(
@@ -565,7 +564,7 @@ export class WorkflowsEffects {
   workflowImport = this.actions.pipe(
     ofType(WorkflowActions.IMPORT_WORKFLOW),
     withLatestFrom(this.store.select(selectWorkflowState)),
-    switchMap(([action, state]: [WorkflowActions.ImportWorkflow, fromWorkflows.State]) => {
+    switchMap(([_, state]: [WorkflowActions.ImportWorkflow, fromWorkflows.State]) => {
       if (state.workflowAction.workflowFile) {
         return this.workflowService.importWorkflow(state.workflowAction.workflowFile).pipe(
           mergeMap((workflow: WorkflowJoinedModel) => {

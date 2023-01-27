@@ -28,7 +28,7 @@ export class ApplicationEffects {
   @Effect({ dispatch: true })
   appInfoLoad = this.actions.pipe(
     ofType(ApplicationActions.LOAD_APP_INFO),
-    switchMap(({}: ApplicationActions.LoadAppInfo) => {
+    switchMap((_: ApplicationActions.LoadAppInfo) => {
       return this.appInfoService.getAppInfo().pipe(
         mergeMap((appInfo: AppInfoModel) => {
           return [
