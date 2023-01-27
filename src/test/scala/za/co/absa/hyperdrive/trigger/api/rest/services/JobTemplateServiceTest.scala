@@ -84,7 +84,7 @@ class JobTemplateServiceTest extends AsyncFlatSpec with Matchers with MockitoSug
     val result = await(underTest.getJobTemplates())
 
     // then
-    result should contain theSameElementsAs (jobTemplates)
+    result should contain theSameElementsAs jobTemplates
   }
 
   "getJobTemplatesByIds" should "return job templates by ids" in {

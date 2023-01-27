@@ -85,7 +85,7 @@ class WorkflowRepositoryImpl @Inject() (
         .copy(created = LocalDateTime.now())
       _ <- sensorTable returning sensorTable.map(_.id) += workflow.sensor.copy(workflowId = workflowId)
       dagId <- dagDefinitionTable returning dagDefinitionTable
-        .map(_.id) += workflow.dagDefinitionJoined.toDag().copy(workflowId = workflowId)
+        .map(_.id) += workflow.dagDefinitionJoined.toDag.copy(workflowId = workflowId)
       _ <- jobDefinitionTable returning jobDefinitionTable.map(_.id) ++= workflow.dagDefinitionJoined.jobDefinitions
         .map(_.copy(dagDefinitionId = dagId))
     } yield {
@@ -168,7 +168,7 @@ class WorkflowRepositoryImpl @Inject() (
   private def getSingleWorkflowJoined(id: Long)(implicit ec: ExecutionContext): DBIO[WorkflowJoined] =
     getWorkflowJoineds(Seq(id)).map { workflowJoineds =>
       workflowJoineds.headOption
-        .getOrElse(throw new ApiException(ValidationError(s"Workflow with id ${id} does not exist.")))
+        .getOrElse(throw new ApiException(ValidationError(s"Workflow with id $id does not exist.")))
     }
 
   override def getWorkflow(id: Long)(implicit ec: ExecutionContext): Future[WorkflowJoined] =
@@ -219,11 +219,11 @@ class WorkflowRepositoryImpl @Inject() (
     val w = workflow.toWorkflow.copy(updated = Option(LocalDateTime.now()))
     db.run(
       (for {
-        w <- workflowTable.filter(_.id === workflow.id).updateWithOptimisticLocking(w)
-        s <- sensorTable.filter(_.workflowId === workflow.id).update(workflow.sensor)
-        dd <- dagDefinitionTable.filter(_.workflowId === workflow.id).update(workflow.dagDefinitionJoined.toDag())
-        deleteJds <- jobDefinitionTable.filter(_.dagDefinitionId === workflow.dagDefinitionJoined.id).delete
-        insertJds <- jobDefinitionTable ++= workflow.dagDefinitionJoined.jobDefinitions.map(
+        _ <- workflowTable.filter(_.id === workflow.id).updateWithOptimisticLocking(w)
+        _ <- sensorTable.filter(_.workflowId === workflow.id).update(workflow.sensor)
+        _ <- dagDefinitionTable.filter(_.workflowId === workflow.id).update(workflow.dagDefinitionJoined.toDag)
+        _ <- jobDefinitionTable.filter(_.dagDefinitionId === workflow.dagDefinitionJoined.id).delete
+        _ <- jobDefinitionTable ++= workflow.dagDefinitionJoined.jobDefinitions.map(
           _.copy(dagDefinitionId = workflow.dagDefinitionJoined.id)
         )
       } yield {
@@ -251,7 +251,7 @@ class WorkflowRepositoryImpl @Inject() (
     val resultAction = for {
       workflowOpt <- workflowQuery.result.headOption
       workflowUpdatedActionOpt = workflowOpt.map(workflowValue =>
-        workflowQuery.update((!workflowValue._1), Option(LocalDateTime.now()))
+        workflowQuery.update(!workflowValue._1, Option(LocalDateTime.now()))
       )
       affected <- workflowUpdatedActionOpt.getOrElse(DBIO.successful(0))
     } yield {
@@ -269,7 +269,7 @@ class WorkflowRepositoryImpl @Inject() (
           if (result == 1) {
             DBIO.successful((): Unit)
           } else {
-            DBIO.failed(new ApiException(ValidationError(s"Workflow with id ${id} does not exist.")))
+            DBIO.failed(new ApiException(ValidationError(s"Workflow with id $id does not exist.")))
           }
         }
         .transactionally
@@ -288,12 +288,12 @@ class WorkflowRepositoryImpl @Inject() (
     val insertHistoryEntryActions = ids
       .map(id => getSingleWorkflowJoined(id).flatMap(workflow => workflowHistoryRepository.update(workflow, user)))
       .reduceLeftOption(_.andThen(_))
-      .getOrElse(DBIO.successful())
+      .getOrElse(DBIO.successful((): Unit))
 
     db.run(
       updateIdsAction
         .andThen(insertHistoryEntryActions)
-        .andThen(DBIO.successful())
+        .andThen(DBIO.successful((): Unit))
         .transactionally
         .withErrorHandling()
     )
@@ -379,6 +379,6 @@ class WorkflowRepositoryImpl @Inject() (
       .map(_.version)
       .result
       .withErrorHandling()
-      .map(_.headOption.getOrElse(throw new ApiException(ValidationError(s"Workflow with id ${id} does not exist."))))
+      .map(_.headOption.getOrElse(throw new ApiException(ValidationError(s"Workflow with id $id does not exist."))))
   )
 }

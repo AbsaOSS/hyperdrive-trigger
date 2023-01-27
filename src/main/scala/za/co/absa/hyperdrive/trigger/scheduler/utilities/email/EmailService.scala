@@ -20,7 +20,7 @@ import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.stereotype.{Component, Service}
 
 trait EmailService {
-  def sendMessageToBccRecipients(sender: String, recipients: Seq[String], subject: String, text: String)
+  def sendMessageToBccRecipients(sender: String, recipients: Seq[String], subject: String, text: String): Unit
 }
 
 @Service

@@ -87,7 +87,7 @@ class CheckpointServiceImpl @Inject() (@Lazy hdfsService: HdfsService) extends C
             case Some(commitBatchId) => offsetBatchId == commitBatchId
             case None                => false
           }
-          val path = new Path(s"${params.checkpointLocation}/${offsetsDirName}/${offsetBatchId}")
+          val path = new Path(s"${params.checkpointLocation}/$offsetsDirName/$offsetBatchId")
           (path.toString, committed)
         }
       }

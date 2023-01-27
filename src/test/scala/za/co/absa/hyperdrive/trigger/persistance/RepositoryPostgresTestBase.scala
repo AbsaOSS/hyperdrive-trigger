@@ -31,7 +31,7 @@ trait RepositoryPostgresTestBase extends RepositoryTestBase with BeforeAndAfterA
     TestDatabaseConfig(
       Map(
         "driver" -> "org.testcontainers.jdbc.ContainerDatabaseDriver",
-        "url" -> s"jdbc:tc:postgresql:${postgresVersion}:///${databaseName}",
+        "url" -> s"jdbc:tc:postgresql:$postgresVersion:///$databaseName",
         "user" -> defaultUser,
         "password" -> defaultPass
       )
@@ -40,7 +40,7 @@ trait RepositoryPostgresTestBase extends RepositoryTestBase with BeforeAndAfterA
   override val profile = PostgresProfile
   override val dbProvider: DatabaseProvider = new DatabaseProvider(databaseConfig)
   override def beforeAll(): Unit = {
-    new PostgreSQLContainer(s"postgres:${postgresVersion}")
+    new PostgreSQLContainer(s"postgres:$postgresVersion")
       .withDatabaseName(databaseName)
 
     super.beforeAll()

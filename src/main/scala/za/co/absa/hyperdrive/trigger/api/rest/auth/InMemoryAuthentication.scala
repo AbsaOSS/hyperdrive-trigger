@@ -16,7 +16,8 @@
 package za.co.absa.hyperdrive.trigger.api.rest.auth
 
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
-import org.springframework.security.crypto.password.NoOpPasswordEncoder
+import org.springframework.security.crypto.factory.PasswordEncoderFactories
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component
 import za.co.absa.hyperdrive.trigger.configuration.application.AuthConfig
 
@@ -31,24 +32,24 @@ class InMemoryAuthentication @Inject() (authConfig: AuthConfig) extends Hyperdri
   val adminPassword: String = authConfig.inMemoryAdminPassword
   val adminRole: Option[String] = authConfig.adminRole
 
-  def validateParams() {
+  def validateParams(): Unit = {
     if (username.isEmpty || password.isEmpty) {
       throw new IllegalArgumentException("Both username and password have to configured for inmemory authentication.")
     }
   }
 
-  override def configure(auth: AuthenticationManagerBuilder) {
+  override def configure(auth: AuthenticationManagerBuilder): Unit = {
+    val encoder: PasswordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder()
+
     this.validateParams()
     auth
       .inMemoryAuthentication()
-      .passwordEncoder(NoOpPasswordEncoder.getInstance())
       .withUser(username)
-      .password(password)
+      .password(encoder.encode(password))
       .authorities(ROLE_USER)
       .and()
-      .passwordEncoder(NoOpPasswordEncoder.getInstance())
       .withUser(adminUsername)
-      .password(adminPassword)
+      .password(encoder.encode(adminPassword))
       .authorities(adminRole.getOrElse(ROLE_USER))
   }
 }

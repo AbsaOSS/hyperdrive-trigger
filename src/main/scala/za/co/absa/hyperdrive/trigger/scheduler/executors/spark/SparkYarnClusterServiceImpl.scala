@@ -88,7 +88,7 @@ class SparkYarnClusterServiceImpl @Inject() (
       .setAppResource(jobParameters.jobJar)
       .setAppName(jobName)
       .setConf("spark.app.name", jobName)
-      .addAppArgs(jobParameters.appArguments.toSeq.map(fix_json_for_yarn): _*)
+      .addAppArgs(jobParameters.appArguments.map(fix_json_for_yarn): _*)
       .addSparkArg("--verbose")
     config.filesToDeploy.foreach(file => sparkLauncher.addFile(file))
     config.additionalConfs.foreach(conf => sparkLauncher.setConf(conf._1, conf._2))

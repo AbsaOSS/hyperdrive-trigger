@@ -53,6 +53,4 @@ object JobStatuses {
     Skipped,
     NoData
   )
-  val finalStatuses: Set[JobStatus] = statuses.filter(!_.isFinalStatus)
-  val nonFinalStatuses: Set[JobStatus] = statuses.filter(_.isFinalStatus)
 }

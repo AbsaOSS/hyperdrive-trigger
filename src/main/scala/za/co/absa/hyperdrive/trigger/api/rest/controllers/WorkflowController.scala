@@ -52,7 +52,7 @@ class WorkflowController @Inject() (workflowService: WorkflowService, generalCon
     workflowService.getWorkflow(id).toJava.toCompletableFuture
 
   @GetMapping(path = Array("/workflows"))
-  def getWorkflows(): CompletableFuture[Seq[Workflow]] =
+  def getWorkflows: CompletableFuture[Seq[Workflow]] =
     workflowService.getWorkflows.toJava.toCompletableFuture
 
   @PostMapping(path = Array("/workflows/search"))
@@ -85,15 +85,15 @@ class WorkflowController @Inject() (workflowService: WorkflowService, generalCon
     workflowService.updateWorkflowsIsActive(jobIdsWrapper.jobIds, isActiveNewValue).toJava.toCompletableFuture
 
   @GetMapping(path = Array("/workflows/projectNames"))
-  def getProjectNames(): CompletableFuture[Set[String]] =
+  def getProjectNames: CompletableFuture[Set[String]] =
     workflowService.getProjectNames.toJava.toCompletableFuture
 
   @GetMapping(path = Array("/workflows/projects"))
-  def getProjects(): CompletableFuture[Seq[Project]] =
+  def getProjects: CompletableFuture[Seq[Project]] =
     workflowService.getProjects.toJava.toCompletableFuture
 
   @GetMapping(path = Array("/workflows/projectsInfo"))
-  def getProjectsInfo(): CompletableFuture[Seq[ProjectInfo]] =
+  def getProjectsInfo: CompletableFuture[Seq[ProjectInfo]] =
     workflowService.getProjectsInfo().toJava.toCompletableFuture
 
   @PutMapping(path = Array("/workflows/run"))
@@ -144,7 +144,7 @@ class WorkflowController @Inject() (workflowService: WorkflowService, generalCon
     ResponseEntity
       .ok()
       .contentType(MediaType.parseMediaType("application/zip"))
-      .header(HttpHeaders.CONTENT_DISPOSITION, s"attachment; filename=workflows-${environment}.zip")
+      .header(HttpHeaders.CONTENT_DISPOSITION, s"attachment; filename=workflows-$environment.zip")
       .body(new ByteArrayResource(baos.toByteArray))
   }
 

@@ -51,7 +51,7 @@ class NotificationRuleServiceTest
 
   private def createNotificationRule() =
     NotificationRule(
-      true,
+      isActive = true,
       Some("project"),
       Some("ABC XYZ"),
       None,

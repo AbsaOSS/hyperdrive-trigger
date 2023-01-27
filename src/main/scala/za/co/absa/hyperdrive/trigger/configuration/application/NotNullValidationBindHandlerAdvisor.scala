@@ -27,7 +27,11 @@ class NotNullValidationBindHandlerAdvisor extends ConfigurationPropertiesBindHan
 
 class NotNullValidationBindHandler(bindHandler: BindHandler) extends AbstractBindHandler(bindHandler) {
 
-  override def onFinish(name: ConfigurationPropertyName, target: Bindable[_], context: BindContext, result: Object) {
+  override def onFinish(name: ConfigurationPropertyName,
+                        target: Bindable[_],
+                        context: BindContext,
+                        result: Object
+  ): Unit = {
     val hasNotNullConstraint = target.getAnnotations.exists {
       case _: NotNull  => true
       case _: NotBlank => true
@@ -39,6 +43,6 @@ class NotNullValidationBindHandler(bindHandler: BindHandler) extends AbstractBin
       throw new NotNullValidationException(name)
     }
 
-    super.onFinish(name, target, context, result);
+    super.onFinish(name, target, context, result)
   }
 }

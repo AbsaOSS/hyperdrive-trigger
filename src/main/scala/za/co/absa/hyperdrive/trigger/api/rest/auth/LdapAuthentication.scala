@@ -37,7 +37,7 @@ class LdapAuthentication @Inject() (authConfig: AuthConfig) extends HyperdriverA
     (ldapSearchFilter, "auth.ldap.search.filter")
   )
 
-  private def validateParams() {
+  private def validateParams(): Unit = {
     requiredParameters.foreach {
       case param if param._1.isEmpty =>
         throw new IllegalArgumentException(s"${param._2} has to be configured in order to use ldap authentication")

@@ -45,7 +45,7 @@ trait WorkflowTable extends SearchableTableQuery with OptimisticLockingTableQuer
     def id: Rep[Long] = column[Long]("id", O.PrimaryKey, O.AutoInc, O.SqlType("BIGSERIAL"))
 
     def schedulerInstance_fk: ForeignKeyQuery[SchedulerInstanceTable, SchedulerInstance] =
-      foreignKey("workflow_scheduler_instance_fk", schedulerInstanceId, TableQuery[SchedulerInstanceTable])(_.id)
+      foreignKey("workflow_scheduler_instance_fk", schedulerInstanceId, TableQuery[SchedulerInstanceTable])(_.id.?)
 
     def * : ProvenShape[Workflow] = (name, isActive, project, created, updated, version, schedulerInstanceId, id) <> (
       workflowTuple =>
