@@ -90,12 +90,10 @@ class SparkEmrClusterServiceTest
     val stepId = "s-123456789ABCDEF"
     var executorJobId = ""
 
-    when(mockUpdateJob.updateJob(any())).thenAnswer(new Answer[Future[Unit]] {
-      override def answer(invocation: InvocationOnMock): Future[Unit] = {
-        val ji: JobInstance = invocation.getArgument(0)
-        executorJobId = ji.executorJobId.get
-        Future {}
-      }
+    when(mockUpdateJob.updateJob(any())).thenAnswer((invocation: InvocationOnMock) => {
+      val ji: JobInstance = invocation.getArgument(0)
+      executorJobId = ji.executorJobId.get
+      Future {}
     })
     when(mockEmrClient.addJobFlowSteps(any())).thenReturn(new AddJobFlowStepsResult().withStepIds(stepId))
 
@@ -169,7 +167,7 @@ class SparkEmrClusterServiceTest
   )
 
   forAll(cases) { (stepState: StepState, jobStatus: JobStatus) =>
-    "handleMissingYarnStatusForJobStatusSubmitting" should s"update the job status ${jobStatus}, when state is ${stepState}" in {
+    "handleMissingYarnStatusForJobStatusSubmitting" should s"update the job status $jobStatus, when state is $stepState" in {
       // given
       val jobInstance = createJobInstance().copy(stepId = Some("abcd"))
       when(mockUpdateJob.updateJob(any())).thenReturn(Future {})
@@ -206,20 +204,18 @@ class SparkEmrClusterServiceTest
     val paginationMarker = "paginationMarker" + UUID.randomUUID().toString
     val stepSummariesPage2 = (21 to 25).map(createTestStepSummary) :+ new StepSummary()
       .withId(stepId)
-      .withName(s"${jobName}_${executorJobId}")
+      .withName(s"${jobName}_$executorJobId")
       .withStatus(new StepStatus().withState(StepState.RUNNING))
     val jobInstance = createJobInstance().copy(jobName = jobName, executorJobId = Some(executorJobId))
     when(mockUpdateJob.updateJob(any())).thenReturn(Future {})
-    when(mockEmrClient.listSteps(any())).thenAnswer(new Answer[ListStepsResult] {
-      override def answer(invocation: InvocationOnMock): ListStepsResult = {
-        val marker = invocation.getArgument[ListStepsRequest](0).getMarker
-        if (marker == null) {
-          new ListStepsResult()
-            .withSteps(stepSummariesPage1.asJava)
-            .withMarker(paginationMarker)
-        } else {
-          new ListStepsResult().withSteps(stepSummariesPage2.asJava)
-        }
+    when(mockEmrClient.listSteps(any())).thenAnswer((invocation: InvocationOnMock) => {
+      val marker = invocation.getArgument[ListStepsRequest](0).getMarker
+      if (marker == null) {
+        new ListStepsResult()
+          .withSteps(stepSummariesPage1.asJava)
+          .withMarker(paginationMarker)
+      } else {
+        new ListStepsResult().withSteps(stepSummariesPage2.asJava)
       }
     })
 

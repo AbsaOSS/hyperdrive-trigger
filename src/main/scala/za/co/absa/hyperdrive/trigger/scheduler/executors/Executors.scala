@@ -127,10 +127,9 @@ class Executors @Inject() (
           }
         }
         fut.onComplete {
-          case Success(_) => logger.debug(s"Executing job. Job instance = ${jobInstance}")
-          case Failure(exception) => {
-            logger.error(s"Executing job failed. Job instance id = ${jobInstance}.", exception)
-          }
+          case Success(_) => logger.debug(s"Executing job. Job instance = $jobInstance")
+          case Failure(exception) =>
+            logger.error(s"Executing job failed. Job instance id = $jobInstance.", exception)
         }
         fut
     }

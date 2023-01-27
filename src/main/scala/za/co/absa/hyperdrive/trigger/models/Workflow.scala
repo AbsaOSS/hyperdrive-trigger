@@ -33,8 +33,6 @@ case class Workflow(
   def updateVersion(newVersion: Long): Workflow = this.copy(version = newVersion)
 }
 
-case class WorkflowState(isActive: Boolean)
-
 case class WorkflowJoined(
   name: String,
   isActive: Boolean,

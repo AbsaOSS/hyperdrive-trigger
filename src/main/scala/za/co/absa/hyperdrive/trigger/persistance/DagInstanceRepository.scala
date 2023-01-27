@@ -64,8 +64,8 @@ class DagInstanceRepositoryImpl @Inject() (val dbProvider: DatabaseProvider) ext
           dagInstancesJoined.map { dagInstanceJoined =>
             for {
               di <- dagInstanceTable returning dagInstanceTable.map(_.id) += dagInstanceJoined._1.toDagInstance
-              e <- eventTable += dagInstanceJoined._2.copy(dagInstanceId = Option(di))
-              jis <- jobInstanceTable ++= dagInstanceJoined._1.jobInstances.map(_.copy(dagInstanceId = di))
+              _ <- eventTable += dagInstanceJoined._2.copy(dagInstanceId = Option(di))
+              _ <- jobInstanceTable ++= dagInstanceJoined._1.jobInstances.map(_.copy(dagInstanceId = di))
             } yield ()
           }
         }
@@ -97,7 +97,7 @@ class DagInstanceRepositoryImpl @Inject() (val dbProvider: DatabaseProvider) ext
   )(implicit executionContext: ExecutionContext): DBIOAction[Unit, NoStream, Effect.Write] =
     for {
       di <- dagInstanceTable returning dagInstanceTable.map(_.id) += dagInstanceJoined.toDagInstance
-      jis <- jobInstanceTable ++= dagInstanceJoined.jobInstances.map(_.copy(dagInstanceId = di))
+      _ <- jobInstanceTable ++= dagInstanceJoined.jobInstances.map(_.copy(dagInstanceId = di))
     } yield ()
 
   def getDagsToRun(runningWorkflowIds: Seq[Long], size: Int, assignedWorkflowIds: Seq[Long])(

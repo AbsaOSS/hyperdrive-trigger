@@ -22,6 +22,6 @@ import scala.concurrent.{ExecutionContext, Future}
 object ValidationServiceUtil {
   def reduce(validators: Seq[Future[Seq[ApiError]]])(implicit ec: ExecutionContext): Future[Unit] =
     Future
-      .reduce(validators)(_ ++ _)
+      .reduceLeft(validators.toList)(_ ++ _)
       .transform(apiErrors => if (apiErrors.nonEmpty) throw new ApiException(apiErrors), identity)
 }

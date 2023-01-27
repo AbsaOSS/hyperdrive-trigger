@@ -35,7 +35,7 @@ trait EventTable {
       foreignKey("event_sensor_fk", sensorId, TableQuery[SensorTable])(_.id)
 
     def dagInstance_fk: ForeignKeyQuery[DagInstanceTable, DagInstance] =
-      foreignKey("event_dag_instance_fk", dagInstanceId, TableQuery[DagInstanceTable])(_.id)
+      foreignKey("event_dag_instance_fk", dagInstanceId, TableQuery[DagInstanceTable])(_.id.?)
 
     def * : ProvenShape[Event] = (sensorEventId, sensorId, payload, dagInstanceId, id) <> (
       eventTuple =>

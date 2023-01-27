@@ -217,7 +217,7 @@ class DagRunRepositoryImpl @Inject() (val dbProvider: DatabaseProvider) extends 
       .map { attribute =>
         val placeholders = List.fill(attribute.values.size)("?").mkString("(", ",", ")")
         (
-          sql"""AND #${fieldMapping(attribute.field)} IN #${placeholders}""",
+          sql"""AND #${fieldMapping(attribute.field)} IN #$placeholders""",
           attribute.values.map(value => (pp: PositionedParameters) => SetString(value, pp))
         )
       }

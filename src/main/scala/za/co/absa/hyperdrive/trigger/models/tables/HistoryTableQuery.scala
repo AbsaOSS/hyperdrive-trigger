@@ -50,7 +50,7 @@ trait HistoryTableQuery {
 
       queryResult.map(
         _.headOption
-          .getOrElse(throw new ApiException(ValidationError(s"Entity with #${id} doesn't exist on ${ru.typeOf[T]}.")))
+          .getOrElse(throw new ApiException(ValidationError(s"Entity with #$id doesn't exist on ${ru.typeOf[T]}.")))
       )
     }
 
@@ -67,7 +67,7 @@ trait HistoryTableQuery {
           .map(tuple => HistoryPair[T#TableElementType](tuple._1, tuple._2))
           .getOrElse(
             throw new ApiException(
-              ValidationError(s"Entities with #${leftId} or #${rightId} don't exist on ${ru.typeOf[T]}.")
+              ValidationError(s"Entities with #$leftId or #$rightId don't exist on ${ru.typeOf[T]}.")
             )
           )
       )

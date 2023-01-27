@@ -30,14 +30,14 @@ object WorkflowFixture {
   val Random = new scala.util.Random(42)
   val MinLengthRandomString = 3
   val MaxLengthRandomString = 45
-  val MinRandomDate = LocalDateTime.of(2020, 1, 1, 0, 0, 0)
-  val CronExpressions =
+  val MinRandomDate: LocalDateTime = LocalDateTime.of(2020, 1, 1, 0, 0, 0)
+  val CronExpressions: Seq[String] =
     Seq("0 0/10 * ? * * *", "0 1 * ? * * *", "0 31 * ? * * *", "0 0 18 ? * * *", "0 0 6 ? * * *", "0 43 12 22 4 ? *")
 
   def createWorkflowJoined(
     sparkJobTemplateId: Long = GenericSparkJobTemplate.id,
     shellJobTemplateId: Long = GenericShellJobTemplate.id
-  ) =
+  ): WorkflowJoined =
     WorkflowJoined(
       id = 10,
       name = "testWorkflow",
@@ -81,7 +81,7 @@ object WorkflowFixture {
       )
     )
 
-  def createKafkaOffloadingWorkflow(projectName: String) =
+  def createKafkaOffloadingWorkflow(projectName: String): WorkflowJoined =
     WorkflowJoined(
       name = randomString(),
       isActive = randomBoolean(),
@@ -165,7 +165,7 @@ object WorkflowFixture {
       )
     )
 
-  def createTimeBasedShellScriptWorkflow(projectName: String) =
+  def createTimeBasedShellScriptWorkflow(projectName: String): WorkflowJoined =
     WorkflowJoined(
       name = s"Time ${randomString(maxLength = MaxLengthRandomString - 5)}",
       isActive = randomBoolean(),

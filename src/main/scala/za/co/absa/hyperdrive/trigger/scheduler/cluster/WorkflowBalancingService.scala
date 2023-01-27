@@ -46,7 +46,7 @@ class WorkflowBalancingServiceImpl @Inject() (workflowRepository: WorkflowReposi
     val myRank = getRank(activeInstances, myInstanceId)
     logger.info(
       s"Rebalancing workflows on scheduler instance id = $myInstanceId, rank = $myRank," +
-        s" active instance ids = ${activeInstances.map(_.id).sorted}, retaining workflow ids = ${runningWorkflowIds}"
+        s" active instance ids = ${activeInstances.map(_.id).sorted}, retaining workflow ids = $runningWorkflowIds"
     )
     for {
       (releasedWorkflowsCount, instancesDeletedCount) <- workflowRepository

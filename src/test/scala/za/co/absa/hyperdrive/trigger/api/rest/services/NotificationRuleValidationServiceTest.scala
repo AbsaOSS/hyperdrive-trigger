@@ -192,7 +192,7 @@ class NotificationRuleValidationServiceTest extends AsyncFlatSpec with Matchers 
 
   private def createNotificationRule() =
     NotificationRule(
-      true,
+      isActive = true,
       Some("project"),
       Some("ABC XYZ"),
       None,

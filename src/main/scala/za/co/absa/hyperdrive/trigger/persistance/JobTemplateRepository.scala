@@ -53,7 +53,7 @@ class JobTemplateRepositoryImpl @Inject() (
       .result
       .withErrorHandling()
       .map(
-        _.headOption.getOrElse(throw new ApiException(ValidationError(s"Job template with id ${id} does not exist.")))
+        _.headOption.getOrElse(throw new ApiException(ValidationError(s"Job template with id $id does not exist.")))
       )
   )
 
@@ -93,7 +93,7 @@ class JobTemplateRepositoryImpl @Inject() (
       .withErrorHandling()
       .map { jobTemplates =>
         jobTemplates.headOption
-          .getOrElse(throw new ApiException(ValidationError(s"Job template with id ${id} does not exist.")))
+          .getOrElse(throw new ApiException(ValidationError(s"Job template with id $id does not exist.")))
       }
 
   override def updateJobTemplate(jobTemplate: JobTemplate, user: String)(implicit ec: ExecutionContext): Future[Unit] =

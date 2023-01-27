@@ -66,7 +66,7 @@ class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
   def isNewJobInstanceRequired(jobParameters: JobInstanceParameters)(implicit ec: ExecutionContext): Future[Boolean] = {
     val kafkaParametersOpt = getKafkaParameters(jobParameters)
     if (kafkaParametersOpt.isEmpty) {
-      logger.debug(s"Kafka parameters were not found in job definition ${jobParameters}")
+      logger.debug(s"Kafka parameters were not found in job definition $jobParameters")
     }
 
     val kafkaEndOffsetsOptFut = Future {
@@ -96,8 +96,8 @@ class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
                     logger.info(s"All offsets consumed for topic ${kafkaParametersOpt.get._1}. Skipping job instance")
                   } else {
                     logger.debug(
-                      s"Some offsets haven't been consumed yet for topic ${kafkaParametersOpt.get._1}. Kafka offsets: ${kafkaEndOffsets}, " +
-                        s"Checkpoint offsets: ${checkpointOffsets}"
+                      s"Some offsets haven't been consumed yet for topic ${kafkaParametersOpt.get._1}. Kafka offsets: $kafkaEndOffsets, " +
+                        s"Checkpoint offsets: $checkpointOffsets"
                     )
                   }
                   !allConsumed
@@ -117,7 +117,7 @@ class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
 
   private def getResolvedAppArguments(jobParameters: JobInstanceParameters): Option[Map[String, String]] = {
     if (!isHyperdriveJob(jobParameters)) {
-      logger.warn(s"Job Parameters ${jobParameters} is not a Hyperdrive Job!")
+      logger.warn(s"Job Parameters $jobParameters is not a Hyperdrive Job!")
       None
     } else {
       val sparkParameters = jobParameters.asInstanceOf[SparkInstanceParameters]
@@ -140,8 +140,8 @@ class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
 
     if (hdfsParameters.isEmpty) {
       logger.warn(
-        s"Could not extract hdfs parameters from spark config ${sparkConfig}" +
-          s" and resolved app arguments ${resolvedAppArguments}"
+        s"Could not extract hdfs parameters from spark config $sparkConfig" +
+          s" and resolved app arguments $resolvedAppArguments"
       )
     }
 
@@ -150,7 +150,7 @@ class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
 
   private def getKafkaParameters(jobParameters: JobInstanceParameters): Option[(String, Properties)] = {
     if (!isHyperdriveJob(jobParameters)) {
-      logger.warn(s"Job Definition ${jobParameters} is not a Hyperdrive Job!")
+      logger.warn(s"Job Definition $jobParameters is not a Hyperdrive Job!")
       None
     } else {
       val args = jobParameters.asInstanceOf[SparkInstanceParameters].appArguments
@@ -183,7 +183,7 @@ class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
 
       if (kafkaParameters.isEmpty) {
         logger.warn(
-          s"Could not find required kafka parameters in job parameters ${jobParameters} with args ${args}"
+          s"Could not find required kafka parameters in job parameters $jobParameters with args $args"
         )
       }
       kafkaParameters
@@ -201,7 +201,7 @@ class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
     val hdfsParametersOpt: Option[HdfsParameters] = getResolvedAppArguments(jobParameters).flatMap(getHdfsParameters)
 
     if (hdfsParametersOpt.isEmpty) {
-      logger.debug(s"Hdfs parameters were not found in job definition ${jobParameters}")
+      logger.debug(s"Hdfs parameters were not found in job definition $jobParameters")
     }
 
     Future {
@@ -232,7 +232,7 @@ class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
         hdfsAllOffsets.get(kafkaParameters._1) match {
           case Some(v) => Some(v)
           case None =>
-            logger.warn(s"Could not find offsets for topic ${kafkaParameters._1} in hdfs offsets ${hdfsAllOffsets}")
+            logger.warn(s"Could not find offsets for topic ${kafkaParameters._1} in hdfs offsets $hdfsAllOffsets")
             None
         }
       }

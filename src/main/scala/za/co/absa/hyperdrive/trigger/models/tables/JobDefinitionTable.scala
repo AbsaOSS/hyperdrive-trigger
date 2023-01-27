@@ -36,7 +36,7 @@ trait JobDefinitionTable {
       foreignKey("job_definition_dag_definition_fk", dagDefinitionId, TableQuery[DagDefinitionTable])(_.id)
 
     def jobTemplate_fk: ForeignKeyQuery[JobTemplateTable, JobTemplate] =
-      foreignKey("job_definition_job_template_fk", jobTemplateId, TableQuery[JobTemplateTable])(_.id)
+      foreignKey("job_definition_job_template_fk", jobTemplateId, TableQuery[JobTemplateTable])(_.id.?)
 
     def * : ProvenShape[JobDefinition] = (dagDefinitionId, jobTemplateId, name, jobParameters, order, id) <> (
       jobDefinitionTuple =>

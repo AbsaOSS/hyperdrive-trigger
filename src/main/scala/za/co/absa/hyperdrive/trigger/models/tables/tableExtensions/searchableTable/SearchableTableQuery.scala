@@ -130,7 +130,7 @@ trait SearchableTableQuery {
       fieldMapping: Map[String, Rep[_]],
       defaultSortColumn: Rep[_]
     ): ColumnOrdered[_] = {
-      val sortParameters = sortOpt match {
+      val sortParameters: (Rep[_], Int) = sortOpt match {
         case Some(sort) => (fieldMapping(sort.by), sort.order)
         case None       => (defaultSortColumn, 1)
       }

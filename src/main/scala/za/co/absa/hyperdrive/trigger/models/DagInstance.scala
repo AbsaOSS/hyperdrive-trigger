@@ -37,7 +37,7 @@ case class DagInstanceJoined(
   finished: Option[LocalDateTime],
   id: Long = 0
 ) {
-  def toDagInstance(): DagInstance =
+  def toDagInstance: DagInstance =
     DagInstance(
       status = this.status,
       triggeredBy = this.triggeredBy,

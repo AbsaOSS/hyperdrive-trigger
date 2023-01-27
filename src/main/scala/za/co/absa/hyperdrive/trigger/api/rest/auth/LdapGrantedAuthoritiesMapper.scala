@@ -22,7 +22,7 @@ import org.springframework.security.core.authority.{AuthorityUtils, SimpleGrante
 import java.util
 
 class LdapGrantedAuthoritiesMapper extends GrantedAuthoritiesMapper {
-  import scala.collection.JavaConversions._
+  import scala.collection.JavaConverters._
 
   override def mapAuthorities(
     grantedAuthorities: util.Collection[_ <: GrantedAuthority]
@@ -30,6 +30,9 @@ class LdapGrantedAuthoritiesMapper extends GrantedAuthoritiesMapper {
     if (grantedAuthorities == null) {
       AuthorityUtils.NO_AUTHORITIES
     } else {
-      grantedAuthorities.map(grantedAuthority => new SimpleGrantedAuthority(grantedAuthority.getAuthority)).toList
+      grantedAuthorities.asScala
+        .map(grantedAuthority => new SimpleGrantedAuthority(grantedAuthority.getAuthority))
+        .toList
+        .asJava
     }
 }

@@ -16,7 +16,6 @@
 package za.co.absa.hyperdrive.trigger.scheduler.notifications
 
 import org.slf4j.LoggerFactory
-import org.springframework.mail.MailException
 import org.springframework.stereotype.Component
 import za.co.absa.hyperdrive.trigger.api.rest.services.NotificationRuleService
 import za.co.absa.hyperdrive.trigger.configuration.application.{GeneralConfig, NotificationConfig, SparkConfig}
@@ -63,16 +62,16 @@ class NotificationSenderImpl(
           rules
             .map(rule => createMessage(rule, workflow, dagInstance, jobInstances))
             .foreach { message =>
-              logger.debug(s"Adding to queue message ${message.subject} from ${sender} to ${message.recipients}")
+              logger.debug(s"Adding to queue message ${message.subject} from $sender to ${message.recipients}")
               messageQueue.add(message)
             }
         case None =>
           logger
             .debug(s"No rules matching workflow ID ${dagInstance.workflowId} with status ${dagInstance.status} found")
-          Future.successful()
+          Future.successful((): Unit)
       }
     } else {
-      logger.debug(s"Attempting to send notifications for ${dagInstance}, but it is disabled")
+      logger.debug(s"Attempting to send notifications for $dagInstance, but it is disabled")
       Future {}
     }
 
@@ -85,14 +84,14 @@ class NotificationSenderImpl(
       val message = messageOpt.get
       Thread.sleep(notificationConfig.delay.toMillis)
       try {
-        logger.debug(s"Sending message ${message.subject} from ${sender} to ${message.recipients}")
+        logger.debug(s"Sending message ${message.subject} from $sender to ${message.recipients}")
         emailService.sendMessageToBccRecipients(sender, message.recipients, message.subject, message.text)
       } catch {
         case NonFatal(e) if message.attempts >= notificationConfig.maxRetries =>
-          logger.error(s"Failed to send message ${message.subject} from ${sender} to ${message.recipients}", e)
+          logger.error(s"Failed to send message ${message.subject} from $sender to ${message.recipients}", e)
         case NonFatal(_) =>
           logger.warn(
-            s"Could not send message ${message.subject} from ${sender} to ${message.recipients}. Adding back to queue"
+            s"Could not send message ${message.subject} from $sender to ${message.recipients}. Adding back to queue"
           )
           messageQueue.add(message.copy(attempts = message.attempts + 1))
       }
@@ -105,7 +104,7 @@ class NotificationSenderImpl(
     dagInstance: DagInstance,
     jobInstances: Seq[JobInstance]
   ) = {
-    val subject = s"Hyperdrive Notifications, ${environment}: Workflow ${workflow.name} ${dagInstance.status.name}"
+    val subject = s"Hyperdrive Notifications, $environment: Workflow ${workflow.name} ${dagInstance.status.name}"
     val footer = "This message has been generated automatically. Please don't reply to it.\n\nHyperdriveDevTeam"
     val messageMap = mutable.LinkedHashMap(
       "Environment" -> environment,
@@ -119,7 +118,7 @@ class NotificationSenderImpl(
       .sortBy(_.order)(Ordering.Int.reverse)
       .find(_.jobStatus.isFailed)
       .map(_.applicationId.map { appId =>
-        val applicationUrl = s"${yarnBaseUrl.stripSuffix("/")}/cluster/app/${appId}"
+        val applicationUrl = s"${yarnBaseUrl.stripSuffix("/")}/cluster/app/$appId"
         messageMap += ("Failed application" -> applicationUrl)
       })
     messageMap += ("Notification rule ID" -> notificationRule.id.toString)

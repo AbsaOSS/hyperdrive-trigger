@@ -42,7 +42,7 @@ class JobTemplateResolutionServiceImpl extends JobTemplateResolutionService {
       case jd @ JobDefinition(_, Some(jobTemplateId), _, _, _, _) =>
         val jobTemplate = Try(jobTemplatesLookup(jobTemplateId)) match {
           case Success(value) => value
-          case Failure(_)     => throw new NoSuchElementException(s"Couldn't find template with id ${jobTemplateId}")
+          case Failure(_)     => throw new NoSuchElementException(s"Couldn't find template with id $jobTemplateId")
         }
         resolveJobDefinition(jd, jobTemplate)
       case jd @ JobDefinition(_, None, _, _, _, _) => resolveJobDefinition(jd)

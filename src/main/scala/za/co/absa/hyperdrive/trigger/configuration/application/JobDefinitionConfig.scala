@@ -17,12 +17,12 @@ package za.co.absa.hyperdrive.trigger.configuration.application
 
 object JobDefinitionConfig {
   object SparkExtraJavaOptions {
-    val KeysToMerge = Set("spark.executor.extraJavaOptions", "spark.driver.extraJavaOptions")
-    val MergedValuesSeparator = " "
+    val KeysToMerge: Set[String] = Set("spark.executor.extraJavaOptions", "spark.driver.extraJavaOptions")
+    val MergedValuesSeparator: String = " "
   }
 
   object SparkTags {
-    val KeysToMerge = Set("spark.yarn.tags")
-    val MergedValuesSeparator = ","
+    val KeysToMerge: Set[String] = Set("spark.yarn.tags")
+    val MergedValuesSeparator: String = ","
   }
 }

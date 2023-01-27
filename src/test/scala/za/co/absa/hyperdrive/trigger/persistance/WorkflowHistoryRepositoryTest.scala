@@ -113,7 +113,7 @@ class WorkflowHistoryRepositoryTest
       TestUtils.await(workflowHistoryRepository.getWorkflowsFromHistory(createResultId, notCreatedId))
 
     exceptionResult.getMessage should equal(
-      s"Entities with #${createResultId} or #${notCreatedId} don't exist on WorkflowHistoryRepositoryImpl.this.WorkflowHistoryTable."
+      s"Entities with #$createResultId or #$notCreatedId don't exist on WorkflowHistoryRepositoryImpl.this.WorkflowHistoryTable."
     )
   }
 }

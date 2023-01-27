@@ -38,15 +38,15 @@ class JobTemplateRepositoryPostgresTest
   val jobTemplateRepository: JobTemplateRepository =
     new JobTemplateRepositoryImpl(dbProvider, jobTemplateHistoryRepository)
 
-  override def beforeAll: Unit = {
+  override def beforeAll(): Unit = {
     super.beforeAll()
     schemaSetup()
   }
 
-  override def afterAll: Unit =
+  override def afterAll(): Unit =
     schemaDrop()
 
-  override def afterEach: Unit =
+  override def afterEach(): Unit =
     clearData()
 
   "getJobTemplatesByIds" should "return a job template by ids" in {
@@ -153,7 +153,7 @@ class JobTemplateRepositoryPostgresTest
 
     val exception = the[ApiException] thrownBy await(jobTemplateRepository.getJobTemplate(jobTemplateId))
 
-    exception.getMessage shouldBe s"Job template with id ${jobTemplateId} does not exist."
+    exception.getMessage shouldBe s"Job template with id $jobTemplateId does not exist."
   }
 
   "getWorkflowsByJobTemplate" should "return workflows where selected job template is used" in {

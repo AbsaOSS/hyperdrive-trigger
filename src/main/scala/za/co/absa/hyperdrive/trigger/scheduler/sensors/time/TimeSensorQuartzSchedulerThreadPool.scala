@@ -57,7 +57,7 @@ class TimeSensorQuartzSchedulerThreadPool extends ThreadPool {
   }
 
   /**
-   *  ThreadFactory based on {@link java.util.concurrent.Executors.DefaultThreadFactory} which allows to set a custom
+   *  ThreadFactory based on [[java.util.concurrent.Executors.DefaultThreadFactory]] which allows to set a custom
    *  thread group and thread name prefix
    *
    *  @param threadGroupName

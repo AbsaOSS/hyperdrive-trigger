@@ -26,12 +26,12 @@ class SparkClusterServiceTest extends FlatSpec with Matchers with SparkClusterSe
     jobInstance: JobInstance,
     jobParameters: SparkInstanceParameters,
     updateJob: JobInstance => Future[Unit]
-  ): Future[Unit] = Future.successful()
+  ): Future[Unit] = Future.successful((): Unit)
 
   override def handleMissingYarnStatus(
     jobInstance: JobInstance,
     updateJob: JobInstance => Future[Unit]
-  ): Future[Unit] = Future.successful()
+  ): Future[Unit] = Future.successful((): Unit)
 
   "SparkClusterService.mergeAdditionalSparkConfig" should "merge empty inputs" in {
     val first = Map.empty[String, String]

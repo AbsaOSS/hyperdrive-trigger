@@ -33,7 +33,7 @@ trait TestSearchableRepositoryTestBase extends RepositoryH2TestBase with TestSea
     run(testSearchableTable.forceInsertAll(TestSearchableData.testSearchableEntities))
 
   object TestSearchableData {
-    val t1 = TestSearchableEntity(
+    val t1: TestSearchableEntity = TestSearchableEntity(
       longValue = 1,
       stringValue = "value1",
       stringValue2 = "str1",
@@ -41,7 +41,7 @@ trait TestSearchableRepositoryTestBase extends RepositoryH2TestBase with TestSea
       localDateTimeValue = LocalDateTime.of(2020, 3, 1, 12, 30, 5),
       booleanValue = false
     )
-    val t2 = TestSearchableEntity(
+    val t2: TestSearchableEntity = TestSearchableEntity(
       longValue = 2,
       stringValue = "value2",
       stringValue2 = "str2",
@@ -49,7 +49,7 @@ trait TestSearchableRepositoryTestBase extends RepositoryH2TestBase with TestSea
       localDateTimeValue = LocalDateTime.of(2005, 3, 1, 12, 30, 5),
       booleanValue = true
     )
-    val t3 = TestSearchableEntity(
+    val t3: TestSearchableEntity = TestSearchableEntity(
       longValue = 3,
       stringValue = "value3",
       stringValue2 = "str3",

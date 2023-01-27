@@ -103,7 +103,7 @@ class NotificationRuleRepositoryImpl @Inject() (
     db.run(
       notificationRuleTable
         .search(searchRequest)
-        .withErrorHandling(s"Unexpected error occurred when searching notification rules with request ${searchRequest}")
+        .withErrorHandling(s"Unexpected error occurred when searching notification rules with request $searchRequest")
     )
 
   override def getMatchingNotificationRules(workflowId: Long, status: DagInstanceStatus, currentTime: LocalDateTime)(
@@ -148,7 +148,7 @@ class NotificationRuleRepositoryImpl @Inject() (
         )
         .map {
           case (r, Some(w)) => Some(r, w)
-          case (r, None)    => None
+          case (_, None)    => None
         }
     )
   }
@@ -189,7 +189,7 @@ class NotificationRuleRepositoryImpl @Inject() (
       .result
       .map(
         _.headOption
-          .getOrElse(throw new ApiException(ValidationError(s"Notification Rule with id ${id} does not exist.")))
+          .getOrElse(throw new ApiException(ValidationError(s"Notification Rule with id $id does not exist.")))
       )
 
   private def updateNotificationRuleInternal(notificationRule: NotificationRule, user: String)(

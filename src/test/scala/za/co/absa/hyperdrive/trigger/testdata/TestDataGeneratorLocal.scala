@@ -84,7 +84,6 @@ class TestDataGeneratorLocal
     val sensors = await(sensorRepository.getNewActiveAssignedSensors(Seq.empty, allWorkflowIds))
     sensors.foreach { sensor =>
       val event = Event(UUID.randomUUID().toString, sensor.id, JsObject.empty)
-      val properties = RecurringSensorProperties()
       val result = await(eventProcessor.eventProcessor("triggered by")(Seq(event), sensor.id))
       result shouldBe true
     }

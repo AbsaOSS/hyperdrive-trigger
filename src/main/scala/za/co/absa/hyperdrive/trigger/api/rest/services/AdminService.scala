@@ -35,7 +35,7 @@ class AdminServiceImpl @Inject() (hyperDriverManager: HyperDriverManager) extend
     Future.successful(hyperDriverManager.isManagerRunning)
 
   override def startManager: Future[Boolean] =
-    Future.successful(hyperDriverManager.startManager).map(_ => true)
+    Future.successful(hyperDriverManager.startManager()).map(_ => true)
 
   override def stopManager: Future[Boolean] =
     hyperDriverManager.stopManager.map(_ => true)

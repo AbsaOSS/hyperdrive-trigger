@@ -77,7 +77,7 @@ class SparkEmrClusterServiceImpl @Inject() (
 
         val response = emr.addJobFlowSteps(jobFlowStepsRequest)
         val stepId = response.getStepIds.asScala.headOption
-        logger.info(s"Added jobFlowStepsRequest ${jobFlowStepsRequest} for executorId ${id} and stepId $stepId}")
+        logger.info(s"Added jobFlowStepsRequest $jobFlowStepsRequest for executorId $id and stepId $stepId}")
         logger.info(response.toString)
         stepId
       }
@@ -96,7 +96,7 @@ class SparkEmrClusterServiceImpl @Inject() (
         val jobStatus = getStateByStepId(stepId, jobInstance)
         jobInstance.copy(jobStatus = jobStatus)
       case None =>
-        logger.debug(s"No stepId set for jobInstance ${jobInstance}. Getting step Id by step name")
+        logger.debug(s"No stepId set for jobInstance $jobInstance. Getting step Id by step name")
         val stepName = getStepName(jobInstance.jobName, jobInstance.executorJobId.get)
         val stepSummary = getStepSummaryByStepName(stepName)
         stepSummary match {
@@ -104,7 +104,7 @@ class SparkEmrClusterServiceImpl @Inject() (
             val jobStatus = mapStepStateToJobStatus(s.getStatus.getState, jobInstance)
             jobInstance.copy(stepId = Some(s.getId), jobStatus = jobStatus)
           case None =>
-            logger.error(s"No step could be found for jobInstance: ${jobInstance}")
+            logger.error(s"No step could be found for jobInstance: $jobInstance")
             jobInstance.copy(jobStatus = Lost)
         }
     }
@@ -163,7 +163,7 @@ class SparkEmrClusterServiceImpl @Inject() (
   private def mapStepStateToJobStatus(stepState: String, jobInstance: JobInstance): JobStatus =
     Try(StepState.fromValue(stepState)) match {
       case Failure(exception) =>
-        logger.error(s"Encountered unexpected step state ${stepState} in jobInstance ${jobInstance}", exception)
+        logger.error(s"Encountered unexpected step state $stepState in jobInstance $jobInstance", exception)
         JobStatuses.Lost
       case Success(value) =>
         value match {
@@ -188,5 +188,5 @@ object SparkEmrClusterServiceImpl {
    *   the first 50 characters of the job name, followed by a underscore and the uuid
    */
   def getStepName(jobName: String, jobId: String): String =
-    s"${StringUtils.abbreviate(jobName, JobNameMaxLength)}_${jobId}"
+    s"${StringUtils.abbreviate(jobName, JobNameMaxLength)}_$jobId"
 }

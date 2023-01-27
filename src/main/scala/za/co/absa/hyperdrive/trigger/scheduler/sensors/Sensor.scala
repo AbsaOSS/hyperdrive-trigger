@@ -30,7 +30,7 @@ trait Sensor[T <: SensorProperties] {
     try {
       closeInternal()
     } catch {
-      case NonFatal(e) => logger.warn(s"Couldn't close sensor ${sensorDefinition.id} - ${sensorDefinition}", e)
+      case NonFatal(e) => logger.warn(s"Couldn't close sensor ${sensorDefinition.id} - $sensorDefinition", e)
     }
   def closeInternal(): Unit
 }

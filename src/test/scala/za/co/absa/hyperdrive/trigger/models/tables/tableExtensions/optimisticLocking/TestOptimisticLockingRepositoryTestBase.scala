@@ -30,8 +30,8 @@ trait TestOptimisticLockingRepositoryTestBase extends RepositoryH2TestBase with 
     run(testOptimisticLockingTable.forceInsertAll(TestOptimisticLockingData.testOptimisticLockingEntities))
 
   object TestOptimisticLockingData {
-    val t1 = TestOptimisticLockingEntity(id = 1, stringValue = "value1", version = 1)
-    val t2 = TestOptimisticLockingEntity(id = 2, stringValue = "value2", version = 2)
+    val t1: TestOptimisticLockingEntity = TestOptimisticLockingEntity(id = 1, stringValue = "value1", version = 1)
+    val t2: TestOptimisticLockingEntity = TestOptimisticLockingEntity(id = 2, stringValue = "value2", version = 2)
     val testOptimisticLockingEntities: Seq[TestOptimisticLockingEntity] = Seq(t2, t1)
   }
 
