@@ -14,7 +14,7 @@
  */
 
 import { Injectable } from '@angular/core';
-import { Actions, Effect, ofType } from '@ngrx/effects';
+import { Actions, createEffect, ofType } from '@ngrx/effects';
 import * as ApplicationActions from '../application/application.actions';
 
 import { catchError, mergeMap, switchMap } from 'rxjs/operators';
@@ -25,27 +25,28 @@ import { AppInfoModel } from '../../models/appInfo.model';
 export class ApplicationEffects {
   constructor(private actions: Actions, private appInfoService: AppInfoService) {}
 
-  @Effect({ dispatch: true })
-  appInfoLoad = this.actions.pipe(
-    ofType(ApplicationActions.LOAD_APP_INFO),
-    switchMap(() => {
-      return this.appInfoService.getAppInfo().pipe(
-        mergeMap((appInfo: AppInfoModel) => {
-          return [
-            {
-              type: ApplicationActions.LOAD_APP_INFO_SUCCESS,
-              payload: appInfo,
-            },
-          ];
-        }),
-        catchError(() => {
-          return [
-            {
-              type: ApplicationActions.LOAD_APP_INFO_FAILURE,
-            },
-          ];
-        }),
-      );
-    }),
-  );
+  appInfoLoad = createEffect(() => {
+    return this.actions.pipe(
+      ofType(ApplicationActions.LOAD_APP_INFO),
+      switchMap(() => {
+        return this.appInfoService.getAppInfo().pipe(
+          mergeMap((appInfo: AppInfoModel) => {
+            return [
+              {
+                type: ApplicationActions.LOAD_APP_INFO_SUCCESS,
+                payload: appInfo,
+              },
+            ];
+          }),
+          catchError(() => {
+            return [
+              {
+                type: ApplicationActions.LOAD_APP_INFO_FAILURE,
+              },
+            ];
+          }),
+        );
+      }),
+    );
+  });
 }

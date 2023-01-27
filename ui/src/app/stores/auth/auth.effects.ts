@@ -14,10 +14,9 @@
  */
 
 import { Injectable } from '@angular/core';
-import { Actions, Effect, ofType } from '@ngrx/effects';
+import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { AuthService } from '../../services/auth/auth.service';
 import { Router } from '@angular/router';
-import { Observable } from 'rxjs';
 import * as AuthActions from './auth.actions';
 import { switchMap, tap, mergeMap, catchError } from 'rxjs/operators';
 import { absoluteRoutes } from '../../constants/routes.constants';
@@ -26,46 +25,52 @@ import { absoluteRoutes } from '../../constants/routes.constants';
 export class AuthEffects {
   constructor(private actions: Actions, private authService: AuthService, private router: Router) {}
 
-  @Effect({ dispatch: true })
-  authLogin = this.actions.pipe(
-    ofType(AuthActions.LOGIN),
-    switchMap((login: AuthActions.Login) => {
-      return this.authService.login(login.payload.username, login.payload.password).pipe(
-        mergeMap((token: string) => {
-          return this.authService.getUserInfo().pipe(
-            mergeMap((username: string) => {
-              return [
-                {
-                  type: AuthActions.LOGIN_SUCCESS,
-                  payload: { token: token, username: username },
-                },
-              ];
-            }),
-          );
-        }),
-        catchError(() => {
-          return [
-            {
-              type: AuthActions.LOGIN_FAILURE,
-            },
-          ];
+  authLogin = createEffect(() => {
+    return this.actions.pipe(
+      ofType(AuthActions.LOGIN),
+      switchMap((login: AuthActions.Login) => {
+        return this.authService.login(login.payload.username, login.payload.password).pipe(
+          mergeMap((token: string) => {
+            return this.authService.getUserInfo().pipe(
+              mergeMap((username: string) => {
+                return [
+                  {
+                    type: AuthActions.LOGIN_SUCCESS,
+                    payload: { token: token, username: username },
+                  },
+                ];
+              }),
+            );
+          }),
+          catchError(() => {
+            return [
+              {
+                type: AuthActions.LOGIN_FAILURE,
+              },
+            ];
+          }),
+        );
+      }),
+    );
+  });
+
+  logOut = createEffect(() => {
+    return this.actions.pipe(
+      ofType(AuthActions.LOGOUT),
+      switchMap(() => this.authService.logout()),
+      mergeMap(() => [{ type: AuthActions.LOGOUT_SUCCESS }]),
+    );
+  });
+
+  logOutSuccess = createEffect(
+    () => {
+      return this.actions.pipe(
+        ofType(AuthActions.LOGOUT_SUCCESS),
+        tap(() => {
+          this.router.navigateByUrl(absoluteRoutes.WELCOME);
         }),
       );
-    }),
-  );
-
-  @Effect({ dispatch: true })
-  logOut: Observable<any> = this.actions.pipe(
-    ofType(AuthActions.LOGOUT),
-    switchMap(() => this.authService.logout()),
-    mergeMap(() => [{ type: AuthActions.LOGOUT_SUCCESS }]),
-  );
-
-  @Effect({ dispatch: false })
-  logOutSuccess: Observable<any> = this.actions.pipe(
-    ofType(AuthActions.LOGOUT_SUCCESS),
-    tap(() => {
-      this.router.navigateByUrl(absoluteRoutes.WELCOME);
-    }),
+    },
+    { dispatch: false },
   );
 }
