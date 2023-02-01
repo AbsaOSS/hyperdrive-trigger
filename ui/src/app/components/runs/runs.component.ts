@@ -19,7 +19,7 @@ import { ClrDatagridColumn, ClrDatagridStateInterface } from '@clr/angular';
 import { ClrDatagridSortOrder } from '@clr/angular';
 import { Store } from '@ngrx/store';
 import { AppState, selectRunState } from '../../stores/app.reducers';
-import { GetDagRuns } from '../../stores/runs/runs.actions';
+import { GetDagRunDetail, GetDagRuns } from '../../stores/runs/runs.actions';
 import { Subject, Subscription } from 'rxjs';
 import { skip } from 'rxjs/operators';
 import { dagRunColumns } from '../../constants/dagRunColumns.constants';
@@ -99,6 +99,9 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
 
   onDetailOpenClose(event: JobInstanceModel) {
     this.openedDetail = event;
+    if(this.openedDetail) {
+      this.store.dispatch(new GetDagRunDetail(this.openedDetail.id));
+    }
   }
 
   refresh() {
