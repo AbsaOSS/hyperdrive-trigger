@@ -1,0 +1,12 @@
+changelog:
+  categories:
+    - title: All features
+      labels:
+        - '*'
+      exclude:
+        labels:
+          - dependencies
+          - ignore-for-release
+    - title: Dependencies
+      labels:
+        - dependencies
