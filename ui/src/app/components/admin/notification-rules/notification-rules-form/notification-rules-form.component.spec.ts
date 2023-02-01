@@ -130,7 +130,6 @@ describe('NotificationRulesForm', () => {
   it(
     'CreateNotificationRule() should not dispatch create notification rule when dialog is not confirmed',
     waitForAsync(() => {
-      const id = 1;
       underTest.notificationRulesForm = { form: { valid: true } };
       const subject = new Subject<boolean>();
       const storeSpy = spyOn(store, 'dispatch');
@@ -174,7 +173,6 @@ describe('NotificationRulesForm', () => {
   it(
     'UpdateNotificationRule() should not dispatch update notification rule when dialog is not confirmed',
     waitForAsync(() => {
-      const id = 1;
       underTest.notificationRulesForm = { form: { valid: true } };
       const subject = new Subject<boolean>();
       const storeSpy = spyOn(store, 'dispatch');

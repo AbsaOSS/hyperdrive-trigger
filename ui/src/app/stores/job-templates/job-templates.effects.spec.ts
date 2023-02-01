@@ -43,7 +43,7 @@ import { Router } from '@angular/router';
 import { texts } from '../../constants/texts.constants';
 import { absoluteRoutes } from '../../constants/routes.constants';
 import { SparkTemplateParametersModel } from '../../models/jobTemplateParameters.model';
-import { MockStore, provideMockStore } from '@ngrx/store/testing';
+import { provideMockStore } from '@ngrx/store/testing';
 import { ApiErrorModelFactory } from '../../models/errors/apiError.model';
 import { HistoryModel, HistoryModelFactory, HistoryPairModel } from '../../models/historyModel';
 import { JobTemplateHistoryModelFactory } from '../../models/jobTemplateHistoryModel';
@@ -52,11 +52,9 @@ import { WorkflowModelFactory } from '../../models/workflow.model';
 describe('JobTemplatesEffects', () => {
   let underTest: JobTemplatesEffects;
   let jobTemplateService: Spy<JobTemplateService>;
-  let workflowService: Spy<WorkflowService>;
   let mockActions: Observable<any>;
   let toastrServiceSpy: Spy<ToastrService>;
   let routerSpy: Spy<Router>;
-  let mockStore: MockStore;
 
   const dummyJobTemplate = JobTemplateModelFactory.createEmpty();
 
@@ -88,11 +86,9 @@ describe('JobTemplatesEffects', () => {
 
     underTest = TestBed.inject(JobTemplatesEffects);
     jobTemplateService = TestBed.inject<any>(JobTemplateService);
-    workflowService = TestBed.inject<any>(WorkflowService);
     mockActions = TestBed.inject(Actions);
     toastrServiceSpy = TestBed.inject<any>(ToastrService);
     routerSpy = TestBed.inject<any>(Router);
-    mockStore = TestBed.inject(MockStore);
   });
 
   describe('jobTemplatesSearch', () => {
@@ -526,7 +522,6 @@ describe('JobTemplatesEffects', () => {
   describe('jobTemplateRevert', () => {
     it('should load job template from history', () => {
       const payload = 1;
-      const jobTemplate = dummyJobTemplate;
 
       const response: JobTemplateModel = dummyJobTemplate;
 

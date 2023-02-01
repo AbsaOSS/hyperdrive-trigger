@@ -16,7 +16,7 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { provideMockStore } from '@ngrx/store/testing';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
 import { RouterTestingModule } from '@angular/router/testing';
 import { Store } from '@ngrx/store';
@@ -30,9 +30,7 @@ import { NotificationRuleChanged } from '../../../../stores/notification-rules/n
 describe('NotificationRuleComponent', () => {
   let underTest: NotificationRuleComponent;
   let fixture: ComponentFixture<NotificationRuleComponent>;
-  let router: Router;
   let store: Store<AppState>;
-  let previousRouteService: PreviousRouteService;
 
   const dummyNotificationRule = NotificationRuleModelFactory.create(
     true,
@@ -83,8 +81,6 @@ describe('NotificationRuleComponent', () => {
         imports: [RouterTestingModule.withRoutes([])],
         declarations: [NotificationRuleComponent],
       }).compileComponents();
-      previousRouteService = TestBed.inject(PreviousRouteService);
-      router = TestBed.inject(Router);
       store = TestBed.inject(Store);
     }),
   );

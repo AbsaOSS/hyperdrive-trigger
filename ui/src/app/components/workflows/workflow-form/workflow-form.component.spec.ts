@@ -253,7 +253,6 @@ describe('WorkflowFormComponent', () => {
   it(
     'createWorkflow() should not dispatch create workflow when dialog is not confirmed',
     waitForAsync(() => {
-      const id = 1;
       underTest.workflowForm = { form: { valid: true } };
       const subject = new Subject<boolean>();
       const storeSpy = spyOn(store, 'dispatch');
@@ -313,7 +312,6 @@ describe('WorkflowFormComponent', () => {
   it(
     'updateWorkflow() should not dispatch update workflow when dialog is not confirmed',
     waitForAsync(() => {
-      const id = 1;
       underTest.workflowForm = { form: { valid: true } };
       const subject = new Subject<boolean>();
       const storeSpy = spyOn(store, 'dispatch');
