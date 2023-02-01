@@ -42,11 +42,11 @@ export class MultipleStatusFilterComponent implements ClrDatagridFilterInterface
   }
 
   ngAfterViewInit(): void {
-    this.modelSubscription = this.modelChanges.pipe(debounceTime(500), distinctUntilChanged()).subscribe((newValue) => {
+    this.modelSubscription = this.modelChanges.pipe(debounceTime(500), distinctUntilChanged()).subscribe(() => {
       this.changes.next();
     });
 
-    this.removeFiltersSubject.subscribe((_) => this.onRemoveFilter());
+    this.removeFiltersSubject.subscribe(() => this.onRemoveFilter());
   }
 
   ngOnDestroy(): void {

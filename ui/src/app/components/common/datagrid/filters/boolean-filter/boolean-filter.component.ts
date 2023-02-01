@@ -37,7 +37,7 @@ export class BooleanFilterComponent implements ClrDatagridFilterInterface<any>, 
   }
 
   ngAfterViewInit(): void {
-    this.removeFiltersSubject.subscribe((_) => this.onRemoveFilter());
+    this.removeFiltersSubject.subscribe(() => this.onRemoveFilter());
   }
 
   ngOnDestroy(): void {

@@ -112,7 +112,6 @@ describe('JobTemplatesFormComponent', () => {
   it(
     'createJobTemplate() should not dispatch create job template when dialog is not confirmed',
     waitForAsync(() => {
-      const id = 1;
       underTest.jobTemplateForm = { form: { valid: true } };
       const subject = new Subject<boolean>();
       const storeSpy = spyOn(store, 'dispatch');
@@ -156,7 +155,6 @@ describe('JobTemplatesFormComponent', () => {
   it(
     'updateJobTemplate() should not dispatch update job template when dialog is not confirmed',
     waitForAsync(() => {
-      const id = 1;
       underTest.jobTemplateForm = { form: { valid: true } };
       const subject = new Subject<boolean>();
       const storeSpy = spyOn(store, 'dispatch');

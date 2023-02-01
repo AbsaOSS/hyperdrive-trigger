@@ -44,7 +44,7 @@ export class KeyValueListPartComponent implements OnInit {
     }
   }
 
-  trackByFn(index, item) {
+  trackByFn(index, _) {
     return index;
   }
 

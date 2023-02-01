@@ -43,7 +43,7 @@ import { dagInstanceStatuses } from '../../models/enums/dagInstanceStatuses.cons
 import * as NotificationRulesActions from '../notification-rules/notification-rules.actions';
 import { ApiErrorModelFactory } from '../../models/errors/apiError.model';
 import { NotificationRuleModel, NotificationRuleModelFactory } from '../../models/notificationRule.model';
-import { MockStore, provideMockStore } from '@ngrx/store/testing';
+import { provideMockStore } from '@ngrx/store/testing';
 import { HistoryModel, HistoryModelFactory, HistoryPairModel } from '../../models/historyModel';
 import { NotificationRuleHistoryService } from '../../services/notificationRuleHistory/notification-rule-history.service';
 import { NotificationRuleHistoryModel, NotificationRuleHistoryModelFactory } from '../../models/notificationRuleHistoryModel';
@@ -54,7 +54,6 @@ describe('NotificationRulesEffects', () => {
   let notificationRuleServiceSpy: Spy<NotificationRuleService>;
   let notificationRuleHistoryServiceSpy: Spy<NotificationRuleHistoryService>;
   let mockActions: Observable<any>;
-  let mockStore: MockStore;
   let toastrServiceSpy: Spy<ToastrService>;
   let routerSpy: Spy<Router>;
 
@@ -103,7 +102,6 @@ describe('NotificationRulesEffects', () => {
     notificationRuleServiceSpy = TestBed.inject<any>(NotificationRuleService);
     notificationRuleHistoryServiceSpy = TestBed.inject<any>(NotificationRuleHistoryService);
     mockActions = TestBed.inject(Actions);
-    mockStore = TestBed.inject(MockStore);
     toastrServiceSpy = TestBed.inject<any>(ToastrService);
     routerSpy = TestBed.inject<any>(Router);
   });
@@ -536,7 +534,6 @@ describe('NotificationRulesEffects', () => {
   describe('notificationRuleRevert', () => {
     it('should load notification rule from history', () => {
       const payload = 1;
-      const notificationRule = dummyNotificationRule;
 
       const response = dummyNotificationRule;
 

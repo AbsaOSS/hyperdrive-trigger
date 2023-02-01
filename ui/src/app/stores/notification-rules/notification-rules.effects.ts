@@ -14,7 +14,7 @@
  */
 
 import { Injectable } from '@angular/core';
-import { Actions, Effect, ofType } from '@ngrx/effects';
+import { Actions, createEffect, ofType } from '@ngrx/effects';
 import * as NotificationRulesActions from './notification-rules.actions';
 import { catchError, mergeMap, switchMap, withLatestFrom } from 'rxjs/operators';
 import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
@@ -45,275 +45,284 @@ export class NotificationRulesEffects {
     private store: Store<AppState>,
   ) {}
 
-  @Effect({ dispatch: true })
-  notificationRulesSearch = this.actions.pipe(
-    ofType(NotificationRulesActions.SEARCH_NOTIFICATION_RULES),
-    switchMap((action: NotificationRulesActions.SearchNotificationRules) => {
-      return this.notificationRuleService.searchNotificationRules(action.payload).pipe(
-        mergeMap((searchResult: TableSearchResponseModel<NotificationRuleModel>) => {
-          return [
-            {
-              type: NotificationRulesActions.SEARCH_NOTIFICATION_RULES_SUCCESS,
-              payload: { notificationRulesSearchResponse: searchResult },
-            },
-          ];
-        }),
-        catchError(() => {
-          return [
-            {
-              type: NotificationRulesActions.SEARCH_NOTIFICATION_RULES_FAILURE,
-            },
-          ];
-        }),
-      );
-    }),
-  );
-
-  @Effect({ dispatch: true })
-  notificationRuleGet = this.actions.pipe(
-    ofType(NotificationRulesActions.GET_NOTIFICATION_RULE),
-    switchMap((action: NotificationRulesActions.GetNotificationRule) => {
-      return this.notificationRuleService.getNotificationRule(action.payload).pipe(
-        mergeMap((notificationRule: NotificationRuleModel) => {
-          return [
-            {
-              type: NotificationRulesActions.GET_NOTIFICATION_RULE_SUCCESS,
-              payload: notificationRule,
-            },
-          ];
-        }),
-        catchError(() => {
-          this.toastrService.error(texts.LOAD_NOTIFICATION_RULE_FAILURE_NOTIFICATION);
-          this.router.navigateByUrl(absoluteRoutes.NOTIFICATION_RULES);
-          return [
-            {
-              type: NotificationRulesActions.GET_NOTIFICATION_RULE_FAILURE,
-            },
-          ];
-        }),
-      );
-    }),
-  );
-
-  @Effect({ dispatch: true })
-  notificationRuleUsageGet = this.actions.pipe(
-    ofType(NotificationRulesActions.GET_NOTIFICATION_RULE_USAGE),
-    switchMap((action: NotificationRulesActions.GetNotificationRuleUsage) => {
-      return this.notificationRuleService.getNotificationUsage(action.payload).pipe(
-        mergeMap((workflows: WorkflowModel[]) => {
-          return [
-            {
-              type: NotificationRulesActions.GET_NOTIFICATION_RULE_USAGE_SUCCESS,
-              payload: workflows.sort(
-                (workflowLeft, workflowRight) =>
-                  workflowLeft.project.localeCompare(workflowRight.project) || workflowLeft.name.localeCompare(workflowRight.name),
-              ),
-            },
-          ];
-        }),
-        catchError(() => {
-          this.toastrService.error(texts.GET_NOTIFICATION_RULE_USAGE_FAILURE_NOTIFICATION);
-          return [
-            {
-              type: NotificationRulesActions.GET_NOTIFICATION_RULE_USAGE_FAILURE,
-            },
-          ];
-        }),
-      );
-    }),
-  );
-
-  @Effect({ dispatch: true })
-  notificationRuleCreate = this.actions.pipe(
-    ofType(NotificationRulesActions.CREATE_NOTIFICATION_RULE),
-    withLatestFrom(this.store.select(selectNotificationRulesState)),
-    switchMap(([action, state]: [NotificationRulesActions.CreateNotificationRule, fromNotificationRules.State]) => {
-      return this.notificationRuleService.createNotificationRule(state.notificationRuleAction.notificationRule).pipe(
-        mergeMap((notificationRule: NotificationRuleModel) => {
-          this.toastrService.success(texts.CREATE_NOTIFICATION_RULE_SUCCESS_NOTIFICATION);
-          this.router.navigateByUrl(absoluteRoutes.SHOW_NOTIFICATION_RULE + '/' + notificationRule.id);
-
-          return [
-            {
-              type: NotificationRulesActions.CREATE_NOTIFICATION_RULE_SUCCESS,
-              payload: notificationRule,
-            },
-          ];
-        }),
-        catchError((errorResponse) => {
-          if (ApiUtil.isBackendValidationError(errorResponse)) {
+  notificationRulesSearch = createEffect(() => {
+    return this.actions.pipe(
+      ofType(NotificationRulesActions.SEARCH_NOTIFICATION_RULES),
+      switchMap((action: NotificationRulesActions.SearchNotificationRules) => {
+        return this.notificationRuleService.searchNotificationRules(action.payload).pipe(
+          mergeMap((searchResult: TableSearchResponseModel<NotificationRuleModel>) => {
             return [
               {
-                type: NotificationRulesActions.CREATE_NOTIFICATION_RULE_FAILURE,
-                payload: errorResponse.map((err) => err.message),
+                type: NotificationRulesActions.SEARCH_NOTIFICATION_RULES_SUCCESS,
+                payload: { notificationRulesSearchResponse: searchResult },
               },
             ];
-          } else {
-            this.toastrService.error(texts.CREATE_NOTIFICATION_RULE_FAILURE_NOTIFICATION);
+          }),
+          catchError(() => {
             return [
               {
-                type: NotificationRulesActions.CREATE_NOTIFICATION_RULE_FAILURE,
-                payload: [],
+                type: NotificationRulesActions.SEARCH_NOTIFICATION_RULES_FAILURE,
               },
             ];
-          }
-        }),
-      );
-    }),
-  );
+          }),
+        );
+      }),
+    );
+  });
 
-  @Effect({ dispatch: true })
-  notificationRuleUpdate = this.actions.pipe(
-    ofType(NotificationRulesActions.UPDATE_NOTIFICATION_RULE),
-    withLatestFrom(this.store.select(selectNotificationRulesState)),
-    switchMap(([action, state]: [NotificationRulesActions.UpdateNotificationRule, fromNotificationRules.State]) => {
-      return this.notificationRuleService.updateNotificationRule(state.notificationRuleAction.notificationRule).pipe(
-        mergeMap((notificationRule: NotificationRuleModel) => {
-          this.toastrService.success(texts.UPDATE_NOTIFICATION_RULE_SUCCESS_NOTIFICATION);
-          this.router.navigateByUrl(absoluteRoutes.SHOW_NOTIFICATION_RULE + '/' + notificationRule.id);
+  notificationRuleGet = createEffect(() => {
+    return this.actions.pipe(
+      ofType(NotificationRulesActions.GET_NOTIFICATION_RULE),
+      switchMap((action: NotificationRulesActions.GetNotificationRule) => {
+        return this.notificationRuleService.getNotificationRule(action.payload).pipe(
+          mergeMap((notificationRule: NotificationRuleModel) => {
+            return [
+              {
+                type: NotificationRulesActions.GET_NOTIFICATION_RULE_SUCCESS,
+                payload: notificationRule,
+              },
+            ];
+          }),
+          catchError(() => {
+            this.toastrService.error(texts.LOAD_NOTIFICATION_RULE_FAILURE_NOTIFICATION);
+            this.router.navigateByUrl(absoluteRoutes.NOTIFICATION_RULES);
+            return [
+              {
+                type: NotificationRulesActions.GET_NOTIFICATION_RULE_FAILURE,
+              },
+            ];
+          }),
+        );
+      }),
+    );
+  });
 
-          return [
-            {
-              type: NotificationRulesActions.UPDATE_NOTIFICATION_RULE_SUCCESS,
-              payload: notificationRule,
-            },
-          ];
-        }),
-        catchError((errorResponse) => {
-          if (ApiUtil.isBackendValidationError(errorResponse)) {
+  notificationRuleUsageGet = createEffect(() => {
+    return this.actions.pipe(
+      ofType(NotificationRulesActions.GET_NOTIFICATION_RULE_USAGE),
+      switchMap((action: NotificationRulesActions.GetNotificationRuleUsage) => {
+        return this.notificationRuleService.getNotificationUsage(action.payload).pipe(
+          mergeMap((workflows: WorkflowModel[]) => {
             return [
               {
-                type: NotificationRulesActions.UPDATE_NOTIFICATION_RULE_FAILURE,
-                payload: errorResponse.map((err) => err.message),
+                type: NotificationRulesActions.GET_NOTIFICATION_RULE_USAGE_SUCCESS,
+                payload: workflows.sort(
+                  (workflowLeft, workflowRight) =>
+                    workflowLeft.project.localeCompare(workflowRight.project) || workflowLeft.name.localeCompare(workflowRight.name),
+                ),
               },
             ];
-          } else {
-            this.toastrService.error(texts.UPDATE_NOTIFICATION_RULE_FAILURE_NOTIFICATION);
+          }),
+          catchError(() => {
+            this.toastrService.error(texts.GET_NOTIFICATION_RULE_USAGE_FAILURE_NOTIFICATION);
             return [
               {
-                type: NotificationRulesActions.UPDATE_NOTIFICATION_RULE_FAILURE,
-                payload: [],
+                type: NotificationRulesActions.GET_NOTIFICATION_RULE_USAGE_FAILURE,
               },
             ];
-          }
-        }),
-      );
-    }),
-  );
+          }),
+        );
+      }),
+    );
+  });
 
-  @Effect({ dispatch: true })
-  notificationRuleDelete = this.actions.pipe(
-    ofType(NotificationRulesActions.DELETE_NOTIFICATION_RULE),
-    switchMap((action: NotificationRulesActions.DeleteNotificationRule) => {
-      return this.notificationRuleService.deleteNotificationRule(action.payload).pipe(
-        mergeMap((result: boolean) => {
-          if (result) {
-            this.router.navigateByUrl(absoluteRoutes.NOTIFICATION_RULES_HOME);
-            this.toastrService.success(texts.DELETE_NOTIFICATION_RULE_SUCCESS_NOTIFICATION);
+  notificationRuleCreate = createEffect(() => {
+    return this.actions.pipe(
+      ofType(NotificationRulesActions.CREATE_NOTIFICATION_RULE),
+      withLatestFrom(this.store.select(selectNotificationRulesState)),
+      switchMap(([_, state]: [NotificationRulesActions.CreateNotificationRule, fromNotificationRules.State]) => {
+        return this.notificationRuleService.createNotificationRule(state.notificationRuleAction.notificationRule).pipe(
+          mergeMap((notificationRule: NotificationRuleModel) => {
+            this.toastrService.success(texts.CREATE_NOTIFICATION_RULE_SUCCESS_NOTIFICATION);
+            this.router.navigateByUrl(absoluteRoutes.SHOW_NOTIFICATION_RULE + '/' + notificationRule.id);
+
             return [
               {
-                type: NotificationRulesActions.DELETE_NOTIFICATION_RULE_SUCCESS,
-                payload: action.payload,
+                type: NotificationRulesActions.CREATE_NOTIFICATION_RULE_SUCCESS,
+                payload: notificationRule,
               },
             ];
-          } else {
+          }),
+          catchError((errorResponse) => {
+            if (ApiUtil.isBackendValidationError(errorResponse)) {
+              return [
+                {
+                  type: NotificationRulesActions.CREATE_NOTIFICATION_RULE_FAILURE,
+                  payload: errorResponse.map((err) => err.message),
+                },
+              ];
+            } else {
+              this.toastrService.error(texts.CREATE_NOTIFICATION_RULE_FAILURE_NOTIFICATION);
+              return [
+                {
+                  type: NotificationRulesActions.CREATE_NOTIFICATION_RULE_FAILURE,
+                  payload: [],
+                },
+              ];
+            }
+          }),
+        );
+      }),
+    );
+  });
+
+  notificationRuleUpdate = createEffect(() => {
+    return this.actions.pipe(
+      ofType(NotificationRulesActions.UPDATE_NOTIFICATION_RULE),
+      withLatestFrom(this.store.select(selectNotificationRulesState)),
+      switchMap(([_, state]: [NotificationRulesActions.UpdateNotificationRule, fromNotificationRules.State]) => {
+        return this.notificationRuleService.updateNotificationRule(state.notificationRuleAction.notificationRule).pipe(
+          mergeMap((notificationRule: NotificationRuleModel) => {
+            this.toastrService.success(texts.UPDATE_NOTIFICATION_RULE_SUCCESS_NOTIFICATION);
+            this.router.navigateByUrl(absoluteRoutes.SHOW_NOTIFICATION_RULE + '/' + notificationRule.id);
+
+            return [
+              {
+                type: NotificationRulesActions.UPDATE_NOTIFICATION_RULE_SUCCESS,
+                payload: notificationRule,
+              },
+            ];
+          }),
+          catchError((errorResponse) => {
+            if (ApiUtil.isBackendValidationError(errorResponse)) {
+              return [
+                {
+                  type: NotificationRulesActions.UPDATE_NOTIFICATION_RULE_FAILURE,
+                  payload: errorResponse.map((err) => err.message),
+                },
+              ];
+            } else {
+              this.toastrService.error(texts.UPDATE_NOTIFICATION_RULE_FAILURE_NOTIFICATION);
+              return [
+                {
+                  type: NotificationRulesActions.UPDATE_NOTIFICATION_RULE_FAILURE,
+                  payload: [],
+                },
+              ];
+            }
+          }),
+        );
+      }),
+    );
+  });
+
+  notificationRuleDelete = createEffect(() => {
+    return this.actions.pipe(
+      ofType(NotificationRulesActions.DELETE_NOTIFICATION_RULE),
+      switchMap((action: NotificationRulesActions.DeleteNotificationRule) => {
+        return this.notificationRuleService.deleteNotificationRule(action.payload).pipe(
+          mergeMap((result: boolean) => {
+            if (result) {
+              this.router.navigateByUrl(absoluteRoutes.NOTIFICATION_RULES_HOME);
+              this.toastrService.success(texts.DELETE_NOTIFICATION_RULE_SUCCESS_NOTIFICATION);
+              return [
+                {
+                  type: NotificationRulesActions.DELETE_NOTIFICATION_RULE_SUCCESS,
+                  payload: action.payload,
+                },
+              ];
+            } else {
+              this.toastrService.error(texts.DELETE_NOTIFICATION_RULE_FAILURE_NOTIFICATION);
+              return [
+                {
+                  type: NotificationRulesActions.DELETE_NOTIFICATION_RULE_FAILURE,
+                },
+              ];
+            }
+          }),
+          catchError(() => {
             this.toastrService.error(texts.DELETE_NOTIFICATION_RULE_FAILURE_NOTIFICATION);
             return [
               {
                 type: NotificationRulesActions.DELETE_NOTIFICATION_RULE_FAILURE,
               },
             ];
-          }
-        }),
-        catchError(() => {
-          this.toastrService.error(texts.DELETE_NOTIFICATION_RULE_FAILURE_NOTIFICATION);
-          return [
-            {
-              type: NotificationRulesActions.DELETE_NOTIFICATION_RULE_FAILURE,
-            },
-          ];
-        }),
-      );
-    }),
-  );
+          }),
+        );
+      }),
+    );
+  });
 
-  @Effect({ dispatch: true })
-  historyForNotificationRuleLoad = this.actions.pipe(
-    ofType(NotificationRulesActions.LOAD_HISTORY_FOR_NOTIFICATION_RULE),
-    switchMap((action: NotificationRulesActions.LoadHistoryForNotificationRule) => {
-      return this.notificationRuleHistoryService.getHistoryForNotificationRule(action.payload).pipe(
-        mergeMap((historyForNotificationRule: HistoryModel[]) => {
-          return [
-            {
-              type: NotificationRulesActions.LOAD_HISTORY_FOR_NOTIFICATION_RULE_SUCCESS,
-              payload: historyForNotificationRule.sort((left, right) => right.id - left.id),
-            },
-          ];
-        }),
-        catchError(() => {
-          this.toastrService.error(texts.LOAD_HISTORY_FOR_NOTIFICATION_RULE_FAILURE_NOTIFICATION);
-          return [
-            {
-              type: NotificationRulesActions.LOAD_HISTORY_FOR_NOTIFICATION_RULE_FAILURE,
-            },
-          ];
-        }),
-      );
-    }),
-  );
-
-  @Effect({ dispatch: true })
-  notificationRulesFromHistoryLoad = this.actions.pipe(
-    ofType(NotificationRulesActions.LOAD_NOTIFICATION_RULES_FROM_HISTORY),
-    switchMap((action: NotificationRulesActions.LoadNotificationRulesFromHistory) => {
-      return this.notificationRuleHistoryService
-        .getNotificationRulesFromHistory(action.payload.leftHistoryId, action.payload.rightHistoryId)
-        .pipe(
-          mergeMap((notificationRuleHistoryPair: HistoryPairModel<NotificationRuleHistoryModel>) => {
+  historyForNotificationRuleLoad = createEffect(() => {
+    return this.actions.pipe(
+      ofType(NotificationRulesActions.LOAD_HISTORY_FOR_NOTIFICATION_RULE),
+      switchMap((action: NotificationRulesActions.LoadHistoryForNotificationRule) => {
+        return this.notificationRuleHistoryService.getHistoryForNotificationRule(action.payload).pipe(
+          mergeMap((historyForNotificationRule: HistoryModel[]) => {
             return [
               {
-                type: NotificationRulesActions.LOAD_NOTIFICATION_RULES_FROM_HISTORY_SUCCESS,
-                payload: {
-                  leftHistory: notificationRuleHistoryPair.leftHistory,
-                  rightHistory: notificationRuleHistoryPair.rightHistory,
-                },
+                type: NotificationRulesActions.LOAD_HISTORY_FOR_NOTIFICATION_RULE_SUCCESS,
+                payload: historyForNotificationRule.sort((left, right) => right.id - left.id),
               },
             ];
           }),
           catchError(() => {
-            this.toastrService.error(texts.LOAD_NOTIFICATION_RULES_FROM_HISTORY_FAILURE_NOTIFICATION);
+            this.toastrService.error(texts.LOAD_HISTORY_FOR_NOTIFICATION_RULE_FAILURE_NOTIFICATION);
             return [
               {
-                type: NotificationRulesActions.LOAD_NOTIFICATION_RULES_FROM_HISTORY_FAILURE,
+                type: NotificationRulesActions.LOAD_HISTORY_FOR_NOTIFICATION_RULE_FAILURE,
               },
             ];
           }),
         );
-    }),
-  );
+      }),
+    );
+  });
 
-  @Effect({ dispatch: true })
-  notificationRuleRevert = this.actions.pipe(
-    ofType(NotificationRulesActions.REVERT_NOTIFICATION_RULE),
-    switchMap((action: NotificationRulesActions.RevertNotificationRule) => {
-      return this.notificationRuleHistoryService.getNotificationRuleFromHistory(action.payload).pipe(
-        mergeMap((notificationRule: NotificationRuleModel) => {
-          return [
-            {
-              type: NotificationRulesActions.REVERT_NOTIFICATION_RULE_SUCCESS,
-              payload: notificationRule,
-            },
-          ];
-        }),
-        catchError(() => {
-          this.toastrService.error(texts.LOAD_NOTIFICATION_RULE_FAILURE_NOTIFICATION);
-          return [
-            {
-              type: NotificationRulesActions.REVERT_NOTIFICATION_RULE_FAILURE,
-            },
-          ];
-        }),
-      );
-    }),
-  );
+  notificationRulesFromHistoryLoad = createEffect(() => {
+    return this.actions.pipe(
+      ofType(NotificationRulesActions.LOAD_NOTIFICATION_RULES_FROM_HISTORY),
+      switchMap((action: NotificationRulesActions.LoadNotificationRulesFromHistory) => {
+        return this.notificationRuleHistoryService
+          .getNotificationRulesFromHistory(action.payload.leftHistoryId, action.payload.rightHistoryId)
+          .pipe(
+            mergeMap((notificationRuleHistoryPair: HistoryPairModel<NotificationRuleHistoryModel>) => {
+              return [
+                {
+                  type: NotificationRulesActions.LOAD_NOTIFICATION_RULES_FROM_HISTORY_SUCCESS,
+                  payload: {
+                    leftHistory: notificationRuleHistoryPair.leftHistory,
+                    rightHistory: notificationRuleHistoryPair.rightHistory,
+                  },
+                },
+              ];
+            }),
+            catchError(() => {
+              this.toastrService.error(texts.LOAD_NOTIFICATION_RULES_FROM_HISTORY_FAILURE_NOTIFICATION);
+              return [
+                {
+                  type: NotificationRulesActions.LOAD_NOTIFICATION_RULES_FROM_HISTORY_FAILURE,
+                },
+              ];
+            }),
+          );
+      }),
+    );
+  });
+
+  notificationRuleRevert = createEffect(() => {
+    return this.actions.pipe(
+      ofType(NotificationRulesActions.REVERT_NOTIFICATION_RULE),
+      switchMap((action: NotificationRulesActions.RevertNotificationRule) => {
+        return this.notificationRuleHistoryService.getNotificationRuleFromHistory(action.payload).pipe(
+          mergeMap((notificationRule: NotificationRuleModel) => {
+            return [
+              {
+                type: NotificationRulesActions.REVERT_NOTIFICATION_RULE_SUCCESS,
+                payload: notificationRule,
+              },
+            ];
+          }),
+          catchError(() => {
+            this.toastrService.error(texts.LOAD_NOTIFICATION_RULE_FAILURE_NOTIFICATION);
+            return [
+              {
+                type: NotificationRulesActions.REVERT_NOTIFICATION_RULE_FAILURE,
+              },
+            ];
+          }),
+        );
+      }),
+    );
+  });
 }
