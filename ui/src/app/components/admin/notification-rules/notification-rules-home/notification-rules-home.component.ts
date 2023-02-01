@@ -25,7 +25,7 @@ import { notificationRuleColumns } from '../../../../constants/notificationRuleC
 import {
   DeleteNotificationRule,
   GetNotificationRuleUsage,
-  SearchNotificationRules
+  SearchNotificationRules,
 } from '../../../../stores/notification-rules/notification-rules.actions';
 import { absoluteRoutes } from 'src/app/constants/routes.constants';
 import { Router } from '@angular/router';
@@ -124,7 +124,7 @@ export class NotificationRulesHomeComponent implements AfterViewInit, OnDestroy 
 
   onNotificationRuleUsageOpenClose(event: NotificationRuleModel) {
     this.openedNotificationRuleUsage = event;
-    if(this.openedNotificationRuleUsage) {
+    if (this.openedNotificationRuleUsage) {
       this.store.dispatch(new GetNotificationRuleUsage(this.openedNotificationRuleUsage.id));
     }
   }

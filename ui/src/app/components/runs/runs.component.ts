@@ -99,7 +99,7 @@ export class RunsComponent implements OnDestroy, AfterViewInit {
 
   onDetailOpenClose(event: JobInstanceModel) {
     this.openedDetail = event;
-    if(this.openedDetail) {
+    if (this.openedDetail) {
       this.store.dispatch(new GetDagRunDetail(this.openedDetail.id));
     }
   }
