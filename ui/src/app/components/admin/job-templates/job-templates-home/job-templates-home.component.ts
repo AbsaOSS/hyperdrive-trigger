@@ -23,7 +23,7 @@ import { Store } from '@ngrx/store';
 import { AppState, selectJobTemplatesState } from '../../../../stores/app.reducers';
 import { skip } from 'rxjs/operators';
 import { jobTemplateColumns } from '../../../../constants/jobTemplateColumns.constants';
-import { DeleteJobTemplate, SearchJobTemplates } from '../../../../stores/job-templates/job-templates.actions';
+import { DeleteJobTemplate, GetJobTemplateUsage, SearchJobTemplates } from '../../../../stores/job-templates/job-templates.actions';
 import { absoluteRoutes } from 'src/app/constants/routes.constants';
 import { Router } from '@angular/router';
 import { FilterAttributes } from '../../../../models/search/filterAttributes.model';
@@ -114,6 +114,9 @@ export class JobTemplatesHomeComponent implements AfterViewInit, OnDestroy {
 
   onJobTemplateUsageOpenClose(event: JobTemplateModel) {
     this.openedJobTemplateUsage = event;
+    if (this.openedJobTemplateUsage) {
+      this.store.dispatch(new GetJobTemplateUsage(this.openedJobTemplateUsage.id));
+    }
   }
 
   ngOnDestroy(): void {
