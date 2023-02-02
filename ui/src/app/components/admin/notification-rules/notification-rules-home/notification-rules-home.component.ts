@@ -22,7 +22,11 @@ import { Store } from '@ngrx/store';
 import { AppState, selectNotificationRulesState } from '../../../../stores/app.reducers';
 import { skip } from 'rxjs/operators';
 import { notificationRuleColumns } from '../../../../constants/notificationRuleColumns.constants';
-import { DeleteNotificationRule, SearchNotificationRules } from '../../../../stores/notification-rules/notification-rules.actions';
+import {
+  DeleteNotificationRule,
+  GetNotificationRuleUsage,
+  SearchNotificationRules,
+} from '../../../../stores/notification-rules/notification-rules.actions';
 import { absoluteRoutes } from 'src/app/constants/routes.constants';
 import { Router } from '@angular/router';
 import { NotificationRuleModel } from '../../../../models/notificationRule.model';
@@ -120,6 +124,9 @@ export class NotificationRulesHomeComponent implements AfterViewInit, OnDestroy 
 
   onNotificationRuleUsageOpenClose(event: NotificationRuleModel) {
     this.openedNotificationRuleUsage = event;
+    if (this.openedNotificationRuleUsage) {
+      this.store.dispatch(new GetNotificationRuleUsage(this.openedNotificationRuleUsage.id));
+    }
   }
 
   ngOnDestroy(): void {
