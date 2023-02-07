@@ -13,21 +13,11 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.api.rest.services
+package za.co.absa.hyperdrive.trigger.api.rest.services.client
 
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
-import za.co.absa.hyperdrive.trigger.api.rest.client.AuthClient
-import za.co.absa.hyperdrive.trigger.api.rest.client.AuthEndpoints
-import za.co.absa.hyperdrive.trigger.api.rest.client.Credentials
-import za.co.absa.hyperdrive.trigger.api.rest.client.CrossHostApiCaller
-import za.co.absa.hyperdrive.trigger.api.rest.client.InvalidCredentials
-import za.co.absa.hyperdrive.trigger.api.rest.client.KerberosCredentials
-import za.co.absa.hyperdrive.trigger.api.rest.client.RestClient
-import za.co.absa.hyperdrive.trigger.api.rest.client.RestTemplateSingleton
-import za.co.absa.hyperdrive.trigger.api.rest.client.StandardCredentials
+import org.slf4j.{Logger, LoggerFactory}
+import org.springframework.context.annotation.{Bean, Configuration}
+import za.co.absa.hyperdrive.trigger.api.rest.client._
 import za.co.absa.hyperdrive.trigger.configuration.application.MenasConfig
 
 import javax.inject.Inject

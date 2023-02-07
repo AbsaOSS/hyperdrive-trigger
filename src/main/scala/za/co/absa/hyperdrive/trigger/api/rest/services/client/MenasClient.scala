@@ -13,14 +13,12 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.api.rest.services
+package za.co.absa.hyperdrive.trigger.api.rest.services.client
 
-import za.co.absa.hyperdrive.trigger.api.rest.client.ApiCaller
-import za.co.absa.hyperdrive.trigger.api.rest.client.RestClient
+import za.co.absa.hyperdrive.trigger.api.rest.client.{ApiCaller, RestClient}
 import za.co.absa.hyperdrive.trigger.models.VersionedDataset
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class MenasClient(private[services] val apiCaller: ApiCaller, private[services] val restClient: RestClient) {
 
