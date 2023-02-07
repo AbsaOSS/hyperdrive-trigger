@@ -16,6 +16,8 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { SparkDefinitionParametersModel } from '../../../../../../../models/jobDefinitionParameters.model';
 import { Subscription } from 'rxjs';
+import { JobTemplateChangeEventModel } from '../../../../../../../models/jobTemplateChangeEvent';
+import { KeyValueModel } from '../../../../../../../models/keyValue.model';
 
 @Component({
   selector: 'app-spark-job',
@@ -27,7 +29,7 @@ export class SparkJobComponent implements OnInit, OnDestroy {
   @Input() jobParameters: SparkDefinitionParametersModel;
   @Output() jobParametersChange = new EventEmitter();
   @Input() isJobTemplateSelected: boolean;
-  @Input() jobTemplateChanges: EventEmitter<string>;
+  @Input() jobTemplateChanges: EventEmitter<JobTemplateChangeEventModel>;
 
   jobTemplateChangesSubscription: Subscription;
 
@@ -36,8 +38,8 @@ export class SparkJobComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.jobTemplateChangesSubscription = this.jobTemplateChanges.subscribe((value) => {
-      if (value) {
+    this.jobTemplateChangesSubscription = this.jobTemplateChanges.subscribe((value: JobTemplateChangeEventModel) => {
+      if (value.jobTemplateId) {
         this.jobParametersChange.emit({ ...this.jobParameters, jobJar: undefined, mainClass: undefined });
       }
     });
@@ -63,7 +65,7 @@ export class SparkJobComponent implements OnInit, OnDestroy {
     this.jobParametersChange.emit({ ...this.jobParameters, appArguments: appArguments });
   }
 
-  additionalSparkConfigChange(additionalSparkConfig: Map<string, string>) {
+  additionalSparkConfigChange(additionalSparkConfig: KeyValueModel[]) {
     this.jobParametersChange.emit({ ...this.jobParameters, additionalSparkConfig: additionalSparkConfig });
   }
 

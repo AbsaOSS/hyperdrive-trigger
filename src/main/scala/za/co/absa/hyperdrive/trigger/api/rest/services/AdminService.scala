@@ -29,18 +29,15 @@ trait AdminService {
 }
 
 @Service
-class AdminServiceImpl @Inject()(hyperDriverManager: HyperDriverManager) extends AdminService {
+class AdminServiceImpl @Inject() (hyperDriverManager: HyperDriverManager) extends AdminService {
 
-  override def isManagerRunning: Future[Boolean] = {
+  override def isManagerRunning: Future[Boolean] =
     Future.successful(hyperDriverManager.isManagerRunning)
-  }
 
-  override def startManager: Future[Boolean] = {
-    Future.successful(hyperDriverManager.startManager).map(_=>true)
-  }
+  override def startManager: Future[Boolean] =
+    Future.successful(hyperDriverManager.startManager()).map(_ => true)
 
-  override def stopManager: Future[Boolean] = {
-    hyperDriverManager.stopManager.map(_=>true)
-  }
+  override def stopManager: Future[Boolean] =
+    hyperDriverManager.stopManager.map(_ => true)
 
 }

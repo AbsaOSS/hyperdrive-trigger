@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -16,22 +15,38 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.executors.spark
 
-import za.co.absa.hyperdrive.trigger.configuration.application.JobDefinitionConfig.{KeysToMerge, MergedValuesSeparator}
+import za.co.absa.hyperdrive.trigger.configuration.application.JobDefinitionConfig.{SparkExtraJavaOptions, SparkTags}
 import za.co.absa.hyperdrive.trigger.models.{JobInstance, SparkInstanceParameters}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 trait SparkClusterService {
-  def submitJob(jobInstance: JobInstance, jobParameters: SparkInstanceParameters, updateJob: JobInstance => Future[Unit])
-               (implicit executionContext: ExecutionContext): Future[Unit]
+  def submitJob(
+    jobInstance: JobInstance,
+    jobParameters: SparkInstanceParameters,
+    updateJob: JobInstance => Future[Unit]
+  ): Future[Unit]
 
-  def handleMissingYarnStatusForJobStatusSubmitting(jobInstance: JobInstance, updateJob: JobInstance => Future[Unit])
-               (implicit executionContext: ExecutionContext): Future[Unit]
+  def handleMissingYarnStatus(jobInstance: JobInstance, updateJob: JobInstance => Future[Unit]): Future[Unit]
 
-  protected def mergeAdditionalSparkConfig(globalConfig: Map[String, String], jobConfig: Map[String, String]): Map[String, String] =
-    KeysToMerge.map(key => {
+  protected def mergeAdditionalSparkConfig(
+    globalConfig: Map[String, String],
+    jobConfig: Map[String, String]
+  ): Map[String, String] = {
+    val extraJavaOptionsMerge = SparkExtraJavaOptions.KeysToMerge.map { key =>
       val globalValue = globalConfig.getOrElse(key, "")
       val jobValue = jobConfig.getOrElse(key, "")
-      key -> s"$globalValue$MergedValuesSeparator$jobValue".trim
-    }).toMap
+      key -> s"$globalValue${SparkExtraJavaOptions.MergedValuesSeparator}$jobValue".trim
+    }
+    val tagsOptions = SparkTags.KeysToMerge.map { key =>
+      val globalValue = globalConfig.get(key)
+      val jobValue = jobConfig.get(key)
+      val value = (
+        globalValue.map(_.split(SparkTags.MergedValuesSeparator)).getOrElse(Array.empty[String]) ++
+          jobValue.map(_.split(SparkTags.MergedValuesSeparator)).getOrElse(Array.empty[String])
+      ).toSet[String].map(_.trim).mkString(SparkTags.MergedValuesSeparator)
+      if (value.nonEmpty) Some(key -> value) else None
+    }
+    (extraJavaOptionsMerge ++ tagsOptions.flatten).toMap
+  }
 }

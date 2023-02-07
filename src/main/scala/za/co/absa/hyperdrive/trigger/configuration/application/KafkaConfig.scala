@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -16,7 +15,7 @@
 
 package za.co.absa.hyperdrive.trigger.configuration.application
 
-import org.springframework.boot.context.properties.bind.Name
+import org.springframework.boot.context.properties.bind.{DefaultValue, Name}
 import org.springframework.boot.context.properties.{ConfigurationProperties, ConstructorBinding}
 import org.springframework.validation.annotation.Validated
 
@@ -27,7 +26,7 @@ import scala.annotation.meta.field
 @ConfigurationProperties("kafka-source")
 @ConstructorBinding
 @Validated
-class KafkaConfig (
+class KafkaConfig(
   @(KafkaSensorProperties @field)(message = "key.deserializer, value.deserializer or max.poll.records is not defined")
   val properties: Properties,
   @Name("group.id.prefix")
@@ -35,5 +34,8 @@ class KafkaConfig (
   val groupIdPrefix: String,
   @Name("poll.duration")
   @NotNull
-  val pollDuration: Long
+  val pollDuration: Long,
+  @DefaultValue(Array("true"))
+  @Name("always.catchup")
+  val alwaysCatchup: Boolean
 )

@@ -31,44 +31,52 @@ trait WorkflowHistoryRepository extends Repository {
   private[persistance] def delete(workflow: WorkflowJoined, user: String)(implicit ec: ExecutionContext): DBIO[Long]
 
   def getHistoryForWorkflow(workflowId: Long)(implicit ec: ExecutionContext): Future[Seq[History]]
-  def getWorkflowsFromHistory(leftWorkflowHistoryId: Long, rightWorkflowHistoryId: Long)(implicit ec: ExecutionContext): Future[HistoryPair[WorkflowHistory]]
+  def getWorkflowFromHistory(workflowHistoryId: Long)(implicit ec: ExecutionContext): Future[WorkflowJoined]
+  def getWorkflowsFromHistory(leftWorkflowHistoryId: Long, rightWorkflowHistoryId: Long)(
+    implicit ec: ExecutionContext
+  ): Future[HistoryPair[WorkflowHistory]]
 }
 
 @stereotype.Repository
-class WorkflowHistoryRepositoryImpl @Inject()(val dbProvider: DatabaseProvider)
-  extends WorkflowHistoryRepository {
+class WorkflowHistoryRepositoryImpl @Inject() (val dbProvider: DatabaseProvider) extends WorkflowHistoryRepository {
   import api._
 
-  private def insert(workflow: WorkflowJoined, user: String, operation: DBOperation)(implicit ec: ExecutionContext): DBIO[Long] = {
+  private def insert(workflow: WorkflowJoined, user: String, operation: DBOperation)(
+    implicit ec: ExecutionContext
+  ): DBIO[Long] = {
     val workflowHistory = WorkflowHistory(
-      history = History(
-        changedOn = LocalDateTime.now(),
-        changedBy = user,
-        operation = operation
-      ),
+      history = History(changedOn = LocalDateTime.now(), changedBy = user, operation = operation),
       workflowId = workflow.id,
       workflow = workflow
     )
     workflowHistoryTable returning workflowHistoryTable.map(_.id) += workflowHistory
   }
 
-  override private[persistance] def create(workflow: WorkflowJoined, user: String)(implicit ec: ExecutionContext): DBIO[Long] = {
+  override private[persistance] def create(workflow: WorkflowJoined, user: String)(
+    implicit ec: ExecutionContext
+  ): DBIO[Long] =
     this.insert(workflow, user, Create)
-  }
 
-  override private[persistance] def update(workflow: WorkflowJoined, user: String)(implicit ec: ExecutionContext): DBIO[Long] = {
+  override private[persistance] def update(workflow: WorkflowJoined, user: String)(
+    implicit ec: ExecutionContext
+  ): DBIO[Long] =
     this.insert(workflow, user, Update)
-  }
 
-  override private[persistance] def delete(workflow: WorkflowJoined, user: String)(implicit ec: ExecutionContext): DBIO[Long] = {
+  override private[persistance] def delete(workflow: WorkflowJoined, user: String)(
+    implicit ec: ExecutionContext
+  ): DBIO[Long] =
     this.insert(workflow, user, Delete)
-  }
 
-  override def getHistoryForWorkflow(workflowId: Long)(implicit ec: ExecutionContext): Future[Seq[History]] = {
-    db.run(workflowHistoryTable.getHistoryForEntity(workflowId))
-  }
+  override def getHistoryForWorkflow(workflowId: Long)(implicit ec: ExecutionContext): Future[Seq[History]] =
+    db.run(workflowHistoryTable.getHistoryForEntity(workflowId).withErrorHandling())
 
-  override def getWorkflowsFromHistory(leftWorkflowHistoryId: Long, rightWorkflowHistoryId: Long)(implicit ec: ExecutionContext): Future[HistoryPair[WorkflowHistory]] = {
-    db.run(workflowHistoryTable.getEntitiesFromHistory(leftWorkflowHistoryId, rightWorkflowHistoryId))
-  }
+  override def getWorkflowFromHistory(workflowHistoryId: Long)(implicit ec: ExecutionContext): Future[WorkflowJoined] =
+    db.run(workflowHistoryTable.getHistoryEntity(workflowHistoryId).map(_.workflow).withErrorHandling())
+
+  override def getWorkflowsFromHistory(leftWorkflowHistoryId: Long, rightWorkflowHistoryId: Long)(
+    implicit ec: ExecutionContext
+  ): Future[HistoryPair[WorkflowHistory]] =
+    db.run(
+      workflowHistoryTable.getEntitiesFromHistory(leftWorkflowHistoryId, rightWorkflowHistoryId).withErrorHandling()
+    )
 }

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -17,25 +16,28 @@
 package za.co.absa.hyperdrive.trigger.scheduler.sensors.recurring
 
 import java.util.concurrent
-
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.{eq => eqTo, _}
-import org.mockito.Mockito.{reset, never, times, verify, when}
+import org.mockito.Mockito.{never, reset, times, verify, when}
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
 import za.co.absa.hyperdrive.trigger.TestUtils.await
+import za.co.absa.hyperdrive.trigger.configuration.application.{RecurringSensorConfig, TestRecurringSensorConfig}
 import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.persistance.DagInstanceRepository
 import za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor
 
+import java.time.Duration
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 
 class RecurringSensorTest extends FlatSpec with MockitoSugar with Matchers with BeforeAndAfter {
-  private implicit val executionContext: ExecutionContextExecutor =
+  private implicit val executionContext: ExecutionContextExecutor = {
     ExecutionContext.fromExecutor(concurrent.Executors.newSingleThreadExecutor())
+  }
+  private implicit val recurringSensorConfig: RecurringSensorConfig = TestRecurringSensorConfig()
+
   private val eventProcessor = mock[EventProcessor]
   private val dagInstanceRepository = mock[DagInstanceRepository]
-
   before {
     reset(eventProcessor)
     reset(dagInstanceRepository)
@@ -47,14 +49,38 @@ class RecurringSensorTest extends FlatSpec with MockitoSugar with Matchers with 
     val properties = RecurringSensorProperties()
     val sensorDefinition = Sensor(-1L, properties)
 
-    when(dagInstanceRepository.hasRunningDagInstance(eqTo(sensorDefinition.workflowId))(any[ExecutionContext])).thenReturn(Future{true})
-    val underTest = new RecurringSensor(eventProcessor.eventProcessor(triggeredBy), sensorDefinition, dagInstanceRepository)
+    when(dagInstanceRepository.hasRunningDagInstance(eqTo(sensorDefinition.workflowId))(any[ExecutionContext]))
+      .thenReturn(Future(true))
+    val underTest =
+      new RecurringSensor(eventProcessor.eventProcessor(triggeredBy), sensorDefinition, dagInstanceRepository)
 
     // when
     val result: Unit = await(underTest.poll())
 
     // then
-    result shouldBe (): Unit
+    result shouldBe ((): Unit)
+    verify(eventProcessor, never()).eventProcessor(any[String])(any[Seq[Event]], any[Long])(any[ExecutionContext])
+  }
+
+  "RecurringSensor.poll" should "do nothing when the workflow has been triggered too many times" in {
+    // given
+    val triggeredBy = "user"
+    val properties = RecurringSensorProperties()
+    val sensorDefinition = Sensor(-1L, properties)
+
+    when(dagInstanceRepository.hasRunningDagInstance(eqTo(sensorDefinition.workflowId))(any[ExecutionContext]))
+      .thenReturn(Future(false))
+    when(dagInstanceRepository.countDagInstancesFrom(eqTo(sensorDefinition.workflowId), any())(any[ExecutionContext]))
+      .thenReturn(Future(8))
+
+    val underTest =
+      new RecurringSensor(eventProcessor.eventProcessor(triggeredBy), sensorDefinition, dagInstanceRepository)
+
+    // when
+    val result: Unit = await(underTest.poll())
+
+    // then
+    result shouldBe ((): Unit)
     verify(eventProcessor, never()).eventProcessor(any[String])(any[Seq[Event]], any[Long])(any[ExecutionContext])
   }
 
@@ -64,16 +90,25 @@ class RecurringSensorTest extends FlatSpec with MockitoSugar with Matchers with 
     val properties = RecurringSensorProperties()
     val sensorDefinition = Sensor(-1L, properties)
 
-    when(dagInstanceRepository.hasRunningDagInstance(eqTo(sensorDefinition.workflowId))(any[ExecutionContext])).thenReturn(Future{false})
-    when(eventProcessor.eventProcessor(eqTo(triggeredBy))(any[Seq[Event]], eqTo(sensorDefinition.id))(any[ExecutionContext])).thenReturn(Future{true})
+    when(dagInstanceRepository.hasRunningDagInstance(eqTo(sensorDefinition.workflowId))(any[ExecutionContext]))
+      .thenReturn(Future(false))
+    when(dagInstanceRepository.countDagInstancesFrom(eqTo(sensorDefinition.workflowId), any())(any[ExecutionContext]))
+      .thenReturn(Future(2))
+    when(
+      eventProcessor
+        .eventProcessor(eqTo(triggeredBy))(any[Seq[Event]], eqTo(sensorDefinition.id))(any[ExecutionContext])
+    ).thenReturn(Future(true))
 
-    val underTest = new RecurringSensor(eventProcessor.eventProcessor(triggeredBy), sensorDefinition, dagInstanceRepository)
+    val underTest =
+      new RecurringSensor(eventProcessor.eventProcessor(triggeredBy), sensorDefinition, dagInstanceRepository)
 
     // when
     val result: Unit = await(underTest.poll())
 
     // then
-    result shouldBe (): Unit
-    verify(eventProcessor, times(1)).eventProcessor(eqTo(triggeredBy))(any[Seq[Event]], any[Long])(any[ExecutionContext])
+    result shouldBe ((): Unit)
+    verify(eventProcessor, times(1)).eventProcessor(eqTo(triggeredBy))(any[Seq[Event]], any[Long])(
+      any[ExecutionContext]
+    )
   }
 }

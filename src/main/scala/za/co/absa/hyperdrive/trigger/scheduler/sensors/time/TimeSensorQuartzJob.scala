@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -30,11 +29,11 @@ class TimeSensorQuartzJob extends Job {
   private val eventDateFormatter: DateTimeFormatter = DateTimeFormatter.ISO_INSTANT
 
   override def execute(jobExecutionContext: JobExecutionContext): Unit = {
-    logger.info("Starting Time Sensor Quartz Job")
+    logger.debug("Starting Time Sensor Quartz Job")
     val jobDataMap = jobExecutionContext.getJobDetail.getJobDataMap
     val push = jobDataMap.get(TimeSensor.PUSH_FUNCTION_JOB_DATA_MAP_KEY).asInstanceOf[Seq[Event] => Future[Unit]]
     val sensorId = jobDataMap.get(TimeSensor.SENSOR_ID_JOB_DATA_MAP_KEY).asInstanceOf[Long]
-    val sourceEventId = s"sid=${sensorId};t=${eventDateFormatter.format(Instant.now())}"
+    val sourceEventId = s"sid=$sensorId;t=${eventDateFormatter.format(Instant.now())}"
     val event = Event(sourceEventId, sensorId, JsObject.empty)
     push(Seq(event))
   }

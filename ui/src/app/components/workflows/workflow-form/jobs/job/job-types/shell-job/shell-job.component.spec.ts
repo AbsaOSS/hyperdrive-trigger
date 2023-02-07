@@ -18,6 +18,8 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { ShellJobComponent } from './shell-job.component';
 import { ShellDefinitionParametersModel } from '../../../../../../../models/jobDefinitionParameters.model';
 import { EventEmitter } from '@angular/core';
+import { JobTemplateChangeEventModel } from '../../../../../../../models/jobTemplateChangeEvent';
+import { ShellTemplateParametersModel } from '../../../../../../../models/jobTemplateParameters.model';
 
 describe('ShellComponent', () => {
   let fixture: ComponentFixture<ShellJobComponent>;
@@ -47,13 +49,13 @@ describe('ShellComponent', () => {
     'should emit job parameters change with empty scriptLocation on job template change',
     waitForAsync(() => {
       spyOn(underTest.jobParametersChange, 'emit');
-      underTest.jobTemplateChanges = new EventEmitter<string>();
+      underTest.jobTemplateChanges = new EventEmitter<JobTemplateChangeEventModel>();
       underTest.jobParameters = { ...underTest.jobParameters, scriptLocation: 'scriptLocation' };
 
       underTest.ngOnInit();
       fixture.detectChanges();
       fixture.whenStable().then(() => {
-        underTest.jobTemplateChanges.emit('templateChange');
+        underTest.jobTemplateChanges.emit(new JobTemplateChangeEventModel('templateChange', ShellTemplateParametersModel.createEmpty()));
 
         fixture.detectChanges();
         fixture.whenStable().then(() => {

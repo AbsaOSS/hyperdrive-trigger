@@ -14,7 +14,7 @@
  */
 
 import { Directive, Input } from '@angular/core';
-import { NG_VALIDATORS, Validator, FormControl } from '@angular/forms';
+import { NG_VALIDATORS, Validator, UntypedFormControl } from '@angular/forms';
 
 @Directive({
   selector: '[cronQuartzExpressionValidator][ngModel]',
@@ -29,7 +29,7 @@ export class CronQuartzExpressionValidator implements Validator {
     // do nothing
   }
 
-  validate(c: FormControl) {
+  validate(_: UntypedFormControl) {
     if (this.params) {
       return null;
     } else {

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -29,12 +28,13 @@ import scala.concurrent.duration.Duration
 import scala.util.{Failure, Success, Try}
 
 @Component
-class DatabaseConnectionHealthIndicator @Inject()(val dbProvider: DatabaseProvider, healthConfig: HealthConfig) extends HealthIndicator
-  with Repository {
+class DatabaseConnectionHealthIndicator @Inject() (val dbProvider: DatabaseProvider, healthConfig: HealthConfig)
+    extends HealthIndicator
+    with Repository {
   import api._
   private val log = LoggerFactory.getLogger(this.getClass)
   val dbConnection: Duration = Duration(healthConfig.databaseConnectionTimeoutMillis, TimeUnit.MILLISECONDS)
-  override protected def health(): Health = {
+  override protected def health(): Health =
     Try {
       Await.result(db.run(sql"""SELECT 1""".as[Int]), dbConnection)
     } match {
@@ -44,5 +44,4 @@ class DatabaseConnectionHealthIndicator @Inject()(val dbProvider: DatabaseProvid
         log.error("Database connection is down", e)
         Health.down().withException(e).build()
     }
-  }
 }

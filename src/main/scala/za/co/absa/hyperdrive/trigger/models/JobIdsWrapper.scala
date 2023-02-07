@@ -17,6 +17,4 @@ package za.co.absa.hyperdrive.trigger.models
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 
-case class JobIdsWrapper(
-   @JsonDeserialize(contentAs = classOf[java.lang.Long]) jobIds: Seq[Long]
-)
+case class JobIdsWrapper(@JsonDeserialize(contentAs = classOf[java.lang.Long]) jobIds: Seq[Long])

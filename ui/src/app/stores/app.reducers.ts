@@ -52,9 +52,9 @@ export const reducers: ActionReducerMap<AppState> = {
   [notificationRulesKey]: notificationRulesReducer,
 };
 
-export const selectApplicationState = createFeatureSelector<AppState, fromApplication.State>(applicationKey);
-export const selectAuthState = createFeatureSelector<AppState, fromAuth.State>(authKey);
-export const selectRunState = createFeatureSelector<AppState, fromRuns.State>(runsKey);
-export const selectWorkflowState = createFeatureSelector<AppState, fromWorkflows.State>(workflowsKey);
-export const selectJobTemplatesState = createFeatureSelector<AppState, fromJobTemplates.State>(jobTemplatesKey);
-export const selectNotificationRulesState = createFeatureSelector<AppState, fromNotificationRules.State>(notificationRulesKey);
+export const selectApplicationState = createFeatureSelector<fromApplication.State>(applicationKey);
+export const selectAuthState = createFeatureSelector<fromAuth.State>(authKey);
+export const selectRunState = createFeatureSelector<fromRuns.State>(runsKey);
+export const selectWorkflowState = createFeatureSelector<fromWorkflows.State>(workflowsKey);
+export const selectJobTemplatesState = createFeatureSelector<fromJobTemplates.State>(jobTemplatesKey);
+export const selectNotificationRulesState = createFeatureSelector<fromNotificationRules.State>(notificationRulesKey);

@@ -21,57 +21,66 @@ import za.co.absa.hyperdrive.trigger.models.SchedulerInstance
 import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses
 import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses.SchedulerInstanceStatus
 
+import java.sql.Timestamp
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success}
 
 trait SchedulerInstanceRepository extends Repository {
   def insertInstance()(implicit ec: ExecutionContext): Future[Long]
 
   def updateHeartbeat(id: Long, newHeartbeat: LocalDateTime)(implicit ec: ExecutionContext): Future[Int]
 
-  def deactivateLaggingInstances(instanceId: Long, currentHeartbeat: LocalDateTime, lagTolerance: Duration)(implicit ec: ExecutionContext): Future[Int]
+  def deactivateLaggingInstances(instanceId: Long, currentHeartbeat: LocalDateTime, lagTolerance: Duration)(
+    implicit ec: ExecutionContext
+  ): Future[Int]
 
   def getAllInstances()(implicit ec: ExecutionContext): Future[Seq[SchedulerInstance]]
+
+  def getCurrentDateTime()(implicit ec: ExecutionContext): Future[LocalDateTime]
 }
 
 @stereotype.Repository
-class SchedulerInstanceRepositoryImpl @Inject()(val dbProvider: DatabaseProvider)
-  extends SchedulerInstanceRepository {
+class SchedulerInstanceRepositoryImpl @Inject() (val dbProvider: DatabaseProvider) extends SchedulerInstanceRepository {
 
   import api._
 
-  override def insertInstance()(implicit ec: ExecutionContext): Future[Long] = {
+  override def insertInstance()(implicit ec: ExecutionContext): Future[Long] =
     db.run {
       val instance = SchedulerInstance(status = SchedulerInstanceStatuses.Active, lastHeartbeat = LocalDateTime.now())
       (for {
         instanceId <- schedulerInstanceTable returning schedulerInstanceTable.map(_.id) += instance
       } yield {
         instanceId
-      }).asTry.map {
-        case Success(instanceId) => instanceId
-        case Failure(ex) =>
-          throw new IllegalStateException(s"Unexpected error occurred when inserting instance $instance", ex)
-      }
+      }).withErrorHandling(s"Unexpected error occurred when inserting instance $instance")
     }
-  }
 
-  override def updateHeartbeat(id: Long, newHeartbeat: LocalDateTime)(implicit ec: ExecutionContext): Future[Int] = db.run {
-    schedulerInstanceTable.filter(_.id === id)
-      .filter(_.status === LiteralColumn[SchedulerInstanceStatus](SchedulerInstanceStatuses.Active))
-      .map(_.lastHeartbeat)
-      .update(newHeartbeat)
-  }
+  override def updateHeartbeat(id: Long, newHeartbeat: LocalDateTime)(implicit ec: ExecutionContext): Future[Int] =
+    db.run {
+      schedulerInstanceTable
+        .filter(_.id === id)
+        .filter(_.status === LiteralColumn[SchedulerInstanceStatus](SchedulerInstanceStatuses.Active))
+        .map(_.lastHeartbeat)
+        .update(newHeartbeat)
+        .withErrorHandling()
+    }
 
-  override def deactivateLaggingInstances(instanceId: Long, currentHeartbeat: LocalDateTime, lagTolerance: Duration)(implicit ec: ExecutionContext): Future[Int] = db.run {
-    schedulerInstanceTable.filter(i => i.lastHeartbeat < currentHeartbeat.minusSeconds(lagTolerance.getSeconds))
+  override def deactivateLaggingInstances(instanceId: Long, currentHeartbeat: LocalDateTime, lagTolerance: Duration)(
+    implicit ec: ExecutionContext
+  ): Future[Int] = db.run {
+    schedulerInstanceTable
+      .filter(i => i.lastHeartbeat < currentHeartbeat.minusSeconds(lagTolerance.getSeconds))
       .filter(_.status === LiteralColumn[SchedulerInstanceStatus](SchedulerInstanceStatuses.Active))
       .filter(_.id =!= instanceId)
       .map(_.status)
       .update(SchedulerInstanceStatuses.Deactivated)
+      .withErrorHandling()
   }
 
   override def getAllInstances()(implicit ec: ExecutionContext): Future[Seq[SchedulerInstance]] = db.run {
-    schedulerInstanceTable.result
+    schedulerInstanceTable.result.withErrorHandling()
   }
+
+  override def getCurrentDateTime()(implicit ec: ExecutionContext): Future[LocalDateTime] =
+    db.run(sql"SELECT now()::timestamp".as[Timestamp]).map(_.head.toLocalDateTime)
+
 }

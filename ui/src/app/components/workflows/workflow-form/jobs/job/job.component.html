@@ -26,7 +26,7 @@
   [isShow]="isShow"
   [name]="'Job type'"
   [value]="job?.jobParameters?.jobType"
-  [options]="jobTypesMap"
+  [options]="getJobTypes(job?.jobParameters?.jobType)"
   (valueChange)="jobTypeChange($event)"
   [isRequired]="true">
 </app-select-part>
@@ -53,6 +53,7 @@
     *ngSwitchCase="jobTypes.HYPERDRIVE"
     [isShow]="isShow"
     [jobParameters]="job?.jobParameters"
+    [jobTemplateParameters]="getSelectedJobTemplateParameters()"
     (jobParametersChange)="jobParametersChange($event)"
     [isJobTemplateSelected]="this.isJobTemplateSelected()"
     [jobTemplateChanges]="jobTemplateChanges">

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -19,6 +18,7 @@ package za.co.absa.hyperdrive.trigger.api.rest.controllers
 import org.slf4j.LoggerFactory
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.http.{HttpStatus, ResponseEntity}
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.web.bind.annotation.{ExceptionHandler, RestControllerAdvice}
 import org.springframework.web.context.request.WebRequest
 import za.co.absa.hyperdrive.trigger.models.errors.ApiException
@@ -33,9 +33,18 @@ class RestErrorHandler {
   }
 
   @ExceptionHandler(Array(classOf[HttpMessageNotReadableException]))
-  def handleMethodArgumentNotValidException(ex: HttpMessageNotReadableException, request: WebRequest): ResponseEntity[Object] = {
+  def handleMethodArgumentNotValidException(
+    ex: HttpMessageNotReadableException,
+    request: WebRequest
+  ): ResponseEntity[Object] = {
     logger.error("Probably Jackson Deserialization failed", ex)
     new ResponseEntity(HttpStatus.BAD_REQUEST)
+  }
+
+  @ExceptionHandler(Array(classOf[AccessDeniedException]))
+  def handleAccessDeniedException(ex: AccessDeniedException, request: WebRequest): ResponseEntity[Object] = {
+    logger.error("Access is denied", ex)
+    new ResponseEntity(HttpStatus.UNAUTHORIZED)
   }
 
   @ExceptionHandler

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -31,30 +30,29 @@ case class SparkTemplateParameters(
   appArguments: List[String] = List.empty[String],
   additionalJars: List[String] = List.empty[String],
   additionalFiles: List[String] = List.empty[String],
-  additionalSparkConfig: Map[String, String] = Map.empty[String, String]
+  additionalSparkConfig: List[AdditionalSparkConfig] = List.empty[AdditionalSparkConfig]
 ) extends JobTemplateParameters
 
-case class ShellTemplateParameters(
-  jobType: JobType = JobTypes.Shell,
-  scriptLocation: String
-) extends JobTemplateParameters
+case class ShellTemplateParameters(jobType: JobType = JobTypes.Shell, scriptLocation: String)
+    extends JobTemplateParameters
 
 object SparkTemplateParameters {
-  implicit val sparkFormat: OFormat[SparkTemplateParameters] = Json.using[Json.WithDefaultValues].format[SparkTemplateParameters]
+  implicit val sparkFormat: OFormat[SparkTemplateParameters] =
+    Json.using[Json.WithDefaultValues].format[SparkTemplateParameters]
 }
 
 object ShellTemplateParameters {
-  implicit val shellFormat: OFormat[ShellTemplateParameters] = Json.using[Json.WithDefaultValues].format[ShellTemplateParameters]
+  implicit val shellFormat: OFormat[ShellTemplateParameters] =
+    Json.using[Json.WithDefaultValues].format[ShellTemplateParameters]
 }
 
 object JobTemplateParameters {
   implicit val jobParametersFormat: Format[JobTemplateParameters] = new Format[JobTemplateParameters] {
-    override def reads(json: JsValue): JsResult[JobTemplateParameters] = {
+    override def reads(json: JsValue): JsResult[JobTemplateParameters] =
       (json \ "jobType").as[String] match {
         case JobTypes.Spark.name | JobTypes.Hyperdrive.name => SparkTemplateParameters.sparkFormat.reads(json)
-        case JobTypes.Shell.name => ShellTemplateParameters.shellFormat.reads(json)
+        case JobTypes.Shell.name                            => ShellTemplateParameters.shellFormat.reads(json)
       }
-    }
 
     override def writes(jobTemplateParameters: JobTemplateParameters): JsValue = jobTemplateParameters match {
       case sparkParameters: SparkTemplateParameters => SparkTemplateParameters.sparkFormat.writes(sparkParameters)

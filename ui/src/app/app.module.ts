@@ -55,7 +55,8 @@ import { StringPartComponent } from './components/workflows/workflow-form/dynami
 import { BooleanPartComponent } from './components/workflows/workflow-form/dynamic-parts/boolean-part/boolean-part.component';
 import { SelectPartComponent } from './components/workflows/workflow-form/dynamic-parts/select-part/select-part.component';
 import { StringSequencePartComponent } from './components/workflows/workflow-form/dynamic-parts/string-sequence-part/string-sequence-part.component';
-import { KeyStringValuePartComponent } from './components/workflows/workflow-form/dynamic-parts/key-string-value-part/key-string-value-part.component';
+import { KeyValueMapPartComponent } from './components/workflows/workflow-form/dynamic-parts/key-value-map-part/key-value-map-part.component';
+import { KeyValueListPartComponent } from './components/workflows/workflow-form/dynamic-parts/key-value-list-part/key-value-list-part.component';
 import { GuidPartComponent } from './components/workflows/workflow-form/dynamic-parts/guid-part/guid-part.component';
 import { CronQuartzPartComponent } from './components/workflows/workflow-form/dynamic-parts/cron-quartz-part/cron-quartz-part.component';
 import { JobComponent } from './components/workflows/workflow-form/jobs/job/job.component';
@@ -75,7 +76,6 @@ import { BaseUrlInterceptor } from './services/interceptors/baseurl.interceptor'
 import { JobTemplatesComponent } from './components/admin/job-templates/job-templates.component';
 import { JobTemplatesEffects } from './stores/job-templates/job-templates.effects';
 import { JobTemplatesHomeComponent } from './components/admin/job-templates/job-templates-home/job-templates-home.component';
-import { JobTemplateShowComponent } from './components/admin/job-templates/job-template-show/job-template-show.component';
 import { StringWithSuggestionsPartComponent } from './components/workflows/workflow-form/dynamic-parts/string-with-suggestions-part/string-with-suggestions-part.component';
 import { NotificationRulesComponent } from './components/admin/notification-rules/notification-rules.component';
 import { NotificationRulesHomeComponent } from './components/admin/notification-rules/notification-rules-home/notification-rules-home.component';
@@ -93,9 +93,16 @@ import { AbsaKafkaComponent } from './components/workflows/workflow-form/sensor/
 import { SparkJobComponent } from './components/workflows/workflow-form/jobs/job/job-types/spark-job/spark-job.component';
 import { ShellJobComponent } from './components/workflows/workflow-form/jobs/job/job-types/shell-job/shell-job.component';
 import { HyperdriveJobComponent } from './components/workflows/workflow-form/jobs/job/job-types/hyperdrive-job/hyperdrive-job.component';
-import { ShellTemplateComponent } from './components/admin/job-templates/job-template-show/template-types/shell-template/shell-template.component';
-import { SparkTemplateComponent } from './components/admin/job-templates/job-template-show/template-types/spark-template/spark-template.component';
-import { HyperdriveTemplateComponent } from './components/admin/job-templates/job-template-show/template-types/hyperdrive-template/hyperdrive-template.component';
+import { ShellTemplateComponent } from './components/admin/job-templates/job-templates-form/template-types/shell-template/shell-template.component';
+import { SparkTemplateComponent } from './components/admin/job-templates/job-templates-form/template-types/spark-template/spark-template.component';
+import { HyperdriveTemplateComponent } from './components/admin/job-templates/job-templates-form/template-types/hyperdrive-template/hyperdrive-template.component';
+import { JobTemplateComponent } from './components/admin/job-templates/job-template/job-template.component';
+import { JobTemplatesFormComponent } from './components/admin/job-templates/job-templates-form/job-templates-form.component';
+import { JobTemplateHistoryComponent } from './components/admin/job-templates/job-template-history/job-template-history.component';
+import { JobTemplateComparisonComponent } from './components/admin/job-templates/job-template-history/job-template-comparison/job-template-comparison.component';
+import { JobTemplateUsageComponent } from './components/admin/job-templates/job-templates-home/job-template-usage/job-template-usage.component';
+import { LengthValidator } from './components/workflows/workflow-form/dynamic-parts/string-sequence-part/validator/length.validator';
+import { NotificationRuleUsageComponent } from './components/admin/notification-rules/notification-rules-home/notification-rule-usage/notification-rule-usage.component';
 
 @NgModule({
   declarations: [
@@ -128,11 +135,13 @@ import { HyperdriveTemplateComponent } from './components/admin/job-templates/jo
     DurationPartComponent,
     SelectPartComponent,
     StringSequencePartComponent,
-    KeyStringValuePartComponent,
+    KeyValueListPartComponent,
+    KeyValueMapPartComponent,
     GuidPartComponent,
     CronQuartzPartComponent,
     ConfirmationDialogComponent,
     CronQuartzExpressionValidator,
+    LengthValidator,
     WorkflowHistoryComponent,
     WorkflowComparisonComponent,
     WorkflowFormComponent,
@@ -143,13 +152,18 @@ import { HyperdriveTemplateComponent } from './components/admin/job-templates/jo
     LoginDialogComponent,
     JobTemplatesComponent,
     JobTemplatesHomeComponent,
-    JobTemplateShowComponent,
+    JobTemplateUsageComponent,
+    JobTemplateComponent,
+    JobTemplatesFormComponent,
+    JobTemplateHistoryComponent,
+    JobTemplateComparisonComponent,
     ShellTemplateComponent,
     SparkTemplateComponent,
     HyperdriveTemplateComponent,
     NotificationRuleComponent,
     NotificationRulesComponent,
     NotificationRulesHomeComponent,
+    NotificationRuleUsageComponent,
     NotificationRulesFormComponent,
     NotificationRuleComparisonComponent,
     NotificationRuleHistoryComponent,

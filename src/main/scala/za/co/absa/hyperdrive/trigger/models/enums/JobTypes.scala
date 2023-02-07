@@ -29,14 +29,11 @@ object JobTypes {
 
   val jobTypes: Set[JobType] = Set(Spark, Hyperdrive, Shell)
 
-  def convertJobTypeNameToJobType(jobType: String): JobType = {
-    JobTypes.jobTypes.find(_.name == jobType).getOrElse(
-      throw new Exception(s"Couldn't find JobType: $jobType")
-    )
-  }
+  def convertJobTypeNameToJobType(jobType: String): JobType =
+    JobTypes.jobTypes.find(_.name == jobType).getOrElse(throw new Exception(s"Couldn't find JobType: $jobType"))
 
   implicit val jobTypesFormat: Format[JobType] = Format[JobType](
     JsPath.read[String].map(convertJobTypeNameToJobType),
-    Writes[JobType] { jobType => JsString(jobType.name) }
+    Writes[JobType](jobType => JsString(jobType.name))
   )
 }

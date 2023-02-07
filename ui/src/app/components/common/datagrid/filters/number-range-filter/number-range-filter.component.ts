@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Input } from '@angular/core';
 import { ClrDatagridFilterInterface } from '@clr/angular';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
@@ -40,11 +40,11 @@ export class NumberRangeFilterComponent implements ClrDatagridFilterInterface<an
   }
 
   ngAfterViewInit(): void {
-    this.modelSubscription = this.modelChanges.pipe(debounceTime(500), distinctUntilChanged()).subscribe((newValue) => {
+    this.modelSubscription = this.modelChanges.pipe(debounceTime(500), distinctUntilChanged()).subscribe(() => {
       this.changes.next();
     });
 
-    this.removeFiltersSubject.subscribe((_) => this.onRemoveFilter());
+    this.removeFiltersSubject.subscribe(() => this.onRemoveFilter());
   }
 
   accepts(item: any): boolean {

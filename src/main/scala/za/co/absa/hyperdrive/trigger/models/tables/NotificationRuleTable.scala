@@ -20,6 +20,10 @@ import slick.lifted.ProvenShape
 import za.co.absa.hyperdrive.trigger.models.NotificationRule
 import za.co.absa.hyperdrive.trigger.models.NotificationRule.Recipients
 import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses.DagInstanceStatus
+import za.co.absa.hyperdrive.trigger.models.tables.tableExtensions.searchableTable.{
+  SearchableTable,
+  SearchableTableQuery
+}
 
 import java.time.LocalDateTime
 
@@ -27,7 +31,9 @@ trait NotificationRuleTable extends SearchableTableQuery {
   this: Profile with JdbcTypeMapper =>
   import api._
 
-  final class NotificationRuleTable(tag: Tag) extends Table[NotificationRule](tag, _tableName = "notification_rule") with SearchableTable {
+  final class NotificationRuleTable(tag: Tag)
+      extends Table[NotificationRule](tag, _tableName = "notification_rule")
+      with SearchableTable {
     def isActive: Rep[Boolean] = column[Boolean]("is_active")
     def project: Rep[Option[String]] = column[Option[String]]("project")
     def workflowPrefix: Rep[Option[String]] = column[Option[String]]("workflow_prefix")
@@ -38,8 +44,17 @@ trait NotificationRuleTable extends SearchableTableQuery {
     def updated: Rep[Option[LocalDateTime]] = column[Option[LocalDateTime]]("updated")
     def id: Rep[Long] = column[Long]("id", O.PrimaryKey, O.AutoInc, O.SqlType("BIGSERIAL"))
 
-    def * : ProvenShape[NotificationRule] = (isActive, project, workflowPrefix, minElapsedSecondsSinceLastSuccess,
-      statuses, recipients, created, updated, id) <> (
+    def * : ProvenShape[NotificationRule] = (
+      isActive,
+      project,
+      workflowPrefix,
+      minElapsedSecondsSinceLastSuccess,
+      statuses,
+      recipients,
+      created,
+      updated,
+      id
+    ) <> (
       notificationTuple =>
         NotificationRule.apply(
           isActive = notificationTuple._1,

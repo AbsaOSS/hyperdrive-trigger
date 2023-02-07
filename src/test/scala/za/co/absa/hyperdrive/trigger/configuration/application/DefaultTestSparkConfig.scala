@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -18,36 +17,36 @@ package za.co.absa.hyperdrive.trigger.configuration.application
 
 import java.util.Properties
 
-object DefaultTestSparkConfig {
-  def apply(
-    submitTimeout: Int = 1000,
-    hadoopConfDir: String = "",
-    master: String = "yarn",
-    sparkHome: String = "",
-    hadoopResourceManagerUrlBase: String = "",
-    filesToDeploy: Seq[String] = Seq(),
-    additionalConfs: Map[String, String] = Map(),
-    userUsedToKillJob: String = "Unknown"
-  ): SparkConfig = {
-    new SparkConfig("yarn", new SparkYarnSinkConfig(submitTimeout, hadoopConfDir, master, sparkHome,
-      filesToDeploy.mkString(","), toProperties(additionalConfs)), null, hadoopResourceManagerUrlBase,
-      userUsedToKillJob
+case class DefaultTestSparkConfig(
+  submitApi: String = "yarn",
+  submitTimeout: Int = 1000,
+  master: String = "yarn",
+  hadoopResourceManagerUrlBase: String = "",
+  filesToDeploy: Seq[String] = Seq(),
+  additionalConfs: Map[String, String] = Map(),
+  userUsedToKillJob: String = "Unknown",
+  sparkSubmitThreadPoolSize: Int = 10,
+  clusterId: String = "j-2AXXXXXXGAPLF"
+) {
+  def yarn: SparkConfig =
+    new SparkConfig(
+      submitApi,
+      new SparkYarnSinkConfig(submitTimeout, master, filesToDeploy.mkString(","), toProperties(additionalConfs)),
+      null,
+      hadoopResourceManagerUrlBase,
+      userUsedToKillJob,
+      sparkSubmitThreadPoolSize
     )
-  }
 
-  def emr(
-    clusterId: String = "j-2AXXXXXXGAPLF",
-    awsProfile: String = "",
-    region: String = "",
-    hadoopResourceManagerUrlBase: String = "",
-    filesToDeploy: Seq[String] = Seq(),
-    additionalConfs: Map[String, String] = Map(),
-    userUsedToKillJob: String = "Unknown"
-  ): SparkConfig = {
-    new SparkConfig("emr", null, new SparkEmrSinkConfig(clusterId, awsProfile, region,
-      filesToDeploy.mkString(","), toProperties(additionalConfs)), hadoopResourceManagerUrlBase, userUsedToKillJob
+  def emr: SparkConfig =
+    new SparkConfig(
+      submitApi,
+      null,
+      new SparkEmrSinkConfig(clusterId, filesToDeploy.mkString(","), toProperties(additionalConfs)),
+      hadoopResourceManagerUrlBase,
+      userUsedToKillJob,
+      sparkSubmitThreadPoolSize
     )
-  }
 
   private def toProperties(map: Map[String, String]): Properties = {
     val properties = new Properties()

@@ -1,0 +1,63 @@
+<!--
+  ~ Copyright 2018 ABSA Group Limited
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<app-string-part
+  [isShow]="isShow"
+  [name]="'Job jar'"
+  [value]="jobParameters?.jobJar"
+  (valueChange)="jobJarChange($event)"
+  [isRequired]=true
+  [minLength]=1>
+</app-string-part>
+<app-string-part
+  [isShow]="isShow"
+  [name]="'Main class'"
+  [value]="jobParameters?.mainClass"
+  (valueChange)="mainClassChange($event)"
+  [isRequired]=true
+  [minLength]=1>
+</app-string-part>
+<app-string-sequence-part
+  [isShow]="isShow"
+  [name]="'Additional jars'"
+  [value]="jobParameters?.additionalJars"
+  (valueChange)="additionalJarsChange($event)"
+  [isRequired]=false
+  [minLength]=1>
+</app-string-sequence-part>
+<app-string-sequence-part
+  [isShow]="isShow"
+  [name]="'Additional files'"
+  [value]="jobParameters?.additionalFiles"
+  (valueChange)="additionalFilesChange($event)"
+  [isRequired]=false
+  [minLength]=1>
+</app-string-sequence-part>
+<app-key-value-list-part
+  [isShow]="isShow"
+  [name]="'Additional Spark Config'"
+  [value]="jobParameters?.additionalSparkConfig"
+  (valueChange)="additionalSparkConfigChange($event)"
+  [isRequired]=false
+  [minLength]=1>
+</app-key-value-list-part>
+<app-string-sequence-part
+  [isShow]="isShow"
+  [name]="'App arguments'"
+  [value]="jobParameters?.appArguments"
+  (valueChange)="appArgumentsChange($event)"
+  [isRequired]=false
+  [minLength]=1>
+</app-string-sequence-part>

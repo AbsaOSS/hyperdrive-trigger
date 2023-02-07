@@ -13,27 +13,42 @@
  * limitations under the License.
  */
 
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing';
 import { WorkflowsComponent } from './workflows.component';
 import { provideMockStore } from '@ngrx/store/testing';
-import { ProjectModelFactory } from '../../models/project.model';
+import { ProjectModelFactory, WorkflowIdentityModelFactory } from '../../models/project.model';
 import { WorkflowModelFactory } from '../../models/workflow.model';
+import { RouterTestingModule } from '@angular/router/testing';
+import { Router, Routes } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { AppState } from '../../stores/app.reducers';
+import { FilterProjects } from '../../stores/workflows/workflows.actions';
 
 describe('WorkflowsComponent', () => {
   let fixture: ComponentFixture<WorkflowsComponent>;
   let underTest: WorkflowsComponent;
+  let router: Router;
+  let store: Store<AppState>;
+
+  const routes = [{ path: 'workflows/show/:id', component: {} }] as Routes;
+
+  const projects = [
+    ProjectModelFactory.create('projectOne', [
+      WorkflowModelFactory.create('workflowOne', undefined, undefined, undefined, undefined, undefined, undefined),
+    ]),
+    ProjectModelFactory.create('projectTwo', [
+      WorkflowModelFactory.create('workflowTwo', undefined, undefined, undefined, undefined, undefined, undefined),
+    ]),
+  ];
 
   const initialAppState = {
     workflows: {
       loading: true,
-      projects: [
-        ProjectModelFactory.create('projectOne', [
-          WorkflowModelFactory.create('workflowOne', undefined, undefined, undefined, undefined, undefined),
-        ]),
-        ProjectModelFactory.create('projectTwo', [
-          WorkflowModelFactory.create('workflowTwo', undefined, undefined, undefined, undefined, undefined),
-        ]),
-      ],
+      projects: {
+        initialProjects: projects,
+        filteredProjects: projects,
+        projectsFilter: '',
+      },
     },
   };
 
@@ -42,7 +57,10 @@ describe('WorkflowsComponent', () => {
       TestBed.configureTestingModule({
         providers: [provideMockStore({ initialState: initialAppState })],
         declarations: [WorkflowsComponent],
+        imports: [RouterTestingModule.withRoutes(routes)],
       }).compileComponents();
+      router = TestBed.inject(Router);
+      store = TestBed.inject(Store);
     }),
   );
 
@@ -65,4 +83,126 @@ describe('WorkflowsComponent', () => {
       });
     }),
   );
+
+  describe('isWorkflowHighlighted', () => {
+    it(
+      'should return true when url contains input id',
+      waitForAsync(() => {
+        const idMatching = 555;
+        router.navigate(['workflows/show', idMatching]).then(() => {
+          expect(underTest.isWorkflowHighlighted(idMatching)).toBeTruthy();
+        });
+      }),
+    );
+
+    it(
+      'should return false when url does not contain input id',
+      waitForAsync(() => {
+        const idNonMatching = 5;
+        router.navigate(['workflows/show', 555]).then(() => {
+          expect(underTest.isWorkflowHighlighted(idNonMatching)).toBeFalse();
+        });
+      }),
+    );
+  });
+
+  it(
+    'toggleProject() should toggle a project',
+    waitForAsync(() => {
+      const project = 'project';
+      const projectOther = 'projectOther';
+
+      expect(underTest.openedProjects.size).toEqual(0);
+
+      underTest.toggleProject(project);
+      expect(underTest.openedProjects.size).toEqual(1);
+      expect(underTest.openedProjects).toContain(project);
+
+      underTest.toggleProject(projectOther);
+      expect(underTest.openedProjects.size).toEqual(2);
+      expect(underTest.openedProjects).toContain(project);
+      expect(underTest.openedProjects).toContain(projectOther);
+
+      underTest.toggleProject(project);
+      expect(underTest.openedProjects.size).toEqual(1);
+      expect(underTest.openedProjects).toContain(projectOther);
+
+      underTest.toggleProject(projectOther);
+      expect(underTest.openedProjects.size).toEqual(0);
+    }),
+  );
+
+  describe('isProjectClosed', () => {
+    it(
+      'should return true if project is not in opened projects no workflow is highlighted',
+      waitForAsync(() => {
+        const id = 555;
+        const otherId = 5;
+        router.navigate(['workflows/show', id]).then(() => {
+          expect(underTest.openedProjects.size).toEqual(0);
+          expect(underTest.isWorkflowHighlighted(otherId)).toBeFalse();
+
+          const result = underTest.isProjectClosed('project', [WorkflowIdentityModelFactory.create(otherId, 'name')]);
+
+          expect(result).toBeTruthy();
+        });
+      }),
+    );
+
+    it(
+      'should return false if project is in opened projects',
+      waitForAsync(() => {
+        const id = 555;
+        const otherId = 5;
+        const projectName = 'project';
+        underTest.openedProjects.add(projectName);
+
+        router.navigate(['workflows/show', id]).then(() => {
+          expect(underTest.openedProjects.size).toEqual(1);
+          expect(underTest.openedProjects).toContain(projectName);
+          expect(underTest.isWorkflowHighlighted(otherId)).toBeFalse();
+
+          const result = underTest.isProjectClosed(projectName, [WorkflowIdentityModelFactory.create(otherId, 'name')]);
+
+          expect(result).toBeFalse();
+        });
+      }),
+    );
+
+    it(
+      'should return false if project workflow is highlighted',
+      waitForAsync(() => {
+        const id = 555;
+        router.navigate(['workflows/show', id]).then(() => {
+          expect(underTest.openedProjects.size).toEqual(0);
+          expect(underTest.isWorkflowHighlighted(id)).toBeTruthy();
+
+          const result = underTest.isProjectClosed('project', [WorkflowIdentityModelFactory.create(id, 'name')]);
+
+          expect(underTest.openedProjects.size).toEqual(1);
+          expect(result).toBeFalse();
+        });
+      }),
+    );
+  });
+
+  describe('projectsFilterChange', () => {
+    it('should dispatch filter projects action when filter is changed', fakeAsync(() => {
+      const newFilterValue = 'newFilterValue';
+      const usedAction = new FilterProjects(newFilterValue);
+
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        const storeSpy = spyOn(store, 'dispatch');
+        underTest.projectsFilterChange(newFilterValue);
+        fixture.detectChanges();
+        tick(500);
+
+        fixture.whenStable().then(() => {
+          expect(storeSpy).toHaveBeenCalledTimes(1);
+          expect(storeSpy).toHaveBeenCalledWith(usedAction);
+        });
+      });
+    }));
+  });
 });

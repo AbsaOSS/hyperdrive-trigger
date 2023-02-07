@@ -18,7 +18,7 @@ import { ActivatedRoute } from '@angular/router';
 import { AppState, selectWorkflowState } from '../../../stores/app.reducers';
 import { Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
-import { StartWorkflowInitialization, ImportWorkflow } from '../../../stores/workflows/workflows.actions';
+import { StartWorkflowInitialization, ImportWorkflow, RevertWorkflow } from '../../../stores/workflows/workflows.actions';
 import { workflowModes } from '../../../models/enums/workflowModes.constants';
 import { JobTemplateModel } from '../../../models/jobTemplate.model';
 import { WorkflowJoinedModel } from '../../../models/workflowJoined.model';
@@ -47,6 +47,8 @@ export class WorkflowComponent implements OnInit, OnDestroy {
     this.paramsSubscription = route.params.subscribe((parameters) => {
       if (parameters.mode == this.workflowModes.IMPORT) {
         this.store.dispatch(new ImportWorkflow());
+      } else if (parameters.mode == this.workflowModes.REVERT) {
+        this.store.dispatch(new RevertWorkflow(parameters.id));
       } else {
         this.store.dispatch(new StartWorkflowInitialization({ id: parameters.id, mode: parameters.mode }));
       }
@@ -60,7 +62,7 @@ export class WorkflowComponent implements OnInit, OnDestroy {
       this.loading = state.workflowAction.loading;
       this.initialWorkflow = state.workflowAction.workflow;
       this.workflowForForm = state.workflowAction.workflowForForm;
-      this.projects = state.projects.map((project) => project.name);
+      this.projects = state.projects.initialProjects.map((project) => project.name);
       this.jobTemplates = state.jobTemplates;
       this.backendValidationErrors = state.workflowAction.backendValidationErrors;
     });

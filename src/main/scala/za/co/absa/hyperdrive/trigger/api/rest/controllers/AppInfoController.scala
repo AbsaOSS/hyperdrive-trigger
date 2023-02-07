@@ -21,19 +21,14 @@ import za.co.absa.hyperdrive.trigger.models.AppInfo
 
 import javax.inject.Inject
 
-@RestController 
-class AppInfoController @Inject()(sparkConfig: SparkConfig, generalConfig: GeneralConfig) {
+@RestController
+class AppInfoController @Inject() (sparkConfig: SparkConfig, generalConfig: GeneralConfig) {
   val environment: String = generalConfig.environment
   val version: String = generalConfig.version
   val resourceManagerUrl: String = sparkConfig.hadoopResourceManagerUrlBase
 
   @GetMapping(path = Array("/app/info"))
-  def appInfo(): AppInfo = {
-    AppInfo(
-      environment = environment,
-      version = version,
-      resourceManagerUrl = resourceManagerUrl
-    )
-  }
+  def appInfo(): AppInfo =
+    AppInfo(environment = environment, version = version, resourceManagerUrl = resourceManagerUrl)
 
 }

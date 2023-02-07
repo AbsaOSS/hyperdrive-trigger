@@ -35,11 +35,13 @@ import {
   UpdateWorkflowsIsActive,
   ImportWorkflows,
   RunWorkflows,
+  RevertWorkflow,
+  SearchWorkflows,
 } from './workflows.actions';
 
 import { WorkflowsEffects } from './workflows.effects';
 import { WorkflowService } from '../../services/workflow/workflow.service';
-import { ProjectModelFactory } from '../../models/project.model';
+import { ProjectModelFactory, WorkflowIdentityModelFactory } from '../../models/project.model';
 import { WorkflowModel, WorkflowModelFactory } from '../../models/workflow.model';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import { workflowModes } from '../../models/enums/workflowModes.constants';
@@ -62,6 +64,9 @@ import { BulkOperationErrorModelFactory } from 'src/app/models/errors/bulkOperat
 import { RecurringSensorProperties } from '../../models/sensorProperties.model';
 import { JobTemplateModelFactory } from '../../models/jobTemplate.model';
 import { SparkTemplateParametersModel } from '../../models/jobTemplateParameters.model';
+import * as WorkflowActions from './workflows.actions';
+import { TableSearchRequestModelFactory } from '../../models/search/tableSearchRequest.model';
+import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
 
 describe('WorkflowsEffects', () => {
   let underTest: WorkflowsEffects;
@@ -112,12 +117,8 @@ describe('WorkflowsEffects', () => {
   describe('workflowsInitialize', () => {
     it('should return projects and templates', () => {
       const projects = [
-        ProjectModelFactory.create('projectName1', [
-          WorkflowModelFactory.create('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 0),
-        ]),
-        ProjectModelFactory.create('projectName2', [
-          WorkflowModelFactory.create('workflowName2', true, 'projectName2', new Date(Date.now()), new Date(Date.now()), 1),
-        ]),
+        ProjectModelFactory.create('projectName1', [WorkflowIdentityModelFactory.create(0, 'workflowName1')]),
+        ProjectModelFactory.create('projectName2', [WorkflowIdentityModelFactory.create(1, 'workflowName2')]),
       ];
 
       const jobTemplates = [JobTemplateModelFactory.create(0, 'templateName0', SparkTemplateParametersModel.createEmpty())];
@@ -127,7 +128,7 @@ describe('WorkflowsEffects', () => {
       const getProjectsResponse = cold('-a|', { a: projects });
       const getJobTemplatesResponse = cold('-a|', { a: jobTemplates });
 
-      const expected = cold('---a', {
+      const expected = cold('--a', {
         a: {
           type: WorkflowsActions.INITIALIZE_WORKFLOWS_SUCCESS,
           payload: { projects: projects, jobTemplates: jobTemplates },
@@ -141,12 +142,14 @@ describe('WorkflowsEffects', () => {
     });
 
     it('should return initialize workflows failure if workflowService.getJobTemplates responds with an error', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'error');
+
       const projects = [
         ProjectModelFactory.create('projectName1', [
-          WorkflowModelFactory.create('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 0),
+          WorkflowModelFactory.create('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 1, 0),
         ]),
         ProjectModelFactory.create('projectName2', [
-          WorkflowModelFactory.create('workflowName2', true, 'projectName2', new Date(Date.now()), new Date(Date.now()), 1),
+          WorkflowModelFactory.create('workflowName2', true, 'projectName2', new Date(Date.now()), new Date(Date.now()), 1, 1),
         ]),
       ];
 
@@ -155,7 +158,7 @@ describe('WorkflowsEffects', () => {
       const getProjectsResponse = cold('-a|', { a: projects });
       const getJobTemplatesResponse = cold('-#|');
 
-      const expected = cold('---a', {
+      const expected = cold('--(a|)', {
         a: {
           type: WorkflowsActions.INITIALIZE_WORKFLOWS_FAILURE,
         },
@@ -165,6 +168,55 @@ describe('WorkflowsEffects', () => {
       spyOn(workflowService, 'getJobTemplates').and.returnValue(getJobTemplatesResponse);
 
       expect(underTest.workflowsInitialize).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.LOAD_WORKFLOWS_FAILURE_NOTIFICATION);
+    });
+  });
+
+  describe('workflowsSearch', () => {
+    it('should return workflows search response', () => {
+      const workflows = [
+        WorkflowModelFactory.create('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 1, 0),
+      ];
+      const searchResponseModel = new TableSearchResponseModel<WorkflowModel>(workflows, 1);
+      const searchRequest = TableSearchRequestModelFactory.create(0, 100);
+
+      const action = new SearchWorkflows(searchRequest);
+      mockActions = cold('-a', { a: action });
+      const searchWorkflowsResponse = cold('-a|', { a: searchResponseModel });
+
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowsActions.SEARCH_WORKFLOWS_SUCCESS,
+          payload: { workflows: searchResponseModel.items, total: searchResponseModel.total },
+        },
+      });
+
+      spyOn(workflowService, 'searchWorkflows').and.returnValue(searchWorkflowsResponse);
+
+      expect(underTest.workflowsSearch).toBeObservable(expected);
+    });
+
+    it('should return search workflows failure if workflowService.searchWorkflows responds with an error', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'error');
+
+      const searchRequest = TableSearchRequestModelFactory.create(0, 100);
+
+      const action = new SearchWorkflows(searchRequest);
+      mockActions = cold('-a', { a: action });
+      const searchWorkflowsResponse = cold('-#|');
+
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowsActions.SEARCH_WORKFLOWS_FAILURE,
+        },
+      });
+
+      spyOn(workflowService, 'searchWorkflows').and.returnValue(searchWorkflowsResponse);
+
+      expect(underTest.workflowsSearch).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.SEARCH_WORKFLOWS_FAILURE_NOTIFICATION);
     });
   });
 
@@ -219,6 +271,7 @@ describe('WorkflowsEffects', () => {
         undefined,
         SensorModelFactory.create(10, new RecurringSensorProperties(), 10),
         DagDefinitionJoinedModelFactory.create(10, [jobDefinition], 10),
+        1,
         10,
       );
 
@@ -495,6 +548,7 @@ describe('WorkflowsEffects', () => {
         undefined,
         SensorModelFactory.create(10, undefined, 10),
         DagDefinitionJoinedModelFactory.create(10, [JobDefinitionModelFactory.create(10, 'name', '1', undefined, 0, 10)], 10),
+        1,
         10,
       );
       const createWorkflowSuccessPayload: WorkflowModel = WorkflowModelFactory.create(
@@ -503,6 +557,7 @@ describe('WorkflowsEffects', () => {
         workflow.project,
         workflow.created,
         workflow.updated,
+        workflow.version,
         workflow.id,
       );
 
@@ -581,6 +636,7 @@ describe('WorkflowsEffects', () => {
         undefined,
         SensorModelFactory.create(10, undefined, 10),
         DagDefinitionJoinedModelFactory.create(10, [JobDefinitionModelFactory.create(10, 'name', '1', undefined, 0, 10)], 10),
+        1,
         10,
       );
       const updateWorkflowSuccessPayload: WorkflowModel = WorkflowModelFactory.create(
@@ -589,6 +645,7 @@ describe('WorkflowsEffects', () => {
         workflow.project,
         workflow.created,
         workflow.updated,
+        workflow.version,
         workflow.id,
       );
 
@@ -929,6 +986,7 @@ describe('WorkflowsEffects', () => {
         undefined,
         SensorModelFactory.create(10, new RecurringSensorProperties(), 10),
         DagDefinitionJoinedModelFactory.create(10, [jobDefinition], 10),
+        1,
         10,
       );
 
@@ -1000,9 +1058,9 @@ describe('WorkflowsEffects', () => {
   describe('workflowsImport', () => {
     it('should import multiple workflows', () => {
       const toastrServiceSpy = spyOn(toastrService, 'success');
-      const w1 = WorkflowModelFactory.create('w1', true, 'p1', new Date(Date.now()), new Date(Date.now()), 1);
-      const w2 = WorkflowModelFactory.create('w2', true, 'p1', new Date(Date.now()), new Date(Date.now()), 2);
-      const w3 = WorkflowModelFactory.create('w3', true, 'p2', new Date(Date.now()), new Date(Date.now()), 3);
+      const w1 = WorkflowModelFactory.create('w1', true, 'p1', new Date(Date.now()), new Date(Date.now()), 1, 1);
+      const w2 = WorkflowModelFactory.create('w2', true, 'p1', new Date(Date.now()), new Date(Date.now()), 1, 2);
+      const w3 = WorkflowModelFactory.create('w3', true, 'p2', new Date(Date.now()), new Date(Date.now()), 1, 3);
       const projects = [ProjectModelFactory.create('p1', [w1, w2]), ProjectModelFactory.create('p2', [w3])];
 
       const file: File = new File(['content'], 'workflows.zip');
@@ -1075,6 +1133,94 @@ describe('WorkflowsEffects', () => {
       expect(utilServiceSpy).toHaveBeenCalledWith(expectedErrorMessagesGroup);
       expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
       expect(toastrServiceSpy).toHaveBeenCalledWith('sometext', texts.IMPORT_WORKFLOWS_BULK_FAILURE_TITLE, jasmine.anything());
+    });
+  });
+
+  describe('workflowRevert', () => {
+    it('should load workflow from history', () => {
+      const payload = 1;
+      const response = WorkflowJoinedModelFactory.createEmpty();
+
+      const action = new RevertWorkflow(payload);
+      mockActions = cold('-a', { a: action });
+      const getHistoryWorkflowResponse = cold('-a|', { a: response });
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowActions.REVERT_WORKFLOW_SUCCESS,
+          payload: response,
+        },
+      });
+
+      spyOn(workflowHistoryService, 'getWorkflowFromHistory').and.returnValue(getHistoryWorkflowResponse);
+
+      expect(underTest.workflowRevert).toBeObservable(expected);
+    });
+
+    it('should display failure when service fails to load workflow from history', () => {
+      const toastrServiceSpy = spyOn(toastrService, 'error');
+      const payload = 1;
+
+      const action = new RevertWorkflow(payload);
+      mockActions = cold('-a', { a: action });
+
+      const getHistoryWorkflowResponse = cold('-#|');
+      spyOn(workflowHistoryService, 'getWorkflowFromHistory').and.returnValue(getHistoryWorkflowResponse);
+
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowActions.REVERT_WORKFLOW_FAILURE,
+        },
+      });
+      expect(underTest.workflowRevert).toBeObservable(expected);
+      expect(toastrServiceSpy).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpy).toHaveBeenCalledWith(texts.LOAD_WORKFLOW_FROM_HISTORY_FAILURE_NOTIFICATION);
+    });
+  });
+
+  describe('sortJobsInWorkflow', () => {
+    it('should return input workflow if workflow contains 0 jobs', () => {
+      const workflow = WorkflowJoinedModelFactory.createEmpty();
+      const inputWorkflow = { ...workflow, dagDefinitionJoined: { ...workflow.dagDefinitionJoined, jobDefinitions: [] } };
+
+      const result = underTest.sortJobsInWorkflow(inputWorkflow);
+
+      expect(result).toEqual(inputWorkflow);
+    });
+
+    it('should return input workflow with sorted jobs', () => {
+      const workflow = WorkflowJoinedModelFactory.createEmpty();
+      const firstJob = JobDefinitionModelFactory.createDefault(0);
+      const secondJob = JobDefinitionModelFactory.createDefault(1);
+      const thirdJob = JobDefinitionModelFactory.createDefault(2);
+
+      const inputWorkflow = {
+        ...workflow,
+        dagDefinitionJoined: { ...workflow.dagDefinitionJoined, jobDefinitions: [thirdJob, secondJob, firstJob] },
+      };
+      const expectedWorkflow = {
+        ...workflow,
+        dagDefinitionJoined: { ...workflow.dagDefinitionJoined, jobDefinitions: [firstJob, secondJob, thirdJob] },
+      };
+
+      const result = underTest.sortJobsInWorkflow(inputWorkflow);
+
+      expect(result).toEqual(expectedWorkflow);
+    });
+
+    it('should return input workflow if jobs are already sorted', () => {
+      const workflow = WorkflowJoinedModelFactory.createEmpty();
+      const firstJob = JobDefinitionModelFactory.createDefault(0);
+      const secondJob = JobDefinitionModelFactory.createDefault(1);
+      const thirdJob = JobDefinitionModelFactory.createDefault(2);
+
+      const inputWorkflow = {
+        ...workflow,
+        dagDefinitionJoined: { ...workflow.dagDefinitionJoined, jobDefinitions: [firstJob, secondJob, thirdJob] },
+      };
+
+      const result = underTest.sortJobsInWorkflow(inputWorkflow);
+
+      expect(result).toEqual(inputWorkflow);
     });
   });
 });

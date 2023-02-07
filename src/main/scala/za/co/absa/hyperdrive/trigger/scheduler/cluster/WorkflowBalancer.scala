@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -28,9 +27,11 @@ import za.co.absa.hyperdrive.trigger.models.{SchedulerInstance, Workflow}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Component
-class WorkflowBalancer @Inject()(schedulerInstanceService: SchedulerInstanceService,
-                                 workflowBalancingService: WorkflowBalancingService,
-                                 schedulerConfig: SchedulerConfig) {
+class WorkflowBalancer @Inject() (
+  schedulerInstanceService: SchedulerInstanceService,
+  workflowBalancingService: WorkflowBalancingService,
+  schedulerConfig: SchedulerConfig
+) {
   case class SchedulerIdStatus(id: Long, status: SchedulerInstanceStatus)
   private val logger = LoggerFactory.getLogger(this.getClass)
 
@@ -40,7 +41,7 @@ class WorkflowBalancer @Inject()(schedulerInstanceService: SchedulerInstanceServ
   private var targetWorkflowAssignmentReached = false
   private var previousMaxWorkflowId: Option[Long] = None
 
-  def getAssignedWorkflows(runningWorkflowIds: Iterable[Long])(implicit ec: ExecutionContext): Future[Seq[Workflow]] = {
+  def getAssignedWorkflows(runningWorkflowIds: Iterable[Long])(implicit ec: ExecutionContext): Future[Seq[Workflow]] =
     for {
       instanceId <- getOrCreateInstance
       instances <- schedulerInstanceService.updateSchedulerStatus(instanceId, schedulerConfig.lagThreshold)
@@ -50,11 +51,12 @@ class WorkflowBalancer @Inject()(schedulerInstanceService: SchedulerInstanceServ
       maxWorkflowId <- workflowBalancingService.getMaxWorkflowId()
       isWorkflowsSteady = maxWorkflowId.isDefined && previousMaxWorkflowId == maxWorkflowId
       _ = logger.debug(s"Scheduler instance $instanceId observed maxWorkflowId = $maxWorkflowId")
-      (workflows, targetReachedValue) <- if (isInstancesSteady && isWorkflowsSteady && targetWorkflowAssignmentReached) {
-        Future { (previousAssignedWorkflows, targetWorkflowAssignmentReached) }
-      } else {
-        workflowBalancingService.getWorkflowsAssignment(runningWorkflowIds, instances, instanceId)
-      }
+      (workflows, targetReachedValue) <-
+        if (isInstancesSteady && isWorkflowsSteady && targetWorkflowAssignmentReached) {
+          Future((previousAssignedWorkflows, targetWorkflowAssignmentReached))
+        } else {
+          workflowBalancingService.getWorkflowsAssignment(runningWorkflowIds, instances, instanceId)
+        }
     } yield {
       previousInstancesIdStatus = instancesIdStatus
       previousMaxWorkflowId = maxWorkflowId
@@ -62,21 +64,20 @@ class WorkflowBalancer @Inject()(schedulerInstanceService: SchedulerInstanceServ
       previousAssignedWorkflows = workflows
       workflows
     }
-  }
 
-  def resetSchedulerInstanceId(): Unit = {
+  def resetSchedulerInstanceId(): Unit =
     schedulerInstanceId = None
-  }
 
-  private def getOrCreateInstance()(implicit ec: ExecutionContext) = {
+  private def getOrCreateInstance()(implicit ec: ExecutionContext) =
     schedulerInstanceId match {
-      case Some(id) => Future{id}
-      case None => schedulerInstanceService.registerNewInstance()
-        .map { id => schedulerInstanceId = Some(id)
-          logger.info(s"Registered new scheduler instance with id = $id")
-          id
-        }
+      case Some(id) => Future(id)
+      case None =>
+        schedulerInstanceService
+          .registerNewInstance()
+          .map { id =>
+            schedulerInstanceId = Some(id)
+            logger.info(s"Registered new scheduler instance with id = $id")
+            id
+          }
     }
-  }
 }
-

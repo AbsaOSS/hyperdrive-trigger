@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -28,10 +27,11 @@ import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses
 import za.co.absa.hyperdrive.trigger.persistance.SchedulerInstanceRepository
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
 class SchedulerInstanceServiceTest extends AsyncFlatSpec with MockitoSugar with Matchers with BeforeAndAfter {
+  override implicit def executionContext: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+
   private val schedulerInstanceRepository = mock[SchedulerInstanceRepository]
   private val underTest = new SchedulerInstanceServiceImpl(schedulerInstanceRepository)
 
@@ -61,9 +61,12 @@ class SchedulerInstanceServiceTest extends AsyncFlatSpec with MockitoSugar with 
       SchedulerInstance(23, SchedulerInstanceStatuses.Active, LocalDateTime.now()),
       SchedulerInstance(24, SchedulerInstanceStatuses.Active, LocalDateTime.now())
     )
-    when(schedulerInstanceRepository.updateHeartbeat(any(), any())(any[ExecutionContext])).thenReturn(Future{1})
-    when(schedulerInstanceRepository.getAllInstances()(any[ExecutionContext])).thenReturn(Future{instances})
-    when(schedulerInstanceRepository.deactivateLaggingInstances(any(), any(), any())(any[ExecutionContext])).thenReturn(Future{0})
+    when(schedulerInstanceRepository.getCurrentDateTime()(any[ExecutionContext]))
+      .thenReturn(Future(LocalDateTime.now()))
+    when(schedulerInstanceRepository.updateHeartbeat(any(), any())(any[ExecutionContext])).thenReturn(Future(1))
+    when(schedulerInstanceRepository.getAllInstances()(any[ExecutionContext])).thenReturn(Future(instances))
+    when(schedulerInstanceRepository.deactivateLaggingInstances(any(), any(), any())(any[ExecutionContext]))
+      .thenReturn(Future(0))
 
     // when
     val result = await(underTest.updateSchedulerStatus(23L, lagThreshold))
@@ -71,17 +74,21 @@ class SchedulerInstanceServiceTest extends AsyncFlatSpec with MockitoSugar with 
     // then
     result shouldBe instances
     verify(schedulerInstanceRepository, times(1)).updateHeartbeat(eqTo(23L), any())(any())
-    verify(schedulerInstanceRepository, times(1)).deactivateLaggingInstances(eqTo(23L), any(), eqTo(lagThreshold))(any())
+    verify(schedulerInstanceRepository, times(1)).deactivateLaggingInstances(eqTo(23L), any(), eqTo(lagThreshold))(
+      any()
+    )
     succeed
   }
 
   it should "throw an exception if the heartbeat could not be updated" in {
     // given
     val lagThreshold = Duration.ofSeconds(5L)
-    when(schedulerInstanceRepository.updateHeartbeat(any(), any())(any[ExecutionContext])).thenReturn(Future{0})
+    when(schedulerInstanceRepository.getCurrentDateTime()(any[ExecutionContext]))
+      .thenReturn(Future(LocalDateTime.now()))
+    when(schedulerInstanceRepository.updateHeartbeat(any(), any())(any[ExecutionContext])).thenReturn(Future(0))
 
     // when
-    the [SchedulerInstanceAlreadyDeactivatedException] thrownBy await(underTest.updateSchedulerStatus(23L, lagThreshold))
+    the[SchedulerInstanceAlreadyDeactivatedException] thrownBy await(underTest.updateSchedulerStatus(23L, lagThreshold))
 
     // then
     verify(schedulerInstanceRepository, never).deactivateLaggingInstances(any(), any(), any())(any())

@@ -17,6 +17,7 @@ export const workflowModes = {
   SHOW: 'show',
   CREATE: 'create',
   EDIT: 'edit',
+  REVERT: 'revert',
   COPY: 'copy',
   IMPORT: 'import',
   COMPARISON: 'comparison',

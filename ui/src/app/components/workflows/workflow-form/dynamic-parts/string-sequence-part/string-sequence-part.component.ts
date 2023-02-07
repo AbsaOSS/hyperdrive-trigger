@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { AfterContentChecked, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { ControlContainer, NgForm } from '@angular/forms';
 import { UuidUtil } from '../../../../../utils/uuid/uuid.util';
 import { texts } from 'src/app/constants/texts.constants';
@@ -24,7 +24,7 @@ import { texts } from 'src/app/constants/texts.constants';
   styleUrls: ['./string-sequence-part.component.scss'],
   viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
 })
-export class StringSequencePartComponent implements OnInit, OnChanges {
+export class StringSequencePartComponent implements OnInit, OnChanges, AfterContentChecked {
   uiid = UuidUtil.createUUID();
   @Input() isShow: boolean;
   @Input() name: string;
@@ -33,7 +33,9 @@ export class StringSequencePartComponent implements OnInit, OnChanges {
   @Input() isRequired = false;
   @Input() minLength = 1;
   @Input() maxLength: number = Number.MAX_SAFE_INTEGER;
+  @ViewChild('freeTextInput') freeTextInput;
 
+  isFreeText = false;
   maxFieldSize = 100;
 
   texts = texts;
@@ -46,11 +48,18 @@ export class StringSequencePartComponent implements OnInit, OnChanges {
     this.setDefaultValue();
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
+  ngAfterContentChecked(): void {
+    if (this.isFreeText && this.freeTextInput?.nativeElement) {
+      this.freeTextInput.nativeElement.style.height = '';
+      this.freeTextInput.nativeElement.style.height = this.freeTextInput.nativeElement.scrollHeight + 'px';
+    }
+  }
+
+  ngOnChanges(_: SimpleChanges): void {
     this.setDefaultValue();
   }
 
-  trackByFn(index, item) {
+  trackByFn(index, _) {
     return index;
   }
 
@@ -74,6 +83,15 @@ export class StringSequencePartComponent implements OnInit, OnChanges {
 
   setDefaultValue() {
     if (!this.value) this.modelChanged(this.isRequired ? [''] : []);
+  }
+
+  getFreeTextInputValue(): string {
+    return Object.assign([], this.value).join('\n');
+  }
+
+  freeTextInputChange(value: string): void {
+    const newValue = value.split('\n');
+    this.modelChanged(newValue);
   }
 
   modelChanged(value: string[]) {

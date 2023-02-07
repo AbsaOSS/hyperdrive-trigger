@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -33,7 +32,8 @@ import scala.concurrent.{ExecutionContext, Future}
 class WorkflowBalancingServiceTest extends FlatSpec with MockitoSugar with Matchers with BeforeAndAfter {
   private val workflowRepository = mock[WorkflowRepository]
   private val underTest = new WorkflowBalancingServiceImpl(workflowRepository)
-  private val baseWorkflow = Workflow(name = "workflow", isActive = true, project = "project", updated = None)
+  private val baseWorkflow =
+    Workflow(name = "workflow", isActive = true, project = "project", updated = None, version = 1)
 
   before {
     reset(workflowRepository)
@@ -58,13 +58,13 @@ class WorkflowBalancingServiceTest extends FlatSpec with MockitoSugar with Match
     )
     val myTargetWorkflows = workflows.filter(w => w.id == 3L || w.id == 6L)
 
-    when(workflowRepository.releaseWorkflowAssignmentsOfDeactivatedInstances()(any[ExecutionContext])).thenReturn(Future{(0, 0)})
-    when(workflowRepository.getWorkflows()(any[ExecutionContext])).thenReturn(Future{workflows})
-    when(workflowRepository.releaseWorkflowAssignments(any(), any())(any[ExecutionContext])).thenReturn(Future{0})
-    when(workflowRepository.acquireWorkflowAssignments(any(), any())(any[ExecutionContext])).thenReturn(Future{0})
-    when(workflowRepository.getWorkflowsBySchedulerInstance(eqTo(myInstanceId))(any[ExecutionContext])).thenReturn(
-      Future{myTargetWorkflows}
-    )
+    when(workflowRepository.releaseWorkflowAssignmentsOfDeactivatedInstances()(any[ExecutionContext]))
+      .thenReturn(Future((0, 0)))
+    when(workflowRepository.getWorkflows()(any[ExecutionContext])).thenReturn(Future(workflows))
+    when(workflowRepository.releaseWorkflowAssignments(any(), any())(any[ExecutionContext])).thenReturn(Future(0))
+    when(workflowRepository.acquireWorkflowAssignments(any(), any())(any[ExecutionContext])).thenReturn(Future(0))
+    when(workflowRepository.getWorkflowsBySchedulerInstance(eqTo(myInstanceId))(any[ExecutionContext]))
+      .thenReturn(Future(myTargetWorkflows))
 
     // when
     val result = await(underTest.getWorkflowsAssignment(runningWorkflowIds, instances, myInstanceId))
@@ -97,13 +97,13 @@ class WorkflowBalancingServiceTest extends FlatSpec with MockitoSugar with Match
     )
     val myTargetWorkflows = workflows.filter(w => Seq(1L, 3L, 4L, 5L).contains(w.id))
 
-    when(workflowRepository.releaseWorkflowAssignmentsOfDeactivatedInstances()(any[ExecutionContext])).thenReturn(Future{(0, 0)})
-    when(workflowRepository.getWorkflows()(any[ExecutionContext])).thenReturn(Future{workflows})
-    when(workflowRepository.releaseWorkflowAssignments(any(), any())(any[ExecutionContext])).thenReturn(Future{0})
-    when(workflowRepository.acquireWorkflowAssignments(any(), any())(any[ExecutionContext])).thenReturn(Future{0})
-    when(workflowRepository.getWorkflowsBySchedulerInstance(eqTo(myInstanceId))(any[ExecutionContext])).thenReturn(
-      Future{myTargetWorkflows}
-    )
+    when(workflowRepository.releaseWorkflowAssignmentsOfDeactivatedInstances()(any[ExecutionContext]))
+      .thenReturn(Future((0, 0)))
+    when(workflowRepository.getWorkflows()(any[ExecutionContext])).thenReturn(Future(workflows))
+    when(workflowRepository.releaseWorkflowAssignments(any(), any())(any[ExecutionContext])).thenReturn(Future(0))
+    when(workflowRepository.acquireWorkflowAssignments(any(), any())(any[ExecutionContext])).thenReturn(Future(0))
+    when(workflowRepository.getWorkflowsBySchedulerInstance(eqTo(myInstanceId))(any[ExecutionContext]))
+      .thenReturn(Future(myTargetWorkflows))
 
     // when
     val result = await(underTest.getWorkflowsAssignment(runningWorkflowIds, instances, myInstanceId))
@@ -135,13 +135,13 @@ class WorkflowBalancingServiceTest extends FlatSpec with MockitoSugar with Match
       baseWorkflow.copy(id = 6, schedulerInstanceId = None)
     )
 
-    when(workflowRepository.releaseWorkflowAssignmentsOfDeactivatedInstances()(any[ExecutionContext])).thenReturn(Future{(0, 0)})
-    when(workflowRepository.getWorkflows()(any[ExecutionContext])).thenReturn(Future{workflows})
-    when(workflowRepository.releaseWorkflowAssignments(any(), any())(any[ExecutionContext])).thenReturn(Future{0})
-    when(workflowRepository.acquireWorkflowAssignments(any(), any())(any[ExecutionContext])).thenReturn(Future{0})
-    when(workflowRepository.getWorkflowsBySchedulerInstance(eqTo(myInstanceId))(any[ExecutionContext])).thenReturn(
-      Future{workflows.filter(_.id == 2)}
-    )
+    when(workflowRepository.releaseWorkflowAssignmentsOfDeactivatedInstances()(any[ExecutionContext]))
+      .thenReturn(Future((0, 0)))
+    when(workflowRepository.getWorkflows()(any[ExecutionContext])).thenReturn(Future(workflows))
+    when(workflowRepository.releaseWorkflowAssignments(any(), any())(any[ExecutionContext])).thenReturn(Future(0))
+    when(workflowRepository.acquireWorkflowAssignments(any(), any())(any[ExecutionContext])).thenReturn(Future(0))
+    when(workflowRepository.getWorkflowsBySchedulerInstance(eqTo(myInstanceId))(any[ExecutionContext]))
+      .thenReturn(Future(workflows.filter(_.id == 2)))
 
     // when
     val result = await(underTest.getWorkflowsAssignment(runningWorkflowIds, instances, myInstanceId))

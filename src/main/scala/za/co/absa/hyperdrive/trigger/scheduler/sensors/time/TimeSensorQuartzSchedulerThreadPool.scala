@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -23,7 +22,7 @@ import org.quartz.spi.ThreadPool
 import org.slf4j.LoggerFactory
 
 /**
- * Thread Pool for Quartz Scheduler based on org.springframework.scheduling.quartz.LocalTaskExecutorThreadPool
+ *  Thread Pool for Quartz Scheduler based on org.springframework.scheduling.quartz.LocalTaskExecutorThreadPool
  */
 class TimeSensorQuartzSchedulerThreadPool extends ThreadPool {
 
@@ -58,13 +57,16 @@ class TimeSensorQuartzSchedulerThreadPool extends ThreadPool {
   }
 
   /**
-   * ThreadFactory based on {@link java.util.concurrent.Executors.DefaultThreadFactory} which allows to set a custom
-   * thread group and thread name prefix
+   *  ThreadFactory based on [[java.util.concurrent.Executors.DefaultThreadFactory]] which allows to set a custom
+   *  thread group and thread name prefix
    *
-   * @param threadGroupName name of custom thread group
-   * @param threadNamePrefix prefix for threads of this thread group
+   *  @param threadGroupName
+   *   name of custom thread group
+   *  @param threadNamePrefix
+   *   prefix for threads of this thread group
    */
-  class CustomThreadGroupThreadFactory(val threadGroupName: String, val threadNamePrefix: String) extends ThreadFactory {
+  class CustomThreadGroupThreadFactory(val threadGroupName: String, val threadNamePrefix: String)
+      extends ThreadFactory {
     Predef.assert(threadGroupName != null)
     Predef.assert(threadNamePrefix != null)
     private val threadNumber = new AtomicInteger(1)

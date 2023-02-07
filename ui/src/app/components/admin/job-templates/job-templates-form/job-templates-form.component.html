@@ -1,0 +1,124 @@
+<!--
+  ~ Copyright 2018 ABSA Group Limited
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="btn-group" *ngIf="mode == jobTemplateModes.SHOW">
+  <button type="button" class="btn btn-sm btn-secondary" [routerLink]="[absoluteRoutes.JOB_TEMPLATES_HOME]">
+    <clr-icon shape="caret left"></clr-icon>
+    All job templates
+  </button>
+  <button type="button" class="btn btn-sm btn-secondary"
+          [routerLink]="[absoluteRoutes.EDIT_JOB_TEMPLATE, jobTemplate?.id]">
+    <clr-icon shape="pencil"></clr-icon>
+    Edit
+  </button>
+  <button type="button" class="btn btn-sm btn-secondary" (click)="deleteJobTemplate(jobTemplate?.id)">
+    <clr-icon shape="close"></clr-icon>
+    Delete
+  </button>
+  <button type="button" class="btn btn-sm btn-secondary"
+          [routerLink]="[absoluteRoutes.JOB_TEMPLATE_HISTORY(jobTemplate?.id)]">
+    <clr-icon shape="history"></clr-icon>
+    History
+  </button>
+</div>
+
+<form clrForm (ngSubmit)="mode != jobTemplateModes.EDIT && mode != jobTemplateModes.REVERT ? createJobTemplate() : updateJobTemplate()"
+      #jobTemplateForm="ngForm" novalidate>
+  <div class="btn-group" *ngIf="!isReadOnlyMode()">
+    <button type="submit" class="btn btn-sm btn-secondary" *ngIf="mode != jobTemplateModes.EDIT && mode != jobTemplateModes.REVERT">
+      <clr-icon shape="check"></clr-icon>
+      Create new job template
+    </button>
+    <button type="submit" class="btn btn-sm btn-secondary" [disabled]="!formHasChanged()"
+            *ngIf="mode == jobTemplateModes.EDIT || mode == jobTemplateModes.REVERT">
+      <clr-icon shape="check"></clr-icon>
+      Update job template
+    </button>
+    <button type="button" class="btn btn-sm btn-secondary" (click)="cancel()">
+      <clr-icon shape="times"></clr-icon>
+      Cancel
+    </button>
+  </div>
+  <div *ngFor="let error of backendValidationErrors; let index = index" class="alert alert-danger" role="alert">
+    <div class="alert-items">
+      <div class="alert-item static">
+        <div class="alert-icon-wrapper">
+          <clr-icon class="alert-icon" shape="exclamation-triangle"></clr-icon>
+        </div>
+        <span class="alert-text">{{error}} </span>
+      </div>
+    </div>
+    <button type="button" class="close" aria-label="Close" (click)="removeBackendValidationError(index)">
+      <clr-icon aria-hidden="true" shape="close"></clr-icon>
+    </button>
+  </div>
+
+  <div class="card">
+    <div class="card-block">
+      <div class="card-title notSelectable" (click)="toggleJobTemplateInfoAccordion()">
+        <clr-icon shape="angle" [dir]="isJobTemplateInfoHidden?'right':'down'"></clr-icon>
+        Job Template info
+      </div>
+      <div [hidden]="isJobTemplateInfoHidden" class="accordion-content">
+        <app-string-part
+          [isShow]="isReadOnlyMode()"
+          [name]="'Job template name'"
+          [value]="jobTemplate?.name"
+          (valueChange)="nameChange($event)"
+          [isRequired]=true
+          [minLength]=1>
+        </app-string-part>
+        <app-select-part
+          [isShow]="isReadOnlyMode()"
+          [name]="'Job type'"
+          [value]="jobTemplate?.jobParameters?.jobType"
+          (valueChange)="jobTypeChange($event)"
+          [options]="getJobTypes(jobTemplate?.jobParameters?.jobType)"
+          [isRequired]="true">
+        </app-select-part>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-block">
+      <div class="card-title notSelectable" (click)="toggleJobTemplateParametersAccordion()">
+        <clr-icon shape="angle" [dir]="isJobTemplateParametersHidden?'right':'down'"></clr-icon>
+        Job Template Parameters
+      </div>
+      <div [hidden]="isJobTemplateParametersHidden" class="accordion-content">
+        <div [ngSwitch]="this.jobTemplate?.jobParameters?.jobType">
+          <app-spark-template
+            *ngSwitchCase="jobTypes.SPARK"
+            [isShow]="isReadOnlyMode()"
+            [jobParameters]="jobTemplate?.jobParameters"
+            (jobParametersChange)="jobParametersChange($event)">
+          </app-spark-template>
+          <app-hyperdrive-template
+            *ngSwitchCase="jobTypes.HYPERDRIVE"
+            [isShow]="isReadOnlyMode()"
+            [jobParameters]="jobTemplate?.jobParameters"
+            (jobParametersChange)="jobParametersChange($event)">
+          </app-hyperdrive-template>
+          <app-shell-template
+            *ngSwitchCase="jobTypes.SHELL"
+            [isShow]="isReadOnlyMode()"
+            [jobParameters]="jobTemplate?.jobParameters"
+            (jobParametersChange)="jobParametersChange($event)">
+          </app-shell-template>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>

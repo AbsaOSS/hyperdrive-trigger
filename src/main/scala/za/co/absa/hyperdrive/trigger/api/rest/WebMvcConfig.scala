@@ -21,7 +21,7 @@ import org.springframework.web.servlet.config.annotation.{ViewControllerRegistry
 
 @Configuration
 class WebMvcConfig extends WebMvcConfigurer {
-  override def addViewControllers(registry: ViewControllerRegistry) {
-    registry.addViewController("/").setViewName("forward:/index.html");
+  override def addViewControllers(registry: ViewControllerRegistry): Unit = {
+    registry.addViewController("/").setViewName("forward:/index.html")
   }
 }

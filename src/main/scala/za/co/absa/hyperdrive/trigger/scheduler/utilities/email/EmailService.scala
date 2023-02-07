@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -21,12 +20,17 @@ import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.stereotype.{Component, Service}
 
 trait EmailService {
-  def sendMessageToBccRecipients(sender: String, recipients: Seq[String], subject: String, text: String)
+  def sendMessageToBccRecipients(sender: String, recipients: Seq[String], subject: String, text: String): Unit
 }
 
 @Service
 class EmailServiceImpl(mailSender: JavaMailSender) extends EmailService {
-  override def sendMessageToBccRecipients(sender: String, recipients: Seq[String], subject: String, text: String): Unit = {
+  override def sendMessageToBccRecipients(
+    sender: String,
+    recipients: Seq[String],
+    subject: String,
+    text: String
+  ): Unit =
     if (recipients.nonEmpty) {
       val message = new SimpleMailMessage()
       message.setFrom(sender)
@@ -35,5 +39,4 @@ class EmailServiceImpl(mailSender: JavaMailSender) extends EmailService {
       message.setText(text)
       mailSender.send(message)
     }
-  }
 }

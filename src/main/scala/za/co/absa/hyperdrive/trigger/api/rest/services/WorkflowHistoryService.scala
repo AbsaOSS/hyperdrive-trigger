@@ -16,27 +16,42 @@
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
 import org.springframework.stereotype.Service
-import za.co.absa.hyperdrive.trigger.models.{History, HistoryPair, WorkflowHistory}
-import za.co.absa.hyperdrive.trigger.persistance.WorkflowHistoryRepository
+import za.co.absa.hyperdrive.trigger.models.{History, HistoryPair, WorkflowHistory, WorkflowJoined}
+import za.co.absa.hyperdrive.trigger.persistance.{WorkflowHistoryRepository, WorkflowRepository}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 trait WorkflowHistoryService {
   val workflowHistoryRepository: WorkflowHistoryRepository
+  val workflowRepository: WorkflowRepository
 
   def getHistoryForWorkflow(workflowId: Long)(implicit ec: ExecutionContext): Future[Seq[History]]
-  def getWorkflowsFromHistory(leftWorkflowHistoryId: Long, rightWorkflowHistoryId: Long)(implicit ec: ExecutionContext): Future[HistoryPair[WorkflowHistory]]
+  def getWorkflowFromHistory(workflowHistoryId: Long)(implicit ec: ExecutionContext): Future[WorkflowJoined]
+  def getWorkflowsFromHistory(leftWorkflowHistoryId: Long, rightWorkflowHistoryId: Long)(
+    implicit ec: ExecutionContext
+  ): Future[HistoryPair[WorkflowHistory]]
 }
 
 @Service
-class WorkflowHistoryServiceImpl(override val workflowHistoryRepository: WorkflowHistoryRepository) extends WorkflowHistoryService {
+class WorkflowHistoryServiceImpl(
+  override val workflowHistoryRepository: WorkflowHistoryRepository,
+  override val workflowRepository: WorkflowRepository
+) extends WorkflowHistoryService {
 
-  override def getHistoryForWorkflow(workflowId: Long)(implicit ec: ExecutionContext): Future[Seq[History]] = {
+  override def getHistoryForWorkflow(workflowId: Long)(implicit ec: ExecutionContext): Future[Seq[History]] =
     workflowHistoryRepository.getHistoryForWorkflow(workflowId)
-  }
 
-  override def getWorkflowsFromHistory(leftWorkflowHistoryId: Long, rightWorkflowHistoryId: Long)(implicit ec: ExecutionContext): Future[HistoryPair[WorkflowHistory]] = {
+  override def getWorkflowFromHistory(workflowHistoryId: Long)(implicit ec: ExecutionContext): Future[WorkflowJoined] =
+    for {
+      workflowFromHistory <- workflowHistoryRepository.getWorkflowFromHistory(workflowHistoryId)
+      version <- workflowRepository.getWorkflowVersion(workflowFromHistory.id)
+    } yield {
+      workflowFromHistory.copy(version = version)
+    }
+
+  override def getWorkflowsFromHistory(leftWorkflowHistoryId: Long, rightWorkflowHistoryId: Long)(
+    implicit ec: ExecutionContext
+  ): Future[HistoryPair[WorkflowHistory]] =
     workflowHistoryRepository.getWorkflowsFromHistory(leftWorkflowHistoryId, rightWorkflowHistoryId)
-  }
 
 }

@@ -23,37 +23,36 @@ import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class SchedulerInstanceRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryH2TestBase {
+class SchedulerInstanceRepositoryTest
+    extends FlatSpec
+    with Matchers
+    with BeforeAndAfterAll
+    with BeforeAndAfterEach
+    with RepositoryH2TestBase {
   import api._
 
   val schedulerInstanceRepository: SchedulerInstanceRepository =
     new SchedulerInstanceRepositoryImpl(dbProvider) { override val profile = h2Profile }
 
-  override def beforeAll: Unit = {
+  override def beforeAll: Unit =
     schemaSetup()
-  }
 
-  override def afterAll: Unit = {
+  override def afterAll: Unit =
     schemaDrop()
-  }
 
-  override def beforeEach: Unit = {
+  override def beforeEach: Unit =
     run(schedulerInstanceTable.forceInsertAll(TestData.schedulerInstances))
-  }
 
-  override def afterEach: Unit = {
+  override def afterEach: Unit =
     clearData()
-  }
 
   "insertInstance" should "insert an instance in active state" in {
     val now = LocalDateTime.now()
-    val expectedId = TestData.schedulerInstances.map(_.id).max + 1
 
     val newInstanceId = await(schedulerInstanceRepository.insertInstance())
     val allInstances = await(db.run(schedulerInstanceTable.result))
 
-    newInstanceId shouldBe expectedId
-    val newInstance = allInstances.find(_.id == expectedId).get
+    val newInstance = allInstances.find(_.id == newInstanceId).get
     newInstance.status shouldBe SchedulerInstanceStatuses.Active
     newInstance.lastHeartbeat.isBefore(now) shouldBe false
 
@@ -92,5 +91,13 @@ class SchedulerInstanceRepositoryTest extends FlatSpec with Matchers with Before
   "getAllInstances" should "return all instances" in {
     val result = await(schedulerInstanceRepository.getAllInstances())
     result should contain theSameElementsAs TestData.schedulerInstances
+  }
+
+  "getCurrentDateTime" should "return database current date time" in {
+    val expectedBefore = LocalDateTime.now()
+    val result = await(schedulerInstanceRepository.getCurrentDateTime())
+    val expectedAfter = LocalDateTime.now()
+    (result isAfter expectedBefore) || (result equals expectedBefore) shouldBe true
+    (result isBefore expectedAfter) || (result equals expectedAfter) shouldBe true
   }
 }

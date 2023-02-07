@@ -14,17 +14,15 @@
  */
 
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { provideMockStore, MockStore } from '@ngrx/store/testing';
+import { provideMockStore } from '@ngrx/store/testing';
 import { ClarityModule } from '@clr/angular';
 import { FormsModule } from '@angular/forms';
 import { LoginComponent } from './login.component';
-import * as fromApp from '../../../stores/app.reducers';
 import { AppInfoModelFactory } from '../../../models/appInfo.model';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
   let fixture: ComponentFixture<LoginComponent>;
-  let mockStore: MockStore<fromApp.AppState>;
   const initialAuthState = {
     username: 'test',
     isAuthenticated: false,
@@ -50,8 +48,6 @@ describe('LoginComponent', () => {
         declarations: [LoginComponent],
         imports: [ClarityModule, FormsModule],
       }).compileComponents();
-
-      mockStore = TestBed.inject(MockStore);
     }),
   );
 

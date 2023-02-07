@@ -17,31 +17,39 @@ package za.co.absa.hyperdrive.trigger.persistance
 
 import org.scalatest.{FlatSpec, _}
 import za.co.absa.hyperdrive.trigger.configuration.application.TestSchedulerConfig
-import za.co.absa.hyperdrive.trigger.models.{AbsaKafkaSensorProperties, KafkaSensorProperties, SensorProperties, TimeSensorProperties}
+import za.co.absa.hyperdrive.trigger.models.{
+  AbsaKafkaSensorProperties,
+  KafkaSensorProperties,
+  SensorProperties,
+  TimeSensorProperties
+}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class SensorRepositoryPostgresTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryPostgresTestBase {
+class SensorRepositoryPostgresTest
+    extends FlatSpec
+    with Matchers
+    with BeforeAndAfterAll
+    with BeforeAndAfterEach
+    with RepositoryPostgresTestBase {
 
   import TestSensors._
   val sensorRepository: SensorRepository = new SensorRepositoryImpl(dbProvider, TestSchedulerConfig())
 
-  override def beforeAll: Unit = {
+  override def beforeAll(): Unit = {
     super.beforeAll()
     schemaSetup()
   }
 
-  override def afterAll: Unit = {
+  override def afterAll(): Unit =
     schemaDrop()
-  }
 
-  override def afterEach: Unit = {
+  override def afterEach(): Unit =
     clearData()
-  }
 
   "sensorRepository.getNewActiveAssignedSensors" should "return sensors with active workflows, except sensors excluded by id" in {
     // prepare
-    val idsToExclude = Seq(activeTimeW100, activeAbsaKafka).map{case (sensor, _) => sensor.id}
+    val idsToExclude = Seq(activeTimeW100, activeAbsaKafka).map { case (sensor, _) => sensor.id }
     insertSensors(allSensors)
 
     // execute
@@ -58,8 +66,8 @@ class SensorRepositoryPostgresTest extends FlatSpec with Matchers with BeforeAnd
     val result = await(sensorRepository.getNewActiveAssignedSensors(Seq.empty, TestData.workflows.map(_.id)))
 
     result should contain theSameElementsAs allSensors
-      .filter{ case (_, workflow) => workflow.isActive }
-      .map{ case (sensor, _) => sensor }
+      .filter { case (_, workflow) => workflow.isActive }
+      .map { case (sensor, _) => sensor }
   }
 
   it should "only return sensors of assigned workflows" in {
@@ -70,13 +78,13 @@ class SensorRepositoryPostgresTest extends FlatSpec with Matchers with BeforeAnd
 
     result should not be empty
     result should contain theSameElementsAs allSensors
-      .filter{ case (_, workflow) => workflow.isActive && workflow.id == assignedWorkflowId }
-      .map{ case (sensor, _) => sensor }
+      .filter { case (_, workflow) => workflow.isActive && workflow.id == assignedWorkflowId }
+      .map { case (sensor, _) => sensor }
   }
 
   "sensorRepository.getInactiveSensors" should "given a set of sensor ids, return the ids of the inactive ones" in {
     // prepare
-    val ids = Seq(activeTimeW100, activeAbsaKafka, inactiveTime, inactiveKafka).map{case (sensor, _) => sensor.id}
+    val ids = Seq(activeTimeW100, activeAbsaKafka, inactiveTime, inactiveKafka).map { case (sensor, _) => sensor.id }
     insertSensors(allSensors)
 
     // execute
@@ -100,25 +108,18 @@ class SensorRepositoryPostgresTest extends FlatSpec with Matchers with BeforeAnd
     insertSensors(allSensors)
 
     val timeSensorPropertiesW100: TimeSensorProperties = activeTimeW100._1.properties.asInstanceOf[TimeSensorProperties]
-    val changedActiveTimeW100 = activeTimeW100._1.copy(
-      properties = timeSensorPropertiesW100.copy(cronExpression = "0 0 1 ? * * *")
-    )
-    val absaKafkaSensorProperties: AbsaKafkaSensorProperties = activeAbsaKafka._1.properties.asInstanceOf[AbsaKafkaSensorProperties]
-    val changedActiveAbsaKafka = activeAbsaKafka._1.copy(
-      properties = absaKafkaSensorProperties.copy(servers = List("abcd", "xyz"))
-    )
+    val changedActiveTimeW100 =
+      activeTimeW100._1.copy(properties = timeSensorPropertiesW100.copy(cronExpression = "0 0 1 ? * * *"))
+    val absaKafkaSensorProperties: AbsaKafkaSensorProperties =
+      activeAbsaKafka._1.properties.asInstanceOf[AbsaKafkaSensorProperties]
+    val changedActiveAbsaKafka =
+      activeAbsaKafka._1.copy(properties = absaKafkaSensorProperties.copy(servers = List("abcd", "xyz")))
     val kafkaSensorProperties: KafkaSensorProperties = activeKafka._1.properties.asInstanceOf[KafkaSensorProperties]
-    val changedActiveKafka = activeKafka._1.copy(
-      properties = kafkaSensorProperties.copy(matchProperties = Map("key" -> "value"))
-    )
-    val changedTimeSensorProperties = KafkaSensorProperties(
-      topic = "",
-      servers = List.empty[String],
-      matchProperties = Map.empty[String, String]
-    )
-    val changedInactiveTime = inactiveTime._1.copy(
-      properties = changedTimeSensorProperties
-    )
+    val changedActiveKafka =
+      activeKafka._1.copy(properties = kafkaSensorProperties.copy(matchProperties = Map("key" -> "value")))
+    val changedTimeSensorProperties =
+      KafkaSensorProperties(topic = "", servers = List.empty[String], matchProperties = Map.empty[String, String])
+    val changedInactiveTime = inactiveTime._1.copy(properties = changedTimeSensorProperties)
     val changedSensors = Seq(
       (changedActiveTimeW100.id, changedActiveTimeW100.properties),
       (changedActiveAbsaKafka.id, changedActiveAbsaKafka.properties),
@@ -127,11 +128,15 @@ class SensorRepositoryPostgresTest extends FlatSpec with Matchers with BeforeAnd
     )
 
     // execute
-    val result = await(sensorRepository.getChangedSensors(changedSensors ++ Seq(
-      (activeTimeW101._1.id, activeTimeW101._1.properties),
-      (inactiveAbsaKafka._1.id, inactiveAbsaKafka._1.properties),
-      (inactiveKafka._1.id, inactiveKafka._1.properties)
-    )))
+    val result = await(
+      sensorRepository.getChangedSensors(
+        changedSensors ++ Seq(
+          (activeTimeW101._1.id, activeTimeW101._1.properties),
+          (inactiveAbsaKafka._1.id, inactiveAbsaKafka._1.properties),
+          (inactiveKafka._1.id, inactiveKafka._1.properties)
+        )
+      )
+    )
 
     // verify
     result.size shouldBe 4
@@ -145,12 +150,11 @@ class SensorRepositoryPostgresTest extends FlatSpec with Matchers with BeforeAnd
     insertSensors(allSensors)
 
     val timeSensorProperties: TimeSensorProperties = activeTimeW100._1.properties.asInstanceOf[TimeSensorProperties]
-    val changedSensor = activeTimeW100._1.copy(
-      properties = timeSensorProperties.copy(cronExpression = "0 0 1 ? * * *")
-    )
+    val changedSensor = activeTimeW100._1.copy(properties = timeSensorProperties.copy(cronExpression = "0 0 1 ? * * *"))
 
     val numberOfChangedSensors = 10000
-    val changedSensors: Seq[(Long, SensorProperties)] = Range(0, numberOfChangedSensors).map(_ => (changedSensor.id, changedSensor.properties))
+    val changedSensors: Seq[(Long, SensorProperties)] =
+      Range(0, numberOfChangedSensors).map(_ => (changedSensor.id, changedSensor.properties))
 
     // execute
     val result = await(sensorRepository.getChangedSensors(changedSensors))

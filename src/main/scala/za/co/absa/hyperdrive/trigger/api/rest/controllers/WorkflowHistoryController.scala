@@ -26,16 +26,24 @@ import scala.compat.java8.FutureConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 @RestController
-class WorkflowHistoryController @Inject()(workflowHistoryService: WorkflowHistoryService) {
+class WorkflowHistoryController @Inject() (workflowHistoryService: WorkflowHistoryService) {
 
   @GetMapping(path = Array("/workflowHistory"))
-  def getHistoryForWorkflow(@RequestParam workflowId: Long): CompletableFuture[Seq[History]] = {
+  def getHistoryForWorkflow(@RequestParam workflowId: Long): CompletableFuture[Seq[History]] =
     workflowHistoryService.getHistoryForWorkflow(workflowId).toJava.toCompletableFuture
-  }
+
+  @GetMapping(path = Array("/workflowFromHistory"))
+  def getWorkflowFromHistory(@RequestParam workflowHistoryId: Long): CompletableFuture[WorkflowJoined] =
+    workflowHistoryService.getWorkflowFromHistory(workflowHistoryId).toJava.toCompletableFuture
 
   @GetMapping(path = Array("/workflowsFromHistory"))
-  def getWorkflowsFromHistory(@RequestParam leftWorkflowHistoryId: Long, @RequestParam rightWorkflowHistoryId: Long): CompletableFuture[HistoryPair[WorkflowHistory]] = {
-    workflowHistoryService.getWorkflowsFromHistory(leftWorkflowHistoryId, rightWorkflowHistoryId).toJava.toCompletableFuture
-  }
+  def getWorkflowsFromHistory(
+    @RequestParam leftWorkflowHistoryId: Long,
+    @RequestParam rightWorkflowHistoryId: Long
+  ): CompletableFuture[HistoryPair[WorkflowHistory]] =
+    workflowHistoryService
+      .getWorkflowsFromHistory(leftWorkflowHistoryId, rightWorkflowHistoryId)
+      .toJava
+      .toCompletableFuture
 
 }

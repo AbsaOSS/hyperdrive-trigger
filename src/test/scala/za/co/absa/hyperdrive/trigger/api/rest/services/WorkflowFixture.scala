@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -19,7 +18,10 @@ package za.co.absa.hyperdrive.trigger.api.rest.services
 import java.time.LocalDateTime
 import java.util.UUID
 import org.apache.commons.lang3.RandomStringUtils
-import za.co.absa.hyperdrive.trigger.api.rest.services.JobTemplateFixture.{GenericShellJobTemplate, GenericSparkJobTemplate}
+import za.co.absa.hyperdrive.trigger.api.rest.services.JobTemplateFixture.{
+  GenericShellJobTemplate,
+  GenericSparkJobTemplate
+}
 import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.models.enums.JobTypes
 import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
@@ -28,17 +30,14 @@ object WorkflowFixture {
   val Random = new scala.util.Random(42)
   val MinLengthRandomString = 3
   val MaxLengthRandomString = 45
-  val MinRandomDate = LocalDateTime.of(2020, 1, 1, 0, 0, 0)
-  val CronExpressions = Seq(
-    "0 0/10 * ? * * *",
-    "0 1 * ? * * *",
-    "0 31 * ? * * *",
-    "0 0 18 ? * * *",
-    "0 0 6 ? * * *",
-    "0 43 12 22 4 ? *"
-  )
+  val MinRandomDate: LocalDateTime = LocalDateTime.of(2020, 1, 1, 0, 0, 0)
+  val CronExpressions: Seq[String] =
+    Seq("0 0/10 * ? * * *", "0 1 * ? * * *", "0 31 * ? * * *", "0 0 18 ? * * *", "0 0 6 ? * * *", "0 43 12 22 4 ? *")
 
-  def createWorkflowJoined(sparkJobTemplateId: Long = GenericSparkJobTemplate.id, shellJobTemplateId: Long = GenericShellJobTemplate.id) = {
+  def createWorkflowJoined(
+    sparkJobTemplateId: Long = GenericSparkJobTemplate.id,
+    shellJobTemplateId: Long = GenericShellJobTemplate.id
+  ): WorkflowJoined =
     WorkflowJoined(
       id = 10,
       name = "testWorkflow",
@@ -46,11 +45,12 @@ object WorkflowFixture {
       created = LocalDateTime.of(2020, 2, 29, 10, 59, 34),
       updated = None,
       project = "testProject",
+      version = 1,
       sensor = Sensor(
         workflowId = 10,
         properties = KafkaSensorProperties(
           topic = "testTopic",
-          servers =  List("http://localhost:9093", "http://localhost:9092"),
+          servers = List("http://localhost:9093", "http://localhost:9092"),
           matchProperties = Map("ingestionToken" -> "abcdef-123456")
         )
       ),
@@ -73,32 +73,30 @@ object WorkflowFixture {
             dagDefinitionId = 0,
             jobTemplateId = Some(shellJobTemplateId),
             name = "TestJob2",
-            jobParameters = ShellDefinitionParameters(
-              scriptLocation = Option("/dir/script.sh")
-            ),
+            jobParameters = ShellDefinitionParameters(scriptLocation = Option("/dir/script.sh")),
             order = 2,
             id = 2
           )
         )
       )
     )
-  }
 
-  def createKafkaOffloadingWorkflow(projectName: String) = {
+  def createKafkaOffloadingWorkflow(projectName: String): WorkflowJoined =
     WorkflowJoined(
       name = randomString(),
       isActive = randomBoolean(),
       created = randomDate(),
       updated = if (randomBoolean()) Some(randomDate()) else None,
       project = projectName,
+      version = 1,
       sensor = Sensor(
         workflowId = 0,
         properties = AbsaKafkaSensorProperties(
           topic = randomString(),
           servers = List(
-              s"http://${randomString()}:${randomInt(0, 65535)}",
-              s"https://${randomString()}:${randomInt(0, 65535)}",
-              s"https://${randomString()}:${randomInt(0, 65535)}"
+            s"http://${randomString()}:${randomInt(0, 65535)}",
+            s"https://${randomString()}:${randomInt(0, 65535)}",
+            s"https://${randomString()}:${randomInt(0, 65535)}"
           ),
           ingestionToken = randomUuid()
         )
@@ -166,21 +164,16 @@ object WorkflowFixture {
         )
       )
     )
-  }
 
-  def createTimeBasedShellScriptWorkflow(projectName: String) = {
+  def createTimeBasedShellScriptWorkflow(projectName: String): WorkflowJoined =
     WorkflowJoined(
       name = s"Time ${randomString(maxLength = MaxLengthRandomString - 5)}",
       isActive = randomBoolean(),
       created = randomDate(),
       updated = if (randomBoolean()) Some(randomDate()) else None,
       project = projectName,
-      sensor = Sensor(
-        workflowId = 0,
-        properties = TimeSensorProperties(
-          cronExpression = randomCron()
-        )
-      ),
+      version = 1,
+      sensor = Sensor(workflowId = 0, properties = TimeSensorProperties(cronExpression = randomCron())),
       dagDefinitionJoined = DagDefinitionJoined(
         workflowId = 0,
         jobDefinitions = Seq(
@@ -188,29 +181,22 @@ object WorkflowFixture {
             dagDefinitionId = 0,
             jobTemplateId = Some(GenericShellJobTemplate.id),
             name = s"${randomString()}",
-            jobParameters = ShellDefinitionParameters(
-              scriptLocation = Option(s"${randomString()}/script.sh")
-            ),
+            jobParameters = ShellDefinitionParameters(scriptLocation = Option(s"${randomString()}/script.sh")),
             order = 0
           )
         )
       )
     )
-  }
 
-  def createShellScriptJobWithoutTemplateAndScript(): WorkflowJoined = {
+  def createShellScriptJobWithoutTemplateAndScript(): WorkflowJoined =
     WorkflowJoined(
       name = s"Time ${randomString(maxLength = MaxLengthRandomString - 5)}",
       isActive = randomBoolean(),
       created = randomDate(),
       updated = if (randomBoolean()) Some(randomDate()) else None,
       project = "project",
-      sensor = Sensor(
-        workflowId = 0,
-        properties = TimeSensorProperties(
-          cronExpression = randomCron()
-        )
-      ),
+      version = 1,
+      sensor = Sensor(workflowId = 0, properties = TimeSensorProperties(cronExpression = randomCron())),
       dagDefinitionJoined = DagDefinitionJoined(
         workflowId = 0,
         jobDefinitions = Seq(
@@ -218,29 +204,22 @@ object WorkflowFixture {
             dagDefinitionId = 0,
             jobTemplateId = None,
             name = s"${randomString()}",
-            jobParameters = ShellDefinitionParameters(
-              scriptLocation = None
-            ),
+            jobParameters = ShellDefinitionParameters(scriptLocation = None),
             order = 0
           )
         )
       )
     )
-  }
 
-  def createSparkJobWithoutTemplateAndJar(): WorkflowJoined = {
+  def createSparkJobWithoutTemplateAndJar(): WorkflowJoined =
     WorkflowJoined(
       name = s"Time ${randomString(maxLength = MaxLengthRandomString - 5)}",
       isActive = randomBoolean(),
       created = randomDate(),
       updated = if (randomBoolean()) Some(randomDate()) else None,
       project = "project",
-      sensor = Sensor(
-        workflowId = 0,
-        properties = TimeSensorProperties(
-          cronExpression = randomCron()
-        )
-      ),
+      version = 1,
+      sensor = Sensor(workflowId = 0, properties = TimeSensorProperties(cronExpression = randomCron())),
       dagDefinitionJoined = DagDefinitionJoined(
         workflowId = 0,
         jobDefinitions = Seq(
@@ -248,26 +227,20 @@ object WorkflowFixture {
             dagDefinitionId = 0,
             jobTemplateId = None,
             name = s"${randomString()}",
-            jobParameters = SparkDefinitionParameters(
-              jobType = JobTypes.Spark,
-              jobJar = None,
-              mainClass = None
-            ),
+            jobParameters = SparkDefinitionParameters(jobType = JobTypes.Spark, jobJar = None, mainClass = None),
             order = 0
           )
         )
       )
     )
-  }
 
   private def randomString(minLength: Int = MinLengthRandomString, maxLength: Int = MaxLengthRandomString) = {
     val length = randomInt(minLength, maxLength)
     RandomStringUtils.randomAlphanumeric(length)
   }
 
-  private def randomUuid() = {
+  private def randomUuid() =
     UUID.randomUUID().toString
-  }
 
   private def randomDate() = {
     val currentYear = LocalDateTime.now().getYear
@@ -276,9 +249,8 @@ object WorkflowFixture {
     MinRandomDate.plusDays(Random.nextInt(days)).plusSeconds(Random.nextInt(86400))
   }
 
-  private def randomBoolean() = {
+  private def randomBoolean() =
     Random.nextBoolean()
-  }
 
   private def randomInt(min: Int, max: Int) = min + Random.nextInt(max - min)
 

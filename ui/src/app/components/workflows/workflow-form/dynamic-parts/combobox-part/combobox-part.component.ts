@@ -49,7 +49,7 @@ export class ComboboxPartComponent implements OnInit {
     this.valueChange.emit(value);
   }
 
-  trackByFn(index, item) {
+  trackByFn(index, _) {
     return index;
   }
 }

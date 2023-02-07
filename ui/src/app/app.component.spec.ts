@@ -22,7 +22,6 @@ import * as fromApp from './stores/app.reducers';
 import { selectAuthState } from './stores/app.reducers';
 import { Router } from '@angular/router';
 import { AppInfoModelFactory } from './models/appInfo.model';
-
 describe('AppComponent', () => {
   let underTest: AppComponent;
   let fixture: ComponentFixture<AppComponent>;
@@ -69,11 +68,12 @@ describe('AppComponent', () => {
   });
 
   it('should render the title and the username', () => {
-    fixture.detectChanges();
-
-    const compiled = fixture.nativeElement;
-    expect(compiled.querySelector('.title').textContent).toBe('Hyperdrive');
-    expect(compiled.querySelectorAll('.header-actions')[1].textContent).toContain('test-user');
+    fixture.whenStable().then(() => {
+      fixture.detectChanges();
+      const compiled = fixture.nativeElement;
+      expect(compiled.querySelector('.title').textContent).toBe('Hyperdrive');
+      expect(compiled.querySelectorAll('.header-actions')[1].textContent).toContain('test-user');
+    });
   });
 
   it('should render neither the title nor the username if the user is not authenticated', () => {
@@ -81,9 +81,11 @@ describe('AppComponent', () => {
     mockStore.refreshState();
     fixture.detectChanges();
 
-    const compiled = fixture.nativeElement;
-    expect(compiled.querySelector('.title')).toBeFalsy();
-    expect(compiled.querySelector('.header-actions')).toBeFalsy();
+    fixture.whenStable().then(() => {
+      const compiled = fixture.nativeElement;
+      expect(compiled.querySelector('.title')).toBeFalsy();
+      expect(compiled.querySelector('.header-actions')).toBeFalsy();
+    });
   });
 
   it('isActive(base) should return true if current route contains base', () => {

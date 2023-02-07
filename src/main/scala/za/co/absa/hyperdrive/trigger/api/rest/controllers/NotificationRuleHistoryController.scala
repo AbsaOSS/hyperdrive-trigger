@@ -25,15 +25,25 @@ import scala.compat.java8.FutureConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 @RestController
-class NotificationRuleHistoryController @Inject()(notificationRuleHistoryService: NotificationRuleHistoryService) {
+class NotificationRuleHistoryController @Inject() (notificationRuleHistoryService: NotificationRuleHistoryService) {
 
   @GetMapping(path = Array("/notificationRuleHistory"))
-  def getHistoryForNotificationRule(@RequestParam notificationRuleId: Long): CompletableFuture[Seq[History]] = {
+  def getHistoryForNotificationRule(@RequestParam notificationRuleId: Long): CompletableFuture[Seq[History]] =
     notificationRuleHistoryService.getHistoryForNotificationRule(notificationRuleId).toJava.toCompletableFuture
-  }
+
+  @GetMapping(path = Array("/notificationRuleFromHistory"))
+  def getNotificationRuleFromHistory(
+    @RequestParam notificationRuleHistoryId: Long
+  ): CompletableFuture[NotificationRule] =
+    notificationRuleHistoryService.getNotificationRuleFromHistory(notificationRuleHistoryId).toJava.toCompletableFuture
 
   @GetMapping(path = Array("/notificationRulesFromHistory"))
-  def getNotificationRulesFromHistory(@RequestParam leftHistoryId: Long, @RequestParam rightHistoryId: Long): CompletableFuture[HistoryPair[NotificationRuleHistory]] = {
-    notificationRuleHistoryService.getNotificationRulesFromHistory(leftHistoryId, rightHistoryId).toJava.toCompletableFuture
-  }
+  def getNotificationRulesFromHistory(
+    @RequestParam leftHistoryId: Long,
+    @RequestParam rightHistoryId: Long
+  ): CompletableFuture[HistoryPair[NotificationRuleHistory]] =
+    notificationRuleHistoryService
+      .getNotificationRulesFromHistory(leftHistoryId, rightHistoryId)
+      .toJava
+      .toCompletableFuture
 }

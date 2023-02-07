@@ -18,20 +18,22 @@ package za.co.absa.hyperdrive.trigger.persistance
 import za.co.absa.hyperdrive.trigger.models.tables._
 
 trait Repository
-  extends DagInstanceTable
+    extends DagInstanceTable
     with DagDefinitionTable
     with EventTable
     with JobDefinitionTable
     with JobInstanceTable
     with SensorTable
     with WorkflowTable
-    with DagRunTable
     with WorkflowHistoryTable
     with JobTemplateTable
+    with JobTemplateHistoryTable
     with SchedulerInstanceTable
     with NotificationRuleTable
     with NotificationRuleHistoryTable
-    with Profile with JdbcTypeMapper {
+    with Profile
+    with JdbcTypeMapper
+    with DBErrorHandling {
 
   val dbProvider: DatabaseProvider
   lazy val db: DatabaseProvider.profile.backend.DatabaseDef = dbProvider.db

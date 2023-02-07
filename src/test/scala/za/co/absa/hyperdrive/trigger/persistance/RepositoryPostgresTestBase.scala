@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -29,20 +28,21 @@ trait RepositoryPostgresTestBase extends RepositoryTestBase with BeforeAndAfterA
   private val defaultUser = "test"
   private val defaultPass = "test"
   val databaseConfig: DatabaseConfig = {
-    TestDatabaseConfig(Map(
-      "driver" -> "org.testcontainers.jdbc.ContainerDatabaseDriver",
-      "url" -> s"jdbc:tc:postgresql:${postgresVersion}:///${databaseName}",
-      "user" -> defaultUser,
-      "password" -> defaultPass
-    ))
+    TestDatabaseConfig(
+      Map(
+        "driver" -> "org.testcontainers.jdbc.ContainerDatabaseDriver",
+        "url" -> s"jdbc:tc:postgresql:$postgresVersion:///$databaseName",
+        "user" -> defaultUser,
+        "password" -> defaultPass
+      )
+    )
   }
   override val profile = PostgresProfile
   override val dbProvider: DatabaseProvider = new DatabaseProvider(databaseConfig)
   override def beforeAll(): Unit = {
-    new PostgreSQLContainer(s"postgres:${postgresVersion}")
+    new PostgreSQLContainer(s"postgres:$postgresVersion")
       .withDatabaseName(databaseName)
 
     super.beforeAll()
   }
 }
-

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -31,30 +30,29 @@ case class SparkDefinitionParameters(
   appArguments: List[String] = List.empty[String],
   additionalJars: List[String] = List.empty[String],
   additionalFiles: List[String] = List.empty[String],
-  additionalSparkConfig: Map[String, String] = Map.empty[String, String]
+  additionalSparkConfig: List[AdditionalSparkConfig] = List.empty[AdditionalSparkConfig]
 ) extends JobDefinitionParameters
 
-case class ShellDefinitionParameters(
-  jobType: JobType = JobTypes.Shell,
-  scriptLocation: Option[String]
-) extends JobDefinitionParameters
+case class ShellDefinitionParameters(jobType: JobType = JobTypes.Shell, scriptLocation: Option[String])
+    extends JobDefinitionParameters
 
 object SparkDefinitionParameters {
-  implicit val sparkFormat: OFormat[SparkDefinitionParameters] = Json.using[Json.WithDefaultValues].format[SparkDefinitionParameters]
+  implicit val sparkFormat: OFormat[SparkDefinitionParameters] =
+    Json.using[Json.WithDefaultValues].format[SparkDefinitionParameters]
 }
 
 object ShellDefinitionParameters {
-  implicit val shellFormat: OFormat[ShellDefinitionParameters] = Json.using[Json.WithDefaultValues].format[ShellDefinitionParameters]
+  implicit val shellFormat: OFormat[ShellDefinitionParameters] =
+    Json.using[Json.WithDefaultValues].format[ShellDefinitionParameters]
 }
 
 object JobDefinitionParameters {
   implicit val jobParametersFormat: Format[JobDefinitionParameters] = new Format[JobDefinitionParameters] {
-    override def reads(json: JsValue): JsResult[JobDefinitionParameters] = {
+    override def reads(json: JsValue): JsResult[JobDefinitionParameters] =
       (json \ "jobType").as[String] match {
         case JobTypes.Spark.name | JobTypes.Hyperdrive.name => SparkDefinitionParameters.sparkFormat.reads(json)
-        case JobTypes.Shell.name => ShellDefinitionParameters.shellFormat.reads(json)
+        case JobTypes.Shell.name                            => ShellDefinitionParameters.shellFormat.reads(json)
       }
-    }
 
     override def writes(jobDefinitionParameters: JobDefinitionParameters): JsValue = jobDefinitionParameters match {
       case sparkParameters: SparkDefinitionParameters => SparkDefinitionParameters.sparkFormat.writes(sparkParameters)

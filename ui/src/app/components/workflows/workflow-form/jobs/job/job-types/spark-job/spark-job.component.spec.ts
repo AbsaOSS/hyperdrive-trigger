@@ -18,6 +18,9 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { SparkJobComponent } from './spark-job.component';
 import { SparkDefinitionParametersModel } from '../../../../../../../models/jobDefinitionParameters.model';
 import { EventEmitter } from '@angular/core';
+import { JobTemplateChangeEventModel } from '../../../../../../../models/jobTemplateChangeEvent';
+import { SparkTemplateParametersModel } from '../../../../../../../models/jobTemplateParameters.model';
+import { KeyValueModelFactory } from '../../../../../../../models/keyValue.model';
 
 describe('SparkJobComponent', () => {
   let fixture: ComponentFixture<SparkJobComponent>;
@@ -46,13 +49,13 @@ describe('SparkJobComponent', () => {
     'should emit job parameters change with empty jobJar and mainClass on job template change',
     waitForAsync(() => {
       spyOn(underTest.jobParametersChange, 'emit');
-      underTest.jobTemplateChanges = new EventEmitter<string>();
+      underTest.jobTemplateChanges = new EventEmitter<JobTemplateChangeEventModel>();
       underTest.jobParameters = { ...underTest.jobParameters, jobJar: 'jobJar', mainClass: 'mainClass' };
 
       underTest.ngOnInit();
       fixture.detectChanges();
       fixture.whenStable().then(() => {
-        underTest.jobTemplateChanges.emit('templateChange');
+        underTest.jobTemplateChanges.emit(new JobTemplateChangeEventModel('templateChange', SparkTemplateParametersModel.createEmpty()));
 
         fixture.detectChanges();
         fixture.whenStable().then(() => {
@@ -124,11 +127,11 @@ describe('SparkJobComponent', () => {
 
   it('should emit updated job parameters when additionalSparkConfigChange() is called', () => {
     spyOn(underTest.jobParametersChange, 'emit');
-    const newAdditionalSparkConfigs = new Map<string, string>([
-      ['newAdditionalSparkConfigKey1', 'newAdditionalSparkConfigValue1'],
-      ['newAdditionalSparkConfigKey2', 'newAdditionalSparkConfigValue2'],
-      ['newAdditionalSparkConfigKey3', 'newAdditionalSparkConfigValue3'],
-    ]);
+    const newAdditionalSparkConfigs = [
+      KeyValueModelFactory.create('newAdditionalSparkConfigKey1', 'newAdditionalSparkConfigValue1'),
+      KeyValueModelFactory.create('newAdditionalSparkConfigKey2', 'newAdditionalSparkConfigValue2'),
+      KeyValueModelFactory.create('newAdditionalSparkConfigKey3', 'newAdditionalSparkConfigValue3'),
+    ];
     const newJobParameters = { ...underTest.jobParameters, additionalSparkConfig: newAdditionalSparkConfigs };
 
     underTest.additionalSparkConfigChange(newAdditionalSparkConfigs);

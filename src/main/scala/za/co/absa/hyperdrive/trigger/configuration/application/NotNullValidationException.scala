@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -22,7 +21,6 @@ import za.co.absa.hyperdrive.trigger.configuration.application.NotNullValidation
 class NotNullValidationException(name: ConfigurationPropertyName) extends RuntimeException(createMessage(name))
 
 object NotNullValidationException {
-  def createMessage(name: ConfigurationPropertyName): String = {
-    s"Property ${name} was not defined, but is required"
-  }
+  def createMessage(name: ConfigurationPropertyName): String =
+    s"Property $name was not defined, but is required"
 }

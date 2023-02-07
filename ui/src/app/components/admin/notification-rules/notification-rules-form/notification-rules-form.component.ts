@@ -68,7 +68,7 @@ export class NotificationRulesFormComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.workflowsSubscription = this.store.select(selectWorkflowState).subscribe((state) => {
-      this.projects = state.projects.map((project) => project.name);
+      this.projects = state.projects.initialProjects.map((project) => project.name);
     });
   }
 

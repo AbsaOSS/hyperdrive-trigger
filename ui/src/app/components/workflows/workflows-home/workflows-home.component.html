@@ -73,13 +73,13 @@
   </div>
 </clr-modal>
 
-<clr-datagrid [(clrDgSelected)]="selected" (clrDgRefresh)="onClarityDgRefresh($event)">
+<clr-datagrid [(clrDgSelected)]="selected"  (clrDgRefresh)="onClarityDgRefresh($event)" [clrDgLoading]="loading">
 
   <clr-dg-action-bar>
     <clr-dropdown>
       <button type="button" class="btn btn-sm btn-secondary" [disabled]="selected.length <= 0" clrDropdownTrigger>
         Bulk Actions
-        <clr-icon shape="caret down"></clr-icon>
+        <clr-icon shape="angle down"></clr-icon>
       </button>
       <clr-dropdown-menu clrPosition="bottom-left" *clrIfOpen>
         <div aria-label="Activate" clrDropdownItem [clrDisabled]="isActivateSelectedWorkflowsDisabled(selected)" (click)="activateSelectedWorkflows(selected)">
@@ -109,7 +109,7 @@
       <clr-dropdown>
         <button type="button" class="btn btn-sm btn-secondary" clrDropdownTrigger>
           Import
-          <clr-icon shape="caret down"></clr-icon>
+            <clr-icon shape="angle down"></clr-icon>
         </button>
         <clr-dropdown-menu clrPosition="bottom-left" *clrIfOpen>
           <div aria-label="Single workflow (.json)" clrDropdownItem (click)="openImportWorkflowModal()">
@@ -170,7 +170,7 @@
 
   </clr-dg-column>
 
-  <clr-dg-row *clrDgItems="let workflow of workflows" [clrDgItem]="workflow">
+  <clr-dg-row *ngFor="let workflow of workflows" [clrDgItem]="workflow">
     <clr-dg-action-overflow>
       <button type="button" class="action-item" (click)="showWorkflow(workflow.id)">
         <clr-icon shape="eye"></clr-icon>
@@ -218,5 +218,12 @@
       {{workflow.isActive ? 'Yes' : 'No'}}
     </clr-dg-cell>
   </clr-dg-row>
+  <clr-dg-footer>
+    <clr-dg-pagination #pagination [clrDgPageSize]="pageSize" [clrDgPage]="page"
+                       [clrDgTotalItems]="total"></clr-dg-pagination>
+    <clr-dg-page-size [clrPageSizeOptions]="[50,100,150,200,250,300]">Workflows per page</clr-dg-page-size>
+    {{pagination.firstItem + 1}} - {{pagination.lastItem + 1}}
+    of {{total}} workflows
+  </clr-dg-footer>
 </clr-datagrid>
 

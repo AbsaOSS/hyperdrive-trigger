@@ -16,27 +16,38 @@
 package za.co.absa.hyperdrive.trigger.models.tables
 
 import java.time.LocalDateTime
-
 import slick.lifted.{ForeignKeyQuery, ProvenShape}
+import za.co.absa.hyperdrive.trigger.models.tables.tableExtensions.optimisticLocking.{
+  OptimisticLockingTable,
+  OptimisticLockingTableQuery
+}
+import za.co.absa.hyperdrive.trigger.models.tables.tableExtensions.searchableTable.{
+  SearchableTable,
+  SearchableTableQuery
+}
 import za.co.absa.hyperdrive.trigger.models.{SchedulerInstance, Workflow}
 
-trait WorkflowTable {
-  this: Profile with SchedulerInstanceTable =>
-  import  api._
+trait WorkflowTable extends SearchableTableQuery with OptimisticLockingTableQuery {
+  this: Profile with SchedulerInstanceTable with JdbcTypeMapper =>
+  import api._
 
-  final class WorkflowTable(tag: Tag) extends Table[Workflow](tag, _tableName = "workflow") {
+  final class WorkflowTable(tag: Tag)
+      extends Table[Workflow](tag, _tableName = "workflow")
+      with SearchableTable
+      with OptimisticLockingTable {
     def name: Rep[String] = column[String]("name", O.Unique, O.Length(45))
     def isActive: Rep[Boolean] = column[Boolean]("is_active")
     def project: Rep[String] = column[String]("project")
     def created: Rep[LocalDateTime] = column[LocalDateTime]("created")
     def updated: Rep[Option[LocalDateTime]] = column[Option[LocalDateTime]]("updated")
+    override def version: Rep[Long] = column[Long]("version")
     def schedulerInstanceId: Rep[Option[Long]] = column[Option[Long]]("scheduler_instance_id")
     def id: Rep[Long] = column[Long]("id", O.PrimaryKey, O.AutoInc, O.SqlType("BIGSERIAL"))
 
     def schedulerInstance_fk: ForeignKeyQuery[SchedulerInstanceTable, SchedulerInstance] =
-      foreignKey("workflow_scheduler_instance_fk", schedulerInstanceId, TableQuery[SchedulerInstanceTable])(_.id)
+      foreignKey("workflow_scheduler_instance_fk", schedulerInstanceId, TableQuery[SchedulerInstanceTable])(_.id.?)
 
-    def * : ProvenShape[Workflow] = (name, isActive, project, created, updated, schedulerInstanceId, id) <> (
+    def * : ProvenShape[Workflow] = (name, isActive, project, created, updated, version, schedulerInstanceId, id) <> (
       workflowTuple =>
         Workflow.apply(
           name = workflowTuple._1,
@@ -44,11 +55,24 @@ trait WorkflowTable {
           project = workflowTuple._3,
           created = workflowTuple._4,
           updated = workflowTuple._5,
-          schedulerInstanceId = workflowTuple._6,
-          id = workflowTuple._7
+          version = workflowTuple._6,
+          schedulerInstanceId = workflowTuple._7,
+          id = workflowTuple._8
         ),
       Workflow.unapply
     )
+
+    override def fieldMapping: Map[String, Rep[_]] = Map(
+      "name" -> this.name,
+      "isActive" -> this.isActive,
+      "project" -> this.project,
+      "created" -> this.created,
+      "updated" -> this.updated,
+      "schedulerInstanceId" -> this.schedulerInstanceId,
+      "id" -> this.id
+    )
+
+    override def defaultSortColumn: Rep[_] = (project, name)
   }
 
   lazy val workflowTable = TableQuery[WorkflowTable]

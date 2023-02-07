@@ -26,8 +26,10 @@ import {
   CreateNotificationRule,
   DeleteNotificationRule,
   GetNotificationRule,
+  GetNotificationRuleUsage,
   LoadHistoryForNotificationRule,
   LoadNotificationRulesFromHistory,
+  RevertNotificationRule,
   SearchNotificationRules,
   UpdateNotificationRule,
 } from './notification-rules.actions';
@@ -41,17 +43,17 @@ import { dagInstanceStatuses } from '../../models/enums/dagInstanceStatuses.cons
 import * as NotificationRulesActions from '../notification-rules/notification-rules.actions';
 import { ApiErrorModelFactory } from '../../models/errors/apiError.model';
 import { NotificationRuleModel, NotificationRuleModelFactory } from '../../models/notificationRule.model';
-import { MockStore, provideMockStore } from '@ngrx/store/testing';
+import { provideMockStore } from '@ngrx/store/testing';
 import { HistoryModel, HistoryModelFactory, HistoryPairModel } from '../../models/historyModel';
 import { NotificationRuleHistoryService } from '../../services/notificationRuleHistory/notification-rule-history.service';
 import { NotificationRuleHistoryModel, NotificationRuleHistoryModelFactory } from '../../models/notificationRuleHistoryModel';
+import { WorkflowModelFactory } from '../../models/workflow.model';
 
 describe('NotificationRulesEffects', () => {
   let underTest: NotificationRulesEffects;
   let notificationRuleServiceSpy: Spy<NotificationRuleService>;
   let notificationRuleHistoryServiceSpy: Spy<NotificationRuleHistoryService>;
   let mockActions: Observable<any>;
-  let mockStore: MockStore;
   let toastrServiceSpy: Spy<ToastrService>;
   let routerSpy: Spy<Router>;
 
@@ -75,6 +77,10 @@ describe('NotificationRulesEffects', () => {
         mode: undefined,
         notificationRule: dummyNotificationRule,
       },
+      usage: {
+        loading: false,
+        workflows: [],
+      },
     },
   };
 
@@ -96,7 +102,6 @@ describe('NotificationRulesEffects', () => {
     notificationRuleServiceSpy = TestBed.inject<any>(NotificationRuleService);
     notificationRuleHistoryServiceSpy = TestBed.inject<any>(NotificationRuleHistoryService);
     mockActions = TestBed.inject(Actions);
-    mockStore = TestBed.inject(MockStore);
     toastrServiceSpy = TestBed.inject<any>(ToastrService);
     routerSpy = TestBed.inject<any>(Router);
   });
@@ -168,6 +173,45 @@ describe('NotificationRulesEffects', () => {
       expect(underTest.notificationRuleGet).toBeObservable(expected);
       expect(toastrServiceErrorSpy).toHaveBeenCalledWith(texts.LOAD_NOTIFICATION_RULE_FAILURE_NOTIFICATION);
       expect(routerNavigateByUrlSpy).toHaveBeenCalledWith(absoluteRoutes.NOTIFICATION_RULES);
+    });
+  });
+
+  describe('notificationRuleUsageGet', () => {
+    it('should return all workflows matched by notification rule', () => {
+      const id = 0;
+      const workflow = WorkflowModelFactory.create('workflowOne', undefined, undefined, undefined, undefined, undefined, undefined);
+
+      const action = new GetNotificationRuleUsage(id);
+      mockActions = cold('-a', { a: action });
+      const notificationRuleUsageResponse = cold('-a|', { a: [workflow] });
+      const expected = cold('--a', {
+        a: {
+          type: NotificationRulesActions.GET_NOTIFICATION_RULE_USAGE_SUCCESS,
+          payload: [workflow],
+        },
+      });
+
+      notificationRuleServiceSpy.getNotificationUsage.and.returnValue(notificationRuleUsageResponse);
+
+      expect(underTest.notificationRuleUsageGet).toBeObservable(expected);
+    });
+
+    it('should return notification rule usage failure if notificationRuleService.getNotificationUsage responds with an error', () => {
+      const id = 0;
+      const toastrServiceSpyError = toastrServiceSpy.error;
+      const action = new GetNotificationRuleUsage(id);
+      mockActions = cold('-a', { a: action });
+      const errorResponse = cold('-#|');
+      notificationRuleServiceSpy.getNotificationUsage.and.returnValue(errorResponse);
+
+      const expected = cold('--a', {
+        a: {
+          type: NotificationRulesActions.GET_NOTIFICATION_RULE_USAGE_FAILURE,
+        },
+      });
+      expect(underTest.notificationRuleUsageGet).toBeObservable(expected);
+      expect(toastrServiceSpyError).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpyError).toHaveBeenCalledWith(texts.GET_NOTIFICATION_RULE_USAGE_FAILURE_NOTIFICATION);
     });
   });
 
@@ -484,6 +528,48 @@ describe('NotificationRulesEffects', () => {
       expect(underTest.notificationRulesFromHistoryLoad).toBeObservable(expected);
       expect(toastrServiceSpyError).toHaveBeenCalledTimes(1);
       expect(toastrServiceSpyError).toHaveBeenCalledWith(texts.LOAD_NOTIFICATION_RULES_FROM_HISTORY_FAILURE_NOTIFICATION);
+    });
+  });
+
+  describe('notificationRuleRevert', () => {
+    it('should load notification rule from history', () => {
+      const payload = 1;
+
+      const response = dummyNotificationRule;
+
+      const action = new RevertNotificationRule(payload);
+      mockActions = cold('-a', { a: action });
+      const getHistoryNotificationRuleResponse = cold('-a|', { a: response });
+      const expected = cold('--a', {
+        a: {
+          type: NotificationRulesActions.REVERT_NOTIFICATION_RULE_SUCCESS,
+          payload: response,
+        },
+      });
+
+      notificationRuleHistoryServiceSpy.getNotificationRuleFromHistory.and.returnValue(getHistoryNotificationRuleResponse);
+
+      expect(underTest.notificationRuleRevert).toBeObservable(expected);
+    });
+
+    it('should display failure when service fails to load notification rule from history', () => {
+      const toastrServiceSpyError = toastrServiceSpy.error;
+      const payload = 1;
+
+      const action = new RevertNotificationRule(payload);
+      mockActions = cold('-a', { a: action });
+
+      const getHistoryNotificationRuleResponse = cold('-#|');
+      notificationRuleHistoryServiceSpy.getNotificationRuleFromHistory.and.returnValue(getHistoryNotificationRuleResponse);
+
+      const expected = cold('--a', {
+        a: {
+          type: NotificationRulesActions.REVERT_NOTIFICATION_RULE_FAILURE,
+        },
+      });
+      expect(underTest.notificationRuleRevert).toBeObservable(expected);
+      expect(toastrServiceSpyError).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpyError).toHaveBeenCalledWith(texts.LOAD_NOTIFICATION_RULE_FAILURE_NOTIFICATION);
     });
   });
 });

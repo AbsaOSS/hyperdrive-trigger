@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -17,6 +16,13 @@
 package za.co.absa.hyperdrive.trigger.configuration.application
 
 object JobDefinitionConfig {
-  val KeysToMerge = Set("spark.executor.extraJavaOptions", "spark.driver.extraJavaOptions")
-  val MergedValuesSeparator = " "
+  object SparkExtraJavaOptions {
+    val KeysToMerge: Set[String] = Set("spark.executor.extraJavaOptions", "spark.driver.extraJavaOptions")
+    val MergedValuesSeparator: String = " "
+  }
+
+  object SparkTags {
+    val KeysToMerge: Set[String] = Set("spark.yarn.tags")
+    val MergedValuesSeparator: String = ","
+  }
 }

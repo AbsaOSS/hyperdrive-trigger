@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -26,7 +25,7 @@ import scala.annotation.meta.field
 @ConfigurationProperties
 @ConstructorBinding
 @Validated
-class GeneralConfig (
+class GeneralConfig(
   @Name("application.maximumNumberOfWorkflowsInBulkRun")
   @DefaultValue(Array("10"))
   val maximumNumberOfWorkflowsInBulkRun: Int,
@@ -35,5 +34,7 @@ class GeneralConfig (
   @DefaultValue(Array("Unknown"))
   val version: String,
   @(NotBlank @field)
-  val appUniqueId: String
+  val appUniqueId: String,
+  @DefaultValue(Array("50"))
+  val kafkaConsumersCacheSize: Int
 )

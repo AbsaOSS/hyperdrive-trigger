@@ -26,7 +26,7 @@ import za.co.absa.hyperdrive.trigger.models.enums.JobTypes.JobType
 import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses.SchedulerInstanceStatus
 import za.co.absa.hyperdrive.trigger.models.enums.SensorTypes.SensorType
 import za.co.absa.hyperdrive.trigger.models.enums._
-import za.co.absa.hyperdrive.trigger.models._
+import za.co.absa.hyperdrive.trigger.models.{JobTemplate, _}
 
 import java.io.StringWriter
 import scala.collection.immutable.SortedMap
@@ -46,12 +46,24 @@ trait JdbcTypeMapper {
     }
   )
 
+  implicit lazy val jobTemplateMapper: JdbcType[JobTemplate] = MappedColumnType.base[JobTemplate, String](
+    jobTemplate => {
+      val stringWriter = new StringWriter
+      ObjectMapperSingleton.getObjectMapper.writeValue(stringWriter, jobTemplate)
+      stringWriter.toString
+    },
+    jobTemplateString => {
+      ObjectMapperSingleton.getObjectMapper.readValue(jobTemplateString, classOf[JobTemplate])
+    }
+  )
+
   implicit lazy val dbOperationMapper: JdbcType[DBOperation] =
     MappedColumnType.base[DBOperation, String](
       dbOperation => dbOperation.name,
-      dbOperationName => DBOperation.dbOperations.find(_.name == dbOperationName).getOrElse(
-        throw new Exception(s"Couldn't find DBOperation: $dbOperationName")
-      )
+      dbOperationName =>
+        DBOperation.dbOperations
+          .find(_.name == dbOperationName)
+          .getOrElse(throw new Exception(s"Couldn't find DBOperation: $dbOperationName"))
     )
 
   implicit lazy val sensorTypeMapper: JdbcType[SensorType] =
@@ -63,17 +75,19 @@ trait JdbcTypeMapper {
   implicit lazy val jobTypeMapper: JdbcType[JobType] =
     MappedColumnType.base[JobType, String](
       jobType => jobType.name,
-      jobTypeName => JobTypes.jobTypes.find(_.name == jobTypeName).getOrElse(
-        throw new Exception(s"Couldn't find JobType: $jobTypeName")
-      )
+      jobTypeName =>
+        JobTypes.jobTypes
+          .find(_.name == jobTypeName)
+          .getOrElse(throw new Exception(s"Couldn't find JobType: $jobTypeName"))
     )
 
   implicit lazy val jobStatusMapper: JdbcType[JobStatus] =
     MappedColumnType.base[JobStatus, String](
       jobStatus => jobStatus.name,
-      jobStatusName => JobStatuses.statuses.find(_.name == jobStatusName).getOrElse(
-        throw new Exception(s"Couldn't find JobStatus: $jobStatusName")
-      )
+      jobStatusName =>
+        JobStatuses.statuses
+          .find(_.name == jobStatusName)
+          .getOrElse(throw new Exception(s"Couldn't find JobStatus: $jobStatusName"))
     )
 
   implicit lazy val dagInstanceStatusMapper: JdbcType[DagInstanceStatus] =
@@ -85,19 +99,20 @@ trait JdbcTypeMapper {
   implicit lazy val instanceStatusMapper: JdbcType[SchedulerInstanceStatus] =
     MappedColumnType.base[SchedulerInstanceStatus, String](
       status => status.name,
-      statusName => SchedulerInstanceStatuses.statuses.find(_.name == statusName).getOrElse(
-        throw new Exception(s"Couldn't find SchedulerInstanceStatus: $statusName")
-      )
+      statusName =>
+        SchedulerInstanceStatuses.statuses
+          .find(_.name == statusName)
+          .getOrElse(throw new Exception(s"Couldn't find SchedulerInstanceStatus: $statusName"))
     )
 
-  //TEMPORARY MAPPING, SEPARATE TABLE WILL BE CREATED
+  // TEMPORARY MAPPING, SEPARATE TABLE WILL BE CREATED
   implicit lazy val mapMapper: JdbcType[Map[String, String]] =
     MappedColumnType.base[Map[String, String], String](
       parameters => Json.toJson(parameters).toString(),
       parametersEncoded => Json.parse(parametersEncoded).as[Map[String, String]]
     )
 
-  //TEMPORARY MAPPING, SEPARATE TABLE WILL BE CREATED
+  // TEMPORARY MAPPING, SEPARATE TABLE WILL BE CREATED
   implicit lazy val mapListMapper: JdbcType[Map[String, List[String]]] =
     MappedColumnType.base[Map[String, List[String]], String](
       parameters => Json.toJson(parameters).toString(),
@@ -109,52 +124,57 @@ trait JdbcTypeMapper {
       parameters => Json.toJson(parameters).toString(),
       parametersEncoded => {
         val genericMap = Json.parse(parametersEncoded).as[Map[String, Map[String, String]]]
-        genericMap.map{case (key, value) => key -> SortedMap(value.toArray:_*)}
+        genericMap.map { case (key, value) => key -> SortedMap(value.toArray: _*) }
       }
     )
 
-  implicit lazy val jobInstanceParametersMapper: JdbcType[JobInstanceParameters] = MappedColumnType.base[JobInstanceParameters, JsValue](
-    {
-      case spark: SparkInstanceParameters => Json.toJson(spark)
-      case shell: ShellInstanceParameters => Json.toJson(shell)
-    },
-    column => column.as[JobInstanceParameters]
-  )
+  implicit lazy val jobInstanceParametersMapper: JdbcType[JobInstanceParameters] =
+    MappedColumnType.base[JobInstanceParameters, JsValue](
+      {
+        case spark: SparkInstanceParameters => Json.toJson(spark)
+        case shell: ShellInstanceParameters => Json.toJson(shell)
+      },
+      column => column.as[JobInstanceParameters]
+    )
 
-  implicit lazy val jobTemplateParametersMapper: JdbcType[JobTemplateParameters] = MappedColumnType.base[JobTemplateParameters, JsValue](
-    {
-      case spark: SparkTemplateParameters => Json.toJson(spark)
-      case shell: ShellTemplateParameters => Json.toJson(shell)
-    },
-    column => column.as[JobTemplateParameters]
-  )
+  implicit lazy val jobTemplateParametersMapper: JdbcType[JobTemplateParameters] =
+    MappedColumnType.base[JobTemplateParameters, JsValue](
+      {
+        case spark: SparkTemplateParameters => Json.toJson(spark)
+        case shell: ShellTemplateParameters => Json.toJson(shell)
+      },
+      column => column.as[JobTemplateParameters]
+    )
 
-  implicit lazy val jobDefinitionParametersMapper: JdbcType[JobDefinitionParameters] = MappedColumnType.base[JobDefinitionParameters, JsValue](
-    {
-      case spark: SparkDefinitionParameters => Json.toJson(spark)
-      case shell: ShellDefinitionParameters => Json.toJson(shell)
-    },
-    column => column.as[JobDefinitionParameters]
-  )
+  implicit lazy val jobDefinitionParametersMapper: JdbcType[JobDefinitionParameters] =
+    MappedColumnType.base[JobDefinitionParameters, JsValue](
+      {
+        case spark: SparkDefinitionParameters => Json.toJson(spark)
+        case shell: ShellDefinitionParameters => Json.toJson(shell)
+      },
+      column => column.as[JobDefinitionParameters]
+    )
 
-  implicit lazy val notificationRuleMapper: JdbcType[NotificationRule] = MappedColumnType.base[NotificationRule, JsValue](
-    notificationRule => Json.toJson(notificationRule),
-    column => column.as[NotificationRule]
-  )
+  implicit lazy val notificationRuleMapper: JdbcType[NotificationRule] =
+    MappedColumnType.base[NotificationRule, JsValue](
+      notificationRule => Json.toJson(notificationRule),
+      column => column.as[NotificationRule]
+    )
 
   implicit lazy val recipientsMapper: JdbcType[Recipients] = MappedColumnType.base[Recipients, JsValue](
     recipients => Json.toJson(recipients.sorted),
     column => column.as[Recipients]
   )
 
-  implicit lazy val sensorPropertiesMapper: JdbcType[SensorProperties] = MappedColumnType.base[SensorProperties, JsValue](
-    {
-      case kafka: KafkaSensorProperties => Json.toJson(kafka)
-      case absaKafka: AbsaKafkaSensorProperties => Json.toJson(absaKafka)
-      case recurring: RecurringSensorProperties => Json.toJson(recurring)
-      case time: TimeSensorProperties => Json.toJson(time)
-    },
-    column => column.as[SensorProperties]
-  )
+  implicit lazy val sensorPropertiesMapper: JdbcType[SensorProperties] =
+    MappedColumnType.base[SensorProperties, JsValue](
+      {
+        case kafka: KafkaSensorProperties         => Json.toJson(kafka)
+        case absaKafka: AbsaKafkaSensorProperties => Json.toJson(absaKafka)
+        case recurring: RecurringSensorProperties => Json.toJson(recurring)
+        case time: TimeSensorProperties           => Json.toJson(time)
+      },
+      column => column.as[SensorProperties]
+    )
 
 }

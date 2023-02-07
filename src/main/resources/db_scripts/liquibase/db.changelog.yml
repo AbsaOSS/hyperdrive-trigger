@@ -74,3 +74,24 @@ databaseChangeLog:
   - include:
       relativeToChangelogFile: true
       file: v0.5.3.remove-form-config.yml
+  - include:
+      relativeToChangelogFile: true
+      file: v0.5.3.add-job-template-history.yml
+  - include:
+      relativeToChangelogFile: true
+      file: v0.5.5.optimize-dag-run-query.yml
+  - include:
+      relativeToChangelogFile: true
+      file: v0.5.7.add-workflow-version-field.yml
+  - include:
+      relativeToChangelogFile: true
+      file: v0.5.11.additional-spark-config-map-to-array.yml
+  - include:
+      relativeToChangelogFile: true
+      file: v0.5.13.add-archive-tables.yml
+  - include:
+      relativeToChangelogFile: true
+      file: v0.5.13.add-archive-procedure.yml
+  - include:
+      relativeToChangelogFile: true
+      file: v0.5.14.remove-deprecated-columns.yml

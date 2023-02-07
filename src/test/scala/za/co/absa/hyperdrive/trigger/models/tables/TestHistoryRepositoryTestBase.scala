@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -31,26 +30,25 @@ trait TestHistoryRepositoryTestBase extends RepositoryH2TestBase with TestHistor
 
   def dropTable(): Unit = run(testHistoryTable.delete)
 
-  def createHistoryTestData(): Unit = {
+  def createHistoryTestData(): Unit =
     run(testHistoryTable.forceInsertAll(TestHistoryData.testHistoryEntities))
-  }
 
   object TestHistoryData {
-    val t1 = TestHistoryEntity(
+    val t1: TestHistoryEntity = TestHistoryEntity(
       id = 1L,
       changedOn = LocalDateTime.of(LocalDate.of(2020, 11, 24), LocalTime.of(15, 23, 24)),
       changedBy = "test-user",
       operation = DBOperation.Create,
       entityId = 42L
     )
-    val t2 = TestHistoryEntity(
+    val t2: TestHistoryEntity = TestHistoryEntity(
       id = 2L,
       changedOn = LocalDateTime.of(LocalDate.of(2020, 11, 24), LocalTime.of(16, 23, 24)),
       changedBy = "test-user",
       operation = DBOperation.Create,
       entityId = 52L
     )
-    val t3 = TestHistoryEntity(
+    val t3: TestHistoryEntity = TestHistoryEntity(
       id = 3L,
       changedOn = LocalDateTime.of(LocalDate.of(2020, 11, 24), LocalTime.of(17, 23, 24)),
       changedBy = "test-user",

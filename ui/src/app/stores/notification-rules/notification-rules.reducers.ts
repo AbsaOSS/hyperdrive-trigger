@@ -17,6 +17,7 @@ import { NotificationRuleModel, NotificationRuleModelFactory } from '../../model
 import * as NotificationRulesActions from '../notification-rules/notification-rules.actions';
 import { HistoryModel } from '../../models/historyModel';
 import { NotificationRuleHistoryModel } from '../../models/notificationRuleHistoryModel';
+import { WorkflowModel } from '../../models/workflow.model';
 
 export interface State {
   notificationRules: NotificationRuleModel[];
@@ -30,6 +31,10 @@ export interface State {
     initialNotificationRule: NotificationRuleModel;
     notificationRule: NotificationRuleModel;
     backendValidationErrors: string[];
+  };
+  usage: {
+    loading: boolean;
+    workflows: WorkflowModel[];
   };
   history: {
     loading: boolean;
@@ -51,6 +56,10 @@ const initialState: State = {
     initialNotificationRule: undefined,
     notificationRule: undefined,
     backendValidationErrors: undefined,
+  },
+  usage: {
+    loading: false,
+    workflows: [],
   },
   history: {
     loading: true,
@@ -220,6 +229,58 @@ export function notificationRulesReducer(state: State = initialState, action: No
         history: {
           ...initialState.history,
           loading: false,
+        },
+      };
+    case NotificationRulesActions.REVERT_NOTIFICATION_RULE:
+      return {
+        ...state,
+        notificationRuleAction: {
+          ...initialState.notificationRuleAction,
+          id: action.payload,
+          loading: true,
+        },
+      };
+    case NotificationRulesActions.REVERT_NOTIFICATION_RULE_SUCCESS:
+      return {
+        ...state,
+        notificationRuleAction: {
+          ...state.notificationRuleAction,
+          loading: false,
+          initialNotificationRule: undefined,
+          notificationRule: action.payload,
+          backendValidationErrors: [],
+        },
+      };
+    case NotificationRulesActions.REVERT_NOTIFICATION_RULE_FAILURE:
+      return {
+        ...state,
+        notificationRuleAction: {
+          ...initialState.notificationRuleAction,
+          loading: false,
+        },
+      };
+    case NotificationRulesActions.GET_NOTIFICATION_RULE_USAGE:
+      return {
+        ...state,
+        usage: {
+          loading: true,
+          workflows: [],
+        },
+      };
+    case NotificationRulesActions.GET_NOTIFICATION_RULE_USAGE_SUCCESS:
+      return {
+        ...state,
+        usage: {
+          loading: false,
+          workflows: action.payload,
+        },
+      };
+    case NotificationRulesActions.GET_NOTIFICATION_RULE_USAGE_FAILURE:
+      return {
+        ...state,
+        usage: {
+          loading: false,
+          workflows: [],
         },
       };
     default:

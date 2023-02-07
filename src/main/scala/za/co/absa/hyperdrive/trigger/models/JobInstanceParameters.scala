@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -31,30 +30,29 @@ case class SparkInstanceParameters(
   appArguments: List[String] = List.empty[String],
   additionalJars: List[String] = List.empty[String],
   additionalFiles: List[String] = List.empty[String],
-  additionalSparkConfig: Map[String, String] = Map.empty[String, String]
+  additionalSparkConfig: List[AdditionalSparkConfig] = List.empty[AdditionalSparkConfig]
 ) extends JobInstanceParameters
 
-case class ShellInstanceParameters(
-  jobType: JobType = JobTypes.Shell,
-  scriptLocation: String
-) extends JobInstanceParameters
+case class ShellInstanceParameters(jobType: JobType = JobTypes.Shell, scriptLocation: String)
+    extends JobInstanceParameters
 
 object SparkInstanceParameters {
-  implicit val sparkFormat: OFormat[SparkInstanceParameters] = Json.using[Json.WithDefaultValues].format[SparkInstanceParameters]
+  implicit val sparkFormat: OFormat[SparkInstanceParameters] =
+    Json.using[Json.WithDefaultValues].format[SparkInstanceParameters]
 }
 
 object ShellInstanceParameters {
-  implicit val shellFormat: OFormat[ShellInstanceParameters] = Json.using[Json.WithDefaultValues].format[ShellInstanceParameters]
+  implicit val shellFormat: OFormat[ShellInstanceParameters] =
+    Json.using[Json.WithDefaultValues].format[ShellInstanceParameters]
 }
 
 object JobInstanceParameters {
   implicit val jobParametersFormat: Format[JobInstanceParameters] = new Format[JobInstanceParameters] {
-    override def reads(json: JsValue): JsResult[JobInstanceParameters] = {
+    override def reads(json: JsValue): JsResult[JobInstanceParameters] =
       (json \ "jobType").as[String] match {
         case JobTypes.Spark.name | JobTypes.Hyperdrive.name => SparkInstanceParameters.sparkFormat.reads(json)
-        case JobTypes.Shell.name => ShellInstanceParameters.shellFormat.reads(json)
+        case JobTypes.Shell.name                            => ShellInstanceParameters.shellFormat.reads(json)
       }
-    }
 
     override def writes(jobInstanceParameters: JobInstanceParameters): JsValue = jobInstanceParameters match {
       case sparkParameters: SparkInstanceParameters => SparkInstanceParameters.sparkFormat.writes(sparkParameters)

@@ -17,12 +17,7 @@ package za.co.absa.hyperdrive.trigger.scheduler.executors.spark
 
 import play.api.libs.json.{Json, OFormat}
 
-case class App(
-                id: String,
-                name: String,
-                state: String,
-                finalStatus: String
-              )
+case class App(id: String, name: String, state: String, finalStatus: String)
 
 case class Apps(app: Seq[App])
 
@@ -44,7 +39,5 @@ object FinalStatuses {
   case object Succeeded extends FinalStatus("SUCCEEDED")
   case object Failed extends FinalStatus("FAILED")
   case object Killed extends FinalStatus("KILLED")
-
-  val finalStatuses: Set[FinalStatus] = Set(Undefined, Succeeded, Failed, Killed)
 
 }

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -16,11 +15,9 @@
 
 package za.co.absa.hyperdrive.trigger.configuration.application
 
+import java.time.Duration
+
 object TestNotificationConfig {
-  def apply(
-    enabled: Boolean = false,
-    senderAddress: String = ""
-  ): NotificationConfig = {
-    new NotificationConfig(enabled, senderAddress)
-  }
+  def apply(enabled: Boolean = false, senderAddress: String = "", maxRetries: Int = 1): NotificationConfig =
+    new NotificationConfig(enabled, senderAddress, delay = Duration.ZERO, maxRetries)
 }

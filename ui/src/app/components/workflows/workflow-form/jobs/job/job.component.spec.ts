@@ -22,9 +22,10 @@ import {
   ShellTemplateParametersModel,
   SparkTemplateParametersModel,
 } from '../../../../../models/jobTemplateParameters.model';
-import { jobTypes } from '../../../../../constants/jobTypes.constants';
+import { jobTypes, jobTypesMap } from '../../../../../constants/jobTypes.constants';
 import { JobDefinitionModelFactory } from '../../../../../models/jobDefinition.model';
 import { ShellDefinitionParametersModel } from '../../../../../models/jobDefinitionParameters.model';
+import { JobTemplateChangeEventModel } from '../../../../../models/jobTemplateChangeEvent';
 
 describe('JobComponent', () => {
   let fixture: ComponentFixture<JobComponent>;
@@ -73,15 +74,18 @@ describe('JobComponent', () => {
   it('should emit updated job and job template change when jobTemplateChange() is called', () => {
     spyOn(underTest.jobChange, 'emit');
     spyOn(underTest.jobTemplateChanges, 'emit');
-    const newTemplateId = 'newTemplateId';
-    const updatedJob = { ...underTest.job, jobTemplateId: newTemplateId };
+    const newJobTemplate = JobTemplateModelFactory.create(999, 'newJobTemplate', HyperdriveTemplateParametersModel.createEmpty());
+    underTest.jobTemplates = [...underTest.jobTemplates, newJobTemplate];
+    const updatedJob = { ...underTest.job, jobTemplateId: newJobTemplate.id.toString() };
 
-    underTest.jobTemplateChange(newTemplateId);
+    underTest.jobTemplateChange(newJobTemplate.id.toString());
 
     expect(underTest.jobChange.emit).toHaveBeenCalled();
     expect(underTest.jobChange.emit).toHaveBeenCalledWith(updatedJob);
     expect(underTest.jobTemplateChanges.emit).toHaveBeenCalled();
-    expect(underTest.jobTemplateChanges.emit).toHaveBeenCalledWith(newTemplateId);
+    expect(underTest.jobTemplateChanges.emit).toHaveBeenCalledWith(
+      new JobTemplateChangeEventModel(newJobTemplate.id.toString(), newJobTemplate.jobParameters),
+    );
   });
 
   it('should emit updated job when jobParametersChange() is called', () => {
@@ -118,6 +122,42 @@ describe('JobComponent', () => {
       });
     }),
   );
+
+  it(
+    'getJobTypes() should return all job types if input type is shell',
+    waitForAsync(() => {
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        const result = underTest.getJobTypes(jobTypes.SHELL);
+        expect(result).toEqual(jobTypesMap);
+      });
+    }),
+  );
+
+  it(
+    'getJobTypes() should return job types without shell if input type is not shell',
+    waitForAsync(() => {
+      fixture.detectChanges();
+      fixture.whenStable().then(() => {
+        const result = underTest.getJobTypes(jobTypes.SPARK);
+        expect(result.size).toEqual(jobTypesMap.size - 1);
+      });
+    }),
+  );
+
+  it('should return selected template parameters when getSelectedJobTemplateParameters() is called and template is selected', () => {
+    underTest.job = { ...underTest.job, jobTemplateId: sparkTemplate.id.toString() };
+    const result = underTest.getSelectedJobTemplateParameters();
+
+    expect(result).toEqual(sparkTemplate.jobParameters);
+  });
+
+  it('should return undefined when getSelectedJobTemplateParameters() is called and template is not selected', () => {
+    underTest.job = { ...underTest.job, jobTemplateId: undefined };
+    const result = underTest.getSelectedJobTemplateParameters();
+
+    expect(result).toEqual(undefined);
+  });
 
   describe('isJobTemplateSelected() should return boolean value if template is selected', () => {
     const parameters = [

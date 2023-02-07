@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -20,13 +19,19 @@ import org.springframework.boot.context.properties.bind.{DefaultValue, Name}
 import org.springframework.boot.context.properties.{ConfigurationProperties, ConstructorBinding}
 import org.springframework.validation.annotation.Validated
 
+import java.time.Duration
+
 @ConfigurationProperties("notification")
 @ConstructorBinding
 @Validated
-class NotificationConfig (
+class NotificationConfig(
   @DefaultValue(Array("false"))
   val enabled: Boolean,
   @DefaultValue(Array(""))
   @Name("sender.address")
-  val senderAddress: String
+  val senderAddress: String,
+  @DefaultValue(Array("0ms"))
+  val delay: Duration,
+  @DefaultValue(Array("5"))
+  val maxRetries: Integer
 )

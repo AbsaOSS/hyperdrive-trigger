@@ -15,8 +15,4 @@
 
 package za.co.absa.hyperdrive.trigger.models
 
-case class QuartzExpressionDetail(
-  expression: String,
-  isValid: Boolean,
-  explained: String
-)
+case class QuartzExpressionDetail(expression: String, isValid: Boolean, explained: String)

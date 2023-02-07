@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -26,8 +25,11 @@ import java.time.Duration
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class ApplicationStartPostgresTest extends FlatSpec with Matchers with SpringIntegrationTest
-  with RepositoryPostgresTestBase {
+class ApplicationStartPostgresTest
+    extends FlatSpec
+    with Matchers
+    with SpringIntegrationTest
+    with RepositoryPostgresTestBase {
 
   @Inject() var injectedDbProvider: DatabaseProvider = _
   @Inject() var hyperDriverManager: HyperDriverManager = _
@@ -49,7 +51,7 @@ class ApplicationStartPostgresTest extends FlatSpec with Matchers with SpringInt
   override def beforeAll(): Unit = {
     import scala.collection.JavaConverters._
     databaseConfig.dbProperties.asScala.foreach { case (key, value) =>
-      System.setProperty(s"db.${key}", value)
+      System.setProperty(s"db.$key", value)
     }
 
     super.beforeAll()
@@ -72,14 +74,16 @@ class ApplicationStartPostgresTest extends FlatSpec with Matchers with SpringInt
     healthConfig.yarnConnectionTimeoutMillis shouldBe None
     kafkaConfig.groupIdPrefix shouldBe "hyper_drive"
     kafkaConfig.pollDuration shouldBe 500
-    kafkaConfig.properties.getProperty("key.deserializer") shouldBe "org.apache.kafka.common.serialization.StringDeserializer"
-    kafkaConfig.properties.getProperty("value.deserializer") shouldBe "org.apache.kafka.common.serialization.StringDeserializer"
+    kafkaConfig.properties.getProperty(
+      "key.deserializer"
+    ) shouldBe "org.apache.kafka.common.serialization.StringDeserializer"
+    kafkaConfig.properties.getProperty(
+      "value.deserializer"
+    ) shouldBe "org.apache.kafka.common.serialization.StringDeserializer"
     kafkaConfig.properties.getProperty("max.poll.records") shouldBe "100"
     kafkaConfig.properties.getProperty("security.protocol") shouldBe "PLAINTEXT"
     sparkConfig.submitApi shouldBe "yarn"
     sparkConfig.hadoopResourceManagerUrlBase shouldBe "http://localhost:8088"
-    sparkConfig.yarn.hadoopConfDir shouldBe "/opt/hadoop"
-    sparkConfig.yarn.sparkHome shouldBe "/opt/spark"
     sparkConfig.yarn.master shouldBe "yarn"
     sparkConfig.yarn.submitTimeout shouldBe 160000
     sparkConfig.yarn.filesToDeploy shouldBe Seq()
@@ -88,11 +92,13 @@ class ApplicationStartPostgresTest extends FlatSpec with Matchers with SpringInt
     notificationConfig.senderAddress shouldBe "sender <sender@abc.com>"
     notificationConfig.enabled shouldBe true
 
+    val testUser = "test-user"
+
     hyperDriverManager.isManagerRunning shouldBe true
     val jobTemplateSpark = JobTemplateFixture.GenericSparkJobTemplate
     val jobTemplateShell = JobTemplateFixture.GenericShellJobTemplate
-    await(jobTemplateRepository.insertJobTemplate(jobTemplateSpark))
-    await(jobTemplateRepository.insertJobTemplate(jobTemplateShell))
+    await(jobTemplateRepository.insertJobTemplate(jobTemplateSpark, testUser))
+    await(jobTemplateRepository.insertJobTemplate(jobTemplateShell, testUser))
     val jobTemplates = await(jobTemplateRepository.getJobTemplates())
 
     val workflowJoined = WorkflowFixture.createWorkflowJoined(
@@ -100,13 +106,11 @@ class ApplicationStartPostgresTest extends FlatSpec with Matchers with SpringInt
       shellJobTemplateId = jobTemplates.find(_.jobParameters.jobType == JobTypes.Shell).map(_.id).get
     )
 
-    await(workflowRepository.insertWorkflow(workflowJoined, "test-user"))
+    await(workflowRepository.insertWorkflow(workflowJoined, testUser))
     val workflows = await(workflowRepository.getWorkflows())
     workflows.size shouldBe 1
     workflows.head.name shouldBe workflowJoined.name
 
-    import api._
-    run(sqlu"drop view dag_run_view")
     schemaDrop()
   }
 }

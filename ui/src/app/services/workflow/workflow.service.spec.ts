@@ -19,8 +19,10 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 import { api } from '../../constants/api.constants';
 import { WorkflowService } from './workflow.service';
 import { ProjectModelFactory } from '../../models/project.model';
-import { WorkflowModelFactory } from '../../models/workflow.model';
+import { WorkflowModel, WorkflowModelFactory } from '../../models/workflow.model';
 import { WorkflowJoinedModelFactory } from '../../models/workflowJoined.model';
+import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
+import { TableSearchRequestModelFactory } from '../../models/search/tableSearchRequest.model';
 
 describe('WorkflowService', () => {
   let underTest: WorkflowService;
@@ -46,7 +48,7 @@ describe('WorkflowService', () => {
   it('getProjects() should return projects', () => {
     const projects = [
       ProjectModelFactory.create('projectName1', [
-        WorkflowModelFactory.create('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 0),
+        WorkflowModelFactory.create('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 1, 0),
       ]),
     ];
 
@@ -60,8 +62,40 @@ describe('WorkflowService', () => {
     req.flush([...projects]);
   });
 
+  it('getWorkflows() should return workflows', () => {
+    const workflows = [
+      WorkflowModelFactory.create('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 1, 0),
+    ];
+
+    underTest.getWorkflows().subscribe(
+      (data) => expect(data).toEqual(workflows),
+      (error) => fail(error),
+    );
+
+    const req = httpTestingController.expectOne(api.GET_WORKFLOWS);
+    expect(req.request.method).toEqual('GET');
+    req.flush([...workflows]);
+  });
+
+  it('searchWorkflows() should return workflows search response', () => {
+    const workflows = [
+      WorkflowModelFactory.create('workflowName1', true, 'projectName1', new Date(Date.now()), new Date(Date.now()), 1, 0),
+    ];
+    const searchResponseModel = new TableSearchResponseModel<WorkflowModel>(workflows, 1);
+    const request = TableSearchRequestModelFactory.create(0, 100);
+
+    underTest.searchWorkflows(request).subscribe(
+      (data) => expect(data).toEqual(searchResponseModel),
+      (error) => fail(error),
+    );
+
+    const req = httpTestingController.expectOne(api.SEARCH_WORKFLOWS);
+    expect(req.request.method).toEqual('POST');
+    req.flush(searchResponseModel);
+  });
+
   it('getWorkflow() should return workflow data', () => {
-    const workflow = WorkflowJoinedModelFactory.create('name', true, 'project', undefined, undefined, undefined, 0);
+    const workflow = WorkflowJoinedModelFactory.create('name', true, 'project', undefined, undefined, undefined, 1, 0);
 
     underTest.getWorkflow(workflow.id).subscribe(
       (data) => expect(data).toEqual(workflow),
@@ -133,7 +167,7 @@ describe('WorkflowService', () => {
   });
 
   it('importWorkflow() should return imported workflow', () => {
-    const workflow = WorkflowJoinedModelFactory.create('name', true, 'project', undefined, undefined, undefined, 0);
+    const workflow = WorkflowJoinedModelFactory.create('name', true, 'project', undefined, undefined, undefined, 1, 0);
     const file: File = new File(['content'], 'filename.json');
 
     underTest.importWorkflow(file).subscribe(
@@ -146,23 +180,22 @@ describe('WorkflowService', () => {
     req.flush(workflow);
   });
 
-  it('importWorkflows() should return project list', () => {
-    const workflow = WorkflowModelFactory.create('workflowName', true, 'projectName', new Date(Date.now()), new Date(Date.now()), 0);
-    const projects = [ProjectModelFactory.create('newProject', [workflow])];
+  it('importWorkflows() should return inserted workflows', () => {
+    const workflow = WorkflowModelFactory.create('workflowName', true, 'projectName', new Date(Date.now()), new Date(Date.now()), 1, 0);
     const file: File = new File(['content'], 'workflows.zip');
 
     underTest.importWorkflows(file).subscribe(
-      (data) => expect(data).toEqual(projects),
+      (data) => expect(data).toEqual([workflow]),
       (error) => fail(error),
     );
 
     const req = httpTestingController.expectOne(api.IMPORT_WORKFLOWS);
     expect(req.request.method).toEqual('POST');
-    req.flush(projects);
+    req.flush([workflow]);
   });
 
   it('createWorkflow() should return created workflow', () => {
-    const workflow = WorkflowJoinedModelFactory.create('name', true, 'project', undefined, undefined, undefined, 0);
+    const workflow = WorkflowJoinedModelFactory.create('name', true, 'project', undefined, undefined, undefined, 1, 0);
 
     underTest.createWorkflow(workflow).subscribe(
       (data) => expect(data).toEqual(workflow),
@@ -175,7 +208,7 @@ describe('WorkflowService', () => {
   });
 
   it('updateWorkflow() should return updated workflow', () => {
-    const workflow = WorkflowJoinedModelFactory.create('name', true, 'project', undefined, undefined, undefined, 0);
+    const workflow = WorkflowJoinedModelFactory.create('name', true, 'project', undefined, undefined, undefined, 1, 0);
 
     underTest.updateWorkflow(workflow).subscribe(
       (data) => expect(data).toEqual(workflow),

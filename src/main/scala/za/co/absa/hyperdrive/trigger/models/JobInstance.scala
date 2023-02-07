@@ -32,18 +32,3 @@ case class JobInstance(
   dagInstanceId: Long,
   id: Long = 0
 )
-
-
-case class JobInstanceJoined(
-  jobName: String,
-  event: Event,
-  jobParameters: JobInstanceParameters,
-  jobStatus: JobStatus,
-  executorJobId: Option[String],
-  applicationId: Option[String],
-  stepId: Option[String],
-  created: LocalDateTime,
-  updated: Option[LocalDateTime],
-  order: Int,
-  id: Long = 0
-)

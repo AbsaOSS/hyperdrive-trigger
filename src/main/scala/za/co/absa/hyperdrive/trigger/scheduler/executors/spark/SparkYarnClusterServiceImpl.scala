@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -16,28 +15,40 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.executors.spark
 
-import org.apache.spark.launcher.{SparkAppHandle, SparkLauncher}
-import org.slf4j.LoggerFactory
+import org.apache.hadoop.security.UserGroupInformation
+import org.apache.spark.launcher.{InProcessLauncher, NoBackendConnectionInProcessLauncher, SparkAppHandle}
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.configuration.application.SparkConfig
-import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.{SubmissionTimeout, Submitting}
+import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.{Lost, SubmissionTimeout, Submitting}
 import za.co.absa.hyperdrive.trigger.models.{JobInstance, SparkInstanceParameters}
+import za.co.absa.hyperdrive.trigger.api.rest.utils.Extensions._
 
+import java.security.PrivilegedExceptionAction
 import java.util.UUID.randomUUID
 import java.util.concurrent.{CountDownLatch, TimeUnit}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 @Service
-class SparkYarnClusterServiceImpl @Inject()(implicit sparkConfig: SparkConfig) extends SparkClusterService {
-  override def submitJob(jobInstance: JobInstance, jobParameters: SparkInstanceParameters, updateJob: JobInstance => Future[Unit])
-                        (implicit executionContext: ExecutionContext): Future[Unit] = {
+class SparkYarnClusterServiceImpl @Inject() (
+  implicit sparkConfig: SparkConfig,
+  executionContextProvider: SparkClusterServiceExecutionContextProvider
+) extends SparkClusterService {
+  private implicit val executionContext: ExecutionContext = executionContextProvider.get()
+  private val SparkYarnPrincipalProp = "spark.yarn.principal"
+  private val SparkYarnKeytabProp = "spark.yarn.keytab"
+
+  override def submitJob(
+    jobInstance: JobInstance,
+    jobParameters: SparkInstanceParameters,
+    updateJob: JobInstance => Future[Unit]
+  ): Future[Unit] = {
     val id = randomUUID().toString
     val ji = jobInstance.copy(executorJobId = Some(id), jobStatus = Submitting)
     updateJob(ji).map { _ =>
       val submitTimeout = sparkConfig.yarn.submitTimeout
       val latch = new CountDownLatch(1)
-      val sparkAppHandle = getSparkLauncher(id, ji.jobName, jobParameters).startApplication(new SparkAppHandle.Listener {
+      val sparkAppHandleListener = new SparkAppHandle.Listener {
         import scala.math.Ordered.orderingToOrdered
         override def stateChanged(handle: SparkAppHandle): Unit =
           if (handle.getState >= SparkAppHandle.State.SUBMITTED) {
@@ -46,43 +57,75 @@ class SparkYarnClusterServiceImpl @Inject()(implicit sparkConfig: SparkConfig) e
         override def infoChanged(handle: SparkAppHandle): Unit = {
           // do nothing
         }
-      })
+      }
+      val sparkAppHandle =
+        startSparkJob(getSparkLauncher(id, ji.jobName, jobParameters), sparkAppHandleListener, jobParameters)
       latch.await(submitTimeout, TimeUnit.MILLISECONDS)
       sparkAppHandle.kill()
     }
   }
 
-  override def handleMissingYarnStatusForJobStatusSubmitting(jobInstance: JobInstance, updateJob: JobInstance => Future[Unit])
-    (implicit executionContext: ExecutionContext): Future[Unit] = {
-    updateJob(jobInstance.copy(jobStatus = SubmissionTimeout))
+  override def handleMissingYarnStatus(
+    jobInstance: JobInstance,
+    updateJob: JobInstance => Future[Unit]
+  ): Future[Unit] = {
+    val status = jobInstance.jobStatus match {
+      case s if s == Submitting => SubmissionTimeout
+      case _                    => Lost
+    }
+
+    updateJob(jobInstance.copy(jobStatus = status))
   }
 
-  private def getSparkLauncher(id: String, jobName: String, jobParameters: SparkInstanceParameters)
-                              (implicit sparkConfig: SparkConfig): SparkLauncher = {
-    import scala.collection.JavaConverters._
+  private def getSparkLauncher(id: String, jobName: String, jobParameters: SparkInstanceParameters)(
+    implicit sparkConfig: SparkConfig
+  ): InProcessLauncher = {
     val config = sparkConfig.yarn
-    val sparkLauncher = new SparkLauncher(Map(
-      "HADOOP_CONF_DIR" -> config.hadoopConfDir,
-      "SPARK_PRINT_LAUNCH_COMMAND" -> "1"
-    ).asJava)
+    val sparkLauncher = new NoBackendConnectionInProcessLauncher()
       .setMaster(config.master)
       .setDeployMode("cluster")
       .setMainClass(jobParameters.mainClass)
       .setAppResource(jobParameters.jobJar)
-      .setSparkHome(config.sparkHome)
       .setAppName(jobName)
-      .setConf("spark.yarn.tags", id)
-      .addAppArgs(jobParameters.appArguments.toSeq:_*)
+      .setConf("spark.app.name", jobName)
+      .addAppArgs(jobParameters.appArguments.map(fix_json_for_yarn): _*)
       .addSparkArg("--verbose")
-      .redirectToLog(LoggerFactory.getLogger(s"SparkExecutor.executorJobId=$id").getName)
     config.filesToDeploy.foreach(file => sparkLauncher.addFile(file))
     config.additionalConfs.foreach(conf => sparkLauncher.setConf(conf._1, conf._2))
     jobParameters.additionalJars.foreach(sparkLauncher.addJar)
     jobParameters.additionalFiles.foreach(sparkLauncher.addFile)
-    jobParameters.additionalSparkConfig.foreach(conf => sparkLauncher.setConf(conf._1, conf._2))
-    mergeAdditionalSparkConfig(config.additionalConfs, jobParameters.additionalSparkConfig)
-      .foreach(conf => sparkLauncher.setConf(conf._1, conf._2))
+    jobParameters.additionalSparkConfig.foreach(conf => sparkLauncher.setConf(conf.key, conf.value))
+    mergeAdditionalSparkConfig(
+      config.additionalConfs ++ Map("spark.yarn.tags" -> id),
+      jobParameters.additionalSparkConfig.toKeyValueMap
+    ).foreach(conf => sparkLauncher.setConf(conf._1, conf._2))
 
     sparkLauncher
   }
+
+  private def startSparkJob(inProcessLauncher: InProcessLauncher,
+                            sparkAppHandleListener: SparkAppHandle.Listener,
+                            jobParameters: SparkInstanceParameters
+  ): SparkAppHandle = {
+    val user = jobParameters.additionalSparkConfig.find(_.key == SparkYarnPrincipalProp).map(_.value)
+    val keytab = jobParameters.additionalSparkConfig.find(_.key == SparkYarnKeytabProp).map(_.value)
+    (user, keytab) match {
+      case (Some(u), Some(k)) =>
+        val ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(u, k)
+        ugi.doAs(new PrivilegedExceptionAction[SparkAppHandle]() {
+          override def run(): SparkAppHandle = {
+            inProcessLauncher.startApplication(sparkAppHandleListener)
+          }
+        })
+      case _ => inProcessLauncher.startApplication(sparkAppHandleListener)
+    }
+  }
+
+  /*
+    Fixed inspired by https://stackoverflow.com/questions/43040793/scala-via-spark-with-yarn-curly-brackets-string-missing
+    See https://issues.apache.org/jira/browse/SPARK-17814
+    Due to YARN bug above, we need to replace all occurrences of {{ or }}, with { { or } }
+   */
+  private def fix_json_for_yarn(arg: String): String =
+    arg.replace("}}", "} }").replace("{{", "{ {")
 }

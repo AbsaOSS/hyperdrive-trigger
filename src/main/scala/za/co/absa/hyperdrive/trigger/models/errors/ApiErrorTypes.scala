@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -23,6 +22,7 @@ object ApiErrorTypes {
   }
 
   case object DatabaseErrorType extends ApiErrorType("databaseError")
+  case object OptimisticLockingErrorType extends ApiErrorType("optimisticLockingError")
   case object ValidationErrorType extends ApiErrorType("validationError")
   case object GenericErrorType extends ApiErrorType("genericError")
   case object BulkOperationErrorType extends ApiErrorType("bulkOperationError")

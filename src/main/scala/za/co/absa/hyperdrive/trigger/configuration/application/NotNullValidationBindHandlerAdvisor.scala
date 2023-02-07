@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -28,18 +27,22 @@ class NotNullValidationBindHandlerAdvisor extends ConfigurationPropertiesBindHan
 
 class NotNullValidationBindHandler(bindHandler: BindHandler) extends AbstractBindHandler(bindHandler) {
 
-  override def onFinish(name: ConfigurationPropertyName, target: Bindable[_], context: BindContext, result: Object) {
+  override def onFinish(name: ConfigurationPropertyName,
+                        target: Bindable[_],
+                        context: BindContext,
+                        result: Object
+  ): Unit = {
     val hasNotNullConstraint = target.getAnnotations.exists {
-      case _: NotNull => true
+      case _: NotNull  => true
       case _: NotBlank => true
       case _: NotEmpty => true
-      case _ => false
+      case _           => false
     }
 
     if (hasNotNullConstraint && result == null) {
       throw new NotNullValidationException(name)
     }
 
-    super.onFinish(name, target, context, result);
+    super.onFinish(name, target, context, result)
   }
 }

@@ -19,6 +19,7 @@ import { TableSearchResponseModel } from '../../models/search/tableSearchRespons
 import { NotificationRuleModel } from '../../models/notificationRule.model';
 import { HistoryModel } from '../../models/historyModel';
 import { NotificationRuleHistoryModel } from '../../models/notificationRuleHistoryModel';
+import { WorkflowModel } from '../../models/workflow.model';
 
 export const SEARCH_NOTIFICATION_RULES = 'SEARCH_NOTIFICATION_RULES';
 export const SEARCH_NOTIFICATION_RULES_SUCCESS = 'SEARCH_NOTIFICATION_RULES_SUCCESS';
@@ -27,6 +28,10 @@ export const SEARCH_NOTIFICATION_RULES_FAILURE = 'SEARCH_NOTIFICATION_RULES_FAIL
 export const GET_NOTIFICATION_RULE = 'GET_NOTIFICATION_RULE';
 export const GET_NOTIFICATION_RULE_SUCCESS = 'GET_NOTIFICATION_RULE_SUCCESS';
 export const GET_NOTIFICATION_RULE_FAILURE = 'GET_NOTIFICATION_RULE_FAILURE';
+
+export const GET_NOTIFICATION_RULE_USAGE = 'GET_NOTIFICATION_RULE_USAGE';
+export const GET_NOTIFICATION_RULE_USAGE_SUCCESS = 'GET_NOTIFICATION_RULE_USAGE_SUCCESS';
+export const GET_NOTIFICATION_RULE_USAGE_FAILURE = 'GET_NOTIFICATION_RULE_USAGE_FAILURE';
 
 export const CREATE_NOTIFICATION_RULE = 'CREATE_NOTIFICATION_RULE';
 export const CREATE_NOTIFICATION_RULE_SUCCESS = 'CREATE_NOTIFICATION_RULE_SUCCESS';
@@ -51,6 +56,10 @@ export const LOAD_HISTORY_FOR_NOTIFICATION_RULE_FAILURE = 'LOAD_HISTORY_FOR_NOTI
 export const LOAD_NOTIFICATION_RULES_FROM_HISTORY = 'LOAD_NOTIFICATION_RULES_FROM_HISTORY';
 export const LOAD_NOTIFICATION_RULES_FROM_HISTORY_SUCCESS = 'LOAD_NOTIFICATION_RULES_FROM_HISTORY_SUCCESS';
 export const LOAD_NOTIFICATION_RULES_FROM_HISTORY_FAILURE = 'LOAD_NOTIFICATION_RULES_FROM_HISTORY_FAILURE';
+
+export const REVERT_NOTIFICATION_RULE = 'REVERT_NOTIFICATION_RULE';
+export const REVERT_NOTIFICATION_RULE_SUCCESS = 'REVERT_NOTIFICATION_RULE_SUCCESS';
+export const REVERT_NOTIFICATION_RULE_FAILURE = 'REVERT_NOTIFICATION_RULE_FAILURE';
 
 export class SearchNotificationRules implements Action {
   readonly type = SEARCH_NOTIFICATION_RULES;
@@ -78,6 +87,20 @@ export class GetNotificationRuleSuccess implements Action {
 
 export class GetNotificationRuleFailure implements Action {
   readonly type = GET_NOTIFICATION_RULE_FAILURE;
+}
+
+export class GetNotificationRuleUsage implements Action {
+  readonly type = GET_NOTIFICATION_RULE_USAGE;
+  constructor(public payload: number) {}
+}
+
+export class GetNotificationRuleUsageSuccess implements Action {
+  readonly type = GET_NOTIFICATION_RULE_USAGE_SUCCESS;
+  constructor(public payload: WorkflowModel[]) {}
+}
+
+export class GetNotificationRuleUsageFailure implements Action {
+  readonly type = GET_NOTIFICATION_RULE_USAGE_FAILURE;
 }
 
 export class CreateNotificationRule implements Action {
@@ -169,6 +192,20 @@ export class LoadNotificationRulesFromHistoryFailure implements Action {
   readonly type = LOAD_NOTIFICATION_RULES_FROM_HISTORY_FAILURE;
 }
 
+export class RevertNotificationRule implements Action {
+  readonly type = REVERT_NOTIFICATION_RULE;
+  constructor(public payload: number) {}
+}
+
+export class RevertNotificationRuleSuccess implements Action {
+  readonly type = REVERT_NOTIFICATION_RULE_SUCCESS;
+  constructor(public payload: NotificationRuleModel) {}
+}
+
+export class RevertNotificationRuleFailure implements Action {
+  readonly type = REVERT_NOTIFICATION_RULE_FAILURE;
+}
+
 export type NotificationRulesActions =
   | SearchNotificationRules
   | SearchNotificationRulesSuccess
@@ -179,6 +216,9 @@ export type NotificationRulesActions =
   | GetNotificationRule
   | GetNotificationRuleSuccess
   | GetNotificationRuleFailure
+  | GetNotificationRuleUsage
+  | GetNotificationRuleUsageSuccess
+  | GetNotificationRuleUsageFailure
   | UpdateNotificationRule
   | UpdateNotificationRuleSuccess
   | UpdateNotificationRuleFailure
@@ -193,4 +233,7 @@ export type NotificationRulesActions =
   | LoadHistoryForNotificationRuleFailure
   | LoadNotificationRulesFromHistory
   | LoadNotificationRulesFromHistorySuccess
-  | LoadNotificationRulesFromHistoryFailure;
+  | LoadNotificationRulesFromHistoryFailure
+  | RevertNotificationRule
+  | RevertNotificationRuleSuccess
+  | RevertNotificationRuleFailure;

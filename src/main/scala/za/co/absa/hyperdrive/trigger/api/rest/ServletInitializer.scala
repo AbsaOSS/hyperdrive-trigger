@@ -20,7 +20,8 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 import za.co.absa.hyperdrive.trigger.Application
 
 class ServletInitializer extends SpringBootServletInitializer {
-  
-  override def configure(application: SpringApplicationBuilder): SpringApplicationBuilder = application.sources(classOf[Application])
-  
+
+  override def configure(application: SpringApplicationBuilder): SpringApplicationBuilder =
+    application.sources(classOf[Application])
+
 }

@@ -15,33 +15,14 @@
 
 package za.co.absa.hyperdrive.trigger.models
 
-case class DagDefinition(
-  workflowId: Long,
-  id: Long = 0
-)
+case class DagDefinition(workflowId: Long, id: Long = 0)
 
-case class DagDefinitionJoined(
-  workflowId: Long = 0,
-  jobDefinitions: Seq[JobDefinition],
-  id: Long = 0
-){
-  def toDag(): DagDefinition = {
-    DagDefinition(
-      workflowId = this.workflowId,
-      id = this.id
-    )
-  }
+case class DagDefinitionJoined(workflowId: Long = 0, jobDefinitions: Seq[JobDefinition], id: Long = 0) {
+  def toDag: DagDefinition =
+    DagDefinition(workflowId = this.workflowId, id = this.id)
 }
 
 object DagDefinitionJoined {
-  def apply(
-    dagDefinition: DagDefinition,
-    jobDefinitions: Seq[JobDefinition]
-  ): DagDefinitionJoined = {
-    DagDefinitionJoined(
-      workflowId = dagDefinition.workflowId,
-      jobDefinitions = jobDefinitions,
-      id = dagDefinition.id
-    )
-  }
+  def apply(dagDefinition: DagDefinition, jobDefinitions: Seq[JobDefinition]): DagDefinitionJoined =
+    DagDefinitionJoined(workflowId = dagDefinition.workflowId, jobDefinitions = jobDefinitions, id = dagDefinition.id)
 }

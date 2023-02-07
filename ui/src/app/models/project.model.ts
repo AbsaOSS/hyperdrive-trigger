@@ -13,15 +13,24 @@
  * limitations under the License.
  */
 
-import { WorkflowModel } from './workflow.model';
-
 export type ProjectModel = {
   name: string;
-  workflows: WorkflowModel[];
+  workflows: WorkflowIdentityModel[];
 };
 
 export class ProjectModelFactory {
-  static create(name: string, workflows: WorkflowModel[]): ProjectModel {
+  static create(name: string, workflows: WorkflowIdentityModel[]): ProjectModel {
     return { name: name, workflows: workflows };
+  }
+}
+
+export type WorkflowIdentityModel = {
+  id: number;
+  name: string;
+};
+
+export class WorkflowIdentityModelFactory {
+  static create(id: number, name: string): WorkflowIdentityModel {
+    return { id: id, name: name };
   }
 }

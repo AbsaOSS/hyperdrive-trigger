@@ -28,19 +28,18 @@ trait EventRepository extends Repository {
 }
 
 @stereotype.Repository
-class EventRepositoryImpl @Inject()(val dbProvider: DatabaseProvider) extends EventRepository {
+class EventRepositoryImpl @Inject() (val dbProvider: DatabaseProvider) extends EventRepository {
   import api._
 
-  override def getAllEvents()(implicit ec: ExecutionContext): Future[Seq[Event]] = db.run(
-    eventTable.result
-  )
+  override def getAllEvents()(implicit ec: ExecutionContext): Future[Seq[Event]] =
+    db.run(eventTable.result.withErrorHandling())
 
   override def getExistEvents(sensorEventIds: Seq[String])(implicit ec: ExecutionContext): Future[Seq[String]] = db.run(
-    eventTable.filter(e =>  e.sensorEventId.inSet(sensorEventIds)).map(_.sensorEventId).result
+    eventTable.filter(e => e.sensorEventId.inSet(sensorEventIds)).map(_.sensorEventId).result.withErrorHandling()
   )
 
   override def insertEvent(event: Event)(implicit executionContext: ExecutionContext): Future[Int] = db.run {
-    eventTable += event
+    (eventTable += event).withErrorHandling()
   }
 
 }

@@ -14,6 +14,9 @@
  */
 
 export const texts = {
+  LOAD_WORKFLOWS_FAILURE_NOTIFICATION: "Sorry, workflows couldn't be loaded. Please try again.",
+  SEARCH_WORKFLOWS_FAILURE_NOTIFICATION: "Sorry, workflows couldn't be loaded. Please try again.",
+
   DELETE_WORKFLOW_CONFIRMATION_TITLE: 'Delete workflow',
   DELETE_WORKFLOW_CONFIRMATION_CONTENT: 'Are you sure you want to delete this workflow? The operation cannot be reverted.',
   DELETE_WORKFLOW_SUCCESS_NOTIFICATION: 'Workflow has been deleted.',
@@ -66,6 +69,8 @@ export const texts = {
   UPDATE_WORKFLOW_CONFIRMATION_CONTENT: 'Are you sure you want to update the workflow?',
   UPDATE_WORKFLOW_SUCCESS_NOTIFICATION: 'Workflow has been updated.',
   UPDATE_WORKFLOW_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
+  UPDATE_WORKFLOW_OPTIMISTIC_LOCKING_FAILURE_NOTIFICATION:
+    'Sorry, workflow was updated in the meantime. Please refresh and apply your changes again.',
 
   EXPORT_WORKFLOWS_SUCCESS_NOTIFICATION: 'Export successful.',
   EXPORT_WORKFLOWS_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
@@ -79,6 +84,7 @@ export const texts = {
 
   LOAD_HISTORY_FOR_WORKFLOW_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
   LOAD_WORKFLOWS_FROM_HISTORY_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
+  LOAD_WORKFLOW_FROM_HISTORY_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
 
   CRON_QUARTZ_INVALID_FOR_USER_FRIENDLY: 'Invalid quartz expression for user friendly input. Default will be used.',
 
@@ -91,6 +97,9 @@ export const texts = {
   FORM_VALIDATION_MAX_LENGTH(name: string, length: number): string {
     return `${name} must be at most ${length} characters long!`;
   },
+  FORM_VALIDATION_MIN_MAX_LENGTH(name: string, min: number, max: number): string {
+    return `Each line in ${name} must be at least ${min} and at most ${max} characters long!`;
+  },
   FORM_VALIDATION_AT_LEAST_ONE_DEFINED(): string {
     return `At least one must be defined!`;
   },
@@ -102,6 +111,26 @@ export const texts = {
 
   LOAD_JOB_TEMPLATE_FAILURE_NOTIFICATION: "Sorry, job template couldn't be loaded. Please try again.",
   LOAD_JOB_TEMPLATES_FAILURE_NOTIFICATION: "Sorry, job templates couldn't be loaded. Please try again.",
+
+  CREATE_JOB_TEMPLATE_CONFIRMATION_TITLE: 'Create job template',
+  CREATE_JOB_TEMPLATE_CONFIRMATION_CONTENT: 'Are you sure you want to create a new job template?',
+  CREATE_JOB_TEMPLATE_SUCCESS_NOTIFICATION: 'Job template has been created.',
+  CREATE_JOB_TEMPLATE_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
+
+  UPDATE_JOB_TEMPLATE_CONFIRMATION_TITLE: 'Update job template',
+  UPDATE_JOB_TEMPLATE_CONFIRMATION_CONTENT: 'Are you sure you want to update the job template?',
+  UPDATE_JOB_TEMPLATE_SUCCESS_NOTIFICATION: 'Job template has been updated.',
+  UPDATE_JOB_TEMPLATE_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
+
+  DELETE_JOB_TEMPLATE_CONFIRMATION_TITLE: 'Delete job template',
+  DELETE_JOB_TEMPLATE_CONFIRMATION_CONTENT: 'Are you sure you want to delete this job template? The operation cannot be reverted.',
+  DELETE_JOB_TEMPLATE_SUCCESS_NOTIFICATION: 'Job template has been deleted.',
+  DELETE_JOB_TEMPLATE_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
+
+  GET_JOB_TEMPLATE_USAGE_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
+
+  LOAD_HISTORY_FOR_JOB_TEMPLATE_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
+  LOAD_JOB_TEMPLATES_FROM_HISTORY_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
 
   CREATE_NOTIFICATION_RULE_CONFIRMATION_TITLE: 'Create notification rule',
   CREATE_NOTIFICATION_RULE_CONFIRMATION_CONTENT: 'Are you sure you want to create a new notification rule?',
@@ -118,6 +147,8 @@ export const texts = {
     'Are you sure you want to delete this notification rule? The operation cannot be reverted.',
   DELETE_NOTIFICATION_RULE_SUCCESS_NOTIFICATION: 'Notification rule has been deleted.',
   DELETE_NOTIFICATION_RULE_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
+
+  GET_NOTIFICATION_RULE_USAGE_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
 
   LOAD_NOTIFICATION_RULE_FAILURE_NOTIFICATION: "Sorry, notification rule couldn't be loaded. Please try again.",
   LOAD_HISTORY_FOR_NOTIFICATION_RULE_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',

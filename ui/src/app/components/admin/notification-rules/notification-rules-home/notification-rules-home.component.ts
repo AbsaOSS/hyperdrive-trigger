@@ -22,7 +22,11 @@ import { Store } from '@ngrx/store';
 import { AppState, selectNotificationRulesState } from '../../../../stores/app.reducers';
 import { skip } from 'rxjs/operators';
 import { notificationRuleColumns } from '../../../../constants/notificationRuleColumns.constants';
-import { DeleteNotificationRule, SearchNotificationRules } from '../../../../stores/notification-rules/notification-rules.actions';
+import {
+  DeleteNotificationRule,
+  GetNotificationRuleUsage,
+  SearchNotificationRules,
+} from '../../../../stores/notification-rules/notification-rules.actions';
 import { absoluteRoutes } from 'src/app/constants/routes.constants';
 import { Router } from '@angular/router';
 import { NotificationRuleModel } from '../../../../models/notificationRule.model';
@@ -51,6 +55,8 @@ export class NotificationRulesHomeComponent implements AfterViewInit, OnDestroy 
   total = 0;
   loading = true;
   filters: FilterAttributes[] = [];
+
+  openedNotificationRuleUsage: NotificationRuleModel = null;
 
   notificationRuleColumns = notificationRuleColumns;
   absoluteRoutes = absoluteRoutes;
@@ -82,9 +88,12 @@ export class NotificationRulesHomeComponent implements AfterViewInit, OnDestroy 
   }
 
   refresh() {
-    const searchRequestModel = TableSearchRequestModelFactory.create(this.pageFrom, this.pageSize, this.sort, this.filters);
-    this.store.dispatch(new SearchNotificationRules(searchRequestModel));
-    this.refreshSubject.next(true);
+    if (!this.openedNotificationRuleUsage) {
+      const searchRequestModel = TableSearchRequestModelFactory.create(this.pageFrom, this.pageSize, this.sort, this.filters);
+      this.store.dispatch(new SearchNotificationRules(searchRequestModel));
+    } else {
+      this.refreshSubject.next(true);
+    }
   }
 
   clearFilters() {
@@ -111,6 +120,13 @@ export class NotificationRulesHomeComponent implements AfterViewInit, OnDestroy 
       .subscribe((confirmed) => {
         if (confirmed) this.store.dispatch(new DeleteNotificationRule(id));
       });
+  }
+
+  onNotificationRuleUsageOpenClose(event: NotificationRuleModel) {
+    this.openedNotificationRuleUsage = event;
+    if (this.openedNotificationRuleUsage) {
+      this.store.dispatch(new GetNotificationRuleUsage(this.openedNotificationRuleUsage.id));
+    }
   }
 
   ngOnDestroy(): void {

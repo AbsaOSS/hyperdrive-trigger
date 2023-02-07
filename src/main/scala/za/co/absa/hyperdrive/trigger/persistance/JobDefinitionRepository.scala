@@ -15,7 +15,6 @@
 
 package za.co.absa.hyperdrive.trigger.persistance
 
-
 import org.springframework.stereotype
 import za.co.absa.hyperdrive.trigger.models.JobForRun
 
@@ -27,16 +26,17 @@ trait JobDefinitionRepository extends Repository {
 }
 
 @stereotype.Repository
-class JobDefinitionRepositoryImpl @Inject()(val dbProvider: DatabaseProvider) extends JobDefinitionRepository {
+class JobDefinitionRepositoryImpl @Inject() (val dbProvider: DatabaseProvider) extends JobDefinitionRepository {
   import api._
 
   override def getJobsForRun(workflowId: Long)(implicit ec: ExecutionContext): Future[Seq[JobForRun]] = db.run {
     (for {
       dagDefinition <- dagDefinitionTable if dagDefinition.workflowId === workflowId
-      jobDefinition <- jobDefinitionTable.map(row => (row.dagDefinitionId, row.name, row.order, row.id)) if dagDefinition.id === jobDefinition._1
+      jobDefinition <- jobDefinitionTable.map(row => (row.dagDefinitionId, row.name, row.order, row.id))
+      if dagDefinition.id === jobDefinition._1
     } yield {
       jobDefinition
-    }).result.map(_.map(row => JobForRun(row._2, row._3, row._4)))
+    }).result.withErrorHandling().map(_.map(row => JobForRun(row._2, row._3, row._4)))
   }
 
 }

@@ -17,6 +17,7 @@ package za.co.absa.hyperdrive.trigger.api.rest.controllers
 
 import it.burning.cron.CronExpressionParser.{CronExpressionParseException, Options}
 import it.burning.cron.CronExpressionDescriptor
+import org.quartz.CronExpression
 import org.springframework.web.bind.annotation._
 import za.co.absa.hyperdrive.trigger.models.QuartzExpressionDetail
 
@@ -26,25 +27,26 @@ import java.util.Locale
 class UtilController {
 
   @GetMapping(path = Array("/util/quartzDetail"))
-  def getQuartzDetail(@RequestParam expression: String): QuartzExpressionDetail = {
+  def getQuartzDetail(@RequestParam expression: String): QuartzExpressionDetail =
     try {
-      val description = CronExpressionDescriptor.getDescription(expression, new Options() {{
-        setLocale(Locale.UK)
-        setVerbose(true)
-      }})
-      QuartzExpressionDetail(
-        expression = expression,
-        isValid = true,
-        explained = description
+      val description = CronExpressionDescriptor.getDescription(
+        expression,
+        new Options() {
+          {
+            setLocale(Locale.UK)
+            setVerbose(true)
+          }
+        }
       )
+      QuartzExpressionDetail(expression = expression, isValid = true, explained = description)
     } catch {
-      case e: CronExpressionParseException => {
+      case _: CronExpressionParseException if CronExpression.isValidExpression(expression) =>
         QuartzExpressionDetail(
           expression = expression,
-          isValid = false,
-          explained = e.getMessage
+          isValid = true,
+          explained = s"Could not explain the expression: $expression"
         )
-      }
+      case e: CronExpressionParseException =>
+        QuartzExpressionDetail(expression = expression, isValid = false, explained = e.getMessage)
     }
-  }
 }

@@ -32,10 +32,9 @@ import za.co.absa.hyperdrive.trigger.models.{Sensor => SensorDefition}
 
 class KafkaSensor(
   eventsProcessor: (Seq[Event], Long) => Future[Boolean],
-  sensorDefinition: SensorDefition[KafkaSensorProperties],
-  consumeFromLatest: Boolean = false
+  sensorDefinition: SensorDefition[KafkaSensorProperties]
 )(implicit kafkaConfig: KafkaConfig, generalConfig: GeneralConfig, executionContext: ExecutionContext)
-  extends PollSensor[KafkaSensorProperties](eventsProcessor, sensorDefinition, executionContext) {
+    extends PollSensor[KafkaSensorProperties](eventsProcessor, sensorDefinition, executionContext) {
 
   private val logger = LoggerFactory.getLogger(this.getClass)
   private val logMsgPrefix = s"Sensor id = ${sensorDefinition.id}."
@@ -51,19 +50,21 @@ class KafkaSensor(
   }
 
   try {
-    consumer.subscribe(Collections.singletonList(sensorDefinition.properties.topic), new ConsumerRebalanceListener {
-      override def onPartitionsRevoked(partitions: util.Collection[TopicPartition]): Unit = {
-        // no-op
-      }
-
-      override def onPartitionsAssigned(partitions: util.Collection[TopicPartition]): Unit = {
-        if (consumeFromLatest) {
-          consumer.seekToEnd(partitions)
+    consumer.subscribe(
+      Collections.singletonList(sensorDefinition.properties.topic),
+      new ConsumerRebalanceListener {
+        override def onPartitionsRevoked(partitions: util.Collection[TopicPartition]): Unit = {
+          // no-op
         }
+
+        override def onPartitionsAssigned(partitions: util.Collection[TopicPartition]): Unit =
+          if (!kafkaConfig.alwaysCatchup) {
+            consumer.seekToEnd(partitions)
+          }
       }
-    })
+    )
   } catch {
-    case e: Exception => logger.debug(s"$logMsgPrefix. Exception during subscribe.", e)
+    case e: Exception => logger.error(s"$logMsgPrefix. Exception during subscribe.", e)
   }
 
   override def poll(): Future[Unit] = {
@@ -75,9 +76,8 @@ class KafkaSensor(
 
     fut.onComplete {
       case Success(_) => logger.debug(s"$logMsgPrefix. Polling successful")
-      case Failure(exception) => {
+      case Failure(exception) =>
         logger.debug(s"$logMsgPrefix. Polling failed.", exception)
-      }
     }
 
     fut
@@ -91,13 +91,13 @@ class KafkaSensor(
         sensorDefinition.properties.matchProperties.forall { matchProperty =>
           (event.payload \ matchProperty._1).validate[String] match {
             case JsSuccess(value, _) => value == matchProperty._2
-            case _: JsError => false
+            case _: JsError          => false
           }
         }
       }
-      matchedEvents.headOption.map(matchedEvent => {
-        eventsProcessor.apply(Seq(matchedEvent), sensorDefinition.id).map(_ => (): Unit)
-      }).getOrElse(Future.successful((): Unit))
+      matchedEvents.headOption
+        .map(matchedEvent => eventsProcessor.apply(Seq(matchedEvent), sensorDefinition.id).map(_ => (): Unit))
+        .getOrElse(Future.successful((): Unit))
     } else {
       Future.successful((): Unit)
     }
@@ -105,17 +105,14 @@ class KafkaSensor(
 
   private def recordToEvent[A](record: ConsumerRecord[A, String]): Event = {
     val sourceEventId = sensorDefinition.id + "kafka" + record.topic() + record.partition() + record.offset()
-    val payload = Try(
-      Json.parse(record.value())
-    ).getOrElse {
-      logger.debug(s"$logMsgPrefix. Invalid message.")
+    val payload = Try(Json.parse(record.value())).getOrElse {
+      logger.error(s"$logMsgPrefix. Invalid message.")
       Json.parse(s"""{"errorMessage": "${record.value()}"}""")
     }
     Event(sourceEventId, sensorDefinition.id, payload)
   }
 
-  override def closeInternal(): Unit = {
+  override def closeInternal(): Unit =
     consumer.unsubscribe()
-  }
 
 }

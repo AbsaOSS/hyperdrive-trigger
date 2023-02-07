@@ -27,6 +27,7 @@ export type WorkflowJoinedModel = {
   sensor: SensorModel;
   dagDefinitionJoined: DagDefinitionJoinedModel;
   id: number;
+  version: number;
   updated?: Date;
 };
 
@@ -39,6 +40,7 @@ export class WorkflowJoinedModelFactory {
     sensor: SensorModel,
     dagDefinitionJoined: DagDefinitionJoinedModel,
     id: number,
+    version: number,
     updated?: Date,
   ): WorkflowJoinedModel {
     return {
@@ -49,6 +51,7 @@ export class WorkflowJoinedModelFactory {
       sensor: sensor,
       dagDefinitionJoined: dagDefinitionJoined,
       id: id,
+      version: version,
       updated: updated,
     };
   }
@@ -66,6 +69,7 @@ export class WorkflowJoinedModelFactory {
         undefined,
       ),
       id: 0,
+      version: 1,
       updated: undefined,
     };
   }

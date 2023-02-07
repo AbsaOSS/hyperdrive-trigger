@@ -25,31 +25,40 @@ import scala.concurrent.{ExecutionContext, Future}
 
 trait DagInstanceService {
   val jobTemplateService: JobTemplateService
-  def createDagInstance(dagDefinitionJoined: DagDefinitionJoined, triggeredBy: String, skip: Boolean = false)(implicit ec: ExecutionContext): Future[DagInstanceJoined]
+  def createDagInstance(dagDefinitionJoined: DagDefinitionJoined, triggeredBy: String, skip: Boolean = false)(
+    implicit ec: ExecutionContext
+  ): Future[DagInstanceJoined]
 }
 
 @Service
 class DagInstanceServiceImpl(override val jobTemplateService: JobTemplateService) extends DagInstanceService {
 
-  override def createDagInstance(dagDefinitionJoined: DagDefinitionJoined, triggeredBy: String, skip: Boolean)(implicit ec: ExecutionContext): Future[DagInstanceJoined] = {
+  override def createDagInstance(dagDefinitionJoined: DagDefinitionJoined, triggeredBy: String, skip: Boolean)(
+    implicit ec: ExecutionContext
+  ): Future[DagInstanceJoined] = {
     val initialDagInstanceStatus = if (skip) DagInstanceStatuses.Skipped else DagInstanceStatuses.InQueue
     val now = LocalDateTime.now()
     val finished = if (skip) Some(now) else None
-    jobTemplateService.resolveJobTemplate(dagDefinitionJoined).flatMap(
-      resolvedJobDefinitions => Future {
-        DagInstanceJoined(
-          status = initialDagInstanceStatus,
-          triggeredBy = triggeredBy,
-          workflowId = dagDefinitionJoined.workflowId,
-          jobInstances = createJobInstances(resolvedJobDefinitions, skip),
-          started = now,
-          finished = finished
-        )
-      }
-    )
+    jobTemplateService
+      .resolveJobTemplate(dagDefinitionJoined)
+      .flatMap(resolvedJobDefinitions =>
+        Future {
+          DagInstanceJoined(
+            status = initialDagInstanceStatus,
+            triggeredBy = triggeredBy,
+            workflowId = dagDefinitionJoined.workflowId,
+            jobInstances = createJobInstances(resolvedJobDefinitions, skip),
+            started = now,
+            finished = finished
+          )
+        }
+      )
   }
 
-  private def createJobInstances(resolvedJobDefinitions: Seq[ResolvedJobDefinition], skip: Boolean): Seq[JobInstance] = {
+  private def createJobInstances(
+    resolvedJobDefinitions: Seq[ResolvedJobDefinition],
+    skip: Boolean
+  ): Seq[JobInstance] = {
     val initialJobStatus = if (skip) JobStatuses.Skipped else JobStatuses.InQueue
     val now = LocalDateTime.now()
     val finished = if (skip) Some(now) else None

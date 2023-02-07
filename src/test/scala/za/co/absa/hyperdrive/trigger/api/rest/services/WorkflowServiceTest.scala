@@ -24,23 +24,30 @@ import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, Matchers}
 import za.co.absa.hyperdrive.trigger.TestUtils.await
 import za.co.absa.hyperdrive.trigger.configuration.application.TestGeneralConfig
 import za.co.absa.hyperdrive.trigger.models._
-import za.co.absa.hyperdrive.trigger.models.enums.{DagInstanceStatuses, JobTypes}
+import za.co.absa.hyperdrive.trigger.models.enums.DagInstanceStatuses
 import za.co.absa.hyperdrive.trigger.models.errors.ApiErrorTypes.{BulkOperationErrorType, GenericErrorType}
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiError, ApiException, DatabaseError, ValidationError}
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, WorkflowRepository}
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
 class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar with BeforeAndAfter {
+  override implicit def executionContext: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+
   private val workflowRepository = mock[WorkflowRepository]
   private val dagInstanceRepository = mock[DagInstanceRepository]
   private val dagInstanceService = mock[DagInstanceService]
   private val jobTemplateService = mock[JobTemplateService]
   private val workflowValidationService = mock[WorkflowValidationService]
   private val userName = "fakeUserName"
-  private val underTest = new WorkflowServiceImpl(workflowRepository, dagInstanceRepository, dagInstanceService,
-    jobTemplateService, workflowValidationService, TestGeneralConfig()){
+  private val underTest = new WorkflowServiceImpl(
+    workflowRepository,
+    dagInstanceRepository,
+    dagInstanceService,
+    jobTemplateService,
+    workflowValidationService,
+    TestGeneralConfig()
+  ) {
     override private[services] def getUserName: () => String = () => userName
   }
 
@@ -55,9 +62,14 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
   "WorkflowService.createWorkflow" should "should create a workflow" in {
     // given
     val workflowJoined = WorkflowFixture.createWorkflowJoined()
-    when(workflowValidationService.validateOnInsert(eqTo(workflowJoined))(any[ExecutionContext])).thenReturn(Future{(): Unit})
-    when(workflowRepository.insertWorkflow(eqTo(workflowJoined), eqTo(userName))(any[ExecutionContext])).thenReturn(Future{workflowJoined.id})
-    when(workflowRepository.getWorkflow(eqTo(workflowJoined.id))(any[ExecutionContext])).thenReturn(Future{workflowJoined})
+    when(workflowValidationService.validateOnInsert(eqTo(workflowJoined))(any[ExecutionContext])).thenReturn(Future {
+      (): Unit
+    })
+    when(workflowRepository.insertWorkflow(eqTo(workflowJoined), eqTo(userName))(any[ExecutionContext]))
+      .thenReturn(Future(workflowJoined.id))
+    when(workflowRepository.getWorkflow(eqTo(workflowJoined.id))(any[ExecutionContext])).thenReturn(Future {
+      workflowJoined
+    })
 
     // when
     val result = await(underTest.createWorkflow(workflowJoined))
@@ -75,7 +87,7 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
       .thenReturn(Future.failed(new ApiException(errors)))
 
     // when
-    val result = the [ApiException] thrownBy await(underTest.createWorkflow(workflowJoined))
+    val result = the[ApiException] thrownBy await(underTest.createWorkflow(workflowJoined))
 
     // then
     verify(workflowRepository, never()).insertWorkflow(any[WorkflowJoined], any[String])(any[ExecutionContext])
@@ -87,12 +99,14 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
     // given
     val workflowJoined = WorkflowFixture.createWorkflowJoined()
     val error = DatabaseError("error")
-    when(workflowValidationService.validateOnInsert(eqTo(workflowJoined))(any[ExecutionContext])).thenReturn(Future{(): Unit})
+    when(workflowValidationService.validateOnInsert(eqTo(workflowJoined))(any[ExecutionContext])).thenReturn(Future {
+      (): Unit
+    })
     when(workflowRepository.insertWorkflow(eqTo(workflowJoined), eqTo(userName))(any[ExecutionContext]))
       .thenReturn(Future.failed(new ApiException(error)))
 
     // when
-    val result = the [ApiException] thrownBy await(underTest.createWorkflow(workflowJoined))
+    val result = the[ApiException] thrownBy await(underTest.createWorkflow(workflowJoined))
 
     // then
     verify(workflowRepository).insertWorkflow(eqTo(workflowJoined), eqTo(userName))(any[ExecutionContext])
@@ -106,9 +120,15 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
     val originalWorkflow = WorkflowFixture.createWorkflowJoined()
     val updatedWorkflow = originalWorkflow.copy(name = "newName")
 
-    when(workflowRepository.getWorkflow(eqTo(originalWorkflow.id))(any[ExecutionContext])).thenReturn(Future{originalWorkflow}).thenReturn(Future{updatedWorkflow})
-    when(workflowValidationService.validateOnUpdate(eqTo(originalWorkflow), eqTo(updatedWorkflow))(any[ExecutionContext])).thenReturn(Future{})
-    when(workflowRepository.updateWorkflow(any[WorkflowJoined], any[String])(any[ExecutionContext])).thenReturn(Future{(): Unit})
+    when(workflowRepository.getWorkflow(eqTo(originalWorkflow.id))(any[ExecutionContext]))
+      .thenReturn(Future(originalWorkflow))
+      .thenReturn(Future(updatedWorkflow))
+    when(
+      workflowValidationService.validateOnUpdate(eqTo(originalWorkflow), eqTo(updatedWorkflow))(any[ExecutionContext])
+    ).thenReturn(Future {})
+    when(workflowRepository.updateWorkflow(any[WorkflowJoined], any[String])(any[ExecutionContext])).thenReturn(Future {
+      (): Unit
+    })
 
     // when
     val result = await(underTest.updateWorkflow(updatedWorkflow))
@@ -125,10 +145,12 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
     val errors: Seq[ApiError] = Seq(ValidationError("error"))
     when(workflowValidationService.validateOnUpdate(eqTo(workflowJoined), eqTo(originalJoined))(any[ExecutionContext]))
       .thenReturn(Future.failed(new ApiException(errors)))
-    when(workflowRepository.getWorkflow(eqTo(workflowJoined.id))(any[ExecutionContext])).thenReturn(Future{workflowJoined})
+    when(workflowRepository.getWorkflow(eqTo(workflowJoined.id))(any[ExecutionContext])).thenReturn(Future {
+      workflowJoined
+    })
 
     // when
-    val result = the [ApiException] thrownBy await(underTest.updateWorkflow(workflowJoined))
+    val result = the[ApiException] thrownBy await(underTest.updateWorkflow(workflowJoined))
 
     // then
     verify(workflowRepository, never()).updateWorkflow(any[WorkflowJoined], any[String])(any[ExecutionContext])
@@ -141,13 +163,17 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
     val updatedWorkflow = originalWorkflow.copy(project = "diff")
 
     val error = DatabaseError("error")
-    when(workflowRepository.getWorkflow(eqTo(originalWorkflow.id))(any[ExecutionContext])).thenReturn(Future{originalWorkflow})
-    when(workflowValidationService.validateOnUpdate(eqTo(originalWorkflow), eqTo(updatedWorkflow))(any[ExecutionContext])).thenReturn(Future{})
+    when(workflowRepository.getWorkflow(eqTo(originalWorkflow.id))(any[ExecutionContext])).thenReturn(Future {
+      originalWorkflow
+    })
+    when(
+      workflowValidationService.validateOnUpdate(eqTo(originalWorkflow), eqTo(updatedWorkflow))(any[ExecutionContext])
+    ).thenReturn(Future {})
     when(workflowRepository.updateWorkflow(any[WorkflowJoined], any[String])(any[ExecutionContext]))
       .thenReturn(Future.failed(new ApiException(error)))
 
     // when
-    val result = the [ApiException] thrownBy await(underTest.updateWorkflow(updatedWorkflow))
+    val result = the[ApiException] thrownBy await(underTest.updateWorkflow(updatedWorkflow))
 
     // then
     verify(workflowRepository).updateWorkflow(any[WorkflowJoined], any[String])(any[ExecutionContext])
@@ -155,59 +181,102 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
     result.apiErrors.head shouldBe error
   }
 
+  it should "update a workflow, but not created time" in {
+    val originalWorkflow = WorkflowFixture.createWorkflowJoined()
+    val updatedWorkflow = originalWorkflow.copy(name = "newName", created = LocalDateTime.of(2020, 2, 29, 10, 59, 34))
+    val workflowJoinedCaptor: ArgumentCaptor[WorkflowJoined] = ArgumentCaptor.forClass(classOf[WorkflowJoined])
+
+    when(workflowRepository.getWorkflow(eqTo(originalWorkflow.id))(any[ExecutionContext]))
+      .thenReturn(Future(originalWorkflow))
+      .thenReturn(Future(updatedWorkflow))
+    when(
+      workflowValidationService.validateOnUpdate(eqTo(originalWorkflow), eqTo(updatedWorkflow))(any[ExecutionContext])
+    ).thenReturn(Future {})
+    when(workflowRepository.updateWorkflow(any[WorkflowJoined], any[String])(any[ExecutionContext])).thenReturn(Future {
+      (): Unit
+    })
+
+    // when
+    val result = await(underTest.updateWorkflow(updatedWorkflow))
+
+    // then
+    verify(workflowRepository).updateWorkflow(workflowJoinedCaptor.capture(), any[String])(any[ExecutionContext])
+    workflowJoinedCaptor.getValue.created shouldBe originalWorkflow.created
+    result shouldBe updatedWorkflow
+  }
+
+  it should "not update the scheduler instance id" in {
+    // given
+    val originalWorkflow = WorkflowFixture.createWorkflowJoined()
+    val updatedWorkflow = originalWorkflow.copy(name = "newName", schedulerInstanceId = Some(999))
+    val workflowJoinedCaptor: ArgumentCaptor[WorkflowJoined] = ArgumentCaptor.forClass(classOf[WorkflowJoined])
+
+    when(workflowRepository.getWorkflow(eqTo(originalWorkflow.id))(any[ExecutionContext]))
+      .thenReturn(Future(originalWorkflow))
+      .thenReturn(Future(updatedWorkflow))
+    when(
+      workflowValidationService.validateOnUpdate(eqTo(originalWorkflow), eqTo(updatedWorkflow))(any[ExecutionContext])
+    ).thenReturn(Future {})
+    when(workflowRepository.updateWorkflow(any[WorkflowJoined], any[String])(any[ExecutionContext])).thenReturn(Future {
+      (): Unit
+    })
+
+    // when
+    val result = await(underTest.updateWorkflow(updatedWorkflow))
+
+    // then
+    verify(workflowRepository).updateWorkflow(workflowJoinedCaptor.capture(), any[String])(any[ExecutionContext])
+    workflowJoinedCaptor.getValue.schedulerInstanceId shouldBe originalWorkflow.schedulerInstanceId
+    result shouldBe updatedWorkflow
+  }
+
   "WorkflowService.getProjects" should "should return no project on no workflows" in {
     // given
-    when(workflowRepository.getWorkflows()(any[ExecutionContext])).thenReturn(Future{Seq()})
+    when(workflowRepository.getProjects()(any[ExecutionContext])).thenReturn(Future(Seq()))
 
     // when
     val result: Seq[Project] = await(underTest.getProjects())
 
     // then
-    verify(workflowRepository, times(1)).getWorkflows()
+    verify(workflowRepository, times(1)).getProjects()
     result shouldBe Seq.empty[Project]
   }
 
   "WorkflowService.getProjects" should "should return projects on some workflows" in {
     // given
-    val workflows = Seq(
-      Workflow(
-        name = "workflowA",
-        isActive = true,
-        project = "projectA",
-        created = LocalDateTime.now(),
-        updated = None,
-        id = 0
-      ),
-      Workflow(
-        name = "workflowB",
-        isActive = false,
-        project = "projectB",
-        created = LocalDateTime.now(),
-        updated = None,
-        id = 1
-      )
+    val projects = Seq(
+      Project("projectA", Seq(WorkflowIdentity(0, "workflowA"))),
+      Project("projectB", Seq(WorkflowIdentity(1, "workflowB")))
     )
-    when(workflowRepository.getWorkflows()(any[ExecutionContext])).thenReturn(Future{workflows})
+    when(workflowRepository.getProjects()(any[ExecutionContext])).thenReturn(Future(projects))
 
     // when
     val result: Seq[Project] = await(underTest.getProjects())
 
     // then
-    verify(workflowRepository, times(1)).getWorkflows()
+    verify(workflowRepository, times(1)).getProjects()
     result.length shouldBe 2
   }
 
   "WorkflowService.runWorkflows" should "insert joined dag instance" in {
     // given
-    val workflowJoineds = Seq(WorkflowFixture.createWorkflowJoined().copy(id = 1), WorkflowFixture.createWorkflowJoined().copy(id = 2))
+    val workflowJoineds =
+      Seq(WorkflowFixture.createWorkflowJoined().copy(id = 1), WorkflowFixture.createWorkflowJoined().copy(id = 2))
     val workflowIds = workflowJoineds.map(_.id)
 
     val dagInstanceJoinedOne = createDagInstanceJoined().copy(id = 1)
     val dagInstanceJoinedTwo = createDagInstanceJoined().copy(id = 2)
 
-    when(workflowRepository.getWorkflows(eqTo(workflowIds))(any[ExecutionContext])).thenReturn(Future{workflowJoineds})
-    when(dagInstanceService.createDagInstance(any(), eqTo(userName), any())(any[ExecutionContext])).thenReturn(Future{dagInstanceJoinedOne}).thenReturn(Future{dagInstanceJoinedTwo})
-    when(dagInstanceRepository.insertJoinedDagInstances(eqTo(Seq(dagInstanceJoinedOne, dagInstanceJoinedTwo)))(any[ExecutionContext])).thenReturn(Future{(): Unit})
+    when(workflowRepository.getWorkflows(eqTo(workflowIds))(any[ExecutionContext])).thenReturn(Future {
+      workflowJoineds
+    })
+    when(dagInstanceService.createDagInstance(any(), eqTo(userName), any())(any[ExecutionContext]))
+      .thenReturn(Future(dagInstanceJoinedOne))
+      .thenReturn(Future(dagInstanceJoinedTwo))
+    when(
+      dagInstanceRepository
+        .insertJoinedDagInstances(eqTo(Seq(dagInstanceJoinedOne, dagInstanceJoinedTwo)))(any[ExecutionContext])
+    ).thenReturn(Future((): Unit))
 
     // when
     val result: Boolean = await(underTest.runWorkflows(workflowIds))
@@ -226,9 +295,12 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
     val jobIds = workflowJoined.dagDefinitionJoined.jobDefinitions.map(_.id)
 
     val dagInstanceJoined = createDagInstanceJoined()
-    when(workflowRepository.getWorkflow(eqTo(workflowId))(any[ExecutionContext])).thenReturn(Future{workflowJoined})
-    when(dagInstanceService.createDagInstance(any(), eqTo(userName), any())(any[ExecutionContext])).thenReturn(Future{dagInstanceJoined})
-    when(dagInstanceRepository.insertJoinedDagInstance(eqTo(dagInstanceJoined))(any[ExecutionContext])).thenReturn(Future{(): Unit})
+    when(workflowRepository.getWorkflow(eqTo(workflowId))(any[ExecutionContext])).thenReturn(Future(workflowJoined))
+    when(dagInstanceService.createDagInstance(any(), eqTo(userName), any())(any[ExecutionContext])).thenReturn(Future {
+      dagInstanceJoined
+    })
+    when(dagInstanceRepository.insertJoinedDagInstance(eqTo(dagInstanceJoined))(any[ExecutionContext]))
+      .thenReturn(Future((): Unit))
 
     // when
     val result: Boolean = await(underTest.runWorkflowJobs(workflowId, jobIds))
@@ -248,9 +320,12 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
     val jobIds = Seq(jobId)
 
     val dagInstanceJoined = createDagInstanceJoined()
-    when(workflowRepository.getWorkflow(eqTo(workflowId))(any[ExecutionContext])).thenReturn(Future{workflowJoined})
-    when(dagInstanceService.createDagInstance(any(), eqTo(userName), any())(any[ExecutionContext])).thenReturn(Future{dagInstanceJoined})
-    when(dagInstanceRepository.insertJoinedDagInstance(eqTo(dagInstanceJoined))(any[ExecutionContext])).thenReturn(Future{(): Unit})
+    when(workflowRepository.getWorkflow(eqTo(workflowId))(any[ExecutionContext])).thenReturn(Future(workflowJoined))
+    when(dagInstanceService.createDagInstance(any(), eqTo(userName), any())(any[ExecutionContext])).thenReturn(Future {
+      dagInstanceJoined
+    })
+    when(dagInstanceRepository.insertJoinedDagInstance(eqTo(dagInstanceJoined))(any[ExecutionContext]))
+      .thenReturn(Future((): Unit))
 
     // when
     val result: Boolean = await(underTest.runWorkflowJobs(workflowId, jobIds))
@@ -258,7 +333,9 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
     // then
     val dagDefinitionCaptor: ArgumentCaptor[DagDefinitionJoined] = ArgumentCaptor.forClass(classOf[DagDefinitionJoined])
     verify(workflowRepository, times(1)).getWorkflow(any[Long])(any[ExecutionContext])
-    verify(dagInstanceService, times(1)).createDagInstance(dagDefinitionCaptor.capture(), eqTo(userName), any())(any[ExecutionContext])
+    verify(dagInstanceService, times(1)).createDagInstance(dagDefinitionCaptor.capture(), eqTo(userName), any())(
+      any[ExecutionContext]
+    )
     verify(dagInstanceRepository, times(1)).insertJoinedDagInstance(any[DagInstanceJoined])(any[ExecutionContext])
     dagDefinitionCaptor.getValue.jobDefinitions.size shouldBe 1
     dagDefinitionCaptor.getValue.jobDefinitions.head.id shouldBe jobId
@@ -272,15 +349,18 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
     val jobIds: Seq[Long] = Seq(9999, 8888)
     val triggeredBy = "triggered by"
 
-    when(workflowRepository.getWorkflow(eqTo(workflowId))(any[ExecutionContext])).thenReturn(Future{workflowJoined})
-    when(dagInstanceRepository.insertJoinedDagInstance(any[DagInstanceJoined])(any[ExecutionContext])).thenReturn(Future{(): Unit})
+    when(workflowRepository.getWorkflow(eqTo(workflowId))(any[ExecutionContext])).thenReturn(Future(workflowJoined))
+    when(dagInstanceRepository.insertJoinedDagInstance(any[DagInstanceJoined])(any[ExecutionContext]))
+      .thenReturn(Future((): Unit))
 
     // when
     val result: Boolean = await(underTest.runWorkflowJobs(workflowId, jobIds))
 
     // then
     verify(workflowRepository, times(1)).getWorkflow(any[Long])(any[ExecutionContext])
-    verify(dagInstanceService, never).createDagInstance(any[DagDefinitionJoined], eqTo(triggeredBy), any())(any[ExecutionContext])
+    verify(dagInstanceService, never).createDagInstance(any[DagDefinitionJoined], eqTo(triggeredBy), any())(
+      any[ExecutionContext]
+    )
     verify(dagInstanceRepository, never).insertJoinedDagInstance(any[DagInstanceJoined])(any[ExecutionContext])
     result shouldBe false
   }
@@ -293,8 +373,8 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
     val jobTemplates2 = Seq(JobTemplateFixture.GenericShellJobTemplate)
     val jobTemplates = (jobTemplates1 ++ jobTemplates2).distinct
 
-    when(workflowRepository.getWorkflows(any())(any())).thenReturn(Future{Seq(workflowJoined1, workflowJoined2)})
-    when(jobTemplateService.getJobTemplatesByIds(any())(any[ExecutionContext])).thenReturn(Future{jobTemplates})
+    when(workflowRepository.getWorkflows(any())(any())).thenReturn(Future(Seq(workflowJoined1, workflowJoined2)))
+    when(jobTemplateService.getJobTemplatesByIds(any())(any[ExecutionContext])).thenReturn(Future(jobTemplates))
 
     // when
     val result = await(underTest.exportWorkflows(Seq(workflowJoined1.id, workflowJoined2.id)))
@@ -309,6 +389,8 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
     // given
     val workflowJoined1 = WorkflowFixture.createWorkflowJoined().copy(schedulerInstanceId = Some(42))
     val workflowJoined2 = WorkflowFixture.createTimeBasedShellScriptWorkflow("project").copy()
+    val workflowIds = Seq(21L, 22L)
+
     val jobTemplates1 = Seq(JobTemplateFixture.GenericSparkJobTemplate, JobTemplateFixture.GenericShellJobTemplate)
     val jobTemplates2 = Seq(JobTemplateFixture.GenericShellJobTemplate)
     val workflowImports = Seq(
@@ -321,32 +403,35 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
     )
     val newJobTemplatesIdMap = newJobTemplates.map(t => t.name -> t.id).toMap
 
-    val workflows = workflowImports.map(_.workflowJoined.toWorkflow)
-    val expectedProjects = Seq(
-      Project(workflowJoined1.project, Seq(workflowJoined1.toWorkflow)),
-      Project(workflowJoined2.project, Seq(workflowJoined2.toWorkflow))
-    )
-    when(jobTemplateService.getJobTemplateIdsByNames(any())(any[ExecutionContext])).thenReturn(Future{newJobTemplatesIdMap})
-    when(workflowValidationService.validateOnInsert(any[Seq[WorkflowJoined]])(any())).thenReturn(Future{})
-    when(workflowRepository.insertWorkflows(any(), any())(any())).thenReturn(Future { Seq(21L, 22L) })
-    when(workflowRepository.getWorkflows()(any[ExecutionContext])).thenReturn(Future{workflows})
+    val expectedWorkflows = Seq(workflowJoined1, workflowJoined2)
+    when(jobTemplateService.getJobTemplateIdsByNames(any())(any[ExecutionContext])).thenReturn(Future {
+      newJobTemplatesIdMap
+    })
+    when(workflowValidationService.validateOnInsert(any[Seq[WorkflowJoined]])(any())).thenReturn(Future {})
+    when(workflowRepository.insertWorkflows(any(), any())(any())).thenReturn(Future(workflowIds))
+    when(workflowRepository.getWorkflows(eqTo(workflowIds))(any[ExecutionContext])).thenReturn(Future {
+      expectedWorkflows
+    })
 
     // when
     val actualProjects = await(underTest.importWorkflows(workflowImports))
 
     // then
-    actualProjects should contain theSameElementsAs expectedProjects
+    actualProjects should contain theSameElementsAs expectedWorkflows
     val stringsCaptor: ArgumentCaptor[Seq[String]] = ArgumentCaptor.forClass(classOf[Seq[String]])
     verify(jobTemplateService).getJobTemplateIdsByNames(stringsCaptor.capture())(any())
     stringsCaptor.getValue should contain theSameElementsAs workflowImports.flatMap(_.jobTemplates.map(_.name)).distinct
 
-    val validateOnInsertCaptor: ArgumentCaptor[Seq[WorkflowJoined]] = ArgumentCaptor.forClass(classOf[Seq[WorkflowJoined]])
+    val validateOnInsertCaptor: ArgumentCaptor[Seq[WorkflowJoined]] =
+      ArgumentCaptor.forClass(classOf[Seq[WorkflowJoined]])
     verify(workflowValidationService).validateOnInsert(validateOnInsertCaptor.capture())(any())
     val convertedWorkflows = validateOnInsertCaptor.getValue
-    convertedWorkflows.head.dagDefinitionJoined.jobDefinitions.flatMap(_.jobTemplateId) should contain theSameElementsInOrderAs Seq(11, 12)
+    convertedWorkflows.head.dagDefinitionJoined.jobDefinitions
+      .flatMap(_.jobTemplateId) should contain theSameElementsInOrderAs Seq(11, 12)
     convertedWorkflows(1).dagDefinitionJoined.jobDefinitions.head.jobTemplateId.get shouldBe 12
 
-    val insertWorkflowsCaptor: ArgumentCaptor[Seq[WorkflowJoined]] = ArgumentCaptor.forClass(classOf[Seq[WorkflowJoined]])
+    val insertWorkflowsCaptor: ArgumentCaptor[Seq[WorkflowJoined]] =
+      ArgumentCaptor.forClass(classOf[Seq[WorkflowJoined]])
     verify(workflowRepository).insertWorkflows(insertWorkflowsCaptor.capture(), eqTo(userName))(any())
     val workflowsToInsert = insertWorkflowsCaptor.getValue
     workflowsToInsert should have size workflowImports.size
@@ -366,10 +451,12 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
       WorkflowImportExportWrapper(workflowJoined2, jobTemplates2)
     )
 
-    when(jobTemplateService.getJobTemplateIdsByNames(any())(any[ExecutionContext])).thenReturn(Future{Map[String, Long]()})
+    when(jobTemplateService.getJobTemplateIdsByNames(any())(any[ExecutionContext])).thenReturn(Future {
+      Map[String, Long]()
+    })
 
     // when
-    val result = the [ApiException] thrownBy await(underTest.importWorkflows(workflowImports))
+    val result = the[ApiException] thrownBy await(underTest.importWorkflows(workflowImports))
 
     // then
     result.apiErrors should have size 2
@@ -402,12 +489,14 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
 
     val error = Seq(ValidationError("validationError"), ValidationError("validationError2"))
 
-    when(jobTemplateService.getJobTemplateIdsByNames(any())(any[ExecutionContext])).thenReturn(Future{newJobTemplatesIdMap})
+    when(jobTemplateService.getJobTemplateIdsByNames(any())(any[ExecutionContext])).thenReturn(Future {
+      newJobTemplatesIdMap
+    })
     when(workflowValidationService.validateOnInsert(any[Seq[WorkflowJoined]])(any()))
       .thenReturn(Future.failed(new ApiException(error)))
 
     // when
-    val result = the [ApiException] thrownBy await(underTest.importWorkflows(workflowImports))
+    val result = the[ApiException] thrownBy await(underTest.importWorkflows(workflowImports))
 
     // then
     result.apiErrors should contain theSameElementsAs error
@@ -424,14 +513,14 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
       WorkflowImportExportWrapper(workflowJoined1, jobTemplates1),
       WorkflowImportExportWrapper(workflowJoined2, jobTemplates2)
     )
-    val newJobTemplates = Seq(
-      JobTemplateFixture.GenericShellJobTemplate.copy(id = 12)
-    )
+    val newJobTemplates = Seq(JobTemplateFixture.GenericShellJobTemplate.copy(id = 12))
     val newJobTemplatesIdMap = newJobTemplates.map(t => t.name -> t.id).toMap
-    when(jobTemplateService.getJobTemplateIdsByNames(any())(any[ExecutionContext])).thenReturn(Future{newJobTemplatesIdMap})
+    when(jobTemplateService.getJobTemplateIdsByNames(any())(any[ExecutionContext])).thenReturn(Future {
+      newJobTemplatesIdMap
+    })
 
     // when
-    val result = the [ApiException] thrownBy await(underTest.importWorkflows(workflowImport))
+    val result = the[ApiException] thrownBy await(underTest.importWorkflows(workflowImport))
 
     // then
     result.apiErrors should have size 1
@@ -449,7 +538,9 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
       JobTemplateFixture.GenericShellJobTemplate.copy(id = 12)
     )
     val newJobTemplatesIdMap = newJobTemplates.map(t => t.name -> t.id).toMap
-    when(jobTemplateService.getJobTemplateIdsByNames(any())(any[ExecutionContext])).thenReturn(Future{newJobTemplatesIdMap})
+    when(jobTemplateService.getJobTemplateIdsByNames(any())(any[ExecutionContext])).thenReturn(Future {
+      newJobTemplatesIdMap
+    })
 
     val result = await(underTest.convertToWorkflowJoined(workflowImport))
 
@@ -463,16 +554,18 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
     val oldJobTemplates = Seq(JobTemplateFixture.GenericSparkJobTemplate, JobTemplateFixture.GenericShellJobTemplate)
     val workflowImport = WorkflowImportExportWrapper(workflowJoined, oldJobTemplates)
 
-    when(jobTemplateService.getJobTemplateIdsByNames(any())(any[ExecutionContext])).thenReturn(Future{Map[String, Long]()})
+    when(jobTemplateService.getJobTemplateIdsByNames(any())(any[ExecutionContext])).thenReturn(Future {
+      Map[String, Long]()
+    })
 
-    val result = the [ApiException] thrownBy await(underTest.convertToWorkflowJoined(workflowImport))
+    val result = the[ApiException] thrownBy await(underTest.convertToWorkflowJoined(workflowImport))
 
     result.apiErrors.head.errorType shouldBe GenericErrorType
     result.apiErrors.head.message should include(JobTemplateFixture.GenericSparkJobTemplate.name)
     result.apiErrors.head.message should include(JobTemplateFixture.GenericShellJobTemplate.name)
   }
 
-  private def createDagInstanceJoined() = {
+  private def createDagInstanceJoined() =
     DagInstanceJoined(
       status = DagInstanceStatuses.InQueue,
       triggeredBy = userName,
@@ -482,6 +575,5 @@ class WorkflowServiceTest extends AsyncFlatSpec with Matchers with MockitoSugar 
       finished = None,
       id = 3
     )
-  }
 
 }

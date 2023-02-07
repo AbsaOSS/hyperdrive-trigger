@@ -25,29 +25,35 @@ import za.co.absa.hyperdrive.trigger.models.enums.DBOperation.DBOperation
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 
-class WorkflowHistoryRepositoryTest extends FlatSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach with RepositoryH2TestBase {
+class WorkflowHistoryRepositoryTest
+    extends FlatSpec
+    with Matchers
+    with BeforeAndAfterAll
+    with BeforeAndAfterEach
+    with RepositoryH2TestBase {
 
   val workflowHistoryRepository: WorkflowHistoryRepository = new WorkflowHistoryRepositoryImpl(dbProvider) {
     override val profile = h2Profile
   }
 
-  override def beforeAll: Unit = {
+  override def beforeAll: Unit =
     schemaSetup()
-  }
 
-  override def afterAll: Unit = {
+  override def afterAll: Unit =
     schemaDrop()
-  }
 
-  override def afterEach: Unit = {
+  override def afterEach: Unit =
     clearData()
-  }
 
-  private def verifyHistory(historyEntries: Seq[History], historyId: Long, user: String, dbOperation: DBOperation): Boolean = {
-    historyEntries.exists(history => {
+  private def verifyHistory(
+    historyEntries: Seq[History],
+    historyId: Long,
+    user: String,
+    dbOperation: DBOperation
+  ): Boolean =
+    historyEntries.exists { history =>
       history.id == historyId && history.changedBy == user && history.operation == dbOperation
-    })
-  }
+    }
 
   "workflowHistoryRepository create/update/delete/getHistoryForWorkflow" should "create workflow history record with correct values" in {
     val workflowCreate = WorkflowFixture.createWorkflowJoined()
@@ -103,9 +109,11 @@ class WorkflowHistoryRepositoryTest extends FlatSpec with Matchers with BeforeAn
 
     val createResultId = TestUtils.await(db.run(workflowHistoryRepository.create(workflowCreate, user)))
     val notCreatedId = 999
-    val exceptionResult = the [Exception] thrownBy
+    val exceptionResult = the[Exception] thrownBy
       TestUtils.await(workflowHistoryRepository.getWorkflowsFromHistory(createResultId, notCreatedId))
 
-    exceptionResult.getMessage should equal (s"Entities with #${createResultId} or #${notCreatedId} don't exist on WorkflowHistoryRepositoryImpl.this.WorkflowHistoryTable.")
+    exceptionResult.getMessage should equal(
+      s"Entities with #$createResultId or #$notCreatedId don't exist on WorkflowHistoryRepositoryImpl.this.WorkflowHistoryTable."
+    )
   }
 }
