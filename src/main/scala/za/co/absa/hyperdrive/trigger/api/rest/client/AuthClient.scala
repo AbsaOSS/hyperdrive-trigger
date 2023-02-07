@@ -27,14 +27,14 @@ import scala.util.Try
 
 object AuthClient {
 
-  def apply(credentials: Credentials, apiCaller: ApiCaller, authEndpoints: AuthEndpoints): AuthClient =
+  def apply(credentials: Credentials, apiCaller: ApiCaller, authEndpoint: String): AuthClient =
     credentials match {
       case standardCredentials: StandardCredentials =>
-        createStandardAuthClient(apiCaller, standardCredentials, authEndpoints.standard)
+        createStandardAuthClient(apiCaller, standardCredentials, authEndpoint)
       case standardCredentialsBase64: StandardCredentialsBase64 =>
-        createStandardBase64AuthClient(apiCaller, standardCredentialsBase64, authEndpoints.standard)
+        createStandardBase64AuthClient(apiCaller, standardCredentialsBase64, authEndpoint)
       case kerberosCredentials: KerberosCredentials =>
-        createSpnegoAuthClient(apiCaller, kerberosCredentials, authEndpoints.spnego)
+        createSpnegoAuthClient(apiCaller, kerberosCredentials, authEndpoint)
     }
 
   private def createStandardAuthClient(

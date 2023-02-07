@@ -13,22 +13,18 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.api.rest.services.client
+package za.co.absa.hyperdrive.trigger.api.rest.services.clients
 
 import za.co.absa.hyperdrive.trigger.api.rest.client.{ApiCaller, RestClient}
-import za.co.absa.hyperdrive.trigger.models.VersionedDataset
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class MenasClient(private[services] val apiCaller: ApiCaller, private[services] val restClient: RestClient) {
+class ConfluentClient(private[services] val apiCaller: ApiCaller, private[services] val restClient: RestClient) {
 
-  def authenticate(): Unit =
-    restClient.authenticate()
-
-  def listVersionedDatasets(searchQuery: Option[String])(implicit ec: ExecutionContext): Future[Seq[VersionedDataset]] =
+  def getRoleBindings(searchQuery: Option[String])(implicit ec: ExecutionContext): Future[Seq[String]] =
     Future(apiCaller.call { apiBaseUrl =>
       val searchSegment = searchQuery.fold("")(query => s"/$query")
       val url           = s"$apiBaseUrl/menas/api/dataset/list$searchSegment"
-      restClient.sendGet[Seq[VersionedDataset]](url)
+      restClient.sendGet[Seq[String]](url)
     })
 }

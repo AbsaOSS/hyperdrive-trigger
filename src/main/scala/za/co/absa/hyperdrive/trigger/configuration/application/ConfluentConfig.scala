@@ -21,24 +21,18 @@ import org.springframework.boot.context.properties.bind.DefaultValue
 import org.springframework.boot.context.properties.bind.Name
 import org.springframework.validation.annotation.Validated
 
-@ConfigurationProperties("menas")
+import javax.validation.constraints.NotNull
+
+@ConfigurationProperties("confluent")
 @ConstructorBinding
 @Validated
-class MenasConfig(
-  @DefaultValue(Array(""))
-  val authMechanism: String,
-  @DefaultValue(Array(""))
-  val username: String,
-  @DefaultValue(Array(""))
-  val keytab: String,
-  @DefaultValue(Array(""))
-  val password: String,
+class ConfluentConfig(
+  @NotNull
   val baseUrls: Array[String],
-  @DefaultValue(Array(""))
-  val standardAuthPath: String,
-  @DefaultValue(Array(""))
-  val spnegoAuthPath: String,
-  retriesInternal: Integer
-) {
-  val retries: Option[Int] = Option[Integer](retriesInternal).map(Integer2int)
-}
+  @NotNull
+  val authPath: String,
+  @NotNull
+  val base64Credentials: String,
+  @DefaultValue(Array("1"))
+  val retries: Int
+)
