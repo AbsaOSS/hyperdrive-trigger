@@ -17,14 +17,13 @@ package za.co.absa.hyperdrive.trigger.api.rest.client
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
+import org.springframework.http.{HttpEntity, HttpHeaders, HttpMethod, HttpStatus, ResponseEntity}
 import org.springframework.security.kerberos.client.KerberosRestTemplate
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.client.RestTemplate
 
 import scala.collection.JavaConverters._
+import scala.util.Try
 
 object AuthClient {
 
@@ -32,9 +31,10 @@ object AuthClient {
     credentials match {
       case standardCredentials: StandardCredentials =>
         createStandardAuthClient(apiCaller, standardCredentials, authEndpoints.standard)
+      case standardCredentialsBase64: StandardCredentialsBase64 =>
+        createStandardBase64AuthClient(apiCaller, standardCredentialsBase64, authEndpoints.standard)
       case kerberosCredentials: KerberosCredentials =>
         createSpnegoAuthClient(apiCaller, kerberosCredentials, authEndpoints.spnego)
-      case InvalidCredentials => throw UnauthorizedException("No valid credentials provided")
     }
 
   private def createStandardAuthClient(
@@ -43,7 +43,16 @@ object AuthClient {
     path: String
   ): StandardAuthClient = {
     val restTemplate = RestTemplateSingleton.instance
-    new StandardAuthClient(credentials.username, credentials.password, restTemplate, apiCaller, path)
+    new StandardAuthClient(credentials, restTemplate, apiCaller, path)
+  }
+
+  private def createStandardBase64AuthClient(
+    apiCaller: ApiCaller,
+    credentials: StandardCredentialsBase64,
+    path: String
+  ): StandardBase64AuthClient = {
+    val restTemplate = RestTemplateSingleton.instance
+    new StandardBase64AuthClient(credentials, restTemplate, apiCaller, path)
   }
 
   private def createSpnegoAuthClient(
@@ -53,12 +62,12 @@ object AuthClient {
   ): SpnegoAuthClient = {
     val restTemplate = new KerberosRestTemplate(credentials.keytabLocation, credentials.username)
     restTemplate.setErrorHandler(NoOpErrorHandler)
-    new SpnegoAuthClient(credentials.username, credentials.keytabLocation, restTemplate, apiCaller, path)
+    new SpnegoAuthClient(credentials, restTemplate, apiCaller, path)
   }
 }
 
 sealed abstract class AuthClient(
-  username: String,
+  credentials: Credentials,
   restTemplate: RestTemplate,
   apiCaller: ApiCaller,
   url: String => String
@@ -73,10 +82,10 @@ sealed abstract class AuthClient(
 
       statusCode match {
         case HttpStatus.OK =>
-          logger.info(s"Authentication successful: $username")
+          logger.info(s"Authentication successful")
           getAuthHeaders(response)
         case _ =>
-          throw UnauthorizedException(s"Authentication failure ($statusCode): $username")
+          throw UnauthorizedException(s"Authentication failure ($statusCode)")
       }
     }
 
@@ -85,44 +94,63 @@ sealed abstract class AuthClient(
   private def getAuthHeaders(response: ResponseEntity[String]): HttpHeaders = {
     val headers       = response.getHeaders
     val sessionCookie = headers.get("set-cookie").asScala.head
-    val csrfToken     = headers.get("X-CSRF-TOKEN").asScala.head
-
-    logger.info(s"Session Cookie: $sessionCookie")
-    logger.info(s"CSRF Token: $csrfToken")
+    val csrfToken     = Try(headers.get("X-CSRF-TOKEN").asScala.head).toOption
 
     val resultHeaders = new HttpHeaders()
+
+    logger.debug(s"Session Cookie: $sessionCookie")
     resultHeaders.add("cookie", sessionCookie)
-    resultHeaders.add("X-CSRF-TOKEN", csrfToken)
+
+    csrfToken match {
+      case Some(ct) =>
+        logger.debug(s"CSRF Token: $ct")
+        resultHeaders.add("X-CSRF-TOKEN", ct)
+      case None =>
+        logger.debug(s"CSRF Token not found")
+    }
+
     resultHeaders
   }
 }
 
 class SpnegoAuthClient(
-  username: String,
-  keytabLocation: String,
+  credentials: KerberosCredentials,
   restTemplate: RestTemplate,
   apiCaller: ApiCaller,
   path: String
-) extends AuthClient(username, restTemplate, apiCaller, baseUrl => s"$baseUrl$path") {
+) extends AuthClient(credentials, restTemplate, apiCaller, baseUrl => s"$baseUrl$path") {
   override protected def requestAuthentication(url: String): ResponseEntity[String] = {
-    logger.info(s"Authenticating via SPNEGO ($url): user `$username`, with keytab `$keytabLocation`")
+    logger.info(s"Authenticating via SPNEGO ($url): user `${credentials.username}`, with keytab `${credentials.keytabLocation}`")
     restTemplate.getForEntity(url, classOf[String])
   }
 }
 
 class StandardAuthClient(
-  username: String,
-  password: String,
+  credentials: StandardCredentials,
   restTemplate: RestTemplate,
   apiCaller: ApiCaller,
   path: String
-) extends AuthClient(username, restTemplate, apiCaller, baseUrl => s"$baseUrl$path") {
+) extends AuthClient(credentials, restTemplate, apiCaller, baseUrl => s"$baseUrl$path") {
   override protected def requestAuthentication(url: String): ResponseEntity[String] = {
     val requestParts = new LinkedMultiValueMap[String, String]
-    requestParts.add("username", username)
-    requestParts.add("password", password)
+    requestParts.add("username", credentials.username)
+    requestParts.add("password", credentials.password)
 
-    logger.info(s"Authenticating via username and password ($url): user `$username`")
+    logger.info(s"Authenticating via username and password ($url): user `${credentials.username}`")
     restTemplate.postForEntity(url, requestParts, classOf[String])
+  }
+}
+
+class StandardBase64AuthClient(
+  credentials: StandardCredentialsBase64,
+  restTemplate: RestTemplate,
+  apiCaller: ApiCaller,
+  path: String
+) extends AuthClient(credentials, restTemplate, apiCaller, baseUrl => s"$baseUrl$path") {
+  override protected def requestAuthentication(url: String): ResponseEntity[String] = {
+    val headers = new HttpHeaders()
+    headers.add("Authorization", "Basic " + credentials.base64Credentials)
+    val requestEntity = new HttpEntity(null, headers)
+    restTemplate.exchange(url, HttpMethod.GET, requestEntity, classOf[String])
   }
 }
