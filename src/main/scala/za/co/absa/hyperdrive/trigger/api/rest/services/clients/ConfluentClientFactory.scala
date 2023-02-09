@@ -15,21 +15,21 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.services.clients
 
-import org.slf4j.{Logger, LoggerFactory}
+import com.fasterxml.jackson.databind.module.SimpleModule
 import org.springframework.context.annotation.{Bean, Configuration}
 import za.co.absa.hyperdrive.trigger.api.rest.client._
 import za.co.absa.hyperdrive.trigger.configuration.application.ConfluentConfig
+import za.co.absa.hyperdrive.trigger.models.confluent.RoleBinding
+import za.co.absa.hyperdrive.trigger.scheduler.sensors.kafka.ItemDeserializer
 
 import javax.inject.Inject
 
 @Configuration
 class ConfluentClientFactory @Inject() (confluentConfig: ConfluentConfig) {
-  protected val logger: Logger = LoggerFactory.getLogger(this.getClass)
-
-  private val baseUrls: Seq[String]    =  confluentConfig.baseUrls
-  private val authPath: String     = confluentConfig.authPath
+  private val baseUrls: Seq[String] = confluentConfig.baseUrls
+  private val authPath: String = confluentConfig.authPath
   private val base64Credentials: String = confluentConfig.base64Credentials
-  private val retries: Int    = confluentConfig.retries
+  private val retries: Int = confluentConfig.retries
   private val credentials: Credentials = StandardCredentialsBase64(base64Credentials)
 
   @Bean
@@ -40,9 +40,17 @@ class ConfluentClientFactory @Inject() (confluentConfig: ConfluentConfig) {
     apiBaseUrls: Seq[String],
     urlsRetryCount: Int
   ): ConfluentClient = {
-    val apiCaller  = CrossHostApiCaller(apiBaseUrls, urlsRetryCount)
+    registerRoleModule()
+    val apiCaller = CrossHostApiCaller(apiBaseUrls, urlsRetryCount)
     val authClient = AuthClient(credentials, apiCaller, authPath)
     val restClient = new RestClient(authClient, RestTemplateSingleton.instance)
     new ConfluentClient(apiCaller, restClient)
+  }
+
+  private def registerRoleModule(): Unit = {
+    val rolesModule = new SimpleModule()
+    rolesModule.addDeserializer(classOf[Seq[RoleBinding]], new ItemDeserializer)
+    JsonSerializer.objectMapper.registerModule(rolesModule)
+
   }
 }
