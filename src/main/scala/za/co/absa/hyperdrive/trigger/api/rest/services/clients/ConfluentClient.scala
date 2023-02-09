@@ -15,16 +15,28 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.services.clients
 
-import za.co.absa.hyperdrive.trigger.api.rest.client.{ApiCaller, RestClient}
+import za.co.absa.hyperdrive.trigger.api.rest.client.{ApiCaller, NotFoundException, RestClient}
+import za.co.absa.hyperdrive.trigger.models.confluent.RoleBinding
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success, Try}
 
 class ConfluentClient(private[services] val apiCaller: ApiCaller, private[services] val restClient: RestClient) {
 
-  def getRoleBindings(searchQuery: Option[String])(implicit ec: ExecutionContext): Future[Seq[String]] =
+  def getRoleBindings(user: String, clusterType: String)(implicit ec: ExecutionContext): Future[Seq[RoleBinding]] =
     Future(apiCaller.call { apiBaseUrl =>
-      val searchSegment = searchQuery.fold("")(query => s"/$query")
-      val url           = s"$apiBaseUrl/menas/api/dataset/list$searchSegment"
-      restClient.sendGet[Seq[String]](url)
+      val url =
+        s"$apiBaseUrl/api/metadata/security/1.0/lookup/rolebindings/principal/User:$user?clusterType=$clusterType"
+      restClient.sendGet[Seq[RoleBinding]](url)
     })
+
+  def topicExists(topic: String, kafkaClusterId: String)(implicit ec: ExecutionContext): Future[Boolean] = Future(
+    apiCaller.call { apiBaseUrl =>
+      val url = s"$apiBaseUrl/2.0/kafka/$kafkaClusterId/topics/$topic"
+      Try(restClient.sendGet[Unit](url)) match {
+        case Failure(_: NotFoundException) => false
+        case Success(_)                    => true
+      }
+    }
+  )
 }
