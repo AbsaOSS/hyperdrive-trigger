@@ -19,8 +19,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule
 import org.springframework.context.annotation.{Bean, Configuration}
 import za.co.absa.hyperdrive.trigger.api.rest.client._
 import za.co.absa.hyperdrive.trigger.configuration.application.ConfluentConfig
-import za.co.absa.hyperdrive.trigger.models.confluent.RoleBinding
-import za.co.absa.hyperdrive.trigger.scheduler.sensors.kafka.ItemDeserializer
+import za.co.absa.hyperdrive.trigger.models.confluent.{RoleBinding, RoleBindingDeserializer}
 
 import javax.inject.Inject
 
@@ -49,7 +48,7 @@ class ConfluentClientFactory @Inject() (confluentConfig: ConfluentConfig) {
 
   private def registerRoleModule(): Unit = {
     val rolesModule = new SimpleModule()
-    rolesModule.addDeserializer(classOf[Seq[RoleBinding]], new ItemDeserializer)
+    rolesModule.addDeserializer(classOf[Seq[RoleBinding]], new RoleBindingDeserializer)
     JsonSerializer.objectMapper.registerModule(rolesModule)
   }
 }
