@@ -51,7 +51,7 @@ class CrossHostApiCaller private (apiBaseUrls: Vector[String], maxTryCount: Int,
       }.recoverWith { case e @ (_: ResourceAccessException | _: client.RestClientException) =>
         Failure(ApiClientException("Server non-responsive", e))
       }
-      //using match instead of recoverWith to make the function @tailrec
+      // using match instead of recoverWith to make the function @tailrec
       result match {
         case Failure(e: RetryableException) if attemptNumber < maxTryCount =>
           logFailure(e, url, attemptNumber, None)
@@ -78,12 +78,16 @@ object CrossHostApiCaller {
     urlsRetryCount: Int,
     startWith: Option[Int]
   ): CrossHostApiCaller = {
-    val maxTryCount: Int = (if (urlsRetryCount < 0) {
-      logger.warn(s"Urls retry count cannot be negative ($urlsRetryCount). Using default number of retries instead ($DefaultUrlsRetryCount).") //scalastyle:ignore maxLineLength
-      DefaultUrlsRetryCount
-    } else {
-      urlsRetryCount
-    }) + 1
+    val maxTryCount: Int = (
+      if (urlsRetryCount < 0) {
+        logger.warn(
+          s"Urls retry count cannot be negative ($urlsRetryCount). Using default number of retries instead ($DefaultUrlsRetryCount)."
+        ) // scalastyle:ignore maxLineLength
+        DefaultUrlsRetryCount
+      } else {
+        urlsRetryCount
+      }
+    ) + 1
     val currentHostIndex = startWith.getOrElse(Random.nextInt(Math.max(apiBaseUrls.size, 1)))
     new CrossHostApiCaller(apiBaseUrls.toVector, maxTryCount, currentHostIndex)
   }
