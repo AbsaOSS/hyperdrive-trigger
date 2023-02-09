@@ -16,7 +16,7 @@
 package za.co.absa.hyperdrive.trigger.api.rest.controllers
 
 import org.springframework.web.bind.annotation.{GetMapping, PathVariable, RestController}
-import za.co.absa.hyperdrive.trigger.api.rest.services.KafkaTopicService
+import za.co.absa.hyperdrive.trigger.api.rest.services.ConfluentService
 import za.co.absa.hyperdrive.trigger.models.KafkaTopicAuthorizationResponse
 
 import java.util.concurrent.CompletableFuture
@@ -25,9 +25,9 @@ import scala.compat.java8.FutureConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 @RestController
-class KafkaTopicController @Inject() (kafkaTopicService: KafkaTopicService) {
+class ConfluentController @Inject() (confluentService: ConfluentService) {
 
   @GetMapping(path = Array("/kafka/{kafkaTopic}/authorizations"))
   def getKafkaTopicAuthorizations(@PathVariable kafkaTopic: String): CompletableFuture[KafkaTopicAuthorizationResponse] =
-    kafkaTopicService.getKafkaTopicAuthorizations(kafkaTopic).toJava.toCompletableFuture
+    confluentService.getKafkaTopicAuthorizations(kafkaTopic).toJava.toCompletableFuture
 }
