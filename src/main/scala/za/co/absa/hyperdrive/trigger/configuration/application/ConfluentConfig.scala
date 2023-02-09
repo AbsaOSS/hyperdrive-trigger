@@ -18,7 +18,6 @@ package za.co.absa.hyperdrive.trigger.configuration.application
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.ConstructorBinding
 import org.springframework.boot.context.properties.bind.DefaultValue
-import org.springframework.boot.context.properties.bind.Name
 import org.springframework.validation.annotation.Validated
 
 import javax.validation.constraints.NotNull
@@ -32,7 +31,13 @@ class ConfluentConfig(
   @NotNull
   val authPath: String,
   @NotNull
+  val user: String,
+  @NotNull
   val base64Credentials: String,
   @DefaultValue(Array("1"))
-  val retries: Int
+  val retries: Int,
+  @NotNull
+  val kafkaClusterId: String,
+  @NotNull
+  val clusterType: String
 )
