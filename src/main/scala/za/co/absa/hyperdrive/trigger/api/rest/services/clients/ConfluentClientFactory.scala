@@ -51,6 +51,5 @@ class ConfluentClientFactory @Inject() (confluentConfig: ConfluentConfig) {
     val rolesModule = new SimpleModule()
     rolesModule.addDeserializer(classOf[Seq[RoleBinding]], new ItemDeserializer)
     JsonSerializer.objectMapper.registerModule(rolesModule)
-
   }
 }

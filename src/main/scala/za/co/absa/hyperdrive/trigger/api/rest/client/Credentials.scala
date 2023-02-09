@@ -17,8 +17,8 @@ package za.co.absa.hyperdrive.trigger.api.rest.client
 
 sealed abstract class Credentials
 
-case class StandardCredentials(username: String, password: String)       extends Credentials
+case class StandardCredentials(username: String, password: String) extends Credentials
 
-case class StandardCredentialsBase64(base64Credentials: String)          extends Credentials
+case class StandardCredentialsBase64(base64Credentials: String) extends Credentials
 
 case class KerberosCredentials(username: String, keytabLocation: String) extends Credentials

@@ -77,7 +77,7 @@ sealed abstract class AuthClient(
   @throws[UnauthorizedException]
   def authenticate(): HttpHeaders =
     apiCaller.call { baseUrl =>
-      val response   = requestAuthentication(url(baseUrl))
+      val response = requestAuthentication(url(baseUrl))
       val statusCode = response.getStatusCode
 
       statusCode match {
@@ -92,9 +92,9 @@ sealed abstract class AuthClient(
   protected def requestAuthentication(url: String): ResponseEntity[String]
 
   private def getAuthHeaders(response: ResponseEntity[String]): HttpHeaders = {
-    val headers       = response.getHeaders
+    val headers = response.getHeaders
     val sessionCookie = headers.get("set-cookie").asScala.head
-    val csrfToken     = Try(headers.get("X-CSRF-TOKEN").asScala.head).toOption
+    val csrfToken = Try(headers.get("X-CSRF-TOKEN").asScala.head).toOption
 
     val resultHeaders = new HttpHeaders()
 
@@ -120,7 +120,9 @@ class SpnegoAuthClient(
   path: String
 ) extends AuthClient(credentials, restTemplate, apiCaller, baseUrl => s"$baseUrl$path") {
   override protected def requestAuthentication(url: String): ResponseEntity[String] = {
-    logger.info(s"Authenticating via SPNEGO ($url): user `${credentials.username}`, with keytab `${credentials.keytabLocation}`")
+    logger.info(
+      s"Authenticating via SPNEGO ($url): user `${credentials.username}`, with keytab `${credentials.keytabLocation}`"
+    )
     restTemplate.getForEntity(url, classOf[String])
   }
 }

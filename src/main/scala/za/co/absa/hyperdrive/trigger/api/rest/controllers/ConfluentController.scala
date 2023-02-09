@@ -28,6 +28,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class ConfluentController @Inject() (confluentService: ConfluentService) {
 
   @GetMapping(path = Array("/kafka/{kafkaTopic}/authorizations"))
-  def getKafkaTopicAuthorizations(@PathVariable kafkaTopic: String): CompletableFuture[KafkaTopicAuthorizationResponse] =
+  def getKafkaTopicAuthorizations(
+    @PathVariable kafkaTopic: String
+  ): CompletableFuture[KafkaTopicAuthorizationResponse] =
     confluentService.getKafkaTopicAuthorizations(kafkaTopic).toJava.toCompletableFuture
 }

@@ -19,8 +19,8 @@ import org.mockito.Mockito
 import org.springframework.http.HttpHeaders
 
 class RestClientTest extends RestClientBaseTest {
-  private val url          = "url"
-  private val requestBody  = """{"test":"request"}"""
+  private val url = "url"
+  private val requestBody = """{"test":"request"}"""
   private val responseJson = """{"test":"response"}"""
 
   "RestClient::authenticate" should {

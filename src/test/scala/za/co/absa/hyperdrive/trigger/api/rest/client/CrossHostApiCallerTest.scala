@@ -23,20 +23,17 @@ import za.co.absa.hyperdrive.trigger.api.rest.client.CrossHostApiCaller.DefaultU
 import org.springframework.web.client.ResourceAccessException
 import org.scalatest.WordSpec
 
-
-class CrossHostApiCallerTest extends WordSpec
-  with Matchers
-  with MockitoSugar
-  with BeforeAndAfter {
+class CrossHostApiCallerTest extends WordSpec with Matchers with MockitoSugar with BeforeAndAfter {
   private val restClient = mock[RestClient]
 
   before {
     Mockito.reset(restClient)
   }
 
-"CrossHostApiCaller" should {
+  "CrossHostApiCaller" should {
     "cycle through urls" in {
-      val crossHostApiCaller = CrossHostApiCaller(Vector("a", "b", "c", "d"), DefaultUrlsRetryCount,  startWith = Some(1))
+      val crossHostApiCaller =
+        CrossHostApiCaller(Vector("a", "b", "c", "d"), DefaultUrlsRetryCount, startWith = Some(1))
       crossHostApiCaller.nextBaseUrl() should be("c")
       crossHostApiCaller.nextBaseUrl() should be("d")
       crossHostApiCaller.nextBaseUrl() should be("a")
@@ -60,7 +57,8 @@ class CrossHostApiCallerTest extends WordSpec
 
       "only some calls fail with a retryable exception" in {
         Mockito.when(restClient.sendGet[String]("a")).thenThrow(ApiClientException("Something went wrong A"))
-        Mockito.when(restClient.sendGet[String]("b"))
+        Mockito
+          .when(restClient.sendGet[String]("b"))
           .thenThrow(ApiClientException("Something went wrong B"))
           .thenReturn("success")
 
@@ -149,7 +147,7 @@ class CrossHostApiCallerTest extends WordSpec
             restClient.sendGet[String](str)
           }
         }
-        exception.getMessage should be ("0")
+        exception.getMessage should be("0")
       }
     }
   }

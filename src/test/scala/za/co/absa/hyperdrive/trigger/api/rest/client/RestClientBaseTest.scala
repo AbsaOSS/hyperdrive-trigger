@@ -30,7 +30,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.client.RestTemplate
 
 abstract class RestClientBaseTest extends WordSpec with Matchers with MockitoSugar with BeforeAndAfter {
-  val authClient: AuthClient     = mock[AuthClient]
+  val authClient: AuthClient = mock[AuthClient]
   val restTemplate: RestTemplate = mock[RestTemplate]
 
   val restClient: RestClient = new RestClient(authClient, restTemplate)

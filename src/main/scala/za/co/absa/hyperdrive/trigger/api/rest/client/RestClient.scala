@@ -62,7 +62,7 @@ class RestClient(authClient: AuthClient, restTemplate: RestTemplate) {
       new HttpEntity[String](requestBody, headers)
     }
 
-    val response   = restTemplate.exchange(url, method, httpEntity, classOf[String])
+    val response = restTemplate.exchange(url, method, httpEntity, classOf[String])
     val statusCode = response.getStatusCode
 
     statusCode match {
