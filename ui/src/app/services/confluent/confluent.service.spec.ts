@@ -17,8 +17,8 @@ import { TestBed } from '@angular/core/testing';
 
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { api } from '../../constants/api.constants';
-import {ConfluentService} from './confluent.service';
-import {KafkaTopicAuthorizationResponseModelFactory} from "../../models/kafkaTopicAuthorizationResponse.model";
+import { ConfluentService } from './confluent.service';
+import { KafkaTopicAuthorizationResponseModelFactory } from '../../models/kafkaTopicAuthorizationResponse.model';
 
 describe('ConfluentService', () => {
   let underTest: ConfluentService;
@@ -42,8 +42,8 @@ describe('ConfluentService', () => {
   });
 
   it('getKafkaTopicAuthorizations() should return topic authorizations', () => {
-    const topic = 'topic'
-    const response = KafkaTopicAuthorizationResponseModelFactory.create(true, true, true)
+    const topic = 'topic';
+    const response = KafkaTopicAuthorizationResponseModelFactory.create(true, true, true);
     underTest.getKafkaTopicAuthorizations(topic).subscribe(
       (data) => expect(data).toEqual(response),
       (error) => fail(error),

@@ -27,6 +27,8 @@ import { HyperdriveTemplateParametersModel } from '../../../../../../../models/j
 import { HyperdriveUtil } from '../../../../../../../utils/hyperdrive/hyperdrive.util';
 import { JobTemplateChangeEventModel } from '../../../../../../../models/jobTemplateChangeEvent';
 import { KeyValueModel } from '../../../../../../../models/keyValue.model';
+import { ConfluentService } from '../../../../../../../services/confluent/confluent.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-hyperdrive-job',
@@ -44,12 +46,13 @@ export class HyperdriveJobComponent implements OnInit, OnDestroy {
   private hyperdriveType: string = undefined;
 
   jobTemplateChangesSubscription: Subscription;
+  getKafkaTopicAuthorizationsSubscription: Subscription;
 
   hyperdriveTypes = hyperdriveTypes;
   hyperdriveTypesMap = hyperdriveTypesMap;
   hyperdriveFields = hyperdriveFields;
 
-  constructor() {
+  constructor(private confluentService: ConfluentService, private toastrService: ToastrService) {
     // do nothing
   }
 
@@ -170,7 +173,23 @@ export class HyperdriveJobComponent implements OnInit, OnDestroy {
     this.jobParametersChange.emit({ ...this.jobParameters, additionalSparkConfig: additionalSparkConfig });
   }
 
+  verifyKafkaTopicAuthorizations = (topic: string): void => {
+    !!this.getKafkaTopicAuthorizationsSubscription && this.getKafkaTopicAuthorizationsSubscription.unsubscribe();
+    this.getKafkaTopicAuthorizationsSubscription = this.confluentService.getKafkaTopicAuthorizations(topic).subscribe((kafkaTopicAuth) => {
+      if (kafkaTopicAuth.exists) {
+        this.toastrService.success(
+          `Topic exists. Read access: ${kafkaTopicAuth.hasReadAccess ? 'Yes' : 'No'}. Write access: ${
+            kafkaTopicAuth.hasWriteAccess ? 'Yes' : 'No'
+          }.`,
+        );
+      } else {
+        this.toastrService.error('Topic does not exist or we do not have access to it!');
+      }
+    });
+  };
+
   ngOnDestroy(): void {
     !!this.jobTemplateChangesSubscription && this.jobTemplateChangesSubscription.unsubscribe();
+    !!this.getKafkaTopicAuthorizationsSubscription && this.getKafkaTopicAuthorizationsSubscription.unsubscribe();
   }
 }

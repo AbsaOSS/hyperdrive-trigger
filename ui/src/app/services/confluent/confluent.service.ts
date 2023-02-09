@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 
-import {Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {api} from '../../constants/api.constants';
-import {map} from 'rxjs/operators';
-import {Observable} from 'rxjs';
-import {KafkaTopicAuthorizationResponseModel} from "../../models/kafkaTopicAuthorizationResponse.model";
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { api } from '../../constants/api.constants';
+import { map } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { KafkaTopicAuthorizationResponseModel } from '../../models/kafkaTopicAuthorizationResponse.model';
 
 @Injectable({
   providedIn: 'root',
@@ -28,9 +28,9 @@ export class ConfluentService {
 
   getKafkaTopicAuthorizations(kafkaTopic: string): Observable<KafkaTopicAuthorizationResponseModel> {
     return this.httpClient
-      .get<KafkaTopicAuthorizationResponseModel>(
-        api.GET_KAFKA_TOPIC_AUTHORIZATIONS.replace('{kafkaTopic}', kafkaTopic), {observe: 'response'}
-      )
+      .get<KafkaTopicAuthorizationResponseModel>(api.GET_KAFKA_TOPIC_AUTHORIZATIONS.replace('{kafkaTopic}', kafkaTopic), {
+        observe: 'response',
+      })
       .pipe(map((_) => _.body));
   }
 }

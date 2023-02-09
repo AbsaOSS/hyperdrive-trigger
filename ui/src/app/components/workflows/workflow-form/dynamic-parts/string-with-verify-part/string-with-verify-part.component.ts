@@ -48,7 +48,7 @@ export class StringWithVerifyPartComponent implements OnInit {
   }
 
   verify(): void {
-    this.verifyCallback(this.value)
+    this.verifyCallback(this.value);
   }
 
   ngOnInit(): void {
