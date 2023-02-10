@@ -83,7 +83,11 @@ class SearchableTableQueryTest
   }
 
   "The contains filter" should "find values that contain the search string" in {
-    val filter = ContainsFilterAttributes(field = TestSearchableTableFieldNames.stringField, value = "value", isCaseSensitive = true)
+    val filter = ContainsFilterAttributes(
+      field = TestSearchableTableFieldNames.stringField,
+      value = "value",
+      isCaseSensitive = true
+    )
     val searchRequest =
       TableSearchRequest(containsFilterAttributes = Some(Seq(filter)), sort = None, from = 0, size = 50)
 
@@ -97,7 +101,11 @@ class SearchableTableQueryTest
 
   it should "not find values that do not contain the search string" in {
     val filter =
-      ContainsFilterAttributes(field = TestSearchableTableFieldNames.stringField, value = "not-matching-string", isCaseSensitive = true)
+      ContainsFilterAttributes(
+        field = TestSearchableTableFieldNames.stringField,
+        value = "not-matching-string",
+        isCaseSensitive = true
+      )
     val searchRequest =
       TableSearchRequest(containsFilterAttributes = Some(Seq(filter)), sort = None, from = 0, size = 50)
 
@@ -107,7 +115,11 @@ class SearchableTableQueryTest
   }
 
   it should "find values that contain the search string with disabled case sensitivity" in {
-    val filter = ContainsFilterAttributes(field = TestSearchableTableFieldNames.stringField, value = "VaLuE", isCaseSensitive = false)
+    val filter = ContainsFilterAttributes(
+      field = TestSearchableTableFieldNames.stringField,
+      value = "VaLuE",
+      isCaseSensitive = false
+    )
     val searchRequest =
       TableSearchRequest(containsFilterAttributes = Some(Seq(filter)), sort = None, from = 0, size = 50)
 
@@ -120,7 +132,11 @@ class SearchableTableQueryTest
   }
 
   it should "not find values that do contain the search string and do not match case" in {
-    val filter = ContainsFilterAttributes(field = TestSearchableTableFieldNames.stringField, value = "VaLuE", isCaseSensitive = true)
+    val filter = ContainsFilterAttributes(
+      field = TestSearchableTableFieldNames.stringField,
+      value = "VaLuE",
+      isCaseSensitive = true
+    )
     val searchRequest =
       TableSearchRequest(containsFilterAttributes = Some(Seq(filter)), sort = None, from = 0, size = 50)
 
