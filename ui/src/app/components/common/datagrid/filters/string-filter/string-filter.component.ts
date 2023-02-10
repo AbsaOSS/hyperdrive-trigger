@@ -28,7 +28,7 @@ export class StringFilterComponent implements ClrDatagridFilterInterface<any>, A
   @Input() removeFiltersSubject: Subject<any>;
   @Input() property: string;
   @Input() value: string = undefined;
-  @Input() isCaseSensitive: boolean = true;
+  @Input() isCaseSensitive = true;
 
   //clarity interface
   changes = new Subject<any>();
