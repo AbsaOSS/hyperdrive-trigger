@@ -183,7 +183,7 @@ export class HyperdriveJobComponent implements OnInit, OnDestroy {
           }.`,
         );
       } else {
-        this.toastrService.error('Topic does not exist or we do not have access to it!');
+        this.toastrService.error('Topic does not exist or the hyperdrive service-user has no access!');
       }
     });
   };
