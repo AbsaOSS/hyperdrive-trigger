@@ -75,7 +75,11 @@ trait SearchableTableQuery {
       fieldMapping: Map[String, Rep[_]]
     ): Rep[Boolean] = {
       val tableField = fieldMapping(attributes.field).asInstanceOf[Rep[String]]
-      tableField like s"%${attributes.value}%"
+      if (attributes.isCaseSensitive) {
+        tableField like s"%${attributes.value}%"
+      } else {
+        tableField.toLowerCase like s"%${attributes.value}%".toLowerCase
+      }
     }
 
     private def applyIntRangeFilter(
