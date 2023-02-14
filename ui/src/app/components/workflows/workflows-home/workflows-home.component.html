@@ -138,6 +138,7 @@
     <ng-container>Workflow name</ng-container>
     <clr-dg-filter [clrDgFilter]="workflowNameFilter">
       <app-string-filter [value]="getFilter(workflowsHomeColumns.WORKFLOW_NAME)"
+                         [isCaseSensitive]="false"
                          #workflowNameFilter
                          [property]="workflowsHomeColumns.WORKFLOW_NAME"
                          [removeFiltersSubject]="removeWorkflowFilterSubject">
@@ -151,6 +152,7 @@
     <clr-dg-filter [clrDgFilter]="workflowProjectFilter">
       <app-string-filter [removeFiltersSubject]="removeWorkflowFilterSubject"
                          [value]="getFilter(workflowsHomeColumns.PROJECT_NAME)"
+                         [isCaseSensitive]="false"
                          #workflowProjectFilter
                          [property]="workflowsHomeColumns.PROJECT_NAME">
       </app-string-filter>

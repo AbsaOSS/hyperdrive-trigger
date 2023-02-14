@@ -223,7 +223,8 @@ class NotificationRuleRepositoryTest
 
   "searchJobTemplates" should "return notification rules sorted by workflow prefix" in {
     await(db.run(h2NotificationRuleTable.forceInsertAll(Seq(TestData.nr1, TestData.nr2, TestData.nr3))))
-    val containsFilterAttributes = Option(Seq(ContainsFilterAttributes(field = "project", value = "proj")))
+    val containsFilterAttributes =
+      Option(Seq(ContainsFilterAttributes(field = "project", value = "proj", isCaseSensitive = true)))
     val searchRequest: TableSearchRequest = TableSearchRequest(
       containsFilterAttributes = containsFilterAttributes,
       sort = Option(SortAttributes(by = "workflowPrefix", order = 1)),
@@ -240,7 +241,8 @@ class NotificationRuleRepositoryTest
 
   it should "return notification rules sorted by created" in {
     await(db.run(h2NotificationRuleTable.forceInsertAll(Seq(TestData.nr1, TestData.nr2, TestData.nr3))))
-    val containsFilterAttributes = Option(Seq(ContainsFilterAttributes(field = "project", value = "proj")))
+    val containsFilterAttributes =
+      Option(Seq(ContainsFilterAttributes(field = "project", value = "proj", isCaseSensitive = true)))
     val searchRequest: TableSearchRequest = TableSearchRequest(
       containsFilterAttributes = containsFilterAttributes,
       sort = Option(SortAttributes(by = "created", order = 1)),

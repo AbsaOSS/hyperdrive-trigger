@@ -49,8 +49,8 @@ class SearchableTableQueryTest
     import TestSearchableTableFieldNames._
     val containsFilterSeq = Some(
       Seq(
-        ContainsFilterAttributes(field = stringField, value = "value"),
-        ContainsFilterAttributes(field = stringField2, value = "str")
+        ContainsFilterAttributes(field = stringField, value = "value", isCaseSensitive = true),
+        ContainsFilterAttributes(field = stringField2, value = "str", isCaseSensitive = true)
       )
     )
     val intRangeFilterSeq = Some(Seq(IntRangeFilterAttributes(field = longField, start = Option(0), end = Option(1))))
@@ -83,7 +83,11 @@ class SearchableTableQueryTest
   }
 
   "The contains filter" should "find values that contain the search string" in {
-    val filter = ContainsFilterAttributes(field = TestSearchableTableFieldNames.stringField, value = "value")
+    val filter = ContainsFilterAttributes(
+      field = TestSearchableTableFieldNames.stringField,
+      value = "value",
+      isCaseSensitive = true
+    )
     val searchRequest =
       TableSearchRequest(containsFilterAttributes = Some(Seq(filter)), sort = None, from = 0, size = 50)
 
@@ -97,7 +101,42 @@ class SearchableTableQueryTest
 
   it should "not find values that do not contain the search string" in {
     val filter =
-      ContainsFilterAttributes(field = TestSearchableTableFieldNames.stringField, value = "not-matching-string")
+      ContainsFilterAttributes(
+        field = TestSearchableTableFieldNames.stringField,
+        value = "not-matching-string",
+        isCaseSensitive = true
+      )
+    val searchRequest =
+      TableSearchRequest(containsFilterAttributes = Some(Seq(filter)), sort = None, from = 0, size = 50)
+
+    val result = await(db.run(underTest.search(searchRequest)))
+
+    result.total shouldBe 0
+  }
+
+  it should "find values that contain the search string with disabled case sensitivity" in {
+    val filter = ContainsFilterAttributes(
+      field = TestSearchableTableFieldNames.stringField,
+      value = "VaLuE",
+      isCaseSensitive = false
+    )
+    val searchRequest =
+      TableSearchRequest(containsFilterAttributes = Some(Seq(filter)), sort = None, from = 0, size = 50)
+
+    val result = await(db.run(underTest.search(searchRequest)))
+
+    val expected = TestSearchableData.testSearchableEntities.filter(_.stringValue.contains("value"))
+    result.total should be > 0
+    result.total shouldBe expected.size
+    result.items should contain theSameElementsAs expected
+  }
+
+  it should "not find values that do contain the search string and do not match case" in {
+    val filter = ContainsFilterAttributes(
+      field = TestSearchableTableFieldNames.stringField,
+      value = "VaLuE",
+      isCaseSensitive = true
+    )
     val searchRequest =
       TableSearchRequest(containsFilterAttributes = Some(Seq(filter)), sort = None, from = 0, size = 50)
 

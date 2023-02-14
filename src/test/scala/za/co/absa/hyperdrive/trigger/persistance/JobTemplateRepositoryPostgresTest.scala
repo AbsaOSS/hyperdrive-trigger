@@ -122,7 +122,9 @@ class JobTemplateRepositoryPostgresTest
     insertJobTemplates()
 
     val containsFilterAttributes =
-      Option(Seq(ContainsFilterAttributes(field = "name", value = TestData.jobTemplates.head.name)))
+      Option(
+        Seq(ContainsFilterAttributes(field = "name", value = TestData.jobTemplates.head.name, isCaseSensitive = true))
+      )
     val searchRequest: TableSearchRequest = TableSearchRequest(
       containsFilterAttributes = containsFilterAttributes,
       sort = None,

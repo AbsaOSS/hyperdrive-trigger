@@ -138,10 +138,10 @@ class DagRunRepositoryTest
     createTestData()
     val containsFilters = Some(
       Seq(
-        ContainsFilterAttributes(field = "workflowName", value = "flow1"),
-        ContainsFilterAttributes(field = "status", value = "Que"),
-        ContainsFilterAttributes(field = "triggeredBy", value = TestData.triggeredBy),
-        ContainsFilterAttributes(field = "projectName", value = "project")
+        ContainsFilterAttributes(field = "workflowName", value = "flow1", isCaseSensitive = true),
+        ContainsFilterAttributes(field = "status", value = "Que", isCaseSensitive = true),
+        ContainsFilterAttributes(field = "triggeredBy", value = TestData.triggeredBy, isCaseSensitive = true),
+        ContainsFilterAttributes(field = "projectName", value = "project", isCaseSensitive = true)
       )
     )
 
