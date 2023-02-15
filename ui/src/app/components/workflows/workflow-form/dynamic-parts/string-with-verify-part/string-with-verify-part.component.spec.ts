@@ -19,10 +19,15 @@ import { StringWithVerifyPartComponent } from './string-with-verify-part.compone
 import { By } from '@angular/platform-browser';
 import { DebugElement, Predicate } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
+import { ToastrService } from 'ngx-toastr';
+import { createSpyFromClass, Spy } from 'jasmine-auto-spies';
+import { of } from 'rxjs';
+import { VerifyPartModelFactory } from '../../../../../models/verifyPart.model';
 
 describe('StringWithVerifyPartComponent', () => {
   let fixture: ComponentFixture<StringWithVerifyPartComponent>;
   let underTest: StringWithVerifyPartComponent;
+  let toastrServiceSpy: Spy<ToastrService>;
 
   const inputSelector: Predicate<DebugElement> = By.css('input[type="text"]');
 
@@ -31,8 +36,9 @@ describe('StringWithVerifyPartComponent', () => {
       TestBed.configureTestingModule({
         declarations: [StringWithVerifyPartComponent],
         imports: [FormsModule],
-        providers: [NgForm],
+        providers: [NgForm, { provide: ToastrService, useValue: createSpyFromClass(ToastrService) }],
       }).compileComponents();
+      toastrServiceSpy = TestBed.inject<any>(ToastrService);
     }),
   );
 
@@ -101,4 +107,53 @@ describe('StringWithVerifyPartComponent', () => {
       });
     }),
   );
+
+  it('verify() should set only verifyResponse when component is in show mode', () => {
+    const verifyResponse = VerifyPartModelFactory.create(false, 'Random');
+    underTest.isShow = true;
+    underTest.verifyCall = function (topic: string) {
+      return of(verifyResponse);
+    };
+
+    underTest.verify();
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(underTest.verifyResponse).toBe(verifyResponse);
+      expect(underTest.loadingVerify).toBe(false);
+    });
+  });
+
+  it('verify() should show error toast when input is invalid and component is in edit mode', () => {
+    const verifyResponse = VerifyPartModelFactory.create(false, 'Random');
+    const toastrServiceSpyError = toastrServiceSpy.error;
+    underTest.isShow = false;
+    underTest.verifyCall = function (topic: string) {
+      return of(verifyResponse);
+    };
+
+    underTest.verify();
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(underTest.loadingVerify).toBe(false);
+      expect(toastrServiceSpyError).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpyError).toHaveBeenCalledWith(verifyResponse.message);
+    });
+  });
+
+  it('verify() should show error toast when input is valid and component is in edit mode', () => {
+    const verifyResponse = VerifyPartModelFactory.create(true, 'Random');
+    const toastrServiceSpyError = toastrServiceSpy.success;
+    underTest.isShow = false;
+    underTest.verifyCall = function (topic: string) {
+      return of(verifyResponse);
+    };
+
+    underTest.verify();
+    fixture.detectChanges();
+    fixture.whenStable().then(() => {
+      expect(underTest.loadingVerify).toBe(false);
+      expect(toastrServiceSpyError).toHaveBeenCalledTimes(1);
+      expect(toastrServiceSpyError).toHaveBeenCalledWith(verifyResponse.message);
+    });
+  });
 });

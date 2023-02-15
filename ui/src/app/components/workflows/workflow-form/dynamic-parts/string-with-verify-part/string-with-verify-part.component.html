@@ -30,6 +30,9 @@
     {{verifyButtonText}}
     <clr-icon shape="shield-check"></clr-icon>
   </button>
+  <span *ngIf="loadingVerify" class="spinner spinner-sm">
+      Loading...
+    </span>
   <clr-control-helper *ngIf="helperText">{{helperText}}</clr-control-helper>
   <clr-control-error *clrIfError="'required'">{{texts.FORM_VALIDATION_MUST_BE_FILLED(name)}}</clr-control-error>
   <clr-control-error *clrIfError="'minlength'">{{texts.FORM_VALIDATION_MIN_LENGTH(name, minLength)}}</clr-control-error>
@@ -40,9 +43,18 @@
   <label class="clr-control-label clr-col-12 clr-col-md-2">{{name}}</label>
   <span class="clr-control-container clr-col-md-10 clr-col-12 breakableSpan">
     {{value}}
-    <button type="button" class="btn btn-link  btn-sm" (click)="verify()">
-      {{verifyButtonText}}
-    <clr-icon shape="shield-check"></clr-icon>
+    <button type="button" class="btn btn-link btn-sm" (click)="verify()">
+    {{verifyButtonText}}
+      <clr-icon shape="shield-check"></clr-icon>
   </button>
+    <span *ngIf="loadingVerify" class="spinner spinner-sm">
+      Loading...
+    </span>
+
+    <span *ngIf="!loadingVerify">
+      <clr-icon *ngIf="verifyResponse.valid" shape="check" class="is-success" size="28"></clr-icon>
+      <clr-icon *ngIf=" !verifyResponse.valid" shape="times" class="is-error" size="28"></clr-icon>
+      <b *ngIf="!verifyResponse.valid" style="color: red">{{verifyResponse.message}}</b>
+    </span>
   </span>
 </div>

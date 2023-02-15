@@ -17,6 +17,9 @@ import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { ControlContainer, NgForm } from '@angular/forms';
 import { UuidUtil } from '../../../../../utils/uuid/uuid.util';
 import { texts } from 'src/app/constants/texts.constants';
+import { Observable, Subscription } from 'rxjs';
+import { VerifyPartModel } from '../../../../../models/verifyPart.model';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-string-with-verify-part',
@@ -30,16 +33,19 @@ export class StringWithVerifyPartComponent implements OnInit {
   @Input() name: string;
   @Input() value: string;
   @Input() verifyButtonText: string;
-  @Input() verifyCallback: (arg: string) => void;
+  @Input() verifyCall: (topic: string) => Observable<VerifyPartModel>;
   @Output() valueChange = new EventEmitter();
   @Input() isRequired = false;
   @Input() minLength = 1;
   @Input() maxLength: number = Number.MAX_SAFE_INTEGER;
   @Input() helperText: string;
 
+  verifySubscription: Subscription;
+  verifyResponse: VerifyPartModel;
+  loadingVerify = false;
   texts = texts;
 
-  constructor() {
+  constructor(private toastrService: ToastrService) {
     // do nothing
   }
 
@@ -48,12 +54,36 @@ export class StringWithVerifyPartComponent implements OnInit {
   }
 
   verify(): void {
-    this.verifyCallback(this.value);
+    this.loadingVerify = true;
+    if (this.isShow) {
+      this.verifySubscription = this.verifyCall(this.value).subscribe(
+        (response) => {
+          this.verifyResponse = response;
+          this.loadingVerify = false;
+        },
+        (_) => {
+          this.loadingVerify = false;
+        },
+      );
+    } else {
+      !!this.verifySubscription && this.verifySubscription.unsubscribe();
+      this.verifySubscription = this.verifyCall(this.value).subscribe(
+        (response) => {
+          this.loadingVerify = false;
+          if (response.valid) this.toastrService.success(response.message);
+          else this.toastrService.error(response.message);
+        },
+        (_) => {
+          this.loadingVerify = false;
+        },
+      );
+    }
   }
 
   ngOnInit(): void {
     if (!this.value && this.isRequired) {
       this.modelChanged('');
     }
+    if (this.isShow) this.verify();
   }
 }

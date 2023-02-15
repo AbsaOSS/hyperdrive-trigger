@@ -15,7 +15,7 @@
 
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { HyperdriveDefinitionParametersModel } from '../../../../../../../models/jobDefinitionParameters.model';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import {
   hyperdriveFields,
   hyperdriveTypes,
@@ -28,7 +28,10 @@ import { HyperdriveUtil } from '../../../../../../../utils/hyperdrive/hyperdrive
 import { JobTemplateChangeEventModel } from '../../../../../../../models/jobTemplateChangeEvent';
 import { KeyValueModel } from '../../../../../../../models/keyValue.model';
 import { ConfluentService } from '../../../../../../../services/confluent/confluent.service';
-import { ToastrService } from 'ngx-toastr';
+import { map } from 'rxjs/operators';
+import { KafkaTopicAuthorizationResponseModel } from '../../../../../../../models/kafkaTopicAuthorizationResponse.model';
+import { VerifyPartModel, VerifyPartModelFactory } from '../../../../../../../models/verifyPart.model';
+import { texts } from '../../../../../../../constants/texts.constants';
 
 @Component({
   selector: 'app-hyperdrive-job',
@@ -46,13 +49,12 @@ export class HyperdriveJobComponent implements OnInit, OnDestroy {
   private hyperdriveType: string = undefined;
 
   jobTemplateChangesSubscription: Subscription;
-  getKafkaTopicAuthorizationsSubscription: Subscription;
 
   hyperdriveTypes = hyperdriveTypes;
   hyperdriveTypesMap = hyperdriveTypesMap;
   hyperdriveFields = hyperdriveFields;
 
-  constructor(private confluentService: ConfluentService, private toastrService: ToastrService) {
+  constructor(public confluentService: ConfluentService) {
     // do nothing
   }
 
@@ -173,23 +175,36 @@ export class HyperdriveJobComponent implements OnInit, OnDestroy {
     this.jobParametersChange.emit({ ...this.jobParameters, additionalSparkConfig: additionalSparkConfig });
   }
 
-  verifyKafkaTopicAuthorizations = (topic: string): void => {
-    !!this.getKafkaTopicAuthorizationsSubscription && this.getKafkaTopicAuthorizationsSubscription.unsubscribe();
-    this.getKafkaTopicAuthorizationsSubscription = this.confluentService.getKafkaTopicAuthorizations(topic).subscribe((kafkaTopicAuth) => {
-      if (kafkaTopicAuth.exists) {
-        this.toastrService.success(
-          `Topic exists. Read access: ${kafkaTopicAuth.hasReadAccess ? 'Yes' : 'No'}. Write access: ${
-            kafkaTopicAuth.hasWriteAccess ? 'Yes' : 'No'
-          }.`,
-        );
-      } else {
-        this.toastrService.error('Topic does not exist or the hyperdrive service-user has no access!');
-      }
-    });
-  };
+  verifyKafkaTopicAuthorizations(
+    isWriteTopic: boolean,
+    confluentService: ConfluentService = this.confluentService,
+  ): (topic: string) => Observable<VerifyPartModel> {
+    return function (topic: string) {
+      return confluentService.getKafkaTopicAuthorizations(topic).pipe(
+        map((kafkaTopicAuthorizationResponse: KafkaTopicAuthorizationResponseModel) => {
+          if (!kafkaTopicAuthorizationResponse.exists) {
+            return VerifyPartModelFactory.create(false, texts.HYPERDRIVE_JOB_NO_TOPIC_ACCESS);
+          } else {
+            if (isWriteTopic) {
+              if (!kafkaTopicAuthorizationResponse.hasWriteAccess) {
+                return VerifyPartModelFactory.create(false, texts.HYPERDRIVE_JOB_NO_WRITE_ACCESS);
+              } else {
+                return VerifyPartModelFactory.create(true, texts.HYPERDRIVE_JOB_WRITE_ACCESS);
+              }
+            } else {
+              if (!kafkaTopicAuthorizationResponse.hasReadAccess) {
+                return VerifyPartModelFactory.create(false, texts.HYPERDRIVE_JOB_NO_READ_ACCESS);
+              } else {
+                return VerifyPartModelFactory.create(true, texts.HYPERDRIVE_JOB_READ_ACCESS);
+              }
+            }
+          }
+        }),
+      );
+    };
+  }
 
   ngOnDestroy(): void {
     !!this.jobTemplateChangesSubscription && this.jobTemplateChangesSubscription.unsubscribe();
-    !!this.getKafkaTopicAuthorizationsSubscription && this.getKafkaTopicAuthorizationsSubscription.unsubscribe();
   }
 }

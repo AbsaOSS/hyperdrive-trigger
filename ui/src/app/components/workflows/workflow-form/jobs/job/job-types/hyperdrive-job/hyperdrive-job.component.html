@@ -46,7 +46,7 @@
       [isShow]="isShow"
       [name]="'Source topic'"
       [verifyButtonText]="'Verify topic'"
-      [verifyCallback]="verifyKafkaTopicAuthorizations"
+      [verifyCall]="verifyKafkaTopicAuthorizations(false)"
       [value]="getHyperdriveFieldValue(hyperdriveFields.READER_TOPIC)"
       (valueChange)="hyperdriveFieldChange($event, hyperdriveFields.READER_TOPIC)"
       [isRequired]=true
@@ -82,7 +82,7 @@
       [isShow]="isShow"
       [name]="'Source topic'"
       [verifyButtonText]="'Verify topic'"
-      [verifyCallback]="verifyKafkaTopicAuthorizations"
+      [verifyCall]="verifyKafkaTopicAuthorizations(false)"
       [value]="getHyperdriveFieldValue(hyperdriveFields.READER_TOPIC)"
       (valueChange)="hyperdriveFieldChange($event, hyperdriveFields.READER_TOPIC)"
       [isRequired]=true
@@ -92,7 +92,7 @@
       [isShow]="isShow"
       [name]="'Destination topic'"
       [verifyButtonText]="'Verify topic'"
-      [verifyCallback]="verifyKafkaTopicAuthorizations"
+      [verifyCall]="verifyKafkaTopicAuthorizations(true)"
       [value]="getHyperdriveFieldValue(hyperdriveFields.WRITER_TOPIC)"
       (valueChange)="hyperdriveFieldChange($event, hyperdriveFields.WRITER_TOPIC)"
       [isRequired]=true
@@ -120,7 +120,7 @@
       [isShow]="isShow"
       [name]="'Source topic'"
       [verifyButtonText]="'Verify topic'"
-      [verifyCallback]="verifyKafkaTopicAuthorizations"
+      [verifyCall]="verifyKafkaTopicAuthorizations(true)"
       [value]="getHyperdriveFieldValue(hyperdriveFields.READER_TOPIC)"
       (valueChange)="hyperdriveFieldChange($event, hyperdriveFields.READER_TOPIC)"
       [isRequired]=true
