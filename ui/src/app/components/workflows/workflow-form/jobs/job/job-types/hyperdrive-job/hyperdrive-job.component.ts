@@ -15,7 +15,7 @@
 
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { HyperdriveDefinitionParametersModel } from '../../../../../../../models/jobDefinitionParameters.model';
-import { Observable, Subscription } from 'rxjs';
+import { Observable, of, Subscription } from 'rxjs';
 import {
   hyperdriveFields,
   hyperdriveTypes,
@@ -28,7 +28,7 @@ import { HyperdriveUtil } from '../../../../../../../utils/hyperdrive/hyperdrive
 import { JobTemplateChangeEventModel } from '../../../../../../../models/jobTemplateChangeEvent';
 import { KeyValueModel } from '../../../../../../../models/keyValue.model';
 import { ConfluentService } from '../../../../../../../services/confluent/confluent.service';
-import { map } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 import { KafkaTopicAuthorizationResponseModel } from '../../../../../../../models/kafkaTopicAuthorizationResponse.model';
 import { VerifyPartModel, VerifyPartModelFactory } from '../../../../../../../models/verifyPart.model';
 import { texts } from '../../../../../../../constants/texts.constants';
@@ -200,6 +200,7 @@ export class HyperdriveJobComponent implements OnInit, OnDestroy {
             }
           }
         }),
+        catchError((_) => of(VerifyPartModelFactory.create(false, texts.HYPERDRIVE_JOB_COULD_NOT_VERIFY_ACCESS))),
       );
     };
   }
