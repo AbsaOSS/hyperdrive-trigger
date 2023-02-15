@@ -32,7 +32,7 @@ trait ConfluentService {
 }
 
 @Service
-class ConfluentServiceImpl @Inject()( override val confluentClient: ConfluentClient, confluentConfig: ConfluentConfig)
+class ConfluentServiceImpl @Inject() (override val confluentClient: ConfluentClient, confluentConfig: ConfluentConfig)
     extends ConfluentService {
 
   override def getKafkaTopicAuthorizations(

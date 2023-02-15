@@ -49,7 +49,13 @@ class RestClient(authClient: AuthClient, restTemplate: RestTemplate) {
   }
 
   @tailrec
-  private def send[B, T](method: HttpMethod, url: String, headers: HttpHeaders, body: Option[B], authRetriesLeft: Int = 1)(
+  private def send[B, T](
+    method: HttpMethod,
+    url: String,
+    headers: HttpHeaders,
+    body: Option[B],
+    authRetriesLeft: Int = 1
+  )(
     implicit ct: ClassTag[T]
   ): T = {
     logger.info(s"$method - URL: $url")
