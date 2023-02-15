@@ -23,6 +23,7 @@ import scala.util.{Failure, Success, Try}
 
 class ConfluentClient(private[services] val apiCaller: ApiCaller, private[services] val restClient: RestClient) {
 
+
   def getRoleBindings(user: String, clusterType: String)(implicit ec: ExecutionContext): Future[Seq[RoleBinding]] =
     Future(apiCaller.call { apiBaseUrl =>
       val url =
