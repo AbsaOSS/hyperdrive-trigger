@@ -49,7 +49,7 @@ class RestClient(authClient: AuthClient, restTemplate: RestTemplate) {
   }
 
   @tailrec
-  private def send[B, T](method: HttpMethod, url: String, headers: HttpHeaders, body: Option[B], retriesLeft: Int = 1)(
+  private def send[B, T](method: HttpMethod, url: String, headers: HttpHeaders, body: Option[B], authRetriesLeft: Int = 1)(
     implicit ct: ClassTag[T]
   ): T = {
     logger.info(s"$method - URL: $url")
@@ -57,7 +57,7 @@ class RestClient(authClient: AuthClient, restTemplate: RestTemplate) {
     headers.putAll(authHeaders)
 
     val httpEntity = body.fold(new HttpEntity[String](headers)) { b =>
-      val requestBody = JsonSerializer.toJson(b)
+      val requestBody = RestClientSerde.toJson(b)
       logger.info(s"Request Body: $requestBody")
       new HttpEntity[String](requestBody, headers)
     }
@@ -67,12 +67,12 @@ class RestClient(authClient: AuthClient, restTemplate: RestTemplate) {
 
     statusCode match {
       case HttpStatus.OK | HttpStatus.CREATED =>
-        logger.info(s"Response - $statusCode : ${response.getBody}")
-        JsonSerializer.fromJson[T](response.getBody)
+        logger.info(s"Response - $statusCode")
+        RestClientSerde.fromJson[T](response.getBody)
       case HttpStatus.UNAUTHORIZED | HttpStatus.FORBIDDEN =>
         logger.warn(s"Response - $statusCode :${Option(response.getBody).getOrElse("None")}")
         logger.warn(s"Unauthorized $method request for URL: $url")
-        if (retriesLeft <= 0) {
+        if (authRetriesLeft <= 0) {
           throw UnauthorizedException("Unable to reauthenticate, no retries left")
         }
 
@@ -80,8 +80,8 @@ class RestClient(authClient: AuthClient, restTemplate: RestTemplate) {
         authenticate()
 
         logger.info(s"Retrying $method request for URL: $url")
-        logger.info(s"Retries left: $retriesLeft")
-        send[B, T](method, url, headers, body, retriesLeft - 1)
+        logger.info(s"Retries left: $authRetriesLeft")
+        send[B, T](method, url, headers, body, authRetriesLeft - 1)
       case HttpStatus.NOT_FOUND =>
         throw NotFoundException(s"Entity not found - $statusCode")
       case _ =>

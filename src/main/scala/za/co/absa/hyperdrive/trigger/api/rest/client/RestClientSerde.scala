@@ -24,7 +24,7 @@ import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import scala.reflect.ClassTag
 import scala.util.Try
 
-object JsonSerializer {
+object RestClientSerde {
   val objectMapper: ObjectMapper = new ObjectMapper()
     .registerModule(DefaultScalaModule)
     .registerModule(new JavaTimeModule())

@@ -49,6 +49,6 @@ class ConfluentClientFactory @Inject() (confluentConfig: ConfluentConfig) {
   private def registerRoleModule(): Unit = {
     val rolesModule = new SimpleModule()
     rolesModule.addDeserializer(classOf[Seq[RoleBinding]], new RoleBindingDeserializer)
-    JsonSerializer.objectMapper.registerModule(rolesModule)
+    RestClientSerde.objectMapper.registerModule(rolesModule)
   }
 }

@@ -26,7 +26,7 @@ object RestTemplateSingleton {
     // Need to replace the default Jackson converter with one using a Scala serializer
     val converters = template.getMessageConverters.asScala.map {
       case _: MappingJackson2HttpMessageConverter =>
-        new MappingJackson2HttpMessageConverter(JsonSerializer.objectMapper)
+        new MappingJackson2HttpMessageConverter(RestClientSerde.objectMapper)
       case converter => converter
     }.asJava
     template.setMessageConverters(converters)

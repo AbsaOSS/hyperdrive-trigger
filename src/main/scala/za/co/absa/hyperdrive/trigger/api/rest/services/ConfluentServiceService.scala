@@ -21,6 +21,7 @@ import za.co.absa.hyperdrive.trigger.api.rest.services.clients.ConfluentClient
 import za.co.absa.hyperdrive.trigger.configuration.application.ConfluentConfig
 import za.co.absa.hyperdrive.trigger.models.confluent.{PatternType, ResourceType, RoleBinding, RoleName}
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 trait ConfluentService {
@@ -31,7 +32,7 @@ trait ConfluentService {
 }
 
 @Service
-class ConfluentServiceImpl(override val confluentClient: ConfluentClient, confluentConfig: ConfluentConfig)
+class ConfluentServiceImpl @Inject()( override val confluentClient: ConfluentClient, confluentConfig: ConfluentConfig)
     extends ConfluentService {
 
   override def getKafkaTopicAuthorizations(

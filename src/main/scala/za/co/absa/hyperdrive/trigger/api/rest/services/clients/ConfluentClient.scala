@@ -36,6 +36,7 @@ class ConfluentClient(private[services] val apiCaller: ApiCaller, private[servic
       Try(restClient.sendGet[Unit](url)) match {
         case Failure(_: NotFoundException) => false
         case Success(_)                    => true
+        case Failure(exception)            => throw exception
       }
     }
   )
