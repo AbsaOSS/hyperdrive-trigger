@@ -18,14 +18,13 @@ package za.co.absa.hyperdrive.trigger.api.rest.services
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.models.{IngestionStatus, JobIngestionStatus}
 import za.co.absa.hyperdrive.trigger.persistance.WorkflowRepository
-import za.co.absa.hyperdrive.trigger.configuration.application.GeneralConfig
 
 import scala.concurrent.{ExecutionContext, Future}
 
 trait HyperdriveService {
   val workflowRepository: WorkflowRepository
   val jobTemplateService: JobTemplateService
-  val hyperdriveOffsetComparisonService: HyperdriveOffsetComparisonService
+  val hyperdriveOffsetComparisonService: HyperdriveOffsetService
 
   def getIngestionStatus(id: Long)(implicit ec: ExecutionContext): Future[IngestionStatus]
 }
@@ -34,8 +33,7 @@ trait HyperdriveService {
 class HyperdriveServiceImpl(
   override val workflowRepository: WorkflowRepository,
   override val jobTemplateService: JobTemplateService,
-  override val hyperdriveOffsetComparisonService: HyperdriveOffsetComparisonService,
-  generalConfig: GeneralConfig
+  override val hyperdriveOffsetComparisonService: HyperdriveOffsetService
 ) extends HyperdriveService {
 
   override def getIngestionStatus(id: Long)(implicit ec: ExecutionContext): Future[IngestionStatus] = {
