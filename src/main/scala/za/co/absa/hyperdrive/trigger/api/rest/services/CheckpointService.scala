@@ -34,6 +34,8 @@ trait CheckpointService {
   def getLatestOffsetFilePath(params: HdfsParameters)(
     implicit ugi: UserGroupInformation
   ): Try[Option[(String, Boolean)]]
+
+  def getLatestCommittedOffset(params: HdfsParameters)(implicit ugi: UserGroupInformation): Option[Map[Int, Long]]
 }
 
 class HdfsParameters(
@@ -96,6 +98,16 @@ class CheckpointServiceImpl @Inject() (@Lazy hdfsService: HdfsService) extends C
       }
       swap(offsetFilePath)
     }
+  }
+
+  override def getLatestCommittedOffset(params: HdfsParameters)(implicit ugi: UserGroupInformation): Option[Map[Int, Long]] = {
+    Try(for {
+      latestCommit <- getLatestCommitBatchId(params.checkpointLocation).toOption.flatten
+      pathToLatestCommit = new Path(s"${params.checkpointLocation}/$offsetsDirName/$latestCommit")
+      offsets <- getOffsetsFromFile(pathToLatestCommit.toString).toOption.flatten
+    } yield {
+      offsets.values.head
+    }).toOption.flatten
   }
 
   /**
