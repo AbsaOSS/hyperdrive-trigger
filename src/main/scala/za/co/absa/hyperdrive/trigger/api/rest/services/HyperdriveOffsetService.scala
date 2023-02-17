@@ -32,8 +32,12 @@ import java.util.Properties
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-trait HyperdriveOffsetComparisonService {
+trait HyperdriveOffsetService {
   def isNewJobInstanceRequired(jobParameters: JobInstanceParameters)(implicit ec: ExecutionContext): Future[Boolean]
+
+  def getNumberOfMessagesLeft(jobParameters: JobInstanceParameters)(
+    implicit ec: ExecutionContext
+  ): Future[Option[(String, Map[Int, Long])]]
 }
 
 @Service
@@ -42,7 +46,7 @@ class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
                                                        @Lazy checkpointService: CheckpointService,
                                                        @Lazy userGroupInformationService: UserGroupInformationService,
                                                        kafkaService: KafkaService
-) extends HyperdriveOffsetComparisonService {
+) extends HyperdriveOffsetService {
   private val logger = LoggerFactory.getLogger(this.getClass)
   private val HyperdriveCheckpointKey = "writer.common.checkpoint.location"
   private val HyperdriveKafkaTopicKey = "reader.kafka.topic"
@@ -51,6 +55,46 @@ class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
   private val PropertyDelimiter = "="
   private val ListDelimiter = ','
   private val defaultDeserializer = "org.apache.kafka.common.serialization.StringDeserializer"
+
+  /**
+   *  @param jobParameters Parameters for the job instance. Should contain at least
+   *                      - reader.kafka.topic
+   *                      - reader.kafka.brokers
+   *                      - writer.common.checkpoint.location
+   *  @param ec            ExecutionContext
+   *  @return - number not ingested messages.
+   */
+  def getNumberOfMessagesLeft(
+    jobParameters: JobInstanceParameters
+  )(implicit ec: ExecutionContext): Future[Option[(String, Map[Int, Long])]] = {
+    val kafkaParametersOpt = getKafkaParameters(jobParameters)
+    val hdfsParametersOpt: Option[HdfsParameters] = getResolvedAppArguments(jobParameters).flatMap(getHdfsParameters)
+
+    if (kafkaParametersOpt.isEmpty) {
+      logger.debug(s"Kafka parameters were not found in job definition $jobParameters")
+    }
+
+    Future(for {
+      kafkaParameters <- kafkaParametersOpt
+      hdfsParameters <- hdfsParametersOpt
+      ugi = userGroupInformationService.loginUserFromKeytab(hdfsParameters.principal, hdfsParameters.keytab)
+      kafkaOffsets <- kafkaService.getOffsets(kafkaParameters._1, kafkaParameters._2)
+      if kafkaOffsets.beginningOffsets.keySet == kafkaOffsets.endOffsets.keySet
+      hdfsOffsets <- checkpointService.getLatestCommittedOffset(hdfsParameters)(ugi)
+    } yield {
+      val messagesLeft = kafkaOffsets.beginningOffsets.map { case (partition, kafkaBeginningOffset) =>
+        val kafkaEndOffset = kafkaOffsets.endOffsets(partition)
+        val numberOfMessages = hdfsOffsets.get(partition) match {
+          case Some(hdfsOffset) if hdfsOffset >= kafkaEndOffset       => 0
+          case Some(hdfsOffset) if hdfsOffset >= kafkaBeginningOffset => kafkaEndOffset - hdfsOffset
+          case Some(hdfsOffset) if hdfsOffset < kafkaBeginningOffset  => kafkaEndOffset - kafkaBeginningOffset
+          case None                                                   => kafkaEndOffset - kafkaBeginningOffset
+        }
+        partition -> numberOfMessages
+      }
+      (kafkaOffsets.topic, messagesLeft)
+    })
+  }
 
   /**
    *  @param jobParameters Parameters for the job instance. Should contain at least
