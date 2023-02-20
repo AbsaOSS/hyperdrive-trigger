@@ -159,5 +159,5 @@ export const texts = {
   HYPERDRIVE_JOB_WRITE_ACCESS: 'The user has write access!',
   HYPERDRIVE_JOB_NO_READ_ACCESS: 'No read access!',
   HYPERDRIVE_JOB_READ_ACCESS: 'The user has read access!',
-  HYPERDRIVE_JOB_COULD_NOT_VERIFY_ACCESS: 'Sorry, something went wrong. Try again.',
+  HYPERDRIVE_JOB_COULD_NOT_VERIFY_ACCESS: 'Sorry, something went wrong. Please try again later.',
 };

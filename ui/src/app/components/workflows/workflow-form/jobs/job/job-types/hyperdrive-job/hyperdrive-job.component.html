@@ -120,7 +120,7 @@
       [isShow]="isShow"
       [name]="'Source topic'"
       [verifyButtonText]="'Verify topic'"
-      [verifyCall]="verifyKafkaTopicAuthorizations(true)"
+      [verifyCall]="verifyKafkaTopicAuthorizations(false)"
       [value]="getHyperdriveFieldValue(hyperdriveFields.READER_TOPIC)"
       (valueChange)="hyperdriveFieldChange($event, hyperdriveFields.READER_TOPIC)"
       [isRequired]=true
