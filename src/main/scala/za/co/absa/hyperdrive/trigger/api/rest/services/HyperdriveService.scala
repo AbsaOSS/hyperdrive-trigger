@@ -15,18 +15,21 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import za.co.absa.hyperdrive.trigger.models.{IngestionStatus, JobIngestionStatus}
+import za.co.absa.hyperdrive.trigger.models.{IngestionStatus, Topic}
+import za.co.absa.hyperdrive.trigger.models.enums.JobTypes
 import za.co.absa.hyperdrive.trigger.persistance.WorkflowRepository
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success}
 
 trait HyperdriveService {
   val workflowRepository: WorkflowRepository
   val jobTemplateService: JobTemplateService
   val hyperdriveOffsetComparisonService: HyperdriveOffsetService
 
-  def getIngestionStatus(id: Long)(implicit ec: ExecutionContext): Future[IngestionStatus]
+  def getIngestionStatus(id: Long)(implicit ec: ExecutionContext): Future[Seq[IngestionStatus]]
 }
 
 @Service
@@ -35,33 +38,44 @@ class HyperdriveServiceImpl(
   override val jobTemplateService: JobTemplateService,
   override val hyperdriveOffsetComparisonService: HyperdriveOffsetService
 ) extends HyperdriveService {
+  private val logger = LoggerFactory.getLogger(this.getClass)
 
-  override def getIngestionStatus(id: Long)(implicit ec: ExecutionContext): Future[IngestionStatus] = {
+  override def getIngestionStatus(id: Long)(implicit ec: ExecutionContext): Future[Seq[IngestionStatus]] = {
     workflowRepository.getWorkflow(id).flatMap { workflow =>
       jobTemplateService
         .resolveJobTemplate(workflow.dagDefinitionJoined)
         .flatMap(resolvedJobs =>
           Future.sequence(
-            resolvedJobs.map(resolvedJob =>
-              hyperdriveOffsetComparisonService
-                .getNumberOfMessagesLeft(resolvedJob.jobParameters)
-                .map(messagesLeft =>
-                  JobIngestionStatus(
+            resolvedJobs.map {
+              case resolvedJob if resolvedJob.jobParameters.jobType == JobTypes.Hyperdrive =>
+                hyperdriveOffsetComparisonService.getNumberOfMessagesLeft(resolvedJob.jobParameters).transformWith {
+                  case Failure(exception) =>
+                    logger.error(s"Failed to get number of messages left to ingest for a workflow: $id", exception)
+                    Future(
+                      IngestionStatus(
+                        jobName = resolvedJob.name,
+                        jobType = resolvedJob.jobParameters.jobType.name,
+                        topic = None
+                      )
+                    )
+                  case Success(messagesLeftOpt) =>
+                    Future(
+                      IngestionStatus(
+                        jobName = resolvedJob.name,
+                        jobType = resolvedJob.jobParameters.jobType.name,
+                        topic = messagesLeftOpt.map(messagesLeft => Topic(messagesLeft._1, messagesLeft._2))
+                      )
+                    )
+                }
+              case resolvedJob =>
+                Future(
+                  IngestionStatus(
                     jobName = resolvedJob.name,
-                    jobType = resolvedJob.jobParameters.jobType,
-                    topic = messagesLeft.map(_._1).getOrElse("Unknown"),
-                    messagesToIngest = messagesLeft.map(_._2)
+                    jobType = resolvedJob.jobParameters.jobType.name,
+                    topic = None
                   )
                 )
-            )
-          )
-        )
-        .map(jobIngestionStatus =>
-          IngestionStatus(
-            name = workflow.name,
-            project = workflow.project,
-            jobIngestionStatus = jobIngestionStatus,
-            id = workflow.id
+            }
           )
         )
     }

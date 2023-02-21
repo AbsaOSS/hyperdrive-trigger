@@ -85,9 +85,9 @@ class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
       val messagesLeft = kafkaOffsets.beginningOffsets.map { case (partition, kafkaBeginningOffset) =>
         val kafkaEndOffset = kafkaOffsets.endOffsets(partition)
         val numberOfMessages = hdfsOffsets.get(partition) match {
-          case Some(hdfsOffset) if hdfsOffset >= kafkaEndOffset       => 0
-          case Some(hdfsOffset) if hdfsOffset >= kafkaBeginningOffset => kafkaEndOffset - hdfsOffset
-          case Some(hdfsOffset) if hdfsOffset < kafkaBeginningOffset  => kafkaEndOffset - kafkaBeginningOffset
+          case Some(hdfsOffset) if hdfsOffset > kafkaEndOffset        => kafkaEndOffset - hdfsOffset
+          case Some(hdfsOffset) if hdfsOffset > kafkaBeginningOffset  => kafkaEndOffset - hdfsOffset
+          case Some(hdfsOffset) if hdfsOffset <= kafkaBeginningOffset => kafkaEndOffset - kafkaBeginningOffset
           case None                                                   => kafkaEndOffset - kafkaBeginningOffset
         }
         partition -> numberOfMessages

@@ -30,6 +30,6 @@ class HyperdriveController @Inject()(hyperdriveService: HyperdriveService) {
   private val logger = LoggerFactory.getLogger(this.getClass)
 
   @GetMapping(path = Array("/hyperdrive/workflows/{id}/ingestionStatus"))
-  def getIngestionStatus(@PathVariable id: Long): CompletableFuture[IngestionStatus] =
+  def getIngestionStatus(@PathVariable id: Long): CompletableFuture[Seq[IngestionStatus]] =
     hyperdriveService.getIngestionStatus(id).toJava.toCompletableFuture
 }
