@@ -252,7 +252,7 @@
             <clr-dg-cell *ngIf="job?.topic">
               <b>Topic:</b> {{job?.topic?.topic}} <br/>
               <div *ngIf="job?.topic?.messagesToIngest >= 0"><b>Messages to ingest:</b> {{job?.topic?.messagesToIngest >= 0 ? job?.topic?.messagesToIngest : 'Inconsistency detected. Please contact support team!'}}</div>
-              <b *ngIf="job?.topic?.messagesToIngest < 0" [style.color]="'red'">Inconsistency detected. Please contact support team!</b>
+              <b *ngIf="job?.topic?.messagesToIngest < 0" [style.color]="'red'">Offset inconsistency detected. Please contact support team!</b>
             </clr-dg-cell>
             <clr-dg-cell *ngIf="!job?.topic">
               <b>Not available</b>

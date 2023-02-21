@@ -13,8 +13,6 @@
  * limitations under the License.
  */
 
-import { KeyValueModel } from './keyValue.model';
-
 export type IngestionStatusModel = {
   jobName: string;
   jobType: string;
@@ -33,7 +31,9 @@ export class IngestionStatusModelFactory {
       ingestionStatusResponse?.topic
         ? TopicModelFactory.create(
             ingestionStatusResponse.topic.topic,
-            ingestionStatusResponse.topic.messagesToIngest.map((keyValue) => keyValue.value).reduce((acc, cur) => acc + Number(cur), 0),
+            Object.keys(ingestionStatusResponse.topic.messagesToIngest)
+              .map((key) => ingestionStatusResponse.topic.messagesToIngest[key])
+              .reduce((acc, cur) => acc + Number(cur), 0),
           )
         : null,
     );
@@ -65,11 +65,11 @@ export class IngestionStatusResponseModelFactory {
 
 export type TopicResponseModel = {
   topic: string;
-  messagesToIngest: KeyValueModel[];
+  messagesToIngest: [number, number][];
 };
 
 export class TopicResponseModelFactory {
-  static create(topic: string, messagesToIngest: KeyValueModel[]): TopicResponseModel {
+  static create(topic: string, messagesToIngest: [number, number][]): TopicResponseModel {
     return { topic: topic, messagesToIngest: messagesToIngest };
   }
 }
