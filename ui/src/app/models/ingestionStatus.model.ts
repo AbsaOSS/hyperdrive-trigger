@@ -30,7 +30,12 @@ export class IngestionStatusModelFactory {
     return this.create(
       ingestionStatusResponse.jobName,
       ingestionStatusResponse.jobType,
-      ingestionStatusResponse?.topic ? TopicModelFactory.create(ingestionStatusResponse.topic.topic, ingestionStatusResponse.topic.messagesToIngest.map((keyValue) => keyValue.value).reduce((acc, cur) => acc + Number(cur), 0)) : null
+      ingestionStatusResponse?.topic
+        ? TopicModelFactory.create(
+            ingestionStatusResponse.topic.topic,
+            ingestionStatusResponse.topic.messagesToIngest.map((keyValue) => keyValue.value).reduce((acc, cur) => acc + Number(cur), 0),
+          )
+        : null,
     );
   }
 }
@@ -38,17 +43,13 @@ export class IngestionStatusModelFactory {
 export type TopicModel = {
   topic: string;
   messagesToIngest: number;
-}
+};
 
 export class TopicModelFactory {
   static create(topic: string, messagesToIngest: number): TopicModel {
     return { topic: topic, messagesToIngest: messagesToIngest };
   }
 }
-
-
-
-
 
 export type IngestionStatusResponseModel = {
   jobName: string;
@@ -65,7 +66,7 @@ export class IngestionStatusResponseModelFactory {
 export type TopicResponseModel = {
   topic: string;
   messagesToIngest: KeyValueModel[];
-}
+};
 
 export class TopicResponseModelFactory {
   static create(topic: string, messagesToIngest: KeyValueModel[]): TopicResponseModel {

@@ -13,16 +13,12 @@
  * limitations under the License.
  */
 
-import {Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import { map} from 'rxjs/operators';
-import {Observable} from 'rxjs';
-import {
-  IngestionStatusModel,
-  IngestionStatusModelFactory,
-  IngestionStatusResponseModel
-} from '../../models/ingestionStatus.model';
-import {api} from "../../constants/api.constants";
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { map } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { IngestionStatusModel, IngestionStatusModelFactory, IngestionStatusResponseModel } from '../../models/ingestionStatus.model';
+import { api } from '../../constants/api.constants';
 
 @Injectable({
   providedIn: 'root',
@@ -34,6 +30,10 @@ export class HyperdriveService {
     return this.httpClient
       .get<IngestionStatusResponseModel[]>(api.GET_INGESTION_STATUS.replace('{id}', id.toString()), { observe: 'response' })
       .pipe(map((response) => response.body))
-      .pipe(map((response) => response.map((ingestionStatusResponse) => IngestionStatusModelFactory.fromIngestionStatusResponseModel(ingestionStatusResponse))));
+      .pipe(
+        map((response) =>
+          response.map((ingestionStatusResponse) => IngestionStatusModelFactory.fromIngestionStatusResponseModel(ingestionStatusResponse)),
+        ),
+      );
   }
 }
