@@ -64,6 +64,8 @@ export const api = {
   GET_NOTIFICATION_RULES_FROM_HISTORY: '/notificationRulesFromHistory',
   GET_QUARTZ_DETAIL: '/util/quartzDetail',
   GET_NOTIFICATION_RULE_FROM_HISTORY: '/notificationRuleFromHistory',
+
+  GET_INGESTION_STATUS: '/hyperdrive/workflows/{id}/ingestionStatus',
 };
 
 export const SKIP_BASE_URL_INTERCEPTOR = 'Skip-base-url-interceptor';

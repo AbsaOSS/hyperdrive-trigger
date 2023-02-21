@@ -22,6 +22,7 @@ import { absoluteRoutes } from '../../../constants/routes.constants';
 import {
   ExportWorkflows,
   ImportWorkflows,
+  LoadIngestionStatus,
   LoadJobsForRun,
   RunWorkflows,
   SearchWorkflows,
@@ -40,6 +41,7 @@ import { workflowsHomeColumns } from 'src/app/constants/workflow.constants';
 import { TableSearchRequestModel } from '../../../models/search/tableSearchRequest.model';
 import { ContainsFilterAttributes } from '../../../models/search/containsFilterAttributes.model';
 import { BooleanFilterAttributes } from '../../../models/search/booleanFilterAttributes.model';
+import { IngestionStatusModel } from '../../../models/ingestionStatus.model';
 
 @Component({
   selector: 'app-workflows-home',
@@ -77,6 +79,9 @@ export class WorkflowsHomeComponent implements OnInit, AfterViewInit, OnDestroy 
   workflowFile: File = undefined;
   multiWorkflowsFile: File = undefined;
 
+  ingestionStatusLoading = true;
+  ingestionStatus: IngestionStatusModel[] = [];
+
   constructor(private store: Store<AppState>, private confirmationDialogService: ConfirmationDialogService, private router: Router) {
     this.routerSubscription = router.events.pipe(filter((e) => e instanceof ResolveEnd)).subscribe((e: ResolveEnd) => {
       this.ignoreRefresh = e.state.root.component !== WorkflowsHomeComponent;
@@ -102,6 +107,8 @@ export class WorkflowsHomeComponent implements OnInit, AfterViewInit, OnDestroy 
       } else {
         this.loadingAction = state.workflowAction.loading;
       }
+      this.ingestionStatusLoading = state.ingestionStatusLoading;
+      this.ingestionStatus = state.ingestionStatus;
     });
   }
 
@@ -210,6 +217,10 @@ export class WorkflowsHomeComponent implements OnInit, AfterViewInit, OnDestroy 
       this.filters = state.filters ? state.filters : [];
       this.refresh();
     }
+  }
+
+  onDetailRefresh(event) {
+    if (!!event?.id) this.store.dispatch(new LoadIngestionStatus(event.id));
   }
 
   refresh() {

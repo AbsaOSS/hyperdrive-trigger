@@ -21,6 +21,7 @@ import { HistoryModel, WorkflowHistoryModel } from '../../models/historyModel';
 import { JobForRunModel } from '../../models/jobForRun.model';
 import { JobTemplateModel } from '../../models/jobTemplate.model';
 import { TableSearchRequestModel } from '../../models/search/tableSearchRequest.model';
+import { IngestionStatusModel } from '../../models/ingestionStatus.model';
 
 export const INITIALIZE_WORKFLOWS = 'INITIALIZE_WORKFLOWS';
 export const INITIALIZE_WORKFLOWS_SUCCESS = 'INITIALIZE_WORKFLOWS_SUCCESS';
@@ -93,6 +94,10 @@ export const IMPORT_WORKFLOWS_FAILURE = 'IMPORT_WORKFLOWS_FAILURE';
 export const REVERT_WORKFLOW = 'REVERT_WORKFLOW';
 export const REVERT_WORKFLOW_SUCCESS = 'REVERT_WORKFLOW_SUCCESS';
 export const REVERT_WORKFLOW_FAILURE = 'REVERT_WORKFLOW_FAILURE';
+
+export const LOAD_INGESTION_STATUS = 'LOAD_INGESTION_STATUS';
+export const LOAD_INGESTION_STATUS_SUCCESS = 'LOAD_INGESTION_STATUS_SUCCESS';
+export const LOAD_INGESTION_STATUS_FAILURE = 'LOAD_INGESTION_STATUS_FAILURE';
 
 export class InitializeWorkflows implements Action {
   readonly type = INITIALIZE_WORKFLOWS;
@@ -351,6 +356,20 @@ export class RevertWorkflowFailure implements Action {
   readonly type = REVERT_WORKFLOW_FAILURE;
 }
 
+export class LoadIngestionStatus implements Action {
+  readonly type = LOAD_INGESTION_STATUS;
+  constructor(public payload: number) {}
+}
+
+export class LoadIngestionStatusSuccess implements Action {
+  readonly type = LOAD_INGESTION_STATUS_SUCCESS;
+  constructor(public payload: IngestionStatusModel[]) {}
+}
+
+export class LoadIngestionStatusFailure implements Action {
+  readonly type = LOAD_INGESTION_STATUS_FAILURE;
+}
+
 export type WorkflowsActions =
   | InitializeWorkflows
   | InitializeWorkflowsSuccess
@@ -404,4 +423,7 @@ export type WorkflowsActions =
   | ImportWorkflowsFailure
   | RevertWorkflow
   | RevertWorkflowSuccess
-  | RevertWorkflowFailure;
+  | RevertWorkflowFailure
+  | LoadIngestionStatus
+  | LoadIngestionStatusSuccess
+  | LoadIngestionStatusFailure;

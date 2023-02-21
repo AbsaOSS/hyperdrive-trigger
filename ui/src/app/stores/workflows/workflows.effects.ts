@@ -42,6 +42,8 @@ import groupBy from 'lodash-es/groupBy';
 import { ApiUtil } from '../../utils/api/api.util';
 import { JobTemplateModel } from '../../models/jobTemplate.model';
 import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
+import { HyperdriveService } from '../../services/hyperdrive/hyperdrive.service';
+import { IngestionStatusModel } from '../../models/ingestionStatus.model';
 
 @Injectable()
 export class WorkflowsEffects {
@@ -50,6 +52,7 @@ export class WorkflowsEffects {
     private workflowService: WorkflowService,
     private workflowHistoryService: WorkflowHistoryService,
     private jobService: JobService,
+    private hyperdriveService: HyperdriveService,
     private store: Store<AppState>,
     private router: Router,
     private toastrService: ToastrService,
@@ -689,6 +692,31 @@ export class WorkflowsEffects {
             return [
               {
                 type: WorkflowActions.REVERT_WORKFLOW_FAILURE,
+              },
+            ];
+          }),
+        );
+      }),
+    );
+  });
+
+  statusIngestionLoad = createEffect(() => {
+    return this.actions.pipe(
+      ofType(WorkflowActions.LOAD_INGESTION_STATUS),
+      switchMap((action: WorkflowActions.LoadIngestionStatus) => {
+        return this.hyperdriveService.getIngestionStatus(action.payload).pipe(
+          mergeMap((ingestionStatus: IngestionStatusModel[]) => {
+            return [
+              {
+                type: WorkflowActions.LOAD_INGESTION_STATUS_SUCCESS,
+                payload: ingestionStatus,
+              },
+            ];
+          }),
+          catchError(() => {
+            return [
+              {
+                type: WorkflowActions.LOAD_INGESTION_STATUS_FAILURE,
               },
             ];
           }),
