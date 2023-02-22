@@ -22,6 +22,7 @@ import org.mockito.Mockito.when
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{FlatSpec, Matchers}
 import za.co.absa.hyperdrive.trigger.configuration.application.{GeneralConfig, TestGeneralConfig}
+import za.co.absa.hyperdrive.trigger.models.BeginningEndOffsets
 
 import java.util.Properties
 
@@ -72,5 +73,41 @@ class KafkaServiceTest extends FlatSpec with MockitoSugar with Matchers {
     val result = underTest.getEndOffsets("non-existent-topic", new Properties())
 
     result shouldBe Map()
+  }
+
+  "getOffsets" should "return a map of start and end offsets" in {
+    import scala.collection.JavaConverters._
+    val topicName = "topic"
+    val partitions = Seq(
+      new PartitionInfo(topicName, 0, null, null, null),
+      new PartitionInfo(topicName, 1, null, null, null)
+    )
+    val endOffsets = Map(
+      new TopicPartition(topicName, 0) -> long2Long(200L),
+      new TopicPartition(topicName, 1) -> long2Long(400L)
+    ).asJava
+    val startOffsets = Map(
+      new TopicPartition(topicName, 0) -> long2Long(100L),
+      new TopicPartition(topicName, 1) -> long2Long(200L)
+    ).asJava
+    val topicPartitions = partitions.map(p => new TopicPartition(p.topic(), p.partition())).asJava
+
+    when(mockKafkaConsumer.partitionsFor(any()))
+      .thenReturn(partitions.asJava)
+      .thenReturn(partitions.asJava)
+    when(mockKafkaConsumer.beginningOffsets(eqTo(topicPartitions))).thenReturn(startOffsets)
+    when(mockKafkaConsumer.endOffsets(eqTo(topicPartitions))).thenReturn(endOffsets)
+
+    val result = underTest.getOffsets(topicName, new Properties())
+
+    result shouldBe BeginningEndOffsets(topicName, Map(0 -> 100L, 1 -> 200L), Map(0 -> 200L, 1 -> 400L))
+  }
+
+  it should "return empty beginning and end offsets if partitionsFor returns null" in {
+    val topicName = "non-existent-topic"
+    when(mockKafkaConsumer.partitionsFor(any())).thenReturn(null)
+
+    val result = underTest.getOffsets(topicName, new Properties())
+    result shouldBe BeginningEndOffsets(topicName, Map.empty, Map.empty)
   }
 }

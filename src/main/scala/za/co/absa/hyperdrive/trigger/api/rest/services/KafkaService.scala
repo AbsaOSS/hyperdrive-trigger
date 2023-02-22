@@ -33,8 +33,7 @@ import scala.util.Try
 trait KafkaService {
   def getBeginningOffsets(topic: String, consumerProperties: Properties): Map[Int, Long]
   def getEndOffsets(topic: String, consumerProperties: Properties): Map[Int, Long]
-
-  def getOffsets(topic: String, consumerProperties: Properties): Option[BeginningEndOffsets]
+  def getOffsets(topic: String, consumerProperties: Properties): BeginningEndOffsets
 }
 
 @Service
@@ -54,14 +53,12 @@ class KafkaServiceImpl @Inject() (generalConfig: GeneralConfig) extends KafkaSer
     getOffsets(topic, consumerProperties, EndOffsets)
   }
 
-  def getOffsets(topic: String, consumerProperties: Properties): Option[BeginningEndOffsets] = {
-    Try(
-      BeginningEndOffsets(
-        topic,
-        getOffsets(topic, consumerProperties, BeginningOffsets),
-        getOffsets(topic, consumerProperties, EndOffsets)
-      )
-    ).toOption
+  def getOffsets(topic: String, consumerProperties: Properties): BeginningEndOffsets = {
+    BeginningEndOffsets(
+      topic,
+      getOffsets(topic, consumerProperties, BeginningOffsets),
+      getOffsets(topic, consumerProperties, EndOffsets)
+    )
   }
 
   def createKafkaConsumer(propertiesThreadId: (Properties, Long)): KafkaConsumer[String, String] = {
