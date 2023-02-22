@@ -382,6 +382,26 @@ class HyperdriveOffsetServiceTest extends AsyncFlatSpec with Matchers with Befor
     }
   }
 
+  it should "return negative numbers if kafka offsets are smaller than checkpoint offsets" in {
+    val config = getSparkConfig
+    val jobParameters = getJobParameters
+    val topic = "topic"
+    val expectedResult = (topic, Map(0 -> -10, 1 -> -100))
+
+    val underTest = new HyperdriveOffsetServiceImpl(config.yarn, checkpointService, ugiService, kafkaService)
+
+    when(ugiService.loginUserFromKeytab(any(), any())).thenReturn(ugi)
+    when(kafkaService.getOffsets(any(), any()))
+      .thenReturn(BeginningEndOffsets(topic, Map(0 -> 0, 1 -> 10), Map(0 -> 10, 1 -> 100)))
+    when(checkpointService.getLatestCommittedOffset(any())(any())).thenReturn(Try(Some(Map(0 -> 20L, 1 -> 200L))))
+
+    val resultFut = underTest.getNumberOfMessagesLeft(jobParameters)
+    resultFut.map { result =>
+      result.isDefined shouldBe true
+      result.get shouldBe expectedResult
+    }
+  }
+
   private def getSparkConfig =
     DefaultTestSparkConfig().copy(additionalConfs =
       Map(
