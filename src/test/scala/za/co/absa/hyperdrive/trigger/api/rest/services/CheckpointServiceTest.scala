@@ -25,7 +25,7 @@ import org.mockito.invocation.InvocationOnMock
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
 
-import scala.util.{Failure, Try}
+import scala.util.{Failure, Success, Try}
 
 class CheckpointServiceTest extends FlatSpec with Matchers with BeforeAndAfter with MockitoSugar {
   private val hdfsService = mock[HdfsService]
@@ -161,6 +161,88 @@ class CheckpointServiceTest extends FlatSpec with Matchers with BeforeAndAfter w
     val result = underTest.getLatestOffsetFilePath(params)(ugi)
 
     result.isFailure shouldBe true
+  }
+
+  "getLatestCommittedOffset" should "fail if file check fails" in {
+    when(hdfsService.exists(any())(any())).thenReturn(Failure(new Exception()))
+    val params = getHdfsParameters
+
+    val result = underTest.getLatestCommittedOffset(params)(ugi)
+
+    result.isFailure shouldBe true
+  }
+
+  it should "fail if list files fails" in {
+    when(hdfsService.exists(any())(any())).thenReturn(Success(true))
+    when(hdfsService.listStatus(any(), any())(any())).thenReturn(Failure(new Exception()))
+
+    val params = getHdfsParameters
+
+    val result = underTest.getLatestCommittedOffset(params)(ugi)
+
+    result.isFailure shouldBe true
+  }
+
+  it should "return none if dir does not exist" in {
+    when(hdfsService.exists(any())(any())).thenReturn(Success(false))
+
+    val params = getHdfsParameters
+
+    val result = underTest.getLatestCommittedOffset(params)(ugi)
+
+    result.get.isDefined shouldBe false
+  }
+
+  it should "return none if dir is empty" in {
+    when(hdfsService.exists(any())(any())).thenReturn(Success(true))
+    when(hdfsService.listStatus(any(), any())(any())).thenReturn(Success(Array.empty[FileStatus]))
+
+    val params = getHdfsParameters
+
+    val result = underTest.getLatestCommittedOffset(params)(ugi)
+
+    result.get.isDefined shouldBe false
+  }
+
+  it should "fail if file parse fails" in {
+    when(hdfsService.exists(any())(any())).thenReturn(Success(true))
+    when(hdfsService.listStatus(any(), any())(any())).thenReturn(Success(createOffsetFiles(12)))
+    when(hdfsService.parseFileAndClose(any(), any())(any())).thenReturn(Failure(new Exception()))
+
+    val params = getHdfsParameters
+
+    val result = underTest.getLatestCommittedOffset(params)(ugi)
+
+    result.isFailure shouldBe true
+  }
+
+  it should "return none if file cannot be found" in {
+    when(hdfsService.exists(any())(any())).thenReturn(Success(true))
+    when(hdfsService.listStatus(any(), any())(any())).thenReturn(Success(createOffsetFiles(12)))
+    when(hdfsService.parseFileAndClose(any(), any())(any())).thenReturn(Success(None))
+
+    val params = getHdfsParameters
+
+    val result = underTest.getLatestCommittedOffset(params)(ugi)
+
+    result.get.isEmpty shouldBe true
+  }
+
+  it should "return the parsed contents" in {
+    val offsets = Map(
+      "topic" -> Map(0 -> 1000L)
+    )
+    when(hdfsService.exists(any())(any())).thenReturn(Success(true))
+    when(hdfsService.listStatus(any(), any())(any())).thenReturn(Success(createOffsetFiles(12)))
+    when(hdfsService.parseFileAndClose[underTest.TopicPartitionOffsets](any(), any())(any()))
+      .thenReturn(Try(Some(offsets)))
+
+    val params = getHdfsParameters
+
+    val result = underTest.getLatestCommittedOffset(params)(ugi)
+
+    result.get.isDefined shouldBe true
+    result.get shouldBe Some(offsets.values.head)
   }
 
   private def createOffsetFiles(maxBatchId: Int) = {

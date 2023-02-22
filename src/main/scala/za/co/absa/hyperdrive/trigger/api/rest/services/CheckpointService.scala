@@ -35,7 +35,7 @@ trait CheckpointService {
     implicit ugi: UserGroupInformation
   ): Try[Option[(String, Boolean)]]
 
-  def getLatestCommittedOffset(params: HdfsParameters)(implicit ugi: UserGroupInformation): Option[Map[Int, Long]]
+  def getLatestCommittedOffset(params: HdfsParameters)(implicit ugi: UserGroupInformation): Try[Option[Map[Int, Long]]]
 }
 
 class HdfsParameters(
@@ -100,14 +100,16 @@ class CheckpointServiceImpl @Inject() (@Lazy hdfsService: HdfsService) extends C
     }
   }
 
-  override def getLatestCommittedOffset(params: HdfsParameters)(implicit ugi: UserGroupInformation): Option[Map[Int, Long]] = {
-    Try(for {
-      latestCommit <- getLatestCommitBatchId(params.checkpointLocation).toOption.flatten
-      pathToLatestCommit = new Path(s"${params.checkpointLocation}/$offsetsDirName/$latestCommit")
-      offsets <- getOffsetsFromFile(pathToLatestCommit.toString).toOption.flatten
-    } yield {
-      offsets.values.head
-    }).toOption.flatten
+  override def getLatestCommittedOffset(
+    params: HdfsParameters
+  )(implicit ugi: UserGroupInformation): Try[Option[Map[Int, Long]]] = {
+   getLatestCommitBatchId(params.checkpointLocation).map {
+      case Some(latestCommit) =>
+        val pathToLatestCommit = new Path(s"${params.checkpointLocation}/$offsetsDirName/$latestCommit")
+        getOffsetsFromFile(pathToLatestCommit.toString)
+          .map(_.map(topicPartitionOffsets => topicPartitionOffsets.head._2))
+      case None => Try(Option.empty[Map[Int, Long]])
+    }.flatten
   }
 
   /**
