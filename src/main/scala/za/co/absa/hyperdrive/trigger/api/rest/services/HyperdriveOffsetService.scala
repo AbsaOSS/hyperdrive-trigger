@@ -31,6 +31,7 @@ import za.co.absa.hyperdrive.trigger.models.{JobInstanceParameters, SparkInstanc
 import java.util.Properties
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success}
 
 trait HyperdriveOffsetService {
   def isNewJobInstanceRequired(jobParameters: JobInstanceParameters)(implicit ec: ExecutionContext): Future[Boolean]
@@ -42,10 +43,10 @@ trait HyperdriveOffsetService {
 
 @Service
 @Lazy
-class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
-                                                       @Lazy checkpointService: CheckpointService,
-                                                       @Lazy userGroupInformationService: UserGroupInformationService,
-                                                       kafkaService: KafkaService
+class HyperdriveOffsetServiceImpl @Inject() (sparkConfig: SparkConfig,
+                                             @Lazy checkpointService: CheckpointService,
+                                             @Lazy userGroupInformationService: UserGroupInformationService,
+                                             kafkaService: KafkaService
 ) extends HyperdriveOffsetService {
   private val logger = LoggerFactory.getLogger(this.getClass)
   private val HyperdriveCheckpointKey = "writer.common.checkpoint.location"
@@ -74,26 +75,38 @@ class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
       logger.debug(s"Kafka parameters were not found in job definition $jobParameters")
     }
 
-    Future(for {
-      kafkaParameters <- kafkaParametersOpt
-      hdfsParameters <- hdfsParametersOpt
-      ugi = userGroupInformationService.loginUserFromKeytab(hdfsParameters.principal, hdfsParameters.keytab)
-      kafkaOffsets <- kafkaService.getOffsets(kafkaParameters._1, kafkaParameters._2)
-      if kafkaOffsets.beginningOffsets.keySet == kafkaOffsets.endOffsets.keySet
-      hdfsOffsets <- checkpointService.getLatestCommittedOffset(hdfsParameters)(ugi)
-    } yield {
-      val messagesLeft = kafkaOffsets.beginningOffsets.map { case (partition, kafkaBeginningOffset) =>
-        val kafkaEndOffset = kafkaOffsets.endOffsets(partition)
-        val numberOfMessages = hdfsOffsets.get(partition) match {
-          case Some(hdfsOffset) if hdfsOffset > kafkaEndOffset        => kafkaEndOffset - hdfsOffset
-          case Some(hdfsOffset) if hdfsOffset > kafkaBeginningOffset  => kafkaEndOffset - hdfsOffset
-          case Some(hdfsOffset) if hdfsOffset <= kafkaBeginningOffset => kafkaEndOffset - kafkaBeginningOffset
-          case None                                                   => kafkaEndOffset - kafkaBeginningOffset
+    Future(
+      for {
+        kafkaParameters <- kafkaParametersOpt
+        hdfsParameters <- hdfsParametersOpt
+      } yield {
+        val kafkaOffsets = kafkaService.getOffsets(kafkaParameters._1, kafkaParameters._2)
+        if (
+          kafkaOffsets.beginningOffsets.isEmpty || kafkaOffsets.endOffsets.isEmpty || kafkaOffsets.beginningOffsets.keySet != kafkaOffsets.endOffsets.keySet
+        ) {
+          None
+        } else {
+          val ugi = userGroupInformationService.loginUserFromKeytab(hdfsParameters.principal, hdfsParameters.keytab)
+          val hdfsOffsetsTry = checkpointService.getLatestCommittedOffset(hdfsParameters)(ugi)
+
+          hdfsOffsetsTry match {
+            case Failure(_) => None
+            case Success(hdfsOffsetsOption) =>
+              val messagesLeft = kafkaOffsets.beginningOffsets.map { case (partition, kafkaBeginningOffset) =>
+                val kafkaEndOffset = kafkaOffsets.endOffsets(partition)
+                val numberOfMessages = hdfsOffsetsOption.flatMap(_.get(partition)) match {
+                  case Some(hdfsOffset) if hdfsOffset > kafkaEndOffset        => kafkaEndOffset - hdfsOffset
+                  case Some(hdfsOffset) if hdfsOffset > kafkaBeginningOffset  => kafkaEndOffset - hdfsOffset
+                  case Some(hdfsOffset) if hdfsOffset <= kafkaBeginningOffset => kafkaEndOffset - kafkaBeginningOffset
+                  case None                                                   => kafkaEndOffset - kafkaBeginningOffset
+                }
+                partition -> numberOfMessages
+              }
+              Some((kafkaOffsets.topic, messagesLeft))
+          }
         }
-        partition -> numberOfMessages
       }
-      (kafkaOffsets.topic, messagesLeft)
-    })
+    ).map(_.flatten)
   }
 
   /**
