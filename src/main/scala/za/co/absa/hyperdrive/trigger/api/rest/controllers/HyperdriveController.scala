@@ -15,7 +15,6 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.controllers
 
-import org.slf4j.LoggerFactory
 import org.springframework.web.bind.annotation._
 import za.co.absa.hyperdrive.trigger.api.rest.services.HyperdriveService
 import za.co.absa.hyperdrive.trigger.models._
@@ -27,8 +26,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 @RestController
 class HyperdriveController @Inject()(hyperdriveService: HyperdriveService) {
-  private val logger = LoggerFactory.getLogger(this.getClass)
-
   @GetMapping(path = Array("/hyperdrive/workflows/{id}/ingestionStatus"))
   def getIngestionStatus(@PathVariable id: Long): CompletableFuture[Seq[IngestionStatus]] =
     hyperdriveService.getIngestionStatus(id).toJava.toCompletableFuture
