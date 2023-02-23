@@ -25,7 +25,7 @@ import scala.compat.java8.FutureConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 @RestController
-class HyperdriveController @Inject()(hyperdriveService: HyperdriveService) {
+class HyperdriveController @Inject() (hyperdriveService: HyperdriveService) {
   @GetMapping(path = Array("/hyperdrive/workflows/{id}/ingestionStatus"))
   def getIngestionStatus(@PathVariable id: Long): CompletableFuture[Seq[IngestionStatus]] =
     hyperdriveService.getIngestionStatus(id).toJava.toCompletableFuture
