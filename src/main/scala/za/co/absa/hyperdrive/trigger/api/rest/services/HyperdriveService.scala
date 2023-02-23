@@ -27,7 +27,7 @@ import scala.util.{Failure, Success}
 trait HyperdriveService {
   val workflowRepository: WorkflowRepository
   val jobTemplateService: JobTemplateService
-  val hyperdriveOffsetComparisonService: HyperdriveOffsetService
+  val hyperdriveOffsetService: HyperdriveOffsetService
 
   def getIngestionStatus(id: Long)(implicit ec: ExecutionContext): Future[Seq[IngestionStatus]]
 }
@@ -36,7 +36,7 @@ trait HyperdriveService {
 class HyperdriveServiceImpl(
   override val workflowRepository: WorkflowRepository,
   override val jobTemplateService: JobTemplateService,
-  override val hyperdriveOffsetComparisonService: HyperdriveOffsetService
+  override val hyperdriveOffsetService: HyperdriveOffsetService
 ) extends HyperdriveService {
   private val logger = LoggerFactory.getLogger(this.getClass)
 
@@ -48,7 +48,7 @@ class HyperdriveServiceImpl(
           Future.sequence(
             resolvedJobs.map {
               case resolvedJob if resolvedJob.jobParameters.jobType == JobTypes.Hyperdrive =>
-                hyperdriveOffsetComparisonService.getNumberOfMessagesLeft(resolvedJob.jobParameters).transformWith {
+                hyperdriveOffsetService.getNumberOfMessagesLeft(resolvedJob.jobParameters).transformWith {
                   case Failure(exception) =>
                     logger.error(s"Failed to get number of messages left to ingest for a workflow: $id", exception)
                     Future(
