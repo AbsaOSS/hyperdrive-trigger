@@ -88,7 +88,7 @@ class HyperdriveOffsetServiceImpl @Inject() (sparkConfig: SparkConfig,
           None
         } else {
           val ugi = userGroupInformationService.loginUserFromKeytab(hdfsParameters.principal, hdfsParameters.keytab)
-          val hdfsOffsetsTry = checkpointService.getLatestCommittedOffset(hdfsParameters)(ugi)
+          val hdfsOffsetsTry = checkpointService.getLatestCommittedOffset(hdfsParameters)(ugi).map(_.map(_.head._2))
 
           hdfsOffsetsTry match {
             case Failure(_) => None

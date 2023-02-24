@@ -242,7 +242,7 @@ class CheckpointServiceTest extends FlatSpec with Matchers with BeforeAndAfter w
     val result = underTest.getLatestCommittedOffset(params)(ugi)
 
     result.get.isDefined shouldBe true
-    result.get shouldBe Some(offsets.values.head)
+    result.get shouldBe Some(offsets)
   }
 
   private def createOffsetFiles(maxBatchId: Int) = {

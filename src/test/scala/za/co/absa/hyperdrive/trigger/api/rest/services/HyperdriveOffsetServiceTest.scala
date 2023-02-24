@@ -277,7 +277,8 @@ class HyperdriveOffsetServiceTest extends AsyncFlatSpec with Matchers with Befor
     val underTest = new HyperdriveOffsetServiceImpl(config.yarn, checkpointService, ugiService, kafkaService)
 
     when(ugiService.loginUserFromKeytab(any(), any())).thenReturn(ugi)
-    when(kafkaService.getBeginningEndOffsets(any(), any())).thenReturn(BeginningEndOffsets("topic", Map.empty, Map.empty))
+    when(kafkaService.getBeginningEndOffsets(any(), any()))
+      .thenReturn(BeginningEndOffsets("topic", Map.empty, Map.empty))
 
     val resultFut = underTest.getNumberOfMessagesLeft(jobParameters)
     resultFut.map { result =>
@@ -332,7 +333,8 @@ class HyperdriveOffsetServiceTest extends AsyncFlatSpec with Matchers with Befor
     when(ugiService.loginUserFromKeytab(any(), any())).thenReturn(ugi)
     when(kafkaService.getBeginningEndOffsets(any(), any()))
       .thenReturn(BeginningEndOffsets(topic, Map(0 -> 0, 1 -> 10), Map(0 -> 10, 1 -> 100)))
-    when(checkpointService.getLatestCommittedOffset(any())(any())).thenReturn(Try(Some(Map(0 -> 2L, 1 -> 20L))))
+    when(checkpointService.getLatestCommittedOffset(any())(any()))
+      .thenReturn(Try(Some(Map(topic -> Map(0 -> 2L, 1 -> 20L)))))
 
     val resultFut = underTest.getNumberOfMessagesLeft(jobParameters)
     resultFut.map { result =>
@@ -353,7 +355,7 @@ class HyperdriveOffsetServiceTest extends AsyncFlatSpec with Matchers with Befor
     when(kafkaService.getBeginningEndOffsets(any(), any()))
       .thenReturn(BeginningEndOffsets(topic, Map(0 -> 0, 1 -> 10), Map(0 -> 10, 1 -> 100)))
     when(checkpointService.getLatestCommittedOffset(any())(any()))
-      .thenReturn(Try(Some(Map(0 -> 2L, 1 -> 20L, 3 -> 10L))))
+      .thenReturn(Try(Some(Map(topic -> Map(0 -> 2L, 1 -> 20L, 3 -> 10L)))))
 
     val resultFut = underTest.getNumberOfMessagesLeft(jobParameters)
     resultFut.map { result =>
@@ -373,7 +375,7 @@ class HyperdriveOffsetServiceTest extends AsyncFlatSpec with Matchers with Befor
     when(ugiService.loginUserFromKeytab(any(), any())).thenReturn(ugi)
     when(kafkaService.getBeginningEndOffsets(any(), any()))
       .thenReturn(BeginningEndOffsets(topic, Map(0 -> 0, 1 -> 10), Map(0 -> 10, 1 -> 100)))
-    when(checkpointService.getLatestCommittedOffset(any())(any())).thenReturn(Try(Some(Map(0 -> 2L))))
+    when(checkpointService.getLatestCommittedOffset(any())(any())).thenReturn(Try(Some(Map(topic -> Map(0 -> 2L)))))
 
     val resultFut = underTest.getNumberOfMessagesLeft(jobParameters)
     resultFut.map { result =>
@@ -393,7 +395,8 @@ class HyperdriveOffsetServiceTest extends AsyncFlatSpec with Matchers with Befor
     when(ugiService.loginUserFromKeytab(any(), any())).thenReturn(ugi)
     when(kafkaService.getBeginningEndOffsets(any(), any()))
       .thenReturn(BeginningEndOffsets(topic, Map(0 -> 0, 1 -> 10), Map(0 -> 10, 1 -> 100)))
-    when(checkpointService.getLatestCommittedOffset(any())(any())).thenReturn(Try(Some(Map(0 -> 20L, 1 -> 200L))))
+    when(checkpointService.getLatestCommittedOffset(any())(any()))
+      .thenReturn(Try(Some(Map(topic -> Map(0 -> 20L, 1 -> 200L)))))
 
     val resultFut = underTest.getNumberOfMessagesLeft(jobParameters)
     resultFut.map { result =>
