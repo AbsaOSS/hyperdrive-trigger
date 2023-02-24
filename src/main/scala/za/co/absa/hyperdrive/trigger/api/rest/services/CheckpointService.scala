@@ -35,7 +35,9 @@ trait CheckpointService {
     implicit ugi: UserGroupInformation
   ): Try[Option[(String, Boolean)]]
 
-  def getLatestCommittedOffset(params: HdfsParameters)(implicit ugi: UserGroupInformation): Try[Option[TopicPartitionOffsets]]
+  def getLatestCommittedOffset(params: HdfsParameters)(
+    implicit ugi: UserGroupInformation
+  ): Try[Option[TopicPartitionOffsets]]
 }
 
 class HdfsParameters(
