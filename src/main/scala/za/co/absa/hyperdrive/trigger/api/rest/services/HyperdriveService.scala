@@ -17,7 +17,7 @@ package za.co.absa.hyperdrive.trigger.api.rest.services
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import za.co.absa.hyperdrive.trigger.models.{IngestionStatus, Topic}
+import za.co.absa.hyperdrive.trigger.models.{IngestionStatus, TopicStatus}
 import za.co.absa.hyperdrive.trigger.models.enums.JobTypes
 import za.co.absa.hyperdrive.trigger.persistance.WorkflowRepository
 
@@ -25,18 +25,18 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
 trait HyperdriveService {
-  val workflowRepository: WorkflowRepository
-  val jobTemplateService: JobTemplateService
-  val hyperdriveOffsetService: HyperdriveOffsetService
+  protected val workflowRepository: WorkflowRepository
+  protected val jobTemplateService: JobTemplateService
+  protected val hyperdriveOffsetService: HyperdriveOffsetService
 
   def getIngestionStatus(id: Long)(implicit ec: ExecutionContext): Future[Seq[IngestionStatus]]
 }
 
 @Service
 class HyperdriveServiceImpl(
-  override val workflowRepository: WorkflowRepository,
-  override val jobTemplateService: JobTemplateService,
-  override val hyperdriveOffsetService: HyperdriveOffsetService
+  override protected val workflowRepository: WorkflowRepository,
+  override protected val jobTemplateService: JobTemplateService,
+  override protected val hyperdriveOffsetService: HyperdriveOffsetService
 ) extends HyperdriveService {
   private val logger = LoggerFactory.getLogger(this.getClass)
 
@@ -55,7 +55,7 @@ class HyperdriveServiceImpl(
                       IngestionStatus(
                         jobName = resolvedJob.name,
                         jobType = resolvedJob.jobParameters.jobType.name,
-                        topic = None
+                        topicStatus = None
                       )
                     )
                   case Success(messagesLeftOpt) =>
@@ -63,7 +63,7 @@ class HyperdriveServiceImpl(
                       IngestionStatus(
                         jobName = resolvedJob.name,
                         jobType = resolvedJob.jobParameters.jobType.name,
-                        topic = messagesLeftOpt.map(messagesLeft => Topic(messagesLeft._1, messagesLeft._2))
+                        topicStatus = messagesLeftOpt.map(messagesLeft => TopicStatus(messagesLeft._1, messagesLeft._2))
                       )
                     )
                 }
@@ -72,7 +72,7 @@ class HyperdriveServiceImpl(
                   IngestionStatus(
                     jobName = resolvedJob.name,
                     jobType = resolvedJob.jobParameters.jobType.name,
-                    topic = None
+                    topicStatus = None
                   )
                 )
             }

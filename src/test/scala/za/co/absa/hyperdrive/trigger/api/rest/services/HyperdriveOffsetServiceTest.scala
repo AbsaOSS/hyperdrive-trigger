@@ -277,7 +277,7 @@ class HyperdriveOffsetServiceTest extends AsyncFlatSpec with Matchers with Befor
     val underTest = new HyperdriveOffsetServiceImpl(config.yarn, checkpointService, ugiService, kafkaService)
 
     when(ugiService.loginUserFromKeytab(any(), any())).thenReturn(ugi)
-    when(kafkaService.getOffsets(any(), any())).thenReturn(BeginningEndOffsets("topic", Map.empty, Map.empty))
+    when(kafkaService.getBeginningEndOffsets(any(), any())).thenReturn(BeginningEndOffsets("topic", Map.empty, Map.empty))
 
     val resultFut = underTest.getNumberOfMessagesLeft(jobParameters)
     resultFut.map { result =>
@@ -291,7 +291,7 @@ class HyperdriveOffsetServiceTest extends AsyncFlatSpec with Matchers with Befor
     val underTest = new HyperdriveOffsetServiceImpl(config.yarn, checkpointService, ugiService, kafkaService)
 
     when(ugiService.loginUserFromKeytab(any(), any())).thenReturn(ugi)
-    when(kafkaService.getOffsets(any(), any()))
+    when(kafkaService.getBeginningEndOffsets(any(), any()))
       .thenReturn(BeginningEndOffsets("topic", Map(0 -> 0, 1 -> 10), Map(0 -> 10, 1 -> 100)))
     when(checkpointService.getLatestCommittedOffset(any())(any())).thenReturn(Failure(new Exception()))
 
@@ -310,7 +310,7 @@ class HyperdriveOffsetServiceTest extends AsyncFlatSpec with Matchers with Befor
     val underTest = new HyperdriveOffsetServiceImpl(config.yarn, checkpointService, ugiService, kafkaService)
 
     when(ugiService.loginUserFromKeytab(any(), any())).thenReturn(ugi)
-    when(kafkaService.getOffsets(any(), any()))
+    when(kafkaService.getBeginningEndOffsets(any(), any()))
       .thenReturn(BeginningEndOffsets(topic, Map(0 -> 0, 1 -> 10), Map(0 -> 10, 1 -> 100)))
     when(checkpointService.getLatestCommittedOffset(any())(any())).thenReturn(Success(None))
 
@@ -330,7 +330,7 @@ class HyperdriveOffsetServiceTest extends AsyncFlatSpec with Matchers with Befor
     val underTest = new HyperdriveOffsetServiceImpl(config.yarn, checkpointService, ugiService, kafkaService)
 
     when(ugiService.loginUserFromKeytab(any(), any())).thenReturn(ugi)
-    when(kafkaService.getOffsets(any(), any()))
+    when(kafkaService.getBeginningEndOffsets(any(), any()))
       .thenReturn(BeginningEndOffsets(topic, Map(0 -> 0, 1 -> 10), Map(0 -> 10, 1 -> 100)))
     when(checkpointService.getLatestCommittedOffset(any())(any())).thenReturn(Try(Some(Map(0 -> 2L, 1 -> 20L))))
 
@@ -350,7 +350,7 @@ class HyperdriveOffsetServiceTest extends AsyncFlatSpec with Matchers with Befor
     val underTest = new HyperdriveOffsetServiceImpl(config.yarn, checkpointService, ugiService, kafkaService)
 
     when(ugiService.loginUserFromKeytab(any(), any())).thenReturn(ugi)
-    when(kafkaService.getOffsets(any(), any()))
+    when(kafkaService.getBeginningEndOffsets(any(), any()))
       .thenReturn(BeginningEndOffsets(topic, Map(0 -> 0, 1 -> 10), Map(0 -> 10, 1 -> 100)))
     when(checkpointService.getLatestCommittedOffset(any())(any()))
       .thenReturn(Try(Some(Map(0 -> 2L, 1 -> 20L, 3 -> 10L))))
@@ -371,7 +371,7 @@ class HyperdriveOffsetServiceTest extends AsyncFlatSpec with Matchers with Befor
     val underTest = new HyperdriveOffsetServiceImpl(config.yarn, checkpointService, ugiService, kafkaService)
 
     when(ugiService.loginUserFromKeytab(any(), any())).thenReturn(ugi)
-    when(kafkaService.getOffsets(any(), any()))
+    when(kafkaService.getBeginningEndOffsets(any(), any()))
       .thenReturn(BeginningEndOffsets(topic, Map(0 -> 0, 1 -> 10), Map(0 -> 10, 1 -> 100)))
     when(checkpointService.getLatestCommittedOffset(any())(any())).thenReturn(Try(Some(Map(0 -> 2L))))
 
@@ -391,7 +391,7 @@ class HyperdriveOffsetServiceTest extends AsyncFlatSpec with Matchers with Befor
     val underTest = new HyperdriveOffsetServiceImpl(config.yarn, checkpointService, ugiService, kafkaService)
 
     when(ugiService.loginUserFromKeytab(any(), any())).thenReturn(ugi)
-    when(kafkaService.getOffsets(any(), any()))
+    when(kafkaService.getBeginningEndOffsets(any(), any()))
       .thenReturn(BeginningEndOffsets(topic, Map(0 -> 0, 1 -> 10), Map(0 -> 10, 1 -> 100)))
     when(checkpointService.getLatestCommittedOffset(any())(any())).thenReturn(Try(Some(Map(0 -> 20L, 1 -> 200L))))
 

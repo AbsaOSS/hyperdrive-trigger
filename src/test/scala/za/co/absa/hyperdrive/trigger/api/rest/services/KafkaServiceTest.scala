@@ -75,7 +75,7 @@ class KafkaServiceTest extends FlatSpec with MockitoSugar with Matchers {
     result shouldBe Map()
   }
 
-  "getOffsets" should "return a map of start and end offsets" in {
+  "getBeginningEndOffsets" should "return a map of start and end offsets" in {
     import scala.collection.JavaConverters._
     val topicName = "topic"
     val partitions = Seq(
@@ -98,7 +98,7 @@ class KafkaServiceTest extends FlatSpec with MockitoSugar with Matchers {
     when(mockKafkaConsumer.beginningOffsets(eqTo(topicPartitions))).thenReturn(startOffsets)
     when(mockKafkaConsumer.endOffsets(eqTo(topicPartitions))).thenReturn(endOffsets)
 
-    val result = underTest.getOffsets(topicName, new Properties())
+    val result = underTest.getBeginningEndOffsets(topicName, new Properties())
 
     result shouldBe BeginningEndOffsets(topicName, Map(0 -> 100L, 1 -> 200L), Map(0 -> 200L, 1 -> 400L))
   }
@@ -107,7 +107,7 @@ class KafkaServiceTest extends FlatSpec with MockitoSugar with Matchers {
     val topicName = "non-existent-topic"
     when(mockKafkaConsumer.partitionsFor(any())).thenReturn(null)
 
-    val result = underTest.getOffsets(topicName, new Properties())
+    val result = underTest.getBeginningEndOffsets(topicName, new Properties())
     result shouldBe BeginningEndOffsets(topicName, Map.empty, Map.empty)
   }
 }

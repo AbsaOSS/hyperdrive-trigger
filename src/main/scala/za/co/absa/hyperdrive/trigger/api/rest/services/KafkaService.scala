@@ -28,12 +28,11 @@ import java.util.Properties
 import java.util.UUID.randomUUID
 import javax.inject.Inject
 import scala.collection.JavaConverters._
-import scala.util.Try
 
 trait KafkaService {
   def getBeginningOffsets(topic: String, consumerProperties: Properties): Map[Int, Long]
   def getEndOffsets(topic: String, consumerProperties: Properties): Map[Int, Long]
-  def getOffsets(topic: String, consumerProperties: Properties): BeginningEndOffsets
+  def getBeginningEndOffsets(topic: String, consumerProperties: Properties): BeginningEndOffsets
 }
 
 @Service
@@ -53,7 +52,7 @@ class KafkaServiceImpl @Inject() (generalConfig: GeneralConfig) extends KafkaSer
     getOffsets(topic, consumerProperties, EndOffsets)
   }
 
-  def getOffsets(topic: String, consumerProperties: Properties): BeginningEndOffsets = {
+  def getBeginningEndOffsets(topic: String, consumerProperties: Properties): BeginningEndOffsets = {
     BeginningEndOffsets(
       topic,
       getOffsets(topic, consumerProperties, BeginningOffsets),

@@ -22,7 +22,7 @@ import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, Matchers}
 import za.co.absa.hyperdrive.trigger.TestUtils.await
 import za.co.absa.hyperdrive.trigger.models.enums.JobTypes
 import za.co.absa.hyperdrive.trigger.models.{ResolvedJobDefinition, ShellInstanceParameters, SparkInstanceParameters}
-import za.co.absa.hyperdrive.trigger.models.{IngestionStatus, Topic}
+import za.co.absa.hyperdrive.trigger.models.{IngestionStatus, TopicStatus}
 import za.co.absa.hyperdrive.trigger.persistance.WorkflowRepository
 
 import scala.concurrent.Future
@@ -85,11 +85,11 @@ class HyperdriveServiceTest extends AsyncFlatSpec with Matchers with BeforeAndAf
       IngestionStatus(
         jobName = "JobA",
         JobTypes.Hyperdrive.name,
-        topic = Some(Topic(topic = "topic", messagesToIngest = Map.empty))
+        topicStatus = Some(TopicStatus(topic = "topic", messagesToIngest = Map.empty))
       ),
-      IngestionStatus(jobName = "JobB", JobTypes.Hyperdrive.name, topic = None),
-      IngestionStatus(jobName = "JobC", JobTypes.Spark.name, topic = None),
-      IngestionStatus(jobName = "JobD", JobTypes.Shell.name, topic = None)
+      IngestionStatus(jobName = "JobB", JobTypes.Hyperdrive.name, topicStatus = None),
+      IngestionStatus(jobName = "JobC", JobTypes.Spark.name, topicStatus = None),
+      IngestionStatus(jobName = "JobD", JobTypes.Shell.name, topicStatus = None)
     )
     when(workflowRepository.getWorkflow(any())(any())).thenReturn(Future(WorkflowFixture.createWorkflowJoined()))
     when(jobTemplateService.resolveJobTemplate(any())(any())).thenReturn(Future(resolvedJobDefinitions))

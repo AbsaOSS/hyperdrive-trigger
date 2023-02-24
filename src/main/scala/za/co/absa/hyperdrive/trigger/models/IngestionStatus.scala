@@ -18,7 +18,7 @@ package za.co.absa.hyperdrive.trigger.models
 case class IngestionStatus(
   jobName: String,
   jobType: String,
-  topic: Option[Topic]
+  topicStatus: Option[TopicStatus]
 )
 
-case class Topic(topic: String, messagesToIngest: Map[Int, Long])
+case class TopicStatus(topic: String, messagesToIngest: Map[Int, Long])

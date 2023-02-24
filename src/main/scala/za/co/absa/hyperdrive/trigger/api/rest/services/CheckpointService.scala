@@ -103,13 +103,13 @@ class CheckpointServiceImpl @Inject() (@Lazy hdfsService: HdfsService) extends C
   override def getLatestCommittedOffset(
     params: HdfsParameters
   )(implicit ugi: UserGroupInformation): Try[Option[Map[Int, Long]]] = {
-    getLatestCommitBatchId(params.checkpointLocation).map {
+    getLatestCommitBatchId(params.checkpointLocation).flatMap {
       case Some(latestCommit) =>
         val pathToLatestCommit = new Path(s"${params.checkpointLocation}/$offsetsDirName/$latestCommit")
         getOffsetsFromFile(pathToLatestCommit.toString)
           .map(_.map(topicPartitionOffsets => topicPartitionOffsets.head._2))
       case None => Try(Option.empty[Map[Int, Long]])
-    }.flatten
+    }
   }
 
   /**

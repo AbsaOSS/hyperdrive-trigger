@@ -63,7 +63,7 @@ class HyperdriveOffsetServiceImpl @Inject() (sparkConfig: SparkConfig,
    *                      - reader.kafka.brokers
    *                      - writer.common.checkpoint.location
    *  @param ec            ExecutionContext
-   *  @return - number not ingested messages.
+   *  @return - number of not ingested messages for each topic and partition.
    */
   def getNumberOfMessagesLeft(
     jobParameters: JobInstanceParameters
@@ -80,7 +80,7 @@ class HyperdriveOffsetServiceImpl @Inject() (sparkConfig: SparkConfig,
         kafkaParameters <- kafkaParametersOpt
         hdfsParameters <- hdfsParametersOpt
       } yield {
-        val kafkaOffsets = kafkaService.getOffsets(kafkaParameters._1, kafkaParameters._2)
+        val kafkaOffsets = kafkaService.getBeginningEndOffsets(kafkaParameters._1, kafkaParameters._2)
         if (
           kafkaOffsets.beginningOffsets.isEmpty || kafkaOffsets.endOffsets.isEmpty || kafkaOffsets.beginningOffsets.keySet != kafkaOffsets.endOffsets.keySet
         ) {
