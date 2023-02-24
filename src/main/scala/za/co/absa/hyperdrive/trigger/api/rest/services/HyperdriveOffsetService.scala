@@ -84,6 +84,7 @@ class HyperdriveOffsetServiceImpl @Inject() (sparkConfig: SparkConfig,
         if (
           kafkaOffsets.beginningOffsets.isEmpty || kafkaOffsets.endOffsets.isEmpty || kafkaOffsets.beginningOffsets.keySet != kafkaOffsets.endOffsets.keySet
         ) {
+          logger.warn(s"Inconsistent response from kafka for topic: ${kafkaOffsets.topic}")
           None
         } else {
           val ugi = userGroupInformationService.loginUserFromKeytab(hdfsParameters.principal, hdfsParameters.keytab)
