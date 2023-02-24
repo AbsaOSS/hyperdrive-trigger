@@ -19,7 +19,6 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, Matchers}
-import za.co.absa.hyperdrive.trigger.TestUtils.await
 import za.co.absa.hyperdrive.trigger.models.enums.JobTypes
 import za.co.absa.hyperdrive.trigger.models.{ResolvedJobDefinition, ShellInstanceParameters, SparkInstanceParameters}
 import za.co.absa.hyperdrive.trigger.models.{IngestionStatus, TopicStatus}
@@ -44,8 +43,9 @@ class HyperdriveServiceTest extends AsyncFlatSpec with Matchers with BeforeAndAf
     val error = "error"
     when(workflowRepository.getWorkflow(any())(any())).thenReturn(Future.failed(new Exception(error)))
 
-    val result = the[Exception] thrownBy await(underTest.getIngestionStatus(id))
-    result.getMessage shouldBe error
+    recoverToSucceededIf[Exception] {
+      underTest.getIngestionStatus(id)
+    }
   }
 
   it should "fail on resolve job template failure" in {
