@@ -22,6 +22,9 @@ import { HyperdriveTemplateParametersModel } from '../../../../../../../models/j
 import { JobTemplateChangeEventModel } from '../../../../../../../models/jobTemplateChangeEvent';
 import { EventEmitter } from '@angular/core';
 import { KeyValueModelFactory } from '../../../../../../../models/keyValue.model';
+import { ToastrModule } from 'ngx-toastr';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { RouterTestingModule } from '@angular/router/testing';
 
 describe('HyperdriveJobComponent', () => {
   let fixture: ComponentFixture<HyperdriveJobComponent>;
@@ -31,6 +34,7 @@ describe('HyperdriveJobComponent', () => {
     waitForAsync(() => {
       TestBed.configureTestingModule({
         declarations: [HyperdriveJobComponent],
+        imports: [HttpClientTestingModule, RouterTestingModule.withRoutes([]), ToastrModule.forRoot()],
       }).compileComponents();
     }),
   );

@@ -153,4 +153,11 @@ export const texts = {
   LOAD_NOTIFICATION_RULE_FAILURE_NOTIFICATION: "Sorry, notification rule couldn't be loaded. Please try again.",
   LOAD_HISTORY_FOR_NOTIFICATION_RULE_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
   LOAD_NOTIFICATION_RULES_FROM_HISTORY_FAILURE_NOTIFICATION: 'Sorry, something went wrong. Try again.',
+
+  HYPERDRIVE_JOB_NO_TOPIC_ACCESS: 'Topic does not exist or the hyperdrive service-user has no access!',
+  HYPERDRIVE_JOB_NO_WRITE_ACCESS: 'No write access!',
+  HYPERDRIVE_JOB_WRITE_ACCESS: 'The user has write access!',
+  HYPERDRIVE_JOB_NO_READ_ACCESS: 'No read access!',
+  HYPERDRIVE_JOB_READ_ACCESS: 'The user has read access!',
+  HYPERDRIVE_JOB_COULD_NOT_VERIFY_ACCESS: 'Sorry, something went wrong. Please try again later.',
 };

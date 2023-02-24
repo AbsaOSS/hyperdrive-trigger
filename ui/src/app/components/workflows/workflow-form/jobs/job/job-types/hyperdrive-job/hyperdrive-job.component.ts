@@ -15,7 +15,7 @@
 
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { HyperdriveDefinitionParametersModel } from '../../../../../../../models/jobDefinitionParameters.model';
-import { Subscription } from 'rxjs';
+import { Observable, of, Subscription } from 'rxjs';
 import {
   hyperdriveFields,
   hyperdriveTypes,
@@ -27,6 +27,11 @@ import { HyperdriveTemplateParametersModel } from '../../../../../../../models/j
 import { HyperdriveUtil } from '../../../../../../../utils/hyperdrive/hyperdrive.util';
 import { JobTemplateChangeEventModel } from '../../../../../../../models/jobTemplateChangeEvent';
 import { KeyValueModel } from '../../../../../../../models/keyValue.model';
+import { ConfluentService } from '../../../../../../../services/confluent/confluent.service';
+import { catchError, map } from 'rxjs/operators';
+import { KafkaTopicAuthorizationResponseModel } from '../../../../../../../models/kafkaTopicAuthorizationResponse.model';
+import { VerifyPartModel, VerifyPartModelFactory } from '../../../../../../../models/verifyPart.model';
+import { texts } from '../../../../../../../constants/texts.constants';
 
 @Component({
   selector: 'app-hyperdrive-job',
@@ -49,7 +54,7 @@ export class HyperdriveJobComponent implements OnInit, OnDestroy {
   hyperdriveTypesMap = hyperdriveTypesMap;
   hyperdriveFields = hyperdriveFields;
 
-  constructor() {
+  constructor(public confluentService: ConfluentService) {
     // do nothing
   }
 
@@ -168,6 +173,36 @@ export class HyperdriveJobComponent implements OnInit, OnDestroy {
 
   additionalSparkConfigChange(additionalSparkConfig: KeyValueModel[]) {
     this.jobParametersChange.emit({ ...this.jobParameters, additionalSparkConfig: additionalSparkConfig });
+  }
+
+  verifyKafkaTopicAuthorizations(
+    isWriteTopic: boolean,
+    confluentService: ConfluentService = this.confluentService,
+  ): (topic: string) => Observable<VerifyPartModel> {
+    return function (topic: string) {
+      return confluentService.getKafkaTopicAuthorizations(topic).pipe(
+        map((kafkaTopicAuthorizationResponse: KafkaTopicAuthorizationResponseModel) => {
+          if (!kafkaTopicAuthorizationResponse.exists) {
+            return VerifyPartModelFactory.create(false, texts.HYPERDRIVE_JOB_NO_TOPIC_ACCESS);
+          } else {
+            if (isWriteTopic) {
+              if (!kafkaTopicAuthorizationResponse.hasWriteAccess) {
+                return VerifyPartModelFactory.create(false, texts.HYPERDRIVE_JOB_NO_WRITE_ACCESS);
+              } else {
+                return VerifyPartModelFactory.create(true, texts.HYPERDRIVE_JOB_WRITE_ACCESS);
+              }
+            } else {
+              if (!kafkaTopicAuthorizationResponse.hasReadAccess) {
+                return VerifyPartModelFactory.create(false, texts.HYPERDRIVE_JOB_NO_READ_ACCESS);
+              } else {
+                return VerifyPartModelFactory.create(true, texts.HYPERDRIVE_JOB_READ_ACCESS);
+              }
+            }
+          }
+        }),
+        catchError((_) => of(VerifyPartModelFactory.create(false, texts.HYPERDRIVE_JOB_COULD_NOT_VERIFY_ACCESS))),
+      );
+    };
   }
 
   ngOnDestroy(): void {

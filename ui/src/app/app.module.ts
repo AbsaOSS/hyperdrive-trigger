@@ -103,6 +103,7 @@ import { JobTemplateComparisonComponent } from './components/admin/job-templates
 import { JobTemplateUsageComponent } from './components/admin/job-templates/job-templates-home/job-template-usage/job-template-usage.component';
 import { LengthValidator } from './components/workflows/workflow-form/dynamic-parts/string-sequence-part/validator/length.validator';
 import { NotificationRuleUsageComponent } from './components/admin/notification-rules/notification-rules-home/notification-rule-usage/notification-rule-usage.component';
+import { StringWithVerifyPartComponent } from './components/workflows/workflow-form/dynamic-parts/string-with-verify-part/string-with-verify-part.component';
 
 @NgModule({
   declarations: [
@@ -129,6 +130,7 @@ import { NotificationRuleUsageComponent } from './components/admin/notification-
     HyperdriveJobComponent,
     ShellJobComponent,
     StringPartComponent,
+    StringWithVerifyPartComponent,
     StringWithSuggestionsPartComponent,
     BooleanPartComponent,
     ComboboxPartComponent,

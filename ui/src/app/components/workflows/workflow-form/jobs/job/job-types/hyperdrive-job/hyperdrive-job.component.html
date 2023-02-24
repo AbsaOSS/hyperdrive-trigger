@@ -42,14 +42,16 @@
 
 <div [ngSwitch]="getHyperdriveType()">
   <div *ngSwitchCase="hyperdriveTypes.OFFLOAD_RAW_TOPIC_WITH_HYPERCONFORMANCE">
-    <app-string-part
+    <app-string-with-verify-part
       [isShow]="isShow"
       [name]="'Source topic'"
+      [verifyButtonText]="'Verify topic'"
+      [verifyCall]="verifyKafkaTopicAuthorizations(false)"
       [value]="getHyperdriveFieldValue(hyperdriveFields.READER_TOPIC)"
       (valueChange)="hyperdriveFieldChange($event, hyperdriveFields.READER_TOPIC)"
       [isRequired]=true
       [minLength]=1>
-    </app-string-part>
+    </app-string-with-verify-part>
     <app-string-part
       [isShow]="isShow"
       [name]="'Destination directory'"
@@ -76,22 +78,26 @@
     </app-string-part>
   </div>
   <div *ngSwitchCase="hyperdriveTypes.HYPERCONFORMANCE_RAW_TO_PUBLISH_TOPIC">
-    <app-string-part
+    <app-string-with-verify-part
       [isShow]="isShow"
       [name]="'Source topic'"
+      [verifyButtonText]="'Verify topic'"
+      [verifyCall]="verifyKafkaTopicAuthorizations(false)"
       [value]="getHyperdriveFieldValue(hyperdriveFields.READER_TOPIC)"
       (valueChange)="hyperdriveFieldChange($event, hyperdriveFields.READER_TOPIC)"
       [isRequired]=true
       [minLength]=1>
-    </app-string-part>
-    <app-string-part
+    </app-string-with-verify-part>
+    <app-string-with-verify-part
       [isShow]="isShow"
       [name]="'Destination topic'"
+      [verifyButtonText]="'Verify topic'"
+      [verifyCall]="verifyKafkaTopicAuthorizations(true)"
       [value]="getHyperdriveFieldValue(hyperdriveFields.WRITER_TOPIC)"
       (valueChange)="hyperdriveFieldChange($event, hyperdriveFields.WRITER_TOPIC)"
       [isRequired]=true
       [minLength]=1>
-    </app-string-part>
+    </app-string-with-verify-part>
     <app-string-part
       [isShow]="isShow"
       [name]="'Menas dataset name'"
@@ -110,14 +116,16 @@
     </app-string-part>
   </div>
   <div *ngSwitchCase="hyperdriveTypes.OFFLOAD_PUBLISH_TOPIC">
-    <app-string-part
+    <app-string-with-verify-part
       [isShow]="isShow"
       [name]="'Source topic'"
+      [verifyButtonText]="'Verify topic'"
+      [verifyCall]="verifyKafkaTopicAuthorizations(false)"
       [value]="getHyperdriveFieldValue(hyperdriveFields.READER_TOPIC)"
       (valueChange)="hyperdriveFieldChange($event, hyperdriveFields.READER_TOPIC)"
       [isRequired]=true
       [minLength]=1>
-    </app-string-part>
+    </app-string-with-verify-part>
     <app-string-part
       [isShow]="isShow"
       [name]="'Destination directory'"
