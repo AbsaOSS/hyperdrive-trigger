@@ -18,7 +18,7 @@ package za.co.absa.hyperdrive.trigger.api.rest.services
 import org.apache.commons.io.IOUtils
 import org.apache.hadoop.fs._
 import org.apache.hadoop.security.UserGroupInformation
-import org.apache.spark.deploy.SparkHadoopUtil
+import org.apache.spark.deploy.{SparkHadoopUtilInternal}
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Service
@@ -41,7 +41,7 @@ trait HdfsService {
 @Service
 class HdfsServiceImpl extends HdfsService {
   private val logger = LoggerFactory.getLogger(this.getClass)
-  private lazy val conf = SparkHadoopUtil.get.conf
+  private lazy val conf = SparkHadoopUtilInternal.conf
   override def exists(path: Path)(implicit ugi: UserGroupInformation): Try[Boolean] = {
     Try {
       doAs {
