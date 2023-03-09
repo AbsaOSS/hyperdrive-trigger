@@ -220,6 +220,49 @@
       {{workflow.isActive ? 'Yes' : 'No'}}
     </clr-dg-cell>
   </clr-dg-row>
+  <ng-template clrIfDetail let-detail (clrIfDetailChange)="onDetailRefresh($event)">
+    <clr-dg-detail>
+      <clr-dg-detail-header>
+        <b>Workflow name: </b>{{detail.name}}<br/>
+        <b>Project name: </b>{{detail.project}}<br/>
+        <b>Is Active: </b>{{detail.isActive ? 'Yes' : 'No'}}<br/>
+
+      </clr-dg-detail-header>
+      <clr-dg-detail-body>
+
+        <clr-datagrid [clrDgLoading]="ingestionStatusLoading">
+          <clr-dg-action-bar>
+            <div class="btn-group">
+              <button type="button" class="btn btn-sm btn-secondary" (click)="onDetailRefresh(detail)">
+                <clr-icon shape="refresh"></clr-icon>
+                Refresh
+              </button>
+            </div>
+          </clr-dg-action-bar>
+
+          <clr-dg-column>Job Name</clr-dg-column>
+          <clr-dg-column>Type</clr-dg-column>
+          <clr-dg-column>Progress</clr-dg-column>
+
+          <clr-dg-placeholder>We couldn't load detail!</clr-dg-placeholder>
+
+          <clr-dg-row *ngFor="let job of ingestionStatus" [clrDgItem]="job">
+            <clr-dg-cell>{{job.jobName}}</clr-dg-cell>
+            <clr-dg-cell>{{job.jobType}}</clr-dg-cell>
+            <clr-dg-cell *ngIf="job?.topic">
+              <b>Topic:</b> {{job?.topic?.topic}} <br/>
+              <div *ngIf="job?.topic?.messagesToIngest >= 0"><b>Messages to ingest:</b> {{job?.topic?.messagesToIngest}}</div>
+              <b *ngIf="job?.topic?.messagesToIngest < 0" [style.color]="'red'">Offset inconsistency detected. Please contact support team!</b>
+            </clr-dg-cell>
+            <clr-dg-cell *ngIf="!job?.topic">
+              <b>Not available</b>
+            </clr-dg-cell>
+          </clr-dg-row>
+        </clr-datagrid>
+
+      </clr-dg-detail-body>
+    </clr-dg-detail>
+  </ng-template>
   <clr-dg-footer>
     <clr-dg-pagination #pagination [clrDgPageSize]="pageSize" [clrDgPage]="page"
                        [clrDgTotalItems]="total"></clr-dg-pagination>

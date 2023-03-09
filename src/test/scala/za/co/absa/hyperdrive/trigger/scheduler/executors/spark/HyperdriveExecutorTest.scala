@@ -20,7 +20,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{never, reset, verify, when}
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, Matchers}
-import za.co.absa.hyperdrive.trigger.api.rest.services.HyperdriveOffsetComparisonService
+import za.co.absa.hyperdrive.trigger.api.rest.services.HyperdriveOffsetService
 import za.co.absa.hyperdrive.trigger.configuration.application.{DefaultTestSparkConfig, SparkConfig}
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.InQueue
 import za.co.absa.hyperdrive.trigger.models.enums.{JobStatuses, JobTypes}
@@ -30,12 +30,12 @@ import java.time.LocalDateTime
 import scala.concurrent.Future
 
 class HyperdriveExecutorTest extends AsyncFlatSpec with MockitoSugar with BeforeAndAfter with Matchers {
-  private val offsetComparisonServiceMock = mock[HyperdriveOffsetComparisonService]
+  private val offsetServiceMock = mock[HyperdriveOffsetService]
   private val sparkClusterServiceMock = mock[SparkClusterService]
   private val updateJobStub: JobInstance => Future[Unit] = mock[JobInstance => Future[Unit]]
 
   before {
-    reset(offsetComparisonServiceMock)
+    reset(offsetServiceMock)
     reset(sparkClusterServiceMock)
     reset(updateJobStub)
   }
@@ -44,7 +44,7 @@ class HyperdriveExecutorTest extends AsyncFlatSpec with MockitoSugar with Before
     val jobInstance = getJobInstance
     val jobInstanceParameters = jobInstance.jobParameters.asInstanceOf[SparkInstanceParameters]
 
-    when(offsetComparisonServiceMock.isNewJobInstanceRequired(any())(any())).thenReturn(Future { true })
+    when(offsetServiceMock.isNewJobInstanceRequired(any())(any())).thenReturn(Future { true })
     when(sparkClusterServiceMock.submitJob(any(), any(), any())).thenReturn(Future { (): Unit })
     when(updateJobStub.apply(any[JobInstance])).thenReturn(Future { (): Unit })
 
@@ -53,7 +53,7 @@ class HyperdriveExecutorTest extends AsyncFlatSpec with MockitoSugar with Before
                                                jobInstanceParameters,
                                                updateJobStub,
                                                sparkClusterServiceMock,
-                                               offsetComparisonServiceMock
+                                               offsetServiceMock
     )
 
     resultFut.map { _ =>
@@ -67,7 +67,7 @@ class HyperdriveExecutorTest extends AsyncFlatSpec with MockitoSugar with Before
     val jobInstance = getJobInstance
     val jobInstanceParameters = jobInstance.jobParameters.asInstanceOf[SparkInstanceParameters]
 
-    when(offsetComparisonServiceMock.isNewJobInstanceRequired(any())(any())).thenReturn(Future { false })
+    when(offsetServiceMock.isNewJobInstanceRequired(any())(any())).thenReturn(Future { false })
     when(sparkClusterServiceMock.submitJob(any(), any(), any())).thenReturn(Future { (): Unit })
     when(updateJobStub.apply(any[JobInstance])).thenReturn(Future { (): Unit })
 
@@ -76,7 +76,7 @@ class HyperdriveExecutorTest extends AsyncFlatSpec with MockitoSugar with Before
                                                jobInstanceParameters,
                                                updateJobStub,
                                                sparkClusterServiceMock,
-                                               offsetComparisonServiceMock
+                                               offsetServiceMock
     )
 
     resultFut.map { _ =>

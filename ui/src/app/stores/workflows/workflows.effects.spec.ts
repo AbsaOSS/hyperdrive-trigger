@@ -37,6 +37,7 @@ import {
   RunWorkflows,
   RevertWorkflow,
   SearchWorkflows,
+  LoadIngestionStatus,
 } from './workflows.actions';
 
 import { WorkflowsEffects } from './workflows.effects';
@@ -67,12 +68,15 @@ import { SparkTemplateParametersModel } from '../../models/jobTemplateParameters
 import * as WorkflowActions from './workflows.actions';
 import { TableSearchRequestModelFactory } from '../../models/search/tableSearchRequest.model';
 import { TableSearchResponseModel } from '../../models/search/tableSearchResponse.model';
+import { HyperdriveService } from '../../services/hyperdrive/hyperdrive.service';
+import { IngestionStatusModel, IngestionStatusModelFactory, TopicModel, TopicModelFactory } from '../../models/ingestionStatus.model';
 
 describe('WorkflowsEffects', () => {
   let underTest: WorkflowsEffects;
   let workflowService: WorkflowService;
   let workflowHistoryService: WorkflowHistoryService;
   let jobService: JobService;
+  let hyperdriveService: HyperdriveService;
   let mockActions: Observable<any>;
   let mockStore: MockStore;
   let toastrService: ToastrService;
@@ -106,6 +110,7 @@ describe('WorkflowsEffects', () => {
     underTest = TestBed.inject(WorkflowsEffects);
     workflowService = TestBed.inject(WorkflowService);
     workflowHistoryService = TestBed.inject(WorkflowHistoryService);
+    hyperdriveService = TestBed.inject(HyperdriveService);
     jobService = TestBed.inject(JobService);
     mockActions = TestBed.inject(Actions);
     mockStore = TestBed.inject(MockStore);
@@ -1221,6 +1226,44 @@ describe('WorkflowsEffects', () => {
       const result = underTest.sortJobsInWorkflow(inputWorkflow);
 
       expect(result).toEqual(inputWorkflow);
+    });
+  });
+
+  describe('statusIngestionLoad', () => {
+    it('should load ingestion status', () => {
+      const payload = 1;
+      const response = [IngestionStatusModelFactory.create('jobName', 'jobType', TopicModelFactory.create('topic', 10))];
+
+      const action = new LoadIngestionStatus(payload);
+      mockActions = cold('-a', { a: action });
+      const getIngestionStatusResponse = cold('-a|', { a: response });
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowActions.LOAD_INGESTION_STATUS_SUCCESS,
+          payload: response,
+        },
+      });
+
+      spyOn(hyperdriveService, 'getIngestionStatus').and.returnValue(getIngestionStatusResponse);
+
+      expect(underTest.statusIngestionLoad).toBeObservable(expected);
+    });
+
+    it('should catch failure when service fails to load ingestion status', () => {
+      const payload = 1;
+
+      const action = new LoadIngestionStatus(payload);
+      mockActions = cold('-a', { a: action });
+
+      const getIngestionStatusResponse = cold('-#|');
+      spyOn(hyperdriveService, 'getIngestionStatus').and.returnValue(getIngestionStatusResponse);
+
+      const expected = cold('--a', {
+        a: {
+          type: WorkflowActions.LOAD_INGESTION_STATUS_FAILURE,
+        },
+      });
+      expect(underTest.statusIngestionLoad).toBeObservable(expected);
     });
   });
 });

@@ -34,7 +34,7 @@ import org.springframework.beans.factory.BeanFactory
 import org.springframework.context.annotation.Lazy
 import za.co.absa.hyperdrive.trigger.scheduler.executors.shell.ShellExecutor
 import org.springframework.stereotype.Component
-import za.co.absa.hyperdrive.trigger.api.rest.services.HyperdriveOffsetComparisonService
+import za.co.absa.hyperdrive.trigger.api.rest.services.HyperdriveOffsetService
 import za.co.absa.hyperdrive.trigger.configuration.application.{SchedulerConfig, SparkConfig}
 import za.co.absa.hyperdrive.trigger.scheduler.notifications.NotificationSender
 
@@ -49,7 +49,7 @@ class Executors @Inject() (
   beanFactory: BeanFactory,
   implicit val sparkConfig: SparkConfig,
   schedulerConfig: SchedulerConfig,
-  @Lazy hyperdriveOffsetComparisonService: HyperdriveOffsetComparisonService
+  @Lazy hyperdriveOffsetComparisonService: HyperdriveOffsetService
 ) {
   private val logger = LoggerFactory.getLogger(this.getClass)
   private implicit val executionContext: ExecutionContextExecutor =

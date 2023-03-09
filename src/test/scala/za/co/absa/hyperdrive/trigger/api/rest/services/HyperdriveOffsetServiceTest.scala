@@ -23,21 +23,17 @@ import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, Matchers}
 import za.co.absa.hyperdrive.trigger.configuration.application.DefaultTestSparkConfig
 import za.co.absa.hyperdrive.trigger.models.enums.JobTypes
-import za.co.absa.hyperdrive.trigger.models.{ShellInstanceParameters, SparkInstanceParameters}
+import za.co.absa.hyperdrive.trigger.models.{BeginningEndOffsets, ShellInstanceParameters, SparkInstanceParameters}
 
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
-class HyperdriveOffsetComparisonServiceTest extends AsyncFlatSpec with Matchers with BeforeAndAfter with MockitoSugar {
+class HyperdriveOffsetServiceTest extends AsyncFlatSpec with Matchers with BeforeAndAfter with MockitoSugar {
   private val checkpointService = mock[CheckpointService]
   private val kafkaService = mock[KafkaService]
   private val ugiService = mock[UserGroupInformationService]
   private val ugi = mock[UserGroupInformation]
   private val underTest =
-    new HyperdriveOffsetComparisonServiceImpl(DefaultTestSparkConfig().yarn,
-                                              checkpointService,
-                                              ugiService,
-                                              kafkaService
-    )
+    new HyperdriveOffsetServiceImpl(DefaultTestSparkConfig().yarn, checkpointService, ugiService, kafkaService)
 
   before {
     reset(checkpointService)
@@ -46,7 +42,7 @@ class HyperdriveOffsetComparisonServiceTest extends AsyncFlatSpec with Matchers 
 
   "isNewJobInstanceRequired" should "return false if the kafka and checkpoint folder offsets are the same" in {
     val config = getSparkConfig
-    val underTest = new HyperdriveOffsetComparisonServiceImpl(config.yarn, checkpointService, ugiService, kafkaService)
+    val underTest = new HyperdriveOffsetServiceImpl(config.yarn, checkpointService, ugiService, kafkaService)
     val jobParameters = getJobParameters
 
     when(ugiService.loginUserFromKeytab(any(), any())).thenReturn(ugi)
@@ -128,7 +124,7 @@ class HyperdriveOffsetComparisonServiceTest extends AsyncFlatSpec with Matchers 
 
   it should "return true if the kafka topic does not exist" in {
     val config = getSparkConfig
-    val underTest = new HyperdriveOffsetComparisonServiceImpl(config.yarn, checkpointService, ugiService, kafkaService)
+    val underTest = new HyperdriveOffsetServiceImpl(config.yarn, checkpointService, ugiService, kafkaService)
     val jobParameters = getJobParameters
 
     when(kafkaService.getBeginningOffsets(any(), any())).thenReturn(Map[Int, Long]())
@@ -144,7 +140,7 @@ class HyperdriveOffsetComparisonServiceTest extends AsyncFlatSpec with Matchers 
 
   it should "return false if the kafka topic is empty" in {
     val config = getSparkConfig
-    val underTest = new HyperdriveOffsetComparisonServiceImpl(config.yarn, checkpointService, ugiService, kafkaService)
+    val underTest = new HyperdriveOffsetServiceImpl(config.yarn, checkpointService, ugiService, kafkaService)
     val jobParameters = getJobParameters
 
     when(kafkaService.getBeginningOffsets(any(), any())).thenReturn(Map(0 -> 21L, 1 -> 42L))
@@ -160,7 +156,7 @@ class HyperdriveOffsetComparisonServiceTest extends AsyncFlatSpec with Matchers 
 
   it should "return true if no offset file is present" in {
     val config = getSparkConfig
-    val underTest = new HyperdriveOffsetComparisonServiceImpl(config.yarn, checkpointService, ugiService, kafkaService)
+    val underTest = new HyperdriveOffsetServiceImpl(config.yarn, checkpointService, ugiService, kafkaService)
     val jobParameters = getJobParameters
 
     when(kafkaService.getBeginningOffsets(any(), any())).thenReturn(Map(0 -> 0L))
@@ -178,7 +174,7 @@ class HyperdriveOffsetComparisonServiceTest extends AsyncFlatSpec with Matchers 
 
   it should "return true if the offset is not committed" in {
     val config = getSparkConfig
-    val underTest = new HyperdriveOffsetComparisonServiceImpl(config.yarn, checkpointService, ugiService, kafkaService)
+    val underTest = new HyperdriveOffsetServiceImpl(config.yarn, checkpointService, ugiService, kafkaService)
     val jobParameters = getJobParameters
 
     when(kafkaService.getBeginningOffsets(any(), any())).thenReturn(Map(0 -> 0L))
@@ -195,7 +191,7 @@ class HyperdriveOffsetComparisonServiceTest extends AsyncFlatSpec with Matchers 
 
   it should "return true if a offset file could not be parsed" in {
     val config = getSparkConfig
-    val underTest = new HyperdriveOffsetComparisonServiceImpl(config.yarn, checkpointService, ugiService, kafkaService)
+    val underTest = new HyperdriveOffsetServiceImpl(config.yarn, checkpointService, ugiService, kafkaService)
     val jobParameters = getJobParameters
 
     when(kafkaService.getBeginningOffsets(any(), any())).thenReturn(Map(0 -> 0L))
@@ -215,7 +211,7 @@ class HyperdriveOffsetComparisonServiceTest extends AsyncFlatSpec with Matchers 
 
   it should "return true if the checkpoints offset does not contain the topic" in {
     val config = getSparkConfig
-    val underTest = new HyperdriveOffsetComparisonServiceImpl(config.yarn, checkpointService, ugiService, kafkaService)
+    val underTest = new HyperdriveOffsetServiceImpl(config.yarn, checkpointService, ugiService, kafkaService)
     val jobParameters = getJobParameters
 
     when(kafkaService.getBeginningOffsets(any(), any())).thenReturn(Map(0 -> 0L))
@@ -235,7 +231,7 @@ class HyperdriveOffsetComparisonServiceTest extends AsyncFlatSpec with Matchers 
 
   it should "return true if the kafka offsets and checkpoint offset do not have the same set of partitions" in {
     val config = getSparkConfig
-    val underTest = new HyperdriveOffsetComparisonServiceImpl(config.yarn, checkpointService, ugiService, kafkaService)
+    val underTest = new HyperdriveOffsetServiceImpl(config.yarn, checkpointService, ugiService, kafkaService)
     val jobParameters = getJobParameters
 
     when(checkpointService.getLatestOffsetFilePath(any())(any())).thenReturn(Try(Some(("1", true))))
@@ -256,7 +252,7 @@ class HyperdriveOffsetComparisonServiceTest extends AsyncFlatSpec with Matchers 
 
   it should "return true if the kafka offsets and checkpoint offsets are not the same" in {
     val config = getSparkConfig
-    val underTest = new HyperdriveOffsetComparisonServiceImpl(config.yarn, checkpointService, ugiService, kafkaService)
+    val underTest = new HyperdriveOffsetServiceImpl(config.yarn, checkpointService, ugiService, kafkaService)
     val jobParameters = getJobParameters
 
     when(checkpointService.getLatestOffsetFilePath(any())(any())).thenReturn(Try(Some(("1", true))))
@@ -272,6 +268,140 @@ class HyperdriveOffsetComparisonServiceTest extends AsyncFlatSpec with Matchers 
       verify(checkpointService).getOffsetsFromFile(any())(any())
       verify(kafkaService).getEndOffsets(any(), any())
       result shouldBe true
+    }
+  }
+
+  "getNumberOfMessagesLeft" should "return none if get offsets from kafka fails" in {
+    val config = getSparkConfig
+    val jobParameters = getJobParameters
+    val underTest = new HyperdriveOffsetServiceImpl(config.yarn, checkpointService, ugiService, kafkaService)
+
+    when(ugiService.loginUserFromKeytab(any(), any())).thenReturn(ugi)
+    when(kafkaService.getBeginningEndOffsets(any(), any()))
+      .thenReturn(BeginningEndOffsets("topic", Map.empty, Map.empty))
+
+    val resultFut = underTest.getNumberOfMessagesLeft(jobParameters)
+    resultFut.map { result =>
+      result shouldBe None
+    }
+  }
+
+  it should "return none if get offsets from checkpoint fails" in {
+    val config = getSparkConfig
+    val jobParameters = getJobParameters
+    val underTest = new HyperdriveOffsetServiceImpl(config.yarn, checkpointService, ugiService, kafkaService)
+
+    when(ugiService.loginUserFromKeytab(any(), any())).thenReturn(ugi)
+    when(kafkaService.getBeginningEndOffsets(any(), any()))
+      .thenReturn(BeginningEndOffsets("topic", Map(0 -> 0, 1 -> 10), Map(0 -> 10, 1 -> 100)))
+    when(checkpointService.getLatestCommittedOffset(any())(any())).thenReturn(Failure(new Exception()))
+
+    val resultFut = underTest.getNumberOfMessagesLeft(jobParameters)
+    resultFut.map { result =>
+      result shouldBe None
+    }
+  }
+
+  it should "return number of all messages in kafka if there is no offset in checkpoint" in {
+    val config = getSparkConfig
+    val jobParameters = getJobParameters
+    val topic = "topic"
+    val expectedResult = (topic, Map(0 -> 10, 1 -> 90))
+
+    val underTest = new HyperdriveOffsetServiceImpl(config.yarn, checkpointService, ugiService, kafkaService)
+
+    when(ugiService.loginUserFromKeytab(any(), any())).thenReturn(ugi)
+    when(kafkaService.getBeginningEndOffsets(any(), any()))
+      .thenReturn(BeginningEndOffsets(topic, Map(0 -> 0, 1 -> 10), Map(0 -> 10, 1 -> 100)))
+    when(checkpointService.getLatestCommittedOffset(any())(any())).thenReturn(Success(None))
+
+    val resultFut = underTest.getNumberOfMessagesLeft(jobParameters)
+    resultFut.map { result =>
+      result.isDefined shouldBe true
+      result.get shouldBe expectedResult
+    }
+  }
+
+  it should "return number of messages left to ingest" in {
+    val config = getSparkConfig
+    val jobParameters = getJobParameters
+    val topic = "topic"
+    val expectedResult = (topic, Map(0 -> 8, 1 -> 80))
+
+    val underTest = new HyperdriveOffsetServiceImpl(config.yarn, checkpointService, ugiService, kafkaService)
+
+    when(ugiService.loginUserFromKeytab(any(), any())).thenReturn(ugi)
+    when(kafkaService.getBeginningEndOffsets(any(), any()))
+      .thenReturn(BeginningEndOffsets(topic, Map(0 -> 0, 1 -> 10), Map(0 -> 10, 1 -> 100)))
+    when(checkpointService.getLatestCommittedOffset(any())(any()))
+      .thenReturn(Try(Some(Map(topic -> Map(0 -> 2L, 1 -> 20L)))))
+
+    val resultFut = underTest.getNumberOfMessagesLeft(jobParameters)
+    resultFut.map { result =>
+      result.isDefined shouldBe true
+      result.get shouldBe expectedResult
+    }
+  }
+
+  it should "return number of messages left to ingest and ignore extra partition in checkpoint offset" in {
+    val config = getSparkConfig
+    val jobParameters = getJobParameters
+    val topic = "topic"
+    val expectedResult = (topic, Map(0 -> 8, 1 -> 80))
+
+    val underTest = new HyperdriveOffsetServiceImpl(config.yarn, checkpointService, ugiService, kafkaService)
+
+    when(ugiService.loginUserFromKeytab(any(), any())).thenReturn(ugi)
+    when(kafkaService.getBeginningEndOffsets(any(), any()))
+      .thenReturn(BeginningEndOffsets(topic, Map(0 -> 0, 1 -> 10), Map(0 -> 10, 1 -> 100)))
+    when(checkpointService.getLatestCommittedOffset(any())(any()))
+      .thenReturn(Try(Some(Map(topic -> Map(0 -> 2L, 1 -> 20L, 3 -> 10L)))))
+
+    val resultFut = underTest.getNumberOfMessagesLeft(jobParameters)
+    resultFut.map { result =>
+      result.isDefined shouldBe true
+      result.get shouldBe expectedResult
+    }
+  }
+
+  it should "return number of messages left to ingest and handle missing partition in checkpoint offset" in {
+    val config = getSparkConfig
+    val jobParameters = getJobParameters
+    val topic = "topic"
+    val expectedResult = (topic, Map(0 -> 8, 1 -> 90))
+
+    val underTest = new HyperdriveOffsetServiceImpl(config.yarn, checkpointService, ugiService, kafkaService)
+
+    when(ugiService.loginUserFromKeytab(any(), any())).thenReturn(ugi)
+    when(kafkaService.getBeginningEndOffsets(any(), any()))
+      .thenReturn(BeginningEndOffsets(topic, Map(0 -> 0, 1 -> 10), Map(0 -> 10, 1 -> 100)))
+    when(checkpointService.getLatestCommittedOffset(any())(any())).thenReturn(Try(Some(Map(topic -> Map(0 -> 2L)))))
+
+    val resultFut = underTest.getNumberOfMessagesLeft(jobParameters)
+    resultFut.map { result =>
+      result.isDefined shouldBe true
+      result.get shouldBe expectedResult
+    }
+  }
+
+  it should "return negative numbers if kafka offsets are smaller than checkpoint offsets" in {
+    val config = getSparkConfig
+    val jobParameters = getJobParameters
+    val topic = "topic"
+    val expectedResult = (topic, Map(0 -> -10, 1 -> -100))
+
+    val underTest = new HyperdriveOffsetServiceImpl(config.yarn, checkpointService, ugiService, kafkaService)
+
+    when(ugiService.loginUserFromKeytab(any(), any())).thenReturn(ugi)
+    when(kafkaService.getBeginningEndOffsets(any(), any()))
+      .thenReturn(BeginningEndOffsets(topic, Map(0 -> 0, 1 -> 10), Map(0 -> 10, 1 -> 100)))
+    when(checkpointService.getLatestCommittedOffset(any())(any()))
+      .thenReturn(Try(Some(Map(topic -> Map(0 -> 20L, 1 -> 200L)))))
+
+    val resultFut = underTest.getNumberOfMessagesLeft(jobParameters)
+    resultFut.map { result =>
+      result.isDefined shouldBe true
+      result.get shouldBe expectedResult
     }
   }
 

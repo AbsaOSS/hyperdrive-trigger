@@ -65,6 +65,7 @@ export const api = {
   GET_QUARTZ_DETAIL: '/util/quartzDetail',
   GET_NOTIFICATION_RULE_FROM_HISTORY: '/notificationRuleFromHistory',
 
+  GET_INGESTION_STATUS: '/hyperdrive/workflows/{id}/ingestionStatus',
   GET_KAFKA_TOPIC_AUTHORIZATIONS: '/kafka/{kafkaTopic}/authorizations',
 };
 

@@ -16,7 +16,7 @@
 package za.co.absa.hyperdrive.trigger.scheduler.executors.spark
 
 import org.slf4j.LoggerFactory
-import za.co.absa.hyperdrive.trigger.api.rest.services.HyperdriveOffsetComparisonService
+import za.co.absa.hyperdrive.trigger.api.rest.services.HyperdriveOffsetService
 import za.co.absa.hyperdrive.trigger.configuration.application.SparkConfig
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses
 import za.co.absa.hyperdrive.trigger.models.{JobInstance, SparkInstanceParameters}
@@ -31,23 +31,23 @@ object HyperdriveExecutor {
     jobParameters: SparkInstanceParameters,
     updateJob: JobInstance => Future[Unit],
     sparkClusterService: SparkClusterService,
-    offsetComparisonService: HyperdriveOffsetComparisonService
+    offsetService: HyperdriveOffsetService
   )(implicit executionContext: ExecutionContext, sparkConfig: SparkConfig): Future[Unit] =
     jobInstance.executorJobId match {
-      case None => submitJob(sparkClusterService, offsetComparisonService, jobInstance, jobParameters, updateJob)
+      case None => submitJob(sparkClusterService, offsetService, jobInstance, jobParameters, updateJob)
       case Some(executorJobId) =>
         SparkExecutor.updateJobStatus(executorJobId, jobInstance, updateJob, sparkClusterService)
     }
 
   private def submitJob(sparkClusterService: SparkClusterService,
-                        offsetComparisonService: HyperdriveOffsetComparisonService,
+                        offsetService: HyperdriveOffsetService,
                         jobInstance: JobInstance,
                         jobParameters: SparkInstanceParameters,
                         updateJob: JobInstance => Future[Unit]
   )(implicit executionContext: ExecutionContext) = {
     logger.debug("Using HyperdriveExecutor")
     for {
-      newJobRequired <- offsetComparisonService.isNewJobInstanceRequired(jobParameters)
+      newJobRequired <- offsetService.isNewJobInstanceRequired(jobParameters)
       _ <-
         if (newJobRequired) sparkClusterService.submitJob(jobInstance, jobParameters, updateJob)
         else updateJob(jobInstance.copy(jobStatus = JobStatuses.NoData))

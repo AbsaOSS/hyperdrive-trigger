@@ -35,6 +35,7 @@ import {
   ImportWorkflows,
   RunWorkflows,
   SearchWorkflows,
+  LoadIngestionStatus,
 } from '../../../stores/workflows/workflows.actions';
 
 describe('WorkflowsHomeComponent', () => {
@@ -58,6 +59,8 @@ describe('WorkflowsHomeComponent', () => {
       workflowAction: {
         loading: false,
       },
+      ingestionStatusLoading: true,
+      ingestionStatus: [],
     },
   };
 
@@ -94,7 +97,8 @@ describe('WorkflowsHomeComponent', () => {
         expect(underTest.filters).toEqual([]);
         expect(underTest.pageFrom).toEqual(0);
         expect(underTest.pageSize).toEqual(100);
-        expect(underTest.page).toEqual(0 / 100 + 1);
+        expect(underTest.ingestionStatusLoading).toEqual(true);
+        expect(underTest.ingestionStatus).toEqual([]);
       });
     }),
   );
@@ -511,5 +515,37 @@ describe('WorkflowsHomeComponent', () => {
       const workflows = [];
       expect(underTest.isRunSelectedWorkflowsDisabled(workflows)).toBeTrue();
     });
+  });
+
+  describe('onDetailRefresh', () => {
+    it(
+      'should dispatch load ingestion status',
+      waitForAsync(() => {
+        const id = 42;
+        const storeSpy = spyOn(store, 'dispatch');
+
+        underTest.onDetailRefresh({ id: id });
+
+        fixture.detectChanges();
+        fixture.whenStable().then(() => {
+          expect(storeSpy).toHaveBeenCalledWith(new LoadIngestionStatus(id));
+        });
+      }),
+    );
+
+    it(
+      'should not dispatch load ingestion status if id is null',
+      waitForAsync(() => {
+        const id = 42;
+        const storeSpy = spyOn(store, 'dispatch');
+
+        underTest.onDetailRefresh({ id: null });
+
+        fixture.detectChanges();
+        fixture.whenStable().then(() => {
+          expect(storeSpy).toHaveBeenCalledTimes(0);
+        });
+      }),
+    );
   });
 });

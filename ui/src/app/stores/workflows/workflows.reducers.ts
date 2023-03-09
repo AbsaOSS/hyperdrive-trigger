@@ -22,6 +22,7 @@ import { workflowModes } from '../../models/enums/workflowModes.constants';
 import { JobTemplateModel } from '../../models/jobTemplate.model';
 import { WorkflowModel } from '../../models/workflow.model';
 import { TableSearchRequestModel } from '../../models/search/tableSearchRequest.model';
+import { IngestionStatusModel } from '../../models/ingestionStatus.model';
 
 export interface State {
   workflowsSearch: {
@@ -59,6 +60,8 @@ export interface State {
     jobs: JobForRunModel[];
     isSuccessfullyLoaded: boolean;
   };
+  ingestionStatus: IngestionStatusModel[];
+  ingestionStatusLoading: boolean;
 }
 
 const initialState: State = {
@@ -97,6 +100,8 @@ const initialState: State = {
     jobs: undefined,
     isSuccessfullyLoaded: false,
   },
+  ingestionStatusLoading: true,
+  ingestionStatus: [],
 };
 
 export function workflowsReducer(state: State = initialState, action: WorkflowsActions.WorkflowsActions) {
@@ -593,6 +598,24 @@ export function workflowsReducer(state: State = initialState, action: WorkflowsA
           ...initialState.workflowAction,
           loading: false,
         },
+      };
+    case WorkflowsActions.LOAD_INGESTION_STATUS:
+      return {
+        ...state,
+        ingestionStatusLoading: true,
+        ingestionStatus: [],
+      };
+    case WorkflowsActions.LOAD_INGESTION_STATUS_SUCCESS:
+      return {
+        ...state,
+        ingestionStatusLoading: false,
+        ingestionStatus: action.payload,
+      };
+    case WorkflowsActions.LOAD_INGESTION_STATUS_FAILURE:
+      return {
+        ...state,
+        ingestionStatusLoading: false,
+        ingestionStatus: [],
       };
     default:
       return state;
