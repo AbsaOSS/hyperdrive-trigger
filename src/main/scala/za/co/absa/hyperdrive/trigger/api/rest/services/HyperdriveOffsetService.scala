@@ -26,7 +26,7 @@ import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.configuration.application.SparkConfig
 import za.co.absa.hyperdrive.trigger.models.enums.JobTypes
-import za.co.absa.hyperdrive.trigger.models.{JobInstanceParameters, SparkInstanceParameters}
+import za.co.absa.hyperdrive.trigger.models.{BeginningEndOffsets, JobInstanceParameters, SparkInstanceParameters}
 
 import java.util.Properties
 import javax.inject.Inject
@@ -81,30 +81,29 @@ class HyperdriveOffsetServiceImpl @Inject() (sparkConfig: SparkConfig,
         hdfsParameters <- hdfsParametersOpt
       } yield {
         val kafkaOffsets = kafkaService.getBeginningEndOffsets(kafkaParameters._1, kafkaParameters._2)
-        if (
-          kafkaOffsets.beginningOffsets.isEmpty || kafkaOffsets.endOffsets.isEmpty || kafkaOffsets.beginningOffsets.keySet != kafkaOffsets.endOffsets.keySet
-        ) {
-          logger.warn(s"Inconsistent response from kafka for topic: ${kafkaOffsets.topic}")
-          None
-        } else {
-          val ugi = userGroupInformationService.loginUserFromKeytab(hdfsParameters.principal, hdfsParameters.keytab)
-          val hdfsOffsetsTry = checkpointService.getLatestCommittedOffset(hdfsParameters)(ugi).map(_.map(_.head._2))
+        kafkaOffsets match {
+          case BeginningEndOffsets(_, start, end) if start.nonEmpty && end.nonEmpty && start.keySet == end.keySet =>
+            val ugi = userGroupInformationService.loginUserFromKeytab(hdfsParameters.principal, hdfsParameters.keytab)
+            val hdfsOffsetsTry = checkpointService.getLatestCommittedOffset(hdfsParameters)(ugi).map(_.map(_.head._2))
 
-          hdfsOffsetsTry match {
-            case Failure(_) => None
-            case Success(hdfsOffsetsOption) =>
-              val messagesLeft = kafkaOffsets.beginningOffsets.map { case (partition, kafkaBeginningOffset) =>
-                val kafkaEndOffset = kafkaOffsets.endOffsets(partition)
-                val numberOfMessages = hdfsOffsetsOption.flatMap(_.get(partition)) match {
-                  case Some(hdfsOffset) if hdfsOffset > kafkaEndOffset        => kafkaEndOffset - hdfsOffset
-                  case Some(hdfsOffset) if hdfsOffset > kafkaBeginningOffset  => kafkaEndOffset - hdfsOffset
-                  case Some(hdfsOffset) if hdfsOffset <= kafkaBeginningOffset => kafkaEndOffset - kafkaBeginningOffset
-                  case None                                                   => kafkaEndOffset - kafkaBeginningOffset
+            hdfsOffsetsTry match {
+              case Failure(_) => None
+              case Success(hdfsOffsetsOption) =>
+                val messagesLeft = kafkaOffsets.beginningOffsets.map { case (partition, kafkaBeginningOffset) =>
+                  val kafkaEndOffset = kafkaOffsets.endOffsets(partition)
+                  val numberOfMessages = hdfsOffsetsOption.flatMap(_.get(partition)) match {
+                    case Some(hdfsOffset) if hdfsOffset > kafkaEndOffset => kafkaEndOffset - hdfsOffset
+                    case Some(hdfsOffset) if hdfsOffset > kafkaBeginningOffset => kafkaEndOffset - hdfsOffset
+                    case Some(hdfsOffset) if hdfsOffset <= kafkaBeginningOffset => kafkaEndOffset - kafkaBeginningOffset
+                    case None => kafkaEndOffset - kafkaBeginningOffset
+                  }
+                  partition -> numberOfMessages
                 }
-                partition -> numberOfMessages
-              }
-              Some((kafkaOffsets.topic, messagesLeft))
-          }
+                Some((kafkaOffsets.topic, messagesLeft))
+            }
+          case _ =>
+            logger.warn(s"Inconsistent response from kafka for topic: ${kafkaOffsets.topic}")
+            None
         }
       }
     ).map(_.flatten)
