@@ -51,7 +51,7 @@ class HyperdriveServiceImpl(
                 hyperdriveOffsetService.getNumberOfMessagesLeft(resolvedJob.jobParameters).transformWith {
                   case Failure(exception) =>
                     logger.error(s"Failed to get number of messages left to ingest for a workflow: $id", exception)
-                    Future(
+                    Future.successful(
                       IngestionStatus(
                         jobName = resolvedJob.name,
                         jobType = resolvedJob.jobParameters.jobType.name,
@@ -59,7 +59,7 @@ class HyperdriveServiceImpl(
                       )
                     )
                   case Success(messagesLeftOpt) =>
-                    Future(
+                    Future.successful(
                       IngestionStatus(
                         jobName = resolvedJob.name,
                         jobType = resolvedJob.jobParameters.jobType.name,
@@ -68,7 +68,7 @@ class HyperdriveServiceImpl(
                     )
                 }
               case resolvedJob =>
-                Future(
+                Future.successful(
                   IngestionStatus(
                     jobName = resolvedJob.name,
                     jobType = resolvedJob.jobParameters.jobType.name,
