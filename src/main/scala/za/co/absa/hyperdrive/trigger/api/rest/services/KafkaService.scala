@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service
 import org.springframework.util.ConcurrentLruCache
 import za.co.absa.hyperdrive.trigger.api.rest.services.KafkaServiceImpl.{BeginningOffsets, EndOffsets, OffsetFunction}
 import za.co.absa.hyperdrive.trigger.configuration.application.GeneralConfig
+import za.co.absa.hyperdrive.trigger.models.BeginningEndOffsets
 
 import java.util.Properties
 import java.util.UUID.randomUUID
@@ -31,6 +32,7 @@ import scala.collection.JavaConverters._
 trait KafkaService {
   def getBeginningOffsets(topic: String, consumerProperties: Properties): Map[Int, Long]
   def getEndOffsets(topic: String, consumerProperties: Properties): Map[Int, Long]
+  def getBeginningEndOffsets(topic: String, consumerProperties: Properties): BeginningEndOffsets
 }
 
 @Service
@@ -48,6 +50,14 @@ class KafkaServiceImpl @Inject() (generalConfig: GeneralConfig) extends KafkaSer
 
   override def getEndOffsets(topic: String, consumerProperties: Properties): Map[Int, Long] = {
     getOffsets(topic, consumerProperties, EndOffsets)
+  }
+
+  def getBeginningEndOffsets(topic: String, consumerProperties: Properties): BeginningEndOffsets = {
+    BeginningEndOffsets(
+      topic,
+      getOffsets(topic, consumerProperties, BeginningOffsets),
+      getOffsets(topic, consumerProperties, EndOffsets)
+    )
   }
 
   def createKafkaConsumer(propertiesThreadId: (Properties, Long)): KafkaConsumer[String, String] = {

@@ -25,7 +25,7 @@ import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.api.rest.utils.ScalaUtil.swap
 
 import javax.inject.Inject
-import scala.util.Try
+import scala.util.{Success, Try}
 
 trait CheckpointService {
   type TopicPartitionOffsets = Map[String, Map[Int, Long]]
@@ -34,6 +34,10 @@ trait CheckpointService {
   def getLatestOffsetFilePath(params: HdfsParameters)(
     implicit ugi: UserGroupInformation
   ): Try[Option[(String, Boolean)]]
+
+  def getLatestCommittedOffset(params: HdfsParameters)(
+    implicit ugi: UserGroupInformation
+  ): Try[Option[TopicPartitionOffsets]]
 }
 
 class HdfsParameters(
@@ -95,6 +99,16 @@ class CheckpointServiceImpl @Inject() (@Lazy hdfsService: HdfsService) extends C
         logger.debug(s"No offset files exist under checkpoint location ${params.checkpointLocation}")
       }
       swap(offsetFilePath)
+    }
+  }
+
+  override def getLatestCommittedOffset(
+    params: HdfsParameters
+  )(implicit ugi: UserGroupInformation): Try[Option[TopicPartitionOffsets]] = {
+    getLatestCommitBatchId(params.checkpointLocation).flatMap {
+      _.map { latestCommit =>
+        getOffsetsFromFile(new Path(s"${params.checkpointLocation}/$offsetsDirName/$latestCommit").toString)
+      }.getOrElse(Success(None))
     }
   }
 
