@@ -27,7 +27,7 @@ import za.co.absa.hyperdrive.trigger.scheduler.executors.Executors
 import za.co.absa.hyperdrive.trigger.scheduler.notifications.NotificationSender
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.Sensors
 
-import scala.collection.mutable
+import scala.collection.concurrent.{Map => ConcurrentMap, TrieMap}
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success}
 
@@ -57,7 +57,7 @@ class JobScheduler @Inject() (
   private var runningEnqueue = Future.successful((): Unit)
   private var runningAssignWorkflows = Future.successful((): Unit)
   private var runningSendingNotifications = Future.successful((): Unit)
-  private val runningDags = mutable.Map.empty[RunningDagsKey, Future[Unit]]
+  private val runningDags: ConcurrentMap[RunningDagsKey, Future[Unit]] = TrieMap.empty
 
   def startManager(): Unit = {
     logger.info("Starting Manager")
