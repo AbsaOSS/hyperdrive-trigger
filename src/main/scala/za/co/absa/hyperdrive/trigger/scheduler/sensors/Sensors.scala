@@ -63,7 +63,7 @@ class Sensors @Inject() (
     mutable.Map.empty[Long, Sensor[_ <: SensorProperties]]
 
   def processEvents(assignedWorkflowIds: Seq[Long]): Future[Unit] = {
-    logger.info("Processing events sensed by %s", new LazyToStr(sensors.keys.map(id => s"SensorId=$id")))
+    logger.info("Processing events sensed by {}", new LazyToStr(sensors.keys.map(id => s"SensorId=$id")))
     removeReleasedSensors(assignedWorkflowIds)
     val fut = for {
       _ <- removeInactiveSensors()
@@ -101,7 +101,7 @@ class Sensors @Inject() (
         sensors.values.map(sensor => (sensor.sensorDefinition.id, sensor.sensorDefinition.properties)).toSeq
       )
       .map(_.foreach { sensor =>
-        logger.trace("Restarting updated sensor (SensorId=%d) for (WorkflowId=%d)", sensor.id, sensor.workflowId)
+        logger.trace("Restarting updated sensor (SensorId={}) for (WorkflowId={})", sensor.id, sensor.workflowId)
         stopSensor(sensor.id)
         startSensor(sensor)
       })
@@ -110,7 +110,7 @@ class Sensors @Inject() (
   private def removeReleasedSensors(assignedWorkflowIds: Seq[Long]): Unit = {
     val releasedWorkflowIds = sensors.values.map(_.sensorDefinition.workflowId).toSeq.diff(assignedWorkflowIds)
     logger.trace(
-      "Removing released sensors (AssignedWorkflowIds=%s; ReleasedWorkflowIds=%s)",
+      "Removing released sensors (AssignedWorkflowIds={}; ReleasedWorkflowIds={})",
       assignedWorkflowIds,
       releasedWorkflowIds
     )
@@ -122,24 +122,24 @@ class Sensors @Inject() (
   private def removeInactiveSensors(): Future[Unit] = {
     val activeSensors = sensors.keys.toSeq
     logger.trace(
-      "Removing inactive sensors called with active sensors: %s",
+      "Removing inactive sensors called with active sensors: {}",
       new LazyToStr(activeSensors.map(id => s"SensorId=$id"))
     )
     sensorRepository
       .getInactiveSensors(activeSensors)
       .map(
         wireTap(inactive =>
-          logger.info("Removing inactive sensors %s", new LazyToStr(inactive.map(id => s"SensorId=$id")))
+          logger.info("Removing inactive sensors {}", new LazyToStr(inactive.map(id => s"SensorId=$id")))
         )
       )
       .map(_.foreach(id => stopSensor(id)))
   }
 
   private def stopSensor(id: Long) = {
-    logger.trace("Stopping sensor (SensorId=%d)", id)
+    logger.trace("Stopping sensor (SensorId={})", id)
     sensors.get(id).foreach { sensor =>
       logger.debug(
-        "Stopping sensor (SensorId=%d) for (WorkflowId=%d) with (SensorType=%s)",
+        "Stopping sensor (SensorId={}) for (WorkflowId={}) with (SensorType={})",
         id,
         sensor.sensorDefinition.workflowId,
         sensor.sensorDefinition.properties.sensorType.name
@@ -158,7 +158,7 @@ class Sensors @Inject() (
 
   private def startSensor(sensor: SensorDefition[_ <: SensorProperties]) = {
     logger.debug(
-      "Starting sensor (SensorId=%d) for (WorkflowId=%d) with (SensorType=%s)",
+      "Starting sensor (SensorId={}) for (WorkflowId={}) with (SensorType={})",
       sensor.id,
       sensor.workflowId,
       sensor.properties.sensorType.name
@@ -172,7 +172,7 @@ class Sensors @Inject() (
           )
         ) match {
           case Success(s) =>
-            logger.info("Kafka sensor (SensorId=%d) started for workflow (WorkflowId=%d)", sensor.id, sensor.workflowId)
+            logger.info("Kafka sensor (SensorId={}) started for workflow (WorkflowId={})", sensor.id, sensor.workflowId)
             sensors.put(sensor.id, s)
           case Failure(f) => logger.error(s"Could not create Kafka sensor for sensor (#${sensor.id}).", f)
         }
@@ -185,12 +185,12 @@ class Sensors @Inject() (
         ) match {
           case Success(s) =>
             logger.info(
-              "Absa Kafka sensor (SensorId=%d) started for workflow (WorkflowId=%d)",
+              "Absa Kafka sensor (SensorId={}) started for workflow (WorkflowId={})",
               sensor.id,
               sensor.workflowId
             )
             sensors.put(sensor.id, s)
-          case Failure(f) => logger.error(s"Could not create Absa Kafka sensor for sensor (#${sensor.id}).", f)
+          case Failure(f) => logger.error(s"Could not create Absa Kafka sensor for sensor (SensorId=${sensor.id}).", f)
         }
       case timeSensorProperties: TimeSensorProperties =>
         Try(
@@ -200,7 +200,7 @@ class Sensors @Inject() (
           )
         ) match {
           case Success(s) =>
-            logger.info("Time sensor (SensorId=%d) started for workflow (WorkflowId=%d)", sensor.id, sensor.workflowId)
+            logger.info("Time sensor (SensorId={}) started for workflow (WorkflowId={})", sensor.id, sensor.workflowId)
             sensors.put(sensor.id, s)
           case Failure(f) => logger.error(s"Could not create Time sensor for sensor (SensorId=${sensor.id}).", f)
         }
@@ -214,15 +214,19 @@ class Sensors @Inject() (
         ) match {
           case Success(s) =>
             logger.info(
-              "Recurring sensor (SensorId=%d) started for workflow (WorkflowId=%d)",
+              "Recurring sensor (SensorId={}) started for workflow (WorkflowId={})",
               sensor.id,
               sensor.workflowId
             )
             sensors.put(sensor.id, s)
-          case Failure(f) => logger.error(s"Could not create Recurring sensor for sensor (#${sensor.id}).", f)
+          case Failure(f) => logger.error(s"Could not create Recurring sensor for sensor (SensorId=${sensor.id}).", f)
         }
       case _ =>
-        logger.error(s"Could not find sensor implementation (#${sensor.id}).", sensor.properties.sensorType)
+        logger.error(
+          "Could not find sensor implementation (SensorId={}) unknown (SensorType={})",
+          sensor.id,
+          sensor.properties.sensorType
+        )
     }
   }
 

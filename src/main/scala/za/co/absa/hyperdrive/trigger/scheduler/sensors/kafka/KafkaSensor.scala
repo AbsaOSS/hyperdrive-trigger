@@ -69,13 +69,13 @@ class KafkaSensor(
 
   override def poll(): Future[Unit] = {
     import scala.collection.JavaConverters._
-    logger.debug("(SensorId=%d). Polling new events.", sensorDefinition.id)
+    logger.debug("(SensorId={}). Polling new events.", sensorDefinition.id)
     val fut = Future {
       consumer.poll(Duration.ofMillis(kafkaConfig.pollDuration)).asScala
     } flatMap processRecords map (_ => consumer.commitSync())
 
     fut.onComplete {
-      case Success(_) => logger.debug("(SensorId=%d). Polling successful", sensorDefinition.id)
+      case Success(_) => logger.debug("(SensorId={}). Polling successful", sensorDefinition.id)
       case Failure(exception) =>
         logger.warn(s"(SensorId=${sensorDefinition.id}). Polling failed.", exception)
     }
@@ -84,7 +84,7 @@ class KafkaSensor(
   }
 
   private def processRecords[A](records: Iterable[ConsumerRecord[A, String]]): Future[Unit] = {
-    logger.debug(s"(SensorId=%d). Messages received = %s", sensorDefinition.id, new LazyToStr(records.map(_.value())))
+    logger.debug(s"(SensorId={}). Messages received = {}", sensorDefinition.id, new LazyToStr(records.map(_.value())))
     if (records.nonEmpty) {
       val events = records.map(recordToEvent).toSeq
       val matchedEvents = events.filter { event =>
@@ -106,7 +106,7 @@ class KafkaSensor(
   private def recordToEvent[A](record: ConsumerRecord[A, String]): Event = {
     val sourceEventId = sensorDefinition.id + "kafka" + record.topic() + record.partition() + record.offset()
     val payload = Try(Json.parse(record.value())).getOrElse {
-      logger.error(s"(SensorId=%d). Invalid message.", sensorDefinition.id)
+      logger.error(s"(SensorId={}). Invalid message.", sensorDefinition.id)
       Json.parse(s"""{"errorMessage": "${record.value()}"}""")
     }
     Event(sourceEventId, sensorDefinition.id, payload)

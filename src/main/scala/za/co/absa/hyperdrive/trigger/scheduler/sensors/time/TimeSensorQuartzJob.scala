@@ -34,7 +34,7 @@ class TimeSensorQuartzJob extends Job {
     val push = jobDataMap.get(TimeSensor.PUSH_FUNCTION_JOB_DATA_MAP_KEY).asInstanceOf[Seq[Event] => Future[Unit]]
     val sensorId = jobDataMap.get(TimeSensor.SENSOR_ID_JOB_DATA_MAP_KEY).asInstanceOf[Long]
     val sourceEventId = s"sid=$sensorId;t=${eventDateFormatter.format(Instant.now())}"
-    logger.debug("(SensorId=%d). Pushing event (SourceEventId=%s)", sensorId, sourceEventId)
+    logger.debug("(SensorId={}). Pushing event (SourceEventId={})", sensorId, sourceEventId)
     val event = Event(sourceEventId, sensorId, JsObject.empty)
     push(Seq(event))
   }
