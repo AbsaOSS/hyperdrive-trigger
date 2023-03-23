@@ -47,7 +47,7 @@ class WorkflowBalancingServiceImpl @Inject() (workflowRepository: WorkflowReposi
     val myRank = getRank(activeInstances, myInstanceId)
     logger.info(
       "Rebalancing workflows on scheduler instance (SchedulerId=%d), rank = %d," +
-      " active instances %s, retaining workflows %s",
+        " active instances %s, retaining workflows %s",
       myInstanceId,
       myRank,
       new LazyToStr(activeInstances.map(_.id).sorted.map(id => s"InstanceId=$id")),

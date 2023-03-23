@@ -131,7 +131,8 @@ class JobScheduler @Inject() (
         case (key, dagCompletion) if dagCompletion.isCompleted => Some(key)
         case _                                                 => None
       }.toSeq
-      logger.debug("Removing finished DAGs for workflows %s",
+      logger.debug(
+        "Removing finished DAGs for workflows %s",
         new LazyToStr(finishedDags.map(key => s"(DagId=${key.dagId}; WorkflowId=${key.workflowId})"))
       )
       runningDags --= finishedDags

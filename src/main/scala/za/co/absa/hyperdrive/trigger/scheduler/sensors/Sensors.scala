@@ -184,9 +184,10 @@ class Sensors @Inject() (
           )
         ) match {
           case Success(s) =>
-            logger.info("Absa Kafka sensor (SensorId=%d) started for workflow (WorkflowId=%d)",
-                        sensor.id,
-                        sensor.workflowId
+            logger.info(
+              "Absa Kafka sensor (SensorId=%d) started for workflow (WorkflowId=%d)",
+              sensor.id,
+              sensor.workflowId
             )
             sensors.put(sensor.id, s)
           case Failure(f) => logger.error(s"Could not create Absa Kafka sensor for sensor (#${sensor.id}).", f)
@@ -201,7 +202,7 @@ class Sensors @Inject() (
           case Success(s) =>
             logger.info("Time sensor (SensorId=%d) started for workflow (WorkflowId=%d)", sensor.id, sensor.workflowId)
             sensors.put(sensor.id, s)
-          case Failure(f) => logger.error(s"Could not create Time sensor for sensor (#${sensor.id}).", f)
+          case Failure(f) => logger.error(s"Could not create Time sensor for sensor (SensorId=${sensor.id}).", f)
         }
       case recurringSensorProperties: RecurringSensorProperties =>
         Try(
@@ -212,9 +213,10 @@ class Sensors @Inject() (
           )
         ) match {
           case Success(s) =>
-            logger.info("Recurring sensor (SensorId=%d) started for workflow (WorkflowId=%d)",
-                        sensor.id,
-                        sensor.workflowId
+            logger.info(
+              "Recurring sensor (SensorId=%d) started for workflow (WorkflowId=%d)",
+              sensor.id,
+              sensor.workflowId
             )
             sensors.put(sensor.id, s)
           case Failure(f) => logger.error(s"Could not create Recurring sensor for sensor (#${sensor.id}).", f)
