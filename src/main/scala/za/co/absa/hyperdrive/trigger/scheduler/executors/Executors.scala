@@ -81,7 +81,7 @@ class Executors @Inject() (
           case Failure(exception) =>
             logger.error(s"Updating status failed for failed run. (DagId=${dagInstance.id})", exception)
           case _ =>
-            logger.info("Updating status succeeded for failed run. (DagId=%d)", dagInstance.id)
+            logger.info("Updating status succeeded for failed run. (DagId={})", dagInstance.id)
         }
         fut
       case jobInstances
@@ -95,7 +95,7 @@ class Executors @Inject() (
           case Failure(exception) =>
             logger.error(s"Updating status failed for skipped run. (DagId=${dagInstance.id})", exception)
           case _ =>
-            logger.info("Updating status succeeded for skipped run. (DagId=%d)", dagInstance.id)
+            logger.info("Updating status succeeded for skipped run. (DagId={})", dagInstance.id)
         }
         fut
       case jobInstances if jobInstances.forall(ji => ji.jobStatus.isFinalStatus && !ji.jobStatus.isFailed) =>
@@ -109,7 +109,7 @@ class Executors @Inject() (
           case Failure(exception) =>
             logger.error(s"Updating status failed for successful run. (DagId=${dagInstance.id})", exception)
           case _ =>
-            logger.info("Updating status succeeded for successful run. (DagId=%d)", dagInstance.id)
+            logger.info("Updating status succeeded for successful run. (DagId={})", dagInstance.id)
         }
         fut
       case jobInstances =>
@@ -130,7 +130,7 @@ class Executors @Inject() (
           }
         }
         fut.onComplete {
-          case Success(_) => logger.debug(s"Executing job. (JobId=%d)", jobInstance)
+          case Success(_) => logger.debug(s"Executing job. (JobId={})", jobInstance)
           case Failure(exception) =>
             logger.error(s"Executing job failed. (JobId=$jobInstance).", exception)
         }
@@ -139,7 +139,7 @@ class Executors @Inject() (
 
   private def updateJob(jobInstance: JobInstance): Future[Unit] = {
     logger.info(
-      "(JobId=%d). Job updated. ID = %d STATUS = %s EXECUTOR_ID = %s",
+      "(JobId={}). Job updated. ID = {} STATUS = {} EXECUTOR_ID = {}",
       jobInstance.id,
       jobInstance.id,
       jobInstance.jobStatus,

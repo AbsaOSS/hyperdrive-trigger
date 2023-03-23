@@ -30,15 +30,15 @@ object TimeSensorQuartzSchedulerManager {
   private val scheduler: Scheduler = initialize()
 
   def start(): Unit = {
-    logger.info("Starting Quartz Scheduler %s now", scheduler.getSchedulerName)
+    logger.info("Starting Quartz Scheduler {} now", scheduler.getSchedulerName)
     scheduler.start()
   }
 
   def stop(): Unit = {
-    logger.info(s"Stopping Quartz Scheduler %s now", scheduler.getSchedulerName)
+    logger.info(s"Stopping Quartz Scheduler {} now", scheduler.getSchedulerName)
     try {
       scheduler.standby()
-      logger.info(s"Stopped Quartz Scheduler %s", scheduler.getSchedulerName)
+      logger.info(s"Stopped Quartz Scheduler {}", scheduler.getSchedulerName)
     } catch {
       case ex: SchedulerException => throw new SchedulingException("Could not stop Quartz Scheduler", ex)
     }

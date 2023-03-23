@@ -120,7 +120,7 @@ class JobScheduler @Inject() (
       .getDagsToRun(runningDags.keys.map(_.workflowId).toSeq.distinct, emptySlotsSize, assignedWorkflowIds)
       .map {
         _.foreach { dag =>
-          logger.debug("Deploying dag (DagId=%d)", dag.id)
+          logger.debug("Deploying dag (DagId={})", dag.id)
           runningDags.put(RunningDagsKey(dag.id, dag.workflowId), executors.executeDag(dag))
         }
       }
@@ -132,7 +132,7 @@ class JobScheduler @Inject() (
         case _                                                 => None
       }.toSeq
       logger.debug(
-        "Removing finished DAGs for workflows %s",
+        "Removing finished DAGs for workflows {}",
         new LazyToStr(finishedDags.map(key => s"(DagId=${key.dagId}; WorkflowId=${key.workflowId})"))
       )
       runningDags --= finishedDags

@@ -15,14 +15,13 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.cluster
 
-import java.time.Duration
 import javax.inject.Inject
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import za.co.absa.hyperdrive.trigger.configuration.application.SchedulerConfig
 import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses.SchedulerInstanceStatus
-import za.co.absa.hyperdrive.trigger.models.{SchedulerInstance, Workflow}
+import za.co.absa.hyperdrive.trigger.models.Workflow
+import za.co.absa.hyperdrive.trigger.scheduler.utilities.logging.wireTap
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -66,7 +65,7 @@ class WorkflowBalancer @Inject() (
     }
 
   def resetSchedulerInstanceId(): Unit = {
-    logger.trace("Resetting scheduler instance id (SchedulerId=%s) -> None", schedulerInstanceId)
+    logger.trace("Resetting scheduler instance id (SchedulerId={}) -> None", schedulerInstanceId)
     schedulerInstanceId = None
   }
 
@@ -76,10 +75,9 @@ class WorkflowBalancer @Inject() (
       case None =>
         schedulerInstanceService
           .registerNewInstance()
-          .map { id =>
+          .map(wireTap { id =>
             schedulerInstanceId = Some(id)
-            logger.info(s"Registered new scheduler instance with id = $id")
-            id
-          }
+            logger.info("Registered new scheduler instance (SchedulerId={})", id)
+          })
     }
 }

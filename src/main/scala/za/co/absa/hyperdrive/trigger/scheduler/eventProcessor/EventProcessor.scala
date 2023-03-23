@@ -45,7 +45,7 @@ class EventProcessor(
     implicit ec: ExecutionContext
   ): Future[Boolean] = {
     logger.trace(
-      "Processing events %s called on event processor for sensor (SensorId=%d), triggered by: %s",
+      "Processing events {} called on event processor for sensor (SensorId={}), triggered by: {}",
       new LazyToStr(events.map(e => s"EventId=${e.id}")),
       sensorId,
       triggeredBy
@@ -53,7 +53,7 @@ class EventProcessor(
     eventRepository.getExistEvents(events.map(_.sensorEventId)).flatMap { eventsIdsInDB =>
       val newEvents = events.filter(e => !eventsIdsInDB.contains(e.sensorEventId))
       logger.trace(
-        "Unprocessed events %s",
+        "Unprocessed events {}",
         new LazyToStr(newEvents.map(e => s"EventId=${e.id}"))
       )
       if (newEvents.nonEmpty) {
@@ -65,7 +65,7 @@ class EventProcessor(
                 .map(
                   wireTap(inQueue =>
                     logger.trace(
-                      "DAG instance for (WorkflowId=%d) produced by (SensorId=%d) already queued: [%s]",
+                      "DAG instance for (WorkflowId={}) produced by (SensorId={}) already queued: [{}]",
                       joinedDagDefinition.workflowId,
                       sensorId,
                       inQueue
@@ -77,7 +77,7 @@ class EventProcessor(
                 .map(
                   wireTap(instance =>
                     logger.trace(
-                      "Created Joined DAG instance %s by (SensorId=%d) for (WorkflowId=%d)",
+                      "Created Joined DAG instance {} by (SensorId={}) for (WorkflowId={})",
                       instance,
                       sensorId,
                       joinedDagDefinition.workflowId
@@ -88,18 +88,18 @@ class EventProcessor(
               _ <- dagInstanceRepository.insertJoinedDagInstancesWithEvents(dagInstanceJoinedEvents)
             } yield {
               logger.info(
-                "Persisted newly paired DAG instances with Events into DB by (SensorId=%d) for (WorkflowId=%d)",
+                "Persisted newly paired DAG instances with Events into DB by (SensorId={}) for (WorkflowId={})",
                 sensorId,
                 joinedDagDefinition.workflowId
               )
               true
             }
           case None =>
-            logger.info("No Joined DAG definition found for (SensorId=%d)", sensorId)
+            logger.info("No Joined DAG definition found for (SensorId={})", sensorId)
             Future.successful(true)
         }
       } else {
-        logger.info("EventProcessor for (SensorId=%d) doesn't have any new events", sensorId)
+        logger.info("EventProcessor for (SensorId={}) doesn't have any new events", sensorId)
         Future.successful(true)
       }
     }

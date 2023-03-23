@@ -46,8 +46,8 @@ class WorkflowBalancingServiceImpl @Inject() (workflowRepository: WorkflowReposi
     val activeInstances = instances.filter(_.status == SchedulerInstanceStatuses.Active)
     val myRank = getRank(activeInstances, myInstanceId)
     logger.info(
-      "Rebalancing workflows on scheduler instance (SchedulerId=%d), rank = %d," +
-        " active instances %s, retaining workflows %s",
+      "Rebalancing workflows on scheduler instance (SchedulerId={}), rank = {}," +
+        " active instances {}, retaining workflows {}",
       myInstanceId,
       myRank,
       new LazyToStr(activeInstances.map(_.id).sorted.map(id => s"InstanceId=$id")),
@@ -58,7 +58,7 @@ class WorkflowBalancingServiceImpl @Inject() (workflowRepository: WorkflowReposi
         .releaseWorkflowAssignmentsOfDeactivatedInstances()
       _ = if (releasedWorkflowsCount > 0) {
         logger.info(
-          "Scheduler instance (SchedulerId=%d) released %d workflows of %d deactivated instances",
+          "Scheduler instance (SchedulerId={}) released {} workflows of {} deactivated instances",
           myInstanceId,
           releasedWorkflowsCount,
           instancesDeletedCount
@@ -79,7 +79,7 @@ class WorkflowBalancingServiceImpl @Inject() (workflowRepository: WorkflowReposi
       val acquiredWorkflowIds = acquiredWorkflows.map(_.id)
       val targetWorkflowAssignmentReached = acquiredWorkflowIds.toSet == targetWorkflowIds.toSet
       logger.debug(
-        "Scheduler instance (SchedulerId=%d) acquired workflows %s with missing target workflows %s",
+        "Scheduler instance (SchedulerId={}) acquired workflows {} with missing target workflows {}",
         myInstanceId,
         new LazyToStr(acquiredWorkflowIds.sorted.map(id => s"WorkflowId=$id")),
         new LazyToStr(targetWorkflowIds.diff(acquiredWorkflowIds).sorted.map(id => s"WorkflowId=$id"))

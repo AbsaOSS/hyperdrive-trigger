@@ -45,8 +45,8 @@ class TimeSensor(
     val trigger = buildJobTrigger(jobDetail, cronExpression)
     val firstFireTime = scheduler.scheduleJob(jobDetail, trigger)
     logger.trace(
-      "First execution of (SensorId=%d) for (WorkflowId=%d)" +
-        " with (JobDetail=%s) and (JobTrigger=%s) is scheduled to: %s",
+      "First execution of (SensorId={}) for (WorkflowId={})" +
+        " with (JobDetail={}) and (JobTrigger={}) is scheduled to: {}",
       sensorId,
       sensorDefinition.workflowId,
       jobDetail,
@@ -99,7 +99,7 @@ object TimeSensor {
     validateCronExpression(sensorDefinition.properties.cronExpression, sensorDefinition.id)
 
     logger.debug(
-      "Launching QuartzJob (CronExpression=%s) within TimeSensor (SensorId=%d) for workflow (WorkflowId=%d)",
+      "Launching QuartzJob (CronExpression={}) within TimeSensor (SensorId={}) for workflow (WorkflowId={})",
       sensorDefinition.properties.cronExpression,
       sensorDefinition.id,
       sensorDefinition.workflowId
@@ -111,18 +111,18 @@ object TimeSensor {
   private def validateJobKeys(jobKey: JobKey, triggerKey: TriggerKey, scheduler: Scheduler, sensorId: Long): Unit = {
     if (scheduler.checkExists(jobKey)) {
       throw new IllegalArgumentException(
-        s"A Quartz Job with key ($jobKey) already exists. Cannot create job for sensor (#$sensorId)"
+        s"A Quartz Job with key ($jobKey) already exists. Cannot create job for sensor (SensorId=$sensorId)"
       )
     }
     if (scheduler.checkExists(triggerKey)) {
       throw new IllegalArgumentException(
-        s"A Quartz Job-Trigger with key ($triggerKey) already exists. Cannot create job for sensor (#$sensorId)"
+        s"A Quartz Job-Trigger with key ($triggerKey) already exists. Cannot create job for sensor (SensorId=$sensorId)"
       )
     }
   }
 
   private def validateCronExpression(cronExpression: String, sensorId: Long): Unit =
     if (!CronExpression.isValidExpression(cronExpression)) {
-      throw new IllegalArgumentException(s"Invalid cron expression $cronExpression for sensor (#$sensorId)")
+      throw new IllegalArgumentException(s"Invalid cron expression $cronExpression for sensor (SensorId=$sensorId)")
     }
 }

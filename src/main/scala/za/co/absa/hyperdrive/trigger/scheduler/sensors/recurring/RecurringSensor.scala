@@ -38,12 +38,12 @@ class RecurringSensor(
   private val logger = LoggerFactory.getLogger(this.getClass)
 
   override def poll(): Future[Unit] = {
-    logger.debug("(SensorId=%d). Polling new events.", sensorDefinition.id)
+    logger.debug("(SensorId={}). Polling new events.", sensorDefinition.id)
 
     val fut =
       dagInstanceRepository.hasRunningDagInstance(sensorDefinition.workflowId).flatMap { hasRunningDagInstance =>
         if (hasRunningDagInstance) {
-          logger.debug("(SensorId=%d). Workflow is running.", sensorDefinition.id)
+          logger.debug("(SensorId={}). Workflow is running.", sensorDefinition.id)
           Future.successful((): Unit)
         } else {
           val cutOffTime = LocalDateTime.now().minus(recurringSensorConfig.duration)
@@ -52,9 +52,9 @@ class RecurringSensor(
             .flatMap { count =>
               if (count >= recurringSensorConfig.maxJobsPerDuration) {
                 logger.warn(
-                  "(SensorId=%d). Skipping dag instance creation," +
-                    " because %d dag instances have been created since %s," +
-                    " but the allowed maximum is %d",
+                  "(SensorId={}). Skipping dag instance creation," +
+                    " because {} dag instances have been created since {}," +
+                    " but the allowed maximum is {}",
                   sensorDefinition.id,
                   count,
                   cutOffTime,
@@ -65,7 +65,7 @@ class RecurringSensor(
                 val sourceEventId = s"sid=${sensorDefinition.id};t=${eventDateFormatter.format(Instant.now())}"
                 val event = Event(sourceEventId, sensorDefinition.id, JsObject.empty)
                 logger.trace(
-                  "(SensorId=%d). Polling source event (SourceEventId=%s).",
+                  "(SensorId={}). Polling source event (SourceEventId={}).",
                   sensorDefinition.id,
                   sourceEventId
                 )
@@ -76,7 +76,7 @@ class RecurringSensor(
       }
 
     fut.onComplete {
-      case Success(_)         => logger.debug("(SensorId=%d). Polling successful.", sensorDefinition.id)
+      case Success(_)         => logger.debug("(SensorId={}). Polling successful.", sensorDefinition.id)
       case Failure(exception) => logger.warn(s"(SensorId=${sensorDefinition.id}). Polling failed.", exception)
     }
     fut

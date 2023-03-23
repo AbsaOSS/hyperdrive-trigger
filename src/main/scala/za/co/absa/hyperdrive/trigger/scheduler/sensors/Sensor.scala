@@ -29,7 +29,7 @@ trait Sensor[T <: SensorProperties] {
   def close(): Unit =
     try {
       logger.trace(
-        "Closing sensor (SensorId=%d) for workflow (WorkflowId=%d)",
+        "Closing sensor (SensorId={}) for workflow (WorkflowId={})",
         sensorDefinition.id,
         sensorDefinition.workflowId
       )

@@ -61,7 +61,7 @@ class SchedulerInstanceServiceImpl @Inject() (schedulerInstanceRepository: Sched
       )
       _ = if (deactivatedCount != 0)
         logger.info(
-          "Deactivated %d instances at current heartbeat %s by (SchedulerId=%d)",
+          "Deactivated {} instances at current heartbeat {} by (SchedulerId={})",
           deactivatedCount,
           currentHeartbeat,
           instanceId
