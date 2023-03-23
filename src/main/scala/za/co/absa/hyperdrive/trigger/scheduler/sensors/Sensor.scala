@@ -28,7 +28,11 @@ trait Sensor[T <: SensorProperties] {
   implicit val executionContext: ExecutionContext
   def close(): Unit =
     try {
-      logger.trace("Closing sensor (SensorId=%d) for workflow (WorkflowId=%d)", sensorDefinition.id, sensorDefinition.workflowId)
+      logger.trace(
+        "Closing sensor (SensorId=%d) for workflow (WorkflowId=%d)",
+        sensorDefinition.id,
+        sensorDefinition.workflowId
+      )
       closeInternal()
     } catch {
       case NonFatal(e) => logger.warn(s"Couldn't close sensor ${sensorDefinition.id} - $sensorDefinition", e)

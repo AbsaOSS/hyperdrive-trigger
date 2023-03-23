@@ -15,17 +15,17 @@
 package za.co.absa.hyperdrive.trigger.scheduler.utilities.logging
 
 /**
- * Class deferring computation on toString call.
+ *  Class deferring computation on toString call.
  *
- * @param value That should be computed only after toString call.
- * @tparam A Type of value computation result
+ *  @param value That should be computed only after toString call.
+ *  @tparam A Type of value computation result
  */
 class LazyToStr[A](value: => A) {
 
   override def toString: String = {
     value match {
-      case v: Iterable[_] => s"[${v.map(_.toString).mkString(", ")}]" // Slightly more compact version for logs
-      case v => v.toString
+      case v: Iterable[_] => s"[${v.map(_.toString).mkString(", ")}]" // Slightly more compact version for iterables
+      case v              => v.toString
     }
   }
 }
