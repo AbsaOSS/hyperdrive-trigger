@@ -15,7 +15,7 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.cluster
 
-import org.slf4j.LoggerFactory
+import com.typesafe.scalalogging.LazyLogging
 
 import java.time.Duration
 import javax.inject.Inject
@@ -36,8 +36,8 @@ trait SchedulerInstanceService {
 
 @Service
 class SchedulerInstanceServiceImpl @Inject() (schedulerInstanceRepository: SchedulerInstanceRepository)
-    extends SchedulerInstanceService {
-  private val logger = LoggerFactory.getLogger(this.getClass)
+    extends SchedulerInstanceService
+    with LazyLogging {
 
   override def registerNewInstance()(implicit ec: ExecutionContext): Future[Long] =
     schedulerInstanceRepository.insertInstance()

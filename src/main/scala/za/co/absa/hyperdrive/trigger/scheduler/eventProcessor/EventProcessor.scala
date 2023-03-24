@@ -15,7 +15,7 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.eventProcessor
 
-import org.slf4j.LoggerFactory
+import com.typesafe.scalalogging.LazyLogging
 import org.springframework.stereotype.Component
 import za.co.absa.hyperdrive.trigger.api.rest.services.DagInstanceService
 import za.co.absa.hyperdrive.trigger.models.Event
@@ -30,8 +30,7 @@ class EventProcessor(
   dagDefinitionRepository: DagDefinitionRepository,
   dagInstanceRepository: DagInstanceRepository,
   dagInstanceService: DagInstanceService
-) {
-  private val logger = LoggerFactory.getLogger(this.getClass)
+) extends LazyLogging {
 
   def eventProcessor(
     triggeredBy: String

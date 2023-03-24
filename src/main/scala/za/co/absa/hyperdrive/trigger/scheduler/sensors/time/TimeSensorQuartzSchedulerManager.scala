@@ -15,18 +15,17 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.sensors.time
 
-import java.util.Properties
+import com.typesafe.scalalogging.LazyLogging
 
+import java.util.Properties
 import org.quartz.impl.StdSchedulerFactory
 import org.quartz.{Scheduler, SchedulerException, SchedulerFactory}
-import org.slf4j.LoggerFactory
 import org.springframework.scheduling.SchedulingException
 
 /**
  *  Quartz Scheduler for Time Sensors.
  */
-object TimeSensorQuartzSchedulerManager {
-  private val logger = LoggerFactory.getLogger(this.getClass)
+object TimeSensorQuartzSchedulerManager extends LazyLogging {
   private val scheduler: Scheduler = initialize()
 
   def start(): Unit = {

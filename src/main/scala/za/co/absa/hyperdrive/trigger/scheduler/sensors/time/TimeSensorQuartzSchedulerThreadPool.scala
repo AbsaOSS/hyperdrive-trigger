@@ -15,18 +15,17 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.sensors.time
 
+import com.typesafe.scalalogging.LazyLogging
+
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.{Executors, RejectedExecutionException, ThreadFactory, ThreadPoolExecutor}
-
 import org.quartz.spi.ThreadPool
-import org.slf4j.LoggerFactory
 
 /**
  *  Thread Pool for Quartz Scheduler based on org.springframework.scheduling.quartz.LocalTaskExecutorThreadPool
  */
-class TimeSensorQuartzSchedulerThreadPool extends ThreadPool {
+class TimeSensorQuartzSchedulerThreadPool extends ThreadPool with LazyLogging {
 
-  private val logger = LoggerFactory.getLogger(this.getClass)
   private val fixedPoolSize = 10
   private val taskExecutor = createTaskExecutor
 
@@ -39,6 +38,7 @@ class TimeSensorQuartzSchedulerThreadPool extends ThreadPool {
   override def runInThread(runnable: Runnable): Boolean = {
     Predef.assert(this.taskExecutor != null, "No TaskExecutor available")
     try {
+      logger.debug("Trying to spawn new thread for runnable")
       this.taskExecutor.execute(runnable)
       true
     } catch {
@@ -66,24 +66,40 @@ class TimeSensorQuartzSchedulerThreadPool extends ThreadPool {
    *   prefix for threads of this thread group
    */
   class CustomThreadGroupThreadFactory(val threadGroupName: String, val threadNamePrefix: String)
-      extends ThreadFactory {
+      extends ThreadFactory with LazyLogging {
     Predef.assert(threadGroupName != null)
     Predef.assert(threadNamePrefix != null)
     private val threadNumber = new AtomicInteger(1)
 
     val s: SecurityManager = System.getSecurityManager
     private val group = {
-      if (threadGroupName.nonEmpty) new ThreadGroup(threadGroupName)
-      else if (s != null) s.getThreadGroup
-      else Thread.currentThread.getThreadGroup
+      if (threadGroupName.nonEmpty) {
+        logger.trace("Getting thread group for threadGroupName: group={}", threadGroupName)
+        new ThreadGroup(threadGroupName)
+      }
+      else if (s != null) {
+        logger.trace("Getting thread group from security manager: group={}", s.getThreadGroup.getName)
+        s.getThreadGroup
+      }
+      else {
+        logger.trace("Getting thread group of current thread: group={}", Thread.currentThread().getThreadGroup.getName)
+        Thread.currentThread.getThreadGroup
+      }
     }
 
     private val namePrefix = s"$threadNamePrefix-thread-"
 
     override def newThread(r: Runnable): Thread = {
+      logger.debug("Creating new thread for runnable")
       val t = new Thread(group, r, namePrefix + threadNumber.getAndIncrement, 0)
-      if (t.isDaemon) t.setDaemon(false)
-      if (t.getPriority != Thread.NORM_PRIORITY) t.setPriority(Thread.NORM_PRIORITY)
+      if (t.isDaemon) {
+        logger.trace("Spawning normal thread from daemon for runnable")
+        t.setDaemon(false)
+      }
+      if (t.getPriority != Thread.NORM_PRIORITY) {
+        logger.trace("Setting priority to Thread.NORM_PRIORITY")
+        t.setPriority(Thread.NORM_PRIORITY)
+      }
       t
     }
   }

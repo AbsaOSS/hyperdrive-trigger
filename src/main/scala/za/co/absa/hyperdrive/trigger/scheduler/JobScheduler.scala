@@ -15,10 +15,11 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler
 
+import com.typesafe.scalalogging.LazyLogging
+
 import java.util.concurrent
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import za.co.absa.hyperdrive.trigger.configuration.application.SchedulerConfig
 import za.co.absa.hyperdrive.trigger.persistance._
@@ -40,11 +41,9 @@ class JobScheduler @Inject() (
   workflowBalancer: WorkflowBalancer,
   notificationSender: NotificationSender,
   schedulerConfig: SchedulerConfig
-) {
+) extends LazyLogging {
 
   case class RunningDagsKey(dagId: Long, workflowId: Long)
-
-  private val logger = LoggerFactory.getLogger(this.getClass)
 
   private val HEART_BEAT: Int = schedulerConfig.heartBeat
   val NUM_OF_PAR_TASKS: Int = schedulerConfig.maxParallelJobs

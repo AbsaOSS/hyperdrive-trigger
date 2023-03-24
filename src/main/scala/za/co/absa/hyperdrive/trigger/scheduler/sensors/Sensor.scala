@@ -15,14 +15,14 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.sensors
 
-import org.slf4j.LoggerFactory
+import com.typesafe.scalalogging.AnyLogging
 import za.co.absa.hyperdrive.trigger.models.{Event, SensorProperties}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
 
-trait Sensor[T <: SensorProperties] {
-  private val logger = LoggerFactory.getLogger(this.getClass)
+trait Sensor[T <: SensorProperties] extends AnyLogging {
+
   val eventsProcessor: (Seq[Event], Long) => Future[Boolean]
   val sensorDefinition: za.co.absa.hyperdrive.trigger.models.Sensor[T]
   implicit val executionContext: ExecutionContext
