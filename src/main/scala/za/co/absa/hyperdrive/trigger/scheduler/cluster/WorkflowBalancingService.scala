@@ -15,8 +15,9 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.cluster
 
+import com.typesafe.scalalogging.LazyLogging
+
 import javax.inject.Inject
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses
 import za.co.absa.hyperdrive.trigger.models.{SchedulerInstance, Workflow}
@@ -35,8 +36,9 @@ trait WorkflowBalancingService {
 }
 
 @Service
-class WorkflowBalancingServiceImpl @Inject() (workflowRepository: WorkflowRepository) extends WorkflowBalancingService {
-  private val logger = LoggerFactory.getLogger(this.getClass)
+class WorkflowBalancingServiceImpl @Inject() (workflowRepository: WorkflowRepository)
+    extends WorkflowBalancingService
+    with LazyLogging {
 
   override def getWorkflowsAssignment(
     runningWorkflowIds: Iterable[Long],
