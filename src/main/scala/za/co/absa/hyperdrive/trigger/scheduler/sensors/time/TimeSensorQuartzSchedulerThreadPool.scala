@@ -66,7 +66,8 @@ class TimeSensorQuartzSchedulerThreadPool extends ThreadPool with LazyLogging {
    *   prefix for threads of this thread group
    */
   class CustomThreadGroupThreadFactory(val threadGroupName: String, val threadNamePrefix: String)
-      extends ThreadFactory with LazyLogging {
+      extends ThreadFactory
+      with LazyLogging {
     Predef.assert(threadGroupName != null)
     Predef.assert(threadNamePrefix != null)
     private val threadNumber = new AtomicInteger(1)
@@ -76,12 +77,10 @@ class TimeSensorQuartzSchedulerThreadPool extends ThreadPool with LazyLogging {
       if (threadGroupName.nonEmpty) {
         logger.trace("Getting thread group for threadGroupName: group={}", threadGroupName)
         new ThreadGroup(threadGroupName)
-      }
-      else if (s != null) {
+      } else if (s != null) {
         logger.trace("Getting thread group from security manager: group={}", s.getThreadGroup.getName)
         s.getThreadGroup
-      }
-      else {
+      } else {
         logger.trace("Getting thread group of current thread: group={}", Thread.currentThread().getThreadGroup.getName)
         Thread.currentThread.getThreadGroup
       }
