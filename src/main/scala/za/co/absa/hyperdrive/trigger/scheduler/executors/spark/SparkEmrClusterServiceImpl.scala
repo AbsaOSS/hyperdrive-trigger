@@ -25,8 +25,8 @@ import com.amazonaws.services.elasticmapreduce.model.{
   StepState,
   StepSummary
 }
+import com.typesafe.scalalogging.LazyLogging
 import org.apache.commons.lang3.StringUtils
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.configuration.application.SparkConfig
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses
@@ -46,9 +46,9 @@ class SparkEmrClusterServiceImpl @Inject() (
   sparkConfig: SparkConfig,
   emrClusterProvider: EmrClusterProviderService,
   executionContextProvider: SparkClusterServiceExecutionContextProvider
-) extends SparkClusterService {
+) extends SparkClusterService
+    with LazyLogging {
   private implicit val executionContext: ExecutionContext = executionContextProvider.get()
-  private val logger = LoggerFactory.getLogger(this.getClass)
   private val commandRunnerJar = "command-runner.jar"
   private lazy val emr = emrClusterProvider.get()
 

@@ -15,19 +15,17 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.client
 
+import com.typesafe.scalalogging.Logger
 import org.apache.commons.lang3.exception.ExceptionUtils
-import org.slf4j.LoggerFactory
 import org.springframework.web.client
 import org.springframework.web.client.ResourceAccessException
-import za.co.absa.hyperdrive.trigger.api.rest.client.CrossHostApiCaller.logger
 
 import scala.annotation.tailrec
-import scala.util.Failure
-import scala.util.Random
-import scala.util.Try
+import scala.util.{Failure, Random, Try}
 
 class CrossHostApiCaller private (apiBaseUrls: Vector[String], maxTryCount: Int, private var currentHostIndex: Int)
     extends ApiCaller {
+  import CrossHostApiCaller._
   def baseUrlsCount: Int = apiBaseUrls.size
 
   def currentBaseUrl: String = apiBaseUrls(currentHostIndex)
@@ -69,7 +67,7 @@ class CrossHostApiCaller private (apiBaseUrls: Vector[String], maxTryCount: Int,
 }
 
 object CrossHostApiCaller {
-  private val logger = LoggerFactory.getLogger(classOf[CrossHostApiCaller])
+  private val logger = Logger[CrossHostApiCaller]
 
   final val DefaultUrlsRetryCount: Int = 0
 

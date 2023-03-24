@@ -15,18 +15,14 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.client
 
-import org.slf4j.LoggerFactory
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod
-import org.springframework.http.HttpStatus
+import com.typesafe.scalalogging.LazyLogging
+import org.springframework.http.{HttpEntity, HttpHeaders, HttpMethod, HttpStatus}
 import org.springframework.web.client.RestTemplate
 
 import scala.annotation.tailrec
 import scala.reflect.ClassTag
 
-class RestClient(authClient: AuthClient, restTemplate: RestTemplate) {
-  private val logger = LoggerFactory.getLogger(this.getClass)
+class RestClient(authClient: AuthClient, restTemplate: RestTemplate) extends LazyLogging {
 
   private var authHeaders = new HttpHeaders()
 

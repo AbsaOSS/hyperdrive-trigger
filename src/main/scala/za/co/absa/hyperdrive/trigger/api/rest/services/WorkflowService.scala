@@ -15,20 +15,13 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
+import com.typesafe.scalalogging.Logger
 import org.springframework.stereotype.Service
-import za.co.absa.hyperdrive.trigger.models.{
-  JobDefinition,
-  Project,
-  ProjectInfo,
-  Workflow,
-  WorkflowImportExportWrapper,
-  WorkflowJoined
-}
-import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, BulkOperationError, GenericError}
-import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, WorkflowRepository}
-import org.slf4j.LoggerFactory
 import za.co.absa.hyperdrive.trigger.configuration.application.GeneralConfig
+import za.co.absa.hyperdrive.trigger.models._
+import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, BulkOperationError, GenericError}
 import za.co.absa.hyperdrive.trigger.models.search.{TableSearchRequest, TableSearchResponse}
+import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, WorkflowRepository}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -91,7 +84,7 @@ class WorkflowServiceImpl(
 ) extends WorkflowService
     with UserDetailsService {
 
-  private val serviceLogger = LoggerFactory.getLogger(this.getClass)
+  private val serviceLogger = Logger(this.getClass)
 
   def createWorkflow(workflow: WorkflowJoined)(implicit ec: ExecutionContext): Future[WorkflowJoined] = {
     val userName = getUserName.apply()
