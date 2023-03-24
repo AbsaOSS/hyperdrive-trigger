@@ -15,7 +15,7 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.notifications
 
-import org.slf4j.LoggerFactory
+import com.typesafe.scalalogging.LazyLogging
 import org.springframework.stereotype.Component
 import za.co.absa.hyperdrive.trigger.api.rest.services.NotificationRuleService
 import za.co.absa.hyperdrive.trigger.configuration.application.{GeneralConfig, NotificationConfig, SparkConfig}
@@ -42,10 +42,10 @@ class NotificationSenderImpl(
   sparkConfig: SparkConfig,
   notificationConfig: NotificationConfig,
   generalConfig: GeneralConfig
-) extends NotificationSender {
+) extends NotificationSender
+    with LazyLogging {
   private case class Message(recipients: Seq[String], subject: String, text: String, attempts: Int)
 
-  private val logger = LoggerFactory.getLogger(this.getClass)
   private val sender = notificationConfig.senderAddress
   private val notificationEnabled = notificationConfig.enabled
   private val environment = generalConfig.environment

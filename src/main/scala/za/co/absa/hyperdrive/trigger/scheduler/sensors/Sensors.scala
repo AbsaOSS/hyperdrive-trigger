@@ -15,7 +15,7 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.sensors
 
-import org.slf4j.LoggerFactory
+import com.typesafe.scalalogging.LazyLogging
 import org.springframework.stereotype.Component
 import za.co.absa.hyperdrive.trigger.configuration.application.{
   GeneralConfig,
@@ -28,14 +28,14 @@ import za.co.absa.hyperdrive.trigger.models.{
   KafkaSensorProperties,
   RecurringSensorProperties,
   SensorProperties,
-  TimeSensorProperties
+  TimeSensorProperties,
+  Sensor => SensorDefition
 }
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, SensorRepository}
 import za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.kafka.{AbsaKafkaSensor, KafkaSensor}
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.recurring.RecurringSensor
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.time.{TimeSensor, TimeSensorQuartzSchedulerManager}
-import za.co.absa.hyperdrive.trigger.models.{Sensor => SensorDefition}
 import za.co.absa.hyperdrive.trigger.scheduler.utilities.logging.{LazyToStr, wireTap}
 
 import java.util.concurrent.Executors
@@ -53,8 +53,7 @@ class Sensors @Inject() (
   implicit val generalConfig: GeneralConfig,
   schedulerConfig: SchedulerConfig,
   implicit val recurringSensorConfig: RecurringSensorConfig
-) {
-  private val logger = LoggerFactory.getLogger(this.getClass)
+) extends LazyLogging {
 
   private implicit val executionContext: ExecutionContextExecutor =
     ExecutionContext.fromExecutor(Executors.newFixedThreadPool(schedulerConfig.sensors.threadPoolSize))
@@ -110,9 +109,9 @@ class Sensors @Inject() (
   private def removeReleasedSensors(assignedWorkflowIds: Seq[Long]): Unit = {
     val releasedWorkflowIds = sensors.values.map(_.sensorDefinition.workflowId).toSeq.diff(assignedWorkflowIds)
     logger.trace(
-      "Removing released sensors (AssignedWorkflowIds={}; ReleasedWorkflowIds={})",
-      assignedWorkflowIds,
-      releasedWorkflowIds
+      "Removing released sensors {} when assigned {}",
+      new LazyToStr(releasedWorkflowIds.map(id => s"WorkflowId=$id")),
+      new LazyToStr(assignedWorkflowIds.map(id => s"WorkflowId=$id"))
     )
     sensors
       .filter { case (_, value) => releasedWorkflowIds.contains(value.sensorDefinition.workflowId) }
@@ -174,7 +173,7 @@ class Sensors @Inject() (
           case Success(s) =>
             logger.info("Kafka sensor (SensorId={}) started for workflow (WorkflowId={})", sensor.id, sensor.workflowId)
             sensors.put(sensor.id, s)
-          case Failure(f) => logger.error(s"Could not create Kafka sensor for sensor (#${sensor.id}).", f)
+          case Failure(f) => logger.error(s"Could not create Kafka sensor for sensor (SensorId=${sensor.id}).", f)
         }
       case absaKafkaSensorProperties: AbsaKafkaSensorProperties =>
         Try(

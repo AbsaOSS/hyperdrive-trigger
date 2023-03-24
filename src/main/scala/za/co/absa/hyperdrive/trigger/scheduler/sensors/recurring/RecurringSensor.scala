@@ -15,9 +15,10 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.sensors.recurring
 
+import com.typesafe.scalalogging.LazyLogging
+
 import java.time.format.DateTimeFormatter
 import java.time.{Instant, LocalDateTime}
-import org.slf4j.LoggerFactory
 import play.api.libs.json.JsObject
 import za.co.absa.hyperdrive.trigger.configuration.application.RecurringSensorConfig
 import za.co.absa.hyperdrive.trigger.models.{Event, RecurringSensorProperties}
@@ -33,9 +34,9 @@ class RecurringSensor(
   sensorDefinition: SensorDefition[RecurringSensorProperties],
   dagInstanceRepository: DagInstanceRepository
 )(implicit recurringSensorConfig: RecurringSensorConfig, executionContext: ExecutionContext)
-    extends PollSensor[RecurringSensorProperties](eventsProcessor, sensorDefinition, executionContext) {
+    extends PollSensor[RecurringSensorProperties](eventsProcessor, sensorDefinition, executionContext)
+    with LazyLogging {
   private val eventDateFormatter: DateTimeFormatter = DateTimeFormatter.ISO_INSTANT
-  private val logger = LoggerFactory.getLogger(this.getClass)
 
   override def poll(): Future[Unit] = {
     logger.debug("(SensorId={}). Polling new events.", sensorDefinition.id)

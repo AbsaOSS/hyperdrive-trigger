@@ -15,9 +15,9 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.sensors.kafka
 
+import com.typesafe.scalalogging.LazyLogging
 import org.apache.kafka.clients.consumer.{ConsumerConfig, ConsumerRebalanceListener, ConsumerRecord, KafkaConsumer}
 import org.apache.kafka.common.TopicPartition
-import org.slf4j.LoggerFactory
 import play.api.libs.json.{JsError, JsSuccess, Json}
 import za.co.absa.hyperdrive.trigger.configuration.application.{GeneralConfig, KafkaConfig}
 import za.co.absa.hyperdrive.trigger.models.{Event, KafkaSensorProperties}
@@ -35,9 +35,8 @@ class KafkaSensor(
   eventsProcessor: (Seq[Event], Long) => Future[Boolean],
   sensorDefinition: SensorDefition[KafkaSensorProperties]
 )(implicit kafkaConfig: KafkaConfig, generalConfig: GeneralConfig, executionContext: ExecutionContext)
-    extends PollSensor[KafkaSensorProperties](eventsProcessor, sensorDefinition, executionContext) {
-
-  private val logger = LoggerFactory.getLogger(this.getClass)
+    extends PollSensor[KafkaSensorProperties](eventsProcessor, sensorDefinition, executionContext)
+    with LazyLogging {
 
   private val consumer = {
     val consumerProperties = kafkaConfig.properties

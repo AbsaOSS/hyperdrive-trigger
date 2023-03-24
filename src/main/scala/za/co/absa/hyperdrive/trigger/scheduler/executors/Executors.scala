@@ -15,6 +15,8 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.executors
 
+import com.typesafe.scalalogging.LazyLogging
+
 import java.time.LocalDateTime
 import java.util.concurrent
 import javax.inject.Inject
@@ -29,7 +31,6 @@ import za.co.absa.hyperdrive.trigger.scheduler.executors.spark.{
   SparkExecutor,
   SparkYarnClusterServiceImpl
 }
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.context.annotation.Lazy
 import za.co.absa.hyperdrive.trigger.scheduler.executors.shell.ShellExecutor
@@ -50,8 +51,7 @@ class Executors @Inject() (
   implicit val sparkConfig: SparkConfig,
   schedulerConfig: SchedulerConfig,
   @Lazy hyperdriveOffsetComparisonService: HyperdriveOffsetService
-) {
-  private val logger = LoggerFactory.getLogger(this.getClass)
+) extends LazyLogging {
   private implicit val executionContext: ExecutionContextExecutor =
     ExecutionContext.fromExecutor(concurrent.Executors.newFixedThreadPool(schedulerConfig.executors.threadPoolSize))
   private val sparkClusterService: SparkClusterService = {

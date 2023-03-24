@@ -15,17 +15,17 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.sensors.time
 
+import com.typesafe.scalalogging.LazyLogging
+
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 import org.quartz.{Job, JobExecutionContext}
-import org.slf4j.LoggerFactory
 import play.api.libs.json.JsObject
 import za.co.absa.hyperdrive.trigger.models.Event
 
 import scala.concurrent.Future
 
-class TimeSensorQuartzJob extends Job {
-  private val logger = LoggerFactory.getLogger(this.getClass)
+class TimeSensorQuartzJob extends Job with LazyLogging {
   private val eventDateFormatter: DateTimeFormatter = DateTimeFormatter.ISO_INSTANT
 
   override def execute(jobExecutionContext: JobExecutionContext): Unit = {

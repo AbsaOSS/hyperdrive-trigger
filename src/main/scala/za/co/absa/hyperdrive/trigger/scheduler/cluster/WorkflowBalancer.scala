@@ -15,8 +15,9 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.cluster
 
+import com.typesafe.scalalogging.LazyLogging
+
 import javax.inject.Inject
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import za.co.absa.hyperdrive.trigger.configuration.application.SchedulerConfig
 import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses.SchedulerInstanceStatus
@@ -30,9 +31,8 @@ class WorkflowBalancer @Inject() (
   schedulerInstanceService: SchedulerInstanceService,
   workflowBalancingService: WorkflowBalancingService,
   schedulerConfig: SchedulerConfig
-) {
+) extends LazyLogging {
   case class SchedulerIdStatus(id: Long, status: SchedulerInstanceStatus)
-  private val logger = LoggerFactory.getLogger(this.getClass)
 
   private var schedulerInstanceId: Option[Long] = None
   private var previousInstancesIdStatus: Set[SchedulerIdStatus] = Set()
