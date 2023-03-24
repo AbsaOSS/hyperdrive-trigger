@@ -15,9 +15,8 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.client
 
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-import org.springframework.http.{HttpEntity, HttpHeaders, HttpMethod, HttpStatus, ResponseEntity}
+import com.typesafe.scalalogging.{AnyLogging, LazyLogging}
+import org.springframework.http._
 import org.springframework.security.kerberos.client.KerberosRestTemplate
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.client.RestTemplate
@@ -71,8 +70,7 @@ sealed abstract class AuthClient(
   restTemplate: RestTemplate,
   apiCaller: ApiCaller,
   url: String => String
-) {
-  protected val logger: Logger = LoggerFactory.getLogger(this.getClass)
+) extends AnyLogging {
 
   @throws[UnauthorizedException]
   def authenticate(): HttpHeaders =
@@ -118,7 +116,8 @@ class SpnegoAuthClient(
   restTemplate: RestTemplate,
   apiCaller: ApiCaller,
   path: String
-) extends AuthClient(credentials, restTemplate, apiCaller, baseUrl => s"$baseUrl$path") {
+) extends AuthClient(credentials, restTemplate, apiCaller, baseUrl => s"$baseUrl$path")
+    with LazyLogging {
   override protected def requestAuthentication(url: String): ResponseEntity[String] = {
     logger.info(
       s"Authenticating via SPNEGO ($url): user `${credentials.username}`, with keytab `${credentials.keytabLocation}`"
@@ -132,7 +131,8 @@ class StandardAuthClient(
   restTemplate: RestTemplate,
   apiCaller: ApiCaller,
   path: String
-) extends AuthClient(credentials, restTemplate, apiCaller, baseUrl => s"$baseUrl$path") {
+) extends AuthClient(credentials, restTemplate, apiCaller, baseUrl => s"$baseUrl$path")
+    with LazyLogging {
   override protected def requestAuthentication(url: String): ResponseEntity[String] = {
     val requestParts = new LinkedMultiValueMap[String, String]
     requestParts.add("username", credentials.username)
@@ -148,7 +148,8 @@ class StandardBase64AuthClient(
   restTemplate: RestTemplate,
   apiCaller: ApiCaller,
   path: String
-) extends AuthClient(credentials, restTemplate, apiCaller, baseUrl => s"$baseUrl$path") {
+) extends AuthClient(credentials, restTemplate, apiCaller, baseUrl => s"$baseUrl$path")
+    with LazyLogging {
   override protected def requestAuthentication(url: String): ResponseEntity[String] = {
     val headers = new HttpHeaders()
     headers.add("Authorization", "Basic " + credentials.base64Credentials)

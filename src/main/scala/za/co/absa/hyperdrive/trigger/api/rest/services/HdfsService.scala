@@ -15,11 +15,11 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
+import com.typesafe.scalalogging.LazyLogging
 import org.apache.commons.io.IOUtils
 import org.apache.hadoop.fs._
 import org.apache.hadoop.security.UserGroupInformation
 import org.apache.spark.deploy.SparkHadoopUtil
-import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Service
 
@@ -39,8 +39,7 @@ trait HdfsService {
 
 @Lazy
 @Service
-class HdfsServiceImpl extends HdfsService {
-  private val logger = LoggerFactory.getLogger(this.getClass)
+class HdfsServiceImpl extends HdfsService with LazyLogging {
   private lazy val conf = SparkHadoopUtil.get.conf
   override def exists(path: Path)(implicit ugi: UserGroupInformation): Try[Boolean] = {
     Try {

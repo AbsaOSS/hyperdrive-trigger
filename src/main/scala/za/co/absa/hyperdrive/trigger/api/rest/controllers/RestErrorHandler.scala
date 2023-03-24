@@ -15,7 +15,7 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.controllers
 
-import org.slf4j.LoggerFactory
+import com.typesafe.scalalogging.LazyLogging
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.http.{HttpStatus, ResponseEntity}
 import org.springframework.security.access.AccessDeniedException
@@ -23,8 +23,7 @@ import org.springframework.web.bind.annotation.{ExceptionHandler, RestController
 import org.springframework.web.context.request.WebRequest
 import za.co.absa.hyperdrive.trigger.models.errors.ApiException
 @RestControllerAdvice
-class RestErrorHandler {
-  private val logger = LoggerFactory.getLogger(this.getClass)
+class RestErrorHandler extends LazyLogging {
 
   @ExceptionHandler(Array(classOf[ApiException]))
   def handleApiException(ex: ApiException, request: WebRequest): ResponseEntity[Object] = {
