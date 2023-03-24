@@ -17,17 +17,17 @@ package za.co.absa.hyperdrive.trigger.scheduler.utilities
 package object logging {
 
   /**
-   * Execute arbitrary side effect for provided element.
+   *  Execute arbitrary side effect for provided element.
    *
-   * {{{
+   *  {{{
    *   List(1, 2, 3, 4).map(wireTap(id => logger.info("Element is {}", id))
-   * }}}
+   *  }}}
    *
-   * @param sideEffect executed on received element.
-   * @param elm provided element, e.g. from Functor#map
-   * @tparam A type of element
-   * @tparam U unit result type, i.e. type that will be dropped.
-   * @return original element
+   *  @param sideEffect executed on received element.
+   *  @param elm provided element, e.g. from Functor#map
+   *  @tparam A type of element
+   *  @tparam U unit result type, i.e. type that will be dropped.
+   *  @return original element
    */
   def wireTap[A, U](sideEffect: A => U)(elm: A): A = {
     sideEffect(elm)
