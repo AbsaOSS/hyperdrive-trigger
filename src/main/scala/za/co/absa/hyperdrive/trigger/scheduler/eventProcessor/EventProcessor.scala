@@ -20,7 +20,6 @@ import org.springframework.stereotype.Component
 import za.co.absa.hyperdrive.trigger.api.rest.services.DagInstanceService
 import za.co.absa.hyperdrive.trigger.models.Event
 import za.co.absa.hyperdrive.trigger.persistance._
-import za.co.absa.hyperdrive.trigger.scheduler.utilities.logging._
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -45,44 +44,33 @@ class EventProcessor(
   ): Future[Boolean] = {
     logger.trace(
       "Processing events {} called on event processor for sensor (SensorId={}), triggered by: {}",
-      new LazyToStr(events.map(e => s"EventId=${e.id}")),
+      events.map(e => s"EventId=${e.id}"),
       sensorId,
       triggeredBy
     )
     eventRepository.getExistEvents(events.map(_.sensorEventId)).flatMap { eventsIdsInDB =>
       val newEvents = events.filter(e => !eventsIdsInDB.contains(e.sensorEventId))
-      logger.trace(
-        "Unprocessed events {}",
-        new LazyToStr(newEvents.map(e => s"EventId=${e.id}"))
-      )
+      logger.trace(s"Unprocessed events ${newEvents.map(e => s"EventId=${e.id}")}")
       if (newEvents.nonEmpty) {
         dagDefinitionRepository.getJoinedDagDefinition(sensorId).flatMap {
           case Some(joinedDagDefinition) =>
             for {
               hasInQueueDagInstance <- dagInstanceRepository
                 .hasInQueueDagInstance(joinedDagDefinition.workflowId)
-                .map(
-                  wireTap(inQueue =>
-                    logger.trace(
-                      "DAG instance for (WorkflowId={}) produced by (SensorId={}) already queued: [{}]",
-                      joinedDagDefinition.workflowId,
-                      sensorId,
-                      inQueue
-                    )
-                  )
-                )
+              _ = logger.trace(
+                "DAG instance for (WorkflowId={}) produced by (SensorId={}) already queued: [{}]",
+                joinedDagDefinition.workflowId,
+                sensorId,
+                hasInQueueDagInstance
+              )
               dagInstanceJoined <- dagInstanceService
                 .createDagInstance(joinedDagDefinition, triggeredBy, hasInQueueDagInstance)
-                .map(
-                  wireTap(instance =>
-                    logger.trace(
-                      "Created Joined DAG instance {} by (SensorId={}) for (WorkflowId={})",
-                      instance,
-                      sensorId,
-                      joinedDagDefinition.workflowId
-                    )
-                  )
-                )
+              _ = logger.trace(
+                "Created Joined DAG instance {} by (SensorId={}) for (WorkflowId={})",
+                dagInstanceJoined,
+                sensorId,
+                joinedDagDefinition.workflowId
+              )
               dagInstanceJoinedEvents = newEvents.map(event => (dagInstanceJoined, event))
               _ <- dagInstanceRepository.insertJoinedDagInstancesWithEvents(dagInstanceJoinedEvents)
             } yield {

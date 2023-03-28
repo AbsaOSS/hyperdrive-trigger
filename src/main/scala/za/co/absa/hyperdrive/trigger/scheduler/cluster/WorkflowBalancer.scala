@@ -22,7 +22,6 @@ import org.springframework.stereotype.Component
 import za.co.absa.hyperdrive.trigger.configuration.application.SchedulerConfig
 import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses.SchedulerInstanceStatus
 import za.co.absa.hyperdrive.trigger.models.Workflow
-import za.co.absa.hyperdrive.trigger.scheduler.utilities.logging.wireTap
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -75,9 +74,10 @@ class WorkflowBalancer @Inject() (
       case None =>
         schedulerInstanceService
           .registerNewInstance()
-          .map(wireTap { id =>
+          .map { id =>
             schedulerInstanceId = Some(id)
-            logger.info("Registered new scheduler instance (SchedulerId={})", id)
-          })
+            logger.info(s"Registered new scheduler instance (SchedulerId=$id)")
+            id
+          }
     }
 }

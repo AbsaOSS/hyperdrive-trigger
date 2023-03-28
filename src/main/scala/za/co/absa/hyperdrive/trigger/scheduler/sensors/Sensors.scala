@@ -36,7 +36,6 @@ import za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.kafka.{AbsaKafkaSensor, KafkaSensor}
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.recurring.RecurringSensor
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.time.{TimeSensor, TimeSensorQuartzSchedulerManager}
-import za.co.absa.hyperdrive.trigger.scheduler.utilities.logging.{LazyToStr, wireTap}
 
 import java.util.concurrent.Executors
 import javax.inject.Inject
@@ -62,7 +61,7 @@ class Sensors @Inject() (
     mutable.Map.empty[Long, Sensor[_ <: SensorProperties]]
 
   def processEvents(assignedWorkflowIds: Seq[Long]): Future[Unit] = {
-    logger.info("Processing events sensed by {}", new LazyToStr(sensors.keys.map(id => s"SensorId=$id")))
+    logger.info(s"Processing events sensed by ${sensors.keys.map(id => s"SensorId=$id")}")
     removeReleasedSensors(assignedWorkflowIds)
     val fut = for {
       _ <- removeInactiveSensors()
@@ -110,8 +109,8 @@ class Sensors @Inject() (
     val releasedWorkflowIds = sensors.values.map(_.sensorDefinition.workflowId).toSeq.diff(assignedWorkflowIds)
     logger.trace(
       "Removing released sensors {} when assigned {}",
-      new LazyToStr(releasedWorkflowIds.map(id => s"WorkflowId=$id")),
-      new LazyToStr(assignedWorkflowIds.map(id => s"WorkflowId=$id"))
+      releasedWorkflowIds.map(id => s"WorkflowId=$id"),
+      assignedWorkflowIds.map(id => s"WorkflowId=$id")
     )
     sensors
       .filter { case (_, value) => releasedWorkflowIds.contains(value.sensorDefinition.workflowId) }
@@ -120,18 +119,13 @@ class Sensors @Inject() (
 
   private def removeInactiveSensors(): Future[Unit] = {
     val activeSensors = sensors.keys.toSeq
-    logger.trace(
-      "Removing inactive sensors called with active sensors: {}",
-      new LazyToStr(activeSensors.map(id => s"SensorId=$id"))
-    )
+    logger.trace(s"Removing inactive sensors called with active sensors: ${activeSensors.map(id => s"SensorId=$id")}")
     sensorRepository
       .getInactiveSensors(activeSensors)
-      .map(
-        wireTap(inactive =>
-          logger.info("Removing inactive sensors {}", new LazyToStr(inactive.map(id => s"SensorId=$id")))
-        )
-      )
-      .map(_.foreach(id => stopSensor(id)))
+      .map { inactive =>
+        logger.info("Removing inactive sensors {}", inactive.map(id => s"SensorId=$id"))
+        inactive.foreach(id => stopSensor(id))
+      }
   }
 
   private def stopSensor(id: Long) = {
