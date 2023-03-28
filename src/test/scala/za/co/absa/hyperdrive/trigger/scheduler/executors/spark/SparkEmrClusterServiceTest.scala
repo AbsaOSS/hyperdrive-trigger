@@ -56,7 +56,7 @@ class SparkEmrClusterServiceTest
     with BeforeAndAfter {
   implicit override def executionContext: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
-  trait HasUpdateJob {
+  private trait HasUpdateJob {
     def updateJob(ji: JobInstance): Future[Unit]
   }
 
