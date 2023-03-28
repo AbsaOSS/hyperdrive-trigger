@@ -130,15 +130,7 @@ class Sensors @Inject() (
 
   private def stopSensor(id: Long) = {
     logger.trace("Stopping sensor (SensorId={})", id)
-    sensors.get(id).foreach { sensor =>
-      logger.debug(
-        "Stopping sensor (SensorId={}) for (WorkflowId={}) with (SensorType={})",
-        id,
-        sensor.sensorDefinition.workflowId,
-        sensor.sensorDefinition.properties.sensorType.name
-      )
-      sensor.close()
-    }
+    sensors.get(id).foreach(_.close())
     sensors.remove(id)
   }
 
