@@ -16,12 +16,12 @@
 export type IngestionStatusModel = {
   jobName: string;
   jobType: string;
-  topic?: TopicModel;
+  topicStatus?: TopicModel;
 };
 
 export class IngestionStatusModelFactory {
-  static create(jobName: string, jobType: string, topic?: TopicModel): IngestionStatusModel {
-    return { jobName: jobName, jobType: jobType, topic: topic };
+  static create(jobName: string, jobType: string, topicStatus?: TopicModel): IngestionStatusModel {
+    return { jobName: jobName, jobType: jobType, topicStatus: topicStatus };
   }
 
   static fromIngestionStatusResponseModel(ingestionStatusResponse: IngestionStatusResponseModel): IngestionStatusModel {
