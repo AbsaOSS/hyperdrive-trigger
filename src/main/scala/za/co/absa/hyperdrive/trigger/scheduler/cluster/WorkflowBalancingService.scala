@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses
 import za.co.absa.hyperdrive.trigger.models.{SchedulerInstance, Workflow}
 import za.co.absa.hyperdrive.trigger.persistance.WorkflowRepository
-import za.co.absa.hyperdrive.trigger.scheduler.utilities.logging.LazyToStr
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -52,8 +51,8 @@ class WorkflowBalancingServiceImpl @Inject() (workflowRepository: WorkflowReposi
         " active instances {}, retaining workflows {}",
       myInstanceId,
       myRank,
-      new LazyToStr(activeInstances.map(_.id).sorted.map(id => s"InstanceId=$id")),
-      new LazyToStr(runningWorkflowIds.map(id => s"WorkflowId=$id"))
+      activeInstances.map(_.id).sorted.map(id => s"InstanceId=$id"),
+      runningWorkflowIds.map(id => s"WorkflowId=$id")
     )
     for {
       (releasedWorkflowsCount, instancesDeletedCount) <- workflowRepository
@@ -83,8 +82,8 @@ class WorkflowBalancingServiceImpl @Inject() (workflowRepository: WorkflowReposi
       logger.debug(
         "Scheduler instance (SchedulerId={}) acquired workflows {} with missing target workflows {}",
         myInstanceId,
-        new LazyToStr(acquiredWorkflowIds.sorted.map(id => s"WorkflowId=$id")),
-        new LazyToStr(targetWorkflowIds.diff(acquiredWorkflowIds).sorted.map(id => s"WorkflowId=$id"))
+        acquiredWorkflowIds.sorted.map(id => s"WorkflowId=$id"),
+        targetWorkflowIds.diff(acquiredWorkflowIds).sorted.map(id => s"WorkflowId=$id")
       )
       (acquiredWorkflows, targetWorkflowAssignmentReached)
     }

@@ -29,7 +29,6 @@ import java.util.Collections
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 import za.co.absa.hyperdrive.trigger.models.{Sensor => SensorDefition}
-import za.co.absa.hyperdrive.trigger.scheduler.utilities.logging.LazyToStr
 
 class KafkaSensor(
   eventsProcessor: (Seq[Event], Long) => Future[Boolean],
@@ -83,7 +82,7 @@ class KafkaSensor(
   }
 
   private def processRecords[A](records: Iterable[ConsumerRecord[A, String]]): Future[Unit] = {
-    logger.debug(s"(SensorId={}). Messages received = {}", sensorDefinition.id, new LazyToStr(records.map(_.value())))
+    logger.debug(s"(SensorId=${sensorDefinition.id}). Messages received = ${records.map(_.value())}")
     if (records.nonEmpty) {
       val events = records.map(recordToEvent).toSeq
       val matchedEvents = events.filter { event =>

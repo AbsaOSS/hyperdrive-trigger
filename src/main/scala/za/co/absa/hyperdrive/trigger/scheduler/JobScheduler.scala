@@ -27,7 +27,6 @@ import za.co.absa.hyperdrive.trigger.scheduler.cluster.{SchedulerInstanceAlready
 import za.co.absa.hyperdrive.trigger.scheduler.executors.Executors
 import za.co.absa.hyperdrive.trigger.scheduler.notifications.NotificationSender
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.Sensors
-import za.co.absa.hyperdrive.trigger.scheduler.utilities.logging.LazyToStr
 
 import scala.collection.mutable
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
@@ -132,7 +131,7 @@ class JobScheduler @Inject() (
       }.toSeq
       logger.debug(
         "Removing finished DAGs for workflows {}",
-        new LazyToStr(finishedDags.map(key => s"(DagId=${key.dagId}; WorkflowId=${key.workflowId})"))
+        finishedDags.map(k => s"(DagId=${k.dagId}, WorkflowId=${k.workflowId})")
       )
       runningDags --= finishedDags
     }
