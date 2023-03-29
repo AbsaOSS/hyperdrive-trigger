@@ -28,11 +28,11 @@ export class IngestionStatusModelFactory {
     return this.create(
       ingestionStatusResponse.jobName,
       ingestionStatusResponse.jobType,
-      ingestionStatusResponse?.topic
+      ingestionStatusResponse?.topicStatus
         ? TopicModelFactory.create(
-            ingestionStatusResponse.topic.topic,
-            Object.keys(ingestionStatusResponse.topic.messagesToIngest)
-              .map((key) => ingestionStatusResponse.topic.messagesToIngest[key])
+            ingestionStatusResponse.topicStatus.topic,
+            Object.keys(ingestionStatusResponse.topicStatus.messagesToIngest)
+              .map((key) => ingestionStatusResponse.topicStatus.messagesToIngest[key])
               .reduce((acc, cur) => acc + Number(cur), 0),
           )
         : null,
@@ -54,12 +54,12 @@ export class TopicModelFactory {
 export type IngestionStatusResponseModel = {
   jobName: string;
   jobType: string;
-  topic?: TopicResponseModel;
+  topicStatus?: TopicResponseModel;
 };
 
 export class IngestionStatusResponseModelFactory {
-  static create(jobName: string, jobType: string, topic?: TopicResponseModel): IngestionStatusResponseModel {
-    return { jobName: jobName, jobType: jobType, topic: topic };
+  static create(jobName: string, jobType: string, topicStatus?: TopicResponseModel): IngestionStatusResponseModel {
+    return { jobName: jobName, jobType: jobType, topicStatus: topicStatus };
   }
 }
 
