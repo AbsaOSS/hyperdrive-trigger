@@ -15,10 +15,10 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
-import org.slf4j.LoggerFactory
+import com.typesafe.scalalogging.LazyLogging
 import org.springframework.stereotype.Service
-import za.co.absa.hyperdrive.trigger.models.{IngestionStatus, TopicStatus}
 import za.co.absa.hyperdrive.trigger.models.enums.JobTypes
+import za.co.absa.hyperdrive.trigger.models.{IngestionStatus, TopicStatus}
 import za.co.absa.hyperdrive.trigger.persistance.WorkflowRepository
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -37,8 +37,8 @@ class HyperdriveServiceImpl(
   override protected val workflowRepository: WorkflowRepository,
   override protected val jobTemplateService: JobTemplateService,
   override protected val hyperdriveOffsetService: HyperdriveOffsetService
-) extends HyperdriveService {
-  private val logger = LoggerFactory.getLogger(this.getClass)
+) extends HyperdriveService
+    with LazyLogging {
 
   override def getIngestionStatus(id: Long)(implicit ec: ExecutionContext): Future[Seq[IngestionStatus]] = {
     workflowRepository.getWorkflow(id).flatMap { workflow =>

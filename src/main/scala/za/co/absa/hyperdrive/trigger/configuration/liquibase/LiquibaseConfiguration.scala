@@ -15,10 +15,9 @@
 
 package za.co.absa.hyperdrive.trigger.configuration.liquibase
 
+import com.typesafe.scalalogging.Logger
 import liquibase.integration.spring.SpringLiquibase
 import liquibase.{Contexts, LabelExpression, Liquibase}
-import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.{Bean, Configuration}
@@ -33,7 +32,7 @@ class LiquibaseConfiguration(
   val dbProvider: DatabaseProvider
 ) extends SpringLiquibase
     with Repository {
-  private val configLogger = LoggerFactory.getLogger(this.getClass)
+  private val configLogger = Logger(this.getClass)
   private val skipLiquibase: Boolean = dbConfig.skipLiquibase
 
   @Bean

@@ -15,9 +15,7 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest
 
-import javax.inject.Inject
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-import org.slf4j.LoggerFactory
+import com.typesafe.scalalogging.LazyLogging
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.context.annotation.{Bean, Configuration}
 import org.springframework.http.HttpStatus
@@ -49,10 +47,12 @@ import za.co.absa.hyperdrive.trigger.api.rest.auth.{
 }
 import za.co.absa.hyperdrive.trigger.configuration.application.AuthConfig
 
+import javax.inject.Inject
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-class WebSecurityConfig @Inject() (val beanFactory: BeanFactory, authConfig: AuthConfig) {
-  private val logger = LoggerFactory.getLogger(this.getClass)
+class WebSecurityConfig @Inject() (val beanFactory: BeanFactory, authConfig: AuthConfig) extends LazyLogging {
 
   val authMechanism: String = authConfig.mechanism
 

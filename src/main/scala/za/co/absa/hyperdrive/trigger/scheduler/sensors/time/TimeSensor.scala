@@ -15,6 +15,7 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.sensors.time
 
+import com.typesafe.scalalogging.{LazyLogging, Logger}
 import org.quartz.CronScheduleBuilder.cronSchedule
 import org.quartz._
 import za.co.absa.hyperdrive.trigger.models.{Event, TimeSensorProperties}
@@ -28,7 +29,8 @@ class TimeSensor(
   sensorDefinition: SensorDefition[TimeSensorProperties],
   scheduler: Scheduler
 )(implicit executionContext: ExecutionContext)
-    extends PushSensor[TimeSensorProperties](eventsProcessor, sensorDefinition, executionContext) {
+    extends PushSensor[TimeSensorProperties](eventsProcessor, sensorDefinition, executionContext)
+    with LazyLogging {
   val jobKey: JobKey = new JobKey(sensorDefinition.id.toString, TimeSensor.JOB_GROUP_NAME)
   val jobTriggerKey: TriggerKey = new TriggerKey(jobKey.getName, TimeSensor.JOB_TRIGGER_GROUP_NAME)
 
@@ -41,7 +43,16 @@ class TimeSensor(
   def launchQuartzJob(cronExpression: CronExpression, sensorId: Long): Unit = {
     val jobDetail = buildJobDetail(sensorId)
     val trigger = buildJobTrigger(jobDetail, cronExpression)
-    scheduler.scheduleJob(jobDetail, trigger)
+    val firstFireTime = scheduler.scheduleJob(jobDetail, trigger)
+    logger.trace(
+      "First execution of (SensorId={}) for (WorkflowId={})" +
+        " with (JobDetail={}) and (JobTrigger={}) is scheduled to: {}",
+      sensorId: Long,
+      sensorDefinition.workflowId: Long,
+      jobDetail: JobDetail,
+      trigger: Trigger,
+      firstFireTime: java.util.Date
+    )
   }
 
   private def buildJobDetail(sensorId: Long): JobDetail = {
@@ -75,6 +86,8 @@ object TimeSensor {
   val JOB_GROUP_NAME: String = "time-sensor-job-group"
   val JOB_TRIGGER_GROUP_NAME: String = "time-sensor-job-trigger-group"
 
+  private val logger = Logger[TimeSensor]
+
   def apply(
     eventsProcessor: (Seq[Event], Long) => Future[Boolean],
     sensorDefinition: SensorDefition[TimeSensorProperties]
@@ -85,6 +98,12 @@ object TimeSensor {
     validateJobKeys(sensor.jobKey, sensor.jobTriggerKey, quartzScheduler, sensorDefinition.id)
     validateCronExpression(sensorDefinition.properties.cronExpression, sensorDefinition.id)
 
+    logger.debug(
+      "Launching QuartzJob (CronExpression={}) within TimeSensor (SensorId={}) for workflow (WorkflowId={})",
+      sensorDefinition.properties.cronExpression: String,
+      sensorDefinition.id: Long,
+      sensorDefinition.workflowId: Long
+    )
     sensor.launchQuartzJob(new CronExpression(sensorDefinition.properties.cronExpression), sensorDefinition.id)
     sensor
   }
@@ -92,18 +111,18 @@ object TimeSensor {
   private def validateJobKeys(jobKey: JobKey, triggerKey: TriggerKey, scheduler: Scheduler, sensorId: Long): Unit = {
     if (scheduler.checkExists(jobKey)) {
       throw new IllegalArgumentException(
-        s"A Quartz Job with key ($jobKey) already exists. Cannot create job for sensor (#$sensorId)"
+        s"A Quartz Job with key ($jobKey) already exists. Cannot create job for sensor (SensorId=$sensorId)"
       )
     }
     if (scheduler.checkExists(triggerKey)) {
       throw new IllegalArgumentException(
-        s"A Quartz Job-Trigger with key ($triggerKey) already exists. Cannot create job for sensor (#$sensorId)"
+        s"A Quartz Job-Trigger with key ($triggerKey) already exists. Cannot create job for sensor (SensorId=$sensorId)"
       )
     }
   }
 
   private def validateCronExpression(cronExpression: String, sensorId: Long): Unit =
     if (!CronExpression.isValidExpression(cronExpression)) {
-      throw new IllegalArgumentException(s"Invalid cron expression $cronExpression for sensor (#$sensorId)")
+      throw new IllegalArgumentException(s"Invalid cron expression $cronExpression for sensor (SensorId=$sensorId)")
     }
 }

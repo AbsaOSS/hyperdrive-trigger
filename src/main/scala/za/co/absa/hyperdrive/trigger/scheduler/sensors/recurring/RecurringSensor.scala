@@ -15,9 +15,10 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.sensors.recurring
 
+import com.typesafe.scalalogging.LazyLogging
+
 import java.time.format.DateTimeFormatter
 import java.time.{Instant, LocalDateTime}
-import org.slf4j.LoggerFactory
 import play.api.libs.json.JsObject
 import za.co.absa.hyperdrive.trigger.configuration.application.RecurringSensorConfig
 import za.co.absa.hyperdrive.trigger.models.{Event, RecurringSensorProperties}
@@ -33,18 +34,17 @@ class RecurringSensor(
   sensorDefinition: SensorDefition[RecurringSensorProperties],
   dagInstanceRepository: DagInstanceRepository
 )(implicit recurringSensorConfig: RecurringSensorConfig, executionContext: ExecutionContext)
-    extends PollSensor[RecurringSensorProperties](eventsProcessor, sensorDefinition, executionContext) {
+    extends PollSensor[RecurringSensorProperties](eventsProcessor, sensorDefinition, executionContext)
+    with LazyLogging {
   private val eventDateFormatter: DateTimeFormatter = DateTimeFormatter.ISO_INSTANT
-  private val logger = LoggerFactory.getLogger(this.getClass)
-  private val logMsgPrefix = s"Sensor id = ${sensorDefinition.id}."
 
   override def poll(): Future[Unit] = {
-    logger.debug(s"$logMsgPrefix. Polling new events.")
+    logger.debug("(SensorId={}). Polling new events.", sensorDefinition.id)
 
     val fut =
       dagInstanceRepository.hasRunningDagInstance(sensorDefinition.workflowId).flatMap { hasRunningDagInstance =>
         if (hasRunningDagInstance) {
-          logger.debug(s"$logMsgPrefix. Workflow is running.")
+          logger.debug("(SensorId={}). Workflow is running.", sensorDefinition.id)
           Future.successful((): Unit)
         } else {
           val cutOffTime = LocalDateTime.now().minus(recurringSensorConfig.duration)
@@ -53,13 +53,23 @@ class RecurringSensor(
             .flatMap { count =>
               if (count >= recurringSensorConfig.maxJobsPerDuration) {
                 logger.warn(
-                  s"Skipping dag instance creation, because $count dag instances have been created since" +
-                    s" $cutOffTime, but the allowed maximum is ${recurringSensorConfig.maxJobsPerDuration} "
+                  "(SensorId={}). Skipping dag instance creation," +
+                    " because {} dag instances have been created since {}," +
+                    " but the allowed maximum is {}",
+                  sensorDefinition.id,
+                  count,
+                  cutOffTime,
+                  recurringSensorConfig.maxJobsPerDuration
                 )
                 Future.successful((): Unit)
               } else {
                 val sourceEventId = s"sid=${sensorDefinition.id};t=${eventDateFormatter.format(Instant.now())}"
                 val event = Event(sourceEventId, sensorDefinition.id, JsObject.empty)
+                logger.trace(
+                  "(SensorId={}). Polling source event (SourceEventId={}).",
+                  sensorDefinition.id,
+                  sourceEventId
+                )
                 eventsProcessor.apply(Seq(event), sensorDefinition.id).map(_ => (): Unit)
               }
             }
@@ -67,8 +77,8 @@ class RecurringSensor(
       }
 
     fut.onComplete {
-      case Success(_)         => logger.debug(s"$logMsgPrefix. Polling successful")
-      case Failure(exception) => logger.debug(s"$logMsgPrefix. Polling failed.", exception)
+      case Success(_)         => logger.debug("(SensorId={}). Polling successful.", sensorDefinition.id)
+      case Failure(exception) => logger.warn(s"(SensorId=${sensorDefinition.id}). Polling failed.", exception)
     }
     fut
   }

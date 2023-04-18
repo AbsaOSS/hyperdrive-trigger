@@ -15,14 +15,13 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.cluster
 
-import java.time.Duration
+import com.typesafe.scalalogging.LazyLogging
+
 import javax.inject.Inject
-import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import za.co.absa.hyperdrive.trigger.configuration.application.SchedulerConfig
 import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses.SchedulerInstanceStatus
-import za.co.absa.hyperdrive.trigger.models.{SchedulerInstance, Workflow}
+import za.co.absa.hyperdrive.trigger.models.Workflow
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -31,9 +30,8 @@ class WorkflowBalancer @Inject() (
   schedulerInstanceService: SchedulerInstanceService,
   workflowBalancingService: WorkflowBalancingService,
   schedulerConfig: SchedulerConfig
-) {
+) extends LazyLogging {
   case class SchedulerIdStatus(id: Long, status: SchedulerInstanceStatus)
-  private val logger = LoggerFactory.getLogger(this.getClass)
 
   private var schedulerInstanceId: Option[Long] = None
   private var previousInstancesIdStatus: Set[SchedulerIdStatus] = Set()
@@ -65,8 +63,10 @@ class WorkflowBalancer @Inject() (
       workflows
     }
 
-  def resetSchedulerInstanceId(): Unit =
+  def resetSchedulerInstanceId(): Unit = {
+    logger.trace("Resetting scheduler instance id (SchedulerId={}) -> None", schedulerInstanceId)
     schedulerInstanceId = None
+  }
 
   private def getOrCreateInstance()(implicit ec: ExecutionContext) =
     schedulerInstanceId match {
@@ -76,7 +76,7 @@ class WorkflowBalancer @Inject() (
           .registerNewInstance()
           .map { id =>
             schedulerInstanceId = Some(id)
-            logger.info(s"Registered new scheduler instance with id = $id")
+            logger.info(s"Registered new scheduler instance (SchedulerId=$id)")
             id
           }
     }

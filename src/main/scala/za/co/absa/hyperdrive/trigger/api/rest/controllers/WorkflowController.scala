@@ -15,11 +15,7 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.controllers
 
-import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
-import java.util.concurrent.CompletableFuture
-import java.util.zip.{ZipEntry, ZipInputStream, ZipOutputStream}
-import javax.inject.Inject
-import org.slf4j.LoggerFactory
+import com.typesafe.scalalogging.LazyLogging
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.http.{HttpHeaders, MediaType, ResponseEntity}
 import org.springframework.web.bind.annotation._
@@ -31,6 +27,10 @@ import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, BulkOperationError, GenericError}
 import za.co.absa.hyperdrive.trigger.models.search.{TableSearchRequest, TableSearchResponse}
 
+import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
+import java.util.concurrent.CompletableFuture
+import java.util.zip.{ZipEntry, ZipInputStream, ZipOutputStream}
+import javax.inject.Inject
 import scala.collection.mutable.ArrayBuffer
 import scala.compat.java8.FutureConverters._
 import scala.concurrent.ExecutionContext
@@ -38,8 +38,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Try
 
 @RestController
-class WorkflowController @Inject() (workflowService: WorkflowService, generalConfig: GeneralConfig) {
-  private val logger = LoggerFactory.getLogger(this.getClass)
+class WorkflowController @Inject() (workflowService: WorkflowService, generalConfig: GeneralConfig)
+    extends LazyLogging {
 
   val environment: String = generalConfig.environment
 

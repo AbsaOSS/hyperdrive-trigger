@@ -15,13 +15,13 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
+import com.typesafe.scalalogging.LazyLogging
 import org.apache.commons.configuration2.builder.BasicConfigurationBuilder
 import org.apache.commons.configuration2.builder.fluent.Parameters
 import org.apache.commons.configuration2.convert.DefaultListDelimiterHandler
 import org.apache.commons.configuration2.{BaseConfiguration, Configuration}
 import org.apache.hadoop.security.UserGroupInformation
 import org.apache.kafka.clients.consumer.ConsumerConfig
-import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.configuration.application.SparkConfig
@@ -47,8 +47,8 @@ class HyperdriveOffsetServiceImpl @Inject() (sparkConfig: SparkConfig,
                                              @Lazy checkpointService: CheckpointService,
                                              @Lazy userGroupInformationService: UserGroupInformationService,
                                              kafkaService: KafkaService
-) extends HyperdriveOffsetService {
-  private val logger = LoggerFactory.getLogger(this.getClass)
+) extends HyperdriveOffsetService
+    with LazyLogging {
   private val HyperdriveCheckpointKey = "writer.common.checkpoint.location"
   private val HyperdriveKafkaTopicKey = "reader.kafka.topic"
   private val HyperdriveKafkaBrokersKey = "reader.kafka.brokers"
