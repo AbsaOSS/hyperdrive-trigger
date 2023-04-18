@@ -249,12 +249,12 @@
           <clr-dg-row *ngFor="let job of ingestionStatus" [clrDgItem]="job">
             <clr-dg-cell>{{job.jobName}}</clr-dg-cell>
             <clr-dg-cell>{{job.jobType}}</clr-dg-cell>
-            <clr-dg-cell *ngIf="job?.topic">
-              <b>Topic:</b> {{job?.topic?.topic}} <br/>
-              <div *ngIf="job?.topic?.messagesToIngest >= 0"><b>Messages to ingest:</b> {{job?.topic?.messagesToIngest}}</div>
-              <b *ngIf="job?.topic?.messagesToIngest < 0" [style.color]="'red'">Offset inconsistency detected. Please contact support team!</b>
+            <clr-dg-cell *ngIf="job?.topicStatus">
+              <b>Topic:</b> {{job?.topicStatus?.topic}} <br/>
+              <div *ngIf="job?.topicStatus?.messagesToIngest >= 0"><b>Messages to ingest:</b> {{job?.topicStatus?.messagesToIngest}}</div>
+              <b *ngIf="job?.topicStatus?.messagesToIngest < 0" [style.color]="'red'">Offset inconsistency detected. Please contact support team!</b>
             </clr-dg-cell>
-            <clr-dg-cell *ngIf="!job?.topic">
+            <clr-dg-cell *ngIf="!job?.topicStatus">
               <b>Not available</b>
             </clr-dg-cell>
           </clr-dg-row>
