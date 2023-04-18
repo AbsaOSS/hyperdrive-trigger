@@ -130,17 +130,16 @@ class Executors @Inject() (
           }
         }
         fut.onComplete {
-          case Success(_) => logger.debug(s"Executing job. (JobId={})", jobInstance)
+          case Success(_) => logger.debug(s"Executing job. (JobInstance={})", jobInstance)
           case Failure(exception) =>
-            logger.error(s"Executing job failed. (JobId=$jobInstance).", exception)
+            logger.error(s"Executing job failed. (JobInstance=$jobInstance).", exception)
         }
         fut
     }
 
   private def updateJob(jobInstance: JobInstance): Future[Unit] = {
     logger.info(
-      "(JobId={}). Job updated. ID = {} STATUS = {} EXECUTOR_ID = {}",
-      jobInstance.id,
+      "Job updated. (JobInstance={}) STATUS = {} EXECUTOR_ID = {}",
       jobInstance.id,
       jobInstance.jobStatus,
       jobInstance.executorJobId
