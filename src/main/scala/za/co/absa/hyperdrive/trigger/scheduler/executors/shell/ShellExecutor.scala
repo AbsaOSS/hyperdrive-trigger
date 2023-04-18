@@ -15,7 +15,7 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.executors.shell
 
-import org.slf4j.LoggerFactory
+import com.typesafe.scalalogging.LazyLogging
 import za.co.absa.hyperdrive.trigger.models.{JobInstance, ShellInstanceParameters}
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses._
 
@@ -23,8 +23,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.sys.process._
 import scala.util.Try
 
-object ShellExecutor {
-  private val logger = LoggerFactory.getLogger(this.getClass)
+object ShellExecutor extends LazyLogging {
 
   def execute(jobInstance: JobInstance, jobParameters: ShellInstanceParameters, updateJob: JobInstance => Future[Unit])(
     implicit executionContext: ExecutionContext

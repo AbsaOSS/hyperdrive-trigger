@@ -15,6 +15,8 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.executors
 
+import com.typesafe.scalalogging.LazyLogging
+
 import java.time.LocalDateTime
 import java.util.concurrent
 import javax.inject.Inject
@@ -29,7 +31,6 @@ import za.co.absa.hyperdrive.trigger.scheduler.executors.spark.{
   SparkExecutor,
   SparkYarnClusterServiceImpl
 }
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.context.annotation.Lazy
 import za.co.absa.hyperdrive.trigger.scheduler.executors.shell.ShellExecutor
@@ -50,8 +51,7 @@ class Executors @Inject() (
   implicit val sparkConfig: SparkConfig,
   schedulerConfig: SchedulerConfig,
   @Lazy hyperdriveOffsetComparisonService: HyperdriveOffsetService
-) {
-  private val logger = LoggerFactory.getLogger(this.getClass)
+) extends LazyLogging {
   private implicit val executionContext: ExecutionContextExecutor =
     ExecutionContext.fromExecutor(concurrent.Executors.newFixedThreadPool(schedulerConfig.executors.threadPoolSize))
   private val sparkClusterService: SparkClusterService = {
@@ -79,8 +79,9 @@ class Executors @Inject() (
         } yield {}
         fut.onComplete {
           case Failure(exception) =>
-            logger.error(s"Updating status failed for failed run. Dag instance id = ${dagInstance.id}", exception)
+            logger.error(s"Updating status failed for failed run. (DagId=${dagInstance.id})", exception)
           case _ =>
+            logger.info("Updating status succeeded for failed run. (DagId={})", dagInstance.id)
         }
         fut
       case jobInstances
@@ -92,8 +93,9 @@ class Executors @Inject() (
         } yield {}
         fut.onComplete {
           case Failure(exception) =>
-            logger.error(s"Updating status failed for skipped run. Dag instance id = ${dagInstance.id}", exception)
+            logger.error(s"Updating status failed for skipped run. (DagId=${dagInstance.id})", exception)
           case _ =>
+            logger.info("Updating status succeeded for skipped run. (DagId={})", dagInstance.id)
         }
         fut
       case jobInstances if jobInstances.forall(ji => ji.jobStatus.isFinalStatus && !ji.jobStatus.isFailed) =>
@@ -105,8 +107,9 @@ class Executors @Inject() (
         } yield {}
         fut.onComplete {
           case Failure(exception) =>
-            logger.error(s"Updating status failed for successful run. Dag instance id = ${dagInstance.id}", exception)
+            logger.error(s"Updating status failed for successful run. (DagId=${dagInstance.id})", exception)
           case _ =>
+            logger.info("Updating status succeeded for successful run. (DagId={})", dagInstance.id)
         }
         fut
       case jobInstances =>
@@ -127,16 +130,19 @@ class Executors @Inject() (
           }
         }
         fut.onComplete {
-          case Success(_) => logger.debug(s"Executing job. Job instance = $jobInstance")
+          case Success(_) => logger.debug(s"Executing job. (JobInstance={})", jobInstance)
           case Failure(exception) =>
-            logger.error(s"Executing job failed. Job instance id = $jobInstance.", exception)
+            logger.error(s"Executing job failed. (JobInstance=$jobInstance).", exception)
         }
         fut
     }
 
   private def updateJob(jobInstance: JobInstance): Future[Unit] = {
     logger.info(
-      s"Job updated. ID = ${jobInstance.id} STATUS = ${jobInstance.jobStatus} EXECUTOR_ID = ${jobInstance.executorJobId}"
+      "Job updated. (JobInstance={}) STATUS = {} EXECUTOR_ID = {}",
+      jobInstance.id,
+      jobInstance.jobStatus,
+      jobInstance.executorJobId
     )
     jobInstanceRepository.updateJob(jobInstance)
   }

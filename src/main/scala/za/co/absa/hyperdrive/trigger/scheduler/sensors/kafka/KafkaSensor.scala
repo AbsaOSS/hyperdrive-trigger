@@ -15,9 +15,9 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.sensors.kafka
 
+import com.typesafe.scalalogging.LazyLogging
 import org.apache.kafka.clients.consumer.{ConsumerConfig, ConsumerRebalanceListener, ConsumerRecord, KafkaConsumer}
 import org.apache.kafka.common.TopicPartition
-import org.slf4j.LoggerFactory
 import play.api.libs.json.{JsError, JsSuccess, Json}
 import za.co.absa.hyperdrive.trigger.configuration.application.{GeneralConfig, KafkaConfig}
 import za.co.absa.hyperdrive.trigger.models.{Event, KafkaSensorProperties}
@@ -34,10 +34,8 @@ class KafkaSensor(
   eventsProcessor: (Seq[Event], Long) => Future[Boolean],
   sensorDefinition: SensorDefition[KafkaSensorProperties]
 )(implicit kafkaConfig: KafkaConfig, generalConfig: GeneralConfig, executionContext: ExecutionContext)
-    extends PollSensor[KafkaSensorProperties](eventsProcessor, sensorDefinition, executionContext) {
-
-  private val logger = LoggerFactory.getLogger(this.getClass)
-  private val logMsgPrefix = s"Sensor id = ${sensorDefinition.id}."
+    extends PollSensor[KafkaSensorProperties](eventsProcessor, sensorDefinition, executionContext)
+    with LazyLogging {
 
   private val consumer = {
     val consumerProperties = kafkaConfig.properties
@@ -64,27 +62,27 @@ class KafkaSensor(
       }
     )
   } catch {
-    case e: Exception => logger.error(s"$logMsgPrefix. Exception during subscribe.", e)
+    case e: Exception => logger.error(s"(SensorId=${sensorDefinition.id}). Exception during subscribe.", e)
   }
 
   override def poll(): Future[Unit] = {
     import scala.collection.JavaConverters._
-    logger.debug(s"$logMsgPrefix. Polling new events.")
+    logger.debug("(SensorId={}). Polling new events.", sensorDefinition.id)
     val fut = Future {
       consumer.poll(Duration.ofMillis(kafkaConfig.pollDuration)).asScala
     } flatMap processRecords map (_ => consumer.commitSync())
 
     fut.onComplete {
-      case Success(_) => logger.debug(s"$logMsgPrefix. Polling successful")
+      case Success(_) => logger.debug("(SensorId={}). Polling successful", sensorDefinition.id)
       case Failure(exception) =>
-        logger.debug(s"$logMsgPrefix. Polling failed.", exception)
+        logger.warn(s"(SensorId=${sensorDefinition.id}). Polling failed.", exception)
     }
 
     fut
   }
 
   private def processRecords[A](records: Iterable[ConsumerRecord[A, String]]): Future[Unit] = {
-    logger.debug(s"$logMsgPrefix. Messages received = ${records.map(_.value())}")
+    logger.debug(s"(SensorId=${sensorDefinition.id}). Messages received = ${records.map(_.value())}")
     if (records.nonEmpty) {
       val events = records.map(recordToEvent).toSeq
       val matchedEvents = events.filter { event =>
@@ -106,7 +104,7 @@ class KafkaSensor(
   private def recordToEvent[A](record: ConsumerRecord[A, String]): Event = {
     val sourceEventId = sensorDefinition.id + "kafka" + record.topic() + record.partition() + record.offset()
     val payload = Try(Json.parse(record.value())).getOrElse {
-      logger.error(s"$logMsgPrefix. Invalid message.")
+      logger.error(s"(SensorId={}). Invalid message.", sensorDefinition.id)
       Json.parse(s"""{"errorMessage": "${record.value()}"}""")
     }
     Event(sourceEventId, sensorDefinition.id, payload)

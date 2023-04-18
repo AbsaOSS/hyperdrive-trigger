@@ -15,17 +15,17 @@
 
 package za.co.absa.hyperdrive.trigger.persistance
 
-import java.time.LocalDateTime
-import org.slf4j.LoggerFactory
+import com.typesafe.scalalogging.Logger
 import org.springframework.stereotype
+import za.co.absa.hyperdrive.trigger.models._
 import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses
 import za.co.absa.hyperdrive.trigger.models.enums.SchedulerInstanceStatuses.SchedulerInstanceStatus
 import za.co.absa.hyperdrive.trigger.models.errors.ApiErrorTypes.OptimisticLockingErrorType
 import za.co.absa.hyperdrive.trigger.models.errors.{ApiException, DatabaseError, GenericDatabaseError, ValidationError}
 import za.co.absa.hyperdrive.trigger.models.search.{TableSearchRequest, TableSearchResponse}
 import za.co.absa.hyperdrive.trigger.models.tables.tableExtensions.optimisticLocking.OptimisticLockingException
-import za.co.absa.hyperdrive.trigger.models.{ProjectInfo, _}
 
+import java.time.LocalDateTime
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
@@ -71,7 +71,7 @@ class WorkflowRepositoryImpl @Inject() (
 
   import api._
 
-  private val repositoryLogger = LoggerFactory.getLogger(this.getClass)
+  private val repositoryLogger = Logger(this.getClass)
 
   override def insertWorkflow(workflow: WorkflowJoined, user: String)(implicit ec: ExecutionContext): Future[Long] =
     db.run(

@@ -15,7 +15,7 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.health
 
-import org.slf4j.LoggerFactory
+import com.typesafe.scalalogging.Logger
 import org.springframework.boot.actuate.health.{Health, HealthIndicator}
 import org.springframework.stereotype.Component
 import za.co.absa.hyperdrive.trigger.configuration.application.HealthConfig
@@ -32,7 +32,7 @@ class DatabaseConnectionHealthIndicator @Inject() (val dbProvider: DatabaseProvi
     extends HealthIndicator
     with Repository {
   import api._
-  private val log = LoggerFactory.getLogger(this.getClass)
+  private val log = Logger(this.getClass)
   val dbConnection: Duration = Duration(healthConfig.databaseConnectionTimeoutMillis, TimeUnit.MILLISECONDS)
   override protected def health(): Health =
     Try {
