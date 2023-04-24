@@ -15,10 +15,11 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler
 
+import com.typesafe.scalalogging.LazyLogging
+
 import java.util.concurrent
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import za.co.absa.hyperdrive.trigger.configuration.application.SchedulerConfig
 import za.co.absa.hyperdrive.trigger.persistance._
@@ -27,7 +28,7 @@ import za.co.absa.hyperdrive.trigger.scheduler.executors.Executors
 import za.co.absa.hyperdrive.trigger.scheduler.notifications.NotificationSender
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.Sensors
 
-import scala.collection.mutable
+import scala.collection.concurrent.{Map => ConcurrentMap, TrieMap}
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success}
 
@@ -39,11 +40,9 @@ class JobScheduler @Inject() (
   workflowBalancer: WorkflowBalancer,
   notificationSender: NotificationSender,
   schedulerConfig: SchedulerConfig
-) {
+) extends LazyLogging {
 
   case class RunningDagsKey(dagId: Long, workflowId: Long)
-
-  private val logger = LoggerFactory.getLogger(this.getClass)
 
   private val HEART_BEAT: Int = schedulerConfig.heartBeat
   val NUM_OF_PAR_TASKS: Int = schedulerConfig.maxParallelJobs
@@ -57,7 +56,7 @@ class JobScheduler @Inject() (
   private var runningEnqueue = Future.successful((): Unit)
   private var runningAssignWorkflows = Future.successful((): Unit)
   private var runningSendingNotifications = Future.successful((): Unit)
-  private val runningDags = mutable.Map.empty[RunningDagsKey, Future[Unit]]
+  private val runningDags: ConcurrentMap[RunningDagsKey, Future[Unit]] = TrieMap.empty
 
   def startManager(): Unit = {
     logger.info("Starting Manager")
@@ -119,17 +118,22 @@ class JobScheduler @Inject() (
       .getDagsToRun(runningDags.keys.map(_.workflowId).toSeq.distinct, emptySlotsSize, assignedWorkflowIds)
       .map {
         _.foreach { dag =>
-          logger.debug(s"Deploying dag = ${dag.id}")
+          logger.debug("Deploying dag (DagId={})", dag.id)
           runningDags.put(RunningDagsKey(dag.id, dag.workflowId), executors.executeDag(dag))
         }
       }
 
   private def removeFinishedDags(): Unit =
     if (runningEnqueue.isCompleted) {
-      runningDags.foreach {
-        case (id, fut) if fut.isCompleted => runningDags.remove(id)
-        case _                            => ()
-      }
+      val finishedDags = runningDags.flatMap {
+        case (key, dagCompletion) if dagCompletion.isCompleted => Some(key)
+        case _                                                 => None
+      }.toSeq
+      logger.debug(
+        "Removing finished DAGs for workflows {}",
+        finishedDags.map(k => s"(DagId=${k.dagId}, WorkflowId=${k.workflowId})")
+      )
+      runningDags --= finishedDags
     }
 
   private def processEvents(assignedWorkflowIds: Seq[Long]): Unit =

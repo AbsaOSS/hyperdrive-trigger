@@ -15,7 +15,7 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.executors.spark
 
-import org.slf4j.LoggerFactory
+import com.typesafe.scalalogging.LazyLogging
 import za.co.absa.hyperdrive.trigger.api.rest.services.HyperdriveOffsetService
 import za.co.absa.hyperdrive.trigger.configuration.application.SparkConfig
 import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses
@@ -23,8 +23,7 @@ import za.co.absa.hyperdrive.trigger.models.{JobInstance, SparkInstanceParameter
 
 import scala.concurrent.{ExecutionContext, Future}
 
-object HyperdriveExecutor {
-  private val logger = LoggerFactory.getLogger(this.getClass)
+object HyperdriveExecutor extends LazyLogging {
 
   def execute(
     jobInstance: JobInstance,

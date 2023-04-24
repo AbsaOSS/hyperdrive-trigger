@@ -15,30 +15,29 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.sensors.time
 
-import java.util.Properties
+import com.typesafe.scalalogging.LazyLogging
 
+import java.util.Properties
 import org.quartz.impl.StdSchedulerFactory
 import org.quartz.{Scheduler, SchedulerException, SchedulerFactory}
-import org.slf4j.LoggerFactory
 import org.springframework.scheduling.SchedulingException
 
 /**
  *  Quartz Scheduler for Time Sensors.
  */
-object TimeSensorQuartzSchedulerManager {
-  private val logger = LoggerFactory.getLogger(this.getClass)
+object TimeSensorQuartzSchedulerManager extends LazyLogging {
   private val scheduler: Scheduler = initialize()
 
   def start(): Unit = {
-    logger.info(s"Starting Quartz Scheduler ${scheduler.getSchedulerName} now")
+    logger.info("Starting Quartz Scheduler {} now", scheduler.getSchedulerName)
     scheduler.start()
   }
 
   def stop(): Unit = {
-    logger.info(s"Stopping Quartz Scheduler ${scheduler.getSchedulerName} now")
+    logger.info(s"Stopping Quartz Scheduler {} now", scheduler.getSchedulerName)
     try {
       scheduler.standby()
-      logger.info(s"Stopped Quartz Scheduler ${scheduler.getSchedulerName}")
+      logger.info(s"Stopped Quartz Scheduler {}", scheduler.getSchedulerName)
     } catch {
       case ex: SchedulerException => throw new SchedulingException("Could not stop Quartz Scheduler", ex)
     }
@@ -47,6 +46,7 @@ object TimeSensorQuartzSchedulerManager {
   def getScheduler: Scheduler = scheduler
 
   private def initialize(): Scheduler = {
+    logger.info("Initializing scheduler")
     val schedulerFactory = initSchedulerFactory()
     createScheduler(schedulerFactory)
   }
