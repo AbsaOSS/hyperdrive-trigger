@@ -689,6 +689,7 @@
                         <exclude>ui/e2e/tsconfig.json</exclude>
                         <exclude>ui/src/proxy.conf.json</exclude>
                         <exclude>logs/**</exclude>
+                        <exclude>appid.json</exclude>
                     </excludes>
                     <licenses>
                         <license implementation="org.apache.rat.analysis.license.FullTextMatchingLicense">
