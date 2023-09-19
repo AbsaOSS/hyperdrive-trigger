@@ -97,6 +97,7 @@ class JobScheduler @Inject() (
         .recover { case e: SchedulerInstanceAlreadyDeactivatedException =>
           logger.warn("Restarting scheduler because the instance has been deactivated by other instance", e)
           cleanUp()
+          sensors.prepareSensors()
           throw e
         }
         .map(_.map(_.id))
