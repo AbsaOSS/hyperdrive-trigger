@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018 ABSA Group Limited
  *
@@ -17,7 +16,11 @@
 package za.co.absa.hyperdrive.trigger.api.rest
 
 import org.springframework.context.annotation.Configuration
-import org.springframework.web.servlet.config.annotation.{AsyncSupportConfigurer, ViewControllerRegistry, WebMvcConfigurer}
+import org.springframework.web.servlet.config.annotation.{
+  AsyncSupportConfigurer,
+  ViewControllerRegistry,
+  WebMvcConfigurer
+}
 
 @Configuration
 class WebMvcConfig extends WebMvcConfigurer {
