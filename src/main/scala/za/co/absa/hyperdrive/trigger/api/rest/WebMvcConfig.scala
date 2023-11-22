@@ -17,11 +17,17 @@
 package za.co.absa.hyperdrive.trigger.api.rest
 
 import org.springframework.context.annotation.Configuration
-import org.springframework.web.servlet.config.annotation.{ViewControllerRegistry, WebMvcConfigurer}
+import org.springframework.web.servlet.config.annotation.{AsyncSupportConfigurer, ViewControllerRegistry, WebMvcConfigurer}
 
 @Configuration
 class WebMvcConfig extends WebMvcConfigurer {
   override def addViewControllers(registry: ViewControllerRegistry): Unit = {
     registry.addViewController("/").setViewName("forward:/index.html")
+  }
+
+  override def configureAsyncSupport(configurer: AsyncSupportConfigurer): Unit = {
+    val timeout: Long = 3 * 60 * 1000
+    super.configureAsyncSupport(configurer)
+    configurer.setDefaultTimeout(timeout)
   }
 }
