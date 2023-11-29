@@ -44,7 +44,7 @@ class HdfsServiceImpl extends HdfsService with LazyLogging {
   override def exists(path: Path)(implicit ugi: UserGroupInformation): Try[Boolean] = {
     Try {
       doAs {
-        fs.exists(path)
+        fs(path).exists(path)
       }
     }
   }
@@ -52,7 +52,7 @@ class HdfsServiceImpl extends HdfsService with LazyLogging {
   override def open(path: Path)(implicit ugi: UserGroupInformation): Try[FSDataInputStream] = {
     Try {
       doAs {
-        fs.open(path)
+        fs(path).open(path)
       }
     }
   }
@@ -62,7 +62,7 @@ class HdfsServiceImpl extends HdfsService with LazyLogging {
   ): Try[Array[FileStatus]] = {
     Try {
       doAs {
-        fs.listStatus(path, filter)
+        fs(path).listStatus(path, filter)
       }
     }
   }
@@ -105,7 +105,7 @@ class HdfsServiceImpl extends HdfsService with LazyLogging {
   /**
    *  Must not be a lazy val, because different users should get different FileSystems. FileSystem is cached internally.
    */
-  private def fs = FileSystem.get(conf)
+  private def fs(path: Path) = path.getFileSystem(conf)
 
   private def doAs[T](fn: => T)(implicit ugi: UserGroupInformation) = {
     ugi.doAs(new PrivilegedExceptionAction[T] {
