@@ -113,7 +113,8 @@
         <hibernate.validator.version>6.2.0.Final</hibernate.validator.version>
         <aws.java.sdk.bom.version>1.12.29</aws.java.sdk.bom.version>
         <absa.commons.version>1.0.3</absa.commons.version>
-
+        <hadoop-aws.version>2.7.3.2.6.1.0-129</hadoop-aws.version>
+        <aws-java-sdk-bundle.version>1.11.375</aws-java-sdk-bundle.version>
         <!-- Deployment -->
         <gpg.plugin.version>1.6</gpg.plugin.version>
         <nexus.staging.plugin.version>1.6.8</nexus.staging.plugin.version>
@@ -144,6 +145,7 @@
     </dependencyManagement>
 
     <dependencies>
+
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
@@ -441,6 +443,16 @@
             <artifactId>commons_${scala.compat.version}</artifactId>
             <version>${absa.commons.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-aws</artifactId>
+            <version>${hadoop-aws.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-bundle</artifactId>
+            <version>${aws-java-sdk-bundle.version}</version>
         </dependency>
     </dependencies>
     <build>
