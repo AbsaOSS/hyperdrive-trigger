@@ -178,9 +178,9 @@ class NotificationSenderTest extends FlatSpec with MockitoSugar with Matchers wi
         |Notification rule ID: 1
         |
         |Causes:
-        |org.apache.spark.sql.streaming.StreamingQueryException: Job aborted.
-        |org.apache.spark.SparkException: Job aborted.
-        |java.lang.IllegalStateException: 29.compact doesn't exist when compacting batch 39
+        |- org.apache.spark.sql.streaming.StreamingQueryException: Job aborted.
+        |- org.apache.spark.SparkException: Job aborted.
+        |- java.lang.IllegalStateException: 29.compact doesn't exist when compacting batch 39
         |
         |Stack trace:
         |User class threw exception: za.co.absa.hyperdrive.shared.exceptions.IngestionException: PROBABLY FAILED INGESTION

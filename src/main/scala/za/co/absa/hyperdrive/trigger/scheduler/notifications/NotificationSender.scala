@@ -127,7 +127,10 @@ class NotificationSenderImpl(
 
     val diagnosticsOpt = failedJob.flatMap(_.diagnostics)
     val causes = diagnosticsOpt.map { diagnostics =>
-      causedByPattern.findAllMatchIn(diagnostics).map(_.group(1)).toSeq.reduce(_ + "\n" + _)
+      causedByPattern.findAllMatchIn(diagnostics).map(_.group(1))
+        .toSeq
+        .map("- " + _)
+        .reduce(_ + "\n" + _)
     }
       .map("Causes:\n" + _ + "\n\n")
       .getOrElse("")
