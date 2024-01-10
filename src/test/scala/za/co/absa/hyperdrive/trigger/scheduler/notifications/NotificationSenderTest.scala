@@ -141,8 +141,13 @@ class NotificationSenderTest extends FlatSpec with MockitoSugar with Matchers wi
 
     val diagnostics =
       """User class threw exception: za.co.absa.hyperdrive.shared.exceptions.IngestionException: PROBABLY FAILED INGESTION
-        |Caused by: org.apache.spark.sql.streaming.StreamingQueryException: batch 20256 doesn't exist
-        |=== Streaming Query ===""".stripMargin
+        |Caused by: org.apache.spark.sql.streaming.StreamingQueryException: Job aborted.
+        |=== Streaming Query ===
+        |Caused by: org.apache.spark.SparkException: Job aborted.
+        |at org.apache.spark.sql.execution.datasources.FileFormatWriter$.write(FileFormatWriter.scala:198)
+        |Caused by: java.lang.IllegalStateException: 29.compact doesn't exist when compacting batch 39
+        |at org.apache.spark.sql.execution.streaming.CompactibleFileStreamLog$$anonfun$4$$anonfun$apply$1.apply(CompactibleFileStreamLog.scala:174)
+        |""".stripMargin
     val ji =
       createJobInstance().copy(
         jobStatus = JobStatuses.Failed,
@@ -170,14 +175,21 @@ class NotificationSenderTest extends FlatSpec with MockitoSugar with Matchers wi
         |Finished: 2020-03-02T14:30:00
         |Status: Failed
         |Failed application: http://localhost:8088/cluster/app/application_1234_4567
-        |Caused by: org.apache.spark.sql.streaming.StreamingQueryException: batch 20256 doesn't exist
         |Notification rule ID: 1
         |
-        |Job diagnostics:
-        |User class threw exception: za.co.absa.hyperdrive.shared.exceptions.IngestionException: PROBABLY FAILED INGESTION
-        |Caused by: org.apache.spark.sql.streaming.StreamingQueryException: batch 20256 doesn't exist
-        |=== Streaming Query ===
+        |Causes:
+        |org.apache.spark.sql.streaming.StreamingQueryException: Job aborted.
+        |org.apache.spark.SparkException: Job aborted.
+        |java.lang.IllegalStateException: 29.compact doesn't exist when compacting batch 39
         |
+        |Stack trace:
+        |User class threw exception: za.co.absa.hyperdrive.shared.exceptions.IngestionException: PROBABLY FAILED INGESTION
+        |Caused by: org.apache.spark.sql.streaming.StreamingQueryException: Job aborted.
+        |=== Streaming Query ===
+        |Caused by: org.apache.spark.SparkException: Job aborted.
+        |at org.apache.spark.sql.execution.datasources.FileFormatWriter$.write(FileFormatWriter.scala:198)
+        |Caused by: java.lang.IllegalStateException: 29.compact doesn't exist when compacting batch 39
+        |at org.apache.spark.sql.execution.streaming.CompactibleFileStreamLog$$anonfun$4$$anonfun$apply$1.apply(CompactibleFileStreamLog.scala:174)
         |
         |
         |This message has been generated automatically. Please don't reply to it.

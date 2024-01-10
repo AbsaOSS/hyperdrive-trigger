@@ -122,23 +122,24 @@ class NotificationSenderImpl(
         val applicationUrl = s"${yarnBaseUrl.stripSuffix("/")}/cluster/app/$appId"
         messageMap += ("Failed application" -> applicationUrl)
       })
-    val diagnosticsOpt = failedJob.flatMap(_.diagnostics)
-    diagnosticsOpt.map { diagnostics =>
-      causedByPattern.findFirstMatchIn(diagnostics) match {
-        case Some(m) => messageMap += ("Caused by" -> m.group(1))
-        case None => // do nothing
-      }
-    }
+
     messageMap += ("Notification rule ID" -> notificationRule.id.toString)
 
-    val diagnosticsDetail = diagnosticsOpt.map { diagnostics =>
-      s"Job diagnostics:\n$diagnostics\n\n"
+    val diagnosticsOpt = failedJob.flatMap(_.diagnostics)
+    val causes = diagnosticsOpt.map { diagnostics =>
+      causedByPattern.findAllMatchIn(diagnostics).map(_.group(1)).toSeq.reduce(_ + "\n" + _)
+    }
+      .map("Causes:\n" + _ + "\n\n")
+      .getOrElse("")
+
+    val stackTrace = diagnosticsOpt.map { diagnostics =>
+      s"Stack trace:\n$diagnostics\n\n"
     }.getOrElse("")
 
     val message = messageMap.map { case (key, value) => s"$key: $value" }.reduce(_ + "\n" + _) +
       "\n\n" +
-      diagnosticsDetail +
-      "\n\n" +
+      causes +
+      stackTrace +
       footer
     Message(notificationRule.recipients, subject, message, 1)
   }
