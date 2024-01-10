@@ -15,35 +15,40 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
+import com.typesafe.scalalogging.LazyLogging
 import org.apache.commons.configuration2.builder.BasicConfigurationBuilder
 import org.apache.commons.configuration2.builder.fluent.Parameters
 import org.apache.commons.configuration2.convert.DefaultListDelimiterHandler
 import org.apache.commons.configuration2.{BaseConfiguration, Configuration}
 import org.apache.hadoop.security.UserGroupInformation
 import org.apache.kafka.clients.consumer.ConsumerConfig
-import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Service
 import za.co.absa.hyperdrive.trigger.configuration.application.SparkConfig
 import za.co.absa.hyperdrive.trigger.models.enums.JobTypes
-import za.co.absa.hyperdrive.trigger.models.{JobInstanceParameters, SparkInstanceParameters}
+import za.co.absa.hyperdrive.trigger.models.{BeginningEndOffsets, JobInstanceParameters, SparkInstanceParameters}
 
 import java.util.Properties
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success}
 
-trait HyperdriveOffsetComparisonService {
+trait HyperdriveOffsetService {
   def isNewJobInstanceRequired(jobParameters: JobInstanceParameters)(implicit ec: ExecutionContext): Future[Boolean]
+
+  def getNumberOfMessagesLeft(jobParameters: JobInstanceParameters)(
+    implicit ec: ExecutionContext
+  ): Future[Option[(String, Map[Int, Long])]]
 }
 
 @Service
 @Lazy
-class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
-                                                       @Lazy checkpointService: CheckpointService,
-                                                       @Lazy userGroupInformationService: UserGroupInformationService,
-                                                       kafkaService: KafkaService
-) extends HyperdriveOffsetComparisonService {
-  private val logger = LoggerFactory.getLogger(this.getClass)
+class HyperdriveOffsetServiceImpl @Inject() (sparkConfig: SparkConfig,
+                                             @Lazy checkpointService: CheckpointService,
+                                             @Lazy userGroupInformationService: UserGroupInformationService,
+                                             kafkaService: KafkaService
+) extends HyperdriveOffsetService
+    with LazyLogging {
   private val HyperdriveCheckpointKey = "writer.common.checkpoint.location"
   private val HyperdriveKafkaTopicKey = "reader.kafka.topic"
   private val HyperdriveKafkaBrokersKey = "reader.kafka.brokers"
@@ -51,6 +56,58 @@ class HyperdriveOffsetComparisonServiceImpl @Inject() (sparkConfig: SparkConfig,
   private val PropertyDelimiter = "="
   private val ListDelimiter = ','
   private val defaultDeserializer = "org.apache.kafka.common.serialization.StringDeserializer"
+
+  /**
+   *  @param jobParameters Parameters for the job instance. Should contain at least
+   *                      - reader.kafka.topic
+   *                      - reader.kafka.brokers
+   *                      - writer.common.checkpoint.location
+   *  @param ec            ExecutionContext
+   *  @return - number of not ingested messages for each topic and partition.
+   */
+  def getNumberOfMessagesLeft(
+    jobParameters: JobInstanceParameters
+  )(implicit ec: ExecutionContext): Future[Option[(String, Map[Int, Long])]] = {
+    val kafkaParametersOpt = getKafkaParameters(jobParameters)
+    val hdfsParametersOpt: Option[HdfsParameters] = getResolvedAppArguments(jobParameters).flatMap(getHdfsParameters)
+
+    if (kafkaParametersOpt.isEmpty) {
+      logger.debug(s"Kafka parameters were not found in job definition $jobParameters")
+    }
+
+    Future(
+      for {
+        kafkaParameters <- kafkaParametersOpt
+        hdfsParameters <- hdfsParametersOpt
+      } yield {
+        val kafkaOffsets = kafkaService.getBeginningEndOffsets(kafkaParameters._1, kafkaParameters._2)
+        kafkaOffsets match {
+          case BeginningEndOffsets(_, start, end) if start.nonEmpty && end.nonEmpty && start.keySet == end.keySet =>
+            val ugi = userGroupInformationService.loginUserFromKeytab(hdfsParameters.principal, hdfsParameters.keytab)
+            val hdfsOffsetsTry = checkpointService.getLatestCommittedOffset(hdfsParameters)(ugi).map(_.map(_.head._2))
+
+            hdfsOffsetsTry match {
+              case Failure(_) => None
+              case Success(hdfsOffsetsOption) =>
+                val messagesLeft = kafkaOffsets.beginningOffsets.map { case (partition, kafkaBeginningOffset) =>
+                  val kafkaEndOffset = kafkaOffsets.endOffsets(partition)
+                  val numberOfMessages = hdfsOffsetsOption.flatMap(_.get(partition)) match {
+                    case Some(hdfsOffset) if hdfsOffset > kafkaEndOffset        => kafkaEndOffset - hdfsOffset
+                    case Some(hdfsOffset) if hdfsOffset > kafkaBeginningOffset  => kafkaEndOffset - hdfsOffset
+                    case Some(hdfsOffset) if hdfsOffset <= kafkaBeginningOffset => kafkaEndOffset - kafkaBeginningOffset
+                    case None                                                   => kafkaEndOffset - kafkaBeginningOffset
+                  }
+                  partition -> numberOfMessages
+                }
+                Some((kafkaOffsets.topic, messagesLeft))
+            }
+          case _ =>
+            logger.warn(s"Inconsistent response from kafka for topic: ${kafkaOffsets.topic}")
+            None
+        }
+      }
+    ).map(_.flatten)
+  }
 
   /**
    *  @param jobParameters Parameters for the job instance. Should contain at least

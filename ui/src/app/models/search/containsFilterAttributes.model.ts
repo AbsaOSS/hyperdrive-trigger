@@ -16,5 +16,5 @@
 import { FilterAttributes } from './filterAttributes.model';
 
 export class ContainsFilterAttributes implements FilterAttributes {
-  constructor(public field: string, public value: string) {}
+  constructor(public field: string, public value: string, public isCaseSensitive: boolean) {}
 }

@@ -15,7 +15,7 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.sensors
 
-import org.slf4j.LoggerFactory
+import com.typesafe.scalalogging.LazyLogging
 import org.springframework.stereotype.Component
 import za.co.absa.hyperdrive.trigger.configuration.application.{
   GeneralConfig,
@@ -28,14 +28,14 @@ import za.co.absa.hyperdrive.trigger.models.{
   KafkaSensorProperties,
   RecurringSensorProperties,
   SensorProperties,
-  TimeSensorProperties
+  TimeSensorProperties,
+  Sensor => SensorDefition
 }
 import za.co.absa.hyperdrive.trigger.persistance.{DagInstanceRepository, SensorRepository}
 import za.co.absa.hyperdrive.trigger.scheduler.eventProcessor.EventProcessor
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.kafka.{AbsaKafkaSensor, KafkaSensor}
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.recurring.RecurringSensor
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.time.{TimeSensor, TimeSensorQuartzSchedulerManager}
-import za.co.absa.hyperdrive.trigger.models.{Sensor => SensorDefition}
 
 import java.util.concurrent.Executors
 import javax.inject.Inject
@@ -52,8 +52,7 @@ class Sensors @Inject() (
   implicit val generalConfig: GeneralConfig,
   schedulerConfig: SchedulerConfig,
   implicit val recurringSensorConfig: RecurringSensorConfig
-) {
-  private val logger = LoggerFactory.getLogger(this.getClass)
+) extends LazyLogging {
 
   private implicit val executionContext: ExecutionContextExecutor =
     ExecutionContext.fromExecutor(Executors.newFixedThreadPool(schedulerConfig.sensors.threadPoolSize))
@@ -62,7 +61,7 @@ class Sensors @Inject() (
     mutable.Map.empty[Long, Sensor[_ <: SensorProperties]]
 
   def processEvents(assignedWorkflowIds: Seq[Long]): Future[Unit] = {
-    logger.info(s"Processing events. Sensors: ${sensors.keys}")
+    logger.info(s"Processing events sensed by ${sensors.keys.map(id => s"SensorId=$id")}")
     removeReleasedSensors(assignedWorkflowIds)
     val fut = for {
       _ <- removeInactiveSensors()
@@ -75,7 +74,7 @@ class Sensors @Inject() (
 
     fut.onComplete {
       case Success(_)         => logger.info("Processing events successful")
-      case Failure(exception) => logger.debug("Processing events failed.", exception)
+      case Failure(exception) => logger.warn("Processing events failed.", exception)
     }
 
     fut
@@ -100,6 +99,7 @@ class Sensors @Inject() (
         sensors.values.map(sensor => (sensor.sensorDefinition.id, sensor.sensorDefinition.properties)).toSeq
       )
       .map(_.foreach { sensor =>
+        logger.trace("Restarting updated sensor (SensorId={}) for (WorkflowId={})", sensor.id, sensor.workflowId)
         stopSensor(sensor.id)
         startSensor(sensor)
       })
@@ -107,6 +107,11 @@ class Sensors @Inject() (
 
   private def removeReleasedSensors(assignedWorkflowIds: Seq[Long]): Unit = {
     val releasedWorkflowIds = sensors.values.map(_.sensorDefinition.workflowId).toSeq.diff(assignedWorkflowIds)
+    logger.trace(
+      "Removing released sensors {} when assigned {}",
+      releasedWorkflowIds.map(id => s"WorkflowId=$id"),
+      assignedWorkflowIds.map(id => s"WorkflowId=$id")
+    )
     sensors
       .filter { case (_, value) => releasedWorkflowIds.contains(value.sensorDefinition.workflowId) }
       .foreach { case (sensorId, _) => stopSensor(sensorId) }
@@ -114,10 +119,17 @@ class Sensors @Inject() (
 
   private def removeInactiveSensors(): Future[Unit] = {
     val activeSensors = sensors.keys.toSeq
-    sensorRepository.getInactiveSensors(activeSensors).map(_.foreach(id => stopSensor(id)))
+    logger.trace(s"Removing inactive sensors called with active sensors: ${activeSensors.map(id => s"SensorId=$id")}")
+    sensorRepository
+      .getInactiveSensors(activeSensors)
+      .map { inactive =>
+        logger.info("Removing inactive sensors {}", inactive.map(id => s"SensorId=$id"))
+        inactive.foreach(id => stopSensor(id))
+      }
   }
 
   private def stopSensor(id: Long) = {
+    logger.trace("Stopping sensor (SensorId={})", id)
     sensors.get(id).foreach(_.close())
     sensors.remove(id)
   }
@@ -129,7 +141,13 @@ class Sensors @Inject() (
     }
   }
 
-  private def startSensor(sensor: SensorDefition[_ <: SensorProperties]) =
+  private def startSensor(sensor: SensorDefition[_ <: SensorProperties]) = {
+    logger.debug(
+      "Starting sensor (SensorId={}) for (WorkflowId={}) with (SensorType={})",
+      sensor.id,
+      sensor.workflowId,
+      sensor.properties.sensorType.name
+    )
     sensor.properties match {
       case kafkaSensorProperties: KafkaSensorProperties =>
         Try(
@@ -138,8 +156,10 @@ class Sensors @Inject() (
             sensor.copy(properties = kafkaSensorProperties)
           )
         ) match {
-          case Success(s) => sensors.put(sensor.id, s)
-          case Failure(f) => logger.error(s"Could not create Kafka sensor for sensor (#${sensor.id}).", f)
+          case Success(s) =>
+            logger.info("Kafka sensor (SensorId={}) started for workflow (WorkflowId={})", sensor.id, sensor.workflowId)
+            sensors.put(sensor.id, s)
+          case Failure(f) => logger.error(s"Could not create Kafka sensor for sensor (SensorId=${sensor.id}).", f)
         }
       case absaKafkaSensorProperties: AbsaKafkaSensorProperties =>
         Try(
@@ -148,8 +168,14 @@ class Sensors @Inject() (
             sensor.copy(properties = absaKafkaSensorProperties)
           )
         ) match {
-          case Success(s) => sensors.put(sensor.id, s)
-          case Failure(f) => logger.error(s"Could not create Absa Kafka sensor for sensor (#${sensor.id}).", f)
+          case Success(s) =>
+            logger.info(
+              "Absa Kafka sensor (SensorId={}) started for workflow (WorkflowId={})",
+              sensor.id,
+              sensor.workflowId
+            )
+            sensors.put(sensor.id, s)
+          case Failure(f) => logger.error(s"Could not create Absa Kafka sensor for sensor (SensorId=${sensor.id}).", f)
         }
       case timeSensorProperties: TimeSensorProperties =>
         Try(
@@ -158,8 +184,10 @@ class Sensors @Inject() (
             sensor.copy(properties = timeSensorProperties)
           )
         ) match {
-          case Success(s) => sensors.put(sensor.id, s)
-          case Failure(f) => logger.error(s"Could not create Time sensor for sensor (#${sensor.id}).", f)
+          case Success(s) =>
+            logger.info("Time sensor (SensorId={}) started for workflow (WorkflowId={})", sensor.id, sensor.workflowId)
+            sensors.put(sensor.id, s)
+          case Failure(f) => logger.error(s"Could not create Time sensor for sensor (SensorId=${sensor.id}).", f)
         }
       case recurringSensorProperties: RecurringSensorProperties =>
         Try(
@@ -169,17 +197,30 @@ class Sensors @Inject() (
             dagInstanceRepository
           )
         ) match {
-          case Success(s) => sensors.put(sensor.id, s)
-          case Failure(f) => logger.error(s"Could not create Recurring sensor for sensor (#${sensor.id}).", f)
+          case Success(s) =>
+            logger.info(
+              "Recurring sensor (SensorId={}) started for workflow (WorkflowId={})",
+              sensor.id,
+              sensor.workflowId
+            )
+            sensors.put(sensor.id, s)
+          case Failure(f) => logger.error(s"Could not create Recurring sensor for sensor (SensorId=${sensor.id}).", f)
         }
       case _ =>
-        logger.error(s"Could not find sensor implementation (#${sensor.id}).", sensor.properties.sensorType)
+        logger.error(
+          "Could not find sensor implementation (SensorId={}) unknown (SensorType={})",
+          sensor.id,
+          sensor.properties.sensorType
+        )
     }
+  }
 
-  private def pollEvents(): Future[Seq[Unit]] =
+  private def pollEvents(): Future[Seq[Unit]] = {
+    logger.trace("Polling events events called")
     Future.sequence(sensors.flatMap {
       case (_, sensor: PollSensor[_]) => Option(sensor.poll())
       case _                          => None
     }.toSeq)
+  }
 
 }

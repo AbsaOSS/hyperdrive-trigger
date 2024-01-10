@@ -15,11 +15,11 @@
 
 package za.co.absa.hyperdrive.trigger.api.rest.services
 
+import com.typesafe.scalalogging.LazyLogging
 import org.apache.commons.io.IOUtils
 import org.apache.hadoop.fs._
 import org.apache.hadoop.security.UserGroupInformation
 import org.apache.spark.deploy.SparkHadoopUtil
-import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Service
 
@@ -39,13 +39,12 @@ trait HdfsService {
 
 @Lazy
 @Service
-class HdfsServiceImpl extends HdfsService {
-  private val logger = LoggerFactory.getLogger(this.getClass)
+class HdfsServiceImpl extends HdfsService with LazyLogging {
   private lazy val conf = SparkHadoopUtil.get.conf
   override def exists(path: Path)(implicit ugi: UserGroupInformation): Try[Boolean] = {
     Try {
       doAs {
-        fs.exists(path)
+        fs(path).exists(path)
       }
     }
   }
@@ -53,7 +52,7 @@ class HdfsServiceImpl extends HdfsService {
   override def open(path: Path)(implicit ugi: UserGroupInformation): Try[FSDataInputStream] = {
     Try {
       doAs {
-        fs.open(path)
+        fs(path).open(path)
       }
     }
   }
@@ -63,7 +62,7 @@ class HdfsServiceImpl extends HdfsService {
   ): Try[Array[FileStatus]] = {
     Try {
       doAs {
-        fs.listStatus(path, filter)
+        fs(path).listStatus(path, filter)
       }
     }
   }
@@ -106,7 +105,7 @@ class HdfsServiceImpl extends HdfsService {
   /**
    *  Must not be a lazy val, because different users should get different FileSystems. FileSystem is cached internally.
    */
-  private def fs = FileSystem.get(conf)
+  private def fs(path: Path) = path.getFileSystem(conf)
 
   private def doAs[T](fn: => T)(implicit ugi: UserGroupInformation) = {
     ugi.doAs(new PrivilegedExceptionAction[T] {

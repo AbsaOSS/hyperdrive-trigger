@@ -15,11 +15,10 @@
 
 package org.apache.spark.launcher
 
-import org.slf4j.LoggerFactory
+import com.typesafe.scalalogging.LazyLogging
 
-class NoBackendConnectionInProcessLauncher extends InProcessLauncher {
+class NoBackendConnectionInProcessLauncher extends InProcessLauncher with LazyLogging {
 
-  private val logger = LoggerFactory.getLogger(this.getClass)
   override def startApplication(listeners: SparkAppHandle.Listener*): SparkAppHandle = {
     import scala.collection.JavaConverters._
     if (builder.isClientMode(Map[String, String]().asJava)) {

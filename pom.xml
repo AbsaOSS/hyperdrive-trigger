@@ -17,7 +17,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <version>0.5.16-SNAPSHOT</version>
+    <version>0.5.20-SNAPSHOT</version>
 
     <parent>
         <groupId>za.co.absa</groupId>
@@ -63,6 +63,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
 
         <scala.compat.version>2.12</scala.compat.version>
         <spark.version>2.4.4</spark.version>
@@ -84,7 +86,9 @@
         <quartz.version>2.3.2</quartz.version>
         <log4j.version>2.17.1</log4j.version>
         <slf4j.log4j2.version>1.7.26</slf4j.log4j2.version>
+        <scala-logging.version>3.9.5</scala-logging.version>
         <spring.security.ldap.version>5.6.1</spring.security.ldap.version>
+        <spring.kerberos.version>1.0.1.RELEASE</spring.kerberos.version>
         <scalatest.version>3.0.5</scalatest.version>
         <h2database.version>2.1.210</h2database.version>
         <testcontainers.postgresql.version>1.15.3</testcontainers.postgresql.version>
@@ -109,7 +113,8 @@
         <hibernate.validator.version>6.2.0.Final</hibernate.validator.version>
         <aws.java.sdk.bom.version>1.12.29</aws.java.sdk.bom.version>
         <absa.commons.version>1.0.3</absa.commons.version>
-
+        <hadoop-aws.version>2.7.3.2.6.1.0-129</hadoop-aws.version>
+        <aws-java-sdk-bundle.version>1.11.375</aws-java-sdk-bundle.version>
         <!-- Deployment -->
         <gpg.plugin.version>1.6</gpg.plugin.version>
         <nexus.staging.plugin.version>1.6.8</nexus.staging.plugin.version>
@@ -140,6 +145,7 @@
     </dependencyManagement>
 
     <dependencies>
+
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
@@ -149,6 +155,29 @@
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-to-slf4j</artifactId>
             <version>${log4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.typesafe.scala-logging</groupId>
+            <artifactId>scala-logging_${scala.compat.version}</artifactId>
+            <version>${scala-logging.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.scalatestplus</groupId>
+                    <artifactId>mockito-3-4_2.12</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.scalatest</groupId>
+                    <artifactId>scalatest_2.12</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.scala-lang</groupId>
+                    <artifactId>scala-library</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.scala-lang</groupId>
+                    <artifactId>scala-reflect</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
@@ -341,6 +370,11 @@
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-sts</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.security.kerberos</groupId>
+            <artifactId>spring-security-kerberos-client</artifactId>
+            <version>${spring.kerberos.version}</version>
+        </dependency>
 
         <!-- For Liquibase yaml -->
         <dependency>
@@ -409,6 +443,16 @@
             <artifactId>commons_${scala.compat.version}</artifactId>
             <version>${absa.commons.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-aws</artifactId>
+            <version>${hadoop-aws.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-bundle</artifactId>
+            <version>${aws-java-sdk-bundle.version}</version>
         </dependency>
     </dependencies>
     <build>

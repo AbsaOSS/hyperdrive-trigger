@@ -15,6 +15,7 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.sensors.kafka
 
+import com.typesafe.scalalogging.LazyLogging
 import za.co.absa.hyperdrive.trigger.configuration.application.{GeneralConfig, KafkaConfig}
 import za.co.absa.hyperdrive.trigger.models.{AbsaKafkaSensorProperties, Event}
 import za.co.absa.hyperdrive.trigger.scheduler.sensors.PollSensor
@@ -26,7 +27,8 @@ class AbsaKafkaSensor(
   eventsProcessor: (Seq[Event], Long) => Future[Boolean],
   sensorDefinition: SensorDefition[AbsaKafkaSensorProperties]
 )(implicit kafkaConfig: KafkaConfig, generalConfig: GeneralConfig, executionContext: ExecutionContext)
-    extends PollSensor[AbsaKafkaSensorProperties](eventsProcessor, sensorDefinition, executionContext) {
+    extends PollSensor[AbsaKafkaSensorProperties](eventsProcessor, sensorDefinition, executionContext)
+    with LazyLogging {
 
   val kafkaSensor = new KafkaSensor(
     eventsProcessor,

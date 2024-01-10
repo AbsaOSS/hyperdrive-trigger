@@ -28,6 +28,7 @@ export class StringFilterComponent implements ClrDatagridFilterInterface<any>, A
   @Input() removeFiltersSubject: Subject<any>;
   @Input() property: string;
   @Input() value: string = undefined;
+  @Input() isCaseSensitive = true;
 
   //clarity interface
   changes = new Subject<any>();
@@ -61,7 +62,7 @@ export class StringFilterComponent implements ClrDatagridFilterInterface<any>, A
   }
 
   get state() {
-    return new ContainsFilterAttributes(this.property, this.value);
+    return new ContainsFilterAttributes(this.property, this.value, this.isCaseSensitive);
   }
 
   modelChanged(value: string) {
