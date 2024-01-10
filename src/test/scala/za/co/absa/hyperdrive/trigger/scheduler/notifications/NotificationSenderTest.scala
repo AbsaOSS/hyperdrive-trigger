@@ -131,6 +131,63 @@ class NotificationSenderTest extends FlatSpec with MockitoSugar with Matchers wi
     messagesCaptor.getValue should include(s"Failed application: $clusterBaseUrl/cluster/app/application_9876_4567")
   }
 
+  it should "print the error message if diagnostics are available" in {
+    // given
+    val di = createDagInstance().copy(
+      status = DagInstanceStatuses.Failed,
+      started = LocalDateTime.of(LocalDate.of(2020, 3, 2), LocalTime.of(12, 30)),
+      finished = Some(LocalDateTime.of(LocalDate.of(2020, 3, 2), LocalTime.of(14, 30)))
+    )
+
+    val diagnostics =
+      """User class threw exception: za.co.absa.hyperdrive.shared.exceptions.IngestionException: PROBABLY FAILED INGESTION
+        |Caused by: org.apache.spark.sql.streaming.StreamingQueryException: batch 20256 doesn't exist
+        |=== Streaming Query ===""".stripMargin
+    val ji =
+      createJobInstance().copy(
+        jobStatus = JobStatuses.Failed,
+        applicationId = Some("application_1234_4567"),
+        order = 1,
+        diagnostics = Some(diagnostics)
+      )
+
+    val nr1 = createNotificationRule().copy(id = 1, recipients = Seq("abc@def.com", "xyz@def.com"))
+    val w = createWorkflow()
+
+    when(notificationRuleService.getMatchingNotificationRules(eqTo(di.workflowId), eqTo(di.status))(any()))
+      .thenReturn(Future(Some(Seq(nr1), w)))
+
+    // when
+    await(underTest.createNotifications(di, Seq(ji)))
+    underTest.sendNotifications()
+
+    // then
+    val expectedMessage =
+      """Environment: TEST
+        |Project: project
+        |Workflow Name: workflow
+        |Started: 2020-03-02T12:30:00
+        |Finished: 2020-03-02T14:30:00
+        |Status: Failed
+        |Failed application: http://localhost:8088/cluster/app/application_1234_4567
+        |Caused by: org.apache.spark.sql.streaming.StreamingQueryException: batch 20256 doesn't exist
+        |Notification rule ID: 1
+        |
+        |Job diagnostics:
+        |User class threw exception: za.co.absa.hyperdrive.shared.exceptions.IngestionException: PROBABLY FAILED INGESTION
+        |Caused by: org.apache.spark.sql.streaming.StreamingQueryException: batch 20256 doesn't exist
+        |=== Streaming Query ===
+        |
+        |
+        |
+        |This message has been generated automatically. Please don't reply to it.
+        |
+        |HyperdriveDevTeam""".stripMargin
+    val messagesCaptor: ArgumentCaptor[String] = ArgumentCaptor.forClass(classOf[String])
+    verify(emailService).sendMessageToBccRecipients(any(), any(), any(), messagesCaptor.capture())
+    messagesCaptor.getValue shouldBe expectedMessage
+  }
+
   it should "retry sending the message at most maxRetries times" in {
     // given
     val maxRetries = 5

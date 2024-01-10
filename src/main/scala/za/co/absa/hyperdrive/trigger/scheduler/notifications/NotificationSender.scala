@@ -52,6 +52,7 @@ class NotificationSenderImpl(
   private val yarnBaseUrl = sparkConfig.hadoopResourceManagerUrlBase
   private val dateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
   private val messageQueue = new ConcurrentLinkedQueue[Message]
+  private val causedByPattern = """Caused by: (.*)\n""".r
 
   def createNotifications(dagInstance: DagInstance, jobInstances: Seq[JobInstance])(
     implicit ec: ExecutionContext
@@ -114,15 +115,31 @@ class NotificationSenderImpl(
       "Finished" -> dagInstance.finished.map(_.format(dateTimeFormatter)).getOrElse("Couldn't get finish time"),
       "Status" -> dagInstance.status.name
     )
-    jobInstances
+    val failedJob = jobInstances
       .sortBy(_.order)(Ordering.Int.reverse)
       .find(_.jobStatus.isFailed)
-      .map(_.applicationId.map { appId =>
+    failedJob.map(_.applicationId.map { appId =>
         val applicationUrl = s"${yarnBaseUrl.stripSuffix("/")}/cluster/app/$appId"
         messageMap += ("Failed application" -> applicationUrl)
       })
+    val diagnosticsOpt = failedJob.flatMap(_.diagnostics)
+    diagnosticsOpt.map { diagnostics =>
+      causedByPattern.findFirstMatchIn(diagnostics) match {
+        case Some(m) => messageMap += ("Caused by" -> m.group(1))
+        case None => // do nothing
+      }
+    }
     messageMap += ("Notification rule ID" -> notificationRule.id.toString)
-    val message = messageMap.map { case (key, value) => s"$key: $value" }.reduce(_ + "\n" + _) + "\n\n" + footer
+
+    val diagnosticsDetail = diagnosticsOpt.map { diagnostics =>
+      s"Job diagnostics:\n$diagnostics\n\n"
+    }.getOrElse("")
+
+    val message = messageMap.map { case (key, value) => s"$key: $value" }.reduce(_ + "\n" + _) +
+      "\n\n" +
+      diagnosticsDetail +
+      "\n\n" +
+      footer
     Message(notificationRule.recipients, subject, message, 1)
   }
 }
