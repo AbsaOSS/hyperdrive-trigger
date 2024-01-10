@@ -35,7 +35,7 @@ create table "job_instance" (
   "application_id" VARCHAR,
   "step_id" VARCHAR,
   "job_parameters" JSONB NOT NULL DEFAULT '{}',
-  "error_message" VARCHAR
+  "diagnostics" VARCHAR
 );
 
 create table "job_definition" (
@@ -150,7 +150,7 @@ create table archive_job_instance
     id               bigint primary key,
     application_id   varchar,
     step_id          varchar,
-    error_message    varchar,
+    diagnostics    varchar,
 );
 
 create table archive_event
@@ -319,8 +319,8 @@ BEGIN
     GET DIAGNOSTICS _cnt = ROW_COUNT;
     RAISE NOTICE 'Archived % dag instances from % to %', _cnt, i_min_id, i_max_id;
 
-    INSERT INTO archive_job_instance (job_name, job_status, executor_job_id, created, updated, "order", dag_instance_id, id, application_id, step_id, error_message)
-    SELECT ji.job_name, ji.job_status, ji.executor_job_id, ji.created, ji.updated, ji."order", ji.dag_instance_id, ji.id, ji.application_id, ji.step_id, ji.error_message
+    INSERT INTO archive_job_instance (job_name, job_status, executor_job_id, created, updated, "order", dag_instance_id, id, application_id, step_id, diagnostics)
+    SELECT ji.job_name, ji.job_status, ji.executor_job_id, ji.created, ji.updated, ji."order", ji.dag_instance_id, ji.id, ji.application_id, ji.step_id, ji.diagnostics
     FROM job_instance ji
     JOIN dag_instance_ids_to_archive diita ON ji.dag_instance_id = diita.id
     ON CONFLICT (id) DO NOTHING;

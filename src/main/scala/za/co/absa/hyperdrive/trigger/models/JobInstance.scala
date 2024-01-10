@@ -23,7 +23,7 @@ case class JobInstance(
   jobName: String,
   jobParameters: JobInstanceParameters,
   jobStatus: JobStatus,
-  errorMessage: Option[String],
+  diagnostics: Option[String],
   executorJobId: Option[String],
   applicationId: Option[String],
   stepId: Option[String],

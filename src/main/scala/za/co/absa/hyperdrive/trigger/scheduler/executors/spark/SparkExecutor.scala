@@ -73,7 +73,7 @@ object SparkExecutor {
     jobInstance: JobInstance,
     app: App
   ): JobInstance = {
-    val errorMessage = app.diagnostics match {
+    val diagnostics = app.diagnostics match {
       case "" => None
       case _  => Some(app.diagnostics)
     }
@@ -82,7 +82,7 @@ object SparkExecutor {
       jobStatus = getStatus(app.finalStatus),
       applicationId = Some(app.id),
       updated = Option(LocalDateTime.now()),
-      errorMessage = errorMessage
+      diagnostics = diagnostics
     )
   }
 
