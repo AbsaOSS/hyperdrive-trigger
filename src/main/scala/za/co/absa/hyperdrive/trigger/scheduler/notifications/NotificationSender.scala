@@ -119,25 +119,30 @@ class NotificationSenderImpl(
       .sortBy(_.order)(Ordering.Int.reverse)
       .find(_.jobStatus.isFailed)
     failedJob.map(_.applicationId.map { appId =>
-        val applicationUrl = s"${yarnBaseUrl.stripSuffix("/")}/cluster/app/$appId"
-        messageMap += ("Failed application" -> applicationUrl)
-      })
+      val applicationUrl = s"${yarnBaseUrl.stripSuffix("/")}/cluster/app/$appId"
+      messageMap += ("Failed application" -> applicationUrl)
+    })
 
     messageMap += ("Notification rule ID" -> notificationRule.id.toString)
 
     val diagnosticsOpt = failedJob.flatMap(_.diagnostics)
-    val causes = diagnosticsOpt.map { diagnostics =>
-      causedByPattern.findAllMatchIn(diagnostics).map(_.group(1))
-        .toSeq
-        .map("- " + _)
-        .reduce(_ + "\n" + _)
-    }
+    val causes = diagnosticsOpt
+      .map { diagnostics =>
+        causedByPattern
+          .findAllMatchIn(diagnostics)
+          .map(_.group(1))
+          .toSeq
+          .map("- " + _)
+          .reduce(_ + "\n" + _)
+      }
       .map("Causes:\n" + _ + "\n\n")
       .getOrElse("")
 
-    val stackTrace = diagnosticsOpt.map { diagnostics =>
-      s"Stack trace:\n$diagnostics\n\n"
-    }.getOrElse("")
+    val stackTrace = diagnosticsOpt
+      .map { diagnostics =>
+        s"Stack trace:\n$diagnostics\n\n"
+      }
+      .getOrElse("")
 
     val message = messageMap.map { case (key, value) => s"$key: $value" }.reduce(_ + "\n" + _) +
       "\n\n" +
