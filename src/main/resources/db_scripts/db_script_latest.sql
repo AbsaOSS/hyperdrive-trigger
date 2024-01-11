@@ -150,7 +150,7 @@ create table archive_job_instance
     id               bigint primary key,
     application_id   varchar,
     step_id          varchar,
-    diagnostics    varchar,
+    diagnostics      varchar
 );
 
 create table archive_event
