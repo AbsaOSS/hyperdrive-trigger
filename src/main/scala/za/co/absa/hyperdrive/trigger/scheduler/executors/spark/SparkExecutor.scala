@@ -54,7 +54,7 @@ object SparkExecutor {
         case None      => Seq.empty
       }) match {
         case Seq(first) =>
-          updateJob(jobInstance.copy(applicationId = Some(first.id), jobStatus = getStatus(first.finalStatus)))
+          updateJob(getUpdatedJobInstance(jobInstance, first))
         case _
             // It relies on the same value set for sparkYarnSink.submitTimeout in multi instance deployment
             if jobInstance.jobStatus == JobStatuses.Submitting && jobInstance.updated
@@ -68,6 +68,23 @@ object SparkExecutor {
 
   private def getStatusUrl(executorJobId: String)(implicit sparkConfig: SparkConfig): String =
     s"${sparkConfig.hadoopResourceManagerUrlBase}/ws/v1/cluster/apps?applicationTags=$executorJobId"
+
+  private def getUpdatedJobInstance(
+    jobInstance: JobInstance,
+    app: App
+  ): JobInstance = {
+    val diagnostics = app.diagnostics match {
+      case "" => None
+      case _  => Some(app.diagnostics)
+    }
+
+    jobInstance.copy(
+      jobStatus = getStatus(app.finalStatus),
+      applicationId = Some(app.id),
+      updated = Option(LocalDateTime.now()),
+      diagnostics = diagnostics
+    )
+  }
 
   private def getStatus(finalStatus: String): JobStatus =
     finalStatus match {
