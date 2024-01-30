@@ -363,3 +363,11 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+create table if not exists housekeepinglock
+(
+    locked     boolean not null,
+    started_at timestamp
+);
+
+insert into "housekeepinglock" ("locked", "started_at")
+values (false, null);
