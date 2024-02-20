@@ -1,0 +1,28 @@
+name: Build WAR File
+
+on:
+  push:
+    branches:
+      - fix/test
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up JDK
+      uses: actions/setup-java@v2
+      with:
+        java-version: '1.8'
+        
+    - name: Build WAR
+      run: mvn clean package
+      
+    - name: Upload WAR artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: my-app
+        path: target/my-app.war
