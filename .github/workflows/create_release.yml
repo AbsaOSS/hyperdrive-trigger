@@ -82,7 +82,7 @@ jobs:
       - name: Set next development version
         run: |
           # Assumes semantic versioning and increments the minor version. Adjust the awk command as needed for different versioning schemes.
-          NEXT_VERSION=$(echo ${VERSION} | awk -F. '{print $1"."$2+1".0-SNAPSHOT"}')
+          NEXT_VERSION=$(echo ${VERSION} | awk -F. '{print $1"."$2"."$3+1"-SNAPSHOT"}')
           mvn versions:set -DnewVersion=$NEXT_VERSION --no-transfer-progress
           mvn versions:commit
           git commit -am "Set project version to $NEXT_VERSION"
