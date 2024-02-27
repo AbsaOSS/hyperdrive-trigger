@@ -62,7 +62,7 @@ jobs:
           RELEASE_VERSION_WITHOUT_V=${RELEASE_VERSION#v}
           
           DEVELOPMENT_VERSION="${{ github.event.inputs.development-version }}" 
-          DEVELOPMENT_VERSION_WITHOUT_V=${RELEASE_VERSION#v}
+          DEVELOPMENT_VERSION_WITHOUT_V=${DEVELOPMENT_VERSION#v}
           
           echo "RELEASE_VERSION_WITHOUT_V=${RELEASE_VERSION_WITHOUT_V}" >> "${GITHUB_ENV}"
           echo "DEVELOPMENT_VERSION_WITHOUT_V=${DEVELOPMENT_VERSION_WITHOUT_V}" >> "${GITHUB_ENV}"
@@ -98,7 +98,7 @@ jobs:
       - name: Set next development version
         run: |
           # Assumes semantic versioning and increments the minor version. Adjust the awk command as needed for different versioning schemes.
-          NEXT_VERSION=$(echo ${DEVELOPMENT_VERSION_WITHOUT_V} | awk -F. '{print $1"."$2"."$3+1"-SNAPSHOT"}')
+          NEXT_VERSION=$(echo ${DEVELOPMENT_VERSION_WITHOUT_V} | awk -F. '{print $1"."$2"."$3"-SNAPSHOT"}')
           mvn versions:set -DnewVersion=$NEXT_VERSION --no-transfer-progress
           mvn versions:commit
           git commit -am "Set project version to $NEXT_VERSION"
