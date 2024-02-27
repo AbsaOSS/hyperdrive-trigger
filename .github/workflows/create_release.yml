@@ -52,6 +52,8 @@ jobs:
               core.setFailed('Development version does not match the required format "v[0-9]+.[0-9]+.[0-9]+". Valid example: v0.5.2');
               return;
             }
+          release-version: ${{ github.event.inputs.release-version }}
+          development-version: ${{ github.event.inputs.development-version }}
 
       - name: Define semantic version number
         id: semantic_version
