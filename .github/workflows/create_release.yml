@@ -19,11 +19,11 @@ on:
   workflow_dispatch:
     inputs:
       release-version:
-        description: "Define the release version"
+        description: "Define the release version (e.g., v0.5.2)"
         required: true
         default: ""
       development-version:
-        description: "Define the snapshot version"
+        description: "Define the snapshot version (e.g., v0.5.2)"
         required: true
         default: ""
 
