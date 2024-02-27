@@ -60,19 +60,22 @@ jobs:
         with:
           java-version: '1.8'
 
+      - name: Import GPG Key
+        uses: crazy-max/ghaction-import-gpg@v5.0.0
+        with:
+          gpg_private_key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
 
-      - name: Import GPG keys
-        run: |
-          git config --global user.email "jenkins.absa@gmail.com"
-          echo "${{ secrets.PGP_SECRET }}" | base64 --decode | gpg --batch --import --keyserver https://keyserver.ubuntu.com/
-          echo "${{ secrets.PGP_PASSPHRASE }}" | gpg --passphrase-fd 0 --batch --pinentry-mode loopback --import-ownertrust <<< .
 
+#
+#      - name: Import GPG keys
+#        run: |
+#          git config --global user.email "jenkins.absa@gmail.com"
+#          echo "${{ secrets.PGP_SECRET }}" | base64 --decode | gpg --batch --import --keyserver https://keyserver.ubuntu.com/
+#          echo "${{ secrets.PGP_PASSPHRASE }}" | gpg --passphrase-fd 0 --batch --pinentry-mode loopback --import-ownertrust <<< .
+#
       - name: Build and deploy artifact
-        run: mvn -B -e -DskipTests -Dmanual-release -Ddeploy -Dossrh clean deploy
+        run: mvn -B -e -DskipTests -Dmanual-release -Ddeploy -Dossrh clean deploy -s settings.xml -Dgpg.passphrase=${{ secrets.MAVEN_GPG_PASSPHRASE }}
         env:
-          MAVEN_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-          PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
-          PGP_SECRET: ${{ secrets.PGP_SECRET }}
-          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+          MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
