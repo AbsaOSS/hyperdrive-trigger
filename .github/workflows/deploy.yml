@@ -69,7 +69,7 @@ jobs:
 
       - name: Import GPG keys
         run: |
-          echo "${{ secrets.MAVEN_GPG_PASSPHRASE }}" | base64 --decode | gpg --batch --import --keyserver https://keyserver.ubuntu.com/
+          echo "${{ secrets.MAVEN_GPG_PRIVATE_KEY }}" | base64 --decode | gpg --batch --import --keyserver https://keyserver.ubuntu.com/
           echo "${{ secrets.MAVEN_GPG_PASSPHRASE }}" | gpg --passphrase-fd 0 --batch --pinentry-mode loopback --import-ownertrust <<< .
 
 
