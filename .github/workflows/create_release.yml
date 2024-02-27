@@ -120,7 +120,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const branch = `release/${RELEASE_VERSION_WITHOUT_V}`;
+            const branch = `release/${process.env.RELEASE_VERSION_WITHOUT_V}`;
             await github.rest.pulls.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
