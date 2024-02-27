@@ -70,4 +70,4 @@ jobs:
         env:
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
-        run: mvn -B -e -DskipTests -Dmanual-release -Ddeploy -Dossrh.username=${{ secrets.OSSRH_USERNAME }} -Dossrh.password=${{ secrets.OSSRH_TOKEN }} -Dossrh clean deploy -Dgpg.passphrase=${{ secrets.MAVEN_GPG_PASSPHRASE }}
+        run: mvn -B -e -DskipTests -Dmanual-release -Ddeploy -Dossrh clean deploy -Dossrh.username=${{ secrets.OSSRH_USERNAME }} -Dossrh.password=${{ secrets.OSSRH_TOKEN }} -Dgpg.passphrase=${{ secrets.MAVEN_GPG_PASSPHRASE }}
