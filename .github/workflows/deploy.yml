@@ -75,7 +75,7 @@ jobs:
 #          echo "${{ secrets.PGP_PASSPHRASE }}" | gpg --passphrase-fd 0 --batch --pinentry-mode loopback --import-ownertrust <<< .
 #
       - name: Build and deploy artifact
-        run: mvn -B -e -DskipTests -Dmanual-release -Ddeploy -Dossrh clean deploy -Dgpg.passphrase=${{ secrets.MAVEN_GPG_PASSPHRASE }}
         env:
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+        run: mvn -B -e -DskipTests -Dmanual-release -Ddeploy -Dossrh clean deploy -Dgpg.passphrase=${{ secrets.MAVEN_GPG_PASSPHRASE }}
