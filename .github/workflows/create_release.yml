@@ -64,7 +64,7 @@ jobs:
           
           DEVELOPMENT_VERSION="${{ github.event.inputs.development-version }}" 
           DEVELOPMENT_VERSION_WITHOUT_V=${RELEASE_VERSION#v}
-          echo "VERSION=${RELEASE_VERSION}" >> "${GITHUB_ENV}"
+          echo "RELEASE_VERSION_WITHOUT_V=${RELEASE_VERSION_WITHOUT_V}" >> "${GITHUB_ENV}"
 
       - name: Configure Git
         run: |
