@@ -13,23 +13,11 @@
  * limitations under the License.
  */
 
-package za.co.absa.hyperdrive.trigger.models
+create table if not exists housekeepinglock
+(
+    locked     boolean not null,
+    started_at timestamp
+);
 
-import java.time.LocalDateTime
-
-import za.co.absa.hyperdrive.trigger.models.enums.JobStatuses.JobStatus
-
-case class JobInstance(
-  jobName: String,
-  jobParameters: JobInstanceParameters,
-  jobStatus: JobStatus,
-  diagnostics: Option[String] = None,
-  executorJobId: Option[String],
-  applicationId: Option[String],
-  stepId: Option[String],
-  created: LocalDateTime,
-  updated: Option[LocalDateTime],
-  order: Int,
-  dagInstanceId: Long,
-  id: Long = 0
-)
+insert into "housekeepinglock" ("locked", "started_at")
+values (false, null);

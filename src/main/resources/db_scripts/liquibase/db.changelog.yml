@@ -95,3 +95,9 @@ databaseChangeLog:
   - include:
       relativeToChangelogFile: true
       file: v0.5.14.remove-deprecated-columns.yml
+  - include:
+      relativeToChangelogFile: true
+      file: v0.5.20.add-diagnostics-field.yml
+  - include:
+      relativeToChangelogFile: true
+      file: v0.5.20.add-housekeeping-lock-table.yml
