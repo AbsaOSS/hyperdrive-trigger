@@ -52,6 +52,7 @@ class NotificationSenderImpl(
   private val yarnBaseUrl = sparkConfig.hadoopResourceManagerUrlBase
   private val dateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
   private val messageQueue = new ConcurrentLinkedQueue[Message]
+  private val causedByPattern = """Caused by: (.*)\n""".r
 
   def createNotifications(dagInstance: DagInstance, jobInstances: Seq[JobInstance])(
     implicit ec: ExecutionContext
@@ -114,15 +115,40 @@ class NotificationSenderImpl(
       "Finished" -> dagInstance.finished.map(_.format(dateTimeFormatter)).getOrElse("Couldn't get finish time"),
       "Status" -> dagInstance.status.name
     )
-    jobInstances
+    val failedJob = jobInstances
       .sortBy(_.order)(Ordering.Int.reverse)
       .find(_.jobStatus.isFailed)
-      .map(_.applicationId.map { appId =>
-        val applicationUrl = s"${yarnBaseUrl.stripSuffix("/")}/cluster/app/$appId"
-        messageMap += ("Failed application" -> applicationUrl)
-      })
+    failedJob.map(_.applicationId.map { appId =>
+      val applicationUrl = s"${yarnBaseUrl.stripSuffix("/")}/cluster/app/$appId"
+      messageMap += ("Failed application" -> applicationUrl)
+    })
+
     messageMap += ("Notification rule ID" -> notificationRule.id.toString)
-    val message = messageMap.map { case (key, value) => s"$key: $value" }.reduce(_ + "\n" + _) + "\n\n" + footer
+
+    val diagnosticsOpt = failedJob.flatMap(_.diagnostics)
+    val causes = diagnosticsOpt
+      .map { diagnostics =>
+        causedByPattern
+          .findAllMatchIn(diagnostics)
+          .map(_.group(1))
+          .toSeq
+          .map("- " + _)
+          .reduce(_ + "\n" + _)
+      }
+      .map("Causes:\n" + _ + "\n\n")
+      .getOrElse("")
+
+    val stackTrace = diagnosticsOpt
+      .map { diagnostics =>
+        s"Stack trace:\n$diagnostics\n\n"
+      }
+      .getOrElse("")
+
+    val message = messageMap.map { case (key, value) => s"$key: $value" }.reduce(_ + "\n" + _) +
+      "\n\n" +
+      causes +
+      stackTrace +
+      footer
     Message(notificationRule.recipients, subject, message, 1)
   }
 }
