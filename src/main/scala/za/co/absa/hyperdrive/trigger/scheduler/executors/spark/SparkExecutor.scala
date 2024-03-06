@@ -72,9 +72,10 @@ object SparkExecutor {
   private def getUpdatedJobInstance(
     jobInstance: JobInstance,
     app: App
-  ): JobInstance = {
+  )(implicit sparkConfig: SparkConfig): JobInstance = {
     val diagnostics = app.diagnostics match {
       case "" => None
+      case _ if !sparkConfig.saveDiagnostics => None
       case _  => Some(app.diagnostics)
     }
 
