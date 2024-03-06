@@ -62,7 +62,7 @@ else
   obtain_lock_time_response=$(psql -X $connection_url -c "SELECT started_at FROM housekeepinglock;" 2>&1)
 
   timestamp_string=$(echo "$obtain_lock_time_response" | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}')
-  timestamp_unix=$(date -jf "%Y-%m-%d %H:%M:%S" "$timestamp_string" +%s)
+  timestamp_unix=$(date -d "$timestamp_string" +%s)
   current_unix=$(date +%s)
   time_difference=$((current_unix - timestamp_unix))
   days_difference=$((time_difference / 86400))
