@@ -74,9 +74,9 @@ object SparkExecutor {
     app: App
   )(implicit sparkConfig: SparkConfig): JobInstance = {
     val diagnostics = app.diagnostics match {
-      case ""                                => None
-      case _ if !sparkConfig.saveDiagnostics => None
-      case _                                 => Some(app.diagnostics)
+      case ""                               => None
+      case _ if sparkConfig.saveDiagnostics => Some(app.diagnostics)
+      case _                                => None
     }
 
     jobInstance.copy(
