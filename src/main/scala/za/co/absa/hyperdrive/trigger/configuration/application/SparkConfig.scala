@@ -42,6 +42,9 @@ class SparkConfig(
   @DefaultValue(Array("Unknown"))
   @Name("sparkYarnSink.userUsedToKillJob")
   val userUsedToKillJob: String,
+  @DefaultValue(Array("false"))
+  @Name("sparkYarnSink.saveDiagnostics")
+  val saveDiagnostics: Boolean,
   @DefaultValue(Array("10"))
   @Name("spark.submit.thread.pool.size")
   val sparkSubmitThreadPoolSize: Int
