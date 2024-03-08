@@ -25,6 +25,7 @@ case class DefaultTestSparkConfig(
   filesToDeploy: Seq[String] = Seq(),
   additionalConfs: Map[String, String] = Map(),
   userUsedToKillJob: String = "Unknown",
+  saveDiagnostics: Boolean = false,
   sparkSubmitThreadPoolSize: Int = 10,
   clusterId: String = "j-2AXXXXXXGAPLF"
 ) {
@@ -35,6 +36,7 @@ case class DefaultTestSparkConfig(
       null,
       hadoopResourceManagerUrlBase,
       userUsedToKillJob,
+      saveDiagnostics,
       sparkSubmitThreadPoolSize
     )
 
@@ -45,6 +47,7 @@ case class DefaultTestSparkConfig(
       new SparkEmrSinkConfig(clusterId, filesToDeploy.mkString(","), toProperties(additionalConfs)),
       hadoopResourceManagerUrlBase,
       userUsedToKillJob,
+      saveDiagnostics,
       sparkSubmitThreadPoolSize
     )
 
