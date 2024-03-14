@@ -90,7 +90,7 @@
         <spring.security.ldap.version>5.6.1</spring.security.ldap.version>
         <spring.kerberos.version>1.0.1.RELEASE</spring.kerberos.version>
         <scalatest.version>3.0.5</scalatest.version>
-        <h2database.version>2.1.210</h2database.version>
+        <h2database.version>2.2.220</h2database.version>
         <testcontainers.postgresql.version>1.15.3</testcontainers.postgresql.version>
         <mockito.version>2.25.0</mockito.version>
         <cron-expression-descriptor.version>1.2</cron-expression-descriptor.version>
