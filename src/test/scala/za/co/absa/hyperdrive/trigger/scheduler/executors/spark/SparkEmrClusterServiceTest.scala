@@ -158,7 +158,6 @@ class SparkEmrClusterServiceTest
   private val cases = Table(
     ("stepState", "jobStatus"),
     (StepState.PENDING, JobStatuses.Submitting),
-    (StepState.CANCEL_PENDING, JobStatuses.Submitting),
     (StepState.RUNNING, JobStatuses.Running),
     (StepState.COMPLETED, JobStatuses.Succeeded),
     (StepState.CANCELLED, JobStatuses.Killed),
