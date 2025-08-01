@@ -29,7 +29,7 @@ module.exports = function (config) {
   config.set({
     colors: false,
     autoWatch: false,
-    browsers: ['ChromiumHeadless'],
+    browsers: [isCI ? 'CustomChromeHeadless' : 'ChromiumHeadless'],
     singleRun: true,
     restartOnFileChange: false,
     customLaunchers: {
