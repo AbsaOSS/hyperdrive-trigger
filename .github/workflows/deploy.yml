@@ -50,10 +50,10 @@ jobs:
           TAG_NAME="${{ github.event.inputs.tag-name }}"
           VERSION=${TAG_NAME#v}
           echo "VERSION=${VERSION}" >> "${GITHUB_ENV}"
-
-      - name: Checkout to tag
-        run: |
-          git checkout ${{ github.event.inputs.tag-name }}
+#
+#      - name: Checkout to tag
+#        run: |
+#          git checkout ${{ github.event.inputs.tag-name }}
 
       - name: Set up JDK
         uses: actions/setup-java@v4
