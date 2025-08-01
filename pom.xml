@@ -19,12 +19,13 @@
     <modelVersion>4.0.0</modelVersion>
     <version>0.5.23</version>
 
-    <parent>
-        <groupId>za.co.absa</groupId>
-        <artifactId>root-pom</artifactId>
-        <version>1.1.0</version>
-    </parent>
+<!--    <parent>-->
+<!--        <groupId>za.co.absa</groupId>-->
+<!--        <artifactId>root-pom</artifactId>-->
+<!--        <version>1.1.0</version>-->
+<!--    </parent>-->
 
+    <groupId>za.co.absa</groupId>
     <artifactId>hyperdrive-trigger</artifactId>
     <packaging>war</packaging>
 
@@ -33,10 +34,10 @@
     <url>https://github.com/AbsaOSS/hyperdrive-trigger</url>
 
     <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://central.sonatype.com/content/repositories/snapshots/</url>
-        </snapshotRepository>
+<!--        <snapshotRepository>-->
+<!--            <id>ossrh</id>-->
+<!--            <url>https://central.sonatype.com/content/repositories/snapshots/</url>-->
+<!--        </snapshotRepository>-->
         <repository>
             <id>ossrh</id>
             <url>https://central.sonatype.com/service/local/staging/deploy/maven2/</url>
