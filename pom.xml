@@ -625,7 +625,7 @@
                         <phase>test</phase>
                         <configuration>
                             <skipTests>${skipNpmTests}</skipTests>
-                            <arguments>run test:ci -- --no-sandbox</arguments>
+                            <arguments>run test:ci</arguments>
                         </configuration>
                     </execution>
                 </executions>
