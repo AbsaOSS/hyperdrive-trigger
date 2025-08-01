@@ -137,9 +137,12 @@
         <scalatest.tagsToExclude>za.co.absa.hyperdrive.trigger.testdata.PersistingData</scalatest.tagsToExclude>
         <skip.postgres.tests>true</skip.postgres.tests>
 
-        <scm.url><!-- defined outside the pom --></scm.url>
-        <scm.connection><!-- defined outside the pom --></scm.connection>
-        <scm.developerConnection><!-- defined outside the pom --></scm.developerConnection>
+        <scm>
+            <url>https://github.com/AbsaOSS/hyperdrive-trigger</url>
+            <connection>${scm.connection}</connection>
+            <developerConnection>${scm.developerConnection}</developerConnection>
+            <tag>HEAD</tag>
+        </scm>
     </properties>
     <dependencies>
 
