@@ -39,5 +39,4 @@ object FinalStatuses {
   case object Succeeded extends FinalStatus("SUCCEEDED")
   case object Failed extends FinalStatus("FAILED")
   case object Killed extends FinalStatus("KILLED")
-
 }
