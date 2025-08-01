@@ -167,11 +167,11 @@ class SparkEmrClusterServiceImpl @Inject() (
         JobStatuses.Lost
       case Success(value) =>
         value match {
-          case StepState.PENDING | StepState.CANCEL_PENDING => JobStatuses.Submitting
-          case StepState.RUNNING                            => JobStatuses.Running
-          case StepState.COMPLETED                          => JobStatuses.Succeeded
-          case StepState.CANCELLED                          => JobStatuses.Killed
-          case StepState.FAILED | StepState.INTERRUPTED     => JobStatuses.Failed
+          case StepState.PENDING                        => JobStatuses.Submitting
+          case StepState.RUNNING                        => JobStatuses.Running
+          case StepState.COMPLETED                      => JobStatuses.Succeeded
+          case StepState.CANCELLED                      => JobStatuses.Killed
+          case StepState.FAILED | StepState.INTERRUPTED => JobStatuses.Failed
         }
     }
 }

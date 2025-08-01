@@ -16,7 +16,7 @@
 
 package za.co.absa.hyperdrive.trigger.scheduler.executors.spark
 
-import com.amazonaws.services.elasticmapreduce.{AmazonElasticMapReduce, AmazonElasticMapReduceClientBuilder}
+import com.amazonaws.services.elasticmapreduce.{AmazonElasticMapReduce, AmazonElasticMapReduceClient}
 import org.springframework.stereotype.Service
 
 trait EmrClusterProviderService {
@@ -25,5 +25,5 @@ trait EmrClusterProviderService {
 
 @Service
 class EmrClusterProviderServiceImpl extends EmrClusterProviderService {
-  override def get(): AmazonElasticMapReduce = AmazonElasticMapReduceClientBuilder.standard().build()
+  override def get(): AmazonElasticMapReduce = new AmazonElasticMapReduceClient()
 }

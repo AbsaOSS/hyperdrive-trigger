@@ -21,14 +21,24 @@ const puppeteer = require('puppeteer');
 process.env.CHROMIUM_BIN = puppeteer.executablePath();
 console.log('Chromium bin path: ' + process.env.CHROMIUM_BIN);
 
+const isCI = !!process.env.GITHUB_ACTIONS;
+
 const baseConfig = require('./karma.conf.js');
 module.exports = function (config) {
   baseConfig(config);
   config.set({
     colors: false,
     autoWatch: false,
-    browsers: ['ChromiumHeadless'],
+    browsers: [isCI ? 'CustomChromeHeadless' : 'ChromiumHeadless'],
     singleRun: true,
-    restartOnFileChange: false
+    restartOnFileChange: false,
+    customLaunchers: {
+      CustomChromeHeadless: {
+        base: 'ChromeHeadless',
+        flags: [
+          ...(isCI ? ['--no-sandbox', '--disable-setuid-sandbox'] : [])
+        ]
+      }
+    }
   });
 };

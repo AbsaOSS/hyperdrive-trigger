@@ -70,6 +70,7 @@
         <spark.version>2.4.4</spark.version>
         <hadoop.version>2.7.3</hadoop.version>
         <hadoop.scope>provided</hadoop.scope>
+        <aws-java-sdk.version>1.10.6</aws-java-sdk.version>
         <slick.version>3.3.3</slick.version>
         <tminglei.version>0.19.6</tminglei.version>
         <slick-hikaricp.version>3.3.1</slick-hikaricp.version>
@@ -111,10 +112,7 @@
         <snakeyaml.version>1.33</snakeyaml.version>
         <commons-validator.version>1.7</commons-validator.version>
         <hibernate.validator.version>6.2.0.Final</hibernate.validator.version>
-        <aws.java.sdk.bom.version>1.12.29</aws.java.sdk.bom.version>
         <absa.commons.version>1.0.3</absa.commons.version>
-        <hadoop-aws.version>2.7.3.2.6.1.0-129</hadoop-aws.version>
-        <aws-java-sdk-bundle.version>1.11.375</aws-java-sdk-bundle.version>
         <!-- Deployment -->
         <gpg.plugin.version>1.6</gpg.plugin.version>
         <nexus.staging.plugin.version>1.6.8</nexus.staging.plugin.version>
@@ -131,19 +129,6 @@
         <scm.connection><!-- defined outside the pom --></scm.connection>
         <scm.developerConnection><!-- defined outside the pom --></scm.developerConnection>
     </properties>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>com.amazonaws</groupId>
-                <artifactId>aws-java-sdk-bom</artifactId>
-                <version>${aws.java.sdk.bom.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <dependencies>
 
         <dependency>
@@ -285,6 +270,12 @@
             </exclusions>
         </dependency>
         <!-- End Dependencies for Spark InProcessLauncher -->
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-aws</artifactId>
+            <version>${hadoop.version}</version>
+            <scope>${hadoop.scope}</scope>
+        </dependency>
 
         <dependency>
             <groupId>com.typesafe.play</groupId>
@@ -364,11 +355,23 @@
         </dependency>
         <dependency>
             <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-core</artifactId>
+            <version>${aws-java-sdk.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-emr</artifactId>
+            <version>${aws-java-sdk.version}</version>
         </dependency>
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-sts</artifactId>
+            <version>${aws-java-sdk.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-s3</artifactId>
+            <version>${aws-java-sdk.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.security.kerberos</groupId>
@@ -443,16 +446,6 @@
             <artifactId>commons_${scala.compat.version}</artifactId>
             <version>${absa.commons.version}</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-aws</artifactId>
-            <version>${hadoop-aws.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-bundle</artifactId>
-            <version>${aws-java-sdk-bundle.version}</version>
         </dependency>
     </dependencies>
     <build>
