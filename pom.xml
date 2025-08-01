@@ -44,7 +44,7 @@
     </distributionManagement>
 
     <scm>
-        <url>${scm.url}</url>
+        <url>https://github.com/AbsaOSS/hyperdrive-trigger</url>
         <connection>${scm.connection}</connection>
         <developerConnection>${scm.developerConnection}</developerConnection>
         <tag>HEAD</tag>
