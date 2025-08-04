@@ -781,11 +781,6 @@
                     <name>manual-release</name>
                 </property>
             </activation>
-<!--            <properties>-->
-<!--                <scm.connection>scm:git:git://github.com/AbsaOSS/hyperdrive-trigger.git</scm.connection>-->
-<!--                <scm.developerConnection>scm:git:ssh://github.com/AbsaOSS/hyperdrive-trigger.git</scm.developerConnection>-->
-<!--                <scm.url>https://github.com/AbsaOSS/hyperdrive-trigger/tree/master</scm.url>-->
-<!--            </properties>-->
             <build>
                 <plugins>
                     <plugin>
