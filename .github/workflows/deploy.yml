@@ -81,7 +81,4 @@ jobs:
           </settings>" > $HOME/.m2/settings.xml
 
       - name: Build and deploy artifact
-        env:
-          MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
         run: mvn -B -e -DskipTests -Dmanual-release -Ddeploy -Dossrh clean deploy -Dossrh.username=${{ secrets.OSSRH_USERNAME }} -Dossrh.password=${{ secrets.OSSRH_TOKEN }} -Dgpg.passphrase=${{ secrets.MAVEN_GPG_PASSPHRASE }}
