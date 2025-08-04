@@ -19,11 +19,11 @@
     <modelVersion>4.0.0</modelVersion>
     <version>0.5.23</version>
 
-<!--    <parent>-->
-<!--        <groupId>za.co.absa</groupId>-->
-<!--        <artifactId>root-pom</artifactId>-->
-<!--        <version>1.1.0</version>-->
-<!--    </parent>-->
+    <parent>
+        <groupId>za.co.absa</groupId>
+        <artifactId>root-pom</artifactId>
+        <version>1.1.0</version>
+    </parent>
 
     <groupId>za.co.absa</groupId>
     <artifactId>hyperdrive-trigger</artifactId>
@@ -33,21 +33,21 @@
     <description>Hyperdrive-Trigger is a scheduler and GUI for hyperdrive.</description>
     <url>https://github.com/AbsaOSS/hyperdrive-trigger</url>
 
-    <distributionManagement>
-<!--        <snapshotRepository>-->
+<!--    <distributionManagement>-->
+<!--&lt;!&ndash;        <snapshotRepository>&ndash;&gt;-->
+<!--&lt;!&ndash;            <id>ossrh</id>&ndash;&gt;-->
+<!--&lt;!&ndash;            <url>https://central.sonatype.com/content/repositories/snapshots/</url>&ndash;&gt;-->
+<!--&lt;!&ndash;        </snapshotRepository>&ndash;&gt;-->
+<!--        <repository>-->
 <!--            <id>ossrh</id>-->
-<!--            <url>https://central.sonatype.com/content/repositories/snapshots/</url>-->
-<!--        </snapshotRepository>-->
-        <repository>
-            <id>ossrh</id>
-            <url>https://central.sonatype.com/service/local/staging/deploy/maven2/</url>
-        </repository>
-    </distributionManagement>
+<!--            <url>https://central.sonatype.com/service/local/staging/deploy/maven2/</url>-->
+<!--        </repository>-->
+<!--    </distributionManagement>-->
 
     <scm>
         <url>https://github.com/AbsaOSS/hyperdrive-trigger</url>
-        <connection>${scm.connection}</connection>
-        <developerConnection>${scm.developerConnection}</developerConnection>
+        <connection>scm:git:git://github.com/AbsaOSS/hyperdrive-trigger.git</connection>
+        <developerConnection>scm:git:ssh://github.com/AbsaOSS/hyperdrive-trigger.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
 
@@ -137,12 +137,12 @@
         <scalatest.tagsToExclude>za.co.absa.hyperdrive.trigger.testdata.PersistingData</scalatest.tagsToExclude>
         <skip.postgres.tests>true</skip.postgres.tests>
 
-        <scm>
-            <url>https://github.com/AbsaOSS/hyperdrive-trigger</url>
-            <connection>${scm.connection}</connection>
-            <developerConnection>${scm.developerConnection}</developerConnection>
-            <tag>HEAD</tag>
-        </scm>
+<!--        <scm>-->
+<!--            <url>https://github.com/AbsaOSS/hyperdrive-trigger</url>-->
+<!--            <connection>${scm.connection}</connection>-->
+<!--            <developerConnection>${scm.developerConnection}</developerConnection>-->
+<!--            <tag>HEAD</tag>-->
+<!--        </scm>-->
     </properties>
     <dependencies>
 
@@ -808,11 +808,11 @@
                     <name>manual-release</name>
                 </property>
             </activation>
-            <properties>
-                <scm.connection>scm:git:git://github.com/AbsaOSS/hyperdrive-trigger.git</scm.connection>
-                <scm.developerConnection>scm:git:ssh://github.com/AbsaOSS/hyperdrive-trigger.git</scm.developerConnection>
-                <scm.url>https://github.com/AbsaOSS/hyperdrive-trigger/tree/master</scm.url>
-            </properties>
+<!--            <properties>-->
+<!--                <scm.connection>scm:git:git://github.com/AbsaOSS/hyperdrive-trigger.git</scm.connection>-->
+<!--                <scm.developerConnection>scm:git:ssh://github.com/AbsaOSS/hyperdrive-trigger.git</scm.developerConnection>-->
+<!--                <scm.url>https://github.com/AbsaOSS/hyperdrive-trigger/tree/master</scm.url>-->
+<!--            </properties>-->
             <build>
                 <plugins>
                     <plugin>
