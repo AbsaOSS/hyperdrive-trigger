@@ -22,21 +22,21 @@
     <parent>
         <groupId>za.co.absa</groupId>
         <artifactId>root-pom</artifactId>
-        <version>1.0.0</version>
+        <version>1.1.0</version>
     </parent>
 
+    <groupId>za.co.absa</groupId>
     <artifactId>hyperdrive-trigger</artifactId>
     <packaging>war</packaging>
-
     <name>hyperdrive-trigger</name>
     <description>Hyperdrive-Trigger is a scheduler and GUI for hyperdrive.</description>
     <url>https://github.com/AbsaOSS/hyperdrive-trigger</url>
 
     <scm>
-        <url>${scm.url}</url>
-        <connection>${scm.connection}</connection>
-        <developerConnection>${scm.developerConnection}</developerConnection>
-        <tag>HEAD</tag>
+        <connection>scm:git:git://github.com/AbsaOSS/hyperdrive-trigger.git</connection>
+        <developerConnection>scm:git:ssh://github.com/AbsaOSS/hyperdrive-trigger.git</developerConnection>
+        <url>https://github.com/AbsaOSS/hyperdrive-trigger</url>
+        <tag>${project.version}</tag>
     </scm>
 
     <developers>
@@ -124,10 +124,6 @@
         <scalatest.suites />
         <scalatest.tagsToExclude>za.co.absa.hyperdrive.trigger.testdata.PersistingData</scalatest.tagsToExclude>
         <skip.postgres.tests>true</skip.postgres.tests>
-
-        <scm.url><!-- defined outside the pom --></scm.url>
-        <scm.connection><!-- defined outside the pom --></scm.connection>
-        <scm.developerConnection><!-- defined outside the pom --></scm.developerConnection>
     </properties>
     <dependencies>
 
@@ -638,11 +634,12 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.sonatype.plugins</groupId>
-                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>0.8.0</version>
+                <extensions>true</extensions>
                 <configuration>
-                    <autoReleaseAfterClose>false</autoReleaseAfterClose>
-                    <stagingProgressTimeoutMinutes>15</stagingProgressTimeoutMinutes>
+                    <autoPublish>false</autoPublish>
                 </configuration>
             </plugin>
             <plugin>
@@ -783,11 +780,6 @@
                     <name>manual-release</name>
                 </property>
             </activation>
-            <properties>
-                <scm.connection>scm:git:git://github.com/AbsaOSS/hyperdrive-trigger.git</scm.connection>
-                <scm.developerConnection>scm:git:ssh://github.com/AbsaOSS/hyperdrive-trigger.git</scm.developerConnection>
-                <scm.url>https://github.com/AbsaOSS/hyperdrive-trigger/tree/master</scm.url>
-            </properties>
             <build>
                 <plugins>
                     <plugin>
