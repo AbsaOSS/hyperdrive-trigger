@@ -666,7 +666,6 @@
                 <version>0.8.0</version>
 <!--                <extensions>true</extensions>-->
                 <configuration>
-                    <publishingServerId>ossrh</publishingServerId>
                     <autoPublish>false</autoPublish>
                 </configuration>
             </plugin>
