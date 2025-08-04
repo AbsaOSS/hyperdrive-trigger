@@ -639,7 +639,6 @@
                 <artifactId>central-publishing-maven-plugin</artifactId>
                 <version>0.8.0</version>
                 <configuration>
-                    <publishingServerId>ossrh</publishingServerId>
                     <autoPublish>false</autoPublish>
                 </configuration>
             </plugin>
