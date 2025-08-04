@@ -36,7 +36,7 @@
         <connection>scm:git:git://github.com/AbsaOSS/hyperdrive-trigger.git</connection>
         <developerConnection>scm:git:ssh://github.com/AbsaOSS/hyperdrive-trigger.git</developerConnection>
         <url>https://github.com/AbsaOSS/hyperdrive-trigger</url>
-        <tag>${project.version}</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <developers>
@@ -637,7 +637,6 @@
                 <groupId>org.sonatype.central</groupId>
                 <artifactId>central-publishing-maven-plugin</artifactId>
                 <version>0.8.0</version>
-                <extensions>true</extensions>
                 <configuration>
                     <autoPublish>false</autoPublish>
                 </configuration>
