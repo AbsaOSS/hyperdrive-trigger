@@ -577,6 +577,7 @@
                 <version>${frontend.maven.plugin.version}</version>
                 <configuration>
                     <workingDirectory>ui</workingDirectory>
+                    <npmDownloadRoot>URL</npmDownloadRoot>
                 </configuration>
                 <executions>
                     <execution>
