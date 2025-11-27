@@ -577,6 +577,7 @@
                 <version>${frontend.maven.plugin.version}</version>
                 <configuration>
                     <workingDirectory>ui</workingDirectory>
+                    <npmDownloadRoot>https://artifacts.bcp.absa.co.za/artifactory/api/npm/npm-registry/npm/</npmDownloadRoot>
                 </configuration>
                 <executions>
                     <execution>
